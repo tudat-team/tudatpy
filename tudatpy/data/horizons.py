@@ -980,7 +980,7 @@ class HorizonsQuery:
             If time query has incorrect format or an incorrect reference system is chosen
         """
 
-        kwargs["quantities"] = 1  # this gets only RA + DEC
+        kwargs["quantities"] = 1 # this gets Only Ra and Dec
         raw = self.ephemerides(
             reference_system=reference_system,
             extra_precision=extra_precision,
@@ -997,6 +997,54 @@ class HorizonsQuery:
 
         return res
 
+    def interpolated_station_angles(
+            self,
+            degrees: bool = False,
+            reference_system: str = "J2000",
+            extra_precision: bool = True,
+            *args,
+            **kwargs,
+    ) -> np.ndarray:
+        """Retrieves interpolated Right Ascension and Declination from the Horizons ephemerides API.
+        Note that these values are not real observations but instead interpolated
+        values based on the Horizons ephemeris system.
+
+        Parameters
+        ----------
+        degrees : bool, optional
+            return values in degrees if True, radians if False, by default false
+        reference_system : str, optional
+            Coordinate reference system, value must be one of `ICRF`/`J2000` or B1950, by default "J2000"
+        extra_precision : bool, optional
+            Enables extra precision in Right Ascension and Declination values, by default False
+
+        Returns
+        -------
+        np.ndarray
+            Numpy array (N, 3) with time in seconds since J2000 TDB and the Right Ascension and Declination.
+
+        Raises
+        ------
+        ValueError
+            If time query has incorrect format or an incorrect reference system is chosen
+        """
+
+        kwargs["quantities"] = 4 # This gets azimuth and elevation
+        raw = self.ephemerides(
+            reference_system=reference_system,
+            extra_precision=extra_precision,
+            *args,
+            **kwargs,
+        )
+
+        res = raw.to_pandas().loc[:, ["epochJ2000secondsTDB", "AZ", "EL"]]
+
+        if not degrees:
+            res[["AZ", "EL"]] = res[["AZ", "EL"]].apply(np.radians)
+
+        res = res.to_numpy()
+
+        return res
 
 class HorizonsBatch:
     def __init__(
