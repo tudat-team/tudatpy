@@ -415,7 +415,6 @@ bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum paramete
         default:
             flag = false;
             break;
-
     }
     return flag;
 }

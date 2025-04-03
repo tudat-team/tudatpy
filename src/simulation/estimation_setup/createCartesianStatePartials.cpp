@@ -515,30 +515,32 @@ std::shared_ptr< RotationMatrixPartial > createRotationMatrixPartialsWrtParamete
             break;
         case estimatable_parameters::nominal_rotation_pole_position:
 
-            if( std::dynamic_pointer_cast< ephemerides::IauRotationModel >(
-                currentBody->getRotationalEphemeris() ) == nullptr ){
-                std::string errorMessage = "Warning, body's rotation model is not an IAU rotational model when making"
-                                           "position w.r.t. nominal pole position partial";
+            if( std::dynamic_pointer_cast< ephemerides::IauRotationModel >( currentBody->getRotationalEphemeris( ) ) == nullptr )
+            {
+                std::string errorMessage =
+                        "Warning, body's rotation model is not an IAU rotational model when making"
+                        "position w.r.t. nominal pole position partial";
                 throw std::runtime_error( errorMessage );
             }
 
             // Create rotation matrix partial object
             rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtNominalPolePosition >(
-                std::dynamic_pointer_cast< IauRotationModel >( currentBody->getRotationalEphemeris() ));
+                    std::dynamic_pointer_cast< IauRotationModel >( currentBody->getRotationalEphemeris( ) ) );
             break;
 
         case estimatable_parameters::rotation_pole_position_rate:
 
-            if( std::dynamic_pointer_cast< ephemerides::IauRotationModel >(
-                currentBody->getRotationalEphemeris() ) == nullptr ){
-                std::string errorMessage = "Warning, body's rotation model is not an IAU rotational model when making"
-                                           "position w.r.t. pole position rate partial";
+            if( std::dynamic_pointer_cast< ephemerides::IauRotationModel >( currentBody->getRotationalEphemeris( ) ) == nullptr )
+            {
+                std::string errorMessage =
+                        "Warning, body's rotation model is not an IAU rotational model when making"
+                        "position w.r.t. pole position rate partial";
                 throw std::runtime_error( errorMessage );
             }
 
             // Create rotation matrix partial object
             rotationMatrixPartial = std::make_shared< RotationMatrixPartialWrtPolePositionRate >(
-                std::dynamic_pointer_cast< IauRotationModel >( currentBody->getRotationalEphemeris() ));
+                    std::dynamic_pointer_cast< IauRotationModel >( currentBody->getRotationalEphemeris( ) ) );
             break;
         default:
             std::string errorMessage = "Warning, rotation matrix partial not implemented for parameter " +

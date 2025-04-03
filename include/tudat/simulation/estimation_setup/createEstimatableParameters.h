@@ -2271,48 +2271,46 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 }
                 break;
             }
-            case polar_motion_amplitude:
-            {
+            case polar_motion_amplitude: {
                 if( std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris( ) ) == nullptr )
                 {
                     std::string errorMessage = "Warning, no full planetary rotational ephemeris" + currentBodyName +
-                                               " when making polar motion amplitude parameter";
+                            " when making polar motion amplitude parameter";
                     throw std::runtime_error( errorMessage );
                 }
                 else
                 {
-                    vectorParameterToEstimate = std::make_shared< PolarMotionAmplitude >
-                        ( std::dynamic_pointer_cast< PlanetaryRotationModel > ( currentBody->getRotationalEphemeris( ) ), currentBodyName);
+                    vectorParameterToEstimate = std::make_shared< PolarMotionAmplitude >(
+                            std::dynamic_pointer_cast< PlanetaryRotationModel >( currentBody->getRotationalEphemeris( ) ),
+                            currentBodyName );
                 }
                 break;
             }
-            case nominal_rotation_pole_position:
-            {
+            case nominal_rotation_pole_position: {
                 if( std::dynamic_pointer_cast< IauRotationModel >( currentBody->getRotationalEphemeris( ) ) == nullptr )
                 {
-                    std::string errorMessage = "Warning, no iau rotational ephemeris" + currentBodyName +
-                                               " when making nominal rotation pole parameter";
+                    std::string errorMessage =
+                            "Warning, no iau rotational ephemeris" + currentBodyName + " when making nominal rotation pole parameter";
                     throw std::runtime_error( errorMessage );
                 }
                 else
                 {
-                    vectorParameterToEstimate = std::make_shared< NominalRotationPoleParameter >
-                        ( std::dynamic_pointer_cast< IauRotationModel > ( currentBody->getRotationalEphemeris( ) ), currentBodyName);
+                    vectorParameterToEstimate = std::make_shared< NominalRotationPoleParameter >(
+                            std::dynamic_pointer_cast< IauRotationModel >( currentBody->getRotationalEphemeris( ) ), currentBodyName );
                 }
                 break;
             }
-            case rotation_pole_position_rate:
-            {
+            case rotation_pole_position_rate: {
                 if( std::dynamic_pointer_cast< IauRotationModel >( currentBody->getRotationalEphemeris( ) ) == nullptr )
                 {
-                    std::string errorMessage = "Warning, no iau rotational ephemeris" + currentBodyName +
-                                               " when making rotation pole rate parameter";
+                    std::string errorMessage =
+                            "Warning, no iau rotational ephemeris" + currentBodyName + " when making rotation pole rate parameter";
                     throw std::runtime_error( errorMessage );
                 }
                 else
                 {
-                    vectorParameterToEstimate = std::make_shared< RotationPoleRateParameter >
-                        ( std::dynamic_pointer_cast< IauRotationModel > ( currentBody->getRotationalEphemeris( ) ), currentBodyName);
+                    vectorParameterToEstimate = std::make_shared< RotationPoleRateParameter >(
+                            std::dynamic_pointer_cast< IauRotationModel >( currentBody->getRotationalEphemeris( ) ), currentBodyName );
                 }
                 break;
             }

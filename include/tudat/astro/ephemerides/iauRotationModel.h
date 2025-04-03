@@ -28,58 +28,53 @@ namespace tudat
 namespace ephemerides
 {
 
-class IauRotationModel: public RotationalEphemeris
+class IauRotationModel : public RotationalEphemeris
 {
 public:
-    IauRotationModel(  const std::string& baseFrameOrientation,
-                       const std::string& targetFrameOrientation,
-                       const double nominalMeridian,
-                       const Eigen::Vector2d& nominalPole,
-                       const double rotationRate,
-                       const Eigen::Vector2d& polePrecession,
-                       const std::map< double, std::pair< double, double > >& meridianPeriodicTerms,
-                       const std::map< double, std::pair< Eigen::Vector2d, double > >& polePeriodicTerms ):
-        RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ),
-        nominalMeridian_( nominalMeridian ), nominalPole_( nominalPole ),
-        rotationRate_( rotationRate ), polePrecession_( polePrecession ),
-        meridianPeriodicTerms_( meridianPeriodicTerms ),
-        polePeriodicTerms_( polePeriodicTerms )
+    IauRotationModel( const std::string& baseFrameOrientation,
+                      const std::string& targetFrameOrientation,
+                      const double nominalMeridian,
+                      const Eigen::Vector2d& nominalPole,
+                      const double rotationRate,
+                      const Eigen::Vector2d& polePrecession,
+                      const std::map< double, std::pair< double, double > >& meridianPeriodicTerms,
+                      const std::map< double, std::pair< Eigen::Vector2d, double > >& polePeriodicTerms ):
+        RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ), nominalMeridian_( nominalMeridian ),
+        nominalPole_( nominalPole ), rotationRate_( rotationRate ), polePrecession_( polePrecession ),
+        meridianPeriodicTerms_( meridianPeriodicTerms ), polePeriodicTerms_( polePeriodicTerms )
 
     { }
 
-    Eigen::Quaterniond getRotationToBaseFrame(
-            const double secondsSinceEpoch )
+    Eigen::Quaterniond getRotationToBaseFrame( const double secondsSinceEpoch )
     {
         return getRotationToTargetFrame( secondsSinceEpoch ).inverse( );
     }
 
-    Eigen::Quaterniond getRotationToTargetFrame(
-            const double currentTime )
+    Eigen::Quaterniond getRotationToTargetFrame( const double currentTime )
     {
         updateRotationMatrices( currentTime );
-        return Eigen::Quaterniond(
-                    meridianRotationAboutZAxis_ * declinationRotationAboutXAxis_ * rightAscensionRotationAboutZAxis_ );
+        return Eigen::Quaterniond( meridianRotationAboutZAxis_ * declinationRotationAboutXAxis_ * rightAscensionRotationAboutZAxis_ );
     }
 
-    Eigen::Matrix3d getDerivativeOfRotationToTargetFrame(
-            const double secondsSinceEpoch )
+    Eigen::Matrix3d getDerivativeOfRotationToTargetFrame( const double secondsSinceEpoch )
     {
         using namespace reference_frames;
 
         updateRotationMatrices( secondsSinceEpoch );
         updateAngleDerivatives( secondsSinceEpoch );
 
-        return currentMeridianDerivative_ * getDerivativeOfZAxisRotationWrtAngle( meridianRotationAboutZAxis_ ) * declinationRotationAboutXAxis_ * rightAscensionRotationAboutZAxis_ -
-                currentPoleDerivative_( 1 ) * meridianRotationAboutZAxis_ * getDerivativeOfXAxisRotationWrtAngle( declinationRotationAboutXAxis_ ) * rightAscensionRotationAboutZAxis_ +
-                currentPoleDerivative_( 0 ) * meridianRotationAboutZAxis_ * declinationRotationAboutXAxis_ * getDerivativeOfZAxisRotationWrtAngle( rightAscensionRotationAboutZAxis_ );
+        return currentMeridianDerivative_ * getDerivativeOfZAxisRotationWrtAngle( meridianRotationAboutZAxis_ ) *
+                declinationRotationAboutXAxis_ * rightAscensionRotationAboutZAxis_ -
+                currentPoleDerivative_( 1 ) * meridianRotationAboutZAxis_ *
+                getDerivativeOfXAxisRotationWrtAngle( declinationRotationAboutXAxis_ ) * rightAscensionRotationAboutZAxis_ +
+                currentPoleDerivative_( 0 ) * meridianRotationAboutZAxis_ * declinationRotationAboutXAxis_ *
+                getDerivativeOfZAxisRotationWrtAngle( rightAscensionRotationAboutZAxis_ );
     }
 
-    Eigen::Matrix3d getDerivativeOfRotationToBaseFrame(
-            const double secondsSinceEpoch )
+    Eigen::Matrix3d getDerivativeOfRotationToBaseFrame( const double secondsSinceEpoch )
     {
         return getDerivativeOfRotationToTargetFrame( secondsSinceEpoch ).transpose( );
     }
-
 
     Eigen::Vector2d getNominalPole( )
     {
@@ -90,7 +85,6 @@ public:
     {
         nominalPole_ = nominalPole;
     }
-
 
     Eigen::Vector2d getPolePrecession( )
     {
@@ -122,22 +116,19 @@ public:
         if( currentTime == currentTime )
         {
             updateAngles( currentTime );
-            meridianRotationAboutZAxis_ =
-                    Eigen::AngleAxisd( -currentMeridian_,
-                                       Eigen::Vector3d::UnitZ( ) ).toRotationMatrix( );
+            meridianRotationAboutZAxis_ = Eigen::AngleAxisd( -currentMeridian_, Eigen::Vector3d::UnitZ( ) ).toRotationMatrix( );
 
             declinationRotationAboutXAxis_ =
-                    Eigen::AngleAxisd( -( mathematical_constants::PI / 2.0 - currentPolePosition_( 1 ) ),
-                                       Eigen::Vector3d::UnitX( ) ).toRotationMatrix( );
+                    Eigen::AngleAxisd( -( mathematical_constants::PI / 2.0 - currentPolePosition_( 1 ) ), Eigen::Vector3d::UnitX( ) )
+                            .toRotationMatrix( );
 
             rightAscensionRotationAboutZAxis_ =
-                    Eigen::AngleAxisd( -( currentPolePosition_( 0 ) + mathematical_constants::PI / 2.0 ),
-                                       Eigen::Vector3d::UnitZ( ) ).toRotationMatrix( );
+                    Eigen::AngleAxisd( -( currentPolePosition_( 0 ) + mathematical_constants::PI / 2.0 ), Eigen::Vector3d::UnitZ( ) )
+                            .toRotationMatrix( );
         }
     }
 
 private:
-
     void updateAngles( const double currentTime )
     {
         if( currentTime == currentTime )
@@ -145,25 +136,20 @@ private:
             currentMeridian_ = nominalMeridian_ + rotationRate_ * currentTime;
             currentPolePosition_ = nominalPole_ + polePrecession_ * currentTime;
 
-            for( auto it : meridianPeriodicTerms_ )
+            for( auto it: meridianPeriodicTerms_ )
             {
-                currentMeridian_ += it.second.first * std::sin(
-                            it.first * currentTime +
-                            it.second.second );
+                currentMeridian_ += it.second.first * std::sin( it.first * currentTime + it.second.second );
             }
 
-            for( auto it : polePeriodicTerms_ )
+            for( auto it: polePeriodicTerms_ )
             {
-                double currentAngle = it.first * currentTime +
-                        it.second.second;
+                double currentAngle = it.first * currentTime + it.second.second;
 
                 currentPolePosition_( 0 ) += it.second.first( 0 ) * std::sin( currentAngle );
                 currentPolePosition_( 1 ) += it.second.first( 1 ) * std::cos( currentAngle );
-
             }
         }
     }
-
 
     void updateAngleDerivatives( const double currentTime )
     {
@@ -172,25 +158,20 @@ private:
             currentMeridianDerivative_ = rotationRate_;
             currentPoleDerivative_ = polePrecession_;
 
-            for( auto it : meridianPeriodicTerms_ )
+            for( auto it: meridianPeriodicTerms_ )
             {
-                currentMeridianDerivative_ += it.second.first * it.first * std::cos(
-                            it.first * currentTime +
-                            it.second.second );
+                currentMeridianDerivative_ += it.second.first * it.first * std::cos( it.first * currentTime + it.second.second );
             }
 
-            for( auto it : polePeriodicTerms_ )
+            for( auto it: polePeriodicTerms_ )
             {
-                double currentAngle = it.first * currentTime +
-                        it.second.second;
+                double currentAngle = it.first * currentTime + it.second.second;
 
                 currentPoleDerivative_( 0 ) += it.first * it.second.first( 0 ) * std::cos( currentAngle );
                 currentPoleDerivative_( 1 ) -= it.first * it.second.first( 1 ) * std::sin( currentAngle );
-
             }
         }
     }
-
 
     double nominalMeridian_;
 
@@ -217,11 +198,10 @@ private:
     Eigen::Matrix3d declinationRotationAboutXAxis_;
 
     Eigen::Matrix3d rightAscensionRotationAboutZAxis_;
-
 };
 
-}
+}  // namespace ephemerides
 
-}
+}  // namespace tudat
 
-#endif // TUDAT_IAUROTATIONMODEL_H
+#endif  // TUDAT_IAUROTATIONMODEL_H
