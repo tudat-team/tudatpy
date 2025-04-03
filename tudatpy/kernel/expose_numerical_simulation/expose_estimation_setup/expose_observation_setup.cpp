@@ -212,6 +212,7 @@ Examples
             .value( "transmitter2", tom::LinkEndType::transmitter2 )
 
             .value( "observed_body", tom::LinkEndType::observed_body )
+            .value( "observer", tom::LinkEndType::observer )
             .export_values( );
 
     m.def( "one_way_downlink_link_ends",
@@ -695,6 +696,8 @@ Examples
             .value( "dsn_n_way_averaged_doppler", tom::ObservableType::dsn_n_way_averaged_doppler )
             .value( "doppler_measured_frequency_type", tom::ObservableType::doppler_measured_frequency )
             .value( "dsn_n_way_range", tom::ObservableType::dsn_n_way_range )
+            .value( "relative_position_observable_type", tom::ObservableType::relative_position_observable )
+
             .export_values( );
 
     py::class_< tom::DopplerProperTimeRateSettings, std::shared_ptr< tom::DopplerProperTimeRateSettings > >(
