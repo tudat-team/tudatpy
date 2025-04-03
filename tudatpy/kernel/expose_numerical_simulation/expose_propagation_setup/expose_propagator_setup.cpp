@@ -40,6 +40,12 @@ namespace propagation_setup
 namespace propagator
 {
 
+
+std::shared_ptr< tudat::propagators::MultiArcPropagatorProcessingSettings > multiArcProcessingSettings( )
+{
+    return std::make_shared< tudat::propagators::MultiArcPropagatorProcessingSettings >( );
+}
+
 void expose_propagator_setup( py::module &m )
 {
     py::class_< tp::PropagationPrintSettings, std::shared_ptr< tp::PropagationPrintSettings > >( m,
@@ -1152,11 +1158,14 @@ MultiTypePropagatorSettings
 
     )doc" );
 
+    m.def( "multi_arc_processing_settings",
+           &multiArcProcessingSettings );
+
     m.def( "multi_arc",
            &tp::multiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "single_arc_settings" ),
            py::arg( "transfer_state_to_next_arc" ) = false,
-           py::arg( "processing_settings" ) = std::make_shared< tp::MultiArcPropagatorProcessingSettings >( ),
+           py::arg( "processing_settings" ) = multiArcProcessingSettings( ),
            R"doc(
 
 Function to create multi-arc propagator settings.
