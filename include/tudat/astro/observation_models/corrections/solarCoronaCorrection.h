@@ -43,13 +43,10 @@ public:
      * @param transmittedFrequencyFunction Function calculating the frequency at the current link given a vector with
      *     the frequency bands in each link of the model and the transmission time.
      */
-    SolarCoronaCorrection(
-            const LightTimeCorrectionType lightTimeCorrectionType,
-            const ObservableType observableType,
-            const std::function< Eigen::Vector6d( double time ) > sunStateFunction,
-            const std::function< double( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction ):
-        LightTimeCorrection( lightTimeCorrectionType ), sunStateFunction_( sunStateFunction ),
-        transmittedFrequencyFunction_( transmittedFrequencyFunction )
+    SolarCoronaCorrection( const LightTimeCorrectionType lightTimeCorrectionType,
+                           const ObservableType observableType,
+                           const std::function< Eigen::Vector6d( double time ) > sunStateFunction ):
+        LightTimeCorrection( lightTimeCorrectionType ), sunStateFunction_( sunStateFunction )
     {
         // Sign according to Moyer (2000), section 10.4.2
         if( isRadiometricObservableType( observableType ) )
@@ -87,15 +84,6 @@ protected:
     double computeMinimumDistanceOfLineOfSight( Eigen::Vector3d transmitterPositionWrtSun, Eigen::Vector3d receiverPositionWrtSun );
 
     /*!
-     * Gets the frequency at the current leg using the ancillary settings.
-     * @param ancillarySettings Ancillary settings.
-     * @param transmissionTime Time at which the signal was transmitted.
-     * @return Frequency at current leg.
-     */
-    double getCurrentFrequency( const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings,
-                                const double transmissionTime );
-
-    /*!
      * Computes the electron density at a certain position and time.
      *
      * @param positionWrtSun Position where to compute the electron density.
@@ -126,9 +114,6 @@ protected:
     // Function returning the state of the Sun
     const std::function< Eigen::Vector6d( double time ) > sunStateFunction_;
 
-    // Frequency at the link as a function of the frequency bands per link, and of the current time
-    std::function< double( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction_;
-
 private:
 };
 
@@ -158,15 +143,14 @@ public:
     InversePowerSeriesSolarCoronaCorrection(
             const ObservableType observableType,
             const std::function< Eigen::Vector6d( double time ) > sunStateFunction,
-            const std::function< double( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction,
             const std::vector< double >& coefficients = { 1.31 * 5.97e6 * std::pow( physical_constants::ASTRONOMICAL_UNIT, 2.0 ) /
                                                           std::pow( 696e6, 2 ) },
             const std::vector< double >& positiveExponents = { 2.0 },
             const double criticalPlasmaDensityDelayCoefficient = 40.3,
             const double sunRadius = 696e6 ):
-        SolarCoronaCorrection( inverse_power_series_solar_corona, observableType, sunStateFunction, transmittedFrequencyFunction ),
-        coefficients_( coefficients ), positiveExponents_( positiveExponents ),
-        criticalPlasmaDensityDelayCoefficient_( criticalPlasmaDensityDelayCoefficient ), sunRadius_( sunRadius )
+        SolarCoronaCorrection( inverse_power_series_solar_corona, observableType, sunStateFunction ), coefficients_( coefficients ),
+        positiveExponents_( positiveExponents ), criticalPlasmaDensityDelayCoefficient_( criticalPlasmaDensityDelayCoefficient ),
+        sunRadius_( sunRadius )
     {
         if( coefficients.size( ) != positiveExponents.size( ) )
         {

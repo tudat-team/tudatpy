@@ -142,7 +142,10 @@ public:
             {
                 newNearestLowerIndex = previousNearestLowerIndex_;
             }
-
+            else if( valueToLookup < independentVariableValues_.at( 0 ) )
+            {
+                newNearestLowerIndex = 0;
+            }
             // Otherwise, perform hunting algorithm.
             else
             {
