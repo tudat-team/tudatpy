@@ -517,6 +517,21 @@ numpy.ndarray
 
         :type: dict[float, numpy.ndarray]
      )doc" )
+
+     .def_property_readonly( "dependent_variable_history_float",
+                              &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariableHistoryDouble,
+                              R"doc(
+
+        **read-only**
+
+        Dependent variables computed during the propagation as key-value pairs.
+        The vector of all dependent variables concatenated into a single vector as value, with the epoch as key.
+        They order of the concatenated dependent variables in a single value is provided by the ``dependent_variable_ids`` attribute of this object.
+
+
+        :type: dict[float, numpy.ndarray]
+     )doc" )
+
             .def_property_readonly( "cumulative_computation_time_history",
                                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::getCumulativeComputationTimeHistory,
                                     R"doc(
