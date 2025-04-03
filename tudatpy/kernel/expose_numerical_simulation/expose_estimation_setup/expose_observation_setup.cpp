@@ -208,10 +208,10 @@ Examples
             .value( "reflector3", tom::LinkEndType::reflector3 )
             .value( "reflector4", tom::LinkEndType::reflector4 )
             .value( "receiver", tom::LinkEndType::receiver )
-
             .value( "transmitter2", tom::LinkEndType::transmitter2 )
-
+            .value( "observer", tom::LinkEndType::observer )
             .value( "observed_body", tom::LinkEndType::observed_body )
+
             .export_values( );
 
     m.def( "one_way_downlink_link_ends",
@@ -686,6 +686,7 @@ Examples
             .value( "relative_angular_position_type", tom::ObservableType::angular_position )
             .value( "position_observable_type", tom::ObservableType::position_observable )
             .value( "velocity_observable_type", tom::ObservableType::velocity_observable )
+            .value( "relative_position_observable_type", tom::ObservableType::relative_position_observable )
             .value( "one_way_instantaneous_doppler_type", tom::ObservableType::one_way_doppler )
             .value( "one_way_averaged_doppler_type", tom::ObservableType::one_way_differenced_range )
             .value( "two_way_instantaneous_doppler_type", tom::ObservableType::two_way_doppler )
@@ -1393,11 +1394,11 @@ Returns
            py::arg( "bias_settings" ) = nullptr,
            R"doc(
 
-Function for creating settings for a Cartesian position observable.
+Function for creating settings for a relative Cartesian position observable.
 
-Function for creating observation model settings of Cartesian position type observables.
+Function for creating observation model settings of relative Cartesian position type observables.
 Note that this observable is typically not realized in reality, but can be very useful for verification or analysis purposes.
-This observable provides the inertial (w.r.t. global frame origin) Cartesian position of the `observed_body` defined by the `link_ends` input.
+This observable provides the inertial Cartesian position of the `observed_body`, w.r.t. the `observer` defined by the `link_ends` input.
 The observable has size 3, and contains the :math:`x`, :math:`y` and :math:`z` position
 
 
@@ -1405,7 +1406,7 @@ Parameters
 ----------
 link_ends : LinkDefinition
     Set of link ends that define the geometry of the observation. This observable requires that the
-    `observed_body`` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+    `observed_body` and `observer` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
 
 bias_settings : :class:`ObservationBiasSettings`, default = None
     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
@@ -1413,7 +1414,7 @@ bias_settings : :class:`ObservationBiasSettings`, default = None
 Returns
 -------
 :class:`ObservationSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the cartesian position observable.
+    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the relative Cartesian position observable.
 
 
 
