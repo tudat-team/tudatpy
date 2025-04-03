@@ -1141,6 +1141,21 @@ inline std::shared_ptr< RotationModelSettings > orbitalStateBasedRotationSetting
                                                                   freeRotationAngleFunction );
 }
 
+
+inline std::shared_ptr< IauRotationModelSettings > iauRotationModelSettings(
+    const std::string& baseFrameOrientation,
+                           const std::string& targetFrameOrientation,
+                           const double nominalMeridian,
+                           const Eigen::Vector2d& nominalPole,
+                           const double rotationRate,
+                           const Eigen::Vector2d& polePrecession,
+                           const std::map< double, std::pair< double, double > >& meridianPeriodicTerms,
+                           const std::map< double, std::pair< Eigen::Vector2d, double > >& polePeriodicTerms )
+{
+    return std::make_shared< IauRotationModelSettings >( baseFrameOrientation, targetFrameOrientation, nominalMeridian, nominalPole, rotationRate, polePrecession,
+                                                         meridianPeriodicTerms, polePeriodicTerms );
+}
+
 }  // namespace simulation_setup
 
 }  // namespace tudat
