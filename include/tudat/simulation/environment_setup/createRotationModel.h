@@ -885,22 +885,21 @@ private:
     std::string centralBody_;
 };
 
-class IauRotationModelSettings: public RotationModelSettings
+class IauRotationModelSettings : public RotationModelSettings
 {
 public:
-    IauRotationModelSettings(  const std::string& baseFrameOrientation,
-                               const std::string& targetFrameOrientation,
-                               const double nominalMeridian,
-                               const Eigen::Vector2d& nominalPole,
-                               const double rotationRate,
-                               const Eigen::Vector2d& polePrecession,
-                               const std::map< double, std::pair< double, double > >& meridianPeriodicTerms,
-                               const std::map< double, std::pair< Eigen::Vector2d, double > >& polePeriodicTerms ):
-        RotationModelSettings( iau_rotation_model, baseFrameOrientation, targetFrameOrientation ),
-        nominalMeridian_( nominalMeridian ), nominalPole_( nominalPole ),
-        rotationRate_( rotationRate ), polePrecession_( polePrecession ),
-        meridianPeriodicTerms_( meridianPeriodicTerms ),
-        polePeriodicTerms_( polePeriodicTerms ){ }
+    IauRotationModelSettings( const std::string& baseFrameOrientation,
+                              const std::string& targetFrameOrientation,
+                              const double nominalMeridian,
+                              const Eigen::Vector2d& nominalPole,
+                              const double rotationRate,
+                              const Eigen::Vector2d& polePrecession,
+                              const std::map< double, std::pair< double, double > >& meridianPeriodicTerms,
+                              const std::map< double, std::pair< Eigen::Vector2d, double > >& polePeriodicTerms ):
+        RotationModelSettings( iau_rotation_model, baseFrameOrientation, targetFrameOrientation ), nominalMeridian_( nominalMeridian ),
+        nominalPole_( nominalPole ), rotationRate_( rotationRate ), polePrecession_( polePrecession ),
+        meridianPeriodicTerms_( meridianPeriodicTerms ), polePeriodicTerms_( polePeriodicTerms )
+    { }
 
     double nominalMeridian_;
 
@@ -917,12 +916,9 @@ public:
     double currentMeridian_;
 
     Eigen::Vector2d currentPolePosition_;
-
 };
 
-
-
-//Function to create a state function for a body, valid both during propagation, and outside propagation
+// Function to create a state function for a body, valid both during propagation, and outside propagation
 /*
  * Function to create a state function for a body, valid both during propagation, and outside propagation
  * \param bodies List of body objects
