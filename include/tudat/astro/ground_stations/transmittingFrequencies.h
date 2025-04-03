@@ -291,8 +291,19 @@ public:
 
         ObservationScalarType integral = 0;
 
-        int startTimeLowestNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( quadratureStartTime );
-        int endTimeLowestNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( quadratureEndTime );
+        int startTimeLowestNearestNeighbour = - 1; startTimeLookupScheme_->findNearestLowerNeighbour( quadratureStartTime );
+        int endTimeLowestNearestNeighbour = -1; startTimeLookupScheme_->findNearestLowerNeighbour( quadratureEndTime );
+        try
+        {
+            startTimeLowestNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( quadratureStartTime );
+            endTimeLowestNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( quadratureEndTime );
+        }
+        catch( std::runtime_error& caughtException )
+        {
+            throw std::runtime_error( "Error when determining current ramp in frequency integral: " +
+                                      std::string( caughtException.what( ) ) + ", possibly the ground station does not have data"
+                                                                               "defined at the requested time." );
+        }
 
         if( startTimeLowestNearestNeighbour == endTimeLowestNearestNeighbour )
         {

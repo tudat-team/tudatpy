@@ -80,26 +80,29 @@ double LightTimeCorrection::calculateLightTimeCorrectionPartialDerivativeWrtLink
         const Eigen::Vector6d& receiverState,
         const double transmissionTime,
         const double receptionTime,
-        const LinkEndType linkEndAtWhichPartialIsEvaluated )
+        const LinkEndType linkEndAtWhichPartialIsEvaluated,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
 {
     double upPerturbedCorrection = 0.0, downPerturbedCorrection = 0.0;
     if( ( linkEndAtWhichPartialIsEvaluated == transmitter ) )
     {
         double upPerturbedTransmissionTime = transmissionTime + timePerturbation_;
-        upPerturbedCorrection = calculateLightTimeCorrection( transmitterState, receiverState, upPerturbedTransmissionTime, receptionTime );
+        upPerturbedCorrection = calculateLightTimeCorrection(
+                transmitterState, receiverState, upPerturbedTransmissionTime, receptionTime, ancillarySettings );
 
         double downPerturbedTransmissionTime = transmissionTime - timePerturbation_;
-        downPerturbedCorrection =
-                calculateLightTimeCorrection( transmitterState, receiverState, downPerturbedTransmissionTime, receptionTime );
+        downPerturbedCorrection = calculateLightTimeCorrection(
+                transmitterState, receiverState, downPerturbedTransmissionTime, receptionTime, ancillarySettings );
     }
     else if( ( linkEndAtWhichPartialIsEvaluated == receiver ) )
     {
         double upPerturbedReceptionTime = receptionTime + timePerturbation_;
-        upPerturbedCorrection = calculateLightTimeCorrection( transmitterState, receiverState, transmissionTime, upPerturbedReceptionTime );
+        upPerturbedCorrection = calculateLightTimeCorrection(
+                transmitterState, receiverState, transmissionTime, upPerturbedReceptionTime, ancillarySettings );
 
         double downPerturbedReceptionTime = receptionTime - timePerturbation_;
-        downPerturbedCorrection =
-                calculateLightTimeCorrection( transmitterState, receiverState, transmissionTime, downPerturbedReceptionTime );
+        downPerturbedCorrection = calculateLightTimeCorrection(
+                transmitterState, receiverState, transmissionTime, downPerturbedReceptionTime, ancillarySettings );
     }
 
     return ( upPerturbedCorrection - downPerturbedCorrection ) / ( 2.0 * timePerturbation_ );
@@ -121,7 +124,8 @@ Eigen::Matrix< double, 3, 1 > LightTimeCorrection::calculateLightTimeCorrectionP
         const Eigen::Vector6d& receiverState,
         const double transmissionTime,
         const double receptionTime,
-        const LinkEndType linkEndAtWhichPartialIsEvaluated )
+        const LinkEndType linkEndAtWhichPartialIsEvaluated,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
 {
     Eigen::Matrix< double, 3, 1 > positionPartial = Eigen::Matrix< double, 3, 1 >::Zero( );
 
@@ -137,21 +141,26 @@ Eigen::Matrix< double, 3, 1 > LightTimeCorrection::calculateLightTimeCorrectionP
         {
             perturbedState = receiverState;
             perturbedState( i ) += positionPerturbation;
-            upPerturbedCorrection = calculateLightTimeCorrection( transmitterState, perturbedState, transmissionTime, receptionTime );
+            upPerturbedCorrection =
+                    calculateLightTimeCorrection( transmitterState, perturbedState, transmissionTime, receptionTime, ancillarySettings );
 
             perturbedState = receiverState;
             perturbedState( i ) -= positionPerturbation;
-            downPerturbedCorrection = calculateLightTimeCorrection( transmitterState, perturbedState, transmissionTime, receptionTime );
+            downPerturbedCorrection =
+                    calculateLightTimeCorrection( transmitterState, perturbedState, transmissionTime, receptionTime, ancillarySettings );
         }
         else
         {
             perturbedState = transmitterState;
             perturbedState( i ) += positionPerturbation;
-            upPerturbedCorrection = calculateLightTimeCorrection( perturbedState, receiverState, transmissionTime, receptionTime );
+
+            upPerturbedCorrection =
+                    calculateLightTimeCorrection( perturbedState, receiverState, transmissionTime, receptionTime, ancillarySettings );
 
             perturbedState = transmitterState;
             perturbedState( i ) -= positionPerturbation;
-            downPerturbedCorrection = calculateLightTimeCorrection( perturbedState, receiverState, transmissionTime, receptionTime );
+            downPerturbedCorrection =
+                    calculateLightTimeCorrection( perturbedState, receiverState, transmissionTime, receptionTime, ancillarySettings );
         }
         positionPartial( i ) = ( upPerturbedCorrection - downPerturbedCorrection ) / ( 2.0 * positionPerturbation );
     }
