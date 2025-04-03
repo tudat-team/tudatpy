@@ -174,6 +174,12 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case mode_coupled_tidal_love_numbers:
             parameterDescription = " Mode-coupled tidal Love numbers";
             break;
+        case nominal_rotation_pole_position:
+            parameterDescription = "nominal pole position ";
+            break;
+        case rotation_pole_position_rate:
+            parameterDescription = "pole position rate ";
+            break;
         default:
             std::string errorMessage =
                     "Error when getting parameter string, did not recognize parameter " + std::to_string( parameterType );
@@ -357,6 +363,12 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         case mode_coupled_tidal_love_numbers:
             isDoubleParameter = false;
             break;
+        case nominal_rotation_pole_position:
+            isDoubleParameter = false;
+            break;
+        case rotation_pole_position_rate:
+            isDoubleParameter = false;
+            break;
         default:
             throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
                                       " not found when getting parameter type" );
@@ -394,9 +406,16 @@ bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum paramete
         case scaled_longitude_libration_amplitude:
             flag = true;
             break;
+        case nominal_rotation_pole_position:
+            flag = true;
+            break;
+        case rotation_pole_position_rate:
+            flag = true;
+            break;
         default:
             flag = false;
             break;
+
     }
     return flag;
 }
