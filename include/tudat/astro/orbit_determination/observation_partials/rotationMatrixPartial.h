@@ -129,9 +129,9 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
         const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
         const double ephemerisTime );
 
-//std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtNominalPolePosition(
-//        const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
-//        const double ephemerisTime );
+// std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtNominalPolePosition(
+//         const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
+//         const double ephemerisTime );
 
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrtPolePositionRate(
         const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
@@ -504,73 +504,55 @@ private:
     std::shared_ptr< ephemerides::PlanetaryRotationModel > bodyRotationModel_;
 };
 
-class RotationMatrixPartialWrtNominalPolePosition: public RotationMatrixPartial
+class RotationMatrixPartialWrtNominalPolePosition : public RotationMatrixPartial
 {
 public:
+    RotationMatrixPartialWrtNominalPolePosition( const std::shared_ptr< ephemerides::IauRotationModel > bodyRotationModel ):
+        RotationMatrixPartial( bodyRotationModel ), bodyRotationModel_( bodyRotationModel )
+    { }
 
-    RotationMatrixPartialWrtNominalPolePosition(
-            const std::shared_ptr< ephemerides::IauRotationModel > bodyRotationModel ):
-        RotationMatrixPartial( bodyRotationModel ),
-        bodyRotationModel_( bodyRotationModel ){ }
+    ~RotationMatrixPartialWrtNominalPolePosition( ) { }
 
-    ~RotationMatrixPartialWrtNominalPolePosition( ){ }
-
-    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter(
-            const double time )
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter( const double time )
     {
-        return  calculatePartialOfRotationMatrixFromLocalFrameWrtNominalPolePosition(
-                bodyRotationModel_, time );
+        return calculatePartialOfRotationMatrixFromLocalFrameWrtNominalPolePosition( bodyRotationModel_, time );
     }
 
-    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
-            const double time )
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter( const double time )
     {
         throw std::runtime_error( "Error, rotation matrix derivative w.r.t. nominal pole no yet implemented" );
-//        return calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtNominalPolePosition(
-//                    bodyRotationModel_, time );
-
+        //        return calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtNominalPolePosition(
+        //                    bodyRotationModel_, time );
     }
 
 private:
-
     std::shared_ptr< ephemerides::IauRotationModel > bodyRotationModel_;
-
 };
 
-
-class RotationMatrixPartialWrtPolePositionRate: public RotationMatrixPartial
+class RotationMatrixPartialWrtPolePositionRate : public RotationMatrixPartial
 {
 public:
+    RotationMatrixPartialWrtPolePositionRate( const std::shared_ptr< ephemerides::IauRotationModel > bodyRotationModel ):
+        RotationMatrixPartial( bodyRotationModel ), bodyRotationModel_( bodyRotationModel )
+    { }
 
-    RotationMatrixPartialWrtPolePositionRate(
-            const std::shared_ptr< ephemerides::IauRotationModel > bodyRotationModel ):
-        RotationMatrixPartial( bodyRotationModel ),
-        bodyRotationModel_( bodyRotationModel ){ }
+    ~RotationMatrixPartialWrtPolePositionRate( ) { }
 
-    ~RotationMatrixPartialWrtPolePositionRate( ){ }
-
-    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter(
-            const double time )
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter( const double time )
     {
-        return calculatePartialOfRotationMatrixFromLocalFrameWrtPolePositionRate(
-                bodyRotationModel_, time );
+        return calculatePartialOfRotationMatrixFromLocalFrameWrtPolePositionRate( bodyRotationModel_, time );
     }
 
-    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
-            const double time )
+    std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter( const double time )
     {
         throw std::runtime_error( "Error, rotation matrix derivative w.r.t. pole position rate not yet implemented" );
-//        return calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtNominalPolePosition(
-//                    bodyRotationModel_, time );
-
+        //        return calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtNominalPolePosition(
+        //                    bodyRotationModel_, time );
     }
 
 private:
-
     std::shared_ptr< ephemerides::IauRotationModel > bodyRotationModel_;
-
 };
-
 
 //! Class to calculate a rotation matrix from a body-fixed to inertial frame w.r.t. polar motion amplitudes.
 /*!

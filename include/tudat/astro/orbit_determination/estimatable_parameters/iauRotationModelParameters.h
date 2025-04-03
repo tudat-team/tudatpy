@@ -11,7 +11,6 @@
 #ifndef TUDAT_IAUROTATIONMODELPARAMETERS_H
 #define TUDAT_IAUROTATIONMODELPARAMETERS_H
 
-
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 #include "tudat/astro/ephemerides/iauRotationModel.h"
 
@@ -21,15 +20,12 @@ namespace tudat
 namespace estimatable_parameters
 {
 
-class NominalRotationPoleParameter: public EstimatableParameter< Eigen::VectorXd >
+class NominalRotationPoleParameter : public EstimatableParameter< Eigen::VectorXd >
 {
 public:
-
-    NominalRotationPoleParameter(
-            const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
-            const std::string& associatedBody):
-        EstimatableParameter< Eigen::VectorXd >( nominal_rotation_pole_position, associatedBody ),
-        rotationModel_( rotationModel ){ }
+    NominalRotationPoleParameter( const std::shared_ptr< ephemerides::IauRotationModel > rotationModel, const std::string& associatedBody ):
+        EstimatableParameter< Eigen::VectorXd >( nominal_rotation_pole_position, associatedBody ), rotationModel_( rotationModel )
+    { }
 
     //! Destructor
     ~NominalRotationPoleParameter( ) { }
@@ -46,7 +42,6 @@ public:
             throw std::runtime_error( "Error when resetting nominal pole position, new parameter size is incompatible" );
         }
         rotationModel_->setNominalPole( parameterValue );
-
     }
 
     int getParameterSize( )
@@ -55,22 +50,16 @@ public:
     }
 
 protected:
-
 private:
-
     std::shared_ptr< ephemerides::IauRotationModel > rotationModel_;
 };
 
-
-class RotationPoleRateParameter: public EstimatableParameter< Eigen::VectorXd >
+class RotationPoleRateParameter : public EstimatableParameter< Eigen::VectorXd >
 {
 public:
-
-    RotationPoleRateParameter(
-            const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
-            const std::string& associatedBody):
-        EstimatableParameter< Eigen::VectorXd >( rotation_pole_position_rate, associatedBody ),
-        rotationModel_( rotationModel ){ }
+    RotationPoleRateParameter( const std::shared_ptr< ephemerides::IauRotationModel > rotationModel, const std::string& associatedBody ):
+        EstimatableParameter< Eigen::VectorXd >( rotation_pole_position_rate, associatedBody ), rotationModel_( rotationModel )
+    { }
 
     //! Destructor
     ~RotationPoleRateParameter( ) { }
@@ -87,7 +76,6 @@ public:
             throw std::runtime_error( "Error when resetting nominal pole position, new parameter size is incompatible" );
         }
         rotationModel_->setPolePrecession( parameterValue );
-
     }
 
     int getParameterSize( )
@@ -96,15 +84,12 @@ public:
     }
 
 protected:
-
 private:
-
     std::shared_ptr< ephemerides::IauRotationModel > rotationModel_;
 };
 
+}  // namespace estimatable_parameters
 
-} // namespace estimatable_parameters
+}  // namespace tudat
 
-} // namespace tudat
-
-#endif // TUDAT_IAUROTATIONMODELPARAMETERS_H
+#endif  // TUDAT_IAUROTATIONMODELPARAMETERS_H
