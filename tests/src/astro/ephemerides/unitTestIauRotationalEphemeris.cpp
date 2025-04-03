@@ -34,15 +34,12 @@ using namespace spice_interface;
 
 BOOST_AUTO_TEST_SUITE( test_iau_rotation_model )
 
-
 BOOST_AUTO_TEST_CASE( test_IauUranusRotationModel )
 {
     loadSpiceKernelInTudat( paths::getSpiceKernelPath( ) + "/pck00010.tpc" );
 
     std::string baseFrameOrientation = "J2000";
     std::string targetFrameOrientation = "IAU_Uranus";
-
-
 
     double degreeToRadian = unit_conversions::convertDegreesToRadians( 1.0 );
     double nominalMeridian = 203.81 * degreeToRadian;
@@ -55,23 +52,24 @@ BOOST_AUTO_TEST_CASE( test_IauUranusRotationModel )
 
     // Create rotation model
     std::shared_ptr< tudat::ephemerides::IauRotationModel > iauRotationModel =
-            std::make_shared< ephemerides::IauRotationModel >(
-                baseFrameOrientation, targetFrameOrientation,
-                nominalMeridian, nominalPole, rotationRate, polePrecession,
-                meridianPeriodicTerms, polePeriodicTerms );
+            std::make_shared< ephemerides::IauRotationModel >( baseFrameOrientation,
+                                                               targetFrameOrientation,
+                                                               nominalMeridian,
+                                                               nominalPole,
+                                                               rotationRate,
+                                                               polePrecession,
+                                                               meridianPeriodicTerms,
+                                                               polePeriodicTerms );
 
     double testTime = 1.0E9;
-    Eigen::Matrix3d spiceRotation =
-            computeRotationMatrixBetweenFrames( "J2000", "IAU_Uranus", testTime );
+    Eigen::Matrix3d spiceRotation = computeRotationMatrixBetweenFrames( "J2000", "IAU_Uranus", testTime );
     Eigen::Matrix3d tudatRotation = iauRotationModel->getRotationMatrixToTargetFrame( testTime );
 
-    Eigen::Matrix3d spiceRotationDerivative =
-            computeRotationMatrixDerivativeBetweenFrames( "J2000", "IAU_Uranus", testTime );
+    Eigen::Matrix3d spiceRotationDerivative = computeRotationMatrixDerivativeBetweenFrames( "J2000", "IAU_Uranus", testTime );
     Eigen::Matrix3d tudatRotationDerivative = iauRotationModel->getDerivativeOfRotationToTargetFrame( testTime );
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( spiceRotation, tudatRotation, 1.0E-10 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( spiceRotationDerivative, tudatRotationDerivative, 1.0E-10 );
-
 }
 
 BOOST_AUTO_TEST_CASE( test_IauJupiterRotationModel )
@@ -85,8 +83,8 @@ BOOST_AUTO_TEST_CASE( test_IauJupiterRotationModel )
     double nominalMeridian = 284.95 * degreeToRadian;
     Eigen::Vector2d nominalPole = ( Eigen::Vector2d( ) << 268.056595, 64.495303 ).finished( ) * degreeToRadian;
     double rotationRate = 870.5360000 * degreeToRadian / physical_constants::JULIAN_DAY;
-    Eigen::Vector2d polePrecession = ( Eigen::Vector2d( ) << -0.006499, 0.002413 ).finished( ) * degreeToRadian / physical_constants::JULIAN_CENTURY;
-
+    Eigen::Vector2d polePrecession =
+            ( Eigen::Vector2d( ) << -0.006499, 0.002413 ).finished( ) * degreeToRadian / physical_constants::JULIAN_CENTURY;
 
     std::map< double, std::pair< double, double > > meridianPeriodicTerms;
     std::map< double, std::pair< Eigen::Vector2d, double > > polePeriodicTerms;
@@ -98,32 +96,32 @@ BOOST_AUTO_TEST_CASE( test_IauJupiterRotationModel )
             std::make_pair( degreeToRadian * ( Eigen::Vector2d( ) << 0.001432, 0.000617 ).finished( ), degreeToRadian * 300.323162 );
     polePeriodicTerms[ 6070.2476 * degreeToRadian / physical_constants::JULIAN_CENTURY ] =
             std::make_pair( degreeToRadian * ( Eigen::Vector2d( ) << 0.000030, -0.000013 ).finished( ), degreeToRadian * 114.012305 );
-    polePeriodicTerms[ 64.3000 * degreeToRadian / physical_constants::JULIAN_CENTURY  ] =
+    polePeriodicTerms[ 64.3000 * degreeToRadian / physical_constants::JULIAN_CENTURY ] =
             std::make_pair( degreeToRadian * ( Eigen::Vector2d( ) << 0.002150, 0.000926 ).finished( ), degreeToRadian * 49.511251 );
-
 
     // Create rotation model
     std::shared_ptr< tudat::ephemerides::IauRotationModel > iauRotationModel =
-            std::make_shared< ephemerides::IauRotationModel >(
-                baseFrameOrientation, targetFrameOrientation,
-                nominalMeridian, nominalPole, rotationRate, polePrecession,
-                meridianPeriodicTerms, polePeriodicTerms );
+            std::make_shared< ephemerides::IauRotationModel >( baseFrameOrientation,
+                                                               targetFrameOrientation,
+                                                               nominalMeridian,
+                                                               nominalPole,
+                                                               rotationRate,
+                                                               polePrecession,
+                                                               meridianPeriodicTerms,
+                                                               polePeriodicTerms );
 
     double testTime = 1.0E9;
-    Eigen::Matrix3d spiceRotation =
-            computeRotationMatrixBetweenFrames( "J2000", "IAU_Jupiter", testTime );
+    Eigen::Matrix3d spiceRotation = computeRotationMatrixBetweenFrames( "J2000", "IAU_Jupiter", testTime );
     Eigen::Matrix3d tudatRotation = iauRotationModel->getRotationMatrixToTargetFrame( testTime );
 
-    Eigen::Matrix3d spiceRotationDerivative =
-            computeRotationMatrixDerivativeBetweenFrames( "J2000", "IAU_Jupiter", testTime );
+    Eigen::Matrix3d spiceRotationDerivative = computeRotationMatrixDerivativeBetweenFrames( "J2000", "IAU_Jupiter", testTime );
     Eigen::Matrix3d tudatRotationDerivative = iauRotationModel->getDerivativeOfRotationToTargetFrame( testTime );
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( spiceRotation, tudatRotation, 1.0E-10 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( spiceRotationDerivative, tudatRotationDerivative, 1.0E-10 );
-
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
 
-} // namespace unit_tests
-} // namespace tudat
+}  // namespace unit_tests
+}  // namespace tudat
