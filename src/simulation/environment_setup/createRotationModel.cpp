@@ -562,25 +562,23 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
 
             break;
         }
-        case iau_rotation_model:
-        {
+        case iau_rotation_model: {
             std::shared_ptr< IauRotationModelSettings > iauRotationModelSettings =
-                std::dynamic_pointer_cast< IauRotationModelSettings >( rotationModelSettings );
+                    std::dynamic_pointer_cast< IauRotationModelSettings >( rotationModelSettings );
             if( iauRotationModelSettings == nullptr )
             {
                 throw std::runtime_error( "Error, expected IAU rotation model settings for " + body );
             }
             else
             {
-                rotationalEphemeris = std::make_shared< IauRotationModel >(
-                    iauRotationModelSettings->getOriginalFrame( ),
-                    iauRotationModelSettings->getTargetFrame( ),
-                    iauRotationModelSettings->nominalMeridian_,
-                    iauRotationModelSettings->nominalPole_,
-                    iauRotationModelSettings->rotationRate_,
-                    iauRotationModelSettings->polePrecession_,
-                    iauRotationModelSettings->meridianPeriodicTerms_,
-                    iauRotationModelSettings->polePeriodicTerms_ );
+                rotationalEphemeris = std::make_shared< IauRotationModel >( iauRotationModelSettings->getOriginalFrame( ),
+                                                                            iauRotationModelSettings->getTargetFrame( ),
+                                                                            iauRotationModelSettings->nominalMeridian_,
+                                                                            iauRotationModelSettings->nominalPole_,
+                                                                            iauRotationModelSettings->rotationRate_,
+                                                                            iauRotationModelSettings->polePrecession_,
+                                                                            iauRotationModelSettings->meridianPeriodicTerms_,
+                                                                            iauRotationModelSettings->polePeriodicTerms_ );
             }
 
             break;
