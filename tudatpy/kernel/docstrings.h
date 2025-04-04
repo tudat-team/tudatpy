@@ -5615,11 +5615,11 @@ Examples
         return R"(
      )";
     }
-    else if( name == "ObservationAncilliarySimulationVariable.sequential_range_reference_frequency" )
-    {
-        return R"(
-     )";
-    }
+    // else if( name == "ObservationAncilliarySimulationVariable.sequential_range_reference_frequency" )
+    // {
+    //     return R"(
+    //  )";
+    // }
     else if( name == "ObservationAncilliarySimulationVariable.sequential_range_lowest_ranging_component" )
     {
         return R"(

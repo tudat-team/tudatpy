@@ -36,8 +36,26 @@ void expose_estimated_parameter_setup( py::module& m )
         Note that not all of the listed types might be accessible via functions in the python interface yet.
 
 
+    m.def( "custom_analytical_partial",
+           &tep::analyticalAccelerationPartialSettings,
+           py::arg( "analytical_partial_function" ),
+           py::arg( "body_undergoing_acceleration" ),
+           py::arg( "body_exerting_acceleration" ),
+           py::arg( "acceleration_type" ),
+           get_docstring( "custom_analytical_partial" ).c_str( ) );
 
+    m.def( "custom_numerical_partial",
+           &tep::numericalAccelerationPartialSettings,
+           py::arg( "parameter_perturbation" ),
+           py::arg( "body_undergoing_acceleration" ),
+           py::arg( "body_exerting_acceleration" ),
+           py::arg( "acceleration_type" ),
+           py::arg( "environment_updates" ) = std::map< tp::EnvironmentModelsToUpdate, std::vector< std::string > >( ),
+           get_docstring( "custom_numerical_partial" ).c_str( ) );
 
+    py::class_< tep::EstimatableParameterSettings, std::shared_ptr< tep::EstimatableParameterSettings > >(
+            m, "EstimatableParameterSettings", get_docstring( "EstimatableParameterSettings" ).c_str( ) )
+            .def_readwrite( "custom_partial_settings", &tep::EstimatableParameterSettings::customPartialSettings_ );
 
 
      )doc" )
@@ -140,6 +158,11 @@ void expose_estimated_parameter_setup( py::module& m )
 
 
 
+    m.def( "radiation_pressure_target_direction_scaling",
+           &tep::radiationPressureTargetDirectionScaling,
+           py::arg( "target_body" ),
+           py::arg( "source_body" ),
+           get_docstring( "radiation_pressure_target_direction_scaling" ).c_str( ) );
 
      )doc" )
             .def_readwrite( "custom_partial_settings", &tep::EstimatableParameterSettings::customPartialSettings_ );
@@ -177,6 +200,7 @@ Instead, list concatenation is recommended. Please see the following example:
    # better: list concatenation --> will result in simple list, desired!
    list_of_all_parameters = estimation_setup.parameter.initial_states(...) + [single_parameter_1, single_parameter_2, ...]
 
+    m.def( "quasi_impulsive_shots", &tep::quasiImpulsiveShots, py::arg( "body" ), get_docstring( "quasi_impulsive_shots" ).c_str( ) );
 
 Parameters
 ----------
@@ -194,10 +218,28 @@ Returns
 List[ :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` ]
     List of :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` objects, one per component of each initial state in the simulation.
 
+    m.def( "spherical_harmonics_s_coefficients",
+           py::overload_cast< const std::string, const int, const int, const int, const int >( &tep::sphericalHarmonicsSineBlock ),
+           py::arg( "body" ),
+           py::arg( "minimum_degree" ),
+           py::arg( "minimum_order" ),
+           py::arg( "maximum_degree" ),
+           py::arg( "maximum_order" ),
+           get_docstring( "spherical_harmonics_s_coefficients" ).c_str( ) );
+
+    m.def( "spherical_harmonics_s_coefficients_block",
+           py::overload_cast< const std::string, std::vector< std::pair< int, int > > >( &tep::sphericalHarmonicsSineBlock ),
+           py::arg( "body" ),
+           py::arg( "block_indices" ),
+           get_docstring( "spherical_harmonics_s_coefficients_block" ).c_str( ) );
 
 
+    m.def( "periodic_spin_variations",
+           &tep::periodicSpinVariations,
+           py::arg( "body" ),
+           get_docstring( "periodic_spin_variations" ).c_str( ) );
 
-
+    m.def( "polar_motion_amplitudes", &tep::polarMotionAmplitudes, py::arg( "body" ), get_docstring( "polar_motion_amplitudes" ).c_str( ) );
 
 
     )doc" );

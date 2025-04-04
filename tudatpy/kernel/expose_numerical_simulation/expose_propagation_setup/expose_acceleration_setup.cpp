@@ -216,8 +216,12 @@ void expose_acceleration_setup( py::module &m )
         (see createAccelerationModels.h), but users may also chose to do so manually.
         (Derived) Class members are all public, for ease of access and modification.
 
+    py::class_< tss::EmpiricalAccelerationSettings, std::shared_ptr< tss::EmpiricalAccelerationSettings >, tss::AccelerationSettings >(
+            m, "EmpiricalAccelerationSettings", get_docstring( "EmpiricalAccelerationSettings" ).c_str( ) );
 
 
+    py::class_< tss::CustomAccelerationSettings, std::shared_ptr< tss::CustomAccelerationSettings >, tss::AccelerationSettings >(
+            m, "CustomAccelerationSettings", get_docstring( "CustomAccelerationSettings" ).c_str( ) );
 
 
      )doc" );
@@ -237,6 +241,10 @@ void expose_acceleration_setup( py::module &m )
         including the maximum degree and order up to which the field is to be expanded. Note that
         the minimum degree and order are currently always set to zero.
 
+    py::class_< tss::MomentumWheelDesaturationAccelerationSettings,
+                std::shared_ptr< tss::MomentumWheelDesaturationAccelerationSettings >,
+                tss::AccelerationSettings >(
+            m, "MomentumWheelDesaturationAccelerationSettings", get_docstring( "MomentumWheelDesaturationAccelerationSettings" ).c_str( ) );
 
 
 
@@ -401,6 +409,12 @@ AccelerationSettings
 
 
 
+    m.def( "thrust_from_custom_function",
+           &tss::thrustAccelerationRemoved2,
+           py::arg( "thrust_force_function" ),
+           py::arg( "specific_impulse_function" ),
+           py::arg( "thrust_frame" ) = tss::ThrustFrames::inertial_thrust_frame,
+           py::arg( "central_body" ) = "" );
 
 Examples
 --------

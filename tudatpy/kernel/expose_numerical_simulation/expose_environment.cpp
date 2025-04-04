@@ -25,6 +25,7 @@
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 
 // namespace py = pybind11;
 // namespace tba = tudat::basic_astrodynamics;
@@ -2064,57 +2065,42 @@ numpy.ndarray[numpy.float64[6, 1]]
         Matrix with sine spherical harmonic coefficients :math:`\bar{S}_{lm}` (geodesy normalized). Entry :math:`(i,j)` denotes coefficient at degree :math:`i` and order :math:`j`.
 
         :type: numpy.ndarray[numpy.float64[l, m]]
-     )doc");
+     )doc" );
 
-                py::class_<tg::TimeDependentSphericalHarmonicsGravityField,
-                           std::shared_ptr<
-                               tg::TimeDependentSphericalHarmonicsGravityField>,
-                           tg::SphericalHarmonicsGravityField>(
-                    m, "TimeDependentSphericalHarmonicsGravityField",
-                    R"doc(No documentation found.)doc")
-                    .def_property_readonly(
-                        "gravity_field_variation_models",
-                        &tg::TimeDependentSphericalHarmonicsGravityField::
-                            getGravityFieldVariations,
-                        R"doc(No documentation found.)doc");
+    py::class_< tg::TimeDependentSphericalHarmonicsGravityField,
+                std::shared_ptr< tg::TimeDependentSphericalHarmonicsGravityField >,
+                tg::SphericalHarmonicsGravityField >( m, "TimeDependentSphericalHarmonicsGravityField", R"doc(No documentation found.)doc" )
+            .def_property_readonly( "gravity_field_variation_models",
+                                    &tg::TimeDependentSphericalHarmonicsGravityField::getGravityFieldVariations,
+                                    R"doc(No documentation found.)doc" );
 
-                py::class_<tg::PolyhedronGravityField,
-                           std::shared_ptr<tg::PolyhedronGravityField>,
-                           tg::GravityFieldModel>(m, "PolyhedronGravityField")
-                    .def_property_readonly(
-                        "volume", &tg::PolyhedronGravityField::getVolume)
-                    .def_property_readonly(
-                        "vertices_coordinates",
-                        &tg::PolyhedronGravityField::getVerticesCoordinates)
-                    .def_property_readonly("vertices_defining_each_facet",
-                                           &tg::PolyhedronGravityField::
-                                               getVerticesDefiningEachFacet);
+    py::class_< tg::PolyhedronGravityField, std::shared_ptr< tg::PolyhedronGravityField >, tg::GravityFieldModel >(
+            m, "PolyhedronGravityField" )
+            .def_property_readonly( "volume", &tg::PolyhedronGravityField::getVolume )
+            .def_property_readonly( "vertices_coordinates", &tg::PolyhedronGravityField::getVerticesCoordinates )
+            .def_property_readonly( "vertices_defining_each_facet", &tg::PolyhedronGravityField::getVerticesDefiningEachFacet );
 
-                py::class_<tg::GravityFieldVariations,
-                           std::shared_ptr<tg::GravityFieldVariations>>(
-                    m, "GravityFieldVariationModel");
+    py::class_< tg::GravityFieldVariations, std::shared_ptr< tg::GravityFieldVariations > >( m, "GravityFieldVariationModel" );
 
-                /*!
-                 **************   RADIATION MODELS  ******************
-                 */
-                py::class_<tem::RadiationPressureTargetModel,
-                           std::shared_ptr< tem::RadiationPressureTargetModel > >(
-                    m, "RadiationPressureTargetModel" );
+    /*!
+     **************   RADIATION MODELS  ******************
+     */
+    py::class_< tem::RadiationPressureTargetModel, std::shared_ptr< tem::RadiationPressureTargetModel > >( m,
+                                                                                                           "RadiationPressureTargetModel" );
 
-                py::class_<tem::CannonballRadiationPressureTargetModel,
-                    std::shared_ptr<tem::CannonballRadiationPressureTargetModel>,
-                    tem::RadiationPressureTargetModel>(m, "CannonballRadiationPressureTargetModel")
-                    .def_property( "radiation_pressure_coefficient",
-                    &tem::CannonballRadiationPressureTargetModel::getCoefficient,
-                    &tem::CannonballRadiationPressureTargetModel::resetCoefficient );
-                /*!
-                 **************   SHAPE MODELS  ******************
-                 */
+    py::class_< tem::CannonballRadiationPressureTargetModel,
+                std::shared_ptr< tem::CannonballRadiationPressureTargetModel >,
+                tem::RadiationPressureTargetModel >( m, "CannonballRadiationPressureTargetModel" )
+            .def_property( "radiation_pressure_coefficient",
+                           &tem::CannonballRadiationPressureTargetModel::getCoefficient,
+                           &tem::CannonballRadiationPressureTargetModel::resetCoefficient );
+    /*!
+     **************   SHAPE MODELS  ******************
+     */
 
-                py::class_<tba::BodyShapeModel,
-                           std::shared_ptr<tba::BodyShapeModel>>(
-                    m, "BodyShapeModel",
-                    R"doc(
+    py::class_< tba::BodyShapeModel, std::shared_ptr< tba::BodyShapeModel > >( m,
+                                                                               "BodyShapeModel",
+                                                                               R"doc(
 
         Object that provides a shape model for a natural body.
 
@@ -2308,17 +2294,22 @@ numpy.ndarray[numpy.float64[6, 1]]
             .def( py::init< double >( ), py::arg( "frequency" ) );
 
     py::class_< tgs::PiecewiseLinearFrequencyInterpolator,
-        std::shared_ptr< tgs::PiecewiseLinearFrequencyInterpolator >,
-        tgs::StationFrequencyInterpolator >( m, "PiecewiseLinearFrequencyInterpolator" )
-        .def( py::init< const std::vector< tudat::Time >&,
-                        const std::vector< tudat::Time >&,
-                        const std::vector< double >&,
-                        const std::vector< double >& >( ),
-            py::arg( "start_times" ),
-            py::arg( "end_times" ),
-            py::arg( "ramp_rates" ),
-            py::arg( "start_frequency" ) );
-    
+                std::shared_ptr< tgs::PiecewiseLinearFrequencyInterpolator >,
+                tgs::StationFrequencyInterpolator >( m, "PiecewiseLinearFrequencyInterpolator", R"doc(No documentation found.)doc" )
+            .def( py::init< const std::vector< TIME_TYPE > &,
+                            const std::vector< TIME_TYPE > &,
+                            const std::vector< double > &,
+                            const std::vector< double > & >( ),
+                  py::arg( "start_times" ),
+                  py::arg( "end_times" ),
+                  py::arg( "ramp_rates" ),
+                  py::arg( "start_frequencies" ),
+                  R"doc(No documentation found.)doc" )
+            .def( "get_start_times", &tgs::PiecewiseLinearFrequencyInterpolator::getStartTimes )
+            .def( "get_end_times", &tgs::PiecewiseLinearFrequencyInterpolator::getEndTimes )
+            .def( "get_ramp_rates", &tgs::PiecewiseLinearFrequencyInterpolator::getRampRates )
+            .def( "get_start_frequencies", &tgs::PiecewiseLinearFrequencyInterpolator::getStartFrequencies );
+
     py::class_< tgs::PointingAnglesCalculator, std::shared_ptr< tgs::PointingAnglesCalculator > >( m, "PointingAnglesCalculator" )
             .def( "calculate_elevation_angle",
                   py::overload_cast< const Eigen::Vector3d &, const double >(
@@ -2334,6 +2325,25 @@ numpy.ndarray[numpy.float64[6, 1]]
                   &tgs::PointingAnglesCalculator::convertVectorFromInertialToTopocentricFrame,
                   py::arg( "inertial_vector" ),
                   py::arg( "time" ) );
+
+    m.def(
+            "get_approximate_dsn_ground_station_positions",
+            []( ) -> py::dict {
+                // Call the C++ function
+                std::map< std::string, Eigen::Vector3d > stationPositions =
+                        tudat::simulation_setup::getApproximateDsnGroundStationPositions( );
+
+                // Convert the std::map to a Python dict
+                py::dict pythonDict;
+                for( const auto &entry: stationPositions )
+                {
+                    // entry.first is the station name, entry.second is the Eigen::Vector3d
+                    pythonDict[ entry.first.c_str( ) ] = entry.second;
+                }
+
+                return pythonDict;
+            },
+            "Returns a dictionary mapping DSN station names (str) to approximate positions (Eigen::Vector3d)." );
 
     /*!
      **************   BODY OBJECTS AND ASSOCIATED FUNCTIONALITY
@@ -2361,8 +2371,9 @@ numpy.ndarray[numpy.float64[6, 1]]
 
 
      )doc" )
-//            .def_property(
-//                    "ephemeris_frame_to_base_frame", &tss::Body::getEphemerisFrameToBaseFrame, &tss::Body::setEphemerisFrameToBaseFrame )
+            //            .def_property(
+            //                    "ephemeris_frame_to_base_frame", &tss::Body::getEphemerisFrameToBaseFrame,
+            //                    &tss::Body::setEphemerisFrameToBaseFrame )
             .def_property_readonly( "state", &tss::Body::getState, R"doc(
 
         **read-only**
@@ -2634,12 +2645,11 @@ numpy.ndarray[numpy.float64[6, 1]]
        the mass, center of mass and inertia tensor are created from the gravitational parameter, degree-1 coefficients, and degree-2 coefficients plus mean moment of inertia, respectively).
 
        :type: RigidBodyProperties
-    )doc")
-                    .def_property("radiation_pressure_target_models", &tss::Body::getRadiationPressureTargetModels,
-                                  &tss::Body::setRadiationPressureTargetModels )
-                    .def_property_readonly(
-                        "gravitational_parameter",
-                        &tss::Body::getGravitationalParameter, R"doc(
+    )doc" )
+            .def_property( "radiation_pressure_target_models",
+                           &tss::Body::getRadiationPressureTargetModels,
+                           &tss::Body::setRadiationPressureTargetModels )
+            .def_property_readonly( "gravitational_parameter", &tss::Body::getGravitationalParameter, R"doc(
         **read-only**
 
         Attribute of convenience, equivalent to ``.gravity_field_model.gravitational_parameter``

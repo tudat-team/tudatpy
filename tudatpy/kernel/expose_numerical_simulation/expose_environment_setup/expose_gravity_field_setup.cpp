@@ -100,6 +100,31 @@ void expose_gravity_field_setup( py::module& m )
 
         Enumeration of gravity field types supported by tudat.
 
+    py::enum_< tss::SphericalHarmonicsModel >(
+            m, "PredefinedSphericalHarmonicsModel", get_docstring( "PredefinedSphericalHarmonicsModel" ).c_str( ) )
+            .value( "egm96", tss::SphericalHarmonicsModel::egm96, get_docstring( "PredefinedSphericalHarmonicsModel.egm96" ).c_str( ) )
+            .value( "ggm02c", tss::SphericalHarmonicsModel::ggm02c, get_docstring( "PredefinedSphericalHarmonicsModel.ggm02c" ).c_str( ) )
+            .value( "ggm02s", tss::SphericalHarmonicsModel::ggm02s, get_docstring( "PredefinedSphericalHarmonicsModel.ggm02s" ).c_str( ) )
+            .value( "goco05c",
+                    tss::SphericalHarmonicsModel::goco05c,
+                    get_docstring( "PredefinedSphericalHarmonicsModel.goco05c" ).c_str( ) )
+            .value( "glgm3150",
+                    tss::SphericalHarmonicsModel::glgm3150,
+                    get_docstring( "PredefinedSphericalHarmonicsModel.glgm3150" ).c_str( ) )
+            .value( "lpe200", tss::SphericalHarmonicsModel::lpe200, get_docstring( "PredefinedSphericalHarmonicsModel.lpe200" ).c_str( ) )
+            .value( "gggrx1200",
+                    tss::SphericalHarmonicsModel::gggrx1200,
+                    get_docstring( "PredefinedSphericalHarmonicsModel.gggrx1200" ).c_str( ) )
+            .value( "jgmro120d",
+                    tss::SphericalHarmonicsModel::jgmro120d,
+                    get_docstring( "PredefinedSphericalHarmonicsModel.jgmro120d" ).c_str( ) )
+            .value( "jgmess160a",
+                    tss::SphericalHarmonicsModel::jgmess160a,
+                    get_docstring( "PredefinedSphericalHarmonicsModel.jgmess160a" ).c_str( ) )
+            .value( "shgj180u",
+                    tss::SphericalHarmonicsModel::shgj180u,
+                    get_docstring( "PredefinedSphericalHarmonicsModel.shgj180u" ).c_str( ) )
+            .export_values( );
 
 
 
@@ -237,6 +262,11 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
         Derived class of `GravityFieldSettings` for gravity fields, which are defined by a spherical harmonic gravity field representation.
 
+    py::class_< tss::FromFileSphericalHarmonicsGravityFieldSettings,
+                std::shared_ptr< tss::FromFileSphericalHarmonicsGravityFieldSettings >,
+                tss::SphericalHarmonicsGravityFieldSettings >( m,
+                                                               "FromFileSphericalHarmonicsGravityFieldSettings",
+                                                               get_docstring( "FromFileSphericalHarmonicsGravityFieldSettings" ).c_str( ) );
 
 
 
@@ -370,6 +400,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
         Cartesian coordinates of each polyhedron vertex. Entry (i,j) denotes vertex i, coordinate j (one
         row per vertex, 3 columns).
 
+    m.def( "central", &tss::centralGravitySettings, py::arg( "gravitational_parameter" ), get_docstring( "central" ).c_str( ) );
 
         :type: numpy.ndarray
      )doc" )

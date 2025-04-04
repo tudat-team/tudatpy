@@ -46,9 +46,31 @@ void expose_integrator_setup( py::module &m )
 
         Enumeration defining possible behaviours when :math:`\Delta t_{rec}<\Delta t_{\min}`. in step-size control (e.g. recommended time step is smaller than minimum time step)
 
+    m.def( "step_size_control_blockwise_scalar_tolerance",
+           &tni::perBlockIntegratorStepSizeControlSettings< double >,
+           py::arg( "block_indices" ),
+           py::arg( "relative_error_tolerance" ),
+           py::arg( "absolute_error_tolerance" ),
+           py::arg( "safety_factor" ) = 0.8,
+           py::arg( "minimum_factor_increase" ) = 0.1,
+           py::arg( "maximum_factor_increase" ) = 4.0,
+           get_docstring( "step_size_control_blockwise_scalar_tolerance" ).c_str( ) );
+
+    m.def( "step_size_control_blockwise_matrix_tolerance",
+           &tni::perBlockIntegratorStepSizeControlSettings< Eigen::MatrixXd >,
+           py::arg( "block_indices" ),
+           py::arg( "relative_error_tolerance" ),
+           py::arg( "absolute_error_tolerance" ),
+           py::arg( "safety_factor" ) = 0.8,
+           py::arg( "minimum_factor_increase" ) = 0.1,
+           py::arg( "maximum_factor_increase" ) = 4.0,
+           get_docstring( "step_size_control_blockwise_matrix_tolerance" ).c_str( ) );
 
 
-
+    m.def( "runge_kutta_4",
+           &tni::rungeKutta4Settings< TIME_TYPE >,
+           py::arg( "initial_time_step" ),
+           py::arg( "assess_termination_on_minor_steps" ) = false );
 
      )doc" )
             .value( "throw_exception_below_minimum",
@@ -77,7 +99,35 @@ The final time step is set to :math:`\Delta t=\Delta t_{\min}`, violating requir
 
         Enumeration of integrators available with tudat.
 
+    m.def( "runge_kutta_variable_step_size",
+           &tni::rungeKuttaVariableStepSettingsScalarTolerancesDeprecated< TIME_TYPE >,
+           py::arg( "initial_time" ),
+           py::arg( "initial_time_step" ),
+           py::arg( "coefficient_set" ),
+           py::arg( "minimum_step_size" ),
+           py::arg( "maximum_step_size" ),
+           py::arg( "relative_error_tolerance" ),
+           py::arg( "absolute_error_tolerance" ),
+           py::arg( "assess_termination_on_minor_steps" ) = false,
+           py::arg( "safety_factor" ) = 0.8,
+           py::arg( "maximum_factor_increase" ) = 4.0,
+           py::arg( "minimum_factor_increase" ) = 0.1,
+           py::arg( "throw_exception_if_minimum_step_exceeded" ) = true );
 
+    m.def( "runge_kutta_variable_step_size_vector_tolerances",
+           &tni::rungeKuttaVariableStepSettingsVectorTolerancesDeprecated< TIME_TYPE >,
+           py::arg( "initial_time" ),
+           py::arg( "initial_time_step" ),
+           py::arg( "coefficient_set" ),
+           py::arg( "minimum_step_size" ),
+           py::arg( "maximum_step_size" ),
+           py::arg( "relative_error_tolerance" ),
+           py::arg( "absolute_error_tolerance" ),
+           py::arg( "assess_termination_on_minor_steps" ) = false,
+           py::arg( "safety_factor" ) = 0.8,
+           py::arg( "maximum_factor_increase" ) = 4.0,
+           py::arg( "minimum_factor_increase" ) = 0.1,
+           py::arg( "throw_exception_if_minimum_step_exceeded" ) = true );
 
 
 
