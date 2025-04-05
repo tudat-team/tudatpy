@@ -204,7 +204,8 @@ BodyPanelGeometrySettings
 
 Function for creating settings for a full panel
 
-Function for creating settings for a full panel (presently only geometry and reflection properties). The panel
+Function for creating settings for a full panel (presently only geometry and reflection properties). The :class:`~tudatpy.numerical_simulation.environment_setup.radiation_pressure.BodyPanelReflectionLawSettings` can be created using the :func:`~tudatpy.numerical_simulation.environment_setup.radiation_pressure.specular_diffuse_body_panel_reflection` or :func:`~tudatpy.numerical_simulation.environment_setup.radiation_pressure.lambertian_body_panel_reflection` functions.
+The panel
 can also be endowed with an identifier to specify the type of the panel. This has no direct consequences for the model,
 but may be useful in estimation, to for instance estimate the reflection properties of all panels specified with identified "MLI"
 as a single parameter
