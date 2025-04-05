@@ -38,10 +38,8 @@ void expose_vehicle_systems_setup( py::module& m )
                                                                                                      "BodyPanelGeometrySettings",
                                                                                                      R"doc(
 
-        Base class for defining the geometrical properties of a single panel on the vehicle's exterior
-
-
-
+        Base class for defining the geometrical properties of a single panel on the vehicle's exterior.
+        A derived class of this can be instantiated through the :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.frame_fixed_panel_geometry`, :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.time_varying_panel_geometry`, or :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.body_tracking_panel_geometry` functions.
 
 
      )doc" );
@@ -166,14 +164,36 @@ BodyPanelGeometrySettings
                                                                                      "BodyPanelSettings",
                                                                                      R"doc(
 
-        Class for defining the complete properties of a single panel on the vehicle's exterior
+        Class for defining the complete properties of a single panel on the vehicle's exterior.
+        This class is typically instantiated through the :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.body_panel_settings` function.
 
 
 
 
 
      )doc" )
-            .def_readwrite( "reflection_law_settings", &tss::BodyPanelSettings::reflectionLawSettings_ );
+            .def_readwrite( "panel_geometry", &tss::BodyPanelSettings::panelGeometry_, R"doc(
+        
+        Geometric properties of the panel, including surface normal vector and area.
+
+        :type: BodyPanelGeometrySettings
+
+        )doc" )
+            .def_readwrite( "reflection_law_settings",
+                            &tss::BodyPanelSettings::reflectionLawSettings_,
+                            R"doc(
+        Reflection law settings of the panel.
+            
+        :type: BodyPanelReflectionLawSettings
+            )doc"
+
+                            )
+            .def_readwrite( "panel_type_id", &tss::BodyPanelSettings::panelTypeId_, R"doc(
+        Optional identifier for panel type.
+        This is typically used to identify the type of panel and can be used to assign a rotation model to a specific panel type, see the :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.full_panelled_body_settings` function.
+
+        :type: str
+        )doc" );
 
     m.def( "body_panel_settings",
            &tss::bodyPanelSettings,
@@ -214,13 +234,29 @@ BodyPanelSettings
                                                                                                    "FullPanelledBodySettings",
                                                                                                    R"doc(
 
-        Class for providing the complete settings for a panelled body exterior
+        Class for providing the complete settings for a panelled body exterior.
+        
+        This is typically defined through the :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.full_panelled_body_settings` or :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.box_wing_panelled_body_settings` functions.
+        The class contains a list of panel settings, and (optionally) a list of rotation model settings for vehicle parts.
 
 
+     )doc" )
+            .def_readwrite( "panel_settings_list", &tss::FullPanelledBodySettings::panelSettingsList_, R"doc(
+        List of individual body panel settings on the body.
+        
+        :type: list[BodyPanelSettings]
+        )doc" )
+            .def_readwrite( "part_rotation_model_settings",
+                            &tss::FullPanelledBodySettings::partRotationModelSettings_,
+                            R"doc(
+        Dictionary of rotation model settings per vehicle parts.
+        The rotation model settings are defined per `panel_type_id`, as defined in the :class:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.BodyPanelSettings`.
+    
+        :type: dict[str,RotationModelSettings]
 
+        )doc"
 
-
-     )doc" );
+            );
 
     m.def( "full_panelled_body_settings",
            &tss::fullPanelledBodySettings,
@@ -228,7 +264,7 @@ BodyPanelSettings
            py::arg( "part_rotation_model_settings" ) = std::map< std::string, std::shared_ptr< tss::RotationModelSettings > >( ),
            R"doc(
 
-Function for creating settings for a full panelled vehicle exterior
+Function for creating settings for a full panelled vehicle exterior.
 
 Function for creating settings for a full panelled vehicle exterior, taking a list of panel settings,
 and (optionally) a list of rotation model settings for vehicle parts. The identifiers for the rotation models
