@@ -178,7 +178,7 @@ BodyPanelGeometrySettings
     m.def( "body_panel_settings",
            &tss::bodyPanelSettings,
            py::arg( "panel_geometry" ),
-           py::arg( "panel_reflection_law" ) = nullptr,
+           py::arg( "panel_reflection_law" ),
            py::arg( "panel_type_id" ) = "",
            R"doc(
 
@@ -194,8 +194,8 @@ Parameters
 ----------
 panel_geometry : BodyPanelGeometrySettings
     Geometric properties of the panel (size and orientation, at least)
-panel_reflection_law : BodyPanelReflectionLawSettings, default = None
-    Reflection law settings of the panel (default none)
+panel_reflection_law : BodyPanelReflectionLawSettings
+    Reflection law settings of the panel
 panel_type_id : str, default = ""
     Optional identifier for panel type
 Returns
