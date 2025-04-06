@@ -43,6 +43,7 @@ PYBIND11_MODULE( expose_environment_setup, m )
     py::module_::import(
             "tudatpy.numerical_simulation.environment_setup.gravity_"
             "field_variation" );
+    py::module_::import( "tudatpy.numerical_simulation.environment_setup.gravity_field" );
     py::module_::import(
             "tudatpy.numerical_simulation.environment_setup."
             "ground_station" );
