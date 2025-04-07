@@ -67,6 +67,11 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
         throw std::runtime_error( "Error when creating body exterior panel settings, no panel geometry settings provided" );
     }
 
+    if( panelSettings->reflectionLawSettings_ == nullptr )
+    {
+        throw std::runtime_error( "Error when creating body exterior panel settings, no reflection law settings provided" );
+    }
+
     double panelArea = TUDAT_NAN;
     double panelTemperature = TUDAT_NAN;
     std::function< Eigen::Vector3d( ) > localFrameSurfaceNormal = nullptr;
