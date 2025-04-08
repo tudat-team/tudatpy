@@ -7,3 +7,4 @@ from ...kernel.numerical_simulation.propagation_setup import (
     thrust,
     torque,
 )
+from ...kernel.numerical_simulation.propagation_setup import *
