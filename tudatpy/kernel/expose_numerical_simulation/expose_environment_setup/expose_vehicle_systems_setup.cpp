@@ -44,6 +44,57 @@ void expose_vehicle_systems_setup( py::module& m )
 
      )doc" );
 
+    py::class_< tss::FrameFixedBodyPanelGeometrySettings,
+                tss::BodyPanelGeometrySettings,
+                std::shared_ptr< tss::FrameFixedBodyPanelGeometrySettings > >( m,
+
+                                                                               "FrameFixedBodyPanelGeometrySettings",
+
+                                                                               R"doc(
+
+        Derived class for defining the geometrical properties of a single panel on the vehicle's exterior, with a fixed orientation in a given frame.
+        This class is typically instantiated through the :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.frame_fixed_panel_geometry` function.
+     )doc" )
+            .def_readwrite( "surface_normal",
+                            &tss::FrameFixedBodyPanelGeometrySettings::surfaceNormal_,
+                            R"doc(
+        Panel outward surface normal vector (in specified frame)
+
+        :type: np.array
+        )doc" )
+            .def_readwrite( "area",
+                            &tss::FrameFixedBodyPanelGeometrySettings::area_,
+                            R"doc(
+        Panel surface area
+
+        :type: float
+        )doc" );
+
+    py::class_< tss::FrameVariableBodyPanelGeometrySettings,
+                tss::BodyPanelGeometrySettings,
+                std::shared_ptr< tss::FrameVariableBodyPanelGeometrySettings > >( m,
+
+                                                                                  "FrameVariableBodyPanelGeometrySettings",
+
+                                                                                  R"doc(
+        Derived class for defining the geometrical properties of a single panel on the vehicle's exterior, with a time-variable orientation in a given frame.
+        This class is typically instantiated through the :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.time_varying_panel_geometry` or :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.body_tracking_panel_geometry` functions.
+     )doc" )
+            .def_readwrite( "surface_normal_function",
+                            &tss::FrameVariableBodyPanelGeometrySettings::surfaceNormalFunction_,
+                            R"doc(
+        Function which takes the current epoch as input and returns the panel outward surface normal vector (in specified frame).
+
+        :type: Callable[[float], np.ndarray]
+        )doc" )
+            .def_readwrite( "area",
+                            &tss::FrameVariableBodyPanelGeometrySettings::area_,
+                            R"doc(
+        Panel surface area
+
+        :type: float
+        )doc" );
+
     m.def( "frame_fixed_panel_geometry",
            py::overload_cast< const Eigen::Vector3d&, const double, const std::string& >( tss::frameFixedPanelGeometry ),
            py::arg( "surface_normal" ),
@@ -142,12 +193,13 @@ As :func:`~frame_fixed_panel_geometry`, but with a time-variable outward surface
 
 Parameters
 ----------
-surface_normal_function : np.array
-    Panel outward surface normal vector (in specified frame)
+surface_normal_function : Callable[[], np.ndarray]
+    Function which takes the current epoch as input and returns the panel outward surface normal vector (in specified frame).
 area : float
     Panel surface area
 frame_orientation : str, default = ""
-    Identifier of the frame to which the panel is fixed (if body-fixed frame, this can be left empty)
+    Identifier of the frame in which the panel normal is defined
+
 Returns
 -------
 BodyPanelGeometrySettings
