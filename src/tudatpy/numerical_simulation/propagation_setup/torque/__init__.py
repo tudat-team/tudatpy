@@ -1,1 +1,1 @@
-from .expose_torque import *
+from ....kernel.numerical_simulation.propagation_setup.torque import *

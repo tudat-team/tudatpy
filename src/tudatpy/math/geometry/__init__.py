@@ -1,1 +1,1 @@
-from .expose_geometry import *
+from ...kernel.math.geometry import *

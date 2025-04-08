@@ -1,1 +1,1 @@
-from .expose_spice import *
+from ...kernel.interface.spice import *
