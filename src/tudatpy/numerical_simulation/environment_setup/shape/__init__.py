@@ -1,1 +1,1 @@
-from .expose_shape import *
+from ....kernel.numerical_simulation.environment_setup.shape import *

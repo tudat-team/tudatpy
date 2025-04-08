@@ -1,1 +1,1 @@
-from .expose_dependent_variable import *
+from ....kernel.numerical_simulation.propagation_setup.dependent_variable import *

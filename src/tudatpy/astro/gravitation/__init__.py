@@ -1,1 +1,1 @@
-from .expose_gravitation import *
+from ...kernel.astro.gravitation import *

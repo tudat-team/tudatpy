@@ -67,11 +67,31 @@ macro (add_extension import_path)
     # Update kernel target with extension
     add_dependencies(kernel ${extension_name})
 
-    # # Install
-    # install(
-    #     TARGETS ${extension_name}
-    #     RUNTIME DESTINATION ${TUDATPY_INSTALL_PATH}/${extension_path}
-    #     LIBRARY DESTINATION ${TUDATPY_INSTALL_PATH}/${extension_path}
-    # )
+    # Install
+    install(
+        TARGETS ${extension_name}
+        RUNTIME DESTINATION ${TUDATPY_INSTALL_PATH}/${extension_path}
+        LIBRARY DESTINATION ${TUDATPY_INSTALL_PATH}/${extension_path}
+    )
+
+endmacro()
+
+macro (update_sources import_path sources)
+
+    # Get module name and path from import path
+    string(REPLACE "." ";" extension_path_list ${import_path})
+    list(GET extension_path_list -1 extension_name)
+    set(extension_name expose_${extension_name})
+    list(JOIN extension_path_list "/" extension_path)
+    set(source_dir ${TUDATPY_SOURCE_DIR}/${extension_path})
+
+    # Find all source files for extension [All .cpp files in source_dir]
+    file(
+        GLOB_RECURSE new_sources
+        RELATIVE "${TUDATPY_SOURCE_DIR}"
+        "${source_dir}/*.cpp"
+    )
+
+    list(APPEND sources ${new_sources})
 
 endmacro()
