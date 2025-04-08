@@ -88,6 +88,10 @@ Classes
 
    BodyPanelGeometrySettings
 
+   FrameFixedBodyPanelGeometrySettings
+
+   FrameVariableBodyPanelGeometrySettings
+
    BodyPanelSettings
 
    FullPanelledBodySettings
@@ -95,6 +99,12 @@ Classes
 
 
 .. autoclass:: tudatpy.numerical_simulation.environment_setup.vehicle_systems.BodyPanelGeometrySettings
+   :members:
+
+.. autoclass:: tudatpy.numerical_simulation.environment_setup.vehicle_systems.FrameFixedBodyPanelGeometrySettings
+   :members:
+
+.. autoclass:: tudatpy.numerical_simulation.environment_setup.vehicle_systems.FrameVariableBodyPanelGeometrySettings
    :members:
 
 .. autoclass:: tudatpy.numerical_simulation.environment_setup.vehicle_systems.BodyPanelSettings
