@@ -15,10 +15,12 @@ from typing import Union, List, Tuple, Any, TYPE_CHECKING
 import datetime
 
 from .... import constants
-from . import expose_ephemeris as ephemeris
+from ....kernel.numerical_simulation.environment_setup import ephemeris
 
 if TYPE_CHECKING:
-    from ..expose_environment_setup import BodyListSettings
+    from ....kernel.numerical_simulation.environment_setup import (
+        BodyListSettings,
+    )
 
 
 class HorizonsQuery:
