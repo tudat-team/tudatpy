@@ -1,1 +1,1 @@
-from .expose_rigid_body import *
+from ....kernel.numerical_simulation.environment_setup.rigid_body import *

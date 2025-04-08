@@ -1,1 +1,1 @@
-from .expose_interpolators import *
+from ...kernel.math.interpolators import *

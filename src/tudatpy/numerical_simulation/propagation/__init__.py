@@ -1,4 +1,4 @@
-from .expose_propagation import *
+from ...kernel.numerical_simulation.propagation import *
 
 from .dependent_variable_dictionary import (
     DependentVariableDictionary,

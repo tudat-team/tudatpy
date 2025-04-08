@@ -43,7 +43,40 @@ def test_imports_interface() -> None:
     return None
 
 
+class TestImportsMath:
+
+    def test_import_from(self):
+        from tudatpy import math
+
+    def test_import_as(self):
+        import tudatpy.math as math
+
+    def test_import_submodules_from(self):
+        from tudatpy.math import (
+            geometry,
+            interpolators,
+            numerical_integrators,
+            root_finders,
+            statistics,
+        )
+
+    def test_import_submodules_as(self):
+        """Import each submodule with alias and call some function from it"""
+
+        # Geometry
+        import tudatpy.math.geometry as geometry
+        import tudatpy.math.interpolators as interpolators
+        import tudatpy.math.numerical_integrators as numerical_integrators
+        import tudatpy.math.root_finders as root_finders
+        import tudatpy.math.statistics as statistics
+
+        _ = geometry.Capsule(1, 2, 3, 0.5, 0.2)
+        _ = interpolators.hermite_spline_interpolation()
+
+
 def test_imports_math() -> None:
+
+    from tudatpy import math
 
     from tudatpy import math
     from tudatpy.math import (

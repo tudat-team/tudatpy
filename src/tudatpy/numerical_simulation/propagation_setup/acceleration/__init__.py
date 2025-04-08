@@ -1,1 +1,1 @@
-from .expose_acceleration import *
+from ....kernel.numerical_simulation.propagation_setup.acceleration import *

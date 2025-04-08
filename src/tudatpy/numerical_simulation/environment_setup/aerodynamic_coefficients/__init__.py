@@ -1,1 +1,1 @@
-from .expose_aerodynamic_coefficients import *
+from ....kernel.numerical_simulation.environment_setup.aerodynamic_coefficients import *
