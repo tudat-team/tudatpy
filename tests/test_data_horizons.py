@@ -1,9 +1,5 @@
-# from tudatpy.data.horizons import HorizonsQuery, HorizonsBatch
-from tudatpy.numerical_simulation.environment_setup.ephemeris import (
-    jpl_horizons,
-    HorizonsQuery,
-    HorizonsBatch,
-)
+from tudatpy.data.horizons import HorizonsQuery, HorizonsBatch
+from tudatpy.numerical_simulation.environment_setup.ephemeris import jpl_horizons
 from tudatpy.numerical_simulation import environment_setup
 
 
@@ -185,12 +181,9 @@ user_input_short = [
 ]
 
 
+@pytest.mark.parametrize("query_id,location,frame_orientation,frame_origin", targets)
 @pytest.mark.parametrize(
-    "query_id,location,frame_orientation,frame_origin", targets
-)
-@pytest.mark.parametrize(
-    "epoch_start,epoch_end,epoch_step,epoch_list,extended_query,expectation",
-    user_input,
+    "epoch_start,epoch_end,epoch_step,epoch_list,extended_query,expectation", user_input
 )
 def test_JPL_user_input(
     query_id,
@@ -217,9 +210,7 @@ def test_JPL_user_input(
         )
 
 
-@pytest.mark.parametrize(
-    "query_id,location,frame_orientation,frame_origin", targets
-)
+@pytest.mark.parametrize("query_id,location,frame_orientation,frame_origin", targets)
 @pytest.mark.parametrize(
     "epoch_start,epoch_end,epoch_step,epoch_list,extended_query,expectation",
     user_input_short,
@@ -260,12 +251,8 @@ def test_JPL_methods(
         query.name
 
 
-@pytest.mark.parametrize(
-    "query_id,location,frame_orientation,frame_origin", targets
-)
-def test_hybrid_function_wrapper(
-    query_id, location, frame_orientation, frame_origin
-):
+@pytest.mark.parametrize("query_id,location,frame_orientation,frame_origin", targets)
+def test_hybrid_function_wrapper(query_id, location, frame_orientation, frame_origin):
     """Coverage test for the hybrid function, no comparisons just seeing if it runs"""
     juice_eph_settings = jpl_horizons(
         horizons_query=query_id,
@@ -292,9 +279,7 @@ def test_hybrid_function_wrapper(
     body_settings.get("Eros").ephemeris_settings = juice_eph_settings
 
 
-@pytest.mark.parametrize(
-    "query_id,location,frame_orientation,frame_origin", targets
-)
+@pytest.mark.parametrize("query_id,location,frame_orientation,frame_origin", targets)
 @pytest.mark.parametrize(
     "epoch_start,epoch_end,epoch_step,epoch_list,extended_query,expectation",
     user_input_short,
