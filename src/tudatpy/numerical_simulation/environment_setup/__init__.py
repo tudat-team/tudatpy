@@ -11,3 +11,4 @@ from ...kernel.numerical_simulation.environment_setup import (
     shape_deformation,
     vehicle_systems,
 )
+from ...kernel.numerical_simulation.environment_setup import *
