@@ -1,8 +1,6 @@
-from .expose_environment_setup import *
-from . import (
+from ...kernel.numerical_simulation.environment_setup import (
     aerodynamic_coefficients,
     atmosphere,
-    ephemeris,
     gravity_field,
     gravity_field_variation,
     ground_station,

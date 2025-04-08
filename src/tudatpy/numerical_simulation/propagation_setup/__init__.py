@@ -1,5 +1,4 @@
-from .expose_propagation_setup import *
-from . import (
+from ...kernel.numerical_simulation.propagation_setup import (
     acceleration,
     dependent_variable,
     integrator,

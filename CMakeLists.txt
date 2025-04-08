@@ -185,7 +185,7 @@ endif ()
 set(TUDATPY_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/tudatpy)
 
 # Group all extensions into a single target
-add_custom_target(kernel)
+# add_custom_target(kernel)
 
 # Add the module directory.
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/docs DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

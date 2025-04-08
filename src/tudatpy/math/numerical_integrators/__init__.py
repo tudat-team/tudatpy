@@ -1,1 +1,1 @@
-from .expose_numerical_integrators import *
+from ...kernel.math.numerical_integrators import *

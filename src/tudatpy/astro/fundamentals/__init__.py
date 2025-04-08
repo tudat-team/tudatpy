@@ -1,1 +1,1 @@
-from .expose_fundamentals import *
+from ...kernel.astro.fundamentals import *

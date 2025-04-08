@@ -1,1 +1,3 @@
-from .expose_ephemerides import *
+from warnings import warn
+
+warn("tudatpy.astro.ephemerides is empty!")

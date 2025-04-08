@@ -1,1 +1,1 @@
-from .expose_gravity_field_variation import *
+from ....kernel.numerical_simulation.environment_setup.gravity_field_variation import *

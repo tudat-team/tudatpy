@@ -1,1 +1,1 @@
-from .expose_two_body_dynamics import *
+from ...kernel.astro.two_body_dynamics import *

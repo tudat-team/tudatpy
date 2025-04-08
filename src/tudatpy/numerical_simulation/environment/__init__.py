@@ -1,1 +1,1 @@
-from .expose_environment import *
+from ...kernel.numerical_simulation.environment import *

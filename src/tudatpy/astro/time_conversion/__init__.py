@@ -1,1 +1,1 @@
-from .expose_time_conversion import *
+from ...kernel.astro.time_conversion import *

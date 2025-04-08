@@ -1,1 +1,1 @@
-from .expose_thrust import *
+from ....kernel.numerical_simulation.propagation_setup.thrust import *
