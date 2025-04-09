@@ -122,6 +122,26 @@ private:
 
     double coefficient_;
 };
+
+class PaneledRadiationPressureTargetModelSettings : public RadiationPressureTargetModelSettings
+{
+private:
+    int maximumNumberOfPixels_;
+
+public:
+    explicit PaneledRadiationPressureTargetModelSettings(
+        const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = { },
+        int maximumNumberOfPixels = 0):
+    RadiationPressureTargetModelSettings( RadiationPressureTargetModelType::paneled_target, sourceToTargetOccultingBodies ),
+    maximumNumberOfPixels_( maximumNumberOfPixels )
+    { }
+
+    int getMaximumNumberOfPixels( ) const
+    {
+        return maximumNumberOfPixels_;
+    }
+
+};
 //
 ///*!
 // * Settings for a paneled radiation pressure target model.
@@ -376,9 +396,10 @@ inline std::shared_ptr< RadiationPressureTargetModelSettings > cannonballRadiati
  */
 inline std::shared_ptr< RadiationPressureTargetModelSettings > paneledRadiationPressureTargetModelSettingsWithOccultationMap(
         //            std::initializer_list<PaneledRadiationPressureTargetModelSettings::Panel> panels,
-        const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies )
+        const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies,
+        int maximumNumberOfPixels = 0 )
 {
-    return std::make_shared< RadiationPressureTargetModelSettings >( paneled_target, sourceToTargetOccultingBodies );
+    return std::make_shared< PaneledRadiationPressureTargetModelSettings >( sourceToTargetOccultingBodies, maximumNumberOfPixels );
 }
 
 /*!
