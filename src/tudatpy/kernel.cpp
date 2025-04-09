@@ -3,13 +3,13 @@
 
 #include <tudat/config.hpp>
 
-#include "astro/astro.hpp"
-#include "constants/constants.hpp"
-#include "data/data.hpp"
-#include "interface/interface.hpp"
-#include "math/math.hpp"
-#include "numerical_simulation/numerical_simulation.hpp"
-#include "trajectory_design/trajectory_design.hpp"
+#include "astro/expose_astro.h"
+#include "constants/expose_constants.h"
+#include "data/expose_data.h"
+#include "interface/expose_interface.h"
+#include "math/expose_math.h"
+#include "numerical_simulation/expose_numerical_simulation.h"
+#include "trajectory_design/expose_trajectory_design.h"
 
 namespace py = pybind11;
 
