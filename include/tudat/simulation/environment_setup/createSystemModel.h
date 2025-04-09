@@ -12,6 +12,9 @@
 #define TUDAT_CREATESSYTEMMODEL_H
 
 #include <memory>
+#include <iostream>
+
+#include <type_traits>
 
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/thrustSettings.h"
@@ -32,6 +35,7 @@ public:
     virtual ~BodyPanelGeometrySettings( ) { }
 
     std::string frameOrientation_;
+
 };
 
 class FrameFixedBodyPanelGeometrySettings : public BodyPanelGeometrySettings
@@ -43,20 +47,42 @@ public:
                                          const double panelTemperature = 273.0,
                                          const std::string& frameOrientation = "" ):
         BodyPanelGeometrySettings( frameOrientation ), surfaceNormal_( surfaceNormal.normalized( ) ), positionVector_( positionVector ),
-        area_( area ), panelTemperature_( panelTemperature )
+        area_( area ), panelTemperature_( panelTemperature ), geometry3dLoaded_( false )
     { }
 
     FrameFixedBodyPanelGeometrySettings( const Eigen::Vector3d& surfaceNormal,
                                          const double area,
                                          const std::string& frameOrientation = "" ):
-        BodyPanelGeometrySettings( frameOrientation ), surfaceNormal_( surfaceNormal.normalized( ) ), area_( area )
+        BodyPanelGeometrySettings( frameOrientation ), surfaceNormal_( surfaceNormal.normalized( ) ), area_( area ), geometry3dLoaded_( false )
     { }
+
+    // added constructor for triangle
+    FrameFixedBodyPanelGeometrySettings( const Eigen::Vector3d vertexA, const Eigen::Vector3d vertexB, const Eigen::Vector3d vertexC,
+                                         const Eigen::Vector3d& surfaceNormal, const double area,
+                                         const Eigen::Vector3d frameOrigin = Eigen::Vector3d::Zero( ), const std::string& frameOrientation = "" ):
+        BodyPanelGeometrySettings( frameOrientation ), surfaceNormal_( surfaceNormal ), area_( area ), 
+        vertexA_( vertexA ), vertexB_( vertexB ), vertexC_( vertexC ), 
+        frameOrigin_( frameOrigin ), geometry3dLoaded_( true )
+    {   
+        Eigen::Vector3d positionVector;
+        positionVector(0) = (vertexA_(0)+vertexB_(0)+vertexC_(0))/3;
+        positionVector(1) = (vertexA_(1)+vertexB_(1)+vertexC_(1))/3;
+        positionVector(2) = (vertexA_(2)+vertexB_(2)+vertexC_(2))/3;
+
+        positionVector_ = positionVector;
+    }
 
     Eigen::Vector3d surfaceNormal_;
     Eigen::Vector3d positionVector_;
 
     double area_;
     double panelTemperature_;
+
+    Eigen::Vector3d vertexA_;
+    Eigen::Vector3d vertexB_;
+    Eigen::Vector3d vertexC_;
+    Eigen::Vector3d frameOrigin_;
+    bool geometry3dLoaded_;
 };
 
 class FrameVariableBodyPanelGeometrySettings : public BodyPanelGeometrySettings
@@ -100,10 +126,14 @@ public:
     std::function< Eigen::Vector3d( ) > surfaceNormalFunction_;
     std::function< Eigen::Vector3d( ) > positionVectorFunction_;
 
+
+
     double area_;
     double panelTemperature_;
 
     std::pair< std::string, bool > bodyToTrack_;
+
+
 };
 
 inline std::shared_ptr< BodyPanelGeometrySettings > frameFixedPanelGeometry( const Eigen::Vector3d& surfaceNormal,
@@ -176,6 +206,9 @@ public:
     std::shared_ptr< BodyPanelReflectionLawSettings > reflectionLawSettings_;
 
     std::string panelTypeId_;
+
+    std::vector< int > neighboringSurfaces_;
+
 };
 
 inline std::shared_ptr< BodyPanelSettings > bodyPanelSettings(
@@ -204,6 +237,163 @@ public:
 
     std::map< std::string, std::shared_ptr< RotationModelSettings > > partRotationModelSettings_;
 };
+
+inline std::vector< std::shared_ptr< BodyPanelSettings > > bodyPanelSettingsListFromDae( 
+    const std::string filePath,
+    const Eigen::Vector3d frameOrigin,
+    std::map< std::string, std::vector< double > > materialProperties, 
+    std::map< std::string, bool > instantaneousReradiation,
+    const std::string frameOrientation = "")
+{
+    std::vector< std::shared_ptr< BodyPanelSettings > > bodyPanelSettingsList;
+    std::ifstream file(filePath);
+    if (!file) 
+    {
+        throw std::runtime_error("Error, wrong path to DAE file!");
+    }
+    // collada parsing
+    std::stringstream buffer;
+    buffer << file.rdbuf(); 
+    std::string collada = buffer.str();
+    // library materials
+    std::string tag = "<library_materials>";
+    size_t start_materials = collada.find(tag) + tag.size();
+    size_t end_materials = collada.find("</library_materials>", start_materials)-1;
+    size_t pos = start_materials;
+    std::vector<std::string> panelMaterialIdList;
+    tag = "name=\"";
+    while (pos<end_materials) {
+        size_t start_mat = collada.find(tag, pos);
+        if (start_mat == std::string::npos || start_mat >= end_materials) {
+            break;
+        }
+        start_mat += tag.size();
+        size_t end_mat = collada.find('"', start_mat);
+        if (end_mat == std::string::npos || end_mat > end_materials) {
+            break;
+        }
+        panelMaterialIdList.push_back(collada.substr(start_mat, end_mat-start_mat));
+        pos = end_mat + 1;
+    }
+    // error handling
+    for (const auto& materialId : panelMaterialIdList) 
+    {
+        
+        auto matIt = materialProperties.find(materialId);
+        if (matIt == materialProperties.end())
+        {
+            throw std::runtime_error("Material ID " + materialId + " not found in material properties settings!");
+        }
+        if (matIt->second.size() != 2) 
+        {
+            throw std::runtime_error("Material properties for " + materialId + " do not have the expected dimension.");
+        }
+        auto reradIt = instantaneousReradiation.find(materialId);
+        if (reradIt == instantaneousReradiation.end())
+        {
+            throw std::runtime_error("Material ID " + materialId + " not found in re-radiation settings!");
+        }
+    }
+    // library geometries
+    tag = "<library_geometries>";
+    size_t start_geometries = collada.find(tag) + tag.size();
+    tag = "<source";
+    size_t start_source = collada.find(tag, start_geometries) + tag.size();
+    tag = "<float_array";
+    size_t start_float = collada.find(tag, start_source) + tag.size();
+    size_t start_array = collada.find(">", start_float) + 1;
+    size_t end_array = collada.find("<", start_array);
+    std::istringstream dummy1(collada.substr(start_array, end_array-start_array));
+    std::vector<Eigen::Vector3d> panelVerticesList;
+    double x1, y1, z1;
+    while (dummy1 >> x1 >> y1 >> z1) {
+        panelVerticesList.push_back(Eigen::Vector3d(x1, y1, z1)/1000);
+    }
+    pos = end_array;
+    // sub library: create settings
+    tag = "<triangles";
+    for (size_t i = 0; i<panelMaterialIdList.size(); i++) {
+        size_t start_triangle = collada.find(tag, pos) + tag.size();
+        std::string tag_triangle = "<p>";
+        size_t start_p = collada.find("<p>", start_triangle) + tag_triangle.size();
+        size_t end_p = collada.find("<", start_p);
+        std::istringstream dummy2(collada.substr(start_p, end_p-start_p));
+        int a, b, c, n;
+        while (dummy2 >> a >> n >> b >> n >> c >> n) {
+            Eigen::Vector3d edgeAB = panelVerticesList[b] - panelVerticesList[a];
+            Eigen::Vector3d edgeAC = panelVerticesList[c] - panelVerticesList[a];
+            double area = 0.5*edgeAB.cross(edgeAC).norm();
+            Eigen::Vector3d surfaceNormal = edgeAB.cross(edgeAC).normalized();
+            std::shared_ptr< FrameFixedBodyPanelGeometrySettings > currentGeometrySettings = 
+                std::make_shared< FrameFixedBodyPanelGeometrySettings >(panelVerticesList[a],
+                     panelVerticesList[b], panelVerticesList[c], surfaceNormal, area, frameOrigin, frameOrientation);
+            bodyPanelSettingsList.push_back(bodyPanelSettings(currentGeometrySettings, 
+                specularDiffuseBodyPanelReflectionLawSettings(materialProperties[panelMaterialIdList[i]][0], 
+                                                              materialProperties[panelMaterialIdList[i]][1],
+                                                              instantaneousReradiation[panelMaterialIdList[i]]),
+                                                              panelMaterialIdList[i]));
+                                                            
+        }
+        pos = end_p;
+    }
+    // find neighbours
+    for (int i = 0; i< static_cast<int>(bodyPanelSettingsList.size()); i++)
+    {
+        std::vector < int > neighboringSurfaces;
+        for (int j = 0; j< static_cast<int>(bodyPanelSettingsList.size()); j++)
+        {
+            if (i == j) {
+                continue;
+            }
+            std::vector<Eigen::Vector3d> V_i, V_j;
+            const std::shared_ptr< FrameFixedBodyPanelGeometrySettings > geometrySettingsI =
+                std::dynamic_pointer_cast< FrameFixedBodyPanelGeometrySettings >( bodyPanelSettingsList[i]->panelGeometry_ );
+            const std::shared_ptr< FrameFixedBodyPanelGeometrySettings > geometrySettingsJ =
+                std::dynamic_pointer_cast< FrameFixedBodyPanelGeometrySettings >( bodyPanelSettingsList[j]->panelGeometry_ );
+            V_i = { geometrySettingsI->vertexA_, geometrySettingsI->vertexB_, geometrySettingsI->vertexC_ };
+            V_j = { geometrySettingsJ->vertexA_, geometrySettingsJ->vertexB_, geometrySettingsJ->vertexC_ };
+            int match = 0;
+            for (int n = 0; n<3; n++ )
+            {
+                for ( int m = 0; m<3; m++ )
+                {
+                    if ( V_i[n].isApprox(V_j[m]) )
+                    {
+                        match++;
+                    }
+                }
+            }
+            if (match==2) 
+            {
+                neighboringSurfaces.push_back(j);
+            }
+            
+        }
+        bodyPanelSettingsList[i]->neighboringSurfaces_ = neighboringSurfaces;
+    }
+
+    return bodyPanelSettingsList;
+
+}
+
+inline std::vector< std::shared_ptr< BodyPanelSettings > > mergeBodyPanelSettingsLists( std::vector< std::vector< std::shared_ptr< BodyPanelSettings > > > listOfLists )
+{
+    std::vector< std::shared_ptr<BodyPanelSettings > > mergedList;
+    int buffer = 0;
+    for ( auto it : listOfLists ) 
+    {   
+        for ( auto panel : it )
+        {
+            panel->neighboringSurfaces_[0] += buffer;
+            panel->neighboringSurfaces_[1] += buffer;
+            panel->neighboringSurfaces_[2] += buffer;
+        }
+        buffer += it.size( );
+        mergedList.insert(mergedList.end(), it.begin(), it.end());
+    }
+    return mergedList;
+    
+}
 
 inline std::shared_ptr< FullPanelledBodySettings > fullPanelledBodySettings(
         const std::vector< std::shared_ptr< BodyPanelSettings > >& panelSettingsList,
