@@ -559,7 +559,10 @@ that :math:`\epsilon_{i}\rightarrow||\boldsymbol{\epsilon_{[i,k],[j,l]}}||`. Whe
 start column :math:`j`, number of rows :math:`k` and number of columns :math:`l`. over
 which the state error norm is to be taken. For a single Cartesian state vector, the norm is taken on blocks :math:`[0,3],[0,1]` and :math:`[3,3],[0,1]`
 
+.. note::
 
+    If you would like to create block indices that group the position and velocity elements, take a look at the :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.standard_cartesian_state_element_blocks` function.
+    The function will create a list of blocks that can be used as input to the `block_indices` argument of this function.
 
 Parameters
 ----------
@@ -581,8 +584,94 @@ IntegratorStepSizeControlSettings
     Object containing settings for per-element step-size control.
 
 
+Examples
+--------
+In this example, step size control settings are created for a Cartesian state vector, which group the position and velocity elements for the step size validation. Note, these block indices can also be conveniently created using the :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.standard_cartesian_state_element_blocks` function.
+Here we will create them manually for demonstration purposes.
+
+We would like to create integrator settings with the following settings:
+
+- Relative error tolerance of 1e-12
+- Absolute error tolerance of 1e-12
+- Relative and absolute error tolerances are applied to the position and velocity blocks of a single Cartesian state vector
+
+.. code-block:: python
+
+    from tudatpy.numerical_simulation import propagation_setup
+
+    ...
+
+    # Define integrator step settings
+    initial_time_step = 10.0
+    minimum_step_size = 1.0e-12
+    maximum_step_size = 60.0
+
+    relative_tolerance = 1.0e-12
+    absolute_tolerance = 1.0e-12
+
+    """
+    Our Cartesian state y is a 2D vector, with dimensions [6, 1].
+
+    # column-index
+           0
+    y = [[ x ], # row-index 0
+         [ y ], # row-index 1
+         [ z ], # row-index 2
+         [ vx ], # row-index 3
+         [ vy ], # row-index 4
+         [ vz ]] # row-index 5
+
+    The block indices are denoted as i, j, k, l, where:
+    - i: start row index of the block
+    - j: start column index of the block
+    - k: number of rows in the block
+    - l: number of columns in the block
+
+    The corresponding block indices for the position block are therefore
+    - i = 0 (start the block at row-index 0)
+    - j = 0 (start the block at column-index 0)
+    - k = 3 (the block has 3 rows: x, y, z)
+    - l = 1 (the block has 1 column)
+    which gives us the block indices (i=0, j=0, k=3, l=1).
 
 
+    For the velocity block, the indices are:
+    - i = 3 (start the block at row-index 3)
+    - j = 0 (start the block at column-index 0)
+    - k = 3 (the block has 3 rows: vx, vy, vz)
+    - l = 1 (the block has 1 column)
+    which gives us the block indices (i=3, j=0, k=3, l=1).
+
+    """
+
+    # Manually define block indices for position and velocity,
+    # which is equivalent to the standard block indices using:
+    # block_indices = propagation_setup.integrator.standard_cartesian_state_element_blocks(6, 1)
+    block_indices = [(0, 0, 3, 1), (3, 0, 3, 1)]
+
+    step_size_control_settings = (
+        propagation_setup.integrator.step_size_control_blockwise_scalar_tolerance(
+            block_indices, relative_tolerance, absolute_tolerance
+        )
+    )
+
+    step_size_validation_settings = propagation_setup.integrator.step_size_validation(
+        minimum_step=minimum_step_size, maximum_step=maximum_step_size
+    )
+
+    # Retrieve coefficient set
+    coefficient_set = propagation_setup.integrator.rkf_78
+
+    variable_step_integrator_settings = (
+        propagation_setup.integrator.runge_kutta_variable_step(
+            initial_time_step,
+            coefficient_set,
+            step_size_control_settings,
+            step_size_validation_settings,
+        )
+    )
+
+    ...
 
 
     )doc" );
@@ -606,7 +695,10 @@ different tolerances can be provided for each state block.
 
 If the size of the tolerances used as input differ from one another, or differ from the number of blocks, an exception is thrown
 
+.. note::
 
+    If you would like to create block indices that group the position and velocity elements, take a look at the :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.standard_cartesian_state_element_blocks` function.
+    The function will create a list of blocks that can be used as input to the `block_indices` argument of this function.
 
 Parameters
 ----------
@@ -628,7 +720,102 @@ IntegratorStepSizeControlSettings
     Object containing settings for per-element step-size control.
 
 
+Examples
+--------
+In this example, step size control settings are created for a Cartesian state vector, which group the position and velocity elements for the step size validation. Note, these block indices can also be conveniently created using the :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.standard_cartesian_state_element_blocks` function.
+Here we will create them manually for demonstration purposes.
 
+We would like to create integrator settings with the following settings:
+
+- Relative error tolerance of 1e-12 for position and velocity blocks
+- Absolute error tolerance of 1e-9 for position and 1e-12 for velocity blocks
+
+.. code-block:: python
+
+    import numpy as np
+
+    from tudatpy.numerical_simulation import propagation_setup
+
+    ...
+
+    # Define integrator step settings
+    initial_time_step = 10.0
+    minimum_step_size = 1.0e-12
+    maximum_step_size = 60.0
+
+    relative_tolerance_pos = 1.0e-12
+    relative_tolerance_vel = 1.0e-12
+    absolute_tolerance_pos = 1.0e-9
+    absolute_tolerance_vel = 1.0e-12
+
+    """
+    Our Cartesian state y is a 2D vector, with dimensions [6, 1].
+
+    # column-index
+        0
+    y = [[ x ], # row-index 0
+        [ y ], # row-index 1
+        [ z ], # row-index 2
+        [ vx ], # row-index 3
+        [ vy ], # row-index 4
+        [ vz ]] # row-index 5
+
+    The block indices are denoted as i, j, k, l, where:
+    - i: start row index of the block
+    - j: start column index of the block
+    - k: number of rows in the block
+    - l: number of columns in the block
+
+    The corresponding block indices for the position block are therefore
+    - i = 0 (start the block at row-index 0)
+    - j = 0 (start the block at column-index 0)
+    - k = 3 (the block has 3 rows: x, y, z)
+    - l = 1 (the block has 1 column)
+    which gives us the block indices (i=0, j=0, k=3, l=1).
+
+
+    For the velocity block, the indices are:
+    - i = 3 (start the block at row-index 3)
+    - j = 0 (start the block at column-index 0)
+    - k = 3 (the block has 3 rows: vx, vy, vz)
+    - l = 1 (the block has 1 column)
+    which gives us the block indices (i=3, j=0, k=3, l=1).
+
+    """
+
+    # Manually define block indices for position and velocity,
+    # which is equivalent to the standard block indices using:
+    # block_indices = propagation_setup.integrator.standard_cartesian_state_element_blocks(6, 1)
+    block_indices = [(0, 0, 3, 1), (3, 0, 3, 1)]
+
+    # Different from the scalar tolerance, the matrix tolerance is defined as
+    # the relative and absolute tolerances for each block.
+    relative_tolerances = np.array([[relative_tolerance_pos], [relative_tolerance_vel]])
+    absolute_tolerances = np.array([[absolute_tolerance_pos], [absolute_tolerance_vel]])
+
+    step_size_control_settings = (
+        propagation_setup.integrator.step_size_control_blockwise_matrix_tolerance(
+            block_indices, relative_tolerances, absolute_tolerances
+        )
+    )
+
+    step_size_validation_settings = propagation_setup.integrator.step_size_validation(
+        minimum_step=minimum_step_size, maximum_step=maximum_step_size
+    )
+
+    # Retrieve coefficient set
+    coefficient_set = propagation_setup.integrator.rkf_78
+
+    variable_step_integrator_settings = (
+        propagation_setup.integrator.runge_kutta_variable_step(
+            initial_time_step,
+            coefficient_set,
+            step_size_control_settings,
+            step_size_validation_settings,
+        )
+    )
+
+    ...
 
 
 
