@@ -23,7 +23,7 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/astro/electromagnetism/reflectionLaw.h"
 #include "tudat/astro/system_models/vehicleExteriorPanels.h"
-#include "tudat/astro/system_models/vehicleExteriorPanels.h"
+#include "tudat/astro/system_models/selfShadowing.h"
 
 namespace tudat
 {
@@ -240,9 +240,11 @@ public:
                     std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > >( ),
             const std::map< std::string, std::function< Eigen::Quaterniond( ) > >& segmentFixedToBodyFixedRotations =
                     std::map< std::string, std::function< Eigen::Quaterniond( ) > >( ),
-            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = { } ):
+            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = { }, 
+            const int maximumNumberOfPixels = 0):
         RadiationPressureTargetModel( sourceToTargetOccultingBodies ), bodyFixedPanels_( bodyFixedPanels ),
-        segmentFixedPanels_( segmentFixedPanels ), segmentFixedToBodyFixedRotations_( segmentFixedToBodyFixedRotations )
+        segmentFixedPanels_( segmentFixedPanels ), segmentFixedToBodyFixedRotations_( segmentFixedToBodyFixedRotations ),
+        maximumNumberOfPixels_( maximumNumberOfPixels )
     {
         totalNumberOfPanels_ = bodyFixedPanels_.size( );
         fullPanels_ = bodyFixedPanels_;
@@ -257,6 +259,23 @@ public:
         panelForces_.resize( totalNumberOfPanels_ );
         surfacePanelCosines_.resize( totalNumberOfPanels_ );
         surfaceNormals_.resize( totalNumberOfPanels_ );
+        allRotatedPanels_.resize( totalNumberOfPanels_ );
+        illuminatedPanelFractions_.resize( totalNumberOfPanels_ );
+
+        // check if macro-model is loaded (find at least one geometry3dLoaded == false)
+        macroModelLoaded_ = true;
+        for (int i = 0; i<totalNumberOfPanels_; i++)
+        {
+            if ( !fullPanels_[i]->isGeometryLoaded( ) ) 
+            {   
+                macroModelLoaded_ = false;
+                break;
+            }
+        }
+        if (macroModelLoaded_)
+        {
+            std::cout<<"Macromodel loaded succesfully!"<<std::endl;
+        }
     }
 
     void enableTorqueComputation( const std::function< Eigen::Vector3d( ) > centerOfMassFunction ) override
@@ -381,6 +400,14 @@ private:
     std::map< std::string, std::vector< double > > surfacePanelCosinesPerSource_;
     std::map< std::string, std::vector< Eigen::Vector3d > > panelForcesPerSource_;
     std::map< std::string, std::vector< Eigen::Vector3d > > panelTorquesPerSource_;
+
+    // ssh variables
+    int maximumNumberOfPixels_;
+    bool macroModelLoaded_;
+
+    system_models::SelfShadowing selfShadowing_;
+    std::vector< double > illuminatedPanelFractions_;
+    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > allRotatedPanels_;
 };
 
 }  // namespace electromagnetism
