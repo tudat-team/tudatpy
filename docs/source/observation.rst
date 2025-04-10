@@ -86,6 +86,8 @@ Functions
 
    cartesian_position
 
+   relative_cartesian_position
+
    cartesian_velocity
 
    313_euler_angles
@@ -215,6 +217,8 @@ Functions
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.two_way_doppler_averaged_from_one_way_links
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.cartesian_position
+
+.. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.relative_cartesian_position
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.cartesian_velocity
 
