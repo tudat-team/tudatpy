@@ -65,6 +65,12 @@ void expose_thrust_setup( py::module &m )
             Reference ID of the thrust origin that should be used (empty if N/A).
 
 
+    m.def( "get_propulsion_input_variables",
+           &tss::getPropulsionInputVariables,
+           py::arg( "body_with_guidance" ) = std::shared_ptr< tss::Body >( ),
+           py::arg( "independent_variables" ) = std::vector< tudat::propulsion::ThrustIndependentVariables >( ),
+           py::arg( "guidance_input_functions" ) = std::vector< std::function< double( ) > >( ) );  //,
+    //          get_docstring("get_propulsion_input_variables").c_str());
 
 
      )doc" )
@@ -148,9 +154,29 @@ Returns
 ConstantThrustMagnitudeSettings
     Constant thrust magnitude settings object.
 
+    m.def( "custom_thrust_magnitude",
+           &tss::fromFunctionThrustMagnitudeSettings,
+           py::arg( "thrust_magnitude_function" ),
+           py::arg( "specific_impulse_function" ),
+           get_docstring( "custom_thrust_magnitude" ).c_str( ) );
 
+    m.def( "custom_thrust_magnitude_fixed_isp",
+           &tss::fromFunctionThrustMagnitudeFixedIspSettings,
+           py::arg( "thrust_magnitude_function" ),
+           py::arg( "specific_impulse" ),
+           get_docstring( "custom_thrust_magnitude_fixed_isp" ).c_str( ) );
 
+    m.def( "custom_thrust_acceleration_magnitude",
+           &tss::customThrustAccelerationMagnitudeSettings,
+           py::arg( "thrust_acceleration_magnitude_function" ),
+           py::arg( "specific_impulse_function" ),
+           get_docstring( "custom_thrust_acceleration_magnitude" ).c_str( ) );
 
+    m.def( "custom_thrust_acceleration_magnitude_fixed_isp",
+           &tss::customThrustAccelerationMagnitudeFixedIspSettings,
+           py::arg( "thrust_acceleration_magnitude_function" ),
+           py::arg( "specific_impulse" ),
+           get_docstring( "custom_thrust_acceleration_magnitude_fixed_isp" ).c_str( ) );
 
 Examples
 --------

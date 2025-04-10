@@ -62,6 +62,12 @@ void expose_rigid_body_setup( py::module &m )
         This class is a functional base class for settings of gravity field models that require no information in addition to their type.
         Gravity field model classes requiring additional information must be created using an object derived from this class.
 
+    m.def( "constant_rigid_body_properties",
+           tss::constantRigidBodyPropertiesSettings,
+           py::arg( "mass" ),
+           py::arg( "center_of_mass" ) = Eigen::Vector3d::Constant( TUDAT_NAN ),
+           py::arg( "inertia_tensor" ) = Eigen::Matrix3d::Constant( TUDAT_NAN ),
+           get_docstring( "constant_rigid_body_properties" ).c_str( ) );
 
 
 

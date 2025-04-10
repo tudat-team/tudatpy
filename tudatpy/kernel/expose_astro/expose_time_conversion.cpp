@@ -351,6 +351,9 @@ float
 
 Function to convert a Python datetime.datetime object to a Tudat :class:`DateTime` object. The Tudat-native alternative has the advantage of providing sub-femtosecond resolution, as opposed to the microsecond resolution of the Python version
 
+void expose_time_conversion( py::module& m )
+{
+    //    m.attr("default_time_converter") = tudat::earth_orientation::defaultTimeConverter;
 
 Parameters
 ----------
@@ -382,6 +385,13 @@ Returns
 DateTime
     Corresponding calendar date as a :class:`DateTime` object. Note: the hours, minutes and seconds in the object are set to 0 when calling this function.
 
+    py::enum_< tba::TimeScales >( m, "TimeScales" )
+            .value( "tai_scale", tba::tai_scale )
+            .value( "tt_scale", tba::tt_scale )
+            .value( "tdb_scale", tba::tdb_scale )
+            .value( "utc_scale", tba::utc_scale )
+            .value( "ut1_scale", tba::ut1_scale )
+            .export_values( );
 
 
 

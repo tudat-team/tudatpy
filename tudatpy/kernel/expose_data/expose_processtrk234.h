@@ -8,13 +8,24 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_SCALAR_TYPES_H
-#define TUDATPY_SCALAR_TYPES_H
+#ifndef TUDATPY_EXPOSE_PROCESSTRK234_H
+#define TUDATPY_EXPOSE_PROCESSTRK234_H
 
-#include "tudat/basics/timeType.h"
+#include <pybind11/pybind11.h>
 
-#define STATE_SCALAR_TYPE double       // long double
-#define TIME_TYPE double               // tudat::Time
-#define INTERPOLATOR_TIME_TYPE double  // tudat::Time
+namespace py = pybind11;
 
-#endif  // TUDATPY_SCALAR_TYPES_H
+namespace tudatpy
+{
+namespace data
+{
+namespace processTrk234
+{
+
+void expose_processTrk234( py::module &m );
+
+}
+}  // namespace data
+}  // namespace tudatpy
+
+#endif  // TUDATPY_EXPOSE_PROCESSTRK234_H

@@ -47,8 +47,24 @@ void expose_rotation_model_setup( py::module &m )
 
         Enumeration of rotation model types supported by tudat.
 
+    m.def( "simple",
+           py::overload_cast< const std::string &, const std::string &, const Eigen::Matrix3d &, const double, const double >(
+                   &tss::simpleRotationModelSettings ),
+           py::arg( "base_frame" ),
+           py::arg( "target_frame" ),
+           py::arg( "initial_orientation" ),
+           py::arg( "initial_time" ),
+           py::arg( "rotation_rate" ),
+           get_docstring( "simple" ).c_str( ) );
 
 
+    m.def( "custom_rotation_model",
+           &tss::customRotationModelSettings,
+           py::arg( "base_frame" ),
+           py::arg( "target_frame" ),
+           py::arg( "custom_rotation_matrix_function" ),
+           py::arg( "finite_difference_time_step" ),
+           get_docstring( "custom_rotation_model" ).c_str( ) );
 
 
      )doc" )

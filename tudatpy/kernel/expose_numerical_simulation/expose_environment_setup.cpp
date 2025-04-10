@@ -72,6 +72,11 @@ void expose_environment_setup( py::module &m )
         leave this entry empty. NOTE: this option is a shorthand for assigning a mass-only
         :func:`~tudatpy.numerical_simulation.environment_setup.rigid_body.constant_rigid_body_properties` to ``mass_property_settings``, and will be deprecated.
 
+void expose_environment_setup( py::module &m )
+{
+    //        m.def("get_body_gravitational_parameter",
+    //              &tss::getBodyGravitationalParameter,
+    //              py::arg("body_collection"), py::arg("body_name"));
 
         :type: float
      )doc" )
@@ -83,6 +88,20 @@ void expose_environment_setup( py::module &m )
         may be defined inside this object. A variable of this type is typically assigned by using a function from the
         :ref:`\`\`atmosphere\`\`` module.
 
+    m.def( "get_default_body_settings_time_limited",
+           py::overload_cast< const std::vector< std::string > &,
+                              const double,
+                              const double,
+                              const std::string,
+                              const std::string,
+                              const double >( &tss::getDefaultBodySettings ),
+           py::arg( "bodies" ),
+           py::arg( "initial_time" ),
+           py::arg( "final_time" ),
+           py::arg( "base_frame_origin" ) = "SSB",
+           py::arg( "base_frame_orientation" ) = "ECLIPJ2000",
+           py::arg( "time_step" ) = 300.0,
+           get_docstring( "get_default_body_settings_time_limited" ).c_str( ) );
 
         :type: AtmosphereSettings
      )doc" )
@@ -91,6 +110,15 @@ void expose_environment_setup( py::module &m )
         Object that defines the settings of the ephemeris model that is to be created. A variable of this type is typically
         assigned by using a function from the :ref:`\`\`ephemeris\`\`` module.
 
+    m.def( "get_default_single_body_settings_time_limited",
+           py::overload_cast< const std::string &, const double, const double, const std::string &, const double >(
+                   &tss::getDefaultSingleBodySettings ),
+           py::arg( "body_name" ),
+           py::arg( "initial_time" ),
+           py::arg( "final_time" ),
+           py::arg( "base_frame_orientation" ) = "ECLIPJ2000",
+           py::arg( "time_step" ) = 300.0,
+           get_docstring( "get_default_single_body_settings_time_limited" ).c_str( ) );
 
         :type: EphemerisSettings
      )doc" )
@@ -685,6 +713,12 @@ selected body. In addition to the identifier for the body to which it is assigne
 requires the full :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies` as input, to facilitate
 inter-body dependencies in the coefficient interface
 
+    m.def( "add_aerodynamic_coefficient_interface",
+           &tss::addAerodynamicCoefficientInterface,
+           py::arg( "bodies" ),
+           py::arg( "body_name" ),
+           py::arg( "coefficient_settings" ),
+           get_docstring( "add_aerodynamic_coefficient_interface" ).c_str( ) );
 
 Parameters
 ----------

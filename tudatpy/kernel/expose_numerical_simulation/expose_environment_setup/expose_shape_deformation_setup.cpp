@@ -40,7 +40,15 @@ void expose_shape_deformation_setup( py::module &m )
         Functional (base) class for settings of body shape deformation models that require no information in addition to their type.
         Body shape deformation model settings requiring additional information must be defined using an object derived from this class.
 
+    m.def( "degree_two_basic_solid_body_tidal",
+           &tss::degreeTwoBasicTidalBodyShapeDeformation,
+           py::arg( "tide_raising_bodies" ),
+           py::arg( "love_number" ),
+           py::arg( "shida_number" ),
+           py::arg( "reference_radius" ) = TUDAT_NAN,
+           get_docstring( "degree_two_basic_solid_body_tidal" ).c_str( ) );
 
+    m.def( "iers_2010_solid_body_tidal", &tss::iers2010TidalBodyShapeDeformation, get_docstring( "iers_2010_solid_body_tidal" ).c_str( ) );
 
 
 

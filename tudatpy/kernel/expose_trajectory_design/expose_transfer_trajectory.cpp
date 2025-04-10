@@ -42,7 +42,11 @@ void expose_transfer_trajectory( py::module &m )
 
         Enumeration of available leg types.
 
+    py::class_< tsbm::HodographicShapingLeg, std::shared_ptr< tsbm::HodographicShapingLeg >, tms::TransferLeg >(
+            m, "HodographicShapingLeg", get_docstring( "HodographicShapingLeg" ).c_str( ) );
 
+    py::class_< tms::TransferNodeSettings, std::shared_ptr< tms::TransferNodeSettings > >(
+            m, "TransferNodeSettings", get_docstring( "TransferNodeSettings" ).c_str( ) );
 
 
 
@@ -78,7 +82,21 @@ void expose_transfer_trajectory( py::module &m )
         Functional (base) class for transfer legs, requiring the leg type, departure body ephemeris and arrival body ephemeris.
         Transfer node classes requiring additional information must be created using an object derived from this class.
 
+    m.def( "spherical_shaping_leg",
+           &tms::sphericalShapingLeg,
+           py::arg( "root_finder_settings" ),
+           py::arg( "lower_bound_free_coefficient" ) = TUDAT_NAN,
+           py::arg( "upper_bound_free_coefficient" ) = TUDAT_NAN,
+           py::arg( "initial_value_free_coefficient" ) = TUDAT_NAN,
+           py::arg( "time_to_azimuth_interpolator_step_size" ) = tpc::JULIAN_DAY,
+           get_docstring( "spherical_shaping_leg" ).c_str( ) );
 
+    m.def( "hodographic_shaping_leg",
+           &tms::hodographicShapingLeg,
+           py::arg( "radial_velocity_function_components" ),
+           py::arg( "normal_velocity_function_components" ),
+           py::arg( "axial_velocity_function_components" ),
+           get_docstring( "hodographic_shaping_leg" ).c_str( ) );
 
 
 

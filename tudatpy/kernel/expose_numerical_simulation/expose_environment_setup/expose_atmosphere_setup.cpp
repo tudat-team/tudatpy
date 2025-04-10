@@ -136,8 +136,22 @@ void expose_atmosphere_setup( py::module &m )
         Functional (base) class for settings of wind models that require no information in addition to their type.
         Wind model classes requiring additional information must be created using an object derived from this class.
 
+    // END OF NRLMSISE00
+    py::enum_< tss::AtmosphereDependentVariables >( m, "AtmosphereDependentVariables" )
+            .value( "tabulated_density", tss::AtmosphereDependentVariables::density_dependent_atmosphere )
+            .value( "tabulated_pressure", tss::AtmosphereDependentVariables::pressure_dependent_atmosphere )
+            .value( "tabulated_temperature", tss::AtmosphereDependentVariables::temperature_dependent_atmosphere )
+            .value( "tabulated_gas_constant", tss::AtmosphereDependentVariables::gas_constant_dependent_atmosphere )
+            .value( "tabulated_specific_heat_ratio", tss::AtmosphereDependentVariables::specific_heat_ratio_dependent_atmosphere )
+            .value( "tabulated_molar_mass", tss::AtmosphereDependentVariables::molar_mass_dependent_atmosphere )
+            .export_values( );
 
 
+    m.def( "constant_wind_model",
+           &tss::constantWindModelSettings,
+           py::arg( "wind_velocity" ),
+           py::arg( "associated_reference_frame" ) = trf::vertical_frame,
+           get_docstring( "constant_wind_model" ).c_str( ) );
 
 
      )doc" );
@@ -157,8 +171,19 @@ void expose_atmosphere_setup( py::module &m )
         Functional (base) class for settings of atmosphere models that require no information in addition to their type.
         Atmosphere model classes requiring additional information must be created using an object derived from this class.
 
+    m.def( "exponential_predefined",
+           py::overload_cast< const std::string & >( &tss::exponentialAtmosphereSettings ),
+           py::arg( "body_name" ),
+           get_docstring( "exponential_predefined" ).c_str( ) );
 
 
+    m.def( "tabulated",
+           &tss::tabulatedAtmosphereSettings,
+           py::arg( "atmosphere_data_file" ),
+           py::arg( "dependent_variable_names" ) = std::vector< ta::AtmosphereDependentVariables >(
+                   { tss::density_dependent_atmosphere, tss::pressure_dependent_atmosphere, tss::temperature_dependent_atmosphere } ),
+           py::arg( "specific_gas_constant" ) = tp::SPECIFIC_GAS_CONSTANT_AIR,
+           py::arg( "ratio_of_specific_heats" ) = 1.4 );
 
 
      )doc" )
@@ -183,8 +208,23 @@ void expose_atmosphere_setup( py::module &m )
 
         `AtmosphereSettings` derived class for a defining the settings of an exponential atmosphere model.
 
+    m.def( "custom_constant_temperature",
+           py::overload_cast< const std::function< double( const double ) >, const double, const double, const double >(
+                   &tss::customConstantTemperatureAtmosphereSettings ),
+           py::arg( "density_function" ),
+           py::arg( "constant_temperature" ),
+           py::arg( "specific_gas_constant" ) = tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+           py::arg( "ratio_of_specific_heats" ) = 1.4,
+           get_docstring( "custom_constant_temperature" ).c_str( ) );
 
 
+    m.def( "scaled_by_function",
+           py::overload_cast< const std::shared_ptr< tss::AtmosphereSettings >, const std::function< double( const double ) >, const bool >(
+                   &tss::scaledAtmosphereSettings ),
+           py::arg( "unscaled_atmosphere_settings" ),
+           py::arg( "density_scaling_function" ),
+           py::arg( "is_scaling_absolute" ) = false,
+           get_docstring( "scaled_by_function" ).c_str( ) );
 
      )doc" );
 

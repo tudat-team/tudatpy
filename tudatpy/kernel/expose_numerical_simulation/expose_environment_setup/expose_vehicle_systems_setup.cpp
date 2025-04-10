@@ -40,6 +40,20 @@ void expose_vehicle_systems_setup( py::module& m )
 
         Base class for defining the geometrical properties of a single panel on the vehicle's exterior
 
+    m.def( "box_wing_panelled_body_settings",
+           &tss::bodyWingPanelledGeometry,
+           py::arg( "length" ),
+           py::arg( "width" ),
+           py::arg( "height" ),
+           py::arg( "solar_array_area" ),
+           py::arg( "box_specular_reflectivity" ),
+           py::arg( "box_diffuse_reflectivity" ),
+           py::arg( "solar_array_specular_reflectivity" ),
+           py::arg( "solar_array_diffuse_reflectivity" ),
+           py::arg( "box_instantaneous_reradiation " ) = true,
+           py::arg( "solar_array_instantaneous_reradiation " ) = true,
+           get_docstring( "box_wing_panelled_body_settings" ).c_str( ) );
+}
 
 
 

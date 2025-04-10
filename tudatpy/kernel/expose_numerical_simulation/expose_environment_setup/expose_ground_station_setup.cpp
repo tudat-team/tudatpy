@@ -40,6 +40,13 @@ void expose_ground_station_setup( py::module &m )
 
         Base class for providing settings for the creation of a ground station.
 
+    m.def( "basic_station",
+           &tss::groundStationSettings,
+           py::arg( "station_name" ),
+           py::arg( "station_nominal_position" ),
+           py::arg( "station_position_element_type" ) = tcc::cartesian_position,
+           py::arg( "station_motion_settings" ) = std::vector< std::shared_ptr< tss::GroundStationMotionSettings > >( ),
+           get_docstring( "basic_station" ).c_str( ) );
 
      )doc")
                         .def_property("station_position", &tss::GroundStationSettings::getGroundStationPosition,
