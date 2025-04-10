@@ -39,9 +39,9 @@ void expose_rotation_model_setup( py::module &m )
     /////////////////////////////////////////////////////////////////////////////
     // createRotationalModel.h
     /////////////////////////////////////////////////////////////////////////////
-    py::enum_< tss::RotationModelType >( m,
-                                         "RotationModelType",
-                                         R"doc(
+    py::enum_<tss::RotationModelType>( m,
+                                       "RotationModelType",
+                                       R"doc(
 
         Enumeration of rotation model types.
 
@@ -52,28 +52,29 @@ void expose_rotation_model_setup( py::module &m )
 
 
      )doc" )
-            .value( "simple_rotational_model", tss::RotationModelType::simple_rotation_model, R"doc(No documentation found.)doc" )
-            .value( "spice_rotation_model",
-                    tss::RotationModelType::spice_rotation_model,
-                    R"doc(
+        .value( "simple_rotational_model", tss::RotationModelType::simple_rotation_model,
+                R"doc(No documentation found.)doc" )
+        .value( "spice_rotation_model",
+                tss::RotationModelType::spice_rotation_model,
+                R"doc(
      )doc" )
-            .value( "gcrs_to_itrs_rotation_model",
-                    tss::RotationModelType::gcrs_to_itrs_rotation_model,
-                    R"doc(
+        .value( "gcrs_to_itrs_rotation_model",
+                tss::RotationModelType::gcrs_to_itrs_rotation_model,
+                R"doc(
      )doc" )
-            .value( "synchronous_rotation_model",
-                    tss::RotationModelType::synchronous_rotation_model,
-                    R"doc(
+        .value( "synchronous_rotation_model",
+                tss::RotationModelType::synchronous_rotation_model,
+                R"doc(
      )doc" )
-            .value( "planetary_rotation_model",
-                    tss::RotationModelType::planetary_rotation_model,
-                    R"doc(
+        .value( "planetary_rotation_model",
+                tss::RotationModelType::planetary_rotation_model,
+                R"doc(
      )doc" )
-            .export_values( );
+        .export_values( );
 
-    py::enum_< tba::IAUConventions >( m,
-                                      "IAUConventions",
-                                      R"doc(
+    py::enum_<tba::IAUConventions>( m,
+                                    "IAUConventions",
+                                    R"doc(
 
         Enumeration of IAU conventions for Earth rotation.
 
@@ -84,21 +85,21 @@ void expose_rotation_model_setup( py::module &m )
 
 
      )doc" )
-            .value( "iau_2000_a",
-                    tba::IAUConventions::iau_2000_a,
-                    R"doc(
+        .value( "iau_2000_a",
+                tba::IAUConventions::iau_2000_a,
+                R"doc(
      )doc" )
-            .value( "iau_2000_b",
-                    tba::IAUConventions::iau_2000_b,
-                    R"doc(
+        .value( "iau_2000_b",
+                tba::IAUConventions::iau_2000_b,
+                R"doc(
      )doc" )
-            .value( "iau_2006",
-                    tba::IAUConventions::iau_2006,
-                    R"doc(
+        .value( "iau_2006",
+                tba::IAUConventions::iau_2006,
+                R"doc(
      )doc" )
-            .export_values( );
+        .export_values( );
 
-    py::class_< tss::RotationModelSettings, std::shared_ptr< tss::RotationModelSettings > >( m, "RotationModelSettings", R"doc(
+    py::class_<tss::RotationModelSettings, std::shared_ptr<tss::RotationModelSettings> >( m, "RotationModelSettings", R"doc(
 
         Base class for providing settings for automatic rotation model creation.
 
@@ -111,16 +112,16 @@ void expose_rotation_model_setup( py::module &m )
 
 
      )doc" )
-            //            .def(py::init<const
-            //            tss::RotationModelType, const std::string
-            //            &,
-            //                 const std::string &>(),
-            //                 py::arg("rotation_type"),
-            //                 py::arg("base_frame"),
-            //                 py::arg("target_frame"))
-            .def_property_readonly( "rotation_type",
-                                    &tss::RotationModelSettings::getRotationType,
-                                    R"doc(
+        //            .def(py::init<const
+        //            tss::RotationModelType, const std::string
+        //            &,
+        //                 const std::string &>(),
+        //                 py::arg("rotation_type"),
+        //                 py::arg("base_frame"),
+        //                 py::arg("target_frame"))
+        .def_property_readonly( "rotation_type",
+                                &tss::RotationModelSettings::getRotationType,
+                                R"doc(
 
         **read-only**
 
@@ -128,18 +129,18 @@ void expose_rotation_model_setup( py::module &m )
 
         :type: RotationModelType
      )doc" )
-            .def_property( "base_frame",
-                           &tss::RotationModelSettings::getOriginalFrame,
-                           &tss::RotationModelSettings::resetOriginalFrame,
-                           R"doc(
+        .def_property( "base_frame",
+                       &tss::RotationModelSettings::getOriginalFrame,
+                       &tss::RotationModelSettings::resetOriginalFrame,
+                       R"doc(
 
         Name of the base frame of rotation model.
 
         :type: str
      )doc" )
-            .def_property_readonly( "target_frame",
-                                    &tss::RotationModelSettings::getTargetFrame,
-                                    R"doc(
+        .def_property_readonly( "target_frame",
+                                &tss::RotationModelSettings::getTargetFrame,
+                                R"doc(
 
         **read-only**
 
@@ -148,15 +149,15 @@ void expose_rotation_model_setup( py::module &m )
         :type: str
      )doc" );
 
-    py::class_< tss::SimpleRotationModelSettings, std::shared_ptr< tss::SimpleRotationModelSettings >, tss::RotationModelSettings >(
-            m, "SimpleRotationModelSettings", R"doc(No documentation found.)doc" );
+    py::class_<tss::SimpleRotationModelSettings, std::shared_ptr<tss::SimpleRotationModelSettings>, tss::RotationModelSettings>(
+        m, "SimpleRotationModelSettings", R"doc(No documentation found.)doc" );
 
-    py::class_< tss::PlanetaryRotationModelSettings, std::shared_ptr< tss::PlanetaryRotationModelSettings >, tss::RotationModelSettings >(
-            m, "PlanetaryRotationModelSettings", R"doc(No documentation found.)doc" );
+    py::class_<tss::PlanetaryRotationModelSettings, std::shared_ptr<tss::PlanetaryRotationModelSettings>, tss::RotationModelSettings>(
+        m, "PlanetaryRotationModelSettings", R"doc(No documentation found.)doc" );
 
     m.def( "simple",
-           py::overload_cast< const std::string &, const std::string &, const Eigen::Matrix3d &, const double, const double >(
-                   &tss::simpleRotationModelSettings ),
+           py::overload_cast<const std::string &, const std::string &, const Eigen::Matrix3d &, const double, const double>(
+               &tss::simpleRotationModelSettings ),
            py::arg( "base_frame" ),
            py::arg( "target_frame" ),
            py::arg( "initial_orientation" ),
@@ -639,7 +640,8 @@ BodyFixedDirectionBasedRotationSettings
     )doc" );
 
     m.def( "constant_rotation_model",
-           py::overload_cast< const std::string &, const std::string &, const Eigen::Matrix3d & >( &tss::constantRotationModelSettings ),
+           py::overload_cast<const std::string &, const std::string &, const Eigen::Matrix3d &>(
+               &tss::constantRotationModelSettings ),
            py::arg( "base_frame" ),
            py::arg( "target_frame" ),
            py::arg( "initial_orientation" ),
@@ -754,8 +756,19 @@ RotationModelSettings
 
 
     )doc" );
-}
 
+    m.def( "iau_rotation_model",
+           &tss::iauRotationModelSettings,
+           py::arg( "base_frame" ),
+           py::arg( "target_frame" ),
+           py::arg( "nominal_meridian" ),
+           py::arg( "nominal_pole" ),
+           py::arg( "rotation_rate" ),
+           py::arg( "pole_precession" ),
+           py::arg( "merdian_periodic_terms" ),
+           py::arg( "pole_periodic_terms" )
+    );
+}
 }  // namespace rotation_model
 }  // namespace environment_setup
 }  // namespace numerical_simulation
