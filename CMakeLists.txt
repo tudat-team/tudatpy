@@ -1,14 +1,16 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.20)
 
 if (POLICY CMP0048)
     cmake_policy(SET CMP0048 NEW)
 endif (POLICY CMP0048)
 
-# Get version+label from file.
+# Get version + label from file
 file(STRINGS "version" tudatpy_VERSION_LABEL)
-
-# Get version from version_label argument using regex (x.y.z-rc -> x.y.z).
-string(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)" tudatpy_VERSION "${tudatpy_VERSION_LABEL}")
+list(GET tudatpy_VERSION_LABEL 0 tudatpy_VERSION_LABEL)
+string(
+    REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)"
+    tudatpy_VERSION "${tudatpy_VERSION_LABEL}"
+)
 
 # Project declaration.
 project(tudatpy VERSION "${tudatpy_VERSION}" LANGUAGES CXX C)
@@ -20,13 +22,12 @@ endif()
 
 option(TUDAT_BUILD_WITH_FFTW3 "Build Tudat with FFTW3." OFF)
 
-include_directories("tudatpy/kernel")
 # Add cmake modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
 
 message(STATUS "System name: ${CMAKE_SYSTEM_NAME}")
-message(STATUS "tudatpy version: ${tudatpy_VERSION}")
+message(STATUS "tudatpy version: ${PROJECT_VERSION}")
 
 #set(CMAKE_CXX_STANDARD 17)
 #set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -162,10 +163,10 @@ enable_testing()
 # python.
 include(YACMAPythonSetup)
 
-# python version check.
-if (${PYTHON_VERSION_MAJOR} LESS 3 OR (${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYTHON_VERSION_MINOR} LESS 4))
-    message(FATAL_ERROR "Minimum supported python version is 3.4.")
-endif ()
+# # python version check.
+# if (${PYTHON_VERSION_MAJOR} LESS 3 OR (${PYTHON_VERSION_MAJOR} EQUAL 3 AND ${PYTHON_VERSION_MINOR} LESS 4))
+#     message(FATAL_ERROR "Minimum supported python version is 3.4.")
+# endif ()
 
 # pybind11.
 if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
@@ -180,6 +181,13 @@ endif ()
 
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_USE_CXX11_ABI=0")
 
+# Define tudatpy's source directory
+set(TUDATPY_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/tudatpy)
+
+# Group all extensions into a single target
+# add_custom_target(kernel)
+
 # Add the module directory.
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/docs DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-add_subdirectory(tudatpy)
+include_directories(include/tudatpy)
+add_subdirectory(src/tudatpy)
