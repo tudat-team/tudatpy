@@ -94,8 +94,8 @@ central_bodies : list
     List of central bodies, each referred to each propagated body in the same order.
 Returns
 -------
-AccelerationMap
-    Set of accelerations acting on the bodies to propagate, provided as dual key-value container, similar to the acceleration settings input, but now with ``AccelerationModel`` lists as inner value
+AccelerationMap : dict[str, list[AccelerationModel]]
+    Set of accelerations acting on the bodies to propagate, provided as dual key-value container (dictionary), similar to the acceleration settings input, but now with ``AccelerationModel`` lists as inner value
 
 
 
@@ -218,7 +218,7 @@ body_system : SystemOfBodies
     System of bodies to be used in the propagation.
 selected_mass_rates_per_body : Dict[str, List[MassRateModelSettings]]
     Key-value container, with key denoting the body with changing mass, and the value containing a list of mass rate settings (in most cases, this list will have only a single entry)
-acceleration_models : AccelerationMap
+acceleration_models : dict[str, list[AccelerationModel]]
     Sorted list of acceleration models, as created by :func:`create_acceleration_models`
 Returns
 -------

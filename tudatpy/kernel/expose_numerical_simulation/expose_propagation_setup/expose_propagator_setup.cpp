@@ -40,6 +40,11 @@ namespace propagation_setup
 namespace propagator
 {
 
+std::shared_ptr< tudat::propagators::MultiArcPropagatorProcessingSettings > multiArcProcessingSettings( )
+{
+    return std::make_shared< tudat::propagators::MultiArcPropagatorProcessingSettings >( );
+}
+
 void expose_propagator_setup( py::module &m )
 {
     py::class_< tp::PropagationPrintSettings, std::shared_ptr< tp::PropagationPrintSettings > >( m,
@@ -851,7 +856,7 @@ Function to create translational state propagator settings for N bodies.
 The propagated state vector is defined by the combination of integrated bodies, and their central body, the combination
 of which define the relative translational states for which a differential equation is to be solved. The propagator
 input defines the formulation in which the differential equations are set up
-The dynamical models are defined by an ``AccelerationMap``, as created by :func:`~tudatpy.numerical_simulation.propagation_setup.create_acceleration_models` function.
+The dynamical models are defined by an ``AccelerationMap`` (dict[str, list[AccelerationModel]]), as created by :func:`~tudatpy.numerical_simulation.propagation_setup.create_acceleration_models` function.
 Details on the usage of this function are discussed in more detail in the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational.html>`_.
 
 
@@ -859,7 +864,7 @@ Parameters
 ----------
 central_bodies : list[str]
     List of central bodies with respect to which the bodies to be integrated are propagated.
-acceleration_models : AccelerationMap
+acceleration_models : dict[str, list[AccelerationModel]]
     Set of accelerations acting on the bodies to propagate, provided as acceleration models.
 bodies_to_integrate : list[str]
     List of bodies to be numerically propagated, whose order reflects the order of the central bodies.
@@ -1152,11 +1157,13 @@ MultiTypePropagatorSettings
 
     )doc" );
 
+    m.def( "multi_arc_processing_settings", &multiArcProcessingSettings );
+
     m.def( "multi_arc",
            &tp::multiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "single_arc_settings" ),
            py::arg( "transfer_state_to_next_arc" ) = false,
-           py::arg( "processing_settings" ) = std::make_shared< tp::MultiArcPropagatorProcessingSettings >( ),
+           py::arg( "processing_settings" ) = multiArcProcessingSettings( ),
            R"doc(
 
 Function to create multi-arc propagator settings.
