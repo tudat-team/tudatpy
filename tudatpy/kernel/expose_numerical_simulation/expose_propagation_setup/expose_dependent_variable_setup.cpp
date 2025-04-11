@@ -2229,6 +2229,13 @@ SingleDependentVariableSaveSettings
            py::arg( "target_name" ),
            py::arg( "source_name" ),
            R"doc(No documentation found.)doc" );
+
+    m.def( "illuminated_panel_fraction",
+           &tp::illuminatedPanelFractionDependentVariable,
+           py::arg( "target_name" ),
+           py::arg( "source_name" ),
+           py::arg( "panel_type" ),
+           R"doc(No documentation found.)doc" );
 }
 
 }  // namespace dependent_variable

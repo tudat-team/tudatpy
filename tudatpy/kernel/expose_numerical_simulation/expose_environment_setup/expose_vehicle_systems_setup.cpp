@@ -270,6 +270,9 @@ FullPanelledBodySettings
         R"doc(
 
 Function for creating list of panel body settings
+        
+Function for creating list of panel body settings from a .dae (COLLADA) file containing the 3D geometry and the
+material for the paneled surface.
 
 
 
@@ -300,7 +303,10 @@ list[BodyPanelSettings]
        py::arg( "list_of_lists_of_body_panel_settings" ),
        R"doc(
 
-Function for creating list of panel body settings
+Function for merging lists of panel body settings
+
+Function for merging lists of panel body settings to preserve internal parts' ID logic (neighboring plates),
+which is required for the correct functioning of the self-shadowing algorithm.
 
 
 

@@ -505,7 +505,9 @@ numpy.ndarray
         :type: dict[float, numpy.ndarray]
      )doc" )
             .def_property_readonly( "dependent_variable_history",
-                                    &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariableHistory,
+                                    &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariableHistory)
+            .def_property_readonly( "dependent_variable_history_float",
+                                    &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariableHistoryDouble,
                                     R"doc(
 
         **read-only**
