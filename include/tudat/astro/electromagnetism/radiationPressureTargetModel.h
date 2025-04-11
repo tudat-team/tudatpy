@@ -272,9 +272,11 @@ public:
                 break;
             }
         }
-        if (macroModelLoaded_)
+        // create panelTypeIdList for dependent variable save
+        panelTypeIdList_ = std::vector< std::string >( totalNumberOfPanels_ );
+        for ( int i = 0; i<totalNumberOfPanels_; i++ )
         {
-            std::cout<<"Macromodel loaded succesfully!"<<std::endl;
+            panelTypeIdList_[ i ] = fullPanels_[ i ]->getPanelTypeId( );
         }
     }
 
@@ -360,6 +362,22 @@ public:
 
     void saveLocalComputations( const std::string sourceName, const bool saveCosines ) override;
 
+    bool isMacroModelLoaded( ) const
+    {
+        return macroModelLoaded_;
+    }
+
+    std::vector< double > getIlluminatedPanelFractions( ) const
+    {
+        return illuminatedPanelFractions_;
+    }
+
+    std::vector< std::string > getPanelTypeIdList( ) const
+    {
+        return panelTypeIdList_;
+    }
+
+
 private:
     void updateMembers_( double currentTime ) override;
 
@@ -407,6 +425,7 @@ private:
 
     system_models::SelfShadowing selfShadowing_;
     std::vector< double > illuminatedPanelFractions_;
+    std::vector< std::string > panelTypeIdList_;
     std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > allRotatedPanels_;
 };
 
