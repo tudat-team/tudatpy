@@ -7,7 +7,7 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
-#define PYBIND11_DETAILED_ERROR_MESSAGES
+
 #include "expose_time_conversion.h"
 
 #include <pybind11/chrono.h>
@@ -50,8 +50,7 @@ namespace basic_astrodynamics
 tba::DateTime convertYearAndDaysInYearToTudatDate( const int year, const int daysInYear )
 {
     boost::gregorian::date boostDateTime = tba::convertYearAndDaysInYearToDate( year, daysInYear );
-    return tba::DateTime(
-            boostDateTime.year( ), boostDateTime.month( ), boostDateTime.day( ), 0, 0, 0.0 );
+    return tba::DateTime( boostDateTime.year( ), boostDateTime.month( ), boostDateTime.day( ), 0, 0, 0.0 );
 }
 
 }  // namespace basic_astrodynamics
@@ -66,16 +65,14 @@ tba::DateTime timePointToDateTime( const std::chrono::system_clock::time_point d
     using namespace std::chrono;
     microseconds timeInMicroSeconds = duration_cast< microseconds >( datetime.time_since_epoch( ) );
     long long fractional_seconds = timeInMicroSeconds.count( ) % 1000000LL;
-    return tba::DateTime(
-            local_tm.tm_year + 1900,
-            local_tm.tm_mon + 1,
-            local_tm.tm_mday,
-            local_tm.tm_hour,
-            local_tm.tm_min,
-            static_cast< long double >( local_tm.tm_sec ) +
-                    static_cast< long double >( fractional_seconds ) /
-                            tudat::mathematical_constants::getFloatingInteger< long double >(
-                                    1000000LL ) );
+    return tba::DateTime( local_tm.tm_year + 1900,
+                          local_tm.tm_mon + 1,
+                          local_tm.tm_mday,
+                          local_tm.tm_hour,
+                          local_tm.tm_min,
+                          static_cast< long double >( local_tm.tm_sec ) +
+                                  static_cast< long double >( fractional_seconds ) /
+                                          tudat::mathematical_constants::getFloatingInteger< long double >( 1000000LL ) );
 }
 
 // Convert from Gregorian date to time_point (Python datetime). Only
@@ -91,20 +88,18 @@ std::chrono::system_clock::time_point dateTimeToTimePoint( const tba::DateTime& 
 
     };
     tm.tm_isdst = -1;
-    std::chrono::system_clock::time_point timePoint =
-            std::chrono::system_clock::from_time_t( std::mktime( &tm ) );
+    std::chrono::system_clock::time_point timePoint = std::chrono::system_clock::from_time_t( std::mktime( &tm ) );
     return timePoint +
-            std::chrono::microseconds( static_cast< int >( std::round(
-                    ( dateTime.getSeconds( ) - static_cast< long double >( tm.tm_sec ) ) *
-                    tudat::mathematical_constants::getFloatingInteger< long double >( 1E6 ) ) ) );
+            std::chrono::microseconds(
+                    static_cast< int >( std::round( ( dateTime.getSeconds( ) - static_cast< long double >( tm.tm_sec ) ) *
+                                                    tudat::mathematical_constants::getFloatingInteger< long double >( 1E6 ) ) ) );
 }
 
 // Convert Julian day to calendar date. This code ensures that the value
 // returned is a time_point (Python datetime).
 std::chrono::system_clock::time_point convertJulianDayToCalendarDatePy( const double julianDay )
 {
-    tba::DateTime dateTime = tba::getCalendarDateFromTime< double >(
-            tudat::timeFromJulianDay< double >( julianDay ) );
+    tba::DateTime dateTime = tba::getCalendarDateFromTime< double >( tudat::timeFromJulianDay< double >( julianDay ) );
 
     return dateTimeToTimePoint( dateTime );
 }
@@ -112,8 +107,7 @@ std::chrono::system_clock::time_point convertJulianDayToCalendarDatePy( const do
 // Convert calendar date to Julian day since a given epoch. This code allows for
 // the calendar date to be a time_point (Python datetime).
 template< typename TimeScalarType = double >
-TimeScalarType convertCalendarDateToJulianDayPy(
-        const std::chrono::system_clock::time_point calendarDate )
+TimeScalarType convertCalendarDateToJulianDayPy( const std::chrono::system_clock::time_point calendarDate )
 {
     tba::DateTime dateTime = timePointToDateTime( calendarDate );
     return dateTime.julianDay< TimeScalarType >( );
@@ -122,8 +116,7 @@ TimeScalarType convertCalendarDateToJulianDayPy(
 template< typename TimeScalarType = double >
 TimeScalarType convertCalendarDateToJulianDaySinceEpochPy(
         const std::chrono::system_clock::time_point calendarDate,
-        const TimeScalarType epochSinceJulianDayZero =
-                tba::getJulianDayOnJ2000< TimeScalarType >( ) )
+        const TimeScalarType epochSinceJulianDayZero = tba::getJulianDayOnJ2000< TimeScalarType >( ) )
 {
     tba::DateTime dateTime = timePointToDateTime( calendarDate );
     return dateTime.julianDay< TimeScalarType >( ) - epochSinceJulianDayZero;
@@ -161,10 +154,9 @@ void expose_time_conversion( py::module& m )
  )doc" )
             .export_values( );
 
-    py::class_< teo::TerrestrialTimeScaleConverter,
-                std::shared_ptr< teo::TerrestrialTimeScaleConverter > >( m,
-                                                                         "TimeScaleConverter",
-                                                                         R"doc(
+    py::class_< teo::TerrestrialTimeScaleConverter, std::shared_ptr< teo::TerrestrialTimeScaleConverter > >( m,
+                                                                                                             "TimeScaleConverter",
+                                                                                                             R"doc(
 
  Class to convert between different time scales (TAI, TT, TDB, UTC, UT1)
 
@@ -204,12 +196,7 @@ void expose_time_conversion( py::module& m )
 
 
  )doc" )
-            .def( py::init< const int,
-                            const int,
-                            const int,
-                            const int,
-                            const int,
-                            const long double >( ),
+            .def( py::init< const int, const int, const int, const int, const int, const long double >( ),
                   py::arg( "year" ),
                   py::arg( "month" ),
                   py::arg( "day" ),
@@ -374,14 +361,41 @@ void expose_time_conversion( py::module& m )
  DateTime
      DateTime object defined in Tudat
 
-     m.def("year_and_days_in_year_to_calendar_date",
+     )doc" );
+
+    m.def( "year_and_days_in_year_to_calendar_date",
            &tba::convertYearAndDaysInYearToTudatDate,
-           py::arg("year"),
-           py::arg("days_in_year"),
-           get_docstring("year_and_days_in_year_to_calendar_date").c_str()
-     );
+           py::arg( "year" ),
+           py::arg( "days_in_year" ),
+           R"doc(
+
+ Create the calendar date from the year and the number of days in the year.
+
+ Parameters
+ ----------
+ year : int
+     Calendar year.
+ days_in_year : int
+     Number of days that have passed in the year.
+ Returns
+ -------
+ DateTime
+     Corresponding calendar date as a :class:`DateTime` object. Note: the hours, minutes and seconds in the object are set to 0 when calling this function.
 
 
+
+
+
+ Examples
+ --------
+ In this example, the calendar date corresponding to when 122 days have passed in 2020 is computed.
+
+ .. code-block:: python
+
+   # Compute the calendar date when 122 days have passed in 2020
+   currentDate = time_conversion.year_and_days_in_year_to_calendar_date(2020, 122)
+   # Print the converted output
+   print(currentDate)  # prints (2020, 5, 2, 0, 0)
 
 
      )doc" );

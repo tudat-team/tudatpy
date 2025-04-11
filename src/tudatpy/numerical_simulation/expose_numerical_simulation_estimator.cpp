@@ -7,11 +7,18 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
-#define PYBIND11_DETAILED_ERROR_MESSAGES
+
+#include "expose_numerical_simulation.h"
+
 #include <pybind11/operators.h>
 #include <pybind11/stl.h>
 
-#include "expose_numerical_simulation.h"
+#include "expose_numerical_simulation/expose_environment.h"
+#include "expose_numerical_simulation/expose_environment_setup.h"
+#include "expose_numerical_simulation/expose_estimation.h"
+#include "expose_numerical_simulation/expose_estimation_setup.h"
+#include "expose_numerical_simulation/expose_propagation.h"
+#include "expose_numerical_simulation/expose_propagation_setup.h"
 #include "scalarTypes.h"
 #include "tudat/astro/basic_astro/dateTime.h"
 #include "tudat/basics/timeType.h"
@@ -33,10 +40,9 @@ namespace numerical_simulation
 void expose_numerical_simulation_estimator( py::module &m )
 {
     py::class_< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >,
-                std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > > >(
-            m,
-            "Estimator",
-            R"doc(
+                std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > > >( m,
+                                                                                                     "Estimator",
+                                                                                                     R"doc(
 
          Class for consolidating all estimation functionality.
 
@@ -48,8 +54,7 @@ void expose_numerical_simulation_estimator( py::module &m )
 
       )doc" )
             .def( py::init< const tss::SystemOfBodies &,
-                            const std::shared_ptr<
-                                    tep::EstimatableParameterSet< STATE_SCALAR_TYPE > >,
+                            const std::shared_ptr< tep::EstimatableParameterSet< STATE_SCALAR_TYPE > >,
                             const std::vector< std::shared_ptr< tom::ObservationModelSettings > > &,
                             const std::shared_ptr< tp::PropagatorSettings< STATE_SCALAR_TYPE > >,
                             const bool >( ),
@@ -102,11 +107,9 @@ void expose_numerical_simulation_estimator( py::module &m )
 
 
      )doc" )
-            .def_property_readonly(
-                    "observation_simulators",
-                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE,
-                                                     TIME_TYPE >::getObservationSimulators,
-                    R"doc(
+            .def_property_readonly( "observation_simulators",
+                                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationSimulators,
+                                    R"doc(
 
          **read-only**
 
@@ -116,11 +119,9 @@ void expose_numerical_simulation_estimator( py::module &m )
 
          :type: list[ :class:`~tudatpy.numerical_simulation.estimation.ObservationSimulator` ]
       )doc" )
-            .def_property_readonly(
-                    "observation_managers",
-                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE,
-                                                     TIME_TYPE >::getObservationManagers,
-                    R"doc(
+            .def_property_readonly( "observation_managers",
+                                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationManagers,
+                                    R"doc(
 
          **read-only**
 
@@ -132,8 +133,7 @@ void expose_numerical_simulation_estimator( py::module &m )
       )doc" )
             .def_property_readonly(
                     "state_transition_interface",
-                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::
-                            getStateTransitionAndSensitivityMatrixInterface,
+                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::getStateTransitionAndSensitivityMatrixInterface,
                     R"doc(
 
          **read-only**
@@ -145,8 +145,7 @@ void expose_numerical_simulation_estimator( py::module &m )
          :type: :class:`~tudatpy.numerical_simulation.estimation.CombinedStateTransitionAndSensitivityMatrixInterface`
       )doc" )
             .def( "perform_estimation",
-                  &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE,
-                                                   TIME_TYPE >::estimateParameters,
+                  &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::estimateParameters,
                   py::arg( "estimation_input" ),
                   R"doc(
 
@@ -175,8 +174,7 @@ void expose_numerical_simulation_estimator( py::module &m )
 
      )doc" )
             .def( "compute_covariance",
-                  &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE,
-                                                   TIME_TYPE >::computeCovariance,
+                  &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::computeCovariance,
                   py::arg( "covariance_analysis_input" ),
                   R"doc(
 
@@ -215,18 +213,16 @@ void expose_numerical_simulation_estimator( py::module &m )
 
 
      )doc" )
-            .def_property_readonly(
-                    "variational_solver",
-                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE,
-                                                     TIME_TYPE >::getVariationalEquationsSolver,
-                    R"doc(
+            .def_property_readonly( "variational_solver",
+                                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::getVariationalEquationsSolver,
+                                    R"doc(
 
          **read-only**
 
          Variational equations solver, which is used to manage and execute the numerical integration of
          equations of motion and variational equations/dynamics in the Estimator object.
 
-         :type: :class:`~tudatpy.numerical_simulation.VariationalSimulator`
+         :type: :class:`~tudatpy.numerical_simulation.SingleArcVariationalSimulator`
       )doc" );
 };
 

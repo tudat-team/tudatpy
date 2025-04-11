@@ -7,7 +7,7 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
-#define PYBIND11_DETAILED_ERROR_MESSAGES
+
 #include "expose_estimation_setup.h"
 
 #include <pybind11/chrono.h>
@@ -17,6 +17,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include "expose_estimation_setup/expose_estimated_parameter_setup.h"
+#include "expose_estimation_setup/expose_observation_setup.h"
 #include "scalarTypes.h"
 
 namespace py = pybind11;
@@ -97,7 +99,7 @@ void expose_estimation_setup( py::module& m )
      initial_state = np.zeros(6)  # Use a real initial state if needed
 
      # Integrator settings
-     integrator_settings = propagation_setup.integrator.runge_kutta_fixed_step_size(60.0,
+     integrator_settings = propagation_setup.integrator.runge_kutta_fixed_step(60.0,
                                                                                     coefficient_set=propagation_setup.integrator.CoefficientSets.rkdp_87)
 
      # Create propagator
@@ -125,8 +127,7 @@ void expose_estimation_setup( py::module& m )
            py::arg( "parameter_settings" ),
            py::arg( "bodies" ),
            py::arg( "propagator_settings" ) = nullptr,
-           py::arg( "consider_parameters_names" ) =
-                   std::vector< std::shared_ptr< tep::EstimatableParameterSettings > >( ),
+           py::arg( "consider_parameters_names" ) = std::vector< std::shared_ptr< tep::EstimatableParameterSettings > >( ),
            R"doc(
 
  Function for creating a consolidated parameter from the given estimatable parameter settings.
@@ -173,9 +174,7 @@ void expose_estimation_setup( py::module& m )
 
     // #   Observation Model Settings --> Observation Simulator #
     m.def( "create_observation_simulators",
-           py::overload_cast<
-                   const std::vector< std::shared_ptr< tom::ObservationModelSettings > >&,
-                   const tss::SystemOfBodies& >(
+           py::overload_cast< const std::vector< std::shared_ptr< tom::ObservationModelSettings > >&, const tss::SystemOfBodies& >(
                    &tom::createObservationSimulators< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "observation_settings" ),
            py::arg( "bodies" ),
@@ -218,13 +217,12 @@ void expose_estimation_setup( py::module& m )
      )doc" );
 
     m.def( "single_type_observation_collection",
-           py::overload_cast<
-                   const tom::ObservableType,
-                   const tom::LinkDefinition&,
-                   const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >&,
-                   const std::vector< TIME_TYPE >,
-                   const tom::LinkEndType,
-                   const std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >(
+           py::overload_cast< const tom::ObservableType,
+                              const tom::LinkDefinition&,
+                              const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >&,
+                              const std::vector< TIME_TYPE >,
+                              const tom::LinkEndType,
+                              const std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >(
                    &tom::createManualObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "observable_type" ),
            py::arg( "link_ends" ),

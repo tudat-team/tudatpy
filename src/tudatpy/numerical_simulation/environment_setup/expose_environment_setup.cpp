@@ -7,7 +7,7 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
-#define PYBIND11_DETAILED_ERROR_MESSAGES
+
 #include "expose_environment_setup.h"
 
 #include <pybind11/complex.h>
@@ -18,19 +18,19 @@
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 #include <tudat/simulation/environment_setup.h>
 
-#include "aerodynamic_coefficients/expose_aerodynamic_coefficients.h"
-#include "atmosphere/expose_atmosphere.h"
-#include "ephemeris/expose_ephemeris.h"
-#include "gravity_field/expose_gravity_field.h"
-#include "gravity_field_variation/expose_gravity_field_variation.h"
-#include "ground_station/expose_ground_station.h"
-#include "radiation_pressure/expose_radiation_pressure.h"
-#include "rigid_body/expose_rigid_body.h"
-#include "rotation_model/expose_rotation_model.h"
+#include "expose_environment_setup/expose_aerodynamic_coefficient_setup.h"
+#include "expose_environment_setup/expose_atmosphere_setup.h"
+#include "expose_environment_setup/expose_ephemeris_setup.h"
+#include "expose_environment_setup/expose_gravity_field_setup.h"
+#include "expose_environment_setup/expose_gravity_field_variation_setup.h"
+#include "expose_environment_setup/expose_ground_station_setup.h"
+#include "expose_environment_setup/expose_radiation_pressure_setup.h"
+#include "expose_environment_setup/expose_rigid_body_setup.h"
+#include "expose_environment_setup/expose_rotation_model_setup.h"
+#include "expose_environment_setup/expose_shape_deformation_setup.h"
+#include "expose_environment_setup/expose_shape_setup.h"
+#include "expose_environment_setup/expose_vehicle_systems_setup.h"
 #include "scalarTypes.h"
-#include "shape/expose_shape.h"
-#include "shape_deformation/expose_shape_deformation.h"
-#include "vehicle_systems/expose_vehicle_systems.h"
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
@@ -154,9 +154,7 @@ void expose_environment_setup( py::module &m )
 
          :type: list[BodyDeformationSettings]
       )doc" )
-            .def_readwrite( "ground_station_settings",
-                            &tss::BodySettings::groundStationSettings,
-                            R"doc(No documentation found.)doc" )
+            .def_readwrite( "ground_station_settings", &tss::BodySettings::groundStationSettings, R"doc(No documentation found.)doc" )
             .def_readwrite( "rigid_body_settings",
                             &tss::BodySettings::rigidBodyPropertiesSettings,
                             R"doc(
@@ -188,8 +186,7 @@ void expose_environment_setup( py::module &m )
 
          :type: RadiationSourceModelSettings
       )doc" )
-            .def_readwrite(
-                    "vehicle_shape_settings", &tss::BodySettings::bodyExteriorPanelSettings_, R"doc(
+            .def_readwrite( "vehicle_shape_settings", &tss::BodySettings::bodyExteriorPanelSettings_, R"doc(
 
          Object that defines the settings of an exterior panelled vehicle shape that is to be created. A variable of this type is typically
          assigned by using a function from the :ref:`\`\`vehicle_systems\`\`` module.
@@ -208,8 +205,7 @@ void expose_environment_setup( py::module &m )
 
       )doc" );
 
-    py::class_< tss::BodyListSettings, std::shared_ptr< tss::BodyListSettings > >(
-            m, "BodyListSettings", R"doc(
+    py::class_< tss::BodyListSettings, std::shared_ptr< tss::BodyListSettings > >( m, "BodyListSettings", R"doc(
 
          Class for defining settings for the creation of a system of bodies.
 
@@ -221,10 +217,7 @@ void expose_environment_setup( py::module &m )
 
 
       )doc" )
-            .def( py::init< const std::string, const std::string >( ),
-                  py::arg( "frame_origin" ),
-                  py::arg( "frame_orientation" ),
-                  R"doc(
+            .def( py::init< const std::string, const std::string >( ), py::arg( "frame_origin" ), py::arg( "frame_orientation" ), R"doc(
 
          Class initialization method.
 
@@ -264,8 +257,7 @@ void expose_environment_setup( py::module &m )
 
      )doc" )
             .def( "add_settings",
-                  py::overload_cast< std::shared_ptr< tss::BodySettings >, const std::string >(
-                          &tss::BodyListSettings::addSettings ),
+                  py::overload_cast< std::shared_ptr< tss::BodySettings >, const std::string >( &tss::BodyListSettings::addSettings ),
                   py::arg( "settings_to_add" ),
                   py::arg( "body_name" ),
                   R"doc(
@@ -319,8 +311,7 @@ void expose_environment_setup( py::module &m )
 
          :type: str
       )doc" )
-            .def_property_readonly(
-                    "frame_orientation", &tss::BodyListSettings::getFrameOrientation, R"doc(
+            .def_property_readonly( "frame_orientation", &tss::BodyListSettings::getFrameOrientation, R"doc(
 
          **read-only**
 
@@ -330,9 +321,7 @@ void expose_environment_setup( py::module &m )
       )doc" );
 
     m.def( "get_default_body_settings",
-           py::overload_cast< const std::vector< std::string > &,
-                              const std::string,
-                              const std::string >( &tss::getDefaultBodySettings ),
+           py::overload_cast< const std::vector< std::string > &, const std::string, const std::string >( &tss::getDefaultBodySettings ),
            py::arg( "bodies" ),
            py::arg( "base_frame_origin" ) = "SSB",
            py::arg( "base_frame_orientation" ) = "ECLIPJ2000",
@@ -420,8 +409,7 @@ void expose_environment_setup( py::module &m )
      )doc" );
 
     m.def( "get_default_single_body_settings",
-           py::overload_cast< const std::string &, const std::string & >(
-                   &tss::getDefaultSingleBodySettings ),
+           py::overload_cast< const std::string &, const std::string & >( &tss::getDefaultSingleBodySettings ),
            py::arg( "body_name" ),
            py::arg( "base_frame_orientation" ) = "ECLIPJ2000",
            R"doc(
@@ -450,11 +438,8 @@ void expose_environment_setup( py::module &m )
      )doc" );
 
     m.def( "get_default_single_body_settings_time_limited",
-           py::overload_cast< const std::string &,
-                              const double,
-                              const double,
-                              const std::string &,
-                              const double >( &tss::getDefaultSingleBodySettings ),
+           py::overload_cast< const std::string &, const double, const double, const std::string &, const double >(
+                   &tss::getDefaultSingleBodySettings ),
            py::arg( "body_name" ),
            py::arg( "initial_time" ),
            py::arg( "final_time" ),
@@ -528,12 +513,8 @@ void expose_environment_setup( py::module &m )
      )doc" );
 
     m.def( "get_default_single_alternate_body_settings_time_limited",
-           py::overload_cast< const std::string &,
-                              const std::string &,
-                              const double,
-                              const double,
-                              const std::string &,
-                              const double >( &tss::getDefaultSingleAlternateNameBodySettings ),
+           py::overload_cast< const std::string &, const std::string &, const double, const double, const std::string &, const double >(
+                   &tss::getDefaultSingleAlternateNameBodySettings ),
            py::arg( "body_name" ),
            py::arg( "source_body_name" ),
            py::arg( "initial_time" ),
@@ -648,8 +629,7 @@ void expose_environment_setup( py::module &m )
            py::arg( "time_step" ),
            py::arg( "observer_name" ),
            py::arg( "reference_frame_name" ),
-           py::arg( "interpolator_settings" ) =
-                   std::make_shared< tudat::interpolators::LagrangeInterpolatorSettings >( 8 ) );
+           py::arg( "interpolator_settings" ) = std::make_shared< tudat::interpolators::LagrangeInterpolatorSettings >( 8 ) );
 
     m.def( "create_body_ephemeris",
            &tss::createBodyEphemeris< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -682,16 +662,12 @@ void expose_environment_setup( py::module &m )
      )doc" );
 
     m.def( "create_ground_station_ephemeris",
-           py::overload_cast< const std::shared_ptr< tss::Body >,
-                              const std::string &,
-                              const tss::SystemOfBodies & >(
+           py::overload_cast< const std::shared_ptr< tss::Body >, const std::string &, const tss::SystemOfBodies & >(
                    &tss::createReferencePointEphemerisFromId< TIME_TYPE, STATE_SCALAR_TYPE > ),
            "body_with_ground_station",
            "station_name" );
 
-    m.def( "get_safe_interpolation_interval",
-           &tss::getSafeInterpolationInterval,
-           py::arg( "ephemeris_model" ) );
+    m.def( "get_safe_interpolation_interval", &tss::getSafeInterpolationInterval, py::arg( "ephemeris_model" ) );
 
     m.def( "add_aerodynamic_coefficient_interface",
            &tss::addAerodynamicCoefficientInterface,
@@ -750,14 +726,14 @@ void expose_environment_setup( py::module &m )
            py::arg( "radiation_pressure_target_settings" ),
            R"doc(
 
- Function that creates an radiation pressure interface from settings, and adds it to an existing body.
+ Function that creates a radiation pressure target model from settings, and adds it to an existing body.
 
- This function can be used to add an radiation pressure interface to an existing body. It requires
- settings for the radiation pressure interface, created using one of the functions from the :ref:`\`\`radiation_pressure\`\`` module.
- This function creates the actual coefficient interface from these settings, and assigns it to the
+ This function can be used to add a radiation pressure target model to an existing body. It requires
+ settings for the radiation pressure target model, created using one of the functions from the :ref:`\`\`radiation_pressure\`\`` module.
+ This function creates the actual target model from these settings, and assigns it to the
  selected body. In addition to the identifier for the body to which it is assigned, this function
  requires the full :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies` as input, to facilitate
- inter-body dependencies in the radiation pressure interface
+ inter-body dependencies in the radiation pressure interface.
 
 
  Parameters
@@ -766,8 +742,8 @@ void expose_environment_setup( py::module &m )
      Object defining the physical environment, with all properties of artificial and natural bodies.
  body_name : str
      Name of the body to which the radiation pressure interface is to be assigned
- radiation_pressure_settings : RadiationPressureInterfaceSettings
-     Settings defining the radiation pressure interface that is to be created.
+ radiation_pressure_target_settings : RadiationPressureTargetModelSettings
+     Settings defining the radiation pressure target model that is to be created.
 
 
 
@@ -814,8 +790,7 @@ void expose_environment_setup( py::module &m )
            py::arg( "bodies" ),
            py::arg( "body_name" ),
            py::arg( "gravity_field_settings" ),
-           py::arg( "gravity_field_variation_settings" ) =
-                   std::vector< std::shared_ptr< tss::GravityFieldVariationSettings > >( ),
+           py::arg( "gravity_field_variation_settings" ) = std::vector< std::shared_ptr< tss::GravityFieldVariationSettings > >( ),
            R"doc(No documentation found.)doc" );
 
     m.def( "add_mass_properties_model",
@@ -970,23 +945,19 @@ void expose_environment_setup( py::module &m )
            R"doc(No documentation found.)doc" );
 
     m.def( "add_ground_station",
-           py::overload_cast<
-                   const std::shared_ptr< tss::Body >,
-                   const std::string,
-                   const Eigen::Vector3d,
-                   const tcc::PositionElementTypes,
-                   const std::vector< std::shared_ptr< tss::GroundStationMotionSettings > > >(
-                   &tss::createGroundStation ),
+           py::overload_cast< const std::shared_ptr< tss::Body >,
+                              const std::string,
+                              const Eigen::Vector3d,
+                              const tcc::PositionElementTypes,
+                              const std::vector< std::shared_ptr< tss::GroundStationMotionSettings > > >( &tss::createGroundStation ),
            py::arg( "body" ),
            py::arg( "ground_station_name" ),
            py::arg( "ground_station_position" ),
            py::arg( "position_type" ) = tcc::cartesian_position,
-           py::arg( "station_motion_settings" ) =
-                   std::vector< std::shared_ptr< tss::GroundStationMotionSettings > >( ) );
+           py::arg( "station_motion_settings" ) = std::vector< std::shared_ptr< tss::GroundStationMotionSettings > >( ) );
 
     m.def( "add_ground_station",
-           py::overload_cast< const std::shared_ptr< tss::Body >,
-                              const std::shared_ptr< tss::GroundStationSettings > >(
+           py::overload_cast< const std::shared_ptr< tss::Body >, const std::shared_ptr< tss::GroundStationSettings > >(
                    &tss::createGroundStation ),
            py::arg( "body" ),
            py::arg( "ground_station_settings" ),
@@ -1049,9 +1020,8 @@ void expose_environment_setup( py::module &m )
 
     // Function removed; error is shown
     m.def( "set_aerodynamic_guidance",
-           py::overload_cast< const std::shared_ptr< ta::AerodynamicGuidance >,
-                              const std::shared_ptr< tss::Body >,
-                              const bool >( &tss::setGuidanceAnglesFunctions ),
+           py::overload_cast< const std::shared_ptr< ta::AerodynamicGuidance >, const std::shared_ptr< tss::Body >, const bool >(
+                   &tss::setGuidanceAnglesFunctions ),
            py::arg( "aerodynamic_guidance" ),
            py::arg( "body" ),
            py::arg( "silence_warnings" ) = false );
