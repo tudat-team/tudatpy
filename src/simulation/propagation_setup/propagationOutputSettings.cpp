@@ -315,6 +315,9 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
         case nrlmsise_input_data:
             variableName = "NRLMSISE00 input data vector";
             break;
+        case illuminated_panel_fraction:
+            variableName = "Illuminated fractions";
+            break;
         default:
             std::string errorMessage = "Error, dependent variable " + std::to_string( propagationDependentVariables ) +
                     "not found when retrieving parameter name ";
@@ -440,6 +443,21 @@ std::string getDependentVariableId( const std::shared_ptr< SingleDependentVariab
         else
         {
             variableId += " w.r.t. body translational state of " + partialDependentVariableSettings->derivativeWrtBody_;
+        }
+    }
+    if ( dependentVariableSettings->dependentVariableType_ == illuminated_panel_fraction )
+    {
+        std::shared_ptr< IlluminatedPanelFractionDependentVariableSaveSettings > illuminatedPanelFractionDependentVariableSettings =
+                std::dynamic_pointer_cast< IlluminatedPanelFractionDependentVariableSaveSettings >( dependentVariableSettings );
+        if( illuminatedPanelFractionDependentVariableSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when getting dependent variable ID, input is inconsistent (illuminated panel fraction)" );
+        }
+        else
+        {
+            variableId += " of body " + illuminatedPanelFractionDependentVariableSettings->associatedBody_ + " w.r.t. source " +
+                            illuminatedPanelFractionDependentVariableSettings->secondaryBody_ + " for panel " + 
+                            illuminatedPanelFractionDependentVariableSettings->panelTypeId_;
         }
     }
 
