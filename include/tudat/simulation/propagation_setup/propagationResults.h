@@ -230,6 +230,12 @@ public:
         return dependentVariableHistory_;
     }
 
+    std::map< double, Eigen::VectorXd > getDependentVariableHistoryDouble( )
+    {
+        return utilities::staticCastMapKeys< double, TimeType, Eigen::VectorXd >(
+            dependentVariableHistory_ );
+    }
+
     std::map< TimeType, double >& getCumulativeComputationTimeHistory( )
     {
         checkAvailabilityOfSolution( "cumulative computation time history", false );

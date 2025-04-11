@@ -1772,6 +1772,62 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             }
             break;
         }
+        case illuminated_panel_fraction: {
+            std::shared_ptr< IlluminatedPanelFractionDependentVariableSaveSettings > illuminatedPanelFractionDependentVariableSettings =
+                std::dynamic_pointer_cast< IlluminatedPanelFractionDependentVariableSaveSettings >( dependentVariableSettings );
+
+            std::string illuminatedBody = illuminatedPanelFractionDependentVariableSettings->associatedBody_;
+            std::string sourceBody = illuminatedPanelFractionDependentVariableSettings->secondaryBody_;
+            std::string panelTypeId = illuminatedPanelFractionDependentVariableSettings->panelTypeId_;
+
+            auto radiationPressureAccelerationList = getAccelerationBetweenBodies( illuminatedBody,
+                                                                                   sourceBody,
+                                                                                   stateDerivativeModels,
+                                                                                   basic_astrodynamics::radiation_pressure );
+            if( radiationPressureAccelerationList.empty( ) )
+            {
+                std::string errorMessage = "Error, radiation pressure acceleration with target " + illuminatedBody + 
+                                            " and source " + sourceBody + " not found";
+                throw std::runtime_error( errorMessage );
+            }
+            auto radiationPressureAcceleration = std::dynamic_pointer_cast< electromagnetism::RadiationPressureAcceleration >(
+                                        radiationPressureAccelerationList.front( ) );
+            auto paneledRadiationPressureTargetModel = std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >(
+                radiationPressureAcceleration->getTargetModel( ) );
+            if ( paneledRadiationPressureTargetModel == nullptr )
+            {
+                std::string errorMessage = "Error, radiation pressure acceleration with paneled target " + illuminatedBody + 
+                            " and source " + sourceBody + " not found";
+                throw std::runtime_error( errorMessage );
+            }
+            
+            std::vector< std::string > panelTypeIdList = paneledRadiationPressureTargetModel->getPanelTypeIdList( );
+            std::vector< double > indexes;
+            for ( unsigned int i = 0; i<panelTypeIdList.size( ); i++ )
+            {
+                if ( panelTypeIdList.at( i ) == panelTypeId )
+                {
+                    indexes.push_back( i );
+                }
+            }
+            if ( indexes.empty( ) )
+            {
+                throw std::runtime_error( "Error, panel type " + panelTypeId + " not found" );
+            }
+            parameterSize = indexes.size( );
+
+            variableFunction = [ = ]( ) {
+                Eigen::VectorXd illuminatedPanelFractions( indexes.size( ) );
+                std::vector< double > illuminatedPanelFractionsAll = paneledRadiationPressureTargetModel->getIlluminatedPanelFractions( );
+                for ( unsigned int i = 0; i<indexes.size( ); i++ )
+                {
+                    illuminatedPanelFractions[ i ] = illuminatedPanelFractionsAll[ indexes[ i ] ];
+                }
+                return illuminatedPanelFractions;
+            };
+            break;
+
+        }
         default:
             std::string errorMessage = "Error, did not recognize vector dependent variable type when making variable function: " +
                     std::to_string( dependentVariableSettings->dependentVariableType_ );
