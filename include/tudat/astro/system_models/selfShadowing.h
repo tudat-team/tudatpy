@@ -284,7 +284,6 @@ inline std::vector< double > computeFractioWithPixelation( const std::vector<std
         }
         
         fractions[i] = clamp( 1 - fractionOnes / (fractionOnes + fractionZeros ), 0.0, 1.0 );
-        std::cout<<fractions[i]<<" "<<fractionOnes<<" "<<fractionZeros<<std::endl;
     }
     return fractions;
 }
