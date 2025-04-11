@@ -155,6 +155,10 @@ void expose_rotation_model_setup( py::module &m )
     py::class_<tss::PlanetaryRotationModelSettings, std::shared_ptr<tss::PlanetaryRotationModelSettings>, tss::RotationModelSettings>(
         m, "PlanetaryRotationModelSettings", R"doc(No documentation found.)doc" );
 
+    py::class_<tss::IauRotationModelSettings, std::shared_ptr<tss::IauRotationModelSettings>, tss::RotationModelSettings>(
+        m, "IAURotationModelSettings", R"doc(No documentation found.)doc" );
+
+
     m.def( "simple",
            py::overload_cast<const std::string &, const std::string &, const Eigen::Matrix3d &, const double, const double>(
                &tss::simpleRotationModelSettings ),
