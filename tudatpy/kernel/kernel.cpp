@@ -11,6 +11,7 @@
 #include "expose_numerical_simulation.h"
 #include "expose_trajectory_design.h"
 #include "expose_utils.h"
+#include "expose_exceptions.h"
 
 namespace py = pybind11;
 
@@ -63,6 +64,10 @@ PYBIND11_MODULE( kernel, m )
     tudatpy::numerical_simulation::expose_numerical_simulation_simulator( numerical_simulation );
     tudatpy::numerical_simulation::expose_numerical_simulation_variational( numerical_simulation );
     tudatpy::numerical_simulation::expose_numerical_simulation_estimator( numerical_simulation );
+
+    // exceptions module
+    auto exceptions = m.def_submodule( "exceptions" );
+    tudatpy::exceptions::expose_exceptions( exceptions );
 
     //    // example module
     //    auto example = m.def_submodule("example");
