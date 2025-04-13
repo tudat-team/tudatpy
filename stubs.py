@@ -6,6 +6,8 @@ import sys
 import subprocess
 import tempfile
 
+# Version with stubs
+
 TUDATPY_ROOT = Path("tudatpy/src/tudatpy").resolve()
 CONDA_PREFIX = os.environ["CONDA_PREFIX"]
 PYLIB_PREFIX = (
