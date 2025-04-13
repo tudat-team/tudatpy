@@ -4,7 +4,7 @@ channels:
   - tudat-team
 dependencies:
   - eigen
-  - boost-cpp=1.78.0
+  - boost-cpp=1.85.0
   - tudat-resources
   - sofa-cmake
   - nrlmsise-00
@@ -12,6 +12,7 @@ dependencies:
   - python=3.11
   - pybind11
   - pybind11-abi
+  - pybind11-stubgen
   # Python dependencies
   - numpy<2.0.0
   - pytest
@@ -41,4 +42,4 @@ dependencies:
      - sphinxcontrib-fulltoc
      - sphinxcontrib-bibtex
      - furo
-     - sphinx_copybutton 
+     - sphinx_copybutton
