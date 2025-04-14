@@ -85,6 +85,13 @@ class Remover:
                             "Aborting uninstall: "
                             f"Not a directory with code 999: {element}"
                         )
+                    if element.name not in ["tudat", "tudatpy"]:
+                        raise ValueError(
+                            "Aborting uninstall: Attempted to delete unexpected"
+                            f" directory: {element}\n"
+                            "This error is a safeguard and it should not occur."
+                            "Please, contact the tudatpy team for support. "
+                        )
                     directories.append(element)
                 case _:
                     raise ValueError(
