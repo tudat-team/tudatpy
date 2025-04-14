@@ -14,8 +14,6 @@
 #include <memory>
 #include <iostream>
 
-#include <type_traits>
-
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/environment_setup/thrustSettings.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"

@@ -13,6 +13,9 @@ set(system_models_HEADERS
         "engineModel.h"
         "vehicleSystems.h"
         "timingSystem.h"
+        "vehicleExteriorPanels.h"
+        "geometryUtils.h"
+        "selfShadowing.h"
         )
 
 set(system_models_SOURCES
