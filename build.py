@@ -27,28 +27,22 @@ class BuildParser(argparse.ArgumentParser):
         # Control basic behavior of the build script
         basic_group = self.add_argument_group("Basic configuration")
         basic_group.add_argument(
-            "--skip-tudat",
-            dest="build_tudat",
-            action="store_false",
-            help="Do not build tudat",
-        )
-        basic_group.add_argument(
-            "--skip-tudatpy",
-            dest="build_tudatpy",
-            action="store_false",
-            help="Do not build tudatpy",
-        )
-        basic_group.add_argument(
             "--tests",
             dest="build_tests",
             action="store_true",
-            help="Build with tests",
+            help="Build with tests [Default: False]",
         )
         basic_group.add_argument(
-            "--stubs",
-            dest="generate_stubs",
+            "--clean",
+            dest="clean_build",
             action="store_true",
-            help="Generate stubs for tudatpy",
+            help="Remove pre-existing build directory [Default: False]",
+        )
+        basic_group.add_argument(
+            "--force-setup",
+            dest="force_setup",
+            action="store_true",
+            help="Force the execution of CMake setup. This is needed if the cmake setup is modified and the build directory already exists. [Default: False]",
         )
 
         # Control CMake behavior
@@ -67,22 +61,10 @@ class BuildParser(argparse.ArgumentParser):
             help="C++ standard to use",
         )
         cmake_group.add_argument(
-            "--clean",
-            dest="clean_build",
-            action="store_true",
-            help="Clean build directory before setup",
-        )
-        cmake_group.add_argument(
             "--build-dir",
             metavar="<dir>",
             default="build",
             help="Build directory",
-        )
-        cmake_group.add_argument(
-            "--force-setup",
-            dest="force_setup",
-            action="store_true",
-            help="Force the execution of CMake setup",
         )
         cmake_group.add_argument(
             "--build-type",
@@ -91,10 +73,14 @@ class BuildParser(argparse.ArgumentParser):
             help="Build type (e.g., Release, Debug)",
         )
 
-        # Control content of tudat
-
         # Misc
         misc_group = self.add_argument_group("Miscellaneous")
+        misc_group.add_argument(
+            "--output-to-file",
+            dest="output_to_file",
+            action="store_true",
+            help="Output logs to file instead of terminal [Default: False]",
+        )
         misc_group.add_argument(
             "--verbose",
             action="store_true",
@@ -113,8 +99,8 @@ class Builder:
 
         # Build configuration attributes
         self.build_dir = Path(self.args.build_dir).resolve()
-        self.skip_tudat = "OFF" if self.args.build_tudat else "ON"
-        self.skip_tudatpy = "OFF" if self.args.build_tudatpy else "ON"
+        # self.skip_tudat = "OFF" if self.args.build_tudat else "ON"
+        # self.skip_tudatpy = "OFF" if self.args.build_tudatpy else "ON"
         self.build_tests = "ON" if self.args.build_tests else "OFF"
 
         return None
@@ -128,31 +114,58 @@ class Builder:
             print(f"Removing pre-existing build directory: {self.build_dir}")
             shutil.rmtree(self.build_dir)
 
+        # If output to file is requested, set up output redirection
+        if self.args.output_to_file:
+            _output_dest = self.build_dir / "build_output.txt"
+        else:
+            _output_dest = None
+
         # If build directory still exists, skip setup
         if not self.build_dir.exists() or self.args.force_setup:
 
             # Set up build directory
             self.build_dir.mkdir(parents=True, exist_ok=True)
             with chdir(self.build_dir):
-                outcome = subprocess.run(
-                    [
-                        "cmake",
-                        f"-DSKIP_TUDAT={self.skip_tudat}",
-                        f"-DSKIP_TUDATPY={self.skip_tudatpy}",
-                        f"-DCMAKE_PREFIX_PATH={CONDA_PREFIX}",
-                        f"-DCMAKE_INSTALL_PREFIX={CONDA_PREFIX}",
-                        f"-DCMAKE_CXX_STANDARD={self.args.cxx_standard}",
-                        "-DBoost_NO_BOOST_CMAKE=ON",
-                        f"-DCMAKE_BUILD_TYPE={self.args.build_type}",
-                        f"-DTUDAT_BUILD_TESTS={self.build_tests}",
-                        "-B",
-                        f"{self.build_dir}",
-                        "-S",
-                        "..",
-                    ],
-                    # stdout=output_dest,
-                    # stderr=output_dest,
-                )
+
+                if _output_dest is None:
+                    outcome = subprocess.run(
+                        [
+                            "cmake",
+                            # f"-DSKIP_TUDAT={self.skip_tudat}",
+                            # f"-DSKIP_TUDATPY={self.skip_tudatpy}",
+                            f"-DCMAKE_PREFIX_PATH={CONDA_PREFIX}",
+                            f"-DCMAKE_INSTALL_PREFIX={CONDA_PREFIX}",
+                            f"-DCMAKE_CXX_STANDARD={self.args.cxx_standard}",
+                            "-DBoost_NO_BOOST_CMAKE=ON",
+                            f"-DCMAKE_BUILD_TYPE={self.args.build_type}",
+                            f"-DTUDAT_BUILD_TESTS={self.build_tests}",
+                            "-B",
+                            f"{self.build_dir}",
+                            "-S",
+                            "..",
+                        ]
+                    )
+                else:
+                    with _output_dest.open("w") as output_dest:
+                        outcome = subprocess.run(
+                            [
+                                "cmake",
+                                # f"-DSKIP_TUDAT={self.skip_tudat}",
+                                # f"-DSKIP_TUDATPY={self.skip_tudatpy}",
+                                f"-DCMAKE_PREFIX_PATH={CONDA_PREFIX}",
+                                f"-DCMAKE_INSTALL_PREFIX={CONDA_PREFIX}",
+                                f"-DCMAKE_CXX_STANDARD={self.args.cxx_standard}",
+                                "-DBoost_NO_BOOST_CMAKE=ON",
+                                f"-DCMAKE_BUILD_TYPE={self.args.build_type}",
+                                f"-DTUDAT_BUILD_TESTS={self.build_tests}",
+                                "-B",
+                                f"{self.build_dir}",
+                                "-S",
+                                "..",
+                            ],
+                            stdout=output_dest,
+                            stderr=output_dest,
+                        )
             if outcome.returncode:
                 shutil.rmtree(self.build_dir)
                 raise RuntimeError("CMake setup failed")
