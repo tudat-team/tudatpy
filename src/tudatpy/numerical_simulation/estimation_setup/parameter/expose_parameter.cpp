@@ -116,7 +116,10 @@ void expose_estimated_parameter_setup( py::module& m )
             .export_values( );
 
     py::enum_< tba::EmpiricalAccelerationComponents >(
-            m, "EmpiricalAccelerationComponents", R"doc(No documentation found.)doc" )
+            m, "EmpiricalAccelerationComponents", R"doc(Enumeration of the available empirical acceleration components that are available to estimate.
+            
+            These are used in the :func:`~tudatpy.numerical_simulation.estimation_setup.parameter.empirical_accelerations` function to specify which components of the empirical acceleration are to be estimated.
+            )doc" )
             .value( "radial_empirical_acceleration_component",
                     tba::EmpiricalAccelerationComponents::radial_empirical_acceleration_component )
             .value( "along_track_empirical_acceleration_component",
@@ -128,7 +131,10 @@ void expose_estimated_parameter_setup( py::module& m )
             .export_values( );
 
     py::enum_< tba::EmpiricalAccelerationFunctionalShapes >(
-            m, "EmpiricalAccelerationFunctionalShapes", R"doc(No documentation found.)doc" )
+            m, "EmpiricalAccelerationFunctionalShapes", R"doc(Enumeration of the available empirical acceleration shapes that are available per component
+            
+            These are used in the :func:`~tudatpy.numerical_simulation.estimation_setup.parameter.empirical_accelerations` function to specify the signature of the estimated empirical acceleration component.
+            .)doc" )
             .value( "constant_empirical",
                     tba::EmpiricalAccelerationFunctionalShapes::constant_empirical )
             .value( "sine_empirical", tba::EmpiricalAccelerationFunctionalShapes::sine_empirical )
