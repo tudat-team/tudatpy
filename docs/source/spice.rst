@@ -4,7 +4,9 @@ Interface to the SPICE package.
 
 This module provides an interface to NAIF's ``SPICE`` package.
 
+.. note::
 
+   All functions return values in SI units (meter, seconds, kilogram, radian) and therefore require no conversion when used in combination with other tudatpy functions.
 
 
 
