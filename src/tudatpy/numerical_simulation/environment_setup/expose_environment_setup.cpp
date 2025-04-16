@@ -750,14 +750,14 @@ void expose_environment_setup( py::module &m )
            py::arg( "radiation_pressure_target_settings" ),
            R"doc(
 
- Function that creates an radiation pressure interface from settings, and adds it to an existing body.
+ Function that creates a radiation pressure target model from settings, and adds it to an existing body.
 
- This function can be used to add an radiation pressure interface to an existing body. It requires
- settings for the radiation pressure interface, created using one of the functions from the :ref:`\`\`radiation_pressure\`\`` module.
- This function creates the actual coefficient interface from these settings, and assigns it to the
+ This function can be used to add a radiation pressure target model to an existing body. It requires
+ settings for the radiation pressure target model, created using one of the functions from the :ref:`\`\`radiation_pressure\`\`` module.
+ This function creates the actual target model from these settings, and assigns it to the
  selected body. In addition to the identifier for the body to which it is assigned, this function
  requires the full :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies` as input, to facilitate
- inter-body dependencies in the radiation pressure interface
+ inter-body dependencies in the radiation pressure interface.
 
 
  Parameters
@@ -766,8 +766,8 @@ void expose_environment_setup( py::module &m )
      Object defining the physical environment, with all properties of artificial and natural bodies.
  body_name : str
      Name of the body to which the radiation pressure interface is to be assigned
- radiation_pressure_settings : RadiationPressureInterfaceSettings
-     Settings defining the radiation pressure interface that is to be created.
+ radiation_pressure_target_settings : RadiationPressureTargetModelSettings
+    Settings defining the radiation pressure target model that is to be created.
 
 
 
