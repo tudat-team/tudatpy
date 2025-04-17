@@ -1,107 +1,188 @@
+import argparse
+from pathlib import Path
+import shutil
+from contextlib import chdir
+import subprocess
 import os
 import sys
-import subprocess
-from pathlib import Path
-from contextlib import chdir
+
+TUDATPY_ROOT = Path("tudatpy/src/tudatpy").resolve()
+CONDA_PREFIX = os.environ["CONDA_PREFIX"]
+PYLIB_PREFIX = (
+    Path(sys.exec_prefix)
+    / sys.platlibdir
+    / f"python{sys.version_info.major}.{sys.version_info.minor}"
+    / "site-packages"
+).resolve()
 
 
-def usage():
-    print("Usage: build.py [options]")
-    print("Options:")
-    print("  -h, --help            Show this help message and exit")
-    print("  -j N                  Number of processors to use [Default: 1]")
-    print("  -c, --clean           Clean build [Default: False]")
-    print("  --build-dir DIR       Build directory [Default: 'build']")
-    print("  --no-tests            Do not build tests [Default: False]")
-    print("  --cxx-std STD         C++ standard to use [Default: 'c++17']")
-    print(
-        "  --build-type TYPE     Build type (e.g., Release, Debug) [Default: 'Release']"
-    )
-    print(
-        "  --output-to-file      Output logs to file instead of terminal [Default: False]"
-    )
+class BuildParser(argparse.ArgumentParser):
+    """Argument parser for build script"""
+
+    def __init__(self) -> None:
+
+        # Default initialization
+        super().__init__(prog="build.py", description="Build tools for Tudat")
+
+        # Control basic behavior of the build script
+        basic_group = self.add_argument_group("Basic configuration")
+        basic_group.add_argument(
+            "--tests",
+            dest="build_tests",
+            action="store_true",
+            help="Build with tests [Default: False]",
+        )
+        basic_group.add_argument(
+            "--clean",
+            dest="clean_build",
+            action="store_true",
+            help="Remove pre-existing build directory [Default: False]",
+        )
+        basic_group.add_argument(
+            "--force-setup",
+            dest="force_setup",
+            action="store_true",
+            help="Force the execution of CMake setup. This is needed if the cmake setup is modified and the build directory already exists. [Default: False]",
+        )
+
+        # Control CMake behavior
+        cmake_group = self.add_argument_group("CMake configuration")
+        cmake_group.add_argument(
+            "-j",
+            metavar="<cores>",
+            type=int,
+            default=1,
+            help="Number of processors to use",
+        )
+        cmake_group.add_argument(
+            "--cxx-standard",
+            metavar="<std>",
+            default="14",
+            help="C++ standard to use",
+        )
+        cmake_group.add_argument(
+            "--build-dir",
+            metavar="<dir>",
+            default="build",
+            help="Build directory",
+        )
+        cmake_group.add_argument(
+            "--build-type",
+            metavar="<type>",
+            default="Release",
+            help="Build type (e.g., Release, Debug)",
+        )
+
+        # Misc
+        misc_group = self.add_argument_group("Miscellaneous")
+        misc_group.add_argument(
+            "--output-to-file",
+            dest="output_to_file",
+            action="store_true",
+            help="Output logs to file instead of terminal [Default: False]",
+        )
+        misc_group.add_argument(
+            "--verbose",
+            action="store_true",
+            help="Verbose output during build",
+        )
+
+        return None
+
+
+class Builder:
+
+    def __init__(self) -> None:
+
+        # Command line arguments to control the build
+        self.args = BuildParser().parse_args()
+
+        # Build configuration attributes
+        self.build_dir = Path(self.args.build_dir).resolve()
+        # self.skip_tudat = "OFF" if self.args.build_tudat else "ON"
+        # self.skip_tudatpy = "OFF" if self.args.build_tudatpy else "ON"
+        self.build_tests = "ON" if self.args.build_tests else "OFF"
+
+        return None
+
+    def build_libraries(self) -> None:
+
+        # If clean build is requested, delete build directory
+        if self.build_dir.exists() and self.args.clean_build:
+
+            # TODO: Logger
+            print(f"Removing pre-existing build directory: {self.build_dir}")
+            shutil.rmtree(self.build_dir)
+
+        # If output to file is requested, set up output redirection
+        if self.args.output_to_file:
+            _output_dest = self.build_dir / "build_output.txt"
+        else:
+            _output_dest = None
+
+        # If build directory still exists, skip setup
+        if not self.build_dir.exists() or self.args.force_setup:
+
+            # Set up build directory
+            self.build_dir.mkdir(parents=True, exist_ok=True)
+            with chdir(self.build_dir):
+
+                if _output_dest is None:
+                    outcome = subprocess.run(
+                        [
+                            "cmake",
+                            # f"-DSKIP_TUDAT={self.skip_tudat}",
+                            # f"-DSKIP_TUDATPY={self.skip_tudatpy}",
+                            f"-DCMAKE_PREFIX_PATH={CONDA_PREFIX}",
+                            f"-DCMAKE_INSTALL_PREFIX={CONDA_PREFIX}",
+                            f"-DCMAKE_CXX_STANDARD={self.args.cxx_standard}",
+                            "-DBoost_NO_BOOST_CMAKE=ON",
+                            f"-DCMAKE_BUILD_TYPE={self.args.build_type}",
+                            f"-DTUDAT_BUILD_TESTS={self.build_tests}",
+                            "-B",
+                            f"{self.build_dir}",
+                            "-S",
+                            "..",
+                        ]
+                    )
+                else:
+                    with _output_dest.open("w") as output_dest:
+                        outcome = subprocess.run(
+                            [
+                                "cmake",
+                                # f"-DSKIP_TUDAT={self.skip_tudat}",
+                                # f"-DSKIP_TUDATPY={self.skip_tudatpy}",
+                                f"-DCMAKE_PREFIX_PATH={CONDA_PREFIX}",
+                                f"-DCMAKE_INSTALL_PREFIX={CONDA_PREFIX}",
+                                f"-DCMAKE_CXX_STANDARD={self.args.cxx_standard}",
+                                "-DBoost_NO_BOOST_CMAKE=ON",
+                                f"-DCMAKE_BUILD_TYPE={self.args.build_type}",
+                                f"-DTUDAT_BUILD_TESTS={self.build_tests}",
+                                "-B",
+                                f"{self.build_dir}",
+                                "-S",
+                                "..",
+                            ],
+                            stdout=output_dest,
+                            stderr=output_dest,
+                        )
+            if outcome.returncode:
+                shutil.rmtree(self.build_dir)
+                raise RuntimeError("CMake setup failed")
+
+        # Run build command
+        with chdir(self.build_dir):
+
+            build_command = ["cmake", "--build", ".", f"-j{self.args.j}"]
+            if self.args.verbose:
+                build_command.append("--verbose")
+            outcome = subprocess.run(build_command)
+            if outcome.returncode:
+                exit(outcome.returncode)
+
+        return None
 
 
 if __name__ == "__main__":
 
-    ARGUMENTS = {
-        "NUMBER_OF_PROCESSORS": 1,
-        "CLEAN_BUILD": False,
-        "BUILD_DIR": "build",
-        "BUILD_TESTS": True,
-        "RUN_TESTS": True,
-        "CXX_STANDARD": "14",
-        "BUILD_TYPE": "Release",
-        "OUTPUT_TO_FILE": False,
-        "OUTPUT_FILE": "build/build_output.txt",
-    }
-    CONDA_PREFIX = os.environ["CONDA_PREFIX"]
-
-    # Parse input
-    args = iter(sys.argv[1:])
-    for arg in args:
-        if arg in ("-h", "--help"):
-            usage()
-            exit(0)
-        elif arg == "-j":
-            ARGUMENTS["NUMBER_OF_PROCESSORS"] = next(args)
-        elif arg in ("-c", "--clean"):
-            ARGUMENTS["CLEAN_BUILD"] = True
-        elif arg == "--build-dir":
-            ARGUMENTS["BUILD_DIR"] = next(args)
-        elif arg == "--no-tests":
-            ARGUMENTS["BUILD_TESTS"] = False
-        elif arg == "--cxx-std":
-            ARGUMENTS["CXX_STANDARD"] = next(args)
-        elif arg == "--build-type":
-            ARGUMENTS["BUILD_TYPE"] = next(args)
-        elif arg == "--output-to-file":
-            ARGUMENTS["OUTPUT_TO_FILE"] = True
-        else:
-            print("Invalid command")
-            usage()
-            exit(1)
-
-    # Determine output destination
-    if ARGUMENTS["OUTPUT_TO_FILE"]:
-        output_dest = open(ARGUMENTS["OUTPUT_FILE"], "w")
-    else:
-        output_dest = None
-
-    try:
-        # Ensure build directory exists
-        build_dir = Path(ARGUMENTS["BUILD_DIR"]).resolve()
-        build_dir.mkdir(parents=True, exist_ok=True)
-
-        # Build
-        with chdir(build_dir):
-            outcome = subprocess.run(
-                [
-                    "cmake",
-                    f"-DCMAKE_PREFIX_PATH={CONDA_PREFIX}",
-                    f"-DCMAKE_INSTALL_PREFIX={CONDA_PREFIX}",
-                    f'-DCMAKE_CXX_STANDARD={ARGUMENTS["CXX_STANDARD"]}',
-                    "-DBoost_NO_BOOST_CMAKE=ON",
-                    f'-DCMAKE_BUILD_TYPE={ARGUMENTS["BUILD_TYPE"]}',
-                    f'-DTUDAT_BUILD_TESTS={ARGUMENTS["BUILD_TESTS"]}',
-                    "..",
-                ],
-                stdout=output_dest,
-                stderr=output_dest,
-            )
-            if outcome.returncode:
-                exit(outcome.returncode)
-
-            build_command = ["cmake", "--build", "."]
-            if ARGUMENTS["CLEAN_BUILD"]:
-                build_command.append("--target")
-                build_command.append("clean")
-            build_command.append(f"-j{ARGUMENTS['NUMBER_OF_PROCESSORS']}")
-            outcome = subprocess.run(
-                build_command, stdout=output_dest, stderr=output_dest
-            )
-            if outcome.returncode:
-                exit(outcome.returncode)
-    finally:
-        if output_dest:
-            output_dest.close()
+    Builder().build_libraries()
