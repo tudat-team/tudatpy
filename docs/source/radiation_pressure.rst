@@ -124,14 +124,14 @@ Enumerations
 
    KnockeTypeSurfacePropertyDistributionModel
 
-   SphericalHarmonicSurfacePropertyDistribution
+   SphericalHarmonicsSurfacePropertyDistributionModel
 
 
 
 .. autoclass:: tudatpy.numerical_simulation.environment_setup.radiation_pressure.KnockeTypeSurfacePropertyDistributionModel
    :members:
 
-.. autoclass:: tudatpy.numerical_simulation.environment_setup.radiation_pressure.SphericalHarmonicSurfacePropertyDistribution
+.. autoclass:: tudatpy.numerical_simulation.environment_setup.radiation_pressure.SphericalHarmonicsSurfacePropertyDistributionModel
    :members:
 
 

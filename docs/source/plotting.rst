@@ -24,9 +24,9 @@ Functions
 
 .. autosummary::
 
-   plot_blue_marble_ground_track
+   .. plot_blue_marble_ground_track
 
-   plot_miller_ground_track
+   .. plot_miller_ground_track
 
    dual_y_axis
 
@@ -36,9 +36,9 @@ Functions
 
 
 
-.. autofunction:: tudatpy.plotting.plot_blue_marble_ground_track
+.. .. autofunction:: tudatpy.plotting.plot_blue_marble_ground_track
 
-.. autofunction:: tudatpy.plotting.plot_miller_ground_track
+.. .. autofunction:: tudatpy.plotting.plot_miller_ground_track
 
 .. autofunction:: tudatpy.plotting.dual_y_axis
 

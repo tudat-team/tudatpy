@@ -6,7 +6,8 @@ Functionalities for shape-based low-thrust trajectory design.
 
 This module provides the functionality for creating shape-based low-thrust trajectory design legs.
 Without using any numerical propagation, this generates a preliminary low-thrust trajectory using
-relatively simple (semi-)analytical methods
+relatively simple (semi-)analytical methods.
+For background information on the methods, see [1]_.
 
 
 
