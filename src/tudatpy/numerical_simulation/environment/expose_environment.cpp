@@ -3027,14 +3027,14 @@ void expose_environment( py::module &m )
                   &tss::SystemOfBodies::getFrameOrientation,
                   R"doc(
 
-         Common global frame orientation for all bodies in this SystemOfBodies, described in more detail `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html#frame-orientation>`_.
+         Common global frame orientation for all bodies in this SystemOfBodies, described in more detail `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html#frame-orientation>`__.
 
      )doc" )
             .def( "global_frame_origin",
                   &tss::SystemOfBodies::getFrameOrigin,
                   R"doc(
 
-         Common global frame origin for all bodies in this SystemOfBodies, described in more detail `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html#global-origin>`_.
+         Common global frame origin for all bodies in this SystemOfBodies, described in more detail `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html#global-origin>`__.
 
      )doc" );
 
