@@ -1,3 +1,5 @@
+.. _spice:
+
 ``spice``
 =========
 Interface to the SPICE package.
@@ -96,26 +98,6 @@ Functions
 .. autofunction:: tudatpy.interface.spice.load_kernel
 
 .. autofunction:: tudatpy.interface.spice.clear_kernels
-
-
-
-
-
-
-Classes
--------
-.. currentmodule:: tudatpy.interface.spice
-
-.. autosummary::
-
-   SpiceEphemeris
-
-
-
-.. autoclass:: tudatpy.interface.spice.SpiceEphemeris
-   :members:
-   :special-members: __init__
-
 
 
 

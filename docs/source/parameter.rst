@@ -1,3 +1,5 @@
+.. _parameter:
+
 ``parameter``
 =============
 This module contains a set of factory functions for setting up the
