@@ -99,7 +99,7 @@ void expose_propagator_setup( py::module &m )
          entries of the processed state vector are to be printed to
          the console (after the propagation). The distinction between the
          propagated and processed (or conventional) state representation is described in
-         detail `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/processed_propagated_elements.html>`_.
+         detail `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/processed_propagated_elements.html>`__.
          Summarizing: the processed state is the 'typical' formulation of the state (for translational dynamics: Cartesian states).
 
          .. note:: The same information can be retrieved from the
@@ -271,7 +271,7 @@ void expose_propagator_setup( py::module &m )
          variable is set to True, the properties of the propagated
          :class:`~tudatpy.numerical_simulation.environment.Body`
          object will be updated as per the numerical results
-         (see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html#automatic-processing>`_ for details).
+         (see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html#automatic-processing>`__ for details).
 
 
          :type: bool
@@ -567,7 +567,7 @@ Enumeration of available rotational propagator types.
             .value( "quaternions",
                     tp::RotationalPropagatorType::quaternions,
                     R"doc(
-Entries 1-4: The quaternion defining the rotation from inertial to body-fixed frame (see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html#definition-of-rotational-state>`_)
+Entries 1-4: The quaternion defining the rotation from inertial to body-fixed frame (see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html#definition-of-rotational-state>`__)
 
 Entries 5-7: The body's angular velocity vector, expressed in its body-fixed frame.
       )doc" )
@@ -900,7 +900,7 @@ The propagated state vector is defined by the combination of integrated bodies, 
 of which define the relative translational states for which a differential equation is to be solved. The propagator
 input defines the formulation in which the differential equations are set up
 The dynamical models are defined by an ``AccelerationMap`` (dict[str, list[AccelerationModel]]), as created by :func:`~tudatpy.numerical_simulation.propagation_setup.create_acceleration_models` function.
-Details on the usage of this function are discussed in more detail in the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational.html>`_.
+Details on the usage of this function are discussed in more detail in the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational.html>`__.
 
 Parameters
 ----------
@@ -926,7 +926,7 @@ propagator : TranslationalPropagatorType, default=cowell
 output_variables : list[SingleDependentVariableSaveSettings], default=[]
     Object to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
 processing_settings: SingleArcPropagatorProcessingSettings, default=[]
-    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`_ for details on all options.
+    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`__ for details on all options.
     If this object is left empty default settings of the :class:`~SingleArcPropagatorProcessingSettings` class are used.
 
 Returns
@@ -984,7 +984,7 @@ differential equation defining the evolution of the rotational state between an
 inertial and body-fixed frame are to be solved. The propagator input defines the
 formulation in which the differential equations are set up. The dynamical models are
 defined by a ``TorqueModelMap``, as created by :func:`~tudatpy.numerical_simulation.propagation_setup.create_torque_models` function.
-Details on the usage of this function are discussed in more detail in the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/rotational.html>`_
+Details on the usage of this function are discussed in more detail in the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/rotational.html>`__
 
 
 Parameters
@@ -996,7 +996,7 @@ bodies_to_integrate : list[str]
 initial_states : numpy.ndarray
     Initial rotational states of the bodies to integrate (one initial state for each body), provided in the same order as the bodies to integrate.
     Regardless of the propagator that is selected, the initial rotational state is always defined as four quaternion entries, and the angular velocity of the body,
-    as defined in more detail `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html#definition-of-rotational-state>`_.
+    as defined in more detail `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html#definition-of-rotational-state>`__.
 initial_time : float
     Initial epoch of the numerical propagation
 integrator_settings : IntegratorSettings
@@ -1013,7 +1013,7 @@ propagator : RotationalPropagatorType, default=quaternions
 output_variables : list[SingleDependentVariableSaveSettings], default=[]
     Object to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
 processing_settings: SingleArcPropagatorProcessingSettings, default=[]
-    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`_ for details on all options.
+    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`__ for details on all options.
     If this object is left empty default settings of the :class:`~SingleArcPropagatorProcessingSettings` class are used.
 
 Returns
@@ -1067,7 +1067,7 @@ It works by providing a key-value mass rate container, containing the list of ma
 each body. In this function, the dependent variables to save are provided
 as a list of SingleDependentVariableSaveSettings objects. In this function, the termination conditions are set
 through the termination settings object provided.
-Details on the usage of this function are discussed in more detail in the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/mass.html>`_
+Details on the usage of this function are discussed in more detail in the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/mass.html>`__
 
 
 Parameters
@@ -1090,7 +1090,7 @@ termination_settings : PropagationTerminationSettings
 output_variables : list[SingleDependentVariableSaveSettings], default=[]
     Object to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
 processing_settings: SingleArcPropagatorProcessingSettings, default=[]
-    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`_ for details on all options.
+    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`__ for details on all options.
     If this object is left empty default settings of the :class:`~SingleArcPropagatorProcessingSettings` class are used.
 
 Returns
@@ -1126,7 +1126,7 @@ defined by accelerations (as is the case for translational state) or torques (as
 additional flexibility to define their own model by adding (for instance) the integration of co-states to the propagation without having to
 implement the governing dynamics into Tudat. This propagator requires a function of the form :math:`\frac{d\mathbf{x}}{dt}=\mathbf{f}(t,\mathbf{x})`,
 with :math:`t` the current time, :math:`\mathbf{x}` the current state, and :math:`\mathbf{f}` the state derivative function. This function can
-depend on any quantities of the user's choosing, for details on how to link the properties of the environment to this function, see `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/custom_models.html>`_.
+depend on any quantities of the user's choosing, for details on how to link the properties of the environment to this function, see `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/custom_models.html>`__.
 
 Parameters
 ----------
@@ -1146,7 +1146,7 @@ termination_settings : PropagationTerminationSettings
 output_variables : list[SingleDependentVariableSaveSettings], default=[]
     Object to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
 processing_settings: SingleArcPropagatorProcessingSettings, default=[]
-    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`_ for details on all options.
+    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`__ for details on all options.
     If this object is left empty default settings of the :class:`~SingleArcPropagatorProcessingSettings` class are used.
 
 Returns
@@ -1187,7 +1187,7 @@ Function to create multitype propagator settings.
 It works by providing a list of SingleArcPropagatorSettings objects. When using this function,
 only the termination and output settings provided here are used, any such settings in the
 constituent propagator settings are ignored
-Details on the usage of this function are discussed in more detail in the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/multi_type.html>`_
+Details on the usage of this function are discussed in more detail in the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/multi_type.html>`__
 
 .. note:: The propagated state contains the state types in the following order: Translational ( **C** ), Rotational ( **R** ), Mass ( **M** ), and Custom ( **C** ).
         When propagating two bodies, an example of what the output state would look like is for instance:
@@ -1210,7 +1210,7 @@ termination_settings : PropagationTerminationSettings
 output_variables : list[SingleDependentVariableSaveSettings], default=[]
     Object to define settings on how the numerical results are to be used, both during the propagation (printing to console) and after propagation (resetting environment)
 processing_settings: SingleArcPropagatorProcessingSettings, default=[]
-    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`_ for details on all options.
+    Object to define how the numerical results are to be processed after the propagation terminates, and which information to print to the console during the propagation. See `our user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html>`__ for details on all options.
     If this object is left empty default settings of the :class:`~SingleArcPropagatorProcessingSettings` class are used.
 
 Returns
