@@ -1,3 +1,5 @@
+.. _data:
+
 ``data``
 ======
 Interfacing of Tudat(py) to and from other applications.

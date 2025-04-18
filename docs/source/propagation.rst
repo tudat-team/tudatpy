@@ -1,3 +1,5 @@
+.. _propagation:
+
 ``propagation``
 ===============
 Functionalities and utilities of propagation objects.
@@ -5,7 +7,7 @@ Functionalities and utilities of propagation objects.
 This module provides functionalities for propagation settings
 objects. It also contains some utility functions that extract specific quantities from propagation settings and body
 objects. Note that the classes in this module are rarely created manually,
-but are instead created by the functionality in the :ref:`\`\`propagation_setup\`\``  module.
+but are instead created by the functionality in the :ref:`propagation_setup`  module.
 
 
 

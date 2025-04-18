@@ -1,3 +1,5 @@
+.. _root_finders:
+
 ``root_finders``
 ================
 Functions for root-finding of algebraic univariate functions using various algorithms. 
