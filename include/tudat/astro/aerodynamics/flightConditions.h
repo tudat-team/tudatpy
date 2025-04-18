@@ -437,7 +437,7 @@ public:
                     atmosphereModel_->getNumberDensity( species,
                                                         scalarFlightConditions_.at( altitude_flight_condition ),
                                                         scalarFlightConditions_.at( longitude_flight_condition ),
-                                                        scalarFlightConditions_.at( latitude_flight_condition ),
+                                                        getAtmospherLatitudeInput( ),
                                                         currentTime_ );
         }
         return currentNumberDensities_.at( species );
@@ -564,6 +564,11 @@ private:
     //! Function to update input to atmosphere model (altitude, as well as latitude and longitude if needed).
     void updateAtmosphereInput( );
 
+    double getAtmospherLatitudeInput( )
+    {
+        return atmosphereModel_->getUseGeodeticLatitude( ) ?
+        scalarFlightConditions_.at( geodetic_latitude_condition ) : scalarFlightConditions_.at( latitude_flight_condition );
+    }
     //! Function to compute and set the current freestream density
     void computeDensity( )
     {
@@ -571,7 +576,7 @@ private:
         scalarFlightConditions_[ density_flight_condition ] =
                 atmosphereModel_->getDensity( scalarFlightConditions_.at( altitude_flight_condition ),
                                               scalarFlightConditions_.at( longitude_flight_condition ),
-                                              scalarFlightConditions_.at( latitude_flight_condition ),
+                                              getAtmospherLatitudeInput( ),
                                               currentTime_ );
         if( currentTime_ == currentTime_ )
         {
@@ -586,7 +591,7 @@ private:
         scalarFlightConditions_[ temperature_flight_condition ] =
                 atmosphereModel_->getTemperature( scalarFlightConditions_.at( altitude_flight_condition ),
                                                   scalarFlightConditions_.at( longitude_flight_condition ),
-                                                  scalarFlightConditions_.at( latitude_flight_condition ),
+                                                  getAtmospherLatitudeInput( ),
                                                   currentTime_ );
         if( currentTime_ == currentTime_ )
         {
@@ -601,7 +606,7 @@ private:
         scalarFlightConditions_[ pressure_flight_condition ] =
                 atmosphereModel_->getPressure( scalarFlightConditions_.at( altitude_flight_condition ),
                                                scalarFlightConditions_.at( longitude_flight_condition ),
-                                               scalarFlightConditions_.at( latitude_flight_condition ),
+                                               getAtmospherLatitudeInput( ),
                                                currentTime_ );
         if( currentTime_ == currentTime_ )
         {
@@ -616,7 +621,7 @@ private:
         scalarFlightConditions_[ speed_of_sound_flight_condition ] =
                 atmosphereModel_->getSpeedOfSound( scalarFlightConditions_.at( altitude_flight_condition ),
                                                    scalarFlightConditions_.at( longitude_flight_condition ),
-                                                   scalarFlightConditions_.at( latitude_flight_condition ),
+                                                   getAtmospherLatitudeInput( ),
                                                    currentTime_ );
         if( currentTime_ == currentTime_ )
         {
