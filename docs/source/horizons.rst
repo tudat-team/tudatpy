@@ -1,3 +1,5 @@
+.. _horizons:
+
 ``horizons``
 =================
 This module contains a wrapper for the JPL Horizons interface of the astroquery package

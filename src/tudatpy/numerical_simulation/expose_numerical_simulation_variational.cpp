@@ -287,7 +287,7 @@ void expose_numerical_simulation_variational( py::module &m )
  Function to create object that propagates the dynamics and variational equations.
 
  Function to create object that propagates the dynamics and variational equations, as specified by propagator settings, the physical environment, and a set of parameters for which to compute the partials.
- Depending on the specific input type (e.g. which function from the :ref:`\`\`propagator\`\`` module was used to define the propagator settings),
+ Depending on the specific input type (e.g. which function from the :ref:`propagator` module was used to define the propagator settings),
  a single-, multi- or hybrid-arc variational solver is created. The environment is typically created by the :func:`~tudatpy.numerical_simulation.environment_setup.create_system_of_bodies`
  function. When using default settings, calling this function will automatically propagate the dynamics.
 

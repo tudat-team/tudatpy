@@ -1,3 +1,5 @@
+.. _spice:
+
 ``spice``
 =========
 Interface to the SPICE package.

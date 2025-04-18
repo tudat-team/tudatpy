@@ -1,3 +1,5 @@
+.. _observation:
+
 ``observation``
 ===============
 This module contains a set of factory functions for setting up the

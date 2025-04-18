@@ -1,3 +1,5 @@
+.. _rotation_model:
+
 ``rotation_model``
 ==================
 This module contains a set of factory functions for setting up the

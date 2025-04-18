@@ -1,3 +1,5 @@
+.. _radiation_pressure:
+
 ``radiation_pressure``
 ======================
 This module contains a set of factory functions for setting up the
