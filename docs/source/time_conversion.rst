@@ -1,3 +1,5 @@
+.. _time_conversion:
+
 ``time_conversion``
 ===================
 Conversions and computation on date and time.

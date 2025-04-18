@@ -1305,7 +1305,7 @@ void expose_element_conversion( py::module& m )
            &tsi::getRotationFromJ2000ToEclipJ2000,
            R"doc(
 
- Provides the (constant) rotation matrix from the J2000 to the ECLIPJ2000 frame, as defined in the SPICE library (see :ref:`\`\`spice\`\`` for more details on our interface with this library).
+ Provides the (constant) rotation matrix from the J2000 to the ECLIPJ2000 frame, as defined in the SPICE library (see :ref:`spice` for more details on our interface with this library).
 
  Returns
  -------
@@ -1319,7 +1319,7 @@ void expose_element_conversion( py::module& m )
            &tsi::getRotationFromEclipJ2000ToJ2000,
            R"doc(
 
- Provides the (constant) rotation matrix from the ECLIPJ2000 to the J2000 frame, as defined in the SPICE library (see :ref:`\`\`spice\`\`` for more details on our interface with this library).
+ Provides the (constant) rotation matrix from the ECLIPJ2000 to the J2000 frame, as defined in the SPICE library (see :ref:`spice` for more details on our interface with this library).
 
  Returns
  -------

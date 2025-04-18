@@ -1,3 +1,5 @@
+.. _mass_rate:
+
 ``mass_rate``
 =============
 This module provides the functionality for creating mass rate settings.

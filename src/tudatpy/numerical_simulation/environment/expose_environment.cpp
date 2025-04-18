@@ -444,7 +444,7 @@ void expose_environment( py::module &m )
 
 
          Base class for computing the current aerodynamic coefficients of the body. The implementation of the computation
-         depends on the choice of aerodynamic coefficient model (see :ref:`\`\`aerodynamic_coefficients\`\`` for available options).
+         depends on the choice of aerodynamic coefficient model (see :ref:`aerodynamic_coefficients` for available options).
          During the propagation, this object is automatically updated to the current state by the :class:`~AtmosphericFlightConditions` object.
          The user may override the current aerodynamic coefficients when using, for instance, a custom aerodynamic guidance model
          (see `here <https://docs.tudat.space/en/latest/_src_getting_started/_src_examples/notebooks/propagation/reentry_trajectory.html>`_ for an example).
@@ -1747,7 +1747,7 @@ void expose_environment( py::module &m )
 
          Function to get rotation matrix from body-fixed (target) frame to inertial (base) frame over time.
          The calculation of this rotation matrix depends on the specific rotation model that has been defined,
-         either from an a priori definition (see :ref:`\`\`rotation_model\`\`` submodule) or from processing
+         either from an a priori definition (see :ref:`rotation_model` submodule) or from processing
          the results of propagation of the rotational equations of motion.
 
 
@@ -1851,7 +1851,7 @@ void expose_environment( py::module &m )
 
          Function to get the body's angular velocity vector :math:`\boldsymbol{\omega}^{(B)}`, expressed in the body-fixed frame :math:`B`.
          The calculation of the angular velocity depends on the specific rotation model that has been defined,
-         either from an a priori definition (see :ref:`\`\`rotation_model\`\`` submodule) or from processing
+         either from an a priori definition (see :ref:`rotation_model` submodule) or from processing
          the results of propagation of the rotational equations of motion.
          Note that when numerically propagating rotational dynamics, this angular velocity vector is typically directly defined
          in the last three entries of the state vector.

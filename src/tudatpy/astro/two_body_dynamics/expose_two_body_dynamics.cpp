@@ -318,7 +318,7 @@ void expose_two_body_dynamics( py::module &m )
  Parameters
  ----------
  initial_kepler_elements : numpy.ndarray
-     Keplerian elements that are to be propagated (see :ref:`\`\`element_conversion\`\`` for order)
+     Keplerian elements that are to be propagated (see :ref:`element_conversion` for order)
  propagation_time : float
      Time for which the elements are to be propagated w.r.t. the initial elements
  gravitational_parameter : float
