@@ -52,7 +52,7 @@
  // Define input data generic (or almost completely) for all tests.
  NRLMSISE00Input gen_data( 0, 172, 29000.0, 16.0, 150.0, 150.0, 4.0 );
  std::vector< double > gen_input = { 400.0E3, -70.0 * PI / 180.0, 60.0 * PI / 180.0, 0.0 };
- 
+// 60.08918628640978
  //! Test function to update the NRLMSISE00 iunput data as a function of time and geometry.
  NRLMSISE00Input nrlmsiseTestFunction( double altitude,
                                        double longitude,
@@ -86,11 +86,16 @@
  //  Check the consistency between full output and get parameter output functions.
  BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTestFunctions )
  {
+     auto computedCartesianPosition = coordinate_conversions::convertGeodeticToCartesianCoordinates(
+         ( Eigen::Vector3d( )<<400.0E3, 60.0 * PI / 180.0,  -70.0 * PI / 180.0 ).finished( ),
+         6378137.0, 1.0 / 298.257223563 );
+     auto sphericalPosition = coordinate_conversions::convertCartesianToSpherical( computedCartesianPosition );
+
      // Manual reset of switch
      gen_data.switches[ 9 ] = 1;
  
      // Define tolerance for equality
-     double tolerance = 1.0E-18;
+     double tolerance = 1.0E-15;
  
      // Create the model
      NRLMSISE00Atmosphere model( std::bind( &nrlmsiseTestFunction,
@@ -99,7 +104,7 @@
                                             std::placeholders::_3,
                                             std::placeholders::_4,
                                             false,
-                                            false ) );
+                                            false ), true, false );
  
      // Create local copy of input and define variations
      data = gen_data;
@@ -135,7 +140,7 @@
                                             std::placeholders::_3,
                                             std::placeholders::_4,
                                             false,
-                                            false ) );
+                                            false ), true, false );
  
      // Create local copy of input and define variations
      data = gen_data;
@@ -203,7 +208,7 @@
                                             std::placeholders::_3,
                                             std::placeholders::_4,
                                             false,
-                                            false ) );
+                                            false ), true, false );
  
      // Create local copy of input and define variations
      data = gen_data;
@@ -244,7 +249,7 @@
                                             std::placeholders::_3,
                                             std::placeholders::_4,
                                             false,
-                                            false ) );
+                                            false ), true, false );
  
      // Create local copy of input and define variations
      data = gen_data;
@@ -289,7 +294,7 @@
                                             std::placeholders::_3,
                                             std::placeholders::_4,
                                             false,
-                                            false ) );
+                                            false ), true, false );
  
      // Create local copy of input and define variations
      data = gen_data;
@@ -335,7 +340,7 @@
                                             std::placeholders::_3,
                                             std::placeholders::_4,
                                             false,
-                                            false ) );
+                                            false ), true, false );
  
      // Create local copy of input and define variations
      data = gen_data;
@@ -381,7 +386,7 @@
                                             std::placeholders::_3,
                                             std::placeholders::_4,
                                             false,
-                                            false ) );
+                                            false ), true, false );
  
      // Create local copy of input and define variations
      data = gen_data;
@@ -427,7 +432,7 @@
                                             std::placeholders::_3,
                                             std::placeholders::_4,
                                             false,
-                                            false ) );
+                                            false ), true, false );
  
      // Create local copy of input and define variations
      data = gen_data;
@@ -473,7 +478,7 @@
                                             std::placeholders::_3,
                                             std::placeholders::_4,
                                             false,
-                                            false ) );
+                                            false ), true, false );
  
      // Create local copy of input and define variations
      data = gen_data;
@@ -519,7 +524,7 @@
                                             std::placeholders::_3,
                                             std::placeholders::_4,
                                             false,
-                                            false ) );
+                                            false ), true, false );
  
      // Create local copy of input and define variations
      data = gen_data;
@@ -565,7 +570,7 @@
                                             std::placeholders::_3,
                                             std::placeholders::_4,
                                             false,
-                                            false ) );
+                                            false ), true, false );
  
      // Create local copy of input and define variations
      data = gen_data;
@@ -611,7 +616,7 @@
                                             std::placeholders::_3,
                                             std::placeholders::_4,
                                             false,
-                                            false ) );
+                                            false ), true, false );
  
      // Create local copy of input and define variations
      data = gen_data;
@@ -657,7 +662,7 @@
                                             std::placeholders::_3,
                                             std::placeholders::_4,
                                             false,
-                                            false ) );
+                                            false ), true, false );
  
      // Create local copy of input and define variations
      data = gen_data;
@@ -703,7 +708,7 @@
                                             std::placeholders::_3,
                                             std::placeholders::_4,
                                             false,
-                                            false ) );
+                                            false ), true, false );
  
      // Create local copy of input and define variations
      data = gen_data;
@@ -749,7 +754,7 @@
                                             std::placeholders::_3,
                                             std::placeholders::_4,
                                             false,
-                                            false ) );
+                                            false ), true, false );
  
      // Create local copy of input and define variations
      data = gen_data;
@@ -795,7 +800,7 @@
                                             std::placeholders::_3,
                                             std::placeholders::_4,
                                             false,
-                                            false ) );
+                                            false ), true, false );
  
      // Create local copy of input and define variations
      data = gen_data;
@@ -841,7 +846,7 @@
                                             std::placeholders::_3,
                                             std::placeholders::_4,
                                             false,
-                                            false ) );
+                                            false ), true, false );
  
      // Create local copy of input and define variations
      data = gen_data;
@@ -887,7 +892,7 @@
                                             std::placeholders::_3,
                                             std::placeholders::_4,
                                             false,
-                                            false ) );
+                                            false ), true, false );
  
      // Create local copy of input and define variations
      data = gen_data;
@@ -934,7 +939,7 @@
                                             std::placeholders::_3,
                                             std::placeholders::_4,
                                             false,
-                                            false ) );
+                                            false ), true, false );
  
      // Create local copy of input and define variations
      data = gen_data;
@@ -975,7 +980,7 @@
                                             std::placeholders::_3,
                                             std::placeholders::_4,
                                             false,
-                                            false ) );
+                                            false ), true, false );
  
      double altitude = 0.0;
      double longitude = 0.0;
@@ -1024,7 +1029,7 @@
                                             std::placeholders::_3,
                                             std::placeholders::_4,
                                             false,
-                                            false ) );
+                                            false ), true, false );
  
      double altitude = 0.0;
      double longitude = 0.0;
@@ -1055,7 +1060,7 @@
                                             std::placeholders::_3,
                                             std::placeholders::_4,
                                             false,
-                                            false ) );
+                                            false ), true, false );
  
      double altitude = 20.0E3;
      double longitude = 0.5;
@@ -1214,9 +1219,12 @@
      // Define simulation body settings.
      BodyListSettings bodySettings = getDefaultBodySettings( { "Earth", "Moon" }, "Earth", "ECLIPJ2000" );
      bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
-     bodySettings.at( "Earth" )->atmosphereSettings = std::make_shared< simulation_setup::AtmosphereSettings >( nrlmsise00 );
- 
-     // Create Earth object
+     bodySettings.at( "Earth" )->atmosphereSettings = std::make_shared< simulation_setup::NRLMSISE00AtmosphereSettings >(
+         paths::getSpaceWeatherDataPath() + "/sw19571001.txt", 0 );
+     bodySettings.at( "Earth" )->shapeModelSettings = std::make_shared< simulation_setup::OblateSphericalBodyShapeSettings >(
+         6378137.0, 1.0 / 298.257223563 );
+
+      // Create Earth object
      simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
  
      // Create vehicle objects.
@@ -1262,6 +1270,8 @@
      dependentVariables.push_back(
              std::make_shared< SingleDependentVariableSaveSettings >( body_fixed_relative_spherical_position, "Apollo", "Earth" ) );
      dependentVariables.push_back( std::make_shared< SingleDependentVariableSaveSettings >( nrlmsise_input_data, "Apollo", "Earth" ) );
+     dependentVariables.push_back(
+         std::make_shared< SingleDependentVariableSaveSettings >( geodetic_latitude_dependent_variable, "Apollo", "Earth" ) );
  
      // Create acceleration models and propagation settings.
      basic_astrodynamics::AccelerationMap accelerationModelMap =
@@ -1281,7 +1291,10 @@
                      std::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ),
                      cowell,
                      dependentVariables );
- 
+
+     propagatorSettings->getPrintSettings( )->setPrintDependentVariableData( true );
+
+
      // Create simulation object and propagate dynamics.
      SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
  
@@ -1296,18 +1309,19 @@
  
      for( auto it: dependentVariableOutput )
      {
+
          double altitude = it.second( 0 );
          double density = it.second( 1 );
          Eigen::Vector3d sphericalPosition = it.second.segment( 2, 3 );
          Eigen::VectorXd nrlmsiseInputVector = it.second.segment( 5, 17 );
- 
-         NRLMSISE00Input inputData = nrlmsiseInputFunction( altitude, sphericalPosition( 2 ), sphericalPosition( 1 ), it.first );
+         double geodeticLatitude = it.second( 22 );
+         NRLMSISE00Input inputData = nrlmsiseInputFunction( altitude, sphericalPosition( 2 ), geodeticLatitude, it.first );
  
          BOOST_CHECK_EQUAL( nrlmsiseInputVector( 0 ), inputData.year );
          BOOST_CHECK_EQUAL( nrlmsiseInputVector( 1 ), inputData.dayOfTheYear );
          BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 2 ), inputData.secondOfTheDay, 1.0E-14 );
          BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 3 ) * 1000.0, altitude, 1.0E-14 );
-         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 4 ), sphericalPosition( 1 ) * 180.0 / mathematical_constants::PI, 1.0E-14 );
+         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 4 ), geodeticLatitude * 180.0 / mathematical_constants::PI, 1.0E-14 );
          BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 5 ), sphericalPosition( 2 ) * 180.0 / mathematical_constants::PI, 1.0E-14 );
          BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 6 ), inputData.localSolarTime, 1.0E-14 );
          BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 7 ), inputData.f107, 1.0E-14 );
@@ -1374,9 +1388,9 @@
          BOOST_CHECK_EQUAL( inputData.apVector.at( 3 ), 0 );
          BOOST_CHECK_EQUAL( inputData.apVector.at( 4 ), 0 );
          BOOST_CHECK_EQUAL( inputData.apVector.at( 5 ), 0 );
- 
+//
          double manualDensity = std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )
-                                        ->getDensity( altitude, sphericalPosition( 2 ), sphericalPosition( 1 ), it.first );
+                                        ->getDensity( altitude, sphericalPosition( 2 ), geodeticLatitude, it.first );
          BOOST_CHECK_CLOSE_FRACTION( density, manualDensity, 1.0E-14 );
  
          //        std::copy( inputData_.switches.begin( ), inputData_.switches.end( ), flags_.switches );
@@ -1427,8 +1441,10 @@
      BodyListSettings bodySettings = getDefaultBodySettings( { "Earth", "Moon" }, "Earth", "ECLIPJ2000" );
      bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
      bodySettings.at( "Earth" )->atmosphereSettings = std::make_shared< simulation_setup::NRLMSISE00AtmosphereSettings >(
-        paths::getSpaceWeatherDataPath() + "/sw19571001.txt", -1 );
- 
+        paths::getSpaceWeatherDataPath() + "/sw19571001.txt", 1 );
+     bodySettings.at( "Earth" )->shapeModelSettings = std::make_shared< simulation_setup::OblateSphericalBodyShapeSettings >(
+         6378137.0, 1.0 / 298.257223563 );
+
      // Create Earth object
      simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
  
@@ -1475,6 +1491,8 @@
      dependentVariables.push_back(
              std::make_shared< SingleDependentVariableSaveSettings >( body_fixed_relative_spherical_position, "Apollo", "Earth" ) );
      dependentVariables.push_back( std::make_shared< SingleDependentVariableSaveSettings >( nrlmsise_input_data, "Apollo", "Earth" ) );
+     dependentVariables.push_back(
+         std::make_shared< SingleDependentVariableSaveSettings >( geodetic_latitude_dependent_variable, "Apollo", "Earth" ) );
  
      // Create acceleration models and propagation settings.
      basic_astrodynamics::AccelerationMap accelerationModelMap =
@@ -1513,14 +1531,14 @@
          double density = it.second( 1 );
          Eigen::Vector3d sphericalPosition = it.second.segment( 2, 3 );
          Eigen::VectorXd nrlmsiseInputVector = it.second.segment( 5, 17 );
- 
-         NRLMSISE00Input inputData = nrlmsiseInputFunction( altitude, sphericalPosition( 2 ), sphericalPosition( 1 ), it.first );
+         double geodeticLatitude = it.second( 22 );
+         NRLMSISE00Input inputData = nrlmsiseInputFunction( altitude, sphericalPosition( 2 ), geodeticLatitude, it.first );
  
          BOOST_CHECK_EQUAL( nrlmsiseInputVector( 0 ), inputData.year );
          BOOST_CHECK_EQUAL( nrlmsiseInputVector( 1 ), inputData.dayOfTheYear );
          BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 2 ), inputData.secondOfTheDay, 1.0E-14 );
          BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 3 ) * 1000.0, altitude, 1.0E-14 );
-         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 4 ), sphericalPosition( 1 ) * 180.0 / mathematical_constants::PI, 1.0E-14 );
+         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 4 ), geodeticLatitude * 180.0 / mathematical_constants::PI, 1.0E-14 );
          BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 5 ), sphericalPosition( 2 ) * 180.0 / mathematical_constants::PI, 1.0E-14 );
          BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 6 ), inputData.localSolarTime, 1.0E-14 );
          BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 7 ), inputData.f107, 1.0E-14 );
@@ -1589,16 +1607,9 @@
          BOOST_CHECK_EQUAL( inputData.apVector.at( 5 ), 19.25 );
  
          double manualDensity = std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )
-                                        ->getDensity( altitude, sphericalPosition( 2 ), sphericalPosition( 1 ), it.first );
+                                        ->getDensity( altitude, sphericalPosition( 2 ), geodeticLatitude, it.first );
          BOOST_CHECK_CLOSE_FRACTION( density, manualDensity, 1.0E-14 );
- 
-         //        std::copy( inputData_.switches.begin( ), inputData_.switches.end( ), flags_.switches );
-         //
-         //
-         //        gtd7(&input_, &flags, &output );
-         //
-         //        // Retrieve density and temperature
-         //        double reconstructeDensity_ = output_.d[ 5 ] * 1000.0;
+
      }
  }
 
