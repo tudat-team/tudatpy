@@ -63,7 +63,8 @@ class AtmosphereModel
 {
 public:
 
-    AtmosphereModel( const bool useGeodeticLatitude = false ): useGeodeticLatitude_( useGeodeticLatitude ) { }
+    AtmosphereModel( const bool useGeodeticLatitude = false,
+                     const bool useUtc = false ): useGeodeticLatitude_( useGeodeticLatitude ), useUtc_( useUtc ) { }
 
 
     //! Default destructor.
@@ -170,12 +171,19 @@ public:
         return useGeodeticLatitude_;
     }
 
+    bool getUseUtc( )
+    {
+        return useUtc_;
+    }
+
 
 protected:
     //! Model describing the wind velocity vector of the atmosphere
     std::shared_ptr< WindModel > windModel_;
 
     bool useGeodeticLatitude_;
+
+    bool useUtc_;
 
 private:
 };

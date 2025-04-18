@@ -44,6 +44,14 @@ double convertJulianDateToEphemerisTime( const double julianDate )
     return ( julianDate - j2000_c( ) ) * spd_c( );
 }
 
+double getApproximateUtcFromTdb( const double ephemerisTime )
+{
+    double timeOffset = TUDAT_NAN;
+    deltet_c( ephemerisTime, "ET", &timeOffset );
+    return ephemerisTime - timeOffset;
+}
+
+
 //! Convert ephemeris time (equivalent to TDB) to a Julian date.
 double convertEphemerisTimeToJulianDate( const double ephemerisTime )
 {
