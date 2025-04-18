@@ -32,7 +32,7 @@ Functions
 
    combine_initial_states
 
-   dependent_variable_dictionary.dependent_variable_dictionary.create_dependent_variable_dictionary
+   dependent_variable_dictionary.create_dependent_variable_dictionary
 
 .. autofunction:: tudatpy.numerical_simulation.propagation.get_state_of_bodies
 
@@ -40,7 +40,7 @@ Functions
 
 .. autofunction:: tudatpy.numerical_simulation.propagation.combine_initial_states
 
-.. autofunction:: tudatpy.numerical_simulation.propagation.dependent_variable_dictionary.dependent_variable_dictionary.create_dependent_variable_dictionary
+.. autofunction:: tudatpy.numerical_simulation.propagation.dependent_variable_dictionary.create_dependent_variable_dictionary
 
 
 Enumerations
@@ -75,7 +75,7 @@ Classes
 
    RotationalProperModeDampingResults
 
-   dependent_variable_dictionary.dependent_variable_dictionary.DependentVariableDictionary
+   dependent_variable_dictionary.DependentVariableDictionary
 
 
 .. autoclass:: tudatpy.numerical_simulation.propagation.SimulationResults
@@ -93,6 +93,6 @@ Classes
 .. autoclass:: tudatpy.numerical_simulation.propagation.RotationalProperModeDampingResults
    :members:
 
-.. autoclass:: tudatpy.numerical_simulation.propagation.dependent_variable_dictionary.dependent_variable_dictionary.DependentVariableDictionary
+.. autoclass:: tudatpy.numerical_simulation.propagation.dependent_variable_dictionary.DependentVariableDictionary
    :members:
 

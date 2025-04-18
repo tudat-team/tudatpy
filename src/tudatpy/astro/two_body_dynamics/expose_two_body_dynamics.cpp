@@ -324,7 +324,7 @@ void expose_two_body_dynamics( py::module &m )
  gravitational_parameter : float
      Gravitational parameter of central body used for propagation
  root_finder : RootFinder, default = None
-     Root finder used to solve Kepler's equation when converting mean to eccentric anomaly. When no root finder is specified, the default option of the mean to eccentric anomaly function is used (see :func:`~mean_to_eccentric_anomaly').
+     Root finder used to solve Kepler's equation when converting mean to eccentric anomaly. When no root finder is specified, the default option of the mean to eccentric anomaly function is used (see :func:`~tudatpy.astro.element_conversion.mean_to_eccentric_anomaly`).
  Returns
  -------
  numpy.ndarray

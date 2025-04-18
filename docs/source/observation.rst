@@ -72,7 +72,7 @@ Functions
 
    one_way_doppler_instantaneous
 
-   two_way_doppler_instantaneous
+   .. two_way_doppler_instantaneous
 
    two_way_doppler_instantaneous_from_one_way_links
 
@@ -92,7 +92,7 @@ Functions
 
    cartesian_velocity
 
-   313_euler_angles
+   euler_angles_313
 
    elevation_angle_viability
 
@@ -142,7 +142,7 @@ Functions
 
    add_dependent_variables_to_observable
 
-   add_dependent_variables_to_obs_for_links_end
+   .. add_dependent_variables_to_obs_for_links_end
 
    add_noise_function_to_all
 
@@ -204,7 +204,7 @@ Functions
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.one_way_doppler_instantaneous
 
-.. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.two_way_doppler_instantaneous
+.. .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.two_way_doppler_instantaneous
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.two_way_doppler_instantaneous_from_one_way_links
 
@@ -224,7 +224,7 @@ Functions
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.cartesian_velocity
 
-.. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.313_euler_angles
+.. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.euler_angles_313
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.elevation_angle_viability
 
@@ -274,15 +274,13 @@ Functions
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.add_dependent_variables_to_observable
 
-.. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.add_dependent_variables_to_obs_for_links_end
+.. .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.add_dependent_variables_to_obs_for_links_end
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.add_noise_function_to_all
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.add_noise_function_to_observable
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.add_noise_function_to_observable_for_link_ends
-
-.. autofunction:: tudatpy.numerical_simulation.estimation_setup.observation.ObservationAncilliarySimulationVariable.link_ends_delays
 
 
 
@@ -346,9 +344,9 @@ Classes
 
    ObservationBiasSettings
 
-   ConstantObservationBiasSettings
+   .. ConstantObservationBiasSettings
 
-   ArcWiseConstantObservationBiasSettings
+   .. ArcWiseConstantObservationBiasSettings
 
    ObservationSimulationSettings
 
@@ -389,10 +387,10 @@ Classes
 .. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings
    :members:
 
-.. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.ConstantObservationBiasSettings
+.. .. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.ConstantObservationBiasSettings
    :members:
 
-.. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings
+.. .. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings
    :members:
 
 .. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings

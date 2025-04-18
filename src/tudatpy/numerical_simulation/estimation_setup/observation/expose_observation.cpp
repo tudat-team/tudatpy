@@ -2163,6 +2163,7 @@ void expose_observation_setup( py::module& m )
          Examples
          --------
          .. code-block:: python
+        
              # Code snippet to show the creation of an ObservationBiasSettings object
              # using absolute and relative bias settings
              from tudatpy.numerical_simulation.estimation_setup import observation
@@ -2780,6 +2781,7 @@ void expose_observation_setup( py::module& m )
 
  Examples
  --------
+ 
  .. code-block:: python
 
      # Code snippet to print all available Observation Ancillary Variable Types
