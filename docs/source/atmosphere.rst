@@ -1,3 +1,5 @@
+.. _atmosphere:
+
 ``atmosphere``
 ==============
 This module contains a set of factory functions for setting up the

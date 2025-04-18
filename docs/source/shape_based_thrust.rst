@@ -1,3 +1,5 @@
+.. _shape_based_thrust:
+
 ``shape_based_thrust``
 ======================
 Functionalities for shape-based low-thrust trajectory design.

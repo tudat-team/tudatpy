@@ -1,3 +1,5 @@
+.. _transfer_trajectory:
+
 ``transfer_trajectory``
 =======================
 Functionalities for multiple-leg interplanetary transfer trajectories.

@@ -1,3 +1,5 @@
+.. _torque:
+
 ``torque``
 ==========
 This module provides the functionality for creating torque settings.

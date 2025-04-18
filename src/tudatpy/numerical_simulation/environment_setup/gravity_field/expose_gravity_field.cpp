@@ -614,7 +614,7 @@ void expose_gravity_field_setup( py::module& m )
  maximum_order : int
      Maximum order of the coefficients that are to be loaded
  associated_reference_frame : str, default = ""
-     Name of the body-fixed reference frame to which the gravity field is to be fixed. If left empty, this reference frame will automatically be set to the body-fixed frame defined by this body's rotation (see :ref:`\`\`rotation_model\`\`` for specifying rotation models).
+     Name of the body-fixed reference frame to which the gravity field is to be fixed. If left empty, this reference frame will automatically be set to the body-fixed frame defined by this body's rotation (see :ref:`rotation_model` for specifying rotation models).
  gravitational_parameter_index : int, default = 0
      Index of the values in the file header (first line of file) that contains the gravitational parameter
  reference_radius_index : int, default = 1
