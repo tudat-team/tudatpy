@@ -1740,7 +1740,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             variableFunction = [ = ]( ) {
                 atmosphereModel->setInputStruct( flightConditions->getCurrentAltitude( ),
                                                  flightConditions->getCurrentLongitude( ),
-                                                 flightConditions->getCurrentLatitude( ),
+                                                 flightConditions->getCurrentGeodeticLatitude( ),
                                                  flightConditions->getCurrentTime( ) );
                 return aerodynamics::getNrlmsiseInputAsVector( atmosphereModel->getNRLMSISE00InputStruct( ) );
             };

@@ -145,6 +145,10 @@ void AtmosphericFlightConditions::updateAtmosphereInput( )
         computeLatitudeAndLongitude( );
     }
 
+    if( atmosphereModel_->getUseGeodeticLatitude( ) )
+    {
+        computeGeodeticLatitude( );
+    }
     if( isScalarFlightConditionComputed_.at( altitude_flight_condition ) == 0 )
     {
         computeAltitude( );
