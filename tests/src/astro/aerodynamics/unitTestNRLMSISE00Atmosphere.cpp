@@ -1390,7 +1390,8 @@
          BOOST_CHECK_EQUAL( inputData.apVector.at( 5 ), 0 );
 //
          double manualDensity = std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )
-                                        ->getDensity( altitude, sphericalPosition( 2 ), geodeticLatitude, it.first );
+                                        ->getDensity( altitude, sphericalPosition( 2 ), geodeticLatitude,
+                                                      spice_interface::getApproximateUtcFromTdb( it.first ) );
          BOOST_CHECK_CLOSE_FRACTION( density, manualDensity, 1.0E-14 );
  
          //        std::copy( inputData_.switches.begin( ), inputData_.switches.end( ), flags_.switches );
@@ -1607,7 +1608,8 @@
          BOOST_CHECK_EQUAL( inputData.apVector.at( 5 ), 19.25 );
  
          double manualDensity = std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )
-                                        ->getDensity( altitude, sphericalPosition( 2 ), geodeticLatitude, it.first );
+                                        ->getDensity( altitude, sphericalPosition( 2 ), geodeticLatitude,
+                                                      spice_interface::getApproximateUtcFromTdb( it.first ) );
          BOOST_CHECK_CLOSE_FRACTION( density, manualDensity, 1.0E-14 );
 
      }
