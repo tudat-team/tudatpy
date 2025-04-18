@@ -63,7 +63,7 @@
      NRLMSISE00Atmosphere( const NRLMSISE00InputFunction nrlmsise00InputFunction,
                            const bool useIdealGasLaw = true,
                            const bool useAnomalousOxygen = true ):
-                           AtmosphereModel( true ),
+                           AtmosphereModel( true, true ),
          nrlmsise00InputFunction_( nrlmsise00InputFunction ),
          useIdealGasLaw_( useIdealGasLaw ),
          useAnomalousOxygen_( useAnomalousOxygen )
@@ -76,7 +76,7 @@
                            const bool useIdealGasLaw = true,
                            const bool useStormConditions = true,
                            const bool useAnomalousOxygen = true ):
-         AtmosphereModel( true ),
+         AtmosphereModel( true, true ),
          solarActivityContainer_( solarActivityData ),
            useIdealGasLaw_( useIdealGasLaw ),
            useAnomalousOxygen_( useAnomalousOxygen )
