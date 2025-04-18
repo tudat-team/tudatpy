@@ -139,7 +139,7 @@ void expose_environment_setup( py::module &m )
                             R"doc(
 
          List of objects that define the settings of time variations of the gravity field variation models that are to be created. Variables in this list are typically
-         assigned by using a function from the :ref:`gravity_field_variations` module.
+         assigned by using a function from the :ref:`gravity_field_variation` module.
 
 
          :type: list[GravityFieldVariationSettings]

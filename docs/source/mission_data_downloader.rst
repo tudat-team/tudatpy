@@ -1,7 +1,7 @@
 .. _mission_data_downloader:
 
 ``mission_data_downloader``
-=================
+===========================
 This module contains a set of functions to download:
 - spice kernels
 - radio doppler data (IFMS, ODF)
