@@ -470,12 +470,14 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
 
                 // Check density and temperature
                 BOOST_CHECK_CLOSE_FRACTION( freestreamDensity,
-                                            earthAtmosphereModel->getDensity( altitude, longitude, latitude, variableIterator->first ),
+                                            earthAtmosphereModel->getDensity( altitude, longitude, geodeticLatitude,
+                                                                              spice_interface::getApproximateUtcFromTdb( variableIterator->first ) ),
                                             6.0 * std::numeric_limits< double >::epsilon( ) );
                 BOOST_CHECK_CLOSE_FRACTION(
                         freestreamDensity, apolloFlightConditions->getCurrentDensity( ), 6.0 * std::numeric_limits< double >::epsilon( ) );
                 BOOST_CHECK_CLOSE_FRACTION( freestreamTemperature,
-                                            earthAtmosphereModel->getTemperature( altitude, longitude, latitude, variableIterator->first ),
+                                            earthAtmosphereModel->getTemperature( altitude, longitude, geodeticLatitude,
+                                                                                  spice_interface::getApproximateUtcFromTdb( variableIterator->first )),
                                             6.0 * std::numeric_limits< double >::epsilon( ) );
                 BOOST_CHECK_CLOSE_FRACTION( freestreamTemperature,
                                             apolloFlightConditions->getCurrentFreestreamTemperature( ),
