@@ -665,6 +665,7 @@ In this example, the calendar date corresponding to when 122 days have passed in
  In this example, an amount of seconds since J2000 (January 1st 2000) is converted to the Julian date (in days since January 1st 4713 BC).
 
  .. code-block:: python
+ 
    # Define the amount of seconds since January 1st 2000
    seconds_since_J2000 = 706413165.1200145
    # Convert the amount of seconds since J2000 to the Julian date

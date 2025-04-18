@@ -1,3 +1,5 @@
+.. _estimation:
+
 ``estimation``
 ==============
 This module contains the functionality for managing the inputs and outputs of an estimation.
