@@ -1,3 +1,5 @@
+.. _ground_station:
+
 ``ground_station``
 ==================
 This module contains a set of factory functions for setting up ground

@@ -96,8 +96,6 @@ void expose_thrust_setup( py::module &m )
              Value of the constant thrust magnitude.
          specific_impulse : float
              Value of the constant specific impulse.
-         specific_impulse : numpy.ndarray
-             Thrust direction vector expressed in the body-fixed reference frame.
 
 
 
