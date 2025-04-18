@@ -1,3 +1,5 @@
+.. _numerical_simulation:
+
 ``numerical_simulation``
 ========================
 Setup and execution of numerical simulations.

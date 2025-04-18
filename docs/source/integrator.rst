@@ -1,3 +1,5 @@
+.. _integrator:
+
 ``integrator``
 ==============
 This module provides the functionality for creating integrator

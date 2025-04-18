@@ -642,7 +642,7 @@ void expose_estimated_parameter_setup( py::module& m )
  Function for creating a (linear sensitivity) parameter settings object for the gravitational parameter of massive bodies.
  Using the gravitational parameter as estimatable parameter requires:
 
- * The body specified by the ``body`` parameter to be endowed with a gravity field (see :ref:`\`\`gravity_field\`\`` module for options)
+ * The body specified by the ``body`` parameter to be endowed with a gravity field (see :ref:`gravity_field` module for options)
  * Any dynamical or observational model to depend on the gravitational parameter of the body specified by the ``body`` parameter
 
 
