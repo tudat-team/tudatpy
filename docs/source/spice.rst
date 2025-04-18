@@ -102,23 +102,3 @@ Functions
 
 
 
-
-
-Classes
--------
-.. currentmodule:: tudatpy.interface.spice
-
-.. autosummary::
-
-   SpiceEphemeris
-
-
-
-.. autoclass:: tudatpy.interface.spice.SpiceEphemeris
-   :members:
-   :special-members: __init__
-
-
-
-
-
