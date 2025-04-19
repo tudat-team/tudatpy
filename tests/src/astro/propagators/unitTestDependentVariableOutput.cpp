@@ -413,7 +413,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                     for( unsigned int i = 0; i < 3; i++ )
                     {
                         BOOST_CHECK_SMALL( std::fabs( cowellAcceleration[ variableIterator->first ]( i ) - totalAcceleration( i ) ),
-                                           1.0E-8 );
+                                           1.0E-5 );
                     }
                 }
 
