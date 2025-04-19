@@ -9,7 +9,10 @@ class InstallParser(argparse.ArgumentParser):
 
     def __init__(self) -> None:
 
-        super().__init__(prog="install.py")
+        super().__init__(
+            prog="install.py",
+            usage="Install tudat and tudatpy in the active conda environment.\n Note: The use without the -e flag, which performs an editable installation, is currently discouraged",
+        )
 
         self.add_argument(
             "-e",
@@ -118,6 +121,13 @@ class Installer:
         if dst.exists() or dst.is_symlink():
             print(f"Already installed: {dst}")
             return None
+
+        # Ensure that source file exists
+        src = src.absolute()
+        if not src.exists():
+            print(f"Skipping {src} because it does not exist")
+            return None
+
         dst.symlink_to(src, target_is_directory=src.is_dir())
 
         # Update manifest list
@@ -150,6 +160,14 @@ class Installer:
                 pool = src_dir.glob(f"*{ext}")
 
             for src_file in pool:
+
+                skip_flag = False
+                for skip_item in skip:
+                    if skip_item in str(src_file):
+                        skip_flag = True
+                        break
+                if skip_flag:
+                    continue
 
                 # File to be created
                 dst_file = dst_dir / src_file.relative_to(src_dir)
