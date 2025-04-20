@@ -58,14 +58,6 @@ Classes
 
    ObservationViabilityCalculator
 
-   ObservationViabilityCalculator_1
-
-   ObservationViabilityCalculator_2
-
-   ObservationViabilityCalculator_3
-
-   ObservationViabilityCalculator_6
-
    ObservationSimulator
 
    ObservationCollection
@@ -90,18 +82,6 @@ Classes
    :members:
 
 .. autoclass:: tudatpy.numerical_simulation.estimation.ObservationViabilityCalculator
-   :members:
-
-.. autoclass:: tudatpy.numerical_simulation.estimation.ObservationViabilityCalculator_1
-   :members:
-
-.. autoclass:: tudatpy.numerical_simulation.estimation.ObservationViabilityCalculator_2
-   :members:
-
-.. autoclass:: tudatpy.numerical_simulation.estimation.ObservationViabilityCalculator_3
-   :members:
-
-.. autoclass:: tudatpy.numerical_simulation.estimation.ObservationViabilityCalculator_6
    :members:
 
 .. autoclass:: tudatpy.numerical_simulation.estimation.ObservationSimulator
