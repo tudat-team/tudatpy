@@ -726,13 +726,6 @@ Enumeration of possible propagation termination types
          `PropagatorSettings`-derived class to define settings for single-arc dynamics.
 
 
-         Attributes
-         ----------
-         termination_settings : PropagationTerminationSettings
-             Settings for creating the object that checks whether the propagation is finished.
-
-
-
 
       )doc" )
             .def_property( "termination_settings",
@@ -740,7 +733,10 @@ Enumeration of possible propagation termination types
                                                              TIME_TYPE >::getTerminationSettings,
                            &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE,
                                                              TIME_TYPE >::resetTerminationSettings,
-                           R"doc(No propagator documentation found.)doc" )
+                           R"doc(Settings for creating the object that checks whether the propagation is finished.
+                           
+                           :type: PropagationTerminationSettings
+                           )doc" )
             .def_property( "integrator_settings",
                            &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE,
                                                              TIME_TYPE >::getIntegratorSettings,

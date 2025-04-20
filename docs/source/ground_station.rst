@@ -12,8 +12,7 @@ influence the numerical propagation (unless a custom model imposing this
 is implemented by the user). Ground stations can be defined through the 
 ``BodySettings`` as any other model. But, as the rest of the environment 
 does not depend on them, they can safely be added to a body after it is 
-created. The process is similar to the one described for :ref:`decorate_empty_body`. 
-Specifically, ground station settings are created, and these are then used 
+created. Specifically, ground station settings are created, and these are then used 
 to create a ground station and add it to the body. The specifics of creating
 ground station settings is described 
 `in the API documentation <https://py.api.tudat.space/en/latest/ground_stations.html>`_. 
