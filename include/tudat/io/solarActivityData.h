@@ -74,7 +74,7 @@
      unsigned int planetaryRangeIndexSum;
  
      //! Arithmetic average of the 8 planetary equivalent amplitudes (Ap) indices for the day.
-     unsigned int planetaryEquivalentAmplitudeAverage;
+     double planetaryEquivalentAmplitudeAverage;
  
      //! Cp or Planetary Daily Character Figure.
      /*! A qualitative estimate of overall level of magnetic activity for the day determined from

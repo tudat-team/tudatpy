@@ -166,8 +166,9 @@
  #if TUDAT_BUILD_WITH_NRLMSISE
          case nrlmsise00: {
              std::string spaceWeatherFilePath;
-             int geomagneticActivity;
-     
+             bool useStormConditions;
+             bool useAnomalousOxygen;
+
              // Attempt to cast the atmosphereSettings to NRLMSISE00AtmosphereSettings
              std::shared_ptr< NRLMSISE00AtmosphereSettings > nrlmsise00AtmosphereSettings =
                      std::dynamic_pointer_cast< NRLMSISE00AtmosphereSettings >( atmosphereSettings );
@@ -176,19 +177,18 @@
              {
                  // Use default space weather file stored in tudatBundle and geomagnetic storm conditions when no settings provided
                  spaceWeatherFilePath = paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt";
-                 geomagneticActivity = 1;  // Default geomagnetic activity when no settings provided
-             }
-             else if (nrlmsise00AtmosphereSettings->getSpaceWeatherFile().empty())
-             {
-                 // Use default space weather file stored in tudatBundle when the file is not provided
-                 spaceWeatherFilePath = paths::getSpaceWeatherDataPath() + "/sw19571001.txt";
-                 geomagneticActivity = nrlmsise00AtmosphereSettings->getGeomagneticActivity();
+                 useStormConditions = true;  // Default geomagnetic activity when no settings provided
+                 useAnomalousOxygen = true;  // Default geomagnetic activity when no settings provided
              }
              else
              {
-                 // Use space weather file specified by user and the geomagnetic activity specified by user
-                 spaceWeatherFilePath = nrlmsise00AtmosphereSettings->getSpaceWeatherFile();
-                 geomagneticActivity = nrlmsise00AtmosphereSettings->getGeomagneticActivity();
+                 useStormConditions = nrlmsise00AtmosphereSettings->getUseStormConditions( );
+                 useAnomalousOxygen = nrlmsise00AtmosphereSettings->getUseAnomalousOxygen( );
+                 if ( nrlmsise00AtmosphereSettings->getSpaceWeatherFile( ).empty( ))
+                 {
+                     // Use default space weather file stored in tudatBundle when the file is not provided
+                     spaceWeatherFilePath = paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt";
+                 }
              }
      
              // Read the solar activity data from the specified file
@@ -196,7 +196,7 @@
                      tudat::input_output::solar_activity::readSolarActivityData( spaceWeatherFilePath );
      
              // Create the atmosphere model using the NRLMSISE00 input function
-             atmosphereModel = std::make_shared< aerodynamics::NRLMSISE00Atmosphere >( solarActivityData, true, geomagneticActivity );
+             atmosphereModel = std::make_shared< aerodynamics::NRLMSISE00Atmosphere >( solarActivityData, true, useStormConditions, useAnomalousOxygen );
              break;
          }
  #endif
