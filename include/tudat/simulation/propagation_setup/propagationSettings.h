@@ -433,6 +433,7 @@ public:
         PropagatorSettings< StateScalarType >( getConcatenatedInitialStates( singleArcSettings ), outputSettings, true ),
         singleArcSettings_( singleArcSettings ), outputSettings_( outputSettings )
     {
+        std::cout<<"Creating settings "<<this<<" "<<outputSettings_<<std::endl;
         std::vector< std::shared_ptr< SingleArcPropagatorProcessingSettings > > singleArcOutputSettings;
         for( unsigned int i = 0; i < singleArcSettings.size( ); i++ )
         {

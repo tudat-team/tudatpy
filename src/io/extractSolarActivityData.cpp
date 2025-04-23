@@ -103,7 +103,7 @@ std::shared_ptr< SolarActivityData > ExtractSolarActivityData::extract(
     if( !data->find( planetaryRangeIndex0to3 )->second->getRaw( ).empty( ) )  // check if string is empty
     {
         solarActivityContainer->planetaryRangeIndexSum = getField< unsigned int >( data, planetaryRangeIndexSum );
-        solarActivityContainer->planetaryEquivalentAmplitudeAverage = getField< unsigned int >( data, planetaryEquivalentAmplitudeAverage );
+        solarActivityContainer->planetaryEquivalentAmplitudeAverage = getField< double >( data, planetaryEquivalentAmplitudeAverage );
         solarActivityContainer->planetaryRangeIndexVector = Eigen::VectorXd::Zero( 8 );
         solarActivityContainer->planetaryEquivalentAmplitudeVector = Eigen::VectorXd::Zero( 8 );
         solarActivityContainer->planetaryRangeIndexVector << getField< unsigned int >( data, planetaryRangeIndex0to3 ),
@@ -112,14 +112,14 @@ std::shared_ptr< SolarActivityData > ExtractSolarActivityData::extract(
                 getField< unsigned int >( data, planetaryRangeIndex15to18 ), getField< unsigned int >( data, planetaryRangeIndex18to21 ),
                 getField< unsigned int >( data, planetaryRangeIndex21to24 );
 
-        solarActivityContainer->planetaryEquivalentAmplitudeVector << getField< unsigned int >( data, planetaryEquivalentAmplitude0to3 ),
-                getField< unsigned int >( data, planetaryEquivalentAmplitude3to6 ),
-                getField< unsigned int >( data, planetaryEquivalentAmplitude6to9 ),
-                getField< unsigned int >( data, planetaryEquivalentAmplitude9to12 ),
-                getField< unsigned int >( data, planetaryEquivalentAmplitude12to15 ),
-                getField< unsigned int >( data, planetaryEquivalentAmplitude15to18 ),
-                getField< unsigned int >( data, planetaryEquivalentAmplitude18to21 ),
-                getField< unsigned int >( data, planetaryEquivalentAmplitude21to24 );
+        solarActivityContainer->planetaryEquivalentAmplitudeVector << getField< double >( data, planetaryEquivalentAmplitude0to3 ),
+                getField< double >( data, planetaryEquivalentAmplitude3to6 ),
+                getField< double >( data, planetaryEquivalentAmplitude6to9 ),
+                getField< double >( data, planetaryEquivalentAmplitude9to12 ),
+                getField< double >( data, planetaryEquivalentAmplitude12to15 ),
+                getField< double >( data, planetaryEquivalentAmplitude15to18 ),
+                getField< double >( data, planetaryEquivalentAmplitude18to21 ),
+                getField< double >( data, planetaryEquivalentAmplitude21to24 );
     }
 
     if( !data->find( planetaryDailyCharacterFigure )->second->getRaw( ).empty( ) )
