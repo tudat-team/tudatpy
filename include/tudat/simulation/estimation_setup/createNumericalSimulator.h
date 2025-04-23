@@ -50,13 +50,6 @@ std::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeT
             propagators::PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ) );
 }
 
-std::shared_ptr< propagators::DynamicsSimulator< long double, tudat::Time > > createDynamicsSimulator(
-    const simulation_setup::SystemOfBodies& bodies,
-    const std::shared_ptr< propagators::PropagatorSettings< double > > propagatorSettings,
-    const bool areEquationsOfMotionToBeIntegrated = true )
-{
-
-}
 
 template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< propagators::DynamicsSimulator< StateScalarType, TimeType > > createDynamicsSimulator(
