@@ -1,3 +1,5 @@
+.. _interpolators:
+
 ``interpolators``
 =================
 Functions for performing numerical interpolation using various algorithms. More details on the usage of these functions is given in the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/https://docs.tudat.space/en/latest/_src_user_guide/mathematics/interpolators.html>`_.

@@ -1,3 +1,5 @@
+.. _radiation_pressure:
+
 ``radiation_pressure``
 ======================
 This module contains a set of factory functions for setting up the
@@ -122,14 +124,14 @@ Enumerations
 
    KnockeTypeSurfacePropertyDistributionModel
 
-   SphericalHarmonicSurfacePropertyDistribution
+   SphericalHarmonicsSurfacePropertyDistributionModel
 
 
 
 .. autoclass:: tudatpy.numerical_simulation.environment_setup.radiation_pressure.KnockeTypeSurfacePropertyDistributionModel
    :members:
 
-.. autoclass:: tudatpy.numerical_simulation.environment_setup.radiation_pressure.SphericalHarmonicSurfacePropertyDistribution
+.. autoclass:: tudatpy.numerical_simulation.environment_setup.radiation_pressure.SphericalHarmonicsSurfacePropertyDistributionModel
    :members:
 
 
