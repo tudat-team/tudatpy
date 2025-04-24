@@ -59,11 +59,11 @@ void expose_interpolators( py::module &m )
 {
     py::enum_< ti::BoundaryInterpolationType >( m, "BoundaryInterpolationType", R"doc(
 
-         Enumeration of types of behaviour to be used beyond the edges of the interpolation domain.
+Enumeration of types of behaviour to be used beyond the edges of the interpolation domain.
 
-         Enumeration of types of behaviour to be used beyond the edges of the interpolation domain. For independent variable
-         data in the range :math:`[t_{0}...t_{N}]`, this enum is used to define the behaviour of the interpolator at
-         :math:`t<t_{0}` and :math:`t>t_{N}`
+Enumeration of types of behaviour to be used beyond the edges of the interpolation domain. For independent variable
+data in the range :math:`[t_{0}...t_{N}]`, this enum is used to define the behaviour of the interpolator at
+:math:`t<t_{0}` and :math:`t>t_{N}`
 
 
 
@@ -73,27 +73,37 @@ void expose_interpolators( py::module &m )
             .value( "throw_exception_at_boundary",
                     ti::BoundaryInterpolationType::throw_exception_at_boundary,
                     R"doc(
- The program will terminate with an error message when the interpolator is interrogated beyond the range :math:`[t_{0}...t_{N}]`
+
+The program will terminate with an error message when the interpolator is interrogated beyond the range :math:`[t_{0}...t_{N}]`.
+
       )doc" )
             .value( "use_boundary_value",
                     ti::BoundaryInterpolationType::use_boundary_value,
                     R"doc(
- The value :math:`\mathbf{x}_{0}` is returned for :math:`t<t_{0}` (and :math:`\mathbf{x}_{N}` if :math:`t>t_{N}`)
+
+The value :math:`\mathbf{x}_{0}` is returned for :math:`t<t_{0}` (and :math:`\mathbf{x}_{N}` if :math:`t>t_{N}`).
+
       )doc" )
             .value( "use_boundary_value_with_warning",
                     ti::BoundaryInterpolationType::use_boundary_value_with_warning,
                     R"doc(
- Same as ``use_boundary_value``, but a warning is printed to the terminal
+
+Same as ``use_boundary_value``, but a warning is printed to the terminal.
+
       )doc" )
             .value( "extrapolate_at_boundary",
                     ti::BoundaryInterpolationType::extrapolate_at_boundary,
                     R"doc(
- The interpolation scheme is extended beyond the range :math:`t_{0}...t_{N}` without any warning. That is, the mathematical equation used to compute the value of :math:`x` in the range :math:`[t_{0}...t_{1}]` is used without any checks for :math:`t<t_{0}`  (and equivalently for :math:`t>t_{N}`). Warning, using this setting can result in divergent/unrealistic behaviour
+
+The interpolation scheme is extended beyond the range :math:`t_{0}...t_{N}` without any warning. That is, the mathematical equation used to compute the value of :math:`x` in the range :math:`[t_{0}...t_{1}]` is used without any checks for :math:`t<t_{0}`  (and equivalently for :math:`t>t_{N}`). Warning, using this setting can result in divergent/unrealistic behaviour.
+
       )doc" )
             .value( "extrapolate_at_boundary_with_warning",
                     ti::BoundaryInterpolationType::extrapolate_at_boundary_with_warning,
                     R"doc(
- Same as ``extrapolate_at_boundary``, but a warning is printed to the terminal
+
+Same as ``extrapolate_at_boundary``, but a warning is printed to the terminal.
+
       )doc" )
             //            .value("use_default_value",
             //            ti::BoundaryInterpolationType::use_default_value)
@@ -105,12 +115,12 @@ void expose_interpolators( py::module &m )
                                             "AvailableLookupScheme",
                                             R"doc(
 
-         Enumeration of types of behaviour to be used beyond the edges of the interpolation domain.
+Enumeration of types of behaviour to be used beyond the edges of the interpolation domain.
 
-         When the interpolation is performed, the interpolator scheme will typically start by finding the nearest neighbor of
-         the requested value of the independent variable :math:`t` in the data set :math:`[t_{0}...t_{N}]`.
-         The choice of lookup scheme can have a significant influence on computational efficiency for large data sets and/or simple
-         interpolation algorithms
+When the interpolation is performed, the interpolator scheme will typically start by finding the nearest neighbor of
+the requested value of the independent variable :math:`t` in the data set :math:`[t_{0}...t_{N}]`.
+The choice of lookup scheme can have a significant influence on computational efficiency for large data sets and/or simple
+interpolation algorithms
 
 
 
@@ -120,23 +130,27 @@ void expose_interpolators( py::module &m )
             .value( "hunting_algorithm",
                     ti::AvailableLookupScheme::huntingAlgorithm,
                     R"doc(
- With this option, the interpolator 'remembers' which value of :math:`t_{i}` was the nearest neighbor during the previous call to the interpolate function, and starts looking at/near this entry of the data set :math:`[t_{i}]` to find the nearest neighbor.
+
+With this option, the interpolator 'remembers' which value of :math:`t_{i}` was the nearest neighbor during the previous call to the interpolate function, and starts looking at/near this entry of the data set :math:`[t_{i}]` to find the nearest neighbor.
+
       )doc" )
             .value( "binary_search",
                     ti::AvailableLookupScheme::binarySearch,
                     R"doc(
- With this option, the algorithm uses a binary search algorithm to find the nearest neighbor, initially starting with the full data range :math:`[t_{0}...t_{N}]`.
+
+With this option, the algorithm uses a binary search algorithm to find the nearest neighbor, initially starting with the full data range :math:`[t_{0}...t_{N}]`.
+
       )doc" )
             .export_values( );
 
     py::enum_< ti::LagrangeInterpolatorBoundaryHandling >(
             m, "LagrangeInterpolatorBoundaryHandling", R"doc(
 
-         Enumeration of types of behaviour to be used close to the edges of the interpolation domain, for the Lagrange interpolator.
+Enumeration of types of behaviour to be used close to the edges of the interpolation domain, for the Lagrange interpolator.
 
-         Enumeration of types of behaviour to be used close to the edges of the interpolation domain, for the Lagrange interpolator.
-         As explained for :func:`lagrange_interpolation`, the algorithm for the Lagrange interpolation breaks down at the edges of
-         the interpolation domain. This enum provides the available options a user has to deal with this.
+Enumeration of types of behaviour to be used close to the edges of the interpolation domain, for the Lagrange interpolator.
+As explained for :func:`lagrange_interpolation`, the algorithm for the Lagrange interpolation breaks down at the edges of
+the interpolation domain. This enum provides the available options a user has to deal with this.
 
 
 
@@ -147,12 +161,16 @@ void expose_interpolators( py::module &m )
                     ti::LagrangeInterpolatorBoundaryHandling::
                             lagrange_cubic_spline_boundary_interpolation,
                     R"doc(
- A cubic-spline interpolator is created from the first and last :math:`\max(m/2-1,4)` data points of the full data set, and these cubic spline interpolators are used when an interpolation at :math:`t<t_{(m/2-1)}` or :math:`t<t_{N-(m/2)}` is called
+
+A cubic-spline interpolator is created from the first and last :math:`\max(m/2-1,4)` data points of the full data set, and these cubic spline interpolators are used when an interpolation at :math:`t<t_{(m/2-1)}` or :math:`t<t_{N-(m/2)}` is called.
+
       )doc" )
             .value( "lagrange_no_boundary_interpolation",
                     ti::LagrangeInterpolatorBoundaryHandling::lagrange_no_boundary_interpolation,
                     R"doc(
- The program will terminate with an exception when the Lagrange interpolator is interrogated beyond its valid range
+
+The program will terminate with an exception when the Lagrange interpolator is interrogated beyond its valid range.
+
       )doc" )
             .export_values( );
 

@@ -135,58 +135,73 @@ void expose_gravity_field_setup( py::module& m )
     py::enum_< tss::SphericalHarmonicsModel >( m,
                                                "PredefinedSphericalHarmonicsModel",
                                                R"doc(
+Enumeration of predefined spherical harmonics models.
 
-         Enumeration of predefined spherical harmonics models.
-
-         Enumeration of predefined spherical harmonics models supported by tudat, for which thee coefficient files are automatically available (downloaded from
-         `here <https://github.com/tudat-team/tudat-resources/tree/master/resource/gravity_models>`__). The directory where these files are stored can be
-         extracted using the :func:`~tudatpy.data.get_gravity_models_path` function.
-
-
-
-
-
-      )doc" )
+Enumeration of predefined spherical harmonics models supported by tudat, for which thee coefficient files are automatically available (downloaded from
+`here <https://github.com/tudat-team/tudat-resources/tree/master/resource/gravity_models>`_). The directory where these files are stored can be
+extracted using the :func:`~tudatpy.data.get_gravity_models_path` function.
+                 
+        )doc" )
             .value( "egm96",
                     tss::SphericalHarmonicsModel::egm96,
                     R"doc(
- Coefficients for EGM96 Earth gravity field up to degree and order 200, (see `link <https://cddis.gsfc.nasa.gov/926/egm96/egm96.html>`__ )
-      )doc" )
+
+Coefficients for EGM96 Earth gravity field up to degree and order 200, (see `link <https://cddis.gsfc.nasa.gov/926/egm96/egm96.html>`__ )
+
+)doc" )
             .value( "ggm02c",
                     tss::SphericalHarmonicsModel::ggm02c,
                     R"doc(
- Coefficients for the combined GGM02 Earth gravity field up to degree and order 200, (see `link <https://www2.csr.utexas.edu/grace/gravity/ggm02/>`__ )
-      )doc" )
+
+Coefficients for the combined GGM02 Earth gravity field up to degree and order 200, (see `link <https://www2.csr.utexas.edu/grace/gravity/ggm02/>`__ )
+
+                    )doc" )
             .value( "ggm02s",
                     tss::SphericalHarmonicsModel::ggm02s,
                     R"doc(
- Coefficients for the GRACE-only GGM02 Earth gravity field up to degree and order 160, (see `link <https://www2.csr.utexas.edu/grace/gravity/ggm02/>`__ )
-      )doc" )
+
+Coefficients for the GRACE-only GGM02 Earth gravity field up to degree and order 160, (see `link <https://www2.csr.utexas.edu/grace/gravity/ggm02/>`__ )
+
+)doc" )
             .value( "goco05c",
                     tss::SphericalHarmonicsModel::goco05c,
                     R"doc(
- Coefficients for the GOCO05c combined Earth gravity field up to degree and order 719, (see `link <https://www2.csr.utexas.edu/grace/gravity/ggm02/>`__ )
-      )doc" )
+
+Coefficients for the GOCO05c combined Earth gravity field up to degree and order 719, (see `link <https://www2.csr.utexas.edu/grace/gravity/ggm02/>`__ )
+
+    )doc" )
             .value( "glgm3150", tss::SphericalHarmonicsModel::glgm3150, R"doc(
- Coefficients for the GLGM3150 Moon gravity field up to degree and order 150, (see `link <https://pds.nasa.gov/ds-view/pds/viewProfile.jsp?dsid=LP-L-RSS-5-GLGM3/GRAVITY-V1.0>`__ )
-      )doc" )
+
+Coefficients for the GLGM3150 Moon gravity field up to degree and order 150, (see `link <https://pds.nasa.gov/ds-view/pds/viewProfile.jsp?dsid=LP-L-RSS-5-GLGM3/GRAVITY-V1.0>`__ )
+
+)doc" )
             .value( "lpe200",
                     tss::SphericalHarmonicsModel::lpe200,
                     R"doc(
- Coefficients for the LPE200 Moon gravity field up to degree and order 200, (see `link <https://pds.nasa.gov/ds-view/pds/viewProfile.jsp?dsid=LP-L-RSS-5-GLGM3/GRAVITY-V1.0>`__ )
-      )doc" )
+
+Coefficients for the LPE200 Moon gravity field up to degree and order 200, (see `link <https://pds.nasa.gov/ds-view/pds/viewProfile.jsp?dsid=LP-L-RSS-5-GLGM3/GRAVITY-V1.0>`__ )
+
+    )doc" )
             .value( "gggrx1200", tss::SphericalHarmonicsModel::gggrx1200, R"doc(
- Coefficients for the GRGM1200A Moon gravity field up to degree and order 1199, (see `link <https://pgda.gsfc.nasa.gov/products/50>`__ )
-      )doc" )
+
+Coefficients for the GRGM1200A Moon gravity field up to degree and order 1199, (see `link <https://pgda.gsfc.nasa.gov/products/50>`__ )
+
+)doc" )
             .value( "jgmro120d", tss::SphericalHarmonicsModel::jgmro120d, R"doc(
- Coefficients for the MRO120D Moon gravity field up to degree and order 120, (see `link <https://pds-geosciences.wustl.edu/mro/mro-m-rss-5-sdp-v1/mrors_1xxx/data/shadr/>`__ )
-      )doc" )
+
+Coefficients for the MRO120D Moon gravity field up to degree and order 120, (see `link <https://pds-geosciences.wustl.edu/mro/mro-m-rss-5-sdp-v1/mrors_1xxx/data/shadr/>`__ )
+
+)doc" )
             .value( "jgmess160a", tss::SphericalHarmonicsModel::jgmess160a, R"doc(
- Coefficients for the MESS160A Moon gravity field up to degree and order 160, (see `link <https://pds-geosciences.wustl.edu/messenger/mess-h-rss_mla-5-sdp-v1/messrs_1001/data/shadr/jgmess_160a_sha.lbl>`__ )
-      )doc" )
+
+Coefficients for the MESS160A Moon gravity field up to degree and order 160, (see `link <https://pds-geosciences.wustl.edu/messenger/mess-h-rss_mla-5-sdp-v1/messrs_1001/data/shadr/jgmess_160a_sha.lbl>`__ )
+
+)doc" )
             .value( "shgj180u", tss::SphericalHarmonicsModel::shgj180u, R"doc(
- Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (see `link <https://pds-geosciences.wustl.edu/mgn/mgn-v-rss-5-gravity-l2-v1/mg_5201/gravity/shgj120u.lbl>`__ )
-      )doc" )
+
+Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (see `link <https://pds-geosciences.wustl.edu/mgn/mgn-v-rss-5-gravity-l2-v1/mg_5201/gravity/shgj120u.lbl>`__ )
+
+)doc" )
             .export_values( );
 
     py::class_< tss::GravityFieldSettings, std::shared_ptr< tss::GravityFieldSettings > >(
