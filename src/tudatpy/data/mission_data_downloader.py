@@ -287,8 +287,7 @@ class LoadPDS:
             - timeout (int, optional): The timeout duration for the SPACIT process, default is 5 seconds.
 
         Output:
-            - str: The path to the output file (either .ck or .bsp), depending on the input file type.
-            If the output file already exists, the function returns the existing output file path.
+            - str: The path to the output file (either .ck or .bsp), depending on the input file type. If the output file already exists, the function returns the existing output file path.
 
         Notes:
             If the conversion fails or times out, an error message is printed.
@@ -510,7 +509,7 @@ class LoadPDS:
             - `input_mission` (`str`): The name of the mission
             - `url` (`str`): The base URL where the kernel files are hosted.
             - `wanted_files` (`list`, optional): A list of specific filenames to be downloaded from the URL.
-            - `wanted_files_pattern` (`str`, optional): A pattern (e.g., '*.tf') to match filenames for downloading.
+            - `wanted_files_pattern` (`str`, optional): A pattern (e.g., '\*.tf') to match filenames for downloading.
             - `custom_output` (`str`, optional): The local directory where the downloaded files will be stored.
 
         Output:
@@ -2235,14 +2234,10 @@ class LoadPDS:
 
         Outputs:
             - (`dict`, `dict`, `dict`): A tuple containing:
-                - `kernel_files_to_load` (`dict`): A dictionary where the keys are kernel types
-                (e.g., 'ck', 'spk', 'fk', 'sclk') and values are lists of paths to the successfully downloaded and loaded kernel files.
-                - `radio_science_files_to_load` (`dict`): A dictionary where keys are categories of
-                radio science data (e.g., 'ifms_dp2', 'dsn_dps') and values are lists of paths
-                to the successfully downloaded radio science files.
-                - `ancillary_files_to_load` (`dict`): A dictionary where keys are categories
-                of ancillary data (e.g., 'ion', 'tropospheric') and values are lists of paths
-                to the successfully downloaded ancillary files, such as tropospheric and ionospheric corrections.
+
+                - `kernel_files_to_load` (`dict`): A dictionary where the keys are kernel types (e.g., 'ck', 'spk', 'fk', 'sclk') and values are lists of paths to the successfully downloaded and loaded kernel files.
+                - `radio_science_files_to_load` (`dict`): A dictionary where keys are categories of radio science data (e.g., 'ifms_dp2', 'dsn_dps') and values are lists of paths to the successfully downloaded radio science files.
+                - `ancillary_files_to_load` (`dict`): A dictionary where keys are categories of ancillary data (e.g., 'ion', 'tropospheric') and values are lists of paths to the successfully downloaded ancillary files, such as tropospheric and ionospheric corrections.
         """
 
         self.radio_science_files_to_load = {}
@@ -2551,25 +2546,22 @@ class LoadPDS:
     ):
         """
         Description:
+
         Filters a mapping dictionary to extract entries based on a specified observation type and a date range.
         The function returns a new dictionary where each key corresponds to a filtered set of entries that match
         the specified observation type and fall within the given start and end dates.
 
         Inputs:
-            - mapping_dict (`dict`): A dictionary where keys represent categories and values are lists of entries.
-              Each entry is expected to be a dictionary containing:
-                - `start_date_utc` (`str`): The start date in UTC (format: YYYY-MM-DD).
-                - `radio_observation_type` (`str`): The type of observation.
+            - mapping_dict (`dict`): A dictionary where keys represent categories and values are lists of entries. Each entry is expected to be a dictionary containing:
+              - `start_date_utc` (`str`): The start date in UTC (format: YYYY-MM-DD).
+              - `radio_observation_type` (`str`): The type of observation.
 
             - radio_observation_type (`str`): The type of observation to filter by (e.g., 'Phobos Gravity').
-
             - start_date_mex (`str`): The start date for filtering in UTC (format: YYYY-MM-DD).
-
             - end_date_mex (`str`): The end date for filtering in UTC (format: YYYY-MM-DD).
 
         Outputs:
-            - `filtered_dict` (`dict`): A dictionary where keys are the same as in `mapping_dict`, and values are lists
-              of filtered entries that match the specified observation type and fall within the date range.
+            - `filtered_dict` (`dict`): A dictionary where keys are the same as in `mapping_dict`, and values are lists of filtered entries that match the specified observation type and fall within the date range.
         """
 
         filtered_dict = {
@@ -2600,15 +2592,12 @@ class LoadPDS:
         the specified observation type and fall within the given start and end dates.
 
         Inputs:
-            - mapping_dict (`dict`): A dictionary where keys represent categories and values are lists of entries.
-              Each entry is expected to be a dictionary containing:
+            - mapping_dict (`dict`): A dictionary where keys represent categories and values are lists of entries. Each entry is expected to be a dictionary containing:
                 - `start_date_utc` (`str`): The start date in UTC (format: YYYY-MM-DD).
                 - `radio_observation_type` (`str`): The type of observation.
 
             - radio_observation_type (`str`): The type of observation to filter by (e.g., 'Phobos Gravity').
-
             - start_date_mex (`str`): The start date for filtering in UTC (format: YYYY-MM-DD).
-
             - end_date_mex (`str`): The end date for filtering in UTC (format: YYYY-MM-DD).
 
         Outputs:
@@ -2645,12 +2634,13 @@ class LoadPDS:
             - url (`str`): The URL from which to fetch the data (plain text format).
 
         Outputs:
-            - `mapping_dict` (`dict`): A dictionary where keys are tuples of (start_date_utc, end_date_utc),
-              and values are dictionaries with:
+            - `mapping_dict` (`dict`): A dictionary where keys are tuples of (start_date_utc, end_date_utc), and values are dictionaries with:
+
                 - `volume_id` (`str`): The volume ID.
                 - `start_date_file` (`str`): Start date (YYYY-MM-DD).
                 - `end_date_file` (`str`): End date (YYYY-MM-DD).
                 - `radio_observation_type` (`str`): Type of observation.
+
         """
 
         # Step 1: Fetch content from the URL
