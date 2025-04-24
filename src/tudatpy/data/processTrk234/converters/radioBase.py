@@ -2,7 +2,8 @@
 Base class for radiometric converters sharing helper functions.
 """
 
-from tudatpy.numerical_simulation.environment import (
+from tudatpy.numerical_simulation.environment_setup.ground_station import (
+    # from tudatpy.numerical_simulation.environment import (
     get_approximate_dsn_ground_station_positions,
 )
 from tudatpy.numerical_simulation.estimation_setup import observation  # type:ignore
