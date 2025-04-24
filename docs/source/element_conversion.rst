@@ -1,3 +1,5 @@
+.. _element_conversion:
+
 ``element_conversion``
 ======================
 Functions for converting between sets of orbital elements.
@@ -7,7 +9,7 @@ convert between different representations of translational and
 rotational states (e.g. Cartesian ↔ Keplerian).
 
 .. note:: Rotations between different reference frames are provided in
-          the :ref:`\`\`frame_conversion\`\`` module.
+          the :ref:`frame_conversion` module.
 
 
 
