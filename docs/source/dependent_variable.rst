@@ -1,3 +1,5 @@
+.. _dependent_variable:
+
 ``dependent_variable``
 ======================
 This module provides the functionality for creating dependent variable
