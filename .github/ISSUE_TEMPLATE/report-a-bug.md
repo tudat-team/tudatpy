@@ -11,7 +11,7 @@ assignees: ''
 A clear and concise description of what the bug is.
 
 **To Reproduce**
-List the steps to reproduce the bug. Include any relevant screenshots or code snippets.
+List the steps to reproduce the bug. Include any relevant screenshots or code snippets. You can also add a link to a file in a Github repository to make the problematic bit of source code easier to find.
 
 **Expected behavior**
 Describe what you expected to happen
