@@ -341,21 +341,20 @@ void expose_gravity_field_variation_setup( py::module& m )
            py::arg( "love_number_per_degree_and_order" ),
            R"doc(
 
- Function for creating solid body tides.
+Function for creating solid body tides.
 
- As :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_k`, but with complex values for the Love number.
+As :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_k`, but with complex values for the Love number.
 
-
- Parameters
- ----------
- tide_raising_body : str
-     Name of body raising the tide.
- love_number_per_degree : dict( int, list( complex ) )
-     Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the list of Love numbers :math:`k_{lm}` at this degree. Note that, for Love numbers at degree :math:`l`, the associated list should contain :math:`l+1` entries, representing the Love numbers (in order) :math:`k_{l0}`, :math:`k_{l1}`...:math:`k_{ll}`.
- Returns
- -------
- BasicSolidBodyGravityFieldVariationSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
+Parameters
+----------
+tide_raising_body : str
+    Name of body raising the tide.
+love_number_per_degree : dict( int, list( complex ) )
+    Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the list of Love numbers :math:`k_{lm}` at this degree. Note that, for Love numbers at degree :math:`l`, the associated list should contain :math:`l+1` entries, representing the Love numbers (in order) :math:`k_{l0}`, :math:`k_{l1}`...:math:`k_{ll}`.
+Returns
+-------
+BasicSolidBodyGravityFieldVariationSettings
+    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
 
 
 
@@ -372,21 +371,20 @@ void expose_gravity_field_variation_setup( py::module& m )
            py::arg( "love_number_per_degree_and_order" ),
            R"doc(
 
- Function for creating solid body tides.
+Function for creating solid body tides.
 
- As :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_k`, but with complex values for the Love number.
+As :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_k`, but with complex values for the Love number.
 
-
- Parameters
- ----------
- tide_raising_body : str
-     Name of body raising the tide.
- love_number_per_degree : dict( int, list( complex ) )
-     Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the list of Love numbers :math:`k_{lm}` at this degree. Note that, for Love numbers at degree :math:`l`, the associated list should contain :math:`l+1` entries, representing the Love numbers (in order) :math:`k_{l0}`, :math:`k_{l1}`...:math:`k_{ll}`.
- Returns
- -------
- BasicSolidBodyGravityFieldVariationSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
+Parameters
+----------
+tide_raising_body : str
+    Name of body raising the tide.
+love_number_per_degree : dict( int, list( complex ) )
+    Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the list of Love numbers :math:`k_{lm}` at this degree. Note that, for Love numbers at degree :math:`l`, the associated list should contain :math:`l+1` entries, representing the Love numbers (in order) :math:`k_{l0}`, :math:`k_{l1}`...:math:`k_{ll}`.
+Returns
+-------
+BasicSolidBodyGravityFieldVariationSettings
+    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
 
 
 

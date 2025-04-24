@@ -1,7 +1,7 @@
 .. _constants:
 
 ``constants``
-======
+=============
 This module contains constants that are used in the tudatpy library or commonly used in astrodynamic calculations.
 
 References
