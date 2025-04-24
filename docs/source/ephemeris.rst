@@ -142,7 +142,7 @@ Classes
 
    CustomEphemerisSettings
 
-   KeplerianEphemerisSettings
+   KeplerEphemerisSettings
 
    TabulatedEphemerisSettings
 
@@ -169,7 +169,7 @@ Classes
 .. autoclass:: tudatpy.numerical_simulation.environment_setup.ephemeris.CustomEphemerisSettings
    :members:
 
-.. autoclass:: tudatpy.numerical_simulation.environment_setup.ephemeris.KeplerianEphemerisSettings
+.. autoclass:: tudatpy.numerical_simulation.environment_setup.ephemeris.KeplerEphemerisSettings
    :members:
 
 .. autoclass:: tudatpy.numerical_simulation.environment_setup.ephemeris.TabulatedEphemerisSettings

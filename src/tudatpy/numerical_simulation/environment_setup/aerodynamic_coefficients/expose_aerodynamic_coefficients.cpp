@@ -199,49 +199,44 @@ void expose_aerodynamic_coefficient_setup( py::module &m )
            py::arg( "force_coefficients_frame" ) = ta::negative_aerodynamic_frame_coefficients,
            R"doc(
 
- Function for creating aerodynamic interface model settings entirely from constant coefficients.
+Function for creating aerodynamic interface model settings entirely from constant coefficients.
 
- Function for settings object, defining aerodynamic interface model entirely from constant aerodynamic coefficients,
- i.e. coefficients are not a function of any independent variables.
+Function for settings object, defining aerodynamic interface model entirely from constant aerodynamic coefficients,
+i.e. coefficients are not a function of any independent variables.
 
+Parameters
+----------
+reference_area : float
+    Reference area with which aerodynamic forces and moments are non-dimensionalized.
+constant_force_coefficient : numpy.ndarray
+    Constant force coefficients.
+force_coefficients_frame : AerodynamicCoefficientFrames, default = negative_aerodynamic_frame_coefficients
+    Variable defining the frame in which the force coefficients are defined. By default, this is the negative aerodynamic
+    frame, so that the coefficients are for drag, side force and lift
 
- Parameters
- ----------
- reference_area : float
-     Reference area with which aerodynamic forces and moments are non-dimensionalized.
- constant_force_coefficient : numpy.ndarray
-     Constant force coefficients.
- force_coefficients_frame : AerodynamicCoefficientFrames, default = negative_aerodynamic_frame_coefficients
-     Variable defining the frame in which the force coefficients are defined. By default, this is the negative aerodynamic
-     frame, so that the coefficients are for drag, side force and lift
+Returns
+-------
+ConstantAerodynamicCoefficientSettings
+    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.ConstantAerodynamicCoefficientSettings` class
 
- Returns
- -------
- ConstantAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.ConstantAerodynamicCoefficientSettings` class
+Examples
+--------
+In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` for the artificial body "Vehicle", using only constant aerodynamic coefficients:
 
+.. code-block:: python
 
-
-
-
- Examples
- --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` for the artificial body "Vehicle", using only constant aerodynamic coefficients:
-
- .. code-block:: python
-
-   # Define the reference area and constant aerodynamic coefficients
-   reference_area = 20.0
-   drag_coefficient = 1.5
-   lift_coefficient = 0.3
-   # Create the aerodynamic interface settings
-   aero_coefficient_settings = environment_setup.aerodynamic_coefficients.constant(
-       reference_area,
-       constant_force_coefficient=[drag_coefficient, 0, lift_coefficient],
-       force_coefficients_frame=environment.negative_aerodynamic_frame_coefficients,
-   )
-   # Assign aerodynamic interface to the vehicle
-   environment_setup.add_aerodynamic_coefficient_interface(bodies, "Vehicle", aero_coefficient_settings)
+    # Define the reference area and constant aerodynamic coefficients
+    reference_area = 20.0
+    drag_coefficient = 1.5
+    lift_coefficient = 0.3
+    # Create the aerodynamic interface settings
+    aero_coefficient_settings = environment_setup.aerodynamic_coefficients.constant(
+        reference_area,
+        constant_force_coefficient=[drag_coefficient, 0, lift_coefficient],
+        force_coefficients_frame=environment.negative_aerodynamic_frame_coefficients,
+    )
+    # Assign aerodynamic interface to the vehicle
+    environment_setup.add_aerodynamic_coefficient_interface(bodies, "Vehicle", aero_coefficient_settings)
 
 
      )doc" );
@@ -255,63 +250,6 @@ void expose_aerodynamic_coefficient_setup( py::module &m )
            py::arg( "constant_moment_coefficient" ),
            py::arg( "force_coefficients_frame" ) = ta::negative_aerodynamic_frame_coefficients,
            py::arg( "moment_coefficients_frame" ) = ta::body_fixed_frame_coefficients,
-           R"doc(
-
- Function for creating aerodynamic interface model settings entirely from constant coefficients.
-
- Function for settings object, defining aerodynamic interface model entirely from constant aerodynamic coefficients,
- i.e. coefficients are not a function of any independent variables.
-
-
- Parameters
- ----------
- reference_area : float
-     Reference area with which aerodynamic forces and moments are non-dimensionalized.
- constant_force_coefficient : numpy.ndarray
-     Constant force coefficients.
- force_coefficients_frame : AerodynamicCoefficientFrames, default = negative_aerodynamic_frame_coefficients
-     Variable defining the frame in which the force coefficients are defined. By default, this is the negative aerodynamic
-     frame, so that the coefficients are for drag, side force and lift
-
- Returns
- -------
- ConstantAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.ConstantAerodynamicCoefficientSettings` class
-
-
-
-
-
- Examples
- --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` for the artificial body "Vehicle", using only constant aerodynamic coefficients:
-
- .. code-block:: python
-
-   # Define the reference area and constant aerodynamic coefficients
-   reference_area = 20.0
-   drag_coefficient = 1.5
-   lift_coefficient = 0.3
-   # Create the aerodynamic interface settings
-   aero_coefficient_settings = environment_setup.aerodynamic_coefficients.constant(
-       reference_area,
-       constant_force_coefficient=[drag_coefficient, 0, lift_coefficient],
-       force_coefficients_frame=environment.negative_aerodynamic_frame_coefficients,
-   )
-   # Assign aerodynamic interface to the vehicle
-   environment_setup.add_aerodynamic_coefficient_interface(bodies, "Vehicle", aero_coefficient_settings)
-
-
-     )doc" );
-
-    m.def( "constant",
-           py::overload_cast< const double,
-                              const Eigen::Vector3d &,
-                              const ta::AerodynamicCoefficientFrames >(
-                   &tss::constantAerodynamicCoefficientSettings ),
-           py::arg( "reference_area" ),
-           py::arg( "constant_force_coefficient" ),
-           py::arg( "force_coefficients_frame" ) = ta::negative_aerodynamic_frame_coefficients,
            R"doc(
 
  Function for creating aerodynamic interface model settings entirely from constant coefficients.
