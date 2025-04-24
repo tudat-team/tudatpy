@@ -29,6 +29,7 @@
 #include <vector>
 
 #include "tudat/math/interpolators.h"
+#include "tudat/astro/ground_stations/meteorologicalConditions.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
@@ -589,11 +590,7 @@ public:
             std::shared_ptr< TroposhericElevationMapping > elevationMapping,
             bool isUplinkCorrection,
             std::function< double( double time ) > dryZenithRangeCorrectionFunction = []( double ) { return 0.0; },
-            std::function< double( double time ) > wetZenithRangeCorrectionFunction = []( double ) { return 0.0; } ):
-        LightTimeCorrection( lightTimeCorrectionType ), dryZenithRangeCorrectionFunction_( dryZenithRangeCorrectionFunction ),
-        wetZenithRangeCorrectionFunction_( wetZenithRangeCorrectionFunction ), elevationMapping_( elevationMapping ),
-        isUplinkCorrection_( isUplinkCorrection )
-    { }
+            std::function< double( double time ) > wetZenithRangeCorrectionFunction = []( double ) { return 0.0; } );
 
     /*!
      * Function to computes a mapped tropospheric light-time correction. Correction is computed according to Moyer
@@ -610,49 +607,6 @@ public:
             const std::vector< double >& linkEndsTimes,
             const unsigned int currentMultiLegTransmitterIndex,
             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) override;
-
-    /*!
-     * Function to compute the partial derivative of the light-time correction w.r.t. observation time. Partial is
-     * currently not implemented, function returns 0.
-     *
-     * \param transmitterState State of transmitted at transmission time
-     * \param receiverState State of receiver at reception time
-     * \param transmissionTime Time of signal transmission
-     * \param receptionTime Time of singal reception
-     * \param fixedLinkEnd Reference link end for observation
-     * \param linkEndAtWhichPartialIsEvaluated Link end at which the time partial is to be taken
-     * \return Partial of light-time correction w.r.t. observation time
-     */
-    double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime( const Eigen::Vector6d& transmitterState,
-                                                                        const Eigen::Vector6d& receiverState,
-                                                                        const double transmissionTime,
-                                                                        const double receptionTime,
-                                                                        const LinkEndType fixedLinkEnd,
-                                                                        const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
-    {
-        return 0.0;
-    }
-
-    /*!
-     * Function to compute the partial derivative of the light-time correction w.r.t. link end position. Partial is
-     * currently not implemented, function returns 0.
-     *
-     * \param transmitterState State of transmitted at transmission time
-     * \param receiverState State of receiver at reception time
-     * \param transmissionTime Time of signal transmission
-     * \param receptionTime Time of singal reception
-     * \param linkEndAtWhichPartialIsEvaluated Link end at which the position partial is to be taken
-     * \return Partial of ight-time correction w.r.t. link end position
-     */
-    Eigen::Matrix< double, 3, 1 > calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
-            const Eigen::Vector6d& transmitterState,
-            const Eigen::Vector6d& receiverState,
-            const double transmissionTime,
-            const double receptionTime,
-            const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
-    {
-        return Eigen::Vector3d::Zero( );
-    }
 
     // Returns the function that computes the dry zenith correction as a function of time.
     std::function< double( double time ) > getDryZenithRangeCorrectionFunction( )
@@ -736,29 +690,6 @@ private:
 //! Enum defining different types of water vapor partial pressure models.
 enum WaterVaporPartialPressureModel { tabulated, bean_and_dutton };
 
-/*! Calculate the partial vapor pressure.
- *
- * Calculate the partial vapor pressure according to the Bean and Dutton (1966) model, as described by Estefan and Sovers
- * (1994), Eq. 16.
- *
- * @param relativeHumidity Relative humidity, defined in [0,1]
- * @param temperature Temperature in Kelvin
- * @return Partial vapor pressure in Pa
- */
-double calculateBeanAndDuttonWaterVaporPartialPressure( double relativeHumidity, double temperature );
-
-/*!
- * Returns a function that computes the water vapor partial pressure as a function of time, according to the Bean and
- * Dutton (1966) model.
- *
- * @param relativeHumidity Relative humidity as a function of time.
- * @param temperature Temperature as a function of time.
- * @return Water vapor partial pressure as a function of time.
- */
-std::function< double( const double time ) > getBeanAndDuttonWaterVaporPartialPressureFunction(
-        std::function< double( const double time ) > relativeHumidity,
-        std::function< double( const double time ) > temperature );
-
 // Class to compute the Saastamaoinen tropospheric corrections, according to Estefan and Sovers (1994). Derived class
 // from MappedTroposphericCorrection.
 class SaastamoinenTroposphericCorrection : public MappedTroposphericCorrection
@@ -810,6 +741,41 @@ private:
     // Water vapor partial pressure at the ground station as a function of time
     std::function< double( const double ) > waterVaporPartialPressureFunction_;
 };
+//
+// class VMF1TroposphericCorrection : public MappedTroposphericCorrection
+//{
+// public:
+//    /*!
+//     * Constructor
+//     * @param lightTimeCorrectionType Type of light-time correction represented by instance of class.
+//     * @param elevationMapping Mapping function of range corrections from zenith to other elevations
+//     * @param isUplinkCorrection Boolean indicating whether correction is for uplink (i.e. transmitting station on planet,
+//     *      reception on spacecraft) or downlink (i.e. transmission from spacecraft, reception at ground station)
+//     * @param dryZenithRangeCorrectionFunction Function computing the dry atmosphere zenith correction for a given time
+//     * @param wetZenithRangeCorrectionFunction Function computing the wet atmosphere zenith correction for a given time
+//     */
+//    VMF1TroposphericCorrection(
+//        bool isUplinkCorrection ):
+//        Mapp( vmf_tropospheric ),
+//        isUplinkCorrection_( isUplinkCorrection )
+//    { }
+//
+//
+//    double getDryMappingFunctions(
+//        const double dryACoefficient,
+//        const double wetACoefficient,
+//        const double elevationAngle,
+//        const double stationLatitude,
+//        const double currentModifiedJulianDay );
+//
+//
+// protected:
+//
+//    // Boolean indicating whether the correction is for uplink or donwlink (necessary when computing the elevation)
+//    bool isUplinkCorrection_;
+//
+//    std::shared_ptr< ground_stations::InterpolatedStationTroposphereData > troposphereData_;
+//};
 
 // Tabulated ionospheric corrections using DSN data, according to Moyer (2000), section 10.2.2
 class TabulatedIonosphericCorrection : public LightTimeCorrection
@@ -848,51 +814,6 @@ public:
             const std::vector< double >& linkEndsTimes,
             const unsigned int currentMultiLegTransmitterIndex,
             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) override;
-
-    /*!
-     * Function to compute the partial derivative of the light-time correction w.r.t. observation time. Partial is
-     * currently not implemented, function returns 0.
-     *
-     * \param transmitterState State of transmitted at transmission time
-     * \param receiverState State of receiver at reception time
-     * \param transmissionTime Time of signal transmission
-     * \param receptionTime Time of singal reception
-     * \param fixedLinkEnd Reference link end for observation
-     * \param linkEndAtWhichPartialIsEvaluated Link end at which the time partial is to be taken
-     * \return Partial of light-time correction w.r.t. observation time
-     */
-    double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime( const Eigen::Vector6d& transmitterState,
-                                                                        const Eigen::Vector6d& receiverState,
-                                                                        const double transmissionTime,
-                                                                        const double receptionTime,
-                                                                        const LinkEndType fixedLinkEnd,
-                                                                        const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
-    {
-        // TODO: Add computation of partial
-        return 0.0;
-    }
-
-    /*!
-     * Function to compute the partial derivative of the light-time correction w.r.t. link end position. Partial is
-     * currently not implemented, function returns 0.
-     *
-     * \param transmitterState State of transmitted at transmission time
-     * \param receiverState State of receiver at reception time
-     * \param transmissionTime Time of signal transmission
-     * \param receptionTime Time of singal reception
-     * \param linkEndAtWhichPartialIsEvaluated Link end at which the position partial is to be taken
-     * \return Partial of ight-time correction w.r.t. link end position
-     */
-    Eigen::Matrix< double, 3, 1 > calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
-            const Eigen::Vector6d& transmitterState,
-            const Eigen::Vector6d& receiverState,
-            const double transmissionTime,
-            const double receptionTime,
-            const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
-    {
-        // TODO: Add computation of partial
-        return Eigen::Vector3d::Zero( );
-    }
 
 private:
     // Range correction calculator. Correction determined for referenceFrequency_
@@ -1097,51 +1018,6 @@ public:
             const std::vector< double >& linkEndsTimes,
             const unsigned int currentMultiLegTransmitterIndex,
             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) override;
-
-    /*!
-     * Function to compute the partial derivative of the light-time correction w.r.t. observation time. Partial is
-     * currently not implemented, function returns 0.
-     *
-     * \param transmitterState State of transmitted at transmission time
-     * \param receiverState State of receiver at reception time
-     * \param transmissionTime Time of signal transmission
-     * \param receptionTime Time of singal reception
-     * \param fixedLinkEnd Reference link end for observation
-     * \param linkEndAtWhichPartialIsEvaluated Link end at which the time partial is to be taken
-     * \return Partial of light-time correction w.r.t. observation time
-     */
-    double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime( const Eigen::Vector6d& transmitterState,
-                                                                        const Eigen::Vector6d& receiverState,
-                                                                        const double transmissionTime,
-                                                                        const double receptionTime,
-                                                                        const LinkEndType fixedLinkEnd,
-                                                                        const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
-    {
-        // TODO: Add computation of partial
-        return 0.0;
-    }
-
-    /*!
-     * Function to compute the partial derivative of the light-time correction w.r.t. link end position. Partial is
-     * currently not implemented, function returns 0.
-     *
-     * \param transmitterState State of transmitted at transmission time
-     * \param receiverState State of receiver at reception time
-     * \param transmissionTime Time of signal transmission
-     * \param receptionTime Time of singal reception
-     * \param linkEndAtWhichPartialIsEvaluated Link end at which the position partial is to be taken
-     * \return Partial of ight-time correction w.r.t. link end position
-     */
-    Eigen::Matrix< double, 3, 1 > calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
-            const Eigen::Vector6d& transmitterState,
-            const Eigen::Vector6d& receiverState,
-            const double transmissionTime,
-            const double receptionTime,
-            const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
-    {
-        // TODO: Add computation of partial
-        return Eigen::Vector3d::Zero( );
-    }
 
 private:
     // Class to calculate the vertical total electron content (VTEC)
