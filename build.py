@@ -39,10 +39,10 @@ class BuildParser(argparse.ArgumentParser):
             help="Remove pre-existing build directory [Default: False]",
         )
         basic_group.add_argument(
-            "--force-setup",
+            "--skip-setup",
             dest="force_setup",
-            action="store_true",
-            help="Force the execution of CMake setup. This is needed if the cmake setup is modified and the build directory already exists. [Default: False]",
+            action="store_false",
+            help="Skip the execution of the CMake setup command. [Default: True]",
         )
 
         # Control CMake behavior
