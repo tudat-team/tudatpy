@@ -180,7 +180,7 @@ public:
 
 inline std::shared_ptr< BodyPanelSettings > bodyPanelSettings(
         const std::shared_ptr< BodyPanelGeometrySettings > panelGeometry,
-        const std::shared_ptr< BodyPanelReflectionLawSettings > reflectionLawSettings = nullptr,
+        const std::shared_ptr< BodyPanelReflectionLawSettings > reflectionLawSettings,
         const std::string panelTypeId = "" )
 {
     return std::make_shared< BodyPanelSettings >( panelGeometry, reflectionLawSettings, panelTypeId );

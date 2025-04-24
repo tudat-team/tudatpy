@@ -109,12 +109,14 @@ public:
                               << std::endl;
                 }
                 minimumStepWarningIsPrinted_ = true;
-                newStepSize = currentStep / std::fabs( currentStep ) * std::fabs( maximumStep_ );
+                newStepSize = currentStep / std::fabs( currentStep ) * std::fabs( minimumStep_ );
+                acceptStep = true;
             }
         }
         else if( std::fabs( recommendedStep.first ) > std::fabs( maximumStep_ ) )
         {
             newStepSize = currentStep / std::fabs( currentStep ) * std::fabs( maximumStep_ );
+            acceptStep = true;
         }
         else
         {
@@ -132,7 +134,7 @@ public:
         }
         else if( std::isinf( newStepSize ) && !this->acceptInfinityStep_ )
         {
-            throw std::runtime_error( "Error, recommended step is NaN" );
+            throw std::runtime_error( "Error, recommended step is Inf" );
         }
 
         // Check if computed error in state is too large and reject step if true.

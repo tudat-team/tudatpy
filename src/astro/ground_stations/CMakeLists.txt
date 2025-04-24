@@ -18,6 +18,7 @@ set(ground_stations_SOURCES
         "transmittingFrequencies.cpp"
         "oceanTideEarthDeformation.cpp"
         "poleTideDeformation.cpp"
+        "meteorologicalConditions.cpp"
 )
 
 # Set the header files.
@@ -31,6 +32,7 @@ set(ground_stations_HEADERS
         "transmittingFrequencies.h"
         "oceanTideEarthDeformation.h"
         "poleTideDeformation.h"
+        "meteorologicalConditions.h"
 )
 
 TUDAT_ADD_LIBRARY("ground_stations"
