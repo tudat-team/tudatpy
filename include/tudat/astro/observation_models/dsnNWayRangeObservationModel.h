@@ -50,12 +50,15 @@ public:
             const LinkEnds& linkEnds,
             const std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
             const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
+            const std::function< double( observation_models::FrequencyBands uplinkBand, observation_models::FrequencyBands downlinkBand ) >&
+                    turnaroundRatio,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
             const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
                     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ) ):
         ObservationModel< 1, ObservationScalarType, TimeType >( dsn_n_way_range, linkEnds, observationBiasCalculator ),
         lightTimeCalculator_( lightTimeCalculator ), numberOfLinkEnds_( linkEnds.size( ) ),
-        transmittingFrequencyCalculator_( transmittingFrequencyCalculator ), stationStates_( groundStationStates )
+        transmittingFrequencyCalculator_( transmittingFrequencyCalculator ), turnaroundRatio_( turnaroundRatio ),
+        stationStates_( groundStationStates )
     {
         if( !std::is_same< Time, TimeType >::value )
         {
@@ -159,6 +162,19 @@ public:
         else
         {
             throw std::runtime_error( "Unsupported uplink frequency band" );
+        }
+
+        // Set approximate up- and down-link frequencies.
+        double currentTurnAroundRatio = static_cast< ObservationScalarType >( turnaroundRatio_( uplinkBand, downlinkBand ) );
+
+        if( true )
+        {
+            setTransmissionReceptionFrequencies( lightTimeCalculator_,
+                                                 terrestrialTimeScaleConverter_,
+                                                 transmittingFrequencyCalculator_,
+                                                 time,
+                                                 ancillarySettings,
+                                                 currentTurnAroundRatio );
         }
 
         TimeType lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(

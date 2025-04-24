@@ -119,12 +119,13 @@ public:
      * \param linkEndAtWhichPartialIsEvaluated Link end at which the time partial is to be taken
      * \return Light-time correction w.r.t. observation time
      */
-    double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime( const Eigen::Vector6d& transmitterState,
-                                                                        const Eigen::Vector6d& receiverState,
-                                                                        const double transmissionTime,
-                                                                        const double receptionTime,
-                                                                        const LinkEndType fixedLinkEnd,
-                                                                        const LinkEndType linkEndAtWhichPartialIsEvaluated ) override
+    double calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+            const Eigen::Vector6d& transmitterState,
+            const Eigen::Vector6d& receiverState,
+            const double transmissionTime,
+            const double receptionTime,
+            const LinkEndType linkEndAtWhichPartialIsEvaluated,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) override
     {
         return 0.0;
     }
@@ -144,7 +145,8 @@ public:
             const Eigen::Vector6d& receiverState,
             const double transmissionTime,
             const double receptionTime,
-            const LinkEndType linkEndAtWhichPartialIsEvaluated ) override;
+            const LinkEndType linkEndAtWhichPartialIsEvaluated,
+            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr ) override;
 
     //! Function to get the names of bodies causing light-time correction.
     /*!
