@@ -514,39 +514,53 @@ Enumeration of available translational propagator types.
             .value( "cowell",
                     tp::TranslationalPropagatorType::cowell,
                     R"doc(
+
 Propagation of Cartesian elements (state vector size 6), without any transformations
-      )doc" )
+
+)doc" )
             .value( "encke",
                     tp::TranslationalPropagatorType::encke,
                     R"doc(
+
 Propagation of the difference in Cartesian elements of the orbit w.r.t. an unperturbed reference orbit. The reference orbit is generated from the initial state/central body, and not updated during the propagation (see Wakker, 2015 [2]_)
-      )doc" )
+
+)doc" )
             .value( "gauss_keplerian",
                     tp::TranslationalPropagatorType::gauss_keplerian,
                     R"doc(
+
 Propagation of Keplerian elements (state vector size 6), with true anomaly as the 'fast' element  (see Vallado, 2001 [4]_)
-      )doc" )
+
+)doc" )
             .value( "gauss_modified_equinoctial",
                     tp::TranslationalPropagatorType::gauss_modified_equinoctial,
                     R"doc(
+
 Propagation of Modified equinoctial elements (state vector size 6), with the element :math:`I` defining the location of the singularity based on the initial condition (see Hintz, 2008 [3]_)
-      )doc" )
+
+)doc" )
             .value( "unified_state_model_quaternions",
                     tp::TranslationalPropagatorType::unified_state_model_quaternions,
                     R"doc(
+
 Propagation of Unified state model using quaternions (state vector size 7, see Vittaldev et al., 2012 [1]_)
-      )doc" )
+
+)doc" )
             .value( "unified_state_model_modified_rodrigues_parameters",
                     tp::TranslationalPropagatorType::
                             unified_state_model_modified_rodrigues_parameters,
                     R"doc(
+
 Propagation of Unified state model using modified Rodrigues parameters (state vector size 7, last element represents shadow parameter, see Vittaldev et al., 2012 [1]_)
-      )doc" )
+
+)doc" )
             .value( "unified_state_model_exponential_map",
                     tp::unified_state_model_exponential_map,
                     R"doc(
+
 Propagation of Unified state model using exponential map (state vector size 7, last element represents shadow parameter, see Vittaldev et al., 2012 [1]_)
-      )doc" )
+
+)doc" )
             .export_values( );
 
     py::enum_< tp::RotationalPropagatorType >( m,
@@ -567,24 +581,30 @@ Enumeration of available rotational propagator types.
             .value( "quaternions",
                     tp::RotationalPropagatorType::quaternions,
                     R"doc(
+
 Entries 1-4: The quaternion defining the rotation from inertial to body-fixed frame (see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html#definition-of-rotational-state>`__)
 
 Entries 5-7: The body's angular velocity vector, expressed in its body-fixed frame.
-      )doc" )
+
+)doc" )
             .value( "modified_rodrigues_parameters",
                     tp::RotationalPropagatorType::modified_rodrigues_parameters,
                     R"doc(
+
 Entries 1-4: The modified Rodrigues parameters defining the rotation from inertial to body-fixed frame (with entry four the shadow parameter)
 
 Entries 5-7: The body's angular velocity vector, expressed in its body-fixed frame.
-      )doc" )
+
+)doc" )
             .value( "exponential_map",
                     tp::RotationalPropagatorType::exponential_map,
                     R"doc(
+
 Entries 1-4: The exponential map defining the rotation from inertial to body-fixed frame (with entry four the shadow parameter)
 
 Entries 5-7: The body's angular velocity vector, expressed in its body-fixed frame.
-      )doc" )
+
+)doc" )
             .export_values( );
 
     py::enum_< tp::PropagationTerminationTypes >( m,
@@ -619,7 +639,7 @@ Enumeration of possible propagation termination types
                                           "StateType",
                                           R"doc(
 
-         Enumeration of available integrated state types.
+Enumeration of available integrated state types.
 
 
 
