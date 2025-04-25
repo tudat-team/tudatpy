@@ -1,4 +1,4 @@
-name: Report a bug
+name: Bug report
 description: Something is not working as expected
 title: "[BUG]: <Short and descriptive title>"
 labels: "type: bug"
@@ -12,7 +12,7 @@ body:
 - type: textarea
   attributes:
     label: "Describe the issue:"
-    placeholder: |
+    description: >
       A clear and concise description of what the bug is.
   validations:
     required: true
@@ -37,7 +37,7 @@ body:
 - type: textarea
   attributes:
     label: "Expected behavior:"
-    placeholder: |
+    description: >
       Describe what you expected to happen.
   validations:
     required: false
@@ -45,7 +45,7 @@ body:
 - type: textarea
   attributes:
     label: "Current behavior:"
-    placeholder: |
+    description: >
       Describe what happened instead.
   validations:
     required: false
@@ -53,9 +53,7 @@ body:
 - type: textarea
   attributes:
     label: "Additional context:"
-    description: |
+    description: >
       Include any other relevant context, or attach screenshots.
-    placeholder: |
-      << your explanation here >>
   validations:
     required: false
