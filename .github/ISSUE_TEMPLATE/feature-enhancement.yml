@@ -2,7 +2,6 @@ name: Features and Enhancements
 description: Something that `tudatpy` should have
 title: "[F&E]: <Short and descriptive title>"
 labels: "type: feature"
-assignees: ""
 
 body:
 - type: markdown

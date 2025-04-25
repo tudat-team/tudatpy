@@ -2,7 +2,6 @@ name: Report a bug
 description: Something is not working as expected
 title: "[BUG]: <Short and descriptive title>"
 labels: "type: bug"
-assignees: ""
 
 body:
 - type: markdown
