@@ -90,6 +90,9 @@ class Installer:
                 f"Python library directory {self.pylib_dir} does not exist."
             )
 
+        # Resolve path to stubs directory
+        self.stubs_dir = self.build_dir / "tudatpy-stubs"
+
         # Define path to installation manifest
         self.manifest = self.build_dir / "custom-manifest.txt"
         if self.manifest.exists():
@@ -247,6 +250,13 @@ class Installer:
                 self.pylib_dir / "tudatpy",
                 [".so", ".dll", ".dylib"],
             )
+
+            # Install stubs
+            if self.stubs_dir.exists():
+                self.link_single(
+                    self.stubs_dir,
+                    self.pylib_dir / "tudatpy-stubs",
+                )
 
         # Filter elements inside created directories out of manifest
         manifest_list = []
