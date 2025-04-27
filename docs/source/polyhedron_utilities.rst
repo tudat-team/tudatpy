@@ -1,3 +1,5 @@
+.. _polyhedron_utilities:
+
 ``polyhedron_utilities``
 ========================
 Polyhedron processing functions.

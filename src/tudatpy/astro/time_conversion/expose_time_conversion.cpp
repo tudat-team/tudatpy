@@ -374,15 +374,37 @@ void expose_time_conversion( py::module& m )
  DateTime
      DateTime object defined in Tudat
 
-     m.def("year_and_days_in_year_to_calendar_date",
+    )doc" );
+
+    m.def( "year_and_days_in_year_to_calendar_date",
            &tba::convertYearAndDaysInYearToTudatDate,
-           py::arg("year"),
-           py::arg("days_in_year"),
-           get_docstring("year_and_days_in_year_to_calendar_date").c_str()
-     );
+           py::arg( "year" ),
+           py::arg( "days_in_year" ),
+           R"doc(
+        
+Create the calendar date from the year and the number of days in the year.
 
+Parameters
+----------
+year : int
+    Calendar year.
+days_in_year : int
+    Number of days that have passed in the year.
+Returns
+-------
+DateTime
+    Corresponding calendar date as a :class:`DateTime` object. Note: the hours, minutes and seconds in the object are set to 0 when calling this function.
 
+Examples
+--------
+In this example, the calendar date corresponding to when 122 days have passed in 2020 is computed.
 
+.. code-block:: python
+
+    # Compute the calendar date when 122 days have passed in 2020
+    currentDate = time_conversion.year_and_days_in_year_to_calendar_date(2020, 122)
+    # Print the converted output
+    print(currentDate)  # prints (2020, 5, 2, 0, 0)
 
      )doc" );
 
@@ -643,6 +665,7 @@ void expose_time_conversion( py::module& m )
  In this example, an amount of seconds since J2000 (January 1st 2000) is converted to the Julian date (in days since January 1st 4713 BC).
 
  .. code-block:: python
+ 
    # Define the amount of seconds since January 1st 2000
    seconds_since_J2000 = 706413165.1200145
    # Convert the amount of seconds since J2000 to the Julian date

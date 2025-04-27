@@ -1,3 +1,5 @@
+.. _thrust:
+
 ``thrust``
 ==========
 This module provides the functionality for creating thrust 

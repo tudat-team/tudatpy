@@ -197,12 +197,12 @@ void expose_estimation_observation_collection( py::module& m )
                                                        TIME_TYPE >::setObservations ),
                   py::arg( "observations" ),
                   R"doc(
-         Function to reset the full list of observable values. The order of the observations must be the same as for :attr:`~ObservationCollection.concatenated_observations`
+Function to reset the full list of observable values. The order of the observations must be the same as for :attr:`~ObservationCollection.concatenated_observations`
 
-         Parameters
-         ----------
-         observations : np.ndarray
-             New list of observable values
+Parameters
+----------
+observations : np.ndarray
+    New list of observable values
      )doc" )
             .def( "set_observations",
                   py::overload_cast< const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 >&,
@@ -212,16 +212,16 @@ void expose_estimation_observation_collection( py::module& m )
                   py::arg( "observations" ),
                   py::arg( "observation_parser" ),
                   R"doc(
-         Function to reset a subset of all observable values, with this subset defined by the ``observation_parser`` input.
-         The order and size of the new observation vector must be the same as when calling :attr:`~ObservationCollection.concatenated_observations` on
-         an ``ObservationCollection`` containing only the parsed observation.
+Function to reset a subset of all observable values, with this subset defined by the ``observation_parser`` input.
+The order and size of the new observation vector must be the same as when calling :attr:`~ObservationCollection.concatenated_observations` on
+an ``ObservationCollection`` containing only the parsed observation.
 
-         Parameters
-         ----------
-         observations : np.ndarray
-             New list of observable values
-         observation_parser : ObservationCollectionParser
-             Observation parser with which to select the subset of observations that is to be reset
+Parameters
+----------
+observations : np.ndarray
+    New list of observable values
+observation_parser : ObservationCollectionParser
+    Observation parser with which to select the subset of observations that is to be reset
      )doc" )
             .def( "set_observations",
                   py::overload_cast< const std::map<
@@ -231,19 +231,19 @@ void expose_estimation_observation_collection( py::module& m )
                                                        TIME_TYPE >::setObservations ),
                   py::arg( "observations_per_parser" ),
                   R"doc(
-         Function to reset a subset of all observable values, with this subset defined by a list of observation parsers input.
-         Each observation parser is associated with a new set of observable values.
-         The order and size of the new observation vector for each parser must be the same as when calling :attr:`~ObservationCollection.concatenated_observations` on
-         an ``ObservationCollection`` containing only the parsed observation (from a single parser). NOTE: since the multiple parsers
-         are handled in order (iterating over the keys of ``observations_per_parser``) some observations may be reset several times,
-         in case
+Function to reset a subset of all observable values, with this subset defined by a list of observation parsers input.
+Each observation parser is associated with a new set of observable values.
+The order and size of the new observation vector for each parser must be the same as when calling :attr:`~ObservationCollection.concatenated_observations` on
+an ``ObservationCollection`` containing only the parsed observation (from a single parser). NOTE: since the multiple parsers
+are handled in order (iterating over the keys of ``observations_per_parser``) some observations may be reset several times,
+in case.
 
-         Parameters
-         ----------
-         observations : np.ndarray
-             New list of observable values
-         observation_parser : ObservationCollectionParser
-             Observation parser with which to select the subset of observations that is to be reset
+Parameters
+----------
+observations : np.ndarray
+    New list of observable values
+observation_parser : ObservationCollectionParser
+    Observation parser with which to select the subset of observations that is to be reset
      )doc" )
             .def( "set_residuals",
                   py::overload_cast< const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 >& >(

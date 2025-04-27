@@ -1,3 +1,5 @@
+.. _astro:
+
 ``astro``
 =========
 Fundamental astrodynamics calculations.
