@@ -64,7 +64,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.githubpages",
     "sphinx.ext.napoleon",
-    "sphinx.ext.autosectionlabel",
+    # "sphinx.ext.autosectionlabel", # removed to avoid conflicts of class/function heading labels
     "sphinx_copybutton",
     # 'breathe',
     # 'exhale'

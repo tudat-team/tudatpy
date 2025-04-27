@@ -116,7 +116,10 @@ void expose_estimated_parameter_setup( py::module& m )
             .export_values( );
 
     py::enum_< tba::EmpiricalAccelerationComponents >(
-            m, "EmpiricalAccelerationComponents", R"doc(No documentation found.)doc" )
+            m, "EmpiricalAccelerationComponents", R"doc(Enumeration of the available empirical acceleration components that are available to estimate.
+            
+            These are used in the :func:`~tudatpy.numerical_simulation.estimation_setup.parameter.empirical_accelerations` function to specify which components of the empirical acceleration are to be estimated.
+            )doc" )
             .value( "radial_empirical_acceleration_component",
                     tba::EmpiricalAccelerationComponents::radial_empirical_acceleration_component )
             .value( "along_track_empirical_acceleration_component",
@@ -128,7 +131,10 @@ void expose_estimated_parameter_setup( py::module& m )
             .export_values( );
 
     py::enum_< tba::EmpiricalAccelerationFunctionalShapes >(
-            m, "EmpiricalAccelerationFunctionalShapes", R"doc(No documentation found.)doc" )
+            m, "EmpiricalAccelerationFunctionalShapes", R"doc(Enumeration of the available empirical acceleration shapes that are available per component
+            
+            These are used in the :func:`~tudatpy.numerical_simulation.estimation_setup.parameter.empirical_accelerations` function to specify the signature of the estimated empirical acceleration component.
+            .)doc" )
             .value( "constant_empirical",
                     tba::EmpiricalAccelerationFunctionalShapes::constant_empirical )
             .value( "sine_empirical", tba::EmpiricalAccelerationFunctionalShapes::sine_empirical )
@@ -194,9 +200,11 @@ void expose_estimated_parameter_setup( py::module& m )
  The function uses the propagator settings to determine which type of initial state parameter (single/multi/hybrid-arc; translational/rotational/... dynamics) is to be estimated,
  e.g. if a single-arc translational state propagator is defined, the function will automatically create the parameters for the associated initial state parameter
 
- .. note:: This function return lists of parameter settings objects.
- This means that the return of this function cannot simply be added to the parameter settings objects of single parameters in a list creation statement.
- Instead, list concatenation is recommended. Please see the following example:
+ .. note::
+ 
+    This function return lists of parameter settings objects.
+    This means that the return of this function cannot simply be added to the parameter settings objects of single parameters in a list creation statement.
+    Instead, list concatenation is recommended. Please see the following example:
 
  .. code-block:: python
 
@@ -353,8 +361,9 @@ void expose_estimated_parameter_setup( py::module& m )
  Function for creating a (linear sensitivity) parameter settings object for arc-wise radiation pressure coefficients (arc-wise version of :func:`~tudatpy.numerical_simulation.estimation_setup.parameter.radiation_pressure_coefficient`).
  Using the radiation pressure coefficient as an estimatable parameter requires:
 
- * A :func:`~tudatpy.numerical_simulation.environment_setup.radiation_pressure.cannonball` radiation pressure interface to be defined for the body specified by the ``body`` parameter
- * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.cannonball_radiation_pressure` acceleration
+ * A :func:`~tudatpy.numerical_simulation.environment_setup.radiation_pressure.cannonball_radiation_target` target model to be defined for the body specified by the ``body`` parameter
+ * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.radiation_pressure` acceleration
+ 
  The radiation pressure coefficient is defined according to the universal convention for a cannonball model and thus no further model information is given.
 
  .. note:: This parameter may be estimated for a single-arc propagation, or a multi-arc propagation. In the latter case, the arcs selected for the estimation of the radiation pressure coefficient may, but need not, correspond to the arcs used for a multi-arc propagation.
@@ -636,7 +645,7 @@ void expose_estimated_parameter_setup( py::module& m )
  Function for creating a (linear sensitivity) parameter settings object for the gravitational parameter of massive bodies.
  Using the gravitational parameter as estimatable parameter requires:
 
- * The body specified by the ``body`` parameter to be endowed with a gravity field (see :ref:`\`\`gravity_field\`\`` module for options)
+ * The body specified by the ``body`` parameter to be endowed with a gravity field (see :ref:`gravity_field` module for options)
  * Any dynamical or observational model to depend on the gravitational parameter of the body specified by the ``body`` parameter
 
 
