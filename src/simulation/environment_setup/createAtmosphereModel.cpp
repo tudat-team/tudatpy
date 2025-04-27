@@ -184,10 +184,14 @@
              {
                  useStormConditions = nrlmsise00AtmosphereSettings->getUseStormConditions( );
                  useAnomalousOxygen = nrlmsise00AtmosphereSettings->getUseAnomalousOxygen( );
-                 if ( nrlmsise00AtmosphereSettings->getSpaceWeatherFile( ).empty( ))
+                 if ( nrlmsise00AtmosphereSettings->getSpaceWeatherFile( ).empty( ) )
                  {
                      // Use default space weather file stored in tudatBundle when the file is not provided
                      spaceWeatherFilePath = paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt";
+                 }
+                 else
+                 {
+                     spaceWeatherFilePath = nrlmsise00AtmosphereSettings->getSpaceWeatherFile( );
                  }
              }
      
