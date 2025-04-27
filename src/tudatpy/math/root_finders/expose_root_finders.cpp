@@ -70,7 +70,7 @@ The program will accept the root at the final iteration, but will print a warnin
                     trf::MaximumIterationHandling::throw_exception,
                     R"doc(
 
-The program will not accept the root at the final iteration, and will throw an exception.
+The program will not accept the root at the final iteration, and will throw a :class:`~tudatpy.exceptions.MaximumIterationsExceededError` error.
 
 )doc" )
             .export_values( );

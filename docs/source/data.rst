@@ -32,6 +32,10 @@ Functions
 
    save_time_history_to_file
 
+   read_vector_history_from_file
+
+   read_matrix_history_from_file
+
    get_resource_path
 
    get_ephemeris_path
@@ -48,15 +52,14 @@ Functions
 
    get_space_weather_path
 
-   read_vector_history_from_file
-
-   read_matrix_history_from_file
-
-
 
 .. autofunction:: tudatpy.data.save2txt
 
 .. autofunction:: tudatpy.data.save_time_history_to_file
+
+.. autofunction:: tudatpy.data.read_vector_history_from_file
+
+.. autofunction:: tudatpy.data.read_matrix_history_from_file
 
 .. autofunction:: tudatpy.data.get_resource_path
 
@@ -73,12 +76,6 @@ Functions
 .. autofunction:: tudatpy.data.get_gravity_models_path
 
 .. autofunction:: tudatpy.data.get_space_weather_path
-
-.. autofunction:: tudatpy.data.read_vector_history_from_file
-
-.. autofunction:: tudatpy.data.read_matrix_history_from_file
-
-
 
 
 

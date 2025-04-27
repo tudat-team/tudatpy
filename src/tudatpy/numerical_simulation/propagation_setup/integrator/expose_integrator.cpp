@@ -56,7 +56,7 @@ Enumeration defining possible behaviours when :math:`\Delta t_{rec}<\Delta t_{\m
                     tni::MinimumIntegrationTimeStepHandling::throw_exception_below_minimum,
                     R"doc(
 
-Exception is throw, and propagation is terminated
+The propagation is terminated and a :class:`tudatpy.exceptions.MinimumStepSizeViolatedError` is thrown.
 
 )doc" )
             .value( "set_to_minimum_step_silently",
