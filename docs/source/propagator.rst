@@ -1,3 +1,5 @@
+.. _propagator:
+
 ``propagator``
 ==============
 This module provides the functionality for creating propagator settings.

@@ -395,7 +395,7 @@ void expose_acceleration_setup( py::module &m )
 
  with :math:`\mathbf{r}` the position vector measured from the center of mass of the body exerting the acceleration.
 
- The body exerting the acceleration needs to have a gravity field model (:ref:`\`\`gravity_field\`\`` module) defined to use this acceleration.
+ The body exerting the acceleration needs to have a gravity field model (:ref:`gravity_field` module) defined to use this acceleration.
 
  Depending on the body undergoing the acceleration :math:`A`, the body exerting the acceleration :math:`B`, and the central body of propagation :math:`C`, choosing this option may create a direct point-mass attraction (:math:`\mu=\mu_{B}`), a central point-mass attraction (:math:`\mu=\mu_{B}+\mu_{A}`) or a third-body point-mass attraction (see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/third_body_acceleration.html>`_ for more details).
 
@@ -437,7 +437,7 @@ void expose_acceleration_setup( py::module &m )
 
  with :math:`\mathbf{R}^{(I/\text{Aero})}` the rotation matrix from the aerodynamic frame of the body undergoing acceleration to the inertial frame (computed from the body's current state, and the rotation of the body exerting the acceleration), :math:`\rho` the local freestream atmospheric density, :math:`v_{\text{air}}` the airspeed,  :math:`C_{D,S,L}` the drag, side and lift coefficients (which may depend on any number of properties of the body/environment) with reference area :math:`S_{ref}`, and :math:`m` the mass of the body undergoing acceleration
  The body exerting the acceleration needs to have an
- atmosphere (:ref:`\`\`atmosphere\`\`` module), shape (:ref:`\`\`shape\`\`` module) and rotation model (:ref:`\`\`rotation_model\`\`` module) defined. The body undergoing the acceleration needs to have aerodynamic coefficients (:ref:`\`\`aerodynamic_coefficients\`\`` module) defined.
+ atmosphere (:ref:`atmosphere` module), shape (:ref:`shape` module) and rotation model (:ref:`rotation_model` module) defined. The body undergoing the acceleration needs to have aerodynamic coefficients (:ref:`aerodynamic_coefficients` module) defined.
 
  Returns
  -------
@@ -544,7 +544,7 @@ void expose_acceleration_setup( py::module &m )
 
  with :math:`\mathbf{r}` the position vector measured from the center of mass of the body exerting the acceleration, :math:`\mathbf{R}^{(I/B)}` the rotation matrix from body-fixed to inertial frame, and :math:`\nabla^{(B)}` the gradient operator in a body-fixed frame, and :math:`U` the spherical harmonic gravitational potential, expanded up to the provided ``maximum_degree`` and ``maximum_order``.
 
- The body exerting the acceleration needs to have a spherical harmonic gravity field model (see :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.spherical_harmonic`) and a rotation model (:ref:`\`\`rotation_model\`\`` module) defined.
+ The body exerting the acceleration needs to have a spherical harmonic gravity field model (see :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.spherical_harmonic`) and a rotation model (:ref:`rotation_model` module) defined.
 
  Depending on the body undergoing the acceleration :math:`A`, the body exerting the acceleration :math:`B`, and the central body of propagation :math:`C`, choosing this option may create a direct spherical harmonic attraction (:math:`\mu=\mu_{B}`), a central spherical harmonic attraction (:math:`\mu=\mu_{B}+\mu_{A}`) or a third-body spherical harmonic attraction (see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/third_body_acceleration.html>`_ for more details).
 
@@ -957,51 +957,46 @@ void expose_acceleration_setup( py::module &m )
            py::arg( "explicit_libraional_tide_on_satellite" ) = false,
            R"doc(
 
- Creates settings for tidal acceleration.
+Creates settings for tidal acceleration.
 
- Creates settings for tidal accelerations. The direct of tidal effects in a satellite system is applied directly as
- an acceleration (as opposed to a modification of spherical harmonic coefficients).
- The model is based on Lainey et al. (2007, 2012). It can compute the acceleration due to tides, and in
- particular tidal dissipation, on a planetary satellite. The acceleration computed can account for either the
- effect of tide raised on the satellite by the planet or on the planet by the satellite. The satellite is assumed
- to be tidally locked to the planet.
+Creates settings for tidal accelerations. The direct of tidal effects in a satellite system is applied directly as
+an acceleration (as opposed to a modification of spherical harmonic coefficients).
+The model is based on Lainey et al. (2007, 2012). It can compute the acceleration due to tides, and in
+particular tidal dissipation, on a planetary satellite. The acceleration computed can account for either the
+effect of tide raised on the satellite by the planet or on the planet by the satellite. The satellite is assumed
+to be tidally locked to the planet.
 
+Parameters
+----------
+k2_love_number : float
+    Value of the k2 Love number.
+time_lag : float
+    Value of the tidal time lag.
+include_direct_radial_component : bool, default=True
+    It denotes whether the term independent of the time lag is to be computed.
+use_tide_raised_on_planet : bool, default=True
+    It denotes whether the tide raised on the planet is to be modelled (if true) or the tide raised on the satellite (if false).
+Returns
+-------
+DirectTidalDissipationAccelerationSettings
+    Direct tidal dissipation acceleration settings object.
 
- Parameters
- ----------
- k2_love_number : float
-     Value of the k2 Love number.
- time_lag : float
-     Value of the tidal time lag.
- include_direct_radial_component : bool, default=True
-     It denotes whether the term independent of the time lag is to be computed.
- use_tide_raised_on_planet : bool, default=True
-     It denotes whether the tide raised on the planet is to be modelled (if true) or the tide raised on the satellite (if false).
- Returns
- -------
- DirectTidalDissipationAccelerationSettings
-     Direct tidal dissipation acceleration settings object.
+Examples
+--------
+In this example, we define the tidal dissipation exerted by Jupiter on Io directly, instead of computing it
+through the spherical harmonic gravity:
 
-
-
-
-
- Examples
- --------
- In this example, we define the tidal dissipation exerted by Jupiter on Io directly, instead of computing it
- through the spherical harmonic gravity:
-
- .. code-block:: python
+.. code-block:: python
 
     # Define parameters
     love_number = 0.1
     time_lag = 100.0
     # Add entry to acceleration settings dict
     acceleration_settings_on_io["Jupiter"] = [propagation_setup.acceleration.direct_tidal_dissipation(
-       love_number,
-       time_lag,
-       False,
-       False)]
+    love_number,
+    time_lag,
+    False,
+    False)]
 
 
      )doc" );
@@ -1016,51 +1011,46 @@ void expose_acceleration_setup( py::module &m )
            py::arg( "explicit_libraional_tide_on_satellite" ) = false,
            R"doc(
 
- Creates settings for tidal acceleration.
+Creates settings for tidal acceleration.
 
- Creates settings for tidal accelerations. The direct of tidal effects in a satellite system is applied directly as
- an acceleration (as opposed to a modification of spherical harmonic coefficients).
- The model is based on Lainey et al. (2007, 2012). It can compute the acceleration due to tides, and in
- particular tidal dissipation, on a planetary satellite. The acceleration computed can account for either the
- effect of tide raised on the satellite by the planet or on the planet by the satellite. The satellite is assumed
- to be tidally locked to the planet.
+Creates settings for tidal accelerations. The direct of tidal effects in a satellite system is applied directly as
+an acceleration (as opposed to a modification of spherical harmonic coefficients).
+The model is based on Lainey et al. (2007, 2012). It can compute the acceleration due to tides, and in
+particular tidal dissipation, on a planetary satellite. The acceleration computed can account for either the
+effect of tide raised on the satellite by the planet or on the planet by the satellite. The satellite is assumed
+to be tidally locked to the planet.
 
+Parameters
+----------
+k2_love_number : float
+    Value of the k2 Love number.
+time_lag : float
+    Value of the tidal time lag.
+include_direct_radial_component : bool, default=True
+    It denotes whether the term independent of the time lag is to be computed.
+use_tide_raised_on_planet : bool, default=True
+    It denotes whether the tide raised on the planet is to be modelled (if true) or the tide raised on the satellite (if false).
+Returns
+-------
+DirectTidalDissipationAccelerationSettings
+    Direct tidal dissipation acceleration settings object.
 
- Parameters
- ----------
- k2_love_number : float
-     Value of the k2 Love number.
- time_lag : float
-     Value of the tidal time lag.
- include_direct_radial_component : bool, default=True
-     It denotes whether the term independent of the time lag is to be computed.
- use_tide_raised_on_planet : bool, default=True
-     It denotes whether the tide raised on the planet is to be modelled (if true) or the tide raised on the satellite (if false).
- Returns
- -------
- DirectTidalDissipationAccelerationSettings
-     Direct tidal dissipation acceleration settings object.
+Examples
+--------
+In this example, we define the tidal dissipation exerted by Jupiter on Io directly, instead of computing it
+through the spherical harmonic gravity:
 
-
-
-
-
- Examples
- --------
- In this example, we define the tidal dissipation exerted by Jupiter on Io directly, instead of computing it
- through the spherical harmonic gravity:
-
- .. code-block:: python
+.. code-block:: python
 
     # Define parameters
     love_number = 0.1
     time_lag = 100.0
     # Add entry to acceleration settings dict
     acceleration_settings_on_io["Jupiter"] = [propagation_setup.acceleration.direct_tidal_dissipation(
-       love_number,
-       time_lag,
-       False,
-       False)]
+        love_number,
+        time_lag,
+        False,
+        False)]
 
 
      )doc" );

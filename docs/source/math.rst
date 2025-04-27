@@ -1,3 +1,5 @@
+.. _math:
+
 ``math``
 ========
 Fundamental mathematical calculations.
