@@ -42,6 +42,12 @@ class BuildParser(argparse.ArgumentParser):
             action="store_true",
             help="Skip the generation of stubs [Default: False]",
         )
+        basic_group.add_argument(
+            "--stub-only",
+            dest="skip_build",
+            action="store_true",
+            help="Do not build the libraries [Default: False]",
+        )
 
         # Control CMake behavior
         cmake_group = self.add_argument_group("CMake configuration")
@@ -455,6 +461,8 @@ class StubGenerator:
         self, tmp: Path, env: dict[str, str]
     ) -> None:
 
+        print("Generating stubs for tudatpy.kernel...")
+
         # Generate stubs for tudatpy.kernel
         outcome = subprocess.run(
             [
@@ -462,7 +470,7 @@ class StubGenerator:
                 "tudatpy.kernel",
                 "-o",
                 str(tmp),
-                "--numpy-array-remove-parameters",
+                "--numpy-array-wrap-with-annotated",
             ],
             env=env,
         )
@@ -500,6 +508,8 @@ class StubGenerator:
         self, tmp: Path, mock_install: Path
     ) -> None:
 
+        print("Generating stubs for Python source code...")
+
         # Create directory for python stubs in tmp
         python_stubs = tmp / "python_stubs"
         python_stubs.mkdir(exist_ok=False, parents=False)
@@ -527,6 +537,7 @@ class StubGenerator:
                     str(python_stubs),
                     "--include-docstrings",
                     "--parse-only",
+                    "--quiet",
                 ]
             )
             if outcome.returncode:
@@ -954,10 +965,10 @@ class StubGenerator:
 
 class Builder:
 
-    def __init__(self) -> None:
+    def __init__(self, args: argparse.Namespace) -> None:
 
         # Command line arguments to control the build
-        self.args = BuildParser().parse_args()
+        self.args = args
 
         # Resolve build directory
         self.build_dir = Path(self.args.build_dir).resolve()
@@ -1060,4 +1071,9 @@ class Builder:
 
 if __name__ == "__main__":
 
-    Builder().build_libraries()
+    args = BuildParser().parse_args()
+    builder = Builder(args)
+    if args.skip_build:
+        StubGenerator(builder.build_dir).generate_stubs()
+    else:
+        builder.build_libraries()
