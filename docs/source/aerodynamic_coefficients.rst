@@ -1,3 +1,5 @@
+.. _aerodynamic_coefficients:
+
 ``aerodynamic_coefficients``
 ============================
 This module contains the factory functions for setting up the

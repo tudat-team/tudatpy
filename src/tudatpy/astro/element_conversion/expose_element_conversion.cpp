@@ -44,86 +44,116 @@ void expose_element_conversion( py::module& m )
     py::enum_< toec::KeplerianElementIndices >( m,
                                                 "KeplerianElementIndices",
                                                 R"doc(
-         Enumeration for indices of Keplerian elements"
-      )doc" )
+
+Enumeration for indices of Keplerian elements
+
+)doc" )
             .value( "semi_major_axis_index",
                     toec::KeplerianElementIndices::semiMajorAxisIndex,
                     R"doc(
- Element 0 in vector of Keplerian elements (for eccentricity not equal to 1.0)
-      )doc" )
+
+Element 0 in vector of Keplerian elements (for eccentricity not equal to 1.0)
+
+)doc" )
             .value( "semi_latus_rectum_index",
                     toec::KeplerianElementIndices::semiLatusRectumIndex,
                     R"doc(
- Element 0 in vector of Keplerian elements (for eccentricity equal to 1.0)
-      )doc" )
+
+Element 0 in vector of Keplerian elements (for eccentricity equal to 1.0)
+
+)doc" )
             .value( "eccentricity_index",
                     toec::KeplerianElementIndices::eccentricityIndex,
                     R"doc(
- Element 1 in vector of Keplerian elements
-      )doc" )
+
+Element 1 in vector of Keplerian elements
+
+)doc" )
             .value( "inclination_index",
                     toec::KeplerianElementIndices::inclinationIndex,
                     R"doc(
- Element 2 in vector of Keplerian elements
-      )doc" )
+
+Element 2 in vector of Keplerian elements
+
+)doc" )
             .value( "argument_of_periapsis_index",
                     toec::KeplerianElementIndices::argumentOfPeriapsisIndex,
                     R"doc(
- Element 3 in vector of Keplerian elements
-      )doc" )
+
+Element 3 in vector of Keplerian elements
+
+)doc" )
             .value( "longitude_of_ascending_node_index",
                     toec::KeplerianElementIndices::longitudeOfAscendingNodeIndex,
                     R"doc(
- Element 4 in vector of Keplerian elements
-      )doc" )
+
+Element 4 in vector of Keplerian elements
+
+)doc" )
             .value( "true_anomaly_index",
                     toec::KeplerianElementIndices::trueAnomalyIndex,
                     R"doc(
- Element 5 in vector of Keplerian elements
-      )doc" )
+
+Element 5 in vector of Keplerian elements
+
+)doc" )
             .export_values( );
 
     py::enum_< toec::SphericalOrbitalStateElementIndices >( m,
                                                             "SphericalOrbitalStateElementIndices",
                                                             R"doc(
-         Enumeration for indices of spherical orbital state elements"
-      )doc" )
+
+Enumeration for indices of spherical orbital state elements"
+
+)doc" )
             .value( "radius_index",
                     toec::SphericalOrbitalStateElementIndices::radiusIndex,
                     R"doc(
- Element 0 in vector of spherical orbital state elements
-      )doc" )
+
+Element 0 in vector of spherical orbital state elements
+
+)doc" )
             .value( "latitude_index",
                     toec::SphericalOrbitalStateElementIndices::latitudeIndex,
                     R"doc(
- Element 1 in vector of spherical orbital state elements
-      )doc" )
+
+Element 1 in vector of spherical orbital state elements
+
+)doc" )
             .value( "longitude_index",
                     toec::SphericalOrbitalStateElementIndices::longitudeIndex,
                     R"doc(
- Element 2 in vector of spherical orbital state elements
-      )doc" )
+
+Element 2 in vector of spherical orbital state elements
+
+)doc" )
             .value( "speed_index",
                     toec::SphericalOrbitalStateElementIndices::speedIndex,
                     R"doc(
- Element 3 in vector of spherical orbital state elements
-      )doc" )
+
+Element 3 in vector of spherical orbital state elements
+
+)doc" )
             .value( "flight_path_index",
                     toec::SphericalOrbitalStateElementIndices::flightPathIndex,
                     R"doc(
- Element 4 in vector of spherical orbital state elements
-      )doc" )
+
+Element 4 in vector of spherical orbital state elements
+
+)doc" )
             .value( "heading_angle_index",
                     toec::SphericalOrbitalStateElementIndices::headingAngleIndex,
                     R"doc(
- Element 5 in vector of spherical orbital state elements
-      )doc" )
+
+Element 5 in vector of spherical orbital state elements
+
+)doc" )
             .export_values( );
 
     py::enum_< tcc::PositionElementTypes >( m,
                                             "PositionElementTypes",
                                             R"doc(
- Enumeration describing different types of position element types (typically used for body-centered, body-0fixed position)
+Enumeration describing different types of position element types (typically used for body-centered, body-fixed position)
       )doc" )
             .value( "cartesian_position_type", tcc::PositionElementTypes::cartesian_position )
             .value( "spherical_position_type", tcc::PositionElementTypes::spherical_position )
@@ -1305,7 +1335,7 @@ void expose_element_conversion( py::module& m )
            &tsi::getRotationFromJ2000ToEclipJ2000,
            R"doc(
 
- Provides the (constant) rotation matrix from the J2000 to the ECLIPJ2000 frame, as defined in the SPICE library (see :ref:`\`\`spice\`\`` for more details on our interface with this library).
+ Provides the (constant) rotation matrix from the J2000 to the ECLIPJ2000 frame, as defined in the SPICE library (see :ref:`spice` for more details on our interface with this library).
 
  Returns
  -------
@@ -1319,7 +1349,7 @@ void expose_element_conversion( py::module& m )
            &tsi::getRotationFromEclipJ2000ToJ2000,
            R"doc(
 
- Provides the (constant) rotation matrix from the ECLIPJ2000 to the J2000 frame, as defined in the SPICE library (see :ref:`\`\`spice\`\`` for more details on our interface with this library).
+ Provides the (constant) rotation matrix from the ECLIPJ2000 to the J2000 frame, as defined in the SPICE library (see :ref:`spice` for more details on our interface with this library).
 
  Returns
  -------

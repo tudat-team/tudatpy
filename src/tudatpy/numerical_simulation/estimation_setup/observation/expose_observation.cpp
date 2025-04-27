@@ -219,22 +219,22 @@ void expose_observation_setup( py::module& m )
 
     py::enum_< tom::LinkEndType >( m, "LinkEndType", R"doc(
 
-         Enumeration of available link end types.
+Enumeration of available link end types.
 
- Examples
- --------
- .. code-block:: python
+Examples
+--------
+.. code-block:: python
 
-     # Code snippet to print all available Link End Types
-     from tudatpy.numerical_simulation import estimation_setup
+    # Code snippet to print all available Link End Types
+    from tudatpy.numerical_simulation import estimation_setup
 
-     # Check how many Link End Types are available in Tudatpy
-     num_link_end_types = len(estimation_setup.observation.LinkEndType.__members__)
-     print(f'The length of all available Tudatpy Link End Types is: {num_link_end_types}')
+    # Check how many Link End Types are available in Tudatpy
+    num_link_end_types = len(estimation_setup.observation.LinkEndType.__members__)
+    print(f'The length of all available Tudatpy Link End Types is: {num_link_end_types}')
 
-     # Print all available Link End Types using the "name" property
-     for i in range(num_link_end_types):
-         print(i, estimation_setup.observation.LinkEndType(i).name)
+    # Print all available Link End Types using the "name" property
+    for i in range(num_link_end_types):
+        print(i, estimation_setup.observation.LinkEndType(i).name)
 
 
 
@@ -248,9 +248,8 @@ void expose_observation_setup( py::module& m )
             .value( "reflector3", tom::LinkEndType::reflector3 )
             .value( "reflector4", tom::LinkEndType::reflector4 )
             .value( "receiver", tom::LinkEndType::receiver )
-
             .value( "transmitter2", tom::LinkEndType::transmitter2 )
-
+            .value( "observer", tom::LinkEndType::observer )
             .value( "observed_body", tom::LinkEndType::observed_body )
             .export_values( );
 
@@ -702,21 +701,21 @@ void expose_observation_setup( py::module& m )
 
     py::enum_< tom::ObservableType >( m, "ObservableType", R"doc(
 
-         Enumeration of available observable types.
+Enumeration of available observable types.
 
- Examples
- --------
- .. code-block:: python
+Examples
+--------
+.. code-block:: python
 
-     # Code snippet to print all available Observable Types
-     from tudatpy.numerical_simulation import estimation_setup
+    # Code snippet to print all available Observable Types
+    from tudatpy.numerical_simulation import estimation_setup
 
-     num_observable_types = len(estimation_setup.observation.ObservableType.__members__)
-     print(f'The length of all available Tudatpy Observable Types is: {num_observable_types}')
+    num_observable_types = len(estimation_setup.observation.ObservableType.__members__)
+    print(f'The length of all available Tudatpy Observable Types is: {num_observable_types}')
 
-     # Print all available Observable Types using the "name" property
-     for i in range(num_observable_types):
-         print(i, estimation_setup.observation.ObservableType(i).name)
+    # Print all available Observable Types using the "name" property
+    for i in range(num_observable_types):
+        print(i, estimation_setup.observation.ObservableType(i).name)
 
 
 
@@ -728,6 +727,7 @@ void expose_observation_setup( py::module& m )
             .value( "relative_angular_position_type", tom::ObservableType::angular_position )
             .value( "position_observable_type", tom::ObservableType::position_observable )
             .value( "velocity_observable_type", tom::ObservableType::velocity_observable )
+            .value( "relative_position_observable_type", tom::ObservableType::relative_position_observable )
             .value( "one_way_instantaneous_doppler_type", tom::ObservableType::one_way_doppler )
             .value( "one_way_averaged_doppler_type",
                     tom::ObservableType::one_way_differenced_range )
@@ -881,21 +881,21 @@ void expose_observation_setup( py::module& m )
 
     py::enum_< tom::LightTimeFailureHandling >( m, "LightTimeFailureHandling", R"doc(
 
-         Enumeration of behaviour when failing to converge light-time with required settings.
+Enumeration of behaviour when failing to converge light-time with required settings.
 
- Examples
- --------
- .. code-block:: python
+Examples
+--------
+.. code-block:: python
 
-     # Code snippet to print all available Light Time Failure Handling Types
-     from tudatpy.numerical_simulation import estimation_setup
+    # Code snippet to print all available Light Time Failure Handling Types
+    from tudatpy.numerical_simulation import estimation_setup
 
-     num_LightTimeFailureHandling_types = len(estimation_setup.observation.LightTimeFailureHandling.__members__)
-     print(f'The length of all available Tudatpy Light Time Failure Handling Types is: {num_LightTimeFailureHandling_types}')
+    num_LightTimeFailureHandling_types = len(estimation_setup.observation.LightTimeFailureHandling.__members__)
+    print(f'The length of all available Tudatpy Light Time Failure Handling Types is: {num_LightTimeFailureHandling_types}')
 
-     # Print all available Observation Viability Types using the "name" property
-     for i in range(num_LightTimeFailureHandling_types):
-         print(i, estimation_setup.observation.LightTimeFailureHandling(i).name)
+    # Print all available Observation Viability Types using the "name" property
+    for i in range(num_LightTimeFailureHandling_types):
+        print(i, estimation_setup.observation.LightTimeFailureHandling(i).name)
 
 
 
@@ -1369,19 +1369,23 @@ void expose_observation_setup( py::module& m )
                    std::make_shared< tom::LightTimeConvergenceCriteria >( ),
            R"doc(
 
- Function for creating settings for an angular position observable.
+ Function for creating settings for a relative angular position observable.
 
- Function for creating observation model settings of angular position type observables (as right ascension :math:`\alpha` and declination :math:`\delta`),
- for a single link definition. The associated observation model creates an observable :math:`\mathbf{h}_{_{\text{ang.pos.}}}` of type two as follows (in the unbiased case):
+ Function for creating observation model settings of relative angular position type observables (as right ascension difference :math:`\Delta \alpha` and declination difference :math:`\Delta \delta`),
+ from two link definitions. The associated observation model creates an observable :math:`\mathbf{h}_{_{\text{ang.pos.}}}` of type two as follows (in the unbiased case):
 
  .. math::
-    \Delta\mathbf{r}=\mathbf{r}_{R}(t_{R})-\mathbf{r}_{T}(t_{T})\\
-    \tan\alpha=\frac{\Delta r_{y}}{\Delta r_{x}}\\
-    \delta=\frac{\Delta r_{z}}{\sqrt{\Delta r_{x}^{2}+\Delta r_{y}^{2}}}\\
-    \mathbf{h}_{_{\text{ang.pos.}}} = [\alpha;\delta]
 
- The relative position vector :math:`\Delta\mathbf{r}` is computed identically as described for the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`
- The angular position observable can be used for optical astrometry, VLBI, etc. Due to the definition of this observable, the xy-plane is defined by the global frame orientation of the
+    \Delta\mathbf{r}_1=\mathbf{r}_{R}(t_{R})-\mathbf{r}_{T1}(t_{T1})             \\
+    \tan\alpha_{1} =\frac{\Delta r_{1y}}{\Delta r_{1x}}                          \\
+    \delta_{1} =\frac{\Delta r_{1z}}{\sqrt{\Delta r_{1x}^{2}+\Delta r_{1y}^{2}}} \\
+    \Delta\mathbf{r}_2=\mathbf{r}_{R}(t_{R})-\mathbf{r}_{T2}(t_{T2})             \\
+    \tan\alpha_{2} =\frac{\Delta r_{2y}}{\Delta r_{2x}}                          \\
+    \delta_{2} =\frac{\Delta r_{2z}}{\sqrt{\Delta r_{2x}^{2}+\Delta r_{2y}^{2}}} \\
+    \mathbf{h}_{_{\text{rel.ang.pos.}}} = [\alpha_{2}-\alpha_{1};\delta_{2}-\delta_{1}]
+
+ The relative position vectors :math:`\Delta\mathbf{r}_1` and :math:`\Delta\mathbf{r}_2` are computed identically as described for the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`
+ The relative angular position observable can be used for optical astrometry, optical navigation, etc. Due to the definition of this observable, the xy-plane is defined by the global frame orientation of the
  environment.
 
 
@@ -1389,7 +1393,7 @@ void expose_observation_setup( py::module& m )
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires the
-     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+     `transmitter`, `transmitter2` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
 
  light_time_correction_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` ], default = list()
      List of corrections for the light-time that are to be used. Default is none, which will result
@@ -1404,7 +1408,7 @@ void expose_observation_setup( py::module& m )
  Returns
  -------
  :class:`ObservationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the angular position observable.
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the relative angular position observable.
 
 
 
@@ -1431,7 +1435,7 @@ void expose_observation_setup( py::module& m )
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires that the
-     `observed_body`` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+     `observed_body` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
 
  bias_settings : :class:`ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
@@ -1454,11 +1458,11 @@ void expose_observation_setup( py::module& m )
            py::arg( "bias_settings" ) = nullptr,
            R"doc(
 
- Function for creating settings for a Cartesian position observable.
+ Function for creating settings for a relative Cartesian position observable.
 
- Function for creating observation model settings of Cartesian position type observables.
+ Function for creating observation model settings of relative Cartesian position type observables.
  Note that this observable is typically not realized in reality, but can be very useful for verification or analysis purposes.
- This observable provides the inertial (w.r.t. global frame origin) Cartesian position of the `observed_body` defined by the `link_ends` input.
+ This observable provides the inertial Cartesian position of the `observed_body`, w.r.t. the `observer` defined by the `link_ends` input.
  The observable has size 3, and contains the :math:`x`, :math:`y` and :math:`z` position
 
 
@@ -1466,7 +1470,7 @@ void expose_observation_setup( py::module& m )
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires that the
-     `observed_body`` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+     `observed_body` and `observer` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
 
  bias_settings : :class:`ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
@@ -1474,7 +1478,7 @@ void expose_observation_setup( py::module& m )
  Returns
  -------
  :class:`ObservationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the cartesian position observable.
+     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the relative Cartesian position observable.
 
 
 
@@ -1501,7 +1505,7 @@ void expose_observation_setup( py::module& m )
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires that the
-     `observed_body`` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+     `observed_body` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
 
  bias_settings : :class:`ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
@@ -2037,53 +2041,50 @@ void expose_observation_setup( py::module& m )
            py::arg( "perturbing_bodies" ),
            R"doc(
 
- Function for creating settings for first-order relativistic light-time corrections.
+Function for creating settings for first-order relativistic light-time corrections.
 
- Function for creating settings for first-order relativistic light-time corrections:  These corrections account for the delay in light travel time caused by stationary point masses, calculated up to
- :math:`c^{-2}` according to general relativity (e.g., Moyer, 2000). A key consideration in the model is the time at which the states of the perturbing bodies are evaluated. This depends on their involvement in the observation link ends:
+Function for creating settings for first-order relativistic light-time corrections:  These corrections account for the delay in light travel time caused by stationary point masses, calculated up to
+:math:`c^{-2}` according to general relativity (e.g., Moyer, 2000). A key consideration in the model is the time at which the states of the perturbing bodies are evaluated. This depends on their involvement in the observation link ends:
 
- * 1. **Perturbing Body as a Link End:**
- If the perturbing body (e.g., Earth) is directly involved in the observation (e.g., as the location of a transmitter or receiver):
+* 1. **Perturbing Body as a Link End:** If the perturbing body (e.g., Earth) is directly involved in the observation (e.g., as the location of a transmitter or receiver):
 
-     - The body's state is evaluated at the **transmission time** if it acts as the **transmitter**.
+    - The body's state is evaluated at the **transmission time** if it acts as the **transmitter**.
+    - The body's state is evaluated at the **reception time** if it acts as the **receiver**.
 
-     - The body's state is evaluated at the **reception time** if it acts as the **receiver**.
+* 2. **Perturbing Body Not as a Link End:** If the perturbing body is not part of the observation link ends, its state is evaluated at the **midpoint time** between the transmission and reception events.
 
- * 2. **Perturbing Body Not as a Link End:**
- If the perturbing body is not part of the observation link ends, its state is evaluated at the **midpoint time** between the transmission and reception events.
+Parameters
+----------
+perturbing_bodies : List[str]
+    A list containing the names of the bodies due to which the light-time correction is to be taken into account.
 
- Parameters
- ----------
- perturbing_bodies : List[str]
-     A list containing the names of the bodies due to which the light-time correction is to be taken into account.
+Returns
+-------
+:class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings`
+    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` configured to include
+    first-order relativistic light-time corrections.
 
- Returns
- -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` configured to include
-     first-order relativistic light-time corrections.
+Examples
+--------
+.. code-block:: python
 
- Examples
- --------
- .. code-block:: python
+    # Code Snippet to showcase the use of the first_order_relativistic_light_time_correction function
+    from tudatpy.numerical_simulation.estimation_setup import observation
 
-     # Code Snippet to showcase the use of the first_order_relativistic_light_time_correction function
-     from tudatpy.numerical_simulation.estimation_setup import observation
+    # Create Link Ends dictionary
+    link_ends = dict()
+    link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+    link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
 
-     # Create Link Ends dictionary
-     link_ends = dict()
-     link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
-     link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+    # Create a Link Definition Object from link_ends dictionary
+    Link_Definition_Object = observation.LinkDefinition(link_ends)
 
-     # Create a Link Definition Object from link_ends dictionary
-     Link_Definition_Object = observation.LinkDefinition(link_ends)
+    # The function first_order_relativistic_light_time_correction() requires a list of strings (perturbing body/bodies) as input
+    perturbing_body = ['Earth']
+    doppler_observation_settings = observation.first_order_relativistic_light_time_correction(perturbing_body)
 
-     # The function first_order_relativistic_light_time_correction() requires a list of strings (perturbing body/bodies) as input
-     perturbing_body = ['Earth']
-     doppler_observation_settings = observation.first_order_relativistic_light_time_correction(perturbing_body)
-
-     # Show that it returns a LightTimeCorrectionSettings object.
-     print(doppler_observation_settings)
+    # Show that it returns a LightTimeCorrectionSettings object.
+    print(doppler_observation_settings)
 
      )doc" );
 
@@ -2159,6 +2160,7 @@ void expose_observation_setup( py::module& m )
          Examples
          --------
          .. code-block:: python
+        
              # Code snippet to show the creation of an ObservationBiasSettings object
              # using absolute and relative bias settings
              from tudatpy.numerical_simulation.estimation_setup import observation
@@ -2691,7 +2693,7 @@ void expose_observation_setup( py::module& m )
 
  Parameters
  ----------
- bias_list : List[:class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings]
+ bias_list : List[:class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings`]
      A list containing the bias settings that are to be applied to the observable.
 
  Returns
@@ -2741,21 +2743,21 @@ void expose_observation_setup( py::module& m )
 
     py::enum_< tom::ObservationViabilityType >( m, "ObservationViabilityType", R"doc(
 
-         Enumeration of observation viability criterion types.
+Enumeration of observation viability criterion types.
 
- Examples
- --------
- .. code-block:: python
+Examples
+--------
+.. code-block:: python
 
-     # Code snippet to print all available Observation Viability Types
-     from tudatpy.numerical_simulation import estimation_setup
+    # Code snippet to print all available Observation Viability Types
+    from tudatpy.numerical_simulation import estimation_setup
 
-     num_observation_viability_types = len(estimation_setup.observation.ObservationViabilityType.__members__)
-     print(f'The length of all available Tudatpy Observation Viability Types is: {num_observation_viability_types}')
+    num_observation_viability_types = len(estimation_setup.observation.ObservationViabilityType.__members__)
+    print(f'The length of all available Tudatpy Observation Viability Types is: {num_observation_viability_types}')
 
-     # Print all available Observation Viability Types using the "name" property
-     for i in range(num_observation_viability_types):
-         print(i, estimation_setup.observation.ObservationViabilityType(i).name)
+    # Print all available Observation Viability Types using the "name" property
+    for i in range(num_observation_viability_types):
+        print(i, estimation_setup.observation.ObservationViabilityType(i).name)
 
 
 
@@ -2772,21 +2774,22 @@ void expose_observation_setup( py::module& m )
             "ObservationAncilliarySimulationVariable",
             R"doc(
 
-         Enumeration of observation ancillary variable types.
+Enumeration of observation ancillary variable types.
 
- Examples
- --------
- .. code-block:: python
+Examples
+--------
 
-     # Code snippet to print all available Observation Ancillary Variable Types
-     from tudatpy.numerical_simulation import estimation_setup
+.. code-block:: python
 
-     num_observation_ancillary_variable_types = len(estimation_setup.observation.ObservationAncilliarySimulationVariable.__members__)
-     print(f'The length of all available Tudatpy  Observation Ancillary Variable Types is: {num_observation_ancillary_variable_types}')
+    # Code snippet to print all available Observation Ancillary Variable Types
+    from tudatpy.numerical_simulation import estimation_setup
 
-     # Print all Observation Ancillary Variable Types using the "name" property
-     for i in range(num_observation_ancillary_variable_types):
-         print(i, estimation_setup.observation.ObservationAncilliarySimulationVariable(i).name)
+    num_observation_ancillary_variable_types = len(estimation_setup.observation.ObservationAncilliarySimulationVariable.__members__)
+    print(f'The length of all available Tudatpy  Observation Ancillary Variable Types is: {num_observation_ancillary_variable_types}')
+
+    # Print all Observation Ancillary Variable Types using the "name" property
+    for i in range(num_observation_ancillary_variable_types):
+        print(i, estimation_setup.observation.ObservationAncilliarySimulationVariable(i).name)
 
 
 

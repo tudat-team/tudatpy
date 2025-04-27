@@ -423,7 +423,7 @@ void expose_ephemeris_setup( py::module& m )
 
  Function for settings object, defining ephemeris model which represents an ideal Kepler orbit from the given Kepler elements.
  These are taken as the elements at the ``initial_state_epoch`` and propagated to any other time using the provided ``central_body_gravitational_parameter``.
- See `Element Types <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#element-types>`_ and the :ref:`\`\`astro\`\`` module for more details on orbital elements in tudat.
+ See `Element Types <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#element-types>`_ and the :ref:`astro` module for more details on orbital elements in tudat.
 
 
  Parameters
@@ -499,7 +499,7 @@ void expose_ephemeris_setup( py::module& m )
 
  Function for settings object, defining ephemeris model which represents an ideal Kepler orbit from an initial state from Spice.
  The Kepler elements inferred from the initial state are propagated to any other time using the provided ``central_body_gravitational_parameter``.
- See `Element Types <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#element-types>`_ and the :ref:`\`\`astro\`\`` module for more details on orbital elements in tudat.
+ See `Element Types <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#element-types>`_ and the :ref:`astro` module for more details on orbital elements in tudat.
 
 
  Parameters

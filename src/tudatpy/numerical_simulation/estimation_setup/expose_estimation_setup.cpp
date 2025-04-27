@@ -97,7 +97,7 @@ void expose_estimation_setup( py::module& m )
      initial_state = np.zeros(6)  # Use a real initial state if needed
 
      # Integrator settings
-     integrator_settings = propagation_setup.integrator.runge_kutta_fixed_step_size(60.0,
+     integrator_settings = propagation_setup.integrator.runge_kutta_fixed_step(60.0,
                                                                                     coefficient_set=propagation_setup.integrator.CoefficientSets.rkdp_87)
 
      # Create propagator
@@ -138,7 +138,7 @@ void expose_estimation_setup( py::module& m )
  Parameters
  ----------
  parameter_settings : list( :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` )
-     List of objects that define the settings for the parameters that are to be created. Each entry in this list is typically created by a call to a function in the :ref:`\`\`parameter\`\`` module
+     List of objects that define the settings for the parameters that are to be created. Each entry in this list is typically created by a call to a function in the :ref:`parameter` module
 
  bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
      Object consolidating all bodies and environment models, including ground station models, that constitute the physical environment.
