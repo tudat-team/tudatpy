@@ -78,9 +78,10 @@ public:
     /*!
      * Constructor
      * \param perturbingBodies List of bodies for which the point masses are used to compute the light-time correction.
+     * \param bending Boolean flag to determine if light bending should be included, default is true.
      */
-    FirstOrderRelativisticLightTimeCorrectionSettings( const std::vector< std::string >& perturbingBodies ):
-        LightTimeCorrectionSettings( first_order_relativistic ), perturbingBodies_( perturbingBodies )
+    FirstOrderRelativisticLightTimeCorrectionSettings( const std::vector< std::string >& perturbingBodies, const bool bending = true ):
+        LightTimeCorrectionSettings( first_order_relativistic ), perturbingBodies_( perturbingBodies ), bending_( bending )
     { }
 
     //! Destructor
@@ -96,9 +97,22 @@ public:
         return perturbingBodies_;
     }
 
+    //! Function returning the bending flag that determines if light bending should be included.
+    /*!
+     *  Function returning the bending flag that determines if light bending should be included.
+     *  \return Boolean flag for light bending inclusion.
+     */
+    bool getBendingFlag( )
+    {
+        return bending_;
+    }
+
 private:
     //! List of bodies for which the point masses are used to compute the light-time correction.
     std::vector< std::string > perturbingBodies_;
+
+    //! Boolean flag to determine if light bending should be included.
+    bool bending_;
 };
 
 // Class defining  settings for tabulated tropospheric corrections

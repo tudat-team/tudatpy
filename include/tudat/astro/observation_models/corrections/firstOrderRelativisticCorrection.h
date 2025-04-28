@@ -53,6 +53,7 @@ public:
      *  \param receivingBody Name of receiving body
      *  \param ppnParameterGammaFunction Function returning the parametric post-Newtonian parameter gamma, a measure
      *  for the space-time curvature due to a unit rest mass (default 1.0; value from GR)
+     *  \param bending Boolean flag to determine if light bending should be included.
      */
     FirstOrderLightTimeCorrectionCalculator(
             const std::vector< std::function< Eigen::Vector6d( const double ) > >& perturbingBodyStateFunctions,
@@ -60,10 +61,11 @@ public:
             const std::vector< std::string > perturbingBodyNames,
             const std::string transmittingBody,
             const std::string receivingBody,
-            const std::function< double( ) >& ppnParameterGammaFunction = []( ) { return 1.0; } ):
+            const std::function< double( ) >& ppnParameterGammaFunction = []( ) { return 1.0; },
+            const bool bending = true ):
         LightTimeCorrection( first_order_relativistic ), perturbingBodyStateFunctions_( perturbingBodyStateFunctions ),
         perturbingBodyGravitationalParameterFunctions_( perturbingBodyGravitationalParameterFunctions ),
-        perturbingBodyNames_( perturbingBodyNames ), ppnParameterGammaFunction_( ppnParameterGammaFunction )
+        perturbingBodyNames_( perturbingBodyNames ), ppnParameterGammaFunction_( ppnParameterGammaFunction ), bending_( bending )
     {
         currentTotalLightTimeCorrection_ = 0.0;
         currentLighTimeCorrectionComponents_.resize( perturbingBodyNames_.size( ) );
@@ -202,6 +204,16 @@ public:
         return ppnParameterGammaFunction_;
     }
 
+    //! Function to get the bending flag
+    /*!
+     * Function to get the bending flag
+     * \return Bending flag
+     */
+    bool getBendingFlag( )
+    {
+        return bending_;
+    }
+
 private:
     //! Set of function returning the state of the gravitating bodies as a function of time.
     std::vector< std::function< Eigen::Vector6d( const double ) > > perturbingBodyStateFunctions_;
@@ -228,6 +240,9 @@ private:
 
     //! Total light-time correction, as computed by last call to calculateLightTimeCorrection.
     double currentTotalLightTimeCorrection_;
+
+    //! Boolean flag to determine if light bending should be included.
+    bool bending_;
 };
 
 }  // namespace observation_models
