@@ -54,7 +54,8 @@ double FirstOrderLightTimeCorrectionCalculator::calculateLightTimeCorrectionWith
                 transmitterState.segment( 0, 3 ),
                 receiverState.segment( 0, 3 ),
                 perturbingBodyStateFunctions_.at( i )( evaluationTime ).segment( 0, 3 ),
-                ppnParameterGamma );
+                ppnParameterGamma,
+                bending_ );
         currentTotalLightTimeCorrection_ += currentLighTimeCorrectionComponents_.at( i );
     }
 
@@ -92,7 +93,8 @@ Eigen::Matrix< double, 3, 1 > FirstOrderLightTimeCorrectionCalculator::calculate
                 receiverState.segment( 0, 3 ),
                 perturbingBodyStateFunctions_.at( i )( evaluationTime ).segment( 0, 3 ),
                 ( linkEndAtWhichPartialIsEvaluated == receiver ),
-                ppnParameterGamma );
+                ppnParameterGamma,
+                bending_ );
     }
 
     return currentTotalLightTimeCorrectionPartial_;
