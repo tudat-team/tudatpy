@@ -358,9 +358,10 @@ private:
 };
 
 inline std::shared_ptr< LightTimeCorrectionSettings > firstOrderRelativisticLightTimeCorrectionSettings(
-        const std::vector< std::string >& perturbingBodies )
+        const std::vector< std::string >& perturbingBodies,
+        const bool bending = true )
 {
-    return std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies );
+    return std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies, bending );
 }
 
 inline std::shared_ptr< LightTimeCorrectionSettings > tabulatedTroposphericCorrectionSettings(
