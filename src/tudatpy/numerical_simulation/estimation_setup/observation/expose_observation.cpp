@@ -1942,12 +1942,13 @@ Examples
     m.def( "first_order_relativistic_light_time_correction",
            &tom::firstOrderRelativisticLightTimeCorrectionSettings,
            py::arg( "perturbing_bodies" ),
+           py::arg( "bending" ) = true,
            R"doc(
 
 Function for creating settings for first-order relativistic light-time corrections.
 
 Function for creating settings for first-order relativistic light-time corrections:  These corrections account for the delay in light travel time caused by stationary point masses, calculated up to
-:math:`c^{-2}` according to general relativity (e.g., Moyer, 2000). A key consideration in the model is the time at which the states of the perturbing bodies are evaluated. This depends on their involvement in the observation link ends:
+:math:`c^{-2}` according to general relativity (e.g., Moyer, 2000 Eq 8.55). A key consideration in the model is the time at which the states of the perturbing bodies are evaluated. This depends on their involvement in the observation link ends:
 
 * 1. **Perturbing Body as a Link End:** If the perturbing body (e.g., Earth) is directly involved in the observation (e.g., as the location of a transmitter or receiver):
 
@@ -1960,6 +1961,9 @@ Parameters
 ----------
 perturbing_bodies : List[str]
     A list containing the names of the bodies due to which the light-time correction is to be taken into account.
+bending : bool, default = True
+    Option to include the bending of light due to the perturbing body. Default is True, which includes the bending of light.
+    If False, the bending of light is not included in the correction. 
 
 Returns
 -------
@@ -1983,8 +1987,9 @@ Examples
     Link_Definition_Object = observation.LinkDefinition(link_ends)
 
     # The function first_order_relativistic_light_time_correction() requires a list of strings (perturbing body/bodies) as input
+    # and a boolean value for bending (default is True).
     perturbing_body = ['Earth']
-    doppler_observation_settings = observation.first_order_relativistic_light_time_correction(perturbing_body)
+    doppler_observation_settings = observation.first_order_relativistic_light_time_correction(perturbing_body, bending=False)
 
     # Show that it returns a LightTimeCorrectionSettings object.
     print(doppler_observation_settings)
