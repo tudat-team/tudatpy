@@ -1,3 +1,5 @@
+.. _trajectory_design:
+
 ``trajectory_design``
 =====================
 Functionalities for trajectory design.

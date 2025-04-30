@@ -1,3 +1,5 @@
+.. _rigid_body:
+
 ``rigid_body``
 ==============
 This module contains a set of factory functions for setting up the
