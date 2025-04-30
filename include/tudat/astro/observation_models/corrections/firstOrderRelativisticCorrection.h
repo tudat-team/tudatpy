@@ -62,7 +62,7 @@ public:
             const std::string transmittingBody,
             const std::string receivingBody,
             const std::function< double( ) >& ppnParameterGammaFunction = []( ) { return 1.0; },
-            const bool bending = true ):
+            const bool bending = false ):
         LightTimeCorrection( first_order_relativistic ), perturbingBodyStateFunctions_( perturbingBodyStateFunctions ),
         perturbingBodyGravitationalParameterFunctions_( perturbingBodyGravitationalParameterFunctions ),
         perturbingBodyNames_( perturbingBodyNames ), ppnParameterGammaFunction_( ppnParameterGammaFunction ), bending_( bending )
