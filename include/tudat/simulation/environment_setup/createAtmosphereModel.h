@@ -508,7 +508,7 @@
       *  https://celestrak.com/SpaceData/sw19571001.txt
       */
      NRLMSISE00AtmosphereSettings( const std::string& spaceWeatherFile,
-                                   const bool useStormConditions = true,
+                                   const bool useStormConditions = false,
                                    const bool useAnomalousOxygen = true ):
              AtmosphereSettings( nrlmsise00 ), spaceWeatherFile_( spaceWeatherFile ), useStormConditions_( useStormConditions )
      { }
