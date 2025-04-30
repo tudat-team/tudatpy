@@ -43,7 +43,7 @@ class BuildParser(argparse.ArgumentParser):
             help="Skip the generation of stubs [Default: False]",
         )
         basic_group.add_argument(
-            "--stub-only",
+            "--stubs-only",
             dest="skip_build",
             action="store_true",
             help="Do not build the libraries [Default: False]",
