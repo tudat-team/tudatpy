@@ -1,3 +1,5 @@
+.. _environment_setup:
+
 ``environment_setup``
 =====================
 Definition of environment settings.

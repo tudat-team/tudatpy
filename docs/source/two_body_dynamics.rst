@@ -1,3 +1,5 @@
+.. _two_body_dynamics:
+
 ``two_body_dynamics``
 =====================
 Functions for (semi-)analytical calculations in a simple two-body point-mass system.

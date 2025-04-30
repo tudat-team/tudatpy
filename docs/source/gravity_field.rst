@@ -1,3 +1,5 @@
+.. _gravity_field:
+
 ``gravity_field``
 =================
 This module contains a set of factory functions for setting up the
