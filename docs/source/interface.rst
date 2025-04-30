@@ -1,3 +1,5 @@
+.. _interface:
+
 ``interface``
 =============
 Provides interfaces with external API.
