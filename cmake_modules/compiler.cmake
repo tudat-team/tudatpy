@@ -101,6 +101,7 @@
          # standard apple clang compiler flags
          set(CMAKE_CXX_FLAGS
                  "${CMAKE_CXX_FLAGS}"
+                 " --fdenormal-fp-math=zero,zero"
                  " -std=c++1z"
                  " -stdlib=libc++"
                  " -Wall "
