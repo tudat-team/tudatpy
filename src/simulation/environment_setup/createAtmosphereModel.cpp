@@ -177,7 +177,7 @@
              {
                  // Use default space weather file stored in tudatBundle and geomagnetic storm conditions when no settings provided
                  spaceWeatherFilePath = paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt";
-                 useStormConditions = true;  // Default geomagnetic activity when no settings provided
+                 useStormConditions = false;  // Default geomagnetic activity when no settings provided
                  useAnomalousOxygen = true;  // Default geomagnetic activity when no settings provided
              }
              else
