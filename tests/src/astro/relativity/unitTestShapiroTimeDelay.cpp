@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( testShapiroDelay )
     double classInterfaceCalculationNoBending =
             correctionCalculatorNoBending.calculateLightTimeCorrection( groundStationState, satelliteState, 0.0, 0.0 );
 
-    // Living reviews in relativity, GPS - expected result for no bending case
+    // Living reviews in relativity, GPS
     double expectedResult = 6.3E-3;
 
     BOOST_CHECK_CLOSE_FRACTION( 0.5 * classInterfaceCalculationNoBending * physical_constants::SPEED_OF_LIGHT, expectedResult, 6.0E-2 );
@@ -105,8 +105,16 @@ BOOST_AUTO_TEST_CASE( testShapiroDelay )
     // Check that direct and class interface calculations are consistent with each other for both modes
     BOOST_CHECK_CLOSE_FRACTION( directCalculationNoBending, classInterfaceCalculationNoBending, 1.0E-14 );
     BOOST_CHECK_CLOSE_FRACTION( directCalculationWithBending, classInterfaceCalculationWithBending, 1.0E-14 );
-}
 
+    // Chenckk bending value
+    double bendingEffectMeter =
+            ( classInterfaceCalculationWithBending - classInterfaceCalculationNoBending ) * physical_constants::SPEED_OF_LIGHT;
+
+    // Expected value based on previous runs
+    double expectedBendingEffectMeter = -4.69e-09;
+    // Verify the value is as expected (using a small tolerance)
+    BOOST_CHECK_CLOSE_FRACTION( bendingEffectMeter, expectedBendingEffectMeter, 1.0E-3 );
+}
 BOOST_AUTO_TEST_CASE( testShapiroDelayGradient )
 {
     Eigen::Vector6d groundStationState;
