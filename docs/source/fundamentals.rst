@@ -1,7 +1,7 @@
 .. _fundamentals:
 
 ``fundamentals``
-===============
+================
 Functions for fundamental astrodynamic calculations
 
 

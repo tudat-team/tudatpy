@@ -45,7 +45,7 @@ void expose_integrator_setup( py::module &m )
     py::enum_< tni::MinimumIntegrationTimeStepHandling >(
             m, "MinimumIntegrationTimeStepHandling", R"doc(
 
-         Enumeration defining possible behaviours when :math:`\Delta t_{rec}<\Delta t_{\min}`. in step-size control (e.g. recommended time step is smaller than minimum time step)
+Enumeration defining possible behaviours when :math:`\Delta t_{rec}<\Delta t_{\min}`. in step-size control (e.g. recommended time step is smaller than minimum time step)
 
 
 
@@ -55,23 +55,31 @@ void expose_integrator_setup( py::module &m )
             .value( "throw_exception_below_minimum",
                     tni::MinimumIntegrationTimeStepHandling::throw_exception_below_minimum,
                     R"doc(
- Exception is throw, and propagation is terminated
-      )doc" )
+
+Exception is throw, and propagation is terminated
+
+)doc" )
             .value( "set_to_minimum_step_silently",
                     tni::MinimumIntegrationTimeStepHandling::set_to_minimum_step_silently,
                     R"doc(
- The final time step is set to :math:`\Delta t=\Delta t_{\min}`, violating requirements of step-size control algorithm, without any message to user"
-      )doc" )
-            .value( "set_to_minimum_step_single_warning",
+
+The final time step is set to :math:`\Delta t=\Delta t_{\min}`, violating requirements of step-size control algorithm, without any message to user"
+
+)doc" )
+      .value( "set_to_minimum_step_single_warning",
                     tni::MinimumIntegrationTimeStepHandling::set_to_minimum_step_single_warning,
                     R"doc(
- The final time step is set to :math:`\Delta t=\Delta t_{\min}`, violating requirements of step-size control algorithm, a warning is printed to the terminal the first time this happens during a propagation"
-      )doc" )
+
+The final time step is set to :math:`\Delta t=\Delta t_{\min}`, violating requirements of step-size control algorithm, a warning is printed to the terminal the first time this happens during a propagation"
+
+)doc" )
             .value( "set_to_minimum_step_every_time_warning",
                     tni::MinimumIntegrationTimeStepHandling::set_to_minimum_step_every_time_warning,
                     R"doc(
- The final time step is set to :math:`\Delta t=\Delta t_{\min}`, violating requirements of step-size control algorithm, a warning is printed to the terminal every time this happens during a propagation"
-      )doc" )
+
+The final time step is set to :math:`\Delta t=\Delta t_{\min}`, violating requirements of step-size control algorithm, a warning is printed to the terminal every time this happens during a propagation"
+
+)doc" )
             .export_values( );
 
     py::enum_< tni::AvailableIntegrators >( m, "AvailableIntegrators", R"doc(
@@ -100,126 +108,168 @@ void expose_integrator_setup( py::module &m )
                                        "CoefficientSets",
                                        R"doc(
 
-         Coefficient sets for Runge-Kutta-type integrators.
+Coefficient sets for Runge-Kutta-type integrators.
 
-         Coefficient sets for Runge-Kutta-type integrators. The coefficients are defined
-         in a Butcher Tableau, with an coefficient set yielding an x(y) method yielding an integrator
-         with global truncation error of :math:`O(\Delta t^{x})`. Some of these coefficients also contain an embedded integrator of :math:`O(\Delta t^{y})`
-         for step size control.
+Coefficient sets for Runge-Kutta-type integrators. The coefficients are defined
+in a Butcher Tableau, with an coefficient set yielding an x(y) method yielding an integrator
+with global truncation error of :math:`O(\Delta t^{x})`. Some of these coefficients also contain an embedded integrator of :math:`O(\Delta t^{y})`
+for step size control.
 
       )doc" )
             .value( "euler_forward",
                     tni::forwardEuler,
                     R"doc(
- Coefficients for the classic forward Euler method
-      )doc" )
+
+Coefficients for the classic forward Euler method
+
+)doc" )
             .value( "rk_4",
                     tni::rungeKutta4Classic,
                     R"doc(
- Coefficients for the original Runge-Kutta method of order 4
-      )doc" )
+
+Coefficients for the original Runge-Kutta method of order 4
+
+)doc" )
             .value( "explicit_mid_point",
                     tni::explicitMidPoint,
                     R"doc(
- Coefficients for the explicit midpoint method
-      )doc" )
+
+Coefficients for the explicit midpoint method
+
+)doc" )
             .value( "explicit_trapezoid_rule",
                     tni::explicitTrapezoidRule,
                     R"doc(
- Coefficients for the explicit trapezoid rule, also called Heun's method or improved Euler's method
-      )doc" )
+
+Coefficients for the explicit trapezoid rule, also called Heun's method or improved Euler's method
+
+)doc" )
             .value( "ralston",
                     tni::ralston,
                     R"doc(
- Coefficients for Ralston's method
-      )doc" )
+
+Coefficients for Ralston's method
+
+)doc" )
             .value( "rk_3",
                     tni::rungeKutta3,
                     R"doc(
- Coefficients for the Runge-Kutta method of order 3
-      )doc" )
+
+Coefficients for the Runge-Kutta method of order 3
+
+)doc" )
             .value( "ralston_3",
                     tni::ralston3,
                     R"doc(
- Coefficients for Ralston's third-order method
-      )doc" )
+
+Coefficients for Ralston's third-order method
+
+)doc" )
             .value( "SSPRK3",
                     tni::SSPRK3,
                     R"doc(
- Coefficients for the Strong Stability Preserving Runge-Kutta third-order method
-      )doc" )
+
+Coefficients for the Strong Stability Preserving Runge-Kutta third-order method
+
+)doc" )
             .value( "ralston_4",
                     tni::ralston4,
                     R"doc(
- Coefficients for Ralston's fourth-order method
-      )doc" )
+
+Coefficients for Ralston's fourth-order method
+
+)doc" )
             .value( "three_eight_rule_rk_4",
                     tni::threeEighthRuleRK4,
                     R"doc(
- Coefficients for the classic Runge Kutta 3/8-rule fourth-order method
-      )doc" )
+
+Coefficients for the classic Runge Kutta 3/8-rule fourth-order method
+
+)doc" )
             .value( "heun_euler",
                     tni::heunEuler,
                     R"doc(
- Coefficients for the Heun's method of order 2 with an embedded Euler method of order 1
-      )doc" )
+
+Coefficients for the Heun's method of order 2 with an embedded Euler method of order 1
+
+)doc" )
             .value( "rkf_12",
                     tni::rungeKuttaFehlberg12,
                     R"doc(
- Coefficients for the Runge-Kutta-Fehlberg method of order 2 with an embedded 1st order
-      )doc" )
+
+Coefficients for the Runge-Kutta-Fehlberg method of order 2 with an embedded 1st order
+
+)doc" )
             .value( "rkf_45",
                     tni::rungeKuttaFehlberg45,
                     R"doc(
- Coefficients for the Runge-Kutta-Fehlberg method of order 5 with an embedded 4th order
-      )doc" )
+
+Coefficients for the Runge-Kutta-Fehlberg method of order 5 with an embedded 4th order
+
+)doc" )
             .value( "rkf_56",
                     tni::rungeKuttaFehlberg56,
                     R"doc(
- Coefficients for the Runge-Kutta-Fehlberg method of order 6 with an embedded 5th order
-      )doc" )
+
+Coefficients for the Runge-Kutta-Fehlberg method of order 6 with an embedded 5th order
+
+)doc" )
             .value( "rkf_78",
                     tni::rungeKuttaFehlberg78,
                     R"doc(
- Coefficients for the Runge-Kutta-Fehlberg method of order 8 with an embedded 7th order
-      )doc" )
+
+Coefficients for the Runge-Kutta-Fehlberg method of order 8 with an embedded 7th order
+
+)doc" )
             .value( "rkdp_87",
                     tni::rungeKutta87DormandPrince,
                     R"doc(
- Coefficients for the Dormand-Prince method of order 7 with an embedded 8th order
-      )doc" )
+
+Coefficients for the Dormand-Prince method of order 7 with an embedded 8th order
+
+)doc" )
             .value( "rkf_89",
                     tni::rungeKuttaFehlberg89,
                     R"doc(
- Coefficients for the Runge-Kutta-Fehlberg method of order 9 with an embedded 8th order
-      )doc" )
+
+Coefficients for the Runge-Kutta-Fehlberg method of order 9 with an embedded 8th order
+
+)doc" )
             .value( "rkv_89",
                     tni::rungeKuttaVerner89,
                     R"doc(
- Coefficients for the Runge-Kutta-Verner method of order 9 with an embedded 8th order
-      )doc" )
+
+Coefficients for the Runge-Kutta-Verner method of order 9 with an embedded 8th order
+
+)doc" )
             .value( "rkf_108",
                     tni::rungeKuttaFeagin108,
                     R"doc(
- Coefficients for the Runge-Kutta-Feagin method of order 8 with an embedded 10th order
-      )doc" )
+
+Coefficients for the Runge-Kutta-Feagin method of order 8 with an embedded 10th order
+
+)doc" )
             .value( "rkf_1210",
                     tni::rungeKuttaFeagin1210,
                     R"doc(
- Coefficients for the Runge-Kutta-Feagin method of order 10 with an embedded 12ve order
-      )doc" )
+
+Coefficients for the Runge-Kutta-Feagin method of order 10 with an embedded 12ve order
+
+)doc" )
             .value( "rkf_1412",
                     tni::rungeKuttaFeagin1412,
                     R"doc(
- Coefficients for the Runge-Kutta-Feagin method of order 12 with an embedded 14th order
-      )doc" )
+
+Coefficients for the Runge-Kutta-Feagin method of order 12 with an embedded 14th order
+
+)doc" )
             .export_values( );
 
     py::enum_< tni::RungeKuttaCoefficients::OrderEstimateToIntegrate >( m,
                                                                         "OrderToIntegrate",
                                                                         R"doc(
 
-         Enumeration defining Which integrator order needs to be integrated, only used for coefficient sets with an embedded order.
+Enumeration defining Which integrator order needs to be integrated, only used for coefficient sets with an embedded order.
 
 
 
@@ -229,20 +279,24 @@ void expose_integrator_setup( py::module &m )
             .value( "lower",
                     tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
                     R"doc(
- For a method of order :math:`p`, with embedded method of order :math:`q`, the step is taken using the method with order :math:`\min(p,q)`
-      )doc" )
+
+For a method of order :math:`p`, with embedded method of order :math:`q`, the step is taken using the method with order :math:`\min(p,q)`
+
+)doc" )
             .value( "higher",
                     tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::higher,
                     R"doc(
- For a method of order :math:`p`, with embedded method of order :math:`q`, the step is taken using the method with order :math:`\max(p,q)`
-      )doc" )
+
+For a method of order :math:`p`, with embedded method of order :math:`q`, the step is taken using the method with order :math:`\max(p,q)`
+
+)doc" )
             .export_values( );
 
     py::enum_< tni::ExtrapolationMethodStepSequences >( m,
                                                         "ExtrapolationMethodStepSequences",
                                                         R"doc(
 
-         Enumeration of available extrapolation method substep sequences, with :math:`n_{j}` defining the number of substeps in iteration :math:`j`.
+Enumeration of available extrapolation method substep sequences, with :math:`n_{j}` defining the number of substeps in iteration :math:`j`.
 
 
 
@@ -252,13 +306,17 @@ void expose_integrator_setup( py::module &m )
             .value( "bulirsch_stoer_sequence",
                     tni::ExtrapolationMethodStepSequences::bulirsch_stoer_sequence,
                     R"doc(
- Sequence for which :math:`n_{j}=2n_{j-2}` (2, 4, 6, 8, 12, 16, 24, ....)
-      )doc" )
+
+Sequence for which :math:`n_{j}=2n_{j-2}` (2, 4, 6, 8, 12, 16, 24, ....)
+
+)doc" )
             .value( "deufelhard_sequence",
                     tni::ExtrapolationMethodStepSequences::deufelhard_sequence,
                     R"doc(
- Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
-      )doc" )
+
+Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
+
+)doc" )
             .export_values( );
 
     // CLASSES
@@ -1227,44 +1285,43 @@ void expose_integrator_setup( py::module &m )
            py::arg( "bandwidth" ) = 200.0,
            R"doc(
 
- Creates the settings for the Adams-Bashforth-Moulton integrator.
+Creates the settings for the Adams-Bashforth-Moulton integrator.
 
- Function to create settings for the Adams-Bashforth-Moulton multistep integrator.
- For this integrator, the step size and order are both according to a control algorithm
- similar to :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.step_size_control_elementwise_scalar_tolerance`.
- The integrator is initialized using an RKF7(8) integrator.
+Function to create settings for the Adams-Bashforth-Moulton multistep integrator.
+For this integrator, the step size and order are both according to a control algorithm
+similar to :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.step_size_control_elementwise_scalar_tolerance`.
+The integrator is initialized using an RKF7(8) integrator.
 
- NOTE: this integrator's step-size and order control algorithm work in a method that is overly simplistic,
- when increasing/decreasing the order, existing function evaluations are re-used, without any recomputations.
- Similarly, when halving or doubling the time-step, the existing interpolating polynomial is evaluated at the relevant points.
- This can lead to unwanted behaviour, where the time-step reduces to unrealistically low values. It is strongly
- recommended that a reasonable minimum step is provided to this function, to partially mitigate this behaviour.
+NOTE: this integrator's step-size and order control algorithm work in a method that is overly simplistic,
+when increasing/decreasing the order, existing function evaluations are re-used, without any recomputations.
+Similarly, when halving or doubling the time-step, the existing interpolating polynomial is evaluated at the relevant points.
+This can lead to unwanted behaviour, where the time-step reduces to unrealistically low values. It is strongly
+recommended that a reasonable minimum step is provided to this function, to partially mitigate this behaviour.
 
-
- Parameters
- ----------
- initial_time_step : float
-     Initial time step to be used.
- minimum_step_size : float
-     Minimum time step to be used during the integration.
- maximum_step_size : float
-     Maximum time step to be used during the integration.
- relative_error_tolerance : float, default=1.0E-12
-     Relative tolerance to adjust the time step.
- absolute_error_tolerance : float, default=1.0E-12
-     Relative tolerance to adjust the time step.
- minimum_order
-     Minimum order of the integrator.
- maximum_order
-     Maximum order of the integrator.
- assess_termination_on_minor_steps : bool, default=false
-     Whether the propagation termination conditions should be evaluated during the intermediate sub-steps of the integrator (true) or only at the end of each integration step (false).
- bandwidth : float, default=200.0
-     Maximum error factor for doubling the step size.
- Returns
- -------
- IntegratorSettings
-     Object containing settings for the integrator.
+Parameters
+----------
+initial_time_step : float
+    Initial time step to be used.
+minimum_step_size : float
+    Minimum time step to be used during the integration.
+maximum_step_size : float
+    Maximum time step to be used during the integration.
+relative_error_tolerance : float, default=1.0E-12
+    Relative tolerance to adjust the time step.
+absolute_error_tolerance : float, default=1.0E-12
+    Relative tolerance to adjust the time step.
+minimum_order
+    Minimum order of the integrator.
+maximum_order
+    Maximum order of the integrator.
+assess_termination_on_minor_steps : bool, default=false
+    Whether the propagation termination conditions should be evaluated during the intermediate sub-steps of the integrator (true) or only at the end of each integration step (false).
+bandwidth : float, default=200.0
+    Maximum error factor for doubling the step size.
+Returns
+-------
+IntegratorSettings
+    Object containing settings for the integrator.
 
 
 
@@ -1285,34 +1342,33 @@ void expose_integrator_setup( py::module &m )
            py::arg( "bandwidth" ) = 200.0,
            R"doc(
 
- Creates the settings for the Adams-Bashforth-Moulton integrator of fixed order.
+Creates the settings for the Adams-Bashforth-Moulton integrator of fixed order.
 
- Same as :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.adams_bashforth_moulton`, but
- with fixed order and variable step
+Same as :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.adams_bashforth_moulton`, but
+with fixed order and variable step
 
-
- Parameters
- ----------
- initial_time_step : float
-     Initial time step to be used.
- minimum_step_size : float
-     Minimum time step to be used during the integration.
- maximum_step_size : float
-     Maximum time step to be used during the integration.
- relative_error_tolerance : float, default=1.0E-12
-     Relative tolerance to adjust the time step.
- absolute_error_tolerance : float, default=1.0E-12
-     Relative tolerance to adjust the time step.
- order
-     Order of the integrator.
- assess_termination_on_minor_steps : bool, default=false
-     Whether the propagation termination conditions should be evaluated during the intermediate sub-steps of the integrator (true) or only at the end of each integration step (false).
- bandwidth : float, default=200.0
-     Maximum error factor for doubling the step size.
- Returns
- -------
- IntegratorSettings
-     Object containing settings for the integrator.
+Parameters
+----------
+initial_time_step : float
+    Initial time step to be used.
+minimum_step_size : float
+    Minimum time step to be used during the integration.
+maximum_step_size : float
+    Maximum time step to be used during the integration.
+relative_error_tolerance : float, default=1.0E-12
+    Relative tolerance to adjust the time step.
+absolute_error_tolerance : float, default=1.0E-12
+    Relative tolerance to adjust the time step.
+order
+    Order of the integrator.
+assess_termination_on_minor_steps : bool, default=false
+    Whether the propagation termination conditions should be evaluated during the intermediate sub-steps of the integrator (true) or only at the end of each integration step (false).
+bandwidth : float, default=200.0
+    Maximum error factor for doubling the step size.
+Returns
+-------
+IntegratorSettings
+    Object containing settings for the integrator.
 
 
 
