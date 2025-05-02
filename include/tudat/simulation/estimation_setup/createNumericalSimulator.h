@@ -50,6 +50,7 @@ std::shared_ptr< propagators::SingleArcDynamicsSimulator< StateScalarType, TimeT
             propagators::PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ) );
 }
 
+
 template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< propagators::DynamicsSimulator< StateScalarType, TimeType > > createDynamicsSimulator(
         const simulation_setup::SystemOfBodies& bodies,

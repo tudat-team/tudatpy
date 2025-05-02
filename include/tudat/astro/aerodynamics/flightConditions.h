@@ -21,6 +21,7 @@
 #include "tudat/astro/basic_astro/bodyShapeModel.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
 #include "tudat/basics/basicTypedefs.h"
+#include "tudat/interface/spice/spiceInterface.h"
 
 namespace tudat
 {
@@ -53,7 +54,8 @@ protected:
         airspeed_flight_condition = 8,
         geodetic_latitude_condition = 9,
         dynamic_pressure_condition = 10,
-        aerodynamic_heat_rate = 11
+        aerodynamic_heat_rate = 11,
+        utc_time_flight_condition = 12
     };
 
 public:
@@ -136,6 +138,16 @@ public:
         }
         return scalarFlightConditions_.at( geodetic_latitude_condition );
     }
+
+    double getCurrentUtc( )
+    {
+        if( isScalarFlightConditionComputed_.at( utc_time_flight_condition ) == 0 )
+        {
+            computeUtc( );
+        }
+        return scalarFlightConditions_.at( utc_time_flight_condition );
+    }
+
 
     //! Function to return the current time of the AtmosphericFlightConditions
     /*!
@@ -238,11 +250,26 @@ protected:
             }
             scalarFlightConditions_[ geodetic_latitude_condition ] = scalarFlightConditions_[ latitude_flight_condition ];
         }
+
         if( currentTime_ == currentTime_ )
         {
             isScalarFlightConditionComputed_[ geodetic_latitude_condition ] = true;
         }
     }
+
+    void computeUtc( )
+    {
+        if( currentTime_ == currentTime_ )
+        {
+            scalarFlightConditions_[ utc_time_flight_condition ] = spice_interface::getApproximateUtcFromTdb( currentTime_ );
+            isScalarFlightConditionComputed_[ utc_time_flight_condition ] = true;
+        }
+        else
+        {
+            scalarFlightConditions_[ utc_time_flight_condition ] = TUDAT_NAN;
+        }
+    }
+
 
     //! Model describing the shape of the body w.r.t. which the flight is taking place.
     const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
@@ -270,7 +297,7 @@ protected:
 
     std::vector< bool > isScalarFlightConditionComputed_;
 
-    const std::vector< bool > allScalarFlightConditionsUncomputed = std::vector< bool >( 12, false );
+    const std::vector< bool > allScalarFlightConditionsUncomputed = std::vector< bool >( 13, false );
 
     //! Function from which to compute the geodetic latitude as function of body-fixed position (empty if equal to
     //! geographic latitude).
@@ -437,8 +464,8 @@ public:
                     atmosphereModel_->getNumberDensity( species,
                                                         scalarFlightConditions_.at( altitude_flight_condition ),
                                                         scalarFlightConditions_.at( longitude_flight_condition ),
-                                                        scalarFlightConditions_.at( latitude_flight_condition ),
-                                                        currentTime_ );
+                                                        getAtmosphereLatitudeInput( ),
+                                                        getAtmosphereTimeInput( ) );
         }
         return currentNumberDensities_.at( species );
     }
@@ -564,6 +591,18 @@ private:
     //! Function to update input to atmosphere model (altitude, as well as latitude and longitude if needed).
     void updateAtmosphereInput( );
 
+    double getAtmosphereLatitudeInput( )
+    {
+        return atmosphereModel_->getUseGeodeticLatitude( ) ?
+        scalarFlightConditions_.at( geodetic_latitude_condition ) : scalarFlightConditions_.at( latitude_flight_condition );
+    }
+
+    double getAtmosphereTimeInput( )
+    {
+        return atmosphereModel_->getUseUtc( ) ?
+               scalarFlightConditions_.at( utc_time_flight_condition ) : currentTime_;
+    }
+
     //! Function to compute and set the current freestream density
     void computeDensity( )
     {
@@ -571,8 +610,8 @@ private:
         scalarFlightConditions_[ density_flight_condition ] =
                 atmosphereModel_->getDensity( scalarFlightConditions_.at( altitude_flight_condition ),
                                               scalarFlightConditions_.at( longitude_flight_condition ),
-                                              scalarFlightConditions_.at( latitude_flight_condition ),
-                                              currentTime_ );
+                                              getAtmosphereLatitudeInput( ),
+                                              getAtmosphereTimeInput( ) );
         if( currentTime_ == currentTime_ )
         {
             isScalarFlightConditionComputed_[ density_flight_condition ] = true;
@@ -586,8 +625,8 @@ private:
         scalarFlightConditions_[ temperature_flight_condition ] =
                 atmosphereModel_->getTemperature( scalarFlightConditions_.at( altitude_flight_condition ),
                                                   scalarFlightConditions_.at( longitude_flight_condition ),
-                                                  scalarFlightConditions_.at( latitude_flight_condition ),
-                                                  currentTime_ );
+                                                  getAtmosphereLatitudeInput( ),
+                                                  getAtmosphereTimeInput( ) );
         if( currentTime_ == currentTime_ )
         {
             isScalarFlightConditionComputed_[ temperature_flight_condition ] = true;
@@ -601,8 +640,8 @@ private:
         scalarFlightConditions_[ pressure_flight_condition ] =
                 atmosphereModel_->getPressure( scalarFlightConditions_.at( altitude_flight_condition ),
                                                scalarFlightConditions_.at( longitude_flight_condition ),
-                                               scalarFlightConditions_.at( latitude_flight_condition ),
-                                               currentTime_ );
+                                               getAtmosphereLatitudeInput( ),
+                                               getAtmosphereTimeInput( ) );
         if( currentTime_ == currentTime_ )
         {
             isScalarFlightConditionComputed_[ pressure_flight_condition ] = true;
@@ -616,8 +655,8 @@ private:
         scalarFlightConditions_[ speed_of_sound_flight_condition ] =
                 atmosphereModel_->getSpeedOfSound( scalarFlightConditions_.at( altitude_flight_condition ),
                                                    scalarFlightConditions_.at( longitude_flight_condition ),
-                                                   scalarFlightConditions_.at( latitude_flight_condition ),
-                                                   currentTime_ );
+                                                   getAtmosphereLatitudeInput( ),
+                                                   getAtmosphereTimeInput( ) );
         if( currentTime_ == currentTime_ )
         {
             isScalarFlightConditionComputed_[ speed_of_sound_flight_condition ] = true;
