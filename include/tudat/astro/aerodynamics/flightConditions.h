@@ -148,7 +148,6 @@ public:
         return scalarFlightConditions_.at( utc_time_flight_condition );
     }
 
-
     //! Function to return the current time of the AtmosphericFlightConditions
     /*!
      *  Function to return the current time of the AtmosphericFlightConditions.
@@ -269,7 +268,6 @@ protected:
             scalarFlightConditions_[ utc_time_flight_condition ] = TUDAT_NAN;
         }
     }
-
 
     //! Model describing the shape of the body w.r.t. which the flight is taking place.
     const std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel_;
@@ -593,14 +591,13 @@ private:
 
     double getAtmosphereLatitudeInput( )
     {
-        return atmosphereModel_->getUseGeodeticLatitude( ) ?
-        scalarFlightConditions_.at( geodetic_latitude_condition ) : scalarFlightConditions_.at( latitude_flight_condition );
+        return atmosphereModel_->getUseGeodeticLatitude( ) ? scalarFlightConditions_.at( geodetic_latitude_condition )
+                                                           : scalarFlightConditions_.at( latitude_flight_condition );
     }
 
     double getAtmosphereTimeInput( )
     {
-        return atmosphereModel_->getUseUtc( ) ?
-               scalarFlightConditions_.at( utc_time_flight_condition ) : currentTime_;
+        return atmosphereModel_->getUseUtc( ) ? scalarFlightConditions_.at( utc_time_flight_condition ) : currentTime_;
     }
 
     //! Function to compute and set the current freestream density

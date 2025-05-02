@@ -27,9 +27,9 @@ void NRLMSISE00Atmosphere::setInputStruct( const double altitude, const double l
     std::copy( inputData_.apVector.begin( ), inputData_.apVector.end( ), aph_.a );
     std::copy( inputData_.switches.begin( ), inputData_.switches.end( ), flags_.switches );
 
-    input_.g_lat = geodeticLatitude * 180.0 / mathematical_constants::PI;    // rad to deg
-    input_.g_long = longitude * 180.0 / mathematical_constants::PI;  // rad to deg
-    input_.alt = altitude * 1.0E-3;                                  // m to km
+    input_.g_lat = geodeticLatitude * 180.0 / mathematical_constants::PI;  // rad to deg
+    input_.g_long = longitude * 180.0 / mathematical_constants::PI;        // rad to deg
+    input_.alt = altitude * 1.0E-3;                                        // m to km
     input_.year = inputData_.year;
     input_.doy = inputData_.dayOfTheYear;
     input_.sec = inputData_.secondOfTheDay;
@@ -40,7 +40,10 @@ void NRLMSISE00Atmosphere::setInputStruct( const double altitude, const double l
     input_.ap_a = &aph_;
 }
 
-void NRLMSISE00Atmosphere::computeProperties( const double altitude, const double longitude, const double geodeticLatitude, const double time )
+void NRLMSISE00Atmosphere::computeProperties( const double altitude,
+                                              const double longitude,
+                                              const double geodeticLatitude,
+                                              const double time )
 {
     // Compute the hash key
     size_t hashKey = hashFunc( altitude, longitude, geodeticLatitude, time );
@@ -98,12 +101,11 @@ void NRLMSISE00Atmosphere::computeProperties( const double altitude, const doubl
     meanMolarMass_ += numberDensities_[ 7 ] * MOLAR_MASS_OXYGEN;
     meanMolarMass_ = meanMolarMass_ / sumOfNumberDensity;
 
-// Speed of sound
-    speedOfSound_ = aerodynamics::computeSpeedOfSound(
-        temperature_, specificHeatRatio_, physical_constants::MOLAR_GAS_CONSTANT / meanMolarMass_
-    );
+    // Speed of sound
+    speedOfSound_ =
+            aerodynamics::computeSpeedOfSound( temperature_, specificHeatRatio_, physical_constants::MOLAR_GAS_CONSTANT / meanMolarMass_ );
 
-// Collision diameter
+    // Collision diameter
     weightedAverageCollisionDiameter_ = numberDensities_[ 0 ] * DIAMETER_HELIUM;
     weightedAverageCollisionDiameter_ += numberDensities_[ 1 ] * DIAMETER_ATOMIC_OXYGEN;
     weightedAverageCollisionDiameter_ += numberDensities_[ 2 ] * DIAMETER_NITROGEN;
@@ -113,7 +115,7 @@ void NRLMSISE00Atmosphere::computeProperties( const double altitude, const doubl
     weightedAverageCollisionDiameter_ += numberDensities_[ 6 ] * DIAMETER_ATOMIC_NITROGEN;
     weightedAverageCollisionDiameter_ += numberDensities_[ 7 ] * DIAMETER_ATOMIC_OXYGEN;
     weightedAverageCollisionDiameter_ = weightedAverageCollisionDiameter_ / sumOfNumberDensity;
-    
+
     // Mean free path.
     meanFreePath_ = aerodynamics::computeMeanFreePath( weightedAverageCollisionDiameter_, averageNumberDensity_ );
 

@@ -169,33 +169,35 @@ Eigen::Vector3d convertCartesianToGeodeticCoordinates( const Eigen::Vector3d car
 }
 
 double convertGeographicToGeodeticLatitude( const double geographicLatitude,
-                                                     const double equatorialRadius,
-                                                     const double flattening,
-                                                     const double altitude,
-                                                     const double tolerance,
-                                                     const int maximumNumberOfIterations )
+                                            const double equatorialRadius,
+                                            const double flattening,
+                                            const double altitude,
+                                            const double tolerance,
+                                            const int maximumNumberOfIterations )
 {
     // Compute ellipsoide emi-minor axis
-    const double polarRadius = equatorialRadius * (1.0 - flattening);
+    const double polarRadius = equatorialRadius * ( 1.0 - flattening );
 
     // Compute square of first eccentricity
-    const double eccentricitySquared = 1.0 - (polarRadius * polarRadius) / (equatorialRadius * equatorialRadius);
+    const double eccentricitySquared = 1.0 - ( polarRadius * polarRadius ) / ( equatorialRadius * equatorialRadius );
 
     // Define initial guess for geodetic latitude as the geocentric latitude
     double geodeticLatitudeGuess = geographicLatitude;
 
     // Find geodetic latitude through iterative computation
     double geodeticLatitude = 0.0;
-    for (int i = 0; i < maximumNumberOfIterations; ++i)
+    for( int i = 0; i < maximumNumberOfIterations; ++i )
     {
         // Compute prime vertical radius
-        const double curvatureRadius = equatorialRadius / std::sqrt(1.0 - eccentricitySquared * std::sin(geodeticLatitudeGuess) * std::sin(geodeticLatitudeGuess));
+        const double curvatureRadius = equatorialRadius /
+                std::sqrt( 1.0 - eccentricitySquared * std::sin( geodeticLatitudeGuess ) * std::sin( geodeticLatitudeGuess ) );
 
         // Compute corrected geodetic latitude
-        geodeticLatitude = std::atan(std::tan(geographicLatitude) / (1.0 - eccentricitySquared * equatorialRadius / (equatorialRadius + altitude)));
+        geodeticLatitude = std::atan( std::tan( geographicLatitude ) /
+                                      ( 1.0 - eccentricitySquared * equatorialRadius / ( equatorialRadius + altitude ) ) );
 
         // Check for convergence
-        if (std::abs(geodeticLatitude - geodeticLatitudeGuess) < tolerance)
+        if( std::abs( geodeticLatitude - geodeticLatitudeGuess ) < tolerance )
         {
             break;
         }
@@ -204,14 +206,12 @@ double convertGeographicToGeodeticLatitude( const double geographicLatitude,
         geodeticLatitudeGuess = geodeticLatitude;
 
         // Throw an exception if the maximum number of iterations is reached
-        if (i == maximumNumberOfIterations - 1)
+        if( i == maximumNumberOfIterations - 1 )
         {
-            throw std::runtime_error("Maximum number of iterations reached in the computation of geodetic latitude.");
+            throw std::runtime_error( "Maximum number of iterations reached in the computation of geodetic latitude." );
         }
-
     }
     return geodeticLatitude;
-
 }
 }  // namespace coordinate_conversions
 
