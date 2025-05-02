@@ -51,7 +51,6 @@ double getApproximateUtcFromTdb( const double ephemerisTime )
     return ephemerisTime - timeOffset;
 }
 
-
 //! Convert ephemeris time (equivalent to TDB) to a Julian date.
 double convertEphemerisTimeToJulianDate( const double ephemerisTime )
 {

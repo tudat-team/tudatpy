@@ -119,9 +119,9 @@ BOOST_AUTO_TEST_CASE( testGeneralCoordinateConversions )
     }
 
     double manualGeodeticLatitude = coordinate_conversions::convertGeographicToGeodeticLatitude(
-        testSphericalPosition( 1 ), equatorialRadius, flattening, testGeodeticPosition( 2 ) );
+            testSphericalPosition( 1 ), equatorialRadius, flattening, testGeodeticPosition( 2 ) );
 
-    BOOST_CHECK_SMALL( manualGeodeticLatitude- testGeodeticPosition( 1 ), 1.0E-8 );
+    BOOST_CHECK_SMALL( manualGeodeticLatitude - testGeodeticPosition( 1 ), 1.0E-8 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
