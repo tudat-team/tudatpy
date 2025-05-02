@@ -109,8 +109,11 @@ void expose_atmosphere_setup( py::module &m )
                          )doc" )
             .def( py::init< const std::map<
                           double,
-                          std::shared_ptr< tio::solar_activity::SolarActivityData > > >( ),
-                  py::arg( "solar_activity_data" ) )
+                          std::shared_ptr< tio::solar_activity::SolarActivityData > >, const bool, const bool, const bool >( ),
+                  py::arg( "solar_activity_data" ),
+                  py::arg( "use_ideal_gas_law" ) = true,
+                  py::arg( "use_storm_conditions" ) = true,
+                  py::arg( "use_anomalous_oxygen" ) = true )
             .def( "get_density",
                   &ta::NRLMSISE00Atmosphere::getDensity,
                   py::arg( "altitude" ),
