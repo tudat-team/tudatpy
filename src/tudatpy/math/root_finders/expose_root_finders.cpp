@@ -55,18 +55,24 @@ Enumeration of types of behaviour to be used when the convergence criterion on m
             .value( "accept_result",
                     trf::MaximumIterationHandling::accept_result,
                     R"doc(
-The program will accept the root at the final iteration, without any additional output
-      )doc" )
+
+The program will accept the root at the final iteration, without any additional output.
+
+)doc" )
             .value( "accept_result_with_warning",
                     trf::MaximumIterationHandling::accept_result_with_warning,
                     R"doc(
-The program will accept the root at the final iteration, but will print a warning to the terminal that the root finder may not have converged
+
+The program will accept the root at the final iteration, but will print a warning to the terminal that the root finder may not have converged.
+
       )doc" )
             .value( "throw_exception",
                     trf::MaximumIterationHandling::throw_exception,
                     R"doc(
-The program will not accept the root at the final iteration, and will throw an exception
-      )doc" )
+
+The program will not accept the root at the final iteration, and will throw an exception.
+
+)doc" )
             .export_values( );
 
     py::class_< trf::RootFinder< double >, std::shared_ptr< trf::RootFinder< double > > >(

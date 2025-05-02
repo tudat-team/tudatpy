@@ -957,51 +957,46 @@ void expose_acceleration_setup( py::module &m )
            py::arg( "explicit_libraional_tide_on_satellite" ) = false,
            R"doc(
 
- Creates settings for tidal acceleration.
+Creates settings for tidal acceleration.
 
- Creates settings for tidal accelerations. The direct of tidal effects in a satellite system is applied directly as
- an acceleration (as opposed to a modification of spherical harmonic coefficients).
- The model is based on Lainey et al. (2007, 2012). It can compute the acceleration due to tides, and in
- particular tidal dissipation, on a planetary satellite. The acceleration computed can account for either the
- effect of tide raised on the satellite by the planet or on the planet by the satellite. The satellite is assumed
- to be tidally locked to the planet.
+Creates settings for tidal accelerations. The direct of tidal effects in a satellite system is applied directly as
+an acceleration (as opposed to a modification of spherical harmonic coefficients).
+The model is based on Lainey et al. (2007, 2012). It can compute the acceleration due to tides, and in
+particular tidal dissipation, on a planetary satellite. The acceleration computed can account for either the
+effect of tide raised on the satellite by the planet or on the planet by the satellite. The satellite is assumed
+to be tidally locked to the planet.
 
+Parameters
+----------
+k2_love_number : float
+    Value of the k2 Love number.
+time_lag : float
+    Value of the tidal time lag.
+include_direct_radial_component : bool, default=True
+    It denotes whether the term independent of the time lag is to be computed.
+use_tide_raised_on_planet : bool, default=True
+    It denotes whether the tide raised on the planet is to be modelled (if true) or the tide raised on the satellite (if false).
+Returns
+-------
+DirectTidalDissipationAccelerationSettings
+    Direct tidal dissipation acceleration settings object.
 
- Parameters
- ----------
- k2_love_number : float
-     Value of the k2 Love number.
- time_lag : float
-     Value of the tidal time lag.
- include_direct_radial_component : bool, default=True
-     It denotes whether the term independent of the time lag is to be computed.
- use_tide_raised_on_planet : bool, default=True
-     It denotes whether the tide raised on the planet is to be modelled (if true) or the tide raised on the satellite (if false).
- Returns
- -------
- DirectTidalDissipationAccelerationSettings
-     Direct tidal dissipation acceleration settings object.
+Examples
+--------
+In this example, we define the tidal dissipation exerted by Jupiter on Io directly, instead of computing it
+through the spherical harmonic gravity:
 
-
-
-
-
- Examples
- --------
- In this example, we define the tidal dissipation exerted by Jupiter on Io directly, instead of computing it
- through the spherical harmonic gravity:
-
- .. code-block:: python
+.. code-block:: python
 
     # Define parameters
     love_number = 0.1
     time_lag = 100.0
     # Add entry to acceleration settings dict
     acceleration_settings_on_io["Jupiter"] = [propagation_setup.acceleration.direct_tidal_dissipation(
-       love_number,
-       time_lag,
-       False,
-       False)]
+    love_number,
+    time_lag,
+    False,
+    False)]
 
 
      )doc" );
@@ -1016,51 +1011,46 @@ void expose_acceleration_setup( py::module &m )
            py::arg( "explicit_libraional_tide_on_satellite" ) = false,
            R"doc(
 
- Creates settings for tidal acceleration.
+Creates settings for tidal acceleration.
 
- Creates settings for tidal accelerations. The direct of tidal effects in a satellite system is applied directly as
- an acceleration (as opposed to a modification of spherical harmonic coefficients).
- The model is based on Lainey et al. (2007, 2012). It can compute the acceleration due to tides, and in
- particular tidal dissipation, on a planetary satellite. The acceleration computed can account for either the
- effect of tide raised on the satellite by the planet or on the planet by the satellite. The satellite is assumed
- to be tidally locked to the planet.
+Creates settings for tidal accelerations. The direct of tidal effects in a satellite system is applied directly as
+an acceleration (as opposed to a modification of spherical harmonic coefficients).
+The model is based on Lainey et al. (2007, 2012). It can compute the acceleration due to tides, and in
+particular tidal dissipation, on a planetary satellite. The acceleration computed can account for either the
+effect of tide raised on the satellite by the planet or on the planet by the satellite. The satellite is assumed
+to be tidally locked to the planet.
 
+Parameters
+----------
+k2_love_number : float
+    Value of the k2 Love number.
+time_lag : float
+    Value of the tidal time lag.
+include_direct_radial_component : bool, default=True
+    It denotes whether the term independent of the time lag is to be computed.
+use_tide_raised_on_planet : bool, default=True
+    It denotes whether the tide raised on the planet is to be modelled (if true) or the tide raised on the satellite (if false).
+Returns
+-------
+DirectTidalDissipationAccelerationSettings
+    Direct tidal dissipation acceleration settings object.
 
- Parameters
- ----------
- k2_love_number : float
-     Value of the k2 Love number.
- time_lag : float
-     Value of the tidal time lag.
- include_direct_radial_component : bool, default=True
-     It denotes whether the term independent of the time lag is to be computed.
- use_tide_raised_on_planet : bool, default=True
-     It denotes whether the tide raised on the planet is to be modelled (if true) or the tide raised on the satellite (if false).
- Returns
- -------
- DirectTidalDissipationAccelerationSettings
-     Direct tidal dissipation acceleration settings object.
+Examples
+--------
+In this example, we define the tidal dissipation exerted by Jupiter on Io directly, instead of computing it
+through the spherical harmonic gravity:
 
-
-
-
-
- Examples
- --------
- In this example, we define the tidal dissipation exerted by Jupiter on Io directly, instead of computing it
- through the spherical harmonic gravity:
-
- .. code-block:: python
+.. code-block:: python
 
     # Define parameters
     love_number = 0.1
     time_lag = 100.0
     # Add entry to acceleration settings dict
     acceleration_settings_on_io["Jupiter"] = [propagation_setup.acceleration.direct_tidal_dissipation(
-       love_number,
-       time_lag,
-       False,
-       False)]
+        love_number,
+        time_lag,
+        False,
+        False)]
 
 
      )doc" );
