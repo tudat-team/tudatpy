@@ -60,7 +60,7 @@ TrimOrientationCalculator::TrimOrientationCalculator( const std::shared_ptr< Aer
     if( !rootFinder_.get( ) )
     {
         rootFinder_ = root_finders::createRootFinder(
-                root_finders::secantRootFinderSettings( TUDAT_NAN, 1.0E-15, TUDAT_NAN, 1000, root_finders::accept_result ),
+                root_finders::secantRootFinderSettings( TUDAT_NAN, 1.0E-13, TUDAT_NAN, 1000, root_finders::accept_result ),
                 TUDAT_NAN,
                 TUDAT_NAN,
                 0.5 );
