@@ -200,9 +200,11 @@ void expose_estimated_parameter_setup( py::module& m )
  The function uses the propagator settings to determine which type of initial state parameter (single/multi/hybrid-arc; translational/rotational/... dynamics) is to be estimated,
  e.g. if a single-arc translational state propagator is defined, the function will automatically create the parameters for the associated initial state parameter
 
- .. note:: This function return lists of parameter settings objects.
- This means that the return of this function cannot simply be added to the parameter settings objects of single parameters in a list creation statement.
- Instead, list concatenation is recommended. Please see the following example:
+ .. note::
+ 
+    This function return lists of parameter settings objects.
+    This means that the return of this function cannot simply be added to the parameter settings objects of single parameters in a list creation statement.
+    Instead, list concatenation is recommended. Please see the following example:
 
  .. code-block:: python
 
@@ -359,8 +361,9 @@ void expose_estimated_parameter_setup( py::module& m )
  Function for creating a (linear sensitivity) parameter settings object for arc-wise radiation pressure coefficients (arc-wise version of :func:`~tudatpy.numerical_simulation.estimation_setup.parameter.radiation_pressure_coefficient`).
  Using the radiation pressure coefficient as an estimatable parameter requires:
 
- * A :func:`~tudatpy.numerical_simulation.environment_setup.radiation_pressure.cannonball` radiation pressure interface to be defined for the body specified by the ``body`` parameter
- * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.cannonball_radiation_pressure` acceleration
+ * A :func:`~tudatpy.numerical_simulation.environment_setup.radiation_pressure.cannonball_radiation_target` target model to be defined for the body specified by the ``body`` parameter
+ * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.radiation_pressure` acceleration
+ 
  The radiation pressure coefficient is defined according to the universal convention for a cannonball model and thus no further model information is given.
 
  .. note:: This parameter may be estimated for a single-arc propagation, or a multi-arc propagation. In the latter case, the arcs selected for the estimation of the radiation pressure coefficient may, but need not, correspond to the arcs used for a multi-arc propagation.
