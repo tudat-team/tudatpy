@@ -91,7 +91,9 @@ class Installer:
             )
 
         # Define path to installation manifest
-        self.manifest = self.build_dir / "custom-manifest.txt"
+        self.manifest_dir = self.build_dir / "manifests"
+        self.manifest_dir.mkdir(parents=True, exist_ok=True)
+        self.manifest = self.manifest_dir / f"{self.conda_prefix.name}.txt"
         if self.manifest.exists():
             raise RuntimeError("Delete current manifest before installation")
         # if self.manifest.exists():
