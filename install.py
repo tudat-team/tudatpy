@@ -105,6 +105,7 @@ class Installer:
                 "using an older version of\nthis script, and you did not "
                 "uninstall it before updating tudat-bundle.\n\n"
                 "Please, have a look at this document before proceeding:\n"
+                "https://github.com/tudat-team/tudat-bundle/wiki/backwards-compatibility"
             )
             exit(0)
 
