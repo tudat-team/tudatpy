@@ -36,10 +36,24 @@ class Remover:
                 f"Build directory {self.build_dir} does not exist."
             )
 
+        # Resolve conda prefix
+        self.conda_prefix = Path(os.environ["CONDA_PREFIX"])
+        if not self.conda_prefix.exists():
+            raise FileNotFoundError(
+                f"Conda prefix {self.conda_prefix} does not exist."
+            )
+
         # Resolve installation manifest
-        self.manifest = self.build_dir / "custom-manifest.txt"
+        self.manifest_dir = self.build_dir / "manifests"
+        if not self.manifest_dir.exists():
+            raise FileNotFoundError(
+                f"Manifest directory {self.manifest_dir} does not exist."
+            )
+        self.manifest = self.manifest_dir / f"{self.conda_prefix.name}.txt"
         if not self.manifest.exists():
-            raise FileNotFoundError("Installation manifest not found")
+            raise FileNotFoundError(
+                "Installation manifest not found for active conda environment."
+            )
 
         return None
 
