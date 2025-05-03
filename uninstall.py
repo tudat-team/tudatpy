@@ -45,15 +45,15 @@ class Remover:
 
         # Resolve installation manifest
         self.manifest_dir = self.build_dir / "manifests"
-        if not self.manifest_dir.exists():
-            raise FileNotFoundError(
-                f"Manifest directory {self.manifest_dir} does not exist."
-            )
         self.manifest = self.manifest_dir / f"{self.conda_prefix.name}.txt"
         if not self.manifest.exists():
-            raise FileNotFoundError(
-                "Installation manifest not found for active conda environment."
-            )
+            # Backwards compatibility: Try to look for the old manifest
+            self.manifest = self.build_dir / "custom-manifest.txt"
+            if not self.manifest.exists():
+                raise FileNotFoundError(
+                    "Installation manifest not found for active "
+                    f"conda environment: {self.conda_prefix.name}"
+                )
 
         return None
 
