@@ -106,7 +106,40 @@ void expose_propagator_setup( py::module &m )
                    :py:attr:`SingleArcSimulationResults.processed_state_ids`
                    attribute.
 
+    py::class_< tp::SingleArcPropagatorProcessingSettings,
+                std::shared_ptr< tp::SingleArcPropagatorProcessingSettings >,
+                tp::PropagatorProcessingSettings >(
+            m, "SingleArcPropagatorProcessingSettings", get_docstring( "SingleArcPropagatorProcessingSettings" ).c_str( ) )
+            .def_property_readonly( "print_settings",
+                                    &tp::SingleArcPropagatorProcessingSettings::getPrintSettings,
+                                    get_docstring( "SingleArcPropagatorProcessingSettings.print_settings" ).c_str( ) )
+            .def_property( "results_save_frequency_in_steps",
+                           &tp::SingleArcPropagatorProcessingSettings::getResultsSaveFrequencyInSteps,
+                           &tp::SingleArcPropagatorProcessingSettings::setResultsSaveFrequencyInSteps,
+                           get_docstring( "SingleArcPropagatorProcessingSettings.results_save_frequency_in_steps" ).c_str( ) )
+            .def_property( "results_save_frequency_in_seconds",
+                           &tp::SingleArcPropagatorProcessingSettings::getResultsSaveFrequencyInSeconds,
+                           &tp::SingleArcPropagatorProcessingSettings::setResultsSaveFrequencyInSeconds,
+                           get_docstring( "SingleArcPropagatorProcessingSettings.results_save_frequency_in_seconds" ).c_str( ) );
 
+    py::class_< tp::MultiArcPropagatorProcessingSettings,
+                std::shared_ptr< tp::MultiArcPropagatorProcessingSettings >,
+                tp::PropagatorProcessingSettings >(
+            m, "MultiArcPropagatorProcessingSettings", get_docstring( "MultiArcPropagatorProcessingSettings" ).c_str( ) )
+            .def( "set_print_settings_for_all_arcs",
+                  &tp::MultiArcPropagatorProcessingSettings::resetAndApplyConsistentSingleArcPrintSettings,
+                  py::arg( "single_arc_print_settings" ),
+                  get_docstring( "MultiArcPropagatorProcessingSettings.set_print_settings_for_all_arcs" ).c_str( ) )
+            .def_property( "print_output_on_first_arc_only",
+                           &tp::MultiArcPropagatorProcessingSettings::getPrintFirstArcOnly,
+                           &tp::MultiArcPropagatorProcessingSettings::resetPrintFirstArcOnly,
+                           get_docstring( "MultiArcPropagatorProcessingSettings.print_output_on_first_arc_only" ).c_str( ) )
+            .def_property_readonly( "identical_settings_per_arc",
+                                    &tp::MultiArcPropagatorProcessingSettings::useIdenticalSettings,
+                                    get_docstring( "MultiArcPropagatorProcessingSettings.identical_settings_per_arc" ).c_str( ) )
+            .def_property_readonly( "single_arc_settings",
+                                    &tp::MultiArcPropagatorProcessingSettings::getSingleArcSettings,
+                                    get_docstring( "MultiArcPropagatorProcessingSettings.single_arc_settings" ).c_str( ) );
 
          :type: bool
       )doc" )
@@ -504,6 +537,15 @@ Enumeration of available translational propagator types.
 
 
 
+    py::enum_< tp::IntegratedStateType >( m, "StateType", get_docstring( "StateType" ).c_str( ) )
+            .value( "hybrid_type", tp::IntegratedStateType::hybrid, get_docstring( "StateType.hybrid_type" ).c_str( ) )
+            .value( "translational_type",
+                    tp::IntegratedStateType::translational_state,
+                    get_docstring( "StateType.translational_type" ).c_str( ) )
+            .value( "rotational_type", tp::IntegratedStateType::rotational_state, get_docstring( "StateType.rotational_type" ).c_str( ) )
+            .value( "mass_type", tp::IntegratedStateType::body_mass_state, get_docstring( "StateType.mass_type" ).c_str( ) )
+            .value( "custom_type", tp::IntegratedStateType::custom_state, get_docstring( "StateType.custom_type" ).c_str( ) )
+            .export_values( );
 
 
       )doc" )
@@ -690,6 +732,10 @@ Enumeration of available integrated state types.
 
          Base class to define settings for propagators. Derived classes are split into settings for single- and multi-arc dynamics.
 
+    py::class_< tp::TranslationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tp::TranslationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
+            m, "TranslationalStatePropagatorSettings", get_docstring( "TranslationalStatePropagatorSettings" ).c_str( ) )
 
 
 
@@ -1428,6 +1474,11 @@ HybridArcPropagatorSettings
  ``terminate_exactly_on_final_condition=True``, in which case the final propagation step will be *exactly* on the
  specified time.
 
+    m.def( "non_sequential_termination",
+           &tp::nonSequentialPropagationTerminationSettings,
+           py::arg( "forward_termination_settings" ),
+           py::arg( "backward_termination_settings" ),
+           get_docstring( "non_sequential_termination" ).c_str( ) );
 
  Parameters
  ----------
