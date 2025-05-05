@@ -44,6 +44,12 @@ class BuildParser(argparse.ArgumentParser):
             action="store_false",
             help="Skip the execution of the CMake setup command. [Default: True]",
         )
+        basic_group.add_argument(
+            "-d", "--docs",
+            dest="build_api_docs",
+            action="store_true",
+            help="Build API documentation. Output will be stored in <build-dir>/api-docs. [Default: False]",
+        )
 
         # Control CMake behavior
         cmake_group = self.add_argument_group("CMake configuration")
@@ -177,6 +183,23 @@ class Builder:
             if self.args.verbose:
                 build_command.append("--verbose")
             outcome = subprocess.run(build_command)
+            if outcome.returncode:
+                exit(outcome.returncode)
+
+        if self.args.build_api_docs:
+
+            print("Building API documentation...")
+
+            api_docs_build_dir = Path(self.build_dir) / "api-docs"
+            api_docs_build_dir.mkdir(parents=True, exist_ok=True)
+
+            api_docs_build_command = ["sphinx-build", "-b", "html", "tudatpy/docs/source", str(api_docs_build_dir), "-E"]
+
+            if self.args.verbose:
+                api_docs_build_command.append("--verbose")
+
+            outcome = subprocess.run(api_docs_build_command)
+
             if outcome.returncode:
                 exit(outcome.returncode)
 
