@@ -193,6 +193,7 @@ class Builder:
             api_docs_build_dir = Path(self.build_dir) / "api-docs"
             api_docs_build_dir.mkdir(parents=True, exist_ok=True)
 
+            # -E is added for a clean build, as changes in the compiled kernel are not detected otherwise
             api_docs_build_command = ["sphinx-build", "-b", "html", "tudatpy/docs/source", str(api_docs_build_dir), "-E"]
 
             if self.args.verbose:
