@@ -114,6 +114,14 @@ void expose_atmosphere_setup( py::module &m )
                   py::arg( "use_ideal_gas_law" ) = true,
                   py::arg( "use_storm_conditions" ) = false,
                   py::arg( "use_anomalous_oxygen" ) = true )
+            .def( "set_use_geodetic_latitude", &ta::NRLMSISE00Atmosphere::setUseGeodeticLatitude,
+                    R"doc(Set whether geodetic latitude is used for density computation instead of geocentric latitude.)doc" )
+            .def( "get_use_geodetic_latitude", &ta::NRLMSISE00Atmosphere::getUseGeodeticLatitude,
+                    R"doc(Get whether geodetic latitude is used for density computation instead of geocentric latitude.)doc" )
+            .def( "set_use_utc", &ta::NRLMSISE00Atmosphere::setUseUtc,
+                    R"doc(Set whether UTC time is used for density computation instead of seconds since J2000.)doc" )
+            .def( "get_use_utc", &ta::NRLMSISE00Atmosphere::getUseUtc,
+                    R"doc(Get whether UTC time is used for density computation instead of seconds since J2000.)doc" )
             .def( "get_density",
                   &ta::NRLMSISE00Atmosphere::getDensity,
                   py::arg( "altitude" ),
