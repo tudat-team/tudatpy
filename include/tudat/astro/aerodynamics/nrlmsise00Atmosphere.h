@@ -72,7 +72,7 @@ public:
 
     NRLMSISE00Atmosphere( const tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData,
                           const bool useIdealGasLaw = true,
-                          const bool useStormConditions = true,
+                          const bool useStormConditions = false,
                           const bool useAnomalousOxygen = true ):
         AtmosphereModel( true, true ), solarActivityContainer_( solarActivityData ), useIdealGasLaw_( useIdealGasLaw ),
         useAnomalousOxygen_( useAnomalousOxygen )
