@@ -305,9 +305,6 @@ list[BodyPanelSettings]
 
 Function for merging lists of panel body settings
 
-Function for merging lists of panel body settings to preserve internal parts' ID logic (neighboring plates),
-which is required for the correct functioning of the self-shadowing algorithm.
-
 
 
 Parameters
