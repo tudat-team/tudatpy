@@ -1077,6 +1077,10 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
             break;
         case illuminated_panel_fraction:
             break;
+        case cross_section_change:
+            break;
+        case full_body_paneled_geometry:
+            break;
         default:
             throw std::runtime_error( "Error when getting environment updates for dependent variables, parameter " +
                                       std::to_string( dependentVariableSaveSettings->dependentVariableType_ ) + " not found." );

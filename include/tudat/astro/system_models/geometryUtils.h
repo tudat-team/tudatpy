@@ -112,6 +112,8 @@ private:
     double minCoordinateL_, maxCoordinateL_, minCoordinateM_, maxCoordinateM_;
     Triangle2d triangle2d_;
     std::vector< double > lambdas_;
+    std::vector< bool > areLambdasActuallyPositive_;
+    std::vector< bool > areLambdasActuallyNegative_;
     
 public:
     ParallelProjection( ):  minCoordinateL_( 0.0 ), maxCoordinateL_( 0.0 ), minCoordinateM_( 0.0 ), maxCoordinateM_( 0.0 ),
@@ -159,6 +161,7 @@ public:
         maxCoordinateL_ = *std::max_element( coordinatesL.begin( ), coordinatesL.end( ) );
         minCoordinateM_ = *std::min_element( coordinatesM.begin( ), coordinatesM.end( ) );
         maxCoordinateM_ = *std::max_element( coordinatesM.begin( ), coordinatesM.end( ) );
+
     }
 
     Triangle2d getTriangle2d( ) const
@@ -184,6 +187,26 @@ public:
     double getMaxM( ) const
     {
         return maxCoordinateM_;
+    }
+
+    void setAreLambdasActuallyPositive( const std::vector< bool > areLambdasActuallyPositive )
+    {
+        areLambdasActuallyPositive_ = areLambdasActuallyPositive;
+    }
+
+    std::vector< bool > getAreLambdasActuallyPositive( ) const
+    {
+        return areLambdasActuallyPositive_;
+    }
+
+    void setAreLambdasActuallyNegative( const std::vector< bool > areLambdasActuallyNegative )
+    {
+        areLambdasActuallyNegative_ = areLambdasActuallyNegative;
+    }
+
+    std::vector< bool > getAreLambdasActuallyNegative( ) const
+    {
+        return areLambdasActuallyNegative_;
     }
 
 };
