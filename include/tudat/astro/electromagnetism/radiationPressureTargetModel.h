@@ -255,6 +255,43 @@ public:
             totalNumberOfPanels_ += it.second.size( );
             fullPanels_.insert( fullPanels_.end( ), it.second.begin( ), it.second.end( ) );
         }
+        // find neighbours
+        for ( int i = 0; i<totalNumberOfPanels_; i++)
+        {
+            std::vector< int > neighboringSurfaces;
+            for ( int j = 0; j<totalNumberOfPanels_; j++)
+            {
+                if ( i == j )
+                {
+                    continue;
+                }
+                std::vector<Eigen::Vector3d> verticesI, verticesJ;
+                system_models::Triangle3d triangleI = fullPanels_.at( i )->getTriangle3d( );
+                system_models::Triangle3d triangleJ = fullPanels_.at( j )->getTriangle3d( );
+                verticesI = { triangleI.getVertexA( ), triangleI.getVertexB( ), triangleI.getVertexC( )};
+                verticesJ = { triangleJ.getVertexA( ), triangleJ.getVertexB( ), triangleJ.getVertexC( )};
+                int match = 0;
+                for (int n = 0; n<3; n++ )
+                {
+                    for ( int m = 0; m<3; m++ )
+                    {
+                        if ( verticesI[ n ].isApprox(verticesJ[ m ]) )
+                        {
+                            match++;
+                        }
+                    }
+                }
+                if (match==2) 
+                {
+                    neighboringSurfaces.push_back( j );
+                }
+                if ( neighboringSurfaces.size( ) == 3 )
+                {   
+                    fullPanels_.at( i )->setNeighboringSurfaces( neighboringSurfaces );
+                    break; // found all the neighbours, skip to next panel
+                }
+            }
+        }
 
         panelForces_.resize( totalNumberOfPanels_ );
         surfacePanelCosines_.resize( totalNumberOfPanels_ );
@@ -297,6 +334,8 @@ public:
         panelTorques_.resize( totalNumberOfPanels_ );
         panelCentroidMomentArms_.resize( totalNumberOfPanels_ );
     }
+
+    void updateRotatedPanels( );
 
     void updateRadiationPressureForcing( double sourceIrradiance,
                                          const Eigen::Vector3d& sourceToTargetDirectionLocalFrame,
@@ -355,7 +394,7 @@ public:
         return fullPanels_;
     }
 
-    int getTotalNumberOfPanels( )
+    int getTotalNumberOfPanels( ) const
     {
         return totalNumberOfPanels_;
     }
@@ -367,14 +406,24 @@ public:
         return macroModelLoaded_;
     }
 
-    std::vector< double > getIlluminatedPanelFractions( ) const
+    std::vector< double > getIlluminatedPanelFractions( const std::string& sourceName ) 
     {
-        return illuminatedPanelFractions_;
+        if( illuminatedPanelFractionsPerSource_.count( sourceName ) == 0 )
+        {
+            throw std::runtime_error( "Error when getting panelled radiation pressure illuminated panel fractions from body " + sourceName +
+                                      ", no such source is saved" );
+        }
+        return illuminatedPanelFractionsPerSource_[ sourceName ];
     }
 
     std::vector< std::string > getPanelTypeIdList( ) const
     {
         return panelTypeIdList_;
+    }
+
+    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& getAllRotatedPanels( )
+    {
+        return allRotatedPanels_;
     }
 
 
@@ -394,6 +443,18 @@ private:
             panelTorques_.at( i ).setZero( );
         }
         panelTorquesPerSource_[ sourceName ] = panelTorques_;
+
+        for( unsigned int i = 0; i < surfacePanelCosines_.size( ); i++ )
+        {
+            surfacePanelCosines_.at( i ) = 0.0;
+        }
+        surfacePanelCosinesPerSource_[ sourceName ] = surfacePanelCosines_;
+
+        for( unsigned int i = 0; i < illuminatedPanelFractions_.size( ); i++ )
+        {
+            illuminatedPanelFractions_.at( i ) = 0.0;
+        }
+        illuminatedPanelFractionsPerSource_[ sourceName ] = illuminatedPanelFractions_;
     }
 
     std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > bodyFixedPanels_;
@@ -414,17 +475,18 @@ private:
     std::vector< double > surfacePanelCosines_;
     std::vector< Eigen::Vector3d > panelForces_;
     std::vector< Eigen::Vector3d > panelTorques_;
+    std::vector< double > illuminatedPanelFractions_;
 
     std::map< std::string, std::vector< double > > surfacePanelCosinesPerSource_;
     std::map< std::string, std::vector< Eigen::Vector3d > > panelForcesPerSource_;
     std::map< std::string, std::vector< Eigen::Vector3d > > panelTorquesPerSource_;
+    std::map< std::string, std::vector< double > > illuminatedPanelFractionsPerSource_;
 
     // ssh variables
     int maximumNumberOfPixels_;
     bool macroModelLoaded_;
 
     system_models::SelfShadowing selfShadowing_;
-    std::vector< double > illuminatedPanelFractions_;
     std::vector< std::string > panelTypeIdList_;
     std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > allRotatedPanels_;
 };

@@ -36,17 +36,38 @@ inline bool firstDiscrimination( const std::shared_ptr< system_models::VehicleEx
     }
 }
 
-inline bool secondDiscrimination( const ParallelProjection& projection )
+inline bool secondDiscrimination( ParallelProjection& projection )
 {
     std::vector< double > lambdas = projection.getLambdas( );
-    if ( *std::max_element( lambdas.begin( ), lambdas.end( )) <= 0.0 )
-    {
-        return 0;
-    }
-    else
-    {
+
+    const double EPSILON = 1e-12;
+    
+    int nonZeroCount = 0;
+    if (std::abs(lambdas[ 0 ]) > EPSILON) nonZeroCount++;
+    if (std::abs(lambdas[ 1 ]) > EPSILON) nonZeroCount++;
+    if (std::abs(lambdas[ 2 ]) > EPSILON) nonZeroCount++;
+
+    if (nonZeroCount == 0) {
+        std::vector< bool > dummyVectorPositive = {true , true, true};
+        projection.setAreLambdasActuallyPositive( dummyVectorPositive );
+        std::vector< bool > dummyVectorNegative = {false , false, false};
+        projection.setAreLambdasActuallyNegative( dummyVectorNegative );
         return 1;
     }
+    
+    bool hasPositive = (lambdas[ 0 ] > EPSILON) || (lambdas[ 1 ] > EPSILON) || (lambdas[ 2 ] > EPSILON);
+
+    std::vector< bool > areLambdasActuallyPositive = { (lambdas[ 0 ] > EPSILON),
+        (lambdas[ 1 ] > EPSILON),
+        (lambdas[ 2 ] > EPSILON)};
+    projection.setAreLambdasActuallyPositive( areLambdasActuallyPositive );
+
+    std::vector< bool > areLambdasActuallyNegative = { (lambdas[ 0 ] < -EPSILON),
+        (lambdas[ 1 ] < -EPSILON),
+        (lambdas[ 2 ] < -EPSILON)};
+    projection.setAreLambdasActuallyNegative( areLambdasActuallyNegative );
+
+    return hasPositive ? 1 : 0;
 }
 
 inline std::vector< bool > isTriangleInTriangle( const ParallelProjection& projection1, const ParallelProjection& projection2 )
@@ -54,6 +75,7 @@ inline std::vector< bool > isTriangleInTriangle( const ParallelProjection& proje
     std::vector< Eigen::Vector2d > testPoints = { projection2.getTriangle2d( ).getVertexA( ), 
                                                   projection2.getTriangle2d( ).getVertexB( ),
                                                   projection2.getTriangle2d( ).getVertexC( ) };
+    std::vector< bool > testPointsLambdaActuallyPositive = projection2.getAreLambdasActuallyPositive( );
     std::vector< bool > results( 3 );
     for ( int i=0; i<3; i++ )
     {
@@ -101,9 +123,98 @@ inline std::vector< bool > isTriangleInTriangle( const ParallelProjection& proje
                     count++;
             }
         }
-        results[i] = ( count & 1 ) != 0; 
+        bool resultToBeChecked = ( count & 1 ) != 0;
+        results[i] = ( testPointsLambdaActuallyPositive[ i ] ) ? resultToBeChecked : false; 
     }
     return results;
+}
+
+inline bool isPointInTriangle( const ParallelProjection& projection_, 
+    const double coordL, const double coordM )
+{   
+    Eigen::Vector2d pointA = projection_.getTriangle2d( ).getVertexA( );
+    Eigen::Vector2d pointB = projection_.getTriangle2d( ).getVertexB( );
+    Eigen::Vector2d pointC = projection_.getTriangle2d( ).getVertexC( );
+    int count = 0;
+    // edge from pointA to pointB
+    {
+        double ymin = (pointA( 1 ) < pointB( 1 )) ? pointA( 1 ) : pointB( 1 );
+        double ymax = (pointA( 1 ) < pointB( 1 )) ? pointB( 1 ) : pointA( 1 );
+        double xmax = (pointA( 0 ) > pointB( 0 )) ? pointA( 0 ) : pointB( 0 );
+        if ((coordM > ymin) && (coordM <= ymax) && (coordL <= xmax)) {
+            double xIntersect = pointA( 0 ) + (coordM - pointA( 1 )) * 
+            (pointB( 0 ) - pointA( 0 )) / (pointB( 1 ) - pointA( 1 ));
+            if (pointA( 0 ) == pointB( 0 ) || coordL <= xIntersect)
+                count++;
+        }
+    }
+    // edge from pointB to pointC
+    {
+        double ymin = (pointB( 1 ) < pointC( 1 )) ? pointB( 1 ) : pointC( 1 );
+        double ymax = (pointB( 1 ) < pointC( 1 )) ? pointC( 1 ) : pointB( 1 );
+        double xmax = (pointB( 0 ) > pointC( 0 )) ? pointB( 0 ) : pointC( 0 );
+        if (ymax == ymin && coordM == ymax) {
+            count++;
+        }
+        if ((coordM > ymin) && (coordM <= ymax) && (coordL <= xmax)) {
+            double xIntersect = pointB( 0 ) + (coordM - pointB( 1 )) * 
+            (pointC( 0 ) - pointB( 0 )) / (pointC( 1 ) - pointB( 1 ));
+            if (pointB( 0 ) == pointC( 0 ) || coordL <= xIntersect)
+                count++;
+        }
+    }
+    // edge from pointC to pointA
+    {
+        double ymin = (pointC( 1 ) < pointA( 1 )) ? pointC( 1 ) : pointA( 1 );
+        double ymax = (pointC( 1 ) < pointA( 1 )) ? pointA( 1 ) : pointC( 1 );
+        double xmax = (pointC( 0 ) > pointA( 0 )) ? pointC( 0 ) : pointA( 0 );
+        if ((coordM > ymin) && (coordM <= ymax) && (coordL <= xmax)) {
+            double xIntersect = pointC( 0 ) + (coordM - pointC( 1 )) * 
+            (pointA( 0 ) - pointC( 0 )) / (pointA( 1 ) - pointC( 1 ));
+            if (pointC( 0 ) == pointA( 0 ) || coordL <= xIntersect)
+                count++;
+        }
+    }
+    return ( count & 1 ) != 0;
+
+}
+
+inline bool doEdgesIntersect(const Eigen::Vector2d& edge1Start, const Eigen::Vector2d& edge1End,
+    const Eigen::Vector2d& edge2Start, const Eigen::Vector2d& edge2End) 
+{
+    // calculate direction vectors
+    Eigen::Vector2d dir1 = edge1End - edge1Start;
+    Eigen::Vector2d dir2 = edge2End - edge2Start;
+
+    // calculate the determinant
+    double det = dir1.x() * dir2.y() - dir1.y() * dir2.x();
+
+    // if determinant is zero, lines are parallel or collinear
+    if (std::abs(det) < 1e-9) 
+    {
+        // check if they are collinear and overlapping
+        Eigen::Vector2d vec = edge2Start - edge1Start;
+        double crossProduct = vec.x() * dir1.y() - vec.y() * dir1.x();
+
+        if (std::abs(crossProduct) < 1e-9) 
+        {
+            // collinear - check for overlap
+            double t0 = vec.dot(dir1) / dir1.dot(dir1);
+            double t1 = t0 + dir2.dot(dir1) / dir1.dot(dir1);
+
+            return (t0 >= 0 && t0 <= 1) || (t1 >= 0 && t1 <= 1) || (t0 <= 0 && t1 >= 1) || (t0 >= 1 && t1 <= 0);
+        }
+
+        return false; // parallel but not collinear
+    }
+
+    // calculate parameters for the intersection point
+    Eigen::Vector2d vec = edge2Start - edge1Start;
+    double t = (vec.x() * dir2.y() - vec.y() * dir2.x()) / det;
+    double s = (vec.x() * dir1.y() - vec.y() * dir1.x()) / det;
+
+    // check if intersection point is within both line segments
+    return (t >= 0 && t <= 1 && s >= 0 && s <= 1);
 }
 
 inline std::vector< std::vector< int > > arePointsInTriangle( const ParallelProjection& projection_, 
@@ -343,6 +454,7 @@ public:
         }
         std::vector< std::vector < ParallelProjection > > projections( numberOfPanels, 
                                                                        std::vector < ParallelProjection >( numberOfPanels ) );
+        const double EPSILON = 1e-12;
         // exclusion logic algorithm
         for ( int i = 0; i<numberOfPanels; i++ )
         {
@@ -359,13 +471,13 @@ public:
                 }
                 ParallelProjection projection( allPanels[i]->getTriangle3d( ), allPanels[j]->getTriangle3d( ), incomingDirection );
                 if ( secondDiscrimination( projection ) )
-                {
+                {   
                     // testing for those panels that yield p-sh (this case)
                         // first test: min/max coordinates
-                    if ( projection.getMinL( ) >= allPanels[i]->getSelfProjection( ).getMaxL( ) ||
-                         projection.getMaxL( ) <= allPanels[i]->getSelfProjection( ).getMinL( ) || 
-                         projection.getMinM( ) >= allPanels[i]->getSelfProjection( ).getMaxM( ) ||
-                         projection.getMaxM( ) <= allPanels[i]->getSelfProjection( ).getMinM( ) )
+                    if ( projection.getMinL( ) >= allPanels[i]->getSelfProjection( ).getMaxL( ) - EPSILON ||
+                         projection.getMaxL( ) <= allPanels[i]->getSelfProjection( ).getMinL( ) + EPSILON || 
+                         projection.getMinM( ) >= allPanels[i]->getSelfProjection( ).getMaxM( ) - EPSILON ||
+                         projection.getMaxM( ) <= allPanels[i]->getSelfProjection( ).getMinM( ) + EPSILON)
                     {
                         sigmaMatrix[i][j] = -1; // no-sh
                     }
@@ -401,11 +513,72 @@ public:
                                 }
                             }
                         }
-                        else
-                        {
-                            // otherwise cannot decide, needs to be pixelated when uncertain
-                            sigmaMatrix[i][j] = 0; 
-                            projections[i][j] = projection;                            
+                        if ( std::none_of( shadowingInShadowed.begin( ), shadowingInShadowed.end( ), [](bool x) { return x; }))
+                        {   
+                            // none of the shadowing vertices falls into the shadowed one
+                            std::vector< bool > areLambdasActuallyPositive = projection.getAreLambdasActuallyPositive( );
+                            std::vector< double > lambdas = projection.getLambdas( );
+                            system_models::Triangle2d triangle2dShadowing = projection.getTriangle2d( );
+                            Eigen::Vector2d vertexAShadowing = triangle2dShadowing.getVertexA( );
+                            Eigen::Vector2d vertexBShadowing = triangle2dShadowing.getVertexB( );
+                            Eigen::Vector2d vertexCShadowing = triangle2dShadowing.getVertexC( );
+                            system_models::Triangle2d triangle2dShadowed = allPanels[i]->getSelfProjection( ).getTriangle2d( );
+                            Eigen::Vector2d vertexAShadowed = triangle2dShadowed.getVertexA( );
+                            Eigen::Vector2d vertexBShadowed = triangle2dShadowed.getVertexB( );
+                            Eigen::Vector2d vertexCShadowed = triangle2dShadowed.getVertexC( );
+                            std::vector< Eigen::Vector2d > edgesShadowed = {vertexAShadowed, vertexBShadowed, vertexCShadowed, vertexAShadowed};
+                            std::vector< double > coordinatesL = { vertexAShadowing[ 0 ], vertexBShadowing[ 0 ], vertexCShadowing[ 0 ] };
+                            std::vector< double > coordinatesM = { vertexAShadowing[ 1 ], vertexBShadowing[ 1 ], vertexCShadowing[ 1 ] };
+                            bool foundPoint = false;
+                            for ( int ii = 0; ii<3; ii++ )
+                            {
+                                if ( !areLambdasActuallyPositive[ ii ] )
+                                {
+                                    continue;
+                                }
+                                for ( int jj = 0; jj<3; jj++ )
+                                {
+                                    if ( ii == jj )
+                                    {
+                                        continue;
+                                    }
+                                    // found match, start edge PIP
+                                    double t = lambdas[ ii ] / ( lambdas[ ii ] - lambdas[ jj ] );
+                                    double lZero = coordinatesL[ ii ] + ( coordinatesL[ jj ] - coordinatesL[ ii ] )*t;
+                                    double mZero = coordinatesM[ ii ] + ( coordinatesM[ jj ] - coordinatesM[ ii ] )*t;
+                                    Eigen::Vector2d startEdgeShadowing{ coordinatesL[ ii ], coordinatesM[ ii ] };
+                                    Eigen::Vector2d endEdgeShadowing{ lZero, mZero };
+                                    for ( int k = 0; k<3; k++)
+                                    {
+                                        foundPoint = doEdgesIntersect(startEdgeShadowing, endEdgeShadowing, edgesShadowed[k], edgesShadowed[k+1]);
+                                        if ( foundPoint )
+                                        {
+                                            break;
+                                        }
+                                    }
+                                    if ( foundPoint )
+                                    {
+                                        break;
+                                    }
+                                }
+                                if ( foundPoint )
+                                {
+                                    break;
+                                }
+                            }
+                            if ( foundPoint )
+                            {
+                                sigmaMatrix[i][j] = 0; 
+                                projections[i][j] = projection;
+                                if ( sigmaMatrix[j][i] == -2 )
+                                {
+                                    sigmaMatrix[j][i] = -1; // the opposite is a case of no-sh
+                                } 
+                            }
+                            else
+                            {
+                                sigmaMatrix[i][j] = -1; 
+                            }
                         }
                     }
                 }

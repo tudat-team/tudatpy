@@ -137,7 +137,9 @@ enum PropagationDependentVariables {
     paneled_radiation_source_per_panel_irradiance = 70,
     paneled_radiation_source_geometry = 71,
     nrlmsise_input_data = 72,
-    illuminated_panel_fraction = 73
+    illuminated_panel_fraction = 73,
+    cross_section_change = 74,
+    full_body_paneled_geometry = 75
 
 };
 
@@ -631,7 +633,7 @@ class IlluminatedPanelFractionDependentVariableSaveSettings: public SingleDepend
 {
 public:
     IlluminatedPanelFractionDependentVariableSaveSettings( const std::string& bodyName, 
-        const std::string& sourceName, const std::string& panelTypeId):
+        const std::string& sourceName, const std::string& panelTypeId = ""):
         SingleDependentVariableSaveSettings( illuminated_panel_fraction, bodyName, sourceName ), panelTypeId_( panelTypeId )
     { }
     
@@ -1322,6 +1324,17 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > illuminatedPanelFr
                                                                                                          const std::string& panelTypeId)
 {
     return std::make_shared< IlluminatedPanelFractionDependentVariableSaveSettings >( bodyName, sourceName, panelTypeId );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > crossSectionChangeDependentVariable( const std::string& bodyName,
+    const std::string& sourceName )
+{
+return std::make_shared< SingleDependentVariableSaveSettings >( cross_section_change, bodyName, sourceName );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > fullBodyPaneledGeometryDependentVariable( const std::string& bodyName )
+{
+return std::make_shared< SingleDependentVariableSaveSettings >( full_body_paneled_geometry, bodyName );
 }
 
 }  // namespace propagators

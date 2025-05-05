@@ -49,28 +49,13 @@ void CannonballRadiationPressureTargetModel::updateRadiationPressureForcing( dou
     }
 }
 
-void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing( double sourceIrradiance,
-                                                                          const Eigen::Vector3d& sourceToTargetDirectionLocalFrame,
-                                                                          const bool resetForces,
-                                                                          const std::string sourceName )
+void PaneledRadiationPressureTargetModel::updateRotatedPanels( )
 {
-    double radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
-
-    if( resetForces )
-    {
-        resetComputations( sourceName );
-    }
     // update list of all panels
     auto segmentFixedPanelsIterator = segmentFixedPanels_.begin( );
 
     Eigen::Quaterniond currentOrientation;
-    Eigen::Vector3d currentCenterOfMass = Eigen::Vector3d::Constant( TUDAT_NAN );
-    if( computeTorques_ )
-    {
-        currentCenterOfMass = centerOfMassFunction_( );
-    }
-    Eigen::Vector3d currentPanelForce = Eigen::Vector3d::Zero( );
-    Eigen::Vector3d currentPanelTorque = Eigen::Vector3d::Zero( );
+    
     unsigned int buffer = 0;
     for( unsigned int i = 0; i < segmentFixedPanels_.size( ) + 1; i++ )
     {
@@ -88,7 +73,7 @@ void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing( double
         
         for( unsigned int j = 0; j < currentPanels_.size( ); j++ )
         {   
-            allRotatedPanels_[ buffer + j ] = std::make_shared< system_models::VehicleExteriorPanel >( currentPanels_.at( j ),
+            this->allRotatedPanels_[ buffer + j ] = std::make_shared< system_models::VehicleExteriorPanel >( currentPanels_.at( j ),
                                                                                             currentOrientation );
         }
         buffer += currentPanels_.size( );
@@ -97,6 +82,28 @@ void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing( double
             segmentFixedPanelsIterator++;
         }
     }
+}
+
+void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing( double sourceIrradiance,
+                                                                          const Eigen::Vector3d& sourceToTargetDirectionLocalFrame,
+                                                                          const bool resetForces,
+                                                                          const std::string sourceName )
+{
+    double radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
+
+    if( resetForces )
+    {
+        resetComputations( sourceName );
+    }
+    // update panels
+    updateRotatedPanels( );
+    Eigen::Vector3d currentCenterOfMass = Eigen::Vector3d::Constant( TUDAT_NAN );
+    if( computeTorques_ )
+    {
+        currentCenterOfMass = centerOfMassFunction_( );
+    }
+    Eigen::Vector3d currentPanelForce = Eigen::Vector3d::Zero( );
+    Eigen::Vector3d currentPanelTorque = Eigen::Vector3d::Zero( );
     // SSH off
     if ( maximumNumberOfPixels_ == 0 )
     {
@@ -125,23 +132,23 @@ void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing( double
             throw std::runtime_error("Error: maximum number of pixels given but macro-model is not loaded!");
         }
         // compute illuminated fractions with SSH algorithm
-        selfShadowing_ = system_models::SelfShadowing( allRotatedPanels_, sourceToTargetDirectionLocalFrame, maximumNumberOfPixels_ );
+        selfShadowing_ = system_models::SelfShadowing( this->allRotatedPanels_, sourceToTargetDirectionLocalFrame, maximumNumberOfPixels_ );
         illuminatedPanelFractions_ = selfShadowing_.getIlluminatedPanelFractions( );
     }
     // common logic
     for ( int i = 0; i< totalNumberOfPanels_; i++)
     {
-        surfaceNormals_[ i ] = allRotatedPanels_[ i ]->getFrameFixedSurfaceNormal( )( );
+        surfaceNormals_[ i ] = this->allRotatedPanels_[ i ]->getFrameFixedSurfaceNormal( )( );
         surfacePanelCosines_[ i ] = ( -sourceToTargetDirectionLocalFrame ).dot( surfaceNormals_[ i ] );
         if( computeTorques_ )
         {
-            panelCentroidMomentArms_[ i ] = allRotatedPanels_[i]->getFrameFixedPositionVector( )( ) - currentCenterOfMass ;
+            panelCentroidMomentArms_[ i ] = this->allRotatedPanels_[i]->getFrameFixedPositionVector( )( ) - currentCenterOfMass ;
         }
         if( surfacePanelCosines_[ i ] > 0 )
         {
             currentPanelForce = radiationPressure * illuminatedPanelFractions_[ i ] *
-                allRotatedPanels_[i]->getPanelArea( ) * surfacePanelCosines_[ i ] *
-                allRotatedPanels_[ i ]->getReflectionLaw( )->evaluateReactionVector( surfaceNormals_[ i ],
+                this->allRotatedPanels_[i]->getPanelArea( ) * surfacePanelCosines_[ i ] *
+                this->allRotatedPanels_[ i ]->getReflectionLaw( )->evaluateReactionVector( surfaceNormals_[ i ],
                                                                                          sourceToTargetDirectionLocalFrame );
             this->currentRadiationPressureForce_[ sourceName ] += currentPanelForce;
             if( computeTorques_ )
@@ -173,6 +180,10 @@ void PaneledRadiationPressureTargetModel::saveLocalComputations( const std::stri
     if( saveCosines )
     {
         surfacePanelCosinesPerSource_[ sourceName ] = surfacePanelCosines_;
+    }
+    if ( this->macroModelLoaded_ )
+    {
+        illuminatedPanelFractionsPerSource_[ sourceName ] = illuminatedPanelFractions_;
     }
     panelForcesPerSource_[ sourceName ] = panelForces_;
     panelTorquesPerSource_[ sourceName ] = panelTorques_;

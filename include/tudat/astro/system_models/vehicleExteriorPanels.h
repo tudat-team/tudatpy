@@ -98,15 +98,17 @@ public:
                           const std::shared_ptr< electromagnetism::ReflectionLaw > reflectionLaw = nullptr,
                           const Triangle3d& triangle3d = Triangle3d( ),
                           const Eigen::Vector3d frameOrigin = Eigen::Vector3d::Zero( ),
-                          const std::vector< int >& neighboringSurfaces = std::vector< int >( 3 ),
                           const bool geometry3dLoaded = false ):
         frameFixedSurfaceNormal_( frameFixedSurfaceNormal ), frameFixedPositionVector_( frameFixedPositionVector ), panelArea_( panelArea ),
         panelTemperature_( panelTemperature ), trackedBody_( trackedBody ), reflectionLaw_( reflectionLaw ), 
-        triangle3d_( triangle3d), frameOrigin_( frameOrigin ), neighboringSurfaces_( neighboringSurfaces ), geometry3dLoaded_( geometry3dLoaded )
+        triangle3d_( triangle3d), frameOrigin_( frameOrigin ), geometry3dLoaded_( geometry3dLoaded )
     { 
+        neighboringSurfaces_ = {-1, -1, -1};
         if ( geometry3dLoaded_ )
         {
             selfProjection_ = ParallelProjection( triangle3d_, triangle3d_ );
+            std::vector< bool > dummyVector = { true, true, true };
+            selfProjection_.setAreLambdasActuallyPositive( dummyVector );
         }
         else
         {
@@ -190,6 +192,10 @@ public:
     std::vector<int> getNeighboringSurfaces( ) const
     {
         return neighboringSurfaces_;
+    }
+    void setNeighboringSurfaces( const std::vector<int>& neighboringSurfaces ) 
+    {
+        neighboringSurfaces_ = neighboringSurfaces;
     }
     bool isGeometryLoaded( ) const
     {
