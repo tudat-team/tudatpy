@@ -7,6 +7,7 @@ import numpy as np
 from tudatpy.kernel import numerical_simulation
 from tudatpy.data import read_solar_activity_data, get_space_weather_path
 from tudatpy.kernel.astro.time_conversion import epoch_from_date_time_iso_string
+from tudatpy.kernel.astro.element_conversion import convert_geographic_to_geodetic_latitude
 
 
 def test_nrlmsise00():
@@ -29,16 +30,18 @@ def test_nrlmsise00():
     epochs = np.array([epoch_from_date_time_iso_string(data["date"]) for data in validation_data])
     expected_densities = np.array([data["density"] for data in validation_data])
 
+    # Convert geographic latitudes to geodetic latitudes as the validation data was obtained by passing geodetic latitudes to pymsis
+    geodetic_latitudes = np.zeros(len(latitudes))
+    for i in range(len(latitudes)):
+        geodetic_latitudes[i] = convert_geographic_to_geodetic_latitude(latitudes[i], 6378137.0, 1.0 / 298.257223563, altitudes[i], 1e-15, 3)
+
     # Compute densities using Tudat NRLMSISE00
     computed_densities = np.array([
         NRLMSISE00.get_density(alt, lon, lat, epoch)
-        for alt, lon, lat, epoch in zip(altitudes, longitudes, latitudes, epochs)
+        for alt, lon, lat, epoch in zip(altitudes, longitudes, geodetic_latitudes, epochs)
     ])
         
     # Compute the relative differences between computed and expected densities
     relative_differences = np.abs(computed_densities - expected_densities) / expected_densities
 
-    
-    print(relative_differences.max())
-    # Check if all relative differences are within 1e-2
-    assert np.all(relative_differences < 1e-2)
+    assert np.all(relative_differences < 5e-6)
