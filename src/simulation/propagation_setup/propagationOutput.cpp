@@ -573,18 +573,51 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
             }
             std::vector< std::string > panelTypeIdList = paneledRadiationPressureTargetModel->getPanelTypeIdList( );
             std::vector< double > indexes;
-            for ( unsigned int i = 0; i<panelTypeIdList.size( ); i++ )
+            if ( panelTypeId == "" )
             {
-                if ( panelTypeIdList.at( i ) == panelTypeId )
+                for ( unsigned int i = 0; i<panelTypeIdList.size( ); i++ )
                 {
                     indexes.push_back( i );
                 }
             }
-            if ( indexes.empty( ) )
+            else 
             {
-                throw std::runtime_error( "Error, panel type " + panelTypeId + " not found" );
+                for ( unsigned int i = 0; i<panelTypeIdList.size( ); i++ )
+                {
+                    if ( panelTypeIdList.at( i ) == panelTypeId )
+                    {
+                        indexes.push_back( i );
+                    }
+                }
+                if ( indexes.empty( ) )
+                {
+                    throw std::runtime_error( "Error, panel type " + panelTypeId + " not found" );
+                }
             }
+            
             variableSize = indexes.size( );
+            break;
+        }
+        case cross_section_change:
+            variableSize = 1;
+            break;
+        case full_body_paneled_geometry: {
+            std::string targetBody = dependentVariableSettings->associatedBody_;
+            std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel >  paneledRadiationPressureTargetModel = 
+                std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >(
+                    bodies.at( targetBody )->getRadiationPressureTargetModel( ) );
+            if ( paneledRadiationPressureTargetModel == nullptr )
+            {
+                std::string errorMessage = "Error, full body panel geometry only implemented for paneled radiation pressure target model, however, paneled target " + 
+                        targetBody + " not found";
+                throw std::runtime_error( errorMessage );
+            }
+            if ( !paneledRadiationPressureTargetModel->isMacroModelLoaded( ) )
+            {
+                throw std::runtime_error( "Error, macromodel for paneled target " + targetBody + " not found" );
+            }
+            int totalNumberOfPanels = paneledRadiationPressureTargetModel->getTotalNumberOfPanels( );
+            variableSize = 9 * totalNumberOfPanels;
             break;
         }
         default:

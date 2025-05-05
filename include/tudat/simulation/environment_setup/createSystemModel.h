@@ -205,8 +205,6 @@ public:
 
     std::string panelTypeId_;
 
-    std::vector< int > neighboringSurfaces_;
-
 };
 
 inline std::shared_ptr< BodyPanelSettings > bodyPanelSettings(
@@ -334,41 +332,6 @@ inline std::vector< std::shared_ptr< BodyPanelSettings > > bodyPanelSettingsList
         }
         pos = end_p;
     }
-    // find neighbours
-    for (int i = 0; i< static_cast<int>(bodyPanelSettingsList.size()); i++)
-    {
-        std::vector < int > neighboringSurfaces;
-        for (int j = 0; j< static_cast<int>(bodyPanelSettingsList.size()); j++)
-        {
-            if (i == j) {
-                continue;
-            }
-            std::vector<Eigen::Vector3d> V_i, V_j;
-            const std::shared_ptr< FrameFixedBodyPanelGeometrySettings > geometrySettingsI =
-                std::dynamic_pointer_cast< FrameFixedBodyPanelGeometrySettings >( bodyPanelSettingsList[i]->panelGeometry_ );
-            const std::shared_ptr< FrameFixedBodyPanelGeometrySettings > geometrySettingsJ =
-                std::dynamic_pointer_cast< FrameFixedBodyPanelGeometrySettings >( bodyPanelSettingsList[j]->panelGeometry_ );
-            V_i = { geometrySettingsI->vertexA_, geometrySettingsI->vertexB_, geometrySettingsI->vertexC_ };
-            V_j = { geometrySettingsJ->vertexA_, geometrySettingsJ->vertexB_, geometrySettingsJ->vertexC_ };
-            int match = 0;
-            for (int n = 0; n<3; n++ )
-            {
-                for ( int m = 0; m<3; m++ )
-                {
-                    if ( V_i[n].isApprox(V_j[m]) )
-                    {
-                        match++;
-                    }
-                }
-            }
-            if (match==2) 
-            {
-                neighboringSurfaces.push_back(j);
-            }
-            
-        }
-        bodyPanelSettingsList[i]->neighboringSurfaces_ = neighboringSurfaces;
-    }
 
     return bodyPanelSettingsList;
 
@@ -377,16 +340,8 @@ inline std::vector< std::shared_ptr< BodyPanelSettings > > bodyPanelSettingsList
 inline std::vector< std::shared_ptr< BodyPanelSettings > > mergeBodyPanelSettingsLists( std::vector< std::vector< std::shared_ptr< BodyPanelSettings > > > listOfLists )
 {
     std::vector< std::shared_ptr<BodyPanelSettings > > mergedList;
-    int buffer = 0;
     for ( auto it : listOfLists ) 
     {   
-        for ( auto panel : it )
-        {
-            panel->neighboringSurfaces_[0] += buffer;
-            panel->neighboringSurfaces_[1] += buffer;
-            panel->neighboringSurfaces_[2] += buffer;
-        }
-        buffer += it.size( );
         mergedList.insert(mergedList.end(), it.begin(), it.end());
     }
     return mergedList;

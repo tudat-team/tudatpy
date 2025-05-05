@@ -318,6 +318,12 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
         case illuminated_panel_fraction:
             variableName = "Illuminated fractions";
             break;
+        case cross_section_change:
+            variableName = "Cross section change";
+            break;
+        case full_body_paneled_geometry:
+            variableName = "Full body paneled geometry";
+            break;
         default:
             std::string errorMessage = "Error, dependent variable " + std::to_string( propagationDependentVariables ) +
                     "not found when retrieving parameter name ";
@@ -459,6 +465,15 @@ std::string getDependentVariableId( const std::shared_ptr< SingleDependentVariab
                             illuminatedPanelFractionDependentVariableSettings->secondaryBody_ + " for panel " + 
                             illuminatedPanelFractionDependentVariableSettings->panelTypeId_;
         }
+    }
+    if ( dependentVariableSettings->dependentVariableType_ == cross_section_change )
+    {
+        variableId += " of body " + dependentVariableSettings->associatedBody_ + " w.r.t. source " +
+                        dependentVariableSettings->secondaryBody_;
+    }
+    if ( dependentVariableSettings->dependentVariableType_ == full_body_paneled_geometry )
+    {
+        variableId += " of body " + dependentVariableSettings->associatedBody_;
     }
 
     return variableId;

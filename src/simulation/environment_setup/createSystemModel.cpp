@@ -76,7 +76,6 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
     bool geometry3dLoaded = false;
     system_models::Triangle3d triangle3d = system_models::Triangle3d( );
     Eigen::Vector3d frameOrigin = Eigen::Vector3d::Zero( );
-    std::vector< int > neighboringSurfaces( 3 );
 
     if( std::dynamic_pointer_cast< FrameFixedBodyPanelGeometrySettings >( panelSettings->panelGeometry_ ) != nullptr )
     {
@@ -94,7 +93,6 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
         Eigen::Vector3d vertexC = fixedBodyPanelGeometrySettings->vertexC_;
         triangle3d = system_models::Triangle3d(vertexA, vertexB, vertexC);
         frameOrigin = fixedBodyPanelGeometrySettings->frameOrigin_;
-        neighboringSurfaces = panelSettings->neighboringSurfaces_;
     }
     else if( std::dynamic_pointer_cast< FrameVariableBodyPanelGeometrySettings >( panelSettings->panelGeometry_ ) != nullptr )
     {
@@ -136,7 +134,7 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
     }
     std::shared_ptr< system_models::VehicleExteriorPanel > exteriorPanel = std::make_shared< system_models::VehicleExteriorPanel >(
             localFrameSurfaceNormal, localFramePositionVector, panelArea, panelTemperature, trackedBodyName, nullptr,
-            triangle3d, frameOrigin, neighboringSurfaces, geometry3dLoaded );
+            triangle3d, frameOrigin, geometry3dLoaded );
 
     if( panelSettings->reflectionLawSettings_ != nullptr )
     {
