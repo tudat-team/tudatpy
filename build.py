@@ -957,19 +957,19 @@ class Builder:
 
         # Source directory of tudatpy
         self.python_source_dir = Path(__file__).parent / "tudatpy/src/tudatpy"
-        if not self.python_source_dir.exists():
-            raise FileNotFoundError(
-                f"Failed to generate stubs: "
-                f"Source directory {self.python_source_dir} does not exist."
-            )
+        # if not self.python_source_dir.exists():
+        #     raise FileNotFoundError(
+        #         f"Failed to generate stubs: "
+        #         f"Source directory {self.python_source_dir} does not exist."
+        #     )
 
         # Source directory for compiled extensions
         self.extension_source_dir = self.build_dir / "tudatpy/src/tudatpy"
-        if not self.extension_source_dir.exists():
-            raise FileNotFoundError(
-                f"Failed to generate stubs: "
-                f"Source directory {self.extension_source_dir} does not exist."
-            )
+        # if not self.extension_source_dir.exists():
+        #     raise FileNotFoundError(
+        #         f"Failed to generate stubs: "
+        #         f"Source directory {self.extension_source_dir} does not exist."
+        #     )
 
         # Configuration flags
         # self.skip_tudat = "OFF" if self.args.build_tudat else "ON"
@@ -1019,6 +1019,30 @@ class Builder:
 
         # If clean build is requested, delete build directory
         if self.build_dir.exists() and self.args.clean_build:
+
+            uninstall_required: bool = False
+
+            # Check for new manifests
+            manifest_dir = self.build_dir / "manifests"
+            if manifest_dir.is_dir():
+                content = list(manifest_dir.iterdir())
+                if len(content) != 0:
+                    uninstall_required = True
+
+            # Check for old manifests
+            if (self.build_dir / "custom-manifest.txt").is_file():
+                uninstall_required = True
+
+            # If manifest present, ask to uninstall before
+            if uninstall_required:
+                print(
+                    "WARNING\n"
+                    "Installation manifests were found in the build "
+                    "directory.\nPlease, remove all your current "
+                    "installations of tudatpy\nwith the `uninstall.py`"
+                    "script before running a clean build."
+                )
+                exit(1)
 
             # TODO: Logger
             print(f"Removing pre-existing build directory: {self.build_dir}")
