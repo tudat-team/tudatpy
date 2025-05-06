@@ -984,12 +984,13 @@ void expose_radiation_pressure_setup( py::module& m )
 
  Function for creating settings for a paneled radiation pressure target model. Each source can have
  its own set of occulting bodies.
-
+ This model requires the :attr:`~tudatpy.numerical_simulation.environment_setup.BodySettings.vehicle_shape_settings` of type :class:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.FullPanelledBodySettings` to be defined.
+ The functions to define the panelled body settings are available in the :ref:`vehicle_systems` module.
 
  Parameters
  ----------
- source_to_target_occulting_bodies : Dict[str, List[str]]
-     Map (source name -> list of occulting body names) of bodies to occult sources as seen from this target.
+ source_to_target_occulting_bodies : dict[str, list[str]]
+     Dictionary (source name -> list of occulting body names) of bodies to occult sources as seen from this target.
  Returns
  -------
  RadiationPressureTargetModelSettings
