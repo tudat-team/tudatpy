@@ -1,3 +1,5 @@
+.. _util:
+
 ``util``
 ========
 Miscellaneous utilities.

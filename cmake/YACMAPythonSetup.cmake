@@ -24,10 +24,18 @@ if(_YACMA_PYTHON_MODULE_NEED_LINK)
 else()
     # NOTE: we need to determine the include dir on our own.
     if(NOT YACMA_PYTHON_INCLUDE_DIR)
-        execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "from __future__ import print_function\nfrom distutils import sysconfig\nprint(sysconfig.get_python_inc())"
-                OUTPUT_VARIABLE _YACMA_PYTHON_INCLUDE_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)
+        execute_process(
+            COMMAND ${PYTHON_EXECUTABLE} -c
+            "from sysconfig import get_paths\nprint(get_paths()['include'])"
+            OUTPUT_VARIABLE _YACMA_PYTHON_INCLUDE_DIR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
         if(_YACMA_PYTHON_INCLUDE_DIR)
-            set(YACMA_PYTHON_INCLUDE_DIR "${_YACMA_PYTHON_INCLUDE_DIR}" CACHE PATH "Path to the Python include dir.")
+            set(
+                YACMA_PYTHON_INCLUDE_DIR
+                "${_YACMA_PYTHON_INCLUDE_DIR}"
+                CACHE PATH "Path to the Python include dir."
+            )
         endif()
     endif()
     if(NOT YACMA_PYTHON_INCLUDE_DIR)
@@ -119,10 +127,10 @@ function(YACMA_PYTHON_MODULE name)
     if(CMAKE_COMPILER_IS_GNUCXX OR (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang" AND NOT MSVC))
         message(STATUS "Setting up extra compiler flag '-fwrapv' for the Python module '${name}'.")
         target_compile_options(${name} PRIVATE "-fwrapv")
-        if(${PYTHON_VERSION_MAJOR} LESS 3)
-            message(STATUS "Python < 3 detected, setting up extra compiler flag '-fno-strict-aliasing' for the Python module '${name}'.")
-            target_compile_options(${name} PRIVATE "-fno-strict-aliasing")
-        endif()
+        # if(${PYTHON_VERSION_MAJOR} LESS 3)
+        #     message(STATUS "Python < 3 detected, setting up extra compiler flag '-fno-strict-aliasing' for the Python module '${name}'.")
+        #     target_compile_options(${name} PRIVATE "-fno-strict-aliasing")
+        # endif()
     endif()
     if(APPLE AND ${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
         # On OSX + Clang this link flag is apparently necessary in order to avoid
