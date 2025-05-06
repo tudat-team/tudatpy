@@ -95,3 +95,21 @@ macro (update_sources import_path sources)
     list(APPEND sources ${new_sources})
 
 endmacro()
+
+macro (copy_python_in_build)
+
+    # Copy python files to build directory
+    file(GLOB_RECURSE py_files "${TUDATPY_SOURCE_DIR}/**/*.py")
+    foreach(py_file ${py_files})
+        file(RELATIVE_PATH py_file_name ${TUDATPY_SOURCE_DIR} ${py_file})
+        get_filename_component(parents ${py_file_name} DIRECTORY)
+        file(COPY ${py_file_name} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/${parents})
+    endforeach()
+
+    # Copy __init__.py in base directory
+    file(
+        COPY ${TUDATPY_SOURCE_DIR}/__init__.py
+        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
+    )
+
+endmacro()
