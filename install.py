@@ -90,8 +90,28 @@ class Installer:
                 f"Python library directory {self.pylib_dir} does not exist."
             )
 
+        # Resolve path to stubs directory
+        self.stubs_dir = self.build_dir / "tudatpy-stubs"
+
         # Define path to installation manifest
-        self.manifest = self.build_dir / "custom-manifest.txt"
+        self.manifest_dir = self.build_dir / "manifests"
+        self.manifest_dir.mkdir(parents=True, exist_ok=True)
+        self.manifest = self.manifest_dir / f"{self.conda_prefix.name}.txt"
+
+        # Backwards compatibility: Check if the old manifest exists
+        old_manifest = self.build_dir / "custom-manifest.txt"
+        if old_manifest.exists():
+            print(
+                "IMPORTANT WARNING:\n"
+                "The installation manifest from an older version of this script"
+                " was found.\nThis probably means that you installed tudatpy "
+                "using an older version of\nthis script, and you did not "
+                "uninstall it before updating tudat-bundle.\n\n"
+                "Please, have a look at this document before proceeding:\n"
+                "https://github.com/tudat-team/tudat-bundle/wiki/backwards-compatibility"
+            )
+            exit(0)
+
         if self.manifest.exists():
             raise RuntimeError("Delete current manifest before installation")
         # if self.manifest.exists():
@@ -247,6 +267,13 @@ class Installer:
                 self.pylib_dir / "tudatpy",
                 [".so", ".dll", ".dylib"],
             )
+
+            # Install stubs
+            if self.stubs_dir.exists():
+                self.link_single(
+                    self.stubs_dir,
+                    self.pylib_dir / "tudatpy-stubs",
+                )
 
         # Filter elements inside created directories out of manifest
         manifest_list = []
