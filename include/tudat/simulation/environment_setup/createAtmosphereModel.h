@@ -510,7 +510,8 @@ public:
     NRLMSISE00AtmosphereSettings( const std::string& spaceWeatherFile,
                                   const bool useStormConditions = false,
                                   const bool useAnomalousOxygen = true ):
-        AtmosphereSettings( nrlmsise00 ), spaceWeatherFile_( spaceWeatherFile ), useStormConditions_( useStormConditions ), useAnomalousOxygen_( useAnomalousOxygen )
+        AtmosphereSettings( nrlmsise00 ), spaceWeatherFile_( spaceWeatherFile ), useStormConditions_( useStormConditions ),
+        useAnomalousOxygen_( useAnomalousOxygen )
     { }
 
     //  Function to return file containing space weather data.
