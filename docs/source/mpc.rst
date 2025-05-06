@@ -1,3 +1,5 @@
+.. _mpc:
+
 ``mpc``
 =================
 This module contains a wrapper for the mpc interface of the astroquery package

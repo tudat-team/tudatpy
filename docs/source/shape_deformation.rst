@@ -1,3 +1,5 @@
+.. _shape_deformation:
+
 ``shape_deformation``
 =====================
 This module contains a set of factory functions for setting up the
