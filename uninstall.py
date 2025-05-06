@@ -36,10 +36,39 @@ class Remover:
                 f"Build directory {self.build_dir} does not exist."
             )
 
+        # Resolve conda prefix
+        self.conda_prefix = Path(os.environ["CONDA_PREFIX"])
+        if not self.conda_prefix.exists():
+            raise FileNotFoundError(
+                f"Conda prefix {self.conda_prefix} does not exist."
+            )
+
         # Resolve installation manifest
-        self.manifest = self.build_dir / "custom-manifest.txt"
+        self.manifest_dir = self.build_dir / "manifests"
+        self.manifest = self.manifest_dir / f"{self.conda_prefix.name}.txt"
         if not self.manifest.exists():
-            raise FileNotFoundError("Installation manifest not found")
+
+            # Backwards compatibility: Try to look for the old manifest
+            self.manifest = self.build_dir / "custom-manifest.txt"
+            if not self.manifest.exists():
+                raise FileNotFoundError(
+                    "Installation manifest not found for active "
+                    f"conda environment: {self.conda_prefix.name}"
+                )
+
+            # Check if the format of the old manifest is compatible
+            content = self.manifest.read_text().splitlines()
+            for line in content:
+                if len(line.split(" ")) != 2 and line != "":
+                    print(
+                        "WARNING\n"
+                        "It looks like your current installation of tudatpy was"
+                        "\ninstalled using a version of `tudat-bundle` that is"
+                        "\nincompatible with this script.\n"
+                        "You can find instructions on how to remove it here:\n"
+                        "https://github.com/tudat-team/tudat-bundle/wiki/backwards-compatibility"
+                    )
+                    exit(1)
 
         return None
 
