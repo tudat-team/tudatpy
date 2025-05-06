@@ -167,7 +167,8 @@ public:
 
     /*!
      * Setter for useGeodeticLatitude
-     * \param useGeodeticLatitude Boolean indicating whether geodetic latitude is used for density computation instead of geocentric latitude
+     * \param useGeodeticLatitude Boolean indicating whether geodetic latitude is used for density computation instead of geocentric
+     * latitude
      */
     void setUseGeodeticLatitude( const bool useGeodeticLatitude )
     {
