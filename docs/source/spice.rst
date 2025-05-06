@@ -31,6 +31,8 @@ Functions
 
    convert_date_string_to_ephemeris_time
 
+   get_approximate_utc_from_tdb
+
    get_body_cartesian_state_at_epoch
 
    get_body_cartesian_position_at_epoch
@@ -68,6 +70,8 @@ Functions
 .. autofunction:: tudatpy.interface.spice.convert_ephemeris_time_to_julian_date
 
 .. autofunction:: tudatpy.interface.spice.convert_date_string_to_ephemeris_time
+
+.. autofunction:: tudatpy.interface.spice.get_approximate_utc_from_tdb
 
 .. autofunction:: tudatpy.interface.spice.get_body_cartesian_state_at_epoch
 
