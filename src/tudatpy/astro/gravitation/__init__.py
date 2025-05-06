@@ -1,1 +1,1 @@
-from ...kernel.astro.gravitation import *
+from tudatpy.kernel.astro.gravitation import *
