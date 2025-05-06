@@ -1,3 +1,5 @@
+.. _vehicle_systems:
+
 ``vehicle_systems``
 ===================
 This module contains a set of factory functions for setting up physical and system properties of a vehicle.
