@@ -165,6 +165,24 @@ public:
         windModel_ = windModel;
     }
 
+    /*!
+     * Setter for useGeodeticLatitude
+     * \param useGeodeticLatitude Boolean indicating whether geodetic latitude is used for density computation instead of geocentric latitude
+     */
+    void setUseGeodeticLatitude( const bool useGeodeticLatitude )
+    {
+        useGeodeticLatitude_ = useGeodeticLatitude;
+    }
+
+    /*!
+     * Setter for useUtc
+     * \param useUtc Boolean indicating whether UTC time is used for density computation instead of seconds since J2000
+     */
+    void setUseUtc( const bool useUtc )
+    {
+        useUtc_ = useUtc;
+    }
+
     bool getUseGeodeticLatitude( )
     {
         return useGeodeticLatitude_;
