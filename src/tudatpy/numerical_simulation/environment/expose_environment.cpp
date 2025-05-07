@@ -2403,7 +2403,10 @@ void expose_environment( py::module &m )
      )doc" )
             .def( "set_timing_system",
                   &tgs::GroundStation::setTimingSystem,
-                  py::arg( "timing_system" ) );
+                  py::arg( "timing_system" ) )
+
+            .def("set_station_meteo_data", &tudat::ground_stations::GroundStation::setMeteoData, py::arg("meteo_data"));
+
 
     py::class_< tgs::StationFrequencyInterpolator,
                 std::shared_ptr< tgs::StationFrequencyInterpolator > >(
@@ -2443,6 +2446,29 @@ void expose_environment( py::module &m )
                   &tgs::PointingAnglesCalculator::convertVectorFromInertialToTopocentricFrame,
                   py::arg( "inertial_vector" ),
                   py::arg( "time" ) );
+
+    py::enum_< tudat::ground_stations::MeteoDataEntries >( m, "MeteoDataEntries" )
+                  .value( "temperature_meteo_data", tudat::ground_stations::temperature_meteo_data )
+                  .value( "pressure_meteo_data", tudat::ground_stations::pressure_meteo_data )
+                  .value( "water_vapor_pressure_meteo_data", tudat::ground_stations::water_vapor_pressure_meteo_data )
+                  .value( "relative_humidity_meteo_data", tudat::ground_stations::relative_humidity_meteo_data )
+                  .value( "dew_point_meteo_data", tudat::ground_stations::dew_point_meteo_data )
+                  .export_values();
+    
+    py::class_< tudat::ground_stations::StationMeteoData,
+                std::shared_ptr< tudat::ground_stations::StationMeteoData > >(
+        m, "StationMeteoData" );
+    
+    py::class_< tudat::ground_stations::ContinuousInterpolatedMeteoData,
+                std::shared_ptr< tudat::ground_stations::ContinuousInterpolatedMeteoData >,
+                tudat::ground_stations::StationMeteoData >(
+            m, "ContinuousInterpolatedMeteoData" )
+            .def( py::init<
+                std::shared_ptr< tudat::interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > >,
+                std::map< tudat::ground_stations::MeteoDataEntries, int > >( ),
+                py::arg( "interpolator" ),
+                py::arg( "vector_entries" ) );
+          
 
     /*!
      **************   BODY OBJECTS AND ASSOCIATED FUNCTIONALITY
