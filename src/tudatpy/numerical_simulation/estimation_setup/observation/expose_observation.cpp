@@ -3179,6 +3179,11 @@ void expose_observation_setup( py::module& m )
 
       )doc" );
 
+    py::enum_< tudat::observation_models::ObservationIntermediateSimulationVariable >(m, "ObservationIntermediateSimulationVariable")
+      .value("transmitter_frequency_intermediate", tudat::observation_models::ObservationIntermediateSimulationVariable::transmitter_frequency_intermediate)
+      .value("received_frequency_intermediate", tudat::observation_models::ObservationIntermediateSimulationVariable::received_frequency_intermediate)
+      .export_values();
+
     py::class_< tom::ObservationAncilliarySimulationSettings,
                 std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >(
             m,
@@ -3220,6 +3225,9 @@ void expose_observation_setup( py::module& m )
 
 
       )doc" )
+            .def("set_intermediate_double_data",
+                &tudat::observation_models::ObservationAncilliarySimulationSettings::setIntermediateDoubleData,
+                py::arg("variable"), py::arg("value"))
             .def( "get_float_settings",
                   &tom::ObservationAncilliarySimulationSettings::getAncilliaryDoubleData,
                   py::arg( "setting_type" ),
