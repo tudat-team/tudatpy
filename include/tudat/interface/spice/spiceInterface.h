@@ -279,6 +279,10 @@ std::string getErrorMessage( );
  */
 bool checkFailure( );
 
+void setDefaultSpiceErrorHandling( );
+
+void throwSpiceException( );
+
 }  // namespace spice_interface
 }  // namespace tudat
 

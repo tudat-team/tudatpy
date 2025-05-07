@@ -10,6 +10,7 @@
  */
 
 #include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/interface/spice/spiceException.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/paths.hpp"
@@ -72,6 +73,8 @@ Eigen::Vector6d getBodyCartesianStateAtEpoch( const std::string &targetBodyName,
                                               const std::string &aberrationCorrections,
                                               const double ephemerisTime )
 {
+    setDefaultSpiceErrorHandling( );
+
     if( !( ephemerisTime == ephemerisTime ) )
     {
         throw std::invalid_argument( "Error when retrieving Cartesian state from Spice, input time is " + std::to_string( ephemerisTime ) );
@@ -100,7 +103,8 @@ Eigen::Vector6d getBodyCartesianStateAtEpoch( const std::string &targetBodyName,
     }
     else
     {
-        cartesianStateVector.setConstant( 1.0E12 );
+        throwSpiceException( );
+        // cartesianStateVector.setConstant( 1.0E12 );
     }
 
     // Convert from km(/s) to m(/s).
@@ -611,13 +615,34 @@ bool checkFailure( )
 {
     if( failed_c( ) )
     {
-        reset_c( );
+        // reset_c( );
         return true;
     }
     else
     {
         return false;
     }
+}
+
+void setDefaultSpiceErrorHandling( )
+{
+    erract_c( "SET", 0, "RETURN" );
+    errdev_c( "SET", 0, "NULL" );
+}
+
+void throwSpiceException( )
+{
+    const u_int MSGLEN = 1841;
+    SpiceChar shortMessage[ MSGLEN ];
+    SpiceChar longMessage[ MSGLEN ];
+    SpiceChar explanation[ MSGLEN ];
+    getmsg_c( "SHORT", MSGLEN, shortMessage );
+    getmsg_c( "LONG", MSGLEN, longMessage );
+    getmsg_c( "EXPLAIN", MSGLEN, explanation );
+
+    throw tudat::exceptions::SpiceError( static_cast< std::string >( shortMessage ),
+                                         static_cast< std::string >( longMessage ),
+                                         static_cast< std::string >( explanation ) );
 }
 }  // namespace spice_interface
 }  // namespace tudat
