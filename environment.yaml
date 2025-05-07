@@ -21,6 +21,7 @@ dependencies:
   - matplotlib # for tudatpy.plotting
   - tqdm       # for tudatpy.trajectory_design.porkchop
   - astropy    # for tudatpy.data.mpc
+  - astroquery>0.4.8 # for tudatpy.data.mpc
   - astropy-healpix  # for tudatpy.data._biases
   - spiceypy # for automatic data downloader and kernel converter
   # Data downloader tabular output
@@ -35,7 +36,6 @@ dependencies:
   # Pip
   - pip
   - pip:
-     - astroquery==0.4.8.dev9321 # for tudatpy.data.mpc
      - nbsphinx
      - sphinxcontrib-napoleon
      - sphinx_rtd_theme
