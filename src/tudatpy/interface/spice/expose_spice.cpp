@@ -90,6 +90,29 @@ void expose_spice( py::module &m )
 
      )doc" );
 
+
+    m.def( "get_approximate_utc_from_tdb",
+       &tudat::spice_interface::getApproximateUtcFromTdb,
+       py::arg( "ephemeris_time" ),
+       R"doc(
+
+ Get an approximate UTC time from ephemeris time (TDB).
+
+ This function computes an approximate UTC time from the given ephemeris time (TDB). 
+ It uses the `deltet_c` Spice function to calculate the offset between TDB and UTC.
+
+ Parameters
+ ----------
+ ephemeris_time : float
+     Ephemeris time (TDB) to be converted to UTC.
+
+ Returns
+ -------
+ utc_time : float
+     Approximate UTC time corresponding to the given ephemeris time.
+
+     )doc" );
+
     //  m.def("jd2tdb",
     //  m.attr("convert_julian_date_to_ephemeris_time"));
 
