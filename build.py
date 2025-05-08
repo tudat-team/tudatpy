@@ -1,11 +1,27 @@
 import argparse
 from pathlib import Path
 import shutil
-from contextlib import chdir
+from contextlib import chdir, contextmanager
 import subprocess
 import os
 import ast
 import tempfile
+from dataclasses import dataclass
+from typing import Generator
+
+
+@dataclass
+class Environment:
+    """Mock environment
+
+    :param variables: Dictionary of environment variables
+    :param tmp: Path to the temporary directory
+    :param prefix: Path to the mock installation prefix
+    """
+
+    variables: dict[str, str]
+    tmp: Path
+    prefix: Path
 
 
 class BuildParser(argparse.ArgumentParser):
@@ -37,16 +53,28 @@ class BuildParser(argparse.ArgumentParser):
             help="Skip the execution of the CMake setup command. [Default: True]",
         )
         basic_group.add_argument(
+            "--skip-build",
+            dest="skip_build",
+            action="store_true",
+            help="Don't build the libraries [Default: False]",
+        )
+        basic_group.add_argument(
             "--skip-stubs",
             dest="skip_stubs",
             action="store_true",
             help="Skip the generation of stubs [Default: False]",
         )
         basic_group.add_argument(
+            "--docs",
+            dest="build_api_docs",
+            action="store_true",
+            help="Build API documentation. Output will be stored in <build-dir>/api-docs. [Default: False]",
+        )
+        basic_group.add_argument(
             "--stubs-only",
             dest="skip_build",
             action="store_true",
-            help="Do not build the libraries [Default: False]",
+            help="Only update the stubs [Default: False]",
         )
 
         # Control CMake behavior
@@ -103,7 +131,7 @@ class StubGenerator:
     ignored_modules: list[str] = ["temp", "io"]
     ignored_methods: list[str] = ["_pybind11_conduit_v1_"]
 
-    def __init__(self, build_dir: Path) -> None:
+    def __init__(self, build_dir: Path, mock_env: "Environment") -> None:
 
         # Ensure that build directory exists
         build_dir = Path(build_dir).absolute()
@@ -129,53 +157,13 @@ class StubGenerator:
                 f"Source directory {self.extension_source_dir} does not exist."
             )
 
+        # Mock environment
+        self.mock_env = mock_env
+
         # Define the path to the stub directory
         self.stubs_dir = build_dir / "tudatpy-stubs"
 
         return None
-
-    def __create_mock_environment(
-        self, tmp: Path
-    ) -> tuple[dict[str, str], Path]:
-        """Mock environment for stub generation
-
-        Pybind11-stubgen can only generate stubs for installed packages. This
-        would be problematic, as it would prevent integrating stub generation
-        in the build script, and possibly a Github action.
-
-        This function solves this problem by installing tudatpy in a temporary
-        directory, and then creating a mock environment in which this directory
-        is part of the PYTHONPATH. This fools pybind11-stubgen into thinking
-        that the library is installed without ever modifying the actual conda
-        environment.
-
-        :param tmp: Path to the temporary directory
-        :return: Tuple containing the mock environment and the path to the
-            mock installation directory
-        """
-
-        # Create mock installation directory in tmp
-        mock_install_directory = tmp / "mock_install"
-        mock_install_directory.mkdir(exist_ok=False, parents=False)
-
-        # Install tudatpy in the mock installation directory
-        shutil.copytree(
-            self.python_source_dir,
-            mock_install_directory / "tudatpy",
-        )
-        shutil.copy(
-            self.extension_source_dir / "kernel.so",
-            mock_install_directory / "tudatpy/kernel.so",
-        )
-
-        # Create mock environment with tudatpy in PYTHONPATH
-        env = os.environ.copy()
-        if "PYTHONPATH" not in env:
-            env["PYTHONPATH"] = str(mock_install_directory)
-        else:
-            env["PYTHONPATH"] += f":{mock_install_directory}"
-
-        return env, mock_install_directory
 
     def __parse_script(self, stub_path: Path) -> ast.Module:
         """Parse a python script
@@ -220,7 +208,7 @@ class StubGenerator:
         return unparsed_content
 
     def __fix_tudatpy_imports(
-        self, module: ast.Module, stub: Path, tmp: Path
+        self, module: ast.Module, stub: Path
     ) -> ast.Module:
         """Fix imports from tudatpy
 
@@ -457,9 +445,7 @@ class StubGenerator:
 
         return None
 
-    def __generate_default_kernel_stubs(
-        self, tmp: Path, env: dict[str, str]
-    ) -> None:
+    def __generate_default_kernel_stubs(self) -> None:
 
         print("Generating stubs for tudatpy.kernel...")
 
@@ -469,16 +455,16 @@ class StubGenerator:
                 "pybind11-stubgen",
                 "tudatpy.kernel",
                 "-o",
-                str(tmp),
+                str(self.mock_env.tmp),
                 "--numpy-array-wrap-with-annotated",
             ],
-            env=env,
+            env=self.mock_env.variables,
         )
         if outcome.returncode:
             raise RuntimeError("Failed to generate stub for tudatpy.kernel")
 
         # Relocate stubs in the build directory
-        tmp_stubs_dir: Path = tmp / "tudatpy/kernel"
+        tmp_stubs_dir: Path = self.mock_env.tmp / "tudatpy/kernel"
         for stub in tmp_stubs_dir.rglob("*.pyi"):
 
             # Get path relative to output directory of pybind11-stubgen
@@ -504,18 +490,16 @@ class StubGenerator:
 
         return None
 
-    def __generate_default_python_stubs(
-        self, tmp: Path, mock_install: Path
-    ) -> None:
+    def __generate_default_python_stubs(self) -> None:
 
         print("Generating stubs for Python source code...")
 
         # Create directory for python stubs in tmp
-        python_stubs = tmp / "python_stubs"
+        python_stubs = self.mock_env.tmp / "python_stubs"
         python_stubs.mkdir(exist_ok=False, parents=False)
 
         # Generate stubs for Python source code
-        for item in (mock_install / "tudatpy").rglob("*.py"):
+        for item in (self.mock_env.prefix / "tudatpy").rglob("*.py"):
 
             # Skip if __init__.py or if it is in __pycache__
             if item.name == "__init__.py" or "__pycache__" in str(item):
@@ -523,7 +507,7 @@ class StubGenerator:
 
             # Skip if it belongs to an ignored module
             if (
-                item.relative_to(mock_install / "tudatpy").parts[0]
+                item.relative_to(self.mock_env.prefix / "tudatpy").parts[0]
                 in self.ignored_modules
             ):
                 continue
@@ -552,13 +536,13 @@ class StubGenerator:
 
         return None
 
-    def __fix_autogenerated_stubs(self, tmp: Path) -> None:
+    def __fix_autogenerated_stubs(self) -> None:
 
         for stub in self.stubs_dir.rglob("*.pyi"):
 
             module = self.__parse_script(stub)
             module = self.__fix_external_imports(module)
-            module = self.__fix_tudatpy_imports(module, stub, tmp)
+            module = self.__fix_tudatpy_imports(module, stub)
             module = self.__remove_autogenerated_methods(module)
             module = self.__adjust_docstring_indentation(module)
             content = self.__unparse_script(module)
@@ -939,23 +923,14 @@ class StubGenerator:
         # Create directory directory structure for stubs
         self.__create_stubs_directory_structure()
 
-        # Create temporary directory for stub generation
-        with tempfile.TemporaryDirectory() as tmp_str:
+        # Generate default stubs for tudatpy.kernel
+        self.__generate_default_kernel_stubs()
 
-            # Create path object for the tmp directory
-            tmp = Path(tmp_str)
+        # Generate default stubs for Python source code
+        self.__generate_default_python_stubs()
 
-            # Generate mock environment with tudatpy installed
-            env, mock_install = self.__create_mock_environment(tmp)
-
-            # Generate default stubs for tudatpy.kernel
-            self.__generate_default_kernel_stubs(tmp, env)
-
-            # Generate Python stubs
-            self.__generate_default_python_stubs(tmp, mock_install)
-
-            # Fix autogenerated stubs
-            self.__fix_autogenerated_stubs(tmp)
+        # Fix autogenerated stubs
+        self.__fix_autogenerated_stubs()
 
         # Missing: Fix __init__.pyi stubs to expand star imports
         self.__generate_init_stubs()
@@ -980,6 +955,22 @@ class Builder:
                 f"Conda prefix {self.conda_prefix} does not exist."
             )
 
+        # Source directory of tudatpy
+        self.python_source_dir = Path(__file__).parent / "tudatpy/src/tudatpy"
+        # if not self.python_source_dir.exists():
+        #     raise FileNotFoundError(
+        #         f"Failed to generate stubs: "
+        #         f"Source directory {self.python_source_dir} does not exist."
+        #     )
+
+        # Source directory for compiled extensions
+        self.extension_source_dir = self.build_dir / "tudatpy/src/tudatpy"
+        # if not self.extension_source_dir.exists():
+        #     raise FileNotFoundError(
+        #         f"Failed to generate stubs: "
+        #         f"Source directory {self.extension_source_dir} does not exist."
+        #     )
+
         # Configuration flags
         # self.skip_tudat = "OFF" if self.args.build_tudat else "ON"
         # self.skip_tudatpy = "OFF" if self.args.build_tudatpy else "ON"
@@ -987,10 +978,71 @@ class Builder:
 
         return None
 
+    @contextmanager
+    def mock_environment(self) -> Generator[Environment, None, None]:
+
+        try:
+            # Generate temporary directory
+            _tmp = tempfile.TemporaryDirectory()
+            tmp = Path(_tmp.name)
+
+            # Mock installation prefix in tmp
+            mock_prefix = tmp / "mock_install"
+            mock_prefix.mkdir(exist_ok=False, parents=False)
+
+            # Temporary installation of tudatpy
+            shutil.copytree(
+                self.python_source_dir,
+                mock_prefix / "tudatpy",
+            )
+            shutil.copy(
+                self.extension_source_dir / "kernel.so",
+                mock_prefix / "tudatpy/kernel.so",
+            )
+
+            # Create mock environment with tudatpy in PYTHONPATH
+            mock_env = os.environ.copy()
+            if "PYTHONPATH" not in mock_env:
+                mock_env["PYTHONPATH"] = str(mock_prefix)
+            else:
+                mock_env["PYTHONPATH"] += f":{mock_prefix}"
+
+            # Pack data and return
+            yield Environment(mock_env, tmp, mock_prefix)
+
+        finally:
+            # Remove temporary directory
+            if _tmp:
+                _tmp.cleanup()
+
     def build_libraries(self) -> None:
 
         # If clean build is requested, delete build directory
         if self.build_dir.exists() and self.args.clean_build:
+
+            uninstall_required: bool = False
+
+            # Check for new manifests
+            manifest_dir = self.build_dir / "manifests"
+            if manifest_dir.is_dir():
+                content = list(manifest_dir.iterdir())
+                if len(content) != 0:
+                    uninstall_required = True
+
+            # Check for old manifests
+            if (self.build_dir / "custom-manifest.txt").is_file():
+                uninstall_required = True
+
+            # If manifest present, ask to uninstall before
+            if uninstall_required:
+                print(
+                    "WARNING\n"
+                    "Installation manifests were found in the build "
+                    "directory.\nPlease, remove all your current "
+                    "installations of tudatpy\nwith the `uninstall.py`"
+                    "script before running a clean build."
+                )
+                exit(1)
 
             # TODO: Logger
             print(f"Removing pre-existing build directory: {self.build_dir}")
@@ -1062,9 +1114,43 @@ class Builder:
             if outcome.returncode:
                 exit(outcome.returncode)
 
-        # Generate stubs for tudatpy
-        if not self.args.skip_stubs:
-            StubGenerator(self.build_dir).generate_stubs()
+        return None
+
+    def generate_api_docs(self, mock_env: Environment) -> None:
+        """Generate API documentation for the library
+
+        :param mock_env: Mock environment with tudatpy installed
+        """
+
+        print("Building API documentation...")
+
+        # Create directory for API docs in build
+        api_docs_build_dir = Path(self.build_dir) / "api-docs"
+        if api_docs_build_dir.exists():
+            shutil.rmtree(api_docs_build_dir)
+        api_docs_build_dir.mkdir(parents=True, exist_ok=False)
+
+        # -E is added to force a clean API docs build, as changes in the compiled kernel are not detected otherwise
+        api_docs_build_command = [
+            "sphinx-build",
+            "-b",
+            "html",
+            "tudatpy/docs/source",
+            str(api_docs_build_dir),
+            "-E",
+        ]
+        if self.args.verbose:
+            api_docs_build_command.append("--verbose")
+
+        outcome = subprocess.run(api_docs_build_command, env=mock_env.variables)
+        if outcome.returncode:
+            exit(outcome.returncode)
+
+        return None
+
+    def generate_stubs(self, mock_env: Environment) -> None:
+
+        StubGenerator(self.build_dir, mock_env).generate_stubs()
 
         return None
 
@@ -1073,7 +1159,17 @@ if __name__ == "__main__":
 
     args = BuildParser().parse_args()
     builder = Builder(args)
-    if args.skip_build:
-        StubGenerator(builder.build_dir).generate_stubs()
-    else:
+
+    # Build libraries
+    if not args.skip_build:
         builder.build_libraries()
+
+    with builder.mock_environment() as mock_env:
+
+        # Generate stubs
+        if not args.skip_stubs:
+            builder.generate_stubs(mock_env)
+
+        # Generate API documentation
+        if args.build_api_docs:
+            builder.generate_api_docs(mock_env)
