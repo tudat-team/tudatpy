@@ -241,10 +241,10 @@ public:
             const std::map< std::string, std::function< Eigen::Quaterniond( ) > >& segmentFixedToBodyFixedRotations =
                     std::map< std::string, std::function< Eigen::Quaterniond( ) > >( ),
             const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = { }, 
-            const int maximumNumberOfPixels = 0):
+            const std::map< std::string, int > maximumNumberOfPixelsPerSource = { } ):
         RadiationPressureTargetModel( sourceToTargetOccultingBodies ), bodyFixedPanels_( bodyFixedPanels ),
         segmentFixedPanels_( segmentFixedPanels ), segmentFixedToBodyFixedRotations_( segmentFixedToBodyFixedRotations ),
-        maximumNumberOfPixels_( maximumNumberOfPixels )
+        maximumNumberOfPixelsPerSource_( maximumNumberOfPixelsPerSource )
     {
         totalNumberOfPanels_ = bodyFixedPanels_.size( );
         fullPanels_ = bodyFixedPanels_;
@@ -296,16 +296,17 @@ public:
         panelForces_.resize( totalNumberOfPanels_ );
         surfacePanelCosines_.resize( totalNumberOfPanels_ );
         surfaceNormals_.resize( totalNumberOfPanels_ );
-        allRotatedPanels_.resize( totalNumberOfPanels_ );
         illuminatedPanelFractions_.resize( totalNumberOfPanels_ );
 
+        allRotatedPanels_ = fullPanels_;
+
         // check if macro-model is loaded (find at least one geometry3dLoaded == false)
-        macroModelLoaded_ = true;
+        panelGeometryDefined_ = true;
         for (int i = 0; i<totalNumberOfPanels_; i++)
         {
-            if ( !fullPanels_[i]->isGeometryLoaded( ) ) 
+            if ( !fullPanels_[i]->isGeometryDefined( ) ) 
             {   
-                macroModelLoaded_ = false;
+                panelGeometryDefined_ = false;
                 break;
             }
         }
@@ -315,6 +316,28 @@ public:
         {
             panelTypeIdList_[ i ] = fullPanels_[ i ]->getPanelTypeId( );
         }
+        // create map of self-shadowing objects per source
+        for ( auto it : maximumNumberOfPixelsPerSource_ )
+        {
+            if ( it.second < 0 || it.second == 1 )
+            {
+                throw std::runtime_error( "Error, invalid maximum number of pixels for source " + it.first + ", value should be > 2.");
+            }
+            if ( it.second > 1 && !panelGeometryDefined_ )
+            {
+                throw std::runtime_error( "Error, maximum number of pixels given for source " + it.first + ", however, no panel geometry is defined." );
+            }
+            selfShadowingPerSource_[ it.first ] = std::make_shared< system_models::SelfShadowing >( system_models::SelfShadowing( allRotatedPanels_, it.second ) );
+        }
+        // add possible omitted sources, set them to zero
+        for ( auto it : sourceToTargetOccultingBodies_ )
+        {
+            if ( selfShadowingPerSource_.count( it.first ) == 0 )
+            {
+                selfShadowingPerSource_[ it.first ] = std::make_shared< system_models::SelfShadowing >( system_models::SelfShadowing( allRotatedPanels_, 0 ) );
+            }
+        }
+
     }
 
     void enableTorqueComputation( const std::function< Eigen::Vector3d( ) > centerOfMassFunction ) override
@@ -401,9 +424,9 @@ public:
 
     void saveLocalComputations( const std::string sourceName, const bool saveCosines ) override;
 
-    bool isMacroModelLoaded( ) const
+    bool isPanelGeometryDefined( ) const
     {
-        return macroModelLoaded_;
+        return panelGeometryDefined_;
     }
 
     std::vector< double > getIlluminatedPanelFractions( const std::string& sourceName ) 
@@ -483,10 +506,10 @@ private:
     std::map< std::string, std::vector< double > > illuminatedPanelFractionsPerSource_;
 
     // ssh variables
-    int maximumNumberOfPixels_;
-    bool macroModelLoaded_;
+    std::map< std::string, int > maximumNumberOfPixelsPerSource_;
+    bool panelGeometryDefined_;
 
-    system_models::SelfShadowing selfShadowing_;
+    std::map< std::string, std::shared_ptr< system_models::SelfShadowing > > selfShadowingPerSource_;
     std::vector< std::string > panelTypeIdList_;
     std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > allRotatedPanels_;
 };

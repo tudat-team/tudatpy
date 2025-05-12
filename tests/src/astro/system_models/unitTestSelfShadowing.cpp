@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE( testFractionAnalytical )
             indexesLit.push_back( i );
         }
     }
-
+    SelfShadowing selfShadowing( bodyFixedPanels, maximumNumberOfPixels );
     for ( unsigned int i = 0; i<angles.size( ); i++ )
     {
         Eigen::Vector3d incomingDirection;
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( testFractionAnalytical )
         incomingDirection( 1 ) = 0;
         incomingDirection( 2 ) = -std::sin( angles[ i ] );
 
-        SelfShadowing selfShadowing( bodyFixedPanels, incomingDirection, maximumNumberOfPixels );
+        selfShadowing.updateIlluminatedPanelFractions( incomingDirection );
         std::vector< double > illuminatedPanelFractions = selfShadowing.getIlluminatedPanelFractions( );
         double trueFractionShaded = 1.0 - std::tan( angles[ i ] );
         double trueFractionLit = 1.0;

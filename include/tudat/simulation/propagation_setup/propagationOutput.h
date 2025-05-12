@@ -1860,7 +1860,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                         targetBody + " not found";
                 throw std::runtime_error( errorMessage );
             }
-            if ( !paneledRadiationPressureTargetModel->isMacroModelLoaded( ) )
+            if ( !paneledRadiationPressureTargetModel->isPanelGeometryDefined( ) )
             {
                 throw std::runtime_error( "Error, macromodel for paneled target " + targetBody + " not found" );
             }
