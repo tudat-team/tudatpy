@@ -946,7 +946,7 @@ CannonballRadiationPressureTargetModelSettings
     m.def( "panelled_radiation_target",
            &tss::paneledRadiationPressureTargetModelSettingsWithOccultationMap,
            py::arg( "source_to_target_occulting_bodies" ) = std::map< std::string, std::vector< std::string > >( ),
-           py::arg( "maximum_number_of_pixels" ) = 0,
+           py::arg( "maximum_number_of_pixels_per_source" ) = std::map< std::string, int >( ),
            R"doc(
 
 Function for creating settings for a paneled radiation pressure target model
@@ -959,8 +959,8 @@ Parameters
 ----------
 source_to_target_occulting_bodies : Dict[str, List[str]]
     Map (source name -> list of occulting body names) of bodies to occult sources as seen from this target.
-maximum_number_of_pixels : int, default = 0
-    Maximum number of pixels used in the self-shadowing algorithm, default to zero (meaning SSH is not accounted for).
+maximum_number_of_pixels : Dict[str, int]
+    Maximum number of pixels used in the self-shadowing algorithm per source, omitting a the value or setting it to zero equals to not considering self-shadowing for a given source.
 Returns
 -------
 RadiationPressureTargetModelSettings
