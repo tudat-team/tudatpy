@@ -612,7 +612,7 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
                         targetBody + " not found";
                 throw std::runtime_error( errorMessage );
             }
-            if ( !paneledRadiationPressureTargetModel->isMacroModelLoaded( ) )
+            if ( !paneledRadiationPressureTargetModel->isPanelGeometryDefined( ) )
             {
                 throw std::runtime_error( "Error, macromodel for paneled target " + targetBody + " not found" );
             }

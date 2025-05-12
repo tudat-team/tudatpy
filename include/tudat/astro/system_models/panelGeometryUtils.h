@@ -7,25 +7,30 @@
 *    a copy of the license with this file. If not, please or visit:
 *    http://tudat.tudelft.nl/LICENSE.
 */
-#ifndef TUDAT_GEOMETRYUTILS_H
-#define TUDAT_GEOMETRYUTILS_H
+#ifndef TUDAT_PANELGEOMETRYUTILS_H
+#define TUDAT_PANELGEOMETRYUTILS_H
 
 #include <map>
 #include <iostream>
 #include <memory>
+#include <Eigen/Dense>
+#include <vector>
 
 namespace tudat
 {
-
 namespace system_models
 {
+/*!
+ * Class containing all the information regarding a two-dimendional triangle.
+ *
+ * Class members are: 2d points (vertices of the triangle).
+ */    
 class Triangle2d
 {
 private:
     Eigen::Vector2d vertexA_, vertexB_, vertexC_;
 
 public:
-   // default constructor
    Triangle2d( ):
    vertexA_( Eigen::Vector2d::Zero() ),
    vertexB_( Eigen::Vector2d::Zero() ),
@@ -53,7 +58,11 @@ public:
        return vertexC_;
    }
 };
-
+/*!
+ * Class containing all the information regarding a three-dimendional triangle.
+ *
+ * Class members are: 3d points (vertices of the triangle) and two unit vectors (base of the plane on which the triangle lies).
+ */   
 class Triangle3d
 {
 private:
@@ -77,6 +86,7 @@ public:
                vertexC_( vertexC ) 
    {  
         // compute unit vectors l, m
+        // for simplicity, l is chosen as edge AB and m as the scalar product of the normal and l
         versorL_ = ( vertexB_ - vertexA_ ).normalized( ) ;
         Eigen::Vector3d edgeAB = vertexB_ - vertexA_;
         Eigen::Vector3d edgeAC = vertexC_ - vertexA_;
@@ -105,30 +115,29 @@ public:
        return versorM_;
    }
 };
-
+/*!
+ * Class used to compute the parallel projection of a 3d triangle wrt a given direction onto a given plane, identified by another 3d triangle.
+ *
+ * Class members are: values of the coordinates using the decomposition via the (l, m) base, the resulting 2d triangle, the parallel distances lambdas
+ * of the vectices from the plane, logic vectors to check if the lambdas are actually positive or negative (hence, not close to zero due to numerical rounding).
+ */   
 class ParallelProjection
 {
 private:
-    double minCoordinateL_, maxCoordinateL_, minCoordinateM_, maxCoordinateM_;
+    double minimumCoordinateL_, maximumCoordinateL_, minimumCoordinateM_, maximumCoordinateM_;
     Triangle2d triangle2d_;
     std::vector< double > lambdas_;
     std::vector< bool > areLambdasActuallyPositive_;
     std::vector< bool > areLambdasActuallyNegative_;
     
 public:
-    ParallelProjection( ):  minCoordinateL_( 0.0 ), maxCoordinateL_( 0.0 ), minCoordinateM_( 0.0 ), maxCoordinateM_( 0.0 ),
+    ParallelProjection( ):  minimumCoordinateL_( 0.0 ), maximumCoordinateL_( 0.0 ), minimumCoordinateM_( 0.0 ), maximumCoordinateM_( 0.0 ),
                             triangle2d_( ), lambdas_( )
     { }
 
     ParallelProjection( const Triangle3d& triangle, const Triangle3d& triangleToBeProjected, 
-                        const Eigen::Vector3d& projectionDirection_= Eigen::Vector3d::Zero( ) )
+                        const Eigen::Vector3d& projectionDirection )
     {
-        Eigen::Vector3d dummyDirection = Eigen::Vector3d::Zero( );
-        Eigen::Vector3d projectionDirection = projectionDirection_;
-        if ( projectionDirection_.isApprox(dummyDirection))
-        {   
-            projectionDirection = ( triangle.getVersorL( ) ).cross( triangle.getVersorM( ) );
-        }
         Eigen::Matrix3d A(3, 3);
         A(0, 0) =  triangle.getVersorL( )[0]; A(1, 0) =  triangle.getVersorL( )[1]; A(2, 0) =  triangle.getVersorL( )[2];
         A(0, 1) =  triangle.getVersorM( )[0]; A(1, 1) =  triangle.getVersorM( )[1]; A(2, 1) =  triangle.getVersorM( )[2];
@@ -157,10 +166,10 @@ public:
         lambdas_ = lambdas;
         Triangle2d triangle2d( vertices2d[0], vertices2d[1], vertices2d[2] );
         triangle2d_ = triangle2d;
-        minCoordinateL_ = *std::min_element( coordinatesL.begin( ), coordinatesL.end( ) );
-        maxCoordinateL_ = *std::max_element( coordinatesL.begin( ), coordinatesL.end( ) );
-        minCoordinateM_ = *std::min_element( coordinatesM.begin( ), coordinatesM.end( ) );
-        maxCoordinateM_ = *std::max_element( coordinatesM.begin( ), coordinatesM.end( ) );
+        minimumCoordinateL_ = *std::min_element( coordinatesL.begin( ), coordinatesL.end( ) );
+        maximumCoordinateL_ = *std::max_element( coordinatesL.begin( ), coordinatesL.end( ) );
+        minimumCoordinateM_ = *std::min_element( coordinatesM.begin( ), coordinatesM.end( ) );
+        maximumCoordinateM_ = *std::max_element( coordinatesM.begin( ), coordinatesM.end( ) );
 
     }
 
@@ -172,21 +181,21 @@ public:
     {
         return lambdas_;
     }
-    double getMinL( ) const
+    double getMinimumL( ) const
     {
-        return minCoordinateL_;
+        return minimumCoordinateL_;
     }
-    double getMaxL( ) const
+    double getMaximumL( ) const
     {
-        return maxCoordinateL_;
+        return maximumCoordinateL_;
     }
-    double getMinM( ) const
+    double getMinimumM( ) const
     {
-        return minCoordinateM_;
+        return minimumCoordinateM_;
     }
-    double getMaxM( ) const
+    double getMaximumM( ) const
     {
-        return maxCoordinateM_;
+        return maximumCoordinateM_;
     }
 
     void setAreLambdasActuallyPositive( const std::vector< bool > areLambdasActuallyPositive )
@@ -210,7 +219,9 @@ public:
     }
 
 };
-
+/*!
+ * Function to clamp a value given two the boundary values.
+ */   
 template < typename T >
 constexpr const T& clamp( const T& value, const T& low, const T& high )
 {

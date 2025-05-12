@@ -126,19 +126,19 @@ private:
 class PaneledRadiationPressureTargetModelSettings : public RadiationPressureTargetModelSettings
 {
 private:
-    int maximumNumberOfPixels_;
+std::map< std::string, int > maximumNumberOfPixelsPerSource_;
 
 public:
     explicit PaneledRadiationPressureTargetModelSettings(
         const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = { },
-        int maximumNumberOfPixels = 0):
+        const std::map< std::string, int > maximumNumberOfPixelsPerSource = { } ):
     RadiationPressureTargetModelSettings( RadiationPressureTargetModelType::paneled_target, sourceToTargetOccultingBodies ),
-    maximumNumberOfPixels_( maximumNumberOfPixels )
+    maximumNumberOfPixelsPerSource_( maximumNumberOfPixelsPerSource )
     { }
 
-    int getMaximumNumberOfPixels( ) const
+    std::map< std::string, int > getMaximumNumberOfPixelsPerSource( ) const
     {
-        return maximumNumberOfPixels_;
+        return maximumNumberOfPixelsPerSource_;
     }
 
 };
@@ -397,9 +397,9 @@ inline std::shared_ptr< RadiationPressureTargetModelSettings > cannonballRadiati
 inline std::shared_ptr< RadiationPressureTargetModelSettings > paneledRadiationPressureTargetModelSettingsWithOccultationMap(
         //            std::initializer_list<PaneledRadiationPressureTargetModelSettings::Panel> panels,
         const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies,
-        int maximumNumberOfPixels = 0 )
+        const std::map< std::string, int >& maximumNumberOfPixelsPerSource = std::map< std::string, int >( ) )
 {
-    return std::make_shared< PaneledRadiationPressureTargetModelSettings >( sourceToTargetOccultingBodies, maximumNumberOfPixels );
+    return std::make_shared< PaneledRadiationPressureTargetModelSettings >( sourceToTargetOccultingBodies, maximumNumberOfPixelsPerSource );
 }
 
 /*!
