@@ -20,7 +20,7 @@
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/system_models/engineModel.h"
 
-#include "tudat/astro/system_models/geometryUtils.h"
+#include "tudat/astro/system_models/panelGeometryUtils.h"
 
 namespace tudat
 {
@@ -38,7 +38,7 @@ public:
                           const std::shared_ptr< electromagnetism::ReflectionLaw > reflectionLaw = nullptr ):
         frameFixedSurfaceNormal_( [ = ]( ) { return frameFixedSurfaceNormal; } ),
         frameFixedPositionVector_( [ = ]( ) { return frameFixedPositionVector; } ), panelArea_( panelArea ),
-        panelTemperature_( panelTemperature ), trackedBody_( "" ), reflectionLaw_( reflectionLaw ), geometry3dLoaded_( false )
+        panelTemperature_( panelTemperature ), trackedBody_( "" ), reflectionLaw_( reflectionLaw ), geometryDefined_( false )
     { }
 
     VehicleExteriorPanel( const Eigen::Vector3d& frameFixedSurfaceNormal,
@@ -49,7 +49,7 @@ public:
                           const std::shared_ptr< electromagnetism::ReflectionLaw > reflectionLaw = nullptr ):
         frameFixedSurfaceNormal_( [ = ]( ) { return frameFixedSurfaceNormal; } ),
         frameFixedPositionVector_( [ = ]( ) { return frameFixedPositionVector; } ), panelArea_( panelArea ),
-        panelTemperature_( panelTemperature ), trackedBody_( trackedBody ), reflectionLaw_( reflectionLaw ), geometry3dLoaded_( false )
+        panelTemperature_( panelTemperature ), trackedBody_( trackedBody ), reflectionLaw_( reflectionLaw ), geometryDefined_( false )
     { }
 
     VehicleExteriorPanel( const std::function< Eigen::Vector3d( ) > frameFixedSurfaceNormal,
@@ -59,7 +59,7 @@ public:
                           const std::string trackedBody = "",
                           const std::shared_ptr< electromagnetism::ReflectionLaw > reflectionLaw = nullptr ):
         frameFixedSurfaceNormal_( frameFixedSurfaceNormal ), frameFixedPositionVector_( frameFixedPositionVector ), panelArea_( panelArea ),
-        panelTemperature_( panelTemperature ), trackedBody_( trackedBody ), reflectionLaw_( reflectionLaw ), geometry3dLoaded_( false )
+        panelTemperature_( panelTemperature ), trackedBody_( trackedBody ), reflectionLaw_( reflectionLaw ), geometryDefined_( false )
     { }
 
     VehicleExteriorPanel( const double panelArea,
@@ -67,7 +67,7 @@ public:
                           const std::shared_ptr< electromagnetism::ReflectionLaw > reflectionLaw = nullptr ):
         frameFixedSurfaceNormal_( [ = ]( ) { return frameFixedSurfaceNormal; } ),
         frameFixedPositionVector_( [ = ]( ) { return Eigen::Vector3d::Constant( TUDAT_NAN ); } ), panelArea_( panelArea ),
-        panelTemperature_( TUDAT_NAN ), trackedBody_( "" ), reflectionLaw_( reflectionLaw ), geometry3dLoaded_( false )
+        panelTemperature_( TUDAT_NAN ), trackedBody_( "" ), reflectionLaw_( reflectionLaw ), geometryDefined_( false )
     { }
 
     VehicleExteriorPanel( const Eigen::Vector3d& frameFixedSurfaceNormal,
@@ -77,7 +77,7 @@ public:
                           const Eigen::Vector3d& frameFixedPosition = Eigen::Vector3d::Constant( TUDAT_NAN ) ):
         frameFixedSurfaceNormal_( [ = ]( ) { return frameFixedSurfaceNormal; } ),
         frameFixedPositionVector_( [ = ]( ) { return frameFixedPosition; } ), panelArea_( panelArea ), panelTemperature_( TUDAT_NAN ),
-        trackedBody_( trackedBody ), reflectionLaw_( reflectionLaw ), geometry3dLoaded_( false )
+        trackedBody_( trackedBody ), reflectionLaw_( reflectionLaw ), geometryDefined_( false )
     { }
 
     VehicleExteriorPanel( const std::function< Eigen::Vector3d( ) > frameFixedSurfaceNormal,
@@ -87,7 +87,7 @@ public:
         frameFixedSurfaceNormal_( frameFixedSurfaceNormal ),
         frameFixedPositionVector_( [ = ]( ) { return Eigen::Vector3d::Constant( TUDAT_NAN ); } ),
         panelArea_( panelArea ), trackedBody_( trackedBody ),
-        reflectionLaw_( reflectionLaw ), geometry3dLoaded_( false )
+        reflectionLaw_( reflectionLaw ), geometryDefined_( false )
     { }
 
     VehicleExteriorPanel( const std::function< Eigen::Vector3d( ) > frameFixedSurfaceNormal,
@@ -98,15 +98,15 @@ public:
                           const std::shared_ptr< electromagnetism::ReflectionLaw > reflectionLaw = nullptr,
                           const Triangle3d& triangle3d = Triangle3d( ),
                           const Eigen::Vector3d frameOrigin = Eigen::Vector3d::Zero( ),
-                          const bool geometry3dLoaded = false ):
+                          const bool geometryDefined = false ):
         frameFixedSurfaceNormal_( frameFixedSurfaceNormal ), frameFixedPositionVector_( frameFixedPositionVector ), panelArea_( panelArea ),
         panelTemperature_( panelTemperature ), trackedBody_( trackedBody ), reflectionLaw_( reflectionLaw ), 
-        triangle3d_( triangle3d), frameOrigin_( frameOrigin ), geometry3dLoaded_( geometry3dLoaded )
+        triangle3d_( triangle3d ), frameOrigin_( frameOrigin ), geometryDefined_( geometryDefined )
     { 
         neighboringSurfaces_ = {-1, -1, -1};
-        if ( geometry3dLoaded_ )
+        if ( geometryDefined_ )
         {
-            selfProjection_ = ParallelProjection( triangle3d_, triangle3d_ );
+            selfProjection_ = ParallelProjection( triangle3d_, triangle3d_, frameFixedSurfaceNormal_( ) );
             std::vector< bool > dummyVector = { true, true, true };
             selfProjection_.setAreLambdasActuallyPositive( dummyVector );
         }
@@ -135,7 +135,7 @@ public:
         triangle3d_ = Triangle3d( vertexA, vertexB, vertexC );
         selfProjection_ = panelToBeRotated->getSelfProjection( );
         neighboringSurfaces_ = panelToBeRotated->getNeighboringSurfaces( );
-        geometry3dLoaded_ = true;
+        geometryDefined_ = true;
     }
 
 
@@ -197,9 +197,9 @@ public:
     {
         neighboringSurfaces_ = neighboringSurfaces;
     }
-    bool isGeometryLoaded( ) const
+    bool isGeometryDefined( ) const
     {
-        return geometry3dLoaded_;
+        return geometryDefined_;
     }
     ParallelProjection getSelfProjection( ) const
     {
@@ -230,7 +230,7 @@ protected:
 
     ParallelProjection selfProjection_;
 
-    bool geometry3dLoaded_;
+    bool geometryDefined_;
 
 };
 

@@ -97,6 +97,7 @@ void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing( double
     }
     // update panels
     updateRotatedPanels( );
+    
     Eigen::Vector3d currentCenterOfMass = Eigen::Vector3d::Constant( TUDAT_NAN );
     if( computeTorques_ )
     {
@@ -104,36 +105,17 @@ void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing( double
     }
     Eigen::Vector3d currentPanelForce = Eigen::Vector3d::Zero( );
     Eigen::Vector3d currentPanelTorque = Eigen::Vector3d::Zero( );
-    // SSH off
-    if ( maximumNumberOfPixels_ == 0 )
-    {
+
+    if ( selfShadowingPerSource_.at( sourceName )->getMaximumNumberOfPixels( ) == 0 )
+    {   
+        // SSH off
         illuminatedPanelFractions_ = std::vector< double >( totalNumberOfPanels_, 1.0);
     }
-    // SSH on
-    if ( maximumNumberOfPixels_ < 0 )
+    else
     {
-        throw std::runtime_error("Error: maximum number of pixels must be positive and at least 2!");
-    }
-    if ( maximumNumberOfPixels_ == 1 )
-    {
-        if ( macroModelLoaded_ )
-        {
-            throw std::runtime_error("Error: maximum number of pixels must be at least two!");
-        }
-        if ( !macroModelLoaded_ )
-        {
-            throw std::runtime_error("Error: maximum number of pixels must be at least two and macro-model is not loaded!");
-        }
-    }
-    if ( maximumNumberOfPixels_ >= 2 )
-    {
-        if ( !macroModelLoaded_ )
-        {
-            throw std::runtime_error("Error: maximum number of pixels given but macro-model is not loaded!");
-        }
-        // compute illuminated fractions with SSH algorithm
-        selfShadowing_ = system_models::SelfShadowing( this->allRotatedPanels_, sourceToTargetDirectionLocalFrame, maximumNumberOfPixels_ );
-        illuminatedPanelFractions_ = selfShadowing_.getIlluminatedPanelFractions( );
+        // SSH on
+        selfShadowingPerSource_.at( sourceName )->updateIlluminatedPanelFractions( sourceToTargetDirectionLocalFrame );
+        illuminatedPanelFractions_ = selfShadowingPerSource_.at( sourceName )->getIlluminatedPanelFractions( );
     }
     // common logic
     for ( int i = 0; i< totalNumberOfPanels_; i++)
@@ -181,7 +163,7 @@ void PaneledRadiationPressureTargetModel::saveLocalComputations( const std::stri
     {
         surfacePanelCosinesPerSource_[ sourceName ] = surfacePanelCosines_;
     }
-    if ( this->macroModelLoaded_ )
+    if ( this->panelGeometryDefined_ )
     {
         illuminatedPanelFractionsPerSource_[ sourceName ] = illuminatedPanelFractions_;
     }
