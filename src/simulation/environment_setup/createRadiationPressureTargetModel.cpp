@@ -192,7 +192,7 @@ std::vector< std::shared_ptr< electromagnetism::RadiationPressureTargetModel > >
 
             radiationPressureTargetModels.push_back( std::make_shared< PaneledRadiationPressureTargetModel >(
                     bodyFixedPanels, segmentFixedPanels, segmentFixedToBodyFixedRotations, sourceToTargetOccultingBodies,
-                    panelledTargetModelSettings->getMaximumNumberOfPixels( ) ) );
+                    panelledTargetModelSettings->getMaximumNumberOfPixelsPerSource( ) ) );
             break;
         }
         case RadiationPressureTargetModelType::multi_type_target: {
