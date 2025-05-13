@@ -331,6 +331,16 @@ BOOST_AUTO_TEST_CASE( testIauRotationPartials )
             ( Eigen::Vector2d( ) << -0.006499, 0.002413 ).finished( ) * degreeToRadian / physical_constants::JULIAN_CENTURY;
 
     std::map< double, std::pair< double, double > > meridianPeriodicTerms;
+    meridianPeriodicTerms[ 4850.4046 * degreeToRadian / physical_constants::JULIAN_CENTURY ] =
+        std::make_pair( degreeToRadian * 0.002, degreeToRadian * 99.360714 );
+    meridianPeriodicTerms[ 1191.9605 * degreeToRadian / physical_constants::JULIAN_CENTURY ] =
+        std::make_pair( degreeToRadian * 0.345, degreeToRadian * 175.895369 );
+    meridianPeriodicTerms[ 262.5475 * degreeToRadian / physical_constants::JULIAN_CENTURY ] =
+        std::make_pair( degreeToRadian * 0.0032, degreeToRadian * 300.323162 );
+    meridianPeriodicTerms[ 6070.2476 * degreeToRadian / physical_constants::JULIAN_CENTURY ] =
+        std::make_pair( degreeToRadian * -0.642, degreeToRadian * 114.012305 );
+    meridianPeriodicTerms[ 64.3000 * degreeToRadian / physical_constants::JULIAN_CENTURY ] =
+        std::make_pair( degreeToRadian * -0.000072 , degreeToRadian * 49.511251 );
     std::map< double, std::pair< Eigen::Vector2d, double > > polePeriodicTerms;
     polePeriodicTerms[ 4850.4046 * degreeToRadian / physical_constants::JULIAN_CENTURY ] =
             std::make_pair( degreeToRadian * ( Eigen::Vector2d( ) << 0.000117, 0.000050 ).finished( ), degreeToRadian * 99.360714 );
@@ -403,16 +413,6 @@ BOOST_AUTO_TEST_CASE( testIauRotationPartials )
                     }
                 }
 
-                //                matrixDifference = rotationMatrixDerivativePartials.at( 0 ) - numericalRotationMatrixDerivativePartial;
-
-                //                // Compare analytical and numerical result.
-                //                for( unsigned int i = 0; i < 3; i++ )
-                //                {
-                //                    for( unsigned int j = 0; j < 3; j++ )
-                //                    {
-                //                        BOOST_CHECK_SMALL( std::fabs( matrixDifference( i, j ) ), 1.0E-13 );
-                //                    }
-                //                }
             }
 
             // Compute partial for declination numerically.
@@ -442,17 +442,6 @@ BOOST_AUTO_TEST_CASE( testIauRotationPartials )
                         BOOST_CHECK_SMALL( std::fabs( matrixDifference( i, j ) ), 1.0E-8 );
                     }
                 }
-
-                //                matrixDifference = rotationMatrixDerivativePartials.at( 1 ) - numericalRotationMatrixDerivativePartial;
-
-                //                // Compare analytical and numerical result.
-                //                for( unsigned int i = 0; i < 3; i++ )
-                //                {
-                //                    for( unsigned int j = 0; j < 3; j++ )
-                //                    {
-                //                        BOOST_CHECK_SMALL( std::fabs( matrixDifference( i, j ) ), 1.0E-13 );
-                //                    }
-                //                }
             }
         }
     }
@@ -467,9 +456,6 @@ BOOST_AUTO_TEST_CASE( testIauRotationPartials )
         std::vector< Eigen::Matrix3d > rotationMatrixPartials =
                 rotationMatrixPartialObject->calculatePartialOfRotationMatrixToBaseFrameWrParameter( testTime );
 
-        //        std::vector< Eigen::Matrix3d > rotationMatrixDerivativePartials =
-        //                rotationMatrixPartialObject->calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
-        //                    testTime );
 
         Eigen::Vector2d unperturbedPoleRate = iauRotationModel->getPolePrecession( );
         Eigen::Vector2d perturbedPoleRate = unperturbedPoleRate;
@@ -514,17 +500,6 @@ BOOST_AUTO_TEST_CASE( testIauRotationPartials )
                         BOOST_CHECK_SMALL( std::fabs( matrixDifference( i, j ) ), 0.1 );
                     }
                 }
-
-                //                matrixDifference = rotationMatrixDerivativePartials.at( 0 ) - numericalRotationMatrixDerivativePartial;
-
-                //                // Compare analytical and numerical result.
-                //                for( unsigned int i = 0; i < 3; i++ )
-                //                {
-                //                    for( unsigned int j = 0; j < 3; j++ )
-                //                    {
-                //                        BOOST_CHECK_SMALL( std::fabs( matrixDifference( i, j ) ), 1.0E-13 );
-                //                    }
-                //                }
             }
 
             // Compute partial for declination numerically.
@@ -545,8 +520,8 @@ BOOST_AUTO_TEST_CASE( testIauRotationPartials )
 
                 Eigen::Matrix3d numericalRotationMatrixPartial =
                         ( upperturbedRotationMatrix - downperturbedRotationMatrix ) / ( 2.0 * perturbation );
-                Eigen::Matrix3d numericalRotationMatrixDerivativePartial =
-                        ( upperturbedRotationMatrixDerivative - downperturbedRotationMatrixDerivative ) / ( 2.0 * perturbation );
+//                Eigen::Matrix3d numericalRotationMatrixDerivativePartial =
+//                        ( upperturbedRotationMatrixDerivative - downperturbedRotationMatrixDerivative ) / ( 2.0 * perturbation );
 
                 Eigen::Matrix3d matrixDifference = rotationMatrixPartials.at( 1 ) - numericalRotationMatrixPartial;
 
@@ -566,19 +541,80 @@ BOOST_AUTO_TEST_CASE( testIauRotationPartials )
                         BOOST_CHECK_SMALL( std::fabs( matrixDifference( i, j ) ), 0.1 );
                     }
                 }
-
-                //                matrixDifference = rotationMatrixDerivativePartials.at( 1 ) - numericalRotationMatrixDerivativePartial;
-
-                //                // Compare analytical and numerical result.
-                //                for( unsigned int i = 0; i < 3; i++ )
-                //                {
-                //                    for( unsigned int j = 0; j < 3; j++ )
-                //                    {
-                //                        BOOST_CHECK_SMALL( std::fabs( matrixDifference( i, j ) ), 1.0E-13 );
-                //                    }
-                //                }
             }
         }
+    }
+
+    {
+        std::vector< double > librationFrequencies = utilities::createVectorFromMapKeys( meridianPeriodicTerms );
+        // Create partial object.
+        std::shared_ptr< RotationMatrixPartialWrtLongitudunalLibrationTermAmplitudes > rotationMatrixPartialObject =
+            std::make_shared< RotationMatrixPartialWrtLongitudunalLibrationTermAmplitudes >(
+                iauRotationModel,
+                utilities::createVectorFromMapKeys( meridianPeriodicTerms ) );
+
+        // Compute partial analytically
+        double testTime = 1.0E9;
+        std::vector< Eigen::Matrix3d > rotationMatrixPartials =
+            rotationMatrixPartialObject->calculatePartialOfRotationMatrixToBaseFrameWrParameter( testTime );
+
+
+
+        // Compute partials numerically.
+        {
+            // Compute partial for right ascension numerically.
+            {
+                std::map< double, std::pair< double, double > > perturbedMeridianPeriodicTerms = meridianPeriodicTerms;
+                std::map< double, std::pair< double, double > > unperturbedMeridianPeriodicTerms = meridianPeriodicTerms;
+
+                for( unsigned int librationIndex = 0; librationIndex < librationFrequencies.size( ); librationIndex++ )
+                {
+                    perturbedMeridianPeriodicTerms = unperturbedMeridianPeriodicTerms;
+                    double perturbation = 1.0E-6;
+
+                    perturbedMeridianPeriodicTerms[ librationFrequencies.at( librationIndex ) ].first += perturbation;
+                    iauRotationModel->setMeridianPeriodicTerms( perturbedMeridianPeriodicTerms );
+                    Eigen::Matrix3d upperturbedRotationMatrix =
+                        iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( );
+                    Eigen::Matrix3d upperturbedRotationMatrixDerivative =
+                        iauRotationModel->getDerivativeOfRotationToBaseFrame( testTime );
+
+                    perturbedMeridianPeriodicTerms[ librationFrequencies.at( librationIndex ) ].first -= perturbation;
+                    iauRotationModel->setMeridianPeriodicTerms( perturbedMeridianPeriodicTerms );
+                    Eigen::Matrix3d downperturbedRotationMatrix =
+                        iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( );
+                    Eigen::Matrix3d downperturbedRotationMatrixDerivative =
+                        iauRotationModel->getDerivativeOfRotationToBaseFrame( testTime );
+                    iauRotationModel->setMeridianPeriodicTerms( unperturbedMeridianPeriodicTerms );
+
+                    Eigen::Matrix3d numericalRotationMatrixPartial =
+                        ( upperturbedRotationMatrix - downperturbedRotationMatrix ) / ( 2.0 * perturbation );
+                    Eigen::Matrix3d numericalRotationMatrixDerivativePartial =
+                        ( upperturbedRotationMatrixDerivative - downperturbedRotationMatrixDerivative ) /
+                        ( 2.0 * perturbation );
+
+                    Eigen::Matrix3d matrixDifference = rotationMatrixPartials.at( librationIndex ) - numericalRotationMatrixPartial;
+
+                    std::cout << "Matrices: " << std::endl
+                              << numericalRotationMatrixPartial << std::endl
+                              << std::endl
+                              << rotationMatrixPartials.at( librationIndex ) << std::endl
+                              << std::endl
+                              << matrixDifference << std::endl
+                              << std::endl;
+
+                    // Compare analytical and numerical result.
+                    for ( unsigned int i = 0; i < 3; i++ )
+                    {
+                        for ( unsigned int j = 0; j < 3; j++ )
+                        {
+                            BOOST_CHECK_SMALL( std::fabs( matrixDifference( i, j )), 0.1 );
+                        }
+                    }
+                }
+            }
+      }
+
     }
 }
 

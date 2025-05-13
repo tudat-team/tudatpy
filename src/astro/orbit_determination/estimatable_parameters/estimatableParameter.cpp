@@ -180,6 +180,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case rotation_pole_position_rate:
             parameterDescription = "pole position rate ";
             break;
+        case rotation_longitudinal_libration_terms:
+            parameterDescription = "longitudinal libration terms ";
+            break;
         default:
             std::string errorMessage =
                     "Error when getting parameter string, did not recognize parameter " + std::to_string( parameterType );
@@ -369,6 +372,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         case rotation_pole_position_rate:
             isDoubleParameter = false;
             break;
+        case rotation_longitudinal_libration_terms:
+            isDoubleParameter = false;
+            break;
         default:
             throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
                                       " not found when getting parameter type" );
@@ -410,6 +416,9 @@ bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum paramete
             flag = true;
             break;
         case rotation_pole_position_rate:
+            flag = true;
+            break;
+        case rotation_longitudinal_libration_terms:
             flag = true;
             break;
         default:
