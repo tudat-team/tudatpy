@@ -1093,6 +1093,19 @@ public:
     std::vector< int > arcIndices_;
 };
 
+class LongitdinalLibrationTermsParameterSettings : public EstimatableParameterSettings
+{
+public:
+    LongitdinalLibrationTermsParameterSettings( const std::string& associatedBody,
+                                                const std::vector< double > librationAngularFrequencies ):
+        EstimatableParameterSettings( associatedBody, rotation_longitudinal_libration_terms ),
+        librationAngularFrequencies_( librationAngularFrequencies )
+    { }
+
+    std::vector< double > librationAngularFrequencies_;
+
+};
+
 inline std::shared_ptr< EstimatableParameterSettings > gravitationalParameter( const std::string bodyName )
 {
     return std::make_shared< EstimatableParameterSettings >( bodyName, gravitational_parameter );
