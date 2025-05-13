@@ -341,6 +341,7 @@ public:
 
     void initialize( const StateType& state )
     {
+        std::cout<<"Initialize"<<std::endl;
         if( blocksToCheck_.size( ) == 0 )
         {
             if( blocksToCheckFunction_ == nullptr )
@@ -395,6 +396,7 @@ public:
                         "Error in per-segment step size controller, size of tolerances is incompatible with state blocks" );
             }
         }
+        std::cout<<"Initialized"<<std::endl;
     }
 
     virtual ~PerBlockIntegratorStepSizeController( ) { }
@@ -403,6 +405,7 @@ public:
                                                         const StateType& secondStateEstimate,
                                                         const TimeStepType& currentStep )
     {
+        std::cout<<"Compute"<<std::endl;
         if( blocksToCheck_.size( ) == 0 )
         {
             throw std::runtime_error( "Error when using per-segment step-size control, no blocks are provided" );
@@ -428,6 +431,8 @@ public:
                               relativeErrorTolerance_( i ) +
                       absoluteErrorTolerance_( i ) );
         }
+
+        std::cout<<"Computed"<<std::endl;
 
         // Compute the maximum error based on the largest coefficient in the relative truncation error
         // matrix.

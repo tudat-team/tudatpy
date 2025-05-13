@@ -2314,6 +2314,31 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 }
                 break;
             }
+            case rotation_longitudinal_libration_terms: {
+                std::shared_ptr< LongitdinalLibrationTermsParameterSettings > librationParameterSettings =
+                    std::dynamic_pointer_cast< LongitdinalLibrationTermsParameterSettings >( vectorParameterName );
+                if( librationParameterSettings == nullptr )
+                {
+                    throw std::runtime_error( "Error, expected longitudinal libration parameter settings " );
+                }
+                else
+                {
+                    if( std::dynamic_pointer_cast< IauRotationModel >( currentBody->getRotationalEphemeris( ) ) == nullptr )
+                    {
+                        std::string errorMessage =
+                            "Warning, no iau rotational ephemeris" + currentBodyName + " when making longitudinal libration parameter";
+                        throw std::runtime_error( errorMessage );
+                    }
+                    else
+                    {
+                        vectorParameterToEstimate = std::make_shared< RotationLongitudinalLibrationTermsParameter >(
+                            std::dynamic_pointer_cast< IauRotationModel >( currentBody->getRotationalEphemeris( ) ),
+                            librationParameterSettings->librationAngularFrequencies_,
+                            currentBodyName );
+                    }
+                }
+                break;
+            }
             case custom_estimated_parameter: {
                 std::shared_ptr< CustomEstimatableParameterSettings > customParameterSettings =
                         std::dynamic_pointer_cast< CustomEstimatableParameterSettings >( vectorParameterName );
