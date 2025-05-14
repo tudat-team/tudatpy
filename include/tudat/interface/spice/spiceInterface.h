@@ -36,9 +36,11 @@
 extern "C" {
 #include <cspice/SpiceUsr.h>
 #include <cspice/SpiceZfc.h>
+#include <cspice/SpiceErr.h>
 }
 
 #include "tudat/astro/ephemerides/tleEphemeris.h"
+#include "tudat/interface/spice/spiceException.h"
 
 namespace tudat
 {
@@ -279,9 +281,17 @@ std::string getErrorMessage( );
  */
 bool checkFailure( );
 
-void setDefaultSpiceErrorHandling( );
+void setSpiceErrorHandling( );
 
-void throwSpiceException( );
+void handleSpiceException( );
+
+// template< typename T >
+// void throwSpiceException( );
+
+std::unique_ptr< tudat::exceptions::SpiceError > getExceptionFromShortMessage( const std::string &shortMessage,
+                                                                const std::string &explanation,
+                                                                const std::string &longMessage,
+                                                                const std::string &traceback );
 
 }  // namespace spice_interface
 }  // namespace tudat
