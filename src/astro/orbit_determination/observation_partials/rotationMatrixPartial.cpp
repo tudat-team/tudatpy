@@ -256,12 +256,6 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
     return rotationMatrixPartials;
 }
 
-// std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtNominalPolePosition(
-//         const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
-//         const double ephemerisTime )
-//{
-
-//}
 
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrtPolePositionRate(
         const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
