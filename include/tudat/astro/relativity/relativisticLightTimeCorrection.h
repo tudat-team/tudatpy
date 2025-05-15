@@ -35,7 +35,7 @@ namespace relativity
  *  \param centralBodyPosition Position of perturbing body (at certain time during signal propagation).
  *  \param ppnParameterGamma Parametric post-Newtonian parameter gamma, a measure for the space-time curvature due to a
  *  unit rest mass (1.0 in GR)
- *  \param bending Boolean flag to determine if light bending should be included
+ *  \param useBending Boolean flag to determine if light bending should be included
  *  \return Light time correction (in seconds) due to the gravitating point mass.
  */
 double calculateFirstOrderLightTimeCorrectionFromCentralBody( const double bodyGravitationalParameter,
@@ -43,7 +43,7 @@ double calculateFirstOrderLightTimeCorrectionFromCentralBody( const double bodyG
                                                               const Eigen::Vector3d& receiverPosition,
                                                               const Eigen::Vector3d& centralBodyPosition,
                                                               const double ppnParameterGamma = 1.0,
-                                                              const bool bending = false );
+                                                              const bool useBending = false );
 
 //! Function to calculate gradient of first order relativistic light time correction due to a gravitating point mass.
 /*!
@@ -56,7 +56,7 @@ double calculateFirstOrderLightTimeCorrectionFromCentralBody( const double bodyG
  *  \param evaluateGradientAtReceiver Boolean denoting whether to compute gradient at receiver or transmitter
  *  \param ppnParameterGamma Parametric post-Newtonian parameter gamma, a measure for the space-time curvature due to a
  *  unit rest mass (1.0 in GR)
- *  \param bending Boolean flag to determine if light bending should be included
+ *  \param useBending Boolean flag to determine if light bending should be included
  *  \return Light time correction (in seconds) due to the gravitating point mass.
  */
 Eigen::Matrix< double, 1, 3 > calculateFirstOrderCentralBodyLightTimeCorrectionGradient( const double bodyGravitationalParameter,
@@ -65,7 +65,7 @@ Eigen::Matrix< double, 1, 3 > calculateFirstOrderCentralBodyLightTimeCorrectionG
                                                                                          const Eigen::Vector3d& centralBodyPosition,
                                                                                          const bool evaluateGradientAtReceiver,
                                                                                          const double ppnParameterGamma = 1.0,
-                                                                                         const bool bending = false );
+                                                                                         const bool useBending = false );
 
 }  // namespace relativity
 
