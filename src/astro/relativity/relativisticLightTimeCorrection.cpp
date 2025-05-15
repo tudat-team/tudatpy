@@ -7,6 +7,8 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
+#include <iostream>
+#include <iomanip>
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/relativity/relativisticLightTimeCorrection.h"
 
@@ -22,7 +24,7 @@ double calculateFirstOrderLightTimeCorrectionFromCentralBody( const double bodyG
                                                               const Eigen::Vector3d& receiverPosition,
                                                               const Eigen::Vector3d& centralBodyPosition,
                                                               const double ppnParameterGamma,
-                                                              const bool bending )
+                                                              const bool useBending )
 {
     // Calculate Euclidean geometric distances between transmitter, receiver and gravitating body.
     double distanceToReceiver = ( receiverPosition - centralBodyPosition ).norm( );
@@ -31,7 +33,7 @@ double calculateFirstOrderLightTimeCorrectionFromCentralBody( const double bodyG
 
     // Calculate and return light time correction.
     double bendingOffset;
-    if( bending )
+    if( useBending )
     {
         bendingOffset = ( 1.0 + ppnParameterGamma ) * bodyGravitationalParameter * physical_constants::INVERSE_SQUARE_SPEED_OF_LIGHT;
     }
@@ -39,7 +41,6 @@ double calculateFirstOrderLightTimeCorrectionFromCentralBody( const double bodyG
     {
         bendingOffset = 0.0;
     }
-    // Calculate and return light time correction.
     return ( 1.0 + ppnParameterGamma ) * bodyGravitationalParameter * physical_constants::INVERSE_CUBIC_SPEED_OF_LIGHT *
             std::log( ( distanceToReceiver + distanceToTransmitter + linkEuclideanDistance + bendingOffset ) /
                       ( distanceToReceiver + distanceToTransmitter - linkEuclideanDistance + bendingOffset ) );
@@ -52,14 +53,14 @@ Eigen::Matrix< double, 1, 3 > calculateFirstOrderCentralBodyLightTimeCorrectionG
                                                                                          const Eigen::Vector3d& centralBodyPosition,
                                                                                          const bool evaluateGradientAtReceiver,
                                                                                          const double ppnParameterGamma,
-                                                                                         const bool bending )
+                                                                                         const bool useBending )
 {
     Eigen::Vector3d relativePositionVector = ( receiverPosition - transmitterPosition );
     double receiverDistance = ( receiverPosition - centralBodyPosition ).norm( );
     double transmitterDistance = ( transmitterPosition - centralBodyPosition ).norm( );
     double linkEndDistance = relativePositionVector.norm( );
 
-    if( bending )
+    if( useBending )
     {
         // Unit-vectors
         Eigen::Vector3d relativePositionUnitVector = relativePositionVector.normalized( );

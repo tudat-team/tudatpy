@@ -53,7 +53,7 @@ public:
      *  \param receivingBody Name of receiving body
      *  \param ppnParameterGammaFunction Function returning the parametric post-Newtonian parameter gamma, a measure
      *  for the space-time curvature due to a unit rest mass (default 1.0; value from GR)
-     *  \param bending Boolean flag to determine if light bending should be included.
+     *  \param useBending Boolean flag to determine if light bending should be included.
      */
     FirstOrderLightTimeCorrectionCalculator(
             const std::vector< std::function< Eigen::Vector6d( const double ) > >& perturbingBodyStateFunctions,
@@ -62,10 +62,10 @@ public:
             const std::string transmittingBody,
             const std::string receivingBody,
             const std::function< double( ) >& ppnParameterGammaFunction = []( ) { return 1.0; },
-            const bool bending = false ):
+            const bool useBending = false ):
         LightTimeCorrection( first_order_relativistic ), perturbingBodyStateFunctions_( perturbingBodyStateFunctions ),
         perturbingBodyGravitationalParameterFunctions_( perturbingBodyGravitationalParameterFunctions ),
-        perturbingBodyNames_( perturbingBodyNames ), ppnParameterGammaFunction_( ppnParameterGammaFunction ), bending_( bending )
+        perturbingBodyNames_( perturbingBodyNames ), ppnParameterGammaFunction_( ppnParameterGammaFunction ), useBending_( useBending )
     {
         currentTotalLightTimeCorrection_ = 0.0;
         currentLighTimeCorrectionComponents_.resize( perturbingBodyNames_.size( ) );
@@ -211,7 +211,7 @@ public:
      */
     bool getBendingFlag( )
     {
-        return bending_;
+        return useBending_;
     }
 
 private:
@@ -242,7 +242,7 @@ private:
     double currentTotalLightTimeCorrection_;
 
     //! Boolean flag to determine if light bending should be included.
-    bool bending_;
+    bool useBending_;
 };
 
 }  // namespace observation_models
