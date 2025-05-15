@@ -17,6 +17,32 @@ class Trk234Processor:
     merges the outputs, and then calls each converter’s process method to produce final observation
     collection. If simulation bodies are provided, ramp data are processed and used to set the
     stations' frequency interpolator with the set_tnf_information_in_bodies() method.
+
+    Examples
+    --------
+    >>> from tudatpy.data.processTrk234.processor import Trk234Processor
+    >>> from tudatpy.kernel import numerical_simulation
+    >>> from tudatpy.kernel.interface import spice
+    >>>
+    >>> # Load spice kernels and create bodies
+    >>> spice.load_standard_kernels()
+    >>> bodies = numerical_simulation.environment_setup.create_bodies()
+    >>>
+    >>> # Define TNF file paths
+    >>> tnf_files = ["mro_kernels/mromagr2012_002_1426xmmmv1.tnf"]
+    >>>
+    >>> # Create processor for both Doppler and range data
+    >>> tnf_processor = Trk234Processor(
+    ...     tnf_files,
+    ...     ["doppler", "range"],
+    ...     spacecraft_name="MRO"
+    ... )
+    >>>
+    >>> # Process observations
+    >>> observations = tnf_processor.process()
+    >>>
+    >>> # Set frequency information in the bodies
+    >>> tnf_processor.set_tnf_information_in_bodies(bodies)
     """
 
     def __init__(
