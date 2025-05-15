@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( testShapiroDelay )
     double bendingEffectMeter =
             ( classInterfaceCalculationWithBending - classInterfaceCalculationNoBending ) * physical_constants::SPEED_OF_LIGHT;
 
-    // Expected value based on previous runs
+    // Expected value calculated manually on previous runs
     double expectedBendingEffectMeter = -4.69e-09;
     // Verify the value is as expected (using a small tolerance)
     BOOST_CHECK_CLOSE_FRACTION( bendingEffectMeter, expectedBendingEffectMeter, 1.0E-3 );
