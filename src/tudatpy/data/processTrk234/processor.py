@@ -20,13 +20,7 @@ class Trk234Processor:
 
     Examples
     --------
-    >>> from tudatpy.data.processTrk234.processor import Trk234Processor
-    >>> from tudatpy.kernel import numerical_simulation
-    >>> from tudatpy.kernel.interface import spice
-    >>>
-    >>> # Load spice kernels and create bodies
-    >>> spice.load_standard_kernels()
-    >>> bodies = numerical_simulation.environment_setup.create_bodies()
+    >>> from tudatpy.data import Trk234Processor
     >>>
     >>> # Define TNF file paths
     >>> tnf_files = ["mro_kernels/mromagr2012_002_1426xmmmv1.tnf"]
@@ -41,7 +35,7 @@ class Trk234Processor:
     >>> # Process observations
     >>> observations = tnf_processor.process()
     >>>
-    >>> # Set frequency information in the bodies
+    >>> # Set frequency information in the bodies assuming you have a bodies object tudatpy.numerical_simulation.environment.SystemOfBodies
     >>> tnf_processor.set_tnf_information_in_bodies(bodies)
     """
 
