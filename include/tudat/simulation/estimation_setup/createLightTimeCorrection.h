@@ -78,10 +78,10 @@ public:
     /*!
      * Constructor
      * \param perturbingBodies List of bodies for which the point masses are used to compute the light-time correction.
-     * \param bending Boolean flag to determine if light bending should be included, default is true.
+     * \param useBending Boolean flag to determine if light bending should be included, default is true.
      */
-    FirstOrderRelativisticLightTimeCorrectionSettings( const std::vector< std::string > &perturbingBodies, const bool bending = false ):
-        LightTimeCorrectionSettings( first_order_relativistic ), perturbingBodies_( perturbingBodies ), bending_( bending )
+    FirstOrderRelativisticLightTimeCorrectionSettings( const std::vector< std::string > &perturbingBodies, const bool useBending = false ):
+        LightTimeCorrectionSettings( first_order_relativistic ), perturbingBodies_( perturbingBodies ), useBending_( useBending )
     { }
 
     //! Destructor
@@ -104,7 +104,7 @@ public:
      */
     bool getBendingFlag( )
     {
-        return bending_;
+        return useBending_;
     }
 
 private:
@@ -112,7 +112,7 @@ private:
     std::vector< std::string > perturbingBodies_;
 
     //! Boolean flag to determine if light bending should be included.
-    bool bending_;
+    bool useBending_;
 };
 
 // Class defining  settings for tabulated tropospheric corrections
@@ -359,9 +359,9 @@ private:
 
 inline std::shared_ptr< LightTimeCorrectionSettings > firstOrderRelativisticLightTimeCorrectionSettings(
         const std::vector< std::string > &perturbingBodies,
-        const bool bending = false )
+        const bool useBending = false )
 {
-    return std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies, bending );
+    return std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies, useBending );
 }
 
 inline std::shared_ptr< LightTimeCorrectionSettings > tabulatedTroposphericCorrectionSettings(
