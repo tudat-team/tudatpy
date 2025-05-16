@@ -69,6 +69,14 @@ class LoadPDS:
                 "tro": r"^(?P<mission>grx)(?P<experiment>lugf)(?P<start_date_file>\d{4}_\d{3})_(?P<end_date_file>\d{4}_\d{3})(?P<extension>\.tro)$",
                 "ion": r"^(?P<mission>grb)(?P<experiment>lugf)(?P<start_date_file>\d{4}_\d{3})_(?P<end_date_file>\d{4}_\d{3})(?P<extension>\.ion)$",
             },
+            "ro": {
+                # "DP2": r"^(?P<mission>[a-zA-Z0-9]+)_(?P<band>[a-zA-Z0-9]+)_(?P<date_file>[0-9]{9})_(?P<version>[0-9]{2})(?P<extension>\.TAB$)",
+                "dp2": r"^(?P<mission>[a-zA-Z0-9]+)_(?P<band>[a-zA-Z0-9]+)_(?P<date_file>[0-9]{9})_(?P<version>[0-9]{2})(?P<extension>\.TAB$)",
+                "ck": r"^(?P<mission>ROS)?_?(?P<data>(ATNM|CATT|LATT|RATM|ROTT))?(?:_+(?P<token1>[A-Z0-9]+))?(?:_+(?P<token2>[A-Z0-9]+))?(?:_+(?P<token3>[A-Z0-9]+))?(?:_+(?P<token4>[A-Z0-9]+))?$",
+                "mes": r"()",
+                "spk": r"()", 
+
+            }
         }
 
         self.cassini_titan_flyby_dict = {
@@ -164,28 +172,30 @@ class LoadPDS:
             },
         }
 
+
+
         # Mapping of data types to their expected file extensions
         self.type_to_extension = {
-            "ck": "bc",
-            "dsk": "bds",
-            "spk": "bsp",
-            "fk": "tpc",
-            "mk": "tm",
-            "ik": "ti",
-            "lsk": "tls",
-            "pck": "bpc",
-            "sclk": "tsc",
-            "odf": "odf",
-            "tnf": "tnf",
-            "ifms": "tab",
-            "dp2": "tab",
-            "dps": "tab",
-            "dpx": "tab",
-            "ion": "ion",
-            "tro": "tro",
-            "eop": "eop",
-            "maneuver": "asc",
-            "antenna_switch": "asc",
+            "ck": ["bc"],
+            "dsk": ["bds"],
+            "spk": ["bsp"],
+            "fk": ["tf"],             
+            "mk": ["tm"],
+            "ik": ["ti"],
+            "lsk": ["tls"],
+            "pck": ["bpc", "tpc"],     # supports both PCK types
+            "sclk": ["tsc"],
+            "odf": ["odf"],
+            "tnf": ["tnf"],
+            "ifms": ["tab"],
+            "dp2": ["tab"],
+            "dps": ["tab"],
+            "dpx": ["tab"],
+            "ion": ["ion"],
+            "tro": ["tro"],
+            "eop": ["eop"],
+            "maneuver": ["asc"],
+            "antenna_switch": ["asc"],
         }
         # Mapping of data types to their expected file extensions
         self.supported_mission_odf_time_formats = {
@@ -201,6 +211,7 @@ class LoadPDS:
             "cassini": "https://naif.jpl.nasa.gov/pub/naif/pds/data/co-s_j_e_v-spice-6-v1.0/cosp_1000/extras/mk/",
             "grail-a": "https://naif.jpl.nasa.gov/pub/naif/pds/data/grail-l-spice-6-v1.0/grlsp_1000/extras/mk/",
             "grail-b": "https://naif.jpl.nasa.gov/pub/naif/pds/data/grail-l-spice-6-v1.0/grlsp_1000/extras/mk/",
+            "ro": "https://spiftp.esac.esa.int/data/SPICE/ROSETTA/kernels/mk/",
         }
 
         self.supported_mission_meta_kernel_pattern = {
@@ -210,6 +221,8 @@ class LoadPDS:
             "cassini": re.compile(r"^cas_(\d{4})_v(\d{2})\.tm$"),
             "grail-a": re.compile(r"^grail_v(\d{2})\.tm$"),
             "grail-b": re.compile(r"^grail_v(\d{2})\.tm$"),
+            "ro": re.compile(r"ROS_OPS.TM"),
+
         }
 
         self.supported_mission_kernels_url = {
@@ -219,6 +232,7 @@ class LoadPDS:
             "cassini": "https://naif.jpl.nasa.gov/pub/naif/pds/data/co-s_j_e_v-spice-6-v1.0/cosp_1000/data/",
             "grail-a": "https://naif.jpl.nasa.gov/pub/naif/pds/data/grail-l-spice-6-v1.0/grlsp_1000/data/",
             "grail-b": "https://naif.jpl.nasa.gov/pub/naif/pds/data/grail-l-spice-6-v1.0/grlsp_1000/data/",
+            "ro": "https://spiftp.esac.esa.int/data/SPICE/ROSETTA/kernels/",
         }
 
     #########################################################################################################
@@ -519,7 +533,7 @@ class LoadPDS:
 
         input_mission = input_mission.lower()
         # Determine data type and file extension
-        data_type = url.split("/")[-2]
+        data_type = url.split("/")[-2].lower()
         ext = self.get_extension_for_data_type(data_type)
 
         if not ext and wanted_files:
@@ -579,6 +593,9 @@ class LoadPDS:
             os.path.join(base_folder, data_type, file)
             for file in all_files_to_download
         ]
+
+
+
         # Download each file if not already present
         for file, local_file in zip(all_files_to_download, self.files_to_load):
             if not os.path.exists(local_file):
@@ -586,9 +603,7 @@ class LoadPDS:
                 print(f"Downloading File: {full_url} to: {local_file}")
                 urlretrieve(full_url, local_file)
             else:
-                print(
-                    f"File: {local_file} already exists in: {base_folder} and will not be downloaded."
-                )
+                print(f"File: {local_file} already exists in: {base_folder} and will not be downloaded.")
 
         return self.files_to_load
 
@@ -750,29 +765,42 @@ class LoadPDS:
             filename (str): The filename whose extension is to be checked.
 
         Returns:
-            bool: `True` if the file extension matches the expected extension for the given data type, otherwise `False`.
+            bool: True if the file extension matches any valid extension for the given data type.
         """
 
         # Get the file extension and compare it
         extension = filename.split(".")[-1].lower()
-        return self.type_to_extension.get(data_type) == extension
+        valid_exts = self.type_to_extension.get(data_type.lower())
+
+        if not valid_exts:
+            return False
+
+        if isinstance(valid_exts, str):
+            valid_exts = [valid_exts]
+
+        return extension in valid_exts
 
     #########################################################################################################
 
-    def get_extension_for_data_type(self, data_type):
+    def get_extension_for_data_type(self, data_type, first_only=True):
         """
-        Description:
-            Returns the file extension corresponding to a given data type.
+        Returns one or more file extensions for the given data type.
 
-        Input:
-            - `data_type` (`str`): The data type (e.g., 'ck', 'spk', 'odf', etc.).
+        Args:
+            data_type (str): The data type (e.g., 'ck', 'spk', etc.).
+            first_only (bool): If True, returns only the first matching extension.
+                            If False, returns a list of all valid extensions.
 
-        Output:
-            - `str` or `None`: The corresponding file extension for the data type if supported, otherwise `None`.
+        Returns:
+            str or list[str] or None: Extension(s) for the given data type, or None if unsupported.
         """
+        ext = self.type_to_extension.get(data_type.lower())
+        if not ext:
+            return None
 
-        # Return the extension for the given data type if it's supported, else None
-        return self.type_to_extension.get(data_type.lower())
+        if isinstance(ext, list):
+            return ext[0] if first_only else ext
+        return ext
 
     #########################################################################################################
 
@@ -800,11 +828,12 @@ class LoadPDS:
         self.relevant_files = []
         print("Checking URL:", url)
         data_type = url.split("/")[-2]
-        local_subfolder = os.path.join(local_path, data_type)
+        local_subfolder = os.path.join(local_path, data_type.lower())
+
 
         try:
             supported_pattern = self.supported_patterns[input_mission][
-                data_type
+                data_type.lower()
             ]
 
         except:
@@ -863,7 +892,7 @@ class LoadPDS:
                             # Determine the date string format
                             date_key = (
                                 RS_dict["date_file"][:5]
-                                if input_mission == "mex"
+                                if input_mission == "mex" or "ro"
                                 else RS_dict["date_file"][:8]
                             )
                             files_url_dict[date_key] = filename_to_download
@@ -922,7 +951,7 @@ class LoadPDS:
 
         # Download missing files
         for date in all_dates:
-            if input_mission == "mex":
+            if input_mission == "mex" or "ro":
                 date_string = (
                     f"{date.year % 100:02d}{date.timetuple().tm_yday:03d}"
                 )
@@ -948,6 +977,7 @@ class LoadPDS:
                 full_download_url = os.path.join(url, download_file)
 
                 full_local_path = os.path.join(local_subfolder, download_file)
+                os.makedirs(local_subfolder, exist_ok=True)
                 if existing_files:
                     if full_local_path not in existing_files:
                         try:
@@ -1591,7 +1621,7 @@ class LoadPDS:
         using the type-to-extension mapping.
 
         Parameters:
-            input_mission (str): e.g. 'mex', 'mro', 'juice', etc...
+            input_mission (str): e.g. 'mex', 'mro', 'juice', 'ro', etc...
 
         Returns:
             dict: A dictionary categorizing kernel files by type based on `type_to_extension`.
@@ -1610,41 +1640,58 @@ class LoadPDS:
 
             for line in lines:
                 line = line.strip()
+
                 # Ignore comment lines and empty lines
                 if line.startswith("\\") or not line:
                     continue
-                # Check for kernel file names in quoted paths
+
+                # Extract the kernel path between quotes
                 if "'" in line or '"' in line:
-                    # Extract the kernel path between quotes
-                    start_idx = (
-                        line.find("'") if "'" in line else line.find('"')
-                    )
-                    end_idx = (
-                        line.rfind("'") if "'" in line else line.rfind('"')
-                    )
+                    quote_char = "'" if "'" in line else '"'
+                    start_idx = line.find(quote_char)
+                    end_idx = line.rfind(quote_char) 
+
                     if start_idx != -1 and end_idx != -1:
                         relative_kernel_path = line[start_idx + 1 : end_idx]
                         full_kernel_path = relative_kernel_path.replace(
                             "$KERNELS/",
                             self.supported_mission_kernels_url[input_mission],
                         )
+
                         # Extract the file extension
                         file_extension = full_kernel_path.split(".")[-1].lower()
-                        # Categorize based on the type-to-extension mapping
+                        
+                        # Match extension to kernel type
                         matched_key = next(
                             (
                                 key
-                                for key, ext in self.type_to_extension.items()
-                                if ext == file_extension
+                                for key, exts in self.type_to_extension.items()
+                                if file_extension in (exts if isinstance(exts, list) else [exts])
                             ),
                             None,  # No fallback, unmatched extensions will be ignored
                         )
-                        if (
-                            matched_key
-                        ):  # Only add to self.kernel_files_names if a match is found
-                            self.kernel_files_names[matched_key].append(
-                                full_kernel_path
-                            )
+
+                        # Add to results if matched
+                        if matched_key:
+                            self.kernel_files_names[matched_key].append(full_kernel_path)
+
+            # Add the meta-kernel URL to the dictionary
+            file_extension = meta_kernel_url.split(".")[-1].lower() 
+
+            # Match extension to kernel type
+            matched_key = next(
+                (
+                    key
+                    for key, exts in self.type_to_extension.items()
+                    if file_extension in (exts if isinstance(exts, list) else [exts])
+                ),
+                None,  # No fallback, unmatched extensions will be ignored
+            )
+            # Add to results if matched
+            if matched_key:
+                self.kernel_files_names[matched_key].append(meta_kernel_url)
+
+
 
             return self.kernel_files_names
 
@@ -1666,18 +1713,23 @@ class LoadPDS:
 
         for kernel_type, kernel_urls in self.kernel_files_to_load.items():
             for kernel_url in kernel_urls:
-                kernel_name = kernel_url.split("/")[-1]
-                kernel_ext = self.get_extension_for_data_type(kernel_type)
-                local_kernel_folder = os.path.join(local_folder, kernel_ext)
-                local_file_path = os.path.join(local_kernel_folder, kernel_name)
-                if not os.path.exists(local_kernel_folder):
-                    os.mkdir(local_kernel_folder)
-                    print(f"Downloading: '{kernel_url}' to: {local_file_path}")
-                    urlretrieve(kernel_url, local_file_path)
-
+                if not kernel_type == 'mk': # some meta-kernel paths are different from kernel paths
+                    url_kernel_path = kernel_url[len(self.supported_mission_kernels_url[input_mission]):]
+                    local_file_path = os.path.join(local_folder, url_kernel_path)
                 else:
-                    print(f"Downloading: '{kernel_url}' to: {local_file_path}")
+                    url_kernel_path = os.path.join(kernel_type, kernel_url[len(self.supported_mission_meta_kernel_url[input_mission]):])
+                    local_file_path = os.path.join(local_folder, url_kernel_path)
+
+                local_kernel_folder = os.path.dirname(local_file_path)
+                os.makedirs(local_kernel_folder, exist_ok=True)
+                
+                # Meta-kernels should always be re-downloaded to assure the latest version
+                if kernel_type == "mk" or not os.path.exists(local_file_path):
+                    action = "Re-downloading" if kernel_type == "mk" else "Downloading"
+                    print(f"{action}: '{kernel_url}' to: {local_file_path}")
                     urlretrieve(kernel_url, local_file_path)
+                else:
+                    print(f"File: {url_kernel_path} already exists in: {local_folder} and will not be downloaded.")
 
         return self.kernel_files_to_load
 
@@ -1697,7 +1749,7 @@ class LoadPDS:
         base_url = self.supported_mission_meta_kernel_url[input_mission]
         meta_kernel_pattern = self.supported_mission_meta_kernel_pattern[
             input_mission
-        ]  # the pattern for mex and juice is an exact name
+        ]  # the pattern for mex, ro, and juice is an exact name
 
         try:
             # Fetch the HTML page
@@ -1784,7 +1836,7 @@ class LoadPDS:
         """
         Description:
         This function downloads and organizes mission-specific data files (kernels, radio science files, and ancillary files)
-        for a specified space mission. It supports downloading data for multiple missions such as Cassini, MEX, JUICE, and MRO.
+        for a specified space mission. It supports downloading data for multiple missions such as Cassini, MEX, JUICE, MRO and ROSETTA.
         The function also allows for downloading files within a specific date range or for specific flybys (in the case of Cassini).
         It automatically creates the necessary folder structure for storing the downloaded data and loads the files into the SPICE kernel system.
 
@@ -1794,6 +1846,7 @@ class LoadPDS:
                 - 'mex'
                 - 'juice'
                 - 'mro'
+                - 'ro'
             - start_date (`datetime`, optional): The start date for downloading data. If not provided, data is not filtered by date.
             - end_date (`datetime`, optional): The end date for downloading data (data from the end_date will be downloaded as well, meaning data from start_date <= date <= end_date).
                                                 If not provided, data is not filtered by date.
@@ -1963,16 +2016,17 @@ class LoadPDS:
             print(
                 f"Folder: {base_folder} already exists and will not be overwritten."
             )
-
-        subfolders = list(self.type_to_extension.keys())
-        # Create each subfolder inside the main folder
-        for local_folder in local_folder_list:
-            for subfolder in subfolders:
-                local_subfolder = os.path.join(local_folder, subfolder)
-                if os.path.exists(local_subfolder) == False:
-                    os.makedirs(local_subfolder)
-                else:
-                    continue
+        
+        # TODO
+        # subfolders = list(self.type_to_extension.keys())
+        # # Create each subfolder inside the main folder
+        # for local_folder in local_folder_list:
+        #     for subfolder in subfolders:
+        #         local_subfolder = os.path.join(local_folder, subfolder)
+        #         if os.path.exists(local_subfolder) == False:
+        #             os.makedirs(local_subfolder)
+        #         else:
+        #             continue
         print(
             f"===============================================================================================================\n"
         )
@@ -1987,6 +2041,31 @@ class LoadPDS:
                 kernel_files_to_load = self.download_kernels_from_meta_kernel(
                     input_mission, local_folder
                 )
+
+            if input_mission == "ro":
+                if kernel_files_to_load:
+                    _, radio_science_files_to_load, ancillary_files_to_load = (
+                        self.get_ro_files(
+                            local_folder,
+                            start_date,
+                            end_date,
+                            radio_observation_type,
+                        )
+                    )
+
+                else:
+                    (
+                        kernel_files_to_load,
+                        radio_science_files_to_load,
+                        ancillary_files_to_load,
+                    ) = self.get_ro_files(
+                        local_folder,
+                        start_date,
+                        end_date,
+                        radio_observation_type,
+                    )
+
+
             if input_mission == "mex":
                 if kernel_files_to_load:
                     _, radio_science_files_to_load, ancillary_files_to_load = (
@@ -2093,29 +2172,30 @@ class LoadPDS:
 
         if kernel_files_to_load:
             for kernel_type, kernel_files in kernel_files_to_load.items():
-                for kernel_file in kernel_files:
-                    converted_kernel_file = self.spice_transfer2binary(
-                        kernel_file
-                    )
-                    try:
-                        if kernel_type not in self.all_kernel_files.keys():
-                            self.all_kernel_files[kernel_type] = [
-                                converted_kernel_file
-                            ]
-                            if load_kernels:
-                                spice.load_kernel(converted_kernel_file)
-
-                        else:
-                            self.all_kernel_files[kernel_type].append(
-                                converted_kernel_file
-                            )
-                            if load_kernels:
-                                spice.load_kernel(converted_kernel_file)
-
-                    except Exception as e:
-                        print(
-                            f"Failed to load kernel: {converted_kernel_file}, Error: {e}"
+                if not kernel_type == "mk": # meta-kernel files are not loaded
+                    for kernel_file in kernel_files:
+                        converted_kernel_file = self.spice_transfer2binary(
+                            kernel_file
                         )
+                        try:
+                            if kernel_type not in self.all_kernel_files.keys():
+                                self.all_kernel_files[kernel_type] = [
+                                    converted_kernel_file
+                                ]
+                                if load_kernels:
+                                    spice.load_kernel(converted_kernel_file)
+
+                            else:
+                                self.all_kernel_files[kernel_type].append(
+                                    converted_kernel_file
+                                )
+                                if load_kernels:
+                                    spice.load_kernel(converted_kernel_file)
+
+                        except Exception as e:
+                            print(
+                                f"Failed to load kernel: {converted_kernel_file}, Error: {e}"
+                            )
         else:
             print("No Kernel Files to Load.")
 
@@ -4239,3 +4319,557 @@ class LoadPDS:
 ########################################################################################################################################
 ########################################## END OF GRAIL-B SECTION ####################################################################
 ########################################################################################################################################
+
+########################################################################################################################################
+########################################## START OF ROSETTA SECTION ####################################################################
+########################################################################################################################################
+
+
+    def get_ro_files(
+        self, local_folder, start_date, end_date, radio_observation_type=None
+    ):
+        """
+        Description:
+        This function downloads and organizes various types of SPICE kernels and
+        radio science files for the ROSETTA mission.
+        It supports downloading kernel files related to radio science, clock data, frame data,
+        SPK (spacecraft position) data, CK (orientation) data, and tropospheric/ionospheric correction files.
+        The function interacts with remote FTP servers to retrieve the data and organizes them into the specified local folder.
+        The data is filtered by a given date range, and the function returns the downloaded files for further use.
+
+        Inputs:
+            - local_folder (`str`): The local directory where the downloaded files will be saved.
+            - start_date (`datetime`): The start date for downloading data.
+              This will filter the data to include only those within the date range.
+            - end_date (`datetime`): The end date for downloading data.
+              This will filter the data to include only those within the date range.
+            - radio_observation_type (`str`): The type of radio science files to download (e.g. commissioning, checkout, solar conjuction, Lutetia, Global Gravity etc...)
+
+        Outputs:
+            - (`dict`, `dict`, `dict`): A tuple containing:
+                - `kernel_files_to_load` (`dict`): A dictionary where the keys are kernel types
+                (e.g., 'ck', 'spk', 'fk', 'sclk') and values are lists of paths to the successfully downloaded and loaded kernel files.
+                - `radio_science_files_to_load` (`dict`): A dictionary where keys are categories of
+                radio science data (e.g., 'ifms_dp2', 'dsn_dps') and values are lists of paths
+                to the successfully downloaded radio science files.
+                - `ancillary_files_to_load` (`dict`): A dictionary where keys are categories
+                of ancillary data (e.g., 'ion', 'tropospheric') and values are lists of paths
+                to the successfully downloaded ancillary files, such as tropospheric and ionospheric corrections.
+        """
+
+        self.radio_science_files_to_load = {}
+        self.kernel_files_to_load = {}
+        self.ancillary_files_to_load = {}  # empty for now
+
+        input_mission = "ro"
+        # Tropospheric corrections
+        print(
+            f"==========================================================================================================="
+        )
+        print(
+            f"Download {input_mission.upper()} Tropospheric and Ionospheric Corrections Files"
+        )
+        url_tropo_files = self.get_url_ro_radio_science_files(
+            start_date, end_date, radio_observation_type
+        )
+        for url_tropo_file_new in url_tropo_files:
+            for folder_type in [
+                "CALIB/CLOSED_LOOP/IFMS/MET/",
+                "CALIB/CLOSED_LOOP/DSN/MET/",
+            ]:
+                url_flag = False
+                url_tropo_file = url_tropo_file_new + folder_type
+                response = requests.get(url_tropo_file)
+                if response.status_code == 200:
+                    url_flag = True
+                    html = response.text
+                    # Parse the HTML with BeautifulSoup
+                    soup = BeautifulSoup(html, "html.parser")
+                    # Extract file links and their names
+                    wanted_tropo_files = []
+                    for link in soup.find_all("a"):
+                        href = link.get("href")
+                        if href.endswith(".TAB") or href.endswith(".AUX"):
+                            wanted_tropo_files.append(href.split("/")[-1])
+                    tropo_files_to_load = self.get_kernels(
+                        input_mission=input_mission,
+                        url=url_tropo_file,
+                        wanted_files_patterns=["*L3L1B*.TAB"],
+                        custom_output=local_folder,
+                    )
+                else:
+                    continue
+
+                if tropo_files_to_load:
+                    key = folder_type.split("/")[-2]
+                    self.ancillary_files_to_load[key] = tropo_files_to_load
+
+                else:
+                    print(
+                        "No tropospheric or ionospheric files to download this time."
+                    )
+
+        print(
+            f"==========================================================================================================="
+        )
+        print(f"Download {input_mission.upper()} Radio Science Kernels:")
+        url_radio_science_files = self.get_url_ro_radio_science_files(
+            start_date, end_date, radio_observation_type
+        )
+        for url_radio_science_file_new in url_radio_science_files:
+            for closed_loop_type in ["IFMS/DP2/", "DSN/DPS/", "DSN/DPX/"]:
+                try:
+                    url_radio_science_file = (
+                        url_radio_science_file_new
+                        + "DATA/LEVEL02/CLOSED_LOOP/"
+                        + closed_loop_type
+                    )
+                    files = self.dynamic_download_url_files_single_time(
+                        input_mission,
+                        local_path=local_folder,
+                        start_date=start_date,
+                        end_date=end_date,
+                        url=url_radio_science_file,
+                    )
+                    key = f"{closed_loop_type.split('/')[0]}_{closed_loop_type.split('/')[1]}"
+                    self.radio_science_files_to_load[key] = files
+                except:
+                    continue
+
+        # Clock files
+        print(
+            f"==========================================================================================================="
+        )
+        print(f"Download {input_mission.upper()} Clock Kernels:")
+        url_clock_files = (
+            "https://spiftp.esac.esa.int/data/SPICE/ROSETTA/kernels/sclk/"
+        )
+
+
+        # wanted_clock_files = self.get_latest_clock_kernel_name(input_mission)
+        wanted_clock_files = [
+            "ROS_160929_STEP.TSC",
+        ]
+        	# TODO: Automate the clock file name retrieval
+
+        clock_files_to_load = self.get_kernels(
+            input_mission=input_mission,
+            url=url_clock_files,
+            wanted_files=wanted_clock_files,
+            custom_output=local_folder,
+        )
+
+        if clock_files_to_load:
+            self.kernel_files_to_load["sclk"] = clock_files_to_load
+        else:
+            print("No sclk files to download this time.")
+
+        print(
+            f"==========================================================================================================="
+        )
+        print(f"Download {input_mission.upper()} Frame Kernels:")
+        url_frame_files = (
+            "https://spiftp.esac.esa.int/data/SPICE/ROSETTA/kernels/fk/"
+        )
+        wanted_frame_files = [
+            "ROS_V38.TF",
+            "ROS_DSK_SURFACES_V03.TF",
+            "ROS_CGS_AUX_V01.TF",
+            "ROS_LUTETIA_RSOC_V03.TF",
+        ]
+        frame_files_to_load = self.get_kernels(
+            input_mission=input_mission,
+            url=url_frame_files,
+            wanted_files=wanted_frame_files,
+            custom_output=local_folder,
+        )
+
+        if frame_files_to_load:
+            self.kernel_files_to_load["fk"] = frame_files_to_load
+        else:
+            print("No fk files to download this time.")
+
+            # Spk files
+        print(
+            f"==========================================================================================================="
+        )
+        print(f"Download {input_mission.upper()} SPK Kernels:")
+        url_spk_files = [
+            "https://spiftp.esac.esa.int/data/SPICE/ROSETTA/kernels/spk/"
+        ]
+
+        spk_files_to_load = []
+
+        # TODO: check which files to download
+
+
+        if len(url_spk_files) == 1:
+            spk_files_to_load = self.dynamic_download_url_files_time_interval(
+                input_mission,
+                local_path=local_folder,
+                start_date=start_date,
+                end_date=end_date,
+                url=url_spk_files[0],
+            )
+
+        else:
+            for url_spk_file in url_spk_files:
+                spk_files_to_load = (
+                    self.dynamic_download_url_files_time_interval(
+                        input_mission,
+                        local_path=local_folder,
+                        start_date=start_date,
+                        end_date=end_date,
+                        url=url_spk_file,
+                    )
+                )
+
+        if spk_files_to_load:
+            self.kernel_files_to_load["spk"] = spk_files_to_load
+        else:
+            print("No spk files to download this time.")
+
+            # Orientation files
+        print(
+            f"==========================================================================================================="
+        )
+        print(f"Download {input_mission.upper()} CK Kernels:")
+        url_ck_files = [
+            "https://spiftp.esac.esa.int/data/SPICE/ROSETTA/kernels/ck/"
+        ]
+
+        ck_files_to_load = []
+        if len(url_ck_files) == 1:
+            ck_files_to_load = self.dynamic_download_url_files_time_interval(
+                input_mission,
+                local_path=local_folder,
+                start_date=start_date,
+                end_date=end_date,
+                url=url_ck_files[0],
+            )
+
+        else:
+            for url_ck_file in url_ck_files:
+                ck_files_to_load = (
+                    self.dynamic_download_url_files_time_interval(
+                        input_mission,
+                        local_path=local_folder,
+                        start_date=start_date,
+                        end_date=end_date,
+                        url=url_ck_file,
+                    )
+                )
+
+        if ck_files_to_load:
+            self.kernel_files_to_load["ck"] = ck_files_to_load
+        else:
+            print("No spk files to download this time.")
+
+        print(
+            f"-----------------------------------------------------------------------------------------------------------"
+        )
+        print(
+            "All requested, relevant and previously non-existing MEX files have been now downloaded. Enjoy!"
+        )
+
+        return (
+            self.kernel_files_to_load,
+            self.radio_science_files_to_load,
+            self.ancillary_files_to_load,
+        )
+
+
+#########################################################################################################
+    def get_url_ro_radio_science_files(
+        self, start_date_ro, end_date_ro, radio_observation_type=None
+    ):
+
+        url = "https://archives.esac.esa.int/psa/ftp/INTERNATIONAL-ROSETTA-MISSION/RSI/RO-C-RSI-1-2-3-EXT3-1881-V1.0/AAREADME.TXT"
+        radio_science_base_url = (
+            "https://archives.esac.esa.int/psa/ftp/INTERNATIONAL-ROSETTA-MISSION/RSI/"
+        )
+        
+
+        mapping_dict = self.get_ro_rsi_volume_ID_mapping(url)
+        mapping_dict = self.add_ro_mission_phase_designation(mapping_dict)
+
+        if radio_observation_type:
+            mapping_dict = self.filter_mapping_dict_by_radio_observation_type(
+                mapping_dict,
+                radio_observation_type,
+                start_date_ro,
+                end_date_ro,
+            )
+
+        self.radio_science_urls = []
+
+        rsi_volume_ID_list = self.get_ro_rsi_volume_ID(
+            start_date_ro, end_date_ro, mapping_dict
+            )
+
+
+        if self.get_ro_rsi_volume_ID(start_date_ro, end_date_ro, mapping_dict):
+            # Here, rsi_volume_ID_list is assumed to be a list of keys (rsi_volume_id strings)
+            for rsi_id in rsi_volume_ID_list:
+                try:
+                    # Get the first entry for the current rsi_volume_id from the mapping dictionary
+                    entry = mapping_dict[rsi_id][0]
+                    # Extract target and mission phase abbreviation (Abbn)
+
+                    target = entry.get("target", "").strip()
+                    abbn = entry.get("abbn", "").strip()
+                    rsi_volume_ID_num = entry.get("rsi_volume_id_num", "").strip()
+
+
+                    # Construct the URL using the target, Abbn and rsi_volume_id.
+                    # The URL pattern: 
+                    # "https://archives.esac.esa.int/psa/ftp/INTERNATIONAL-ROSETTA-MISSION/RSI/RO-X-RSI-1-2-3-PPP-RRRR-V1.0/"
+                    volume_ID_url = (
+                        radio_science_base_url +
+                        "RO-" + target + "-RSI-1-2-3-" + abbn + "-" + rsi_volume_ID_num + "-V1.0/"
+                    )
+                    # Check if URL exists with a HEAD request
+                    response = requests.head(volume_ID_url)
+                    if response.status_code == 200:
+                        print(f"URL Exists: {volume_ID_url}")
+                        self.radio_science_urls.append(volume_ID_url)
+                    else:
+                        print(f"URL does not exist: {volume_ID_url}")
+                except Exception as e:
+                    print(f"Error occurred for rsi_volume_id {rsi_id}: {e}")
+                    continue
+
+
+        if len(self.radio_science_urls) > 0:
+            return self.radio_science_urls
+        else:
+            raise ValueError(
+                f"No url available for RO radio science files. Please check the mapping."
+            )
+
+#########################################################################################################
+
+    def get_ro_rsi_volume_ID(self, start_date, end_date, mapping_dict):
+        """
+        Given a start_date and end_date, iterate over the mapping_dict (which is keyed by rsi_volume_id)
+        and return a list of rsi_volume_id values whose associated record's start_date_utc falls within the interval.
+        
+        Parameters:
+            start_date (datetime): The start of the input date interval.
+            end_date (datetime): The end of the input date interval.
+            mapping_dict (dict): A dictionary where the keys are rsi_volume_id strings and the values
+                                are lists of dictionaries. Each dictionary includes at least:
+                                - "rsi_volume_id": the RSI volume ID
+                                - "start_date_utc": a datetime object representing the record's start date.
+        
+        Returns:
+            list: A list of rsi_volume_id strings that fall within the [start_date, end_date] interval.
+        
+        Raises:
+            ValueError: If no matching rsi_volume_id is found.
+        """
+        rsi_volume_id_list = []
+        
+        # Iterate over each key-value pair. In this dictionary, keys are rsi_volume_id.
+        for key, items in mapping_dict.items():
+            # Ensure items is always a list.
+            if not isinstance(items, list):
+                items = [items]
+                
+            for item in items:
+                try:
+                    record_date = item.get("start_date_utc")
+                    if record_date is None:
+                        # Log or skip entries without a valid date.
+                        print(f"Warning: Missing start_date_utc in item: {item}")
+                        continue
+                    # Check if the record_date falls within the input interval.
+                    if start_date <= record_date <= end_date:
+                        rsi_volume_id_list.append(key)
+                except Exception as e:
+                    print(f"Error processing item {item}: {e}")
+        
+        # If no valid volume IDs are found, raise an error.
+        if rsi_volume_id_list:
+            return rsi_volume_id_list
+        else:
+            raise ValueError(f"No RSI Volume_ID found associated with input interval: {start_date} - {end_date}.")
+
+
+
+#########################################################################################################
+
+    def add_ro_mission_phase_designation(self, mapping_dict):
+        """
+        Updates mapping_dict entries by adding an 'Abbn' field (mission phase abbreviation)
+        based on each entry's start_date_utc.
+        The function caches the mapping from unique start dates to their mission phase.
+        
+        Parameters:
+            mapping_dict (dict): Dictionary where keys are rsi_volume_id and values are lists
+                                of dictionaries, each having a 'start_date_utc' datetime object.
+                                
+        Returns:
+        dict: The updated mapping_dict with two additional keys for each entry:
+              - "Abbn": the mission phase abbreviation.
+              - "target": the target designation ("X" for non-target-specific or pre-comet phases,
+                          "C" for comet, "M" for Mars, "A" for asteroid flybys).
+    """
+
+       
+        # Define the mission phase date ranges for the Rosetta mission, in which RSI experiments were conducted.
+        mission_phases = {
+            'CVP1': {'start': '2004-03-05',     'end': '2004-06-06'},
+            'CVP2': {'start': '2004-09-06',     'end': '2004-10-16'},
+            'CR2':  {'start': '2005-04-05',     'end': '2006-07-28'},
+            'MARS': {'start': '2006-07-29',     'end': '2007-05-28'},
+            'EAR2': {'start': '2007-09-13',     'end': '2008-01-27'},
+            'CR4B': {'start': '2008-10-06',     'end': '2009-09-13'},
+            'AST2': {'start': '2010-05-17',     'end': '2010-09-03'},
+            'PRL':  {'start': '2014-01-21',     'end': '2014-11-19'},
+            'ESC1': {'start': '2014-11-20',     'end': '2015-03-10'},
+            'ESC2': {'start': '2015-03-11',     'end': '2015-06-30'},
+            'ESC3': {'start': '2015-07-01',     'end': '2015-10-21'},
+            'ESC4': {'start': '2015-10-22',     'end': '2015-12-31'},
+            'EXT1': {'start': '2016-01-01',     'end': '2016-04-05'},
+            'EXT2': {'start': '2016-04-06',     'end': '2016-06-30'},
+            'EXT3': {'start': '2016-07-01',     'end': '2016-09-30'},
+        }
+
+        for phase, dates in mission_phases.items():
+            # Convert the start date and end date string using the provided method.
+            dates['start_dt'] = self.format_string_to_datetime(dates['start']).date()
+            dates['end_dt'] = self.format_string_to_datetime(dates['end']).date()
+
+        # Cache mapping: map each unique entry start date (as date object) to its phase abbreviation.
+        date_to_phase = {}
+        unique_dates = set()
+        for entries in mapping_dict.values():
+            for entry in entries:
+                dt = entry.get("start_date_utc")
+                if dt is not None:
+                    unique_dates.add(dt.date())
+
+        for d in unique_dates:
+            found_phase = None
+            for phase, data in mission_phases.items():
+                start_dt = data['start_dt']
+                end_dt = data['end_dt']
+                if ((start_dt is None or d >= start_dt) and 
+                    (end_dt is None or d <= end_dt)):
+                    found_phase = phase
+                    break
+            date_to_phase[d] = found_phase
+                        
+
+
+        # Define a mapping from mission phase abbreviation to target designation.
+        # (X: early/launch phases, C: comet target, M: Mars, A: asteroid)
+        phase_to_target = {
+            'CVP1': 'X',
+            'CVP2': 'X',
+            'CR2': 'X',
+            'MARS': 'M',
+            'EAR2': 'X',
+            'AST2': 'A',
+            'CR4B': 'X',
+            # After the flybys, the mission target becomes the comet (67P)
+            'PRL': 'C',
+            'ESC1': 'C',
+            'ESC2': 'C',
+            'ESC3': 'C',
+            'ESC4': 'C',
+            'EXT1': 'C',
+            'EXT2': 'C',
+            'EXT3': 'C',
+        }
+
+
+        # Update each entry in mapping_dict, adding both the mission phase abbreviation ("abbn")
+        # and the corresponding target designation ("target").
+        for entries in mapping_dict.values():
+            for entry in entries:
+                dt = entry.get("start_date_utc")
+                if dt is not None:
+                    phase = date_to_phase.get(dt.date())
+                    entry["abbn"] = phase
+                    entry["target"] = phase_to_target.get(phase, None)
+                else:
+                    entry["abbn"] = None
+                    entry["target"] = None
+
+        return mapping_dict
+
+
+#########################################################################################################
+
+    def get_ro_rsi_volume_ID_mapping(self, url):
+        """
+        Description:
+        Fetches data from a given URL and extracts volume ID, date range, and observation type
+        for the Rosetta mission. The data is returned as a dictionary mapping date intervals
+        to volume IDs and metadata.
+
+        Inputs:
+            - url (`str`): The URL from which to fetch the data (plain text format).
+
+        Outputs:
+            - `mapping_dict` (`dict`): A dictionary where keys are "rsi_volume_id",
+              and values are dictionaries with:
+                - `rsi_volume_id` (`str`): The rsi volume ID.
+                - `volume_id` (`str`): The volume ID.
+                - `start_date_file` (`str`): Start date (YYYY-MM-DD).
+                - `start_date_utc` (`datetime`): Start date in UTC format.
+                - `radio_observation_type` (`str`): Type of observation.
+        """
+
+        # Step 1: Fetch content from the URL
+        response = requests.get(url)
+        response.raise_for_status()  # Check for request errors
+        aareadme_text = response.text
+
+        # Step 2: Parse content using regex to extract the table entries
+        self.mapping_dict = {}
+        pattern = re.compile(
+            r"^\s*(RORSI_\d{4})\s+(RORSI_\d{4})\s+(\d{4}-\d{2}-\d{2})\s+(.+?)\s*$",
+            re.MULTILINE,
+        )
+
+        # Step 3: Find all matches and populate the dictionary
+        for match in pattern.finditer(aareadme_text):
+            full_rsi_volume_id = match.group(1)  # e.g. "RORSI_0001"
+            # Remove the "RORSI_" prefix to keep only the numeric part.
+            rsi_volume_id_num = full_rsi_volume_id.replace("RORSI_", "")
+            volume_id = match.group(2)
+            start_date_file = match.group(3) if len(match.group(3)) == 10 else None
+            start_date_utc = (
+                self.format_string_to_datetime(start_date_file)
+                if start_date_file is not None
+                else None
+            )
+            radio_observation_type = match.group(4).strip()
+
+            # Add entry to dictionary
+            if full_rsi_volume_id not in self.mapping_dict:
+                self.mapping_dict[full_rsi_volume_id] = (
+                    []
+                )  # Initialize as a list
+
+            # Append the current entry to the list
+            self.mapping_dict[full_rsi_volume_id].append(
+                {
+                    "rsi_volume_id_num": rsi_volume_id_num,
+                    "volume_id": volume_id,
+                    "start_date_file": start_date_file,
+                    "start_date_utc": start_date_utc,
+                    "radio_observation_type": radio_observation_type,
+                }
+            )
+        return self.mapping_dict
+ 
+
+########################################################################################################################################
+########################################## END OF ROSETTA SECTION ####################################################################
+########################################################################################################################################
+
+
