@@ -1,1 +1,1 @@
-from ...kernel.trajectory_design.shape_based_thrust import *
+from tudatpy.kernel.trajectory_design.shape_based_thrust import *

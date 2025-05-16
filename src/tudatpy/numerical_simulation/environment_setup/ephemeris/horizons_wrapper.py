@@ -11,16 +11,14 @@ import math
 import numpy as np
 import pandas as pd
 
-from typing import Union, List, Tuple, Any, TYPE_CHECKING
+from typing import Union, List, Any
 import datetime
 
-from .... import constants
-from ....kernel.numerical_simulation.environment_setup import ephemeris
-
-if TYPE_CHECKING:
-    from ....kernel.numerical_simulation.environment_setup import (
-        BodyListSettings,
-    )
+from tudatpy import constants
+from tudatpy.kernel.numerical_simulation.environment_setup import (
+    ephemeris,
+    BodySettings,
+)
 
 
 class HorizonsQuery:
