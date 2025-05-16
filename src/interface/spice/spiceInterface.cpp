@@ -42,20 +42,41 @@ std::string getCorrectedTargetBodyName( const std::string &targetBodyName )
 //! Convert a Julian date to ephemeris time (equivalent to TDB in Spice).
 double convertJulianDateToEphemerisTime( const double julianDate )
 {
-    return ( julianDate - j2000_c( ) ) * spd_c( );
+
+    double ephemerisTime = ( julianDate - j2000_c( ) ) * spd_c( );
+
+    if (failed_c( ))
+    {
+        handleSpiceException( );
+    }
+
+    return ephemerisTime;
 }
 
 double getApproximateUtcFromTdb( const double ephemerisTime )
 {
     double timeOffset = TUDAT_NAN;
     deltet_c( ephemerisTime, "ET", &timeOffset );
+
+    if (failed_c( ))
+    {
+        handleSpiceException( );
+    }
+
     return ephemerisTime - timeOffset;
 }
 
 //! Convert ephemeris time (equivalent to TDB) to a Julian date.
 double convertEphemerisTimeToJulianDate( const double ephemerisTime )
 {
-    return j2000_c( ) + ( ephemerisTime ) / spd_c( );
+    double julianDate = j2000_c( ) + ( ephemerisTime ) / spd_c( );
+
+    if (failed_c( ))
+    {
+        handleSpiceException( );
+    }
+
+    return julianDate;
 }
 
 //! Converts a date string to ephemeris time.
@@ -63,6 +84,12 @@ double convertDateStringToEphemerisTime( const std::string &dateString )
 {
     double ephemerisTime = 0.0;
     str2et_c( dateString.c_str( ), &ephemerisTime );
+
+    if (failed_c( ))
+    {
+        handleSpiceException( );
+    }
+
     return ephemerisTime;
 }
 
@@ -412,6 +439,12 @@ std::vector< double > getBodyProperties( const std::string &body, const std::str
         bodyProperties.at( i ) = propertyArray[ i ];
     }
     delete[] propertyArray;
+
+    if ( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
+
     return bodyProperties;
 }
 
@@ -424,6 +457,11 @@ double getBodyGravitationalParameter( const std::string &body )
     // Call Spice function to retrieve gravitational parameter.
     SpiceInt numberOfReturnedParameters;
     bodvrd_c( body.c_str( ), "GM", 1, &numberOfReturnedParameters, gravitationalParameter );
+
+    if ( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
 
     // Convert from km^3/s^2 to m^3/s^2
     return unit_conversions::convertKilometersToMeters< double >( unit_conversions::convertKilometersToMeters< double >(
@@ -440,6 +478,11 @@ double getAverageRadius( const std::string &body )
     SpiceInt numberOfReturnedParameters;
     bodvrd_c( body.c_str( ), "RADII", 3, &numberOfReturnedParameters, radii );
 
+    if ( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
+
     // Compute average and convert from km to m.
     return unit_conversions::convertKilometersToMeters< double >( radii[ 0 ] + radii[ 1 ] + radii[ 2 ] ) / 3.0;
 }
@@ -453,6 +496,11 @@ double getAverageEquatorialRadius( const std::string &body )
     // Call Spice function to retrieve gravitational parameter.
     SpiceInt numberOfReturnedParameters;
     bodvrd_c( body.c_str( ), "RADII", 3, &numberOfReturnedParameters, radii );
+
+    if ( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
 
     // Compute average and convert from km to m.
     return unit_conversions::convertKilometersToMeters< double >( radii[ 0 ] + radii[ 1 ] ) / 2.0;
@@ -468,6 +516,11 @@ double getPolarRadius( const std::string &body )
     SpiceInt numberOfReturnedParameters;
     bodvrd_c( body.c_str( ), "RADII", 3, &numberOfReturnedParameters, radii );
 
+    if ( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
+
     // Compute average and convert from km to m.
     return unit_conversions::convertKilometersToMeters< double >( radii[ 2 ] );
 }
@@ -479,6 +532,11 @@ int convertBodyNameToNaifId( const std::string &bodyName )
     SpiceInt bodyNaifId;
     SpiceBoolean isIdFound;
     bods2c_c( bodyName.c_str( ), &bodyNaifId, &isIdFound );
+
+    if ( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
 
     // Convert SpiceInt (typedef for long) to int and return.
     return static_cast< int >( bodyNaifId );
@@ -492,6 +550,11 @@ std::string convertNaifIdToBodyName( int bodyNaifId )
 
     bodc2s_c( bodyNaifId, 33, bodyName );
 
+    if ( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
+
     // Convert SpiceChar to std::string
     return static_cast< std::string >( bodyName );
 }
@@ -504,6 +567,12 @@ bool checkBodyPropertyInKernelPool( const std::string &bodyName, const std::stri
 
     // Determine if property is in pool.
     SpiceBoolean isPropertyInPool = bodfnd_c( naifId, bodyProperty.c_str( ) );
+
+    if ( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
+
     return static_cast< bool >( isPropertyInPool );
 }
 
@@ -513,6 +582,12 @@ void loadSpiceKernelInTudat( const std::string &fileName )
     setSpiceErrorHandling( );
 
     furnsh_c( fileName.c_str( ) );
+
+    if ( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
+
 }
 
 //! Get the amount of loaded Spice kernels.
@@ -520,6 +595,12 @@ int getTotalCountOfKernelsLoaded( )
 {
     SpiceInt count;
     ktotal_c( "ALL", &count );
+
+    if ( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
+
     return count;
 }
 
@@ -527,6 +608,12 @@ int getTotalCountOfKernelsLoaded( )
 void clearSpiceKernels( )
 {
     kclear_c( );
+
+    if ( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
+
 }
 
 //! Get all standard Spice kernels used in tudat.
