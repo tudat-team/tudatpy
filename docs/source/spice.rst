@@ -25,11 +25,21 @@ Functions
 
 .. autosummary::
 
+   load_standard_kernels
+
+   load_kernel
+
+   clear_kernels
+
+   get_total_count_of_kernels_loaded
+
    convert_julian_date_to_ephemeris_time
 
    convert_ephemeris_time_to_julian_date
 
    convert_date_string_to_ephemeris_time
+
+   get_approximate_utc_from_tdb
 
    get_body_cartesian_state_at_epoch
 
@@ -53,21 +63,22 @@ Functions
 
    check_body_property_in_kernel_pool
 
-   load_standard_kernels
 
-   get_total_count_of_kernels_loaded
+.. autofunction:: tudatpy.interface.spice.load_standard_kernels
 
-   load_kernel
+.. autofunction:: tudatpy.interface.spice.load_kernel
 
-   clear_kernels
+.. autofunction:: tudatpy.interface.spice.clear_kernels
 
-
+.. autofunction:: tudatpy.interface.spice.get_total_count_of_kernels_loaded
 
 .. autofunction:: tudatpy.interface.spice.convert_julian_date_to_ephemeris_time
 
 .. autofunction:: tudatpy.interface.spice.convert_ephemeris_time_to_julian_date
 
 .. autofunction:: tudatpy.interface.spice.convert_date_string_to_ephemeris_time
+
+.. autofunction:: tudatpy.interface.spice.get_approximate_utc_from_tdb
 
 .. autofunction:: tudatpy.interface.spice.get_body_cartesian_state_at_epoch
 
@@ -91,13 +102,6 @@ Functions
 
 .. autofunction:: tudatpy.interface.spice.check_body_property_in_kernel_pool
 
-.. autofunction:: tudatpy.interface.spice.load_standard_kernels
-
-.. autofunction:: tudatpy.interface.spice.get_total_count_of_kernels_loaded
-
-.. autofunction:: tudatpy.interface.spice.load_kernel
-
-.. autofunction:: tudatpy.interface.spice.clear_kernels
 
 
 
