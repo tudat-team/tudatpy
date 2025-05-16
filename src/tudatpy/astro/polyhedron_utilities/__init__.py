@@ -1,1 +1,1 @@
-from ...kernel.astro.polyhedron_utilities import *
+from tudatpy.kernel.astro.polyhedron_utilities import *

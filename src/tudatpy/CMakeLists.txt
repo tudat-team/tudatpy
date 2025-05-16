@@ -8,6 +8,8 @@ configure_file(
 # include(YacmaExtension)
 include(PythonExtension)
 
+copy_python_in_build()
+
 # Setup the installation path.
 set(TUDATPY_INSTALL_PATH "${YACMA_PYTHON_MODULES_INSTALL_PATH}/tudatpy")
 # set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TUDATPY_SOURCE_DIR})
