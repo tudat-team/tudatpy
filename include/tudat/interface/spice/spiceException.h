@@ -34,7 +34,7 @@ public:
                 const std::string& explanation,
                 const std::string& longMessage,
                 const std::string& traceback ):
-        std::runtime_error( shortMessage + "\n" + explanation + "\n" + longMessage + "\n" + traceback )
+        std::runtime_error( shortMessage + "\n" + explanation + "\n" + longMessage + "\n" + "Traceback: " + traceback )
     { }
     ~SpiceError( ) { }
 };
