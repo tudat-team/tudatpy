@@ -37,7 +37,6 @@ enum ObservationAncilliarySimulationVariable {
     reception_reference_frequency_band,
     doppler_integration_time,
     doppler_reference_frequency,
-    sequential_range_reference_frequency,
     sequential_range_lowest_ranging_component,
     range_conversion_factor,
 };
@@ -57,7 +56,6 @@ public:
             case doppler_integration_time:
             case doppler_reference_frequency:
             case reception_reference_frequency_band:
-            case sequential_range_reference_frequency:
             case sequential_range_lowest_ranging_component:
             case range_conversion_factor:
                 doubleData_[ variableType ] = variable;
@@ -96,7 +94,6 @@ public:
                 case doppler_integration_time:
                 case doppler_reference_frequency:
                 case reception_reference_frequency_band:
-                case sequential_range_reference_frequency:
                 case sequential_range_lowest_ranging_component:
                 case range_conversion_factor:
                     returnVariable = doubleData_.at( variableType );
@@ -182,9 +179,6 @@ public:
             case reception_reference_frequency_band:
                 name = "DSN reference frequency band at reception";
                 break;
-            case sequential_range_reference_frequency:
-                name = "DSN sequential range reference frequency";
-                break;
             case sequential_range_lowest_ranging_component:
                 name = "DSN sequential range lowest ranging component";
                 break;
@@ -213,7 +207,7 @@ public:
                 throw std::runtime_error(
                         "Error when setting double intermediate observation "
                         "data; could not set type " +
-                        static_cast< int >( variableType ) );
+                        std::to_string( static_cast< int >( variableType ) ) );
         }
     }
 
@@ -234,7 +228,7 @@ public:
                         throw std::runtime_error(
                                 "Error when getting double intermediate observation "
                                 "data; could not retrieve type " +
-                                static_cast< int >( variableType ) );
+                                std::to_string( static_cast< int >( variableType ) ) );
                     }
                     break;
             }
@@ -246,7 +240,7 @@ public:
                 throw std::runtime_error(
                         "Error when getting double intermediate observation "
                         "data; could not retrieve type " +
-                        variableType );
+                        std::to_string( static_cast< int >( variableType ) ) );
             }
         }
         return returnVariable;
@@ -342,7 +336,6 @@ inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDsnNWayAver
 
 inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDsnNWayRangeAncillarySettings(
         const std::vector< FrequencyBands > &frequencyBands,
-        const double referenceFrequency,
         const double lowestRangingComponent,
         const std::vector< double > linkEndsDelays = std::vector< double >( ) )
 
@@ -351,7 +344,6 @@ inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDsnNWayRang
             std::make_shared< ObservationAncilliarySimulationSettings >( );
 
     ancillarySettings->setAncilliaryDoubleData( sequential_range_lowest_ranging_component, lowestRangingComponent );
-    ancillarySettings->setAncilliaryDoubleData( sequential_range_reference_frequency, referenceFrequency );
 
     ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
     ancillarySettings->setAncilliaryDoubleVectorData( link_ends_delays, linkEndsDelays );

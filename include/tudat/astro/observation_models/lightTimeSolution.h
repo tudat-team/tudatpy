@@ -197,7 +197,7 @@ public:
      * state and time.
      */
     LightTimeCorrectionFunctionWrapper( const LightTimeCorrectionFunctionSingleLeg lightTimeCorrectionFunction ):
-        LightTimeCorrection( function_wrapper_light_time_correction ), isWarningProvided_( false )
+        LightTimeCorrection( function_wrapper_light_time_correction )
     {
         lightTimeCorrectionFunction_ =
                 [ = ]( const std::vector< Eigen::Vector6d >& linkEndsStates,
@@ -213,8 +213,7 @@ public:
     }
 
     LightTimeCorrectionFunctionWrapper( const LightTimeCorrectionFunctionMultiLeg lightTimeCorrectionFunction ):
-        LightTimeCorrection( function_wrapper_light_time_correction ), lightTimeCorrectionFunction_( lightTimeCorrectionFunction ),
-        isWarningProvided_( false )
+        LightTimeCorrection( function_wrapper_light_time_correction ), lightTimeCorrectionFunction_( lightTimeCorrectionFunction )
     { }
 
     //! Function to compute the light-time correction
@@ -238,9 +237,6 @@ public:
 private:
     //! Custom light-time correction functions, as a function of transmitter and receiver state and time.
     LightTimeCorrectionFunctionMultiLeg lightTimeCorrectionFunction_;
-
-    //! Boolean denoting whether a warning has been provided when calling the partial derivative function(s)
-    bool isWarningProvided_;
 };
 
 //! Class to calculate the light time between two points.
