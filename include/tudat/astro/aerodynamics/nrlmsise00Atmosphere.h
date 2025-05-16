@@ -480,7 +480,6 @@ private:
     std::map< AtmosphericCompositionSpecies, int > speciesIndices = { { he_species, 0 }, { o_species, 1 },          { n2_species, 2 },
                                                                       { o2_species, 3 }, { ar_species, 4 },         { h_species, 5 },
                                                                       { n_species, 6 },  { anomalous_o_species, 7 } };
-
 };
 
 Eigen::VectorXd getNrlmsiseInputAsVector( const nrlmsise_input& input );
