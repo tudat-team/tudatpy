@@ -85,7 +85,9 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                         perturbingBodies,
                         transmitter.bodyName_,
                         receiver.bodyName_,
-                        std::bind( &relativity::PPNParameterSet::getParameterGamma, relativity::ppnParameterSet ) );
+                        std::bind( &relativity::PPNParameterSet::getParameterGamma, relativity::ppnParameterSet ),
+                        std::dynamic_pointer_cast< FirstOrderRelativisticLightTimeCorrectionSettings >( correctionSettings )
+                                ->getBendingFlag() );
             }
             else
             {
