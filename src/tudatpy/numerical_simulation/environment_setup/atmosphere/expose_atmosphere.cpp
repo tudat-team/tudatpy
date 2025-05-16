@@ -112,8 +112,12 @@ void expose_atmosphere_setup( py::module &m )
                           std::shared_ptr< tio::solar_activity::SolarActivityData > >, const bool, const bool, const bool >( ),
                   py::arg( "solar_activity_data" ),
                   py::arg( "use_ideal_gas_law" ) = true,
-                  py::arg( "use_storm_conditions" ) = true,
+                  py::arg( "use_storm_conditions" ) = false,
                   py::arg( "use_anomalous_oxygen" ) = true )
+            .def( "set_use_geodetic_latitude", &ta::NRLMSISE00Atmosphere::setUseGeodeticLatitude)
+            .def( "get_use_geodetic_latitude", &ta::NRLMSISE00Atmosphere::getUseGeodeticLatitude)
+            .def( "set_use_utc", &ta::NRLMSISE00Atmosphere::setUseUtc)
+            .def( "get_use_utc", &ta::NRLMSISE00Atmosphere::getUseUtc)
             .def( "get_density",
                   &ta::NRLMSISE00Atmosphere::getDensity,
                   py::arg( "altitude" ),
