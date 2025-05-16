@@ -228,7 +228,7 @@ public:
                         throw std::runtime_error(
                                 "Error when getting double intermediate observation "
                                 "data; could not retrieve type " +
-                                    std::to_string( static_cast< int >( variableType ) ) );
+                                std::to_string( static_cast< int >( variableType ) ) );
                     }
                     break;
             }
@@ -240,7 +240,7 @@ public:
                 throw std::runtime_error(
                         "Error when getting double intermediate observation "
                         "data; could not retrieve type " +
-                            std::to_string( static_cast< int >( variableType ) ) );
+                        std::to_string( static_cast< int >( variableType ) ) );
             }
         }
         return returnVariable;
