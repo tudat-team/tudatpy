@@ -13,6 +13,7 @@ set(spice_interface_SOURCES
         "spiceEphemeris.cpp"
         "spiceRotationalEphemeris.cpp"
         "spiceInterface.cpp"
+        "spiceException.cpp"
         )
 
 # Set the header files.
@@ -20,6 +21,7 @@ set(spice_interface_HEADERS
         "spiceEphemeris.h"
         "spiceRotationalEphemeris.h"
         "spiceInterface.h"
+        "spiceException.h"
         )
 
 # Add library.
