@@ -1,1 +1,1 @@
-from ....kernel.numerical_simulation.environment_setup.radiation_pressure import *
+from tudatpy.kernel.numerical_simulation.environment_setup.radiation_pressure import *
