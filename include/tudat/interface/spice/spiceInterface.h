@@ -285,11 +285,6 @@ void setSpiceErrorHandling( );
 
 void handleSpiceException( );
 
-void throwSpiceException( const std::string &shortMessage,
-                                   const std::string &explanation,
-                                   const std::string &longMessage,
-                                   const std::string &traceback );
-
 }  // namespace spice_interface
 }  // namespace tudat
 
