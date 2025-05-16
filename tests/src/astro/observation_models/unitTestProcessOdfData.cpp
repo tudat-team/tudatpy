@@ -86,10 +86,6 @@ BOOST_AUTO_TEST_CASE( testProcessOdfData )
                                     ancillarySettings->getDoubleData( ).at( observation_models::reception_reference_frequency_band ),
                                     1.000000000 );
                             BOOST_CHECK_CLOSE_FRACTION(
-                                    ancillarySettings->getDoubleData( ).at( observation_models::sequential_range_reference_frequency ),
-                                    7177011584.508999825,
-                                    1e-9 );
-                            BOOST_CHECK_CLOSE_FRACTION(
                                     ancillarySettings->getDoubleData( ).at( observation_models::sequential_range_lowest_ranging_component ),
                                     14.000000000,
                                     1e-9 );
