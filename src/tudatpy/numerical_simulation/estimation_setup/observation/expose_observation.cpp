@@ -2036,15 +2036,19 @@ Examples
 
       )doc" );
 
-    m.def( "first_order_relativistic_light_time_correction",
-           &tom::firstOrderRelativisticLightTimeCorrectionSettings,
-           py::arg( "perturbing_bodies" ),
-           R"doc(
+    m.def(
+        "first_order_relativistic_light_time_correction",
+        []( const std::vector< std::string >& perturbingBodies ) {
+            // Force bending to always be false
+            return tom::firstOrderRelativisticLightTimeCorrectionSettings( perturbingBodies, false );
+        },
+        py::arg( "perturbing_bodies" ),
+        R"doc(
 
 Function for creating settings for first-order relativistic light-time corrections.
 
-Function for creating settings for first-order relativistic light-time corrections:  These corrections account for the delay in light travel time caused by stationary point masses, calculated up to
-:math:`c^{-2}` according to general relativity (e.g., Moyer, 2000). A key consideration in the model is the time at which the states of the perturbing bodies are evaluated. This depends on their involvement in the observation link ends:
+Function for creating settings for first-order relativistic light-time corrections (also know as Shapiro time delay):  These corrections account for the delay in light travel time caused by stationary point masses, calculated up to
+:math:`c^{-2}` according to general relativity (e.g., Moyer, 2000 Eq 8.55, terms for bodies other than the Sun). A key consideration in the model is the time at which the states of the perturbing bodies are evaluated. This depends on their involvement in the observation link ends:
 
 * 1. **Perturbing Body as a Link End:** If the perturbing body (e.g., Earth) is directly involved in the observation (e.g., as the location of a transmitter or receiver):
 
@@ -2057,6 +2061,7 @@ Parameters
 ----------
 perturbing_bodies : List[str]
     A list containing the names of the bodies due to which the light-time correction is to be taken into account.
+
 
 Returns
 -------
@@ -2082,6 +2087,63 @@ Examples
     # The function first_order_relativistic_light_time_correction() requires a list of strings (perturbing body/bodies) as input
     perturbing_body = ['Earth']
     doppler_observation_settings = observation.first_order_relativistic_light_time_correction(perturbing_body)
+
+    # Show that it returns a LightTimeCorrectionSettings object.
+    print(doppler_observation_settings)
+
+     )doc" );
+
+    m.def(
+        "approximated_second_order_relativistic_light_time_correction",
+        []( const std::vector< std::string >& perturbingBodies ) {
+            // Force bending to always be true
+            return tom::firstOrderRelativisticLightTimeCorrectionSettings( perturbingBodies, true );
+        },
+        py::arg( "perturbing_bodies" ),
+
+        R"doc(
+
+Function for creating settings for Moyer, 2000 Eq 8.55 approximated second-order relativistic light-time corrections.
+
+Function for creating settings for approximated second-order relativistic light-time corrections:  These corrections account for the delay in light travel time caused by stationary point masses, calculated up to
+:math:`c^{-2}` according to general relativity ( Moyer, 2000 Eq 8.55; correction term for Sun) and it includes the bending of light due to the perturbing body. A key consideration in the model is the time at which the states of the perturbing bodies are evaluated. This depends on their involvement in the observation link ends:
+
+* 1. **Perturbing Body as a Link End:** If the perturbing body (e.g., Earth) is directly involved in the observation (e.g., as the location of a transmitter or receiver):
+
+    - The body's state is evaluated at the **transmission time** if it acts as the **transmitter**.
+    - The body's state is evaluated at the **reception time** if it acts as the **receiver**.
+
+* 2. **Perturbing Body Not as a Link End:** If the perturbing body is not part of the observation link ends, its state is evaluated at the **midpoint time** between the transmission and reception events.
+
+Parameters
+----------
+perturbing_bodies : List[str]
+    A list containing the names of the bodies due to which the light-time correction is to be taken into account.
+
+Returns
+-------
+:class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings`
+    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` configured to include
+    approximated second-order relativistic light-time corrections.
+
+Examples
+--------
+.. code-block:: python
+
+    # Code Snippet to showcase the use of the first_order_relativistic_light_time_correction function
+    from tudatpy.numerical_simulation.estimation_setup import observation
+
+    # Create Link Ends dictionary
+    link_ends = dict()
+    link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+    link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+
+    # Create a Link Definition Object from link_ends dictionary
+    Link_Definition_Object = observation.LinkDefinition(link_ends)
+
+    # The function first_order_relativistic_light_time_correction() requires a list of strings (perturbing body/bodies) as input
+    perturbing_body = ['Earth']
+    doppler_observation_settings = observation.aprroximated_second_order_relativistic_light_time_correction(perturbing_body)
 
     # Show that it returns a LightTimeCorrectionSettings object.
     print(doppler_observation_settings)
@@ -2805,9 +2867,6 @@ Examples
             .value( "reception_reference_frequency_band",
                     tom::ObservationAncilliarySimulationVariable::
                             reception_reference_frequency_band )
-            .value( "sequential_range_reference_frequency",
-                    tom::ObservationAncilliarySimulationVariable::
-                            sequential_range_reference_frequency )
             .value( "sequential_range_lowest_ranging_component",
                     tom::ObservationAncilliarySimulationVariable::
                             sequential_range_lowest_ranging_component )
@@ -3458,7 +3517,6 @@ Examples
     m.def( "dsn_n_way_range_ancilliary_settings",
            &tom::getDsnNWayRangeAncillarySettings,
            py::arg( "frequency_bands" ),
-           py::arg( "reference_frequency" ),
            py::arg( "lowest_ranging_component" ),
            py::arg( "link_end_delays" ) = std::vector< double >( ),
            R"doc(No documentation found.)doc" );
