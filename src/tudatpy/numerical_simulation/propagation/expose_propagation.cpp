@@ -556,7 +556,7 @@ void expose_propagation( py::module &m )
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE,
                                                      TIME_TYPE >::getDependentVariableHistory,
                     R"doc(
-
+                    
          **read-only**
 
          Dependent variables computed during the propagation as key-value pairs.
@@ -566,6 +566,14 @@ void expose_propagation( py::module &m )
 
          :type: dict[float, numpy.ndarray]
       )doc" )
+
+
+             .def_property_readonly( "dependent_variable_history_float",
+                        &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE,
+                                                         TIME_TYPE >::getDependentVariableHistoryDouble,
+                        R"doc()doc" )
+
+
             .def_property_readonly(
                     "cumulative_computation_time_history",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
