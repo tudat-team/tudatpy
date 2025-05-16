@@ -481,9 +481,6 @@ private:
                                                                       { o2_species, 3 }, { ar_species, 4 },         { h_species, 5 },
                                                                       { n_species, 6 },  { anomalous_o_species, 7 } };
 
-    // Define the shape model for Earth (WGS-84)
-    const double equatorialRadius_ = 6378137.0;
-    const double flattening_ = 1.0 / 298.257223563;
 };
 
 Eigen::VectorXd getNrlmsiseInputAsVector( const nrlmsise_input& input );
