@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "tudat/basics/utilityMacros.h"
+#include "tudat/basics/tudatExceptions.h"
 #include "tudat/math/integrators/reinitializableNumericalIntegrator.h"
 #include "tudat/math/integrators/rungeKuttaCoefficients.h"
 
@@ -95,8 +96,7 @@ public:
         {
             if( minimumIntegrationTimeStepHandling_ == throw_exception_below_minimum )
             {
-                throw std::runtime_error( "Error in step-size control, minimum step size " + std::to_string( minimumStep_ ) +
-                                          " is higher than required time step " + std::to_string( recommendedStep.first ) );
+                throw tudat::exceptions::MinimumStepSizeViolatedError< TimeStepType >( minimumStep_, recommendedStep.first );
             }
             else
             {

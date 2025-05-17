@@ -24,6 +24,8 @@
 #include "tudat/math/interpolators/cubicSplineInterpolator.h"
 #include "tudat/math/interpolators/lookupScheme.h"
 
+#include "tudat/basics/tudatExceptions.h"
+
 namespace tudat
 {
 
@@ -252,13 +254,22 @@ public:
 
         // Check if requested interval is inside region in which centered lagrange interpolation
         // can be used.
-        if( lowerEntry < offsetEntries_ )
+        auto lowerReliableIntervalIndex = offsetEntries_;
+        auto upperReliableIntervalIndex = numberOfIndependentValues_ - offsetEntries_ - 1;
+
+        if( lowerEntry < lowerReliableIntervalIndex )
         {
-            interpolatedValue = performLagrangeBoundaryInterpolation( beginInterpolator_, targetIndependentVariableValue );
+            interpolatedValue = performLagrangeBoundaryInterpolation( beginInterpolator_,
+                                                                      targetIndependentVariableValue,
+                                                                      independentValues_[ lowerReliableIntervalIndex ],
+                                                                      independentValues_[ upperReliableIntervalIndex ] );
         }
-        else if( lowerEntry >= numberOfIndependentValues_ - offsetEntries_ - 1 )
+        else if( lowerEntry >= upperReliableIntervalIndex )
         {
-            interpolatedValue = performLagrangeBoundaryInterpolation( endInterpolator_, targetIndependentVariableValue );
+            interpolatedValue = performLagrangeBoundaryInterpolation( endInterpolator_,
+                                                                      targetIndependentVariableValue,
+                                                                      independentValues_[ lowerReliableIntervalIndex ],
+                                                                      independentValues_[ upperReliableIntervalIndex ] );
         }
         else
         {
@@ -330,14 +341,17 @@ protected:
 private:
     DependentVariableType performLagrangeBoundaryInterpolation(
             const std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > > boundaryInterpolator,
-            const IndependentVariableType& targetIndependentVariableValue )
+            const IndependentVariableType& targetIndependentVariableValue,
+            const IndependentVariableType& lowerBoundReliableInterval,
+            const IndependentVariableType& upperBoundReliableInterval )
     {
         DependentVariableType interpolatedValue;
         switch( lagrangeBoundaryHandling_ )
         {
             case lagrange_cubic_spline_boundary_interpolation_with_warning:
                 std::cerr << "Warning, calling Lagrange interpolator near boundary (at " << targetIndependentVariableValue
-                          << " ), using cubic-spline interpolation" << std::endl;
+                          << " ), using cubic-spline interpolation. Reliable interval lower boundary: " << lowerBoundReliableInterval
+                          << "; upper boundary: " << upperBoundReliableInterval << std::endl;
                 interpolatedValue = boundaryInterpolator->interpolate( targetIndependentVariableValue );
                 break;
             case lagrange_cubic_spline_boundary_interpolation:
@@ -345,15 +359,16 @@ private:
                 break;
             case lagrange_boundary_nan_interpolation_with_warning:
                 std::cerr << "Warning, calling Lagrange interpolator near boundary (at " << targetIndependentVariableValue
-                          << " ), returning NaN" << std::endl;
+                          << " ), returning NaN. Reliable interval lower boundary: " << lowerBoundReliableInterval
+                          << "; upper boundary: " << upperBoundReliableInterval << std::endl;
                 interpolatedValue = IdentityElement::getNanIdentity< DependentVariableType >( zeroEntry_ );
                 break;
             case lagrange_boundary_nan_interpolation:
                 interpolatedValue = IdentityElement::getNanIdentity< DependentVariableType >( zeroEntry_ );
                 break;
             case lagrange_no_boundary_interpolation:
-                throw std::runtime_error( "Error: Lagrange interpolator called outside permitted bounds, at " +
-                                          std::to_string( static_cast< double >( targetIndependentVariableValue ) ) );
+                throw tudat::exceptions::LagrangeInterpolationOutOfBoundsError< IndependentVariableType >(
+                        targetIndependentVariableValue, lowerBoundReliableInterval, upperBoundReliableInterval );
                 break;
             default:
                 throw std::runtime_error( "Error when handling Lagrange boundary case, option not implemented" );
