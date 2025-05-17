@@ -783,6 +783,9 @@ void handleSpiceException( )
     // Get the traceback
     qcktrc_c( SPICE_ERROR_TRCLEN, traceback );
 
+    // Reset the error state to avoid interference with SPICE function calls
+    reset_c( );
+
     exceptions::throwSpiceException( shortMessage, explanation, longMessage, traceback );
 }
 
