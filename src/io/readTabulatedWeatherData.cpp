@@ -40,6 +40,10 @@ void DsnWeatherData::readSingleFileWeatherData( const std::string& weatherFile )
     // Line based parsing
     std::string line;
     int year = -0, month = -1, day = -1;
+
+    double currentTime = TUDAT_NAN;
+    Eigen::VectorXd currentMeteoData = Eigen::VectorXd::Zero( 5 );
+
     while( stream.good( ) && !stream.eof( ) )
     {
         // Get line from stream
@@ -99,10 +103,11 @@ void DsnWeatherData::readSingleFileWeatherData( const std::string& weatherFile )
             int hours = std::stoi( line.substr( 1, 2 ) );
             int minutes = std::stoi( line.substr( 3, 2 ) );
 
-            time_.push_back( basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch(
-                                     year, month, day, hours, minutes, 0.0, basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
-                             physical_constants::JULIAN_DAY );
+            currentTime = basic_astrodynamics::convertCalendarDateToJulianDaysSinceEpoch(
+                                  year, month, day, hours, minutes, 0.0, basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
+                    physical_constants::JULIAN_DAY;
 
+            currentMeteoData.setZero( );
             for( unsigned int i = 0; i < 5; ++i )
             {
                 double value;
@@ -121,34 +126,71 @@ void DsnWeatherData::readSingleFileWeatherData( const std::string& weatherFile )
                 {
                     // Temperature converted from celsius to kelvin
                     case 0:
-                        dewPoint_.push_back( value + 273.15 );
+                        currentMeteoData( 0 ) = value + 273.15;
                         break;
                     // Temperature converted from celsius to kelvin
                     case 1:
-                        temperature_.push_back( value + 273.15 );
+                        currentMeteoData( 1 ) = value + 273.15;
                         break;
                     // Pressure converted from mbar to Pa
                     case 2:
-                        pressure_.push_back( value * 1e2 );
+                        currentMeteoData( 2 ) = value * 1e2;
                         break;
                     // Pressure converted from mbar to Pa
                     case 3:
-                        waterVaporPartialPressure_.push_back( value * 1e2 );
+                        currentMeteoData( 3 ) = value * 1e2;
                         break;
                     // Relative humidity converted from percentage to fraction
                     case 4:
-                        relativeHumidity_.push_back( value / 1e2 );
+                        currentMeteoData( 4 ) = value / 1e2;
                         break;
                     default:
                         throw std::runtime_error( "Invalid index when reading weather data." );
                         break;
                 }
             }
+            meteoDataMap_[ currentTime ] = currentMeteoData;
         }
     }
 
     // Close file
     stream.close( );
+}
+
+void EstrackWeatherData::readSingleWeatherDataFile( const std::string& weatherFile )
+{
+    // Open file
+    std::ifstream stream( weatherFile, std::ios_base::in );
+    if( !stream.good( ) )
+    {
+        throw std::runtime_error( "Error when opening ESTRACK file: " + weatherFile );
+    }
+
+    // Line based parsing
+    std::string currentLine;
+    std::vector< std::string > currentSplitLine;
+
+    std::map< double, Eigen::VectorXd > meteoMap;
+    while( stream.good( ) && !stream.eof( ) )
+    {
+        // Get line from stream
+        std::getline( stream, currentLine );
+
+        if( currentLine.size( ) > 0 )
+        {
+            // Trim input string (removes all leading and trailing whitespaces).
+            boost::algorithm::trim( currentLine );
+            boost::algorithm::split(
+                    currentSplitLine, currentLine, boost::algorithm::is_any_of( " \t" ), boost::algorithm::token_compress_on );
+            std::string utcString = currentSplitLine.at( 1 );
+            double utc = basic_astrodynamics::dateTimeFromIsoString( utcString ).epoch< double >( );
+            double humidity = std::stod( currentSplitLine.at( 4 ) ) / 100.0;
+            double pressure = std::stod( currentSplitLine.at( 5 ) ) * 100.0;
+            double temperature = std::stod( currentSplitLine.at( 6 ) ) + 273.15;
+            meteoMap[ utc ] = ( Eigen::VectorXd( 3 ) << humidity, pressure, temperature ).finished( );
+        }
+    }
+    meteoDataPerFile_.push_back( meteoMap );
 }
 
 bool compareDsnWeatherFileStartDate( std::shared_ptr< DsnWeatherData > file1, std::shared_ptr< DsnWeatherData > file2 )
@@ -158,7 +200,7 @@ bool compareDsnWeatherFileStartDate( std::shared_ptr< DsnWeatherData > file1, st
         throw std::runtime_error( "Error when comparing DSN weather files: invalid files." );
     }
 
-    if( file1->time_.front( ) < file2->time_.front( ) )
+    if( file1->meteoDataMap_.begin( )->first < file2->meteoDataMap_.begin( )->first )
     {
         return true;
     }
@@ -204,32 +246,8 @@ std::map< int, std::shared_ptr< DsnWeatherData > > readDsnWeatherDataFiles( cons
                                                                             complexIdIt->second.at( i )->fileNames_.begin( ),
                                                                             complexIdIt->second.at( i )->fileNames_.end( ) );
 
-            weatherDataPerComplex[ complexIdIt->first ]->time_.insert( weatherDataPerComplex[ complexIdIt->first ]->time_.end( ),
-                                                                       complexIdIt->second.at( i )->time_.begin( ),
-                                                                       complexIdIt->second.at( i )->time_.end( ) );
-
-            weatherDataPerComplex[ complexIdIt->first ]->dewPoint_.insert( weatherDataPerComplex[ complexIdIt->first ]->dewPoint_.end( ),
-                                                                           complexIdIt->second.at( i )->dewPoint_.begin( ),
-                                                                           complexIdIt->second.at( i )->dewPoint_.end( ) );
-
-            weatherDataPerComplex[ complexIdIt->first ]->temperature_.insert(
-                    weatherDataPerComplex[ complexIdIt->first ]->temperature_.end( ),
-                    complexIdIt->second.at( i )->temperature_.begin( ),
-                    complexIdIt->second.at( i )->temperature_.end( ) );
-
-            weatherDataPerComplex[ complexIdIt->first ]->pressure_.insert( weatherDataPerComplex[ complexIdIt->first ]->pressure_.end( ),
-                                                                           complexIdIt->second.at( i )->pressure_.begin( ),
-                                                                           complexIdIt->second.at( i )->pressure_.end( ) );
-
-            weatherDataPerComplex[ complexIdIt->first ]->waterVaporPartialPressure_.insert(
-                    weatherDataPerComplex[ complexIdIt->first ]->waterVaporPartialPressure_.end( ),
-                    complexIdIt->second.at( i )->waterVaporPartialPressure_.begin( ),
-                    complexIdIt->second.at( i )->waterVaporPartialPressure_.end( ) );
-
-            weatherDataPerComplex[ complexIdIt->first ]->relativeHumidity_.insert(
-                    weatherDataPerComplex[ complexIdIt->first ]->relativeHumidity_.end( ),
-                    complexIdIt->second.at( i )->relativeHumidity_.begin( ),
-                    complexIdIt->second.at( i )->relativeHumidity_.end( ) );
+            weatherDataPerComplex[ complexIdIt->first ]->meteoDataMap_.insert( complexIdIt->second.at( i )->meteoDataMap_.begin( ),
+                                                                               complexIdIt->second.at( i )->meteoDataMap_.end( ) );
         }
     }
 
@@ -281,32 +299,45 @@ void setDsnWeatherDataInGroundStations( simulation_setup::SystemOfBodies& bodies
             throw std::runtime_error( "Error when setting weather data in ground station: no ground stations in complex." );
         }
 
-        // Create interpolating functions
-        std::function< double( double ) > dewPointFunction =
-                createInterpolatingFunction( interpolatorSettings, weatherData->time_, weatherData->dewPoint_ );
-        std::function< double( double ) > temperatureFunction =
-                createInterpolatingFunction( interpolatorSettings, weatherData->time_, weatherData->temperature_ );
-        std::function< double( double ) > pressureFunction =
-                createInterpolatingFunction( interpolatorSettings, weatherData->time_, weatherData->pressure_ );
-        std::function< double( double ) > waterVaporPartialPressureFunction =
-                createInterpolatingFunction( interpolatorSettings, weatherData->time_, weatherData->waterVaporPartialPressure_ );
-        std::function< double( double ) > relativeHumidityFunction =
-                createInterpolatingFunction( interpolatorSettings, weatherData->time_, weatherData->relativeHumidity_ );
+        std::map< ground_stations::MeteoDataEntries, int > dsnMeteoEntries = { { ground_stations::temperature_meteo_data, 1 },
+                                                                               { ground_stations::pressure_meteo_data, 2 },
+                                                                               { ground_stations::water_vapor_pressure_meteo_data, 3 },
+                                                                               { ground_stations::relative_humidity_meteo_data, 4 },
+                                                                               { ground_stations::dew_point_meteo_data, 0 } };
 
+        std::shared_ptr< ground_stations::StationMeteoData > meteoData =
+                std::make_shared< ground_stations::ContinuousInterpolatedMeteoData >(
+                        interpolators::createOneDimensionalInterpolator( weatherData->meteoDataMap_, interpolatorSettings ),
+                        dsnMeteoEntries );
         // Set functions in ground stations
         for( const std::string& groundStation: groundStations )
         {
-            bodies.getBody( bodyWithGroundStations )->getGroundStation( groundStation )->setDewPointFunction( dewPointFunction );
-            bodies.getBody( bodyWithGroundStations )->getGroundStation( groundStation )->setTemperatureFunction( temperatureFunction );
-            bodies.getBody( bodyWithGroundStations )->getGroundStation( groundStation )->setPressureFunction( pressureFunction );
-            bodies.getBody( bodyWithGroundStations )
-                    ->getGroundStation( groundStation )
-                    ->setWaterVaporPartialPressureFunction( waterVaporPartialPressureFunction );
-            bodies.getBody( bodyWithGroundStations )
-                    ->getGroundStation( groundStation )
-                    ->setRelativeHumidityFunction( relativeHumidityFunction );
+            bodies.getBody( bodyWithGroundStations )->getGroundStation( groundStation )->setMeteoData( meteoData );
         }
     }
+}
+
+void setEstrackWeatherDataInGroundStation( simulation_setup::SystemOfBodies& bodies,
+                                           const std::vector< std::string >& weatherFiles,
+                                           const std::string groundStation,
+                                           std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings,
+                                           const std::string& bodyWithGroundStations )
+{
+    EstrackWeatherData weatherData = EstrackWeatherData( weatherFiles );
+    std::vector< std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > > interpolators;
+    auto meteoDataList = weatherData.getMeteoDataPerFile( );
+    for( unsigned int i = 0; i < meteoDataList.size( ); i++ )
+    {
+        interpolators.push_back( interpolators::createOneDimensionalInterpolator( meteoDataList.at( i ), interpolatorSettings ) );
+    }
+
+    std::map< ground_stations::MeteoDataEntries, int > estrackMeteoEntries = { { ground_stations::temperature_meteo_data, 2 },
+                                                                               { ground_stations::pressure_meteo_data, 1 },
+                                                                               { ground_stations::relative_humidity_meteo_data, 0 } };
+
+    std::shared_ptr< ground_stations::StationMeteoData > meteoData =
+            std::make_shared< ground_stations::PiecewiseInterpolatedMeteoData >( interpolators, estrackMeteoEntries );
+    bodies.at( bodyWithGroundStations )->getGroundStation( groundStation )->setMeteoData( meteoData );
 }
 
 }  // namespace input_output

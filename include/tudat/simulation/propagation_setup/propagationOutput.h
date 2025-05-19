@@ -1341,7 +1341,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             parameterSize = 3;
             break;
         }
-#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+#if( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
         case acceleration_partial_wrt_body_translational_state: {
             std::shared_ptr< AccelerationPartialWrtStateSaveSettings > accelerationPartialVariableSettings =
                     std::dynamic_pointer_cast< AccelerationPartialWrtStateSaveSettings >( dependentVariableSettings );
@@ -1740,7 +1740,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             variableFunction = [ = ]( ) {
                 atmosphereModel->setInputStruct( flightConditions->getCurrentAltitude( ),
                                                  flightConditions->getCurrentLongitude( ),
-                                                 flightConditions->getCurrentLatitude( ),
+                                                 flightConditions->getCurrentGeodeticLatitude( ),
                                                  flightConditions->getCurrentTime( ) );
                 return aerodynamics::getNrlmsiseInputAsVector( atmosphereModel->getNRLMSISE00InputStruct( ) );
             };
@@ -2871,7 +2871,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, std::map< std::pair< int, int >,
         // Create double parameter
         if( isScalarDependentVariable( variable, bodies ) )
         {
-#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+#if( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
             std::function< double( ) > doubleFunction =
                     getDoubleDependentVariableFunction( variable, bodies, stateDerivativeModels, stateDerivativePartials );
 #else
@@ -2882,7 +2882,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, std::map< std::pair< int, int >,
         // Create vector parameter
         else
         {
-#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+#if( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
             vectorFunction = getVectorDependentVariableFunction( variable, bodies, stateDerivativeModels, stateDerivativePartials );
 #else
             vectorFunction = getVectorDependentVariableFunction( variable, bodies, stateDerivativeModels );
