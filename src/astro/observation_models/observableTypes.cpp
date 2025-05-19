@@ -291,6 +291,9 @@ bool isRadiometricObservableType( const ObservableType observableType )
         case relative_angular_position:
             isRadiometric = false;
             break;
+        case undefined_observation_model:
+            isRadiometric = false;
+            break;
         default:
             throw std::runtime_error( "Error when determining if observable type is radiometric: observable " +
                                       getObservableName( observableType ) + " not found." );
@@ -323,7 +326,7 @@ bool isPhaseVelocityBasedObservableType( const ObservableType observableType )
             isPhaseVelocityBased = false;
             break;
         default:
-            throw std::runtime_error( "Error when determining if observable type is radiometric: observable " +
+            throw std::runtime_error( "Error when determining if observable type is phase-velocity based: observable " +
                                       getObservableName( observableType ) + " not found." );
     }
     return isPhaseVelocityBased;
@@ -354,7 +357,7 @@ bool isGroupVelocityBasedObservableType( const ObservableType observableType )
             isGroupVelocityBased = false;
             break;
         default:
-            throw std::runtime_error( "Error when determining if observable type is radiometric: observable " +
+            throw std::runtime_error( "Error when determining if observable type is group-velocity based: observable " +
                                       getObservableName( observableType ) + " not found." );
     }
     return isGroupVelocityBased;

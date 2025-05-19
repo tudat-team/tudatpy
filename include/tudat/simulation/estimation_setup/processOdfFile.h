@@ -1149,35 +1149,8 @@ observation_models::ObservationAncilliarySimulationSettings createOdfAncillarySe
         std::shared_ptr< ProcessedOdfFileSequentialRangeData< TimeType > > sequentialRangeDataBlock =
                 std::dynamic_pointer_cast< ProcessedOdfFileSequentialRangeData< TimeType > >( odfDataContents );
 
-        ancillarySettings.setAncilliaryDoubleData( observation_models::sequential_range_reference_frequency,
-                                                   sequentialRangeDataBlock->referenceFrequency_.at( dataIndex ) );
         ancillarySettings.setAncilliaryDoubleData( observation_models::sequential_range_lowest_ranging_component,
                                                    sequentialRangeDataBlock->lowestRangingComponent_.at( dataIndex ) );
-
-        // Define the conversion factor based on the value of the uplink frequency band
-        FrequencyBands uplinkBand = frequencyBands.at( 0 );
-
-        double conversionFactor;
-        if( uplinkBand == 0 )  // S-band
-        {
-            conversionFactor = 0.5;
-        }
-        else if( uplinkBand == 1 )  // X-band
-        {
-            conversionFactor = 221.0 / ( 749.0 * 2.0 );
-        }
-        else if( uplinkBand == 2 )  // Ka-band
-        {
-            conversionFactor = 221 / ( 3599 * 2.0 );
-        }
-        else
-        {
-            throw std::runtime_error( "Unsupported uplink frequency band to compute the range conversion factor" );
-        }
-
-        ancillarySettings.setAncilliaryDoubleData(
-                observation_models::range_conversion_factor,
-                physical_constants::SPEED_OF_LIGHT / ( sequentialRangeDataBlock->referenceFrequency_.at( dataIndex ) * conversionFactor ) );
 
         ancillarySettings.setAncilliaryDoubleVectorData(
                 observation_models::link_ends_delays,

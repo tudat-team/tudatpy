@@ -49,6 +49,7 @@ namespace spice_interface
 //! @get_docstring(convert_julian_date_to_ephemeris_time)
 double convertJulianDateToEphemerisTime( const double julianDate );
 
+double getApproximateUtcFromTdb( const double ephemerisTime );
 //! @get_docstring(convert_ephemeris_time_to_julian_date)
 double convertEphemerisTimeToJulianDate( const double ephemerisTime );
 

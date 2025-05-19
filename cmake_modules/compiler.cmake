@@ -113,6 +113,7 @@
                  "${CMAKE_CXX_FLAGS}"
                  " -Wno-unused-parameter"
                  " -Wno-unused-variable"
+                 " -Wno-enum-constexpr-conversion"
                  )
          string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 

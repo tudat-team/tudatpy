@@ -31,13 +31,31 @@ std::vector< double > eigenToStlVector( const Eigen::VectorXd& vector )
 }
 
 //! NRLMSISE00Input function
+NRLMSISE00Input nrlmsiseInputFunctionFromMap( const double altitude,
+                                              const double longitude,
+                                              const double latitude,
+                                              const double time,
+                                              const tudat::input_output::solar_activity::SolarActivityDataMap& solarActivityMap,
+                                              const bool adjustSolarTime,
+                                              const double localSolarTime )
+{
+    return nrlmsiseInputFunction( altitude,
+                                  longitude,
+                                  latitude,
+                                  time,
+                                  tudat::input_output::solar_activity::SolarActivityContainer( solarActivityMap ),
+                                  adjustSolarTime,
+                                  localSolarTime );
+}
+
 NRLMSISE00Input nrlmsiseInputFunction( const double altitude,
                                        const double longitude,
                                        const double latitude,
                                        const double time,
-                                       const tudat::input_output::solar_activity::SolarActivityDataMap& solarActivityMap,
+                                       const tudat::input_output::solar_activity::SolarActivityContainer& solarActivityContainer,
                                        const bool adjustSolarTime,
-                                       const double localSolarTime )
+                                       const double localSolarTime,
+                                       const int geomagneticActivity )
 {
     using namespace tudat::input_output::solar_activity;
 
@@ -49,22 +67,8 @@ NRLMSISE00Input nrlmsiseInputFunction( const double altitude,
     double julianDay = std::floor( julianDate - 0.5 ) + 0.5;
 
     // Check if solar activity is found for current day.
-    SolarActivityDataPtr solarActivity;
-
-    if( solarActivityMap.count( julianDay ) == 0 )
-    {
-        auto activityIterator = solarActivityMap.lower_bound( julianDay );
-        if( ( julianDay - activityIterator->first > 30 ) )
-        {
-            throw std::runtime_error( "Error when retrieving solar activity data at JD" + std::to_string( julianDate ) +
-                                      ", most recent data is more than 30 days old" );
-        }
-        solarActivity = activityIterator->second;
-    }
-    else
-    {
-        solarActivity = solarActivityMap.at( julianDay );
-    }
+    SolarActivityDataPtr solarActivity = solarActivityContainer.getSolarActivityData( time );
+    SolarActivityDataPtr solarActivityDayOld = solarActivityContainer.getDelayedSolarActivityData( time, 1.0 );
 
     // Compute julian date at the first of januari
     double julianDate1Jan = tudat::basic_astrodynamics::convertCalendarDateToJulianDay( solarActivity->year, 1, 1, 0, 0, 0.0 );
@@ -75,17 +79,34 @@ NRLMSISE00Input nrlmsiseInputFunction( const double altitude,
             tudat::basic_astrodynamics::convertJulianDayToSecondsSinceEpoch( julianDay, tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
     if( solarActivity->fluxQualifier == 1 )
-    {  // requires adjustment
-        nrlmsiseInputData.f107 = solarActivity->solarRadioFlux107Adjusted;
+    {
+        // requires adjustment
+        nrlmsiseInputData.f107 = solarActivityDayOld->solarRadioFlux107Adjusted;
         nrlmsiseInputData.f107a = solarActivity->centered81DaySolarRadioFlux107Adjusted;
     }
     else
-    {  // no adjustment required
-        nrlmsiseInputData.f107 = solarActivity->solarRadioFlux107Observed;
+    {
+        // no adjustment required
+        nrlmsiseInputData.f107 = solarActivityDayOld->solarRadioFlux107Observed;
         nrlmsiseInputData.f107a = solarActivity->centered81DaySolarRadioFlux107Observed;
     }
     nrlmsiseInputData.apDaily = solarActivity->planetaryEquivalentAmplitudeAverage;
-    nrlmsiseInputData.apVector = eigenToStlVector( solarActivity->planetaryEquivalentAmplitudeVector );
+
+    // Create switches vector
+    nrlmsiseInputData.switches = std::vector< int >( 24, 1 );
+    nrlmsiseInputData.switches[ 0 ] = 0;
+
+    if( geomagneticActivity == -1 )
+    {
+        // Custom behavior: maybe just use apDaily in vector, or do not fill the vector
+        solarActivityContainer.getDelayedApValues( time, nrlmsiseInputData.apVector );
+        nrlmsiseInputData.switches[ 9 ] = -1;
+    }
+    else if( geomagneticActivity == 1 )
+    {
+        // Example: zero ap vector
+        nrlmsiseInputData.apVector = std::vector< double >( 6, 0.0 );
+    }
 
     // Compute local solar time
     // Hrs since begin of the day at longitude 0 (GMT) + Hrs passed at current longitude
