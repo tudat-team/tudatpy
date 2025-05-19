@@ -8,7 +8,6 @@
 #    http://tudat.tudelft.nl/LICENSE.
 
 # TODO: https://dev.azure.com/tudat-team/feedstock-builds/_build/results?buildId=26&view=logs&j=4b3757f9-99c5-5891-6c0c-93d7030cdf7d&t=f047df50-a233-5ae9-bf8f-c7dd8e5684ad -> https://stackoverflow.com/questions/36567072/why-do-i-get-ld-warning-direct-access-in-main-to-global-weak-symbol-in-this
-
 # Specify minimum cmake version required to compile Tudat.
 cmake_minimum_required(VERSION 3.3)
 
