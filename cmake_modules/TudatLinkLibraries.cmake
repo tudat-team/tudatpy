@@ -86,6 +86,8 @@ if (TUDAT_BUILD_WITH_ESTIMATION_TOOLS)
     list(APPEND Tudat_ESTIMATION_LIBRARIES
             Tudat::tudat_estimation_setup
             Tudat::tudat_propagation_setup
+            Tudat::tudat_shape_based_methods
+            Tudat::tudat_low_thrust_trajectories
             Tudat::tudat_environment_setup
             Tudat::tudat_observation_models
             Tudat::tudat_ground_stations
