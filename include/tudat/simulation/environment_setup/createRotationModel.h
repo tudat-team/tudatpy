@@ -49,6 +49,7 @@ enum RotationModelType {
     pitch_trim_rotation_model,
     body_fixed_direction_based_rotation_model,
     orbital_state_based_rotation_model,
+    iau_rotation_model,
     custom_rotation_model
 };
 
@@ -884,6 +885,39 @@ private:
     std::string centralBody_;
 };
 
+class IauRotationModelSettings : public RotationModelSettings
+{
+public:
+    IauRotationModelSettings( const std::string& baseFrameOrientation,
+                              const std::string& targetFrameOrientation,
+                              const double nominalMeridian,
+                              const Eigen::Vector2d& nominalPole,
+                              const double rotationRate,
+                              const Eigen::Vector2d& polePrecession,
+                              const std::map< double, std::pair< double, double > >& meridianPeriodicTerms,
+                              const std::map< double, std::pair< Eigen::Vector2d, double > >& polePeriodicTerms ):
+        RotationModelSettings( iau_rotation_model, baseFrameOrientation, targetFrameOrientation ), nominalMeridian_( nominalMeridian ),
+        nominalPole_( nominalPole ), rotationRate_( rotationRate ), polePrecession_( polePrecession ),
+        meridianPeriodicTerms_( meridianPeriodicTerms ), polePeriodicTerms_( polePeriodicTerms )
+    { }
+
+    double nominalMeridian_;
+
+    Eigen::Vector2d nominalPole_;
+
+    double rotationRate_;
+
+    Eigen::Vector2d polePrecession_;
+
+    std::map< double, std::pair< double, double > > meridianPeriodicTerms_;
+
+    std::map< double, std::pair< Eigen::Vector2d, double > > polePeriodicTerms_;
+
+    double currentMeridian_;
+
+    Eigen::Vector2d currentPolePosition_;
+};
+
 // Function to create a state function for a body, valid both during propagation, and outside propagation
 /*
  * Function to create a state function for a body, valid both during propagation, and outside propagation
@@ -1101,6 +1135,26 @@ inline std::shared_ptr< RotationModelSettings > orbitalStateBasedRotationSetting
                                                                   baseFrameOrientation,
                                                                   targetFrameOrientation,
                                                                   freeRotationAngleFunction );
+}
+
+inline std::shared_ptr< IauRotationModelSettings > iauRotationModelSettings(
+        const std::string& baseFrameOrientation,
+        const std::string& targetFrameOrientation,
+        const double nominalMeridian,
+        const Eigen::Vector2d& nominalPole,
+        const double rotationRate,
+        const Eigen::Vector2d& polePrecession,
+        const std::map< double, std::pair< double, double > >& meridianPeriodicTerms,
+        const std::map< double, std::pair< Eigen::Vector2d, double > >& polePeriodicTerms )
+{
+    return std::make_shared< IauRotationModelSettings >( baseFrameOrientation,
+                                                         targetFrameOrientation,
+                                                         nominalMeridian,
+                                                         nominalPole,
+                                                         rotationRate,
+                                                         polePrecession,
+                                                         meridianPeriodicTerms,
+                                                         polePeriodicTerms );
 }
 
 }  // namespace simulation_setup

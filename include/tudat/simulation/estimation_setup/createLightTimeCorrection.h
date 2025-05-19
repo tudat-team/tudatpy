@@ -30,7 +30,7 @@ namespace observation_models
 {
 
 //! Typedef for function calculating light-time correction in light-time calculation loop.
-typedef std::function< double( const Eigen::Vector6d&, const Eigen::Vector6d&, const double, const double ) > LightTimeCorrectionFunction;
+typedef std::function< double( const Eigen::Vector6d &, const Eigen::Vector6d &, const double, const double ) > LightTimeCorrectionFunction;
 
 //! Base class for light-time correction settings.
 /*!
@@ -78,9 +78,10 @@ public:
     /*!
      * Constructor
      * \param perturbingBodies List of bodies for which the point masses are used to compute the light-time correction.
+     * \param useBending Boolean flag to determine if light bending should be included, default is true.
      */
-    FirstOrderRelativisticLightTimeCorrectionSettings( const std::vector< std::string >& perturbingBodies ):
-        LightTimeCorrectionSettings( first_order_relativistic ), perturbingBodies_( perturbingBodies )
+    FirstOrderRelativisticLightTimeCorrectionSettings( const std::vector< std::string > &perturbingBodies, const bool useBending = false ):
+        LightTimeCorrectionSettings( first_order_relativistic ), perturbingBodies_( perturbingBodies ), useBending_( useBending )
     { }
 
     //! Destructor
@@ -96,9 +97,22 @@ public:
         return perturbingBodies_;
     }
 
+    //! Function returning the bending flag that determines if light bending should be included.
+    /*!
+     *  Function returning the bending flag that determines if light bending should be included.
+     *  \return Boolean flag for light bending inclusion.
+     */
+    bool getBendingFlag( )
+    {
+        return useBending_;
+    }
+
 private:
     //! List of bodies for which the point masses are used to compute the light-time correction.
     std::vector< std::string > perturbingBodies_;
+
+    //! Boolean flag to determine if light bending should be included.
+    bool useBending_;
 };
 
 // Class defining  settings for tabulated tropospheric corrections
@@ -106,12 +120,12 @@ class TabulatedTroposphericCorrectionSettings : public LightTimeCorrectionSettin
 {
 public:
     TabulatedTroposphericCorrectionSettings(
-            const AtmosphericCorrectionPerStationAndSpacecraftType& troposphericDryCorrectionAdjustment,
-            const AtmosphericCorrectionPerStationAndSpacecraftType& troposphericWetCorrectionAdjustment,
-            const std::string& bodyWithAtmosphere = "Earth",
+            const AtmosphericCorrectionPerStationAndSpacecraftType &troposphericDryCorrectionAdjustment,
+            const AtmosphericCorrectionPerStationAndSpacecraftType &troposphericWetCorrectionAdjustment,
+            const std::string &bodyWithAtmosphere = "Earth",
             const TroposphericMappingModel troposphericMappingModel = niell,
-            const AtmosphericCorrectionPerStationAndSpacecraftType& troposphericDryCorrection = extractDefaultTroposphericDryCorrection( ),
-            const AtmosphericCorrectionPerStationAndSpacecraftType& troposphericWetCorrection =
+            const AtmosphericCorrectionPerStationAndSpacecraftType &troposphericDryCorrection = extractDefaultTroposphericDryCorrection( ),
+            const AtmosphericCorrectionPerStationAndSpacecraftType &troposphericWetCorrection =
                     extractDefaultTroposphericWetCorrection( ) ):
         LightTimeCorrectionSettings( tabulated_tropospheric ), troposphericDryCorrectionAdjustment_( troposphericDryCorrectionAdjustment ),
         troposphericWetCorrectionAdjustment_( troposphericWetCorrectionAdjustment ),
@@ -166,7 +180,7 @@ private:
 class SaastamoinenTroposphericCorrectionSettings : public LightTimeCorrectionSettings
 {
 public:
-    SaastamoinenTroposphericCorrectionSettings( const std::string& bodyWithAtmosphere = "Earth",
+    SaastamoinenTroposphericCorrectionSettings( const std::string &bodyWithAtmosphere = "Earth",
                                                 const TroposphericMappingModel troposphericMappingModel = niell,
                                                 const WaterVaporPartialPressureModel waterVaporPartialPressureModel = tabulated ):
         LightTimeCorrectionSettings( saastamoinen_tropospheric ), bodyWithAtmosphere_( bodyWithAtmosphere ),
@@ -200,9 +214,9 @@ private:
 class TabulatedIonosphericCorrectionSettings : public LightTimeCorrectionSettings
 {
 public:
-    TabulatedIonosphericCorrectionSettings( const AtmosphericCorrectionPerStationAndSpacecraftType& referenceRangeCorrection,
+    TabulatedIonosphericCorrectionSettings( const AtmosphericCorrectionPerStationAndSpacecraftType &referenceRangeCorrection,
                                             const double referenceFrequency = 2295e6,
-                                            const std::string& bodyWithAtmosphere = "Earth" ):
+                                            const std::string &bodyWithAtmosphere = "Earth" ):
         LightTimeCorrectionSettings( tabulated_ionospheric ), referenceRangeCorrection_( referenceRangeCorrection ),
         referenceFrequency_( referenceFrequency ), bodyWithAtmosphere_( bodyWithAtmosphere )
     { }
@@ -236,13 +250,13 @@ class JakowskiIonosphericCorrectionSettings : public LightTimeCorrectionSettings
 public:
     JakowskiIonosphericCorrectionSettings( const double ionosphereHeight = 400.0e3,
                                            const double firstOrderDelayCoefficient = 40.3,
-                                           const input_output::solar_activity::SolarActivityDataMap& solarActivityData =
+                                           const input_output::solar_activity::SolarActivityDataMap &solarActivityData =
                                                    input_output::solar_activity::readSolarActivityData( paths::getSpaceWeatherDataPath( ) +
                                                                                                         "/sw19571001.txt" ),
                                            const double geomagneticPoleLatitude = unit_conversions::convertDegreesToRadians( 80.9 ),
                                            const double geomagneticPoleLongitude = unit_conversions::convertDegreesToRadians( -72.6 ),
                                            const bool useUtcTimeForLocalTimeComputation = false,
-                                           const std::string& bodyWithAtmosphere = "Earth" ):
+                                           const std::string &bodyWithAtmosphere = "Earth" ):
         LightTimeCorrectionSettings( jakowski_vtec_ionospheric ), ionosphereHeight_( ionosphereHeight ),
         firstOrderDelayCoefficient_( firstOrderDelayCoefficient ), solarActivityData_( solarActivityData ),
         geomagneticPoleLatitude_( geomagneticPoleLatitude ), geomagneticPoleLongitude_( geomagneticPoleLongitude ),
@@ -304,10 +318,10 @@ private:
 class InversePowerSeriesSolarCoronaCorrectionSettings : public LightTimeCorrectionSettings
 {
 public:
-    InversePowerSeriesSolarCoronaCorrectionSettings( const std::vector< double >& coefficients = { 1.31 * 5.97e-6 },
-                                                     const std::vector< double >& positiveExponents = { 2.0 },
+    InversePowerSeriesSolarCoronaCorrectionSettings( const std::vector< double > &coefficients = { 1.31 * 5.97e-6 },
+                                                     const std::vector< double > &positiveExponents = { 2.0 },
                                                      const double criticalPlasmaDensityDelayCoefficient = 40.3,
-                                                     const std::string& sunBodyName = "Sun" ):
+                                                     const std::string &sunBodyName = "Sun" ):
         LightTimeCorrectionSettings( inverse_power_series_solar_corona ), coefficients_( coefficients ),
         positiveExponents_( positiveExponents ), criticalPlasmaDensityDelayCoefficient_( criticalPlasmaDensityDelayCoefficient ),
         sunBodyName_( sunBodyName )
@@ -340,22 +354,23 @@ private:
 
     const double criticalPlasmaDensityDelayCoefficient_;
 
-    const std::string& sunBodyName_;
+    const std::string &sunBodyName_;
 };
 
 inline std::shared_ptr< LightTimeCorrectionSettings > firstOrderRelativisticLightTimeCorrectionSettings(
-        const std::vector< std::string >& perturbingBodies )
+        const std::vector< std::string > &perturbingBodies,
+        const bool useBending = false )
 {
-    return std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies );
+    return std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies, useBending );
 }
 
 inline std::shared_ptr< LightTimeCorrectionSettings > tabulatedTroposphericCorrectionSettings(
-        const std::vector< std::string >& troposphericCorrectionFileNames,
-        const std::string& bodyWithAtmosphere = "Earth",
+        const std::vector< std::string > &troposphericCorrectionFileNames,
+        const std::string &bodyWithAtmosphere = "Earth",
         const TroposphericMappingModel troposphericMappingModel = niell )
 {
     std::vector< std::shared_ptr< input_output::CspRawFile > > troposphericCspFiles;
-    for( const std::string& cspFile: troposphericCorrectionFileNames )
+    for( const std::string &cspFile: troposphericCorrectionFileNames )
     {
         troposphericCspFiles.push_back( std::make_shared< input_output::CspRawFile >( cspFile ) );
     }
@@ -367,7 +382,7 @@ inline std::shared_ptr< LightTimeCorrectionSettings > tabulatedTroposphericCorre
 }
 
 inline std::shared_ptr< LightTimeCorrectionSettings > saastamoinenTroposphericCorrectionSettings(
-        const std::string& bodyWithAtmosphere = "Earth",
+        const std::string &bodyWithAtmosphere = "Earth",
         const TroposphericMappingModel troposphericMappingModel = niell,
         const WaterVaporPartialPressureModel waterVaporPartialPressureModel = tabulated )
 {
@@ -376,14 +391,14 @@ inline std::shared_ptr< LightTimeCorrectionSettings > saastamoinenTroposphericCo
 }
 
 inline std::shared_ptr< LightTimeCorrectionSettings > tabulatedIonosphericCorrectionSettings(
-        const std::vector< std::string >& ionosphericCorrectionFileNames,
-        const std::map< int, std::string >& spacecraftNamePerSpacecraftId = std::map< int, std::string >( ),
-        const std::map< int, std::string >& quasarNamePerQuasarId = std::map< int, std::string >( ),
+        const std::vector< std::string > &ionosphericCorrectionFileNames,
+        const std::map< int, std::string > &spacecraftNamePerSpacecraftId = std::map< int, std::string >( ),
+        const std::map< int, std::string > &quasarNamePerQuasarId = std::map< int, std::string >( ),
         const double referenceFrequency = 2295e6,
-        const std::string& bodyWithAtmosphere = "Earth" )
+        const std::string &bodyWithAtmosphere = "Earth" )
 {
     std::vector< std::shared_ptr< input_output::CspRawFile > > ionosphericCspFiles;
-    for( const std::string& cspFile: ionosphericCorrectionFileNames )
+    for( const std::string &cspFile: ionosphericCorrectionFileNames )
     {
         ionosphericCspFiles.push_back( std::make_shared< input_output::CspRawFile >( cspFile ) );
     }
@@ -397,12 +412,12 @@ inline std::shared_ptr< LightTimeCorrectionSettings > tabulatedIonosphericCorrec
 inline std::shared_ptr< LightTimeCorrectionSettings > jakowskiIonosphericCorrectionSettings(
         const double ionosphereHeight = 400.0e3,
         const double firstOrderDelayCoefficient = 40.3,
-        const input_output::solar_activity::SolarActivityDataMap& solarActivityData =
+        const input_output::solar_activity::SolarActivityDataMap &solarActivityData =
                 input_output::solar_activity::readSolarActivityData( paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt" ),
         const double geomagneticPoleLatitude = unit_conversions::convertDegreesToRadians( 80.9 ),
         const double geomagneticPoleLongitude = unit_conversions::convertDegreesToRadians( -72.6 ),
         const bool useUtcTimeForLocalTimeComputation = false,
-        const std::string& bodyWithAtmosphere = "Earth" )
+        const std::string &bodyWithAtmosphere = "Earth" )
 {
     return std::make_shared< JakowskiIonosphericCorrectionSettings >( ionosphereHeight,
                                                                       firstOrderDelayCoefficient,
@@ -414,10 +429,10 @@ inline std::shared_ptr< LightTimeCorrectionSettings > jakowskiIonosphericCorrect
 }
 
 inline std::shared_ptr< LightTimeCorrectionSettings > inversePowerSeriesSolarCoronaCorrectionSettings(
-        const std::vector< double >& coefficients = { 1.31 * 5.97e-6 },
-        const std::vector< double >& positiveExponents = { 2.0 },
+        const std::vector< double > &coefficients = { 1.31 * 5.97e-6 },
+        const std::vector< double > &positiveExponents = { 2.0 },
         const double criticalPlasmaDensityDelayCoefficient = 40.3,
-        const std::string& sunBodyName = "Sun" )
+        const std::string &sunBodyName = "Sun" )
 {
     return std::make_shared< InversePowerSeriesSolarCoronaCorrectionSettings >(
             coefficients, positiveExponents, criticalPlasmaDensityDelayCoefficient, sunBodyName );
@@ -434,10 +449,10 @@ inline std::shared_ptr< LightTimeCorrectionSettings > inversePowerSeriesSolarCor
  * \return Object for computing required light-time correction
  */
 std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::shared_ptr< LightTimeCorrectionSettings > correctionSettings,
-                                                                   const simulation_setup::SystemOfBodies& bodies,
-                                                                   const LinkEnds& linkEnds,
-                                                                   const LinkEndType& transmittingLinkEndType,
-                                                                   const LinkEndType& receivingLinkEndType,
+                                                                   const simulation_setup::SystemOfBodies &bodies,
+                                                                   const LinkEnds &linkEnds,
+                                                                   const LinkEndType &transmittingLinkEndType,
+                                                                   const LinkEndType &receivingLinkEndType,
                                                                    const ObservableType observableType = undefined_observation_model );
 
 /*!
@@ -453,10 +468,19 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
  */
 std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMapping(
         const TroposphericMappingModel troposphericMappingModelType,
-        const simulation_setup::SystemOfBodies& bodies,
-        const LinkEndId& transmitter,
-        const LinkEndId& receiver,
+        const simulation_setup::SystemOfBodies &bodies,
+        const LinkEndId &transmitter,
+        const LinkEndId &receiver,
         const bool isUplinkCorrection );
+
+void setVmfTroposphereCorrections(
+        const std::vector< std::string > &dataFiles,
+        const bool fileHasMeteo,
+        const bool fileHasGradient,
+        const simulation_setup::SystemOfBodies &bodies,
+        const bool setTropospherData = true,
+        const bool setMeteoData = true,
+        const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::cubicSplineInterpolation( ) );
 
 /*!
  * Creates a function that returns the frequency at a given link, as a function of the frequency band used in each link
@@ -469,10 +493,10 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
  * @return Function that returns the frequency at the selected link.
  */
 std::function< double( std::vector< FrequencyBands > frequencyBands, double transmissionTime ) > createLinkFrequencyFunction(
-        const simulation_setup::SystemOfBodies& bodies,
-        const LinkEnds& linkEnds,
-        const LinkEndType& transmittingLinkEndType,
-        const LinkEndType& receivingLinkEndType );
+        const simulation_setup::SystemOfBodies &bodies,
+        const LinkEnds &linkEnds,
+        const LinkEndType &transmittingLinkEndType,
+        const LinkEndType &receivingLinkEndType );
 
 }  // namespace observation_models
 

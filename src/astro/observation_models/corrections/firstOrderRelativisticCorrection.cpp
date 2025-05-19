@@ -54,7 +54,8 @@ double FirstOrderLightTimeCorrectionCalculator::calculateLightTimeCorrectionWith
                 transmitterState.segment( 0, 3 ),
                 receiverState.segment( 0, 3 ),
                 perturbingBodyStateFunctions_.at( i )( evaluationTime ).segment( 0, 3 ),
-                ppnParameterGamma );
+                ppnParameterGamma,
+                useBending_ );
         currentTotalLightTimeCorrection_ += currentLighTimeCorrectionComponents_.at( i );
     }
 
@@ -67,7 +68,8 @@ Eigen::Matrix< double, 3, 1 > FirstOrderLightTimeCorrectionCalculator::calculate
         const Eigen::Vector6d& receiverState,
         const double transmissionTime,
         const double receptionTime,
-        const LinkEndType linkEndAtWhichPartialIsEvaluated )
+        const LinkEndType linkEndAtWhichPartialIsEvaluated,
+        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
 {
     // Retrieve ppn parameter gamma.
     double ppnParameterGamma = ppnParameterGammaFunction_( );
@@ -91,7 +93,8 @@ Eigen::Matrix< double, 3, 1 > FirstOrderLightTimeCorrectionCalculator::calculate
                 receiverState.segment( 0, 3 ),
                 perturbingBodyStateFunctions_.at( i )( evaluationTime ).segment( 0, 3 ),
                 ( linkEndAtWhichPartialIsEvaluated == receiver ),
-                ppnParameterGamma );
+                ppnParameterGamma,
+                useBending_ );
     }
 
     return currentTotalLightTimeCorrectionPartial_;

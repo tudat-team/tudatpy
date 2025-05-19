@@ -834,7 +834,7 @@ public:
             // Set simulation results
             if( estimationInput->getSaveStateHistoryForEachIteration( ) )
             {
-                simulationResultsPerIteration.push_back( simulationResults );
+                simulationResultsPerIteration.push_back( simulationResults->clone( ) );
             }
 
             // Normalise estimated parameters partials and inverse apriori covariance

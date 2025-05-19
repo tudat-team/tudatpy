@@ -18,6 +18,7 @@
 #include <stdexcept>
 #include <string>
 
+#include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/observation_models/nWayRangeObservationModel.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/observationFrequencies.h"
@@ -49,12 +50,15 @@ public:
             const LinkEnds& linkEnds,
             const std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
             const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
+            const std::function< double( observation_models::FrequencyBands uplinkBand, observation_models::FrequencyBands downlinkBand ) >&
+                    turnaroundRatio,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
             const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
                     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ) ):
         ObservationModel< 1, ObservationScalarType, TimeType >( dsn_n_way_range, linkEnds, observationBiasCalculator ),
         lightTimeCalculator_( lightTimeCalculator ), numberOfLinkEnds_( linkEnds.size( ) ),
-        transmittingFrequencyCalculator_( transmittingFrequencyCalculator ), stationStates_( groundStationStates )
+        transmittingFrequencyCalculator_( transmittingFrequencyCalculator ), turnaroundRatio_( turnaroundRatio ),
+        stationStates_( groundStationStates )
     {
         if( !std::is_same< Time, TimeType >::value )
         {
@@ -160,6 +164,19 @@ public:
             throw std::runtime_error( "Unsupported uplink frequency band" );
         }
 
+        // Set approximate up- and down-link frequencies.
+        double currentTurnAroundRatio = static_cast< ObservationScalarType >( turnaroundRatio_( uplinkBand, downlinkBand ) );
+
+        if( true )
+        {
+            setTransmissionReceptionFrequencies( lightTimeCalculator_,
+                                                 terrestrialTimeScaleConverter_,
+                                                 transmittingFrequencyCalculator_,
+                                                 time,
+                                                 ancillarySettings,
+                                                 currentTurnAroundRatio );
+        }
+
         TimeType lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
                 time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySettings );
 
@@ -170,6 +187,12 @@ public:
                 basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, time, nominalReceivingStationState );
         TimeType utcTransmissionTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
                 basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, time - lightTime, nominalReceivingStationState );
+
+        ObservationScalarType uplinkFrequency =
+                transmittingFrequencyCalculator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >(
+                        utcTransmissionTime );
+        ancillarySettings->setAncilliaryDoubleData( observation_models::range_conversion_factor,
+                                                    physical_constants::SPEED_OF_LIGHT / ( uplinkFrequency * conversionFactor ) );
 
         ObservationScalarType transmitterFrequencyIntegral =
                 transmittingFrequencyCalculator_->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >(

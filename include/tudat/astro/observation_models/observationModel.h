@@ -37,10 +37,11 @@ enum ObservationAncilliarySimulationVariable {
     reception_reference_frequency_band,
     doppler_integration_time,
     doppler_reference_frequency,
-    sequential_range_reference_frequency,
     sequential_range_lowest_ranging_component,
     range_conversion_factor,
 };
+
+enum ObservationIntermediateSimulationVariable { transmitter_frequency_intermediate, received_frequency_intermediate };
 
 struct ObservationAncilliarySimulationSettings {
 public:
@@ -55,7 +56,6 @@ public:
             case doppler_integration_time:
             case doppler_reference_frequency:
             case reception_reference_frequency_band:
-            case sequential_range_reference_frequency:
             case sequential_range_lowest_ranging_component:
             case range_conversion_factor:
                 doubleData_[ variableType ] = variable;
@@ -94,7 +94,6 @@ public:
                 case doppler_integration_time:
                 case doppler_reference_frequency:
                 case reception_reference_frequency_band:
-                case sequential_range_reference_frequency:
                 case sequential_range_lowest_ranging_component:
                 case range_conversion_factor:
                     returnVariable = doubleData_.at( variableType );
@@ -180,9 +179,6 @@ public:
             case reception_reference_frequency_band:
                 name = "DSN reference frequency band at reception";
                 break;
-            case sequential_range_reference_frequency:
-                name = "DSN sequential range reference frequency";
-                break;
             case sequential_range_lowest_ranging_component:
                 name = "DSN sequential range lowest ranging component";
                 break;
@@ -197,6 +193,57 @@ public:
         }
 
         return name;
+    }
+
+    void setIntermediateDoubleData( const ObservationIntermediateSimulationVariable &variableType, const double variable )
+    {
+        switch( variableType )
+        {
+            case transmitter_frequency_intermediate:
+            case received_frequency_intermediate:
+                doubleIntermediateData_[ variableType ] = variable;
+                break;
+            default:
+                throw std::runtime_error(
+                        "Error when setting double intermediate observation "
+                        "data; could not set type " +
+                        std::to_string( static_cast< int >( variableType ) ) );
+        }
+    }
+
+    double getIntermediateDoubleData( const ObservationIntermediateSimulationVariable &variableType, const bool throwException = true )
+    {
+        double returnVariable = TUDAT_NAN;
+        try
+        {
+            switch( variableType )
+            {
+                case transmitter_frequency_intermediate:
+                case received_frequency_intermediate:
+                    returnVariable = doubleIntermediateData_.at( variableType );
+                    break;
+                default:
+                    if( throwException )
+                    {
+                        throw std::runtime_error(
+                                "Error when getting double intermediate observation "
+                                "data; could not retrieve type " +
+                                std::to_string( static_cast< int >( variableType ) ) );
+                    }
+                    break;
+            }
+        }
+        catch( ... )
+        {
+            if( throwException )
+            {
+                throw std::runtime_error(
+                        "Error when getting double intermediate observation "
+                        "data; could not retrieve type " +
+                        std::to_string( static_cast< int >( variableType ) ) );
+            }
+        }
+        return returnVariable;
     }
 
     bool operator==( const ObservationAncilliarySimulationSettings &rightSettings )
@@ -217,6 +264,8 @@ public:
 protected:
     std::map< ObservationAncilliarySimulationVariable, double > doubleData_;
     std::map< ObservationAncilliarySimulationVariable, std::vector< double > > doubleVectorData_;
+
+    std::map< ObservationIntermediateSimulationVariable, double > doubleIntermediateData_;
 };
 
 inline std::shared_ptr< ObservationAncilliarySimulationSettings > getAveragedDopplerAncilliarySettings(
@@ -287,7 +336,6 @@ inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDsnNWayAver
 
 inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDsnNWayRangeAncillarySettings(
         const std::vector< FrequencyBands > &frequencyBands,
-        const double referenceFrequency,
         const double lowestRangingComponent,
         const std::vector< double > linkEndsDelays = std::vector< double >( ) )
 
@@ -296,7 +344,6 @@ inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDsnNWayRang
             std::make_shared< ObservationAncilliarySimulationSettings >( );
 
     ancillarySettings->setAncilliaryDoubleData( sequential_range_lowest_ranging_component, lowestRangingComponent );
-    ancillarySettings->setAncilliaryDoubleData( sequential_range_reference_frequency, referenceFrequency );
 
     ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
     ancillarySettings->setAncilliaryDoubleVectorData( link_ends_delays, linkEndsDelays );

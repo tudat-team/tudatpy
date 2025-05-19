@@ -112,7 +112,7 @@ void testPartials( const std::shared_ptr< observation_models::ObservationModel< 
     // Combine partial
     Eigen::Matrix< double, 1, 6 > totalPartial;
     totalPartial.setZero( );
-    for( int i = 0; i < singlePartialSet.size( ); i++ )
+    for( unsigned int i = 0; i < singlePartialSet.size( ); i++ )
     {
         totalPartial += singlePartialSet.at( i ).first;
     }
