@@ -469,7 +469,34 @@ The program will terminate with an exception when the Lagrange interpolator is i
 
 
 
-     )doc" );
+     )doc" )
+            .def_property_readonly( "independent_values",
+                                    &ti::OneDimensionalInterpolator< TIME_TYPE, STATE_SCALAR_TYPE >::getIndependentValues,
+                                    R"doc(
+
+         Returns the independent variable values used by the interpolator.
+
+         Returns the independent variable values used by the interpolator. This is a read-only property.
+
+         Returns
+         -------
+         list[float]
+             Independent variable values used by the interpolator
+         )doc" )
+            .def_property_readonly( "dependent_values",
+                                    &ti::OneDimensionalInterpolator< TIME_TYPE, STATE_SCALAR_TYPE >::getDependentValues,
+                                    R"doc(
+
+         Returns the dependent variable values used by the interpolator.
+
+         Returns the dependent variable values used by the interpolator. This is a read-only property.
+
+         Returns
+         -------
+
+         list[float]
+             Dependent variable values used by the interpolator
+         )doc" );
 
     py::class_< ti::OneDimensionalInterpolator< TIME_TYPE, Eigen::VectorXd >,
                 std::shared_ptr< ti::OneDimensionalInterpolator< TIME_TYPE, Eigen::VectorXd > > >(
@@ -511,7 +538,33 @@ The program will terminate with an exception when the Lagrange interpolator is i
 
 
 
-     )doc" );
+     )doc" )
+            .def_property_readonly( "independent_values",
+                                    &ti::OneDimensionalInterpolator< TIME_TYPE, Eigen::VectorXd >::getIndependentValues,
+                                    R"doc(
+
+         Returns the independent variable values used by the interpolator.
+
+         Returns the independent variable values used by the interpolator. This is a read-only property.
+
+         Returns
+         -------
+         list[float]
+             Independent variable values used by the interpolator
+         )doc" )
+            .def_property_readonly( "dependent_values",
+                                    &ti::OneDimensionalInterpolator< TIME_TYPE, Eigen::VectorXd >::getDependentValues,
+                                    R"doc(
+
+         Returns the dependent variable values used by the interpolator.
+
+         Returns the dependent variable values used by the interpolator. This is a read-only property.
+
+         Returns
+         -------
+         list[np.ndarray]
+             Dependent variable values used by the interpolator
+         )doc" );
 
     py::class_< ti::OneDimensionalInterpolator< TIME_TYPE, Eigen::MatrixXd >,
                 std::shared_ptr< ti::OneDimensionalInterpolator< TIME_TYPE, Eigen::MatrixXd > > >(
@@ -553,7 +606,33 @@ The program will terminate with an exception when the Lagrange interpolator is i
 
 
 
-     )doc" );
+     )doc" )
+            .def_property_readonly( "independent_values",
+                                    &ti::OneDimensionalInterpolator< TIME_TYPE, Eigen::MatrixXd >::getIndependentValues,
+                                    R"doc(
+
+         Returns the independent variable values used by the interpolator.
+
+         Returns the independent variable values used by the interpolator. This is a read-only property.
+
+         Returns
+         -------
+         list[float]
+             Independent variable values used by the interpolator
+         )doc" )
+            .def_property_readonly( "dependent_values",
+                                    &ti::OneDimensionalInterpolator< TIME_TYPE, Eigen::MatrixXd >::getDependentValues,
+                                    R"doc(
+
+         Returns the dependent variable values used by the interpolator.
+
+         Returns the dependent variable values used by the interpolator. This is a read-only property.
+
+         Returns
+         -------
+         list[np.ndarray]
+             Dependent variable values used by the interpolator
+         )doc" );
 
     m.def( "create_one_dimensional_scalar_interpolator",
            &ti::createOneDimensionalInterpolatorBasic< TIME_TYPE, STATE_SCALAR_TYPE >,
