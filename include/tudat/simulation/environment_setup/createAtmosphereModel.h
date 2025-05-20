@@ -507,8 +507,11 @@ public:
      *  \param spaceWeatherFile File containing space weather data, as in
      *  https://celestrak.com/SpaceData/sw19571001.txt
      */
-    NRLMSISE00AtmosphereSettings( const std::string& spaceWeatherFile ):
-        AtmosphereSettings( nrlmsise00 ), spaceWeatherFile_( spaceWeatherFile )
+    NRLMSISE00AtmosphereSettings( const std::string& spaceWeatherFile,
+                                  const bool useStormConditions = false,
+                                  const bool useAnomalousOxygen = true ):
+        AtmosphereSettings( nrlmsise00 ), spaceWeatherFile_( spaceWeatherFile ), useStormConditions_( useStormConditions ),
+        useAnomalousOxygen_( useAnomalousOxygen )
     { }
 
     //  Function to return file containing space weather data.
@@ -521,12 +524,37 @@ public:
         return spaceWeatherFile_;
     }
 
+    //  Function to return geomagnetic activity setting.
+    /*
+     *  Function to return geomagnetic activity setting.
+     *  \return Geomagnetic activity value.
+     */
+    bool getUseStormConditions( )
+    {
+        return useStormConditions_;
+    }
+
+    bool getUseAnomalousOxygen( )
+    {
+        return useAnomalousOxygen_;
+    }
+
 private:
     //  File containing space weather data.
     /*
      *  File containing space weather data, as in https://celestrak.com/SpaceData/sw19571001.txt
      */
     std::string spaceWeatherFile_;
+
+    //  Boolean denoting how to deal with geomagnetic activity setting.
+    /*
+     *  Controls the geomagnetic activity behavior.
+     *  If true, it uses full vector of Ap values (switch for geomagnetic activity in nrlmsise to -1).
+     *  If false, it only uses daily value of Ap (switch for geomagnetic activity in nrlmsise to 0).
+     */
+    bool useStormConditions_;
+
+    bool useAnomalousOxygen_;
 };
 
 //  AtmosphereSettings for defining an atmosphere with tabulated data from file.
@@ -954,9 +982,11 @@ inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings( cons
 
 //! @get_docstring(nrlmsise00AtmosphereSettings)
 inline std::shared_ptr< AtmosphereSettings > nrlmsise00AtmosphereSettings( const std::string dataFile = paths::getSpaceWeatherDataPath( ) +
-                                                                                   "/sw19571001.txt" )
+                                                                                   "/sw19571001.txt",
+                                                                           const bool useStormConditions = true,
+                                                                           const bool useAnomalousOxygen = true )
 {
-    return std::make_shared< NRLMSISE00AtmosphereSettings >( dataFile );
+    return std::make_shared< NRLMSISE00AtmosphereSettings >( dataFile, useStormConditions, useAnomalousOxygen );
 }
 
 typedef std::function< double( const double, const double, const double, const double ) > DensityFunction;
