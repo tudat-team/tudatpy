@@ -62,6 +62,10 @@ enum AtmosphericCompositionSpecies { he_species, o_species, n2_species, o2_speci
 class AtmosphereModel
 {
 public:
+    AtmosphereModel( const bool useGeodeticLatitude = false, const bool useUtc = false ):
+        useGeodeticLatitude_( useGeodeticLatitude ), useUtc_( useUtc )
+    { }
+
     //! Default destructor.
     /*!
      * Default destructor.
@@ -161,9 +165,42 @@ public:
         windModel_ = windModel;
     }
 
+    /*!
+     * Setter for useGeodeticLatitude
+     * \param useGeodeticLatitude Boolean indicating whether geodetic latitude is used for density computation instead of geocentric
+     * latitude
+     */
+    void setUseGeodeticLatitude( const bool useGeodeticLatitude )
+    {
+        useGeodeticLatitude_ = useGeodeticLatitude;
+    }
+
+    /*!
+     * Setter for useUtc
+     * \param useUtc Boolean indicating whether UTC time is used for density computation instead of seconds since J2000
+     */
+    void setUseUtc( const bool useUtc )
+    {
+        useUtc_ = useUtc;
+    }
+
+    bool getUseGeodeticLatitude( )
+    {
+        return useGeodeticLatitude_;
+    }
+
+    bool getUseUtc( )
+    {
+        return useUtc_;
+    }
+
 protected:
     //! Model describing the wind velocity vector of the atmosphere
     std::shared_ptr< WindModel > windModel_;
+
+    bool useGeodeticLatitude_;
+
+    bool useUtc_;
 
 private:
 };

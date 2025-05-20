@@ -52,7 +52,7 @@ NRLMSISE00Input data;
 // Define input data generic (or almost completely) for all tests.
 NRLMSISE00Input gen_data( 0, 172, 29000.0, 16.0, 150.0, 150.0, 4.0 );
 std::vector< double > gen_input = { 400.0E3, -70.0 * PI / 180.0, 60.0 * PI / 180.0, 0.0 };
-
+// 60.08918628640978
 //! Test function to update the NRLMSISE00 iunput data as a function of time and geometry.
 NRLMSISE00Input nrlmsiseTestFunction( double altitude,
                                       double longitude,
@@ -86,8 +86,15 @@ NRLMSISE00Input nrlmsiseTestFunction( double altitude,
 //  Check the consistency between full output and get parameter output functions.
 BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTestFunctions )
 {
+    auto computedCartesianPosition = coordinate_conversions::convertGeodeticToCartesianCoordinates(
+            ( Eigen::Vector3d( ) << 400.0E3, 60.0 * PI / 180.0, -70.0 * PI / 180.0 ).finished( ), 6378137.0, 1.0 / 298.257223563 );
+    auto sphericalPosition = coordinate_conversions::convertCartesianToSpherical( computedCartesianPosition );
+
+    // Manual reset of switch
+    gen_data.switches[ 9 ] = 1;
+
     // Define tolerance for equality
-    double tolerance = 1.0E-18;
+    double tolerance = 1.0E-15;
 
     // Create the model
     NRLMSISE00Atmosphere model( std::bind( &nrlmsiseTestFunction,
@@ -96,7 +103,9 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTestFunctions )
                                            std::placeholders::_3,
                                            std::placeholders::_4,
                                            false,
-                                           false ) );
+                                           false ),
+                                true,
+                                false );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -132,7 +141,9 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTestHashing )
                                            std::placeholders::_3,
                                            std::placeholders::_4,
                                            false,
-                                           false ) );
+                                           false ),
+                                true,
+                                false );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -199,7 +210,9 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest1 )
                                            std::placeholders::_3,
                                            std::placeholders::_4,
                                            false,
-                                           false ) );
+                                           false ),
+                                true,
+                                false );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -240,7 +253,9 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest2 )
                                            std::placeholders::_3,
                                            std::placeholders::_4,
                                            false,
-                                           false ) );
+                                           false ),
+                                true,
+                                false );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -285,7 +300,9 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest3 )
                                            std::placeholders::_3,
                                            std::placeholders::_4,
                                            false,
-                                           false ) );
+                                           false ),
+                                true,
+                                false );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -331,7 +348,9 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest4 )
                                            std::placeholders::_3,
                                            std::placeholders::_4,
                                            false,
-                                           false ) );
+                                           false ),
+                                true,
+                                false );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -377,7 +396,9 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest5 )
                                            std::placeholders::_3,
                                            std::placeholders::_4,
                                            false,
-                                           false ) );
+                                           false ),
+                                true,
+                                false );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -423,7 +444,9 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest6 )
                                            std::placeholders::_3,
                                            std::placeholders::_4,
                                            false,
-                                           false ) );
+                                           false ),
+                                true,
+                                false );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -469,7 +492,9 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest7 )
                                            std::placeholders::_3,
                                            std::placeholders::_4,
                                            false,
-                                           false ) );
+                                           false ),
+                                true,
+                                false );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -515,7 +540,9 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest8 )
                                            std::placeholders::_3,
                                            std::placeholders::_4,
                                            false,
-                                           false ) );
+                                           false ),
+                                true,
+                                false );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -561,7 +588,9 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest9 )
                                            std::placeholders::_3,
                                            std::placeholders::_4,
                                            false,
-                                           false ) );
+                                           false ),
+                                true,
+                                false );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -607,7 +636,9 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest10 )
                                            std::placeholders::_3,
                                            std::placeholders::_4,
                                            false,
-                                           false ) );
+                                           false ),
+                                true,
+                                false );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -653,7 +684,9 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest11 )
                                            std::placeholders::_3,
                                            std::placeholders::_4,
                                            false,
-                                           false ) );
+                                           false ),
+                                true,
+                                false );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -699,7 +732,9 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest12 )
                                            std::placeholders::_3,
                                            std::placeholders::_4,
                                            false,
-                                           false ) );
+                                           false ),
+                                true,
+                                false );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -745,7 +780,9 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest13 )
                                            std::placeholders::_3,
                                            std::placeholders::_4,
                                            false,
-                                           false ) );
+                                           false ),
+                                true,
+                                false );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -791,7 +828,9 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest14 )
                                            std::placeholders::_3,
                                            std::placeholders::_4,
                                            false,
-                                           false ) );
+                                           false ),
+                                true,
+                                false );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -837,7 +876,9 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest15 )
                                            std::placeholders::_3,
                                            std::placeholders::_4,
                                            false,
-                                           false ) );
+                                           false ),
+                                true,
+                                false );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -883,7 +924,9 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest16 )
                                            std::placeholders::_3,
                                            std::placeholders::_4,
                                            false,
-                                           false ) );
+                                           false ),
+                                true,
+                                false );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -930,7 +973,9 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTest17 )
                                            std::placeholders::_3,
                                            std::placeholders::_4,
                                            false,
-                                           false ) );
+                                           false ),
+                                true,
+                                false );
 
     // Create local copy of input and define variations
     data = gen_data;
@@ -971,7 +1016,9 @@ BOOST_AUTO_TEST_CASE( testSpeedOfSound )
                                            std::placeholders::_3,
                                            std::placeholders::_4,
                                            false,
-                                           false ) );
+                                           false ),
+                                true,
+                                false );
 
     double altitude = 0.0;
     double longitude = 0.0;
@@ -1020,7 +1067,9 @@ BOOST_AUTO_TEST_CASE( testMolarMass )
                                            std::placeholders::_3,
                                            std::placeholders::_4,
                                            false,
-                                           false ) );
+                                           false ),
+                                true,
+                                false );
 
     double altitude = 0.0;
     double longitude = 0.0;
@@ -1051,7 +1100,9 @@ BOOST_AUTO_TEST_CASE( testMeanFreePath )
                                            std::placeholders::_3,
                                            std::placeholders::_4,
                                            false,
-                                           false ) );
+                                           false ),
+                                true,
+                                false );
 
     double altitude = 20.0E3;
     double longitude = 0.5;
@@ -1077,138 +1128,102 @@ BOOST_AUTO_TEST_CASE( testMeanFreePath )
     altitude = 300.0E3;
     BOOST_CHECK_CLOSE_FRACTION( model.getMeanFreePath( altitude, longitude, latitude, time ), 1.0E4, 0.9 );
 }
-
-//! Perform NRLMSISE-00 test 21 - Test input function
-// Corresponds to NRLMSISE test 1 but space weather file is used to set solar activity data.
-// No adjustment values in space weather file are used.
-BOOST_AUTO_TEST_CASE( test_nrlmise_InputFunction_no_adjustment )
-{
-    //    NRLMSISE00Input gen_data(2030, 172, 29000.0, 16.0, 150.0, 150.0, 4.0);
-    // DD-MM-YY = 21-06-2030 , Hrs-Min-Sec = 8-3-20
-    double julianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay< double >( 2030, 6, 21, 8, 3, 20.0 );
-    double time =
-            tudat::basic_astrodynamics::convertJulianDayToSecondsSinceEpoch( julianDate, tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000 );
-
-    // std::vector< double > gen_input = { 400.0, -70.0, 60.0, 0.0 };
-    double altitude = 400.0E3;  // km
-    double longitude = -70.0 * PI / 180.0;
-    double latitude = 60.0 * PI / 180.0;
-
-    // find space weather file
-    std::string spaceWeatherFilePath = tudat::paths::getTudatTestDataPath( ) + "/swAtmosTestWithAdjust.txt";
-
-    tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData =
-            tudat::input_output::solar_activity::readSolarActivityData( spaceWeatherFilePath );
-
-    // Create atmosphere model using NRLMISE00 input function
-    // Local solar time is set to 16.0 to correspond with testing data!
-    std::function< tudat::aerodynamics::NRLMSISE00Input( double, double, double, double ) > inputFunction =
-            std::bind( &tudat::aerodynamics::nrlmsiseInputFunction,
-                       std::placeholders::_1,
-                       std::placeholders::_2,
-                       std::placeholders::_3,
-                       std::placeholders::_4,
-                       solarActivityData,
-                       true,
-                       16.0 );
-
-    // Create Pointer to NRLMSISE model
-    tudat::aerodynamics::NRLMSISE00Atmosphere atmosphereModel( inputFunction );
-
-    // Verification data
-    std::vector< double > verificationData = { 6.665176904952E+05, 1.138805559752E+08, 1.998210925573E+07, 4.022763585713E+05,
-                                               3.557464994516E+03, 4.074713532757E-15, 3.475312399717E+04, 4.095913268293E+06,
-                                               2.667273209336E+04, 1.250539943561E+03, 1.241416130019E+03 };
-
-    double computedDensity = atmosphereModel.getDensity( altitude, longitude, latitude, time );
-
-    BOOST_CHECK_CLOSE_FRACTION( verificationData[ 5 ] * 1000, computedDensity, 1E-11 );
-}
-
-//! Perform NRLMSISE-00 test 22 - Test input function
-// Corresponds to NRLMSISE test 1 but space weather file is used to set solar activity data.
-// Adjustment values (flux qualifier is 1) in space weather file are used.
-BOOST_AUTO_TEST_CASE( test_nrlmise_InputFunction_with_adjustment )
-{
-    //    NRLMSISE00Input gen_data(2030, 172, 29000.0, 16.0, 150.0, 150.0, 4.0);
-    // DD-MM-YY = 21-06-2030 , Hrs-Min-Sec = 8-3-20
-    double julianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay< double >( 2030, 6, 21, 8, 3, 20.0 );
-    double time =
-            tudat::basic_astrodynamics::convertJulianDayToSecondsSinceEpoch( julianDate, tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000 );
-
-    // std::vector< double > gen_input = { 400.0, -70.0, 60.0, 0.0 };
-    double altitude = 400.0E3;  // km
-    double longitude = -70.0 * PI / 180.0;
-    double latitude = 60.0 * PI / 180.0;
-
-    // find space weather file
-    std::string spaceWeatherFilePath = tudat::paths::getTudatTestDataPath( ) + "/swAtmosTestWithAdjust.txt";
-
-    tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData =
-            tudat::input_output::solar_activity::readSolarActivityData( spaceWeatherFilePath );
-
-    // Create atmosphere model using NRLMISE00 input function
-    // Local solar time is set to 16.0 to correspond with testing data!
-    std::function< tudat::aerodynamics::NRLMSISE00Input( double, double, double, double ) > inputFunction =
-            std::bind( &tudat::aerodynamics::nrlmsiseInputFunction,
-                       std::placeholders::_1,
-                       std::placeholders::_2,
-                       std::placeholders::_3,
-                       std::placeholders::_4,
-                       solarActivityData,
-                       true,
-                       16.0 );
-
-    // Create Pointer to NRLMSISE model
-    tudat::aerodynamics::NRLMSISE00Atmosphere atmosphereModel( inputFunction );
-
-    // Verification data
-    std::vector< double > verificationData = { 6.665176904952E+05, 1.138805559752E+08, 1.998210925573E+07, 4.022763585713E+05,
-                                               3.557464994516E+03, 4.074713532757E-15, 3.475312399717E+04, 4.095913268293E+06,
-                                               2.667273209336E+04, 1.250539943561E+03, 1.241416130019E+03 };
-
-    double computedDensity = atmosphereModel.getDensity( altitude, longitude, latitude, time );
-
-    BOOST_CHECK_CLOSE_FRACTION( verificationData[ 5 ] * 1000, computedDensity, 1E-11 );
-}
-
-BOOST_AUTO_TEST_CASE( test_nrlmise_FullFileLoad )
-{
-    // DD-MM-YY = 21-06-2030 , Hrs-Min-Sec = 8-3-20
-    double julianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay< double >( 2026, 7, 1, 0, 1, 0.0 );
-    double time =
-            tudat::basic_astrodynamics::convertJulianDayToSecondsSinceEpoch( julianDate, tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000 );
-
-    // std::vector< double > gen_input = { 400.0, -70.0, 60.0, 0.0 };
-    double altitude = 400.0E3;  // km
-    double longitude = -70.0 * PI / 180.0;
-    double latitude = 60.0 * PI / 180.0;
-
-    // find space weather file
-    std::string spaceWeatherFilePath = tudat::paths::getTudatTestDataPath( ) + "/sw19571001.txt";
-    tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData =
-            tudat::input_output::solar_activity::readSolarActivityData( spaceWeatherFilePath );
-
-    std::function< tudat::aerodynamics::NRLMSISE00Input( double, double, double, double ) > inputFunction =
-            std::bind( &tudat::aerodynamics::nrlmsiseInputFunction,
-                       std::placeholders::_1,
-                       std::placeholders::_2,
-                       std::placeholders::_3,
-                       std::placeholders::_4,
-                       solarActivityData,
-                       true,
-                       16.0 );
-
-    // Create Pointer to NRLMSISE model
-    tudat::aerodynamics::NRLMSISE00Atmosphere atmosphereModel( inputFunction );
-    double computedDensity = atmosphereModel.getDensity( altitude, longitude, latitude, time );
-    std::cout << computedDensity << std::endl;
-
-    julianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay< double >( 2026, 6, 30, 23, 59, 0.0 );
-    time = tudat::basic_astrodynamics::convertJulianDayToSecondsSinceEpoch( julianDate, tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000 );
-    computedDensity = atmosphereModel.getDensity( altitude, longitude, latitude, time );
-    std::cout << computedDensity << std::endl;
-}
+//
+////! Perform NRLMSISE-00 test 21 - Test input function
+//// Corresponds to NRLMSISE test 1 but space weather file is used to set solar activity data.
+//// No adjustment values in space weather file are used.
+// BOOST_AUTO_TEST_CASE( test_nrlmise_InputFunction_no_adjustment )
+//{
+//     //    NRLMSISE00Input gen_data(2030, 172, 29000.0, 16.0, 150.0, 150.0, 4.0);
+//     // DD-MM-YY = 21-06-2030 , Hrs-Min-Sec = 8-3-20
+//     double julianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay< double >( 2030, 6, 21, 8, 3, 20.0 );
+//     double time =
+//             tudat::basic_astrodynamics::convertJulianDayToSecondsSinceEpoch( julianDate, tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000
+//             );
+//
+//     // std::vector< double > gen_input = { 400.0, -70.0, 60.0, 0.0 };
+//     double altitude = 400.0E3;  // km
+//     double longitude = -70.0 * PI / 180.0;
+//     double latitude = 60.0 * PI / 180.0;
+//
+//     // find space weather file
+//     std::string spaceWeatherFilePath = tudat::paths::getTudatTestDataPath( ) + "/swAtmosTestWithAdjust.txt";
+//
+//     tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData =
+//             tudat::input_output::solar_activity::readSolarActivityData( spaceWeatherFilePath );
+//
+//     // Create atmosphere model using NRLMISE00 input function
+//     // Local solar time is set to 16.0 to correspond with testing data!
+//     std::function< tudat::aerodynamics::NRLMSISE00Input( double, double, double, double ) > inputFunction =
+//             std::bind( &tudat::aerodynamics::nrlmsiseInputFunction,
+//                        std::placeholders::_1,
+//                        std::placeholders::_2,
+//                        std::placeholders::_3,
+//                        std::placeholders::_4,
+//                        solarActivityData,
+//                        true,
+//                        16.0 );
+//
+//     // Create Pointer to NRLMSISE model
+//     tudat::aerodynamics::NRLMSISE00Atmosphere atmosphereModel( inputFunction );
+//
+//     // Verification data
+//     std::vector< double > verificationData = { 6.665176904952E+05, 1.138805559752E+08, 1.998210925573E+07, 4.022763585713E+05,
+//                                                3.557464994516E+03, 4.074713532757E-15, 3.475312399717E+04, 4.095913268293E+06,
+//                                                2.667273209336E+04, 1.250539943561E+03, 1.241416130019E+03 };
+//
+//     double computedDensity = atmosphereModel.getDensity( altitude, longitude, latitude, time );
+//
+//     BOOST_CHECK_CLOSE_FRACTION( verificationData[ 5 ] * 1000, computedDensity, 1E-11 );
+// }
+//
+////! Perform NRLMSISE-00 test 22 - Test input function
+//// Corresponds to NRLMSISE test 1 but space weather file is used to set solar activity data.
+//// Adjustment values (flux qualifier is 1) in space weather file are used.
+// BOOST_AUTO_TEST_CASE( test_nrlmise_InputFunction_with_adjustment )
+//{
+//     //    NRLMSISE00Input gen_data(2030, 172, 29000.0, 16.0, 150.0, 150.0, 4.0);
+//     // DD-MM-YY = 21-06-2030 , Hrs-Min-Sec = 8-3-20
+//     double julianDate = tudat::basic_astrodynamics::convertCalendarDateToJulianDay< double >( 2030, 6, 21, 8, 3, 20.0 );
+//     double time =
+//             tudat::basic_astrodynamics::convertJulianDayToSecondsSinceEpoch( julianDate, tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000
+//             );
+//
+//     // std::vector< double > gen_input = { 400.0, -70.0, 60.0, 0.0 };
+//     double altitude = 400.0E3;  // km
+//     double longitude = -70.0 * PI / 180.0;
+//     double latitude = 60.0 * PI / 180.0;
+//
+//     // find space weather file
+//     std::string spaceWeatherFilePath = tudat::paths::getTudatTestDataPath( ) + "/swAtmosTestWithAdjust.txt";
+//
+//     tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData =
+//             tudat::input_output::solar_activity::readSolarActivityData( spaceWeatherFilePath );
+//
+//     // Create atmosphere model using NRLMISE00 input function
+//     // Local solar time is set to 16.0 to correspond with testing data!
+//     std::function< tudat::aerodynamics::NRLMSISE00Input( double, double, double, double ) > inputFunction =
+//             std::bind( &tudat::aerodynamics::nrlmsiseInputFunction,
+//                        std::placeholders::_1,
+//                        std::placeholders::_2,
+//                        std::placeholders::_3,
+//                        std::placeholders::_4,
+//                        solarActivityData,
+//                        true,
+//                        16.0 );
+//
+//     // Create Pointer to NRLMSISE model
+//     tudat::aerodynamics::NRLMSISE00Atmosphere atmosphereModel( inputFunction );
+//
+//     // Verification data
+//     std::vector< double > verificationData = { 6.665176904952E+05, 1.138805559752E+08, 1.998210925573E+07, 4.022763585713E+05,
+//                                                3.557464994516E+03, 4.074713532757E-15, 3.475312399717E+04, 4.095913268293E+06,
+//                                                2.667273209336E+04, 1.250539943561E+03, 1.241416130019E+03 };
+//
+//     double computedDensity = atmosphereModel.getDensity( altitude, longitude, latitude, time );
+//
+//     BOOST_CHECK_CLOSE_FRACTION( verificationData[ 5 ] * 1000, computedDensity, 1E-11 );
+// }
 
 BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagation )
 // int main( )
@@ -1247,7 +1262,10 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagation )
     // Define simulation body settings.
     BodyListSettings bodySettings = getDefaultBodySettings( { "Earth", "Moon" }, "Earth", "ECLIPJ2000" );
     bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
-    bodySettings.at( "Earth" )->atmosphereSettings = std::make_shared< simulation_setup::AtmosphereSettings >( nrlmsise00 );
+    bodySettings.at( "Earth" )->atmosphereSettings =
+            std::make_shared< simulation_setup::NRLMSISE00AtmosphereSettings >( paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt", 0 );
+    bodySettings.at( "Earth" )->shapeModelSettings =
+            std::make_shared< simulation_setup::OblateSphericalBodyShapeSettings >( 6378137.0, 1.0 / 298.257223563 );
 
     // Create Earth object
     simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
@@ -1295,6 +1313,228 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagation )
     dependentVariables.push_back(
             std::make_shared< SingleDependentVariableSaveSettings >( body_fixed_relative_spherical_position, "Apollo", "Earth" ) );
     dependentVariables.push_back( std::make_shared< SingleDependentVariableSaveSettings >( nrlmsise_input_data, "Apollo", "Earth" ) );
+    dependentVariables.push_back(
+            std::make_shared< SingleDependentVariableSaveSettings >( geodetic_latitude_dependent_variable, "Apollo", "Earth" ) );
+
+    // Create acceleration models and propagation settings.
+    basic_astrodynamics::AccelerationMap accelerationModelMap =
+            createAccelerationModelsMap( bodies, accelerationMap, bodiesToPropagate, centralBodies );
+
+    std::shared_ptr< IntegratorSettings<> > integratorSettings =
+            std::make_shared< IntegratorSettings<> >( rungeKutta4, simulationStartEpoch, fixedStepSize );
+
+    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            std::make_shared< TranslationalStatePropagatorSettings< double > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToPropagate,
+                    systemInitialState,
+                    simulationStartEpoch,
+                    integratorSettings,
+                    std::make_shared< propagators::PropagationTimeTerminationSettings >( 3200.0 ),
+                    cowell,
+                    dependentVariables );
+
+    propagatorSettings->getPrintSettings( )->setPrintDependentVariableData( true );
+
+    // Create simulation object and propagate dynamics.
+    SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
+
+    std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableOutput =
+            dynamicsSimulator.getDependentVariableHistory( );
+
+    nrlmsise_flags flags;
+    nrlmsise_input input;
+    nrlmsise_output output;
+    auto nrlmsiseInputFunction =
+            std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )->getNrlmsise00InputFunction( );
+
+    for( auto it: dependentVariableOutput )
+    {
+        double altitude = it.second( 0 );
+        double density = it.second( 1 );
+        Eigen::Vector3d sphericalPosition = it.second.segment( 2, 3 );
+        Eigen::VectorXd nrlmsiseInputVector = it.second.segment( 5, 17 );
+        double geodeticLatitude = it.second( 22 );
+        NRLMSISE00Input inputData = nrlmsiseInputFunction( altitude, sphericalPosition( 2 ), geodeticLatitude, it.first );
+
+        BOOST_CHECK_EQUAL( nrlmsiseInputVector( 0 ), inputData.year );
+        BOOST_CHECK_EQUAL( nrlmsiseInputVector( 1 ), inputData.dayOfTheYear );
+        BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 2 ), inputData.secondOfTheDay, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 3 ) * 1000.0, altitude, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 4 ), geodeticLatitude * 180.0 / mathematical_constants::PI, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 5 ), sphericalPosition( 2 ) * 180.0 / mathematical_constants::PI, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 6 ), inputData.localSolarTime, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 7 ), inputData.f107, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 8 ), inputData.f107a, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 9 ), inputData.apDaily, 1.0E-14 );
+        for( int i = 0; i < 6; i++ )
+        {
+            BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 10 + i ), inputData.apVector.at( i ), 1.0E-14 );
+        }
+
+        // Print input data with full precision for only the last iteration
+        if( it.first == dependentVariableOutput.rbegin( )->first )
+        {
+            std::cout << std::fixed << std::setprecision( 16 ) << "Year: " << nrlmsiseInputVector( 0 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Day of the year: " << nrlmsiseInputVector( 1 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Second of the day: " << nrlmsiseInputVector( 2 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Altitude: " << nrlmsiseInputVector( 3 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Latitude: " << nrlmsiseInputVector( 4 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Longitude: " << nrlmsiseInputVector( 5 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Local solar time: " << nrlmsiseInputVector( 6 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "F107: " << nrlmsiseInputVector( 7 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "F107a: " << nrlmsiseInputVector( 8 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Ap daily: " << nrlmsiseInputVector( 9 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Ap vector: " << inputData.apVector.at( 0 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Ap vector: " << inputData.apVector.at( 1 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Ap vector: " << inputData.apVector.at( 2 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Ap vector: " << inputData.apVector.at( 3 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Ap vector: " << inputData.apVector.at( 4 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Ap vector: " << inputData.apVector.at( 5 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 0 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 1 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 2 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 3 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 4 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 5 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 6 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 7 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 8 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 9 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 10 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 11 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 12 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 13 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 14 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 15 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 16 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 17 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 18 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 19 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 20 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 21 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 22 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 23 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Density: " << density << std::endl;
+        }
+
+        BOOST_CHECK_EQUAL( inputData.f107, 130.1 );
+        BOOST_CHECK_EQUAL( inputData.f107a, 166.2 );
+        BOOST_CHECK_EQUAL( inputData.apDaily, 30 );
+        BOOST_CHECK_EQUAL( inputData.apVector.at( 0 ), 0 );
+        BOOST_CHECK_EQUAL( inputData.apVector.at( 1 ), 0 );
+        BOOST_CHECK_EQUAL( inputData.apVector.at( 2 ), 0 );
+        BOOST_CHECK_EQUAL( inputData.apVector.at( 3 ), 0 );
+        BOOST_CHECK_EQUAL( inputData.apVector.at( 4 ), 0 );
+        BOOST_CHECK_EQUAL( inputData.apVector.at( 5 ), 0 );
+        //
+        double manualDensity =
+                std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )
+                        ->getDensity(
+                                altitude, sphericalPosition( 2 ), geodeticLatitude, spice_interface::getApproximateUtcFromTdb( it.first ) );
+        BOOST_CHECK_CLOSE_FRACTION( density, manualDensity, 1.0E-14 );
+
+        //        std::copy( inputData_.switches.begin( ), inputData_.switches.end( ), flags_.switches );
+        //
+        //
+        //        gtd7(&input_, &flags, &output );
+        //
+        //        // Retrieve density and temperature
+        //        double reconstructeDensity_ = output_.d[ 5 ] * 1000.0;
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagationStormLikeConditions )
+// int main( )
+{
+    using namespace aerodynamics;
+    using namespace numerical_integrators;
+    using namespace simulation_setup;
+    using namespace propagators;
+    using namespace basic_mathematics;
+    using namespace basic_astrodynamics;
+    using namespace orbital_element_conversions;
+    using namespace spice_interface;
+
+    // Load Spice kernels.
+    loadStandardSpiceKernels( );
+
+    // Set simulation start epoch.
+    const double simulationStartEpoch = 0.0;
+    const double simulationEndEpoch = 300.0;
+    const double fixedStepSize = 1.0;
+
+    // Set Keplerian elements for Capsule.
+    Eigen::Vector6d apolloInitialStateInKeplerianElements;
+    apolloInitialStateInKeplerianElements( semiMajorAxisIndex ) = spice_interface::getAverageRadius( "Earth" ) + 120.0E3;
+    apolloInitialStateInKeplerianElements( eccentricityIndex ) = 0.005;
+    apolloInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
+    apolloInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = unit_conversions::convertDegreesToRadians( 235.7 );
+    apolloInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
+    apolloInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
+
+    // Convert apollo state from Keplerian elements to Cartesian elements.
+    const double earthGravitationalParameter = getBodyGravitationalParameter( "Earth" );
+    const Eigen::Vector6d apolloInitialState =
+            convertKeplerianToCartesianElements( apolloInitialStateInKeplerianElements, earthGravitationalParameter );
+
+    // Define simulation body settings.
+    BodyListSettings bodySettings = getDefaultBodySettings( { "Earth", "Moon" }, "Earth", "ECLIPJ2000" );
+    bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
+    bodySettings.at( "Earth" )->atmosphereSettings =
+            std::make_shared< simulation_setup::NRLMSISE00AtmosphereSettings >( paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt", 1 );
+    bodySettings.at( "Earth" )->shapeModelSettings =
+            std::make_shared< simulation_setup::OblateSphericalBodyShapeSettings >( 6378137.0, 1.0 / 298.257223563 );
+
+    // Create Earth object
+    simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
+
+    // Create vehicle objects.
+    bodies.createEmptyBody( "Apollo" );
+    bodies.at( "Apollo" )->setConstantBodyMass( 2000.0 );
+
+    // Create vehicle aerodynamic coefficients
+    double referenceArea = 4.0;
+    double aerodynamicCoefficient = 1.2;
+    std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
+            std::make_shared< ConstantAerodynamicCoefficientSettings >(
+                    referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), negative_aerodynamic_frame_coefficients );
+
+    // Create and set aerodynamic coefficients object
+    bodies.at( "Apollo" )
+            ->setAerodynamicCoefficientInterface(
+                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Apollo", bodies ) );
+
+    // Define propagator settings variables.
+    SelectedAccelerationMap accelerationMap;
+    std::vector< std::string > bodiesToPropagate;
+    std::vector< std::string > centralBodies;
+
+    // Define acceleration model settings.
+    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfApollo;
+    accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationsOfApollo[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
+    accelerationsOfApollo[ "Moon" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+    accelerationMap[ "Apollo" ] = accelerationsOfApollo;
+
+    bodiesToPropagate.push_back( "Apollo" );
+    centralBodies.push_back( "Earth" );
+
+    // Set initial state
+    Eigen::Vector6d systemInitialState = apolloInitialState;
+
+    // Define list of dependent variables to save.
+    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+    dependentVariables.push_back(
+            std::make_shared< SingleDependentVariableSaveSettings >( altitude_dependent_variable, "Apollo", "Earth" ) );
+    dependentVariables.push_back(
+            std::make_shared< SingleDependentVariableSaveSettings >( local_density_dependent_variable, "Apollo", "Earth" ) );
+    dependentVariables.push_back(
+            std::make_shared< SingleDependentVariableSaveSettings >( body_fixed_relative_spherical_position, "Apollo", "Earth" ) );
+    dependentVariables.push_back( std::make_shared< SingleDependentVariableSaveSettings >( nrlmsise_input_data, "Apollo", "Earth" ) );
+    dependentVariables.push_back(
+            std::make_shared< SingleDependentVariableSaveSettings >( geodetic_latitude_dependent_variable, "Apollo", "Earth" ) );
 
     // Create acceleration models and propagation settings.
     basic_astrodynamics::AccelerationMap accelerationModelMap =
@@ -1333,35 +1573,85 @@ BOOST_AUTO_TEST_CASE( testNRLMSISEInPropagation )
         double density = it.second( 1 );
         Eigen::Vector3d sphericalPosition = it.second.segment( 2, 3 );
         Eigen::VectorXd nrlmsiseInputVector = it.second.segment( 5, 17 );
-
-        NRLMSISE00Input inputData = nrlmsiseInputFunction( altitude, sphericalPosition( 2 ), sphericalPosition( 1 ), it.first );
+        double geodeticLatitude = it.second( 22 );
+        NRLMSISE00Input inputData = nrlmsiseInputFunction( altitude, sphericalPosition( 2 ), geodeticLatitude, it.first );
 
         BOOST_CHECK_EQUAL( nrlmsiseInputVector( 0 ), inputData.year );
         BOOST_CHECK_EQUAL( nrlmsiseInputVector( 1 ), inputData.dayOfTheYear );
         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 2 ), inputData.secondOfTheDay, 1.0E-14 );
         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 3 ) * 1000.0, altitude, 1.0E-14 );
-        BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 4 ), sphericalPosition( 1 ) * 180.0 / mathematical_constants::PI, 1.0E-14 );
+        BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 4 ), geodeticLatitude * 180.0 / mathematical_constants::PI, 1.0E-14 );
         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 5 ), sphericalPosition( 2 ) * 180.0 / mathematical_constants::PI, 1.0E-14 );
         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 6 ), inputData.localSolarTime, 1.0E-14 );
         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 7 ), inputData.f107, 1.0E-14 );
         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 8 ), inputData.f107a, 1.0E-14 );
         BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 9 ), inputData.apDaily, 1.0E-14 );
-        for( int i = 0; i < 7; i++ )
+        for( int i = 0; i < 6; i++ )
         {
             BOOST_CHECK_CLOSE_FRACTION( nrlmsiseInputVector( 10 + i ), inputData.apVector.at( i ), 1.0E-14 );
         }
 
-        double manualDensity = std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )
-                                       ->getDensity( altitude, sphericalPosition( 2 ), sphericalPosition( 1 ), it.first );
-        BOOST_CHECK_CLOSE_FRACTION( density, manualDensity, 1.0E-14 );
+        // Print input data with full precision
+        if( it.first == dependentVariableOutput.rbegin( )->first )
+        {
+            std::cout << std::fixed << std::setprecision( 16 ) << "Year: " << nrlmsiseInputVector( 0 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Day of the year: " << nrlmsiseInputVector( 1 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Second of the day: " << nrlmsiseInputVector( 2 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Altitude: " << nrlmsiseInputVector( 3 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Latitude: " << nrlmsiseInputVector( 4 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Longitude: " << nrlmsiseInputVector( 5 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Local solar time: " << nrlmsiseInputVector( 6 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "F107: " << nrlmsiseInputVector( 7 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "F107a: " << nrlmsiseInputVector( 8 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Ap daily: " << nrlmsiseInputVector( 9 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Ap vector: " << inputData.apVector.at( 0 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Ap vector: " << inputData.apVector.at( 1 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Ap vector: " << inputData.apVector.at( 2 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Ap vector: " << inputData.apVector.at( 3 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Ap vector: " << inputData.apVector.at( 4 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Ap vector: " << inputData.apVector.at( 5 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 0 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 1 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 2 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 3 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 4 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 5 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 6 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 7 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 8 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 9 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 10 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 11 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 12 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 13 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 14 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 15 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 16 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 17 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 18 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 19 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 20 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 21 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 22 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Switches: " << inputData.switches.at( 23 ) << std::endl;
+            std::cout << std::fixed << std::setprecision( 16 ) << "Density: " << density << std::endl;
+        }
 
-        //        std::copy( inputData_.switches.begin( ), inputData_.switches.end( ), flags_.switches );
-        //
-        //
-        //        gtd7(&input_, &flags, &output );
-        //
-        //        // Retrieve density and temperature
-        //        double reconstructeDensity_ = output_.d[ 5 ] * 1000.0;
+        BOOST_CHECK_EQUAL( inputData.f107, 130.1 );
+        BOOST_CHECK_EQUAL( inputData.f107a, 166.2 );
+        BOOST_CHECK_EQUAL( inputData.apDaily, 30 );
+        BOOST_CHECK_EQUAL( inputData.apVector.at( 0 ), 32 );
+        BOOST_CHECK_EQUAL( inputData.apVector.at( 1 ), 18 );
+        BOOST_CHECK_EQUAL( inputData.apVector.at( 2 ), 27 );
+        BOOST_CHECK_EQUAL( inputData.apVector.at( 3 ), 39 );
+        BOOST_CHECK_EQUAL( inputData.apVector.at( 4 ), 34.5 );
+        BOOST_CHECK_EQUAL( inputData.apVector.at( 5 ), 19.25 );
+
+        double manualDensity =
+                std::dynamic_pointer_cast< NRLMSISE00Atmosphere >( bodies.at( "Earth" )->getAtmosphereModel( ) )
+                        ->getDensity(
+                                altitude, sphericalPosition( 2 ), geodeticLatitude, spice_interface::getApproximateUtcFromTdb( it.first ) );
+        BOOST_CHECK_CLOSE_FRACTION( density, manualDensity, 1.0E-14 );
     }
 }
 

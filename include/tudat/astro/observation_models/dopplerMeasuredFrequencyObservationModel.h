@@ -170,6 +170,16 @@ public:
         FrequencyBands uplinkBand = frequencyBands.at( 0 );
         FrequencyBands downlinkBand = frequencyBands.at( 1 );
 
+        double currentTurnAroundRatio = turnaroundRatio_( uplinkBand, downlinkBand );
+        if( true )
+        {
+            setTransmissionReceptionFrequencies( lighTimeCalculator_,
+                                                 terrestrialTimeScaleConverter_,
+                                                 transmittingFrequencyCalculator_,
+                                                 time,
+                                                 ancillarySettings,
+                                                 currentTurnAroundRatio );
+        }
         // Calculate the light time
         TimeType lightTime = lighTimeCalculator_->calculateLightTimeWithLinkEndsStates(
                 time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySettings );
