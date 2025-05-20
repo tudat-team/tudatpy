@@ -41,7 +41,7 @@ FlightConditions::FlightConditions( const std::shared_ptr< basic_astrodynamics::
                                                std::placeholders::_1,
                                                1.0E-4 );
     }
-    scalarFlightConditions_.resize( 12 );
+    scalarFlightConditions_.resize( 13 );
     isScalarFlightConditionComputed_ = allScalarFlightConditionsUncomputed;
 }
 
@@ -143,6 +143,16 @@ void AtmosphericFlightConditions::updateAtmosphereInput( )
           isScalarFlightConditionComputed_.at( longitude_flight_condition ) == 0 ) )
     {
         computeLatitudeAndLongitude( );
+    }
+
+    if( atmosphereModel_->getUseGeodeticLatitude( ) )
+    {
+        computeGeodeticLatitude( );
+    }
+
+    if( atmosphereModel_->getUseUtc( ) )
+    {
+        computeUtc( );
     }
 
     if( isScalarFlightConditionComputed_.at( altitude_flight_condition ) == 0 )

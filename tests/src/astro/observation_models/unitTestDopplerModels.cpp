@@ -33,16 +33,18 @@ namespace tudat
 namespace unit_tests
 {
 
+using namespace tudat;
 using namespace tudat::observation_models;
 using namespace tudat::spice_interface;
 using namespace tudat::ephemerides;
 using namespace tudat::simulation_setup;
 using namespace tudat::orbital_element_conversions;
 using namespace tudat::coordinate_conversions;
+using namespace tudat::ground_stations;
 using namespace tudat::unit_conversions;
 
 BOOST_AUTO_TEST_SUITE( test_doppler_models )
-
+//
 BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 {
     // Load Spice kernels
@@ -70,9 +72,24 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
     SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
 
     // Create ground station
-    const Eigen::Vector3d stationCartesianPosition( 1917032.190, 6029782.349, -801376.113 );
+    const Eigen::Vector3d stationCartesianPosition( -1917032.190, -6029782.349, -801376.113 );
     createGroundStation( bodies.at( "Earth" ), "Station1", stationCartesianPosition, cartesian_position );
 
+    Eigen::Vector3d dummyMeteo;
+    dummyMeteo << 1.0E8, 280.0, 1.0E3;
+    std::map< double, Eigen::VectorXd > dummyMeteoMap;
+    dummyMeteoMap[ initialEphemerisTime ] = dummyMeteo;
+    dummyMeteoMap[ finalEphemerisTime ] = dummyMeteo;
+
+    std::map< ground_stations::MeteoDataEntries, int > vmfMeteoEntries = { { ground_stations::temperature_meteo_data, 1 },
+                                                                           { ground_stations::pressure_meteo_data, 0 },
+                                                                           { ground_stations::water_vapor_pressure_meteo_data, 2 } };
+
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > meteoDataInterpolator =
+            interpolators::createOneDimensionalInterpolator( dummyMeteoMap, interpolators::linearInterpolation( ) );
+    bodies.at( "Earth" )
+            ->getGroundStation( "Station1" )
+            ->setMeteoData( std::make_shared< ContinuousInterpolatedMeteoData >( meteoDataInterpolator, vmfMeteoEntries ) );
     // Create Spacecraft
     Eigen::Vector6d spacecraftOrbitalElements;
     spacecraftOrbitalElements( semiMajorAxisIndex ) = 10000.0E3;
@@ -84,7 +101,6 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
     double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
 
     bodies.createEmptyBody( "Spacecraft" );
-    ;
     bodies.at( "Spacecraft" )
             ->setEphemeris(
                     createBodyEphemeris( std::make_shared< KeplerEphemerisSettings >(
@@ -94,11 +110,11 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
     // Define link ends for observations.
     LinkEnds linkEnds;
-    linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth", "" );
+    linkEnds[ transmitter ] = std::make_pair< std::string, std::string >( "Earth", "Station1" );
     linkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Mars", "" );
 
     // Create observation settings
-    for( int useCorrections = 0; useCorrections < 2; useCorrections++ )
+    for( int useCorrections = 0; useCorrections < 3; useCorrections++ )
     {
         double toleranceScaling = 1.0;
         std::vector< std::shared_ptr< LightTimeCorrectionSettings > > correctionSettings;
@@ -106,20 +122,24 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
         {
             correctionSettings.push_back(
                     std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( std::vector< std::string >( { "Sun" } ) ) );
-            toleranceScaling *= 100.0;
+            toleranceScaling *= 20.0;
+        }
+        else if( useCorrections == 2 )
+        {
+            correctionSettings.push_back( saastamoinenTroposphericCorrectionSettings( ) );
         }
         std::shared_ptr< ObservationModelSettings > observableSettings =
                 std::make_shared< ObservationModelSettings >( one_way_doppler, linkEnds, correctionSettings );
 
         // Create observation model.
         std::shared_ptr< ObservationModel< 1, double, double > > observationModel =
-                ObservationModelCreator< 1, double, double >::createObservationModel( observableSettings, bodies );
+                ObservationModelCreator< 1, double, double >::createObservationModel( observableSettings, bodies, one_way_doppler );
 
         std::shared_ptr< OneWayDopplerObservationModel< double, double > > dopplerObservationModel =
                 std::dynamic_pointer_cast< OneWayDopplerObservationModel< double, double > >( observationModel );
 
         // Test observable for both fixed link ends
-        for( unsigned testCase = 2; testCase < 4; testCase++ )
+        for( unsigned testCase = 0; testCase < 4; testCase++ )
         {
             std::cout << testCase << " " << useCorrections << std::endl;
             double observationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
@@ -152,7 +172,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
             // Creare independent light time calculator object
             std::shared_ptr< LightTimeCalculator< double, double > > lightTimeCalculator =
-                    createLightTimeCalculator( linkEnds, transmitter, receiver, bodies, undefined_observation_model, correctionSettings );
+                    createLightTimeCalculator( linkEnds, transmitter, receiver, bodies, one_way_doppler, correctionSettings );
             Eigen::Vector6d transmitterState, receiverState;
             // Compute light time
             double lightTime = lightTimeCalculator->calculateLightTimeWithLinkEndsStates(
@@ -176,17 +196,21 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
             }
 
             // Compute numerical partial derivative of light time.
-            double timePerturbation = 100.0;
+            double timePerturbation = 25.0;
             double upPerturbedLightTime = lightTimeCalculator->calculateLightTime( linkEndTimes.at( 1 ) + timePerturbation, true );
             double downPerturbedLightTime = lightTimeCalculator->calculateLightTime( linkEndTimes.at( 1 ) - timePerturbation, true );
 
             double lightTimeSensitivity = -( upPerturbedLightTime - downPerturbedLightTime ) / ( 2.0 * timePerturbation );
 
             // Test numerical derivative against Doppler observable
-            BOOST_CHECK_CLOSE_FRACTION( scalingTerm * lightTimeSensitivity, dopplerObservable, 1.0E-8 * toleranceScaling );
+            BOOST_CHECK_CLOSE_FRACTION( scalingTerm * lightTimeSensitivity, dopplerObservable, 2.0E-8 * toleranceScaling );
 
             if( useCorrections && testCase == 3 )
             {
+                if( useCorrections == 1 )
+                {
+                    timePerturbation += 10.0;
+                }
                 std::shared_ptr< LightTimeCorrection > correction = lightTimeCalculator->getLightTimeCorrection( ).at( 0 );
                 double nominalLightTimeCorrection = correction->calculateLightTimeCorrection(
                         transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ) );
@@ -211,15 +235,23 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
                 Eigen::Matrix< double, 3, 1 > lightTimeCorrectionWrtReceiver =
                         correction->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
-                                transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), receiver );
+                                transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), receiver, nullptr );
                 Eigen::Matrix< double, 3, 1 > lightTimeCorrectionWrtTransmitter =
                         correction->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndPosition(
-                                transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), transmitter );
 
-                BOOST_CHECK_CLOSE_FRACTION( lightTimeCorrectionWrtReceiver.dot( receiverState.segment( 3, 3 ) ) +
-                                                    lightTimeCorrectionWrtTransmitter.dot( transmitterState.segment( 3, 3 ) ),
-                                            ( lightTimeCorrectionUp - lightTimeCorrectionDown ) / ( 2.0 * timePerturbation ),
-                                            1.0E-3 );
+                                transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), transmitter, nullptr );
+                double lightTimeCorrectionWrtReceiverTime = correction->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+                        transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), receiver, nullptr );
+                double lightTimeCorrectionWrtTransmitterTime = correction->calculateLightTimeCorrectionPartialDerivativeWrtLinkEndTime(
+                        transmitterState, receiverState, linkEndTimes.at( 0 ), linkEndTimes.at( 1 ), transmitter, nullptr );
+
+                double numericalCorrectionPartial = ( lightTimeCorrectionUp - lightTimeCorrectionDown ) / ( 2.0 * timePerturbation );
+                double analyticalCorrectionPartial = lightTimeCorrectionWrtTransmitterTime + lightTimeCorrectionWrtReceiverTime +
+                        lightTimeCorrectionWrtReceiver.dot( receiverState.segment( 3, 3 ) ) +
+                        lightTimeCorrectionWrtTransmitter.dot( transmitterState.segment( 3, 3 ) );
+
+                BOOST_CHECK_CLOSE_FRACTION(
+                        numericalCorrectionPartial, analyticalCorrectionPartial, ( useCorrections == 1 ? 1.0E2 : 1.0 ) * 1.0E-5 );
             }
         }
     }
@@ -237,7 +269,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
         // Create observation model
         std::shared_ptr< ObservationModel< 1, double, double > > biasedObservationModel =
-                ObservationModelCreator< 1, double, double >::createObservationModel( biasedObservableSettings, bodies );
+                ObservationModelCreator< 1, double, double >::createObservationModel( biasedObservableSettings, bodies, one_way_doppler );
 
         double observationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
 
@@ -259,7 +291,8 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
         // Create observation model.
         std::shared_ptr< ObservationModel< 1, double, double > > observationModelWithoutCorrections =
-                ObservationModelCreator< 1, double, double >::createObservationModel( observableSettingsWithoutCorrections, bodies );
+                ObservationModelCreator< 1, double, double >::createObservationModel(
+                        observableSettingsWithoutCorrections, bodies, one_way_doppler );
 
         // Create observation settings
         std::shared_ptr< ObservationModelSettings > observableSettingsWithCorrections =
@@ -271,7 +304,8 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
         // Create observation model.
         std::shared_ptr< ObservationModel< 1, double, double > > observationModelWithCorrections =
-                ObservationModelCreator< 1, double, double >::createObservationModel( observableSettingsWithCorrections, bodies );
+                ObservationModelCreator< 1, double, double >::createObservationModel(
+                        observableSettingsWithCorrections, bodies, one_way_doppler );
 
         double observationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
 

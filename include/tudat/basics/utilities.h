@@ -1104,6 +1104,71 @@ bool compareStlVectors( const std::vector< T >& v1, const std::vector< T >& v2 )
     std::sort( v2Sort.begin( ), v2Sort.end( ) );
     return v1Sort == v2Sort;
 }
+
+//! Function to convert std::vector to Eigen::Vector.
+template< typename T, typename S >
+T getKeyByIndex( const std::map< T, S >& mapToIterate, const unsigned int index )
+{
+    if( index >= mapToIterate.size( ) )
+    {
+        throw std::runtime_error( "Error when getting mpa key by index, size of map is insufficient" );
+    }
+    auto it = mapToIterate.begin( );
+    for( unsigned int i = 0; i < index; i++ )
+    {
+        it++;
+    }
+    return it->first;
+}
+
+template< typename S, typename T >
+std::vector< std::map< S, T > > mergeMaps( const std::vector< std::map< S, T > >& data, const S tolerance = 1.0 )
+{
+    std::vector< std::map< S, T > > mergedData;
+
+    if( data.empty( ) )
+    {
+        return mergedData;
+    }
+    else
+    {
+        auto currentMap = data.front( );
+        for( unsigned int i = 1; i < data.size( ); i++ )
+        {
+            const auto& nextMap = data[ i ];
+
+            // Get the last key of the current map and the first key of the next map
+            S lastKey = currentMap.rbegin( )->first;
+            S nextKey = nextMap.begin( )->first;
+
+            // Compute the key spacing for both maps
+            auto currentIt = currentMap.begin( );
+            S currentSpacing = std::next( currentIt )->first - currentIt->first;
+
+            auto nextIt = nextMap.begin( );
+            S nextSpacing = std::next( nextIt )->first - nextIt->first;
+
+            S spacingThreshold = std::max( currentSpacing, nextSpacing );
+
+            // Check if the maps should be merged
+            if( ( nextKey - lastKey ) <= spacingThreshold * tolerance )
+            {
+                currentMap.insert( nextMap.begin( ), nextMap.end( ) );
+            }
+            else
+            {
+                mergedData.push_back( currentMap );
+                currentMap = nextMap;
+            }
+        }
+
+        // Push the final merged map
+        mergedData.push_back( currentMap );
+
+        return mergedData;
+    }
+}
+
 }  // namespace utilities
 
 }  // namespace tudat

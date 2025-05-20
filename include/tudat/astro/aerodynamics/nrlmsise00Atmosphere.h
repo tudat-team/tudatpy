@@ -36,72 +36,6 @@ namespace tudat
 namespace aerodynamics
 {
 
-//! Gas component properties data structure
-/*!
- * This data structure contains the molar mass and collision diameter of
- * the most frequently observed gasses in the atmosphere.
- */
-struct GasComponentProperties {
-    //! default constructor
-    /*!
-     * Constructs a GasComponentProperties data structure with values obtained from the following sources:
-     * Collision diameters from: Tables of Physical & Chemical Constants Kaye & Laby Online, Kaye & Laby Online, 2016
-     * (http://www.kayelaby.npl.co.uk/general_physics/2_2/2_2_4.html)
-     * Molar mass from: NIST,2016 (http://www.nist.gov/pml/data/images/illo_for_2014_PT_1.PNG)
-     *
-     * Data to be verified
-     *
-     */
-    GasComponentProperties( ):
-        diameterArgon( 340E-12 ), diameterAtomicHydrogen( 260E-12 ), diameterHelium( 256E-12 ), diameterNitrogen( 370E-12 ),
-        diameterOxygen( 358E-12 ), diameterAtomicNitrogen( 290E-12 ), diameterAtomicOxygen( 280E-12 ), molarMassArgon( 39.948E-3 ),
-        molarMassAtomicHydrogen( 1.008E-3 ), molarMassHelium( 4.002602E-3 ), molarMassNitrogen( 2.0 * 14.007E-3 ),
-        molarMassOxygen( 2.0 * 15.999E-3 ), molarMassAtomicNitrogen( 14.007E-3 ), molarMassAtomicOxygen( 15.999E-3 )
-    { }
-
-    //! Molecular colision diameter of Argon in m
-    double diameterArgon;
-
-    //! Molecular colision diameter of Atomic Hydrogen in m
-    double diameterAtomicHydrogen;
-
-    //! Molecular colision diameter of Helium in m
-    double diameterHelium;
-
-    //! Molecular colision diameter of Nitrogen in m
-    double diameterNitrogen;
-
-    //! Molecular colision diameter of Oxygen in m
-    double diameterOxygen;
-
-    //! Molecular colision diameter of Atomic Nitrogen in m
-    double diameterAtomicNitrogen;
-
-    //! Molecular colision diameter of Atomic Oxygen in m
-    double diameterAtomicOxygen;
-
-    //! molar mass of Argon in kg/mole
-    double molarMassArgon;
-
-    //! Molar mass of Atomic Hydrogen in kg/mole
-    double molarMassAtomicHydrogen;
-
-    //! Molar mass of Helium in kg/mole
-    double molarMassHelium;
-
-    //! Molar mass of Nitrogen in kg/mole
-    double molarMassNitrogen;
-
-    //! Molar mass of Oxygen in kg/mole
-    double molarMassOxygen;
-
-    //! Molar mass of Atomic Nitrogen in kg/mole
-    double molarMassAtomicNitrogen;
-
-    //! Molar mass of Atomic Oxygen in kg/mole
-    double molarMassAtomicOxygen;
-};
-
 //! NRLMSISE-00 atmosphere model class.
 /*!
  *  NRLMSISE-00 atmosphere model class. This class uses the NRLMSISE00 atmosphere model to calculate atmospheric
@@ -126,78 +60,35 @@ public:
      * (altitude, longitude, latitude, time ).
      * \param useIdealGasLaw Variable denoting whether to use the ideal gas law for computation of pressure.
      */
-    NRLMSISE00Atmosphere( const NRLMSISE00InputFunction nrlmsise00InputFunction, const bool useIdealGasLaw = true ):
-        nrlmsise00InputFunction_( nrlmsise00InputFunction )
+    NRLMSISE00Atmosphere( const NRLMSISE00InputFunction nrlmsise00InputFunction,
+                          const bool useIdealGasLaw = true,
+                          const bool useAnomalousOxygen = true ):
+        AtmosphereModel( true, true ), nrlmsise00InputFunction_( nrlmsise00InputFunction ), useIdealGasLaw_( useIdealGasLaw ),
+        useAnomalousOxygen_( useAnomalousOxygen )
     {
         resetHashKey( );
-        molarGasConstant_ = tudat::physical_constants::MOLAR_GAS_CONSTANT;
         specificHeatRatio_ = 1.4;
-        GasComponentProperties gasProperties;
-        gasComponentProperties_ = gasProperties;  // Default gas properties
-        useIdealGasLaw_ = useIdealGasLaw;
     }
 
     NRLMSISE00Atmosphere( const tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData,
-                          const bool useIdealGasLaw = true )
+                          const bool useIdealGasLaw = true,
+                          const bool useStormConditions = false,
+                          const bool useAnomalousOxygen = true ):
+        AtmosphereModel( true, true ), solarActivityContainer_( solarActivityData ), useIdealGasLaw_( useIdealGasLaw ),
+        useAnomalousOxygen_( useAnomalousOxygen )
     {
         nrlmsise00InputFunction_ = std::bind( &tudat::aerodynamics::nrlmsiseInputFunction,
                                               std::placeholders::_1,
                                               std::placeholders::_2,
                                               std::placeholders::_3,
                                               std::placeholders::_4,
-                                              solarActivityData,
+                                              solarActivityContainer_,
                                               false,
-                                              TUDAT_NAN );
-        solarActivityContainer_ = std::make_shared< input_output::solar_activity::SolarActivityContainer >( solarActivityData );
+                                              TUDAT_NAN,
+                                              useStormConditions ? -1 : 1 );
 
         resetHashKey( );
-        molarGasConstant_ = tudat::physical_constants::MOLAR_GAS_CONSTANT;
         specificHeatRatio_ = 1.4;
-        GasComponentProperties gasProperties;
-        gasComponentProperties_ = gasProperties;  // Default gas properties
-        useIdealGasLaw_ = useIdealGasLaw;
-    }
-
-    //! Constructor
-    /*!
-     * Constructor that sets the gas component properties and specific heat ratio.
-     * \param nrlmsise00InputFunction shared function pointer to provide all necessary input.
-     * \param specificHeatRatio value of the specific heat ratio.
-     * \param gasProperties a GasComponentProperties data structure that contains
-     *  the molecule collision diameters and the molar mass.
-     * \param useIdealGasLaw Boolean denoting whether the ideal gas law is to be used.
-     */
-    NRLMSISE00Atmosphere( const tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData,
-                          const double specificHeatRatio,
-                          const GasComponentProperties gasProperties,
-                          const bool useIdealGasLaw = true )
-    {
-        nrlmsise00InputFunction_ = std::bind( &tudat::aerodynamics::nrlmsiseInputFunction,
-                                              std::placeholders::_1,
-                                              std::placeholders::_2,
-                                              std::placeholders::_3,
-                                              std::placeholders::_4,
-                                              solarActivityData,
-                                              false,
-                                              TUDAT_NAN );
-        solarActivityContainer_ = std::make_shared< input_output::solar_activity::SolarActivityContainer >( solarActivityData );
-
-        resetHashKey( );
-        molarGasConstant_ = tudat::physical_constants::MOLAR_GAS_CONSTANT;
-        specificHeatRatio_ = specificHeatRatio;
-        gasComponentProperties_ = gasProperties;
-        useIdealGasLaw_ = useIdealGasLaw;
-    }
-
-    //! Set gas component properties.
-    /*!
-     * Sets the gas component properties.
-     * These are required for the calculation of the speed of sound and the mean free path.
-     * \param gasComponentProperties Properties of the gas components
-     */
-    void setGasComponentProperties( const GasComponentProperties gasComponentProperties )
-    {
-        gasComponentProperties_ = gasComponentProperties;
     }
 
     //! Get local density.
@@ -209,9 +100,9 @@ public:
      * \param time Time at which density is to be computed (seconds since J2000).
      * \return Atmospheric density [kg/m^3].
      */
-    double getDensity( const double altitude, const double longitude, const double latitude, const double time )
+    double getDensity( const double altitude, const double longitude, const double geodeticLatitude, const double time )
     {
-        computeProperties( altitude, longitude, latitude, time );
+        computeProperties( altitude, longitude, geodeticLatitude, time );
         return density_;
     }
 
@@ -221,15 +112,15 @@ public:
      * The pressure is not implemented in the current version (returns NaN).
      * \param altitude Altitude at which pressure is to be computed [m].
      * \param longitude Longitude at which pressure is to be computed [rad].
-     * \param latitude Latitude at which pressure is to be computed [rad].
+     * \param geodeticLatitude Latitude at which pressure is to be computed [rad].
      * \param time Time at which pressure is to be computed (seconds since J2000).
      * \return Atmospheric pressure.
      */
-    double getPressure( const double altitude, const double longitude, const double latitude, const double time )
+    double getPressure( const double altitude, const double longitude, const double geodeticLatitude, const double time )
     {
         if( useIdealGasLaw_ )
         {
-            computeProperties( altitude, longitude, latitude, time );
+            computeProperties( altitude, longitude, geodeticLatitude, time );
         }
         else
         {
@@ -243,13 +134,13 @@ public:
      * Returns the local temperature of the atmosphere parameter in Kelvin.
      * \param altitude Altitude at which temperature is to be computed [m].
      * \param longitude Longitude at which temperature is to be computed [rad].
-     * \param latitude Latitude at which temperature is to be computed [rad].
+     * \param geodeticLatitude Latitude at which temperature is to be computed [rad].
      * \param time Time at which temperature is to be computed (seconds since J2000).
      * \return Atmospheric temperature.
      */
-    double getTemperature( const double altitude, const double longitude, const double latitude, const double time )
+    double getTemperature( const double altitude, const double longitude, const double geodeticLatitude, const double time )
     {
-        computeProperties( altitude, longitude, latitude, time );
+        computeProperties( altitude, longitude, geodeticLatitude, time );
         return temperature_;
     }
 
@@ -258,13 +149,13 @@ public:
      * Returns the local speed of sound in m/s.
      * \param altitude Altitude at which speed of sound is to be computed [m].
      * \param longitude Longitude at which speed of sound is to be computed [rad].
-     * \param latitude Latitude at whichspeed of sound is to be computed [rad].
+     * \param geodeticLatitude Latitude at whichspeed of sound is to be computed [rad].
      * \param time Time at which speed of sound is to be computed (seconds since J2000).
      * \return Speed of sound.
      */
-    double getSpeedOfSound( const double altitude, const double longitude, const double latitude, const double time )
+    double getSpeedOfSound( const double altitude, const double longitude, const double geodeticLatitude, const double time )
     {
-        computeProperties( altitude, longitude, latitude, time );
+        computeProperties( altitude, longitude, geodeticLatitude, time );
         return speedOfSound_;
     }
 
@@ -273,13 +164,13 @@ public:
      * Returns the local mean free path in m.
      * \param altitude Altitude at which mean free path is to be computed [m].
      * \param longitude Longitude at which mean free path is to be computed [rad].
-     * \param latitude Latitude at which mean free path is to be computed [rad].
+     * \param geodeticLatitude Latitude at which mean free path is to be computed [rad].
      * \param time Time at which mean free path is to be computed (seconds since J2000).
      * \return Mean free path.
      */
-    double getMeanFreePath( const double altitude, const double longitude, const double latitude, const double time )
+    double getMeanFreePath( const double altitude, const double longitude, const double geodeticLatitude, const double time )
     {
-        computeProperties( altitude, longitude, latitude, time );
+        computeProperties( altitude, longitude, geodeticLatitude, time );
         return meanFreePath_;
     }
 
@@ -288,13 +179,13 @@ public:
      * Returns the local mean molar mass in kg/mol.
      * \param altitude Altitude at which mean molar mass is to be computed [m].
      * \param longitude Longitude at which mean molar mass  is to be computed [rad].
-     * \param latitude Latitude at which mean molar mass  is to be computed [rad].
+     * \param geodeticLatitude Latitude at which mean molar mass  is to be computed [rad].
      * \param time Time at which mean molar mass  is to be computed (seconds since J2000).
      * \return mean molar mass.
      */
-    double getMeanMolarMass( const double altitude, const double longitude, const double latitude, const double time )
+    double getMeanMolarMass( const double altitude, const double longitude, const double geodeticLatitude, const double time )
     {
-        computeProperties( altitude, longitude, latitude, time );
+        computeProperties( altitude, longitude, geodeticLatitude, time );
         return meanMolarMass_;
     }
 
@@ -303,27 +194,30 @@ public:
      * Returns the number density of each gas component in a vector.
      * \param altitude Altitude at which number density is to be computed [m].
      * \param longitude Longitude at which number density is to be computed [rad].
-     * \param latitude Latitude at which number density is to be computed [rad].
+     * \param geodeticLatitude Latitude at which number density is to be computed [rad].
      * \param time Time at which number density is to be computed (seconds since J2000).
      * \return Number densities of gas components
      */
-    std::vector< double > getNumberDensities( const double altitude, const double longitude, const double latitude, const double time )
+    std::vector< double > getNumberDensities( const double altitude,
+                                              const double longitude,
+                                              const double geodeticLatitude,
+                                              const double time )
     {
-        computeProperties( altitude, longitude, latitude, time );
+        computeProperties( altitude, longitude, geodeticLatitude, time );
         return numberDensities_;
     }
 
     virtual double getNumberDensity( const AtmosphericCompositionSpecies species,
                                      const double altitude,
                                      const double longitude,
-                                     const double latitude,
+                                     const double geodeticLatitude,
                                      const double time )
     {
         if( !( speciesIndices.count( species ) > 0 ) )
         {
             throw std::runtime_error( "Error, NRLMSISE00 has no dependency on species " + std::to_string( species ) + "." );
         }
-        computeProperties( altitude, longitude, latitude, time );
+        computeProperties( altitude, longitude, geodeticLatitude, time );
         return numberDensities_.at( speciesIndices.at( species ) );
     }
 
@@ -344,13 +238,13 @@ public:
      * Returns the local average number density in m^-3
      * \param altitude Altitude at which density is to be computed [m].
      * \param longitude Longitude at which density is to be computed [rad].
-     * \param latitude Latitude at which density is to be computed [rad].
+     * \param geodeticLatitude Latitude at which density is to be computed [rad].
      * \param time Time at which density is to be computed (seconds since J2000).
      * \return average number density.
      */
-    double getAverageNumberDensity( const double altitude, const double longitude, const double latitude, const double time )
+    double getAverageNumberDensity( const double altitude, const double longitude, const double geodeticLatitude, const double time )
     {
-        computeProperties( altitude, longitude, latitude, time );
+        computeProperties( altitude, longitude, geodeticLatitude, time );
         return averageNumberDensity_;
     }
 
@@ -359,13 +253,16 @@ public:
      * Returns the local weighted average collision diameter using the number densities as weights.
      * \param altitude Altitude at which average collision diameter is to be computed [m].
      * \param longitude Longitude at which average collision diameter is to be computed [rad].
-     * \param latitude Latitude at which average collision diameter is to be computed [rad].
+     * \param geodeticLatitude Latitude at which average collision diameter is to be computed [rad].
      * \param time Time at which average collision diameter is to be computed (seconds since J2000).
      * \return weighted average collision diameter.
      */
-    double getWeightedAverageCollisionDiameter( const double altitude, const double longitude, const double latitude, const double time )
+    double getWeightedAverageCollisionDiameter( const double altitude,
+                                                const double longitude,
+                                                const double geodeticLatitude,
+                                                const double time )
     {
-        computeProperties( altitude, longitude, latitude, time );
+        computeProperties( altitude, longitude, geodeticLatitude, time );
         return weightedAverageCollisionDiameter_;
     }
 
@@ -376,13 +273,13 @@ public:
      * values.
      * \param altitude Altitude at which output is to be computed [m].
      * \param longitude Longitude at which output is to be computed [rad].
-     * \param latitude Latitude at which output is to be computed [rad].
+     * \param geodeticLatitude Latitude at which output is to be computed [rad].
      * \param time Time at which output is to be computed (seconds since J2000).
      * \return Full density and temperature values
      */
     std::pair< std::vector< double >, std::vector< double > > getFullOutput( const double altitude,
                                                                              const double longitude,
-                                                                             const double latitude,
+                                                                             const double geodeticLatitude,
                                                                              const double time );
 
     //! Reset the hash key
@@ -396,7 +293,7 @@ public:
         hashKey_ = 0;
     }
 
-    std::shared_ptr< input_output::solar_activity::SolarActivityContainer > getSolarActivityContainer( )
+    input_output::solar_activity::SolarActivityContainer& getSolarActivityContainer( )
     {
         return solarActivityContainer_;
     }
@@ -421,14 +318,11 @@ public:
         return input_;
     }
 
-    void setInputStruct( const double altitude, const double longitude, const double latitude, const double time );
+    void setInputStruct( const double altitude, const double longitude, const double geodeticLatitude, const double time );
 
 private:
     //! Shared pointer to solar activity function
     NRLMSISE00InputFunction nrlmsise00InputFunction_;
-
-    //! Use the ideal gas law for the computation of the pressure.
-    bool useIdealGasLaw_;
 
     //! Current key hash
     size_t hashKey_;
@@ -470,14 +364,8 @@ private:
     //! mean molar mass (kg/mole)
     double meanMolarMass_;
 
-    //! Data structure that contains the colision diameter
-    GasComponentProperties gasComponentProperties_;
-
     //! Specific heat ratio
     double specificHeatRatio_;
-
-    //! Molar gas constant (J/mol K)
-    double molarGasConstant_;
 
     //! Flags set for NRLMSISE computations
     nrlmsise_flags flags_;
@@ -555,16 +443,16 @@ private:
      * Returns hash key value based on a vector of keys
      * \param altitude Altitude [m].
      * \param longitude Longitude [rad].
-     * \param latitude Latitude [rad].
+     * \param geodeticLatitude Latitude [rad].
      * \param time time.
      * \return hash key value.
      */
-    size_t hashFunc( const double altitude, const double longitude, const double latitude, const double time )
+    size_t hashFunc( const double altitude, const double longitude, const double geodeticLatitude, const double time )
     {
         size_t seed = 0;
         boost::hash_combine( seed, boost::hash< double >( )( altitude ) );
         boost::hash_combine( seed, boost::hash< double >( )( longitude ) );
-        boost::hash_combine( seed, boost::hash< double >( )( latitude ) );
+        boost::hash_combine( seed, boost::hash< double >( )( geodeticLatitude ) );
         boost::hash_combine( seed, boost::hash< double >( )( time ) );
         return seed;
     }
@@ -574,15 +462,20 @@ private:
      * Computes the local atmospheric density, pressure and temperature.
      * \param altitude Altitude at which output is to be computed [m].
      * \param longitude Longitude at which output is to be computed [rad].
-     * \param latitude Latitude at which output is to be computed [rad].
+     * \param geodeticLatitude Latitude at which output is to be computed [rad].
      * \param time Time at which output is to be computed (seconds since J2000).
      */
-    void computeProperties( const double altitude, const double longitude, const double latitude, const double time );
+    void computeProperties( const double altitude, const double longitude, const double geodeticLatitude, const double time );
 
     //! Input data to NRLMSISE00 atmosphere model
     NRLMSISE00Input inputData_;
 
-    std::shared_ptr< input_output::solar_activity::SolarActivityContainer > solarActivityContainer_;
+    input_output::solar_activity::SolarActivityContainer solarActivityContainer_;
+
+    //! Use the ideal gas law for the computation of the pressure.
+    bool useIdealGasLaw_;
+
+    bool useAnomalousOxygen_;
 
     std::map< AtmosphericCompositionSpecies, int > speciesIndices = { { he_species, 0 }, { o_species, 1 },          { n2_species, 2 },
                                                                       { o2_species, 3 }, { ar_species, 4 },         { h_species, 5 },
