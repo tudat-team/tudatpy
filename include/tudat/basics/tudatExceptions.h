@@ -13,7 +13,6 @@
 
 #include <iostream>
 #include <string>
-#include <boost/lexical_cast.hpp>
 
 namespace tudat
 {
@@ -49,9 +48,9 @@ public:
     /// @param upperBound Value of the upper bound of the interpolation data.
     InterpolationOutOfBoundsError( const T requestedValue, const T lowerBound, const T upperBound ):
         exceptions::TudatError( "Error in interpolator, requesting data point outside of boundaries, requested data at " +
-                                boost::lexical_cast< std::string >( requestedValue ) + " but limit values are " +
-                                boost::lexical_cast< std::string >( lowerBound ) + " and " +
-                                boost::lexical_cast< std::string >( upperBound ) ),
+                                std::to_string( static_cast< double >( requestedValue ) ) + " but limit values are " +
+                                std::to_string( static_cast< double >( lowerBound ) ) + " and " +
+                                std::to_string( static_cast< double >( upperBound ) ) ),
         requestedValue( requestedValue ), lowerBound( lowerBound ), upperBound( upperBound )
     { }
     /// @brief Constructor for multi-dimensional interpolation out of bounds error.
@@ -61,10 +60,9 @@ public:
     /// @param requestDimension Dimension in which the requested data is out of bounds.
     InterpolationOutOfBoundsError( const T requestedValue, const T lowerBound, const T upperBound, const unsigned int requestDimension ):
         exceptions::TudatError( "Error in interpolator, requesting data point outside of boundaries, requested data of dimension " +
-                                boost::lexical_cast< std::string >( requestDimension ) + " at " +
-                                boost::lexical_cast< std::string >( requestedValue ) + " but limit values are " +
-                                boost::lexical_cast< std::string >( lowerBound ) + " and " +
-                                boost::lexical_cast< std::string >( upperBound ) ),
+                                std::to_string( requestDimension ) + " at " + std::to_string( static_cast< double >( requestedValue ) ) +
+                                " but limit values are " + std::to_string( static_cast< double >( lowerBound ) ) + " and " +
+                                std::to_string( static_cast< double >( upperBound ) ) ),
         requestedValue( requestedValue ), lowerBound( lowerBound ), upperBound( upperBound )
     { }
 
