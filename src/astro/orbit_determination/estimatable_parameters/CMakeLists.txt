@@ -46,6 +46,7 @@ set(estimatable_parameters_HEADERS
   "freeCoreNutationRate.h"
   "specularDiffuseReflectivity.h"
   "polynomialClockCorrections.h"
+  "iauRotationModelParameters.h"
 )
 
 

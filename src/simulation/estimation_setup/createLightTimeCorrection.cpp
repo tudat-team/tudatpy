@@ -8,6 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
+#include "tudat/io/readViennaMappingFunctionData.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"
 #include "tudat/astro/observation_models/corrections/firstOrderRelativisticCorrection.h"
@@ -38,13 +39,6 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
 
     LinkEndId transmitter = linkEnds.at( transmittingLinkEndType );
     LinkEndId receiver = linkEnds.at( receivingLinkEndType );
-
-    if( observableType == two_way_doppler && requiresMultiLegIterations( correctionSettings->getCorrectionType( ) ) )
-    {
-        throw std::runtime_error( "Error when creating 2-way Doppler light time corrections: selected correction (" +
-                                  getLightTimeCorrectionName( correctionSettings->getCorrectionType( ) ) +
-                                  ") requires multi-leg light iterations, which aren't implemented for 2-way Doppler." );
-    }
 
     // Identify type of light time correction to be created.
     switch( correctionSettings->getCorrectionType( ) )
@@ -91,7 +85,9 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                         perturbingBodies,
                         transmitter.bodyName_,
                         receiver.bodyName_,
-                        std::bind( &relativity::PPNParameterSet::getParameterGamma, relativity::ppnParameterSet ) );
+                        std::bind( &relativity::PPNParameterSet::getParameterGamma, relativity::ppnParameterSet ),
+                        std::dynamic_pointer_cast< FirstOrderRelativisticLightTimeCorrectionSettings >( correctionSettings )
+                                ->getBendingFlag( ) );
             }
             else
             {
@@ -203,7 +199,7 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
             if( !isRadiometricObservableType( observableType ) )
             {
                 throw std::runtime_error(
-                        "Error when creating tabulated tropospheric correction: selected observable type is not radiometric." );
+                        "Error when creating saastamoinen tropospheric correction: selected observable type is not radiometric." );
             }
 
             // If one of the link ends is the body with the atmosphere then create the tropospheric correction
@@ -247,13 +243,13 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                 }
                 else if( troposphericCorrectionSettings->getWaterVaporPartialPressureModelType( ) == bean_and_dutton )
                 {
-                    waterVaporPartialPressureFunction =
-                            getBeanAndDuttonWaterVaporPartialPressureFunction( bodies.getBody( groundStation.bodyName_ )
-                                                                                       ->getGroundStation( groundStation.stationName_ )
-                                                                                       ->getRelativeHumidityFunction( ),
-                                                                               bodies.getBody( groundStation.bodyName_ )
-                                                                                       ->getGroundStation( groundStation.stationName_ )
-                                                                                       ->getTemperatureFunction( ) );
+                    waterVaporPartialPressureFunction = ground_stations::getBeanAndDuttonWaterVaporPartialPressureFunction(
+                            bodies.getBody( groundStation.bodyName_ )
+                                    ->getGroundStation( groundStation.stationName_ )
+                                    ->getRelativeHumidityFunction( ),
+                            bodies.getBody( groundStation.bodyName_ )
+                                    ->getGroundStation( groundStation.stationName_ )
+                                    ->getTemperatureFunction( ) );
                 }
                 else
                 {
@@ -496,7 +492,6 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
             lightTimeCorrection = std::make_shared< InversePowerSeriesSolarCoronaCorrection >(
                     observableType,
                     sunStateFunction,
-                    createLinkFrequencyFunction( bodies, linkEnds, transmittingLinkEndType, receivingLinkEndType ),
                     coronaCorrectionSettings->getCoefficients( ),
                     coronaCorrectionSettings->getPositiveExponents( ),
                     coronaCorrectionSettings->getCriticalPlasmaDensityDelayCoefficient( ),
@@ -576,6 +571,55 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
     }
 
     return troposphericMappingModel;
+}
+
+void setVmfTroposphereCorrections( const std::vector< std::string >& dataFiles,
+                                   const bool fileHasMeteo,
+                                   const bool fileHasGradient,
+                                   const simulation_setup::SystemOfBodies& bodies,
+                                   const bool setTropospherData,
+                                   const bool setMeteoData,
+                                   const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+{
+    std::map< std::string, input_output::VMFData > vmfData;
+    input_output::readVMFFiles( dataFiles, vmfData, fileHasMeteo, fileHasGradient );
+
+    for( auto it: vmfData )
+    {
+        std::string currentStationName = it.first;
+        if( bodies.at( "Earth" )->getGroundStationMap( ).count( currentStationName ) > 0 )
+        {
+            std::shared_ptr< ground_stations::GroundStation > currentStation =
+                    bodies.at( "Earth" )->getGroundStationMap( ).at( currentStationName );
+
+            std::map< double, Eigen::VectorXd > processedTroposphereData;
+            std::map< double, Eigen::VectorXd > processedMeteoData;
+            it.second.getFullDataSet( processedTroposphereData, processedMeteoData );
+
+            if( setMeteoData )
+            {
+                std::map< ground_stations::MeteoDataEntries, int > vmfMeteoEntries = { { ground_stations::temperature_meteo_data, 1 },
+                                                                                       { ground_stations::pressure_meteo_data, 0 },
+                                                                                       { ground_stations::water_vapor_pressure_meteo_data,
+                                                                                         2 } };
+
+                std::shared_ptr< ground_stations::StationMeteoData > meteoData =
+                        std::make_shared< ground_stations::ContinuousInterpolatedMeteoData >(
+                                interpolators::createOneDimensionalInterpolator( processedMeteoData, interpolatorSettings ),
+                                vmfMeteoEntries );
+
+                currentStation->setMeteoData( meteoData );
+            }
+
+            if( setTropospherData )
+            {
+                currentStation->setTroposphereData( std::make_shared< ground_stations::InterpolatedStationTroposphereData >(
+                        interpolators::createOneDimensionalInterpolator( processedTroposphereData, interpolatorSettings ),
+                        fileHasMeteo,
+                        fileHasGradient ) );
+            }
+        }
+    }
 }
 
 std::function< double( std::vector< FrequencyBands >, double ) > createLinkFrequencyFunction(
