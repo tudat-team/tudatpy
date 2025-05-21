@@ -255,43 +255,6 @@ public:
             totalNumberOfPanels_ += it.second.size( );
             fullPanels_.insert( fullPanels_.end( ), it.second.begin( ), it.second.end( ) );
         }
-        // find neighbours
-        for ( int i = 0; i<totalNumberOfPanels_; i++)
-        {
-            std::vector< int > neighboringSurfaces;
-            for ( int j = 0; j<totalNumberOfPanels_; j++)
-            {
-                if ( i == j )
-                {
-                    continue;
-                }
-                std::vector<Eigen::Vector3d> verticesI, verticesJ;
-                system_models::Triangle3d triangleI = fullPanels_.at( i )->getTriangle3d( );
-                system_models::Triangle3d triangleJ = fullPanels_.at( j )->getTriangle3d( );
-                verticesI = { triangleI.getVertexA( ), triangleI.getVertexB( ), triangleI.getVertexC( )};
-                verticesJ = { triangleJ.getVertexA( ), triangleJ.getVertexB( ), triangleJ.getVertexC( )};
-                int match = 0;
-                for (int n = 0; n<3; n++ )
-                {
-                    for ( int m = 0; m<3; m++ )
-                    {
-                        if ( verticesI[ n ].isApprox(verticesJ[ m ]) )
-                        {
-                            match++;
-                        }
-                    }
-                }
-                if (match==2) 
-                {
-                    neighboringSurfaces.push_back( j );
-                }
-                if ( neighboringSurfaces.size( ) == 3 )
-                {   
-                    fullPanels_.at( i )->setNeighboringSurfaces( neighboringSurfaces );
-                    break; // found all the neighbours, skip to next panel
-                }
-            }
-        }
 
         panelForces_.resize( totalNumberOfPanels_ );
         surfacePanelCosines_.resize( totalNumberOfPanels_ );
@@ -308,6 +271,46 @@ public:
             {   
                 panelGeometryDefined_ = false;
                 break;
+            }
+        }
+        if ( panelGeometryDefined_ )
+        {
+            // find neighbours
+            for ( int i = 0; i<totalNumberOfPanels_; i++)
+            {
+                std::vector< int > neighboringSurfaces;
+                for ( int j = 0; j<totalNumberOfPanels_; j++)
+                {
+                    if ( i == j )
+                    {
+                        continue;
+                    }
+                    std::vector<Eigen::Vector3d> verticesI, verticesJ;
+                    system_models::Triangle3d triangleI = fullPanels_.at( i )->getTriangle3d( );
+                    system_models::Triangle3d triangleJ = fullPanels_.at( j )->getTriangle3d( );
+                    verticesI = { triangleI.getVertexA( ), triangleI.getVertexB( ), triangleI.getVertexC( )};
+                    verticesJ = { triangleJ.getVertexA( ), triangleJ.getVertexB( ), triangleJ.getVertexC( )};
+                    int match = 0;
+                    for (int n = 0; n<3; n++ )
+                    {
+                        for ( int m = 0; m<3; m++ )
+                        {
+                            if ( verticesI[ n ].isApprox(verticesJ[ m ]) )
+                            {
+                                match++;
+                            }
+                        }
+                    }
+                    if (match==2) 
+                    {
+                        neighboringSurfaces.push_back( j );
+                    }
+                    if ( neighboringSurfaces.size( ) == 3 )
+                    {   
+                        fullPanels_.at( i )->setNeighboringSurfaces( neighboringSurfaces );
+                        break; // found all the neighbours, skip to next panel
+                    }
+                }
             }
         }
         // create panelTypeIdList for dependent variable save
@@ -449,6 +452,10 @@ public:
         return allRotatedPanels_;
     }
 
+    std::map< std::string, std::shared_ptr< system_models::SelfShadowing > > getSelfShadowingPerSources( ) const
+    {
+        return selfShadowingPerSource_;
+    }
 
 private:
     void updateMembers_( double currentTime ) override;

@@ -528,11 +528,20 @@ void SelfShadowing::updateIlluminatedPanelFractions( const Eigen::Vector3d& inco
                                     continue;
                                 }
                                 // found match, start edge PIP
-                                t = lambdas[ ii ] / ( lambdas[ ii ] - lambdas[ jj ] );
-                                lZero = coordinatesL[ ii ] + ( coordinatesL[ jj ] - coordinatesL[ ii ] )*t;
-                                mZero = coordinatesM[ ii ] + ( coordinatesM[ jj ] - coordinatesM[ ii ] )*t;
-                                startEdgeShadowing = { coordinatesL[ ii ], coordinatesM[ ii ] };
-                                endEdgeShadowing = { lZero, mZero };
+                                if ( !areLambdasActuallyPositive[ jj ] )
+                                {
+                                    t = lambdas[ ii ] / ( lambdas[ ii ] - lambdas[ jj ] );
+                                    lZero = coordinatesL[ ii ] + ( coordinatesL[ jj ] - coordinatesL[ ii ] )*t;
+                                    mZero = coordinatesM[ ii ] + ( coordinatesM[ jj ] - coordinatesM[ ii ] )*t;
+                                    startEdgeShadowing = { coordinatesL[ ii ], coordinatesM[ ii ] };
+                                    endEdgeShadowing = { lZero, mZero };
+                                }
+                                else
+                                {
+                                    startEdgeShadowing = { coordinatesL[ ii ], coordinatesM[ ii ] };
+                                    endEdgeShadowing = { coordinatesL[ jj ], coordinatesM[ jj ] };
+                                }
+                                
                                 for ( int k = 0; k<3; k++)
                                 {
                                     foundPoint = doEdgesIntersect(startEdgeShadowing, endEdgeShadowing, edgesShadowed[k], edgesShadowed[k+1]);
