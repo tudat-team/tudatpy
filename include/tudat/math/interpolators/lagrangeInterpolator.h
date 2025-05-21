@@ -254,22 +254,18 @@ public:
 
         // Check if requested interval is inside region in which centered lagrange interpolation
         // can be used.
-        auto lowerReliableIntervalIndex = offsetEntries_;
-        auto upperReliableIntervalIndex = numberOfIndependentValues_ - offsetEntries_ - 1;
+        int lowerReliableIntervalIndex = offsetEntries_;
+        int upperReliableIntervalIndex = numberOfIndependentValues_ - offsetEntries_ - 1;
 
         if( lowerEntry < lowerReliableIntervalIndex )
         {
-            interpolatedValue = performLagrangeBoundaryInterpolation( beginInterpolator_,
-                                                                      targetIndependentVariableValue,
-                                                                      independentValues_[ lowerReliableIntervalIndex ],
-                                                                      independentValues_[ upperReliableIntervalIndex ] );
+            interpolatedValue = performLagrangeBoundaryInterpolation(
+                    beginInterpolator_, targetIndependentVariableValue, lowerReliableIntervalIndex, upperReliableIntervalIndex );
         }
         else if( lowerEntry >= upperReliableIntervalIndex )
         {
-            interpolatedValue = performLagrangeBoundaryInterpolation( endInterpolator_,
-                                                                      targetIndependentVariableValue,
-                                                                      independentValues_[ lowerReliableIntervalIndex ],
-                                                                      independentValues_[ upperReliableIntervalIndex ] );
+            interpolatedValue = performLagrangeBoundaryInterpolation(
+                    endInterpolator_, targetIndependentVariableValue, lowerReliableIntervalIndex, upperReliableIntervalIndex );
         }
         else
         {
@@ -342,10 +338,14 @@ private:
     DependentVariableType performLagrangeBoundaryInterpolation(
             const std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > > boundaryInterpolator,
             const IndependentVariableType& targetIndependentVariableValue,
-            const IndependentVariableType& lowerBoundReliableInterval,
-            const IndependentVariableType& upperBoundReliableInterval )
+            const int lowerReliableIntervalIndex,
+            const int upperReliableIntervalIndex )
     {
         DependentVariableType interpolatedValue;
+
+        IndependentVariableType lowerBoundReliableInterval = independentValues_[ lowerReliableIntervalIndex ];
+        IndependentVariableType upperBoundReliableInterval = independentValues_[ upperReliableIntervalIndex ];
+
         switch( lagrangeBoundaryHandling_ )
         {
             case lagrange_cubic_spline_boundary_interpolation_with_warning:

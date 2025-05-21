@@ -269,7 +269,6 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_boundary )
 
     // Test whether an error is thrown if lagrange_no_boundary_interpolation is
     // selected an interpolation at the boundaries is requested.
-    bool runtimeErrorOccurred;
     {
         // Test interpolators with various number of stages
         for( unsigned int stages = 4; stages < 11; stages += 2 )
@@ -301,18 +300,24 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_boundary )
 
                 for( unsigned int j = 0; j < 3; j++ )
                 {
+                    double currentTestIndependentVariable =
+                            independentVariableVector.at( i ) + static_cast< double >( j ) * currentStepSize;
+                    // Test that the expected exception is thrown for value below minimum value
+                    BOOST_CHECK_THROW( lagrangeInterpolator.interpolate( currentTestIndependentVariable ),
+                                       tudat::exceptions::LagrangeInterpolationOutOfBoundsError< double > );
                     try
                     {
-                        double currentTestIndependentVariable =
-                                independentVariableVector.at( i ) + static_cast< double >( j ) * currentStepSize;
                         lagrangeInterpolator.interpolate( currentTestIndependentVariable );
                     }
-                    catch( tudat::exceptions::LagrangeInterpolationOutOfBoundsError< double > const& )
+                    catch( tudat::exceptions::LagrangeInterpolationOutOfBoundsError< double > const& e )
                     {
-                        runtimeErrorOccurred = 1;
+                        int lowerReliableIndex = stages / 2 - 1;
+                        int upperReliableIndex = independentVariableVectorSize - lowerReliableIndex - 1;
+                        // Check that the exception instance has the expected values
+                        BOOST_CHECK_CLOSE_FRACTION( e.requestedValue, currentTestIndependentVariable, 1.0E-15 );
+                        BOOST_CHECK_CLOSE_FRACTION( e.lowerBound, independentVariableVector.at( lowerReliableIndex ), 1.0E-15 );
+                        BOOST_CHECK_CLOSE_FRACTION( e.upperBound, independentVariableVector.at( upperReliableIndex ), 1.0E-15 );
                     }
-                    BOOST_CHECK_EQUAL( runtimeErrorOccurred, 1 );
-                    runtimeErrorOccurred = 0;
                 }
             }
 
@@ -325,18 +330,23 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_boundary )
                         3.0;
                 for( unsigned int j = 0; j < 3; j++ )
                 {
+                    double currentTestIndependentVariable = independentVariableVector.at( independentVariableVectorSize - i - 2 ) +
+                            static_cast< double >( j ) * currentStepSize;
+                    BOOST_CHECK_THROW( lagrangeInterpolator.interpolate( currentTestIndependentVariable ),
+                                       tudat::exceptions::LagrangeInterpolationOutOfBoundsError< double > );
                     try
                     {
-                        double currentTestIndependentVariable = independentVariableVector.at( independentVariableVectorSize - i - 2 ) +
-                                static_cast< double >( j ) * currentStepSize;
                         lagrangeInterpolator.interpolate( currentTestIndependentVariable );
                     }
-                    catch( tudat::exceptions::LagrangeInterpolationOutOfBoundsError< double > const& )
+                    catch( tudat::exceptions::LagrangeInterpolationOutOfBoundsError< double > const& e )
                     {
-                        runtimeErrorOccurred = true;
+                        int lowerReliableIndex = stages / 2 - 1;
+                        int upperReliableIndex = independentVariableVectorSize - lowerReliableIndex - 1;
+                        // Check that the exception instance has the expected values
+                        BOOST_CHECK_CLOSE_FRACTION( e.requestedValue, currentTestIndependentVariable, 1.0E-15 );
+                        BOOST_CHECK_CLOSE_FRACTION( e.lowerBound, independentVariableVector.at( lowerReliableIndex ), 1.0E-15 );
+                        BOOST_CHECK_CLOSE_FRACTION( e.upperBound, independentVariableVector.at( upperReliableIndex ), 1.0E-15 );
                     }
-                    BOOST_CHECK_EQUAL( runtimeErrorOccurred, 1 );
-                    runtimeErrorOccurred = false;
                 }
             }
         }
