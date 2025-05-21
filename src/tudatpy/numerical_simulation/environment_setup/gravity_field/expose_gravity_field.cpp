@@ -619,6 +619,23 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  - The first line should be a series of text blocks (typically numerical data). Two of these blocks (by default the first and second one) should be the gravitational parameter and reference radius, respectively. The text block should be separated by spaces, tabs and/or commas
  - Each subsequent line should contain a set of spherical harmonic coefficients (first ordered in ascending order by degree, then in ascending order by order), where the first, second, third and fourth value of the line should be: degree :math:`l`, order :math:`m`, normalized cosine coefficient :math:`\bar{C}_{lm}`, normalized sine coefficient :math:`\bar{S}_{lm}`. Additional entries (for instance with coefficient uncertainties) are ignored.
 
+ .. warning::
+    
+    The function expects exponents to be indicated by either "e" or "E". If the exponent is indicated by "d" or "D", the exponent will not be parsed and the function will read wrong coefficients! 
+
+ The following example shows the first lines of a file with correct format:
+
+ .. code-block:: text
+
+   0.3986004415E+15 0.6378136300E+07
+    0    0  1.000000000000E+00  0.000000000000E+00  0.00000E+00  0.00000E+00
+    1    0  0.000000000000E+00  0.000000000000E+00  0.00000E+00  0.00000E+00
+    1    1  0.000000000000E+00  0.000000000000E+00  0.00000E+00  0.00000E+00
+    2    0 -4.841693259705E-04  0.000000000000E+00  4.68460E-11  0.00000E+00
+    2    1 -2.189810040712E-10  1.467451636117E-09  7.75160E-12  7.81670E-12
+    2    2  2.439349093502E-06 -1.400284857733E-06  7.80670E-12  7.80760E-12
+    ...
+ 
 
  Parameters
  ----------

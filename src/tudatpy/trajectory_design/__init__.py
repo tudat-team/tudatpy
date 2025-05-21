@@ -1,1 +1,2 @@
-from ..kernel.trajectory_design import transfer_trajectory, shape_based_thrust
+from tudatpy.kernel.trajectory_design import *
+from . import porkchop

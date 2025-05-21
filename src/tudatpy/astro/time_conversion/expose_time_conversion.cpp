@@ -216,6 +216,13 @@ void expose_time_conversion( py::module& m )
                   py::arg( "hour" ) = 12,
                   py::arg( "minute" ) = 0,
                   py::arg( "seconds" ) = 0.0L )
+            .def( "__str__", []( tba::DateTime& datetime ) { return datetime.isoString( ); } )
+            .def( "__repr__",
+                  []( const tba::DateTime& datetime ) {
+                      return "DateTime(" + std::to_string( datetime.getYear( ) ) + ", " + std::to_string( datetime.getMonth( ) ) + ", " +
+                              std::to_string( datetime.getDay( ) ) + ", " + std::to_string( datetime.getHour( ) ) + ", " +
+                              std::to_string( datetime.getMinute( ) ) + ", " + std::to_string( datetime.getSeconds( ) ) + ")";
+                  } )
             .def_property( "year", &tba::DateTime::getYear, &tba::DateTime::setYear, R"doc(
 
  Calendar year
