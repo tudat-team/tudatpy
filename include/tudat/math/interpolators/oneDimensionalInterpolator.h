@@ -23,6 +23,7 @@
 #include "tudat/math/interpolators/interpolator.h"
 
 #include "tudat/basics/identityElements.h"
+#include "tudat/basics/tudatExceptions.h"
 
 namespace tudat
 {
@@ -239,13 +240,8 @@ protected:
                 switch( boundaryHandling_ )
                 {
                     case throw_exception_at_boundary: {
-                        // Throw exception
-                        std::string errorMessage =
-                                "Error in interpolator, requesting data point outside of boundaries, requested data at " +
-                                boost::lexical_cast< std::string >( targetIndependentVariable ) + " but limit values are " +
-                                boost::lexical_cast< std::string >( independentValues_.front( ) ) + " and " +
-                                boost::lexical_cast< std::string >( independentValues_.back( ) );
-                        throw std::runtime_error( errorMessage );
+                        throw tudat::exceptions::InterpolationOutOfBoundsError< IndependentVariableType >(
+                                targetIndependentVariable, independentValues_.front( ), independentValues_.back( ) );
                         break;
                     }
                     case extrapolate_at_boundary_with_warning: {
