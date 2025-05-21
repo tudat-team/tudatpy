@@ -291,15 +291,14 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
     for ( unsigned int librationIndex = 0; librationIndex < librationFrequencies.size( ); librationIndex++ )
     {
         std::pair<double, double> signature = librationTerms.at( librationFrequencies.at( librationIndex ));
-        double currentLibrationTerm = std::sin( signature.first * ephemerisTime + signature.second );
-        Eigen::AngleAxisd( -currentLibrationTerm, Eigen::Vector3d::UnitZ( )).toRotationMatrix( );
+        double currentLibrationTerm = std::sin( librationFrequencies.at(librationIndex) * ephemerisTime + signature.second );
 
         rotationMatrixPartials.push_back(
-            ( currentLibrationTerm *
-              reference_frames::getDerivativeOfZAxisRotationWrtAngle(
-                  rotationModel->getCurrentMeridianRotationAboutZAxis( )) *
-              rotationModel->getCurrentDeclinationRotationAboutXAxis( ) *
-              rotationModel->getCurrentRightAscensionRotationAboutZAxis( )).transpose( ));
+            ( reference_frames::getDerivativeOfZAxisRotationWrtAngle(
+                    rotationModel->getCurrentMeridianRotationAboutZAxis( )) *
+                    rotationModel->getCurrentDeclinationRotationAboutXAxis( ) *
+                    rotationModel->getCurrentRightAscensionRotationAboutZAxis( )).transpose( ) * currentLibrationTerm);
+
     }
     return rotationMatrixPartials;
 }
