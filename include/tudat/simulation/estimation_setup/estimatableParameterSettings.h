@@ -1093,6 +1093,19 @@ public:
     std::vector< int > arcIndices_;
 };
 
+class LongitdinalLibrationTermsParameterSettings : public EstimatableParameterSettings
+{
+public:
+    LongitdinalLibrationTermsParameterSettings( const std::string& associatedBody,
+                                                const std::vector< double > librationAngularFrequencies ):
+        EstimatableParameterSettings( associatedBody, rotation_longitudinal_libration_terms ),
+        librationAngularFrequencies_( librationAngularFrequencies )
+    { }
+
+    std::vector< double > librationAngularFrequencies_;
+
+};
+
 inline std::shared_ptr< EstimatableParameterSettings > gravitationalParameter( const std::string bodyName )
 {
     return std::make_shared< EstimatableParameterSettings >( bodyName, gravitational_parameter );
@@ -1560,6 +1573,25 @@ inline std::shared_ptr< EstimatableParameterSettings > customParameterSettings(
         const std::function< void( const Eigen::VectorXd& ) > setParameterFunction )
 {
     return std::make_shared< CustomEstimatableParameterSettings >( customId, parameterSize, getParameterFunction, setParameterFunction );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > iauRotationModelNominalPoleParameterSettings(
+    const std::string& bodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, nominal_rotation_pole_position );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > iauRotationModelPoleRateParameterSettings(
+    const std::string& bodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, rotation_pole_position_rate );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > iauRotationModelLongitudinalLibrationParameterSettings(
+    const std::string& bodyName,
+    const std::vector< double >& librationAngularFrequencies )
+{
+    return std::make_shared< LongitdinalLibrationTermsParameterSettings >( bodyName, librationAngularFrequencies );
 }
 
 }  // namespace estimatable_parameters
