@@ -311,10 +311,12 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_boundary )
                     }
                     catch( tudat::exceptions::LagrangeInterpolationOutOfBoundsError< double > const& e )
                     {
+                        int lowerReliableIndex = stages / 2 - 1;
+                        int upperReliableIndex = independentVariableVectorSize - lowerReliableIndex - 1;
                         // Check that the exception instance has the expected values
                         BOOST_CHECK_CLOSE_FRACTION( e.requestedValue, currentTestIndependentVariable, 1.0E-15 );
-                        // BOOST_CHECK_CLOSE_FRACTION( e.lowerBound, independentVariableValues.at( 0 ), 1.0E-15 );
-                        // BOOST_CHECK_CLOSE_FRACTION( e.upperBound, independentVariableValues.at( inputData.rows( ) - 1 ), 1.0E-15 );
+                        BOOST_CHECK_CLOSE_FRACTION( e.lowerBound, independentVariableVector.at( lowerReliableIndex ), 1.0E-15 );
+                        BOOST_CHECK_CLOSE_FRACTION( e.upperBound, independentVariableVector.at( upperReliableIndex ), 1.0E-15 );
                     }
                 }
             }
@@ -338,8 +340,12 @@ BOOST_AUTO_TEST_CASE( test_lagrange_interpolation_boundary )
                     }
                     catch( tudat::exceptions::LagrangeInterpolationOutOfBoundsError< double > const& e )
                     {
+                        int lowerReliableIndex = stages / 2 - 1;
+                        int upperReliableIndex = independentVariableVectorSize - lowerReliableIndex - 1;
                         // Check that the exception instance has the expected values
                         BOOST_CHECK_CLOSE_FRACTION( e.requestedValue, currentTestIndependentVariable, 1.0E-15 );
+                        BOOST_CHECK_CLOSE_FRACTION( e.lowerBound, independentVariableVector.at( lowerReliableIndex ), 1.0E-15 );
+                        BOOST_CHECK_CLOSE_FRACTION( e.upperBound, independentVariableVector.at( upperReliableIndex ), 1.0E-15 );
                     }
                 }
             }
