@@ -106,7 +106,7 @@ void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing( double
     Eigen::Vector3d currentPanelForce = Eigen::Vector3d::Zero( );
     Eigen::Vector3d currentPanelTorque = Eigen::Vector3d::Zero( );
 
-    if ( selfShadowingPerSource_.at( sourceName )->getMaximumNumberOfPixels( ) == 0 )
+    if ( selfShadowingPerSource_.count( sourceName ) == 0 || selfShadowingPerSource_.at( sourceName )->getMaximumNumberOfPixels( ) == 0 )
     {   
         // SSH off
         illuminatedPanelFractions_ = std::vector< double >( totalNumberOfPanels_, 1.0);
