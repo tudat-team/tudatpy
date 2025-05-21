@@ -33,6 +33,7 @@
 #include "tudat/math/integrators/rungeKuttaCoefficients.h"
 #include "tudat/basics/testMacros.h"
 #include "tudat/math/integrators/numericalIntegratorTestFunctions.h"
+#include "tudat/basics/tudatExceptions.h"
 
 #include <limits>
 #include <string>
@@ -148,7 +149,8 @@ BOOST_AUTO_TEST_CASE( testMinimumStepSizeRuntimeError )
     // Case 1: test that minimum step size is exceeded when using integrateTo().
     {
         // Declare boolean flag to test if minimum step size is exceed for integrateTo().
-        bool isMinimumStepSizeExceededForIntegrateTo = false;
+
+        BOOST_CHECK_THROW( integrator.integrateTo( 10.0, 0.1 ), tudat::exceptions::MinimumStepSizeViolatedError< double > );
 
         // Try integrateTo(), which should result in a runtime error.
         try
@@ -158,21 +160,22 @@ BOOST_AUTO_TEST_CASE( testMinimumStepSizeRuntimeError )
         }
 
         // Catch the expected runtime error, and set the boolean flag to true.
-        catch( std::runtime_error const& )
+        catch( tudat::exceptions::MinimumStepSizeViolatedError< double > const& e )
         {
-            isMinimumStepSizeExceededForIntegrateTo = true;
+            // The state derivative is zero, such that recommended step size
+            // will be much larger than the initial step size in the integrateTo() function
+            // of 0.1. As the default maximumFactorIncreaseForNextStepSize is set to 4.0,
+            // the recommended step size is 0.4.
+            BOOST_CHECK_CLOSE_FRACTION( e.recommendedStepSize, 0.4, 1.0E-15 );
+            BOOST_CHECK_CLOSE_FRACTION( e.minimumStepSize, 100.0, 1.0E-15 );
         }
 
         // Check that the minimum step size was indeed exceeded.
-        BOOST_CHECK( isMinimumStepSizeExceededForIntegrateTo );
     }
 
     // Case 2: test that minimum step size is exceeded when using performIntegrationStep().
     {
-        // Declare boolean flag to test if minimum step size is exceed for
-        // performIntegrationStep().
-        bool isMinimumStepSizeExceededForPerformIntegrationStep = false;
-
+        BOOST_CHECK_THROW( integrator.performIntegrationStep( 0.1 ), tudat::exceptions::MinimumStepSizeViolatedError< double > );
         // Try performIntegrationStep(), which should result in a runtime error.
         try
         {
@@ -180,14 +183,16 @@ BOOST_AUTO_TEST_CASE( testMinimumStepSizeRuntimeError )
             integrator.performIntegrationStep( 0.1 );
         }
 
-        // Catch the expected runtime error, and set the boolean flag to true.
-        catch( std::runtime_error const& )
+        // Catch the expected runtime error, and check if the exception attributes are set.
+        catch( tudat::exceptions::MinimumStepSizeViolatedError< double > const& e )
         {
-            isMinimumStepSizeExceededForPerformIntegrationStep = true;
+            // The state derivative is zero, such that recommended step size
+            // will be much larger than the initial step size in the performIntegrationStep() function
+            // of 0.1. As the default maximumFactorIncreaseForNextStepSize is set to 4.0,
+            // the recommended step size is 0.4.
+            BOOST_CHECK_CLOSE_FRACTION( e.recommendedStepSize, 0.4, 1.0E-15 );
+            BOOST_CHECK_CLOSE_FRACTION( e.minimumStepSize, 100.0, 1.0E-15 );
         }
-
-        // Check that the minimum step size was indeed exceeded.
-        BOOST_CHECK( isMinimumStepSizeExceededForPerformIntegrationStep );
     }
 }
 

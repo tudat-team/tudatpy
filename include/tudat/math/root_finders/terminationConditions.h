@@ -21,6 +21,8 @@
 #include <memory>
 #include <vector>
 
+#include "tudat/basics/tudatExceptions.h"
+
 namespace tudat
 {
 namespace root_finders
@@ -49,16 +51,17 @@ inline bool checkMaximumIterationsExceeded( const unsigned int numberOfIteration
     // If exceeded, and flag is set to throw run-time exception, proceed.
     if( isMaximumIterationsExceeded )
     {
-        static std::string errorMessage = "Root-finder did not converge within maximum number of iterations!";
         switch( maximumIterationHandling )
         {
             case accept_result:
                 break;
             case accept_result_with_warning:
-                std::cerr << errorMessage << std::endl;
+                std::cerr << "Root-finder did not converge within maximum number of iterations! " + std::to_string( numberOfIterations ) +
+                                " iterations completed, maximum number of iterations is " + std::to_string( maximumNumberOfIterations )
+                          << std::endl;
                 break;
             case throw_exception:
-                throw std::runtime_error( errorMessage );
+                throw tudat::exceptions::MaximumIterationsExceededError( numberOfIterations, maximumNumberOfIterations );
                 break;
         }
     }
