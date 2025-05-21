@@ -172,26 +172,36 @@ BOOST_AUTO_TEST_CASE( test_linearInterpolation_boundary_case )
 
         if( static_cast< BoundaryInterpolationType >( i ) == throw_exception_at_boundary )
         {
+            // Test that the expected exception is thrown for value below minimum value
+            BOOST_CHECK_THROW( linearInterpolator.interpolate( valueBelowMinimumValue ),
+                               tudat::exceptions::InterpolationOutOfBoundsError< double > );
             try
             {
                 linearInterpolator.interpolate( valueBelowMinimumValue );
             }
-            catch( tudat::exceptions::InterpolationOutOfBoundsError< double > const& )
+            catch( tudat::exceptions::InterpolationOutOfBoundsError< double > const& e )
             {
-                exceptionIsCaught = true;
+                // Check that the exception instance has the expected values
+                BOOST_CHECK_CLOSE_FRACTION( e.requestedValue, valueBelowMinimumValue, 1.0E-15 );
+                BOOST_CHECK_CLOSE_FRACTION( e.lowerBound, independentVariableValues.at( 0 ), 1.0E-15 );
+                BOOST_CHECK_CLOSE_FRACTION( e.upperBound, independentVariableValues.at( inputData.rows( ) - 1 ), 1.0E-15 );
             }
-            BOOST_CHECK_EQUAL( exceptionIsCaught, true );
 
-            exceptionIsCaught = false;
+            // Test that the expected exception is thrown for value above maximum value
+            BOOST_CHECK_THROW( linearInterpolator.interpolate( valueAboveMaximumValue ),
+                               tudat::exceptions::InterpolationOutOfBoundsError< double > );
+
             try
             {
                 linearInterpolator.interpolate( valueAboveMaximumValue );
             }
-            catch( tudat::exceptions::InterpolationOutOfBoundsError< double > const& )
+            catch( tudat::exceptions::InterpolationOutOfBoundsError< double > const& e )
             {
-                exceptionIsCaught = true;
+                // Check that the exception instance has the expected values
+                BOOST_CHECK_CLOSE_FRACTION( e.requestedValue, valueAboveMaximumValue, 1.0E-15 );
+                BOOST_CHECK_CLOSE_FRACTION( e.lowerBound, independentVariableValues.at( 0 ), 1.0E-15 );
+                BOOST_CHECK_CLOSE_FRACTION( e.upperBound, independentVariableValues.at( inputData.rows( ) - 1 ), 1.0E-15 );
             }
-            BOOST_CHECK_EQUAL( exceptionIsCaught, true );
         }
         else if( ( static_cast< BoundaryInterpolationType >( i ) == use_boundary_value ) ||
                  ( static_cast< BoundaryInterpolationType >( i ) == use_boundary_value_with_warning ) )
