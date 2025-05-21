@@ -544,14 +544,14 @@ BOOST_AUTO_TEST_CASE( testIauRotationPartials )
                               << matrixDifference << std::endl
                               << std::endl;
 
-//                    // Compare analytical and numerical result.
-//                    for ( unsigned int i = 0; i < 3; i++ )
-//                    {
-//                        for ( unsigned int j = 0; j < 3; j++ )
-//                        {
-//                            BOOST_CHECK_SMALL( std::fabs( matrixDifference( i, j )), 0.1 );
-//                        }
-//                    }
+                    // Compare analytical and numerical result.
+                    for ( unsigned int i = 0; i < 3; i++ )
+                    {
+                        for ( unsigned int j = 0; j < 3; j++ )
+                        {
+                            BOOST_CHECK_SMALL( std::fabs( matrixDifference( i, j )), 1.0E-5 );
+                        }
+                    }
                 }
             }
       }
