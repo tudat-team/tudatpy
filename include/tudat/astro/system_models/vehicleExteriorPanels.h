@@ -38,7 +38,7 @@ public:
                           const std::shared_ptr< electromagnetism::ReflectionLaw > reflectionLaw = nullptr ):
         frameFixedSurfaceNormal_( [ = ]( ) { return frameFixedSurfaceNormal; } ),
         frameFixedPositionVector_( [ = ]( ) { return frameFixedPositionVector; } ), panelArea_( panelArea ),
-        panelTemperature_( panelTemperature ), trackedBody_( "" ), reflectionLaw_( reflectionLaw ), geometryDefined_( false )
+        panelTemperature_( panelTemperature ), trackedBody_( "" ), reflectionLaw_( reflectionLaw ), frameOrigin_( Eigen::Vector3d::Zero( ) ), geometryDefined_( false )
     { }
 
     VehicleExteriorPanel( const Eigen::Vector3d& frameFixedSurfaceNormal,
@@ -49,7 +49,7 @@ public:
                           const std::shared_ptr< electromagnetism::ReflectionLaw > reflectionLaw = nullptr ):
         frameFixedSurfaceNormal_( [ = ]( ) { return frameFixedSurfaceNormal; } ),
         frameFixedPositionVector_( [ = ]( ) { return frameFixedPositionVector; } ), panelArea_( panelArea ),
-        panelTemperature_( panelTemperature ), trackedBody_( trackedBody ), reflectionLaw_( reflectionLaw ), geometryDefined_( false )
+        panelTemperature_( panelTemperature ), trackedBody_( trackedBody ), reflectionLaw_( reflectionLaw ), frameOrigin_( Eigen::Vector3d::Zero( ) ), geometryDefined_( false )
     { }
 
     VehicleExteriorPanel( const std::function< Eigen::Vector3d( ) > frameFixedSurfaceNormal,
@@ -59,7 +59,7 @@ public:
                           const std::string trackedBody = "",
                           const std::shared_ptr< electromagnetism::ReflectionLaw > reflectionLaw = nullptr ):
         frameFixedSurfaceNormal_( frameFixedSurfaceNormal ), frameFixedPositionVector_( frameFixedPositionVector ), panelArea_( panelArea ),
-        panelTemperature_( panelTemperature ), trackedBody_( trackedBody ), reflectionLaw_( reflectionLaw ), geometryDefined_( false )
+        panelTemperature_( panelTemperature ), trackedBody_( trackedBody ), reflectionLaw_( reflectionLaw ), frameOrigin_( Eigen::Vector3d::Zero( ) ), geometryDefined_( false )
     { }
 
     VehicleExteriorPanel( const double panelArea,
@@ -67,7 +67,7 @@ public:
                           const std::shared_ptr< electromagnetism::ReflectionLaw > reflectionLaw = nullptr ):
         frameFixedSurfaceNormal_( [ = ]( ) { return frameFixedSurfaceNormal; } ),
         frameFixedPositionVector_( [ = ]( ) { return Eigen::Vector3d::Constant( TUDAT_NAN ); } ), panelArea_( panelArea ),
-        panelTemperature_( TUDAT_NAN ), trackedBody_( "" ), reflectionLaw_( reflectionLaw ), geometryDefined_( false )
+        panelTemperature_( TUDAT_NAN ), trackedBody_( "" ), reflectionLaw_( reflectionLaw ), frameOrigin_( Eigen::Vector3d::Zero( ) ), geometryDefined_( false )
     { }
 
     VehicleExteriorPanel( const Eigen::Vector3d& frameFixedSurfaceNormal,
@@ -77,7 +77,7 @@ public:
                           const Eigen::Vector3d& frameFixedPosition = Eigen::Vector3d::Constant( TUDAT_NAN ) ):
         frameFixedSurfaceNormal_( [ = ]( ) { return frameFixedSurfaceNormal; } ),
         frameFixedPositionVector_( [ = ]( ) { return frameFixedPosition; } ), panelArea_( panelArea ), panelTemperature_( TUDAT_NAN ),
-        trackedBody_( trackedBody ), reflectionLaw_( reflectionLaw ), geometryDefined_( false )
+        trackedBody_( trackedBody ), reflectionLaw_( reflectionLaw ), frameOrigin_( Eigen::Vector3d::Zero( ) ), geometryDefined_( false )
     { }
 
     VehicleExteriorPanel( const std::function< Eigen::Vector3d( ) > frameFixedSurfaceNormal,
@@ -87,7 +87,7 @@ public:
         frameFixedSurfaceNormal_( frameFixedSurfaceNormal ),
         frameFixedPositionVector_( [ = ]( ) { return Eigen::Vector3d::Constant( TUDAT_NAN ); } ),
         panelArea_( panelArea ), trackedBody_( trackedBody ),
-        reflectionLaw_( reflectionLaw ), geometryDefined_( false )
+        reflectionLaw_( reflectionLaw ), frameOrigin_( Eigen::Vector3d::Zero( ) ), geometryDefined_( false )
     { }
 
     VehicleExteriorPanel( const std::function< Eigen::Vector3d( ) > frameFixedSurfaceNormal,
@@ -120,18 +120,21 @@ public:
         const Eigen::Quaterniond& currentOrientation_ )
     {
         frameFixedSurfaceNormal_ = [=] () { return currentOrientation_*panelToBeRotated->getFrameFixedSurfaceNormal( )( ); };
-        frameFixedPositionVector_ = [=] () { return currentOrientation_*panelToBeRotated->getFrameFixedPositionVector( )( ) + 
-            panelToBeRotated->frameOrigin_; };
+        frameFixedPositionVector_ = [=] () { 
+            Eigen::Vector3d frameFixedPositionRotated = currentOrientation_*panelToBeRotated->getFrameFixedPositionVector( )( ) + panelToBeRotated->getFrameOrigin( );
+            return frameFixedPositionRotated; 
+        };
         panelArea_ = panelToBeRotated->getPanelArea( );
         panelTemperature_ = panelToBeRotated->getPanelTemperature( );
         trackedBody_ = panelToBeRotated->getTrackedBody( );
         reflectionLaw_ = panelToBeRotated->getReflectionLaw( );
         Eigen::Vector3d vertexA = currentOrientation_*panelToBeRotated->getTriangle3d( ).getVertexA( ) + 
-            panelToBeRotated->frameOrigin_;
+            panelToBeRotated->getFrameOrigin( );
         Eigen::Vector3d vertexB = currentOrientation_*panelToBeRotated->getTriangle3d( ).getVertexB( ) + 
-            panelToBeRotated->frameOrigin_;
+            panelToBeRotated->getFrameOrigin( );
         Eigen::Vector3d vertexC = currentOrientation_*panelToBeRotated->getTriangle3d( ).getVertexC( ) + 
-            panelToBeRotated->frameOrigin_;
+            panelToBeRotated->getFrameOrigin( );
+        frameOrigin_ = panelToBeRotated->getFrameOrigin( );
         triangle3d_ = Triangle3d( vertexA, vertexB, vertexC );
         selfProjection_ = panelToBeRotated->getSelfProjection( );
         neighboringSurfaces_ = panelToBeRotated->getNeighboringSurfaces( );
@@ -206,6 +209,11 @@ public:
         return selfProjection_;
     }
 
+    Eigen::Vector3d getFrameOrigin( ) const
+    {
+        return frameOrigin_;
+    }
+
 protected:
     std::function< Eigen::Vector3d( ) > frameFixedSurfaceNormal_;
 
@@ -224,11 +232,11 @@ protected:
     // addition for self-shadowing (SSH) algorithm
     Triangle3d triangle3d_;
 
-    Eigen::Vector3d frameOrigin_;
-
     std::vector< int > neighboringSurfaces_;
 
     ParallelProjection selfProjection_;
+
+    Eigen::Vector3d frameOrigin_;
 
     bool geometryDefined_;
 

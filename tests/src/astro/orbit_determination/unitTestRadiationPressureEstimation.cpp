@@ -340,7 +340,7 @@ BOOST_AUTO_TEST_CASE( test_PanelledRadiationPressureEstimation )
             addBodyExteriorPanelledShape( panelSettings, "Vehicle", bodies );
             bodies.at( "Vehicle" )
                     ->setRadiationPressureTargetModels( { createRadiationPressureTargetModel(
-                            std::make_shared< RadiationPressureTargetModelSettings >( paneled_target ), "Vehicle", bodies ) } );
+                            std::make_shared< PaneledRadiationPressureTargetModelSettings >( ), "Vehicle", bodies ) } );
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
