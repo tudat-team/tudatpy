@@ -1103,7 +1103,6 @@ public:
     { }
 
     std::vector< double > librationAngularFrequencies_;
-
 };
 
 inline std::shared_ptr< EstimatableParameterSettings > gravitationalParameter( const std::string bodyName )
@@ -1575,21 +1574,19 @@ inline std::shared_ptr< EstimatableParameterSettings > customParameterSettings(
     return std::make_shared< CustomEstimatableParameterSettings >( customId, parameterSize, getParameterFunction, setParameterFunction );
 }
 
-inline std::shared_ptr< EstimatableParameterSettings > iauRotationModelNominalPoleParameterSettings(
-    const std::string& bodyName )
+inline std::shared_ptr< EstimatableParameterSettings > iauRotationModelNominalPoleParameterSettings( const std::string& bodyName )
 {
     return std::make_shared< EstimatableParameterSettings >( bodyName, nominal_rotation_pole_position );
 }
 
-inline std::shared_ptr< EstimatableParameterSettings > iauRotationModelPoleRateParameterSettings(
-    const std::string& bodyName )
+inline std::shared_ptr< EstimatableParameterSettings > iauRotationModelPoleRateParameterSettings( const std::string& bodyName )
 {
     return std::make_shared< EstimatableParameterSettings >( bodyName, rotation_pole_position_rate );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > iauRotationModelLongitudinalLibrationParameterSettings(
-    const std::string& bodyName,
-    const std::vector< double >& librationAngularFrequencies )
+        const std::string& bodyName,
+        const std::vector< double >& librationAngularFrequencies )
 {
     return std::make_shared< LongitdinalLibrationTermsParameterSettings >( bodyName, librationAngularFrequencies );
 }
