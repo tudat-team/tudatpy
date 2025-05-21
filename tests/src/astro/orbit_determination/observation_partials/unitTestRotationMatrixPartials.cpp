@@ -396,7 +396,6 @@ BOOST_AUTO_TEST_CASE( testIauRotationPartials )
                 iauRotationModel->setNominalPole( perturbedPole );
                 Eigen::Matrix3d downperturbedRotationMatrix = iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( );
                 Eigen::Matrix3d downperturbedRotationMatrixDerivative = iauRotationModel->getDerivativeOfRotationToBaseFrame( testTime );
-                perturbedPole = unperturbedPole;
 
                 Eigen::Matrix3d numericalRotationMatrixPartial =
                         ( upperturbedRotationMatrix - downperturbedRotationMatrix ) / ( 2.0 * perturbation );
@@ -412,6 +411,8 @@ BOOST_AUTO_TEST_CASE( testIauRotationPartials )
                           << std::endl
                           << matrixDifference << std::endl
                           << std::endl;
+
+                iauRotationModel->setNominalPole( unperturbedPole );
 
                 // Compare analytical and numerical result.
                 for( unsigned int i = 0; i < 3; i++ )
@@ -518,6 +519,7 @@ BOOST_AUTO_TEST_CASE( testIauRotationPartials )
                     Eigen::Matrix3d upperturbedRotationMatrixDerivative =
                         iauRotationModel->getDerivativeOfRotationToBaseFrame( testTime );
 
+                    perturbedMeridianPeriodicTerms = unperturbedMeridianPeriodicTerms;
                     perturbedMeridianPeriodicTerms[ librationFrequencies.at( librationIndex ) ].first -= perturbation;
                     iauRotationModel->setMeridianPeriodicTerms( perturbedMeridianPeriodicTerms );
                     Eigen::Matrix3d downperturbedRotationMatrix =
@@ -539,7 +541,7 @@ BOOST_AUTO_TEST_CASE( testIauRotationPartials )
                               << std::endl
                               << rotationMatrixPartials.at( librationIndex ) << std::endl
                               << std::endl
-                              << matrixDifference.cwiseQuotient( rotationMatrixPartials.at( librationIndex ) ) << std::endl
+                              << matrixDifference << std::endl
                               << std::endl;
 
 //                    // Compare analytical and numerical result.
