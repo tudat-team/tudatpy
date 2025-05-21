@@ -40,9 +40,21 @@ void PanelledRadiationPressurePartial::update( const double currentTime )
             Eigen::Matrix3d currentPanelPartialContribution = Eigen::Matrix3d::Zero( );
 
             double currentPanelArea = 0.0, currentPanelEmissivity = 0.0, cosineOfPanelInclination = 0.0;
-
+        
+            std::vector< double > illuminatedPanelFractions;
             std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > allPanels = panelledTargetModel_->getAllRotatedPanels( );
-            std::vector< double > illuminatedPanelFractions = panelledTargetModel_->getIlluminatedPanelFractions( acceleratingBody_ );
+            auto selfShadowingPerSource = panelledTargetModel_->getSelfShadowingPerSources( );
+            if ( selfShadowingPerSource.count( acceleratingBody_ ) == 0 || selfShadowingPerSource.at( acceleratingBody_ )->getMaximumNumberOfPixels( ) == 0 )
+            {   
+                // SSH off
+                illuminatedPanelFractions = std::vector< double >( allPanels.size( ), 1.0);
+            }
+            else
+            {
+                // SSH on
+                selfShadowingPerSource.at( acceleratingBody_ )->updateIlluminatedPanelFractions( -bodyFixedUnitVectorToSource );
+                illuminatedPanelFractions = selfShadowingPerSource.at( acceleratingBody_ )->getIlluminatedPanelFractions( );
+            }
 
             for( int i = 0; i < panelledTargetModel_->getTotalNumberOfPanels( ); i++ )
             {
@@ -58,8 +70,8 @@ void PanelledRadiationPressurePartial::update( const double currentTime )
                         currentCosineAnglePartial_ = currentPanelNormal.transpose( ) * currentSourceUnitVectorPartial_;
 
                         currentPanelArea = allPanels.at( i )->getPanelArea( );
-                        currentPanelReactionVector = allPanels.at( i )->getReflectionLaw( )->evaluateReactionVector( panelledTargetModel_->getSurfaceNormals( ).at( i ),
-                                                                                                                     -bodyFixedUnitVectorToSource );
+                        currentPanelReactionVector = panelledTargetModel_->getPanelForces( acceleratingBody_ ).at( i ) /
+                                ( currentRadiationPressure * currentPanelArea );
 
                         currentPanelPartialContribution +=
                                 allPanels.at( i )
