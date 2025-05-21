@@ -134,18 +134,18 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
 //         const double ephemerisTime );
 
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrtNominalPolePosition(
-    const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
-    const std::vector< double > librationFrequencies,
-    const double ephemerisTime );
+        const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
+        const std::vector< double > librationFrequencies,
+        const double ephemerisTime );
 
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrtPolePositionRate(
         const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
         const double ephemerisTime );
 
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrtLongitudinalLibrationAmplitudes(
-    const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
-    const std::vector< double > librationFrequencies,
-    const double ephemerisTime );
+        const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
+        const std::vector< double > librationFrequencies,
+        const double ephemerisTime );
 
 //! Function to calculate a partial of rotation matrix derivative from a body-fixed to inertial frame w.r.t.
 //! polar motion amplitudes.
@@ -567,9 +567,8 @@ private:
 class RotationMatrixPartialWrtLongitudunalLibrationTermAmplitudes : public RotationMatrixPartial
 {
 public:
-    RotationMatrixPartialWrtLongitudunalLibrationTermAmplitudes(
-        const std::shared_ptr< ephemerides::IauRotationModel > bodyRotationModel,
-        const std::vector< double >& librationAngularFrequencies ):
+    RotationMatrixPartialWrtLongitudunalLibrationTermAmplitudes( const std::shared_ptr< ephemerides::IauRotationModel > bodyRotationModel,
+                                                                 const std::vector< double >& librationAngularFrequencies ):
         RotationMatrixPartial( bodyRotationModel ), bodyRotationModel_( bodyRotationModel ),
         librationAngularFrequencies_( librationAngularFrequencies )
     { }
@@ -579,7 +578,7 @@ public:
     std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter( const double time )
     {
         return calculatePartialOfRotationMatrixFromLocalFrameWrtLongitudinalLibrationAmplitudes(
-            bodyRotationModel_, librationAngularFrequencies_, time );
+                bodyRotationModel_, librationAngularFrequencies_, time );
     }
 
     std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter( const double time )
