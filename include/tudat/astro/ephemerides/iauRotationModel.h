@@ -106,7 +106,6 @@ public:
         meridianPeriodicTerms_ = meridianPeriodicTerms;
     }
 
-
     void setPolePrecession( const Eigen::Vector2d& polePrecession )
     {
         polePrecession_ = polePrecession;
