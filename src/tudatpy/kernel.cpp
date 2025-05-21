@@ -6,6 +6,7 @@
 #include "astro/expose_astro.h"
 #include "constants/expose_constants.h"
 #include "data/expose_data.h"
+#include "exceptions/expose_exceptions.h"
 #include "interface/expose_interface.h"
 #include "math/expose_math.h"
 #include "numerical_simulation/expose_numerical_simulation.h"
@@ -58,6 +59,10 @@ PYBIND11_MODULE( kernel, m )
     tudatpy::numerical_simulation::expose_numerical_simulation_simulator( numerical_simulation );
     tudatpy::numerical_simulation::expose_numerical_simulation_variational( numerical_simulation );
     tudatpy::numerical_simulation::expose_numerical_simulation_estimator( numerical_simulation );
+
+    // exceptions module
+    auto exceptions = m.def_submodule( "exceptions" );
+    tudatpy::exceptions::expose_exceptions( exceptions );
 
     //    // example module
     //    auto example = m.def_submodule("example");
