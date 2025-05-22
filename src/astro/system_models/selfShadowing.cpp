@@ -383,168 +383,175 @@ std::vector< double > computeFractioWithPixelation( const std::vector<std::vecto
 // with many slight modification to take advantage of edge cases or hypotesis during macro-model design (e.g., no intersection of panels, only triangular panels)
 // in depth explanation on the revised algorithm can be found in the MSc thesis "Non-conservative forces modelling for precise orbit determination" (Maistri, 2025)
 void SelfShadowing::updateIlluminatedPanelFractions( const Eigen::Vector3d& incomingDirection )
-{ 
-    int numberOfPanels = allPanels_.size( );
-    // initialize sigma matrix for discrimination logic (-2 dummy value, -1 no-sh, 0 partial sh, 1 full sh)
-    std::vector<std::vector< int >> sigmaMatrix(numberOfPanels, std::vector< int >(numberOfPanels, -2));
-    // first discrimination
-    std::vector< int > firstDiscriminationIndexes;
-    for (int i = 0; i < numberOfPanels; i++) {
-        if ( !firstDiscrimination( allPanels_.at( i ), incomingDirection ) ){
-            firstDiscriminationIndexes.push_back( i );
-            for (int j = 0; j < numberOfPanels; j++) {
-                sigmaMatrix.at( j ).at( i ) = -1; // cannot shadow other plates
-            }
-        }
-    }
-    
-    for ( int i = 0; i < static_cast< int >( firstDiscriminationIndexes.size( ) ); i++ ) {
-        for ( int j = 0; j < numberOfPanels; j++ ) {
-            sigmaMatrix.at( firstDiscriminationIndexes.at( i ) ).at( j ) = 1; // is completely shadowed
-        }
-    }
-    // exclude neighbouring plates
-    for ( int i=0; i<numberOfPanels; i++ ) {
-        for ( int j=0; j<3; j++ ) {
-            int neighbour = allPanels_.at( i )->getNeighboringSurfaces( )[j];
-            if ( sigmaMatrix.at( i ).at( neighbour )==-2 ) 
-            {
-                sigmaMatrix.at( i ).at( neighbour ) = -1;
-            }
-            if ( sigmaMatrix.at( neighbour ).at( i )==-2 ) 
-            {
-                sigmaMatrix.at( neighbour ).at( i ) = -1;
-            }
-        }
-    }
-    // exclude the diagonal (a plate cannot shadow itself)
-    for  (int i = 0; i < numberOfPanels; i++)
+{
+    if( !isComputed_ )
     {
-        if ( sigmaMatrix.at( i ).at( i ) == -2 ) 
-        {
-            sigmaMatrix.at( i ).at( i ) = -1;
-        }
-    }
-    // general discrimination initialization
-    std::vector< std::vector < ParallelProjection > > projections( numberOfPanels, std::vector < ParallelProjection >( numberOfPanels ) );
-    std::vector< bool > shadowingInShadowed, shadowedInShadowing;
-    // discrimination subcase initialization
-    std::vector< bool > areLambdasActuallyPositive;
-    std::vector< double > lambdas;
-    system_models::Triangle2d triangle2dShadowing;
-    Eigen::Vector2d vertexAShadowing, vertexBShadowing, vertexCShadowing;
-    system_models::Triangle2d triangle2dShadowed;
-    Eigen::Vector2d vertexAShadowed, vertexBShadowed, vertexCShadowed;
-    std::vector< Eigen::Vector2d > edgesShadowed;
-    std::vector< double > coordinatesL, coordinatesM;
-    bool foundPoint;
-    double t, lZero, mZero;
-    Eigen::Vector2d startEdgeShadowing, endEdgeShadowing;
-    const double EPSILON = 1e-12;
-    // exclusion logic algorithm
-    for ( int i = 0; i<numberOfPanels; i++ )
-    {
-        if ( sigmaMatrix.at( i ).at( 0 ) == 1 )
-        {
-            continue; // full shadow detected
-        }
-        // second discrimination
-        for ( int j = 0; j<numberOfPanels; j++ )
-        {
-            if ( sigmaMatrix.at( i ).at( j ) != -2 )
-            {
-                continue;
-            }
-            ParallelProjection projection( allPanels_.at( i )->getTriangle3d( ), allPanels_.at( j )->getTriangle3d( ), incomingDirection );
-            if ( secondDiscrimination( projection ) )
-            {   
-                // testing for those panels that yield p-sh (this case)
-                    // first test: min/max coordinates
-                if ( projection.getMinimumL( ) >= allPanels_.at( i )->getSelfProjection( ).getMaximumL( ) - EPSILON ||
-                     projection.getMaximumL( ) <= allPanels_.at( i )->getSelfProjection( ).getMinimumL( ) + EPSILON || 
-                     projection.getMinimumM( ) >= allPanels_.at( i )->getSelfProjection( ).getMaximumM( ) - EPSILON ||
-                     projection.getMaximumM( ) <= allPanels_.at( i )->getSelfProjection( ).getMinimumM( ) + EPSILON)
-                {
-                    sigmaMatrix.at( i ).at( j ) = -1; // no-sh
+        int numberOfPanels = allPanels_.size( );
+        // initialize sigma matrix for discrimination logic (-2 dummy value, -1 no-sh, 0 partial sh, 1 full sh)
+        std::vector<std::vector< int >> sigmaMatrix(numberOfPanels, std::vector< int >(numberOfPanels, -2));
+        // first discrimination
+        std::vector< int > firstDiscriminationIndexes;
+        for (int i = 0; i < numberOfPanels; i++) {
+            if ( !firstDiscrimination( allPanels_.at( i ), incomingDirection ) ){
+                firstDiscriminationIndexes.push_back( i );
+                for (int j = 0; j < numberOfPanels; j++) {
+                    sigmaMatrix.at( j ).at( i ) = -1; // cannot shadow other plates
                 }
-                else
+            }
+        }
+
+        for ( int i = 0; i < static_cast< int >( firstDiscriminationIndexes.size( ) ); i++ ) {
+            for ( int j = 0; j < numberOfPanels; j++ ) {
+                sigmaMatrix.at( firstDiscriminationIndexes.at( i ) ).at( j ) = 1; // is completely shadowed
+            }
+        }
+        // exclude neighbouring plates
+        for ( int i=0; i<numberOfPanels; i++ ) {
+            for ( int j=0; j<3; j++ ) {
+                int neighbour = allPanels_.at( i )->getNeighboringSurfaces( )[j];
+                if ( sigmaMatrix.at( i ).at( neighbour )==-2 )
                 {
-                    // second test: use PIP algorithms
-                    shadowingInShadowed = isTriangleInTriangle( allPanels_.at( i )->getSelfProjection( ), 
-                                                                projection );
-                    shadowedInShadowing = isTriangleInTriangle( projection, allPanels_.at( i )->getSelfProjection( ) );
-                    if ( std::any_of( shadowingInShadowed.begin( ), shadowingInShadowed.end( ), [](bool x) { return x; }))
+                    sigmaMatrix.at( i ).at( neighbour ) = -1;
+                }
+                if ( sigmaMatrix.at( neighbour ).at( i )==-2 )
+                {
+                    sigmaMatrix.at( neighbour ).at( i ) = -1;
+                }
+            }
+        }
+        // exclude the diagonal (a plate cannot shadow itself)
+        for  (int i = 0; i < numberOfPanels; i++)
+        {
+            if ( sigmaMatrix.at( i ).at( i ) == -2 )
+            {
+                sigmaMatrix.at( i ).at( i ) = -1;
+            }
+        }
+        // general discrimination initialization
+        std::vector< std::vector < ParallelProjection > > projections( numberOfPanels, std::vector < ParallelProjection >( numberOfPanels ) );
+        std::vector< bool > shadowingInShadowed, shadowedInShadowing;
+        // discrimination subcase initialization
+        std::vector< bool > areLambdasActuallyPositive;
+        std::vector< double > lambdas;
+        system_models::Triangle2d triangle2dShadowing;
+        Eigen::Vector2d vertexAShadowing, vertexBShadowing, vertexCShadowing;
+        system_models::Triangle2d triangle2dShadowed;
+        Eigen::Vector2d vertexAShadowed, vertexBShadowed, vertexCShadowed;
+        std::vector< Eigen::Vector2d > edgesShadowed;
+        std::vector< double > coordinatesL, coordinatesM;
+        bool foundPoint;
+        double t, lZero, mZero;
+        Eigen::Vector2d startEdgeShadowing, endEdgeShadowing;
+        const double EPSILON = 1e-12;
+        // exclusion logic algorithm
+        for ( int i = 0; i<numberOfPanels; i++ )
+        {
+            if ( sigmaMatrix.at( i ).at( 0 ) == 1 )
+            {
+                continue; // full shadow detected
+            }
+            // second discrimination
+            for ( int j = 0; j<numberOfPanels; j++ )
+            {
+                if ( sigmaMatrix.at( i ).at( j ) != -2 )
+                {
+                    continue;
+                }
+                ParallelProjection projection( allPanels_.at( i )->getTriangle3d( ), allPanels_.at( j )->getTriangle3d( ), incomingDirection );
+                if ( secondDiscrimination( projection ) )
+                {
+                    // testing for those panels that yield p-sh (this case)
+                        // first test: min/max coordinates
+                    if ( projection.getMinimumL( ) >= allPanels_.at( i )->getSelfProjection( ).getMaximumL( ) - EPSILON ||
+                         projection.getMaximumL( ) <= allPanels_.at( i )->getSelfProjection( ).getMinimumL( ) + EPSILON ||
+                         projection.getMinimumM( ) >= allPanels_.at( i )->getSelfProjection( ).getMaximumM( ) - EPSILON ||
+                         projection.getMaximumM( ) <= allPanels_.at( i )->getSelfProjection( ).getMinimumM( ) + EPSILON)
                     {
-                        // at least one vertix of the shadowing panel falls into the shadowed, partial sh
-                        sigmaMatrix.at( i ).at( j ) = 0; 
-                        projections.at( i ).at( j ) = projection;
-                        if ( sigmaMatrix.at( j ).at( i ) == -2 )
-                        {
-                            sigmaMatrix.at( j ).at( i ) = -1; // the opposite is a case of no-sh
-                        }
+                        sigmaMatrix.at( i ).at( j ) = -1; // no-sh
                     }
-                    if ( std::all_of( shadowedInShadowing.begin( ), shadowedInShadowing.end( ), [](bool x) { return x; }))
-                    {   
-                        // all shadowed points are inside the shadowing, full sh
-                        for ( int u=0; u<numberOfPanels; u++ )
+                    else
+                    {
+                        // second test: use PIP algorithms
+                        shadowingInShadowed = isTriangleInTriangle( allPanels_.at( i )->getSelfProjection( ),
+                                                                    projection );
+                        shadowedInShadowing = isTriangleInTriangle( projection, allPanels_.at( i )->getSelfProjection( ) );
+                        if ( std::any_of( shadowingInShadowed.begin( ), shadowingInShadowed.end( ), [](bool x) { return x; }))
                         {
-                            sigmaMatrix.at( i ).at( u ) = 1; 
-                        }
-                        for ( int u=0; u<numberOfPanels; u++ )
-                        {
-                            if ( sigmaMatrix.at( u ).at( i ) == -2 )
+                            // at least one vertix of the shadowing panel falls into the shadowed, partial sh
+                            sigmaMatrix.at( i ).at( j ) = 0;
+                            projections.at( i ).at( j ) = projection;
+                            if ( sigmaMatrix.at( j ).at( i ) == -2 )
                             {
-                                sigmaMatrix.at( u ).at( i ) = -1; 
+                                sigmaMatrix.at( j ).at( i ) = -1; // the opposite is a case of no-sh
                             }
                         }
-                    }
-                    if ( std::none_of( shadowingInShadowed.begin( ), shadowingInShadowed.end( ), [](bool x) { return x; }))
-                    {   
-                        // none of the shadowing vertices falls into the shadowed one
-                        areLambdasActuallyPositive = projection.getAreLambdasActuallyPositive( );
-                        lambdas = projection.getLambdas( );
-                        triangle2dShadowing = projection.getTriangle2d( );
-                        vertexAShadowing = triangle2dShadowing.getVertexA( );
-                        vertexBShadowing = triangle2dShadowing.getVertexB( );
-                        vertexCShadowing = triangle2dShadowing.getVertexC( );
-                        triangle2dShadowed = allPanels_.at( i )->getSelfProjection( ).getTriangle2d( );
-                        vertexAShadowed = triangle2dShadowed.getVertexA( );
-                        vertexBShadowed = triangle2dShadowed.getVertexB( );
-                        vertexCShadowed = triangle2dShadowed.getVertexC( );
-                        edgesShadowed = {vertexAShadowed, vertexBShadowed, vertexCShadowed, vertexAShadowed};
-                        coordinatesL = { vertexAShadowing[ 0 ], vertexBShadowing[ 0 ], vertexCShadowing[ 0 ] };
-                        coordinatesM = { vertexAShadowing[ 1 ], vertexBShadowing[ 1 ], vertexCShadowing[ 1 ] };
-                        foundPoint = false;
-                        for ( int ii = 0; ii<3; ii++ )
+                        if ( std::all_of( shadowedInShadowing.begin( ), shadowedInShadowing.end( ), [](bool x) { return x; }))
                         {
-                            if ( !areLambdasActuallyPositive[ ii ] )
+                            // all shadowed points are inside the shadowing, full sh
+                            for ( int u=0; u<numberOfPanels; u++ )
                             {
-                                continue;
+                                sigmaMatrix.at( i ).at( u ) = 1;
                             }
-                            for ( int jj = 0; jj<3; jj++ )
+                            for ( int u=0; u<numberOfPanels; u++ )
                             {
-                                if ( ii == jj )
+                                if ( sigmaMatrix.at( u ).at( i ) == -2 )
+                                {
+                                    sigmaMatrix.at( u ).at( i ) = -1;
+                                }
+                            }
+                        }
+                        if ( std::none_of( shadowingInShadowed.begin( ), shadowingInShadowed.end( ), [](bool x) { return x; }))
+                        {
+                            // none of the shadowing vertices falls into the shadowed one
+                            areLambdasActuallyPositive = projection.getAreLambdasActuallyPositive( );
+                            lambdas = projection.getLambdas( );
+                            triangle2dShadowing = projection.getTriangle2d( );
+                            vertexAShadowing = triangle2dShadowing.getVertexA( );
+                            vertexBShadowing = triangle2dShadowing.getVertexB( );
+                            vertexCShadowing = triangle2dShadowing.getVertexC( );
+                            triangle2dShadowed = allPanels_.at( i )->getSelfProjection( ).getTriangle2d( );
+                            vertexAShadowed = triangle2dShadowed.getVertexA( );
+                            vertexBShadowed = triangle2dShadowed.getVertexB( );
+                            vertexCShadowed = triangle2dShadowed.getVertexC( );
+                            edgesShadowed = {vertexAShadowed, vertexBShadowed, vertexCShadowed, vertexAShadowed};
+                            coordinatesL = { vertexAShadowing[ 0 ], vertexBShadowing[ 0 ], vertexCShadowing[ 0 ] };
+                            coordinatesM = { vertexAShadowing[ 1 ], vertexBShadowing[ 1 ], vertexCShadowing[ 1 ] };
+                            foundPoint = false;
+                            for ( int ii = 0; ii<3; ii++ )
+                            {
+                                if ( !areLambdasActuallyPositive[ ii ] )
                                 {
                                     continue;
                                 }
-                                // found match, start edge PIP
-                                if ( !areLambdasActuallyPositive[ jj ] )
+                                for ( int jj = 0; jj<3; jj++ )
                                 {
-                                    t = lambdas[ ii ] / ( lambdas[ ii ] - lambdas[ jj ] );
-                                    lZero = coordinatesL[ ii ] + ( coordinatesL[ jj ] - coordinatesL[ ii ] )*t;
-                                    mZero = coordinatesM[ ii ] + ( coordinatesM[ jj ] - coordinatesM[ ii ] )*t;
-                                    startEdgeShadowing = { coordinatesL[ ii ], coordinatesM[ ii ] };
-                                    endEdgeShadowing = { lZero, mZero };
-                                }
-                                else
-                                {
-                                    startEdgeShadowing = { coordinatesL[ ii ], coordinatesM[ ii ] };
-                                    endEdgeShadowing = { coordinatesL[ jj ], coordinatesM[ jj ] };
-                                }
-                                
-                                for ( int k = 0; k<3; k++)
-                                {
-                                    foundPoint = doEdgesIntersect(startEdgeShadowing, endEdgeShadowing, edgesShadowed[k], edgesShadowed[k+1]);
+                                    if ( ii == jj )
+                                    {
+                                        continue;
+                                    }
+                                    // found match, start edge PIP
+                                    if ( !areLambdasActuallyPositive[ jj ] )
+                                    {
+                                        t = lambdas[ ii ] / ( lambdas[ ii ] - lambdas[ jj ] );
+                                        lZero = coordinatesL[ ii ] + ( coordinatesL[ jj ] - coordinatesL[ ii ] )*t;
+                                        mZero = coordinatesM[ ii ] + ( coordinatesM[ jj ] - coordinatesM[ ii ] )*t;
+                                        startEdgeShadowing = { coordinatesL[ ii ], coordinatesM[ ii ] };
+                                        endEdgeShadowing = { lZero, mZero };
+                                    }
+                                    else
+                                    {
+                                        startEdgeShadowing = { coordinatesL[ ii ], coordinatesM[ ii ] };
+                                        endEdgeShadowing = { coordinatesL[ jj ], coordinatesM[ jj ] };
+                                    }
+
+                                    for ( int k = 0; k<3; k++)
+                                    {
+                                        foundPoint = doEdgesIntersect(startEdgeShadowing, endEdgeShadowing, edgesShadowed[k], edgesShadowed[k+1]);
+                                        if ( foundPoint )
+                                        {
+                                            break;
+                                        }
+                                    }
                                     if ( foundPoint )
                                     {
                                         break;
@@ -557,90 +564,87 @@ void SelfShadowing::updateIlluminatedPanelFractions( const Eigen::Vector3d& inco
                             }
                             if ( foundPoint )
                             {
-                                break;
+                                sigmaMatrix.at( i ).at( j ) = 0;
+                                projections.at( i ).at( j ) = projection;
+                                if ( sigmaMatrix.at( j ).at( i ) == -2 )
+                                {
+                                    sigmaMatrix.at( j ).at( i ) = -1; // the opposite is a case of no-sh
+                                }
                             }
-                        }
-                        if ( foundPoint )
-                        {
-                            sigmaMatrix.at( i ).at( j ) = 0; 
-                            projections.at( i ).at( j ) = projection;
-                            if ( sigmaMatrix.at( j ).at( i ) == -2 )
+                            else
                             {
-                                sigmaMatrix.at( j ).at( i ) = -1; // the opposite is a case of no-sh
-                            } 
-                        }
-                        else
-                        {
-                            sigmaMatrix.at( i ).at( j ) = -1; 
+                                sigmaMatrix.at( i ).at( j ) = -1;
+                            }
                         }
                     }
                 }
-            }
-            else
-            {
-                // second discrimination yields no-sh
-                sigmaMatrix.at( i ).at( j ) = -1;
+                else
+                {
+                    // second discrimination yields no-sh
+                    sigmaMatrix.at( i ).at( j ) = -1;
+                }
             }
         }
-    } 
-    // pixelation 
-    std::vector<int> toBePixelated;
-    for ( int i = 0; i<numberOfPanels; i++ ) 
-    {
-        // exclude full shadowed surfaces
-        if ( sigmaMatrix.at( i ).at( 0 ) == 1 ) {
-            continue; 
+        // pixelation
+        std::vector<int> toBePixelated;
+        for ( int i = 0; i<numberOfPanels; i++ )
+        {
+            // exclude full shadowed surfaces
+            if ( sigmaMatrix.at( i ).at( 0 ) == 1 ) {
+                continue;
+            }
+            toBePixelated.push_back( i );
         }
-        toBePixelated.push_back( i );    
-    } 
-    int numberOfPanelsToBePixelated = toBePixelated.size( );
-    std::vector< double > illuminatedPanelFractions( allPanels_.size( ), 0.0 );
-    if ( multiThreading_ ) 
-    {
-        // option to toggle on multi-treading to split surfaces to be pixelated (currently not user-available)
-        int numberOfThreads = std::thread::hardware_concurrency( ) / 2;
-        std::vector< std::thread > threads;
-        std::vector< std::vector< double > > results( numberOfThreads );
-        int chunk = static_cast< int >( std::round( numberOfPanelsToBePixelated / numberOfThreads ) );
-        for (int i = 0; i<numberOfThreads-1; i++) {
-            std::vector<int> indexes( toBePixelated.begin() + i*chunk, toBePixelated.begin() + (i+1)*chunk);
+        int numberOfPanelsToBePixelated = toBePixelated.size( );
+        std::vector< double > illuminatedPanelFractions( allPanels_.size( ), 0.0 );
+        if ( multiThreading_ )
+        {
+            // option to toggle on multi-treading to split surfaces to be pixelated (currently not user-available)
+            int numberOfThreads = std::thread::hardware_concurrency( ) / 2;
+            std::vector< std::thread > threads;
+            std::vector< std::vector< double > > results( numberOfThreads );
+            int chunk = static_cast< int >( std::round( numberOfPanelsToBePixelated / numberOfThreads ) );
+            for (int i = 0; i<numberOfThreads-1; i++) {
+                std::vector<int> indexes( toBePixelated.begin() + i*chunk, toBePixelated.begin() + (i+1)*chunk);
+                threads.emplace_back([&, i, indexes]() {
+                    results[ i ] = computeFractioWithPixelation( sigmaMatrix, allPanels_, maximumNumberOfPixels_, projections,
+                                                        indexes );
+                });
+            }
+            int i = numberOfThreads - 1;
+            std::vector<int> indexes(toBePixelated.begin() + i*chunk, toBePixelated.end());
             threads.emplace_back([&, i, indexes]() {
-                results[ i ] = computeFractioWithPixelation( sigmaMatrix, allPanels_, maximumNumberOfPixels_, projections,
-                                                    indexes );
+                results[numberOfThreads-1] = computeFractioWithPixelation( sigmaMatrix, allPanels_, maximumNumberOfPixels_, projections,
+                    indexes );
             });
-        }
-        int i = numberOfThreads - 1;
-        std::vector<int> indexes(toBePixelated.begin() + i*chunk, toBePixelated.end());
-        threads.emplace_back([&, i, indexes]() {
-            results[numberOfThreads-1] = computeFractioWithPixelation( sigmaMatrix, allPanels_, maximumNumberOfPixels_, projections,
-                indexes );
-        });
-        for (auto& th : threads)
-        {
-            th.join();
-        }
-        // merge results
-        std::vector<double> finalResults;
-        for (const auto& res : results) {
-            finalResults.insert( finalResults.end(), res.begin(), res.end() );
-        }
-        for (int i = 0; i<numberOfPanelsToBePixelated; i++)
-        {
-            illuminatedPanelFractions.at( toBePixelated.at( i ) ) = finalResults.at( i );
-        }
+            for (auto& th : threads)
+            {
+                th.join();
+            }
+            // merge results
+            std::vector<double> finalResults;
+            for (const auto& res : results) {
+                finalResults.insert( finalResults.end(), res.begin(), res.end() );
+            }
+            for (int i = 0; i<numberOfPanelsToBePixelated; i++)
+            {
+                illuminatedPanelFractions.at( toBePixelated.at( i ) ) = finalResults.at( i );
+            }
 
-    }
-    else
-    {
-        // default option for single-threading
-        std::vector<double> finalResults = computeFractioWithPixelation( sigmaMatrix, allPanels_, maximumNumberOfPixels_, projections,
-            toBePixelated );
-        for (int i = 0; i<numberOfPanelsToBePixelated; i++)
-        {
-            illuminatedPanelFractions.at( toBePixelated.at( i ) ) = finalResults.at( i );
         }
-    }      
-    illuminatedPanelFractions_ = illuminatedPanelFractions;  
+        else
+        {
+            // default option for single-threading
+            std::vector<double> finalResults = computeFractioWithPixelation( sigmaMatrix, allPanels_, maximumNumberOfPixels_, projections,
+                toBePixelated );
+            for (int i = 0; i<numberOfPanelsToBePixelated; i++)
+            {
+                illuminatedPanelFractions.at( toBePixelated.at( i ) ) = finalResults.at( i );
+            }
+        }
+        illuminatedPanelFractions_ = illuminatedPanelFractions;
+    }
+    isComputed_ = true;
 }    
 
 }  // namespace system_models

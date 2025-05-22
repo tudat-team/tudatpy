@@ -81,12 +81,14 @@ private:
     int maximumNumberOfPixels_;
     bool multiThreading_;
     std::vector< double > illuminatedPanelFractions_;
+    bool isComputed_;
 
 public:
     SelfShadowing( const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& allPanels,
                    const int maximumNumberOfPixels,
                    const bool multiThreading = false ): 
-                   allPanels_( allPanels ), maximumNumberOfPixels_( maximumNumberOfPixels ), multiThreading_( multiThreading )
+                   allPanels_( allPanels ), maximumNumberOfPixels_( maximumNumberOfPixels ), multiThreading_( multiThreading ),
+                   isComputed_( false )
     { };
 
     void updateIlluminatedPanelFractions( const Eigen::Vector3d& incomingDirection );
@@ -100,6 +102,8 @@ public:
     {
         return maximumNumberOfPixels_;
     }
+
+    void reset( ) { isComputed_ = false; };
 
 };
 

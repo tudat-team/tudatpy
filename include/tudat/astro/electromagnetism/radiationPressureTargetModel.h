@@ -273,6 +273,7 @@ public:
                 break;
             }
         }
+
         if ( panelGeometryDefined_ )
         {
             // find neighbours
@@ -332,14 +333,17 @@ public:
             }
             selfShadowingPerSource_[ it.first ] = std::make_shared< system_models::SelfShadowing >( system_models::SelfShadowing( allRotatedPanels_, it.second ) );
         }
-        // add possible omitted sources, set them to zero
-        for ( auto it : sourceToTargetOccultingBodies_ )
-        {
-            if ( selfShadowingPerSource_.count( it.first ) == 0 )
-            {
-                selfShadowingPerSource_[ it.first ] = std::make_shared< system_models::SelfShadowing >( system_models::SelfShadowing( allRotatedPanels_, 0 ) );
-            }
-        }
+
+        unityIlluminationFraction_ = std::vector< double >( totalNumberOfPanels_, 1.0);
+// These can be omitted entirely (?)
+//        // add possible omitted sources, set them to zero
+//        for ( auto it : sourceToTargetOccultingBodies_ )
+//        {
+//            if ( selfShadowingPerSource_.count( it.first ) == 0 )
+//            {
+//                selfShadowingPerSource_[ it.first ] = std::make_shared< system_models::SelfShadowing >( system_models::SelfShadowing( allRotatedPanels_, 0 ) );
+//            }
+//        }
 
     }
 
@@ -485,6 +489,10 @@ private:
             illuminatedPanelFractions_.at( i ) = 0.0;
         }
         illuminatedPanelFractionsPerSource_[ sourceName ] = illuminatedPanelFractions_;
+        for( auto it : selfShadowingPerSource_ )
+        {
+            it.second->reset( );
+        }
     }
 
     std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > bodyFixedPanels_;
@@ -519,6 +527,7 @@ private:
     std::map< std::string, std::shared_ptr< system_models::SelfShadowing > > selfShadowingPerSource_;
     std::vector< std::string > panelTypeIdList_;
     std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > allRotatedPanels_;
+    std::vector< double > unityIlluminationFraction_;
 };
 
 }  // namespace electromagnetism
