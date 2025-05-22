@@ -109,7 +109,7 @@ void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing( double
     if ( selfShadowingPerSource_.count( sourceName ) == 0 || selfShadowingPerSource_.at( sourceName )->getMaximumNumberOfPixels( ) == 0 )
     {   
         // SSH off
-        illuminatedPanelFractions_ = std::vector< double >( totalNumberOfPanels_, 1.0);
+        illuminatedPanelFractions_ = unityIlluminationFraction_;
     }
     else
     {

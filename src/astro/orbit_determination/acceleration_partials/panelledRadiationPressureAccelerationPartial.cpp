@@ -47,7 +47,7 @@ void PanelledRadiationPressurePartial::update( const double currentTime )
             if ( selfShadowingPerSource.count( acceleratingBody_ ) == 0 || selfShadowingPerSource.at( acceleratingBody_ )->getMaximumNumberOfPixels( ) == 0 )
             {   
                 // SSH off
-                illuminatedPanelFractions = std::vector< double >( allPanels.size( ), 1.0);
+                illuminatedPanelFractions = unityIlluminationFraction_;
             }
             else
             {
