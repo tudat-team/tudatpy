@@ -976,8 +976,8 @@ void expose_radiation_pressure_setup( py::module& m )
 
     m.def( "panelled_radiation_target",
            &tss::paneledRadiationPressureTargetModelSettingsWithOccultationMap,
-           py::arg( "source_to_target_occulting_bodies" ) =
-                   std::map< std::string, std::vector< std::string > >( ),
+           py::arg( "source_to_target_occulting_bodies" ) = std::map< std::string, std::vector< std::string > >( ),
+           py::arg( "maximum_number_of_pixels_per_source" ) = std::map< std::string, int >( ),
            R"doc(
 
  Function for creating settings for a paneled radiation pressure target model
@@ -991,6 +991,8 @@ void expose_radiation_pressure_setup( py::module& m )
  ----------
  source_to_target_occulting_bodies : dict[str, list[str]]
      Dictionary (source name -> list of occulting body names) of bodies to occult sources as seen from this target.
+ maximum_number_of_pixels : Dict[str, int]
+     Maximum number of pixels used in the self-shadowing algorithm per source, omitting a the value or setting it to zero equals to not considering self-shadowing for a given source.
  Returns
  -------
  RadiationPressureTargetModelSettings
