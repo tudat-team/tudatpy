@@ -721,8 +721,8 @@ Eigen::Matrix3d getRotationFromEclipJ2000ToJ2000( )
 
 void toggleErrorReturn( )
 {
-    std::cerr << "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" +
-                    "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
+    std::cerr << "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended."<<std::endl<<
+                    "It has been superseded by SPICE exceptions, which take care of this automatically.<<std::endl<<
                     "See https://github.com/tudat-team/tudat/pull/323 for more information."
               << std::endl;
     erract_c( "SET", 0, "RETURN" );
@@ -730,8 +730,8 @@ void toggleErrorReturn( )
 
 void toggleErrorAbort( )
 {
-    std::cerr << "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" +
-                    "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
+    std::cerr << "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.<<std::endl<<
+                    "It has been superseded by SPICE exceptions, which take care of this automatically.<<std::endl<<
                     "See https://github.com/tudat-team/tudat/pull/323 for more information."
               << std::endl;
     errdev_c( "SET", 0, "ABORT" );
@@ -739,8 +739,8 @@ void toggleErrorAbort( )
 
 void suppressErrorOutput( )
 {
-    std::cerr << "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" +
-                    "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
+    std::cerr << "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.<<std::endl<<
+                    "It has been superseded by SPICE exceptions, which take care of this automatically.<<std::endl<<
                     "See https://github.com/tudat-team/tudat/pull/323 for more information."
               << std::endl;
     errdev_c( "SET", 0, "NULL" );
@@ -748,8 +748,8 @@ void suppressErrorOutput( )
 
 std::string getErrorMessage( )
 {
-    std::cerr << "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" +
-                    "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
+    std::cerr << "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.<<std::endl<<
+                    "It has been superseded by SPICE exceptions, which take care of this automatically.<<std::endl<<
                     "See https://github.com/tudat-team/tudat/pull/323 for more information."
               << std::endl;
     if( failed_c( ) )
@@ -766,8 +766,8 @@ std::string getErrorMessage( )
 
 bool checkFailure( )
 {
-    std::cerr << "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" +
-                    "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
+    std::cerr << "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.<<std::endl<<
+                    "It has been superseded by SPICE exceptions, which take care of this automatically.<<std::endl<<
                     "See https://github.com/tudat-team/tudat/pull/323 for more information."
               << std::endl;
     if( failed_c( ) )
