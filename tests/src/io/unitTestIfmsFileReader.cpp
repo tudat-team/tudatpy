@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE( testIfmsFileReader )
                                                            "2013-12-29T19:02:57.500" };
 
     Eigen::Vector3d stationPosition = getCombinedApproximateGroundStationPositions( ).at( "NWNORCIA" );
-    auto timeConverter = earth_orientation::defaultTimeConverter;
+    auto timeConverter = earth_orientation::createDefaultTimeConverter( );
 
     for( unsigned int i = 0; i < rawIfmsFiles.size( ) + 1; i++ )
     {
