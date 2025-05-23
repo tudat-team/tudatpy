@@ -721,21 +721,37 @@ Eigen::Matrix3d getRotationFromEclipJ2000ToJ2000( )
 
 void toggleErrorReturn( )
 {
+    std::cerr << "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" +
+                    "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
+                    "See https://github.com/tudat-team/tudat/pull/323 for more information."
+              << std::endl;
     erract_c( "SET", 0, "RETURN" );
 }
 
 void toggleErrorAbort( )
 {
+    std::cerr << "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" +
+                    "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
+                    "See https://github.com/tudat-team/tudat/pull/323 for more information."
+              << std::endl;
     errdev_c( "SET", 0, "ABORT" );
 }
 
 void suppressErrorOutput( )
 {
+    std::cerr << "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" +
+                    "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
+                    "See https://github.com/tudat-team/tudat/pull/323 for more information."
+              << std::endl;
     errdev_c( "SET", 0, "NULL" );
 }
 
 std::string getErrorMessage( )
 {
+    std::cerr << "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" +
+                    "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
+                    "See https://github.com/tudat-team/tudat/pull/323 for more information."
+              << std::endl;
     if( failed_c( ) )
     {
         SpiceChar message[ 1841 ];
@@ -750,6 +766,10 @@ std::string getErrorMessage( )
 
 bool checkFailure( )
 {
+    std::cerr << "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" +
+                    "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
+                    "See https://github.com/tudat-team/tudat/pull/323 for more information."
+              << std::endl;
     if( failed_c( ) )
     {
         // reset_c( );
