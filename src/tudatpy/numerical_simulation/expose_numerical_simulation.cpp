@@ -59,7 +59,7 @@ void expose_numerical_simulation( py::module &m )
             .def( py::init< const int, const long double >( ),
                   py::arg( "full_periods" ),
                   py::arg( "seconds_into_full_period" ) )
-            .def( py::init< const double >( ), py::arg( "seconds_into_full_period" ) )
+            .def( py::init< const double >( ), py::arg( "seconds_since_j2000" ) )
             .def( "to_float",
                   &tudat::Time::getSeconds< double >,
                   R"doc(No documentation found.)doc" )
