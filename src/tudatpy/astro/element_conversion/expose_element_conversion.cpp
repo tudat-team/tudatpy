@@ -187,6 +187,48 @@ Enumeration describing different types of position element types (typically used
 
      )doc" );
 
+    m.def( "convert_geographic_to_geodetic_latitude",
+    &tcc::convertGeographicToGeodeticLatitude,
+    py::arg( "geographic_latitude" ),
+    py::arg( "equatorial_radius" ),
+    py::arg( "flattening" ),
+    py::arg( "altitude" ),
+    py::arg( "tolerance" ),
+    py::arg( "maximum_number_of_iterations" ),
+    R"doc(
+
+ Convert geographic latitude to geodetic latitude.
+
+ This function converts a geographic latitude to a geodetic latitude, given the equatorial radius, flattening, altitude, 
+ and a convergence tolerance. The conversion is performed iteratively, with a maximum number of iterations allowed.
+
+ Parameters
+ ----------
+ geographic_latitude : float
+     Geographic latitude (in radians) to be converted.
+ equatorial_radius : float
+     Equatorial radius of the reference ellipsoid (in meters).
+ flattening : float
+     Flattening of the reference ellipsoid.
+ altitude : float
+     Altitude above the reference ellipsoid (in meters).
+ tolerance : float
+     Convergence tolerance for the iterative conversion (in radians).
+ maximum_number_of_iterations : int
+     Maximum number of iterations allowed for the conversion process.
+
+ Returns
+ -------
+ float
+     Geodetic latitude (in radians), as computed from the geographic latitude input.
+
+ Raises
+ ------
+ RuntimeError
+     If the maximum number of iterations is exceeded without achieving the desired tolerance.
+
+     )doc" );
+
     m.def( "convert_position_elements",
            &tcc::convertPositionElements,
            py::arg( "original_elements" ),

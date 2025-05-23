@@ -1,1 +1,1 @@
-from ..kernel.constants import *
+from tudatpy.kernel.constants import *
