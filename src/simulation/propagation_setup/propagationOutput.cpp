@@ -553,6 +553,73 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
         case nrlmsise_input_data:
             variableSize = 17;
             break;
+        case illuminated_panel_fraction: {
+            std::shared_ptr< IlluminatedPanelFractionDependentVariableSaveSettings > illuminatedPanelFractionDependentVariableSettings =
+                std::dynamic_pointer_cast< IlluminatedPanelFractionDependentVariableSaveSettings >( dependentVariableSettings );
+            if( illuminatedPanelFractionDependentVariableSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when getting illuminated panel fraction dependent variable size, invalid settings" );
+            }
+            std::string illuminatedBody = illuminatedPanelFractionDependentVariableSettings->associatedBody_;
+            std::string panelTypeId = illuminatedPanelFractionDependentVariableSettings->panelTypeId_;
+
+            std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel >  paneledRadiationPressureTargetModel = 
+                std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >(
+                    bodies.at( illuminatedBody )->getRadiationPressureTargetModel( ) );
+            if ( paneledRadiationPressureTargetModel == nullptr )
+            {
+                std::string errorMessage= "Error when getting illuminated panel fraction dependent variable size, no paneled radiation pressure target model found for " + illuminatedBody;
+                throw std::runtime_error( errorMessage );
+            }
+            std::vector< std::string > panelTypeIdList = paneledRadiationPressureTargetModel->getPanelTypeIdList( );
+            std::vector< double > indexes;
+            if ( panelTypeId == "" )
+            {
+                for ( unsigned int i = 0; i<panelTypeIdList.size( ); i++ )
+                {
+                    indexes.push_back( i );
+                }
+            }
+            else 
+            {
+                for ( unsigned int i = 0; i<panelTypeIdList.size( ); i++ )
+                {
+                    if ( panelTypeIdList.at( i ) == panelTypeId )
+                    {
+                        indexes.push_back( i );
+                    }
+                }
+                if ( indexes.empty( ) )
+                {
+                    throw std::runtime_error( "Error, panel type " + panelTypeId + " not found" );
+                }
+            }
+            
+            variableSize = indexes.size( );
+            break;
+        }
+        case cross_section_change:
+            variableSize = 1;
+            break;
+        case full_body_paneled_geometry: {
+            std::string targetBody = dependentVariableSettings->associatedBody_;
+            std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel >  paneledRadiationPressureTargetModel = 
+                std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >(
+                    bodies.at( targetBody )->getRadiationPressureTargetModel( ) );
+            if ( paneledRadiationPressureTargetModel == nullptr )
+            {
+                std::string errorMessage = "Error, full body panel geometry only implemented for paneled radiation pressure target model, however, paneled target " + 
+                        targetBody + " not found";
+                throw std::runtime_error( errorMessage );
+            }
+            if ( !paneledRadiationPressureTargetModel->isPanelGeometryDefined( ) )
+            {
+                throw std::runtime_error( "Error, macromodel for paneled target " + targetBody + " not found" );
+            }
+            int totalNumberOfPanels = paneledRadiationPressureTargetModel->getTotalNumberOfPanels( );
+            variableSize = 9 * totalNumberOfPanels;
+            break;
+        }
         default:
             std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
                     std::to_string( dependentVariableSettings->dependentVariableType_ );

@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
 
         addBodyExteriorPanelledShape( std::make_shared< FullPanelledBodySettings >( panelSettingsList ), "Vehicle", bodies );
 
-        auto paneledRadiationPressureTargetSettings = std::make_shared< RadiationPressureTargetModelSettings >( paneled_target );
+        auto paneledRadiationPressureTargetSettings = std::make_shared< PaneledRadiationPressureTargetModelSettings >( );
 
         std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > radiationPressureInterface =
                 std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >(
