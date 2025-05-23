@@ -109,8 +109,15 @@ void expose_atmosphere_setup( py::module &m )
                          )doc" )
             .def( py::init< const std::map<
                           double,
-                          std::shared_ptr< tio::solar_activity::SolarActivityData > > >( ),
-                  py::arg( "solar_activity_data" ) )
+                          std::shared_ptr< tio::solar_activity::SolarActivityData > >, const bool, const bool, const bool >( ),
+                  py::arg( "solar_activity_data" ),
+                  py::arg( "use_ideal_gas_law" ) = true,
+                  py::arg( "use_storm_conditions" ) = false,
+                  py::arg( "use_anomalous_oxygen" ) = true )
+            .def( "set_use_geodetic_latitude", &ta::NRLMSISE00Atmosphere::setUseGeodeticLatitude)
+            .def( "get_use_geodetic_latitude", &ta::NRLMSISE00Atmosphere::getUseGeodeticLatitude)
+            .def( "set_use_utc", &ta::NRLMSISE00Atmosphere::setUseUtc)
+            .def( "get_use_utc", &ta::NRLMSISE00Atmosphere::getUseUtc)
             .def( "get_density",
                   &ta::NRLMSISE00Atmosphere::getDensity,
                   py::arg( "altitude" ),
@@ -474,18 +481,25 @@ void expose_atmosphere_setup( py::module &m )
            &tss::nrlmsise00AtmosphereSettings,
            py::arg( "space_weather_file" ) =
                    tudat::paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt",
-           R"doc(
+           py::arg( "use_storm_conditions" ) = false,
+           py::arg( "use_anomalous_oxygen" ) = true,
+               R"doc(
 
  Function for creating NRLMSISE-00 atmospheric model settings.
 
  Function for settings object, defining atmosphere model in accordance to the NRLMSISE-00 global reference model for Earth's atmosphere.
+ The NRLMSISE-00 model implementation uses the code `here <https://github.com/tudat-team/nrlmsise-00-cmake>`_.
 
 
  Parameters
  ----------
- space_weather_file : str, default = :func:`~tudatpy.data.get_space_weather_path` + 'sw19571001.txt'
-     File to be used for space weather characteristics as a function of time (e.g. F10.7, Kp, etc.). The file is typically taken from here `celestrak <https://celestrak.org/SpaceData/sw19571001.txt>`_ (note that the file in your resources path will not be the latest version of this file; download and replace your existing file if required). Documentation on the file is given `here <https://celestrak.org/SpaceData/SpaceWx-format.php>`_
- Returns
+space_weather_file : str, default = :func:`~tudatpy.data.get_space_weather_path` + 'sw19571001.txt'
+    File to be used for space weather characteristics as a function of time (e.g. F10.7, Kp, etc.). The file is typically taken from here `celestrak <https://celestrak.org/SpaceData/sw19571001.txt>`_ (note that the file in your resources path will not be the latest version of this file; download and replace your existing file if required). Documentation on the file is given `here <https://celestrak.org/SpaceData/SpaceWx-format.php>`_
+use_storm_conditions : bool, default = false
+    Boolean to define whether to use sub-daily Ap values when querying the NRLMSISE model, which is relevant under geomagnetic storm conditions (see `NRLMSISE code <https://github.com/tudat-team/nrlmsise-00-cmake/blob/master/nrlmsise-00.h>`_, setting this variable to true sets ``switches[9]`` to -1, with resulting details of Ap values defined in ``ap_array``).
+use_anomalous_oxygen : bool, default = true
+    Boolean to define whether to use anomalous oxygen when querying the NRLMSISE model (if true, using ``gtd7d`` function, if false using ``gtd7`` function in `NRLMSISE code <https://github.com/tudat-team/nrlmsise-00-cmake/blob/master/nrlmsise-00.h>`_)
+Returns
  -------
  AtmosphereSettings
      Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings` class

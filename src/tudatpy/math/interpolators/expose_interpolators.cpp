@@ -74,7 +74,7 @@ data in the range :math:`[t_{0}...t_{N}]`, this enum is used to define the behav
                     ti::BoundaryInterpolationType::throw_exception_at_boundary,
                     R"doc(
 
-The program will terminate with an error message when the interpolator is interrogated beyond the range :math:`[t_{0}...t_{N}]`.
+The program will terminate and throw a :class:`~tudatpy.exceptions.InterpolationOutOfBoundsError` error when the interpolator is interrogated beyond the range :math:`[t_{0}...t_{N}]`.
 
       )doc" )
             .value( "use_boundary_value",
@@ -169,7 +169,7 @@ A cubic-spline interpolator is created from the first and last :math:`\max(m/2-1
                     ti::LagrangeInterpolatorBoundaryHandling::lagrange_no_boundary_interpolation,
                     R"doc(
 
-The program will terminate with an exception when the Lagrange interpolator is interrogated beyond its valid range.
+The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInterpolationOutOfBoundsError` when the Lagrange interpolator is interrogated beyond its valid range.
 
       )doc" )
             .export_values( );
@@ -469,7 +469,34 @@ The program will terminate with an exception when the Lagrange interpolator is i
 
 
 
-     )doc" );
+     )doc" )
+            .def_property_readonly( "independent_values",
+                                    &ti::OneDimensionalInterpolator< TIME_TYPE, STATE_SCALAR_TYPE >::getIndependentValues,
+                                    R"doc(
+
+         Returns the independent variable values used by the interpolator.
+
+         Returns the independent variable values used by the interpolator. This is a read-only property.
+
+         Returns
+         -------
+         list[float]
+             Independent variable values used by the interpolator
+         )doc" )
+            .def_property_readonly( "dependent_values",
+                                    &ti::OneDimensionalInterpolator< TIME_TYPE, STATE_SCALAR_TYPE >::getDependentValues,
+                                    R"doc(
+
+         Returns the dependent variable values used by the interpolator.
+
+         Returns the dependent variable values used by the interpolator. This is a read-only property.
+
+         Returns
+         -------
+
+         list[float]
+             Dependent variable values used by the interpolator
+         )doc" );
 
     py::class_< ti::OneDimensionalInterpolator< TIME_TYPE, Eigen::VectorXd >,
                 std::shared_ptr< ti::OneDimensionalInterpolator< TIME_TYPE, Eigen::VectorXd > > >(
@@ -511,7 +538,33 @@ The program will terminate with an exception when the Lagrange interpolator is i
 
 
 
-     )doc" );
+     )doc" )
+            .def_property_readonly( "independent_values",
+                                    &ti::OneDimensionalInterpolator< TIME_TYPE, Eigen::VectorXd >::getIndependentValues,
+                                    R"doc(
+
+         Returns the independent variable values used by the interpolator.
+
+         Returns the independent variable values used by the interpolator. This is a read-only property.
+
+         Returns
+         -------
+         list[float]
+             Independent variable values used by the interpolator
+         )doc" )
+            .def_property_readonly( "dependent_values",
+                                    &ti::OneDimensionalInterpolator< TIME_TYPE, Eigen::VectorXd >::getDependentValues,
+                                    R"doc(
+
+         Returns the dependent variable values used by the interpolator.
+
+         Returns the dependent variable values used by the interpolator. This is a read-only property.
+
+         Returns
+         -------
+         list[np.ndarray]
+             Dependent variable values used by the interpolator
+         )doc" );
 
     py::class_< ti::OneDimensionalInterpolator< TIME_TYPE, Eigen::MatrixXd >,
                 std::shared_ptr< ti::OneDimensionalInterpolator< TIME_TYPE, Eigen::MatrixXd > > >(
@@ -553,7 +606,33 @@ The program will terminate with an exception when the Lagrange interpolator is i
 
 
 
-     )doc" );
+     )doc" )
+            .def_property_readonly( "independent_values",
+                                    &ti::OneDimensionalInterpolator< TIME_TYPE, Eigen::MatrixXd >::getIndependentValues,
+                                    R"doc(
+
+         Returns the independent variable values used by the interpolator.
+
+         Returns the independent variable values used by the interpolator. This is a read-only property.
+
+         Returns
+         -------
+         list[float]
+             Independent variable values used by the interpolator
+         )doc" )
+            .def_property_readonly( "dependent_values",
+                                    &ti::OneDimensionalInterpolator< TIME_TYPE, Eigen::MatrixXd >::getDependentValues,
+                                    R"doc(
+
+         Returns the dependent variable values used by the interpolator.
+
+         Returns the dependent variable values used by the interpolator. This is a read-only property.
+
+         Returns
+         -------
+         list[np.ndarray]
+             Dependent variable values used by the interpolator
+         )doc" );
 
     m.def( "create_one_dimensional_scalar_interpolator",
            &ti::createOneDimensionalInterpolatorBasic< TIME_TYPE, STATE_SCALAR_TYPE >,
