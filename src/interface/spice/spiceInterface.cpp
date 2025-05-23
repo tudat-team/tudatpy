@@ -721,37 +721,44 @@ Eigen::Matrix3d getRotationFromEclipJ2000ToJ2000( )
 
 void toggleErrorReturn( )
 {
-    std::cerr << "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" +
-                    "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
-                    "See https://github.com/tudat-team/tudat/pull/323 for more information."
-              << std::endl;
-    erract_c( "SET", 0, "RETURN" );
+    std::string deprecationMessage =
+            std::string( "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" ) +
+            "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
+            "See https://github.com/tudat-team/tudat/pull/323 for more information.";
+    std::cerr << deprecationMessage << std::endl;
+    char errorAction[] = "RETURN";
+    erract_c( "SET", 0, errorAction );
 }
 
 void toggleErrorAbort( )
 {
-    std::cerr << "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" +
-                    "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
-                    "See https://github.com/tudat-team/tudat/pull/323 for more information."
-              << std::endl;
-    errdev_c( "SET", 0, "ABORT" );
+    std::string deprecationMessage =
+            std::string( "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" ) +
+            "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
+            "See https://github.com/tudat-team/tudat/pull/323 for more information.";
+    std::cerr << deprecationMessage << std::endl;
+    char errorDevice[] = "ABORT";
+    errdev_c( "SET", 0, errorDevice );
 }
 
 void suppressErrorOutput( )
 {
-    std::cerr << "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" +
-                    "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
-                    "See https://github.com/tudat-team/tudat/pull/323 for more information."
-              << std::endl;
-    errdev_c( "SET", 0, "NULL" );
+    std::string deprecationMessage =
+            std::string( "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" ) +
+            "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
+            "See https://github.com/tudat-team/tudat/pull/323 for more information.";
+    std::cerr << deprecationMessage << std::endl;
+    char errorDevice[] = "NULL";
+    errdev_c( "SET", 0, errorDevice );
 }
 
 std::string getErrorMessage( )
 {
-    std::cerr << "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" +
-                    "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
-                    "See https://github.com/tudat-team/tudat/pull/323 for more information."
-              << std::endl;
+    std::string deprecationMessage =
+            std::string( "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" ) +
+            "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
+            "See https://github.com/tudat-team/tudat/pull/323 for more information.";
+    std::cerr << deprecationMessage << std::endl;
     if( failed_c( ) )
     {
         SpiceChar message[ 1841 ];
@@ -766,10 +773,11 @@ std::string getErrorMessage( )
 
 bool checkFailure( )
 {
-    std::cerr << "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" +
-                    "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
-                    "See https://github.com/tudat-team/tudat/pull/323 for more information."
-              << std::endl;
+    std::string deprecationMessage =
+            std::string( "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" ) +
+            "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
+            "See https://github.com/tudat-team/tudat/pull/323 for more information.";
+    std::cerr << deprecationMessage << std::endl;
     if( failed_c( ) )
     {
         // reset_c( );
@@ -783,8 +791,10 @@ bool checkFailure( )
 
 void setSpiceErrorHandling( )
 {
-    erract_c( "SET", 0, "RETURN" );
-    errdev_c( "SET", 0, "NULL" );
+    char errorAction[] = "RETURN";
+    char errorDevice[] = "NULL";
+    erract_c( "SET", 0, errorAction );
+    errdev_c( "SET", 0, errorDevice );
 }
 
 void handleSpiceException( )
