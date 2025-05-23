@@ -15,3 +15,8 @@ TUDAT_ADD_TEST_CASE(SpiceInterface
         tudat_spice_interface
         tudat_basic_astrodynamics
         )
+
+TUDAT_ADD_TEST_CASE(SpiceException
+        PRIVATE_LINKS
+        tudat_spice_interface
+)
