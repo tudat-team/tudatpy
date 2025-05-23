@@ -115,6 +115,7 @@ BOOST_AUTO_TEST_CASE( testFractionAnalytical )
         incomingDirection( 1 ) = 0;
         incomingDirection( 2 ) = -std::cos( angles[ i ] );
 
+        mapSSH[ "Sun" ]->reset( );
         mapSSH[ "Sun" ]->updateIlluminatedPanelFractions( incomingDirection );
         std::vector< double > illuminatedPanelFractions = mapSSH[ "Sun" ]->getIlluminatedPanelFractions( );
         double trueFractionShaded = 1.0 - std::tan( angles[ i ] );
