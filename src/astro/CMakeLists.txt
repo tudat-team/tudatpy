@@ -11,6 +11,7 @@
 #
 
 # Add subdirectories.
+add_subdirectory("system_models")
 add_subdirectory("aerodynamics")
 add_subdirectory("basic_astro")
 if (TUDAT_BUILD_WITH_SOFA_INTERFACE)
@@ -30,4 +31,4 @@ add_subdirectory("propagators")
 add_subdirectory("propulsion")
 add_subdirectory("reference_frames")
 add_subdirectory("relativity")
-add_subdirectory("system_models")
+
