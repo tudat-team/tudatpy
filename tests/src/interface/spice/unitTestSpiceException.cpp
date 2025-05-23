@@ -52,7 +52,8 @@ BOOST_AUTO_TEST_CASE( testImplementedSpiceExceptions )
 
 BOOST_AUTO_TEST_CASE( testNotImplementedSpiceExceptions )
 {
-    // The
+    // It may be possible that not all SPICE exceptions are implemented in the map of error codes to exceptions.
+    // In that case, a generic SpiceError exception should be thrown.
 
     BOOST_CHECK_THROW( tudat::exceptions::throwSpiceException( "GIBBERISH", "Explanation", "Long Message", "Traceback" ),
                        tudat::exceptions::SpiceError );
