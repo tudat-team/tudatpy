@@ -281,8 +281,46 @@ std::string getErrorMessage( );
  */
 bool checkFailure( );
 
+/**
+ * @brief Sets the CSPICE error handling mode to "RETURN" and suppresses error output.
+ *
+ * This function configures the CSPICE error handling mode to "RETURN" using `erract_c`,
+ * which makes CSPICE routines return from the function once an error is detected,
+ * instead of aborting.
+ *
+ * It also sets the error output device to "NULL" using `errdev_c`, which suppresses
+ * all error output messages. As the error handling will be performed on the Tudat side,
+ * no error output is required from CSPICE.
+ *
+ * This function should be called before any CSPICE function calls to ensure that errors
+ * are handled appropriately.
+ *
+ * @note This function must only be used in conjunction with the ``handleSpiceException`` function, otherwise no error handling will be performed at all.
+ *
+ * For more information on error handling in CSPICE, see the Error required reading:
+ * https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/req/error.html
+ *
+ */
 void setSpiceErrorHandling( );
 
+/**
+ * @brief Handles CSPICE exceptions by retrieving the error messages and traceback
+ * from SPICE and throwing a C++ exception.
+ *
+ * This function retrieves the short, explanation, long, and traceback messages from CSPICE
+ * using `getmsg_c` and `qcktrc_c`. It then resets the CSPICE error state using `reset_c`
+ * to avoid interference with subsequent CSPICE function calls. Finally, it throws a
+ * `SpiceException` (or derived exception) with the retrieved messages.
+ *
+ * This function should be called after all CSPICE function calls to handle any
+ * exceptions that may have occurred.
+ *
+ * @note This function is intended to be used in conjunction with the ``setSpiceErrorHandling`` function.
+ *
+ * For more information on error handling in CSPICE, see the Error required reading:
+ * https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/req/error.html
+ *
+ */
 void handleSpiceException( );
 
 }  // namespace spice_interface
