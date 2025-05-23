@@ -2253,6 +2253,24 @@ void expose_dependent_variable_setup( py::module &m )
            py::arg( "target_name" ),
            py::arg( "source_name" ),
            R"doc(No documentation found.)doc" );
+    
+    m.def( "illuminated_panel_fraction",
+           &tp::illuminatedPanelFractionDependentVariable,
+           py::arg( "target_name" ),
+           py::arg( "source_name" ),
+           py::arg( "panel_type" ) = "",
+           R"doc(No documentation found.)doc" );
+
+    m.def( "cross_section_change",
+           &tp::crossSectionChangeDependentVariable,
+           py::arg( "target_name" ),
+           py::arg( "source_name" ),
+           R"doc(No documentation found.)doc" );
+
+    m.def( "full_body_paneled_geometry",
+           &tp::fullBodyPaneledGeometryDependentVariable,
+           py::arg( "target_name" ),
+           R"doc(No documentation found.)doc" );
 }
 
 }  // namespace dependent_variable
