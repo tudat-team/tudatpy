@@ -4520,6 +4520,11 @@ public:
     using SpiceError::SpiceError;
 };
 
+/// @brief Throw a SpiceError-derived exception corresponding to the short error message retrieved from SPICE.
+/// @param shortMessage Short error message retrieved from getmsg_c.
+/// @param explanation Explanation of short error message retrieved from getmsg_c.
+/// @param longMessage Long error message retrieved from getmsg_c.
+/// @param traceback Traceback retrieved from qcktrc_c.
 void throwSpiceException( const std::string& shortMessage,
                           const std::string& explanation,
                           const std::string& longMessage,
