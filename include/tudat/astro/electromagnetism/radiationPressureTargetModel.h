@@ -23,7 +23,7 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/astro/electromagnetism/reflectionLaw.h"
 #include "tudat/astro/system_models/vehicleExteriorPanels.h"
-#include "tudat/astro/system_models/vehicleExteriorPanels.h"
+#include "tudat/astro/system_models/selfShadowing.h"
 
 namespace tudat
 {
@@ -240,9 +240,11 @@ public:
                     std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > >( ),
             const std::map< std::string, std::function< Eigen::Quaterniond( ) > >& segmentFixedToBodyFixedRotations =
                     std::map< std::string, std::function< Eigen::Quaterniond( ) > >( ),
-            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = { } ):
+            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = { }, 
+            const std::map< std::string, int > maximumNumberOfPixelsPerSource = { } ):
         RadiationPressureTargetModel( sourceToTargetOccultingBodies ), bodyFixedPanels_( bodyFixedPanels ),
-        segmentFixedPanels_( segmentFixedPanels ), segmentFixedToBodyFixedRotations_( segmentFixedToBodyFixedRotations )
+        segmentFixedPanels_( segmentFixedPanels ), segmentFixedToBodyFixedRotations_( segmentFixedToBodyFixedRotations ),
+        maximumNumberOfPixelsPerSource_( maximumNumberOfPixelsPerSource )
     {
         totalNumberOfPanels_ = bodyFixedPanels_.size( );
         fullPanels_ = bodyFixedPanels_;
@@ -257,6 +259,92 @@ public:
         panelForces_.resize( totalNumberOfPanels_ );
         surfacePanelCosines_.resize( totalNumberOfPanels_ );
         surfaceNormals_.resize( totalNumberOfPanels_ );
+        illuminatedPanelFractions_.resize( totalNumberOfPanels_ );
+
+        allRotatedPanels_ = fullPanels_;
+
+        // check if macro-model is loaded (find at least one geometry3dLoaded == false)
+        panelGeometryDefined_ = true;
+        for (int i = 0; i<totalNumberOfPanels_; i++)
+        {
+            if ( !fullPanels_[i]->isGeometryDefined( ) ) 
+            {   
+                panelGeometryDefined_ = false;
+                break;
+            }
+        }
+
+        if ( panelGeometryDefined_ )
+        {
+            // find neighbours
+            for ( int i = 0; i<totalNumberOfPanels_; i++)
+            {
+                std::vector< int > neighboringSurfaces;
+                for ( int j = 0; j<totalNumberOfPanels_; j++)
+                {
+                    if ( i == j )
+                    {
+                        continue;
+                    }
+                    std::vector<Eigen::Vector3d> verticesI, verticesJ;
+                    system_models::Triangle3d triangleI = fullPanels_.at( i )->getTriangle3d( );
+                    system_models::Triangle3d triangleJ = fullPanels_.at( j )->getTriangle3d( );
+                    verticesI = { triangleI.getVertexA( ), triangleI.getVertexB( ), triangleI.getVertexC( )};
+                    verticesJ = { triangleJ.getVertexA( ), triangleJ.getVertexB( ), triangleJ.getVertexC( )};
+                    int match = 0;
+                    for (int n = 0; n<3; n++ )
+                    {
+                        for ( int m = 0; m<3; m++ )
+                        {
+                            if ( verticesI[ n ].isApprox(verticesJ[ m ]) )
+                            {
+                                match++;
+                            }
+                        }
+                    }
+                    if (match==2) 
+                    {
+                        neighboringSurfaces.push_back( j );
+                    }
+                    if ( neighboringSurfaces.size( ) == 3 )
+                    {   
+                        fullPanels_.at( i )->setNeighboringSurfaces( neighboringSurfaces );
+                        break; // found all the neighbours, skip to next panel
+                    }
+                }
+            }
+        }
+        // create panelTypeIdList for dependent variable save
+        panelTypeIdList_ = std::vector< std::string >( totalNumberOfPanels_ );
+        for ( int i = 0; i<totalNumberOfPanels_; i++ )
+        {
+            panelTypeIdList_[ i ] = fullPanels_[ i ]->getPanelTypeId( );
+        }
+        // create map of self-shadowing objects per source
+        for ( auto it : maximumNumberOfPixelsPerSource_ )
+        {
+            if ( it.second < 0 || it.second == 1 )
+            {
+                throw std::runtime_error( "Error, invalid maximum number of pixels for source " + it.first + ", value should be > 2.");
+            }
+            if ( it.second > 1 && !panelGeometryDefined_ )
+            {
+                throw std::runtime_error( "Error, maximum number of pixels given for source " + it.first + ", however, no panel geometry is defined." );
+            }
+            selfShadowingPerSource_[ it.first ] = std::make_shared< system_models::SelfShadowing >( system_models::SelfShadowing( allRotatedPanels_, it.second ) );
+        }
+
+        unityIlluminationFraction_ = std::vector< double >( totalNumberOfPanels_, 1.0);
+// These can be omitted entirely (?)
+//        // add possible omitted sources, set them to zero
+//        for ( auto it : sourceToTargetOccultingBodies_ )
+//        {
+//            if ( selfShadowingPerSource_.count( it.first ) == 0 )
+//            {
+//                selfShadowingPerSource_[ it.first ] = std::make_shared< system_models::SelfShadowing >( system_models::SelfShadowing( allRotatedPanels_, 0 ) );
+//            }
+//        }
+
     }
 
     void enableTorqueComputation( const std::function< Eigen::Vector3d( ) > centerOfMassFunction ) override
@@ -276,6 +364,8 @@ public:
         panelTorques_.resize( totalNumberOfPanels_ );
         panelCentroidMomentArms_.resize( totalNumberOfPanels_ );
     }
+
+    void updateRotatedPanels( );
 
     void updateRadiationPressureForcing( double sourceIrradiance,
                                          const Eigen::Vector3d& sourceToTargetDirectionLocalFrame,
@@ -334,12 +424,42 @@ public:
         return fullPanels_;
     }
 
-    int getTotalNumberOfPanels( )
+    int getTotalNumberOfPanels( ) const
     {
         return totalNumberOfPanels_;
     }
 
     void saveLocalComputations( const std::string sourceName, const bool saveCosines ) override;
+
+    bool isPanelGeometryDefined( ) const
+    {
+        return panelGeometryDefined_;
+    }
+
+    std::vector< double > getIlluminatedPanelFractions( const std::string& sourceName ) 
+    {
+        if( illuminatedPanelFractionsPerSource_.count( sourceName ) == 0 )
+        {
+            throw std::runtime_error( "Error when getting panelled radiation pressure illuminated panel fractions from body " + sourceName +
+                                      ", no such source is saved" );
+        }
+        return illuminatedPanelFractionsPerSource_[ sourceName ];
+    }
+
+    std::vector< std::string > getPanelTypeIdList( ) const
+    {
+        return panelTypeIdList_;
+    }
+
+    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& getAllRotatedPanels( )
+    {
+        return allRotatedPanels_;
+    }
+
+    std::map< std::string, std::shared_ptr< system_models::SelfShadowing > > getSelfShadowingPerSources( ) const
+    {
+        return selfShadowingPerSource_;
+    }
 
 private:
     void updateMembers_( double currentTime ) override;
@@ -357,6 +477,22 @@ private:
             panelTorques_.at( i ).setZero( );
         }
         panelTorquesPerSource_[ sourceName ] = panelTorques_;
+
+        for( unsigned int i = 0; i < surfacePanelCosines_.size( ); i++ )
+        {
+            surfacePanelCosines_.at( i ) = 0.0;
+        }
+        surfacePanelCosinesPerSource_[ sourceName ] = surfacePanelCosines_;
+
+        for( unsigned int i = 0; i < illuminatedPanelFractions_.size( ); i++ )
+        {
+            illuminatedPanelFractions_.at( i ) = 0.0;
+        }
+        illuminatedPanelFractionsPerSource_[ sourceName ] = illuminatedPanelFractions_;
+        for( auto it : selfShadowingPerSource_ )
+        {
+            it.second->reset( );
+        }
     }
 
     std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > bodyFixedPanels_;
@@ -377,10 +513,21 @@ private:
     std::vector< double > surfacePanelCosines_;
     std::vector< Eigen::Vector3d > panelForces_;
     std::vector< Eigen::Vector3d > panelTorques_;
+    std::vector< double > illuminatedPanelFractions_;
 
     std::map< std::string, std::vector< double > > surfacePanelCosinesPerSource_;
     std::map< std::string, std::vector< Eigen::Vector3d > > panelForcesPerSource_;
     std::map< std::string, std::vector< Eigen::Vector3d > > panelTorquesPerSource_;
+    std::map< std::string, std::vector< double > > illuminatedPanelFractionsPerSource_;
+
+    // ssh variables
+    std::map< std::string, int > maximumNumberOfPixelsPerSource_;
+    bool panelGeometryDefined_;
+
+    std::map< std::string, std::shared_ptr< system_models::SelfShadowing > > selfShadowingPerSource_;
+    std::vector< std::string > panelTypeIdList_;
+    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > allRotatedPanels_;
+    std::vector< double > unityIlluminationFraction_;
 };
 
 }  // namespace electromagnetism

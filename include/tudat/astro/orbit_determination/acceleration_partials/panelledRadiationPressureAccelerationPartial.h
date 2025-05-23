@@ -61,6 +61,8 @@ public:
                 }
             }
         }
+
+        unityIlluminationFraction_ = std::vector< double >( panelledTargetModel_->getTotalNumberOfPanels( ), 1.0);
     }
 
     //! Destructor.
@@ -257,6 +259,8 @@ private:
     Eigen::Matrix< double, 1, 3 > currentRadiationPressurePositionPartial_;
 
     Eigen::Matrix< double, 1, 3 > currentCosineAnglePartial_;
+
+    std::vector< double > unityIlluminationFraction_;
 };
 
 }  // namespace acceleration_partials

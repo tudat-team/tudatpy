@@ -1624,7 +1624,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_PaneledTarget )
 
     const auto bodies = createSystemOfBodies( bodySettings );
 
-    auto paneledRadiationPressureTargetSettings = std::make_shared< RadiationPressureTargetModelSettings >( paneled_target );
+    auto paneledRadiationPressureTargetSettings = std::make_shared< PaneledRadiationPressureTargetModelSettings >( );
     //            paneledRadiationPressureTargetModelSettings({
     //                    TargetPanelSettings(
     //                            expectedAreaPanel1,
