@@ -36,6 +36,7 @@
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/interface/spice/spiceEphemeris.h"
+#include "tudat/interface/spice/spiceException.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/interface/spice/spiceRotationalEphemeris.h"
 
@@ -76,12 +77,8 @@ BOOST_AUTO_TEST_CASE( testNoKernelCrash )
     const std::string referenceFrame = "J2000";
     const double ephemerisTime = 1.0E6;
 
-    // Get state from wrapper for state:
-    toggleErrorReturn( );
-    suppressErrorOutput( );
-    const Eigen::Vector6d wrapperState =
-            getBodyCartesianStateAtEpoch( target, observer, referenceFrame, aberrationCorrections, ephemerisTime );
-    TUDAT_UNUSED_PARAMETER( wrapperState );
+    BOOST_CHECK_THROW( getBodyCartesianStateAtEpoch( target, observer, referenceFrame, aberrationCorrections, ephemerisTime ),
+                       tudat::exceptions::SpiceNOLOADEDFILES );
 }
 
 // Test 1: Test Julian day <-> Ephemeris time conversions at J2000.
