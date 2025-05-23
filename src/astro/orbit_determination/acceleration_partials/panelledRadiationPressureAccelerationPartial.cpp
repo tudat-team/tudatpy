@@ -40,11 +40,26 @@ void PanelledRadiationPressurePartial::update( const double currentTime )
             Eigen::Matrix3d currentPanelPartialContribution = Eigen::Matrix3d::Zero( );
 
             double currentPanelArea = 0.0, currentPanelEmissivity = 0.0, cosineOfPanelInclination = 0.0;
+        
+            std::vector< double > illuminatedPanelFractions;
+            std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > allPanels = panelledTargetModel_->getAllRotatedPanels( );
+            auto selfShadowingPerSource = panelledTargetModel_->getSelfShadowingPerSources( );
+            if ( selfShadowingPerSource.count( acceleratingBody_ ) == 0 || selfShadowingPerSource.at( acceleratingBody_ )->getMaximumNumberOfPixels( ) == 0 )
+            {   
+                // SSH off
+                illuminatedPanelFractions = unityIlluminationFraction_;
+            }
+            else
+            {
+                // SSH on
+                selfShadowingPerSource.at( acceleratingBody_ )->updateIlluminatedPanelFractions( -bodyFixedUnitVectorToSource );
+                illuminatedPanelFractions = selfShadowingPerSource.at( acceleratingBody_ )->getIlluminatedPanelFractions( );
+            }
 
             for( int i = 0; i < panelledTargetModel_->getTotalNumberOfPanels( ); i++ )
             {
                 currentPanelPartialContribution.setZero( );
-                if( panelledTargetModel_->getBodyFixedPanels( ).at( i )->getTrackedBody( ) != acceleratingBody_ )
+                if( allPanels.at( i )->getTrackedBody( ) != acceleratingBody_ )
                 {
                     currentPanelNormal = panelledTargetModel_->getSurfaceNormals( ).at( i );
                     cosineOfPanelInclination = panelledTargetModel_->getSurfacePanelCosines( acceleratingBody_ ).at( i );
@@ -54,13 +69,12 @@ void PanelledRadiationPressurePartial::update( const double currentTime )
                     {
                         currentCosineAnglePartial_ = currentPanelNormal.transpose( ) * currentSourceUnitVectorPartial_;
 
-                        currentPanelArea = panelledTargetModel_->getBodyFixedPanels( ).at( i )->getPanelArea( );
+                        currentPanelArea = allPanels.at( i )->getPanelArea( );
                         currentPanelReactionVector = panelledTargetModel_->getPanelForces( acceleratingBody_ ).at( i ) /
                                 ( currentRadiationPressure * currentPanelArea );
 
                         currentPanelPartialContribution +=
-                                panelledTargetModel_->getFullPanels( )
-                                        .at( i )
+                                allPanels.at( i )
                                         ->getReflectionLaw( )
                                         ->evaluateReactionVectorDerivativeWrtTargetPosition( currentPanelNormal,
                                                                                              -bodyFixedUnitVectorToSource,
@@ -69,7 +83,7 @@ void PanelledRadiationPressurePartial::update( const double currentTime )
                                                                                              currentSourceUnitVectorPartial_,
                                                                                              currentCosineAnglePartial_ );
 
-                        currentPanelPartialContribution *= currentRadiationPressure * currentPanelArea;
+                        currentPanelPartialContribution *= currentRadiationPressure * currentPanelArea * illuminatedPanelFractions.at( i );
                     }
                 }
                 else
