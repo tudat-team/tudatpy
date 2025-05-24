@@ -421,19 +421,6 @@ protected:
     //! calculations.
     std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicCache_;
 
-    //! Current cosine coefficients of the spherical harmonic gravity field.
-    /*!
-     *  Current cosine coefficients of the spherical harmonic gravity field, set by update( time ) function.
-     */
-    Eigen::MatrixXd currentCosineCoefficients_;
-
-    //! Current sine coefficients of the spherical harmonic gravity field.
-    /*!
-     *  Current sine coefficients of the spherical harmonic gravity field, set by update( time ) function.
-     */
-    Eigen::MatrixXd currentSineCoefficients_;
-
-
     Eigen::Matrix3d currentRotationToInertialFrame_;
 
     Eigen::Matrix3d currentRotationToBodyFixedFrame_;
@@ -505,6 +492,10 @@ protected:
      * acceleratedBody.
      */
     std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > > tidalLoveNumberPartialInterfaces_;
+
+    gravitation::SphericalHarmonicsBlock cosineSphericalHarmonicsBlock;
+
+    gravitation::SphericalHarmonicsBlock sineSphericalHarmonicsBlock;
 
     //! Boolean denoting whether the mutual attraction between the bodies is taken into account
     /*!

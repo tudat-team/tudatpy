@@ -33,14 +33,16 @@ SphericalHarmonicsGravityPartial::SphericalHarmonicsGravityPartial(
     accelerationModel_( accelerationModel ),
     sphericalHarmonicCache_( accelerationModel->getSphericalHarmonicsCache( ) ),
     rotationMatrixPartials_( rotationMatrixPartials ), tidalLoveNumberPartialInterfaces_( tidalLoveNumberPartialInterfaces ),
+    cosineSphericalHarmonicsBlock( accelerationModel->getCurrentCosineCoefficients( ) ),
+    sineSphericalHarmonicsBlock( accelerationModel->getCurrentSineCoefficients( ) ),
     accelerationUsesMutualAttraction_( accelerationModel->getIsMutualAttractionUsed( ) )
 {
     sphericalHarmonicCache_->getLegendreCache( )->setComputeSecondDerivatives( 1 );
 
     // Update number of degrees and orders in legendre cache for calculation of position partials
 
-    maximumDegree_ = accelerationModel_->getCosineHarmonicCoefficientsFunction( )( ).rows( ) - 1;
-    maximumOrder_ = accelerationModel_->getSineHarmonicCoefficientsFunction( )( ).cols( ) - 1;
+    maximumDegree_ = cosineSphericalHarmonicsBlock.rows( ) - 1;
+    maximumOrder_ = cosineSphericalHarmonicsBlock.cols( ) - 1;
 
     if( sphericalHarmonicCache_->getMaximumDegree( ) < maximumDegree_ || sphericalHarmonicCache_->getMaximumOrder( ) < maximumOrder_ + 2 )
     {
@@ -424,9 +426,6 @@ void SphericalHarmonicsGravityPartial::update( const double currentTime )
         bodyFixedSphericalPosition_ = convertCartesianToSpherical( bodyFixedPosition_ );
         bodyFixedSphericalPosition_( 1 ) = mathematical_constants::PI / 2.0 - bodyFixedSphericalPosition_( 1 );
 
-        // Get spherical harmonic coefficients
-        currentCosineCoefficients_ = accelerationModel_->getCurrentCosineCoefficients( );
-        currentSineCoefficients_ = accelerationModel_->getCurrentSineCoefficients( );
 
         // Update trogonometric functions of multiples of longitude.
         sphericalHarmonicCache_->update( bodyFixedSphericalPosition_( 0 ),
@@ -439,8 +438,8 @@ void SphericalHarmonicsGravityPartial::update( const double currentTime )
                 computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration( bodyFixedPosition_,
                                                                                   accelerationModel_->getReferenceRadius( ),
                                                                                   accelerationModel_->getCurrentGravitationalParameter( ),
-                                                                                  currentCosineCoefficients_,
-                                                                                  currentSineCoefficients_,
+                                                                                  cosineSphericalHarmonicsBlock,
+                                                                                  sineSphericalHarmonicsBlock,
                                                                                   sphericalHarmonicCache_,
                                                                                   accelerationModel_->getAccelerationInBodyFixedFrame( ) );
 
@@ -457,7 +456,7 @@ void SphericalHarmonicsGravityPartial::update( const double currentTime )
             // Compute the acceleration and body-fixed position partial, without the central term (to avoid numerical errors)
             Eigen::Vector3d nonCentralAcceleration = accelerationModel_->getAcceleration( );
             Eigen::Matrix3d nonCentralBodyFixedPartial = currentBodyFixedPartialWrtPosition_;
-            if( currentCosineCoefficients_( 0 ) > 0.0 )
+            if( cosineSphericalHarmonicsBlock.getEnablePointMass( ) )
             {
                 nonCentralAcceleration -= gravitation::computeGravitationalAcceleration(
                         accelerationModel_->getCurrentPositionOfBodySubjectToAcceleration( ), accelerationModel_->getCurrentGravitationalParameter( ), accelerationModel_->getCurrentPositionOfBodyExertingAcceleration( ) );
