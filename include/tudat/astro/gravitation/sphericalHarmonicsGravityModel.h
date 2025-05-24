@@ -48,9 +48,6 @@ private:
     //! Typedef for base class.
     typedef SphericalHarmonicsGravitationalAccelerationModelBase< Eigen::Vector3d > Base;
 
-    //! Typedef for coefficient-matrix-returning function.
-    typedef std::function< Eigen::MatrixXd( ) > CoefficientMatrixReturningFunction;
-
 public:
     //! Constructor taking position-functions for bodies, and constant parameters of spherical
     //! harmonics expansion.
@@ -85,8 +82,8 @@ public:
             const StateFunction positionOfBodySubjectToAccelerationFunction,
             const double aGravitationalParameter,
             const double anEquatorialRadius,
-            const Eigen::MatrixXd aCosineHarmonicCoefficientMatrix,
-            const Eigen::MatrixXd aSineHarmonicCoefficientMatrix,
+            Eigen::MatrixXd aCosineHarmonicCoefficientMatrix,
+            Eigen::MatrixXd aSineHarmonicCoefficientMatrix,
             const StateFunction positionOfBodyExertingAccelerationFunction =
                     []( Eigen::Vector3d& input ) { input = Eigen::Vector3d::Zero( ); },
             const std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction =
@@ -98,13 +95,14 @@ public:
               aGravitationalParameter,
               positionOfBodyExertingAccelerationFunction,
               isMutualAttractionUsed ),
-        equatorialRadius( anEquatorialRadius ), getCosineHarmonicsCoefficients( [ = ]( ) { return aCosineHarmonicCoefficientMatrix; } ),
-        getSineHarmonicsCoefficients( [ = ]( ) { return aSineHarmonicCoefficientMatrix; } ),
+        equatorialRadius( anEquatorialRadius ),
+        cosineSphericalHarmonicsBlock( SphericalHarmonicsBlock( aCosineHarmonicCoefficientMatrix ) ),
+        sineSphericalHarmonicsBlock( SphericalHarmonicsBlock( aSineHarmonicCoefficientMatrix ) ),
         rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
         sphericalHarmonicsCache_( sphericalHarmonicsCache ), saveSphericalHarmonicTermsSeparately_( false )
     {
-        maximumDegree_ = static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) ) - 1;
-        maximumOrder_ = static_cast< int >( getCosineHarmonicsCoefficients( ).cols( ) ) - 1;
+        maximumDegree_ = static_cast< int >( cosineSphericalHarmonicsBlock.rows( ) ) - 1;
+        maximumOrder_ = static_cast< int >( cosineSphericalHarmonicsBlock.cols( ) ) - 1;
         sphericalHarmonicsCache_->resetMaximumDegreeAndOrder(
                 std::max< int >( maximumDegree_, sphericalHarmonicsCache_->getMaximumDegree( ) ) + 1,
                 std::max< int >( maximumOrder_, sphericalHarmonicsCache_->getMaximumOrder( ) ) + 1 );
@@ -141,8 +139,8 @@ public:
             const StateFunction positionOfBodySubjectToAccelerationFunction,
             const std::function< double( ) > aGravitationalParameterFunction,
             const double anEquatorialRadius,
-            const CoefficientMatrixReturningFunction cosineHarmonicCoefficientsFunction,
-            const CoefficientMatrixReturningFunction sineHarmonicCoefficientsFunction,
+            const SphericalHarmonicsBlock aCosineSphericalHarmonicsBlock,
+            const SphericalHarmonicsBlock aSineSphericalHarmonicsBlock,
             const StateFunction positionOfBodyExertingAccelerationFunction =
                     []( Eigen::Vector3d& input ) { input = Eigen::Vector3d::Zero( ); },
             const std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction =
@@ -154,13 +152,15 @@ public:
               aGravitationalParameterFunction,
               positionOfBodyExertingAccelerationFunction,
               isMutualAttractionUsed ),
-        equatorialRadius( anEquatorialRadius ), getCosineHarmonicsCoefficients( cosineHarmonicCoefficientsFunction ),
-        getSineHarmonicsCoefficients( sineHarmonicCoefficientsFunction ),
+        equatorialRadius( anEquatorialRadius ),
+        cosineSphericalHarmonicsBlock( aCosineSphericalHarmonicsBlock ),
+        sineSphericalHarmonicsBlock( aSineSphericalHarmonicsBlock ),
         rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
         sphericalHarmonicsCache_( sphericalHarmonicsCache ), saveSphericalHarmonicTermsSeparately_( false )
     {
-        maximumDegree_ = static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) - 1 );
-        maximumOrder_ = static_cast< int >( getCosineHarmonicsCoefficients( ).cols( ) - 1 );
+        maximumDegree_ = static_cast< int >( cosineSphericalHarmonicsBlock.rows( ) - 1 );
+        maximumOrder_ = static_cast< int >( cosineSphericalHarmonicsBlock.cols( ) - 1 );
+
         sphericalHarmonicsCache_->resetMaximumDegreeAndOrder(
                 std::max< int >( maximumDegree_ + 1, sphericalHarmonicsCache_->getMaximumDegree( ) ),
                 std::max< int >( maximumOrder_ + 1, sphericalHarmonicsCache_->getMaximumOrder( ) ) + 1 );
@@ -187,8 +187,8 @@ public:
     {
         if( !( this->currentTime_ == currentTime ) )
         {
-            cosineHarmonicCoefficients = getCosineHarmonicsCoefficients( );
-            sineHarmonicCoefficients = getSineHarmonicsCoefficients( );
+            cosineSphericalHarmonicsBlock.update( );
+            sineSphericalHarmonicsBlock.update( );
 
             rotationToIntegrationFrame_ = rotationFromBodyFixedToIntegrationFrameFunction_( );
             this->updateBaseMembers( );
@@ -200,8 +200,8 @@ public:
             currentAcceleration_ = computeGeodesyNormalizedGravitationalAccelerationSum( currentRelativePosition_,
                                                                                          gravitationalParameter,
                                                                                          equatorialRadius,
-                                                                                         cosineHarmonicCoefficients,
-                                                                                         sineHarmonicCoefficients,
+                                                                                         cosineSphericalHarmonicsBlock,
+                                                                                         sineSphericalHarmonicsBlock,
                                                                                          sphericalHarmonicsCache_,
                                                                                          accelerationPerTerm_,
                                                                                          saveSphericalHarmonicTermsSeparately_,
@@ -213,8 +213,8 @@ public:
                 this->currentPotential_ = gravitation::calculateSphericalHarmonicGravitationalPotential( currentRelativePosition_,
                                                                                                          gravitationalParameter,
                                                                                                          equatorialRadius,
-                                                                                                         cosineHarmonicCoefficients,
-                                                                                                         sineHarmonicCoefficients,
+                                                                                                         cosineSphericalHarmonicsBlock,
+                                                                                                         sineSphericalHarmonicsBlock,
                                                                                                          sphericalHarmonicsCache_ );
             }
             currentTime_ = currentTime;
@@ -322,32 +322,15 @@ public:
         return equatorialRadius;
     }
 
-    //! Matrix of cosine coefficients.
-    /*!
-     * Matrix containing coefficients of cosine terms for spherical harmonics expansion.
-     */
-    CoefficientMatrixReturningFunction getCosineHarmonicCoefficientsFunction( )
+
+    SphericalHarmonicsBlock getCurrentCosineCoefficients( )
     {
-        return getCosineHarmonicsCoefficients;
+        return cosineSphericalHarmonicsBlock;
     }
 
-    Eigen::MatrixXd& getCurrentCosineCoefficients( )
+    SphericalHarmonicsBlock getCurrentSineCoefficients( )
     {
-        return cosineHarmonicCoefficients;
-    }
-
-    //! Matrix of sine coefficients.
-    /*!
-     * Matrix containing coefficients of sine terms for spherical harmonics expansion.
-     */
-    CoefficientMatrixReturningFunction getSineHarmonicCoefficientsFunction( )
-    {
-        return getSineHarmonicsCoefficients;
-    }
-
-    Eigen::MatrixXd& getCurrentSineCoefficients( )
-    {
-        return sineHarmonicCoefficients;
+        return sineSphericalHarmonicsBlock;
     }
 
     //! Function to retrieve the current rotation from body-fixed frame to integration frame, in the form of a quaternion.
@@ -474,32 +457,32 @@ private:
      * Current value of equatorial (planetary) radius used for spherical harmonics expansion [m].
      */
     const double equatorialRadius;
-
-    //! Matrix of cosine coefficients.
-    /*!
-     * Matrix containing coefficients of cosine terms for spherical harmonics expansion.
-     */
-    Eigen::MatrixXd cosineHarmonicCoefficients;
-
-    //! Matrix of sine coefficients.
-    /*!
-     * Matrix containing coefficients of sine terms for spherical harmonics expansion.
-     */
-    Eigen::MatrixXd sineHarmonicCoefficients;
+//
+//    //! Matrix of cosine coefficients.
+//    /*!
+//     * Matrix containing coefficients of cosine terms for spherical harmonics expansion.
+//     */
+//    Eigen::MatrixXd cosineHarmonicCoefficients;
+//
+//    //! Matrix of sine coefficients.
+//    /*!
+//     * Matrix containing coefficients of sine terms for spherical harmonics expansion.
+//     */
+//    Eigen::MatrixXd sineHarmonicCoefficients;
 
     //! Pointer to function returning cosine harmonics coefficients matrix.
     /*!
      * Pointer to function that returns the current coefficients of the cosine terms of the
      * spherical harmonics expansion.
      */
-    const CoefficientMatrixReturningFunction getCosineHarmonicsCoefficients;
+    SphericalHarmonicsBlock cosineSphericalHarmonicsBlock;
 
     //! Pointer to function returning sine harmonics coefficients matrix.
     /*!
      * Pointer to function that returns the current coefficients of the sine terms of the
      * spherical harmonics expansion.
      */
-    const CoefficientMatrixReturningFunction getSineHarmonicsCoefficients;
+    SphericalHarmonicsBlock sineSphericalHarmonicsBlock;
 
     //! Function returning the current rotation from body-fixed frame to integration frame.
     std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction_;
