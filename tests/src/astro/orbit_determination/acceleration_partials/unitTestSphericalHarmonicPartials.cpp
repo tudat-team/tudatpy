@@ -852,7 +852,9 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
                                                  bodies,
                                                  parameterSet ) );
 
+    std::cout<<"Pre-update"<<std::endl;
     accelerationPartial->update( testTime );
+    std::cout<<"post-update"<<std::endl;
 
     Eigen::MatrixXd partialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
     accelerationPartial->wrtPositionOfAcceleratedBody( partialWrtVehiclePosition.block( 0, 0, 3, 3 ) );
