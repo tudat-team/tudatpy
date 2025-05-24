@@ -147,7 +147,7 @@ int main( )
 
     // Simulate covariances directly by propagating to different final tomes
     std::map< int, Eigen::MatrixXd > manualCovarianes;
-    for( unsigned int i = 1; i < 1; i++ )
+    for( unsigned int i = 1; i < 2; i++ )
     {
         executeEarthOrbiterParameterEstimation< double, double >( podData, 1.0E7, i, 0, false );
         manualCovarianes[ i ] = podData.first->getUnnormalizedCovarianceMatrix( );

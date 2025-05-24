@@ -265,19 +265,19 @@ public:
      */
     void wrtGravitationalParameterOfCentralBody( Eigen::MatrixXd& partialMatrix, const int addPartial = 0 )
     {
-        if( gravitationalParameterFunction_( ) != 0.0 )
+        if( accelerationModel_->getCurrentGravitationalParameter( ) != 0.0 )
         {
             if( addPartial == 0 )
             {
-                partialMatrix = accelerationFunction_( ) / gravitationalParameterFunction_( );
+                partialMatrix = accelerationModel_->getAcceleration( ) / accelerationModel_->getCurrentGravitationalParameter( );
             }
             else if( addPartial == 1 )
             {
-                partialMatrix += accelerationFunction_( ) / gravitationalParameterFunction_( );
+                partialMatrix += accelerationModel_->getAcceleration( ) / accelerationModel_->getCurrentGravitationalParameter( );
             }
             else if( addPartial == -1 )
             {
-                partialMatrix -= accelerationFunction_( ) / gravitationalParameterFunction_( );
+                partialMatrix -= accelerationModel_->getAcceleration( ) / accelerationModel_->getCurrentGravitationalParameter( );
             }
             else
             {
@@ -415,41 +415,11 @@ protected:
             const int parameterSize,
             Eigen::MatrixXd& partialMatrix );
 
-    //! Function to return the gravitational parameter used for calculating the acceleration.
-    std::function< double( ) > gravitationalParameterFunction_;
-
-    //! Function to return the reference radius used for calculating the acceleration.
-    std::function< double( ) > bodyReferenceRadius_;
-
-    //! Function to return the current cosine coefficients of the spherical harmonic gravity field.
-    std::function< Eigen::MatrixXd( ) > cosineCoefficients_;
-
-    //! Function to return the current sine coefficients of the spherical harmonic gravity field.
-    std::function< Eigen::MatrixXd( ) > sineCoefficients_;
+    std::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > accelerationModel_;
 
     //! Cache object used for storing calculated values at current time and state for spherical harmonic gravity
     //! calculations.
     std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicCache_;
-
-    //! Function returning position of body undergoing acceleration.
-    std::function< Eigen::Vector3d( ) > positionFunctionOfAcceleratedBody_;
-
-    //! Function returning position of body exerting acceleration.
-    std::function< Eigen::Vector3d( ) > positionFunctionOfAcceleratingBody_;
-
-    //! Function return current rotation from inertial frame to frame fixed to body exerting acceleration.
-    std::function< Eigen::Matrix3d( ) > fromBodyFixedToIntegrationFrameRotation_;
-
-    //! Function to retrieve the current spherical harmonic acceleration.
-    std::function< Eigen::Matrix< double, 3, 1 >( ) > accelerationFunction_;
-
-    //! Function to update the acceleration to the current state and time.
-    /*!
-     *  Function to update the acceleration to the current state and time.
-     *  Called when updating an object of this class with the update( time ) function,
-     *  in case the partial is called before the acceleration model in the current iteration of the numerical integration.
-     */
-    std::function< void( const double ) > updateFunction_;
 
     //! Current cosine coefficients of the spherical harmonic gravity field.
     /*!
@@ -462,6 +432,11 @@ protected:
      *  Current sine coefficients of the spherical harmonic gravity field, set by update( time ) function.
      */
     Eigen::MatrixXd currentSineCoefficients_;
+
+
+    Eigen::Matrix3d currentRotationToInertialFrame_;
+
+    Eigen::Matrix3d currentRotationToBodyFixedFrame_;
 
     //! Current body-fixed (w.r.t body exerting acceleration) position of body undergoing acceleration
     /*!

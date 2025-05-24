@@ -258,18 +258,18 @@ void LegendreCache::resetMaximumDegreeAndOrder( const int maximumDegree, const i
 //! Get Legendre polynomial value from the cache.
 double LegendreCache::getLegendrePolynomial( const int degree, const int order )
 {
-    if( degree > maximumDegree_ || order > maximumOrder_ )
-    {
-        std::string errorMessage = "Error when requesting legendre cache, maximum degree or order exceeded " + std::to_string( degree ) +
-                " " + std::to_string( maximumDegree_ ) + " " + std::to_string( order ) + " " + std::to_string( maximumOrder_ );
-        throw std::runtime_error( errorMessage );
-        return TUDAT_NAN;
-    }
-    else if( order > degree )
-    {
-        return 0.0;
-    }
-    else
+//    if( degree > maximumDegree_ || order > maximumOrder_ )
+//    {
+//        std::string errorMessage = "Error when requesting legendre cache, maximum degree or order exceeded " + std::to_string( degree ) +
+//                " " + std::to_string( maximumDegree_ ) + " " + std::to_string( order ) + " " + std::to_string( maximumOrder_ );
+//        throw std::runtime_error( errorMessage );
+//        return TUDAT_NAN;
+//    }
+//    else if( order > degree )
+//    {
+//        return 0.0;
+//    }
+//    else
     {
         return legendreValues_[ degree * ( maximumOrder_ + 1 ) + order ];
     };
@@ -278,19 +278,19 @@ double LegendreCache::getLegendrePolynomial( const int degree, const int order )
 //! Get first derivative of Legendre polynomial value from the cache.
 double LegendreCache::getLegendrePolynomialDerivative( const int degree, const int order )
 {
-    if( degree > ( maximumDegree_ ) || order > maximumOrder_ )
-    {
-        std::string errorMessage = "Error when requesting legendre cache first derivatives, maximum degree or order exceeded " +
-                std::to_string( degree ) + " " + std::to_string( maximumDegree_ ) + " " + std::to_string( order ) + " " +
-                std::to_string( maximumOrder_ );
-        throw std::runtime_error( errorMessage );
-        return TUDAT_NAN;
-    }
-    else if( order > degree )
-    {
-        return 0.0;
-    }
-    else
+//    if( degree > ( maximumDegree_ ) || order > maximumOrder_ )
+//    {
+//        std::string errorMessage = "Error when requesting legendre cache first derivatives, maximum degree or order exceeded " +
+//                std::to_string( degree ) + " " + std::to_string( maximumDegree_ ) + " " + std::to_string( order ) + " " +
+//                std::to_string( maximumOrder_ );
+//        throw std::runtime_error( errorMessage );
+//        return TUDAT_NAN;
+//    }
+//    else if( order > degree )
+//    {
+//        return 0.0;
+//    }
+//    else
     {
         return legendreDerivatives_[ degree * ( maximumOrder_ + 1 ) + order ];
     };

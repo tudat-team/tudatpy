@@ -217,6 +217,7 @@ public:
                                                                                                          sineHarmonicCoefficients,
                                                                                                          sphericalHarmonicsCache_ );
             }
+            currentTime_ = currentTime;
         }
     }
 
@@ -330,6 +331,11 @@ public:
         return getCosineHarmonicsCoefficients;
     }
 
+    Eigen::MatrixXd& getCurrentCosineCoefficients( )
+    {
+        return cosineHarmonicCoefficients;
+    }
+
     //! Matrix of sine coefficients.
     /*!
      * Matrix containing coefficients of sine terms for spherical harmonics expansion.
@@ -337,6 +343,11 @@ public:
     CoefficientMatrixReturningFunction getSineHarmonicCoefficientsFunction( )
     {
         return getSineHarmonicsCoefficients;
+    }
+
+    Eigen::MatrixXd& getCurrentSineCoefficients( )
+    {
+        return sineHarmonicCoefficients;
     }
 
     //! Function to retrieve the current rotation from body-fixed frame to integration frame, in the form of a quaternion.
@@ -429,6 +440,12 @@ public:
         }
         return returnVector;
     }
+
+    Eigen::Vector3d getCurrentAccelerationInBodyFixedFrame( )
+    {
+        return currentAccelerationInBodyFixedFrame_;
+    }
+
 
     //! Function to retrieve maximum degree of gravity field expansion
     /*!

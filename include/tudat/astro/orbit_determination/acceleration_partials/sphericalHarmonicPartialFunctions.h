@@ -167,8 +167,8 @@ Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration
         const Eigen::Vector3d& sphericalPosition,
         const double referenceRadius,
         const double gravitionalParameter,
-        const Eigen::MatrixXd cosineHarmonicCoefficients,
-        const Eigen::MatrixXd sineHarmonicCoefficients,
+        const Eigen::MatrixXd& cosineHarmonicCoefficients,
+        const Eigen::MatrixXd& sineHarmonicCoefficients,
         const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         const Eigen::Vector3d& sphericalPotentialGradient,
         const Eigen::Matrix3d& sphericalToCartesianGradientMatrix );
@@ -192,9 +192,10 @@ Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration
         const Eigen::Vector3d& cartesianPosition,
         const double referenceRadius,
         const double gravitionalParameter,
-        const Eigen::MatrixXd cosineHarmonicCoefficients,
-        const Eigen::MatrixXd sineHarmonicCoefficients,
-        const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache );
+        const Eigen::MatrixXd& cosineHarmonicCoefficients,
+        const Eigen::MatrixXd& sineHarmonicCoefficients,
+        const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+        const Eigen::Vector3d& bodyFixedAcceleration = Eigen::Vector3d::Constant( TUDAT_NAN ) );
 
 //! Calculate partial of spherical harmonic acceleration w.r.t. a set of cosine coefficients
 /*!

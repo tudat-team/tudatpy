@@ -160,8 +160,8 @@ Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration
         const Eigen::Vector3d& sphericalPosition,
         const double referenceRadius,
         const double gravitionalParameter,
-        const Eigen::MatrixXd cosineHarmonicCoefficients,
-        const Eigen::MatrixXd sineHarmonicCoefficients,
+        const Eigen::MatrixXd& cosineHarmonicCoefficients,
+        const Eigen::MatrixXd& sineHarmonicCoefficients,
         const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         const Eigen::Vector3d& sphericalPotentialGradient,
         const Eigen::Matrix3d& sphericalToCartesianGradientMatrix )
@@ -191,9 +191,10 @@ Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration
         const Eigen::Vector3d& cartesianPosition,
         const double referenceRadius,
         const double gravitionalParameter,
-        const Eigen::MatrixXd cosineHarmonicCoefficients,
-        const Eigen::MatrixXd sineHarmonicCoefficients,
-        const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache )
+        const Eigen::MatrixXd& cosineHarmonicCoefficients,
+        const Eigen::MatrixXd& sineHarmonicCoefficients,
+        const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+        const Eigen::Vector3d& bodyFixedAcceleration )
 {
     // Compute spherical position.
     Eigen::Vector3d sphericalPosition = coordinate_conversions::convertCartesianToSpherical( cartesianPosition );
@@ -205,13 +206,14 @@ Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration
     // Compute spherical gradient.
     std::map< std::pair< int, int >, Eigen::Vector3d > dummyMap;
     Eigen::Vector3d sphericalPotentialGradient = gradientTransformationMatrix.inverse( ) *
-            gravitation::computeGeodesyNormalizedGravitationalAccelerationSum( cartesianPosition,
+        ( bodyFixedAcceleration.hasNaN( ) ?
+          ( gravitation::computeGeodesyNormalizedGravitationalAccelerationSum( cartesianPosition,
                                                                                gravitionalParameter,
                                                                                referenceRadius,
                                                                                cosineHarmonicCoefficients,
                                                                                sineHarmonicCoefficients,
                                                                                sphericalHarmonicsCache,
-                                                                               dummyMap );
+                                                                               dummyMap ) ) : bodyFixedAcceleration ) ;
 
     return computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration( cartesianPosition,
                                                                              sphericalPosition,
