@@ -299,23 +299,23 @@ double LegendreCache::getLegendrePolynomialDerivative( const int degree, const i
 //! Get second derivative of Legendre polynomial value from the cache.
 double LegendreCache::getLegendrePolynomialSecondDerivative( const int degree, const int order )
 {
-    if( degree > ( maximumDegree_ ) || order > maximumOrder_ )
-    {
-        std::string errorMessage = "Error when requesting legendre cache second derivatives, maximum degree or order exceeded " +
-                std::to_string( degree ) + " " + std::to_string( maximumDegree_ ) + " " + std::to_string( order ) + " " +
-                std::to_string( maximumOrder_ );
-        throw std::runtime_error( errorMessage );
-        return TUDAT_NAN;
-    }
-    else if( computeSecondDerivatives_ == 0 )
-    {
-        throw std::runtime_error( "Error when requesting legendre cache second derivatives, no computations performed" );
-    }
-    else if( order > degree )
-    {
-        return 0.0;
-    }
-    else
+//    if( degree > ( maximumDegree_ ) || order > maximumOrder_ )
+//    {
+//        std::string errorMessage = "Error when requesting legendre cache second derivatives, maximum degree or order exceeded " +
+//                std::to_string( degree ) + " " + std::to_string( maximumDegree_ ) + " " + std::to_string( order ) + " " +
+//                std::to_string( maximumOrder_ );
+//        throw std::runtime_error( errorMessage );
+//        return TUDAT_NAN;
+//    }
+//    else if( computeSecondDerivatives_ == 0 )
+//    {
+//        throw std::runtime_error( "Error when requesting legendre cache second derivatives, no computations performed" );
+//    }
+//    else if( order > degree )
+//    {
+//        return 0.0;
+//    }
+//    else
     {
         return legendreSecondDerivatives_[ degree * ( maximumOrder_ + 1 ) + order ];
     };
@@ -402,31 +402,31 @@ double computeLegendrePolynomial( const int degree, const int order, const doubl
 //! Compute geodesy-normalized associated Legendre polynomial.
 double computeGeodesyLegendrePolynomialFromCache( const int degree, const int order, LegendreCache& geodesyLegendreCache )
 {
-    if( !geodesyLegendreCache.getUseGeodesyNormalization( ) )
-    {
-        throw std::runtime_error( "Error when computing Legendre polynomial, input uses no normalization" );
-    }
-
-    // If degree or order is negative...
-    if( degree < 0 || order < 0 )
-    {
-        // Set error message.
-        std::stringstream errorMessage;
-        errorMessage << "Error: the Legendre polynomial of = " << degree << " and order = " << order << " is undefined." << std::endl;
-
-        // Throw a run-time error.
-        throw std::runtime_error( errorMessage.str( ) );
-    }
-
-    // Else if order is greater than degree...
-    else if( order > degree && degree >= 0 )
-    {
-        // Return zero.
-        return 0.0;
-    }
+//    if( !geodesyLegendreCache.getUseGeodesyNormalization( ) )
+//    {
+//        throw std::runtime_error( "Error when computing Legendre polynomial, input uses no normalization" );
+//    }
+//
+//    // If degree or order is negative...
+//    if( degree < 0 || order < 0 )
+//    {
+//        // Set error message.
+//        std::stringstream errorMessage;
+//        errorMessage << "Error: the Legendre polynomial of = " << degree << " and order = " << order << " is undefined." << std::endl;
+//
+//        // Throw a run-time error.
+//        throw std::runtime_error( errorMessage.str( ) );
+//    }
+//
+//    // Else if order is greater than degree...
+//    else if( order > degree && degree >= 0 )
+//    {
+//        // Return zero.
+//        return 0.0;
+//    }
 
     // Else if order and degree are lower than 2...
-    else if( degree <= 1 && order <= 1 )
+    if( degree <= 1 && order <= 1 )
     {
         // Compute polynomial explicitly.
         return computeGeodesyLegendrePolynomialExplicit( degree, order, geodesyLegendreCache.getCurrentPolynomialParameter( ) );
