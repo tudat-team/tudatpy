@@ -2190,9 +2190,7 @@ Examples
            &tom::jakowskiIonosphericCorrectionSettings,
            py::arg( "ionosphere_height" ) = 400.0e3,
            py::arg( "first_order_delay_coefficient" ) = 40.3,
-           py::arg( "solar_activity_data" ) =
-                   tudat::input_output::solar_activity::readSolarActivityData(
-                           tudat::paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt" ),
+           py::arg( "solar_activity_data_path" ) = tudat::paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt" ,
            py::arg( "geomagnetic_pole_latitude" ) = tuc::convertDegreesToRadians( 80.9 ),
            py::arg( "geomagnetic_pole_longitude" ) = tuc::convertDegreesToRadians( -72.6 ),
            py::arg( "use_utc_for_local_time_computation" ) = false,
