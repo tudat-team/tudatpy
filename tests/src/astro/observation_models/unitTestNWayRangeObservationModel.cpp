@@ -588,7 +588,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayRangeModelTimeScaleBias )
                 observationTimes.at( observationTimeNumber ), receiver, linkEndTimes, linkEndStates )( 0 );
 
         std::cout << biasedTwoWayRange - unbiasedTwoWayRange << std::endl;
-        std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter = earth_orientation::defaultTimeConverter;
+        std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter = earth_orientation::createDefaultTimeConverter( );
         double transmissionTimeDifference = timeScaleConverter->getCurrentTime< Time >( basic_astrodynamics::tdb_scale,
                                                                                         basic_astrodynamics::utc_scale,
                                                                                         linkEndTimes.at( 0 ),
