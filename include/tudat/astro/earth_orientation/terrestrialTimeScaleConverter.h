@@ -463,7 +463,7 @@ private:
 std::shared_ptr< TerrestrialTimeScaleConverter > createDefaultTimeConverter(
         const std::shared_ptr< EOPReader > eopReader = std::make_shared< EOPReader >( ) );
 
-//static const std::shared_ptr< TerrestrialTimeScaleConverter > defaultTimeConverter = createDefaultTimeConverter( );
+// static const std::shared_ptr< TerrestrialTimeScaleConverter > defaultTimeConverter = createDefaultTimeConverter( );
 
 template< typename TimeType >
 TimeType convertTimeScale( const TimeType& inputTime,
