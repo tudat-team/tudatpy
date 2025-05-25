@@ -318,7 +318,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
                 accelerationModel,
                 Eigen::VectorXd::Constant( marsCosineCoefficients->getParameterValue( ).size( ), 1, 1.0 ) );
         Eigen::MatrixXd testPartialWrtMarsSineCoefficients = calculateAccelerationWrtParameterPartials(
-                marsSineCoefficients,SphericalHarmonicsBlock(
+                marsSineCoefficients,
                 accelerationModel,
                 Eigen::VectorXd::Constant( marsSineCoefficients->getParameterValue( ).size( ), 1, 1.0 ) );
         Eigen::MatrixXd testPartialWrtPhobosCosineCoefficients = calculateAccelerationWrtParameterPartials(
