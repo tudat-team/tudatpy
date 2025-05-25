@@ -43,7 +43,8 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
         std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         std::map< std::pair< int, int >, Eigen::Vector3d >& accelerationPerTerm,
         const bool saveSeparateTerms,
-        const Eigen::Matrix3d& accelerationRotation )
+        const Eigen::Matrix3d& accelerationRotation,
+        const bool checkSphericalHarmonicsConsistency )
 {
     // Set highest degree and order.
     const int highestDegree = cosineHarmonicCoefficients.rows( );
@@ -59,7 +60,8 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
     sphericalHarmonicsCache->update( sphericalpositionOfBodySubjectToAcceleration( 0 ),
                                      sineOfAngle,
                                      sphericalpositionOfBodySubjectToAcceleration( 2 ),
-                                     equatorialRadius );
+                                     equatorialRadius,
+                                     checkSphericalHarmonicsConsistency );
 
     std::shared_ptr< basic_mathematics::LegendreCache > legendreCacheReference = sphericalHarmonicsCache->getLegendreCache( );
 
@@ -73,16 +75,29 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
             coordinate_conversions::getSphericalToCartesianGradientMatrix( positionOfBodySubjectToAcceleration );
 
     // Loop through all degrees.
+    double legendrePolynomial = TUDAT_NAN, legendrePolynomialDerivative = TUDAT_NAN;
     for( int degree = 0; degree < highestDegree; degree++ )
     {
         // Loop through all orders.
         for( int order = 0; ( order <= degree ) && ( order < highestOrder ); order++ )
         {
-            // Compute geodesy-normalized Legendre polynomials.
-            const double legendrePolynomial = legendreCacheReference->getLegendrePolynomial( degree, order );
+            if( checkSphericalHarmonicsConsistency )
+            {
+                // Compute geodesy-normalized Legendre polynomials.
+                legendrePolynomial = legendreCacheReference->getLegendrePolynomial( degree, order );
 
-            // Compute geodesy-normalized Legendre polynomial derivative.
-            const double legendrePolynomialDerivative = legendreCacheReference->getLegendrePolynomialDerivative( degree, order );
+                // Compute geodesy-normalized Legendre polynomial derivative.
+                legendrePolynomialDerivative = legendreCacheReference->getLegendrePolynomialDerivative( degree, order );
+            }
+            else
+            {
+                // Compute geodesy-normalized Legendre polynomials.
+                legendrePolynomial = legendreCacheReference->getLegendrePolynomialWithoutCheck( degree, order );
+
+                // Compute geodesy-normalized Legendre polynomial derivative.
+                legendrePolynomialDerivative = legendreCacheReference->getLegendrePolynomialDerivativeWithoutCheck( degree, order );
+            }
+
 
             // Compute the potential gradient of a single spherical harmonic term.
             if( saveSeparateTerms )
@@ -131,7 +146,8 @@ Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
         const int order,
         const double cosineHarmonicCoefficient,
         const double sineHarmonicCoefficient,
-        std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache )
+        std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+        const bool checkSphericalHarmonicsConsistency )
 {
     // Declare spherical position vector.
     Eigen::Vector3d sphericalpositionOfBodySubjectToAcceleration =
@@ -143,17 +159,22 @@ Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
     sphericalHarmonicsCache->update( sphericalpositionOfBodySubjectToAcceleration( 0 ),
                                      sineOfAngle,
                                      sphericalpositionOfBodySubjectToAcceleration( 2 ),
-                                     equatorialRadius );
+                                     equatorialRadius,
+                                     checkSphericalHarmonicsConsistency );
 
     // Compute gradient premultiplier.
     const double preMultiplier = gravitationalParameter / equatorialRadius;
 
     // Compute geodesy-normalized Legendre polynomials.
-    const double legendrePolynomial = sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomial( degree, order );
+    const double legendrePolynomial = checkSphericalHarmonicsConsistency ?
+        sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomial( degree, order ) :
+        sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomialWithoutCheck( degree, order );
 
     // Compute geodesy-normalized Legendre polynomial derivative.
-    const double legendrePolynomialDerivative =
-            sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomialDerivative( degree, order );
+    const double legendrePolynomialDerivative = checkSphericalHarmonicsConsistency ?
+            sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomialDerivative( degree, order ) :
+            sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomialDerivativeWithoutCheck( degree, order );
+
 
     // Compute the potential gradient of a single spherical harmonic term.
     Eigen::Vector3d sphericalGradient = basic_mathematics::computePotentialGradient( sphericalpositionOfBodySubjectToAcceleration,
