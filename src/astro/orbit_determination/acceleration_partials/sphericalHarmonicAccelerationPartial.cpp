@@ -442,7 +442,8 @@ void SphericalHarmonicsGravityPartial::update( const double currentTime )
                                                                                   currentCosineCoefficients_,
                                                                                   currentSineCoefficients_,
                                                                                   sphericalHarmonicCache_,
-                                                                                  accelerationModel_->getAccelerationInBodyFixedFrame( ) );
+                                                                                  accelerationModel_->getAccelerationInBodyFixedFrame( ),
+                                                                                  false );
 
         currentPartialWrtVelocity_.setZero( );
         currentPartialWrtPosition_.setZero( );

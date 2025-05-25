@@ -86,7 +86,7 @@ public:
      * \param polynomialParameter Parameter used as input argument for Legendre polynomials, in astro
      * applications, this is typically the sine of the body-fixed latitude.
      */
-    void update( const double polynomialParameter );
+    void update( const double polynomialParameter, const bool checkConsistency = true );
 
     //! Function to return the current polynomial parameter (typically sine of latitude)
     /*!
@@ -117,6 +117,8 @@ public:
      */
     double getLegendrePolynomial( const int degree, const int order );
 
+    double getLegendrePolynomialWithoutCheck( const int degree, const int order );
+
     //! Get first derivative of Legendre polynomial value from the cache.
     /*!
      * Get first derivative of Legendre polynomial value from the cache, as computed by last call to update function.
@@ -126,6 +128,8 @@ public:
      */
     double getLegendrePolynomialDerivative( const int degree, const int order );
 
+    double getLegendrePolynomialDerivativeWithoutCheck( const int degree, const int order );
+
     //! Get second derivative of Legendre polynomial value from the cache.
     /*!
      * Get second derivative of Legendre polynomial value from the cache, as computed by last call to update function.
@@ -134,6 +138,8 @@ public:
      * \return Second derivative of Legendre polynomial value.
      */
     double getLegendrePolynomialSecondDerivative( const int degree, const int order );
+
+    double getLegendrePolynomialSecondDerivativeWithoutCheck( const int degree, const int order );
 
     //! Function to get the maximum degree of cache.
     /*!
@@ -235,6 +241,7 @@ private:
 
     //! Function from which to compute the Legendre polynomials.
     LegendrePolynomialFunction legendrePolynomialFunction_;
+    LegendrePolynomialFunction legendrePolynomialFunctionWithoutCheck_;
 
     //! Boolean denoting whether the Legendre polynomials are geodesy-normalized or unnormalized
     bool useGeodesyNormalization_;
@@ -281,6 +288,7 @@ private:
  * \return Unnormalized Legendre polynomial.
  */
 double computeLegendrePolynomialFromCache( const int degree, const int order, LegendreCache& legendreCache );
+double computeLegendrePolynomialFromCacheWithoutCheck( const int degree, const int order, LegendreCache& legendreCache );
 
 //! Compute unnormalized associated Legendre polynomial.
 /*!
@@ -350,6 +358,8 @@ double computeLegendrePolynomial( const int degree, const int order, const doubl
  * \return Geodesy-normalized Legendre polynomial.
 */
 double computeGeodesyLegendrePolynomialFromCache( const int degree, const int order, LegendreCache& geodesyLegendreCache );
+
+double computeGeodesyLegendrePolynomialFromCacheWithoutCheck( const int degree, const int order, LegendreCache& geodesyLegendreCache );
 
 //! Compute geodesy-normalized associated Legendre polynomial.
 /*!
@@ -630,6 +640,9 @@ double computeGeodesyLegendrePolynomialVertical( const int degree,
 //! Predefine boost function for geodesy-normalized Legendre polynomial.
 static const LegendreCache::LegendrePolynomialFunction geodesyNormalizedLegendrePolynomialFunction =
         std::bind( &computeGeodesyLegendrePolynomialFromCache, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 );
+static const LegendreCache::LegendrePolynomialFunction geodesyNormalizedLegendrePolynomialFunctionWithoutCheck =
+    std::bind( &computeGeodesyLegendrePolynomialFromCacheWithoutCheck, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 );
+
 
 //! Function to calculate the normalization factor for Legendre polynomials to geodesy-normalized.
 /*!
@@ -646,6 +659,9 @@ double calculateLegendreGeodesyNormalizationFactor( const int degree, const int 
 //! Predefine boost function for unnormalized Legendre polynomial.
 const LegendreCache::LegendrePolynomialFunction regularLegendrePolynomialFunction =
         std::bind( &computeLegendrePolynomialFromCache, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 );
+const LegendreCache::LegendrePolynomialFunction regularLegendrePolynomialFunctionWithoutCheck =
+    std::bind( &computeLegendrePolynomialFromCacheWithoutCheck, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3 );
+
 
 //! Function to convert unnormalized to geodesy-normalized (4-pi normalized) spherical harmonic coefficients
 /*!
