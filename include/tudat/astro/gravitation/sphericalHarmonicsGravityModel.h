@@ -205,7 +205,8 @@ public:
                                                                                          sphericalHarmonicsCache_,
                                                                                          accelerationPerTerm_,
                                                                                          saveSphericalHarmonicTermsSeparately_,
-                                                                                         rotationToIntegrationFrame_.toRotationMatrix( ) );
+                                                                                         rotationToIntegrationFrame_.toRotationMatrix( ),
+                                                                                         false );
             currentAccelerationInBodyFixedFrame_ = rotationToIntegrationFrame_.inverse( ) * currentAcceleration_;
 
             if( this->updatePotential_ )
@@ -241,7 +242,8 @@ public:
                                                                      sphericalHarmonicsCache_,
                                                                      dummy,
                                                                      false,
-                                                                     rotationToIntegrationFrame_.toRotationMatrix( ) );
+                                                                     rotationToIntegrationFrame_.toRotationMatrix( ),
+                                                                     false );
     }
 
     //! Function to retrieve spherical harmonic acceleration in inertial frame, with alternative coefficients, per term
@@ -267,7 +269,8 @@ public:
                                                               sphericalHarmonicsCache_,
                                                               accelerationPerTerm,
                                                               true,
-                                                              rotationToIntegrationFrame_.toRotationMatrix( ) );
+                                                              rotationToIntegrationFrame_.toRotationMatrix( ),
+                                                              true );
 
         Eigen::VectorXd returnVector = Eigen::VectorXd( 3 * coefficientIndices.size( ) );
         for( unsigned int i = 0; i < coefficientIndices.size( ); i++ )
