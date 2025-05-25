@@ -53,14 +53,22 @@ Eigen::Vector3d computePotentialGradient( const double distance,
                                           const double legendrePolynomialDerivative )
 {
     // Return result.
-    return ( Eigen::Vector3d( ) << -preMultiplier / distance * radiusPowerTerm * ( static_cast< double >( degree ) + 1.0 ) *
-                             legendrePolynomial *
-                             ( cosineHarmonicCoefficient * cosineOfOrderLongitude + sineHarmonicCoefficient * sineOfOrderLongitude ),
-             preMultiplier * radiusPowerTerm * legendrePolynomialDerivative * cosineOfLatitude *
-                     ( cosineHarmonicCoefficient * cosineOfOrderLongitude + sineHarmonicCoefficient * sineOfOrderLongitude ),
-             preMultiplier * radiusPowerTerm * static_cast< double >( order ) * legendrePolynomial *
-                     ( sineHarmonicCoefficient * cosineOfOrderLongitude - cosineHarmonicCoefficient * sineOfOrderLongitude ) )
-            .finished( );
+    const double harmonicSum = cosineHarmonicCoefficient * cosineOfOrderLongitude +
+                               sineHarmonicCoefficient * sineOfOrderLongitude;
+
+    const double harmonicDifference = sineHarmonicCoefficient * cosineOfOrderLongitude -
+                                cosineHarmonicCoefficient * sineOfOrderLongitude;
+
+    const double factor = preMultiplier * radiusPowerTerm;
+
+    const double degreePlusOne = static_cast<double>(degree) + 1.0;
+    const double orderDouble = static_cast<double>(order);
+
+    Eigen::Vector3d gradient;
+    gradient.x() = -1.0 / distance * degreePlusOne * legendrePolynomial * harmonicSum;
+    gradient.y() =  legendrePolynomialDerivative * cosineOfLatitude * harmonicSum;
+    gradient.z() =  orderDouble * legendrePolynomial * harmonicDifference;
+    return factor * gradient;
 }
 
 //! Compute the gradient of a single term of a spherical harmonics potential field.

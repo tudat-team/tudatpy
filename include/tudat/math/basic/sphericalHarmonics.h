@@ -80,9 +80,9 @@ public:
      * \param longitude Current latitude
      * \param referenceRadius Reference (typically equatorial) radius of gravity field.
      */
-    void update( const double radius, const double polynomialParameter, const double longitude, const double referenceRadius )
+    void update( const double radius, const double polynomialParameter, const double longitude, const double referenceRadius, const bool checkConsistency = true )
     {
-        legendreCache_->update( polynomialParameter );
+        legendreCache_->update( polynomialParameter, checkConsistency );
         updateSines( longitude );
         updateRadiusPowers( referenceRadius / radius );
     }

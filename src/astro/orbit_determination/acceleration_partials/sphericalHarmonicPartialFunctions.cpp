@@ -102,23 +102,45 @@ void computePotentialSphericalHessian( const Eigen::Vector3d& sphericalPosition,
                                        const double cosineHarmonicCoefficient,
                                        const double sineHarmonicCoefficient,
                                        const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
-                                       Eigen::Matrix3d& sphericalHessian )
+                                       Eigen::Matrix3d& sphericalHessian,
+                                       const bool checkSphericalHarmonicsConsistency )
 {
-    computePotentialSphericalHessian( sphericalPosition( 0 ),
-                                      sphericalHarmonicsCache->getReferenceRadiusRatioPowers( degree + 1 ),
-                                      sphericalHarmonicsCache->getCosineOfMultipleLongitude( order ),
-                                      sphericalHarmonicsCache->getSineOfMultipleLongitude( order ),
-                                      sphericalHarmonicsCache->getLegendreCache( )->getCurrentPolynomialParameterComplement( ),
-                                      sphericalHarmonicsCache->getLegendreCache( )->getCurrentPolynomialParameter( ),
-                                      preMultiplier,
-                                      degree,
-                                      order,
-                                      cosineHarmonicCoefficient,
-                                      sineHarmonicCoefficient,
-                                      sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomial( degree, order ),
-                                      sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomialDerivative( degree, order ),
-                                      sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomialSecondDerivative( degree, order ),
-                                      sphericalHessian );
+    if( checkSphericalHarmonicsConsistency )
+    {
+        computePotentialSphericalHessian( sphericalPosition( 0 ),
+                                          sphericalHarmonicsCache->getReferenceRadiusRatioPowers( degree + 1 ),
+                                          sphericalHarmonicsCache->getCosineOfMultipleLongitude( order ),
+                                          sphericalHarmonicsCache->getSineOfMultipleLongitude( order ),
+                                          sphericalHarmonicsCache->getLegendreCache( )->getCurrentPolynomialParameterComplement( ),
+                                          sphericalHarmonicsCache->getLegendreCache( )->getCurrentPolynomialParameter( ),
+                                          preMultiplier,
+                                          degree,
+                                          order,
+                                          cosineHarmonicCoefficient,
+                                          sineHarmonicCoefficient,
+                                          sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomial( degree, order ),
+                                          sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomialDerivative( degree, order ),
+                                          sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomialSecondDerivative( degree, order ),
+                                          sphericalHessian );
+    }
+    else
+    {
+        computePotentialSphericalHessian( sphericalPosition( 0 ),
+                                          sphericalHarmonicsCache->getReferenceRadiusRatioPowers( degree + 1 ),
+                                          sphericalHarmonicsCache->getCosineOfMultipleLongitude( order ),
+                                          sphericalHarmonicsCache->getSineOfMultipleLongitude( order ),
+                                          sphericalHarmonicsCache->getLegendreCache( )->getCurrentPolynomialParameterComplement( ),
+                                          sphericalHarmonicsCache->getLegendreCache( )->getCurrentPolynomialParameter( ),
+                                          preMultiplier,
+                                          degree,
+                                          order,
+                                          cosineHarmonicCoefficient,
+                                          sineHarmonicCoefficient,
+                                          sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomialWithoutCheck( degree, order ),
+                                          sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomialDerivativeWithoutCheck( degree, order ),
+                                          sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomialSecondDerivativeWithoutCheck( degree, order ),
+                                          sphericalHessian );
+    }
 }
 
 //! Function to compute the spherical Hessian of a full spherical harmonic potential
@@ -128,7 +150,8 @@ Eigen::Matrix3d computeCumulativeSphericalHessian(
         const double gravitionalParameter,
         const Eigen::MatrixXd& cosineHarmonicCoefficients,
         const Eigen::MatrixXd& sineHarmonicCoefficients,
-        const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache )
+        const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+        const bool checkSphericalHarmonicsConsistency )
 {
     double preMultiplier = gravitionalParameter / referenceRadius;
 
@@ -146,7 +169,8 @@ Eigen::Matrix3d computeCumulativeSphericalHessian(
                                               cosineHarmonicCoefficients( i, j ),
                                               sineHarmonicCoefficients( i, j ),
                                               sphericalHarmonicsCache,
-                                              sphericalHessianTerm );
+                                              sphericalHessianTerm,
+                                              checkSphericalHarmonicsConsistency );
             sphericalHessian += sphericalHessianTerm;
         }
     }
@@ -164,7 +188,8 @@ Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration
         const Eigen::MatrixXd& sineHarmonicCoefficients,
         const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
         const Eigen::Vector3d& sphericalPotentialGradient,
-        const Eigen::Matrix3d& sphericalToCartesianGradientMatrix )
+        const Eigen::Matrix3d& sphericalToCartesianGradientMatrix,
+        const bool checkSphericalHarmonicsConsistency )
 {
     // Compute Hessian in spherical coordinates.
     Eigen::Matrix3d sphericalHessian = computeCumulativeSphericalHessian( sphericalPosition,
@@ -172,7 +197,8 @@ Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration
                                                                           gravitionalParameter,
                                                                           cosineHarmonicCoefficients,
                                                                           sineHarmonicCoefficients,
-                                                                          sphericalHarmonicsCache );
+                                                                          sphericalHarmonicsCache,
+                                                                          checkSphericalHarmonicsConsistency );
 
     // Convert to Cartesian Hessian
     Eigen::Matrix3d accelerationPartial =
@@ -194,7 +220,8 @@ Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration
         const Eigen::MatrixXd& cosineHarmonicCoefficients,
         const Eigen::MatrixXd& sineHarmonicCoefficients,
         const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
-        const Eigen::Vector3d& bodyFixedAcceleration )
+        const Eigen::Vector3d& bodyFixedAcceleration,
+        const bool checkSphericalHarmonicsConsistency )
 {
     // Compute spherical position.
     Eigen::Vector3d sphericalPosition = coordinate_conversions::convertCartesianToSpherical( cartesianPosition );
@@ -223,7 +250,8 @@ Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration
                                                                              sineHarmonicCoefficients,
                                                                              sphericalHarmonicsCache,
                                                                              sphericalPotentialGradient,
-                                                                             gradientTransformationMatrix );
+                                                                             gradientTransformationMatrix,
+                                                                             checkSphericalHarmonicsConsistency );
 }
 
 //! Calculate partial of spherical harmonic acceleration w.r.t. a set of cosine coefficients
