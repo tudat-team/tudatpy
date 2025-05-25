@@ -428,12 +428,6 @@ void SphericalHarmonicsGravityPartial::update( const double currentTime )
         currentCosineCoefficients_ = accelerationModel_->getCurrentCosineCoefficients( );
         currentSineCoefficients_ = accelerationModel_->getCurrentSineCoefficients( );
 
-        // Update trogonometric functions of multiples of longitude.
-        sphericalHarmonicCache_->update( bodyFixedSphericalPosition_( 0 ),
-                                         std::sin( bodyFixedSphericalPosition_( 1 ) ),
-                                         bodyFixedSphericalPosition_( 2 ),
-                                         accelerationModel_->getReferenceRadius( ) );
-
         // Calculate partial of acceleration wrt position of body undergoing acceleration.
         currentBodyFixedPartialWrtPosition_ =
                 computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration( bodyFixedPosition_,
