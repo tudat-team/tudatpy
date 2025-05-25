@@ -41,24 +41,30 @@ void computePotentialSphericalHessian( const double distance,
                                        const double legendrePolynomialSecondDerivative,
                                        Eigen::Matrix3d& sphericalHessian )
 {
-    sphericalHessian( 0, 0 ) = static_cast< double >( ( degree + 1 ) * ( degree + 2 ) ) / ( distance * distance ) * legendrePolynomial *
-            ( cosineHarmonicCoefficient * cosineOfOrderLongitude + sineHarmonicCoefficient * sineOfOrderLongitude );
-    sphericalHessian( 1, 0 ) = -static_cast< double >( degree + 1 ) / distance * cosineOfLatitude * legendrePolynomialDerivative *
-            ( cosineHarmonicCoefficient * cosineOfOrderLongitude + sineHarmonicCoefficient * sineOfOrderLongitude );
-    sphericalHessian( 2, 0 ) = -static_cast< double >( order * ( degree + 1 ) ) / distance * legendrePolynomial *
-            ( -cosineHarmonicCoefficient * sineOfOrderLongitude + sineHarmonicCoefficient * cosineOfOrderLongitude );
+    const double degreePlusOne = static_cast<double>(degree + 1);
+    const double degreePlusTwo = degreePlusOne + 1.0;
+    const double orderAsDouble = static_cast<double>(order);
+    const double inverseDistance = 1.0 / distance;
+    const double inverseDistanceSquared = inverseDistance * inverseDistance;
 
-    sphericalHessian( 0, 1 ) = sphericalHessian( 1, 0 );
-    sphericalHessian( 1, 1 ) =
-            ( cosineOfLatitude * cosineOfLatitude * legendrePolynomialSecondDerivative - sineOfLatitude * legendrePolynomialDerivative ) *
-            ( cosineHarmonicCoefficient * cosineOfOrderLongitude + sineHarmonicCoefficient * sineOfOrderLongitude );
-    sphericalHessian( 2, 1 ) = static_cast< double >( order ) * cosineOfLatitude * legendrePolynomialDerivative *
-            ( -cosineHarmonicCoefficient * sineOfOrderLongitude + sineHarmonicCoefficient * cosineOfOrderLongitude );
+    const double combinedHarmonicSum = cosineHarmonicCoefficient * cosineOfOrderLongitude + sineHarmonicCoefficient * sineOfOrderLongitude;
+    const double combinedHarmonicDifference = sineHarmonicCoefficient * cosineOfOrderLongitude - cosineHarmonicCoefficient * sineOfOrderLongitude;
 
-    sphericalHessian( 0, 2 ) = sphericalHessian( 2, 0 );
-    sphericalHessian( 1, 2 ) = sphericalHessian( 2, 1 );
-    sphericalHessian( 2, 2 ) = static_cast< double >( order * order ) * legendrePolynomial *
-            ( -cosineHarmonicCoefficient * cosineOfOrderLongitude - sineHarmonicCoefficient * sineOfOrderLongitude );
+    const double legendreTimesHarmonicSum = legendrePolynomial * combinedHarmonicSum;
+    const double firstDerivativeTimesHarmonicSum = legendrePolynomialDerivative * combinedHarmonicSum;
+    const double secondDerivativeTimesHarmonicSum = legendrePolynomialSecondDerivative * combinedHarmonicSum;
+    const double legendreTimesHarmonicDifference = legendrePolynomial * combinedHarmonicDifference;
+    const double firstDerivativeTimesHarmonicDifference = legendrePolynomialDerivative * combinedHarmonicDifference;
+
+    sphericalHessian(0, 0) = degreePlusOne * degreePlusTwo * inverseDistanceSquared * legendreTimesHarmonicSum;
+    sphericalHessian(1, 0) = -degreePlusOne * inverseDistance * cosineOfLatitude * firstDerivativeTimesHarmonicSum;
+    sphericalHessian(0, 1) = sphericalHessian(1, 0);
+    sphericalHessian(2, 0) = -degreePlusOne * orderAsDouble * inverseDistance * legendreTimesHarmonicDifference;
+    sphericalHessian(0, 2) = sphericalHessian(2, 0);
+    sphericalHessian(1, 1) = (cosineOfLatitude * cosineOfLatitude * secondDerivativeTimesHarmonicSum - sineOfLatitude * firstDerivativeTimesHarmonicSum);
+    sphericalHessian(2, 1) = orderAsDouble * cosineOfLatitude * firstDerivativeTimesHarmonicDifference;
+    sphericalHessian(1, 2) = sphericalHessian(2, 1);
+    sphericalHessian(2, 2) = -orderAsDouble * orderAsDouble * legendreTimesHarmonicSum;
 
     sphericalHessian *= preMultiplier * radiusPowerTerm;
 }
