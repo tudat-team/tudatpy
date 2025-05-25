@@ -93,7 +93,7 @@ public:
      * Function to return the current polynomial parameter (typically sine of latitude)
      * \return Current polynomial parameter
      */
-    double getCurrentPolynomialParameter( )
+    double getCurrentPolynomialParameter( ) const
     {
         return currentPolynomialParameter_;
     }
@@ -103,7 +103,7 @@ public:
      *  Function to return the complement to the current polynomial parameter (typically cosine of latitude)
      * \return Complement to the current polynomial parameter
      */
-    double getCurrentPolynomialParameterComplement( )
+    double getCurrentPolynomialParameterComplement( ) const
     {
         return currentPolynomialParameterComplement_;
     }
@@ -115,9 +115,9 @@ public:
      * \param order Order of requested Legendre polynomial.
      * \return Legendre polynomial value.
      */
-    double getLegendrePolynomial( const int degree, const int order );
+    double getLegendrePolynomial( const int degree, const int order ) const;
 
-    double getLegendrePolynomialWithoutCheck( const int degree, const int order );
+    double getLegendrePolynomialWithoutCheck( const int degree, const int order ) const;
 
     //! Get first derivative of Legendre polynomial value from the cache.
     /*!
@@ -126,9 +126,9 @@ public:
      * \param order Order of requested Legendre polynomial.
      * \return First derivative of Legendre polynomial value.
      */
-    double getLegendrePolynomialDerivative( const int degree, const int order );
+    double getLegendrePolynomialDerivative( const int degree, const int order ) const;
 
-    double getLegendrePolynomialDerivativeWithoutCheck( const int degree, const int order );
+    double getLegendrePolynomialDerivativeWithoutCheck( const int degree, const int order ) const;
 
     //! Get second derivative of Legendre polynomial value from the cache.
     /*!
@@ -137,9 +137,9 @@ public:
      * \param order Order of requested Legendre polynomial.
      * \return Second derivative of Legendre polynomial value.
      */
-    double getLegendrePolynomialSecondDerivative( const int degree, const int order );
+    double getLegendrePolynomialSecondDerivative( const int degree, const int order ) const;
 
-    double getLegendrePolynomialSecondDerivativeWithoutCheck( const int degree, const int order );
+    double getLegendrePolynomialSecondDerivativeWithoutCheck( const int degree, const int order ) const;
 
     //! Function to get the maximum degree of cache.
     /*!

@@ -265,7 +265,7 @@ void LegendreCache::resetMaximumDegreeAndOrder( const int maximumDegree, const i
 }
 
 //! Get Legendre polynomial value from the cache.
-double LegendreCache::getLegendrePolynomial( const int degree, const int order )
+double LegendreCache::getLegendrePolynomial( const int degree, const int order ) const
 {
     if( degree > maximumDegree_ || order > maximumOrder_ )
     {
@@ -284,13 +284,13 @@ double LegendreCache::getLegendrePolynomial( const int degree, const int order )
     }
 }
 
-double LegendreCache::getLegendrePolynomialWithoutCheck( const int degree, const int order )
+double LegendreCache::getLegendrePolynomialWithoutCheck( const int degree, const int order ) const
 {
-    return legendreValues_[ degree * ( maximumOrder_ + 1 ) + order ];
+    return legendreValues_.at( degree * ( maximumOrder_ + 1 ) + order );
 }
 
 //! Get first derivative of Legendre polynomial value from the cache.
-double LegendreCache::getLegendrePolynomialDerivative( const int degree, const int order )
+double LegendreCache::getLegendrePolynomialDerivative( const int degree, const int order ) const
 {
     if( degree > ( maximumDegree_ ) || order > maximumOrder_ )
     {
@@ -310,13 +310,13 @@ double LegendreCache::getLegendrePolynomialDerivative( const int degree, const i
     }
 }
 
-double LegendreCache::getLegendrePolynomialDerivativeWithoutCheck( const int degree, const int order )
+double LegendreCache::getLegendrePolynomialDerivativeWithoutCheck( const int degree, const int order ) const
 {
-        return legendreDerivatives_[ degree * ( maximumOrder_ + 1 ) + order ];
+        return legendreDerivatives_.at( degree * ( maximumOrder_ + 1 ) + order );
 }
 
 //! Get second derivative of Legendre polynomial value from the cache.
-double LegendreCache::getLegendrePolynomialSecondDerivative( const int degree, const int order )
+double LegendreCache::getLegendrePolynomialSecondDerivative( const int degree, const int order ) const
 {
     if( degree > ( maximumDegree_ ) || order > maximumOrder_ )
     {
@@ -340,9 +340,9 @@ double LegendreCache::getLegendrePolynomialSecondDerivative( const int degree, c
     }
 }
 
-double LegendreCache::getLegendrePolynomialSecondDerivativeWithoutCheck( const int degree, const int order )
+double LegendreCache::getLegendrePolynomialSecondDerivativeWithoutCheck( const int degree, const int order ) const
 {
-        return legendreSecondDerivatives_[ degree * ( maximumOrder_ + 1 ) + order ];
+        return legendreSecondDerivatives_.at( degree * ( maximumOrder_ + 1 ) + order );
 }
 
 double LegendreCache::getVerticalLegendreValuesComputationMultipliersOne( const int degree, const int order )
