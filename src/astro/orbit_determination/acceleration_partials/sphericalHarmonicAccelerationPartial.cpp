@@ -35,16 +35,16 @@ SphericalHarmonicsGravityPartial::SphericalHarmonicsGravityPartial(
     rotationMatrixPartials_( rotationMatrixPartials ), tidalLoveNumberPartialInterfaces_( tidalLoveNumberPartialInterfaces ),
     accelerationUsesMutualAttraction_( accelerationModel->getIsMutualAttractionUsed( ) )
 {
-    sphericalHarmonicCache_->getLegendreCache( )->setComputeSecondDerivatives( 1 );
+    sphericalHarmonicCache_.getLegendreCache( ).setComputeSecondDerivatives( 1 );
 
     // Update number of degrees and orders in legendre cache for calculation of position partials
 
     maximumDegree_ = accelerationModel_->getCosineHarmonicCoefficientsFunction( )( ).rows( ) - 1;
     maximumOrder_ = accelerationModel_->getSineHarmonicCoefficientsFunction( )( ).cols( ) - 1;
 
-    if( sphericalHarmonicCache_->getMaximumDegree( ) < maximumDegree_ || sphericalHarmonicCache_->getMaximumOrder( ) < maximumOrder_ + 2 )
+    if( sphericalHarmonicCache_.getMaximumDegree( ) < maximumDegree_ || sphericalHarmonicCache_.getMaximumOrder( ) < maximumOrder_ + 2 )
     {
-        sphericalHarmonicCache_->resetMaximumDegreeAndOrder( maximumDegree_, maximumOrder_ + 2 );
+        sphericalHarmonicCache_.resetMaximumDegreeAndOrder( maximumDegree_, maximumOrder_ + 2 );
     }
 }
 

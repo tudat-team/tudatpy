@@ -109,9 +109,9 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonics_PotentialGradient )
                                                      -2.717133139910520 )
                                                            .finished( );
 
-    std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache =
+    basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache =
             std::make_shared< basic_mathematics::SphericalHarmonicsCache >( 4, 4 );
-    sphericalHarmonicsCache->update( sphericalPosition( 0 ), std::sin( sphericalPosition( 1 ) ), sphericalPosition( 2 ), referenceRadius );
+    sphericalHarmonicsCache.update( sphericalPosition( 0 ), std::sin( sphericalPosition( 1 ) ), sphericalPosition( 2 ), referenceRadius );
 
     // Compute to be tested potential gradient.
     Eigen::MatrixXd testPotentialGradient( 10, 3 );

@@ -92,8 +92,7 @@ public:
             const std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction =
                     []( ) { return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
             const bool isMutualAttractionUsed = 0,
-            std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache =
-                    std::make_shared< basic_mathematics::SphericalHarmonicsCache >( ) ):
+            const basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache = basic_mathematics::SphericalHarmonicsCache( ) ):
         Base( positionOfBodySubjectToAccelerationFunction,
               aGravitationalParameter,
               positionOfBodyExertingAccelerationFunction,
@@ -105,9 +104,9 @@ public:
     {
         maximumDegree_ = static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) ) - 1;
         maximumOrder_ = static_cast< int >( getCosineHarmonicsCoefficients( ).cols( ) ) - 1;
-        sphericalHarmonicsCache_->resetMaximumDegreeAndOrder(
-                std::max< int >( maximumDegree_, sphericalHarmonicsCache_->getMaximumDegree( ) ) + 1,
-                std::max< int >( maximumOrder_, sphericalHarmonicsCache_->getMaximumOrder( ) ) + 1 );
+        sphericalHarmonicsCache_.resetMaximumDegreeAndOrder(
+                std::max< int >( maximumDegree_, sphericalHarmonicsCache_.getMaximumDegree( ) ) + 1,
+                std::max< int >( maximumOrder_, sphericalHarmonicsCache_.getMaximumOrder( ) ) + 1 );
     }
 
     //! Constructor taking functions for position of bodies, and parameters of spherical harmonics
@@ -148,8 +147,8 @@ public:
             const std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction =
                     []( ) { return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
             const bool isMutualAttractionUsed = 0,
-            std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache =
-                    std::make_shared< basic_mathematics::SphericalHarmonicsCache >( ) ):
+            const basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache =
+            basic_mathematics::SphericalHarmonicsCache( ) ):
         Base( positionOfBodySubjectToAccelerationFunction,
               aGravitationalParameterFunction,
               positionOfBodyExertingAccelerationFunction,
@@ -161,9 +160,9 @@ public:
     {
         maximumDegree_ = static_cast< int >( getCosineHarmonicsCoefficients( ).rows( ) - 1 );
         maximumOrder_ = static_cast< int >( getCosineHarmonicsCoefficients( ).cols( ) - 1 );
-        sphericalHarmonicsCache_->resetMaximumDegreeAndOrder(
-                std::max< int >( maximumDegree_ + 1, sphericalHarmonicsCache_->getMaximumDegree( ) ),
-                std::max< int >( maximumOrder_ + 1, sphericalHarmonicsCache_->getMaximumOrder( ) ) + 1 );
+        sphericalHarmonicsCache_.resetMaximumDegreeAndOrder(
+                std::max< int >( maximumDegree_ + 1, sphericalHarmonicsCache_.getMaximumDegree( ) ),
+                std::max< int >( maximumOrder_ + 1, sphericalHarmonicsCache_.getMaximumOrder( ) ) + 1 );
     }
 
     //! Get gravitational acceleration in body-fixed frame of body undergoing acceleration.
@@ -285,7 +284,7 @@ public:
      *  Function to retrieve the spherical harmonics cache for this acceleration.
      *  \return Spherical harmonics cache for this acceleration
      */
-    std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > getSphericalHarmonicsCache( )
+    basic_mathematics::SphericalHarmonicsCache& getSphericalHarmonicsCache( )
     {
         return sphericalHarmonicsCache_;
     }
@@ -518,7 +517,7 @@ private:
     Eigen::Vector3d currentInertialRelativePosition_;
 
     //!  Spherical harmonics cache for this acceleration
-    std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
+    basic_mathematics::SphericalHarmonicsCache sphericalHarmonicsCache_;
 
     //! Current acceleration in frame fixed to body undergoing acceleration, as computed by last call to updateMembers function
     Eigen::Vector3d currentAccelerationInBodyFixedFrame_;

@@ -419,7 +419,7 @@ protected:
 
     //! Cache object used for storing calculated values at current time and state for spherical harmonic gravity
     //! calculations.
-    std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicCache_;
+    basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicCache_;
 
     //! Current cosine coefficients of the spherical harmonic gravity field.
     /*!

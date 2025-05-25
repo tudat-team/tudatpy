@@ -31,7 +31,7 @@ void SphericalHarmonicsCache::resetMaximumDegreeAndOrder( const int maximumDegre
     {
         maximumOrder_ = maximumDegree_;
     }
-    legendreCache_->resetMaximumDegreeAndOrder( maximumDegree_, maximumOrder_ );
+    legendreCache_.resetMaximumDegreeAndOrder( maximumDegree_, maximumOrder_ );
 
     sinesOfLongitude_.resize( maximumOrder_ + 1 );
     cosinesOfLongitude_.resize( maximumOrder_ + 1 );
@@ -106,13 +106,13 @@ Eigen::Vector3d computePotentialGradient( const Eigen::Vector3d& sphericalPositi
                                           const double sineHarmonicCoefficient,
                                           const double legendrePolynomial,
                                           const double legendrePolynomialDerivative,
-                                          const std::shared_ptr< SphericalHarmonicsCache > sphericalHarmonicsCache )
+                                          const SphericalHarmonicsCache& sphericalHarmonicsCache )
 {
     return computePotentialGradient( sphericalPosition( radiusIndex ),
-                                     sphericalHarmonicsCache->getReferenceRadiusRatioPowers( degree + 1 ),
-                                     sphericalHarmonicsCache->getCosineOfMultipleLongitude( order ),
-                                     sphericalHarmonicsCache->getSineOfMultipleLongitude( order ),
-                                     sphericalHarmonicsCache->getLegendreCache( )->getCurrentPolynomialParameterComplement( ),
+                                     sphericalHarmonicsCache.getReferenceRadiusRatioPowers( degree + 1 ),
+                                     sphericalHarmonicsCache.getCosineOfMultipleLongitude( order ),
+                                     sphericalHarmonicsCache.getSineOfMultipleLongitude( order ),
+                                     sphericalHarmonicsCache.getLegendreCacheConst( ).getCurrentPolynomialParameterComplement( ),
                                      preMultiplier,
                                      degree,
                                      order,
