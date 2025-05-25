@@ -107,44 +107,44 @@ void computePotentialSphericalHessian( const Eigen::Vector3d& sphericalPosition,
                                        const int order,
                                        const double cosineHarmonicCoefficient,
                                        const double sineHarmonicCoefficient,
-                                       const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+                                       const basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache,
                                        Eigen::Matrix3d& sphericalHessian,
                                        const bool checkSphericalHarmonicsConsistency )
 {
     if( checkSphericalHarmonicsConsistency )
     {
         computePotentialSphericalHessian( sphericalPosition( 0 ),
-                                          sphericalHarmonicsCache->getReferenceRadiusRatioPowers( degree + 1 ),
-                                          sphericalHarmonicsCache->getCosineOfMultipleLongitude( order ),
-                                          sphericalHarmonicsCache->getSineOfMultipleLongitude( order ),
-                                          sphericalHarmonicsCache->getLegendreCache( )->getCurrentPolynomialParameterComplement( ),
-                                          sphericalHarmonicsCache->getLegendreCache( )->getCurrentPolynomialParameter( ),
+                                          sphericalHarmonicsCache.getReferenceRadiusRatioPowers( degree + 1 ),
+                                          sphericalHarmonicsCache.getCosineOfMultipleLongitude( order ),
+                                          sphericalHarmonicsCache.getSineOfMultipleLongitude( order ),
+                                          sphericalHarmonicsCache.getLegendreCacheConst( ).getCurrentPolynomialParameterComplement( ),
+                                          sphericalHarmonicsCache.getLegendreCacheConst( ).getCurrentPolynomialParameter( ),
                                           preMultiplier,
                                           degree,
                                           order,
                                           cosineHarmonicCoefficient,
                                           sineHarmonicCoefficient,
-                                          sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomial( degree, order ),
-                                          sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomialDerivative( degree, order ),
-                                          sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomialSecondDerivative( degree, order ),
+                                          sphericalHarmonicsCache.getLegendreCacheConst( ).getLegendrePolynomial( degree, order ),
+                                          sphericalHarmonicsCache.getLegendreCacheConst( ).getLegendrePolynomialDerivative( degree, order ),
+                                          sphericalHarmonicsCache.getLegendreCacheConst( ).getLegendrePolynomialSecondDerivative( degree, order ),
                                           sphericalHessian );
     }
     else
     {
         computePotentialSphericalHessian( sphericalPosition( 0 ),
-                                          sphericalHarmonicsCache->getReferenceRadiusRatioPowers( degree + 1 ),
-                                          sphericalHarmonicsCache->getCosineOfMultipleLongitude( order ),
-                                          sphericalHarmonicsCache->getSineOfMultipleLongitude( order ),
-                                          sphericalHarmonicsCache->getLegendreCache( )->getCurrentPolynomialParameterComplement( ),
-                                          sphericalHarmonicsCache->getLegendreCache( )->getCurrentPolynomialParameter( ),
+                                          sphericalHarmonicsCache.getReferenceRadiusRatioPowers( degree + 1 ),
+                                          sphericalHarmonicsCache.getCosineOfMultipleLongitude( order ),
+                                          sphericalHarmonicsCache.getSineOfMultipleLongitude( order ),
+                                          sphericalHarmonicsCache.getLegendreCacheConst( ).getCurrentPolynomialParameterComplement( ),
+                                          sphericalHarmonicsCache.getLegendreCacheConst( ).getCurrentPolynomialParameter( ),
                                           preMultiplier,
                                           degree,
                                           order,
                                           cosineHarmonicCoefficient,
                                           sineHarmonicCoefficient,
-                                          sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomialWithoutCheck( degree, order ),
-                                          sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomialDerivativeWithoutCheck( degree, order ),
-                                          sphericalHarmonicsCache->getLegendreCache( )->getLegendrePolynomialSecondDerivativeWithoutCheck( degree, order ),
+                                          sphericalHarmonicsCache.getLegendreCacheConst( ).getLegendrePolynomialWithoutCheck( degree, order ),
+                                          sphericalHarmonicsCache.getLegendreCacheConst( ).getLegendrePolynomialDerivativeWithoutCheck( degree, order ),
+                                          sphericalHarmonicsCache.getLegendreCacheConst( ).getLegendrePolynomialSecondDerivativeWithoutCheck( degree, order ),
                                           sphericalHessian );
     }
 }
@@ -156,7 +156,7 @@ Eigen::Matrix3d computeCumulativeSphericalHessian(
         const double gravitionalParameter,
         const Eigen::MatrixXd& cosineHarmonicCoefficients,
         const Eigen::MatrixXd& sineHarmonicCoefficients,
-        const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+        const basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache,
         const bool checkSphericalHarmonicsConsistency )
 {
     double preMultiplier = gravitionalParameter / referenceRadius;
@@ -192,7 +192,7 @@ Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration
         const double gravitionalParameter,
         const Eigen::MatrixXd& cosineHarmonicCoefficients,
         const Eigen::MatrixXd& sineHarmonicCoefficients,
-        const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+        const basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache,
         const Eigen::Vector3d& sphericalPotentialGradient,
         const Eigen::Matrix3d& sphericalToCartesianGradientMatrix,
         const bool checkSphericalHarmonicsConsistency )
@@ -225,7 +225,7 @@ Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration
         const double gravitionalParameter,
         const Eigen::MatrixXd& cosineHarmonicCoefficients,
         const Eigen::MatrixXd& sineHarmonicCoefficients,
-        const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+        basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache,
         const Eigen::Vector3d& bodyFixedAcceleration,
         const bool checkSphericalHarmonicsConsistency )
 {
@@ -265,7 +265,7 @@ void calculateSphericalHarmonicGravityWrtCCoefficients(
         const Eigen::Vector3d& sphericalPosition,
         const double referenceRadius,
         const double gravitionalParameter,
-        const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+        const basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache,
         const std::vector< std::pair< int, int > >& blockIndices,
         const Eigen::Matrix3d& sphericalToCartesianGradientMatrix,
         const Eigen::Matrix3d& bodyFixedToIntegrationFrame,
@@ -274,7 +274,7 @@ void calculateSphericalHarmonicGravityWrtCCoefficients(
         const int maximumAccelerationOrder )
 {
     double preMultiplier = gravitionalParameter / referenceRadius;
-    const std::shared_ptr< basic_mathematics::LegendreCache > legendreCache = sphericalHarmonicsCache->getLegendreCache( );
+    const basic_mathematics::LegendreCache& legendreCache = sphericalHarmonicsCache.getLegendreCacheConst( );
 
     int degree, order;
     for( unsigned int i = 0; i < blockIndices.size( ); i++ )
@@ -287,17 +287,17 @@ void calculateSphericalHarmonicGravityWrtCCoefficients(
         {
             partialsMatrix.block( 0, i, 3, 1 ) = basic_mathematics::computePotentialGradient(
                     sphericalPosition( radiusIndex ),
-                    sphericalHarmonicsCache->getReferenceRadiusRatioPowers( degree + 1 ),
-                    sphericalHarmonicsCache->getCosineOfMultipleLongitude( order ),
-                    sphericalHarmonicsCache->getSineOfMultipleLongitude( order ),
-                    sphericalHarmonicsCache->getLegendreCache( )->getCurrentPolynomialParameterComplement( ),
+                    sphericalHarmonicsCache.getReferenceRadiusRatioPowers( degree + 1 ),
+                    sphericalHarmonicsCache.getCosineOfMultipleLongitude( order ),
+                    sphericalHarmonicsCache.getSineOfMultipleLongitude( order ),
+                    legendreCache.getCurrentPolynomialParameterComplement( ),
                     preMultiplier,
                     degree,
                     order,
                     1.0,
                     0.0,
-                    legendreCache->getLegendrePolynomial( degree, order ),
-                    legendreCache->getLegendrePolynomialDerivative( degree, order ) );
+                    legendreCache.getLegendrePolynomial( degree, order ),
+                    legendreCache.getLegendrePolynomialDerivative( degree, order ) );
         }
         else
         {
@@ -314,7 +314,7 @@ void calculateSphericalHarmonicGravityWrtSCoefficients(
         const Eigen::Vector3d& sphericalPosition,
         const double referenceRadius,
         const double gravitionalParameter,
-        const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+        const basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache,
         const std::vector< std::pair< int, int > >& blockIndices,
         const Eigen::Matrix3d& sphericalToCartesianGradientMatrix,
         const Eigen::Matrix3d& bodyFixedToIntegrationFrame,
@@ -323,7 +323,7 @@ void calculateSphericalHarmonicGravityWrtSCoefficients(
         const int maximumAccelerationOrder )
 {
     double preMultiplier = gravitionalParameter / referenceRadius;
-    const std::shared_ptr< basic_mathematics::LegendreCache > legendreCache = sphericalHarmonicsCache->getLegendreCache( );
+    const basic_mathematics::LegendreCache& legendreCache = sphericalHarmonicsCache.getLegendreCacheConst( );
 
     int degree, order;
     for( unsigned int i = 0; i < blockIndices.size( ); i++ )
@@ -336,17 +336,17 @@ void calculateSphericalHarmonicGravityWrtSCoefficients(
         {
             partialsMatrix.block( 0, i, 3, 1 ) = basic_mathematics::computePotentialGradient(
                     sphericalPosition( radiusIndex ),
-                    sphericalHarmonicsCache->getReferenceRadiusRatioPowers( degree + 1 ),
-                    sphericalHarmonicsCache->getCosineOfMultipleLongitude( order ),
-                    sphericalHarmonicsCache->getSineOfMultipleLongitude( order ),
-                    sphericalHarmonicsCache->getLegendreCache( )->getCurrentPolynomialParameterComplement( ),
+                    sphericalHarmonicsCache.getReferenceRadiusRatioPowers( degree + 1 ),
+                    sphericalHarmonicsCache.getCosineOfMultipleLongitude( order ),
+                    sphericalHarmonicsCache.getSineOfMultipleLongitude( order ),
+                    legendreCache.getCurrentPolynomialParameterComplement( ),
                     preMultiplier,
                     degree,
                     order,
                     0.0,
                     1.0,
-                    legendreCache->getLegendrePolynomial( degree, order ),
-                    legendreCache->getLegendrePolynomialDerivative( degree, order ) );
+                    legendreCache.getLegendrePolynomial( degree, order ),
+                    legendreCache.getLegendrePolynomialDerivative( degree, order ) );
         }
         else
         {
