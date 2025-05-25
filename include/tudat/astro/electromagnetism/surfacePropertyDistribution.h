@@ -103,7 +103,7 @@ public:
                     "Error when creating spherical harmonics surface property distribution; sine and cosine sizes are incompatible" );
         }
 
-        legendreCache_->setComputeFirstDerivatives( false );
+        sphericalHarmonicsCache_.setComputeFirstDerivatives( false );
     }
 
     double getValue( double latitude, double longitude ) override;
@@ -146,7 +146,7 @@ private:
 
     basic_mathematics::SphericalHarmonicsCache sphericalHarmonicsCache_;
 
-    std::shared_ptr< basic_mathematics::LegendreCache > legendreCache_;
+    const basic_mathematics::LegendreCache& legendreCache_;
 };
 
 /*!

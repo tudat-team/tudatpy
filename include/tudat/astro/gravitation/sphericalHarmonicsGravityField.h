@@ -90,7 +90,7 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
         const double equatorialRadius,
         const Eigen::MatrixXd& cosineHarmonicCoefficients,
         const Eigen::MatrixXd& sineHarmonicCoefficients,
-        std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+        basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache,
         std::map< std::pair< int, int >, Eigen::Vector3d >& accelerationPerTerm,
         const bool saveSeparateTerms = 0,
         const Eigen::Matrix3d& accelerationRotation = Eigen::Matrix3d::Identity( ),
@@ -145,7 +145,7 @@ Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
         const int order,
         const double cosineHarmonicCoefficient,
         const double sineHarmonicCoefficient,
-        std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+        basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache,
         const bool checkSphericalHarmonicsConsistency = true );
 
 //! Function to calculate the gravitational potential from a spherical harmonic field expansion.
@@ -170,7 +170,7 @@ double calculateSphericalHarmonicGravitationalPotential(
         const double referenceRadius,
         const Eigen::MatrixXd& cosineCoefficients,
         const Eigen::MatrixXd& sineCoefficients,
-        std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+        basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache,
         const int minimumumDegree = 0,
         const int minimumumOrder = 0 );
 
@@ -202,15 +202,15 @@ public:
         GravityFieldModel( gravitationalParameter ), referenceRadius_( referenceRadius ), cosineCoefficients_( cosineCoefficients ),
         sineCoefficients_( sineCoefficients ), fixedReferenceFrame_( fixedReferenceFrame ),
         scaledMeanMomentOfInertia_( scaledMeanMomentOfInertia ), maximumDegree_( cosineCoefficients_.rows( ) - 1 ),
-        maximumOrder_( cosineCoefficients_.cols( ) - 1 )
+        maximumOrder_( cosineCoefficients_.cols( ) - 1 ),
+        sphericalHarmonicsCache_( basic_mathematics::SphericalHarmonicsCache( ) )
     {
         if( ( cosineCoefficients.rows( ) != sineCoefficients.rows( ) ) || ( cosineCoefficients.cols( ) != sineCoefficients.cols( ) ) )
         {
             throw std::runtime_error( "Error when creating spherical harmonics gravity field; sine and cosine sizes are incompatible" );
         }
 
-        sphericalHarmonicsCache_ = std::make_shared< basic_mathematics::SphericalHarmonicsCache >( );
-        sphericalHarmonicsCache_->resetMaximumDegreeAndOrder( maximumDegree_ + 2, maximumOrder_ + 2 );
+        sphericalHarmonicsCache_.resetMaximumDegreeAndOrder( maximumDegree_ + 2, maximumOrder_ + 2 );
     }
 
     //! Virtual destructor.
@@ -525,7 +525,7 @@ protected:
     const int maximumOrder_;
 
     //! Cache object for potential calculations.
-    std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache_;
+    basic_mathematics::SphericalHarmonicsCache sphericalHarmonicsCache_;
 };
 
 //! Function to determine a body's inertia tensor from its degree two unnormalized gravity field coefficients
