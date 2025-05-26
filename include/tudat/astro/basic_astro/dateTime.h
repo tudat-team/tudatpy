@@ -11,6 +11,9 @@
 #ifndef TUDAT_DATETIME_H
 #define TUDAT_DATETIME_H
 
+#include <chrono>
+#include <ctime>
+
 #include "tudat/basics/timeType.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
 
@@ -160,6 +163,42 @@ public:
     int dayOfYear( )
     {
         return basic_astrodynamics::convertDayMonthYearToDayOfYear( day_, month_, year_ );
+    }
+
+    std::chrono::system_clock::time_point timePoint( ) const
+    {
+        std::tm tm = { };
+        tm.tm_sec = static_cast< int >( this->getSeconds( ) );
+        tm.tm_min = this->getMinute( );
+        tm.tm_hour = this->getHour( );
+        tm.tm_mday = this->getDay( );
+        tm.tm_mon = this->getMonth( ) - 1;
+        tm.tm_year = this->getYear( ) - 1900;
+
+        tm.tm_isdst = -1;
+        std::chrono::system_clock::time_point timePoint = std::chrono::system_clock::from_time_t( std::mktime( &tm ) );
+        return timePoint +
+                std::chrono::microseconds(
+                        static_cast< int >( std::round( ( this->getSeconds( ) - static_cast< long double >( tm.tm_sec ) ) *
+                                                        tudat::mathematical_constants::getFloatingInteger< long double >( 1E6 ) ) ) );
+    }
+
+    static DateTime fromTimePoint( const std::chrono::system_clock::time_point datetime )
+    {
+        std::time_t tt = std::chrono::system_clock::to_time_t( datetime );
+        std::tm local_tm = *localtime( &tt );
+
+        using namespace std::chrono;
+        microseconds timeInMicroSeconds = duration_cast< microseconds >( datetime.time_since_epoch( ) );
+        long long fractional_seconds = timeInMicroSeconds.count( ) % 1000000LL;
+        return DateTime( local_tm.tm_year + 1900,
+                         local_tm.tm_mon + 1,
+                         local_tm.tm_mday,
+                         local_tm.tm_hour,
+                         local_tm.tm_min,
+                         static_cast< long double >( local_tm.tm_sec ) +
+                                 static_cast< long double >( fractional_seconds ) /
+                                         tudat::mathematical_constants::getFloatingInteger< long double >( 1000000LL ) );
     }
 
 protected:
