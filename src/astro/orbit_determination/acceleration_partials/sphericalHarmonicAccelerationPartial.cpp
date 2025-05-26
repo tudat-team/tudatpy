@@ -37,16 +37,16 @@ SphericalHarmonicsGravityPartial::SphericalHarmonicsGravityPartial(
     sineSphericalHarmonicsBlock( accelerationModel->getCurrentSineCoefficients( ) ),
     accelerationUsesMutualAttraction_( accelerationModel->getIsMutualAttractionUsed( ) )
 {
-    sphericalHarmonicCache_->getLegendreCache( )->setComputeSecondDerivatives( 1 );
+    sphericalHarmonicCache_.getLegendreCache( ).setComputeSecondDerivatives( 1 );
 
     // Update number of degrees and orders in legendre cache for calculation of position partials
 
     maximumDegree_ = cosineSphericalHarmonicsBlock.rows( ) - 1;
     maximumOrder_ = cosineSphericalHarmonicsBlock.cols( ) - 1;
 
-    if( sphericalHarmonicCache_->getMaximumDegree( ) < maximumDegree_ || sphericalHarmonicCache_->getMaximumOrder( ) < maximumOrder_ + 2 )
+    if( sphericalHarmonicCache_.getMaximumDegree( ) < maximumDegree_ || sphericalHarmonicCache_.getMaximumOrder( ) < maximumOrder_ + 2 )
     {
-        sphericalHarmonicCache_->resetMaximumDegreeAndOrder( maximumDegree_, maximumOrder_ + 2 );
+        sphericalHarmonicCache_.resetMaximumDegreeAndOrder( maximumDegree_, maximumOrder_ + 2 );
     }
 }
 
@@ -427,12 +427,6 @@ void SphericalHarmonicsGravityPartial::update( const double currentTime )
         bodyFixedSphericalPosition_( 1 ) = mathematical_constants::PI / 2.0 - bodyFixedSphericalPosition_( 1 );
 
 
-        // Update trogonometric functions of multiples of longitude.
-        sphericalHarmonicCache_->update( bodyFixedSphericalPosition_( 0 ),
-                                         std::sin( bodyFixedSphericalPosition_( 1 ) ),
-                                         bodyFixedSphericalPosition_( 2 ),
-                                         accelerationModel_->getReferenceRadius( ) );
-
         // Calculate partial of acceleration wrt position of body undergoing acceleration.
         currentBodyFixedPartialWrtPosition_ =
                 computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration( bodyFixedPosition_,
@@ -441,7 +435,8 @@ void SphericalHarmonicsGravityPartial::update( const double currentTime )
                                                                                   cosineSphericalHarmonicsBlock,
                                                                                   sineSphericalHarmonicsBlock,
                                                                                   sphericalHarmonicCache_,
-                                                                                  accelerationModel_->getAccelerationInBodyFixedFrame( ) );
+                                                                                  accelerationModel_->getAccelerationInBodyFixedFrame( ),
+                                                                                  false );
 
         currentPartialWrtVelocity_.setZero( );
         currentPartialWrtPosition_.setZero( );
