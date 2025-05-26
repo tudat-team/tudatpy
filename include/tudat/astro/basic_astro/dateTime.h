@@ -200,6 +200,11 @@ public:
                                  static_cast< long double >( fractional_seconds ) /
                                          tudat::mathematical_constants::getFloatingInteger< long double >( 1000000LL ) );
     }
+    static DateTime fromYearAndDaysInYear( const int year, const int daysInYear )
+    {
+        boost::gregorian::date boostDateTime = convertYearAndDaysInYearToDate( year, daysInYear );
+        return DateTime( boostDateTime.year( ), boostDateTime.month( ), boostDateTime.day( ), 0, 0, 0.0 );
+    }
 
 protected:
     int year_;
