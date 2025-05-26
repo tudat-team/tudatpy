@@ -47,12 +47,6 @@ std::shared_ptr< TerrestrialTimeScaleConverter > createDefaultTimeConverterPy( )
 namespace basic_astrodynamics
 {
 
-tba::DateTime convertYearAndDaysInYearToTudatDate( const int year, const int daysInYear )
-{
-    boost::gregorian::date boostDateTime = tba::convertYearAndDaysInYearToDate( year, daysInYear );
-    return tba::DateTime( boostDateTime.year( ), boostDateTime.month( ), boostDateTime.day( ), 0, 0, 0.0 );
-}
-
 }  // namespace basic_astrodynamics
 
 }  // namespace tudat
@@ -227,6 +221,40 @@ void expose_time_conversion( py::module& m )
                   py::arg( "number_of_digits_seconds" ) = 15,
                   R"doc(
 
+ .. warning::
+
+    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.to_python_datetime` instead.
+
+ Function to get the ISO-compatible string.
+
+
+ Function to get the current date and time as an ISO-compatible string ("YYYY-MM-DDTHH:MM:SS.SSSSS..") where the seconds may be provided with any number of digits. The 'T' entry separating the date from the time may be omitted by setting the ``add_T`` parameter to false
+
+
+ Parameters
+ ----------
+ add_T : bool
+ Boolean denoting whether to use a 'T' or a blank space to separate the date from the time
+
+ number_of_digits_seconds : int, default = 15
+ Number of digits to use after the decimal separator (trailing zeros will be truncated)
+
+ Returns
+ -------
+ str
+     ISO-compatible string representing the date and time
+
+
+
+
+
+ )doc" )
+            .def( "to_iso_string",
+                  &tba::DateTime::isoString,
+                  py::arg( "add_T" ) = false,
+                  py::arg( "number_of_digits_seconds" ) = 15,
+                  R"doc(
+
  Function to get the ISO-compatible string.
 
 
@@ -255,6 +283,27 @@ void expose_time_conversion( py::module& m )
                   &tba::DateTime::dayOfYear,
                   R"doc(
 
+ .. warning::
+
+    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.to_python_datetime` instead.
+
+ Function to get the day number in the current year
+
+
+ Returns
+ -------
+ int
+     Day number in the current year
+
+
+
+
+
+ )doc" )
+            .def( "to_day_of_year",
+                  &tba::DateTime::dayOfYear,
+                  R"doc(
+
  Function to get the day number in the current year
 
 
@@ -269,6 +318,27 @@ void expose_time_conversion( py::module& m )
 
  )doc" )
             .def( "epoch",
+                  &tba::DateTime::epoch< TIME_TYPE >,
+                  R"doc(
+
+ .. warning::
+
+    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.to_python_datetime` instead.
+
+ Function to get the epoch in seconds since J2000 for the current date and time
+
+
+ Returns
+ -------
+ float
+     Current epoch in seconds since J2000
+
+
+
+
+
+ )doc" )
+            .def( "to_epoch",
                   &tba::DateTime::epoch< TIME_TYPE >,
                   R"doc(
 
@@ -289,6 +359,27 @@ void expose_time_conversion( py::module& m )
                   &tba::DateTime::julianDay< double >,
                   R"doc(
 
+ .. warning::
+
+    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.to_python_datetime` instead.
+
+ Function to get the epoch as Julian day for the current date and time
+
+
+ Returns
+ -------
+ float
+     Current Julian day
+
+
+
+
+
+ )doc" )
+            .def( "to_julian_day",
+                  &tba::DateTime::julianDay< double >,
+                  R"doc(
+
  Function to get the epoch as Julian day for the current date and time
 
 
@@ -303,6 +394,27 @@ void expose_time_conversion( py::module& m )
 
  )doc" )
             .def( "modified_julian_day",
+                  &tba::DateTime::modifiedJulianDay< double >,
+                  R"doc(
+ 
+ .. warning::
+
+    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.to_python_datetime` instead.
+
+ Function to get the epoch as modified Julian day for the current date and time
+
+
+ Returns
+ -------
+ float
+     Current modified Julian day
+
+
+
+
+
+ )doc" )
+            .def( "to_modified_julian_day",
                   &tba::DateTime::modifiedJulianDay< double >,
                   R"doc(
 
@@ -333,6 +445,70 @@ DateTime
     DateTime object defined in Tudat
 
             )doc" )
+            .def_static( "from_year_and_day_of_year",
+                         &tba::DateTime::fromYearAndDaysInYear,
+                         py::arg( "year" ),
+                         py::arg( "day_of_year" ),
+                         R"doc(
+                         
+Create the Tudat :class:`DateTime` from the year and the number of days in the year.
+
+Parameters
+----------
+year : int
+    Calendar year.
+day_of_year : int
+    Number of days that have passed in the year.
+Returns
+-------
+DateTime
+    Corresponding calendar date as a :class:`DateTime` object. Note: the hours, minutes and seconds in the object are set to 0 when calling this function.
+
+Examples
+--------
+In this example, the calendar date corresponding to when 122 days have passed in 2020 is computed.
+
+.. code-block:: python
+
+    # Compute the calendar date when 122 days have passed in 2020
+    currentDate = time_conversion.DateTime.from_year_and_day_of_year(2020, 122)
+    # Print the converted output
+    print(currentDate)  # prints (2020, 5, 2, 0, 0)
+                         
+                         )doc" )
+            .def_static( "from_iso_string", &tba::dateTimeFromIsoString, py::arg( "iso_time" ), R"doc(
+            
+ Creates a Tudat-native :class:`DateTime` object from an ISO datetime string.
+
+ Parameters
+ ----------
+ iso_datetime : str
+     Date and time as ISO compatible string ("YYYY-MM-DDTHH:MM:SS.SSSSS..", where the T may be replaced with a space)
+
+ Returns
+ -------
+ DateTime
+     Tudat ``DateTime`` object.
+
+            )doc" )
+            .def_static( "from_epoch",
+                         &tba::getCalendarDateFromTime< TIME_TYPE >,
+                         py::arg( "epoch" ),
+                         R"doc(
+
+ Creates a Tudat-native :class:`DateTime` object from the seconds since J2000.
+
+ Parameters
+ ----------
+ epoch : float
+     Seconds since J2000
+
+ Returns
+ -------
+ DateTime
+     Tudat ``DateTime`` object.
+
+     )doc" )
             .def( "to_python_datetime", &tba::DateTime::timePoint, R"doc(
                 
 Method to convert retrieve a Python datetime.datetime object from the Tudat :class:`DateTime` object. This is the inverse of the :meth:`tudatpy.astro.time_conversion.DateTime.from_python_datetime` method.
@@ -368,12 +544,16 @@ datetime.datetime
     )doc" );
 
     m.def( "year_and_days_in_year_to_calendar_date",
-           &tba::convertYearAndDaysInYearToTudatDate,
+           &tba::DateTime::fromYearAndDaysInYear,
            py::arg( "year" ),
            py::arg( "days_in_year" ),
            R"doc(
         
-Create the calendar date from the year and the number of days in the year.
+.. warning::
+
+    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.from_year_and_day_of_year` instead.
+
+Create the Tudat :class:`DateTime` from the year and the number of days in the year.
 
 Parameters
 ----------
@@ -1323,6 +1503,11 @@ In this example, the calendar date corresponding to when 122 days have passed in
            py::arg( "epoch" ),
            R"doc(
 
+ .. warning::
+
+    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.to_python_datetime` instead.
+
+
  Creates a Tudat-native :class:`DateTime` object from the seconds since J2000.
 
 
@@ -1347,6 +1532,10 @@ In this example, the calendar date corresponding to when 122 days have passed in
            &tba::dateTimeFromIsoString,
            py::arg( "iso_datetime" ),
            R"doc(
+
+ .. warning::
+
+    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.to_python_datetime` instead.
 
  Creates a Tudat-native :class:`DateTime` object from an ISO datetime string.
 
