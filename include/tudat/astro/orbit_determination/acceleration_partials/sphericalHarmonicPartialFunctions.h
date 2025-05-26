@@ -117,8 +117,9 @@ void computePotentialSphericalHessian( const Eigen::Vector3d& sphericalPosition,
                                        const int order,
                                        const double cosineHarmonicCoefficient,
                                        const double sineHarmonicCoefficient,
-                                       const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
-                                       Eigen::Matrix3d& sphericalHessian );
+                                       const basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache,
+                                       Eigen::Matrix3d& sphericalHessian,
+                                       const bool checkSphericalHarmonicsConsistency = true );
 
 //! Function to compute the spherical Hessian of a full spherical harmonic potential
 /*!
@@ -141,7 +142,8 @@ Eigen::Matrix3d computeCumulativeSphericalHessian(
         const double gravitionalParameter,
         const CoefficientBlock& cosineHarmonicCoefficients,
         const CoefficientBlock& sineHarmonicCoefficients,
-        const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache )
+        const basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache,
+        const bool checkSphericalHarmonicsConsistency = true )
 {
     double preMultiplier = gravitionalParameter / referenceRadius;
 
@@ -159,7 +161,8 @@ Eigen::Matrix3d computeCumulativeSphericalHessian(
                                               cosineHarmonicCoefficients( i, j ),
                                               sineHarmonicCoefficients( i, j ),
                                               sphericalHarmonicsCache,
-                                              sphericalHessianTerm );
+                                              sphericalHessianTerm,
+                                              checkSphericalHarmonicsConsistency );
             sphericalHessian += sphericalHessianTerm;
         }
     }
@@ -194,9 +197,10 @@ Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration
         const double gravitionalParameter,
         const CoefficientBlock& cosineHarmonicCoefficients,
         const CoefficientBlock& sineHarmonicCoefficients,
-        const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+        const basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache,
         const Eigen::Vector3d& sphericalPotentialGradient,
-        const Eigen::Matrix3d& sphericalToCartesianGradientMatrix )
+        const Eigen::Matrix3d& sphericalToCartesianGradientMatrix,
+        const bool checkSphericalHarmonicsConsistency = true )
 {
     // Compute Hessian in spherical coordinates.
     Eigen::Matrix3d sphericalHessian = computeCumulativeSphericalHessian( sphericalPosition,
@@ -204,7 +208,8 @@ Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration
                                                                           gravitionalParameter,
                                                                           cosineHarmonicCoefficients,
                                                                           sineHarmonicCoefficients,
-                                                                          sphericalHarmonicsCache );
+                                                                          sphericalHarmonicsCache,
+                                                                          checkSphericalHarmonicsConsistency );
 
     // Convert to Cartesian Hessian
     Eigen::Matrix3d accelerationPartial =
@@ -216,6 +221,7 @@ Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration
 
     return accelerationPartial;
 }
+
 
 //! Calculate partial of spherical harmonic acceleration w.r.t. position of body undergoing acceleration
 //! (in the body-fixed frame)
@@ -239,8 +245,9 @@ Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration
         const double gravitionalParameter,
         const CoefficientBlock& cosineHarmonicCoefficients,
         const CoefficientBlock& sineHarmonicCoefficients,
-        const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
-        const Eigen::Vector3d& bodyFixedAcceleration = Eigen::Vector3d::Constant( TUDAT_NAN ) )
+        basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache,
+        const Eigen::Vector3d& bodyFixedAcceleration = Eigen::Vector3d::Constant( TUDAT_NAN ),
+        const bool checkSphericalHarmonicsConsistency = true )
 {
     // Compute spherical position.
     Eigen::Vector3d sphericalPosition = coordinate_conversions::convertCartesianToSpherical( cartesianPosition );
@@ -269,7 +276,8 @@ Eigen::Matrix3d computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration
                                                                              sineHarmonicCoefficients,
                                                                              sphericalHarmonicsCache,
                                                                              sphericalPotentialGradient,
-                                                                             gradientTransformationMatrix );
+                                                                             gradientTransformationMatrix,
+                                                                             checkSphericalHarmonicsConsistency );
 }
 
 //! Calculate partial of spherical harmonic acceleration w.r.t. a set of cosine coefficients
@@ -294,7 +302,7 @@ void calculateSphericalHarmonicGravityWrtCCoefficients(
         const Eigen::Vector3d& sphericalPosition,
         const double referenceRadius,
         const double gravitionalParameter,
-        const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+        const basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache,
         const std::vector< std::pair< int, int > >& blockIndices,
         const Eigen::Matrix3d& sphericalToCartesianGradientMatrix,
         const Eigen::Matrix3d& bodyFixedToIntegrationFrame,
@@ -324,7 +332,7 @@ void calculateSphericalHarmonicGravityWrtSCoefficients(
         const Eigen::Vector3d& sphericalPosition,
         const double referenceRadius,
         const double gravitionalParameter,
-        const std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache,
+        const basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache,
         const std::vector< std::pair< int, int > >& blockIndices,
         const Eigen::Matrix3d& sphericalToCartesianGradientMatrix,
         const Eigen::Matrix3d& bodyFixedToIntegrationFrame,
