@@ -42,15 +42,15 @@ class SphericalHarmonicsBlock
 public:
 
     SphericalHarmonicsBlock( const std::function< Eigen::Block< Eigen::MatrixXd >( ) > blockUpdateFunction ):
-        blockUpdateFunction_( blockUpdateFunction ), block_( blockUpdateFunction_( ) )
+        blockUpdateFunction_( blockUpdateFunction ), block_( blockUpdateFunction_( ) ), enablePointMass_( true )
         {
 
         }
 
-    SphericalHarmonicsBlock( Eigen::MatrixXd& matrix ):
-         block_( matrix.block( 0, 0, matrix.rows( ), matrix.cols( ) ) )
+    SphericalHarmonicsBlock( Eigen::MatrixXd matrix ):
+        blockUpdateFunction_( nullptr ), matrix_( matrix ), block_( matrix_.block( 0, 0, matrix_.rows( ), matrix_.cols( ) ) ), enablePointMass_( true )
     {
-        blockUpdateFunction_ = [=]( ){ return block_; };
+
     }
 
     inline double operator( )(int i, int j) const
@@ -62,7 +62,13 @@ public:
 
     inline int cols() const { return block_.cols(); }
 
-    void update( ){ block_ = blockUpdateFunction_( ); }
+    void update( )
+    {
+        if( blockUpdateFunction_ != nullptr )
+        {
+            block_ = blockUpdateFunction_( );
+        }
+    }
 
     bool getEnablePointMass( )
     {
@@ -76,13 +82,16 @@ public:
 
 private:
 
-    double getPointMassTerm( ) const { return enablePointMass_ ?  1.0 : 0.0 ; }
+    double getPointMassTerm( ) const { return enablePointMass_ ?  block_( 0, 0 ) : 0.0 ; }
 
     std::function< Eigen::Block< Eigen::MatrixXd >( ) > blockUpdateFunction_;
 
-    bool enablePointMass_ = true;
+    Eigen::MatrixXd matrix_ = Eigen::MatrixXd::Zero( 0, 0  );
 
     Eigen::Block< Eigen::MatrixXd > block_;
+
+    bool enablePointMass_;
+
 };
 
 //! Compute gravitational acceleration due to multiple spherical harmonics terms, defined using
