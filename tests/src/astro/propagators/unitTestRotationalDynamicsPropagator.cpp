@@ -918,6 +918,8 @@ BOOST_AUTO_TEST_CASE( testSimpleRotationalDynamicsPropagationWithLibration )
         // Create torque models
         for( int torqueType = 0; torqueType < 2; torqueType++ )
         {
+            std::cout<<propagatorType<<" "<<torqueType<<std::endl;
+
             SelectedTorqueMap torqueMap;
             if( torqueType == 0 )
             {

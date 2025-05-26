@@ -125,14 +125,14 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
     Eigen::Vector3d nominalSphericalPosition = coordinate_conversions::convertCartesianToSpherical( position );
     nominalSphericalPosition( 1 ) = mathematical_constants::PI / 2.0 - nominalSphericalPosition( 1 );
 
-    std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCache =
+    basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache =
             std::make_shared< basic_mathematics::SphericalHarmonicsCache >( 6, 6 );
-    sphericalHarmonicsCache->update(
+    sphericalHarmonicsCache.update(
             nominalSphericalPosition( 0 ), std::sin( nominalSphericalPosition( 1 ) ), nominalSphericalPosition( 2 ), planetaryRadius );
-    std::shared_ptr< basic_mathematics::LegendreCache > legendreCache = sphericalHarmonicsCache->getLegendreCache( );
+    basic_mathematics::LegendreCache& legendreCache = sphericalHarmonicsCache.getLegendreCache( );
 
-    double currentLongitude = sphericalHarmonicsCache->getCurrentLongitude( );
-    double currentPolynomialArgument = legendreCache->getCurrentPolynomialParameter( );
+    double currentLongitude = sphericalHarmonicsCache.getCurrentLongitude( );
+    double currentPolynomialArgument = legendreCache.getCurrentPolynomialParameter( );
 
     Eigen::MatrixXd upPerturbedLegendrePolynomials = Eigen::MatrixXd( 6, 6 );
     Eigen::MatrixXd downPerturbedLegendrePolynomials = Eigen::MatrixXd( 6, 6 );
@@ -143,39 +143,39 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
     Eigen::MatrixXd analyticalLegendrePolynomialPartials = Eigen::MatrixXd( 6, 6 );
     Eigen::MatrixXd analyticalLegendrePolynomialSecondPartials = Eigen::MatrixXd( 6, 6 );
 
-    legendreCache->setComputeSecondDerivatives( 1 );
-    legendreCache->update( currentPolynomialArgument + 0.1 );
+    legendreCache.setComputeSecondDerivatives( 1 );
+    legendreCache.update( currentPolynomialArgument + 0.1 );
 
-    legendreCache->update( currentPolynomialArgument );
+    legendreCache.update( currentPolynomialArgument );
 
     for( unsigned int i = 0; i < 6; i++ )
     {
         for( unsigned int j = 0; ( j <= i && j < 6 ); j++ )
         {
-            analyticalLegendrePolynomialPartials( i, j ) = legendreCache->getLegendrePolynomialDerivative( i, j );
-            analyticalLegendrePolynomialSecondPartials( i, j ) = legendreCache->getLegendrePolynomialSecondDerivative( i, j );
+            analyticalLegendrePolynomialPartials( i, j ) = legendreCache.getLegendrePolynomialDerivative( i, j );
+            analyticalLegendrePolynomialSecondPartials( i, j ) = legendreCache.getLegendrePolynomialSecondDerivative( i, j );
         }
     }
 
     double polynomialArgumentPerturbation = 1.0E-6;
     {
-        legendreCache->update( currentPolynomialArgument + polynomialArgumentPerturbation );
+        legendreCache.update( currentPolynomialArgument + polynomialArgumentPerturbation );
         for( unsigned int i = 0; i < 6; i++ )
         {
             for( unsigned int j = 0; ( j <= i && j < 6 ); j++ )
             {
-                upPerturbedLegendrePolynomials( i, j ) = legendreCache->getLegendrePolynomial( i, j );
-                upPerturbedLegendrePolynomialPartials( i, j ) = legendreCache->getLegendrePolynomialDerivative( i, j );
+                upPerturbedLegendrePolynomials( i, j ) = legendreCache.getLegendrePolynomial( i, j );
+                upPerturbedLegendrePolynomialPartials( i, j ) = legendreCache.getLegendrePolynomialDerivative( i, j );
             }
         }
 
-        legendreCache->update( currentPolynomialArgument - polynomialArgumentPerturbation );
+        legendreCache.update( currentPolynomialArgument - polynomialArgumentPerturbation );
         for( unsigned int i = 0; i < 6; i++ )
         {
             for( unsigned int j = 0; ( j <= i && j < 6 ); j++ )
             {
-                downPerturbedLegendrePolynomials( i, j ) = legendreCache->getLegendrePolynomial( i, j );
-                downPerturbedLegendrePolynomialPartials( i, j ) = legendreCache->getLegendrePolynomialDerivative( i, j );
+                downPerturbedLegendrePolynomials( i, j ) = legendreCache.getLegendrePolynomial( i, j );
+                downPerturbedLegendrePolynomialPartials( i, j ) = legendreCache.getLegendrePolynomialDerivative( i, j );
             }
         }
     }
@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
         analyticalSphericalPotentialHessian.push_back( singleTermPotentialPartials );
     }
 
-    sphericalHarmonicsCache->update( position.norm( ), currentPolynomialArgument, currentLongitude, planetaryRadius );
+    sphericalHarmonicsCache.update( position.norm( ), currentPolynomialArgument, currentLongitude, planetaryRadius );
 
     for( unsigned int i = 0; i < 6; i++ )
     {
@@ -236,8 +236,8 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
                                                                  j,
                                                                  cosineCoefficients( i, j ),
                                                                  sineCoefficients( i, j ),
-                                                                 legendreCache->getLegendrePolynomial( i, j ),
-                                                                 legendreCache->getLegendrePolynomialDerivative( i, j ),
+                                                                 legendreCache.getLegendrePolynomial( i, j ),
+                                                                 legendreCache.getLegendrePolynomialDerivative( i, j ),
                                                                  sphericalHarmonicsCache );
         }
     }
@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
         perturbedSphericalPosition = nominalSphericalPosition;
         perturbedSphericalPosition( parameter ) += sphericalStatePerturbation( parameter );
 
-        sphericalHarmonicsCache->update( perturbedSphericalPosition( 0 ),
+        sphericalHarmonicsCache.update( perturbedSphericalPosition( 0 ),
                                          std::sin( perturbedSphericalPosition( 1 ) ),
                                          perturbedSphericalPosition( 2 ),
                                          planetaryRadius );
@@ -267,8 +267,8 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
                                                                      j,
                                                                      cosineCoefficients( i, j ),
                                                                      sineCoefficients( i, j ),
-                                                                     legendreCache->getLegendrePolynomial( i, j ),
-                                                                     legendreCache->getLegendrePolynomialDerivative( i, j ),
+                                                                     legendreCache.getLegendrePolynomial( i, j ),
+                                                                     legendreCache.getLegendrePolynomialDerivative( i, j ),
                                                                      sphericalHarmonicsCache );
             }
         }
@@ -276,7 +276,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
         perturbedSphericalPosition = nominalSphericalPosition;
         perturbedSphericalPosition( parameter ) -= sphericalStatePerturbation( parameter );
 
-        sphericalHarmonicsCache->update( perturbedSphericalPosition( 0 ),
+        sphericalHarmonicsCache.update( perturbedSphericalPosition( 0 ),
                                          std::sin( perturbedSphericalPosition( 1 ) ),
                                          perturbedSphericalPosition( 2 ),
                                          planetaryRadius );
@@ -292,8 +292,8 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
                                                                      j,
                                                                      cosineCoefficients( i, j ),
                                                                      sineCoefficients( i, j ),
-                                                                     legendreCache->getLegendrePolynomial( i, j ),
-                                                                     legendreCache->getLegendrePolynomialDerivative( i, j ),
+                                                                     legendreCache.getLegendrePolynomial( i, j ),
+                                                                     legendreCache.getLegendrePolynomialDerivative( i, j ),
                                                                      sphericalHarmonicsCache );
             }
         }
