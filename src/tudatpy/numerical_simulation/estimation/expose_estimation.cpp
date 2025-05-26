@@ -45,8 +45,8 @@ std::pair< std::vector< double >, std::vector< Eigen::VectorXd > > getTargetAngl
         const std::vector< double > times,
         const bool transmittingToTarget )
 {
-    std::map< double, Eigen::VectorXd > targetAnglesAndRange = getTargetAnglesAndRange(
-            bodies, groundStationId, targetBody, times, transmittingToTarget );
+    std::map< double, Eigen::VectorXd > targetAnglesAndRange =
+            getTargetAnglesAndRange( bodies, groundStationId, targetBody, times, transmittingToTarget );
     return std::make_pair( utilities::createVectorFromMapKeys( targetAnglesAndRange ),
                            utilities::createVectorFromMapValues( targetAnglesAndRange ) );
 }
@@ -64,8 +64,7 @@ namespace estimation
 
 void expose_estimation( py::module &m )
 {
-    py::class_< tom::ObservationViabilityCalculator,
-                std::shared_ptr< tom::ObservationViabilityCalculator > >(
+    py::class_< tom::ObservationViabilityCalculator, std::shared_ptr< tom::ObservationViabilityCalculator > >(
             m,
             "ObservationViabilityCalculator",
             R"doc(
@@ -113,10 +112,9 @@ void expose_estimation( py::module &m )
      )doc" );
 
     py::class_< tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE >,
-                std::shared_ptr< tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE > > >(
-            m,
-            "ObservationSimulator",
-            R"doc(
+                std::shared_ptr< tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE > > >( m,
+                                                                                                    "ObservationSimulator",
+                                                                                                    R"doc(
 
          Class hosting the functionality for simulating observations.
 
@@ -212,8 +210,7 @@ void expose_estimation( py::module &m )
            py::arg( "initial_time" ),
            py::arg( "final_time" ),
            py::arg( "data_point_interval" ),
-           py::arg( "additional_parameter_names" ) =
-                   std::vector< std::shared_ptr< tep::EstimatableParameterSettings > >( ),
+           py::arg( "additional_parameter_names" ) = std::vector< std::shared_ptr< tep::EstimatableParameterSettings > >( ),
            py::arg( "number_of_iterations" ) = 3,
            py::arg( "reintegrate_variational_equations" ) = true,
            py::arg( "results_print_frequency" ) = 0.0,
@@ -224,8 +221,7 @@ void expose_estimation( py::module &m )
            py::arg( "observations" ),
            py::arg( "reference_link_end" ),
            py::arg( "ancilliary_settings_per_observatble" ) =
-                   std::map< tom::ObservableType,
-                             std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >( ) );
+                   std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >( ) );
 
     m.def( "compute_target_angles_and_range",
            &tss::getTargetAnglesAndRange,
@@ -322,40 +318,35 @@ void expose_estimation( py::module &m )
      )doc" );
 
     m.def( "create_filtered_observation_collection",
-           py::overload_cast< const std::shared_ptr<
-                                      tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >,
-                              const std::map< std::shared_ptr< tom::ObservationCollectionParser >,
-                                              std::shared_ptr< tom::ObservationFilterBase > > & >(
+           py::overload_cast<
+                   const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                   const std::map< std::shared_ptr< tom::ObservationCollectionParser >, std::shared_ptr< tom::ObservationFilterBase > > & >(
                    &tom::filterObservations< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "original_observation_collection" ),
            py::arg( "observation_filters_map" ),
            R"doc(No documentation found.)doc" );
 
     m.def( "create_filtered_observation_collection",
-           py::overload_cast< const std::shared_ptr<
-                                      tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >,
+           py::overload_cast< const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >,
                               const std::shared_ptr< tom::ObservationFilterBase >,
                               const std::shared_ptr< tom::ObservationCollectionParser > >(
                    &tom::filterObservations< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "original_observation_collection" ),
            py::arg( "observation_filter" ),
-           py::arg( "observation_parser" ) =
-                   std::make_shared< tom::ObservationCollectionParser >( ),
+           py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
            R"doc(No documentation found.)doc" );
 
     m.def( "split_observation_collection",
            &tom::splitObservationSets< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "original_observation_collection" ),
            py::arg( "observation_set_splitter" ),
-           py::arg( "observation_parser" ) =
-                   std::make_shared< tom::ObservationCollectionParser >( ),
+           py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
            R"doc(No documentation found.)doc" );
 
     m.def( "create_new_observation_collection",
            &tom::createNewObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "original_observation_collection" ),
-           py::arg( "observation_parser" ) =
-                   std::make_shared< tom::ObservationCollectionParser >( ),
+           py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
            R"doc(No documentation found.)doc" );
 }
 
