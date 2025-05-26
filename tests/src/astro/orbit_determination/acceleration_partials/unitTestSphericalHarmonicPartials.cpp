@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
     nominalSphericalPosition( 1 ) = mathematical_constants::PI / 2.0 - nominalSphericalPosition( 1 );
 
     basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache =
-            std::make_shared< basic_mathematics::SphericalHarmonicsCache >( 6, 6 );
+        basic_mathematics::SphericalHarmonicsCache( 6, 6 );
     sphericalHarmonicsCache.update(
             nominalSphericalPosition( 0 ), std::sin( nominalSphericalPosition( 1 ) ), nominalSphericalPosition( 2 ), planetaryRadius );
     basic_mathematics::LegendreCache& legendreCache = sphericalHarmonicsCache.getLegendreCache( );
