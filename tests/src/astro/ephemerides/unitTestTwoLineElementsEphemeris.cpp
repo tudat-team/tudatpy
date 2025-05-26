@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsEphemerisLangbroke )
     // Create time scale converter object
     auto timeScaleConverter = earth_orientation::createDefaultTimeConverter( );
 
-    for( int i = 0; i < evaluationTimes.size( ); i++ )
+    for( unsigned int i = 0; i < evaluationTimes.size( ); i++ )
     {
         std::cout << i << std::endl;
         std::shared_ptr< Tle > currentTle = std::make_shared< Tle >( elementsList1.at( i ), elementsList2.at( i ) );
