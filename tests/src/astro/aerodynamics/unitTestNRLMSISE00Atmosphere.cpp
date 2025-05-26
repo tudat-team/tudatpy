@@ -88,7 +88,6 @@ BOOST_AUTO_TEST_CASE( testNRLMSISE00AtmosphereTestFunctions )
 {
     auto computedCartesianPosition = coordinate_conversions::convertGeodeticToCartesianCoordinates(
             ( Eigen::Vector3d( ) << 400.0E3, 60.0 * PI / 180.0, -70.0 * PI / 180.0 ).finished( ), 6378137.0, 1.0 / 298.257223563 );
-    auto sphericalPosition = coordinate_conversions::convertCartesianToSpherical( computedCartesianPosition );
 
     // Manual reset of switch
     gen_data.switches[ 9 ] = 1;
