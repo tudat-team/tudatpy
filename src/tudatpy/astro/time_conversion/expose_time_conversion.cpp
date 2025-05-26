@@ -50,82 +50,44 @@ namespace basic_astrodynamics
 tba::DateTime convertYearAndDaysInYearToTudatDate( const int year, const int daysInYear )
 {
     boost::gregorian::date boostDateTime = tba::convertYearAndDaysInYearToDate( year, daysInYear );
-    return tba::DateTime(
-            boostDateTime.year( ), boostDateTime.month( ), boostDateTime.day( ), 0, 0, 0.0 );
+    return tba::DateTime( boostDateTime.year( ), boostDateTime.month( ), boostDateTime.day( ), 0, 0, 0.0 );
 }
 
 }  // namespace basic_astrodynamics
 
 }  // namespace tudat
 
-tba::DateTime timePointToDateTime( const std::chrono::system_clock::time_point datetime )
-{
-    std::time_t tt = std::chrono::system_clock::to_time_t( datetime );
-    std::tm local_tm = *localtime( &tt );
-
-    using namespace std::chrono;
-    microseconds timeInMicroSeconds = duration_cast< microseconds >( datetime.time_since_epoch( ) );
-    long long fractional_seconds = timeInMicroSeconds.count( ) % 1000000LL;
-    return tba::DateTime(
-            local_tm.tm_year + 1900,
-            local_tm.tm_mon + 1,
-            local_tm.tm_mday,
-            local_tm.tm_hour,
-            local_tm.tm_min,
-            static_cast< long double >( local_tm.tm_sec ) +
-                    static_cast< long double >( fractional_seconds ) /
-                            tudat::mathematical_constants::getFloatingInteger< long double >(
-                                    1000000LL ) );
-}
-
 // Convert from Gregorian date to time_point (Python datetime). Only
 // year/month/day, no time.
 std::chrono::system_clock::time_point dateTimeToTimePoint( const tba::DateTime& dateTime )
 {
-    std::tm tm = { static_cast< int >( dateTime.getSeconds( ) ),
-                   dateTime.getMinute( ),
-                   dateTime.getHour( ),
-                   dateTime.getDay( ),
-                   dateTime.getMonth( ) - 1,
-                   dateTime.getYear( ) - 1900
-
-    };
-    tm.tm_isdst = -1;
-    std::chrono::system_clock::time_point timePoint =
-            std::chrono::system_clock::from_time_t( std::mktime( &tm ) );
-    return timePoint +
-            std::chrono::microseconds( static_cast< int >( std::round(
-                    ( dateTime.getSeconds( ) - static_cast< long double >( tm.tm_sec ) ) *
-                    tudat::mathematical_constants::getFloatingInteger< long double >( 1E6 ) ) ) );
+    return dateTime.timePoint( );
 }
 
 // Convert Julian day to calendar date. This code ensures that the value
 // returned is a time_point (Python datetime).
 std::chrono::system_clock::time_point convertJulianDayToCalendarDatePy( const double julianDay )
 {
-    tba::DateTime dateTime = tba::getCalendarDateFromTime< double >(
-            tudat::timeFromJulianDay< double >( julianDay ) );
+    tba::DateTime dateTime = tba::getCalendarDateFromTime< double >( tudat::timeFromJulianDay< double >( julianDay ) );
 
-    return dateTimeToTimePoint( dateTime );
+    return dateTime.timePoint( );
 }
 
 // Convert calendar date to Julian day since a given epoch. This code allows for
 // the calendar date to be a time_point (Python datetime).
 template< typename TimeScalarType = double >
-TimeScalarType convertCalendarDateToJulianDayPy(
-        const std::chrono::system_clock::time_point calendarDate )
+TimeScalarType convertCalendarDateToJulianDayPy( const std::chrono::system_clock::time_point calendarDate )
 {
-    tba::DateTime dateTime = timePointToDateTime( calendarDate );
+    tba::DateTime dateTime = tba::DateTime::fromTimePoint( calendarDate );
     return dateTime.julianDay< TimeScalarType >( );
 }
 
 template< typename TimeScalarType = double >
 TimeScalarType convertCalendarDateToJulianDaySinceEpochPy(
         const std::chrono::system_clock::time_point calendarDate,
-        const TimeScalarType epochSinceJulianDayZero =
-                tba::getJulianDayOnJ2000< TimeScalarType >( ) )
+        const TimeScalarType epochSinceJulianDayZero = tba::getJulianDayOnJ2000< TimeScalarType >( ) )
 {
-    tba::DateTime dateTime = timePointToDateTime( calendarDate );
+    tba::DateTime dateTime = tba::DateTime::fromTimePoint( calendarDate );
     return dateTime.julianDay< TimeScalarType >( ) - epochSinceJulianDayZero;
 }
 
@@ -161,10 +123,9 @@ void expose_time_conversion( py::module& m )
  )doc" )
             .export_values( );
 
-    py::class_< teo::TerrestrialTimeScaleConverter,
-                std::shared_ptr< teo::TerrestrialTimeScaleConverter > >( m,
-                                                                         "TimeScaleConverter",
-                                                                         R"doc(
+    py::class_< teo::TerrestrialTimeScaleConverter, std::shared_ptr< teo::TerrestrialTimeScaleConverter > >( m,
+                                                                                                             "TimeScaleConverter",
+                                                                                                             R"doc(
 
  Class to convert between different time scales (TAI, TT, TDB, UTC, UT1)
 
@@ -204,12 +165,7 @@ void expose_time_conversion( py::module& m )
 
 
  )doc" )
-            .def( py::init< const int,
-                            const int,
-                            const int,
-                            const int,
-                            const int,
-                            const long double >( ),
+            .def( py::init< const int, const int, const int, const int, const int, const long double >( ),
                   py::arg( "year" ),
                   py::arg( "month" ),
                   py::arg( "day" ),
@@ -362,12 +318,40 @@ void expose_time_conversion( py::module& m )
 
 
 
- )doc" );
+ )doc" )
+            .def_static( "from_python_datetime", &tba::DateTime::fromTimePoint, py::arg( "datetime" ), R"doc(
+            
+Function to convert a Python `datetime.datetime` object to a Tudat :class:`DateTime` object. The Tudat-native alternative has the advantage of providing sub-femtosecond resolution, as opposed to the microsecond resolution of the Python version.
+
+Parameters
+----------
+datetime : datetime.datetime
+    Datetime object, using the Python datetime library. Both the date and the time (hour, minutes, and seconds), can be specified, up to millisecond resolution.
+Returns
+-------
+DateTime
+    DateTime object defined in Tudat
+
+            )doc" )
+            .def( "to_python_datetime", &tba::DateTime::timePoint, R"doc(
+                
+Method to convert retrieve a Python datetime.datetime object from the Tudat :class:`DateTime` object. This is the inverse of the :meth:`tudatpy.astro.time_conversion.DateTime.from_python_datetime` method.
+
+Returns
+-------
+datetime.datetime
+    Datetime object, using the Python datetime library
+
+    )doc" );
 
     m.def( "datetime_to_tudat",
-           &timePointToDateTime,
+           &tba::DateTime::fromTimePoint,
            py::arg( "datetime" ),
            R"doc(
+
+ .. warning::
+
+    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.from_python_datetime` instead.
 
  Function to convert a Python datetime.datetime object to a Tudat :class:`DateTime` object. The Tudat-native alternative has the advantage of providing sub-femtosecond resolution, as opposed to the microsecond resolution of the Python version
 
@@ -419,6 +403,11 @@ In this example, the calendar date corresponding to when 122 days have passed in
            &dateTimeToTimePoint,
            py::arg( "datetime" ),
            R"doc(
+
+ .. warning::
+
+    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.to_python_datetime` instead.
+
 
  Function to convert a Tudat :class:`DateTime` object to a Python datetime.datetime object. This is the inverse of the :func:`datetime_to_tudat` function
 
