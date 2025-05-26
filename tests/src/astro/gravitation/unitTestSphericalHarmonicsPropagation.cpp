@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
 
     // Create propagator settings
     std::shared_ptr< IntegratorSettings< double > > integratorSettings =
-        rungeKuttaFixedStepSettings( 40.0, CoefficientSets::rungeKuttaFehlberg78, 40.0 );
+        rungeKuttaFixedStepSettings( 40.0, CoefficientSets::rungeKuttaFehlberg78 );
     std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings =
         std::make_shared< TranslationalStatePropagatorSettings< double, double > >(
             centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, initialEphemerisTime, integratorSettings,
