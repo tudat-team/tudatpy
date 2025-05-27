@@ -28,6 +28,7 @@
 #include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include "tudat/io/readHistoryFromFile.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 #include "tudat/simulation/estimation_setup/orbitDeterminationManager.h"
 #include "tudat/simulation/simulation.h"
@@ -197,22 +198,100 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
 
     std::map< double, Eigen::MatrixXd > stateTransitionMatrixHistory = variationalEquationsSolver->getStateTransitionMatrixSolution( );
     input_output::writeDataMapToTextFile( stateTransitionMatrixHistory,
-                                          "testPhi.dat", "/home/dominic/Tudat/tudat-bundle/tudat-bundle/", "", 16 );
+                                          "sphericalHarmonicsTestStateTransition.dat", "/home/dominic/Tudat/tudat-bundle/tudat-bundle/", "", 16 );
 
+    std::map< double, Eigen::MatrixXd > referenceStateTransitionMatrixHistory =
+    input_output::readMatrixHistoryFromFile< double, double >( stateTransitionMatrixHistory.begin( )->second.rows( ),
+                                                 stateTransitionMatrixHistory.begin( )->second.cols( ),
+                                                 "/home/dominic/Tudat/tudat-bundle/tudat-bundle/sphericalHarmonicsTestStateTransition.dat" );
+    for( auto it : stateTransitionMatrixHistory )
+    {
+        BOOST_CHECK_EQUAL( referenceStateTransitionMatrixHistory.count( it.first ), 1 );
+        Eigen::MatrixXd currentMatrix = stateTransitionMatrixHistory.at( it.first );
+        Eigen::MatrixXd matrixDifference = stateTransitionMatrixHistory.at( it.first ) - referenceStateTransitionMatrixHistory.at( it.first );
+//        std::cout<<matrixDifference<<std::endl<<std::endl;
+        for( int i = 0; i < 3; i++ )
+        {
+            for( int j = 0; j < 3; j++ )
+            {
+                BOOST_CHECK_SMALL( matrixDifference( i, j ), currentMatrix.block( 0, 0, 3, 3 ).norm( ) * 1.0E-14 );
+                BOOST_CHECK_SMALL( matrixDifference( i + 3, j ), currentMatrix.block( 3, 0, 3, 3 ).norm( ) * 1.0E-14 );
+                BOOST_CHECK_SMALL( matrixDifference( i, j + 3 ), currentMatrix.block( 0, 3, 3, 3 ).norm( ) * 1.0E-14 );
+                BOOST_CHECK_SMALL( matrixDifference( i + 3, j + 3 ), currentMatrix.block( 3, 3, 3, 3 ).norm( ) * 1.0E-14 );
+
+            }
+        }
+    }
 
     std::map< double, Eigen::MatrixXd > sensitivityMatrixHistory = variationalEquationsSolver->getSensitivityMatrixSolution( );
     input_output::writeDataMapToTextFile( sensitivityMatrixHistory,
-                                          "testS.dat", "/home/dominic/Tudat/tudat-bundle/tudat-bundle/", "", 16 );
+                                          "sphericalHarmonicsTestSensitivity.dat", "/home/dominic/Tudat/tudat-bundle/tudat-bundle/", "", 16 );
 
-
+    std::map< double, Eigen::MatrixXd > referenceSensitivityMatrixHistory =
+        input_output::readMatrixHistoryFromFile< double, double >( sensitivityMatrixHistory.begin( )->second.rows( ),
+                                                                   sensitivityMatrixHistory.begin( )->second.cols( ),
+                                                                   "/home/dominic/Tudat/tudat-bundle/tudat-bundle/sphericalHarmonicsTestSensitivity.dat" );
+    for( auto it : sensitivityMatrixHistory )
+    {
+        BOOST_CHECK_EQUAL( referenceSensitivityMatrixHistory.count( it.first ), 1 );
+        Eigen::MatrixXd currentMatrix = sensitivityMatrixHistory.at( it.first );
+        Eigen::MatrixXd matrixDifference = sensitivityMatrixHistory.at( it.first ) - referenceSensitivityMatrixHistory.at( it.first );
+//        std::cout<<matrixDifference<<std::endl<<std::endl;
+        for( int i = 0; i < 3; i++ )
+        {
+            for( int j = 0; j < currentMatrix.cols( ); j++ )
+            {
+                BOOST_CHECK_SMALL( matrixDifference( i, j ), currentMatrix.block( 0, j, 3, 3 ).norm( ) * 1.0E-14 );
+                BOOST_CHECK_SMALL( matrixDifference( i + 3, j ), currentMatrix.block( 3, j, 3, 3 ).norm( ) * 1.0E-14 );
+            }
+        }
+    }
 
     std::map< double, Eigen::VectorXd > stateHistory = variationalEquationsSolver->getEquationsOfMotionSolution( );
     input_output::writeDataMapToTextFile( stateHistory,
-                                          "testX.dat", "/home/dominic/Tudat/tudat-bundle/tudat-bundle/", "", 16 );
+                                          "sphericalHarmonicsTestStates.dat", "/home/dominic/Tudat/tudat-bundle/tudat-bundle/", "", 16 );
+    std::map< double, Eigen::MatrixXd > referenceStateHistory =
+        input_output::readMatrixHistoryFromFile< double, double >( stateHistory.begin( )->second.rows( ),
+                                                                   stateHistory.begin( )->second.cols( ),
+                                                                   "/home/dominic/Tudat/tudat-bundle/tudat-bundle/sphericalHarmonicsTestStates.dat" );
+    for( auto it : stateHistory )
+    {
+        BOOST_CHECK_EQUAL( referenceStateHistory.count( it.first ), 1 );
+        Eigen::VectorXd currentMatrix = stateHistory.at( it.first );
+        Eigen::VectorXd matrixDifference = stateHistory.at( it.first ) - referenceStateHistory.at( it.first );
+//        std::cout<<matrixDifference<<std::endl<<std::endl;
+        for( int i = 0; i < 3; i++ )
+        {
+                BOOST_CHECK_SMALL( matrixDifference( i ), currentMatrix.segment( 0, 3 ).norm( ) * 1.0E-14 );
+                BOOST_CHECK_SMALL( matrixDifference( i + 3 ), currentMatrix.segment( 3, 3 ).norm( ) * 1.0E-14 );
+        }
+    }
 
-    std::map< double, Eigen::VectorXd > dependentVariableHistory = variationalEquationsSolver->getSingleArcVariationalPropagationResults( )->getDynamicsResults( )->getDependentVariableHistoryDouble( );
-    input_output::writeDataMapToTextFile( dependentVariableHistory, "testP.dat", "/home/dominic/Tudat/tudat-bundle/tudat-bundle/", "", 16 );
+    std::map< double, Eigen::VectorXd > dependentVariableHistory =
+        variationalEquationsSolver->getSingleArcVariationalPropagationResults( )->getDynamicsResults( )->getDependentVariableHistoryDouble( );
+    input_output::writeDataMapToTextFile( dependentVariableHistory, "sphericalHarmonicsTestDependentVariables.dat", "/home/dominic/Tudat/tudat-bundle/tudat-bundle/", "", 16 );
 
+    std::map< double, Eigen::MatrixXd > referenceDependentVariableHistory =
+        input_output::readMatrixHistoryFromFile< double, double >( dependentVariableHistory.begin( )->second.rows( ),
+                                                                   dependentVariableHistory.begin( )->second.cols( ),
+                                                                   "/home/dominic/Tudat/tudat-bundle/tudat-bundle/sphericalHarmonicsTestDependentVariables.dat" );
+    for( auto it : dependentVariableHistory )
+    {
+        BOOST_CHECK_EQUAL( referenceDependentVariableHistory.count( it.first ), 1 );
+        Eigen::VectorXd currentMatrix = dependentVariableHistory.at( it.first );
+        Eigen::VectorXd matrixDifference = dependentVariableHistory.at( it.first ) - referenceDependentVariableHistory.at( it.first );
+//        std::cout<<matrixDifference.transpose( )<<std::endl<<std::endl;
+//        std::cout<<currentMatrix.transpose( )<<std::endl<<std::endl;
+//        std::cout<<referenceDependentVariableHistory.at( it.first ).transpose( )<<std::endl<<std::endl;
+
+        for( int i = 0; i < currentMatrix.rows( ) / 3; i++ )
+        {
+            BOOST_CHECK_SMALL( matrixDifference( 3 * i ), currentMatrix.segment( 3 * i, 3 ).norm( ) * 1.0E-14 );
+            BOOST_CHECK_SMALL( matrixDifference( 3 * i + 1), currentMatrix.segment( 3 * i, 3 ).norm( ) * 1.0E-14 );
+            BOOST_CHECK_SMALL( matrixDifference( 3 * i + 2), currentMatrix.segment( 3 * i, 3 ).norm( ) * 1.0E-14 );
+
+        }
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
