@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
 
     // Specify initial time
     double initialEphemerisTime = 1.0E8;
-    double finalEphemerisTime = initialEphemerisTime + 86400.0;
+    double finalEphemerisTime = initialEphemerisTime + 0.5 * 86400.0;
 
     // Create bodies needed in simulation
     BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000" );
@@ -98,6 +98,8 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
     std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
     accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 12, 12 ) );
     accelerationsOfVehicle[ "Moon" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 2, 2 ) );
+    accelerationsOfVehicle[ "Sun" ].push_back( pointMassGravityAcceleration( ) );
+
     accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
 
     // Set bodies for which initial state is to be estimated and integrated.
@@ -124,16 +126,56 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
     Eigen::Matrix< double, 6, 1 > systemInitialState =
         convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
+    // Get dependent variables
+
+    std::vector< std::pair< int, int > > earthComponentIndices;
+    for( int i = 0; i <= 12; i++ )
+    {
+        for( int j = 0; ( j <= i && j <= 12 ); j++ )
+        {
+            earthComponentIndices.push_back( std::make_pair( i, j ) );
+        }
+    }
+
+    std::vector< std::pair< int, int > > moonComponentIndices;
+    std::vector< std::pair< int, int > > tideComponentIndices;
+    for( int i = 0; i <= 2; i++ )
+    {
+        for( int j = 0; ( j <= i && j <= 2 ); j++ )
+        {
+            moonComponentIndices.push_back( std::make_pair( i, j ) );
+            if( i == 2 )
+            {
+                tideComponentIndices.push_back( std::make_pair( i, j ) );
+            }
+        }
+    }
+
+
+
+    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
+    dependentVariables.push_back( singleAccelerationDependentVariable( basic_astrodynamics::spherical_harmonic_gravity, "Vehicle", "Earth" ) );
+    dependentVariables.push_back( singleAccelerationDependentVariable( basic_astrodynamics::spherical_harmonic_gravity, "Vehicle", "Moon" ) );
+    dependentVariables.push_back( sphericalHarmonicAccelerationTermsDependentVariable( "Vehicle", "Earth", earthComponentIndices ) );
+    dependentVariables.push_back( sphericalHarmonicAccelerationTermsDependentVariable( "Vehicle", "Moon", moonComponentIndices ) );
+    dependentVariables.push_back( singleGravityFieldVariationSeparateTermsAccelerationContributionVariable(
+        "Vehicle", "Earth", tideComponentIndices, gravitation::basic_solid_body, "Sun" ) );
+    dependentVariables.push_back( singleGravityFieldVariationSeparateTermsAccelerationContributionVariable(
+        "Vehicle", "Earth", tideComponentIndices, gravitation::basic_solid_body, "Moon" ) );
+
     // Create propagator settings
     std::shared_ptr< IntegratorSettings< double > > integratorSettings =
         rungeKuttaFixedStepSettings( 40.0, CoefficientSets::rungeKuttaFehlberg78 );
     std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings =
         std::make_shared< TranslationalStatePropagatorSettings< double, double > >(
             centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, initialEphemerisTime, integratorSettings,
-            propagationCPUTimeTerminationSettings( finalEphemerisTime ), cowell );
+            propagationTimeTerminationSettings( finalEphemerisTime ), cowell, dependentVariables );
+
+    propagatorSettings->getOutputSettings( )->setResultsSaveFrequencyInSeconds( 10000.0 );
+    propagatorSettings->getOutputSettings( )->setResultsSaveFrequencyInSteps( 0 );
 
     // Define parameters
-    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames = getInitialStateParameterSettings(
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames = getInitialStateParameterSettings< double, double >(
         propagatorSettings, bodies );
     parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
         2, 0, 12, 12, "Earth", spherical_harmonics_cosine_coefficient_block ) );
@@ -150,8 +192,27 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
 
     printEstimatableParameterEntries( parametersToEstimate );
 
-    std::shared_ptr< SingleArcVariationalEquationsSolver > variationalEquationsSolver =
-        std::make_shared< SingleArcVariationalEquationsSolver >( bodies, propagatorSettings, parametersToEstimate, true );
+    std::shared_ptr< SingleArcVariationalEquationsSolver< double, double > > variationalEquationsSolver =
+        std::make_shared< SingleArcVariationalEquationsSolver< double, double > >( bodies, propagatorSettings, parametersToEstimate, true );
+
+    std::map< double, Eigen::MatrixXd > stateTransitionMatrixHistory = variationalEquationsSolver->getStateTransitionMatrixSolution( );
+    input_output::writeDataMapToTextFile( stateTransitionMatrixHistory,
+                                          "testPhi.dat", "/home/dominic/Tudat/tudat-bundle/tudat-bundle/", "", 16 );
+
+
+    std::map< double, Eigen::MatrixXd > sensitivityMatrixHistory = variationalEquationsSolver->getSensitivityMatrixSolution( );
+    input_output::writeDataMapToTextFile( sensitivityMatrixHistory,
+                                          "testS.dat", "/home/dominic/Tudat/tudat-bundle/tudat-bundle/", "", 16 );
+
+
+
+    std::map< double, Eigen::VectorXd > stateHistory = variationalEquationsSolver->getEquationsOfMotionSolution( );
+    input_output::writeDataMapToTextFile( stateHistory,
+                                          "testX.dat", "/home/dominic/Tudat/tudat-bundle/tudat-bundle/", "", 16 );
+
+    std::map< double, Eigen::VectorXd > dependentVariableHistory = variationalEquationsSolver->getSingleArcVariationalPropagationResults( )->getDynamicsResults( )->getDependentVariableHistoryDouble( );
+    input_output::writeDataMapToTextFile( dependentVariableHistory, "testP.dat", "/home/dominic/Tudat/tudat-bundle/tudat-bundle/", "", 16 );
+
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
