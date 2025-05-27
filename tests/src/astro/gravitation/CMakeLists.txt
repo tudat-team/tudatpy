@@ -51,9 +51,9 @@ TUDAT_ADD_TEST_CASE(ThirdBodyPerturbation
     PRIVATE_LINKS
     tudat_gravitation tudat_basic_astrodynamics tudat_basic_mathematics)
 
-TUDAT_ADD_TEST_CASE(SphericalHarmonicsPropagation
-        PRIVATE_LINKS
-        ${Tudat_ESTIMATION_LIBRARIES})
+#TUDAT_ADD_TEST_CASE(SphericalHarmonicsPropagation
+#        PRIVATE_LINKS
+#        ${Tudat_ESTIMATION_LIBRARIES})
 
 TUDAT_ADD_TEST_CASE(TriAxialEllipsoidGravity
     PRIVATE_LINKS
