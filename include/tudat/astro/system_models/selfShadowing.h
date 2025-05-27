@@ -39,7 +39,7 @@ bool doEdgesIntersect(const Eigen::Vector2d& edge1Start, const Eigen::Vector2d& 
 
 std::vector< std::vector< int > > arePointsInTriangle( const ParallelProjection& projection_, 
     const std::vector<double>& gridCoordinatesL_, const std::vector<double>& gridCoordinatesM_,
-    const std::vector< std::vector < int > >& pixelationMatrix_,
+    std::vector< std::vector < int > >& pixelationMatrix_,
     int indexMinL_ = 0, int indexMaxL_ = -1, int indexMinM_ = 0, int indexMaxM_ = -1 );
 
 template<typename T>
