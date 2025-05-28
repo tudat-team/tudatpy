@@ -304,7 +304,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAccelerationWrapperCla
 
     // Define geodesy-normalized coefficients up to degree 5 and order 5. The values are obtained
     // from the Earth Gravitational Model 2008 as described by Mathworks [2012].
-    const Eigen::MatrixXd cosineCoefficients = ( Eigen::MatrixXd( 6, 6 ) << 1.0,
+    Eigen::MatrixXd cosineCoefficients = ( Eigen::MatrixXd( 6, 6 ) << 1.0,
                                                  0.0,
                                                  0.0,
                                                  0.0,
@@ -342,7 +342,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAccelerationWrapperCla
                                                  1.748117954960020e-7 )
                                                        .finished( );
 
-    const Eigen::MatrixXd sineCoefficients = ( Eigen::MatrixXd( 6, 6 ) << 0.0,
+    Eigen::MatrixXd sineCoefficients = ( Eigen::MatrixXd( 6, 6 ) << 0.0,
                                                0.0,
                                                0.0,
                                                0.0,
@@ -418,9 +418,9 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalPotentialWrapperClass 
     const double planetaryRadius = 6378137.0;
 
     // Define geodesy-normalized coefficients up to degree 0 and order 0.
-    const Eigen::MatrixXd cosineCoefficients = ( Eigen::MatrixXd( 1, 1 ) << 1.0 ).finished( );
+    Eigen::MatrixXd cosineCoefficients = ( Eigen::MatrixXd( 1, 1 ) << 1.0 ).finished( );
 
-    const Eigen::MatrixXd sineCoefficients = ( Eigen::MatrixXd( 1, 1 ) << 0.0 ).finished( );
+    Eigen::MatrixXd sineCoefficients = ( Eigen::MatrixXd( 1, 1 ) << 0.0 ).finished( );
 
     // Define arbitrary Cartesian position [m].
     const Eigen::Vector3d position( 7.0e6, 8.0e6, 9.0e6 );
