@@ -239,16 +239,16 @@ bool doEdgesIntersect(const Eigen::Vector2d& edge1Start, const Eigen::Vector2d& 
 }
 // accelerated version of the ray-cast PIP algorithm, optimized for large number of points, extremely useful during pixelation
 // same exact logic but checks all the points on a line parallel to the ray direction, checking the intersection with the edges, instead of all the points one by one
-std::vector< std::vector< int > > arePointsInTriangle( const ParallelProjection& projection_, 
-    const std::vector<double>& gridCoordinatesL_, const std::vector<double>& gridCoordinatesM_,
-    std::vector< std::vector < int > >& pixelationMatrix_,
+void arePointsInTriangle( const ParallelProjection& projection_, 
+    const std::vector< double >& gridCoordinatesL_, const std::vector< double >& gridCoordinatesM_,
+    std::vector< int >& pixelationMatrix_,
     int indexMinL_, int indexMaxL_, int indexMinM_, int indexMaxM_ )
 {   
-    std::vector< std::vector < int > >& pixelationMatrixUpdated = pixelationMatrix_;
+    int len = gridCoordinatesL_.size( );
     int value = 1;
     if ( indexMaxL_ == -1 )
     {
-        indexMaxL_ = gridCoordinatesL_.size( );
+        indexMaxL_ = len;
         value = 0;
     }
     if ( indexMaxM_ == -1 )
@@ -268,71 +268,61 @@ std::vector< std::vector< int > > arePointsInTriangle( const ParallelProjection&
     double maxLca = (pointC( 1 ) < pointA( 1 )) ? pointA( 1 ) : pointC( 1 );
     double xIntersect;
     double minIntersection, maxIntersection;
+    std::vector< double > intersections( 2 );
+    int numberOfIntersections;
     
     for ( int i=indexMinM_; i<indexMaxM_; i++ )
     {
         // loop over all y-parallel rays
         coordM = gridCoordinatesM_[i];
-        
-        std::vector< double > intersections;
-
+        numberOfIntersections = 0;
         // edge 1
         if ((coordM > minLab) && (coordM <= maxLab)) {
             xIntersect = pointA( 0 ) + (coordM - pointA( 1 )) * (pointB( 0 ) - pointA( 0 )) / (pointB( 1 ) - pointA( 1 ));
-            intersections.push_back(xIntersect);
+            intersections[ numberOfIntersections ] = xIntersect;
+            numberOfIntersections += 1;
         }
         // edge 2
         if ((coordM > minLbc) && (coordM <= maxLbc)) {
             xIntersect = pointB( 0 ) + (coordM - pointB( 1 )) * (pointC( 0 ) - pointB( 0 )) / (pointC( 1 ) - pointB( 1 ));
-            intersections.push_back(xIntersect);
+            intersections[ numberOfIntersections ] = xIntersect;
+            numberOfIntersections += 1;
         }
         // edge 3
         if ((coordM > minLca) && (coordM <= maxLca)) {
             xIntersect = pointC( 0 ) + (coordM - pointC( 1 )) * (pointA( 0 ) - pointC( 0 )) / (pointA( 1 ) - pointC( 1 ));
-            intersections.push_back(xIntersect);
+            intersections[ numberOfIntersections ] = xIntersect;
+            numberOfIntersections += 1;
         }
-        if (intersections.empty()) {
+        if ( numberOfIntersections != 2 ) {
             continue;
         }
         minIntersection = std::min(intersections[0], intersections[1]);
         maxIntersection = std::max(intersections[0], intersections[1]);
-        //for (int j = indexMinL_; j<indexMaxL_; j++)
-        //{
-        //    if ( gridCoordinatesL_.at( j ) >= minIntersection && gridCoordinatesL_.at( j ) <= maxIntersection && 
-        //        value == 0)
-        //    {
-        //        pixelationMatrixUpdated.at( i ).at( j ) = value;
-        //    }
-        //    if ( gridCoordinatesL_.at( j ) >= minIntersection && gridCoordinatesL_.at( j ) <= maxIntersection && 
-        //        value == 1 && pixelationMatrixUpdated.at( i ).at( j ) == 0)
-        //    {
-        //        pixelationMatrixUpdated.at( i ).at( j ) = value;
-        //    }
-        //}
+
         if (value == 0) {
             for (int j = indexMinL_; j < indexMaxL_; j++) {
                 if (gridCoordinatesL_[j] >= minIntersection && gridCoordinatesL_[j] <= maxIntersection) {
-                    pixelationMatrixUpdated[i][j] = 0;
+                    pixelationMatrix_[ i * len + j] = 0;
                 }
             }
         } else { // value == 1
             for (int j = indexMinL_; j < indexMaxL_; j++) {
                 if (gridCoordinatesL_[j] >= minIntersection && gridCoordinatesL_[j] <= maxIntersection && 
-                    pixelationMatrixUpdated[i][j] == 0) {
-                    pixelationMatrixUpdated[i][j] = 1;
+                    pixelationMatrix_[ i * len + j] == 0) {
+                    pixelationMatrix_[ i * len + j] = 1;
                 }
             }
         }
     }
-    return pixelationMatrixUpdated;
 
 }
 // algorithm from "SELF-SHADOWING OF A SPACECRAFT IN THE COMPUTATION OF SURFACE FORCES. AN EXAMPLE IN PLANETARY GEODESY" (Balmino et al., 2018)
 // section 4.3.3 "General case:pixellation"
-std::vector< double > computeFractioWithPixelation( const std::vector<std::vector<int>>& sigmaMatrix_, 
+std::vector< double > computeFractionWithPixelation( const std::vector< std::vector< int > >& sigmaMatrix_, 
     const std::vector< std::shared_ptr< VehicleExteriorPanel > >& allPanels_, 
     const int maximumNumberOfPixels_, const std::vector< std::vector < ParallelProjection > >& projections_, 
-    const std::vector< int > toBePixelated_ )
+    const std::vector< int >& toBePixelated_ )
 {
     std::vector< double > fractions( toBePixelated_.size( ) );
     std::vector< double > gridCoordinatesL, gridCoordinatesM;
@@ -343,14 +333,16 @@ std::vector< double > computeFractioWithPixelation( const std::vector<std::vecto
     double sizeL, sizeM;
     int indexMinL, indexMaxL, indexMinM, indexMaxM;
     double fractionOnes, fractionZeros;
-
+    std::vector< int > pixelationMatrix;
+    ParallelProjection selfProjection;
     for ( int i=0; i<static_cast< int >( toBePixelated_.size( ) ); i++ )
     {
-        index = toBePixelated_.at( i );
-        minL = allPanels_.at( index )->getSelfProjection( ).getMinimumL( );
-        maxL = allPanels_.at( index )->getSelfProjection( ).getMaximumL( );
-        minM = allPanels_.at( index )->getSelfProjection( ).getMinimumM( );
-        maxM = allPanels_.at( index )->getSelfProjection( ).getMaximumM( );
+        index = toBePixelated_[ i ];
+        selfProjection = allPanels_[ index ]->getSelfProjection( );
+        minL = selfProjection.getMinimumL( );
+        maxL = selfProjection.getMaximumL( );
+        minM = selfProjection.getMinimumM( );
+        maxM = selfProjection.getMaximumM( );
 
         deltaL = maxL - minL;
         deltaM = maxM - minM;
@@ -367,57 +359,50 @@ std::vector< double > computeFractioWithPixelation( const std::vector<std::vecto
         sizeL = deltaL / numberL;
         sizeM = deltaM / numberM;
         // creating the grid
-        gridCoordinatesL = linspace(minL + sizeL/2, maxL - sizeL/2, numberL );
-        gridCoordinatesM = linspace(minM + sizeM/2, maxM - sizeM/2, numberM );
-        // initialize pixelation matrix with -1 values (W in literature)
-        std::vector< std::vector< int > > pixelationMatrix( gridCoordinatesM.size(), std::vector< int >(gridCoordinatesL.size(), -1));
-        // apply PIP to shadowed plate to find its discretized surface (assign value of 0)
-        pixelationMatrix = arePointsInTriangle( allPanels_.at( index )->getSelfProjection( ), 
-            gridCoordinatesL, gridCoordinatesM, pixelationMatrix );
+        gridCoordinatesL = linspace(minL + sizeL/2, maxL - sizeL/2, numberL, gridCoordinatesL );
+        gridCoordinatesM = linspace(minM + sizeM/2, maxM - sizeM/2, numberM, gridCoordinatesM );
+        // resize and reset pixelation matrix to dummy value -1
+        if ( pixelationMatrix.size( ) != gridCoordinatesM.size( ) * gridCoordinatesL.size( ) )
+        {
+            pixelationMatrix.resize( gridCoordinatesM.size( ) * gridCoordinatesL.size( ) );
+        }
+        std::fill( pixelationMatrix.begin( ), pixelationMatrix.end( ), -1 );
 
+        // apply PIP to shadowed plate to find its discretized surface (assign value of 0)
+        arePointsInTriangle( allPanels_.at( index )->getSelfProjection( ), gridCoordinatesL, gridCoordinatesM, pixelationMatrix );
+
+        ParallelProjection projection;
         for ( int j = 0; j< static_cast< int >( sigmaMatrix_.size( ) ); j++)
         {
-            if (sigmaMatrix_.at( index ).at( j ) != 0)
+            if (sigmaMatrix_[ index ][ j ] != 0)
             {
                 continue;
             }
             // resize pixelation grid to accelerate the process
+            projection = projections_[ index ][ j ] ;
             indexMinL = clamp(static_cast< int >( 
-                std::floor((projections_.at( index ).at( j ).getMinimumL( )-minL)/sizeL)) - 1, 0, static_cast< int >( numberL ) - 1);
+                std::floor((projection.getMinimumL( )-minL)/sizeL)) - 1, 0, static_cast< int >( numberL ) - 1);
             indexMaxL = clamp(static_cast< int >( 
-                std::ceil((projections_.at( index ).at( j ).getMaximumL( )-minL)/sizeL)) + 1, indexMinL + 1, static_cast< int >( numberL ));
+                std::ceil((projection.getMaximumL( )-minL)/sizeL)) + 1, indexMinL + 1, static_cast< int >( numberL ));
             indexMinM = clamp(static_cast< int >(
-                std::floor((projections_.at( index ).at( j ).getMinimumM( )-minM)/sizeM)) - 1, 0, static_cast< int >( numberM ) - 1);
+                std::floor((projection.getMinimumM( )-minM)/sizeM)) - 1, 0, static_cast< int >( numberM ) - 1);
             indexMaxM = clamp(static_cast< int >(
-                std::ceil((projections_.at( index ).at( j ).getMaximumM( )-minM)/sizeM)) + 1, indexMinM + 1, static_cast< int >( numberM ));
+                std::ceil((projection.getMaximumM( )-minM)/sizeM)) + 1, indexMinM + 1, static_cast< int >( numberM ));
             // apply PIP to shadowing and update pixelation matrix (assign value of 1)  
-            pixelationMatrix = arePointsInTriangle(projections_.at( index ).at( j ), 
-                gridCoordinatesL, gridCoordinatesM, pixelationMatrix, indexMinL, indexMaxL, indexMinM, indexMaxM);
+            arePointsInTriangle(projection, gridCoordinatesL, gridCoordinatesM, pixelationMatrix, 
+                indexMinL, indexMaxL, indexMinM, indexMaxM);
         }
         fractionOnes = 0;
-        for (int p = 0; p< static_cast< int >( gridCoordinatesM.size() ); p++) 
-        {
-            for (int q = 0; q< static_cast< int >( gridCoordinatesL.size() ); q++) 
-            {
-                if (pixelationMatrix.at( p ).at( q ) == 1) 
-                {
-                    fractionOnes++;
-                }
-            }
-        }
         fractionZeros = 0;
-        for (int p = 0; p< static_cast< int >( gridCoordinatesM.size() ); p++) 
+        int val;
+        for ( unsigned int i = 0; i < pixelationMatrix.size( ); i++) 
         {
-            for (int q = 0; q< static_cast< int >( gridCoordinatesL.size() ); q++) 
-            {
-                if (pixelationMatrix.at( p ).at( q ) == 0) 
-                {
-                    fractionZeros++;
-                }
-            }
+            val = pixelationMatrix[ i ];
+            fractionOnes += (val == 1);
+            fractionZeros += (val == 0);
         }
-        
-        fractions.at( i ) = clamp( 1 - fractionOnes / (fractionOnes + fractionZeros ), 0.0, 1.0 );
+
+        fractions[ i ] = clamp( 1 - fractionOnes / (fractionOnes + fractionZeros ), 0.0, 1.0 );
     }
     return fractions;
 }
@@ -430,7 +415,7 @@ void SelfShadowing::updateIlluminatedPanelFractions( const Eigen::Vector3d& inco
     {
         int numberOfPanels = allPanels_.size( );
         // initialize sigma matrix for discrimination logic (-2 dummy value, -1 no-sh, 0 partial sh, 1 full sh)
-        std::vector<std::vector< int >> sigmaMatrix(numberOfPanels, std::vector< int >(numberOfPanels, -2));
+        std::vector<std::vector< int > > sigmaMatrix( numberOfPanels, std::vector< int >( numberOfPanels, -2 ) );
         // first discrimination
         std::vector< int > firstDiscriminationIndexes;
         for (int i = 0; i < numberOfPanels; i++) {
@@ -485,6 +470,7 @@ void SelfShadowing::updateIlluminatedPanelFractions( const Eigen::Vector3d& inco
         double t, lZero, mZero;
         Eigen::Vector2d startEdgeShadowing, endEdgeShadowing;
         const double EPSILON = 1e-12;
+        ParallelProjection selfProjection;
         // exclusion logic algorithm
         for ( int i = 0; i<numberOfPanels; i++ )
         {
@@ -504,19 +490,19 @@ void SelfShadowing::updateIlluminatedPanelFractions( const Eigen::Vector3d& inco
                 {
                     // testing for those panels that yield p-sh (this case)
                         // first test: min/max coordinates
-                    if ( projection.getMinimumL( ) >= allPanels_.at( i )->getSelfProjection( ).getMaximumL( ) - EPSILON ||
-                         projection.getMaximumL( ) <= allPanels_.at( i )->getSelfProjection( ).getMinimumL( ) + EPSILON ||
-                         projection.getMinimumM( ) >= allPanels_.at( i )->getSelfProjection( ).getMaximumM( ) - EPSILON ||
-                         projection.getMaximumM( ) <= allPanels_.at( i )->getSelfProjection( ).getMinimumM( ) + EPSILON)
+                    selfProjection = allPanels_.at( i )->getSelfProjection( );
+                    if ( projection.getMinimumL( ) >= selfProjection.getMaximumL( ) - EPSILON ||
+                         projection.getMaximumL( ) <= selfProjection.getMinimumL( ) + EPSILON ||
+                         projection.getMinimumM( ) >= selfProjection.getMaximumM( ) - EPSILON ||
+                         projection.getMaximumM( ) <= selfProjection.getMinimumM( ) + EPSILON )
                     {
                         sigmaMatrix.at( i ).at( j ) = -1; // no-sh
                     }
                     else
                     {
                         // second test: use PIP algorithms
-                        shadowingInShadowed = isTriangleInTriangle( allPanels_.at( i )->getSelfProjection( ),
-                                                                    projection );
-                        shadowedInShadowing = isTriangleInTriangle( projection, allPanels_.at( i )->getSelfProjection( ) );
+                        shadowingInShadowed = isTriangleInTriangle( selfProjection, projection );
+                        shadowedInShadowing = isTriangleInTriangle( projection, selfProjection );
                         if ( std::any_of( shadowingInShadowed.begin( ), shadowingInShadowed.end( ), [](bool x) { return x; }))
                         {
                             // at least one vertix of the shadowing panel falls into the shadowed, partial sh
@@ -649,14 +635,14 @@ void SelfShadowing::updateIlluminatedPanelFractions( const Eigen::Vector3d& inco
             for (int i = 0; i<numberOfThreads-1; i++) {
                 std::vector<int> indexes( toBePixelated.begin() + i*chunk, toBePixelated.begin() + (i+1)*chunk);
                 threads.emplace_back([&, i, indexes]() {
-                    results[ i ] = computeFractioWithPixelation( sigmaMatrix, allPanels_, maximumNumberOfPixels_, projections,
+                    results[ i ] = computeFractionWithPixelation( sigmaMatrix, allPanels_, maximumNumberOfPixels_, projections,
                                                         indexes );
                 });
             }
             int i = numberOfThreads - 1;
             std::vector<int> indexes(toBePixelated.begin() + i*chunk, toBePixelated.end());
             threads.emplace_back([&, i, indexes]() {
-                results[numberOfThreads-1] = computeFractioWithPixelation( sigmaMatrix, allPanels_, maximumNumberOfPixels_, projections,
+                results[numberOfThreads-1] = computeFractionWithPixelation( sigmaMatrix, allPanels_, maximumNumberOfPixels_, projections,
                     indexes );
             });
             for (auto& th : threads)
@@ -677,8 +663,8 @@ void SelfShadowing::updateIlluminatedPanelFractions( const Eigen::Vector3d& inco
         else
         {
             // default option for single-threading
-            std::vector<double> finalResults = computeFractioWithPixelation( sigmaMatrix, allPanels_, maximumNumberOfPixels_, projections,
-                toBePixelated );
+            std::vector<double> finalResults = computeFractionWithPixelation( sigmaMatrix, allPanels_, 
+                maximumNumberOfPixels_, projections, toBePixelated );
             for (int i = 0; i<numberOfPanelsToBePixelated; i++)
             {
                 illuminatedPanelFractions.at( toBePixelated.at( i ) ) = finalResults.at( i );
