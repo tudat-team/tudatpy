@@ -41,21 +41,21 @@ Functions
 
 .. autosummary::
 
-   calendar_date_to_julian_day
-
-   calendar_date_to_days_since_epoch
-
    date_time_components_to_epoch
 
    iso_string_to_epoch
 
-   julian_day_to_calendar_date
+   julian_day_to_python_datetime
 
    julian_day_to_seconds_since_epoch
 
    julian_day_to_modified_julian_day
 
    modified_julian_day_to_julian_day
+
+   python_datetime_to_julian_day
+
+   python_datetime_to_days_since_epoch
 
    seconds_since_epoch_to_julian_day
 
@@ -90,21 +90,21 @@ Functions
    default_time_scale_converter
 
 
-.. autofunction:: tudatpy.astro.time_conversion.calendar_date_to_julian_day
-
-.. autofunction:: tudatpy.astro.time_conversion.calendar_date_to_days_since_epoch
-
 .. autofunction:: tudatpy.astro.time_conversion.date_time_components_to_epoch
 
 .. autofunction:: tudatpy.astro.time_conversion.iso_string_to_epoch
 
-.. autofunction:: tudatpy.astro.time_conversion.julian_day_to_calendar_date
+.. autofunction:: tudatpy.astro.time_conversion.julian_day_to_python_datetime
 
 .. autofunction:: tudatpy.astro.time_conversion.julian_day_to_seconds_since_epoch
 
 .. autofunction:: tudatpy.astro.time_conversion.julian_day_to_modified_julian_day
 
 .. autofunction:: tudatpy.astro.time_conversion.modified_julian_day_to_julian_day
+
+.. autofunction:: tudatpy.astro.time_conversion.python_datetime_to_julian_day
+
+.. autofunction:: tudatpy.astro.time_conversion.python_datetime_to_days_since_epoch
 
 .. autofunction:: tudatpy.astro.time_conversion.seconds_since_epoch_to_julian_day
 
@@ -135,7 +135,6 @@ Functions
 .. autofunction:: tudatpy.astro.time_conversion.TT_to_TDB
 
 .. autofunction:: tudatpy.astro.time_conversion.TDB_to_TT
-
 
 .. autofunction:: tudatpy.astro.time_conversion.default_time_scale_converter
 
