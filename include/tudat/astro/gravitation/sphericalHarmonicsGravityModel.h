@@ -82,8 +82,8 @@ public:
             const StateFunction positionOfBodySubjectToAccelerationFunction,
             const double aGravitationalParameter,
             const double anEquatorialRadius,
-            Eigen::MatrixXd aCosineHarmonicCoefficientMatrix,
-            Eigen::MatrixXd aSineHarmonicCoefficientMatrix,
+            Eigen::MatrixXd& aCosineHarmonicCoefficientMatrix,
+            Eigen::MatrixXd& aSineHarmonicCoefficientMatrix,
             const StateFunction positionOfBodyExertingAccelerationFunction =
                     []( Eigen::Vector3d& input ) { input = Eigen::Vector3d::Zero( ); },
             const std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction =
