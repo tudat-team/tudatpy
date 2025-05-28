@@ -698,6 +698,10 @@ In this example, the calendar date corresponding to when 122 days have passed in
            py::arg( "calendar_date" ),
            R"doc(
 
+ .. warning::
+
+    This function is deprecated and will be removed in a future version of Tudat. Use :func:`python_datetime_to_julian_day` instead.
+
  Convert a calendar date to Julian days.
 
 
@@ -730,10 +734,51 @@ In this example, the calendar date corresponding to when 122 days have passed in
 
      )doc" );
 
+    m.def( "python_datetime_to_julian_day",
+           &convertCalendarDateToJulianDayPy< double >,
+           py::arg( "datetime" ),
+           R"doc(
+
+ Convert a calendar date to Julian days.
+
+
+ Parameters
+ ----------
+ datetime : datetime.datetime
+     Datetime object, using the Python datetime library. Both the date and the time (hour, minutes, and seconds), can be specified, up to millisecond resolution.
+ Returns
+ -------
+ float
+     Julian day number (days since noon January 1st 4713 BC.)
+
+
+
+
+
+ Examples
+ --------
+ In this example, the calendar date of the 21st of May 2022 at 13:52 and 41 seconds is converted to Julian days.
+
+ .. code-block:: python
+
+   # Define the calendar date using datetime
+   calendar_date = datetime.datetime(2022, 5, 21, 13, 52, 41)
+   # Convert the calendar date to Julian days since January 1st 4713 BC
+   julian_date = time_conversion.python_datetime_to_julian_day(calendar_date)
+   # Print the converted output
+   print(julian_date)  # prints 2459721.0782523146
+
+
+     )doc" );
+
     m.def( "julian_day_to_calendar_date",
            &convertJulianDayToCalendarDatePy,
            py::arg( "julian_day" ),
            R"doc(
+
+ .. warning::
+
+    This function is deprecated and will be removed in a future version of Tudat. Use :func:`julian_day_to_python_datetime` instead.
 
  Convert Julian days to a calendar date.
 
@@ -768,11 +813,53 @@ In this example, the calendar date corresponding to when 122 days have passed in
 
      )doc" );
 
+    m.def( "julian_day_to_python_datetime",
+           &convertJulianDayToCalendarDatePy,
+           py::arg( "julian_day" ),
+           R"doc(
+
+ Convert Julian days to a calendar date.
+
+ Inverse function of :func:`python_datetime_to_julian_day`.
+
+ Parameters
+ ----------
+ julian_day : float
+     Date in Julian days since January 1st 4713 BC.
+ Returns
+ -------
+ datetime.datetime
+     Datetime object, using the Python datetime library, containing the date and time corresponding to the Julian date input.
+
+
+
+
+
+ Examples
+ --------
+ In this example, the Julian date `2459721.0783` (in days since January 1st 4713 BC), is converted to a calendar date.
+
+ .. code-block:: python
+
+   # Define the Julian date in days since January 1st 4713 BC
+   julian_date = 2459721.0783
+   # Convert the Julian date to a calendar date
+   calendar_date = time_conversion.julian_day_to_python_datetime(julian_date)
+   # Print the converted output
+   print(calendar_date)  # prints datetime.datetime(2022, 5, 21, 13, 52, 45)
+
+
+     )doc" );
+
     m.def( "calendar_date_to_days_since_epoch",
            &convertCalendarDateToJulianDaySinceEpochPy< double >,
            py::arg( "calendar_date" ),
            py::arg( "days_since_julian_day_zero" ) = tba::JULIAN_DAY_ON_J2000,
            R"doc(
+
+ .. warning::
+
+    This function is deprecated and will be removed in a future version of Tudat. Use :func:`python_datetime_to_days_since_epoch` instead.
 
  Convert a calendar date to Julian days since a given epoch.
 
@@ -802,6 +889,46 @@ In this example, the calendar date corresponding to when 122 days have passed in
    calendar_date = datetime.datetime(2022, 5, 21, 13, 52, 41)
    # Convert the calendar date to Julian days since J2000
    julian_date = time_conversion.calendar_date_to_days_since_epoch(calendar_date)
+   # Print the converted output
+   print(julian_date)  # prints 8176.07825231459
+
+
+     )doc" );
+
+    m.def( "python_datetime_to_days_since_epoch",
+           &convertCalendarDateToJulianDaySinceEpochPy< double >,
+           py::arg( "datetime" ),
+           py::arg( "days_since_julian_day_zero" ) = tba::JULIAN_DAY_ON_J2000,
+           R"doc(
+
+ Convert a calendar date to Julian days since a given epoch.
+
+
+ Parameters
+ ----------
+ datetime : datetime.datetime
+     Datetime object, using the Python datetime library. Both the date and the time (hour, minutes, and seconds), can be specified. Milliseconds are ignored.
+ days_since_julian_day_zero : float, default = constants.JULIAN_DAY_ON_J2000
+     Reference epoch (in days) since when the Julian days have to be counted. By default, set to `constants.JULIAN_DAY_ON_J2000` (2451545.0) corresponding to the 1st of January 2000.
+ Returns
+ -------
+ float
+     Date in Julian days since the given epoch.
+
+
+
+
+
+ Examples
+ --------
+ In this example, the calendar date of the 21st of May 2022 at 13:52 and 41 seconds is converted to Julian days since J2000 (the 1st of January 2000).
+
+ .. code-block:: python
+
+   # Define the calendar date using datetime
+   calendar_date = datetime.datetime(2022, 5, 21, 13, 52, 41)
+   # Convert the calendar date to Julian days since J2000
+   julian_date = time_conversion.python_datetime_to_days_since_epoch(calendar_date)
    # Print the converted output
    print(julian_date)  # prints 8176.07825231459
 
@@ -1195,7 +1322,7 @@ In this example, the calendar date corresponding to when 122 days have passed in
    # Define the date and time
    date = datetime.datetime(2022, 2, 17, 15, 41, 2)
    # Convert it in Julian days since J2000
-   date_J2000 = time_conversion.calendar_date_to_julian_day(date)
+   date_J2000 = time_conversion.python_datetime_to_julian_day(date)
    # Convert it in Julian seconds since J2000
    date_J2000_sec = time_conversion.julian_day_to_seconds_since_epoch(date_J2000)
    # Check the date from the TCB scale to the TDB scale
