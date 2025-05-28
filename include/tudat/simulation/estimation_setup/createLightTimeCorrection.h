@@ -250,15 +250,14 @@ class JakowskiIonosphericCorrectionSettings : public LightTimeCorrectionSettings
 public:
     JakowskiIonosphericCorrectionSettings( const double ionosphereHeight = 400.0e3,
                                            const double firstOrderDelayCoefficient = 40.3,
-                                           const input_output::solar_activity::SolarActivityDataMap &solarActivityData =
-                                                   input_output::solar_activity::readSolarActivityData( paths::getSpaceWeatherDataPath( ) +
-                                                                                                        "/sw19571001.txt" ),
+                                           const std::string solarActivityDataPath = paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt",
                                            const double geomagneticPoleLatitude = unit_conversions::convertDegreesToRadians( 80.9 ),
                                            const double geomagneticPoleLongitude = unit_conversions::convertDegreesToRadians( -72.6 ),
                                            const bool useUtcTimeForLocalTimeComputation = false,
                                            const std::string &bodyWithAtmosphere = "Earth" ):
         LightTimeCorrectionSettings( jakowski_vtec_ionospheric ), ionosphereHeight_( ionosphereHeight ),
-        firstOrderDelayCoefficient_( firstOrderDelayCoefficient ), solarActivityData_( solarActivityData ),
+        firstOrderDelayCoefficient_( firstOrderDelayCoefficient ),
+        solarActivityData_( input_output::solar_activity::readSolarActivityData( solarActivityDataPath ) ),
         geomagneticPoleLatitude_( geomagneticPoleLatitude ), geomagneticPoleLongitude_( geomagneticPoleLongitude ),
         useUtcTimeForLocalTime_( useUtcTimeForLocalTimeComputation ), bodyWithAtmosphere_( bodyWithAtmosphere )
     { }
@@ -412,8 +411,7 @@ inline std::shared_ptr< LightTimeCorrectionSettings > tabulatedIonosphericCorrec
 inline std::shared_ptr< LightTimeCorrectionSettings > jakowskiIonosphericCorrectionSettings(
         const double ionosphereHeight = 400.0e3,
         const double firstOrderDelayCoefficient = 40.3,
-        const input_output::solar_activity::SolarActivityDataMap &solarActivityData =
-                input_output::solar_activity::readSolarActivityData( paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt" ),
+        const std::string solarActivityDataPath = paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt",
         const double geomagneticPoleLatitude = unit_conversions::convertDegreesToRadians( 80.9 ),
         const double geomagneticPoleLongitude = unit_conversions::convertDegreesToRadians( -72.6 ),
         const bool useUtcTimeForLocalTimeComputation = false,
@@ -421,7 +419,7 @@ inline std::shared_ptr< LightTimeCorrectionSettings > jakowskiIonosphericCorrect
 {
     return std::make_shared< JakowskiIonosphericCorrectionSettings >( ionosphereHeight,
                                                                       firstOrderDelayCoefficient,
-                                                                      solarActivityData,
+                                                                      solarActivityDataPath,
                                                                       geomagneticPoleLatitude,
                                                                       geomagneticPoleLongitude,
                                                                       useUtcTimeForLocalTimeComputation,
