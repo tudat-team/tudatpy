@@ -51,7 +51,6 @@ public:
     SphericalHarmonicsBlock( Eigen::MatrixXd& matrix ):
         matrixUpdateFunction_( nullptr ), matrix_( matrix ), enablePointMass_( true ), rows_( matrix.rows( ) ), columns_( matrix.cols( ) )
     {
-
     }
 
     inline double operator( )(int i, int j) const
@@ -86,9 +85,9 @@ private:
     double getPointMassTerm( ) const { return enablePointMass_ ?  matrix_( 0, 0 ) : 0.0 ; }
 
     std::function< Eigen::MatrixXd&( ) > matrixUpdateFunction_;
-
-    Eigen::MatrixXd& matrix_;
     
+    Eigen::MatrixXd& matrix_;
+
     bool enablePointMass_;
 
     const int rows_;
