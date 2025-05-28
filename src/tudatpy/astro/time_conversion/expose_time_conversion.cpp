@@ -17,6 +17,7 @@
 #include <tudat/astro/basic_astro/timeConversions.h>
 #include <tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h>
 #include <tudat/math/basic/mathematicalConstants.h>
+#include <tudat/basics/deprecationWarnings.h>
 
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <chrono>
@@ -31,6 +32,7 @@ namespace tba = tudat::basic_astrodynamics;
 namespace tsi = tudat::sofa_interface;
 namespace pc = tudat::physical_constants;
 namespace teo = tudat::earth_orientation;
+namespace tutil = tudat::utilities;
 
 namespace tudat
 {
@@ -55,6 +57,7 @@ namespace basic_astrodynamics
 // year/month/day, no time.
 std::chrono::system_clock::time_point dateTimeToTimePoint( const tba::DateTime& dateTime )
 {
+    tutil::printDeprecationWarning( "datetime_to_python", "DateTime.to_python_native" );
     return dateTime.timePoint( );
 }
 
@@ -62,7 +65,7 @@ std::chrono::system_clock::time_point dateTimeToTimePoint( const tba::DateTime& 
 // returned is a time_point (Python datetime).
 std::chrono::system_clock::time_point convertJulianDayToCalendarDatePy( const double julianDay )
 {
-    tba::DateTime dateTime = tba::getCalendarDateFromTime< double >( tudat::timeFromJulianDay< double >( julianDay ) );
+    tba::DateTime dateTime = tba::DateTime::fromTime< double >( tudat::timeFromJulianDay< double >( julianDay ) );
 
     return dateTime.timePoint( );
 }
@@ -223,7 +226,7 @@ void expose_time_conversion( py::module& m )
 
  .. warning::
 
-    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.to_python_datetime` instead.
+    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.to_iso_string` instead.
 
  Function to get the ISO-compatible string.
 
@@ -234,10 +237,9 @@ void expose_time_conversion( py::module& m )
  Parameters
  ----------
  add_T : bool
- Boolean denoting whether to use a 'T' or a blank space to separate the date from the time
-
+    Boolean denoting whether to use a 'T' or a blank space to separate the date from the time
  number_of_digits_seconds : int, default = 15
- Number of digits to use after the decimal separator (trailing zeros will be truncated)
+    Number of digits to use after the decimal separator (trailing zeros will be truncated)
 
  Returns
  -------
@@ -285,7 +287,7 @@ void expose_time_conversion( py::module& m )
 
  .. warning::
 
-    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.to_python_datetime` instead.
+    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.to_day_of_year` instead.
 
  Function to get the day number in the current year
 
@@ -323,7 +325,7 @@ void expose_time_conversion( py::module& m )
 
  .. warning::
 
-    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.to_python_datetime` instead.
+    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.to_epoch` instead.
 
  Function to get the epoch in seconds since J2000 for the current date and time
 
@@ -361,7 +363,7 @@ void expose_time_conversion( py::module& m )
 
  .. warning::
 
-    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.to_python_datetime` instead.
+    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.to_julian_day` instead.
 
  Function to get the epoch as Julian day for the current date and time
 
@@ -399,7 +401,7 @@ void expose_time_conversion( py::module& m )
  
  .. warning::
 
-    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.to_python_datetime` instead.
+    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.to_modified_julian_day` instead.
 
  Function to get the epoch as modified Julian day for the current date and time
 
@@ -476,7 +478,7 @@ In this example, the calendar date corresponding to when 122 days have passed in
     print(currentDate)  # prints (2020, 5, 2, 0, 0)
                          
                          )doc" )
-            .def_static( "from_iso_string", &tba::dateTimeFromIsoString, py::arg( "iso_time" ), R"doc(
+            .def_static( "from_iso_string", &tba::DateTime::fromIsoString, py::arg( "iso_time" ), R"doc(
             
  Creates a Tudat-native :class:`DateTime` object from an ISO datetime string.
 
@@ -492,7 +494,7 @@ In this example, the calendar date corresponding to when 122 days have passed in
 
             )doc" )
             .def_static( "from_epoch",
-                         &tba::getCalendarDateFromTime< TIME_TYPE >,
+                         &tba::DateTime::fromTime< TIME_TYPE >,
                          py::arg( "epoch" ),
                          R"doc(
 
@@ -511,14 +513,50 @@ In this example, the calendar date corresponding to when 122 days have passed in
      )doc" )
             .def( "to_python_datetime", &tba::DateTime::timePoint, R"doc(
                 
-Method to convert retrieve a Python datetime.datetime object from the Tudat :class:`DateTime` object. This is the inverse of the :meth:`tudatpy.astro.time_conversion.DateTime.from_python_datetime` method.
+Method to convert retrieve a Python datetime.datetime object from the Tudat :class:`DateTime` object. This is the inverse of the :meth:`~tudatpy.astro.time_conversion.DateTime.from_python_datetime` method.
 
 Returns
 -------
 datetime.datetime
     Datetime object, using the Python datetime library
 
-    )doc" );
+    )doc" )
+            .def( "add_seconds", &tba::DateTime::addSecondsToDateTime< TIME_TYPE >, py::arg( "seconds_to_add" ), R"doc(
+            
+ Function to create a new Tudat :class:`DateTime` object by adding a number of seconds to an existing Tudat :class:`DateTime` object.
+
+ .. note::
+    
+    This method does not modify the original :class:`DateTime` object, but returns a new one with the added seconds.
+
+ Parameters
+ ----------
+ seconds_to_add : float
+     Number of seconds to add
+ Returns
+ -------
+ DateTime
+     Tudat-native Datetime object created by adding the given number of seconds to the original DateTime
+            
+            )doc" )
+            .def( "add_days", &tba::DateTime::addDaysToDateTime< TIME_TYPE >, py::arg( "days_to_add" ), R"doc(
+            
+ Function to create a new Tudat :class:`DateTime` object by adding a number of days (86400 seconds) to an existing Tudat :class:`DateTime` object
+
+ .. note::
+    
+    This method does not modify the original :class:`DateTime` object, but returns a new one with the added days.
+
+ Parameters
+ ----------
+ days_to_add : float
+     Number of days to add
+ Returns
+ -------
+ DateTime
+     Tudat-native Datetime object created by adding the given number of days to the original DateTime
+
+            )doc" );
 
     m.def( "datetime_to_tudat",
            &tba::DateTime::fromTimePoint,
@@ -1425,6 +1463,56 @@ In this example, the calendar date corresponding to when 122 days have passed in
            py::arg( "seconds" ),
            R"doc(
 
+ .. warning::
+
+    This function is deprecated and will be removed in a future version of Tudat. Use :func:`date_time_components_to_epoch` instead.
+
+ Computes the epoch as seconds since J2000 from the entries of the current date and time.
+
+ Computes the epoch as seconds since J2000. This function is added for convenience, and creates a :class:`DateTime` object, and subsequently calls its ``epoch`` function
+
+ Parameters
+ ----------
+ year : int
+     Calendar year
+
+ month : int
+     Calendar month (value must be 1-12)
+
+ day : int
+     Calendar day in current month, value must be larger than 0, and smaller or equal to the number of days in the month
+
+ hour : int
+     Full hours into the current day (value must be 0-23)
+
+ minute : int
+     Full minutes into the current hour (value must be 0-59)
+
+ seconds : float
+     Number of seconds into the current minute. Note that this value is stored as ``long double`` in Tudat, which may be 64-bit or 80-bit (16 or 19 digits) depending on the compiler used.
+
+ Returns
+ -------
+ float
+     Time in seconds since J2000.
+
+
+
+
+
+
+     )doc" );
+
+    m.def( "date_time_components_to_epoch",
+           &tba::timeFromDecomposedDateTime< TIME_TYPE >,
+           py::arg( "year" ),
+           py::arg( "month" ),
+           py::arg( "day" ),
+           py::arg( "hour" ),
+           py::arg( "minute" ),
+           py::arg( "seconds" ),
+           R"doc(
+
  Computes the epoch as seconds since J2000 from the entries of the current date and time.
 
  Computes the epoch as seconds since J2000. This function is added for convenience, and creates a :class:`DateTime` object, and subsequently calls its ``epoch`` function
@@ -1466,6 +1554,31 @@ In this example, the calendar date corresponding to when 122 days have passed in
            py::arg( "iso_datetime" ),
            R"doc(
 
+ .. warning::
+
+    This function is deprecated and will be removed in a future version of Tudat. Use :func:`iso_string_to_epoch` instead.
+
+ Computes the epoch as seconds since J2000 from an ISO datetime string.
+
+ Computes the epoch as seconds since J2000. This function is added for convenience, and creates a :class:`DateTime` object, and subsequently calls its ``epoch`` function
+
+ Parameters
+ ----------
+ iso_datetime : str
+     Date and time as ISO compatible string ("YYYY-MM-DDTHH:MM:SS.SSSSS..", where the T may be replaced with a space)
+
+ Returns
+ -------
+ float
+     Time in seconds since J2000.
+
+     )doc" );
+
+    m.def( "iso_string_to_epoch",
+           &tba::timeFromIsoString< TIME_TYPE >,
+           py::arg( "iso_datetime" ),
+           R"doc(
+
  Computes the epoch as seconds since J2000 from an ISO datetime string.
 
  Computes the epoch as seconds since J2000. This function is added for convenience, and creates a :class:`DateTime` object, and subsequently calls its ``epoch`` function
@@ -1499,13 +1612,13 @@ In this example, the calendar date corresponding to when 122 days have passed in
     //          );
 
     m.def( "date_time_from_epoch",
-           &tba::getCalendarDateFromTime< TIME_TYPE >,
+           &tba::DateTime::fromTime< TIME_TYPE >,
            py::arg( "epoch" ),
            R"doc(
 
  .. warning::
 
-    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.to_python_datetime` instead.
+    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.from_epoch` instead.
 
 
  Creates a Tudat-native :class:`DateTime` object from the seconds since J2000.
@@ -1529,13 +1642,13 @@ In this example, the calendar date corresponding to when 122 days have passed in
      )doc" );
 
     m.def( "date_time_from_iso_string",
-           &tba::dateTimeFromIsoString,
-           py::arg( "iso_datetime" ),
+           &tba::DateTime::fromIsoString,
+           py::arg( "iso_string" ),
            R"doc(
 
  .. warning::
 
-    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.to_python_datetime` instead.
+    This function is deprecated and will be removed in a future version of Tudat. Use :func:`DateTime.from_iso_string` instead.
 
  Creates a Tudat-native :class:`DateTime` object from an ISO datetime string.
 
