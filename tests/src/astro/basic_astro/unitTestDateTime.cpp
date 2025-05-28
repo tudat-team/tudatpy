@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE( testDateTimeConversions )
                                            3600.0 * std::numeric_limits< long double >::epsilon( ) );
                     }
 
-                    DateTime reconstructedDateTime = getCalendarDateFromTime( currentTime );
+                    DateTime reconstructedDateTime = DateTime::fromTime( currentTime );
                     BOOST_CHECK_EQUAL( reconstructedDateTime.getYear( ), currentDateTime.getYear( ) );
                     BOOST_CHECK_EQUAL( reconstructedDateTime.getMonth( ), currentDateTime.getMonth( ) );
                     BOOST_CHECK_EQUAL( reconstructedDateTime.getDay( ), currentDateTime.getDay( ) );
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE( testIsoInitialization )
     std::vector< double > julianDays = { 2460116., 2458909., 2451545., 2361551 };
     for( unsigned int i = 0; i < testStrings.size( ); i++ )
     {
-        DateTime dateTime = dateTimeFromIsoString( testStrings.at( i ) );
+        DateTime dateTime = DateTime::fromIsoString( testStrings.at( i ) );
         std::string reconstuctedString = dateTime.isoString( true, 17 );
 
         // TODO: fix test for long doubles with 64-bit precision
