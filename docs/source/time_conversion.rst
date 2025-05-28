@@ -17,7 +17,7 @@ Different helper functions are also included to ease the most common operation o
 Notes
 -----
 * Unless specified otherwise, the time used in Tudatpy is in seconds since J2000, noon on the 1st of January 2000 (e.g., this epoch defines :math:`t=0`)
-* Tudat uses two different classes for date and time. One is the regular ``datetime`` from the Python ``datetime`` library. The other is a Tudat-native :class:`Datetime` class, which allows finer resolution for time definitions, and allows for easier conversion to time representations (seconds since epoch, Julian day, modified Julian day). You can convert between the two using the :func:`DateTime.from_python_native` and :func:`DateTime.to_python_native` functions.
+* Tudat uses two different classes for date and time. One is the regular ``datetime`` from the Python ``datetime`` library. The other is a Tudat-native :class:`~tudatpy.astro.time_conversion.DateTime` class, which allows finer resolution for time definitions, and allows for easier conversion to time representations (seconds since epoch, Julian day, modified Julian day). You can convert between the two using the :meth:`~tudatpy.astro.time_conversion.DateTime.from_python_datetime` and :meth:`~tudatpy.astro.time_conversion.DateTime.to_python_datetime` methods.
 * A number of conversion functions take the current Julian day or modified Julian day (as a ``float``) as input or output. This represents the number of days (86400 seconds) since noon January 1st 4713 BC, or midnight November 17th 1858 AD, respectively.
 * A number of conversion functions take the seconds/days/... "since epoch" as input or output.
 
@@ -41,29 +41,27 @@ Functions
 
 .. autosummary::
 
-   add_seconds_to_datetime
-
-   add_days_to_datetime
-
    calendar_date_to_julian_day
 
    calendar_date_to_days_since_epoch
 
+   date_time_components_to_epoch
+
+   iso_string_to_epoch
+
    julian_day_to_calendar_date
 
    julian_day_to_seconds_since_epoch
+
+   julian_day_to_modified_julian_day
+
+   modified_julian_day_to_julian_day
 
    seconds_since_epoch_to_julian_day
 
    seconds_since_epoch_to_julian_years_since_epoch
 
    seconds_since_epoch_to_julian_centuries_since_epoch
-
-   julian_day_to_modified_julian_day
-
-   modified_julian_day_to_julian_day
-
-   .. calendar_date_to_day_of_year
 
    calculate_seconds_in_current_julian_day
 
@@ -88,37 +86,31 @@ Functions
    TT_to_TDB
    
    TDB_to_TT
-
-   epoch_from_date_time_components
-
-   epoch_from_date_time_iso_string
    
    default_time_scale_converter
 
-
-.. autofunction:: tudatpy.astro.time_conversion.add_seconds_to_datetime
-
-.. autofunction:: tudatpy.astro.time_conversion.add_days_to_datetime
 
 .. autofunction:: tudatpy.astro.time_conversion.calendar_date_to_julian_day
 
 .. autofunction:: tudatpy.astro.time_conversion.calendar_date_to_days_since_epoch
 
+.. autofunction:: tudatpy.astro.time_conversion.date_time_components_to_epoch
+
+.. autofunction:: tudatpy.astro.time_conversion.iso_string_to_epoch
+
 .. autofunction:: tudatpy.astro.time_conversion.julian_day_to_calendar_date
 
 .. autofunction:: tudatpy.astro.time_conversion.julian_day_to_seconds_since_epoch
+
+.. autofunction:: tudatpy.astro.time_conversion.julian_day_to_modified_julian_day
+
+.. autofunction:: tudatpy.astro.time_conversion.modified_julian_day_to_julian_day
 
 .. autofunction:: tudatpy.astro.time_conversion.seconds_since_epoch_to_julian_day
 
 .. autofunction:: tudatpy.astro.time_conversion.seconds_since_epoch_to_julian_years_since_epoch
 
 .. autofunction:: tudatpy.astro.time_conversion.seconds_since_epoch_to_julian_centuries_since_epoch
-
-.. autofunction:: tudatpy.astro.time_conversion.julian_day_to_modified_julian_day
-
-.. autofunction:: tudatpy.astro.time_conversion.modified_julian_day_to_julian_day
-
-.. .. autofunction:: tudatpy.astro.time_conversion.calendar_date_to_day_of_year
 
 .. autofunction:: tudatpy.astro.time_conversion.calculate_seconds_in_current_julian_day
 
@@ -144,9 +136,6 @@ Functions
 
 .. autofunction:: tudatpy.astro.time_conversion.TDB_to_TT
 
-.. autofunction:: tudatpy.astro.time_conversion.epoch_from_date_time_components
-
-.. autofunction:: tudatpy.astro.time_conversion.epoch_from_date_time_iso_string
 
 .. autofunction:: tudatpy.astro.time_conversion.default_time_scale_converter
 
