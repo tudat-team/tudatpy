@@ -41,32 +41,33 @@ class SphericalHarmonicsBlock
 {
 public:
 
-    SphericalHarmonicsBlock( const std::function< Eigen::Block< Eigen::MatrixXd >( ) > blockUpdateFunction ):
-        blockUpdateFunction_( blockUpdateFunction ), block_( blockUpdateFunction_( ) ), enablePointMass_( true )
-        {
+    SphericalHarmonicsBlock( const std::function< Eigen::MatrixXd&( ) > matrixUpdateFunction,
+                             const int rows, const int columns ):
+        matrixUpdateFunction_( matrixUpdateFunction ), matrix_( matrixUpdateFunction_( ) ), enablePointMass_( true ), rows_( rows ), columns_( columns )
+    {
 
-        }
+    }
 
-    SphericalHarmonicsBlock( Eigen::MatrixXd matrix ):
-        blockUpdateFunction_( nullptr ), matrix_( matrix ), block_( matrix_.block( 0, 0, matrix_.rows( ), matrix_.cols( ) ) ), enablePointMass_( true )
+    SphericalHarmonicsBlock( Eigen::MatrixXd& matrix ):
+        matrixUpdateFunction_( nullptr ), matrix_( matrix ), enablePointMass_( true ), rows_( matrix.rows( ) ), columns_( matrix.cols( ) )
     {
 
     }
 
     inline double operator( )(int i, int j) const
     {
-        return (i == 0 && j == 0 ) ? getPointMassTerm( ) : block_(i, j);
+        return (i == 0 && j == 0 ) ? getPointMassTerm( ) : matrix_(i, j);
     }
 
-    inline int rows() const { return block_.rows(); }
+    inline int rows() const { return rows_; }
 
-    inline int cols() const { return block_.cols(); }
+    inline int cols() const { return columns_; }
 
     void update( )
     {
-        if( blockUpdateFunction_ != nullptr )
+        if( matrixUpdateFunction_ != nullptr )
         {
-            block_ = blockUpdateFunction_( );
+            matrix_ = matrixUpdateFunction_( );
         }
     }
 
@@ -82,15 +83,17 @@ public:
 
 private:
 
-    double getPointMassTerm( ) const { return enablePointMass_ ?  block_( 0, 0 ) : 0.0 ; }
+    double getPointMassTerm( ) const { return enablePointMass_ ?  matrix_( 0, 0 ) : 0.0 ; }
 
-    std::function< Eigen::Block< Eigen::MatrixXd >( ) > blockUpdateFunction_;
+    std::function< Eigen::MatrixXd&( ) > matrixUpdateFunction_;
 
-    Eigen::MatrixXd matrix_ = Eigen::MatrixXd::Zero( 0, 0  );
-
-    Eigen::Block< Eigen::MatrixXd > block_;
-
+    Eigen::MatrixXd& matrix_;
+    
     bool enablePointMass_;
+
+    const int rows_;
+
+    const int columns_;
 
 };
 
@@ -457,6 +460,16 @@ public:
      *  \return Sine spherical harmonic coefficients (geodesy normalized)
      */
     Eigen::MatrixXd getSineCoefficients( )
+    {
+        return sineCoefficients_;
+    }
+
+    Eigen::MatrixXd& getCosineCoefficientsReference( )
+    {
+        return cosineCoefficients_;
+    }
+
+    Eigen::MatrixXd& getSineCoefficientsReference( )
     {
         return sineCoefficients_;
     }
