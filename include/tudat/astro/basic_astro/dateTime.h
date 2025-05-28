@@ -16,6 +16,7 @@
 
 #include "tudat/basics/timeType.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/basics/deprecationWarnings.h"
 
 namespace tudat
 {
@@ -42,6 +43,56 @@ TimeType timeFromDecomposedDateTime( const int year,
     int fullPeriods = daysSinceJ2000 * TIME_NORMALIZATION_TERMS_PER_DAY + ( hour - 12 );
     long double secondsIntoFullPeriod = secondsIntoCurrentHour;
     return static_cast< TimeType >( Time( fullPeriods, secondsIntoFullPeriod ) );
+}
+
+//! Function to get Time from an ISO time string
+inline void decomposedDateTimeFromIsoString( const std::string &isoTime,
+                                             int &year,
+                                             int &month,
+                                             int &days,
+                                             int &hours,
+                                             int &minutes,
+                                             long double &seconds )
+{
+    try
+    {
+        // Get year and month
+        std::vector< std::string > splitTime;
+        boost::algorithm::split( splitTime, isoTime, boost::is_any_of( "-‐" ), boost::algorithm::token_compress_on );
+        year = boost::lexical_cast< int >( splitTime.at( 0 ) );
+        month = boost::lexical_cast< int >( splitTime.at( 1 ) );
+
+        // Get day
+        std::string remainingString = splitTime.at( 2 );
+        splitTime.clear( );
+        boost::algorithm::split( splitTime, remainingString, boost::is_any_of( "T " ), boost::algorithm::token_compress_on );
+
+        days = boost::lexical_cast< int >( splitTime.at( 0 ) );
+
+        // Get hours, minutes, seconds
+        remainingString = splitTime.at( 1 );
+        splitTime.clear( );
+        boost::algorithm::split( splitTime, remainingString, boost::is_any_of( ":" ), boost::algorithm::token_compress_on );
+        hours = boost::lexical_cast< int >( splitTime.at( 0 ) );
+        minutes = boost::lexical_cast< int >( splitTime.at( 1 ) );
+        seconds = boost::lexical_cast< long double >( splitTime.at( 2 ) );
+    }
+    catch( std::runtime_error &caughtException )
+    {
+        throw std::runtime_error( "Error when parsing iso datetime string " + isoTime +
+                                  ". Caught exception is: " + caughtException.what( ) );
+    }
+}
+
+//! Function to get Time from an ISO time string
+template< typename TimeType >
+TimeType timeFromIsoString( const std::string &isoTime )
+{
+    int year, month, days, hours, minutes;
+    long double seconds;
+
+    decomposedDateTimeFromIsoString( isoTime, year, month, days, hours, minutes, seconds );
+    return timeFromDecomposedDateTime< TimeType >( year, month, days, hours, minutes, seconds );
 }
 
 struct DateTime {
@@ -206,6 +257,53 @@ public:
         return DateTime( boostDateTime.year( ), boostDateTime.month( ), boostDateTime.day( ), 0, 0, 0.0 );
     }
 
+    template< typename TimeType >
+    static DateTime fromTime( const TimeType &timeInput )
+    {
+        Time time = Time( timeInput );
+        int fullPeriodsSinceMidnightJD0 = time.getFullPeriods( ) +
+                basic_astrodynamics::JULIAN_DAY_ON_J2000_INT * TIME_NORMALIZATION_TERMS_PER_DAY + TIME_NORMALIZATION_TERMS_PER_HALF_DAY;
+        if( fullPeriodsSinceMidnightJD0 < 0 )
+        {
+            throw std::runtime_error( "Error calendar date from Time not implemented for negative Julian days" );
+        }
+        int fullDaysSinceMidnightJD0 = fullPeriodsSinceMidnightJD0 / TIME_NORMALIZATION_TERMS_PER_DAY;
+        int day, month, year;
+
+        basic_astrodynamics::convertShiftedJulianDayToCalendarDate< int >( fullDaysSinceMidnightJD0, day, month, year );
+
+        if( TIME_NORMALIZATION_INTEGER_TERM != 3600 )
+        {
+            throw std::runtime_error( "Error, Time to calendar date only implemented for normalization term of 3600 s" );
+        }
+        int hour = time.fullPeriodsSinceMidnight( );
+        int minute = std::floor( time.getSecondsIntoFullPeriod( ) / 60.0L );
+        long double seconds = time.getSecondsIntoFullPeriod( ) - 60.0L * static_cast< long double >( minute );
+
+        return DateTime( year, month, day, hour, minute, seconds );
+    }
+
+    static DateTime fromIsoString( const std::string &isoTime )
+    {
+        int year, month, days, hours, minutes;
+        long double seconds;
+
+        decomposedDateTimeFromIsoString( isoTime, year, month, days, hours, minutes, seconds );
+        return DateTime( year, month, days, hours, minutes, seconds );
+    }
+
+    template< typename TimeType >
+    DateTime addSecondsToDateTime( const TimeType timeToAdd )
+    {
+        return fromTime< Time >( this->epoch< Time >( ) + timeToAdd );
+    }
+
+    template< typename TimeType >
+    DateTime addDaysToDateTime( const TimeType daysToAdd )
+    {
+        return fromTime< Time >( this->epoch< Time >( ) + daysToAdd * mathematical_constants::getFloatingInteger< long double >( 86400 ) );
+    }
+
 protected:
     int year_;
     int month_;
@@ -260,107 +358,25 @@ protected:
 };
 
 template< typename TimeType >
-inline DateTime getCalendarDateFromTime( const TimeType &timeInput )
-{
-    Time time = Time( timeInput );
-    int fullPeriodsSinceMidnightJD0 = time.getFullPeriods( ) +
-            basic_astrodynamics::JULIAN_DAY_ON_J2000_INT * TIME_NORMALIZATION_TERMS_PER_DAY + TIME_NORMALIZATION_TERMS_PER_HALF_DAY;
-    if( fullPeriodsSinceMidnightJD0 < 0 )
-    {
-        throw std::runtime_error( "Error calendar date from Time not implemented for negative Julian days" );
-    }
-    int fullDaysSinceMidnightJD0 = fullPeriodsSinceMidnightJD0 / TIME_NORMALIZATION_TERMS_PER_DAY;
-    int day, month, year;
-
-    basic_astrodynamics::convertShiftedJulianDayToCalendarDate< int >( fullDaysSinceMidnightJD0, day, month, year );
-
-    if( TIME_NORMALIZATION_INTEGER_TERM != 3600 )
-    {
-        throw std::runtime_error( "Error, Time to calendar date only implemented for normalization term of 3600 s" );
-    }
-    int hour = time.fullPeriodsSinceMidnight( );
-    int minute = std::floor( time.getSecondsIntoFullPeriod( ) / 60.0L );
-    long double seconds = time.getSecondsIntoFullPeriod( ) - 60.0L * static_cast< long double >( minute );
-
-    return DateTime( year, month, day, hour, minute, seconds );
-}
-
-template< typename TimeType >
 DateTime addSecondsToDateTime( const DateTime &dateTime, const TimeType timeToAdd )
 {
-    return getCalendarDateFromTime< Time >( dateTime.epoch< Time >( ) + timeToAdd );
+    utilities::printDeprecationWarning( "add_seconds_to_datetime", "DateTime.add_seconds" );
+
+    return DateTime::fromTime< Time >( dateTime.epoch< Time >( ) + timeToAdd );
 }
 
 template< typename TimeType >
 DateTime addDaysToDateTime( const DateTime &dateTime, const TimeType daysToAdd )
 {
-    return getCalendarDateFromTime< Time >( dateTime.epoch< Time >( ) +
-                                            daysToAdd * mathematical_constants::getFloatingInteger< long double >( 86400 ) );
+    utilities::printDeprecationWarning( "add_days_to_datetime", "DateTime.add_days" );
+    return DateTime::fromTime< Time >( dateTime.epoch< Time >( ) +
+                                       daysToAdd * mathematical_constants::getFloatingInteger< long double >( 86400 ) );
 }
 
 template< typename TimeType >
 TimeType getTimeDifferenceBetweenDateTimes( const DateTime &firstDateTime, const DateTime &secondDateTime )
 {
     return firstDateTime.epoch< TimeType >( ) - secondDateTime.epoch< TimeType >( );
-}
-
-//! Function to get Time from an ISO time string
-inline void decomposedDateTimeFromIsoString( const std::string &isoTime,
-                                             int &year,
-                                             int &month,
-                                             int &days,
-                                             int &hours,
-                                             int &minutes,
-                                             long double &seconds )
-{
-    try
-    {
-        // Get year and month
-        std::vector< std::string > splitTime;
-        boost::algorithm::split( splitTime, isoTime, boost::is_any_of( "-‐" ), boost::algorithm::token_compress_on );
-        year = boost::lexical_cast< int >( splitTime.at( 0 ) );
-        month = boost::lexical_cast< int >( splitTime.at( 1 ) );
-
-        // Get day
-        std::string remainingString = splitTime.at( 2 );
-        splitTime.clear( );
-        boost::algorithm::split( splitTime, remainingString, boost::is_any_of( "T " ), boost::algorithm::token_compress_on );
-
-        days = boost::lexical_cast< int >( splitTime.at( 0 ) );
-
-        // Get hours, minutes, seconds
-        remainingString = splitTime.at( 1 );
-        splitTime.clear( );
-        boost::algorithm::split( splitTime, remainingString, boost::is_any_of( ":" ), boost::algorithm::token_compress_on );
-        hours = boost::lexical_cast< int >( splitTime.at( 0 ) );
-        minutes = boost::lexical_cast< int >( splitTime.at( 1 ) );
-        seconds = boost::lexical_cast< long double >( splitTime.at( 2 ) );
-    }
-    catch( std::runtime_error &caughtException )
-    {
-        throw std::runtime_error( "Error when parsing iso datetime string " + isoTime +
-                                  ". Caught exception is: " + caughtException.what( ) );
-    }
-}
-
-//! Function to get Time from an ISO time string
-template< typename TimeType >
-TimeType timeFromIsoString( const std::string &isoTime )
-{
-    int year, month, days, hours, minutes;
-    long double seconds;
-
-    decomposedDateTimeFromIsoString( isoTime, year, month, days, hours, minutes, seconds );
-    return timeFromDecomposedDateTime< TimeType >( year, month, days, hours, minutes, seconds );
-}
-
-inline DateTime dateTimeFromIsoString( const std::string &isoTime )
-{
-    int year, month, days, hours, minutes;
-    long double seconds;
-
-    decomposedDateTimeFromIsoString( isoTime, year, month, days, hours, minutes, seconds );
-    return DateTime( year, month, days, hours, minutes, seconds );
 }
 
 }  // namespace basic_astrodynamics
