@@ -57,7 +57,7 @@ namespace basic_astrodynamics
 // year/month/day, no time.
 std::chrono::system_clock::time_point dateTimeToTimePoint( const tba::DateTime& dateTime )
 {
-    tutil::printDeprecationWarning( "datetime_to_python", "DateTime.to_python_native" );
+    tutil::printDeprecationWarning( "datetime_to_python", "DateTime.to_python_datetime" );
     return dateTime.timePoint( );
 }
 
