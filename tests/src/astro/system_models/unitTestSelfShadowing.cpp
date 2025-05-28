@@ -120,9 +120,7 @@ BOOST_AUTO_TEST_CASE( testFractionAnalytical )
     
     std::map< std::string, std::shared_ptr< SelfShadowing > > mapSSH = targetModel.getSelfShadowingPerSources( );
     Eigen::Vector3d incomingDirection = Eigen::Vector3d::UnitX( );
-    std::cout<<"TEST 1"<<std::endl;
     bodies.at( "L_SHAPED" )->getVehicleSystems( )->updatePartOrientations( 0.0 );
-    std::cout<<"TEST 2"<<std::endl;
 
     for ( unsigned int i = 0; i<angles.size( ); i++ )
     {
@@ -132,11 +130,8 @@ BOOST_AUTO_TEST_CASE( testFractionAnalytical )
         
 
         mapSSH[ "Sun" ]->reset( );
-        std::cout<<"TEST 32"<<std::endl;
         mapSSH[ "Sun" ]->updateIlluminatedPanelFractions( incomingDirection );
-        std::cout<<"TEST 3"<<std::endl;
         std::vector< double > illuminatedPanelFractions = mapSSH[ "Sun" ]->getIlluminatedPanelFractions( );
-        std::cout<<"TEST 4"<<std::endl;
         double trueFractionShaded = 1.0 - std::tan( angles[ i ] );
         double trueFractionLit = 1.0;
 
