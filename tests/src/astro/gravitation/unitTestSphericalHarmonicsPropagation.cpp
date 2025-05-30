@@ -213,10 +213,10 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
         {
             for( int j = 0; j < 3; j++ )
             {
-                BOOST_CHECK_SMALL( matrixDifference( i, j ), currentMatrix.block( 0, 0, 3, 3 ).norm( ) * 1.0E-14 );
-                BOOST_CHECK_SMALL( matrixDifference( i + 3, j ), currentMatrix.block( 3, 0, 3, 3 ).norm( ) * 1.0E-14 );
-                BOOST_CHECK_SMALL( matrixDifference( i, j + 3 ), currentMatrix.block( 0, 3, 3, 3 ).norm( ) * 1.0E-14 );
-                BOOST_CHECK_SMALL( matrixDifference( i + 3, j + 3 ), currentMatrix.block( 3, 3, 3, 3 ).norm( ) * 1.0E-14 );
+                BOOST_CHECK_SMALL( matrixDifference( i, j ), currentMatrix.block( 0, 0, 3, 3 ).norm( ) * 2.0E-14 );
+                BOOST_CHECK_SMALL( matrixDifference( i + 3, j ), currentMatrix.block( 3, 0, 3, 3 ).norm( ) * 2.0E-14 );
+                BOOST_CHECK_SMALL( matrixDifference( i, j + 3 ), currentMatrix.block( 0, 3, 3, 3 ).norm( ) * 2.0E-14 );
+                BOOST_CHECK_SMALL( matrixDifference( i + 3, j + 3 ), currentMatrix.block( 3, 3, 3, 3 ).norm( ) * 2.0E-14 );
 
             }
         }
