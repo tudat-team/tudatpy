@@ -2737,7 +2737,7 @@ Examples
            py::arg( "associated_link_end" ) );
 
     m.def( "arcwise_time_bias",
-           py::overload_cast< const std::map< double, double >&, const LinkEndType >( &tom::arcWiseTimeBias ),
+           py::overload_cast< const std::map< double, double >&, const tom::LinkEndType >( &tom::arcWiseTimeBias ),
            py::arg( "time_bias_per_arc_start_time" ),
            py::arg( "associated_link_end" ) );
 
