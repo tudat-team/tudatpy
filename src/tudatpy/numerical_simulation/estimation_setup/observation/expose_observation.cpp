@@ -2730,6 +2730,17 @@ Examples
 
      )doc" );
 
+
+    m.def( "time_bias",
+           &tom::constantTimeBias,
+           py::arg( "time_bias" ),
+           py::arg( "associated_link_end" ) );
+
+    m.def( "arcwise_time_bias",
+           py::overload_cast< const std::map< double, double >&, const LinkEndType >( &tom::arcWiseTimeBias ),
+           py::arg( "time_bias_per_arc_start_time" ),
+           py::arg( "associated_link_end" ) );
+
     m.def( "combined_bias",
            &tom::multipleObservationBiasSettings,
            py::arg( "bias_list" ),
