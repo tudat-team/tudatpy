@@ -50,9 +50,6 @@ Eigen::MatrixXd setDegreeAndOrderCoefficientToZero( const std::function< Eigen::
 class MutualSphericalHarmonicsGravitationalAccelerationModel : public basic_astrodynamics::AccelerationModel< Eigen::Vector3d >
 {
 private:
-    //! Typedef for coefficient-matrix-returning function.
-    typedef std::function< Eigen::MatrixXd( ) > CoefficientMatrixReturningFunction;
-
     //! Typedef for function returning body position.
     typedef std::function< void( Eigen::Vector3d& ) > StateFunction;
 
@@ -104,17 +101,15 @@ public:
             const DataReturningFunction& gravitationalParameterFunction,
             const double equatorialRadiusOfBodyExertingAcceleration,
             const double equatorialRadiusOfBodyUndergoingAcceleration,
-            const CoefficientMatrixReturningFunction& cosineHarmonicCoefficientsFunctionOfBodyExertingAcceleration,
-            const CoefficientMatrixReturningFunction& sineHarmonicCoefficientsFunctionOfBodyExertingAcceleration,
-            const CoefficientMatrixReturningFunction& cosineHarmonicCoefficientsFunctionOfBodyUndergoingAcceleration,
-            const CoefficientMatrixReturningFunction& sineHarmonicCoefficientsFunctionOfBodyUndergoingAcceleration,
+            SphericalHarmonicsBlock cosineHarmonicCoefficientsFunctionOfBodyExertingAcceleration,
+            SphericalHarmonicsBlock sineHarmonicCoefficientsFunctionOfBodyExertingAcceleration,
+            SphericalHarmonicsBlock cosineHarmonicCoefficientsFunctionOfBodyUndergoingAcceleration,
+            SphericalHarmonicsBlock sineHarmonicCoefficientsFunctionOfBodyUndergoingAcceleration,
             const std::function< Eigen::Quaterniond( ) >& toLocalFrameOfBodyExertingAccelerationTransformation,
             const std::function< Eigen::Quaterniond( ) >& toLocalFrameOfBodyUndergoingAccelerationTransformation,
             const bool useCentralBodyFixedFrame,
-            std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCacheOfBodyExertingAcceleration =
-                    std::make_shared< basic_mathematics::SphericalHarmonicsCache >( ),
-            std::shared_ptr< basic_mathematics::SphericalHarmonicsCache > sphericalHarmonicsCacheOfBodyUndergoingAcceleration =
-                    std::make_shared< basic_mathematics::SphericalHarmonicsCache >( ) ):
+            const basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCacheOfBodyExertingAcceleration = basic_mathematics::SphericalHarmonicsCache( ),
+            const basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCacheOfBodyUndergoingAcceleration = basic_mathematics::SphericalHarmonicsCache( ) ):
         useCentralBodyFixedFrame_( useCentralBodyFixedFrame ), gravitationalParameterFunction_( gravitationalParameterFunction )
     {
         // Create spherical harmonic acceleration due to expansion of body exerting acceleration
@@ -133,12 +128,13 @@ public:
         // to zero to prevent the double computation of the central term. Note that the order of the position functions is
         // switched wrt the regular input, to ensure that the acceleration vector points in the right direction
         // (i.e. from body undergoing to body exerting acceleration).
+        cosineHarmonicCoefficientsFunctionOfBodyUndergoingAcceleration.setEnablePointMass( false );
         accelerationModelFromShExpansionOfBodyUndergoingAcceleration_ =
                 std::make_shared< SphericalHarmonicsGravitationalAccelerationModel >(
                         positionOfBodyExertingAccelerationFunction,
                         gravitationalParameterFunction,
                         equatorialRadiusOfBodyUndergoingAcceleration,
-                        std::bind( &setDegreeAndOrderCoefficientToZero, cosineHarmonicCoefficientsFunctionOfBodyUndergoingAcceleration ),
+                        cosineHarmonicCoefficientsFunctionOfBodyUndergoingAcceleration,
                         sineHarmonicCoefficientsFunctionOfBodyUndergoingAcceleration,
                         positionOfBodySubjectToAccelerationFunction,
                         toLocalFrameOfBodyUndergoingAccelerationTransformation,

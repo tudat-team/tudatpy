@@ -30,39 +30,23 @@ SphericalHarmonicsGravityPartial::SphericalHarmonicsGravityPartial(
         const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials,
         const std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >& tidalLoveNumberPartialInterfaces ):
     AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::spherical_harmonic_gravity ),
-    gravitationalParameterFunction_( accelerationModel->getGravitationalParameterFunction( ) ),
-    bodyReferenceRadius_(
-            std::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::getReferenceRadius, accelerationModel ) ),
-    cosineCoefficients_( accelerationModel->getCosineHarmonicCoefficientsFunction( ) ),
-    sineCoefficients_( accelerationModel->getSineHarmonicCoefficientsFunction( ) ),
+    accelerationModel_( accelerationModel ),
     sphericalHarmonicCache_( accelerationModel->getSphericalHarmonicsCache( ) ),
-    positionFunctionOfAcceleratedBody_(
-            std::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::getCurrentPositionOfBodySubjectToAcceleration,
-                       accelerationModel ) ),
-    positionFunctionOfAcceleratingBody_(
-            std::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::getCurrentPositionOfBodyExertingAcceleration,
-                       accelerationModel ) ),
-    fromBodyFixedToIntegrationFrameRotation_(
-            std::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::getCurrentRotationToIntegrationFrameMatrix,
-                       accelerationModel ) ),
-    accelerationFunction_(
-            std::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::getAcceleration, accelerationModel ) ),
-    updateFunction_( std::bind( &gravitation::SphericalHarmonicsGravitationalAccelerationModel::updateMembers,
-                                accelerationModel,
-                                std::placeholders::_1 ) ),
     rotationMatrixPartials_( rotationMatrixPartials ), tidalLoveNumberPartialInterfaces_( tidalLoveNumberPartialInterfaces ),
+    cosineSphericalHarmonicsBlock( accelerationModel->getCurrentCosineCoefficients( ) ),
+    sineSphericalHarmonicsBlock( accelerationModel->getCurrentSineCoefficients( ) ),
     accelerationUsesMutualAttraction_( accelerationModel->getIsMutualAttractionUsed( ) )
 {
-    sphericalHarmonicCache_->getLegendreCache( )->setComputeSecondDerivatives( 1 );
+    sphericalHarmonicCache_.getLegendreCache( ).setComputeSecondDerivatives( 1 );
 
     // Update number of degrees and orders in legendre cache for calculation of position partials
 
-    maximumDegree_ = cosineCoefficients_( ).rows( ) - 1;
-    maximumOrder_ = sineCoefficients_( ).cols( ) - 1;
+    maximumDegree_ = cosineSphericalHarmonicsBlock.rows( ) - 1;
+    maximumOrder_ = cosineSphericalHarmonicsBlock.cols( ) - 1;
 
-    if( sphericalHarmonicCache_->getMaximumDegree( ) < maximumDegree_ || sphericalHarmonicCache_->getMaximumOrder( ) < maximumOrder_ + 2 )
+    if( sphericalHarmonicCache_.getMaximumDegree( ) < maximumDegree_ || sphericalHarmonicCache_.getMaximumOrder( ) < maximumOrder_ + 2 )
     {
-        sphericalHarmonicCache_->resetMaximumDegreeAndOrder( maximumDegree_, maximumOrder_ + 2 );
+        sphericalHarmonicCache_.resetMaximumDegreeAndOrder( maximumDegree_, maximumOrder_ + 2 );
     }
 }
 
@@ -430,35 +414,29 @@ void SphericalHarmonicsGravityPartial::update( const double currentTime )
     if( !( currentTime_ == currentTime ) )
     {
         // Update acceleration model
-        updateFunction_( currentTime );
+        accelerationModel_->updateMembers( currentTime );
 
         // Calculate Cartesian position in frame fixed to body exerting acceleration
-        Eigen::Matrix3d currentRotationToBodyFixedFrame_ = fromBodyFixedToIntegrationFrameRotation_( ).inverse( );
+        currentRotationToInertialFrame_ = accelerationModel_->getCurrentRotationToIntegrationFrame( ).toRotationMatrix( );
+        currentRotationToBodyFixedFrame_ = currentRotationToInertialFrame_.transpose( );
         bodyFixedPosition_ =
-                currentRotationToBodyFixedFrame_ * ( positionFunctionOfAcceleratedBody_( ) - positionFunctionOfAcceleratingBody_( ) );
+                currentRotationToBodyFixedFrame_ * ( accelerationModel_->getCurrentPositionOfBodySubjectToAcceleration( ) - accelerationModel_->getCurrentPositionOfBodyExertingAcceleration( ) );
 
         // Calculate spherical position in frame fixed to body exerting acceleration
         bodyFixedSphericalPosition_ = convertCartesianToSpherical( bodyFixedPosition_ );
         bodyFixedSphericalPosition_( 1 ) = mathematical_constants::PI / 2.0 - bodyFixedSphericalPosition_( 1 );
 
-        // Get spherical harmonic coefficients
-        currentCosineCoefficients_ = cosineCoefficients_( );
-        currentSineCoefficients_ = sineCoefficients_( );
-
-        // Update trogonometric functions of multiples of longitude.
-        sphericalHarmonicCache_->update( bodyFixedSphericalPosition_( 0 ),
-                                         std::sin( bodyFixedSphericalPosition_( 1 ) ),
-                                         bodyFixedSphericalPosition_( 2 ),
-                                         bodyReferenceRadius_( ) );
 
         // Calculate partial of acceleration wrt position of body undergoing acceleration.
         currentBodyFixedPartialWrtPosition_ =
                 computePartialDerivativeOfBodyFixedSphericalHarmonicAcceleration( bodyFixedPosition_,
-                                                                                  bodyReferenceRadius_( ),
-                                                                                  gravitationalParameterFunction_( ),
-                                                                                  currentCosineCoefficients_,
-                                                                                  currentSineCoefficients_,
-                                                                                  sphericalHarmonicCache_ );
+                                                                                  accelerationModel_->getReferenceRadius( ),
+                                                                                  accelerationModel_->getCurrentGravitationalParameter( ),
+                                                                                  cosineSphericalHarmonicsBlock,
+                                                                                  sineSphericalHarmonicsBlock,
+                                                                                  sphericalHarmonicCache_,
+                                                                                  accelerationModel_->getAccelerationInBodyFixedFrame( ),
+                                                                                  false );
 
         currentPartialWrtVelocity_.setZero( );
         currentPartialWrtPosition_.setZero( );
@@ -471,17 +449,17 @@ void SphericalHarmonicsGravityPartial::update( const double currentTime )
         if( rotationMatrixPartials_.count( std::make_pair( estimatable_parameters::initial_body_state, "" ) ) > 0 )
         {
             // Compute the acceleration and body-fixed position partial, without the central term (to avoid numerical errors)
-            Eigen::Vector3d nonCentralAcceleration = accelerationFunction_( );
+            Eigen::Vector3d nonCentralAcceleration = accelerationModel_->getAcceleration( );
             Eigen::Matrix3d nonCentralBodyFixedPartial = currentBodyFixedPartialWrtPosition_;
-            if( currentCosineCoefficients_( 0 ) > 0.0 )
+            if( cosineSphericalHarmonicsBlock.getEnablePointMass( ) )
             {
                 nonCentralAcceleration -= gravitation::computeGravitationalAcceleration(
-                        positionFunctionOfAcceleratedBody_( ), gravitationalParameterFunction_( ), positionFunctionOfAcceleratingBody_( ) );
+                        accelerationModel_->getCurrentPositionOfBodySubjectToAcceleration( ), accelerationModel_->getCurrentGravitationalParameter( ), accelerationModel_->getCurrentPositionOfBodyExertingAcceleration( ) );
 
                 nonCentralBodyFixedPartial -= currentRotationToBodyFixedFrame_ *
-                        calculatePartialOfPointMassGravityWrtPositionOfAcceleratedBody( positionFunctionOfAcceleratedBody_( ),
-                                                                                        positionFunctionOfAcceleratingBody_( ),
-                                                                                        gravitationalParameterFunction_( ) ) *
+                        calculatePartialOfPointMassGravityWrtPositionOfAcceleratedBody( accelerationModel_->getCurrentPositionOfBodySubjectToAcceleration( ),
+                                                                                        accelerationModel_->getCurrentPositionOfBodyExertingAcceleration( ),
+                                                                                        accelerationModel_->getCurrentGravitationalParameter( ) ) *
                         currentRotationToBodyFixedFrame_.inverse( );
             }
 
@@ -498,12 +476,12 @@ void SphericalHarmonicsGravityPartial::update( const double currentTime )
 
                 currentPartialWrtPosition_.block( 0, i, 3, 1 ) -= currentRotationToBodyFixedFrame_.inverse( ) * nonCentralBodyFixedPartial *
                         ( rotationPositionPartials.at( i ).transpose( ) *
-                          ( positionFunctionOfAcceleratedBody_( ) - positionFunctionOfAcceleratingBody_( ) ) );
+                          ( accelerationModel_->getCurrentPositionOfBodySubjectToAcceleration( ) - accelerationModel_->getCurrentPositionOfBodyExertingAcceleration( ) ) );
                 currentPartialWrtVelocity_.block( 0, i, 3, 1 ) -=
                         rotationPositionPartials.at( i + 3 ) * ( currentRotationToBodyFixedFrame_ * nonCentralAcceleration );
                 //                        currentRotationToBodyFixedFrame_.inverse( ) * nonCentralBodyFixedPartial *
                 //                        ( rotationPositionPartials.at( i + 3 ).transpose( ) *
-                //                          ( positionFunctionOfAcceleratedBody_( ) - positionFunctionOfAcceleratingBody_( ) ) );
+                //                          ( accelerationModel_->getCurrentPositionOfBodySubjectToAcceleration( ) - accelerationModel_->getCurrentPositionOfBodyExertingAcceleration( ) ) );
             }
         }
 
@@ -529,23 +507,23 @@ void SphericalHarmonicsGravityPartial::wrtPolynomialGravityFieldVariations(
     Eigen::MatrixXd staticSinePartialsMatrix = Eigen::MatrixXd::Zero( 3, sineBlockIndices.size( ) );
 
     calculateSphericalHarmonicGravityWrtCCoefficients( bodyFixedSphericalPosition_,
-                                                       bodyReferenceRadius_( ),
-                                                       gravitationalParameterFunction_( ),
+                                                       accelerationModel_->getReferenceRadius( ),
+                                                       accelerationModel_->getCurrentGravitationalParameter( ),
                                                        sphericalHarmonicCache_,
                                                        cosineBlockIndices,
                                                        coordinate_conversions::getSphericalToCartesianGradientMatrix( bodyFixedPosition_ ),
-                                                       fromBodyFixedToIntegrationFrameRotation_( ),
+                                                       currentRotationToInertialFrame_,
                                                        staticCosinePartialsMatrix,
                                                        maximumDegree_,
                                                        maximumOrder_ );
 
     calculateSphericalHarmonicGravityWrtSCoefficients( bodyFixedSphericalPosition_,
-                                                       bodyReferenceRadius_( ),
-                                                       gravitationalParameterFunction_( ),
+                                                       accelerationModel_->getReferenceRadius( ),
+                                                       accelerationModel_->getCurrentGravitationalParameter( ),
                                                        sphericalHarmonicCache_,
                                                        sineBlockIndices,
                                                        coordinate_conversions::getSphericalToCartesianGradientMatrix( bodyFixedPosition_ ),
-                                                       fromBodyFixedToIntegrationFrameRotation_( ),
+                                                       currentRotationToInertialFrame_,
                                                        staticSinePartialsMatrix,
                                                        maximumDegree_,
                                                        maximumOrder_ );
@@ -588,23 +566,23 @@ void SphericalHarmonicsGravityPartial::wrtPeriodicGravityFieldVariations(
     Eigen::MatrixXd staticSinePartialsMatrix = Eigen::MatrixXd::Zero( 3, sineBlockIndices.size( ) );
 
     calculateSphericalHarmonicGravityWrtCCoefficients( bodyFixedSphericalPosition_,
-                                                       bodyReferenceRadius_( ),
-                                                       gravitationalParameterFunction_( ),
+                                                       accelerationModel_->getReferenceRadius( ),
+                                                       accelerationModel_->getCurrentGravitationalParameter( ),
                                                        sphericalHarmonicCache_,
                                                        cosineBlockIndices,
                                                        coordinate_conversions::getSphericalToCartesianGradientMatrix( bodyFixedPosition_ ),
-                                                       fromBodyFixedToIntegrationFrameRotation_( ),
+                                                       currentRotationToInertialFrame_,
                                                        staticCosinePartialsMatrix,
                                                        maximumDegree_,
                                                        maximumOrder_ );
 
     calculateSphericalHarmonicGravityWrtSCoefficients( bodyFixedSphericalPosition_,
-                                                       bodyReferenceRadius_( ),
-                                                       gravitationalParameterFunction_( ),
+                                                       accelerationModel_->getReferenceRadius( ),
+                                                       accelerationModel_->getCurrentGravitationalParameter( ),
                                                        sphericalHarmonicCache_,
                                                        sineBlockIndices,
                                                        coordinate_conversions::getSphericalToCartesianGradientMatrix( bodyFixedPosition_ ),
-                                                       fromBodyFixedToIntegrationFrameRotation_( ),
+                                                       currentRotationToInertialFrame_,
                                                        staticSinePartialsMatrix,
                                                        maximumDegree_,
                                                        maximumOrder_ );
@@ -643,12 +621,12 @@ void SphericalHarmonicsGravityPartial::wrtCosineCoefficientBlock( const std::vec
                                                                   Eigen::MatrixXd& partialDerivatives )
 {
     calculateSphericalHarmonicGravityWrtCCoefficients( bodyFixedSphericalPosition_,
-                                                       bodyReferenceRadius_( ),
-                                                       gravitationalParameterFunction_( ),
+                                                       accelerationModel_->getReferenceRadius( ),
+                                                       accelerationModel_->getCurrentGravitationalParameter( ),
                                                        sphericalHarmonicCache_,
                                                        blockIndices,
                                                        coordinate_conversions::getSphericalToCartesianGradientMatrix( bodyFixedPosition_ ),
-                                                       fromBodyFixedToIntegrationFrameRotation_( ),
+                                                       currentRotationToInertialFrame_,
                                                        partialDerivatives,
                                                        maximumDegree_,
                                                        maximumOrder_ );
@@ -659,12 +637,12 @@ void SphericalHarmonicsGravityPartial::wrtSineCoefficientBlock( const std::vecto
                                                                 Eigen::MatrixXd& partialDerivatives )
 {
     calculateSphericalHarmonicGravityWrtSCoefficients( bodyFixedSphericalPosition_,
-                                                       bodyReferenceRadius_( ),
-                                                       gravitationalParameterFunction_( ),
+                                                       accelerationModel_->getReferenceRadius( ),
+                                                       accelerationModel_->getCurrentGravitationalParameter( ),
                                                        sphericalHarmonicCache_,
                                                        blockIndices,
                                                        coordinate_conversions::getSphericalToCartesianGradientMatrix( bodyFixedPosition_ ),
-                                                       fromBodyFixedToIntegrationFrameRotation_( ),
+                                                       currentRotationToInertialFrame_,
                                                        partialDerivatives,
                                                        maximumDegree_,
                                                        maximumOrder_ );
@@ -676,7 +654,7 @@ void SphericalHarmonicsGravityPartial::wrtRotationModelParameter( Eigen::MatrixX
                                                                   const std::string& secondaryIdentifier )
 {
     // Calculate distance vector between bodies.
-    Eigen::Vector3d distanceVector = positionFunctionOfAcceleratedBody_( ) - positionFunctionOfAcceleratingBody_( );
+    Eigen::Vector3d distanceVector = accelerationModel_->getCurrentPositionOfBodySubjectToAcceleration( ) - accelerationModel_->getCurrentPositionOfBodyExertingAcceleration( );
 
     // Get rotation matrix partial(s) wrt requested parameter
     std::vector< Eigen::Matrix3d > rotationMatrixPartials =
@@ -688,8 +666,8 @@ void SphericalHarmonicsGravityPartial::wrtRotationModelParameter( Eigen::MatrixX
     {
         // Calculate acceleration partial for current parameter entry.
         accelerationPartial.block( 0, i, 3, 1 ) =
-                rotationMatrixPartials[ i ] * ( fromBodyFixedToIntegrationFrameRotation_( ).inverse( ) ) * accelerationFunction_( ) +
-                fromBodyFixedToIntegrationFrameRotation_( ) * currentBodyFixedPartialWrtPosition_ *
+                rotationMatrixPartials[ i ] * ( currentRotationToBodyFixedFrame_ ) * accelerationModel_->getAcceleration( ) +
+                currentRotationToInertialFrame_ * currentBodyFixedPartialWrtPosition_ *
                         rotationMatrixPartials[ i ].transpose( ) * distanceVector;
     }
 }
@@ -725,12 +703,12 @@ void SphericalHarmonicsGravityPartial::wrtTidalModelParameter(
         {
             calculateSphericalHarmonicGravityWrtCCoefficients(
                     bodyFixedSphericalPosition_,
-                    bodyReferenceRadius_( ),
-                    gravitationalParameterFunction_( ),
+                    accelerationModel_->getReferenceRadius( ),
+                    accelerationModel_->getCurrentGravitationalParameter( ),
                     sphericalHarmonicCache_,
                     blockIndices,
                     coordinate_conversions::getSphericalToCartesianGradientMatrix( bodyFixedPosition_ ),
-                    fromBodyFixedToIntegrationFrameRotation_( ),
+                    currentRotationToInertialFrame_,
                     currentPartialContribution,
                     maximumDegree_,
                     maximumOrder_ );
@@ -741,12 +719,12 @@ void SphericalHarmonicsGravityPartial::wrtTidalModelParameter(
             blockIndices[ 0 ] = std::make_pair( degree, orders.at( i ) );
             calculateSphericalHarmonicGravityWrtSCoefficients(
                     bodyFixedSphericalPosition_,
-                    bodyReferenceRadius_( ),
-                    gravitationalParameterFunction_( ),
+                    accelerationModel_->getReferenceRadius( ),
+                    accelerationModel_->getCurrentGravitationalParameter( ),
                     sphericalHarmonicCache_,
                     blockIndices,
                     coordinate_conversions::getSphericalToCartesianGradientMatrix( bodyFixedPosition_ ),
-                    fromBodyFixedToIntegrationFrameRotation_( ),
+                    currentRotationToInertialFrame_,
                     currentPartialContribution,
                     maximumDegree_,
                     maximumOrder_ );
@@ -758,12 +736,12 @@ void SphericalHarmonicsGravityPartial::wrtTidalModelParameter(
         {
             calculateSphericalHarmonicGravityWrtCCoefficients(
                     bodyFixedSphericalPosition_,
-                    bodyReferenceRadius_( ),
-                    gravitationalParameterFunction_( ),
+                    accelerationModel_->getReferenceRadius( ),
+                    accelerationModel_->getCurrentGravitationalParameter( ),
                     sphericalHarmonicCache_,
                     blockIndices,
                     coordinate_conversions::getSphericalToCartesianGradientMatrix( bodyFixedPosition_ ),
-                    fromBodyFixedToIntegrationFrameRotation_( ),
+                    currentRotationToInertialFrame_,
                     currentPartialContribution,
                     maximumDegree_,
                     maximumOrder_ );
@@ -773,12 +751,12 @@ void SphericalHarmonicsGravityPartial::wrtTidalModelParameter(
 
             calculateSphericalHarmonicGravityWrtSCoefficients(
                     bodyFixedSphericalPosition_,
-                    bodyReferenceRadius_( ),
-                    gravitationalParameterFunction_( ),
+                    accelerationModel_->getReferenceRadius( ),
+                    accelerationModel_->getCurrentGravitationalParameter( ),
                     sphericalHarmonicCache_,
                     blockIndices,
                     coordinate_conversions::getSphericalToCartesianGradientMatrix( bodyFixedPosition_ ),
-                    fromBodyFixedToIntegrationFrameRotation_( ),
+                    currentRotationToInertialFrame_,
                     currentPartialContribution,
                     maximumDegree_,
                     maximumOrder_ );
@@ -813,23 +791,23 @@ void SphericalHarmonicsGravityPartial::wrtModeCoupledLoveNumbers(
 
     Eigen::Matrix3d sphericalToCartesianGradient = coordinate_conversions::getSphericalToCartesianGradientMatrix( bodyFixedPosition_ );
     calculateSphericalHarmonicGravityWrtCCoefficients( bodyFixedSphericalPosition_,
-                                                       bodyReferenceRadius_( ),
-                                                       gravitationalParameterFunction_( ),
+                                                       accelerationModel_->getReferenceRadius( ),
+                                                       accelerationModel_->getCurrentGravitationalParameter( ),
                                                        sphericalHarmonicCache_,
                                                        responseDegreeOrders,
                                                        sphericalToCartesianGradient,
-                                                       fromBodyFixedToIntegrationFrameRotation_( ),
+                                                       currentRotationToInertialFrame_,
                                                        partialsWrtResponseCCoefficients,
                                                        maximumDegree_,
                                                        maximumOrder_ );
 
     calculateSphericalHarmonicGravityWrtSCoefficients( bodyFixedSphericalPosition_,
-                                                       bodyReferenceRadius_( ),
-                                                       gravitationalParameterFunction_( ),
+                                                       accelerationModel_->getReferenceRadius( ),
+                                                       accelerationModel_->getCurrentGravitationalParameter( ),
                                                        sphericalHarmonicCache_,
                                                        responseDegreeOrders,
                                                        sphericalToCartesianGradient,
-                                                       fromBodyFixedToIntegrationFrameRotation_( ),
+                                                       currentRotationToInertialFrame_,
                                                        partialsWrtResponseSCoefficients,
                                                        maximumDegree_,
                                                        maximumOrder_ );

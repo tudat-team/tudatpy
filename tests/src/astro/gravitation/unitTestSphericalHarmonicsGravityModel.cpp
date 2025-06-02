@@ -71,6 +71,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAcceleration_Demo1 )
     const Eigen::Vector3d position( 7.0e6, 8.0e6, 9.0e6 );
 
     // Compute acceleration [m s^-2].
+    auto shCache = basic_mathematics::SphericalHarmonicsCache( 3, 1 );
     const Eigen::Vector3d acceleration = gravitation::computeSingleGeodesyNormalizedGravitationalAcceleration(
             position,
             gravitationalParameter,
@@ -79,7 +80,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAcceleration_Demo1 )
             order,
             cosineCoefficient,
             sineCoefficient,
-            std::make_shared< basic_mathematics::SphericalHarmonicsCache >( 3, 1 ) );
+            shCache );
 
     // Define expected acceleration according to the MATLAB function 'gravitysphericalharmonic'
     // described by Mathworks [2012] [m s^-2].
@@ -113,6 +114,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAcceleration_Demo2 )
     const Eigen::Vector3d position( 7.0e6, 8.0e6, 9.0e6 );
 
     // Compute acceleration for 2,1 term [m s^-2].
+    auto shCache = basic_mathematics::SphericalHarmonicsCache( 3, 2 );
     const Eigen::Vector3d acceleration = gravitation::computeSingleGeodesyNormalizedGravitationalAcceleration(
             position,
             gravitationalParameter,
@@ -121,7 +123,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAcceleration_Demo2 )
             order,
             cosineCoefficient,
             sineCoefficient,
-            std::make_shared< basic_mathematics::SphericalHarmonicsCache >( 3, 2 ) );
+            shCache );
 
     // Define expected acceleration according to the MATLAB function 'gravitysphericalharmonic'
     // described by Mathworks [2012] [m s^-2].
@@ -155,6 +157,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAcceleration_Demo3 )
     const Eigen::Vector3d position( 7.0e6, 8.0e6, 9.0e6 );
 
     // Compute acceleration for 2,2 term [m s^-2].
+    auto shCache = basic_mathematics::SphericalHarmonicsCache( 3, 3 );
     const Eigen::Vector3d acceleration = gravitation::computeSingleGeodesyNormalizedGravitationalAcceleration(
             position,
             gravitationalParameter,
@@ -163,7 +166,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAcceleration_Demo3 )
             order,
             cosineCoefficient,
             sineCoefficient,
-            std::make_shared< basic_mathematics::SphericalHarmonicsCache >( 3, 3 ) );
+            shCache );
 
     // Define expected acceleration according to the MATLAB function 'gravitysphericalharmonic'
     // described by Mathworks [2012] [m s^-2].
@@ -267,13 +270,14 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAcceleration_Demo4 )
 
     // Compute resultant acceleration [m s^-2].
     std::map< std::pair< int, int >, Eigen::Vector3d > dummyMap;
+    auto shCache = basic_mathematics::SphericalHarmonicsCache( 6, 6 );
     const Eigen::Vector3d acceleration = gravitation::computeGeodesyNormalizedGravitationalAccelerationSum(
             position,
             gravitationalParameter,
             planetaryRadius,
             cosineCoefficients,
             sineCoefficients,
-            std::make_shared< basic_mathematics::SphericalHarmonicsCache >( 6, 6 ),
+            shCache,
             dummyMap );
 
     // Define expected acceleration according to the MATLAB function 'gravitysphericalharmonic'
@@ -300,7 +304,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAccelerationWrapperCla
 
     // Define geodesy-normalized coefficients up to degree 5 and order 5. The values are obtained
     // from the Earth Gravitational Model 2008 as described by Mathworks [2012].
-    const Eigen::MatrixXd cosineCoefficients = ( Eigen::MatrixXd( 6, 6 ) << 1.0,
+    Eigen::MatrixXd cosineCoefficients = ( Eigen::MatrixXd( 6, 6 ) << 1.0,
                                                  0.0,
                                                  0.0,
                                                  0.0,
@@ -338,7 +342,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAccelerationWrapperCla
                                                  1.748117954960020e-7 )
                                                        .finished( );
 
-    const Eigen::MatrixXd sineCoefficients = ( Eigen::MatrixXd( 6, 6 ) << 0.0,
+    Eigen::MatrixXd sineCoefficients = ( Eigen::MatrixXd( 6, 6 ) << 0.0,
                                                0.0,
                                                0.0,
                                                0.0,
@@ -414,9 +418,9 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalPotentialWrapperClass 
     const double planetaryRadius = 6378137.0;
 
     // Define geodesy-normalized coefficients up to degree 0 and order 0.
-    const Eigen::MatrixXd cosineCoefficients = ( Eigen::MatrixXd( 1, 1 ) << 1.0 ).finished( );
+    Eigen::MatrixXd cosineCoefficients = ( Eigen::MatrixXd( 1, 1 ) << 1.0 ).finished( );
 
-    const Eigen::MatrixXd sineCoefficients = ( Eigen::MatrixXd( 1, 1 ) << 0.0 ).finished( );
+    Eigen::MatrixXd sineCoefficients = ( Eigen::MatrixXd( 1, 1 ) << 0.0 ).finished( );
 
     // Define arbitrary Cartesian position [m].
     const Eigen::Vector3d position( 7.0e6, 8.0e6, 9.0e6 );
