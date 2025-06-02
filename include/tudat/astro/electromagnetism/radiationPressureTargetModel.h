@@ -109,7 +109,7 @@ public:
     virtual void saveLocalComputations( const std::string sourceName, const bool saveCosines ) { }
 
 protected:
-    virtual void updateMembers_( const double currentTime ) { };
+    virtual void updateMembers_( const double currentTime ) {};
 
     double currentTime_{ TUDAT_NAN };
     // Only needed to transfer occultation settings from body setup to acceleration setup
@@ -241,12 +241,13 @@ public:
                     std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > >( ),
             const std::map< std::string, std::function< Eigen::Quaterniond( ) > >& segmentFixedToBodyFixedRotations =
                     std::map< std::string, std::function< Eigen::Quaterniond( ) > >( ),
-            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = { }, 
+            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = { },
             const std::map< std::string, int > maximumNumberOfPixelsPerSource = { },
             bool panelGeometryDefined = false ):
         RadiationPressureTargetModel( sourceToTargetOccultingBodies ), bodyFixedPanels_( bodyFixedPanels ),
         segmentFixedPanels_( segmentFixedPanels ), segmentFixedToBodyFixedRotations_( segmentFixedToBodyFixedRotations ),
-        maximumNumberOfPixelsPerSource_( maximumNumberOfPixelsPerSource ), allPanels_( allPanels ), panelGeometryDefined_( panelGeometryDefined )
+        maximumNumberOfPixelsPerSource_( maximumNumberOfPixelsPerSource ), allPanels_( allPanels ),
+        panelGeometryDefined_( panelGeometryDefined )
     {
         totalNumberOfPanels_ = allPanels.size( );
         panelForces_.resize( totalNumberOfPanels_ );
@@ -256,30 +257,31 @@ public:
 
         // create panelTypeIdList for dependent variable save
         panelTypeIdList_ = std::vector< std::string >( totalNumberOfPanels_ );
-        for ( int i = 0; i<totalNumberOfPanels_; i++ )
+        for( int i = 0; i < totalNumberOfPanels_; i++ )
         {
             panelTypeIdList_[ i ] = allPanels_[ i ]->getPanelTypeId( );
         }
         // create map of self-shadowing objects per source
-        for ( auto it : maximumNumberOfPixelsPerSource_ )
+        for( auto it: maximumNumberOfPixelsPerSource_ )
         {
-            if ( it.second < 0 || it.second == 1 )
+            if( it.second < 0 || it.second == 1 )
             {
-                throw std::runtime_error( "Error, invalid maximum number of pixels for source " + it.first + ", value should be > 2.");
+                throw std::runtime_error( "Error, invalid maximum number of pixels for source " + it.first + ", value should be > 2." );
             }
-            if ( it.second > 1 && !panelGeometryDefined_ )
+            if( it.second > 1 && !panelGeometryDefined_ )
             {
-                throw std::runtime_error( "Error, maximum number of pixels given for source " + it.first + ", however, no panel geometry is defined." );
+                throw std::runtime_error( "Error, maximum number of pixels given for source " + it.first +
+                                          ", however, no panel geometry is defined." );
             }
-            if ( it.second == 0 )
+            if( it.second == 0 )
             {
                 continue;
             }
-            selfShadowingPerSource_[ it.first ] = std::make_shared< system_models::SelfShadowing >( system_models::SelfShadowing( allPanels_, it.second ) );
+            selfShadowingPerSource_[ it.first ] =
+                    std::make_shared< system_models::SelfShadowing >( system_models::SelfShadowing( allPanels_, it.second ) );
         }
 
-        unityIlluminationFraction_ = std::vector< double >( totalNumberOfPanels_, 1.0);
-
+        unityIlluminationFraction_ = std::vector< double >( totalNumberOfPanels_, 1.0 );
     }
 
     void enableTorqueComputation( const std::function< Eigen::Vector3d( ) > centerOfMassFunction ) override
@@ -359,7 +361,7 @@ public:
 
     void saveLocalComputations( const std::string sourceName, const bool saveCosines ) override;
 
-    std::vector< double > getIlluminatedPanelFractions( const std::string& sourceName ) 
+    std::vector< double > getIlluminatedPanelFractions( const std::string& sourceName )
     {
         if( illuminatedPanelFractionsPerSource_.count( sourceName ) == 0 )
         {
@@ -412,7 +414,7 @@ private:
             illuminatedPanelFractions_.at( i ) = 0.0;
         }
         illuminatedPanelFractionsPerSource_[ sourceName ] = illuminatedPanelFractions_;
-        for( auto it : selfShadowingPerSource_ )
+        for( auto it: selfShadowingPerSource_ )
         {
             it.second->reset( );
         }

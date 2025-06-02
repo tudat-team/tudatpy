@@ -555,7 +555,7 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
             break;
         case illuminated_panel_fraction: {
             std::shared_ptr< IlluminatedPanelFractionDependentVariableSaveSettings > illuminatedPanelFractionDependentVariableSettings =
-                std::dynamic_pointer_cast< IlluminatedPanelFractionDependentVariableSaveSettings >( dependentVariableSettings );
+                    std::dynamic_pointer_cast< IlluminatedPanelFractionDependentVariableSaveSettings >( dependentVariableSettings );
             if( illuminatedPanelFractionDependentVariableSettings == nullptr )
             {
                 throw std::runtime_error( "Error when getting illuminated panel fraction dependent variable size, invalid settings" );
@@ -563,38 +563,41 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
             std::string illuminatedBody = illuminatedPanelFractionDependentVariableSettings->associatedBody_;
             std::string panelTypeId = illuminatedPanelFractionDependentVariableSettings->panelTypeId_;
 
-            std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel >  paneledRadiationPressureTargetModel = 
-                std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >(
-                    bodies.at( illuminatedBody )->getRadiationPressureTargetModel( ) );
-            if ( paneledRadiationPressureTargetModel == nullptr )
+            std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > paneledRadiationPressureTargetModel =
+                    std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >(
+                            bodies.at( illuminatedBody )->getRadiationPressureTargetModel( ) );
+            if( paneledRadiationPressureTargetModel == nullptr )
             {
-                std::string errorMessage= "Error when getting illuminated panel fraction dependent variable size, no paneled radiation pressure target model found for " + illuminatedBody;
+                std::string errorMessage =
+                        "Error when getting illuminated panel fraction dependent variable size, no paneled radiation pressure target model "
+                        "found for " +
+                        illuminatedBody;
                 throw std::runtime_error( errorMessage );
             }
             std::vector< std::string > panelTypeIdList = paneledRadiationPressureTargetModel->getPanelTypeIdList( );
             std::vector< double > indexes;
-            if ( panelTypeId == "" )
+            if( panelTypeId == "" )
             {
-                for ( unsigned int i = 0; i<panelTypeIdList.size( ); i++ )
+                for( unsigned int i = 0; i < panelTypeIdList.size( ); i++ )
                 {
                     indexes.push_back( i );
                 }
             }
-            else 
+            else
             {
-                for ( unsigned int i = 0; i<panelTypeIdList.size( ); i++ )
+                for( unsigned int i = 0; i < panelTypeIdList.size( ); i++ )
                 {
-                    if ( panelTypeIdList.at( i ) == panelTypeId )
+                    if( panelTypeIdList.at( i ) == panelTypeId )
                     {
                         indexes.push_back( i );
                     }
                 }
-                if ( indexes.empty( ) )
+                if( indexes.empty( ) )
                 {
                     throw std::runtime_error( "Error, panel type " + panelTypeId + " not found" );
                 }
             }
-            
+
             variableSize = indexes.size( );
             break;
         }
@@ -603,7 +606,7 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
             break;
         case full_body_paneled_geometry: {
             std::string targetBody = dependentVariableSettings->associatedBody_;
-            if ( !bodies.at( targetBody )->getVehicleSystems( )->isPanelGeometryDefined( ) )
+            if( !bodies.at( targetBody )->getVehicleSystems( )->isPanelGeometryDefined( ) )
             {
                 throw std::runtime_error( "Error, full body panelled geometry for " + targetBody + " not found" );
             }
