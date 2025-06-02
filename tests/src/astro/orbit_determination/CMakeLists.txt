@@ -141,7 +141,7 @@ TUDAT_ADD_TEST_CASE(CovariancePropagation
          ${Tudat_ESTIMATION_LIBRARIES}
  )
 
- TUDAT_ADD_TEST_CASE(ClockParameterEstimation
+ TUDAT_ADD_TEST_CASE(ClockPropertyEstimation
          PRIVATE_LINKS
          ${Tudat_ESTIMATION_LIBRARIES}
          )
