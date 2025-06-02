@@ -40,12 +40,12 @@ void PanelledRadiationPressurePartial::update( const double currentTime )
             Eigen::Matrix3d currentPanelPartialContribution = Eigen::Matrix3d::Zero( );
 
             double currentPanelArea = 0.0, currentPanelEmissivity = 0.0, cosineOfPanelInclination = 0.0;
-        
+
             std::vector< double > illuminatedPanelFractions;
             std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > allPanels = panelledTargetModel_->getAllPanels( );
             auto selfShadowingPerSource = panelledTargetModel_->getSelfShadowingPerSources( );
-            if ( selfShadowingPerSource.count( acceleratingBody_ ) == 0 )
-            {   
+            if( selfShadowingPerSource.count( acceleratingBody_ ) == 0 )
+            {
                 // SSH off
                 illuminatedPanelFractions = unityIlluminationFraction_;
             }
@@ -74,14 +74,13 @@ void PanelledRadiationPressurePartial::update( const double currentTime )
                                 ( currentRadiationPressure * currentPanelArea );
 
                         currentPanelPartialContribution +=
-                                allPanels.at( i )
-                                        ->getReflectionLaw( )
-                                        ->evaluateReactionVectorDerivativeWrtTargetPosition( currentPanelNormal,
-                                                                                             -bodyFixedUnitVectorToSource,
-                                                                                             cosineOfPanelInclination,
-                                                                                             currentPanelReactionVector,
-                                                                                             currentSourceUnitVectorPartial_,
-                                                                                             currentCosineAnglePartial_ );
+                                allPanels.at( i )->getReflectionLaw( )->evaluateReactionVectorDerivativeWrtTargetPosition(
+                                        currentPanelNormal,
+                                        -bodyFixedUnitVectorToSource,
+                                        cosineOfPanelInclination,
+                                        currentPanelReactionVector,
+                                        currentSourceUnitVectorPartial_,
+                                        currentCosineAnglePartial_ );
 
                         currentPanelPartialContribution *= currentRadiationPressure * currentPanelArea * illuminatedPanelFractions.at( i );
                     }

@@ -271,7 +271,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
                                                                  reflectionLawFromAbsorptivityAndDiffuseReflectivity( 0.3, 0.4 ) )
     };
     auto targetModel = std::make_shared< PaneledRadiationPressureTargetModel >( panels, panels );
-    for ( auto it: panels )
+    for( auto it: panels )
     {
         it->updatePanel( Eigen::Quaterniond::Identity( ) );
     }
@@ -484,7 +484,8 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
                         2.3, -Eigen::Vector3d::UnitX( ), reflectionLawFromSpecularAndDiffuseReflectivity( 0.1, 0.46 ) ),
             };
         }
-        bodies.at( "Vehicle" )->setRadiationPressureTargetModels( { std::make_shared< PaneledRadiationPressureTargetModel >( panels, panels ) } );
+        bodies.at( "Vehicle" )
+                ->setRadiationPressureTargetModels( { std::make_shared< PaneledRadiationPressureTargetModel >( panels, panels ) } );
 
         std::vector< double > areas;
         std::vector< Eigen::Vector3d > panelSurfaceNormals;
@@ -850,7 +851,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
                         4.0, -Eigen::Vector3d::UnitX( ), reflectionLawFromSpecularAndDiffuseReflectivity( 0.1, 0.46 ) ),
             };
             bodies.at( "Vehicle" )
-                ->setRadiationPressureTargetModels( { std::make_shared< PaneledRadiationPressureTargetModel >( panels, panels ) } );
+                    ->setRadiationPressureTargetModels( { std::make_shared< PaneledRadiationPressureTargetModel >( panels, panels ) } );
             SelectedAccelerationMap accelerationMap{ { "Vehicle",
                                                        {
                                                                { "Sun", { radiationPressureAcceleration( paneled_target ) } },
@@ -1022,7 +1023,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_
                                                                  reflectionLawFromAbsorptivityAndDiffuseReflectivity( 0.3, 0.4 ) )
     };
     auto targetModel = std::make_shared< PaneledRadiationPressureTargetModel >( targetPanels, targetPanels );
-    for ( auto it: targetPanels )
+    for( auto it: targetPanels )
     {
         it->updatePanel( Eigen::Quaterniond::Identity( ) );
     }

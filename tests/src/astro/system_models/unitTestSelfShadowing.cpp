@@ -61,12 +61,11 @@ BOOST_AUTO_TEST_CASE( testFractionAnalytical )
     instantaneousReradiation[ "TO_BE_SHADOWED" ] = true;
     instantaneousReradiation[ "TO_BE_LIT" ] = true;
 
-    std::vector< std::shared_ptr< BodyPanelSettings > > bodyPanelSettingList = bodyPanelSettingsListFromDae( 
-        tudat::paths::getTudatTestDataPath( ) + "selfShadowingUnitTest.dae",
-        Eigen::Vector3d::Zero( ),
-        materialProperties,
-        instantaneousReradiation
-    );
+    std::vector< std::shared_ptr< BodyPanelSettings > > bodyPanelSettingList =
+            bodyPanelSettingsListFromDae( tudat::paths::getTudatTestDataPath( ) + "selfShadowingUnitTest.dae",
+                                          Eigen::Vector3d::Zero( ),
+                                          materialProperties,
+                                          instantaneousReradiation );
 
     std::shared_ptr< FullPanelledBodySettings > panelSettings = fullPanelledBodySettings( bodyPanelSettingList );
 
@@ -77,57 +76,55 @@ BOOST_AUTO_TEST_CASE( testFractionAnalytical )
             linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) );
     rotationalStateVehicle.segment( 4, 3 ) = Eigen::Vector3d::Zero( );
     bodies.at( "L_SHAPED" )
-            ->setRotationalEphemeris(
-                    std::make_shared< ConstantRotationalEphemeris >( rotationalStateVehicle, "ECLIPJ2000" ) );
-    addBodyExteriorPanelledShape( panelSettings,
-        "L_SHAPED",
-        bodies );
-    
+            ->setRotationalEphemeris( std::make_shared< ConstantRotationalEphemeris >( rotationalStateVehicle, "ECLIPJ2000" ) );
+    addBodyExteriorPanelledShape( panelSettings, "L_SHAPED", bodies );
+
     std::map< std::string, std::vector< std::shared_ptr< VehicleExteriorPanel > > > sortedBodyPanelMap =
-        bodies.at( "L_SHAPED" )->getVehicleSystems( )->getVehicleExteriorPanels( );
+            bodies.at( "L_SHAPED" )->getVehicleSystems( )->getVehicleExteriorPanels( );
 
     std::vector< std::shared_ptr< VehicleExteriorPanel > > bodyFixedPanels = sortedBodyPanelMap.at( "" );
-    std::map< std::string, std::vector< std::string > > sourceToTargetOccultingBodies = std::map< std::string, std::vector< std::string > >( );
-    const std::map< std::string, int > maximumNumberOfPixelsPerSource = {{"Sun", 1000}};
-    for (const auto& pair : panelSettings->partRotationModelSettings_) {
+    std::map< std::string, std::vector< std::string > > sourceToTargetOccultingBodies =
+            std::map< std::string, std::vector< std::string > >( );
+    const std::map< std::string, int > maximumNumberOfPixelsPerSource = { { "Sun", 1000 } };
+    for( const auto& pair: panelSettings->partRotationModelSettings_ )
+    {
         std::cout << pair.first << std::endl;
     }
-    
 
-    PaneledRadiationPressureTargetModel targetModel( bodyFixedPanels,
-            bodyFixedPanels, 
+    PaneledRadiationPressureTargetModel targetModel(
+            bodyFixedPanels,
+            bodyFixedPanels,
             std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > >( ),
             std::map< std::string, std::function< Eigen::Quaterniond( ) > >( ),
-            sourceToTargetOccultingBodies, 
+            sourceToTargetOccultingBodies,
             maximumNumberOfPixelsPerSource,
             true );
-    
-    std::vector< double > angles = { PI/50, PI/20, PI/10, PI/8, PI/6, PI/4 };
+
+    std::vector< double > angles = { PI / 50, PI / 20, PI / 10, PI / 8, PI / 6, PI / 4 };
 
     std::vector< int > indexesLit;
     std::vector< int > indexesShadowed;
-    for ( unsigned int i = 0; i<20; i++)
+    for( unsigned int i = 0; i < 20; i++ )
     {
-        if ( bodyFixedPanels.at( i )->getPanelTypeId( ) == "TO_BE_SHADOWED" )
+        if( bodyFixedPanels.at( i )->getPanelTypeId( ) == "TO_BE_SHADOWED" )
         {
             indexesShadowed.push_back( i );
         }
-        if ( bodyFixedPanels.at( i )->getPanelTypeId( ) == "TO_BE_LIT" )
+        if( bodyFixedPanels.at( i )->getPanelTypeId( ) == "TO_BE_LIT" )
         {
             indexesLit.push_back( i );
         }
     }
-    
+
     std::map< std::string, std::shared_ptr< SelfShadowing > > mapSSH = targetModel.getSelfShadowingPerSources( );
     Eigen::Vector3d incomingDirection = Eigen::Vector3d::UnitX( );
     bodies.at( "L_SHAPED" )->getVehicleSystems( )->updatePartOrientations( 0.0 );
 
-    for ( unsigned int i = 0; i<angles.size( ); i++ )
+    for( unsigned int i = 0; i < angles.size( ); i++ )
     {
         incomingDirection( 0 ) = -std::sin( angles[ i ] );
         incomingDirection( 1 ) = 0;
         incomingDirection( 2 ) = -std::cos( angles[ i ] );
-        
 
         mapSSH[ "Sun" ]->reset( );
         mapSSH[ "Sun" ]->updateIlluminatedPanelFractions( incomingDirection );
@@ -135,17 +132,15 @@ BOOST_AUTO_TEST_CASE( testFractionAnalytical )
         double trueFractionShaded = 1.0 - std::tan( angles[ i ] );
         double trueFractionLit = 1.0;
 
-        double actualFractionShadowed = 0.5*( illuminatedPanelFractions[ indexesShadowed[ 0 ] ] + 
-            illuminatedPanelFractions[ indexesShadowed[ 1 ] ]);
-        double actualFractionLit = 0.25*( illuminatedPanelFractions[ indexesLit[ 0 ] ] +
-            illuminatedPanelFractions[ indexesLit[ 1 ] ] +
-            illuminatedPanelFractions[ indexesLit[ 2 ] ] +
-            illuminatedPanelFractions[ indexesLit[ 3 ] ] );
-                    
+        double actualFractionShadowed =
+                0.5 * ( illuminatedPanelFractions[ indexesShadowed[ 0 ] ] + illuminatedPanelFractions[ indexesShadowed[ 1 ] ] );
+        double actualFractionLit = 0.25 *
+                ( illuminatedPanelFractions[ indexesLit[ 0 ] ] + illuminatedPanelFractions[ indexesLit[ 1 ] ] +
+                  illuminatedPanelFractions[ indexesLit[ 2 ] ] + illuminatedPanelFractions[ indexesLit[ 3 ] ] );
+
         BOOST_CHECK( actualFractionLit == trueFractionLit );
-        BOOST_CHECK( std::abs( actualFractionShadowed - trueFractionShaded ) < 1e-3);
+        BOOST_CHECK( std::abs( actualFractionShadowed - trueFractionShaded ) < 1e-3 );
     }
-   
 }
 
 BOOST_AUTO_TEST_CASE( testComputationalEfficiency )
@@ -179,12 +174,11 @@ BOOST_AUTO_TEST_CASE( testComputationalEfficiency )
     instantaneousReradiation[ "TO_BE_SHADOWED" ] = true;
     instantaneousReradiation[ "TO_BE_LIT" ] = true;
 
-    std::vector< std::shared_ptr< BodyPanelSettings > > bodyPanelSettingList = bodyPanelSettingsListFromDae( 
-        tudat::paths::getTudatTestDataPath( ) + "selfShadowingUnitTest.dae",
-        Eigen::Vector3d::Zero( ),
-        materialProperties,
-        instantaneousReradiation
-    );
+    std::vector< std::shared_ptr< BodyPanelSettings > > bodyPanelSettingList =
+            bodyPanelSettingsListFromDae( tudat::paths::getTudatTestDataPath( ) + "selfShadowingUnitTest.dae",
+                                          Eigen::Vector3d::Zero( ),
+                                          materialProperties,
+                                          instantaneousReradiation );
 
     std::shared_ptr< FullPanelledBodySettings > panelSettings = fullPanelledBodySettings( bodyPanelSettingList );
     // Create spacecraft object.
@@ -196,20 +190,20 @@ BOOST_AUTO_TEST_CASE( testComputationalEfficiency )
             linear_algebra::convertQuaternionToVectorFormat( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) );
     rotationalStateVehicle.segment( 4, 3 ) = Eigen::Vector3d::Zero( );
     bodies.at( "Vehicle" )
-            ->setRotationalEphemeris(
-                    std::make_shared< ConstantRotationalEphemeris >( rotationalStateVehicle, "ECLIPJ2000" ) );
-    addBodyExteriorPanelledShape( panelSettings,
-        "Vehicle",
-        bodies );
-    
-    std::map< std::string, std::vector< std::string > > sourceToTargetOccultingBodies = std::map< std::string, std::vector< std::string > >( );
-    const std::map< std::string, int > maximumNumberOfPixelsPerSource = {{"Sun", 100}};
+            ->setRotationalEphemeris( std::make_shared< ConstantRotationalEphemeris >( rotationalStateVehicle, "ECLIPJ2000" ) );
+    addBodyExteriorPanelledShape( panelSettings, "Vehicle", bodies );
+
+    std::map< std::string, std::vector< std::string > > sourceToTargetOccultingBodies =
+            std::map< std::string, std::vector< std::string > >( );
+    const std::map< std::string, int > maximumNumberOfPixelsPerSource = { { "Sun", 100 } };
 
     bodies.at( "Vehicle" )
-                    ->setRadiationPressureTargetModels( { createRadiationPressureTargetModel(
-                            std::make_shared< PaneledRadiationPressureTargetModelSettings >( sourceToTargetOccultingBodies, maximumNumberOfPixelsPerSource ), "Vehicle", bodies ) } );
+            ->setRadiationPressureTargetModels(
+                    { createRadiationPressureTargetModel( std::make_shared< PaneledRadiationPressureTargetModelSettings >(
+                                                                  sourceToTargetOccultingBodies, maximumNumberOfPixelsPerSource ),
+                                                          "Vehicle",
+                                                          bodies ) } );
 
-    
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -254,16 +248,15 @@ BOOST_AUTO_TEST_CASE( testComputationalEfficiency )
     std::shared_ptr< IntegratorSettings<> > integratorSettings =
             rungeKuttaFixedStepSettings< double >( fixedStepSize, numerical_integrators::rungeKuttaFehlberg78 );
 
-    
     std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-                std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
-                                                                                    accelerationModelMap,
-                                                                                    bodiesToPropagate,
-                                                                                    asterixInitialState,
-                                                                                    simulationStartEpoch,
-                                                                                    integratorSettings,
-                                                                                    propagationTimeTerminationSettings( simulationEndEpoch ),
-                                                                                    cowell);
+            std::make_shared< TranslationalStatePropagatorSettings< double > >( centralBodies,
+                                                                                accelerationModelMap,
+                                                                                bodiesToPropagate,
+                                                                                asterixInitialState,
+                                                                                simulationStartEpoch,
+                                                                                integratorSettings,
+                                                                                propagationTimeTerminationSettings( simulationEndEpoch ),
+                                                                                cowell );
     SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings );
 }
 

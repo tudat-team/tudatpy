@@ -157,8 +157,7 @@ std::vector< std::shared_ptr< electromagnetism::RadiationPressureTargetModel > >
             break;
         }
         case RadiationPressureTargetModelType::paneled_target: {
-            auto panelledTargetModelSettings =
-                    std::dynamic_pointer_cast< PaneledRadiationPressureTargetModelSettings >( modelSettings );
+            auto panelledTargetModelSettings = std::dynamic_pointer_cast< PaneledRadiationPressureTargetModelSettings >( modelSettings );
             if( bodies.at( body )->getVehicleSystems( ) == nullptr )
             {
                 throw std::runtime_error( "Error, requested panelled radiation pressure model for " + body +
@@ -191,9 +190,13 @@ std::vector< std::shared_ptr< electromagnetism::RadiationPressureTargetModel > >
             }
 
             radiationPressureTargetModels.push_back( std::make_shared< PaneledRadiationPressureTargetModel >(
-                    bodyFixedPanels, bodies.at( body )->getVehicleSystems( )->getAllPanels( ), segmentFixedPanels, 
-                    segmentFixedToBodyFixedRotations, sourceToTargetOccultingBodies,
-                    panelledTargetModelSettings->getMaximumNumberOfPixelsPerSource( ), bodies.at( body )->getVehicleSystems( )->isPanelGeometryDefined( ) ) );
+                    bodyFixedPanels,
+                    bodies.at( body )->getVehicleSystems( )->getAllPanels( ),
+                    segmentFixedPanels,
+                    segmentFixedToBodyFixedRotations,
+                    sourceToTargetOccultingBodies,
+                    panelledTargetModelSettings->getMaximumNumberOfPixelsPerSource( ),
+                    bodies.at( body )->getVehicleSystems( )->isPanelGeometryDefined( ) ) );
             break;
         }
         case RadiationPressureTargetModelType::multi_type_target: {

@@ -1774,63 +1774,62 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         }
         case illuminated_panel_fraction: {
             std::shared_ptr< IlluminatedPanelFractionDependentVariableSaveSettings > illuminatedPanelFractionDependentVariableSettings =
-                std::dynamic_pointer_cast< IlluminatedPanelFractionDependentVariableSaveSettings >( dependentVariableSettings );
+                    std::dynamic_pointer_cast< IlluminatedPanelFractionDependentVariableSaveSettings >( dependentVariableSettings );
 
             std::string illuminatedBody = illuminatedPanelFractionDependentVariableSettings->associatedBody_;
             std::string sourceBody = illuminatedPanelFractionDependentVariableSettings->secondaryBody_;
             std::string panelTypeId = illuminatedPanelFractionDependentVariableSettings->panelTypeId_;
 
-            auto radiationPressureAccelerationList = getAccelerationBetweenBodies( illuminatedBody,
-                                                                                   sourceBody,
-                                                                                   stateDerivativeModels,
-                                                                                   basic_astrodynamics::radiation_pressure );
+            auto radiationPressureAccelerationList = getAccelerationBetweenBodies(
+                    illuminatedBody, sourceBody, stateDerivativeModels, basic_astrodynamics::radiation_pressure );
             if( radiationPressureAccelerationList.empty( ) )
             {
-                std::string errorMessage = "Error, radiation pressure acceleration with target " + illuminatedBody + 
-                                            " and source " + sourceBody + " not found";
+                std::string errorMessage = "Error, radiation pressure acceleration with target " + illuminatedBody + " and source " +
+                        sourceBody + " not found";
                 throw std::runtime_error( errorMessage );
             }
             auto radiationPressureAcceleration = std::dynamic_pointer_cast< electromagnetism::RadiationPressureAcceleration >(
-                                        radiationPressureAccelerationList.front( ) );
+                    radiationPressureAccelerationList.front( ) );
             auto paneledRadiationPressureTargetModel = std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >(
-                radiationPressureAcceleration->getTargetModel( ) );
-            if ( paneledRadiationPressureTargetModel == nullptr )
+                    radiationPressureAcceleration->getTargetModel( ) );
+            if( paneledRadiationPressureTargetModel == nullptr )
             {
-                std::string errorMessage = "Error, radiation pressure acceleration with paneled target " + illuminatedBody + 
-                            " and source " + sourceBody + " not found";
+                std::string errorMessage = "Error, radiation pressure acceleration with paneled target " + illuminatedBody +
+                        " and source " + sourceBody + " not found";
                 throw std::runtime_error( errorMessage );
             }
-            
+
             std::vector< std::string > panelTypeIdList = paneledRadiationPressureTargetModel->getPanelTypeIdList( );
             std::vector< double > indexes;
-            if ( panelTypeId == "" )
+            if( panelTypeId == "" )
             {
-                for ( unsigned int i = 0; i<panelTypeIdList.size( ); i++ )
+                for( unsigned int i = 0; i < panelTypeIdList.size( ); i++ )
                 {
                     indexes.push_back( i );
                 }
             }
-            else 
+            else
             {
-                for ( unsigned int i = 0; i<panelTypeIdList.size( ); i++ )
+                for( unsigned int i = 0; i < panelTypeIdList.size( ); i++ )
                 {
-                    if ( panelTypeIdList.at( i ) == panelTypeId )
+                    if( panelTypeIdList.at( i ) == panelTypeId )
                     {
                         indexes.push_back( i );
                     }
                 }
-                if ( indexes.empty( ) )
+                if( indexes.empty( ) )
                 {
                     throw std::runtime_error( "Error, panel type " + panelTypeId + " not found" );
                 }
             }
-            
+
             parameterSize = indexes.size( );
 
             variableFunction = [ = ]( ) {
                 Eigen::VectorXd illuminatedPanelFractions( indexes.size( ) );
-                std::vector< double > illuminatedPanelFractionsAll = paneledRadiationPressureTargetModel->getIlluminatedPanelFractions( sourceBody );
-                for ( unsigned int i = 0; i<indexes.size( ); i++ )
+                std::vector< double > illuminatedPanelFractionsAll =
+                        paneledRadiationPressureTargetModel->getIlluminatedPanelFractions( sourceBody );
+                for( unsigned int i = 0; i < indexes.size( ); i++ )
                 {
                     illuminatedPanelFractions[ i ] = illuminatedPanelFractionsAll[ indexes[ i ] ];
                 }
@@ -1838,10 +1837,10 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             };
             break;
         }
-        case full_body_paneled_geometry:{
+        case full_body_paneled_geometry: {
             std::string targetBody = dependentVariableSettings->associatedBody_;
-            
-            if ( !bodies.at( targetBody )->getVehicleSystems( )->isPanelGeometryDefined( ) )
+
+            if( !bodies.at( targetBody )->getVehicleSystems( )->isPanelGeometryDefined( ) )
             {
                 throw std::runtime_error( "Error, full body panelled geometry for " + targetBody + " not found" );
             }
@@ -1849,13 +1848,13 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             parameterSize = 9 * totalNumberOfPanels;
             variableFunction = [ = ]( ) {
                 Eigen::VectorXd fullBodyPaneledGeometry( parameterSize );
-                std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > allPanels = 
+                std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > allPanels =
                         bodies.at( targetBody )->getVehicleSystems( )->getAllPanels( );
-                for ( int i=0; i<totalNumberOfPanels; i++ )
+                for( int i = 0; i < totalNumberOfPanels; i++ )
                 {
-                    fullBodyPaneledGeometry.segment( 9*i, 3) = allPanels.at( i )->getBodyFixedTriangle3d( ).getVertexA( );
-                    fullBodyPaneledGeometry.segment( 9*i + 3, 3) = allPanels.at( i )->getBodyFixedTriangle3d( ).getVertexB( );
-                    fullBodyPaneledGeometry.segment( 9*i + 6, 3) = allPanels.at( i )->getBodyFixedTriangle3d( ).getVertexC( );
+                    fullBodyPaneledGeometry.segment( 9 * i, 3 ) = allPanels.at( i )->getBodyFixedTriangle3d( ).getVertexA( );
+                    fullBodyPaneledGeometry.segment( 9 * i + 3, 3 ) = allPanels.at( i )->getBodyFixedTriangle3d( ).getVertexB( );
+                    fullBodyPaneledGeometry.segment( 9 * i + 6, 3 ) = allPanels.at( i )->getBodyFixedTriangle3d( ).getVertexC( );
                 }
                 return fullBodyPaneledGeometry;
             };
@@ -2734,45 +2733,46 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             case cross_section_change: {
                 std::string illuminatedBody = dependentVariableSettings->associatedBody_;
                 std::string sourceBody = dependentVariableSettings->secondaryBody_;
-                auto radiationPressureAccelerationList = getAccelerationBetweenBodies( illuminatedBody,
-                    sourceBody,
-                    stateDerivativeModels,
-                    basic_astrodynamics::radiation_pressure );
+                auto radiationPressureAccelerationList = getAccelerationBetweenBodies(
+                        illuminatedBody, sourceBody, stateDerivativeModels, basic_astrodynamics::radiation_pressure );
                 if( radiationPressureAccelerationList.empty( ) )
                 {
-                std::string errorMessage = "Error, radiation pressure acceleration with target " + illuminatedBody + 
-                " and source " + sourceBody + " not found";
-                throw std::runtime_error( errorMessage );
+                    std::string errorMessage = "Error, radiation pressure acceleration with target " + illuminatedBody + " and source " +
+                            sourceBody + " not found";
+                    throw std::runtime_error( errorMessage );
                 }
                 auto radiationPressureAcceleration = std::dynamic_pointer_cast< electromagnetism::RadiationPressureAcceleration >(
-                    radiationPressureAccelerationList.front( ) );
-                auto paneledRadiationPressureTargetModel = std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >(
-                    radiationPressureAcceleration->getTargetModel( ) );
-                if ( paneledRadiationPressureTargetModel == nullptr )
+                        radiationPressureAccelerationList.front( ) );
+                auto paneledRadiationPressureTargetModel =
+                        std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >(
+                                radiationPressureAcceleration->getTargetModel( ) );
+                if( paneledRadiationPressureTargetModel == nullptr )
                 {
-                    std::string errorMessage = "Error, radiation pressure acceleration with paneled target " + illuminatedBody + 
-                                " and source " + sourceBody + " not found";
+                    std::string errorMessage = "Error, radiation pressure acceleration with paneled target " + illuminatedBody +
+                            " and source " + sourceBody + " not found";
                     throw std::runtime_error( errorMessage );
                 }
                 std::vector< double > panelAreas;
-                std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > allPanels = paneledRadiationPressureTargetModel->getAllPanels( );
-                for ( int i = 0; i<paneledRadiationPressureTargetModel->getTotalNumberOfPanels( ); i++ )
+                std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > allPanels =
+                        paneledRadiationPressureTargetModel->getAllPanels( );
+                for( int i = 0; i < paneledRadiationPressureTargetModel->getTotalNumberOfPanels( ); i++ )
                 {
                     panelAreas.push_back( allPanels[ i ]->getPanelArea( ) );
                 }
 
-                variableFunction = [ = ]( ) { 
-                    std::vector< double > surfacePanelCosine =  paneledRadiationPressureTargetModel->getSurfacePanelCosines( sourceBody );
-                    std::vector< double > illuminatedPanelFractionsAll = paneledRadiationPressureTargetModel->getIlluminatedPanelFractions( sourceBody );
+                variableFunction = [ = ]( ) {
+                    std::vector< double > surfacePanelCosine = paneledRadiationPressureTargetModel->getSurfacePanelCosines( sourceBody );
+                    std::vector< double > illuminatedPanelFractionsAll =
+                            paneledRadiationPressureTargetModel->getIlluminatedPanelFractions( sourceBody );
                     double totalCrossSection = 0.0, actualCrossSection = 0.0;
-                    for ( unsigned int i=0; i<illuminatedPanelFractionsAll.size( ); i++ )
+                    for( unsigned int i = 0; i < illuminatedPanelFractionsAll.size( ); i++ )
                     {
                         double cosine = ( surfacePanelCosine[ i ] > 0 ) ? surfacePanelCosine[ i ] : 0.0;
                         totalCrossSection += panelAreas[ i ] * cosine;
                         actualCrossSection += illuminatedPanelFractionsAll[ i ] * panelAreas[ i ] * cosine;
                     }
                     double crossSectionChange;
-                    if ( totalCrossSection == 0.0 )
+                    if( totalCrossSection == 0.0 )
                     {
                         crossSectionChange = 0.0;
                     }
