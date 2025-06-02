@@ -31,7 +31,6 @@ Eigen::Matrix3d SphericalHarmonicsGravityField::getInertiaTensor( )
     return gravitation::getInertiaTensorFromGravityField( shared_from_this( ), scaledMeanMomentOfInertia_ );
 }
 
-
 //! Compute gravitational acceleration due to single spherical harmonics term.
 Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
         const Eigen::Vector3d& positionOfBodySubjectToAcceleration,
@@ -52,24 +51,23 @@ Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
 
     double sineOfAngle = std::sin( sphericalpositionOfBodySubjectToAcceleration( 1 ) );
     sphericalHarmonicsCache.update( sphericalpositionOfBodySubjectToAcceleration( 0 ),
-                                     sineOfAngle,
-                                     sphericalpositionOfBodySubjectToAcceleration( 2 ),
-                                     equatorialRadius,
-                                     checkSphericalHarmonicsConsistency );
+                                    sineOfAngle,
+                                    sphericalpositionOfBodySubjectToAcceleration( 2 ),
+                                    equatorialRadius,
+                                    checkSphericalHarmonicsConsistency );
 
     // Compute gradient premultiplier.
     const double preMultiplier = gravitationalParameter / equatorialRadius;
 
     // Compute geodesy-normalized Legendre polynomials.
-    const double legendrePolynomial = checkSphericalHarmonicsConsistency ?
-        sphericalHarmonicsCache.getLegendreCache( ).getLegendrePolynomial( degree, order ) :
-        sphericalHarmonicsCache.getLegendreCache( ).getLegendrePolynomialWithoutCheck( degree, order );
+    const double legendrePolynomial = checkSphericalHarmonicsConsistency
+            ? sphericalHarmonicsCache.getLegendreCache( ).getLegendrePolynomial( degree, order )
+            : sphericalHarmonicsCache.getLegendreCache( ).getLegendrePolynomialWithoutCheck( degree, order );
 
     // Compute geodesy-normalized Legendre polynomial derivative.
-    const double legendrePolynomialDerivative = checkSphericalHarmonicsConsistency ?
-            sphericalHarmonicsCache.getLegendreCache( ).getLegendrePolynomialDerivative( degree, order ) :
-            sphericalHarmonicsCache.getLegendreCache( ).getLegendrePolynomialDerivativeWithoutCheck( degree, order );
-
+    const double legendrePolynomialDerivative = checkSphericalHarmonicsConsistency
+            ? sphericalHarmonicsCache.getLegendreCache( ).getLegendrePolynomialDerivative( degree, order )
+            : sphericalHarmonicsCache.getLegendreCache( ).getLegendrePolynomialDerivativeWithoutCheck( degree, order );
 
     // Compute the potential gradient of a single spherical harmonic term.
     Eigen::Vector3d sphericalGradient = basic_mathematics::computePotentialGradient( sphericalpositionOfBodySubjectToAcceleration,
