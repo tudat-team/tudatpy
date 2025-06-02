@@ -191,8 +191,9 @@ std::vector< std::shared_ptr< electromagnetism::RadiationPressureTargetModel > >
             }
 
             radiationPressureTargetModels.push_back( std::make_shared< PaneledRadiationPressureTargetModel >(
-                    bodyFixedPanels, segmentFixedPanels, segmentFixedToBodyFixedRotations, sourceToTargetOccultingBodies,
-                    panelledTargetModelSettings->getMaximumNumberOfPixelsPerSource( ) ) );
+                    bodyFixedPanels, bodies.at( body )->getVehicleSystems( )->getAllPanels( ), segmentFixedPanels, 
+                    segmentFixedToBodyFixedRotations, sourceToTargetOccultingBodies,
+                    panelledTargetModelSettings->getMaximumNumberOfPixelsPerSource( ), bodies.at( body )->getVehicleSystems( )->isPanelGeometryDefined( ) ) );
             break;
         }
         case RadiationPressureTargetModelType::multi_type_target: {

@@ -603,20 +603,11 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
             break;
         case full_body_paneled_geometry: {
             std::string targetBody = dependentVariableSettings->associatedBody_;
-            std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel >  paneledRadiationPressureTargetModel = 
-                std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >(
-                    bodies.at( targetBody )->getRadiationPressureTargetModel( ) );
-            if ( paneledRadiationPressureTargetModel == nullptr )
+            if ( !bodies.at( targetBody )->getVehicleSystems( )->isPanelGeometryDefined( ) )
             {
-                std::string errorMessage = "Error, full body panel geometry only implemented for paneled radiation pressure target model, however, paneled target " + 
-                        targetBody + " not found";
-                throw std::runtime_error( errorMessage );
+                throw std::runtime_error( "Error, full body panelled geometry for " + targetBody + " not found" );
             }
-            if ( !paneledRadiationPressureTargetModel->isPanelGeometryDefined( ) )
-            {
-                throw std::runtime_error( "Error, macromodel for paneled target " + targetBody + " not found" );
-            }
-            int totalNumberOfPanels = paneledRadiationPressureTargetModel->getTotalNumberOfPanels( );
+            int totalNumberOfPanels = bodies.at( targetBody )->getVehicleSystems( )->getTotalNumberOfPanels( );
             variableSize = 9 * totalNumberOfPanels;
             break;
         }

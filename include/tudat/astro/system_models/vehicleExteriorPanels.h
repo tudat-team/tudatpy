@@ -101,12 +101,12 @@ public:
                           const bool geometryDefined = false ):
         frameFixedSurfaceNormal_( frameFixedSurfaceNormal ), frameFixedPositionVector_( frameFixedPositionVector ), panelArea_( panelArea ),
         panelTemperature_( panelTemperature ), trackedBody_( trackedBody ), reflectionLaw_( reflectionLaw ), 
-        triangle3d_( triangle3d ), frameOrigin_( frameOrigin ), geometryDefined_( geometryDefined )
+        frameFixedTriangle3d_( triangle3d ), frameOrigin_( frameOrigin ), geometryDefined_( geometryDefined )
     { 
         neighboringSurfaces_ = {-1, -1, -1};
         if ( geometryDefined_ )
         {
-            selfProjection_ = ParallelProjection( triangle3d_, triangle3d_, frameFixedSurfaceNormal_( ) );
+            selfProjection_ = ParallelProjection( frameFixedTriangle3d_, frameFixedTriangle3d_, frameFixedSurfaceNormal_( ) );
             std::vector< bool > dummyVector = { true, true, true };
             selfProjection_.setAreLambdasActuallyPositive( dummyVector );
         }
@@ -115,30 +115,19 @@ public:
             selfProjection_ = ParallelProjection( );
         }
     }
-    // copy-rotation constructor
-    VehicleExteriorPanel( const std::shared_ptr< VehicleExteriorPanel > panelToBeRotated, 
-        const Eigen::Quaterniond& currentOrientation_ )
+    // rotation update function
+    void updatePanel( const Eigen::Quaterniond& currentOrientation_ )
     {
-        frameFixedSurfaceNormal_ = [=] () { return currentOrientation_*panelToBeRotated->getFrameFixedSurfaceNormal( )( ); };
-        frameFixedPositionVector_ = [=] () { 
-            Eigen::Vector3d frameFixedPositionRotated = currentOrientation_*panelToBeRotated->getFrameFixedPositionVector( )( ) + panelToBeRotated->getFrameOrigin( );
+        bodyFixedSurfaceNormal_ = [=] () { return currentOrientation_*frameFixedSurfaceNormal_( ); };
+        bodyFixedPositionVector_ = [=] () { 
+            Eigen::Vector3d frameFixedPositionRotated = currentOrientation_*frameFixedPositionVector_( ) + frameOrigin_;
             return frameFixedPositionRotated; 
         };
-        panelArea_ = panelToBeRotated->getPanelArea( );
-        panelTemperature_ = panelToBeRotated->getPanelTemperature( );
-        trackedBody_ = panelToBeRotated->getTrackedBody( );
-        reflectionLaw_ = panelToBeRotated->getReflectionLaw( );
-        Eigen::Vector3d vertexA = currentOrientation_*panelToBeRotated->getTriangle3d( ).getVertexA( ) + 
-            panelToBeRotated->getFrameOrigin( );
-        Eigen::Vector3d vertexB = currentOrientation_*panelToBeRotated->getTriangle3d( ).getVertexB( ) + 
-            panelToBeRotated->getFrameOrigin( );
-        Eigen::Vector3d vertexC = currentOrientation_*panelToBeRotated->getTriangle3d( ).getVertexC( ) + 
-            panelToBeRotated->getFrameOrigin( );
-        frameOrigin_ = panelToBeRotated->getFrameOrigin( );
-        triangle3d_ = Triangle3d( vertexA, vertexB, vertexC );
-        selfProjection_ = panelToBeRotated->getSelfProjection( );
-        neighboringSurfaces_ = panelToBeRotated->getNeighboringSurfaces( );
-        geometryDefined_ = true;
+        bodyFixedTriangle3d_ = Triangle3d(currentOrientation_*frameFixedTriangle3d_.getVertexA( ) + frameOrigin_,
+            currentOrientation_*frameFixedTriangle3d_.getVertexB( ) + frameOrigin_,
+            currentOrientation_*frameFixedTriangle3d_.getVertexC( ) + frameOrigin_
+        );
+        
     }
 
 
@@ -160,6 +149,16 @@ public:
     std::function< Eigen::Vector3d( ) > getFrameFixedPositionVector( ) const
     {
         return frameFixedPositionVector_;
+    }
+
+    std::function< Eigen::Vector3d( ) > getBodyFixedSurfaceNormal( ) const
+    {
+        return bodyFixedSurfaceNormal_;
+    }
+
+    std::function< Eigen::Vector3d( ) > getBodyFixedPositionVector( ) const
+    {
+        return bodyFixedPositionVector_;
     }
 
     double getPanelArea( ) const
@@ -188,9 +187,13 @@ public:
     }
 
     // addition for self-shadowing (SSH) algorithm
-    Triangle3d getTriangle3d( ) const
+    Triangle3d getFrameFixedTriangle3d( ) const
     {
-        return triangle3d_;
+        return frameFixedTriangle3d_;
+    }
+    Triangle3d getBodyFixedTriangle3d( ) const
+    {
+        return bodyFixedTriangle3d_;
     }
     std::vector<int> getNeighboringSurfaces( ) const
     {
@@ -230,7 +233,7 @@ protected:
     std::string panelTypeId_;
 
     // addition for self-shadowing (SSH) algorithm
-    Triangle3d triangle3d_;
+    Triangle3d frameFixedTriangle3d_;
 
     std::vector< int > neighboringSurfaces_;
 
@@ -239,6 +242,12 @@ protected:
     Eigen::Vector3d frameOrigin_;
 
     bool geometryDefined_;
+
+    std::function< Eigen::Vector3d( ) > bodyFixedSurfaceNormal_;
+
+    std::function< Eigen::Vector3d( ) > bodyFixedPositionVector_;
+
+    Triangle3d bodyFixedTriangle3d_;
 
 };
 

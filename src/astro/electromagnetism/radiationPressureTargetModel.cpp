@@ -49,41 +49,6 @@ void CannonballRadiationPressureTargetModel::updateRadiationPressureForcing( dou
     }
 }
 
-void PaneledRadiationPressureTargetModel::updateRotatedPanels( )
-{
-    // update list of all panels
-    auto segmentFixedPanelsIterator = segmentFixedPanels_.begin( );
-
-    Eigen::Quaterniond currentOrientation;
-    
-    unsigned int buffer = 0;
-    for( unsigned int i = 0; i < segmentFixedPanels_.size( ) + 1; i++ )
-    {
-        currentOrientation = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
-        if( i > 0 )
-        {
-            currentOrientation = segmentFixedToBodyFixedRotations_.at( segmentFixedPanelsIterator->first )( );
-            if( computeTorques_ )
-            {
-                throw std::runtime_error( "Torques not yet supported for moving vehicle parts." );
-            }
-        }
-        const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& currentPanels_ =
-                ( i == 0 ) ? bodyFixedPanels_ : segmentFixedPanels_.at( segmentFixedPanelsIterator->first );
-        
-        for( unsigned int j = 0; j < currentPanels_.size( ); j++ )
-        {   
-            this->allRotatedPanels_[ buffer + j ] = std::make_shared< system_models::VehicleExteriorPanel >( currentPanels_.at( j ),
-                                                                                            currentOrientation );
-        }
-        buffer += currentPanels_.size( );
-        if( i > 0 )
-        {
-            segmentFixedPanelsIterator++;
-        }
-    }
-}
-
 void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing( double sourceIrradiance,
                                                                           const Eigen::Vector3d& sourceToTargetDirectionLocalFrame,
                                                                           const bool resetForces,
@@ -95,8 +60,6 @@ void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing( double
     {
         resetComputations( sourceName );
     }
-    // update panels
-    updateRotatedPanels( );
     
     Eigen::Vector3d currentCenterOfMass = Eigen::Vector3d::Constant( TUDAT_NAN );
     if( computeTorques_ )
@@ -120,17 +83,17 @@ void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing( double
     // common logic
     for ( int i = 0; i< totalNumberOfPanels_; i++)
     {
-        surfaceNormals_[ i ] = this->allRotatedPanels_[ i ]->getFrameFixedSurfaceNormal( )( );
+        surfaceNormals_[ i ] = this->allPanels_.at( i )->getBodyFixedSurfaceNormal( )( );
         surfacePanelCosines_[ i ] = ( -sourceToTargetDirectionLocalFrame ).dot( surfaceNormals_[ i ] );
         if( computeTorques_ )
         {
-            panelCentroidMomentArms_[ i ] = this->allRotatedPanels_[i]->getFrameFixedPositionVector( )( ) - currentCenterOfMass ;
+            panelCentroidMomentArms_[ i ] = this->allPanels_.at( i )->getFrameFixedPositionVector( )( ) - currentCenterOfMass ;
         }
         if( surfacePanelCosines_[ i ] > 0 )
         {
             currentPanelForce = radiationPressure * illuminatedPanelFractions_[ i ] *
-                this->allRotatedPanels_[i]->getPanelArea( ) * surfacePanelCosines_[ i ] *
-                this->allRotatedPanels_[ i ]->getReflectionLaw( )->evaluateReactionVector( surfaceNormals_[ i ],
+                this->allPanels_.at( i )->getPanelArea( ) * surfacePanelCosines_[ i ] *
+                this->allPanels_.at( i )->getReflectionLaw( )->evaluateReactionVector( surfaceNormals_[ i ],
                                                                                          sourceToTargetDirectionLocalFrame );
             this->currentRadiationPressureForce_[ sourceName ] += currentPanelForce;
             if( computeTorques_ )
@@ -194,7 +157,7 @@ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureFo
                 ( i == 0 ) ? bodyFixedPanels_ : segmentFixedPanels_.at( segmentFixedPanelsIterator->first );
         for( unsigned int j = 0; j < currentPanels_.size( ); j++ )
         {
-            surfaceNormals_[ counter ] = currentOrientation * currentPanels_.at( j )->getFrameFixedSurfaceNormal( )( );
+            surfaceNormals_[ counter ] = currentOrientation * currentPanels_.at( j )->getBodyFixedSurfaceNormal( )( );
             surfacePanelCosines_[ counter ] = ( -sourceToTargetDirectionLocalFrame ).dot( surfaceNormals_[ counter ] );
 
             if( surfacePanelCosines_[ counter ] > 0 )
@@ -238,7 +201,7 @@ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureFo
                 ( i == 0 ) ? bodyFixedPanels_ : segmentFixedPanels_.at( segmentFixedPanelsIterator->first );
         for( unsigned int j = 0; j < currentPanels_.size( ); j++ )
         {
-            surfaceNormals_[ counter ] = currentOrientation * currentPanels_.at( j )->getFrameFixedSurfaceNormal( )( );
+            surfaceNormals_[ counter ] = currentOrientation * currentPanels_.at( j )->getBodyFixedSurfaceNormal( )( );
             surfacePanelCosines_[ counter ] = ( -sourceToTargetDirectionLocalFrame ).dot( surfaceNormals_[ counter ] );
 
             if( surfacePanelCosines_[ counter ] > 0 )
