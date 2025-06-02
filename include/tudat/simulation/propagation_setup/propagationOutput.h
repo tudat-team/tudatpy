@@ -1840,47 +1840,22 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
         }
         case full_body_paneled_geometry:{
             std::string targetBody = dependentVariableSettings->associatedBody_;
-            auto radiationPressureAccelerationList = getAccelerationBetweenBodies( targetBody,
-                "Sun",
-                stateDerivativeModels,
-                basic_astrodynamics::radiation_pressure );
-            if( radiationPressureAccelerationList.empty( ) )
+            
+            if ( !bodies.at( targetBody )->getVehicleSystems( )->isPanelGeometryDefined( ) )
             {
-                std::string errorMessage = "Error, radiation pressure acceleration with target " + targetBody + 
-                    " and source Sun (hardcoded) not found";
-                throw std::runtime_error( errorMessage );
+                throw std::runtime_error( "Error, full body panelled geometry for " + targetBody + " not found" );
             }
-            auto radiationPressureAcceleration = std::dynamic_pointer_cast< electromagnetism::RadiationPressureAcceleration >(
-                radiationPressureAccelerationList.front( ) );
-            std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > paneledRadiationPressureTargetModel = 
-                std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >( radiationPressureAcceleration->getTargetModel( ) );
-            if ( paneledRadiationPressureTargetModel == nullptr )
-            {
-                std::string errorMessage = "Error, full body panel geometry only implemented for paneled radiation pressure target model, however, paneled target " + 
-                        targetBody + " not found";
-                throw std::runtime_error( errorMessage );
-            }
-            if ( !paneledRadiationPressureTargetModel->isPanelGeometryDefined( ) )
-            {
-                throw std::runtime_error( "Error, macromodel for paneled target " + targetBody + " not found" );
-            }
-            int totalNumberOfPanels = paneledRadiationPressureTargetModel->getTotalNumberOfPanels( );
+            int totalNumberOfPanels = bodies.at( targetBody )->getVehicleSystems( )->getTotalNumberOfPanels( );
             parameterSize = 9 * totalNumberOfPanels;
             variableFunction = [ = ]( ) {
                 Eigen::VectorXd fullBodyPaneledGeometry( parameterSize );
-                paneledRadiationPressureTargetModel->updateRotatedPanels( );
-                std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > allRotatedPanels = 
-                        paneledRadiationPressureTargetModel->getAllRotatedPanels( );
+                std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > allPanels = 
+                        bodies.at( targetBody )->getVehicleSystems( )->getAllPanels( );
                 for ( int i=0; i<totalNumberOfPanels; i++ )
                 {
-                    std::shared_ptr< system_models::VehicleExteriorPanel > currentPanel = allRotatedPanels[ i ];
-                    if ( !currentPanel ){
-                        std::cout<<"HOGUS BOGUS!!!"<<std::endl;
-                    }
-                    system_models::Triangle3d currentTriangle = currentPanel->getTriangle3d( );
-                    fullBodyPaneledGeometry.segment( 9*i, 3) = currentTriangle.getVertexA( );
-                    fullBodyPaneledGeometry.segment( 9*i + 3, 3) = currentTriangle.getVertexB( );
-                    fullBodyPaneledGeometry.segment( 9*i + 6, 3) = currentTriangle.getVertexC( );
+                    fullBodyPaneledGeometry.segment( 9*i, 3) = allPanels.at( i )->getBodyFixedTriangle3d( ).getVertexA( );
+                    fullBodyPaneledGeometry.segment( 9*i + 3, 3) = allPanels.at( i )->getBodyFixedTriangle3d( ).getVertexB( );
+                    fullBodyPaneledGeometry.segment( 9*i + 6, 3) = allPanels.at( i )->getBodyFixedTriangle3d( ).getVertexC( );
                 }
                 return fullBodyPaneledGeometry;
             };
@@ -2780,10 +2755,10 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                     throw std::runtime_error( errorMessage );
                 }
                 std::vector< double > panelAreas;
-                std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > fullPanels = paneledRadiationPressureTargetModel->getFullPanels( );
+                std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > allPanels = paneledRadiationPressureTargetModel->getAllPanels( );
                 for ( int i = 0; i<paneledRadiationPressureTargetModel->getTotalNumberOfPanels( ); i++ )
                 {
-                    panelAreas.push_back( fullPanels[ i ]->getPanelArea( ) );
+                    panelAreas.push_back( allPanels[ i ]->getPanelArea( ) );
                 }
 
                 variableFunction = [ = ]( ) { 
