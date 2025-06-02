@@ -251,9 +251,9 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
         perturbedSphericalPosition( parameter ) += sphericalStatePerturbation( parameter );
 
         sphericalHarmonicsCache.update( perturbedSphericalPosition( 0 ),
-                                         std::sin( perturbedSphericalPosition( 1 ) ),
-                                         perturbedSphericalPosition( 2 ),
-                                         planetaryRadius );
+                                        std::sin( perturbedSphericalPosition( 1 ) ),
+                                        perturbedSphericalPosition( 2 ),
+                                        planetaryRadius );
 
         for( unsigned int i = 0; i < 6; i++ )
         {
@@ -276,9 +276,9 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
         perturbedSphericalPosition( parameter ) -= sphericalStatePerturbation( parameter );
 
         sphericalHarmonicsCache.update( perturbedSphericalPosition( 0 ),
-                                         std::sin( perturbedSphericalPosition( 1 ) ),
-                                         perturbedSphericalPosition( 2 ),
-                                         planetaryRadius );
+                                        std::sin( perturbedSphericalPosition( 1 ) ),
+                                        perturbedSphericalPosition( 2 ),
+                                        planetaryRadius );
 
         for( unsigned int i = 0; i < 6; i++ )
         {
@@ -851,9 +851,9 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
                                                  bodies,
                                                  parameterSet ) );
 
-    std::cout<<"Pre-update"<<std::endl;
+    std::cout << "Pre-update" << std::endl;
     accelerationPartial->update( testTime );
-    std::cout<<"post-update"<<std::endl;
+    std::cout << "post-update" << std::endl;
 
     Eigen::MatrixXd partialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
     accelerationPartial->wrtPositionOfAcceleratedBody( partialWrtVehiclePosition.block( 0, 0, 3, 3 ) );

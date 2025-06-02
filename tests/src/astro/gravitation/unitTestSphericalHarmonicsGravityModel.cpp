@@ -73,14 +73,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAcceleration_Demo1 )
     // Compute acceleration [m s^-2].
     auto shCache = basic_mathematics::SphericalHarmonicsCache( 3, 1 );
     const Eigen::Vector3d acceleration = gravitation::computeSingleGeodesyNormalizedGravitationalAcceleration(
-            position,
-            gravitationalParameter,
-            planetaryRadius,
-            degree,
-            order,
-            cosineCoefficient,
-            sineCoefficient,
-            shCache );
+            position, gravitationalParameter, planetaryRadius, degree, order, cosineCoefficient, sineCoefficient, shCache );
 
     // Define expected acceleration according to the MATLAB function 'gravitysphericalharmonic'
     // described by Mathworks [2012] [m s^-2].
@@ -116,14 +109,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAcceleration_Demo2 )
     // Compute acceleration for 2,1 term [m s^-2].
     auto shCache = basic_mathematics::SphericalHarmonicsCache( 3, 2 );
     const Eigen::Vector3d acceleration = gravitation::computeSingleGeodesyNormalizedGravitationalAcceleration(
-            position,
-            gravitationalParameter,
-            planetaryRadius,
-            degree,
-            order,
-            cosineCoefficient,
-            sineCoefficient,
-            shCache );
+            position, gravitationalParameter, planetaryRadius, degree, order, cosineCoefficient, sineCoefficient, shCache );
 
     // Define expected acceleration according to the MATLAB function 'gravitysphericalharmonic'
     // described by Mathworks [2012] [m s^-2].
@@ -159,14 +145,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAcceleration_Demo3 )
     // Compute acceleration for 2,2 term [m s^-2].
     auto shCache = basic_mathematics::SphericalHarmonicsCache( 3, 3 );
     const Eigen::Vector3d acceleration = gravitation::computeSingleGeodesyNormalizedGravitationalAcceleration(
-            position,
-            gravitationalParameter,
-            planetaryRadius,
-            degree,
-            order,
-            cosineCoefficient,
-            sineCoefficient,
-            shCache );
+            position, gravitationalParameter, planetaryRadius, degree, order, cosineCoefficient, sineCoefficient, shCache );
 
     // Define expected acceleration according to the MATLAB function 'gravitysphericalharmonic'
     // described by Mathworks [2012] [m s^-2].
@@ -272,13 +251,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAcceleration_Demo4 )
     std::map< std::pair< int, int >, Eigen::Vector3d > dummyMap;
     auto shCache = basic_mathematics::SphericalHarmonicsCache( 6, 6 );
     const Eigen::Vector3d acceleration = gravitation::computeGeodesyNormalizedGravitationalAccelerationSum(
-            position,
-            gravitationalParameter,
-            planetaryRadius,
-            cosineCoefficients,
-            sineCoefficients,
-            shCache,
-            dummyMap );
+            position, gravitationalParameter, planetaryRadius, cosineCoefficients, sineCoefficients, shCache, dummyMap );
 
     // Define expected acceleration according to the MATLAB function 'gravitysphericalharmonic'
     // described by Mathworks [2012] [m s^-2].
@@ -305,80 +278,80 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalAccelerationWrapperCla
     // Define geodesy-normalized coefficients up to degree 5 and order 5. The values are obtained
     // from the Earth Gravitational Model 2008 as described by Mathworks [2012].
     Eigen::MatrixXd cosineCoefficients = ( Eigen::MatrixXd( 6, 6 ) << 1.0,
-                                                 0.0,
-                                                 0.0,
-                                                 0.0,
-                                                 0.0,
-                                                 0.0,
-                                                 0.0,
-                                                 0.0,
-                                                 0.0,
-                                                 0.0,
-                                                 0.0,
-                                                 0.0,
-                                                 -4.841651437908150e-4,
-                                                 -2.066155090741760e-10,
-                                                 2.439383573283130e-6,
-                                                 0.0,
-                                                 0.0,
-                                                 0.0,
-                                                 9.571612070934730e-7,
-                                                 2.030462010478640e-6,
-                                                 9.047878948095281e-7,
-                                                 7.213217571215680e-7,
-                                                 0.0,
-                                                 0.0,
-                                                 5.399658666389910e-7,
-                                                 -5.361573893888670e-7,
-                                                 3.505016239626490e-7,
-                                                 9.908567666723210e-7,
-                                                 -1.885196330230330e-7,
-                                                 0.0,
-                                                 6.867029137366810e-8,
-                                                 -6.292119230425290e-8,
-                                                 6.520780431761640e-7,
-                                                 -4.518471523288430e-7,
-                                                 -2.953287611756290e-7,
-                                                 1.748117954960020e-7 )
-                                                       .finished( );
+                                           0.0,
+                                           0.0,
+                                           0.0,
+                                           0.0,
+                                           0.0,
+                                           0.0,
+                                           0.0,
+                                           0.0,
+                                           0.0,
+                                           0.0,
+                                           0.0,
+                                           -4.841651437908150e-4,
+                                           -2.066155090741760e-10,
+                                           2.439383573283130e-6,
+                                           0.0,
+                                           0.0,
+                                           0.0,
+                                           9.571612070934730e-7,
+                                           2.030462010478640e-6,
+                                           9.047878948095281e-7,
+                                           7.213217571215680e-7,
+                                           0.0,
+                                           0.0,
+                                           5.399658666389910e-7,
+                                           -5.361573893888670e-7,
+                                           3.505016239626490e-7,
+                                           9.908567666723210e-7,
+                                           -1.885196330230330e-7,
+                                           0.0,
+                                           6.867029137366810e-8,
+                                           -6.292119230425290e-8,
+                                           6.520780431761640e-7,
+                                           -4.518471523288430e-7,
+                                           -2.953287611756290e-7,
+                                           1.748117954960020e-7 )
+                                                 .finished( );
 
     Eigen::MatrixXd sineCoefficients = ( Eigen::MatrixXd( 6, 6 ) << 0.0,
-                                               0.0,
-                                               0.0,
-                                               0.0,
-                                               0.0,
-                                               0.0,
-                                               0.0,
-                                               0.0,
-                                               0.0,
-                                               0.0,
-                                               0.0,
-                                               0.0,
-                                               0.0,
-                                               1.384413891379790e-9,
-                                               -1.400273703859340e-6,
-                                               0.0,
-                                               0.0,
-                                               0.0,
-                                               0.0,
-                                               2.482004158568720e-7,
-                                               -6.190054751776180e-7,
-                                               1.414349261929410e-6,
-                                               0.0,
-                                               0.0,
-                                               0.0,
-                                               -4.735673465180860e-7,
-                                               6.624800262758290e-7,
-                                               -2.009567235674520e-7,
-                                               3.088038821491940e-7,
-                                               0.0,
-                                               0.0,
-                                               -9.436980733957690e-8,
-                                               -3.233531925405220e-7,
-                                               -2.149554083060460e-7,
-                                               4.980705501023510e-8,
-                                               -6.693799351801650e-7 )
-                                                     .finished( );
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         1.384413891379790e-9,
+                                         -1.400273703859340e-6,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         2.482004158568720e-7,
+                                         -6.190054751776180e-7,
+                                         1.414349261929410e-6,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         -4.735673465180860e-7,
+                                         6.624800262758290e-7,
+                                         -2.009567235674520e-7,
+                                         3.088038821491940e-7,
+                                         0.0,
+                                         0.0,
+                                         -9.436980733957690e-8,
+                                         -3.233531925405220e-7,
+                                         -2.149554083060460e-7,
+                                         4.980705501023510e-8,
+                                         -6.693799351801650e-7 )
+                                               .finished( );
 
     // Define arbitrary Cartesian position [m].
     const Eigen::Vector3d position( 7.0e6, 8.0e6, 9.0e6 );

@@ -50,7 +50,7 @@ public:
     virtual bool isTimeInvariant( ) = 0;
 
 protected:
-    virtual void updateMembers_( const double currentTime ) { };
+    virtual void updateMembers_( const double currentTime ) {};
 
     double currentTime_{ TUDAT_NAN };
 };

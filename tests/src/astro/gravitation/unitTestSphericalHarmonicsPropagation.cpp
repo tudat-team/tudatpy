@@ -34,7 +34,6 @@
 #include "tudat/simulation/simulation.h"
 #include "tudat/simulation/environment_setup/createGroundStations.h"
 
-
 namespace tudat
 {
 namespace unit_tests
@@ -58,7 +57,7 @@ BOOST_AUTO_TEST_SUITE( test_SphericalHarmonicsGravityPropagation )
 // Check single harmonics term of degree = 2 and order = 0.
 BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
 {
-// Load spice kernels.
+    // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
     // Define bodies in simulation
@@ -75,12 +74,12 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
     BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000" );
 
     bodySettings.get( "Earth" )->gravityFieldVariationSettings.push_back(
-        fixedSingleDegreeLoveNumberGravityFieldVariationSettings( "Moon", 50.0, 2 ) );
+            fixedSingleDegreeLoveNumberGravityFieldVariationSettings( "Moon", 50.0, 2 ) );
     bodySettings.get( "Earth" )->gravityFieldVariationSettings.push_back(
-        fixedSingleDegreeLoveNumberGravityFieldVariationSettings( "Sun", 100.0, 2 ) );
+            fixedSingleDegreeLoveNumberGravityFieldVariationSettings( "Sun", 100.0, 2 ) );
 
     std::shared_ptr< SphericalHarmonicsGravityFieldSettings > moonGravityField =
-        std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( bodySettings.at( "Moon" )->gravityFieldSettings );
+            std::dynamic_pointer_cast< SphericalHarmonicsGravityFieldSettings >( bodySettings.at( "Moon" )->gravityFieldSettings );
 
     Eigen::MatrixXd cosineCoefficients = moonGravityField->getCosineCoefficients( );
     cosineCoefficients *= 1000.0;
@@ -125,7 +124,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
 
     // Set (perturbed) initial state.
     Eigen::Matrix< double, 6, 1 > systemInitialState =
-        convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
+            convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
     // Get dependent variables
 
@@ -152,62 +151,72 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
         }
     }
 
-
-
     std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
-    dependentVariables.push_back( singleAccelerationDependentVariable( basic_astrodynamics::spherical_harmonic_gravity, "Vehicle", "Earth" ) );
-    dependentVariables.push_back( singleAccelerationDependentVariable( basic_astrodynamics::spherical_harmonic_gravity, "Vehicle", "Moon" ) );
+    dependentVariables.push_back(
+            singleAccelerationDependentVariable( basic_astrodynamics::spherical_harmonic_gravity, "Vehicle", "Earth" ) );
+    dependentVariables.push_back(
+            singleAccelerationDependentVariable( basic_astrodynamics::spherical_harmonic_gravity, "Vehicle", "Moon" ) );
     dependentVariables.push_back( sphericalHarmonicAccelerationTermsDependentVariable( "Vehicle", "Earth", earthComponentIndices ) );
     dependentVariables.push_back( sphericalHarmonicAccelerationTermsDependentVariable( "Vehicle", "Moon", moonComponentIndices ) );
     dependentVariables.push_back( singleGravityFieldVariationSeparateTermsAccelerationContributionVariable(
-        "Vehicle", "Earth", tideComponentIndices, gravitation::basic_solid_body, "Sun" ) );
+            "Vehicle", "Earth", tideComponentIndices, gravitation::basic_solid_body, "Sun" ) );
     dependentVariables.push_back( singleGravityFieldVariationSeparateTermsAccelerationContributionVariable(
-        "Vehicle", "Earth", tideComponentIndices, gravitation::basic_solid_body, "Moon" ) );
+            "Vehicle", "Earth", tideComponentIndices, gravitation::basic_solid_body, "Moon" ) );
 
     // Create propagator settings
     std::shared_ptr< IntegratorSettings< double > > integratorSettings =
-        rungeKuttaFixedStepSettings( 40.0, CoefficientSets::rungeKuttaFehlberg78 );
+            rungeKuttaFixedStepSettings( 40.0, CoefficientSets::rungeKuttaFehlberg78 );
     std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings =
-        std::make_shared< TranslationalStatePropagatorSettings< double, double > >(
-            centralBodies, accelerationModelMap, bodiesToIntegrate, systemInitialState, initialEphemerisTime, integratorSettings,
-            propagationTimeTerminationSettings( finalEphemerisTime ), cowell, dependentVariables );
+            std::make_shared< TranslationalStatePropagatorSettings< double, double > >(
+                    centralBodies,
+                    accelerationModelMap,
+                    bodiesToIntegrate,
+                    systemInitialState,
+                    initialEphemerisTime,
+                    integratorSettings,
+                    propagationTimeTerminationSettings( finalEphemerisTime ),
+                    cowell,
+                    dependentVariables );
 
     propagatorSettings->getOutputSettings( )->setResultsSaveFrequencyInSeconds( 10000.0 );
     propagatorSettings->getOutputSettings( )->setResultsSaveFrequencyInSteps( 0 );
-    propagatorSettings->getOutputSettings()->getPrintSettings()->setPrintDependentVariableData(true);
+    propagatorSettings->getOutputSettings( )->getPrintSettings( )->setPrintDependentVariableData( true );
     // Define parameters
-    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames = getInitialStateParameterSettings< double, double >(
-        propagatorSettings, bodies );
+    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
+            getInitialStateParameterSettings< double, double >( propagatorSettings, bodies );
     parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-        2, 0, 12, 12, "Earth", spherical_harmonics_cosine_coefficient_block ) );
+            2, 0, 12, 12, "Earth", spherical_harmonics_cosine_coefficient_block ) );
     parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-        2, 1, 12, 12, "Earth", spherical_harmonics_sine_coefficient_block ) );
+            2, 1, 12, 12, "Earth", spherical_harmonics_sine_coefficient_block ) );
     parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-        2, 0, 2, 2, "Earth", spherical_harmonics_cosine_coefficient_block ) );
+            2, 0, 2, 2, "Earth", spherical_harmonics_cosine_coefficient_block ) );
     parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-        2, 1, 2, 2, "Earth", spherical_harmonics_sine_coefficient_block ) );
+            2, 1, 2, 2, "Earth", spherical_harmonics_sine_coefficient_block ) );
 
     // Create parameters
     std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-        createParametersToEstimate< double, double >( parameterNames, bodies );
+            createParametersToEstimate< double, double >( parameterNames, bodies );
 
     printEstimatableParameterEntries( parametersToEstimate );
 
     std::shared_ptr< SingleArcVariationalEquationsSolver< double, double > > variationalEquationsSolver =
-        std::make_shared< SingleArcVariationalEquationsSolver< double, double > >( bodies, propagatorSettings, parametersToEstimate, true );
+            std::make_shared< SingleArcVariationalEquationsSolver< double, double > >(
+                    bodies, propagatorSettings, parametersToEstimate, true );
 
     std::map< double, Eigen::MatrixXd > stateTransitionMatrixHistory = variationalEquationsSolver->getStateTransitionMatrixSolution( );
-//    input_output::writeDataMapToTextFile( stateTransitionMatrixHistory, "sphericalHarmonicsTestStateTransition.dat", tudat::paths::getTudatTestDataPath( ) + "", "", 16 );
+    //    input_output::writeDataMapToTextFile( stateTransitionMatrixHistory, "sphericalHarmonicsTestStateTransition.dat",
+    //    tudat::paths::getTudatTestDataPath( ) + "", "", 16 );
 
-    std::map< double, Eigen::MatrixXd > referenceStateTransitionMatrixHistory =
-    input_output::readMatrixHistoryFromFile< double, double >( stateTransitionMatrixHistory.begin( )->second.rows( ),
-                                                 stateTransitionMatrixHistory.begin( )->second.cols( ),
-                                                 tudat::paths::getTudatTestDataPath( ) + "sphericalHarmonicsTestStateTransition.dat" );
-    for( auto it : stateTransitionMatrixHistory )
+    std::map< double, Eigen::MatrixXd > referenceStateTransitionMatrixHistory = input_output::readMatrixHistoryFromFile< double, double >(
+            stateTransitionMatrixHistory.begin( )->second.rows( ),
+            stateTransitionMatrixHistory.begin( )->second.cols( ),
+            tudat::paths::getTudatTestDataPath( ) + "sphericalHarmonicsTestStateTransition.dat" );
+    for( auto it: stateTransitionMatrixHistory )
     {
         BOOST_CHECK_EQUAL( referenceStateTransitionMatrixHistory.count( it.first ), 1 );
         Eigen::MatrixXd currentMatrix = stateTransitionMatrixHistory.at( it.first );
-        Eigen::MatrixXd matrixDifference = stateTransitionMatrixHistory.at( it.first ) - referenceStateTransitionMatrixHistory.at( it.first );
+        Eigen::MatrixXd matrixDifference =
+                stateTransitionMatrixHistory.at( it.first ) - referenceStateTransitionMatrixHistory.at( it.first );
 
         for( int i = 0; i < 3; i++ )
         {
@@ -217,19 +226,19 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
                 BOOST_CHECK_SMALL( matrixDifference( i + 3, j ), currentMatrix.block( 3, 0, 3, 3 ).norm( ) * 2.0E-14 );
                 BOOST_CHECK_SMALL( matrixDifference( i, j + 3 ), currentMatrix.block( 0, 3, 3, 3 ).norm( ) * 2.0E-14 );
                 BOOST_CHECK_SMALL( matrixDifference( i + 3, j + 3 ), currentMatrix.block( 3, 3, 3, 3 ).norm( ) * 2.0E-14 );
-
             }
         }
     }
 
     std::map< double, Eigen::MatrixXd > sensitivityMatrixHistory = variationalEquationsSolver->getSensitivityMatrixSolution( );
-//    input_output::writeDataMapToTextFile( sensitivityMatrixHistory, "sphericalHarmonicsTestSensitivity.dat", tudat::paths::getTudatTestDataPath( ) + "", "", 16 );
+    //    input_output::writeDataMapToTextFile( sensitivityMatrixHistory, "sphericalHarmonicsTestSensitivity.dat",
+    //    tudat::paths::getTudatTestDataPath( ) + "", "", 16 );
 
-    std::map< double, Eigen::MatrixXd > referenceSensitivityMatrixHistory =
-        input_output::readMatrixHistoryFromFile< double, double >( sensitivityMatrixHistory.begin( )->second.rows( ),
-                                                                   sensitivityMatrixHistory.begin( )->second.cols( ),
-                                                                   tudat::paths::getTudatTestDataPath( ) + "sphericalHarmonicsTestSensitivity.dat" );
-    for( auto it : sensitivityMatrixHistory )
+    std::map< double, Eigen::MatrixXd > referenceSensitivityMatrixHistory = input_output::readMatrixHistoryFromFile< double, double >(
+            sensitivityMatrixHistory.begin( )->second.rows( ),
+            sensitivityMatrixHistory.begin( )->second.cols( ),
+            tudat::paths::getTudatTestDataPath( ) + "sphericalHarmonicsTestSensitivity.dat" );
+    for( auto it: sensitivityMatrixHistory )
     {
         BOOST_CHECK_EQUAL( referenceSensitivityMatrixHistory.count( it.first ), 1 );
         Eigen::MatrixXd currentMatrix = sensitivityMatrixHistory.at( it.first );
@@ -245,13 +254,14 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
     }
 
     std::map< double, Eigen::VectorXd > stateHistory = variationalEquationsSolver->getEquationsOfMotionSolution( );
-//    input_output::writeDataMapToTextFile( stateHistory, "sphericalHarmonicsTestStates.dat", tudat::paths::getTudatTestDataPath( ) + "", "", 16 );
+    //    input_output::writeDataMapToTextFile( stateHistory, "sphericalHarmonicsTestStates.dat", tudat::paths::getTudatTestDataPath( ) +
+    //    "", "", 16 );
 
-    std::map< double, Eigen::MatrixXd > referenceStateHistory =
-        input_output::readMatrixHistoryFromFile< double, double >( stateHistory.begin( )->second.rows( ),
-                                                                   stateHistory.begin( )->second.cols( ),
-                                                                   tudat::paths::getTudatTestDataPath( ) + "sphericalHarmonicsTestStates.dat" );
-    for( auto it : stateHistory )
+    std::map< double, Eigen::MatrixXd > referenceStateHistory = input_output::readMatrixHistoryFromFile< double, double >(
+            stateHistory.begin( )->second.rows( ),
+            stateHistory.begin( )->second.cols( ),
+            tudat::paths::getTudatTestDataPath( ) + "sphericalHarmonicsTestStates.dat" );
+    for( auto it: stateHistory )
     {
         BOOST_CHECK_EQUAL( referenceStateHistory.count( it.first ), 1 );
         Eigen::VectorXd currentMatrix = stateHistory.at( it.first );
@@ -263,15 +273,17 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
         }
     }
 
-    std::map< double, Eigen::VectorXd > dependentVariableHistory =
-        variationalEquationsSolver->getSingleArcVariationalPropagationResults( )->getDynamicsResults( )->getDependentVariableHistoryDouble( );
-//    input_output::writeDataMapToTextFile( dependentVariableHistory, "sphericalHarmonicsTestDependentVariables.dat", tudat::paths::getTudatTestDataPath( ) + "", "", 16 );
+    std::map< double, Eigen::VectorXd > dependentVariableHistory = variationalEquationsSolver->getSingleArcVariationalPropagationResults( )
+                                                                           ->getDynamicsResults( )
+                                                                           ->getDependentVariableHistoryDouble( );
+    //    input_output::writeDataMapToTextFile( dependentVariableHistory, "sphericalHarmonicsTestDependentVariables.dat",
+    //    tudat::paths::getTudatTestDataPath( ) + "", "", 16 );
 
-    std::map< double, Eigen::MatrixXd > referenceDependentVariableHistory =
-        input_output::readMatrixHistoryFromFile< double, double >( dependentVariableHistory.begin( )->second.rows( ),
-                                                                   dependentVariableHistory.begin( )->second.cols( ),
-                                                                   tudat::paths::getTudatTestDataPath( ) + "sphericalHarmonicsTestDependentVariables.dat" );
-    for( auto it : dependentVariableHistory )
+    std::map< double, Eigen::MatrixXd > referenceDependentVariableHistory = input_output::readMatrixHistoryFromFile< double, double >(
+            dependentVariableHistory.begin( )->second.rows( ),
+            dependentVariableHistory.begin( )->second.cols( ),
+            tudat::paths::getTudatTestDataPath( ) + "sphericalHarmonicsTestDependentVariables.dat" );
+    for( auto it: dependentVariableHistory )
     {
         BOOST_CHECK_EQUAL( referenceDependentVariableHistory.count( it.first ), 1 );
         Eigen::VectorXd currentMatrix = dependentVariableHistory.at( it.first );
@@ -280,9 +292,8 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicsGravityPropagation )
         for( int i = 0; i < currentMatrix.rows( ) / 3; i++ )
         {
             BOOST_CHECK_SMALL( matrixDifference( 3 * i ), currentMatrix.segment( 3 * i, 3 ).norm( ) * 1.0E-10 );
-            BOOST_CHECK_SMALL( matrixDifference( 3 * i + 1), currentMatrix.segment( 3 * i, 3 ).norm( ) * 1.0E-10 );
-            BOOST_CHECK_SMALL( matrixDifference( 3 * i + 2), currentMatrix.segment( 3 * i, 3 ).norm( ) * 1.0E-10 );
-
+            BOOST_CHECK_SMALL( matrixDifference( 3 * i + 1 ), currentMatrix.segment( 3 * i, 3 ).norm( ) * 1.0E-10 );
+            BOOST_CHECK_SMALL( matrixDifference( 3 * i + 2 ), currentMatrix.segment( 3 * i, 3 ).norm( ) * 1.0E-10 );
         }
     }
 }
