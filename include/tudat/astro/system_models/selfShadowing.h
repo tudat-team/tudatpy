@@ -37,42 +37,41 @@ bool isPointInTriangle( const ParallelProjection& projection_, const double coor
 bool doEdgesIntersect(const Eigen::Vector2d& edge1Start, const Eigen::Vector2d& edge1End,
     const Eigen::Vector2d& edge2Start, const Eigen::Vector2d& edge2End);
 
-std::vector< std::vector< int > > arePointsInTriangle( const ParallelProjection& projection_, 
-    const std::vector<double>& gridCoordinatesL_, const std::vector<double>& gridCoordinatesM_,
-    const std::vector< std::vector < int > >& pixelationMatrix_,
+void arePointsInTriangle( const ParallelProjection& projection_, 
+    const std::vector< double >& gridCoordinatesL_, const std::vector< double >& gridCoordinatesM_,
+    std::vector< int >& pixelationMatrix_,
     int indexMinL_ = 0, int indexMaxL_ = -1, int indexMinM_ = 0, int indexMaxM_ = -1 );
 
 template<typename T>
-inline std::vector<double> linspace(T start_in, T end_in, int num_in)
+inline std::vector< double >& linspace(T start_in, T end_in, int num_in, std::vector< double >& linspaced)
 {
-  std::vector<double> linspaced;
-
   double start = static_cast<double>(start_in);
   double end = static_cast<double>(end_in);
-  double num = static_cast<double>(num_in);
+  // resize array
+  linspaced.resize( num_in );
 
-  if (num == 0) { return linspaced; }
-  if (num == 1) 
+  if (num_in == 0) { return linspaced; }
+  if (num_in == 1) 
     {
-      linspaced.push_back(start);
+      linspaced[ 0 ] = start;
       return linspaced;
     }
 
-  double delta = (end - start) / (num - 1);
+  double delta = (end - start) / (static_cast<double>(num_in) - 1);
 
-  for(int i=0; i < num-1; ++i)
+  for(int i=0; i < num_in-1; ++i)
     {
-      linspaced.push_back(start + delta * i);
+      linspaced[ i ] = (start + delta * i);
     }
-  linspaced.push_back(end); 
+  linspaced[ num_in - 1 ] = end; 
 
   return linspaced;
 }
 
-std::vector< double > computeFractioWithPixelation( const std::vector<std::vector<int>>& sigmaMatrix_, 
+std::vector< double > computeFractioWithPixelation( const std::vector<std::vector< int > >& sigmaMatrix_, 
     const std::vector< std::shared_ptr< VehicleExteriorPanel > >& allPanels_, 
     const int maximumNumberOfPixels_, const std::vector< std::vector < ParallelProjection > >& projections_, 
-    const std::vector< int > toBePixelated_ );
+    const std::vector< int >& toBePixelated_ );
 
 class SelfShadowing
 {

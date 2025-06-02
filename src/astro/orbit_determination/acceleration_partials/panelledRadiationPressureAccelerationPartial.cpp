@@ -42,9 +42,9 @@ void PanelledRadiationPressurePartial::update( const double currentTime )
             double currentPanelArea = 0.0, currentPanelEmissivity = 0.0, cosineOfPanelInclination = 0.0;
         
             std::vector< double > illuminatedPanelFractions;
-            std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > allPanels = panelledTargetModel_->getAllRotatedPanels( );
+            std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > allPanels = panelledTargetModel_->getAllPanels( );
             auto selfShadowingPerSource = panelledTargetModel_->getSelfShadowingPerSources( );
-            if ( selfShadowingPerSource.count( acceleratingBody_ ) == 0 || selfShadowingPerSource.at( acceleratingBody_ )->getMaximumNumberOfPixels( ) == 0 )
+            if ( selfShadowingPerSource.count( acceleratingBody_ ) == 0 )
             {   
                 // SSH off
                 illuminatedPanelFractions = unityIlluminationFraction_;

@@ -26,7 +26,7 @@ namespace system_models
 
 bool firstDiscrimination( const std::shared_ptr< system_models::VehicleExteriorPanel > panel, const Eigen::Vector3d& v) 
 {
-    if ( panel->getFrameFixedSurfaceNormal( )( ).dot(v) < 0 ) 
+    if ( panel->getBodyFixedSurfaceNormal( )( ).dot(v) < 0 ) 
     {
         return 1;
     }
@@ -79,20 +79,27 @@ std::vector< bool > isTriangleInTriangle( const ParallelProjection& projection1,
                                                   projection2.getTriangle2d( ).getVertexC( ) };
     std::vector< bool > testPointsLambdaActuallyPositive = projection2.getAreLambdasActuallyPositive( );
     std::vector< bool > results( 3 );
+    Eigen::Vector2d testPoint;
+    Eigen::Vector2d pointA = projection1.getTriangle2d( ).getVertexA( );
+    Eigen::Vector2d pointB = projection1.getTriangle2d( ).getVertexB( );
+    Eigen::Vector2d pointC = projection1.getTriangle2d( ).getVertexC( );
+    double ymin, ymax, xmax;
+    double xIntersect;
+    int count;
+    bool resultToBeChecked;
+
     for ( int i=0; i<3; i++ )
     {
-        int count = 0;
-        Eigen::Vector2d testPoint = testPoints[i];
-        Eigen::Vector2d pointA = projection1.getTriangle2d( ).getVertexA( );
-        Eigen::Vector2d pointB = projection1.getTriangle2d( ).getVertexB( );
-        Eigen::Vector2d pointC = projection1.getTriangle2d( ).getVertexC( );
+        count = 0;
+        testPoint = testPoints[i];
+        
         // edge from pointA to pointB
         {
-            double ymin = (pointA( 1 ) < pointB( 1 )) ? pointA( 1 ) : pointB( 1 );
-            double ymax = (pointA( 1 ) < pointB( 1 )) ? pointB( 1 ) : pointA( 1 );
-            double xmax = (pointA( 0 ) > pointB( 0 )) ? pointA( 0 ) : pointB( 0 );
+            ymin = (pointA( 1 ) < pointB( 1 )) ? pointA( 1 ) : pointB( 1 );
+            ymax = (pointA( 1 ) < pointB( 1 )) ? pointB( 1 ) : pointA( 1 );
+            xmax = (pointA( 0 ) > pointB( 0 )) ? pointA( 0 ) : pointB( 0 );
             if ((testPoint( 1 ) > ymin) && (testPoint( 1 ) <= ymax) && (testPoint( 0 ) <= xmax)) {
-                double xIntersect = pointA( 0 ) + (testPoint( 1 ) - pointA( 1 )) * 
+                xIntersect = pointA( 0 ) + (testPoint( 1 ) - pointA( 1 )) * 
                 (pointB( 0 ) - pointA( 0 )) / (pointB( 1 ) - pointA( 1 ));
                 if (pointA( 0 ) == pointB( 0 ) || testPoint( 0 ) <= xIntersect)
                     count++;
@@ -100,14 +107,14 @@ std::vector< bool > isTriangleInTriangle( const ParallelProjection& projection1,
         }
         // edge from pointB to pointC
         {
-            double ymin = (pointB( 1 ) < pointC( 1 )) ? pointB( 1 ) : pointC( 1 );
-            double ymax = (pointB( 1 ) < pointC( 1 )) ? pointC( 1 ) : pointB( 1 );
-            double xmax = (pointB( 0 ) > pointC( 0 )) ? pointB( 0 ) : pointC( 0 );
+            ymin = (pointB( 1 ) < pointC( 1 )) ? pointB( 1 ) : pointC( 1 );
+            ymax = (pointB( 1 ) < pointC( 1 )) ? pointC( 1 ) : pointB( 1 );
+            xmax = (pointB( 0 ) > pointC( 0 )) ? pointB( 0 ) : pointC( 0 );
             if (ymax == ymin && testPoint( 1 ) == ymax) {
                 count++;
             }
             if ((testPoint( 1 ) > ymin) && (testPoint( 1 ) <= ymax) && (testPoint( 0 ) <= xmax)) {
-                double xIntersect = pointB( 0 ) + (testPoint( 1 ) - pointB( 1 )) * 
+                xIntersect = pointB( 0 ) + (testPoint( 1 ) - pointB( 1 )) * 
                 (pointC( 0 ) - pointB( 0 )) / (pointC( 1 ) - pointB( 1 ));
                 if (pointB( 0 ) == pointC( 0 ) || testPoint( 0 ) <= xIntersect)
                     count++;
@@ -115,17 +122,17 @@ std::vector< bool > isTriangleInTriangle( const ParallelProjection& projection1,
         }
         // edge from pointC to pointA
         {
-            double ymin = (pointC( 1 ) < pointA( 1 )) ? pointC( 1 ) : pointA( 1 );
-            double ymax = (pointC( 1 ) < pointA( 1 )) ? pointA( 1 ) : pointC( 1 );
-            double xmax = (pointC( 0 ) > pointA( 0 )) ? pointC( 0 ) : pointA( 0 );
+            ymin = (pointC( 1 ) < pointA( 1 )) ? pointC( 1 ) : pointA( 1 );
+            ymax = (pointC( 1 ) < pointA( 1 )) ? pointA( 1 ) : pointC( 1 );
+            xmax = (pointC( 0 ) > pointA( 0 )) ? pointC( 0 ) : pointA( 0 );
             if ((testPoint( 1 ) > ymin) && (testPoint( 1 ) <= ymax) && (testPoint( 0 ) <= xmax)) {
-                double xIntersect = pointC( 0 ) + (testPoint( 1 ) - pointC( 1 )) * 
+                xIntersect = pointC( 0 ) + (testPoint( 1 ) - pointC( 1 )) * 
                 (pointA( 0 ) - pointC( 0 )) / (pointA( 1 ) - pointC( 1 ));
                 if (pointC( 0 ) == pointA( 0 ) || testPoint( 0 ) <= xIntersect)
                     count++;
             }
         }
-        bool resultToBeChecked = ( count & 1 ) != 0;
+        resultToBeChecked = ( count & 1 ) != 0;
         results[ i ] = ( testPointsLambdaActuallyPositive[ i ] ) ? resultToBeChecked : false; 
     }
     return results;
@@ -138,43 +145,52 @@ bool isPointInTriangle( const ParallelProjection& projection_,
     Eigen::Vector2d pointB = projection_.getTriangle2d( ).getVertexB( );
     Eigen::Vector2d pointC = projection_.getTriangle2d( ).getVertexC( );
     int count = 0;
+    double ymin, ymax, xmax;
+    double xIntersect;
     // edge from pointA to pointB
     {
-        double ymin = (pointA( 1 ) < pointB( 1 )) ? pointA( 1 ) : pointB( 1 );
-        double ymax = (pointA( 1 ) < pointB( 1 )) ? pointB( 1 ) : pointA( 1 );
-        double xmax = (pointA( 0 ) > pointB( 0 )) ? pointA( 0 ) : pointB( 0 );
+        ymin = (pointA( 1 ) < pointB( 1 )) ? pointA( 1 ) : pointB( 1 );
+        ymax = (pointA( 1 ) < pointB( 1 )) ? pointB( 1 ) : pointA( 1 );
+        xmax = (pointA( 0 ) > pointB( 0 )) ? pointA( 0 ) : pointB( 0 );
         if ((coordM > ymin) && (coordM <= ymax) && (coordL <= xmax)) {
-            double xIntersect = pointA( 0 ) + (coordM - pointA( 1 )) * 
+            xIntersect = pointA( 0 ) + (coordM - pointA( 1 )) * 
             (pointB( 0 ) - pointA( 0 )) / (pointB( 1 ) - pointA( 1 ));
             if (pointA( 0 ) == pointB( 0 ) || coordL <= xIntersect)
+            {
                 count++;
+            }
         }
     }
     // edge from pointB to pointC
     {
-        double ymin = (pointB( 1 ) < pointC( 1 )) ? pointB( 1 ) : pointC( 1 );
-        double ymax = (pointB( 1 ) < pointC( 1 )) ? pointC( 1 ) : pointB( 1 );
-        double xmax = (pointB( 0 ) > pointC( 0 )) ? pointB( 0 ) : pointC( 0 );
+        ymin = (pointB( 1 ) < pointC( 1 )) ? pointB( 1 ) : pointC( 1 );
+        ymax = (pointB( 1 ) < pointC( 1 )) ? pointC( 1 ) : pointB( 1 );
+        xmax = (pointB( 0 ) > pointC( 0 )) ? pointB( 0 ) : pointC( 0 );
         if (ymax == ymin && coordM == ymax) {
             count++;
         }
         if ((coordM > ymin) && (coordM <= ymax) && (coordL <= xmax)) {
-            double xIntersect = pointB( 0 ) + (coordM - pointB( 1 )) * 
+            xIntersect = pointB( 0 ) + (coordM - pointB( 1 )) * 
             (pointC( 0 ) - pointB( 0 )) / (pointC( 1 ) - pointB( 1 ));
             if (pointB( 0 ) == pointC( 0 ) || coordL <= xIntersect)
+            {
                 count++;
+            }
+            
         }
     }
     // edge from pointC to pointA
     {
-        double ymin = (pointC( 1 ) < pointA( 1 )) ? pointC( 1 ) : pointA( 1 );
-        double ymax = (pointC( 1 ) < pointA( 1 )) ? pointA( 1 ) : pointC( 1 );
-        double xmax = (pointC( 0 ) > pointA( 0 )) ? pointC( 0 ) : pointA( 0 );
+        ymin = (pointC( 1 ) < pointA( 1 )) ? pointC( 1 ) : pointA( 1 );
+        ymax = (pointC( 1 ) < pointA( 1 )) ? pointA( 1 ) : pointC( 1 );
+        xmax = (pointC( 0 ) > pointA( 0 )) ? pointC( 0 ) : pointA( 0 );
         if ((coordM > ymin) && (coordM <= ymax) && (coordL <= xmax)) {
-            double xIntersect = pointC( 0 ) + (coordM - pointC( 1 )) * 
+            xIntersect = pointC( 0 ) + (coordM - pointC( 1 )) * 
             (pointA( 0 ) - pointC( 0 )) / (pointA( 1 ) - pointC( 1 ));
             if (pointC( 0 ) == pointA( 0 ) || coordL <= xIntersect)
+            {
                 count++;
+            }  
         }
     }
     return ( count & 1 ) != 0;
@@ -223,97 +239,115 @@ bool doEdgesIntersect(const Eigen::Vector2d& edge1Start, const Eigen::Vector2d& 
 }
 // accelerated version of the ray-cast PIP algorithm, optimized for large number of points, extremely useful during pixelation
 // same exact logic but checks all the points on a line parallel to the ray direction, checking the intersection with the edges, instead of all the points one by one
-std::vector< std::vector< int > > arePointsInTriangle( const ParallelProjection& projection_, 
-    const std::vector<double>& gridCoordinatesL_, const std::vector<double>& gridCoordinatesM_,
-    const std::vector< std::vector < int > >& pixelationMatrix_,
+void arePointsInTriangle( const ParallelProjection& projection_, 
+    const std::vector< double >& gridCoordinatesL_, const std::vector< double >& gridCoordinatesM_,
+    std::vector< int >& pixelationMatrix_,
     int indexMinL_, int indexMaxL_, int indexMinM_, int indexMaxM_ )
 {   
-    std::vector< std::vector < int > > pixelationMatrixUpdated = pixelationMatrix_;
+    int len = gridCoordinatesL_.size( );
     int value = 1;
     if ( indexMaxL_ == -1 )
     {
-        indexMaxL_ = gridCoordinatesL_.size( );
+        indexMaxL_ = len;
         value = 0;
     }
     if ( indexMaxM_ == -1 )
     {
         indexMaxM_ = gridCoordinatesM_.size( );
     }
+    double coordM;
+    const Eigen::Vector2d pointA = projection_.getTriangle2d( ).getVertexA( );
+    const Eigen::Vector2d pointB = projection_.getTriangle2d( ).getVertexB( );
+    const Eigen::Vector2d pointC = projection_.getTriangle2d( ).getVertexC( );
+
+    double minLab = (pointA( 1 ) < pointB( 1 )) ? pointA( 1 ) : pointB( 1 );
+    double maxLab = (pointA( 1 ) < pointB( 1 )) ? pointB( 1 ) : pointA( 1 );
+    double minLbc = (pointB( 1 ) < pointC( 1 )) ? pointB( 1 ) : pointC( 1 );
+    double maxLbc = (pointB( 1 ) < pointC( 1 )) ? pointC( 1 ) : pointB( 1 );
+    double minLca = (pointC( 1 ) < pointA( 1 )) ? pointC( 1 ) : pointA( 1 );
+    double maxLca = (pointC( 1 ) < pointA( 1 )) ? pointA( 1 ) : pointC( 1 );
+    double xIntersect;
+    double minIntersection, maxIntersection;
+    std::vector< double > intersections( 2 );
+    int numberOfIntersections;
     
     for ( int i=indexMinM_; i<indexMaxM_; i++ )
     {
         // loop over all y-parallel rays
-        const double coordM = gridCoordinatesM_[i];
-        const Eigen::Vector2d pointA = projection_.getTriangle2d( ).getVertexA( );
-        const Eigen::Vector2d pointB = projection_.getTriangle2d( ).getVertexB( );
-        const Eigen::Vector2d pointC = projection_.getTriangle2d( ).getVertexC( );
-        std::vector< double > intersections;
-
+        coordM = gridCoordinatesM_[i];
+        numberOfIntersections = 0;
         // edge 1
-        double minLab = (pointA( 1 ) < pointB( 1 )) ? pointA( 1 ) : pointB( 1 );
-        double maxLab = (pointA( 1 ) < pointB( 1 )) ? pointB( 1 ) : pointA( 1 );
         if ((coordM > minLab) && (coordM <= maxLab)) {
-            double xIntersect = pointA( 0 ) + (coordM - pointA( 1 )) * (pointB( 0 ) - pointA( 0 )) / (pointB( 1 ) - pointA( 1 ));
-            intersections.push_back(xIntersect);
+            xIntersect = pointA( 0 ) + (coordM - pointA( 1 )) * (pointB( 0 ) - pointA( 0 )) / (pointB( 1 ) - pointA( 1 ));
+            intersections[ numberOfIntersections ] = xIntersect;
+            numberOfIntersections += 1;
         }
         // edge 2
-        double minLbc = (pointB( 1 ) < pointC( 1 )) ? pointB( 1 ) : pointC( 1 );
-        double maxLbc = (pointB( 1 ) < pointC( 1 )) ? pointC( 1 ) : pointB( 1 );
         if ((coordM > minLbc) && (coordM <= maxLbc)) {
-            double xIntersect = pointB( 0 ) + (coordM - pointB( 1 )) * (pointC( 0 ) - pointB( 0 )) / (pointC( 1 ) - pointB( 1 ));
-            intersections.push_back(xIntersect);
+            xIntersect = pointB( 0 ) + (coordM - pointB( 1 )) * (pointC( 0 ) - pointB( 0 )) / (pointC( 1 ) - pointB( 1 ));
+            intersections[ numberOfIntersections ] = xIntersect;
+            numberOfIntersections += 1;
         }
         // edge 3
-        double minLca = (pointC( 1 ) < pointA( 1 )) ? pointC( 1 ) : pointA( 1 );
-        double maxLca = (pointC( 1 ) < pointA( 1 )) ? pointA( 1 ) : pointC( 1 );
         if ((coordM > minLca) && (coordM <= maxLca)) {
-            double xIntersect = pointC( 0 ) + (coordM - pointC( 1 )) * (pointA( 0 ) - pointC( 0 )) / (pointA( 1 ) - pointC( 1 ));
-            intersections.push_back(xIntersect);
+            xIntersect = pointC( 0 ) + (coordM - pointC( 1 )) * (pointA( 0 ) - pointC( 0 )) / (pointA( 1 ) - pointC( 1 ));
+            intersections[ numberOfIntersections ] = xIntersect;
+            numberOfIntersections += 1;
         }
-        if (intersections.empty()) {
+        if ( numberOfIntersections != 2 ) {
             continue;
         }
-        double minIntersection = *std::min_element(intersections.begin(), intersections.end());
-        double maxIntersection = *std::max_element(intersections.begin(), intersections.end());
-        for (int j = indexMinL_; j<indexMaxL_; j++)
-        {
-            if ( gridCoordinatesL_.at( j ) >= minIntersection && gridCoordinatesL_.at( j ) <= maxIntersection && 
-                value == 0)
-            {
-                pixelationMatrixUpdated.at( i ).at( j ) = value;
+        minIntersection = std::min(intersections[0], intersections[1]);
+        maxIntersection = std::max(intersections[0], intersections[1]);
+
+        if (value == 0) {
+            for (int j = indexMinL_; j < indexMaxL_; j++) {
+                if (gridCoordinatesL_[j] >= minIntersection && gridCoordinatesL_[j] <= maxIntersection) {
+                    pixelationMatrix_[ i * len + j] = 0;
+                }
             }
-            if ( gridCoordinatesL_.at( j ) >= minIntersection && gridCoordinatesL_.at( j ) <= maxIntersection && 
-                value == 1 && pixelationMatrixUpdated.at( i ).at( j ) == 0)
-            {
-                pixelationMatrixUpdated.at( i ).at( j ) = value;
+        } else { // value == 1
+            for (int j = indexMinL_; j < indexMaxL_; j++) {
+                if (gridCoordinatesL_[j] >= minIntersection && gridCoordinatesL_[j] <= maxIntersection && 
+                    pixelationMatrix_[ i * len + j] == 0) {
+                    pixelationMatrix_[ i * len + j] = 1;
+                }
             }
         }
     }
-    return pixelationMatrixUpdated;
 
 }
 // algorithm from "SELF-SHADOWING OF A SPACECRAFT IN THE COMPUTATION OF SURFACE FORCES. AN EXAMPLE IN PLANETARY GEODESY" (Balmino et al., 2018)
 // section 4.3.3 "General case:pixellation"
-std::vector< double > computeFractioWithPixelation( const std::vector<std::vector<int>>& sigmaMatrix_, 
+std::vector< double > computeFractionWithPixelation( const std::vector< std::vector< int > >& sigmaMatrix_, 
     const std::vector< std::shared_ptr< VehicleExteriorPanel > >& allPanels_, 
     const int maximumNumberOfPixels_, const std::vector< std::vector < ParallelProjection > >& projections_, 
-    const std::vector< int > toBePixelated_ )
+    const std::vector< int >& toBePixelated_ )
 {
     std::vector< double > fractions( toBePixelated_.size( ) );
     std::vector< double > gridCoordinatesL, gridCoordinatesM;
+    int index;
+    double minL, maxL, minM, maxM;
+    double deltaL, deltaM;
+    double numberM, numberL;
+    double sizeL, sizeM;
+    int indexMinL, indexMaxL, indexMinM, indexMaxM;
+    double fractionOnes, fractionZeros;
+    std::vector< int > pixelationMatrix;
+    ParallelProjection selfProjection;
     for ( int i=0; i<static_cast< int >( toBePixelated_.size( ) ); i++ )
     {
-        int index = toBePixelated_.at( i );
-        double minL = allPanels_.at( index )->getSelfProjection( ).getMinimumL( );
-        double maxL = allPanels_.at( index )->getSelfProjection( ).getMaximumL( );
-        double minM = allPanels_.at( index )->getSelfProjection( ).getMinimumM( );
-        double maxM = allPanels_.at( index )->getSelfProjection( ).getMaximumM( );
+        index = toBePixelated_[ i ];
+        selfProjection = allPanels_[ index ]->getSelfProjection( );
+        minL = selfProjection.getMinimumL( );
+        maxL = selfProjection.getMaximumL( );
+        minM = selfProjection.getMinimumM( );
+        maxM = selfProjection.getMaximumM( );
 
-        double deltaL = maxL - minL;
-        double deltaM = maxM - minM;
+        deltaL = maxL - minL;
+        deltaM = maxM - minM;
 
         // choosing number of pixels
-        double numberM, numberL;
         if (deltaM>=deltaL) {
             numberM = static_cast< double >( maximumNumberOfPixels_ );
             numberL = static_cast< double >( std::max(2, static_cast< int >(std::round( numberM * deltaL/deltaM))));
@@ -322,60 +356,53 @@ std::vector< double > computeFractioWithPixelation( const std::vector<std::vecto
             numberL = static_cast< double >( maximumNumberOfPixels_ );
             numberM = static_cast< double >( std::max(2, static_cast< int >(std::round( numberL * deltaM/deltaL))));
         }
-        double sizeL = deltaL / numberL;
-        double sizeM = deltaM / numberM;
+        sizeL = deltaL / numberL;
+        sizeM = deltaM / numberM;
         // creating the grid
-        gridCoordinatesL = linspace(minL + sizeL/2, maxL - sizeL/2, numberL );
-        gridCoordinatesM = linspace(minM + sizeM/2, maxM - sizeM/2, numberM );
-        // initialize pixelation matrix with -1 values (W in literature)
-        std::vector< std::vector< int > > pixelationMatrix( gridCoordinatesM.size(), std::vector< int >(gridCoordinatesL.size(), -1));
-        // apply PIP to shadowed plate to find its discretized surface (assign value of 0)
-        pixelationMatrix = arePointsInTriangle( allPanels_.at( index )->getSelfProjection( ), 
-            gridCoordinatesL, gridCoordinatesM, pixelationMatrix );
+        gridCoordinatesL = linspace(minL + sizeL/2, maxL - sizeL/2, numberL, gridCoordinatesL );
+        gridCoordinatesM = linspace(minM + sizeM/2, maxM - sizeM/2, numberM, gridCoordinatesM );
+        // resize and reset pixelation matrix to dummy value -1
+        if ( pixelationMatrix.size( ) != gridCoordinatesM.size( ) * gridCoordinatesL.size( ) )
+        {
+            pixelationMatrix.resize( gridCoordinatesM.size( ) * gridCoordinatesL.size( ) );
+        }
+        std::fill( pixelationMatrix.begin( ), pixelationMatrix.end( ), -1 );
 
+        // apply PIP to shadowed plate to find its discretized surface (assign value of 0)
+        arePointsInTriangle( allPanels_.at( index )->getSelfProjection( ), gridCoordinatesL, gridCoordinatesM, pixelationMatrix );
+
+        ParallelProjection projection;
         for ( int j = 0; j< static_cast< int >( sigmaMatrix_.size( ) ); j++)
         {
-            if (sigmaMatrix_.at( index ).at( j ) != 0)
+            if (sigmaMatrix_[ index ][ j ] != 0)
             {
                 continue;
             }
             // resize pixelation grid to accelerate the process
-            int indexMinL = clamp(static_cast< int >( 
-                std::floor((projections_.at( index ).at( j ).getMinimumL( )-minL)/sizeL)) - 1, 0, static_cast< int >( numberL ) - 1);
-            int indexMaxL = clamp(static_cast< int >( 
-                std::ceil((projections_.at( index ).at( j ).getMaximumL( )-minL)/sizeL)) + 1, indexMinL + 1, static_cast< int >( numberL ));
-            int indexMinM = clamp(static_cast< int >(
-                std::floor((projections_.at( index ).at( j ).getMinimumM( )-minM)/sizeM)) - 1, 0, static_cast< int >( numberM ) - 1);
-            int indexMaxM = clamp(static_cast< int >(
-                std::ceil((projections_.at( index ).at( j ).getMaximumM( )-minM)/sizeM)) + 1, indexMinM + 1, static_cast< int >( numberM ));
+            projection = projections_[ index ][ j ] ;
+            indexMinL = clamp(static_cast< int >( 
+                std::floor((projection.getMinimumL( )-minL)/sizeL)) - 1, 0, static_cast< int >( numberL ) - 1);
+            indexMaxL = clamp(static_cast< int >( 
+                std::ceil((projection.getMaximumL( )-minL)/sizeL)) + 1, indexMinL + 1, static_cast< int >( numberL ));
+            indexMinM = clamp(static_cast< int >(
+                std::floor((projection.getMinimumM( )-minM)/sizeM)) - 1, 0, static_cast< int >( numberM ) - 1);
+            indexMaxM = clamp(static_cast< int >(
+                std::ceil((projection.getMaximumM( )-minM)/sizeM)) + 1, indexMinM + 1, static_cast< int >( numberM ));
             // apply PIP to shadowing and update pixelation matrix (assign value of 1)  
-            pixelationMatrix = arePointsInTriangle(projections_.at( index ).at( j ), 
-                gridCoordinatesL, gridCoordinatesM, pixelationMatrix, indexMinL, indexMaxL, indexMinM, indexMaxM);
+            arePointsInTriangle(projection, gridCoordinatesL, gridCoordinatesM, pixelationMatrix, 
+                indexMinL, indexMaxL, indexMinM, indexMaxM);
         }
-        double fractionOnes = 0;
-        for (int p = 0; p< static_cast< int >( gridCoordinatesM.size() ); p++) 
+        fractionOnes = 0;
+        fractionZeros = 0;
+        int val;
+        for ( unsigned int i = 0; i < pixelationMatrix.size( ); i++) 
         {
-            for (int q = 0; q< static_cast< int >( gridCoordinatesL.size() ); q++) 
-            {
-                if (pixelationMatrix.at( p ).at( q ) == 1) 
-                {
-                    fractionOnes++;
-                }
-            }
+            val = pixelationMatrix[ i ];
+            fractionOnes += (val == 1);
+            fractionZeros += (val == 0);
         }
-        double fractionZeros = 0;
-        for (int p = 0; p< static_cast< int >( gridCoordinatesM.size() ); p++) 
-        {
-            for (int q = 0; q< static_cast< int >( gridCoordinatesL.size() ); q++) 
-            {
-                if (pixelationMatrix.at( p ).at( q ) == 0) 
-                {
-                    fractionZeros++;
-                }
-            }
-        }
-        
-        fractions.at( i ) = clamp( 1 - fractionOnes / (fractionOnes + fractionZeros ), 0.0, 1.0 );
+
+        fractions[ i ] = clamp( 1 - fractionOnes / (fractionOnes + fractionZeros ), 0.0, 1.0 );
     }
     return fractions;
 }
@@ -388,7 +415,7 @@ void SelfShadowing::updateIlluminatedPanelFractions( const Eigen::Vector3d& inco
     {
         int numberOfPanels = allPanels_.size( );
         // initialize sigma matrix for discrimination logic (-2 dummy value, -1 no-sh, 0 partial sh, 1 full sh)
-        std::vector<std::vector< int >> sigmaMatrix(numberOfPanels, std::vector< int >(numberOfPanels, -2));
+        std::vector<std::vector< int > > sigmaMatrix( numberOfPanels, std::vector< int >( numberOfPanels, -2 ) );
         // first discrimination
         std::vector< int > firstDiscriminationIndexes;
         for (int i = 0; i < numberOfPanels; i++) {
@@ -443,6 +470,7 @@ void SelfShadowing::updateIlluminatedPanelFractions( const Eigen::Vector3d& inco
         double t, lZero, mZero;
         Eigen::Vector2d startEdgeShadowing, endEdgeShadowing;
         const double EPSILON = 1e-12;
+        ParallelProjection selfProjection;
         // exclusion logic algorithm
         for ( int i = 0; i<numberOfPanels; i++ )
         {
@@ -457,24 +485,24 @@ void SelfShadowing::updateIlluminatedPanelFractions( const Eigen::Vector3d& inco
                 {
                     continue;
                 }
-                ParallelProjection projection( allPanels_.at( i )->getTriangle3d( ), allPanels_.at( j )->getTriangle3d( ), incomingDirection );
+                ParallelProjection projection( allPanels_.at( i )->getBodyFixedTriangle3d( ), allPanels_.at( j )->getBodyFixedTriangle3d( ), incomingDirection );
                 if ( secondDiscrimination( projection ) )
                 {
                     // testing for those panels that yield p-sh (this case)
                         // first test: min/max coordinates
-                    if ( projection.getMinimumL( ) >= allPanels_.at( i )->getSelfProjection( ).getMaximumL( ) - EPSILON ||
-                         projection.getMaximumL( ) <= allPanels_.at( i )->getSelfProjection( ).getMinimumL( ) + EPSILON ||
-                         projection.getMinimumM( ) >= allPanels_.at( i )->getSelfProjection( ).getMaximumM( ) - EPSILON ||
-                         projection.getMaximumM( ) <= allPanels_.at( i )->getSelfProjection( ).getMinimumM( ) + EPSILON)
+                    selfProjection = allPanels_.at( i )->getSelfProjection( );
+                    if ( projection.getMinimumL( ) >= selfProjection.getMaximumL( ) - EPSILON ||
+                         projection.getMaximumL( ) <= selfProjection.getMinimumL( ) + EPSILON ||
+                         projection.getMinimumM( ) >= selfProjection.getMaximumM( ) - EPSILON ||
+                         projection.getMaximumM( ) <= selfProjection.getMinimumM( ) + EPSILON )
                     {
                         sigmaMatrix.at( i ).at( j ) = -1; // no-sh
                     }
                     else
                     {
                         // second test: use PIP algorithms
-                        shadowingInShadowed = isTriangleInTriangle( allPanels_.at( i )->getSelfProjection( ),
-                                                                    projection );
-                        shadowedInShadowing = isTriangleInTriangle( projection, allPanels_.at( i )->getSelfProjection( ) );
+                        shadowingInShadowed = isTriangleInTriangle( selfProjection, projection );
+                        shadowedInShadowing = isTriangleInTriangle( projection, selfProjection );
                         if ( std::any_of( shadowingInShadowed.begin( ), shadowingInShadowed.end( ), [](bool x) { return x; }))
                         {
                             // at least one vertix of the shadowing panel falls into the shadowed, partial sh
@@ -607,14 +635,14 @@ void SelfShadowing::updateIlluminatedPanelFractions( const Eigen::Vector3d& inco
             for (int i = 0; i<numberOfThreads-1; i++) {
                 std::vector<int> indexes( toBePixelated.begin() + i*chunk, toBePixelated.begin() + (i+1)*chunk);
                 threads.emplace_back([&, i, indexes]() {
-                    results[ i ] = computeFractioWithPixelation( sigmaMatrix, allPanels_, maximumNumberOfPixels_, projections,
+                    results[ i ] = computeFractionWithPixelation( sigmaMatrix, allPanels_, maximumNumberOfPixels_, projections,
                                                         indexes );
                 });
             }
             int i = numberOfThreads - 1;
             std::vector<int> indexes(toBePixelated.begin() + i*chunk, toBePixelated.end());
             threads.emplace_back([&, i, indexes]() {
-                results[numberOfThreads-1] = computeFractioWithPixelation( sigmaMatrix, allPanels_, maximumNumberOfPixels_, projections,
+                results[numberOfThreads-1] = computeFractionWithPixelation( sigmaMatrix, allPanels_, maximumNumberOfPixels_, projections,
                     indexes );
             });
             for (auto& th : threads)
@@ -635,8 +663,8 @@ void SelfShadowing::updateIlluminatedPanelFractions( const Eigen::Vector3d& inco
         else
         {
             // default option for single-threading
-            std::vector<double> finalResults = computeFractioWithPixelation( sigmaMatrix, allPanels_, maximumNumberOfPixels_, projections,
-                toBePixelated );
+            std::vector<double> finalResults = computeFractionWithPixelation( sigmaMatrix, allPanels_, 
+                maximumNumberOfPixels_, projections, toBePixelated );
             for (int i = 0; i<numberOfPanelsToBePixelated; i++)
             {
                 illuminatedPanelFractions.at( toBePixelated.at( i ) ) = finalResults.at( i );
