@@ -108,8 +108,10 @@ public:
             const std::function< Eigen::Quaterniond( ) >& toLocalFrameOfBodyExertingAccelerationTransformation,
             const std::function< Eigen::Quaterniond( ) >& toLocalFrameOfBodyUndergoingAccelerationTransformation,
             const bool useCentralBodyFixedFrame,
-            const basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCacheOfBodyExertingAcceleration = basic_mathematics::SphericalHarmonicsCache( ),
-            const basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCacheOfBodyUndergoingAcceleration = basic_mathematics::SphericalHarmonicsCache( ) ):
+            const basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCacheOfBodyExertingAcceleration =
+                    basic_mathematics::SphericalHarmonicsCache( ),
+            const basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCacheOfBodyUndergoingAcceleration =
+                    basic_mathematics::SphericalHarmonicsCache( ) ):
         useCentralBodyFixedFrame_( useCentralBodyFixedFrame ), gravitationalParameterFunction_( gravitationalParameterFunction )
     {
         // Create spherical harmonic acceleration due to expansion of body exerting acceleration
