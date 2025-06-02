@@ -429,7 +429,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                                 }
                             }
 
-                            if( paneledRadiationPressureTargetModel->getSegmentFixedPanels( ).size( ) > 0 )
+                            if( paneledRadiationPressureTargetModel->getTotalNumberOfPanels( ) > 0 )
                             {
                                 singleAccelerationUpdateNeeds[ body_segment_orientation_update ].push_back( targetName );
                             }
