@@ -30,8 +30,7 @@ SphericalHarmonicsGravityPartial::SphericalHarmonicsGravityPartial(
         const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials,
         const std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >& tidalLoveNumberPartialInterfaces ):
     AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::spherical_harmonic_gravity ),
-    accelerationModel_( accelerationModel ),
-    sphericalHarmonicCache_( accelerationModel->getSphericalHarmonicsCache( ) ),
+    accelerationModel_( accelerationModel ), sphericalHarmonicCache_( accelerationModel->getSphericalHarmonicsCache( ) ),
     rotationMatrixPartials_( rotationMatrixPartials ), tidalLoveNumberPartialInterfaces_( tidalLoveNumberPartialInterfaces ),
     cosineSphericalHarmonicsBlock( accelerationModel->getCurrentCosineCoefficients( ) ),
     sineSphericalHarmonicsBlock( accelerationModel->getCurrentSineCoefficients( ) ),
@@ -419,13 +418,13 @@ void SphericalHarmonicsGravityPartial::update( const double currentTime )
         // Calculate Cartesian position in frame fixed to body exerting acceleration
         currentRotationToInertialFrame_ = accelerationModel_->getCurrentRotationToIntegrationFrame( ).toRotationMatrix( );
         currentRotationToBodyFixedFrame_ = currentRotationToInertialFrame_.transpose( );
-        bodyFixedPosition_ =
-                currentRotationToBodyFixedFrame_ * ( accelerationModel_->getCurrentPositionOfBodySubjectToAcceleration( ) - accelerationModel_->getCurrentPositionOfBodyExertingAcceleration( ) );
+        bodyFixedPosition_ = currentRotationToBodyFixedFrame_ *
+                ( accelerationModel_->getCurrentPositionOfBodySubjectToAcceleration( ) -
+                  accelerationModel_->getCurrentPositionOfBodyExertingAcceleration( ) );
 
         // Calculate spherical position in frame fixed to body exerting acceleration
         bodyFixedSphericalPosition_ = convertCartesianToSpherical( bodyFixedPosition_ );
         bodyFixedSphericalPosition_( 1 ) = mathematical_constants::PI / 2.0 - bodyFixedSphericalPosition_( 1 );
-
 
         // Calculate partial of acceleration wrt position of body undergoing acceleration.
         currentBodyFixedPartialWrtPosition_ =
@@ -454,12 +453,15 @@ void SphericalHarmonicsGravityPartial::update( const double currentTime )
             if( cosineSphericalHarmonicsBlock.getEnablePointMass( ) )
             {
                 nonCentralAcceleration -= gravitation::computeGravitationalAcceleration(
-                        accelerationModel_->getCurrentPositionOfBodySubjectToAcceleration( ), accelerationModel_->getCurrentGravitationalParameter( ), accelerationModel_->getCurrentPositionOfBodyExertingAcceleration( ) );
+                        accelerationModel_->getCurrentPositionOfBodySubjectToAcceleration( ),
+                        accelerationModel_->getCurrentGravitationalParameter( ),
+                        accelerationModel_->getCurrentPositionOfBodyExertingAcceleration( ) );
 
                 nonCentralBodyFixedPartial -= currentRotationToBodyFixedFrame_ *
-                        calculatePartialOfPointMassGravityWrtPositionOfAcceleratedBody( accelerationModel_->getCurrentPositionOfBodySubjectToAcceleration( ),
-                                                                                        accelerationModel_->getCurrentPositionOfBodyExertingAcceleration( ),
-                                                                                        accelerationModel_->getCurrentGravitationalParameter( ) ) *
+                        calculatePartialOfPointMassGravityWrtPositionOfAcceleratedBody(
+                                                      accelerationModel_->getCurrentPositionOfBodySubjectToAcceleration( ),
+                                                      accelerationModel_->getCurrentPositionOfBodyExertingAcceleration( ),
+                                                      accelerationModel_->getCurrentGravitationalParameter( ) ) *
                         currentRotationToBodyFixedFrame_.inverse( );
             }
 
@@ -476,12 +478,14 @@ void SphericalHarmonicsGravityPartial::update( const double currentTime )
 
                 currentPartialWrtPosition_.block( 0, i, 3, 1 ) -= currentRotationToBodyFixedFrame_.inverse( ) * nonCentralBodyFixedPartial *
                         ( rotationPositionPartials.at( i ).transpose( ) *
-                          ( accelerationModel_->getCurrentPositionOfBodySubjectToAcceleration( ) - accelerationModel_->getCurrentPositionOfBodyExertingAcceleration( ) ) );
+                          ( accelerationModel_->getCurrentPositionOfBodySubjectToAcceleration( ) -
+                            accelerationModel_->getCurrentPositionOfBodyExertingAcceleration( ) ) );
                 currentPartialWrtVelocity_.block( 0, i, 3, 1 ) -=
                         rotationPositionPartials.at( i + 3 ) * ( currentRotationToBodyFixedFrame_ * nonCentralAcceleration );
                 //                        currentRotationToBodyFixedFrame_.inverse( ) * nonCentralBodyFixedPartial *
                 //                        ( rotationPositionPartials.at( i + 3 ).transpose( ) *
-                //                          ( accelerationModel_->getCurrentPositionOfBodySubjectToAcceleration( ) - accelerationModel_->getCurrentPositionOfBodyExertingAcceleration( ) ) );
+                //                          ( accelerationModel_->getCurrentPositionOfBodySubjectToAcceleration( ) -
+                //                          accelerationModel_->getCurrentPositionOfBodyExertingAcceleration( ) ) );
             }
         }
 
@@ -654,7 +658,8 @@ void SphericalHarmonicsGravityPartial::wrtRotationModelParameter( Eigen::MatrixX
                                                                   const std::string& secondaryIdentifier )
 {
     // Calculate distance vector between bodies.
-    Eigen::Vector3d distanceVector = accelerationModel_->getCurrentPositionOfBodySubjectToAcceleration( ) - accelerationModel_->getCurrentPositionOfBodyExertingAcceleration( );
+    Eigen::Vector3d distanceVector = accelerationModel_->getCurrentPositionOfBodySubjectToAcceleration( ) -
+            accelerationModel_->getCurrentPositionOfBodyExertingAcceleration( );
 
     // Get rotation matrix partial(s) wrt requested parameter
     std::vector< Eigen::Matrix3d > rotationMatrixPartials =
@@ -666,9 +671,9 @@ void SphericalHarmonicsGravityPartial::wrtRotationModelParameter( Eigen::MatrixX
     {
         // Calculate acceleration partial for current parameter entry.
         accelerationPartial.block( 0, i, 3, 1 ) =
-                rotationMatrixPartials[ i ] * ( currentRotationToBodyFixedFrame_ ) * accelerationModel_->getAcceleration( ) +
-                currentRotationToInertialFrame_ * currentBodyFixedPartialWrtPosition_ *
-                        rotationMatrixPartials[ i ].transpose( ) * distanceVector;
+                rotationMatrixPartials[ i ] * (currentRotationToBodyFixedFrame_)*accelerationModel_->getAcceleration( ) +
+                currentRotationToInertialFrame_ * currentBodyFixedPartialWrtPosition_ * rotationMatrixPartials[ i ].transpose( ) *
+                        distanceVector;
     }
 }
 

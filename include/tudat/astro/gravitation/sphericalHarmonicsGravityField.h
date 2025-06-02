@@ -40,27 +40,29 @@ namespace gravitation
 class SphericalHarmonicsBlock
 {
 public:
-
-    SphericalHarmonicsBlock( const std::function< Eigen::MatrixXd&( ) > matrixUpdateFunction,
-                             const int rows, const int columns ):
-        matrixUpdateFunction_( matrixUpdateFunction ), matrix_( matrixUpdateFunction_( ) ), enablePointMass_( true ), rows_( rows ), columns_( columns )
-    {
-
-    }
+    SphericalHarmonicsBlock( const std::function< Eigen::MatrixXd&( ) > matrixUpdateFunction, const int rows, const int columns ):
+        matrixUpdateFunction_( matrixUpdateFunction ), matrix_( matrixUpdateFunction_( ) ), enablePointMass_( true ), rows_( rows ),
+        columns_( columns )
+    { }
 
     SphericalHarmonicsBlock( Eigen::MatrixXd& matrix ):
         matrixUpdateFunction_( nullptr ), matrix_( matrix ), enablePointMass_( true ), rows_( matrix.rows( ) ), columns_( matrix.cols( ) )
+    { }
+
+    inline double operator( )( int i, int j ) const
     {
+        return ( i == 0 && j == 0 ) ? getPointMassTerm( ) : matrix_( i, j );
     }
 
-    inline double operator( )(int i, int j) const
+    inline int rows( ) const
     {
-        return (i == 0 && j == 0 ) ? getPointMassTerm( ) : matrix_(i, j);
+        return rows_;
     }
 
-    inline int rows() const { return rows_; }
-
-    inline int cols() const { return columns_; }
+    inline int cols( ) const
+    {
+        return columns_;
+    }
 
     void update( )
     {
@@ -81,11 +83,13 @@ public:
     }
 
 private:
-
-    double getPointMassTerm( ) const { return enablePointMass_ ?  matrix_( 0, 0 ) : 0.0 ; }
+    double getPointMassTerm( ) const
+    {
+        return enablePointMass_ ? matrix_( 0, 0 ) : 0.0;
+    }
 
     std::function< Eigen::MatrixXd&( ) > matrixUpdateFunction_;
-    
+
     Eigen::MatrixXd& matrix_;
 
     bool enablePointMass_;
@@ -93,7 +97,6 @@ private:
     const int rows_;
 
     const int columns_;
-
 };
 
 //! Compute gravitational acceleration due to multiple spherical harmonics terms, defined using
@@ -164,9 +167,9 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
 
     // Declare spherical position vector.
     Eigen::Vector3d sphericalpositionOfBodySubjectToAcceleration =
-        coordinate_conversions::convertCartesianToSpherical( positionOfBodySubjectToAcceleration );
+            coordinate_conversions::convertCartesianToSpherical( positionOfBodySubjectToAcceleration );
     sphericalpositionOfBodySubjectToAcceleration( 1 ) =
-        mathematical_constants::PI / 2.0 - sphericalpositionOfBodySubjectToAcceleration( 1 );
+            mathematical_constants::PI / 2.0 - sphericalpositionOfBodySubjectToAcceleration( 1 );
 
     double sineOfAngle = std::sin( sphericalpositionOfBodySubjectToAcceleration( 1 ) );
     sphericalHarmonicsCache.update( sphericalpositionOfBodySubjectToAcceleration( 0 ),
@@ -184,7 +187,7 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
     Eigen::Vector3d sphericalGradient = Eigen::Vector3d::Zero( );
 
     Eigen::Matrix3d transformationToCartesianCoordinates =
-        coordinate_conversions::getSphericalToCartesianGradientMatrix( positionOfBodySubjectToAcceleration );
+            coordinate_conversions::getSphericalToCartesianGradientMatrix( positionOfBodySubjectToAcceleration );
 
     // Loop through all degrees.
     double legendrePolynomial = TUDAT_NAN, legendrePolynomialDerivative = TUDAT_NAN;
@@ -210,23 +213,22 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
                 legendrePolynomialDerivative = legendreCacheReference.getLegendrePolynomialDerivativeWithoutCheck( degree, order );
             }
 
-
             // Compute the potential gradient of a single spherical harmonic term.
             if( saveSeparateTerms )
             {
                 accelerationPerTerm[ std::make_pair( degree, order ) ] =
-                    basic_mathematics::computePotentialGradient( sphericalpositionOfBodySubjectToAcceleration,
-                                                                 preMultiplier,
-                                                                 degree,
-                                                                 order,
-                                                                 cosineHarmonicCoefficients( degree, order ),
-                                                                 sineHarmonicCoefficients( degree, order ),
-                                                                 legendrePolynomial,
-                                                                 legendrePolynomialDerivative,
-                                                                 sphericalHarmonicsCache );
+                        basic_mathematics::computePotentialGradient( sphericalpositionOfBodySubjectToAcceleration,
+                                                                     preMultiplier,
+                                                                     degree,
+                                                                     order,
+                                                                     cosineHarmonicCoefficients( degree, order ),
+                                                                     sineHarmonicCoefficients( degree, order ),
+                                                                     legendrePolynomial,
+                                                                     legendrePolynomialDerivative,
+                                                                     sphericalHarmonicsCache );
                 sphericalGradient += accelerationPerTerm[ std::make_pair( degree, order ) ];
                 accelerationPerTerm[ std::make_pair( degree, order ) ] = accelerationRotation *
-                                                                         ( transformationToCartesianCoordinates * accelerationPerTerm[ std::make_pair( degree, order ) ] );
+                        ( transformationToCartesianCoordinates * accelerationPerTerm[ std::make_pair( degree, order ) ] );
             }
             else
             {
@@ -248,9 +250,6 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
     // return the resulting acceleration vector.
     return accelerationRotation * ( transformationToCartesianCoordinates * sphericalGradient );
 }
-
-
-
 
 //! Compute gravitational acceleration due to single spherical harmonics term.
 /*!
@@ -320,16 +319,15 @@ Eigen::Vector3d computeSingleGeodesyNormalizedGravitationalAcceleration(
 
  *  \return Gravitational potential at position defined by bodyFixedPosition
  */
- template< typename CoefficientBlock = Eigen::MatrixXd >
-double calculateSphericalHarmonicGravitationalPotential(
-        const Eigen::Vector3d& bodyFixedPosition,
-        const double gravitationalParameter,
-        const double referenceRadius,
-        const CoefficientBlock& cosineCoefficients,
-        const CoefficientBlock& sineCoefficients,
-        basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache,
-        const int minimumumDegree = 0,
-        const int minimumumOrder = 0 )
+template< typename CoefficientBlock = Eigen::MatrixXd >
+double calculateSphericalHarmonicGravitationalPotential( const Eigen::Vector3d& bodyFixedPosition,
+                                                         const double gravitationalParameter,
+                                                         const double referenceRadius,
+                                                         const CoefficientBlock& cosineCoefficients,
+                                                         const CoefficientBlock& sineCoefficients,
+                                                         basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache,
+                                                         const int minimumumDegree = 0,
+                                                         const int minimumumOrder = 0 )
 {
     // Initialize (distance/reference radius)^n (n=ratioToPowerDegree)
     double ratioToPowerDegree = 1.0;
@@ -375,8 +373,8 @@ double calculateSphericalHarmonicGravitationalPotential(
 
             // Calculate contribution to potential from current degree and order
             singleDegreeTerm += legendrePolynomial *
-                                ( cosineCoefficients( degree, order ) * std::cos( order * longitude ) +
-                                  sineCoefficients( degree, order ) * std::sin( order * longitude ) );
+                    ( cosineCoefficients( degree, order ) * std::cos( order * longitude ) +
+                      sineCoefficients( degree, order ) * std::sin( order * longitude ) );
         }
 
         // Add potential contributions from current degree to toal value.
@@ -416,8 +414,7 @@ public:
         GravityFieldModel( gravitationalParameter ), referenceRadius_( referenceRadius ), cosineCoefficients_( cosineCoefficients ),
         sineCoefficients_( sineCoefficients ), fixedReferenceFrame_( fixedReferenceFrame ),
         scaledMeanMomentOfInertia_( scaledMeanMomentOfInertia ), maximumDegree_( cosineCoefficients_.rows( ) - 1 ),
-        maximumOrder_( cosineCoefficients_.cols( ) - 1 ),
-        sphericalHarmonicsCache_( basic_mathematics::SphericalHarmonicsCache( ) )
+        maximumOrder_( cosineCoefficients_.cols( ) - 1 ), sphericalHarmonicsCache_( basic_mathematics::SphericalHarmonicsCache( ) )
     {
         if( ( cosineCoefficients.rows( ) != sineCoefficients.rows( ) ) || ( cosineCoefficients.cols( ) != sineCoefficients.cols( ) ) )
         {
@@ -525,12 +522,12 @@ public:
      */
     Eigen::Block< Eigen::MatrixXd > getCosineCoefficientsBlock( const int maximumDegree, const int maximumOrder )
     {
-//        if( maximumDegree > maximumDegree_ || maximumOrder > maximumOrder_ )
-//        {
-//            throw std::runtime_error( "Error when retrieving cosine spherical harmonic coefficients up to D/O " +
-//                                      std::to_string( maximumDegree ) + "/" + std::to_string( maximumOrder ) + " maximum D/O is " +
-//                                      std::to_string( maximumDegree_ ) + "/" + std::to_string( maximumOrder_ ) );
-//        }
+        //        if( maximumDegree > maximumDegree_ || maximumOrder > maximumOrder_ )
+        //        {
+        //            throw std::runtime_error( "Error when retrieving cosine spherical harmonic coefficients up to D/O " +
+        //                                      std::to_string( maximumDegree ) + "/" + std::to_string( maximumOrder ) + " maximum D/O is "
+        //                                      + std::to_string( maximumDegree_ ) + "/" + std::to_string( maximumOrder_ ) );
+        //        }
 
         return cosineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 );
     }
@@ -546,12 +543,12 @@ public:
      */
     Eigen::Block< Eigen::MatrixXd > getSineCoefficientsBlock( const int maximumDegree, const int maximumOrder )
     {
-//        if( maximumDegree > maximumDegree_ || maximumOrder > maximumOrder_ )
-//        {
-//            throw std::runtime_error( "Error when retrieving sine spherical harmonic coefficients up to D/O " +
-//                                      std::to_string( maximumDegree ) + "/" + std::to_string( maximumOrder ) + " maximum D/O is " +
-//                                      std::to_string( maximumDegree_ ) + "/" + std::to_string( maximumOrder_ ) );
-//        }
+        //        if( maximumDegree > maximumDegree_ || maximumOrder > maximumOrder_ )
+        //        {
+        //            throw std::runtime_error( "Error when retrieving sine spherical harmonic coefficients up to D/O " +
+        //                                      std::to_string( maximumDegree ) + "/" + std::to_string( maximumOrder ) + " maximum D/O is "
+        //                                      + std::to_string( maximumDegree_ ) + "/" + std::to_string( maximumOrder_ ) );
+        //        }
 
         return sineCoefficients_.block( 0, 0, maximumDegree + 1, maximumOrder + 1 );
     }

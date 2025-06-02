@@ -53,21 +53,19 @@ Eigen::Vector3d computePotentialGradient( const double distance,
                                           const double legendrePolynomialDerivative )
 {
     // Return result.
-    const double harmonicSum = cosineHarmonicCoefficient * cosineOfOrderLongitude +
-                               sineHarmonicCoefficient * sineOfOrderLongitude;
+    const double harmonicSum = cosineHarmonicCoefficient * cosineOfOrderLongitude + sineHarmonicCoefficient * sineOfOrderLongitude;
 
-    const double harmonicDifference = sineHarmonicCoefficient * cosineOfOrderLongitude -
-                                cosineHarmonicCoefficient * sineOfOrderLongitude;
+    const double harmonicDifference = sineHarmonicCoefficient * cosineOfOrderLongitude - cosineHarmonicCoefficient * sineOfOrderLongitude;
 
     const double factor = preMultiplier * radiusPowerTerm;
 
-    const double degreePlusOne = static_cast<double>(degree) + 1.0;
-    const double orderDouble = static_cast<double>(order);
+    const double degreePlusOne = static_cast< double >( degree ) + 1.0;
+    const double orderDouble = static_cast< double >( order );
 
     Eigen::Vector3d gradient;
-    gradient.x() = -1.0 / distance * degreePlusOne * legendrePolynomial * harmonicSum;
-    gradient.y() =  legendrePolynomialDerivative * cosineOfLatitude * harmonicSum;
-    gradient.z() =  orderDouble * legendrePolynomial * harmonicDifference;
+    gradient.x( ) = -1.0 / distance * degreePlusOne * legendrePolynomial * harmonicSum;
+    gradient.y( ) = legendrePolynomialDerivative * cosineOfLatitude * harmonicSum;
+    gradient.z( ) = orderDouble * legendrePolynomial * harmonicDifference;
     return factor * gradient;
 }
 

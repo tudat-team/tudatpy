@@ -145,14 +145,12 @@ public:
             const std::function< Eigen::Quaterniond( ) > rotationFromBodyFixedToIntegrationFrameFunction =
                     []( ) { return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); },
             const bool isMutualAttractionUsed = 0,
-            const basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache =
-            basic_mathematics::SphericalHarmonicsCache( ) ):
+            const basic_mathematics::SphericalHarmonicsCache& sphericalHarmonicsCache = basic_mathematics::SphericalHarmonicsCache( ) ):
         Base( positionOfBodySubjectToAccelerationFunction,
               aGravitationalParameterFunction,
               positionOfBodyExertingAccelerationFunction,
               isMutualAttractionUsed ),
-        equatorialRadius( anEquatorialRadius ),
-        cosineSphericalHarmonicsBlock( aCosineSphericalHarmonicsBlock ),
+        equatorialRadius( anEquatorialRadius ), cosineSphericalHarmonicsBlock( aCosineSphericalHarmonicsBlock ),
         sineSphericalHarmonicsBlock( aSineSphericalHarmonicsBlock ),
         rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
         sphericalHarmonicsCache_( sphericalHarmonicsCache ), saveSphericalHarmonicTermsSeparately_( false )
@@ -324,7 +322,6 @@ public:
         return equatorialRadius;
     }
 
-
     SphericalHarmonicsBlock getCurrentCosineCoefficients( )
     {
         return cosineSphericalHarmonicsBlock;
@@ -431,7 +428,6 @@ public:
         return currentAccelerationInBodyFixedFrame_;
     }
 
-
     //! Function to retrieve maximum degree of gravity field expansion
     /*!
      * Function to retrieve maximum degree of gravity field expansion
@@ -459,18 +455,18 @@ private:
      * Current value of equatorial (planetary) radius used for spherical harmonics expansion [m].
      */
     const double equatorialRadius;
-//
-//    //! Matrix of cosine coefficients.
-//    /*!
-//     * Matrix containing coefficients of cosine terms for spherical harmonics expansion.
-//     */
-//    Eigen::MatrixXd cosineHarmonicCoefficients;
-//
-//    //! Matrix of sine coefficients.
-//    /*!
-//     * Matrix containing coefficients of sine terms for spherical harmonics expansion.
-//     */
-//    Eigen::MatrixXd sineHarmonicCoefficients;
+    //
+    //    //! Matrix of cosine coefficients.
+    //    /*!
+    //     * Matrix containing coefficients of cosine terms for spherical harmonics expansion.
+    //     */
+    //    Eigen::MatrixXd cosineHarmonicCoefficients;
+    //
+    //    //! Matrix of sine coefficients.
+    //    /*!
+    //     * Matrix containing coefficients of sine terms for spherical harmonics expansion.
+    //     */
+    //    Eigen::MatrixXd sineHarmonicCoefficients;
 
     //! Pointer to function returning cosine harmonics coefficients matrix.
     /*!
