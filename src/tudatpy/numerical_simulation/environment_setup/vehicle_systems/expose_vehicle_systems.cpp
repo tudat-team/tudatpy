@@ -19,6 +19,7 @@
 #include <pybind11/complex.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <tudat/math/basic.h>
 
 namespace py = pybind11;
 namespace tss = tudat::simulation_setup;
@@ -255,6 +256,7 @@ Panel surface area
            py::arg( "panel_geometry" ),
            py::arg( "panel_reflection_law" ),
            py::arg( "panel_type_id" ) = "",
+           py::arg( "material_properties" ) = std::map< std::string, tss::MaterialProperties >( ),
            R"doc(
 
  Function for creating settings for a full panel
@@ -432,7 +434,7 @@ file_path : str
     Path to .dae file with geometry data.
 frame_origin : np.array
     Frame origin of the .dae part to be loaded.
-material_properties : dict[str, np.array]
+material_properties : dict[str, MaterialProperties]
     Dictionary of material properties, as they appear in the .dae file provided.
 reradiation_settings : dict[str, bool]
     Dictionary of re-radiation settings for materials, as they appear in the .dae file provided.
@@ -459,6 +461,16 @@ Returns
 list[BodyPanelSettings]
     List of settings for body panels assembled from different parts, creating a coherent list of body panel settings.
     )doc" );
+
+    m.def( "material_properties",
+       &tss::materialProperties,
+       py::arg( "specular_reflectivity" ) = TUDAT_NAN,
+       py::arg( "diffuse_reflectivity" ) = TUDAT_NAN,
+       py::arg( "energy_accomodation_coefficient" ) = TUDAT_NAN,
+       py::arg( "normal_accomodation_coefficient" ) = TUDAT_NAN,
+       py::arg( "tangential_accomodation_coefficient" ) = TUDAT_NAN,
+       py::arg( "normal_velocity_at_wall_ratio" ) = TUDAT_NAN,
+       R"doc(No Documentation)doc" );
     
 }
 
