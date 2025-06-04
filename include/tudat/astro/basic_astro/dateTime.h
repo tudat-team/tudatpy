@@ -322,6 +322,7 @@ protected:
 
     void verifyDay( )
     {
+        std::cout<<"Verifying day "<<day_<<" "<<month_<<" "<<year_<<" "<<basic_astrodynamics::getDaysInMonth( month_, year_ )<<std::endl;
         if( day_ > basic_astrodynamics::getDaysInMonth( month_, year_ ) )
         {
             throw std::runtime_error( "Error when creating Tudat DateTime, input date was " + std::to_string( day_ ) + "-" +
