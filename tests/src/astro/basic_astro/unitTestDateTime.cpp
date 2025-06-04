@@ -205,8 +205,9 @@ BOOST_AUTO_TEST_CASE( testDateTimeConversions )
                                                                          currentDateTime.getSeconds( ) + secondsOffSet ) ),
                                        1e-6 );
                 }
-                catch( ... )
+                catch( std::runtime_error &caughtException )
                 {
+                    std::cout<<"Exception "<<caughtException.what()<<std::endl;
                     exceptionCaught = true;
                 }
 
