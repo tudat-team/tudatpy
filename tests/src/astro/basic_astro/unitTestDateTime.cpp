@@ -106,7 +106,10 @@ BOOST_AUTO_TEST_CASE( testDateTimeConversions )
                                            3600.0 * std::numeric_limits< long double >::epsilon( ) );
                     }
 
+                    std::cout<<"Pre-reconstruct"<<std::endl;
                     DateTime reconstructedDateTime = DateTime::fromTime( currentTime );
+                    std::cout<<"Post-reconstruct"<<std::endl;
+
                     BOOST_CHECK_EQUAL( reconstructedDateTime.getYear( ), currentDateTime.getYear( ) );
                     BOOST_CHECK_EQUAL( reconstructedDateTime.getMonth( ), currentDateTime.getMonth( ) );
                     BOOST_CHECK_EQUAL( reconstructedDateTime.getDay( ), currentDateTime.getDay( ) );
