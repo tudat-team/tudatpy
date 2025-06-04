@@ -278,7 +278,10 @@ public:
         }
         int hour = time.fullPeriodsSinceMidnight( );
         int minute = std::floor( time.getSecondsIntoFullPeriod( ) / 60.0L );
-        long double seconds = time.getSecondsIntoFullPeriod( ) - 60.0L * static_cast< long double >( minute );
+
+        std::cout<<"Test output A"<<minute<<" "<<time.getSecondsIntoFullPeriod( )<<" "<<60.0L<<std::endl;
+        long double seconds = time.getSecondsIntoFullPeriod( ) - static_cast< long double >( 60 * minute );
+        std::cout<<"Test output B"<<seconds<<" "<<time.getSecondsIntoFullPeriod( )<<" "<<static_cast< long double >( 60 * minute )<<" "<<60 * minute<<std::endl;
 
         return DateTime( year, month, day, hour, minute, seconds );
     }
