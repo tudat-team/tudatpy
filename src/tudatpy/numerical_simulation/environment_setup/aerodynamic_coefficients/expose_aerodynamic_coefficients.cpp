@@ -202,16 +202,6 @@ void expose_aerodynamic_coefficient_setup( py::module &m )
            py::arg( "gas_surface_interaction_model" ),
            py::arg( "maximum_number_of_pixels" ),
             R"doc(No documentation found.)doc" );
-
-    m.def( "test",
-           py::overload_cast< const double,
-                              const Eigen::Vector3d &,
-                              const ta::AerodynamicCoefficientFrames >(
-                   &tss::constantAerodynamicCoefficientSettings ),
-           py::arg( "reference_area" ),
-           py::arg( "constant_force_coefficient" ),
-           py::arg( "force_coefficients_frame" ) = ta::negative_aerodynamic_frame_coefficients,
-           R"doc()doc");
             
     m.def( "constant",
            py::overload_cast< const double,

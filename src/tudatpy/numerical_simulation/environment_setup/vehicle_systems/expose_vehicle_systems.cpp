@@ -462,14 +462,22 @@ list[BodyPanelSettings]
     List of settings for body panels assembled from different parts, creating a coherent list of body panel settings.
     )doc" );
 
+    py::class_< tss::MaterialProperties, std::shared_ptr< tss::MaterialProperties > >(m, "MaterialProperties")
+        .def_readwrite("specular_reflectivity", &tss::MaterialProperties::specularReflectivity_)
+        .def_readwrite("diffuse_reflectivity", &tss::MaterialProperties::diffuseReflectivity_)
+        .def_readwrite("energy_accomodation_coefficient", &tss::MaterialProperties::energyAccomodationCoefficient_)
+        .def_readwrite("normal_accomodation_coefficient", &tss::MaterialProperties::normalAccomodationCoefficient_)
+        .def_readwrite("tangential_accomodation_coefficient", &tss::MaterialProperties::tangentialAccomodationCoefficient_)
+        .def_readwrite("normal_velocity_at_wall_ratio", &tss::MaterialProperties::normalVelocityAtWallRatio_);
+
     m.def( "material_properties",
        &tss::materialProperties,
-       py::arg( "specular_reflectivity" ) = TUDAT_NAN,
-       py::arg( "diffuse_reflectivity" ) = TUDAT_NAN,
-       py::arg( "energy_accomodation_coefficient" ) = TUDAT_NAN,
-       py::arg( "normal_accomodation_coefficient" ) = TUDAT_NAN,
-       py::arg( "tangential_accomodation_coefficient" ) = TUDAT_NAN,
-       py::arg( "normal_velocity_at_wall_ratio" ) = TUDAT_NAN,
+       py::arg( "specular_reflectivity" ) = -1,
+       py::arg( "diffuse_reflectivity" ) = -1,
+       py::arg( "energy_accomodation_coefficient" ) = -1,
+       py::arg( "normal_accomodation_coefficient" ) = -1,
+       py::arg( "tangential_accomodation_coefficient" ) = -1,
+       py::arg( "normal_velocity_at_wall_ratio" ) = -1,
        R"doc(No Documentation)doc" );
     
 }
