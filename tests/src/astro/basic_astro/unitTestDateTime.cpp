@@ -29,25 +29,23 @@ BOOST_AUTO_TEST_SUITE( test_date_time )
 using namespace mathematical_constants;
 using namespace basic_astrodynamics;
 
+std::vector< int > years = { 2023, 2373, 1910, 1621, 1900, 2000, 2004 };
+std::vector< std::pair< int, int > > dates = {
+    { 5, 17 }, { 1, 1 }, { 8, 31 }, { 12, 17 }, { 12, 31 }, { 2, 29 },
+};
+std::vector< std::tuple< int, int, long double > > times = { { 8, 34, 30.234567890123456789L },
+                                                             { 11, 34, 30.234567890123456789L },
+                                                             { 18, 34, 30.234567890123456789L },
+                                                             { 23, 34, 30.234567890123456789L },
+                                                             { 0, 0, 0.0L },
+                                                             { 12, 0, 0.0L },
+                                                             { 11, 59, 60.0L - std::numeric_limits< long double >::epsilon( ) * 3600.0L },
+                                                             { 23, 59, 60.0L - std::numeric_limits< long double >::epsilon( ) * 3600.0L },
+                                                             { 11, 59, std::numeric_limits< long double >::epsilon( ) * 3600.0L },
+                                                             { 23, 59, std::numeric_limits< long double >::epsilon( ) * 3600.0L } };
+
 BOOST_AUTO_TEST_CASE( testDateTimeConversions )
 {
-    std::vector< int > years = { 2023, 2373, 1910, 1621, 1900, 2000, 2004 };
-    std::vector< std::pair< int, int > > dates = {
-        { 5, 17 }, { 1, 1 }, { 8, 31 }, { 12, 17 }, { 12, 31 }, { 2, 29 },
-    };
-    std::vector< std::tuple< int, int, long double > > times = {
-        { 8, 34, 30.234567890123456789L },
-        { 11, 34, 30.234567890123456789L },
-        { 18, 34, 30.234567890123456789L },
-        { 23, 34, 30.234567890123456789L },
-        { 0, 0, 0.0L },
-        { 12, 0, 0.0L },
-        { 11, 59, 60.0L - std::numeric_limits< long double >::epsilon( ) * 3600.0L },
-        { 23, 59, 60.0L - std::numeric_limits< long double >::epsilon( ) * 3600.0L },
-        { 11, 59, std::numeric_limits< long double >::epsilon( ) * 3600.0L },
-        { 23, 59, std::numeric_limits< long double >::epsilon( ) * 3600.0L }
-    };
-
     for( unsigned int i = 0; i < years.size( ); i++ )
     {
         for( unsigned int j = 0; j < dates.size( ); j++ )
@@ -106,9 +104,9 @@ BOOST_AUTO_TEST_CASE( testDateTimeConversions )
                                            3600.0 * std::numeric_limits< long double >::epsilon( ) );
                     }
 
-                    std::cout<<"Pre-reconstruct"<<std::endl;
+                    std::cout << "Pre-reconstruct" << std::endl;
                     DateTime reconstructedDateTime = DateTime::fromTime( currentTime );
-                    std::cout<<"Post-reconstruct"<<std::endl;
+                    std::cout << "Post-reconstruct" << std::endl;
 
                     BOOST_CHECK_EQUAL( reconstructedDateTime.getYear( ), currentDateTime.getYear( ) );
                     BOOST_CHECK_EQUAL( reconstructedDateTime.getMonth( ), currentDateTime.getMonth( ) );
@@ -136,6 +134,44 @@ BOOST_AUTO_TEST_CASE( testDateTimeConversions )
                     double modifiedJulianDayTolerance = 3.0 * currentJulianDay * std::numeric_limits< long double >::epsilon( );
                     BOOST_CHECK_SMALL( std::fabs( static_cast< double >( modifiedJulianDayFromDateTime - currentModifiedJulianDay ) ),
                                        modifiedJulianDayTolerance );
+                }
+                catch( std::runtime_error &caughtException )
+                {
+                    std::cout << "Exception " << caughtException.what( ) << std::endl;
+                    exceptionCaught = true;
+                }
+
+                if( j == 5 && i < 5 )
+                {
+                    BOOST_CHECK_EQUAL( exceptionCaught, true );
+                }
+                else
+                {
+                    BOOST_CHECK_EQUAL( exceptionCaught, false );
+                }
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( testTimePointConversions )
+{
+    for( unsigned int i = 0; i < years.size( ); i++ )
+    {
+        for( unsigned int j = 0; j < dates.size( ); j++ )
+        {
+            for( unsigned int k = 0; k < times.size( ); k++ )
+            {
+                bool exceptionCaught = 0;
+                try
+                {
+                    std::cout << "i = " << i << ", j = " << j << ", k = " << k << std::endl;
+                    DateTime currentDateTime( years.at( i ),
+                                              dates.at( j ).first,
+                                              dates.at( j ).second,
+                                              std::get< 0 >( times.at( k ) ),
+                                              std::get< 1 >( times.at( k ) ),
+                                              std::get< 2 >( times.at( k ) ) );
 
                     std::chrono::system_clock::time_point timePoint = currentDateTime.timePoint( );
                     DateTime reconstructedDateTimeFromTimePoint = DateTime::fromTimePoint( timePoint );
@@ -210,7 +246,7 @@ BOOST_AUTO_TEST_CASE( testDateTimeConversions )
                 }
                 catch( std::runtime_error &caughtException )
                 {
-                    std::cout<<"Exception "<<caughtException.what()<<std::endl;
+                    std::cout << "Exception " << caughtException.what( ) << std::endl;
                     exceptionCaught = true;
                 }
 
