@@ -279,7 +279,10 @@ public:
     template< typename TimeType >
     static DateTime fromTime( const TimeType &timeInput )
     {
+        std::cout<<"Creating DateTime from time "<<timeInput<<std::endl;
         Time time = Time( timeInput );
+        std::cout<<"Creating DateTime from time "<<time.getFullPeriods( )<<std::endl;
+
         int fullPeriodsSinceMidnightJD0 = time.getFullPeriods( ) +
                 basic_astrodynamics::JULIAN_DAY_ON_J2000_INT * TIME_NORMALIZATION_TERMS_PER_DAY + TIME_NORMALIZATION_TERMS_PER_HALF_DAY;
         if( fullPeriodsSinceMidnightJD0 < 0 )
