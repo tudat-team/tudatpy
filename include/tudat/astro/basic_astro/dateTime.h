@@ -227,18 +227,14 @@ public:
                 std::chrono::duration_cast< std::chrono::seconds >( std::chrono::system_clock::time_point::max( ).time_since_epoch( ) )
                         .count( ) );
 
-        std::cout<<"Adding minimum/maximum A"<<lowerRepresentationCount<<" "<<upperRepresentationCount<<std::endl;
-        DateTime lowerRepresentationLimit = referenceDateTime.addSecondsToDateTime< double >( lowerRepresentationCount );
-        std::cout<<"Adding minimum/maximum B"<<lowerRepresentationCount<<" "<<upperRepresentationCount<<std::endl;
-        DateTime upperRepresentationLimit = referenceDateTime.addSecondsToDateTime< double >( upperRepresentationCount );
         std::cout<<"Adding minimum/maximum C"<<lowerRepresentationCount<<" "<<upperRepresentationCount<<std::endl;
 
-        if( this->epoch< double >( ) > upperRepresentationLimit.epoch< double >( ) ||
-            this->epoch< double >( ) < lowerRepresentationLimit.epoch< double >( ) )
+        if( this->epoch< double >( ) > ( referenceDateTime.epoch< double >( ) + upperRepresentationCount ) ||
+            this->epoch< double >( ) < ( referenceDateTime.epoch< double >( ) + lowerRepresentationCount ) )
         {
             throw std::runtime_error(
-                    " Date " + this->isoString( false, 3 ) + " is out of range for conversion to time point. Lower limit: " +
-                    lowerRepresentationLimit.isoString( false, 3 ) + ", upper limit: " + upperRepresentationLimit.isoString( false, 3 ) );
+                    " Date " + this->isoString( false, 3 ) + " is out of range for conversion to time point. Lower limit (in seconds from 1-1-1970) is: " +
+                    std::to_string( lowerRepresentationCount ) + ", upper limit: " + std::to_string( upperRepresentationCount ) );
         }
 
         std::tm tm = { };
