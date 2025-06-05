@@ -174,7 +174,7 @@ public:
         verifySeconds( );
     }
 
-    std::string isoString( const bool addT = false, const int numberOfFractionalSecondDigits = 15 )
+    std::string isoString( const bool addT = false, const int numberOfFractionalSecondDigits = 15 ) const
     {
         std::string yearString = std::to_string( year_ );
         std::string monthString = utilities::paddedZeroIntString( month_, 2 );
@@ -218,6 +218,25 @@ public:
 
     std::chrono::system_clock::time_point timePoint( ) const
     {
+        DateTime referenceDateTime( 1970, 1, 1, 0, 0, 0.0L );
+        const double lowerRepresentationCount = static_cast< double >(
+                std::chrono::duration_cast< std::chrono::seconds >( std::chrono::system_clock::time_point::min( ).time_since_epoch( ) )
+                        .count( ) );
+        const double upperRepresentationCount = static_cast< double >(
+                std::chrono::duration_cast< std::chrono::seconds >( std::chrono::system_clock::time_point::max( ).time_since_epoch( ) )
+                        .count( ) );
+
+        DateTime lowerRepresentationLimit = referenceDateTime.addSecondsToDateTime< double >( lowerRepresentationCount );
+        DateTime upperRepresentationLimit = referenceDateTime.addSecondsToDateTime< double >( upperRepresentationCount );
+
+        if( this->epoch< double >( ) > upperRepresentationLimit.epoch< double >( ) ||
+            this->epoch< double >( ) < lowerRepresentationLimit.epoch< double >( ) )
+        {
+            throw std::runtime_error(
+                    " Date " + this->isoString( false, 3 ) + " is out of range for conversion to time point. Lower limit: " +
+                    lowerRepresentationLimit.isoString( false, 3 ) + ", upper limit: " + upperRepresentationLimit.isoString( false, 3 ) );
+        }
+
         std::tm tm = { };
         tm.tm_sec = static_cast< int >( this->getSeconds( ) );
         tm.tm_min = this->getMinute( );
