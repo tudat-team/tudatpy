@@ -162,102 +162,87 @@ BOOST_AUTO_TEST_CASE( testTimePointConversions )
         {
             for( unsigned int k = 0; k < times.size( ); k++ )
             {
-                bool exceptionCaught = 0;
-                try
-                {
-                    std::cout << "i = " << i << ", j = " << j << ", k = " << k << std::endl;
-                    DateTime currentDateTime( years.at( i ),
-                                              dates.at( j ).first,
-                                              dates.at( j ).second,
-                                              std::get< 0 >( times.at( k ) ),
-                                              std::get< 1 >( times.at( k ) ),
-                                              std::get< 2 >( times.at( k ) ) );
+                std::cout << "i = " << i << ", j = " << j << ", k = " << k << std::endl;
 
-                    std::chrono::system_clock::time_point timePoint = currentDateTime.timePoint( );
-                    DateTime reconstructedDateTimeFromTimePoint = DateTime::fromTimePoint( timePoint );
-
-                    if( i == 1 || i == 3 )
-                    {
-                        continue;
-                    }
-
-                    // in the construction of the timepoint, the microseconds are rounded to the nearest integer, thus a tolerance of 1e-6
-                    // is used
-                    BOOST_CHECK_SMALL( std::fabs( static_cast< double >( currentDateTime.epoch< Time >( ) -
-                                                                         reconstructedDateTimeFromTimePoint.epoch< Time >( ) ) ),
-                                       1e-6 );
-
-                    // due to the microsecond rounding, the seconds may not match exactly and can overflow to the other components depending
-                    // on the date
-                    double secondsOffSet = 0.0;
-                    int minuteOffSet = 0;
-                    int hourOffSet = 0;
-                    int dayOffSet = 0;
-                    int monthOffSet = 0;
-                    int yearOffSet = 0;
-                    if( k == 6 )  // 11:59:60 -> 12:00:00
-                    {
-                        secondsOffSet = currentDateTime.getSeconds( );
-                        minuteOffSet = -59;
-                        hourOffSet = 1;
-                        dayOffSet = 0;
-                        monthOffSet = 0;
-                        yearOffSet = 0;
-                    }
-                    else if( k == 7 )  // 23:59:60 -> 00:00:00
-                    {
-                        secondsOffSet = currentDateTime.getSeconds( );
-                        minuteOffSet = -59;
-                        hourOffSet = -23;
-                        if( j == 2 )  // 08/31 -> 09/01
-                        {
-                            dayOffSet = -30;
-                            monthOffSet = 1;
-                            yearOffSet = 0;
-                        }
-                        else if( j == 4 )  // 12/31 -> 01/01
-                        {
-                            dayOffSet = -30;
-                            monthOffSet = -11;
-                            yearOffSet = 1;
-                        }
-                        else if( j == 5 )  // 02/29 -> 03/01
-                        {
-                            dayOffSet = -28;
-                            monthOffSet = 1;
-                            yearOffSet = 0;
-                        }
-                        else
-                        {
-                            dayOffSet = 1;
-                            monthOffSet = 0;
-                            yearOffSet = 0;
-                        }
-                    }
-
-                    BOOST_CHECK_EQUAL( reconstructedDateTimeFromTimePoint.getYear( ), currentDateTime.getYear( ) + yearOffSet );
-                    BOOST_CHECK_EQUAL( reconstructedDateTimeFromTimePoint.getMonth( ), currentDateTime.getMonth( ) + monthOffSet );
-                    BOOST_CHECK_EQUAL( reconstructedDateTimeFromTimePoint.getDay( ), currentDateTime.getDay( ) + dayOffSet );
-                    BOOST_CHECK_EQUAL( reconstructedDateTimeFromTimePoint.getHour( ), currentDateTime.getHour( ) + hourOffSet );
-                    BOOST_CHECK_EQUAL( reconstructedDateTimeFromTimePoint.getMinute( ), currentDateTime.getMinute( ) + minuteOffSet );
-                    BOOST_CHECK_SMALL( std::fabs( static_cast< double >( reconstructedDateTimeFromTimePoint.getSeconds( ) -
-                                                                         currentDateTime.getSeconds( ) + secondsOffSet ) ),
-                                       1e-6 );
-                }
-                catch( std::runtime_error &caughtException )
-                {
-                    std::cout << "Exception " << caughtException.what( ) << std::endl;
-                    exceptionCaught = true;
-                }
-
+                // the DateTime constructor is tested in testDateTimeConversions
+                // therefore all invalid dates are skipped here
                 if( j == 5 && i < 5 )
                 {
-                    BOOST_CHECK_EQUAL( exceptionCaught, true );
+                    continue;
                 }
-                else
+
+                DateTime currentDateTime( years.at( i ),
+                                          dates.at( j ).first,
+                                          dates.at( j ).second,
+                                          std::get< 0 >( times.at( k ) ),
+                                          std::get< 1 >( times.at( k ) ),
+                                          std::get< 2 >( times.at( k ) ) );
+
+                if( i == 1 || i == 3 )
                 {
-                    BOOST_CHECK_EQUAL( exceptionCaught, false );
+                    // For the years 2373 and 1621, the date is out of range for std::chrono::system_clock
+                    BOOST_CHECK_THROW( currentDateTime.timePoint( ), std::runtime_error );
+                    continue;
                 }
+
+                std::chrono::system_clock::time_point timePoint = currentDateTime.timePoint( );
+                DateTime reconstructedDateTimeFromTimePoint = DateTime::fromTimePoint( timePoint );
+
+                // in the construction of the timepoint, the microseconds are rounded to the nearest integer, thus a tolerance of 1e-6
+                // is used
+                BOOST_CHECK_SMALL( std::fabs( static_cast< double >( currentDateTime.epoch< Time >( ) -
+                                                                     reconstructedDateTimeFromTimePoint.epoch< Time >( ) ) ),
+                                   1e-6 );
+
+                // due to the microsecond rounding, the seconds may not match exactly and can overflow to the other components depending
+                // on the date
+                double secondsOffSet = 0.0;
+                int minuteOffSet = 0;
+                int hourOffSet = 0;
+                int dayOffSet = 0;
+                int monthOffSet = 0;
+                int yearOffSet = 0;
+                if( k == 6 )  // 11:59:60 -> 12:00:00
+                {
+                    secondsOffSet = currentDateTime.getSeconds( );
+                    minuteOffSet = -59;
+                    hourOffSet = 1;
+                }
+                else if( k == 7 )  // 23:59:60 -> 00:00:00
+                {
+                    secondsOffSet = currentDateTime.getSeconds( );
+                    minuteOffSet = -59;
+                    hourOffSet = -23;
+                    if( j == 2 )  // 08/31 -> 09/01
+                    {
+                        dayOffSet = -30;
+                        monthOffSet = 1;
+                    }
+                    else if( j == 4 )  // 12/31 -> 01/01
+                    {
+                        dayOffSet = -30;
+                        monthOffSet = -11;
+                        yearOffSet = 1;
+                    }
+                    else if( j == 5 )  // 02/29 -> 03/01
+                    {
+                        dayOffSet = -28;
+                        monthOffSet = 1;
+                    }
+                    else
+                    {
+                        dayOffSet = 1;
+                    }
+                }
+
+                BOOST_CHECK_EQUAL( reconstructedDateTimeFromTimePoint.getYear( ), currentDateTime.getYear( ) + yearOffSet );
+                BOOST_CHECK_EQUAL( reconstructedDateTimeFromTimePoint.getMonth( ), currentDateTime.getMonth( ) + monthOffSet );
+                BOOST_CHECK_EQUAL( reconstructedDateTimeFromTimePoint.getDay( ), currentDateTime.getDay( ) + dayOffSet );
+                BOOST_CHECK_EQUAL( reconstructedDateTimeFromTimePoint.getHour( ), currentDateTime.getHour( ) + hourOffSet );
+                BOOST_CHECK_EQUAL( reconstructedDateTimeFromTimePoint.getMinute( ), currentDateTime.getMinute( ) + minuteOffSet );
+                BOOST_CHECK_SMALL( std::fabs( static_cast< double >( reconstructedDateTimeFromTimePoint.getSeconds( ) -
+                                                                     currentDateTime.getSeconds( ) + secondsOffSet ) ),
+                                   1e-6 );
             }
         }
     }
