@@ -219,6 +219,7 @@ public:
     std::chrono::system_clock::time_point timePoint( ) const
     {
         DateTime referenceDateTime( 1970, 1, 1, 0, 0, 0.0L );
+        std::cout<<"Created 1970 date time in timePoint"<<std::endl;
         const double lowerRepresentationCount = static_cast< double >(
                 std::chrono::duration_cast< std::chrono::seconds >( std::chrono::system_clock::time_point::min( ).time_since_epoch( ) )
                         .count( ) );
@@ -226,8 +227,11 @@ public:
                 std::chrono::duration_cast< std::chrono::seconds >( std::chrono::system_clock::time_point::max( ).time_since_epoch( ) )
                         .count( ) );
 
+        std::cout<<"Adding minimum/maximum A"<<lowerRepresentationCount<<" "<<upperRepresentationCount<<std::endl;
         DateTime lowerRepresentationLimit = referenceDateTime.addSecondsToDateTime< double >( lowerRepresentationCount );
+        std::cout<<"Adding minimum/maximum B"<<lowerRepresentationCount<<" "<<upperRepresentationCount<<std::endl;
         DateTime upperRepresentationLimit = referenceDateTime.addSecondsToDateTime< double >( upperRepresentationCount );
+        std::cout<<"Adding minimum/maximum C"<<lowerRepresentationCount<<" "<<upperRepresentationCount<<std::endl;
 
         if( this->epoch< double >( ) > upperRepresentationLimit.epoch< double >( ) ||
             this->epoch< double >( ) < lowerRepresentationLimit.epoch< double >( ) )
