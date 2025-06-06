@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE( test_json_gravityField_pointMassSpice )
             parseJSONFile< std::shared_ptr< GravityFieldSettings > >( INPUT( "pointMassSpice" ) );
 
     // Create GravityFieldSettings manually
-    const std::shared_ptr< GravityFieldSettings > manualSettings = std::make_shared< GravityFieldSettings >( central_spice );
+    const std::shared_ptr< GravityFieldSettings > manualSettings = centralGravityFromSpiceSettings( );
 
     // Compare
     BOOST_CHECK_EQUAL_JSON( fromFileSettings, manualSettings );

@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                                                                     simulationEndEpoch + 10.0 * fixedStepSize,
                                                                     "Earth",
                                                                     "ECLIPJ2000" );
-            bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
+            bodySettings.at( "Earth" )->gravityFieldSettings = centralGravityFromSpiceSettings( );
 
             if( testCase >= 2 )
             {
