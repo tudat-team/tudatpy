@@ -10,6 +10,9 @@
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 #include "tudat/interface/spice.h"
 
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+
 #include <pybind11/eigen.h>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
@@ -448,8 +451,7 @@ void expose_spice( py::module &m )
 
      )doc" );
 
-    m.def( "compute_rotation_quaternion_and_rotation_matrix_"
-           "derivative_between_frames",
+    m.def( "compute_rotation_quaternion_and_rotation_matrix_derivative_between_frames",
            &tudat::spice_interface::
                    computeRotationQuaternionAndRotationMatrixDerivativeBetweenFrames,
            py::arg( "original_frame" ),
