@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerations )
         bodySettings.addSettings( "Earth" );
         bodySettings.at( "Earth" )->ephemerisSettings =
                 std::make_shared< ConstantEphemerisSettings >( Eigen::Vector6d::Zero( ), "SSB", "J2000" );
-        bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
+        bodySettings.at( "Earth" )->gravityFieldSettings = centralGravityFromSpiceSettings( );
 
         // Create Earth object
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );

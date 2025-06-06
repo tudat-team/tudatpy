@@ -141,7 +141,7 @@ void performSimulation( const int testType )
             { "Earth" }, simulationStartEpoch - 10.0 * fixedStepSize, simulationEndEpoch + 10.0 * fixedStepSize, "SSB", "J2000" );
     bodySettings.at( "Earth" )->ephemerisSettings =
             std::make_shared< simulation_setup::ConstantEphemerisSettings >( Eigen::Vector6d::Zero( ), "SSB", "J2000" );
-    bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
+    bodySettings.at( "Earth" )->gravityFieldSettings = centralGravityFromSpiceSettings( );
     bodySettings.at( "Earth" )->rotationModelSettings->resetOriginalFrame( "J2000" );
 
     // Create Earth object
