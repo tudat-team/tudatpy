@@ -891,7 +891,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAcceleration )
     // Define simulation body settings.
     BodyListSettings bodySettings = getDefaultBodySettings(
             { "Earth", "Moon" }, simulationStartEpoch - 10.0 * fixedStepSize, simulationEndEpoch + 10.0 * fixedStepSize );
-    bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
+    bodySettings.at( "Earth" )->gravityFieldSettings = centralGravityFromSpiceSettings( );
 
     for( unsigned int testCase = 0; testCase < 2; testCase++ )
     {
@@ -1165,7 +1165,7 @@ BOOST_AUTO_TEST_CASE( testInterpolatedThrustVector )
     BodyListSettings bodySettings;
     bodySettings.addSettings( "Earth" );
     bodySettings.at( "Earth" )->ephemerisSettings = getDefaultEphemerisSettings( "Earth" );
-    bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
+    bodySettings.at( "Earth" )->gravityFieldSettings = centralGravityFromSpiceSettings( );
 
     for( unsigned int testCase = 0; testCase < 2; testCase++ )
     {
@@ -1418,7 +1418,7 @@ BOOST_AUTO_TEST_CASE( testConcurrentThrustAndAerodynamicAccelerationWithEnvironm
 
     // Define simulation body settings.
     BodyListSettings bodySettings = getDefaultBodySettings( { "Earth", "Moon" }, simulationStartEpoch - 1.0E4, simulationEndEpoch + 1.0E4 );
-    bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
+    bodySettings.at( "Earth" )->gravityFieldSettings = centralGravityFromSpiceSettings( );
 
     // Create Earth object
     simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
@@ -1738,7 +1738,7 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
 
     // Define simulation body settings.
     BodyListSettings bodySettings = getDefaultBodySettings( { "Earth", "Moon" }, simulationStartEpoch - 1.0E4, simulationEndEpoch + 1.0E4 );
-    bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
+    bodySettings.at( "Earth" )->gravityFieldSettings = centralGravityFromSpiceSettings( );
 
     // Create Earth object
     simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
@@ -1905,7 +1905,7 @@ BOOST_AUTO_TEST_CASE( testAccelerationLimitedGuidedThrust )
 ////            getDefaultBodySettings( { "Earth" }, simulationStartEpoch - 1.0E4,
 ////                                    simulationEndEpoch + 1.0E4, "Earth", "ECLIPJ2000" );
 ////    bodySettings.at( "Earth" )->gravityFieldSettings =
-////            std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
+////            centralGravityFromSpiceSettings( );
 
 ////    // Create Earth object
 ////    simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
