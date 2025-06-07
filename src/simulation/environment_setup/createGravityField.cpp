@@ -311,7 +311,7 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
             else
             {
                 std::shared_ptr< SpiceCentralGravityFieldSettings > spiceGravityFieldSettings =
-                    std::dynamic_pointer_cast< SpiceCentralGravityFieldSettings >( gravityFieldSettings );
+                        std::dynamic_pointer_cast< SpiceCentralGravityFieldSettings >( gravityFieldSettings );
 
                 std::string bodyNameToUse = body;
                 if( spiceGravityFieldSettings != nullptr )
@@ -323,7 +323,7 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
                 }
                 // Create and initialize point mass gravity field model from Spice.
                 gravityFieldModel =
-                    std::make_shared<GravityFieldModel>( spice_interface::getBodyGravitationalParameter( bodyNameToUse ));
+                        std::make_shared< GravityFieldModel >( spice_interface::getBodyGravitationalParameter( bodyNameToUse ) );
             }
 
             break;
