@@ -137,7 +137,6 @@ private:
     std::string bodyOverrideName_;
 };
 
-
 // Derived class of GravityFieldSettings defining settings of spherical harmonic gravity
 // field representation.
 //! @get_docstring(SphericalHarmonicsGravityFieldSettings.__docstring__)
