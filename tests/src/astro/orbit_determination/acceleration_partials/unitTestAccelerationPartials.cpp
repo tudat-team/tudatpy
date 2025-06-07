@@ -878,7 +878,7 @@ BOOST_AUTO_TEST_CASE( testRelativisticAccelerationPartial )
     bodies.addBody( earth, "Earth" );
 
     // Create gravity field.
-    std::shared_ptr< GravityFieldSettings > gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
+    std::shared_ptr< GravityFieldSettings > gravityFieldSettings = centralGravityFromSpiceSettings( );
     std::shared_ptr< gravitation::GravityFieldModel > earthGravityField = createGravityFieldModel( gravityFieldSettings, "Earth", bodies );
     earth->setGravityFieldModel( earthGravityField );
 
@@ -990,7 +990,7 @@ BOOST_AUTO_TEST_CASE( testEmpiricalAccelerationPartial )
     bodies.addBody( earth, "Earth" );
 
     // Create gravity field.
-    std::shared_ptr< GravityFieldSettings > gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
+    std::shared_ptr< GravityFieldSettings > gravityFieldSettings = centralGravityFromSpiceSettings( );
     std::shared_ptr< gravitation::GravityFieldModel > earthGravityField = createGravityFieldModel( gravityFieldSettings, "Earth", bodies );
     earth->setGravityFieldModel( earthGravityField );
 
