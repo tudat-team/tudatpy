@@ -352,7 +352,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
     spice_interface::loadStandardSpiceKernels( );
 
     // Create settings for spice central gravity field model.
-    std::shared_ptr< GravityFieldSettings > spiceCentralGravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
+    std::shared_ptr< GravityFieldSettings > spiceCentralGravityFieldSettings = centralGravityFromSpiceSettings( );
 
     // Create spice central gravity field model from setup function.
     std::shared_ptr< gravitation::GravityFieldModel > spiceCentralGravityField =
