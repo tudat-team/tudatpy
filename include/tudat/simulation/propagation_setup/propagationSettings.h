@@ -1211,7 +1211,6 @@ inline std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType, Time
                 std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
         const double statePrintInterval = TUDAT_NAN )
 {
-
     return std::make_shared< RotationalStatePropagatorSettings< StateScalarType, TimeType > >( torqueModelMap,
                                                                                                bodiesToIntegrate,
                                                                                                initialBodyStates,
