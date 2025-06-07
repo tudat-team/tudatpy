@@ -114,6 +114,30 @@ private:
     double gravitationalParameter_;
 };
 
+class SpiceCentralGravityFieldSettings : public GravityFieldSettings
+{
+public:
+    // Constructor.
+    /*
+     *  Constructor.
+     *  \param gravitationalParameter Gravitational parameter of gravity field.
+     */
+    SpiceCentralGravityFieldSettings( const std::string& bodyOverrideName = "" ):
+        GravityFieldSettings( central_spice ), bodyOverrideName_( bodyOverrideName )
+    { }
+
+    virtual ~SpiceCentralGravityFieldSettings( ) { }
+
+    std::string getBodyOverrideName( )
+    {
+        return bodyOverrideName_;
+    }
+
+private:
+    std::string bodyOverrideName_;
+};
+
+
 // Derived class of GravityFieldSettings defining settings of spherical harmonic gravity
 // field representation.
 //! @get_docstring(SphericalHarmonicsGravityFieldSettings.__docstring__)
@@ -770,9 +794,9 @@ inline std::shared_ptr< GravityFieldSettings > centralGravitySettings( const dou
 }
 
 //! @get_docstring(centralGravityFromSpiceSettings)
-inline std::shared_ptr< GravityFieldSettings > centralGravityFromSpiceSettings( )
+inline std::shared_ptr< GravityFieldSettings > centralGravityFromSpiceSettings( const std::string& bodyOverrideName = "" )
 {
-    return std::make_shared< GravityFieldSettings >( central_spice );
+    return std::make_shared< SpiceCentralGravityFieldSettings >( bodyOverrideName );
 }
 
 //! @get_docstring(sphericalHarmonicsGravitySettings)

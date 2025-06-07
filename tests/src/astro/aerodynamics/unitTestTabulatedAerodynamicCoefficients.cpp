@@ -71,11 +71,11 @@ BOOST_AUTO_TEST_CASE( testTabulatedDragCoefficient )
     }
 
     // EARTH
-    bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
+    bodySettings.at( "Earth" )->gravityFieldSettings = centralGravityFromSpiceSettings( );
     bodySettings.at( "Earth" )->atmosphereSettings = std::make_shared< AtmosphereSettings >( nrlmsise00 );
 
     // MOON
-    bodySettings.at( "Moon" )->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
+    bodySettings.at( "Moon" )->gravityFieldSettings = centralGravityFromSpiceSettings( );
 
     SystemOfBodies bodies = createBodies( bodySettings );
 

@@ -674,7 +674,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicTrimWithFreeAngles )
                                                             simulationEndEpoch + 10.0 * fixedStepSize,
                                                             "Earth",
                                                             "ECLIPJ2000" );
-    bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
+    bodySettings.at( "Earth" )->gravityFieldSettings = centralGravityFromSpiceSettings( );
 
     // Create Earth object
     simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
@@ -826,7 +826,7 @@ BOOST_AUTO_TEST_CASE( testCombinedAerodynamicForceAndMoment )
                                                                     simulationEndEpoch + 10.0 * fixedStepSize,
                                                                     "Earth",
                                                                     "ECLIPJ2000" );
-            bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
+            bodySettings.at( "Earth" )->gravityFieldSettings = centralGravityFromSpiceSettings( );
 
             // Create Earth object
             simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
