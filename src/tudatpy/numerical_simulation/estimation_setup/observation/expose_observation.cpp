@@ -253,6 +253,50 @@ Examples
             .value( "observed_body", tom::LinkEndType::observed_body )
             .export_values( );
 
+    py::enum_< tom::ObservableType >( m, "ObservableType", R"doc(
+
+Enumeration of available observable types.
+
+Examples
+--------
+.. code-block:: python
+
+    # Code snippet to print all available Observable Types
+    from tudatpy.numerical_simulation import estimation_setup
+
+    num_observable_types = len(estimation_setup.observation.ObservableType.__members__)
+    print(f'The length of all available Tudatpy Observable Types is: {num_observable_types}')
+
+    # Print all available Observable Types using the "name" property
+    for i in range(num_observable_types):
+        print(i, estimation_setup.observation.ObservableType(i).name)
+
+
+
+
+      )doc" )
+        .value( "one_way_range_type", tom::ObservableType::one_way_range )
+        .value( "n_way_range_type", tom::ObservableType::n_way_range )
+        .value( "angular_position_type", tom::ObservableType::angular_position )
+        .value( "relative_angular_position_type", tom::ObservableType::angular_position )
+        .value( "position_observable_type", tom::ObservableType::position_observable )
+        .value( "velocity_observable_type", tom::ObservableType::velocity_observable )
+        .value( "relative_position_observable_type", tom::ObservableType::relative_position_observable )
+        .value( "one_way_instantaneous_doppler_type", tom::ObservableType::one_way_doppler )
+        .value( "one_way_averaged_doppler_type",
+                tom::ObservableType::one_way_differenced_range )
+        .value( "two_way_instantaneous_doppler_type", tom::ObservableType::two_way_doppler )
+        .value( "n_way_averaged_doppler_type", tom::ObservableType::n_way_differenced_range )
+        .value( "euler_angle_313_observable_type",
+                tom::ObservableType::euler_angle_313_observable )
+        .value( "dsn_one_way_averaged_doppler",
+                tom::ObservableType::dsn_one_way_averaged_doppler )
+        .value( "dsn_n_way_averaged_doppler", tom::ObservableType::dsn_n_way_averaged_doppler )
+        .value( "doppler_measured_frequency_type",
+                tom::ObservableType::doppler_measured_frequency )
+        .value( "dsn_n_way_range", tom::ObservableType::dsn_n_way_range )
+        .export_values( );
+
     m.def( "one_way_downlink_link_ends",
            &tom::getOneWayDownlinkLinkEndsList,
            py::arg( "transmitter" ),
@@ -699,49 +743,7 @@ Examples
 
      )doc" );
 
-    py::enum_< tom::ObservableType >( m, "ObservableType", R"doc(
 
-Enumeration of available observable types.
-
-Examples
---------
-.. code-block:: python
-
-    # Code snippet to print all available Observable Types
-    from tudatpy.numerical_simulation import estimation_setup
-
-    num_observable_types = len(estimation_setup.observation.ObservableType.__members__)
-    print(f'The length of all available Tudatpy Observable Types is: {num_observable_types}')
-
-    # Print all available Observable Types using the "name" property
-    for i in range(num_observable_types):
-        print(i, estimation_setup.observation.ObservableType(i).name)
-
-
-
-
-      )doc" )
-            .value( "one_way_range_type", tom::ObservableType::one_way_range )
-            .value( "n_way_range_type", tom::ObservableType::n_way_range )
-            .value( "angular_position_type", tom::ObservableType::angular_position )
-            .value( "relative_angular_position_type", tom::ObservableType::angular_position )
-            .value( "position_observable_type", tom::ObservableType::position_observable )
-            .value( "velocity_observable_type", tom::ObservableType::velocity_observable )
-            .value( "relative_position_observable_type", tom::ObservableType::relative_position_observable )
-            .value( "one_way_instantaneous_doppler_type", tom::ObservableType::one_way_doppler )
-            .value( "one_way_averaged_doppler_type",
-                    tom::ObservableType::one_way_differenced_range )
-            .value( "two_way_instantaneous_doppler_type", tom::ObservableType::two_way_doppler )
-            .value( "n_way_averaged_doppler_type", tom::ObservableType::n_way_differenced_range )
-            .value( "euler_angle_313_observable_type",
-                    tom::ObservableType::euler_angle_313_observable )
-            .value( "dsn_one_way_averaged_doppler",
-                    tom::ObservableType::dsn_one_way_averaged_doppler )
-            .value( "dsn_n_way_averaged_doppler", tom::ObservableType::dsn_n_way_averaged_doppler )
-            .value( "doppler_measured_frequency_type",
-                    tom::ObservableType::doppler_measured_frequency )
-            .value( "dsn_n_way_range", tom::ObservableType::dsn_n_way_range )
-            .export_values( );
 
     py::class_< tom::DopplerProperTimeRateSettings,
                 std::shared_ptr< tom::DopplerProperTimeRateSettings > >(
@@ -873,6 +875,126 @@ Examples
 
              # Show that it is an LightTimeConvergenceCriteria object.
              print(light_time_convergence_settings)
+
+
+
+
+      )doc" );
+
+    py::class_< tom::LightTimeCorrectionSettings,
+        std::shared_ptr< tom::LightTimeCorrectionSettings > >(
+        m,
+        "LightTimeCorrectionSettings",
+        R"doc(
+
+         Base class to define light time correction settings.
+
+         Base class to define light time correction settings.
+         This class is not used for calculations of corrections, but is used for the purpose of defining the light time correction properties.
+         Specific light time correction settings must be defined using an object derived from this class.
+
+         Instances of this class are typically created via the
+         :func:`~tudatpy.numerical_simulation.estimation_setup.observation.first_order_relativistic_light_time_correction` function
+
+         Examples
+         --------
+         .. code-block:: python
+
+             # Code snippet to show the creation of a LightTimeCorrectionSettings object
+             from tudatpy.numerical_simulation.estimation_setup import observation
+
+             # Create Link Ends dictionary
+             link_ends = dict()
+             link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+             link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+
+             # Create a Link Definition Object from link_ends dictionary
+             Link_Definition_Object = observation.LinkDefinition(link_ends)
+
+             # Case 1: perturbing body (Earth) involved in the observations
+             # In this case, Earth is a receiver, so the body’s state will be evaluated at the reception time.
+             perturbing_body = ['Earth']
+             doppler_observation_settings = observation.first_order_relativistic_light_time_correction(perturbing_body)
+
+             # Show that it is a LightTimeCorrectionSettings object.
+             print(doppler_observation_settings)
+
+             # Case 2: perturbing body (Sun) not involved in the observations
+             # In this case, the body's state will be evaluated at the midpoint time between the transmission and reception events.
+             perturbing_body = ['Sun']
+
+             # Use: observation.first_order_relativistic_light_time_correction to create a LightTimeCorrectionSettings object
+             # Note: first_order_relativistic_light_time_correction only requires the perturbing list of bodies to be passed as arguments
+             doppler_observation_settings = observation.first_order_relativistic_light_time_correction(perturbing_body)
+
+             # Show that it is an LightTimeCorrectionSettings object.
+             print(doppler_observation_settings.transmitter_proper_time_rate_settings)
+             print(dir(doppler_observation_settings))
+
+
+
+      )doc" );
+
+    py::class_< tom::ObservationBiasSettings, std::shared_ptr< tom::ObservationBiasSettings > >(
+        m, "ObservationBiasSettings", R"doc(
+
+         Base class to defining observation bias settings.
+
+         Base class to defining observation bias settings.
+         Specific observation bias settings must be defined using an object derived from this class.
+         Instances of this class are typically created via the
+         :func:`~tudatpy.numerical_simulation.estimation_setup.observation.absolute_bias` or :func:`~tudatpy.numerical_simulation.estimation_setup.observation.relative_bias` function.
+
+
+         Examples
+         --------
+         .. code-block:: python
+
+             # Code snippet to show the creation of an ObservationBiasSettings object
+             # using absolute and relative bias settings
+             from tudatpy.numerical_simulation.estimation_setup import observation
+             import numpy as np
+
+             bias_array = np.array([1e-2])
+
+             # Use absolute_bias function
+             absolute_bias_settings = observation.absolute_bias(bias_array)
+             # Show that it is an ObservationBiasSettings object.
+             print(absolute_bias_settings)
+
+             # Use relative_bias function
+             relative_bias_settings = observation.relative_bias(bias_array)
+             # Show that it is an ObservationBiasSettings object.
+             print(relative_bias_settings)
+      )doc" );
+
+    py::class_< tom::ObservationViabilitySettings,
+        std::shared_ptr< tom::ObservationViabilitySettings > >(
+        m,
+        "ObservationViabilitySettings",
+        R"doc(
+
+         Class for defining observation viability calculator settings.
+
+         Class for defining the settings for observation viability calculator creation.
+         Instances of this class are typically be created through various dedicated functions,such as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.elevation_angle_viability`, :func:`~tudatpy.numerical_simulation.estimation_setup.observation.body_avoidance_viability` and :func:`~tudatpy.numerical_simulation.estimation_setup.observation.body_occultation_viability`
+
+         Examples
+         --------
+         .. code-block:: python
+
+             # Code snippet to show the creation of an ObservationViabilitySettings object
+             import numpy as np
+             from tudatpy.numerical_simulation.estimation_setup import observation
+
+             # Create ObservationViabilitySettings object
+             # In this case, we exclude observations for which the local elevation angle at link end is less 15 degrees.
+             min_elevation = np.deg2rad(15)
+             # We apply these settings to every ground station on Earth using the following link_end_id: [“Earth”, “”]
+             viability_settings = observation.elevation_angle_viability(["Earth", ""], min_elevation)
+
+             # Show that this is indeed an ObservationViabilitySettings object
+             print(viability_settings)
 
 
 
@@ -1982,59 +2104,7 @@ Examples
            py::arg( "bodies" ),
            R"doc(No documentation found.)doc" );
 
-    py::class_< tom::LightTimeCorrectionSettings,
-                std::shared_ptr< tom::LightTimeCorrectionSettings > >(
-            m,
-            "LightTimeCorrectionSettings",
-            R"doc(
 
-         Base class to define light time correction settings.
-
-         Base class to define light time correction settings.
-         This class is not used for calculations of corrections, but is used for the purpose of defining the light time correction properties.
-         Specific light time correction settings must be defined using an object derived from this class.
-
-         Instances of this class are typically created via the
-         :func:`~tudatpy.numerical_simulation.estimation_setup.observation.first_order_relativistic_light_time_correction` function
-
-         Examples
-         --------
-         .. code-block:: python
-
-             # Code snippet to show the creation of a LightTimeCorrectionSettings object
-             from tudatpy.numerical_simulation.estimation_setup import observation
-
-             # Create Link Ends dictionary
-             link_ends = dict()
-             link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
-             link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
-
-             # Create a Link Definition Object from link_ends dictionary
-             Link_Definition_Object = observation.LinkDefinition(link_ends)
-
-             # Case 1: perturbing body (Earth) involved in the observations
-             # In this case, Earth is a receiver, so the body’s state will be evaluated at the reception time.
-             perturbing_body = ['Earth']
-             doppler_observation_settings = observation.first_order_relativistic_light_time_correction(perturbing_body)
-
-             # Show that it is a LightTimeCorrectionSettings object.
-             print(doppler_observation_settings)
-
-             # Case 2: perturbing body (Sun) not involved in the observations
-             # In this case, the body's state will be evaluated at the midpoint time between the transmission and reception events.
-             perturbing_body = ['Sun']
-
-             # Use: observation.first_order_relativistic_light_time_correction to create a LightTimeCorrectionSettings object
-             # Note: first_order_relativistic_light_time_correction only requires the perturbing list of bodies to be passed as arguments
-             doppler_observation_settings = observation.first_order_relativistic_light_time_correction(perturbing_body)
-
-             # Show that it is an LightTimeCorrectionSettings object.
-             print(doppler_observation_settings.transmitter_proper_time_rate_settings)
-             print(dir(doppler_observation_settings))
-
-
-
-      )doc" );
 
     m.def(
         "first_order_relativistic_light_time_correction",
@@ -2206,38 +2276,7 @@ Examples
            py::arg( "sun_body_name" ) = "Sun",
            R"doc(No documentation found.)doc" );
 
-    py::class_< tom::ObservationBiasSettings, std::shared_ptr< tom::ObservationBiasSettings > >(
-            m, "ObservationBiasSettings", R"doc(
 
-         Base class to defining observation bias settings.
-
-         Base class to defining observation bias settings.
-         Specific observation bias settings must be defined using an object derived from this class.
-         Instances of this class are typically created via the
-         :func:`~tudatpy.numerical_simulation.estimation_setup.observation.absolute_bias` or :func:`~tudatpy.numerical_simulation.estimation_setup.observation.relative_bias` function.
-
-
-         Examples
-         --------
-         .. code-block:: python
-        
-             # Code snippet to show the creation of an ObservationBiasSettings object
-             # using absolute and relative bias settings
-             from tudatpy.numerical_simulation.estimation_setup import observation
-             import numpy as np
-
-             bias_array = np.array([1e-2])
-
-             # Use absolute_bias function
-             absolute_bias_settings = observation.absolute_bias(bias_array)
-             # Show that it is an ObservationBiasSettings object.
-             print(absolute_bias_settings)
-
-             # Use relative_bias function
-             relative_bias_settings = observation.relative_bias(bias_array)
-             # Show that it is an ObservationBiasSettings object.
-             print(relative_bias_settings)
-      )doc" );
 
     m.def( "clock_induced_bias",
            &tom::clockInducedBias,
@@ -2883,38 +2922,7 @@ Examples
                     tom::ObservationAncilliarySimulationVariable::range_conversion_factor )
             .export_values( );
 
-    py::class_< tom::ObservationViabilitySettings,
-                std::shared_ptr< tom::ObservationViabilitySettings > >(
-            m,
-            "ObservationViabilitySettings",
-            R"doc(
 
-         Class for defining observation viability calculator settings.
-
-         Class for defining the settings for observation viability calculator creation.
-         Instances of this class are typically be created through various dedicated functions,such as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.elevation_angle_viability`, :func:`~tudatpy.numerical_simulation.estimation_setup.observation.body_avoidance_viability` and :func:`~tudatpy.numerical_simulation.estimation_setup.observation.body_occultation_viability`
-
-         Examples
-         --------
-         .. code-block:: python
-
-             # Code snippet to show the creation of an ObservationViabilitySettings object
-             import numpy as np
-             from tudatpy.numerical_simulation.estimation_setup import observation
-
-             # Create ObservationViabilitySettings object
-             # In this case, we exclude observations for which the local elevation angle at link end is less 15 degrees.
-             min_elevation = np.deg2rad(15)
-             # We apply these settings to every ground station on Earth using the following link_end_id: [“Earth”, “”]
-             viability_settings = observation.elevation_angle_viability(["Earth", ""], min_elevation)
-
-             # Show that this is indeed an ObservationViabilitySettings object
-             print(viability_settings)
-
-
-
-
-      )doc" );
 
     m.def( "elevation_angle_viability",
            py::overload_cast< const std::pair< std::string, std::string >, const double >(

@@ -471,11 +471,17 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
     m.def( "central_spice",
            &tss::centralGravityFromSpiceSettings,
+           py::arg( "body_name_to_use" ) = "",
            R"doc(
 
  Function to create central gravity field settings from Spice settings.
 
  Function for settings object, defining a point-mass gravity field model. This function provides the same model as :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field.central`), but with gravitational parameter :math:`\mu` from Spice.
+
+ Parameters
+ ----------
+ body_name_to_use : str, default = ""
+     Body from which Spice gravitational paramerer is queried (if empty, it uses the name of the body to which the settings are assigned, see :func:`~tudatpy.numerical_simulation.environment_setup.ephemeris.direct_spice` for example of analogous functionality for spice ephemeris).
 
  Returns
  -------
