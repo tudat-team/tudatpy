@@ -83,6 +83,10 @@ void expose_estimation_filter_parser( py::module& m )
     py::class_< tom::ObservationFilterBase, std::shared_ptr< tom::ObservationFilterBase > >(
             m, "ObservationFilterBase", R"doc(No documentation found.)doc" );
 
+    py::class_< tom::ObservationCollectionParser,
+        std::shared_ptr< tom::ObservationCollectionParser > >(
+        m, "ObservationCollectionParser", R"doc(No documentation found.)doc" );
+
     m.def( "observation_filter",
            py::overload_cast< tom::ObservationFilterType, const double, const bool, const bool >(
                    &tom::observationFilter ),
@@ -176,10 +180,6 @@ void expose_estimation_filter_parser( py::module& m )
            py::arg( "splitter_value" ),
            py::arg( "min_number_observations" ) = 0,
            R"doc(No documentation found.)doc" );
-
-    py::class_< tom::ObservationCollectionParser,
-                std::shared_ptr< tom::ObservationCollectionParser > >(
-            m, "ObservationCollectionParser", R"doc(No documentation found.)doc" );
 
     m.def( "observation_parser",
            py::overload_cast<>( &tom::observationParser ),
