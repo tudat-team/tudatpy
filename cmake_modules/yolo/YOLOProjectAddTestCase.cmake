@@ -34,7 +34,7 @@ function("TUDAT_ADD_TEST_CASE" arg1)
 
 endfunction()
 
-function("TUDAT_ADD_TEST_CASE" arg1)
+function("TUDAT_ADD_TEST_CASE2" arg1)
     # arg1 : Test name. Will add source file ${CMAKE_CURRENT_SOURCE_DIR}/tests/unitTest${arg1}.cpp
     # _${PROJECT_NAME}_TEST_CASE_ITEMS : Global dependencies to link to all.
     # ADD_DIRNAME : (bool) Adds the current dirname as prefix to test.

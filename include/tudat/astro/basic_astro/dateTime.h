@@ -228,6 +228,9 @@ public:
 
         double minimumRepresentableEpoch = referenceDateTime.epoch< double >( ) + lowerRepresentationCount;
 
+        std::cout << "Lower representation count" << lowerRepresentationCount << std::endl;
+        std::cout << "Minimum representable epoch" << minimumRepresentableEpoch << std::endl;
+
         return minimumRepresentableEpoch;
     }
 
@@ -242,6 +245,9 @@ public:
                         .count( ) );
 
         double maximumRepresentableEpoch = referenceDateTime.epoch< double >( ) + upperRepresentationCount;
+
+        std::cout << "Upper representation count" << upperRepresentationCount << std::endl;
+        std::cout << "Maximum representable epoch" << maximumRepresentableEpoch << std::endl;
 
         return maximumRepresentableEpoch;
     }
