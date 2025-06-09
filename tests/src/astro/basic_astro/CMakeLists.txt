@@ -147,6 +147,6 @@ TUDAT_ADD_TEST_CASE(PolyhedronFunctions
         tudat_basic_mathematics
         )
 
-TUDAT_ADD_TEST_CASE(DateTime
+TUDAT_ADD_TEST_CASE2(DateTime
         PRIVATE_LINKS
         tudat_basic_astrodynamics)
