@@ -288,6 +288,17 @@ public:
         using namespace std::chrono;
         microseconds timeInMicroSeconds = duration_cast< microseconds >( datetime.time_since_epoch( ) );
         long long fractional_seconds = timeInMicroSeconds.count( ) % 1000000LL;
+
+        std::cout << "Local tm: " << local_tm.tm_year << " " << local_tm.tm_mon << " " << local_tm.tm_mday << " " << local_tm.tm_hour << " "
+                  << local_tm.tm_min << " " << local_tm.tm_sec << std::endl;
+        std::cout << "Fractional seconds: " << fractional_seconds << std::endl;
+
+        std::cout << "Input seconds to DateTime: "
+                  << static_cast< long double >( local_tm.tm_sec ) +
+                        static_cast< long double >( fractional_seconds ) /
+                                tudat::mathematical_constants::getFloatingInteger< long double >( 1000000LL )
+                  << std::endl;
+
         return DateTime( local_tm.tm_year + 1900,
                          local_tm.tm_mon + 1,
                          local_tm.tm_mday,
