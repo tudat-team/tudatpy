@@ -437,6 +437,12 @@ void expose_time_conversion( py::module& m )
             
 Function to convert a Python `datetime.datetime` object to a Tudat :class:`DateTime` object. The Tudat-native alternative has the advantage of providing sub-femtosecond resolution, as opposed to the microsecond resolution of the Python version.
 
+.. warning::
+
+    This function uses the C++ `std::chrono` library, which is limited in the time range it can represent. If the range is exceeded, the conversion will overflow and **NOT** throw an exception.
+
+    The exact range is platform-dependent. Dates between 1678-01-01 and 2261-12-31 are representable on all platforms.
+
 Parameters
 ----------
 datetime : datetime.datetime
@@ -514,6 +520,10 @@ In this example, the calendar date corresponding to when 122 days have passed in
             .def( "to_python_datetime", &tba::DateTime::timePoint, R"doc(
                 
 Method to convert retrieve a Python datetime.datetime object from the Tudat :class:`DateTime` object. This is the inverse of the :meth:`~tudatpy.astro.time_conversion.DateTime.from_python_datetime` method.
+
+.. note::
+
+    The conversion uses the C++ `std::chrono` library, which is limited the time range it can represent. If the range is exceeded, the conversion will fail and throw an exception. The exact range is platform-dependent. Dates between 1678-01-01 and 2261-12-31 are representable on all platforms.
 
 Returns
 -------
