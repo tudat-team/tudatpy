@@ -2273,10 +2273,17 @@ void expose_dependent_variable_setup( py::module &m )
            py::arg( "target_name" ),
            R"doc(No documentation found.)doc" );
 
-    m.def( "aerodynamic_coefficients_body_frame",
-           &tp::aerodynamicCoefficientsInBodyFrameDependentVariable,
+    m.def( "aerodynamic_coefficients",
+           &tp::aerodynamicCoefficientsDependentVariable,
            py::arg( "target_name" ),
            py::arg( "central_body_name" ),
+           R"doc(No documentation found.)doc" );
+
+    m.def( "actual_cross_section",
+           &tp::actualCrossSectionDependentVariable,
+           py::arg( "target_name" ),
+           py::arg( "central_body_name" ),
+           py::arg( "acceleration_type" ) = "radiation_pressure",
            R"doc(No documentation found.)doc" );
 }
 
