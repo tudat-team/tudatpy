@@ -223,7 +223,7 @@ public:
 
         // The earliest time point that can be represented as duration from the reference point is system dependent
         const double lowerRepresentationCount = static_cast< double >(
-                std::chrono::duration_cast< std::chrono::seconds >( std::chrono::system_clock::time_point::max( ).time_since_epoch( ) )
+                std::chrono::duration_cast< std::chrono::seconds >( std::chrono::system_clock::time_point::min( ).time_since_epoch( ) )
                         .count( ) );
 
         double minimumRepresentableEpoch = referenceDateTime.epoch< double >( ) + lowerRepresentationCount;
