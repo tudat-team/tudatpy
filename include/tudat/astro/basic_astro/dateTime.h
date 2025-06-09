@@ -291,6 +291,7 @@ public:
 
         std::cout << "Local tm: " << local_tm.tm_year << " " << local_tm.tm_mon << " " << local_tm.tm_mday << " " << local_tm.tm_hour << " "
                   << local_tm.tm_min << " " << local_tm.tm_sec << std::endl;
+        std::cout << "Time in microseconds: " << timeInMicroSeconds.count( ) << std::endl;
         std::cout << "Fractional seconds: " << fractional_seconds << std::endl;
 
         std::cout << "Input seconds to DateTime: "
