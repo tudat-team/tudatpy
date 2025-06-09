@@ -179,6 +179,7 @@ BOOST_AUTO_TEST_CASE( testTimePointConversions )
                                           std::get< 1 >( times.at( k ) ),
                                           std::get< 2 >( times.at( k ) ) );
                 std::cout << "Created date time " << currentDateTime.isoString( ) << std::endl;
+                std::cout << "Epoch: " << currentDateTime.epoch< double >( ) << std::endl;
 
                 if( currentDateTime.epoch< double >( ) < DateTime::minimumChronoRepresentableEpoch( ) ||
                     currentDateTime.epoch< double >( ) > DateTime::maximumChronoRepresentableEpoch( ) )
@@ -189,7 +190,8 @@ BOOST_AUTO_TEST_CASE( testTimePointConversions )
                     continue;
                 }
 
-                std::cout << "Creating time point" << std::endl;
+                std::cout << "Epoch in chrono range. Creating time point" << std::endl;
+
                 std::chrono::system_clock::time_point timePoint = currentDateTime.timePoint( );
                 std::cout << "Created time point" << std::endl;
                 DateTime reconstructedDateTimeFromTimePoint = DateTime::fromTimePoint( timePoint );
