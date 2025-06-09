@@ -171,27 +171,28 @@ BOOST_AUTO_TEST_CASE( testTimePointConversions )
                     continue;
                 }
 
-                std::cout<<"Create date time"<<std::endl;
+                std::cout << "Create date time" << std::endl;
                 DateTime currentDateTime( years.at( i ),
                                           dates.at( j ).first,
                                           dates.at( j ).second,
                                           std::get< 0 >( times.at( k ) ),
                                           std::get< 1 >( times.at( k ) ),
                                           std::get< 2 >( times.at( k ) ) );
-                std::cout<<"Created date time "<<currentDateTime.isoString( )<<std::endl;
+                std::cout << "Created date time " << currentDateTime.isoString( ) << std::endl;
 
-                if( i == 1 || i == 3 )
+                if( currentDateTime.epoch< double >( ) < DateTime::minimumChronoRepresentableEpoch( ) ||
+                    currentDateTime.epoch< double >( ) > DateTime::maximumChronoRepresentableEpoch( ) )
                 {
                     // For the years 2373 and 1621, the date is out of range for std::chrono::system_clock
                     BOOST_CHECK_THROW( currentDateTime.timePoint( ), std::runtime_error );
                     continue;
                 }
 
-                std::cout<<"Creating time point"<<std::endl;
+                std::cout << "Creating time point" << std::endl;
                 std::chrono::system_clock::time_point timePoint = currentDateTime.timePoint( );
-                std::cout<<"Created time point"<<std::endl;
+                std::cout << "Created time point" << std::endl;
                 DateTime reconstructedDateTimeFromTimePoint = DateTime::fromTimePoint( timePoint );
-                std::cout<<"Reconstructed date time "<<reconstructedDateTimeFromTimePoint.isoString( )<<std::endl;
+                std::cout << "Reconstructed date time " << reconstructedDateTimeFromTimePoint.isoString( ) << std::endl;
 
                 // in the construction of the timepoint, the microseconds are rounded to the nearest integer, thus a tolerance of 1e-6
                 // is used

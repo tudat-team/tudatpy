@@ -216,25 +216,46 @@ public:
         return basic_astrodynamics::convertDayMonthYearToDayOfYear( day_, month_, year_ );
     }
 
-    std::chrono::system_clock::time_point timePoint( ) const
+    static double minimumChronoRepresentableEpoch( )
     {
+        // std::chrono::system_clock uses the Unix epoch (1970-01-01 00:00:00 UTC) as reference point
         DateTime referenceDateTime( 1970, 1, 1, 0, 0, 0.0L );
-        std::cout<<"Created 1970 date time in timePoint"<<std::endl;
+
+        // The earliest time point that can be represented as duration from the reference point is system dependent
         const double lowerRepresentationCount = static_cast< double >(
-                std::chrono::duration_cast< std::chrono::seconds >( std::chrono::system_clock::time_point::min( ).time_since_epoch( ) )
+                std::chrono::duration_cast< std::chrono::seconds >( std::chrono::system_clock::time_point::max( ).time_since_epoch( ) )
                         .count( ) );
+
+        double minimumRepresentableEpoch = referenceDateTime.epoch< double >( ) + lowerRepresentationCount;
+
+        return minimumRepresentableEpoch;
+    }
+
+    static double maximumChronoRepresentableEpoch( )
+    {
+        // std::chrono::system_clock uses the Unix epoch (1970-01-01 00:00:00 UTC) as reference point
+        DateTime referenceDateTime( 1970, 1, 1, 0, 0, 0.0L );
+
+        // The latest time point that can be represented as duration from the reference point is system dependent
         const double upperRepresentationCount = static_cast< double >(
                 std::chrono::duration_cast< std::chrono::seconds >( std::chrono::system_clock::time_point::max( ).time_since_epoch( ) )
                         .count( ) );
 
-        std::cout<<"Adding minimum/maximum C"<<lowerRepresentationCount<<" "<<upperRepresentationCount<<std::endl;
+        double maximumRepresentableEpoch = referenceDateTime.epoch< double >( ) + upperRepresentationCount;
 
-        if( this->epoch< double >( ) > ( referenceDateTime.epoch< double >( ) + upperRepresentationCount ) ||
-            this->epoch< double >( ) < ( referenceDateTime.epoch< double >( ) + lowerRepresentationCount ) )
+        return maximumRepresentableEpoch;
+    }
+
+    std::chrono::system_clock::time_point timePoint( ) const
+    {
+        double minimumChronoEpoch = minimumChronoRepresentableEpoch( );
+        double maximumChronoEpoch = maximumChronoRepresentableEpoch( );
+
+        if( this->epoch< double >( ) > maximumChronoEpoch || this->epoch< double >( ) < minimumChronoEpoch )
         {
-            throw std::runtime_error(
-                    " Date " + this->isoString( false, 3 ) + " is out of range for conversion to time point. Lower limit (in seconds from 1-1-1970) is: " +
-                    std::to_string( lowerRepresentationCount ) + ", upper limit: " + std::to_string( upperRepresentationCount ) );
+            throw std::runtime_error( " Date " + this->isoString( false, 3 ) +
+                                      " is out of range for conversion to time point. Lower limit (in seconds from J2000) is: " +
+                                      std::to_string( minimumChronoEpoch ) + ", upper limit: " + std::to_string( maximumChronoEpoch ) );
         }
 
         std::tm tm = { };
@@ -279,9 +300,9 @@ public:
     template< typename TimeType >
     static DateTime fromTime( const TimeType &timeInput )
     {
-        std::cout<<"Creating DateTime from time "<<timeInput<<std::endl;
+        std::cout << "Creating DateTime from time " << timeInput << std::endl;
         Time time = Time( timeInput );
-        std::cout<<"Creating DateTime from time "<<time.getFullPeriods( )<<std::endl;
+        std::cout << "Creating DateTime from time " << time.getFullPeriods( ) << std::endl;
 
         int fullPeriodsSinceMidnightJD0 = time.getFullPeriods( ) +
                 basic_astrodynamics::JULIAN_DAY_ON_J2000_INT * TIME_NORMALIZATION_TERMS_PER_DAY + TIME_NORMALIZATION_TERMS_PER_HALF_DAY;
@@ -301,9 +322,10 @@ public:
         int hour = time.fullPeriodsSinceMidnight( );
         int minute = std::floor( time.getSecondsIntoFullPeriod( ) / 60.0L );
 
-        std::cout<<"Test output A"<<minute<<" "<<time.getSecondsIntoFullPeriod( )<<" "<<60.0L<<std::endl;
+        std::cout << "Test output A" << minute << " " << time.getSecondsIntoFullPeriod( ) << " " << 60.0L << std::endl;
         long double seconds = time.getSecondsIntoFullPeriod( ) - static_cast< long double >( 60 * minute );
-        std::cout<<"Test output B"<<seconds<<" "<<time.getSecondsIntoFullPeriod( )<<" "<<static_cast< long double >( 60 * minute )<<" "<<60 * minute<<std::endl;
+        std::cout << "Test output B" << seconds << " " << time.getSecondsIntoFullPeriod( ) << " "
+                  << static_cast< long double >( 60 * minute ) << " " << 60 * minute << std::endl;
 
         return DateTime( year, month, day, hour, minute, seconds );
     }
@@ -347,7 +369,8 @@ protected:
 
     void verifyDay( )
     {
-        std::cout<<"Verifying day "<<day_<<" "<<month_<<" "<<year_<<" "<<basic_astrodynamics::getDaysInMonth( month_, year_ )<<std::endl;
+        std::cout << "Verifying day " << day_ << " " << month_ << " " << year_ << " "
+                  << basic_astrodynamics::getDaysInMonth( month_, year_ ) << std::endl;
         if( day_ > basic_astrodynamics::getDaysInMonth( month_, year_ ) )
         {
             throw std::runtime_error( "Error when creating Tudat DateTime, input date was " + std::to_string( day_ ) + "-" +
