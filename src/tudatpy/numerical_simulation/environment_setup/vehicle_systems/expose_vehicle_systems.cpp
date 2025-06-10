@@ -413,6 +413,53 @@ Panel surface area
 
 
      )doc" );
+
+    m.def( "body_panel_settings_list_from_dae",
+        &tss::bodyPanelSettingsListFromDae,
+        py::arg( "file_path" ),
+        py::arg( "frame_origin" ),
+        py::arg( "material_properties" ),
+        py::arg( "reradiation_settings" ),
+        py::arg( "frame_orientation" ) = "",
+        R"doc(
+Function for creating list of panel body settings
+        
+Function for creating list of panel body settings from a .dae (COLLADA) file containing the 3D geometry and the
+material for the paneled surface.
+Parameters
+----------
+file_path : str
+    Path to .dae file with geometry data.
+frame_origin : np.array
+    Frame origin of the .dae part to be loaded.
+material_properties : dict[str, np.array]
+    Dictionary of material properties, as they appear in the .dae file provided.
+reradiation_settings : dict[str, bool]
+    Dictionary of re-radiation settings for materials, as they appear in the .dae file provided.
+frame_orientation : str, default = "
+    Identifier of the frame to which the panel is fixed (if body-fixed frame, this can be left empty).
+    
+Returns
+-------
+list[BodyPanelSettings]
+    List of settings for body panels
+    )doc" );
+
+    m.def( "merge_body_panel_setting_lists",
+       &tss::mergeBodyPanelSettingsLists,
+       py::arg( "list_of_lists_of_body_panel_settings" ),
+       R"doc(
+Function for merging lists of panel body settings
+Parameters
+----------
+list_of_lists_of_body_panel_settings : list[list[BodyPanelSettings], ...]
+    List of lists of body panel settings.
+Returns
+-------
+list[BodyPanelSettings]
+    List of settings for body panels assembled from different parts, creating a coherent list of body panel settings.
+    )doc" );
+    
 }
 
 }  // namespace vehicle_systems
