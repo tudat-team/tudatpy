@@ -1,11 +1,15 @@
+.. _exceptions:
+
 ``exceptions``
 =================
 Specific exceptions that can be raised by the TudatPy library.
 
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Modules
 
-
-
+   spice_exceptions
 
 
 
