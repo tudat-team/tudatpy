@@ -221,10 +221,16 @@ public:
         // std::chrono::system_clock uses the Unix epoch (1970-01-01 00:00:00 UTC) as reference point
         DateTime referenceDateTime( 1970, 1, 1, 0, 0, 0.0L );
 
-        // The earliest time point that can be represented as duration from the reference point is system dependent
-        const double lowerRepresentationCount = static_cast< double >(
-                std::chrono::duration_cast< std::chrono::seconds >( std::chrono::system_clock::time_point::min( ).time_since_epoch( ) )
-                        .count( ) );
+        constexpr std::chrono::system_clock::duration::rep minTickCount =
+                std::numeric_limits< std::chrono::system_clock::duration::rep >::min( );
+
+        std::chrono::system_clock::duration minDuration( minTickCount );
+
+        std::chrono::duration< double > secondsDuration = minDuration;
+
+        double lowerRepresentationCount = secondsDuration.count( );
+        // const double lowerRepresentationCount =
+        //         std::chrono::duration< double >( std::chrono::system_clock::time_point::min( ).time_since_epoch( ) ).count( );
 
         double minimumRepresentableEpoch = referenceDateTime.epoch< double >( ) + lowerRepresentationCount;
 
@@ -239,10 +245,16 @@ public:
         // std::chrono::system_clock uses the Unix epoch (1970-01-01 00:00:00 UTC) as reference point
         DateTime referenceDateTime( 1970, 1, 1, 0, 0, 0.0L );
 
-        // The latest time point that can be represented as duration from the reference point is system dependent
-        const double upperRepresentationCount = static_cast< double >(
-                std::chrono::duration_cast< std::chrono::seconds >( std::chrono::system_clock::time_point::max( ).time_since_epoch( ) )
-                        .count( ) );
+        constexpr std::chrono::system_clock::duration::rep maxTickCount =
+                std::numeric_limits< std::chrono::system_clock::duration::rep >::max( );
+
+        std::chrono::system_clock::duration maxDuration( maxTickCount );
+
+        std::chrono::duration< double > secondsDuration = maxDuration;
+
+        double upperRepresentationCount = secondsDuration.count( );
+        // const double upperRepresentationCount =
+        //         std::chrono::duration< double >( std::chrono::system_clock::time_point::max( ).time_since_epoch( ) ).count( );
 
         double maximumRepresentableEpoch = referenceDateTime.epoch< double >( ) + upperRepresentationCount;
 
