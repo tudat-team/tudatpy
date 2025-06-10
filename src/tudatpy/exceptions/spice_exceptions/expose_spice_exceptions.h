@@ -8,10 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_EXCEPTIONS_H
-#define TUDATPY_EXPOSE_EXCEPTIONS_H
-
-#include "spice_exceptions/expose_spice_exceptions.h"
+#ifndef TUDATPY_EXPOSE_SPICE_EXCEPTIONS_H
+#define TUDATPY_EXPOSE_SPICE_EXCEPTIONS_H
 
 namespace py = pybind11;
 
@@ -20,7 +18,7 @@ namespace tudatpy
 namespace exceptions
 {
 
-void expose_exceptions( py::module &m );
+void expose_spice_exceptions( py::module &m );
 
 }  // namespace exceptions
 }  // namespace tudatpy
