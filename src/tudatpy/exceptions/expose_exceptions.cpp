@@ -18,6 +18,7 @@
 #include "scalarTypes.h"
 #include "expose_exceptions.h"
 #include <tudat/basics/tudatExceptions.h>
+#include <tudat/interface/spice/spiceException.h>
 
 namespace py = pybind11;
 namespace te = tudat::exceptions;
@@ -29,6 +30,9 @@ namespace exceptions
 
 void expose_exceptions( py::module& m )
 {
+    auto spice_exceptions_submodule = m.def_submodule( "spice_exceptions" );
+    exceptions::expose_spice_exceptions( spice_exceptions_submodule );
+
     /*
     This module is based on the solution to exposing C++ exceptions to Python described in the following GitHub issue:
     https://github.com/pybind/pybind11/issues/1281
