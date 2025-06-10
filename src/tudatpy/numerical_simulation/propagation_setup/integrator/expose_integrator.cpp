@@ -1756,7 +1756,8 @@ IntegratorSettings
            py::arg( "minimum_order" ) = 6,
            py::arg( "maximum_order" ) = 11,
            py::arg( "assess_termination_on_minor_steps" ) = false,
-           py::arg( "bandwidth" ) = 200.0 );
+           py::arg( "bandwidth" ) = 200.0,
+           "" );
 }
 
 }  // namespace integrator

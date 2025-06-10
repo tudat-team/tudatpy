@@ -33,27 +33,29 @@ namespace numerical_simulation
 
 void expose_numerical_simulation( py::module &m )
 {
+    auto environment_setup_submodule = m.def_submodule( "environment_setup" );
+    environment_setup::expose_environment_setup( environment_setup_submodule );
+
     auto environment_submodule = m.def_submodule( "environment" );
     environment::expose_environment( environment_submodule );
+
+    auto propagation_setup_submodule = m.def_submodule( "propagation_setup" );
+    propagation_setup::expose_propagation_setup( propagation_setup_submodule );
 
     auto propagation_submodule = m.def_submodule( "propagation" );
     propagation::expose_propagation( propagation_submodule );
 
+    auto estimation_setup_submodule = m.def_submodule( "estimation_setup" );
+    estimation_setup::expose_estimation_setup( estimation_setup_submodule );
+
     auto estimation_submodule = m.def_submodule( "estimation" );
+
     estimation::expose_estimation_filter_parser( estimation_submodule );
     estimation::expose_estimation( estimation_submodule );
     estimation::expose_estimation_observation_collection( estimation_submodule );
     estimation::expose_estimation_propagated_covariance( estimation_submodule );
     estimation::expose_estimation_single_observation_set( estimation_submodule );
 
-    auto environment_setup_submodule = m.def_submodule( "environment_setup" );
-    environment_setup::expose_environment_setup( environment_setup_submodule );
-
-    auto propagation_setup_submodule = m.def_submodule( "propagation_setup" );
-    propagation_setup::expose_propagation_setup( propagation_setup_submodule );
-
-    auto estimation_setup_submodule = m.def_submodule( "estimation_setup" );
-    estimation_setup::expose_estimation_setup( estimation_setup_submodule );
 
     py::class_< tudat::Time >( m, "Time", R"doc(No documentation found.)doc" )
             .def( py::init< const int, const long double >( ),
