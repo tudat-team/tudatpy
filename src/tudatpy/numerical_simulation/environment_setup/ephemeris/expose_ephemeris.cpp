@@ -628,7 +628,7 @@ void expose_ephemeris_setup( py::module& m )
  frame_orientation : str, default="ECLIPJ2000"
      Orientation of frame in which ephemeris data is defined.
  body_name_to_use : str, default = ""
-     Body from which Spice ephemeris is to be created.
+     Body from which Spice ephemeris is to be created (if empty, it uses the name of the body to which the settings are assigned, see below for example).
  Returns
  -------
  DirectSpiceEphemerisSettings
