@@ -53,7 +53,6 @@ Functions
    get_space_weather_path
 
 
-
 .. autofunction:: tudatpy.data.save2txt
 
 .. autofunction:: tudatpy.data.save_time_history_to_file
@@ -77,8 +76,6 @@ Functions
 .. autofunction:: tudatpy.data.get_gravity_models_path
 
 .. autofunction:: tudatpy.data.get_space_weather_path
-
-
 
 
 

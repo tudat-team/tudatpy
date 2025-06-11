@@ -40,18 +40,201 @@ namespace propagation_setup
 namespace propagator
 {
 
-std::shared_ptr< tudat::propagators::MultiArcPropagatorProcessingSettings >
-multiArcProcessingSettings( )
+std::shared_ptr< tudat::propagators::MultiArcPropagatorProcessingSettings > multiArcProcessingSettings( )
 {
     return std::make_shared< tudat::propagators::MultiArcPropagatorProcessingSettings >( );
 }
 
 void expose_propagator_setup( py::module &m )
 {
-    py::class_< tp::PropagationPrintSettings, std::shared_ptr< tp::PropagationPrintSettings > >(
-            m,
-            "PropagationPrintSettings",
-            R"doc(
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    // ENUMS
+    py::enum_< tp::TranslationalPropagatorType >( m,
+                                                  "TranslationalPropagatorType",
+                                                  R"doc(
+
+Enumeration of available translational propagator types.
+
+
+
+
+
+      )doc" )
+            .value( "undefined_translational_propagator",
+                    tp::TranslationalPropagatorType::undefined_translational_propagator,
+                    R"doc(
+      )doc" )
+            .value( "cowell",
+                    tp::TranslationalPropagatorType::cowell,
+                    R"doc(
+
+Propagation of Cartesian elements (state vector size 6), without any transformations
+
+)doc" )
+            .value( "encke",
+                    tp::TranslationalPropagatorType::encke,
+                    R"doc(
+
+Propagation of the difference in Cartesian elements of the orbit w.r.t. an unperturbed reference orbit. The reference orbit is generated from the initial state/central body, and not updated during the propagation (see Wakker, 2015 [2]_)
+
+)doc" )
+            .value( "gauss_keplerian",
+                    tp::TranslationalPropagatorType::gauss_keplerian,
+                    R"doc(
+
+Propagation of Keplerian elements (state vector size 6), with true anomaly as the 'fast' element  (see Vallado, 2001 [4]_)
+
+)doc" )
+            .value( "gauss_modified_equinoctial",
+                    tp::TranslationalPropagatorType::gauss_modified_equinoctial,
+                    R"doc(
+
+Propagation of Modified equinoctial elements (state vector size 6), with the element :math:`I` defining the location of the singularity based on the initial condition (see Hintz, 2008 [3]_)
+
+)doc" )
+            .value( "unified_state_model_quaternions",
+                    tp::TranslationalPropagatorType::unified_state_model_quaternions,
+                    R"doc(
+
+Propagation of Unified state model using quaternions (state vector size 7, see Vittaldev et al., 2012 [1]_)
+
+)doc" )
+            .value( "unified_state_model_modified_rodrigues_parameters",
+                    tp::TranslationalPropagatorType::unified_state_model_modified_rodrigues_parameters,
+                    R"doc(
+
+Propagation of Unified state model using modified Rodrigues parameters (state vector size 7, last element represents shadow parameter, see Vittaldev et al., 2012 [1]_)
+
+)doc" )
+            .value( "unified_state_model_exponential_map",
+                    tp::unified_state_model_exponential_map,
+                    R"doc(
+
+Propagation of Unified state model using exponential map (state vector size 7, last element represents shadow parameter, see Vittaldev et al., 2012 [1]_)
+
+)doc" )
+            .export_values( );
+
+    py::enum_< tp::RotationalPropagatorType >( m,
+                                               "RotationalPropagatorType",
+                                               R"doc(
+
+Enumeration of available rotational propagator types.
+
+
+
+
+
+      )doc" )
+            .value( "undefined_rotational_propagator",
+                    tp::RotationalPropagatorType::undefined_rotational_propagator,
+                    R"doc(
+      )doc" )
+            .value( "quaternions",
+                    tp::RotationalPropagatorType::quaternions,
+                    R"doc(
+
+Entries 1-4: The quaternion defining the rotation from inertial to body-fixed frame (see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html#definition-of-rotational-state>`__)
+
+Entries 5-7: The body's angular velocity vector, expressed in its body-fixed frame.
+
+)doc" )
+            .value( "modified_rodrigues_parameters",
+                    tp::RotationalPropagatorType::modified_rodrigues_parameters,
+                    R"doc(
+
+Entries 1-4: The modified Rodrigues parameters defining the rotation from inertial to body-fixed frame (with entry four the shadow parameter)
+
+Entries 5-7: The body's angular velocity vector, expressed in its body-fixed frame.
+
+)doc" )
+            .value( "exponential_map",
+                    tp::RotationalPropagatorType::exponential_map,
+                    R"doc(
+
+Entries 1-4: The exponential map defining the rotation from inertial to body-fixed frame (with entry four the shadow parameter)
+
+Entries 5-7: The body's angular velocity vector, expressed in its body-fixed frame.
+
+)doc" )
+            .export_values( );
+
+    py::enum_< tp::PropagationTerminationTypes >( m,
+                                                  "PropagationTerminationTypes",
+                                                  R"doc(
+
+Enumeration of possible propagation termination types
+
+
+
+
+
+      )doc" )
+            .value( "time_stopping_condition_type",
+                    tp::PropagationTerminationTypes::time_stopping_condition,
+                    R"doc(No propagator documentation found.)doc" )
+            .value( "cpu_time_stopping_condition_type",
+                    tp::PropagationTerminationTypes::cpu_time_stopping_condition,
+                    R"doc(No propagator documentation found.)doc" )
+            .value( "dependent_variable_stopping_condition_type",
+                    tp::PropagationTerminationTypes::dependent_variable_stopping_condition,
+                    R"doc(No propagator documentation found.)doc" )
+            .value( "hybrid_stopping_condition_type",
+                    tp::PropagationTerminationTypes::hybrid_stopping_condition,
+                    R"doc(No propagator documentation found.)doc" )
+            .value( "custom_stopping_condition_type",
+                    tp::PropagationTerminationTypes::custom_stopping_condition,
+                    R"doc(No propagator documentation found.)doc" )
+            .export_values( );
+
+    py::enum_< tp::IntegratedStateType >( m,
+                                          "StateType",
+                                          R"doc(
+
+Enumeration of available integrated state types.
+
+
+
+
+
+      )doc" )
+            .value( "hybrid_type",
+                    tp::IntegratedStateType::hybrid,
+                    R"doc(
+      )doc" )
+            .value( "translational_type",
+                    tp::IntegratedStateType::translational_state,
+                    R"doc(
+      )doc" )
+            .value( "rotational_type",
+                    tp::IntegratedStateType::rotational_state,
+                    R"doc(
+      )doc" )
+            .value( "mass_type",
+                    tp::IntegratedStateType::body_mass_state,
+                    R"doc(
+      )doc" )
+            .value( "custom_type",
+                    tp::IntegratedStateType::custom_state,
+                    R"doc(
+      )doc" )
+            .export_values( );
+
+    //        py::enum_<tp::VariableType>(m, "VariableType")
+    //                .value("independent_variable",
+    //                tp::VariableType::independentVariable)
+    //                .value("cpu_time_variable",
+    //                tp::VariableType::cpuTimeVariable)
+    //                .value("state_variable",
+    //                tp::VariableType::stateVariable)
+    //                .value("dependent_variable",
+    //                tp::VariableType::dependentVariable)
+    //                .export_values();
+
+    py::class_< tp::PropagationPrintSettings, std::shared_ptr< tp::PropagationPrintSettings > >( m,
+                                                                                                 "PropagationPrintSettings",
+                                                                                                 R"doc(
 
          Class to save settings on what is to be written to the console during the propagation of a single arc.
 
@@ -213,11 +396,10 @@ void expose_propagator_setup( py::module &m )
 
          :type: int
       )doc" )
-            .def_property(
-                    "print_dependent_variables_during_propagation",
-                    &tp::PropagationPrintSettings::getPrintDependentVariableDuringPropagation,
-                    &tp::PropagationPrintSettings::setPrintDependentVariableDuringPropagation,
-                    R"doc(
+            .def_property( "print_dependent_variables_during_propagation",
+                           &tp::PropagationPrintSettings::getPrintDependentVariableDuringPropagation,
+                           &tp::PropagationPrintSettings::setPrintDependentVariableDuringPropagation,
+                           R"doc(
 
          Boolean defining whether the dependent variables are to be printed during the propagation along with the state,
          at steps/epochs define by the ``results_print_frequency_in_seconds`` and/or ``results_print_frequency_in_steps`` inputs.
@@ -238,8 +420,7 @@ void expose_propagator_setup( py::module &m )
 
      )doc" )
             .def( "enable_all_printing",
-                  py::overload_cast< const double, const int >(
-                          &tp::PropagationPrintSettings::enableAllPrinting ),
+                  py::overload_cast< const double, const int >( &tp::PropagationPrintSettings::enableAllPrinting ),
                   py::arg( "results_print_frequency_in_seconds" ),
                   py::arg( "results_print_frequency_in_steps" ),
                   R"doc(
@@ -274,11 +455,9 @@ void expose_propagator_setup( py::module &m )
 
      )doc" );
 
-    py::class_< tp::PropagatorProcessingSettings,
-                std::shared_ptr< tp::PropagatorProcessingSettings > >(
-            m,
-            "PropagatorProcessingSettings",
-            R"doc(
+    py::class_< tp::PropagatorProcessingSettings, std::shared_ptr< tp::PropagatorProcessingSettings > >( m,
+                                                                                                         "PropagatorProcessingSettings",
+                                                                                                         R"doc(
 
          Base class to define settings on how the numerical results are to be used
 
@@ -330,11 +509,10 @@ void expose_propagator_setup( py::module &m )
 
          :type: bool
       )doc" )
-            .def_property(
-                    "create_dependent_variable_interface",
-                    &tp::PropagatorProcessingSettings::getUpdateDependentVariableInterpolator,
-                    &tp::PropagatorProcessingSettings::setUpdateDependentVariableInterpolator,
-                    R"doc(No propagator documentation found.)doc" );
+            .def_property( "create_dependent_variable_interface",
+                           &tp::PropagatorProcessingSettings::getUpdateDependentVariableInterpolator,
+                           &tp::PropagatorProcessingSettings::setUpdateDependentVariableInterpolator,
+                           R"doc(No propagator documentation found.)doc" );
 
     py::class_< tp::SingleArcPropagatorProcessingSettings,
                 std::shared_ptr< tp::SingleArcPropagatorProcessingSettings >,
@@ -364,11 +542,10 @@ void expose_propagator_setup( py::module &m )
 
          :type: PropagationPrintSettings
       )doc" )
-            .def_property(
-                    "results_save_frequency_in_steps",
-                    &tp::SingleArcPropagatorProcessingSettings::getResultsSaveFrequencyInSteps,
-                    &tp::SingleArcPropagatorProcessingSettings::setResultsSaveFrequencyInSteps,
-                    R"doc(
+            .def_property( "results_save_frequency_in_steps",
+                           &tp::SingleArcPropagatorProcessingSettings::getResultsSaveFrequencyInSteps,
+                           &tp::SingleArcPropagatorProcessingSettings::setResultsSaveFrequencyInSteps,
+                           R"doc(
 
          Variable indicating how often (in number of integrator steps)
          the propagated time, state, dependent variables, etc. are to be saved to data structures containing the results
@@ -379,11 +556,10 @@ void expose_propagator_setup( py::module &m )
 
          :type: int
       )doc" )
-            .def_property(
-                    "results_save_frequency_in_seconds",
-                    &tp::SingleArcPropagatorProcessingSettings::getResultsSaveFrequencyInSeconds,
-                    &tp::SingleArcPropagatorProcessingSettings::setResultsSaveFrequencyInSeconds,
-                    R"doc(
+            .def_property( "results_save_frequency_in_seconds",
+                           &tp::SingleArcPropagatorProcessingSettings::getResultsSaveFrequencyInSeconds,
+                           &tp::SingleArcPropagatorProcessingSettings::setResultsSaveFrequencyInSeconds,
+                           R"doc(
 
          Variable indicating how often (in seconds of simulation time)
          the propagated time, state, dependent variables, etc. are to be saved to data structures containing the results
@@ -417,8 +593,7 @@ void expose_propagator_setup( py::module &m )
 
       )doc" )
             .def( "set_print_settings_for_all_arcs",
-                  &tp::MultiArcPropagatorProcessingSettings::
-                          resetAndApplyConsistentSingleArcPrintSettings,
+                  &tp::MultiArcPropagatorProcessingSettings::resetAndApplyConsistentSingleArcPrintSettings,
                   py::arg( "single_arc_print_settings" ),
                   R"doc(
 
@@ -506,10 +681,9 @@ void expose_propagator_setup( py::module &m )
 
 
      )doc" )
-            .def_property_readonly(
-                    "single_arc_settings",
-                    &tp::HybridArcPropagatorProcessingSettings::getSingleArcSettings,
-                    R"doc(
+            .def_property_readonly( "single_arc_settings",
+                                    &tp::HybridArcPropagatorProcessingSettings::getSingleArcSettings,
+                                    R"doc(
 
          Processing settings for the single-arc component of the hybrid-arc propagation.
 
@@ -526,204 +700,8 @@ void expose_propagator_setup( py::module &m )
          :type: MultiArcPropagatorProcessingSettings
       )doc" );
 
-    ///////////////////////////////////////////////////////////////////////////////////////
-
-    // ENUMS
-    py::enum_< tp::TranslationalPropagatorType >( m,
-                                                  "TranslationalPropagatorType",
-                                                  R"doc(
-
-Enumeration of available translational propagator types.
-
-
-
-    py::enum_< tp::IntegratedStateType >( m, "StateType", get_docstring( "StateType" ).c_str( ) )
-            .value( "hybrid_type", tp::IntegratedStateType::hybrid, get_docstring( "StateType.hybrid_type" ).c_str( ) )
-            .value( "translational_type",
-                    tp::IntegratedStateType::translational_state,
-                    get_docstring( "StateType.translational_type" ).c_str( ) )
-            .value( "rotational_type", tp::IntegratedStateType::rotational_state, get_docstring( "StateType.rotational_type" ).c_str( ) )
-            .value( "mass_type", tp::IntegratedStateType::body_mass_state, get_docstring( "StateType.mass_type" ).c_str( ) )
-            .value( "custom_type", tp::IntegratedStateType::custom_state, get_docstring( "StateType.custom_type" ).c_str( ) )
-            .export_values( );
-
-
-      )doc" )
-            .value( "undefined_translational_propagator",
-                    tp::TranslationalPropagatorType::undefined_translational_propagator,
-                    R"doc(
-      )doc" )
-            .value( "cowell",
-                    tp::TranslationalPropagatorType::cowell,
-                    R"doc(
-
-Propagation of Cartesian elements (state vector size 6), without any transformations
-
-)doc" )
-            .value( "encke",
-                    tp::TranslationalPropagatorType::encke,
-                    R"doc(
-
-Propagation of the difference in Cartesian elements of the orbit w.r.t. an unperturbed reference orbit. The reference orbit is generated from the initial state/central body, and not updated during the propagation (see Wakker, 2015 [2]_)
-
-)doc" )
-            .value( "gauss_keplerian",
-                    tp::TranslationalPropagatorType::gauss_keplerian,
-                    R"doc(
-
-Propagation of Keplerian elements (state vector size 6), with true anomaly as the 'fast' element  (see Vallado, 2001 [4]_)
-
-)doc" )
-            .value( "gauss_modified_equinoctial",
-                    tp::TranslationalPropagatorType::gauss_modified_equinoctial,
-                    R"doc(
-
-Propagation of Modified equinoctial elements (state vector size 6), with the element :math:`I` defining the location of the singularity based on the initial condition (see Hintz, 2008 [3]_)
-
-)doc" )
-            .value( "unified_state_model_quaternions",
-                    tp::TranslationalPropagatorType::unified_state_model_quaternions,
-                    R"doc(
-
-Propagation of Unified state model using quaternions (state vector size 7, see Vittaldev et al., 2012 [1]_)
-
-)doc" )
-            .value( "unified_state_model_modified_rodrigues_parameters",
-                    tp::TranslationalPropagatorType::
-                            unified_state_model_modified_rodrigues_parameters,
-                    R"doc(
-
-Propagation of Unified state model using modified Rodrigues parameters (state vector size 7, last element represents shadow parameter, see Vittaldev et al., 2012 [1]_)
-
-)doc" )
-            .value( "unified_state_model_exponential_map",
-                    tp::unified_state_model_exponential_map,
-                    R"doc(
-
-Propagation of Unified state model using exponential map (state vector size 7, last element represents shadow parameter, see Vittaldev et al., 2012 [1]_)
-
-)doc" )
-            .export_values( );
-
-    py::enum_< tp::RotationalPropagatorType >( m,
-                                               "RotationalPropagatorType",
-                                               R"doc(
-
-Enumeration of available rotational propagator types.
-
-
-
-
-
-      )doc" )
-            .value( "undefined_rotational_propagator",
-                    tp::RotationalPropagatorType::undefined_rotational_propagator,
-                    R"doc(
-      )doc" )
-            .value( "quaternions",
-                    tp::RotationalPropagatorType::quaternions,
-                    R"doc(
-
-Entries 1-4: The quaternion defining the rotation from inertial to body-fixed frame (see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html#definition-of-rotational-state>`__)
-
-Entries 5-7: The body's angular velocity vector, expressed in its body-fixed frame.
-
-)doc" )
-            .value( "modified_rodrigues_parameters",
-                    tp::RotationalPropagatorType::modified_rodrigues_parameters,
-                    R"doc(
-
-Entries 1-4: The modified Rodrigues parameters defining the rotation from inertial to body-fixed frame (with entry four the shadow parameter)
-
-Entries 5-7: The body's angular velocity vector, expressed in its body-fixed frame.
-
-)doc" )
-            .value( "exponential_map",
-                    tp::RotationalPropagatorType::exponential_map,
-                    R"doc(
-
-Entries 1-4: The exponential map defining the rotation from inertial to body-fixed frame (with entry four the shadow parameter)
-
-Entries 5-7: The body's angular velocity vector, expressed in its body-fixed frame.
-
-)doc" )
-            .export_values( );
-
-    py::enum_< tp::PropagationTerminationTypes >( m,
-                                                  "PropagationTerminationTypes",
-                                                  R"doc(
-
-Enumeration of possible propagation termination types
-
-
-
-
-
-      )doc" )
-            .value( "time_stopping_condition_type",
-                    tp::PropagationTerminationTypes::time_stopping_condition,
-                    R"doc(No propagator documentation found.)doc" )
-            .value( "cpu_time_stopping_condition_type",
-                    tp::PropagationTerminationTypes::cpu_time_stopping_condition,
-                    R"doc(No propagator documentation found.)doc" )
-            .value( "dependent_variable_stopping_condition_type",
-                    tp::PropagationTerminationTypes::dependent_variable_stopping_condition,
-                    R"doc(No propagator documentation found.)doc" )
-            .value( "hybrid_stopping_condition_type",
-                    tp::PropagationTerminationTypes::hybrid_stopping_condition,
-                    R"doc(No propagator documentation found.)doc" )
-            .value( "custom_stopping_condition_type",
-                    tp::PropagationTerminationTypes::custom_stopping_condition,
-                    R"doc(No propagator documentation found.)doc" )
-            .export_values( );
-
-    py::enum_< tp::IntegratedStateType >( m,
-                                          "StateType",
-                                          R"doc(
-
-Enumeration of available integrated state types.
-
-
-
-
-
-      )doc" )
-            .value( "hybrid_type",
-                    tp::IntegratedStateType::hybrid,
-                    R"doc(
-      )doc" )
-            .value( "translational_type",
-                    tp::IntegratedStateType::translational_state,
-                    R"doc(
-      )doc" )
-            .value( "rotational_type",
-                    tp::IntegratedStateType::rotational_state,
-                    R"doc(
-      )doc" )
-            .value( "mass_type",
-                    tp::IntegratedStateType::body_mass_state,
-                    R"doc(
-      )doc" )
-            .value( "custom_type",
-                    tp::IntegratedStateType::custom_state,
-                    R"doc(
-      )doc" )
-            .export_values( );
-
-    //        py::enum_<tp::VariableType>(m, "VariableType")
-    //                .value("independent_variable",
-    //                tp::VariableType::independentVariable)
-    //                .value("cpu_time_variable",
-    //                tp::VariableType::cpuTimeVariable)
-    //                .value("state_variable",
-    //                tp::VariableType::stateVariable)
-    //                .value("dependent_variable",
-    //                tp::VariableType::dependentVariable)
-    //                .export_values();
-
     // CLASSES
-    py::class_< tp::PropagatorSettings< STATE_SCALAR_TYPE >,
-                std::shared_ptr< tp::PropagatorSettings< STATE_SCALAR_TYPE > > >(
+    py::class_< tp::PropagatorSettings< STATE_SCALAR_TYPE >, std::shared_ptr< tp::PropagatorSettings< STATE_SCALAR_TYPE > > >(
             m,
             "PropagatorSettings",
             R"doc(
@@ -760,8 +738,7 @@ Enumeration of available integrated state types.
 
       )doc" )
             .def_property_readonly( "processing_settings",
-                                    &tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE,
-                                                                     TIME_TYPE >::getOutputSettings,
+                                    &tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getOutputSettings,
                                     R"doc(No propagator documentation found.)doc" );
 
     py::class_< tp::HybridArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -777,11 +754,9 @@ Enumeration of available integrated state types.
 
 
       )doc" )
-            .def_property_readonly(
-                    "processing_settings",
-                    &tp::HybridArcPropagatorSettings< STATE_SCALAR_TYPE,
-                                                      TIME_TYPE >::getOutputSettings,
-                    R"doc(No propagator documentation found.)doc" );
+            .def_property_readonly( "processing_settings",
+                                    &tp::HybridArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getOutputSettings,
+                                    R"doc(No propagator documentation found.)doc" );
 
     py::class_< tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -795,37 +770,28 @@ Enumeration of available integrated state types.
 
       )doc" )
             .def_property( "termination_settings",
-                           &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE,
-                                                             TIME_TYPE >::getTerminationSettings,
-                           &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE,
-                                                             TIME_TYPE >::resetTerminationSettings,
+                           &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getTerminationSettings,
+                           &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::resetTerminationSettings,
                            R"doc(Settings for creating the object that checks whether the propagation is finished.
                            
                            :type: PropagationTerminationSettings
                            )doc" )
             .def_property( "integrator_settings",
-                           &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE,
-                                                             TIME_TYPE >::getIntegratorSettings,
-                           &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE,
-                                                             TIME_TYPE >::setIntegratorSettings,
+                           &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getIntegratorSettings,
+                           &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::setIntegratorSettings,
                            R"doc(No propagator documentation found.)doc" )
-            .def_property_readonly(
-                    "processing_settings",
-                    &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE,
-                                                      TIME_TYPE >::getOutputSettings,
-                    R"doc(No propagator documentation found.)doc" )
+            .def_property_readonly( "processing_settings",
+                                    &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getOutputSettings,
+                                    R"doc(No propagator documentation found.)doc" )
             .def_property_readonly( "print_settings",
-                                    &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE,
-                                                                      TIME_TYPE >::getPrintSettings,
+                                    &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getPrintSettings,
                                     R"doc(No propagator documentation found.)doc" );
 
     py::class_< tp::TranslationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
-                std::shared_ptr<
-                        tp::TranslationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
-                tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
-            m,
-            "TranslationalStatePropagatorSettings",
-            R"doc(
+                std::shared_ptr< tp::TranslationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >( m,
+                                                                                   "TranslationalStatePropagatorSettings",
+                                                                                   R"doc(
 
          `SingleArcPropagatorSettings`-derived class to define settings for single-arc translational dynamics.
 
@@ -841,11 +807,9 @@ Enumeration of available integrated state types.
       )doc" )
 
             .def( "get_propagated_state_size",
-                  &tp::TranslationalStatePropagatorSettings< STATE_SCALAR_TYPE,
-                                                             TIME_TYPE >::getPropagatedStateSize )
+                  &tp::TranslationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getPropagatedStateSize )
             .def( "reset_and_recreate_acceleration_models",
-                  &tp::TranslationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::
-                          resetAccelerationModelsMap,
+                  &tp::TranslationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::resetAccelerationModelsMap,
                   py::arg( "new_acceleration_settings" ),
                   py::arg( "bodies" ) );
 
@@ -854,10 +818,9 @@ Enumeration of available integrated state types.
 
     py::class_< tp::MultiTypePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::MultiTypePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
-                tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
-            m,
-            "MultiTypePropagatorSettings",
-            R"doc(
+                tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >( m,
+                                                                                   "MultiTypePropagatorSettings",
+                                                                                   R"doc(
 
          `SingleArcPropagatorSettings`-derived class to define settings for propagation of multiple quantities.
 
@@ -867,22 +830,17 @@ Enumeration of available integrated state types.
 
       )doc" )
             .def( "reset_initial_states",
-                  &tp::MultiTypePropagatorSettings< STATE_SCALAR_TYPE,
-                                                    TIME_TYPE >::resetInitialStates,
+                  &tp::MultiTypePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::resetInitialStates,
                   py::arg( "initial_states" ) )
             .def( "recreate_state_derivative_models",
-                  &tp::MultiTypePropagatorSettings< STATE_SCALAR_TYPE,
-                                                    TIME_TYPE >::resetIntegratedStateModels,
+                  &tp::MultiTypePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::resetIntegratedStateModels,
                   py::arg( "bodies" ) )
             .def( "single_type_settings",
-                  &tp::MultiTypePropagatorSettings< STATE_SCALAR_TYPE,
-                                                    TIME_TYPE >::getSingleTypePropagatorSettings,
+                  &tp::MultiTypePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getSingleTypePropagatorSettings,
                   py::arg( "state_type" ) )
-            .def_property_readonly(
-                    "propagator_settings_per_type",
-                    &tp::MultiTypePropagatorSettings< STATE_SCALAR_TYPE,
-                                                      TIME_TYPE >::getPropagatorSettingsMap,
-                    R"doc(
+            .def_property_readonly( "propagator_settings_per_type",
+                                    &tp::MultiTypePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getPropagatorSettingsMap,
+                                    R"doc(
 
          None
 
@@ -890,12 +848,10 @@ Enumeration of available integrated state types.
       )doc" );
 
     py::class_< tp::RotationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
-                std::shared_ptr<
-                        tp::RotationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
-                tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
-            m,
-            "RotationalStatePropagatorSettings",
-            R"doc(
+                std::shared_ptr< tp::RotationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >( m,
+                                                                                   "RotationalStatePropagatorSettings",
+                                                                                   R"doc(
 
          `SingleArcPropagatorSettings`-derived class to define settings for single-arc rotational state propagation.
 
@@ -910,33 +866,119 @@ Enumeration of available integrated state types.
                 tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
             m, "MassPropagatorSettings", R"doc(No propagator documentation found.)doc" );
 
-    py::class_<
-            tp::CustomStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
-            std::shared_ptr< tp::CustomStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
-            tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
+    py::class_< tp::CustomStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
+                std::shared_ptr< tp::CustomStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
             m, "CustomStatePropagatorSettings", R"doc(No propagator documentation found.)doc" );
 
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+    py::class_< tp::PropagationTerminationSettings, std::shared_ptr< tp::PropagationTerminationSettings > >(
+            m,
+            "PropagationTerminationSettings",
+            R"doc(
+
+         Functional base class to define termination settings for the propagation.
+
+
+
+
+
+      )doc" );
+
+    py::class_< tp::PropagationDependentVariableTerminationSettings,
+                std::shared_ptr< tp::PropagationDependentVariableTerminationSettings >,
+                tp::PropagationTerminationSettings >( m,
+                                                      "PropagationDependentVariableTerminationSettings",
+                                                      R"doc(
+
+         `PropagationTerminationSettings`-derived class to define termination settings for the propagation from dependent variables.
+
+
+
+
+
+      )doc" );
+
+    py::class_< tp::PropagationTimeTerminationSettings,
+                std::shared_ptr< tp::PropagationTimeTerminationSettings >,
+                tp::PropagationTerminationSettings >( m,
+                                                      "PropagationTimeTerminationSettings",
+                                                      R"doc(
+
+         `PropagationTerminationSettings`-derived class to define termination settings for the propagation from propagation time.
+
+
+
+
+
+      )doc" );
+
+    py::class_< tp::PropagationCPUTimeTerminationSettings,
+                std::shared_ptr< tp::PropagationCPUTimeTerminationSettings >,
+                tp::PropagationTerminationSettings >( m,
+                                                      "PropagationCPUTimeTerminationSettings",
+                                                      R"doc(
+
+         `PropagationTerminationSettings`-derived class to define termination settings for the propagation from CPU time.
+
+
+
+
+
+      )doc" );
+
+    py::class_< tp::PropagationCustomTerminationSettings,
+                std::shared_ptr< tp::PropagationCustomTerminationSettings >,
+                tp::PropagationTerminationSettings >( m,
+                                                      "PropagationCustomTerminationSettings",
+                                                      R"doc(
+
+         `PropagationTerminationSettings`-derived class to define custom termination settings for the propagation.
+
+
+
+
+
+      )doc" );
+
+    py::class_< tp::PropagationHybridTerminationSettings,
+                std::shared_ptr< tp::PropagationHybridTerminationSettings >,
+                tp::PropagationTerminationSettings >( m,
+                                                      "PropagationHybridTerminationSettings",
+                                                      R"doc(
+
+         `PropagationTerminationSettings`-derived class to define hybrid termination settings for the propagation.
+
+
+
+
+
+      )doc" );
+
+    py::class_< tp::NonSequentialPropagationTerminationSettings,
+                std::shared_ptr< tp::NonSequentialPropagationTerminationSettings >,
+                tp::PropagationTerminationSettings >(
+            m, "NonSequentialPropagationTerminationSettings", R"doc(No propagator documentation found.)doc" );
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+
     m.def( "translational",
-           py::overload_cast<
-                   const std::vector< std::string > &,
-                   const tba::AccelerationMap &,
-                   const std::vector< std::string > &,
-                   const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > &,
-                   const std::shared_ptr< tp::PropagationTerminationSettings >,
-                   const tp::TranslationalPropagatorType,
-                   const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >
-                           &,
-                   const double >(
-                   &tp::translationalStatePropagatorSettingsDeprecated< STATE_SCALAR_TYPE,
-                                                                        TIME_TYPE > ),
+           py::overload_cast< const std::vector< std::string > &,
+                              const tba::AccelerationMap &,
+                              const std::vector< std::string > &,
+                              const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > &,
+                              const std::shared_ptr< tp::PropagationTerminationSettings >,
+                              const tp::TranslationalPropagatorType,
+                              const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > > &,
+                              const double >( &tp::translationalStatePropagatorSettingsDeprecated< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "central_bodies" ),
            py::arg( "acceleration_models" ),
            py::arg( "bodies_to_integrate" ),
            py::arg( "initial_states" ),
            py::arg( "termination_settings" ),
            py::arg( "propagator" ) = tp::cowell,
-           py::arg( "output_variables" ) =
-                   std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
+           py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
            py::arg( "print_interval" ) = TUDAT_NAN );
 
     m.def( "translational",
@@ -949,10 +991,8 @@ Enumeration of available integrated state types.
            py::arg( "integrator_settings" ),
            py::arg( "termination_settings" ),
            py::arg( "propagator" ) = tp::cowell,
-           py::arg( "output_variables" ) =
-                   std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
-           py::arg( "processing_settings" ) =
-                   std::make_shared< tp::SingleArcPropagatorProcessingSettings >( ),
+           py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
+           py::arg( "processing_settings" ) = nullptr,
            R"doc(
 
 Function to create translational state propagator settings with stopping condition at given final time.
@@ -1004,23 +1044,19 @@ TranslationalStatePropagatorSettings
      )doc" );
 
     m.def( "rotational",
-           py::overload_cast<
-                   const tba::TorqueModelMap &,
-                   const std::vector< std::string > &,
-                   const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > &,
-                   const std::shared_ptr< tp::PropagationTerminationSettings >,
-                   const tp::RotationalPropagatorType,
-                   const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
-                   const double >(
-                   &tp::rotationalStatePropagatorSettingsDeprecated< STATE_SCALAR_TYPE,
-                                                                     TIME_TYPE > ),
+           py::overload_cast< const tba::TorqueModelMap &,
+                              const std::vector< std::string > &,
+                              const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > &,
+                              const std::shared_ptr< tp::PropagationTerminationSettings >,
+                              const tp::RotationalPropagatorType,
+                              const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
+                              const double >( &tp::rotationalStatePropagatorSettingsDeprecated< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "torque_models" ),
            py::arg( "bodies_to_integrate" ),
            py::arg( "initial_states" ),
            py::arg( "termination_settings" ),
            py::arg( "propagator" ) = tp::quaternions,
-           py::arg( "output_variables" ) =
-                   std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
+           py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
            py::arg( "print_interval" ) = TUDAT_NAN );
 
     m.def( "rotational",
@@ -1032,10 +1068,8 @@ TranslationalStatePropagatorSettings
            py::arg( "integrator_settings" ),
            py::arg( "termination_settings" ),
            py::arg( "propagator" ) = tp::quaternions,
-           py::arg( "output_variables" ) =
-                   std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
-           py::arg( "processing_settings" ) =
-                   std::make_shared< tp::SingleArcPropagatorProcessingSettings >( ),
+           py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
+           py::arg( "processing_settings" ) = nullptr,
            R"doc(
 
 Function to create rotational state propagator settings.
@@ -1091,21 +1125,17 @@ RotationalStatePropagatorSettings
      )doc" );
 
     m.def( "mass",
-           py::overload_cast<
-                   const std::vector< std::string >,
-                   const std::map< std::string,
-                                   std::vector< std::shared_ptr< tba::MassRateModel > > > &,
-                   const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > &,
-                   const std::shared_ptr< tp::PropagationTerminationSettings >,
-                   const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
-                   const double >(
-                   &tp::massPropagatorSettingsDeprecated< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::overload_cast< const std::vector< std::string >,
+                              const std::map< std::string, std::vector< std::shared_ptr< tba::MassRateModel > > > &,
+                              const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > &,
+                              const std::shared_ptr< tp::PropagationTerminationSettings >,
+                              const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
+                              const double >( &tp::massPropagatorSettingsDeprecated< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "bodies_with_mass_to_propagate" ),
            py::arg( "mass_rate_models" ),
            py::arg( "initial_body_masses" ),
            py::arg( "termination_settings" ),
-           py::arg( "output_variables" ) =
-                   std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
+           py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
            py::arg( "print_interval" ) = TUDAT_NAN );
 
     m.def( "mass",
@@ -1116,10 +1146,8 @@ RotationalStatePropagatorSettings
            py::arg( "initial_time" ),
            py::arg( "integrator_settings" ),
            py::arg( "termination_settings" ),
-           py::arg( "output_variables" ) =
-                   std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
-           py::arg( "processing_settings" ) =
-                   std::make_shared< tp::SingleArcPropagatorProcessingSettings >( ),
+           py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
+           py::arg( "processing_settings" ) = nullptr,
            R"doc(
 
 Function to create mass propagator settings
@@ -1174,10 +1202,8 @@ SingleArcPropagatorSettings
            py::arg( "initial_time" ),
            py::arg( "integrator_settings" ),
            py::arg( "termination_settings" ),
-           py::arg( "output_variables" ) =
-                   std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
-           py::arg( "processing_settings" ) =
-                   std::make_shared< tp::SingleArcPropagatorProcessingSettings >( ),
+           py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
+           py::arg( "processing_settings" ) = nullptr,
            R"doc(
 
 Function to create custom propagator settings.
@@ -1218,17 +1244,13 @@ SingleArcPropagatorSettings
      )doc" );
 
     m.def( "multitype",
-           py::overload_cast<
-                   const std::vector< std::shared_ptr<
-                           tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >,
-                   const std::shared_ptr< tp::PropagationTerminationSettings >,
-                   const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
-                   const double >(
-                   &tp::multiTypePropagatorSettingsDeprecated< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::overload_cast< const std::vector< std::shared_ptr< tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >,
+                              const std::shared_ptr< tp::PropagationTerminationSettings >,
+                              const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
+                              const double >( &tp::multiTypePropagatorSettingsDeprecated< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "propagator_settings_list" ),
            py::arg( "termination_settings" ),
-           py::arg( "output_variables" ) =
-                   std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
+           py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
            py::arg( "print_interval" ) = TUDAT_NAN );
 
     m.def( "multitype",
@@ -1237,10 +1259,8 @@ SingleArcPropagatorSettings
            py::arg( "integrator_settings" ),
            py::arg( "initial_time" ),
            py::arg( "termination_settings" ),
-           py::arg( "output_variables" ) =
-                   std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
-           py::arg( "processing_settings" ) =
-                   std::make_shared< tp::SingleArcPropagatorProcessingSettings >( ),
+           py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
+           py::arg( "processing_settings" ) = nullptr,
            R"doc(
 
 Function to create multitype propagator settings.
@@ -1319,8 +1339,7 @@ MultiArcPropagatorSettings
            &tp::hybridArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "single_arc_settings" ),
            py::arg( "multi_arc_settings" ),
-           py::arg( "processing_settings" ) =
-                   std::make_shared< tp::HybridArcPropagatorProcessingSettings >( ),
+           py::arg( "processing_settings" ) = nullptr,
            R"doc(
 
 Function to create hybrid-arc propagator settings.
@@ -1345,100 +1364,6 @@ HybridArcPropagatorSettings
 
 
      )doc" );
-
-    ///////////////////////////////////////////////////////////////////////////////////////
-
-    py::class_< tp::PropagationTerminationSettings,
-                std::shared_ptr< tp::PropagationTerminationSettings > >(
-            m,
-            "PropagationTerminationSettings",
-            R"doc(
-
-         Functional base class to define termination settings for the propagation.
-
-
-
-
-
-      )doc" );
-
-    py::class_< tp::PropagationDependentVariableTerminationSettings,
-                std::shared_ptr< tp::PropagationDependentVariableTerminationSettings >,
-                tp::PropagationTerminationSettings >(
-            m,
-            "PropagationDependentVariableTerminationSettings",
-            R"doc(
-
-         `PropagationTerminationSettings`-derived class to define termination settings for the propagation from dependent variables.
-
-
-
-
-
-      )doc" );
-
-    py::class_< tp::PropagationTimeTerminationSettings,
-                std::shared_ptr< tp::PropagationTimeTerminationSettings >,
-                tp::PropagationTerminationSettings >( m,
-                                                      "PropagationTimeTerminationSettings",
-                                                      R"doc(
-
-         `PropagationTerminationSettings`-derived class to define termination settings for the propagation from propagation time.
-
-
-
-
-
-      )doc" );
-
-    py::class_< tp::PropagationCPUTimeTerminationSettings,
-                std::shared_ptr< tp::PropagationCPUTimeTerminationSettings >,
-                tp::PropagationTerminationSettings >( m,
-                                                      "PropagationCPUTimeTerminationSettings",
-                                                      R"doc(
-
-         `PropagationTerminationSettings`-derived class to define termination settings for the propagation from CPU time.
-
-
-
-
-
-      )doc" );
-
-    py::class_< tp::PropagationCustomTerminationSettings,
-                std::shared_ptr< tp::PropagationCustomTerminationSettings >,
-                tp::PropagationTerminationSettings >( m,
-                                                      "PropagationCustomTerminationSettings",
-                                                      R"doc(
-
-         `PropagationTerminationSettings`-derived class to define custom termination settings for the propagation.
-
-
-
-
-
-      )doc" );
-
-    py::class_< tp::PropagationHybridTerminationSettings,
-                std::shared_ptr< tp::PropagationHybridTerminationSettings >,
-                tp::PropagationTerminationSettings >( m,
-                                                      "PropagationHybridTerminationSettings",
-                                                      R"doc(
-
-         `PropagationTerminationSettings`-derived class to define hybrid termination settings for the propagation.
-
-
-
-
-
-      )doc" );
-
-    py::class_< tp::NonSequentialPropagationTerminationSettings,
-                std::shared_ptr< tp::NonSequentialPropagationTerminationSettings >,
-                tp::PropagationTerminationSettings >(
-            m,
-            "NonSequentialPropagationTerminationSettings",
-            R"doc(No propagator documentation found.)doc" );
 
     //                .def(py::init<
     //                             const

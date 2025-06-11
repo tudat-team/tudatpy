@@ -56,7 +56,7 @@ Enumeration defining possible behaviours when :math:`\Delta t_{rec}<\Delta t_{\m
                     tni::MinimumIntegrationTimeStepHandling::throw_exception_below_minimum,
                     R"doc(
 
-Exception is throw, and propagation is terminated
+The propagation is terminated and a :class:`tudatpy.exceptions.MinimumStepSizeViolatedError` is thrown.
 
 )doc" )
             .value( "set_to_minimum_step_silently",
@@ -1756,7 +1756,8 @@ IntegratorSettings
            py::arg( "minimum_order" ) = 6,
            py::arg( "maximum_order" ) = 11,
            py::arg( "assess_termination_on_minor_steps" ) = false,
-           py::arg( "bandwidth" ) = 200.0 );
+           py::arg( "bandwidth" ) = 200.0,
+           "" );
 }
 
 }  // namespace integrator

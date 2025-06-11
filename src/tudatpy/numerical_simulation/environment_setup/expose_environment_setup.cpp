@@ -52,6 +52,42 @@ namespace environment_setup
 
 void expose_environment_setup( py::module &m )
 {
+    auto aerodynamic_coefficient_setup = m.def_submodule( "aerodynamic_coefficients" );
+    aerodynamic_coefficients::expose_aerodynamic_coefficient_setup( aerodynamic_coefficient_setup );
+
+    auto radiation_pressure_setup = m.def_submodule( "radiation_pressure" );
+    radiation_pressure::expose_radiation_pressure_setup( radiation_pressure_setup );
+
+    auto rotation_model_setup = m.def_submodule( "rotation_model" );
+    rotation_model::expose_rotation_model_setup( rotation_model_setup );
+
+    auto gravity_field_setup = m.def_submodule( "gravity_field" );
+    gravity_field::expose_gravity_field_setup( gravity_field_setup );
+
+    auto ephemeris_setup = m.def_submodule( "ephemeris" );
+    ephemeris::expose_ephemeris_setup( ephemeris_setup );
+
+    auto atmosphere_setup = m.def_submodule( "atmosphere" );
+    atmosphere::expose_atmosphere_setup( atmosphere_setup );
+
+    auto shape_setup = m.def_submodule( "shape" );
+    shape::expose_shape_setup( shape_setup );
+
+    auto gravity_variation_setup = m.def_submodule( "gravity_field_variation" );
+    gravity_field_variation::expose_gravity_field_variation_setup( gravity_variation_setup );
+
+    auto shape_deformation_setup = m.def_submodule( "shape_deformation" );
+    shape_deformation::expose_shape_deformation_setup( shape_deformation_setup );
+
+    auto ground_station_setup = m.def_submodule( "ground_station" );
+    ground_station::expose_ground_station_setup( ground_station_setup );
+
+    auto rigid_body_setup = m.def_submodule( "rigid_body" );
+    rigid_body::expose_rigid_body_setup( rigid_body_setup );
+
+    auto vehicle_systems_setup = m.def_submodule( "vehicle_systems" );
+    vehicle_systems::expose_vehicle_systems_setup( vehicle_systems_setup );
+
     //        m.def("get_body_gravitational_parameter",
     //              &tss::getBodyGravitationalParameter,
     //              py::arg("body_collection"),
@@ -1007,41 +1043,7 @@ void expose_environment_setup( py::module &m )
     //              py::arg( "station_name" ),
     //              py::arg( "times" ) );
 
-    auto aerodynamic_coefficient_setup = m.def_submodule( "aerodynamic_coefficients" );
-    aerodynamic_coefficients::expose_aerodynamic_coefficient_setup( aerodynamic_coefficient_setup );
 
-    auto radiation_pressure_setup = m.def_submodule( "radiation_pressure" );
-    radiation_pressure::expose_radiation_pressure_setup( radiation_pressure_setup );
-
-    auto rotation_model_setup = m.def_submodule( "rotation_model" );
-    rotation_model::expose_rotation_model_setup( rotation_model_setup );
-
-    auto gravity_field_setup = m.def_submodule( "gravity_field" );
-    gravity_field::expose_gravity_field_setup( gravity_field_setup );
-
-    auto ephemeris_setup = m.def_submodule( "ephemeris" );
-    ephemeris::expose_ephemeris_setup( ephemeris_setup );
-
-    auto atmosphere_setup = m.def_submodule( "atmosphere" );
-    atmosphere::expose_atmosphere_setup( atmosphere_setup );
-
-    auto shape_setup = m.def_submodule( "shape" );
-    shape::expose_shape_setup( shape_setup );
-
-    auto gravity_variation_setup = m.def_submodule( "gravity_field_variation" );
-    gravity_field_variation::expose_gravity_field_variation_setup( gravity_variation_setup );
-
-    auto shape_deformation_setup = m.def_submodule( "shape_deformation" );
-    shape_deformation::expose_shape_deformation_setup( shape_deformation_setup );
-
-    auto ground_station_setup = m.def_submodule( "ground_station" );
-    ground_station::expose_ground_station_setup( ground_station_setup );
-
-    auto rigid_body_setup = m.def_submodule( "rigid_body" );
-    rigid_body::expose_rigid_body_setup( rigid_body_setup );
-
-    auto vehicle_systems_setup = m.def_submodule( "vehicle_systems" );
-    vehicle_systems::expose_vehicle_systems_setup( vehicle_systems_setup );
 
     //        auto system_model_setup =
     //        m.def_submodule("system_models");
