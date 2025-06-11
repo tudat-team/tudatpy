@@ -232,80 +232,120 @@ void expose_data( py::module &m )
 
      )doc" );
 
-    py::class_< tudat::input_output::MissileDatcomData,
-                std::shared_ptr< tudat::input_output::MissileDatcomData > >(
-            m, "missile_DATCOM_data", R"doc(No documentation available.)doc" )
-            .def( py::init< const std::string & >( ), py::arg( "file_name_and_path" ) )
-            .def( "get_static_coefficient",
-                  &tudat::input_output::MissileDatcomData::getStaticCoefficient,
-                  py::arg( "mach_index" ),
-                  py::arg( "angle_of_attack_index" ),
-                  py::arg( "coefficient_index" ),
-                  R"doc(No documentation available.)doc" )
-            .def( "get_dynamic_coefficient",
-                  &tudat::input_output::MissileDatcomData::getDynamicCoefficient,
-                  py::arg( "mach_index" ),
-                  py::arg( "angle_of_attack_index" ),
-                  py::arg( "coefficient_index" ),
-                  R"doc(No documentation available.)doc" )
-            .def( "get_angle_of_attacks",
-                  &tudat::input_output::MissileDatcomData::getAngleOfAttacks,
-                  R"doc(No documentation available.)doc" )
-            .def( "get_mach_numbers", &tudat::input_output::MissileDatcomData::getMachNumbers )
-            .def( "get_Reynolds_numbers",
-                  &tudat::input_output::MissileDatcomData::getReynoldsNumbers,
-                  R"doc(No documentation available.)doc" )
-            .def( "write_all_coefficients_to_files",
-                  &tudat::input_output::MissileDatcomData::writeAllCoefficientsToFiles,
-                  py::arg( "file_name_base" ),
-                  py::arg( "base_precision" ) = 15,
-                  py::arg( "exponent_width" ) = 2,
-                  R"doc(No documentation available.)doc" )
-            .def( "write_force_and_moment_coefficients_to_files",
-                  &tudat::input_output::MissileDatcomData::writeForceAndMomentCoefficientsToFiles,
-                  py::arg( "file_name_base" ),
-                  py::arg( "base_precision" ) = 15,
-                  py::arg( "exponent_width" ) = 2,
-                  R"doc(No documentation available.)doc" );
-
-    py::enum_< tudat::input_output::MissileDatcomData::DynamicCoefficientNames >(
-            m, "DynamicCoefficientNames" )
-            .value( "cnq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cnq )
-            .value( "cmq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cmq )
-            .value( "caq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::caq )
-            .value( "cyq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cyq )
-            .value( "clnq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::clnq )
-            .value( "cllq", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cllq )
-            .value( "cnr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cnr )
-            .value( "cmr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cmr )
-            .value( "car", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::car )
-            .value( "cyr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cyr )
-            .value( "clnr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::clnr )
-            .value( "cllr", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cllr )
-            .value( "cnp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cnp )
-            .value( "cmp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cmp )
-            .value( "cap", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cap )
-            .value( "cyp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cyp )
-            .value( "clnp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::clnp )
-            .value( "cllp", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cllp )
-            .value( "cnad", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cnad )
-            .value( "cmad", tudat::input_output::MissileDatcomData::DynamicCoefficientNames::cmad )
-            .export_values( );
-
-    py::enum_< tudat::input_output::MissileDatcomData::StaticCoefficientNames >(
-            m, "StaticCoefficientNames" )
-            .value( "cn", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cn )
-            .value( "cm", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cm )
-            .value( "ca", tudat::input_output::MissileDatcomData::StaticCoefficientNames::ca )
-            .value( "cy", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cy )
-            .value( "cln", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cln )
-            .value( "cll", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cll )
-            .value( "cna", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cna )
-            .value( "cma", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cma )
-            .value( "cyb", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cyb )
-            .value( "cnb", tudat::input_output::MissileDatcomData::StaticCoefficientNames::cnb )
-            .value( "clb", tudat::input_output::MissileDatcomData::StaticCoefficientNames::clb )
-            .export_values( );
+    py::enum_< tudat::input_output::TrackingDataType >(
+        m, "TrackingDataType", R"doc(No documentation available.)doc" )
+        .value( "year",
+                tudat::input_output::TrackingDataType::year,
+                R"doc(No documentation available.)doc" )
+        .value( "month",
+                tudat::input_output::TrackingDataType::month,
+                R"doc(No documentation available.)doc" )
+        .value( "day",
+                tudat::input_output::TrackingDataType::day,
+                R"doc(No documentation available.)doc" )
+        .value( "hour",
+                tudat::input_output::TrackingDataType::hour,
+                R"doc(No documentation available.)doc" )
+        .value( "minute",
+                tudat::input_output::TrackingDataType::minute,
+                R"doc(No documentation available.)doc" )
+        .value( "second",
+                tudat::input_output::TrackingDataType::second,
+                R"doc(No documentation available.)doc" )
+        .value( "time_tag_delay",
+                tudat::input_output::TrackingDataType::time_tag_delay,
+                R"doc(No documentation available.)doc" )
+        .value( "observation_time_scale",
+                tudat::input_output::TrackingDataType::observation_time_scale,
+                R"doc(No documentation available.)doc" )
+        .value( "file_name",
+                tudat::input_output::TrackingDataType::file_name,
+                R"doc(No documentation available.)doc" )
+        .value( "n_way_light_time",
+                tudat::input_output::TrackingDataType::n_way_light_time,
+                R"doc(No documentation available.)doc" )
+        .value( "light_time_measurement_delay",
+                tudat::input_output::TrackingDataType::light_time_measurement_delay,
+                R"doc(No documentation available.)doc" )
+        .value( "light_time_measurement_accuracy",
+                tudat::input_output::TrackingDataType::light_time_measurement_accuracy,
+                R"doc(No documentation available.)doc" )
+        .value( "dsn_transmitting_station_nr",
+                tudat::input_output::TrackingDataType::dsn_transmitting_station_nr,
+                R"doc(No documentation available.)doc" )
+        .value( "dsn_receiving_station_nr",
+                tudat::input_output::TrackingDataType::dsn_receiving_station_nr,
+                R"doc(No documentation available.)doc" )
+        .value( "observation_body",
+                tudat::input_output::TrackingDataType::observation_body,
+                R"doc(No documentation available.)doc" )
+        .value( "observed_body",
+                tudat::input_output::TrackingDataType::observed_body,
+                R"doc(No documentation available.)doc" )
+        .value( "spacecraft_id",
+                tudat::input_output::TrackingDataType::spacecraft_id,
+                R"doc(No documentation available.)doc" )
+        .value( "planet_nr",
+                tudat::input_output::TrackingDataType::planet_nr,
+                R"doc(No documentation available.)doc" )
+        .value( "tdb_spacecraft_j2000",
+                tudat::input_output::TrackingDataType::tdb_spacecraft_j2000,
+                R"doc(No documentation available.)doc" )
+        .value( "x_planet_frame",
+                tudat::input_output::TrackingDataType::x_planet_frame,
+                R"doc(No documentation available.)doc" )
+        .value( "y_planet_frame",
+                tudat::input_output::TrackingDataType::y_planet_frame,
+                R"doc(No documentation available.)doc" )
+        .value( "z_planet_frame",
+                tudat::input_output::TrackingDataType::z_planet_frame,
+                R"doc(No documentation available.)doc" )
+        .value( "vx_planet_frame",
+                tudat::input_output::TrackingDataType::vx_planet_frame,
+                R"doc(No documentation available.)doc" )
+        .value( "vy_planet_frame",
+                tudat::input_output::TrackingDataType::vy_planet_frame,
+                R"doc(No documentation available.)doc" )
+        .value( "vz_planet_frame",
+                tudat::input_output::TrackingDataType::vz_planet_frame,
+                R"doc(No documentation available.)doc" )
+        .value( "residual_de405",
+                tudat::input_output::TrackingDataType::residual_de405,
+                R"doc(No documentation available.)doc" )
+        .value( "spacecraft_transponder_delay",
+                tudat::input_output::TrackingDataType::spacecraft_transponder_delay,
+                R"doc(No documentation available.)doc" )
+        .value( "uplink_frequency",
+                tudat::input_output::TrackingDataType::uplink_frequency,
+                R"doc(No documentation available.)doc" )
+        .value( "downlink_frequency",
+                tudat::input_output::TrackingDataType::downlink_frequency,
+                R"doc(No documentation available.)doc" )
+        .value( "signal_to_noise",
+                tudat::input_output::TrackingDataType::signal_to_noise,
+                R"doc(No documentation available.)doc" )
+        .value( "spectral_max",
+                tudat::input_output::TrackingDataType::spectral_max,
+                R"doc(No documentation available.)doc" )
+        .value( "doppler_measured_frequency",
+                tudat::input_output::TrackingDataType::doppler_measured_frequency,
+                R"doc(No documentation available.)doc" )
+        .value( "doppler_base_frequency",
+                tudat::input_output::TrackingDataType::doppler_base_frequency,
+                R"doc(No documentation available.)doc" )
+        .value( "doppler_noise",
+                tudat::input_output::TrackingDataType::doppler_noise,
+                R"doc(No documentation available.)doc" )
+        .value( "doppler_bandwidth",
+                tudat::input_output::TrackingDataType::doppler_bandwidth,
+                R"doc(No documentation available.)doc" )
+        .value( "receiving_station_name",
+                tudat::input_output::TrackingDataType::receiving_station_name,
+                R"doc(No documentation available.)doc" )
+        .value( "transmitting_station_name",
+                tudat::input_output::TrackingDataType::transmitting_station_name,
+                R"doc(No documentation available.)doc" )
+        .export_values( );
 
     py::class_< tio::solar_activity::SolarActivityData,
                 std::shared_ptr< tio::solar_activity::SolarActivityData > >(
@@ -351,14 +391,6 @@ void expose_data( py::module &m )
            py::arg( "body_with_ground_stations_name" ) = "Earth",
            R"doc(No documentation available.)doc" );
 
-    m.def( "read_tracking_txt_file",
-           &tio::createTrackingTxtFileContents,
-           py::arg( "file_name" ),
-           py::arg( "column_types" ),
-           py::arg( "comment_symbol" ) = '#',
-           py::arg( "value_separators" ) = ",:\t ",
-           py::arg( "ignore_omitted_columns" ) = false );
-
     py::class_< tudat::input_output::TrackingTxtFileContents,
                 std::shared_ptr< tudat::input_output::TrackingTxtFileContents > >(
             m, "TrackingTxtFileContents", R"doc(No documentation available.)doc" )
@@ -399,6 +431,15 @@ void expose_data( py::module &m )
                                     &tio::TrackingTxtFileContents::getNumRows,
                                     R"doc(No documentation available.)doc" );
 
+
+    m.def( "read_tracking_txt_file",
+           &tio::createTrackingTxtFileContents,
+           py::arg( "file_name" ),
+           py::arg( "column_types" ),
+           py::arg( "comment_symbol" ) = '#',
+           py::arg( "value_separators" ) = ",:\t ",
+           py::arg( "ignore_omitted_columns" ) = false );
+
     m.def( "grail_antenna_file_reader",
            &tio::grailAntennaFileReader,
            py::arg( "file_name" ),
@@ -413,120 +454,6 @@ void expose_data( py::module &m )
            py::arg( "data_level" ) = "1b",
            R"doc(No documentation available.)doc" );
 
-    py::enum_< tudat::input_output::TrackingDataType >(
-            m, "TrackingDataType", R"doc(No documentation available.)doc" )
-            .value( "year",
-                    tudat::input_output::TrackingDataType::year,
-                    R"doc(No documentation available.)doc" )
-            .value( "month",
-                    tudat::input_output::TrackingDataType::month,
-                    R"doc(No documentation available.)doc" )
-            .value( "day",
-                    tudat::input_output::TrackingDataType::day,
-                    R"doc(No documentation available.)doc" )
-            .value( "hour",
-                    tudat::input_output::TrackingDataType::hour,
-                    R"doc(No documentation available.)doc" )
-            .value( "minute",
-                    tudat::input_output::TrackingDataType::minute,
-                    R"doc(No documentation available.)doc" )
-            .value( "second",
-                    tudat::input_output::TrackingDataType::second,
-                    R"doc(No documentation available.)doc" )
-            .value( "time_tag_delay",
-                    tudat::input_output::TrackingDataType::time_tag_delay,
-                    R"doc(No documentation available.)doc" )
-            .value( "observation_time_scale",
-                    tudat::input_output::TrackingDataType::observation_time_scale,
-                    R"doc(No documentation available.)doc" )
-            .value( "file_name",
-                    tudat::input_output::TrackingDataType::file_name,
-                    R"doc(No documentation available.)doc" )
-            .value( "n_way_light_time",
-                    tudat::input_output::TrackingDataType::n_way_light_time,
-                    R"doc(No documentation available.)doc" )
-            .value( "light_time_measurement_delay",
-                    tudat::input_output::TrackingDataType::light_time_measurement_delay,
-                    R"doc(No documentation available.)doc" )
-            .value( "light_time_measurement_accuracy",
-                    tudat::input_output::TrackingDataType::light_time_measurement_accuracy,
-                    R"doc(No documentation available.)doc" )
-            .value( "dsn_transmitting_station_nr",
-                    tudat::input_output::TrackingDataType::dsn_transmitting_station_nr,
-                    R"doc(No documentation available.)doc" )
-            .value( "dsn_receiving_station_nr",
-                    tudat::input_output::TrackingDataType::dsn_receiving_station_nr,
-                    R"doc(No documentation available.)doc" )
-            .value( "observation_body",
-                    tudat::input_output::TrackingDataType::observation_body,
-                    R"doc(No documentation available.)doc" )
-            .value( "observed_body",
-                    tudat::input_output::TrackingDataType::observed_body,
-                    R"doc(No documentation available.)doc" )
-            .value( "spacecraft_id",
-                    tudat::input_output::TrackingDataType::spacecraft_id,
-                    R"doc(No documentation available.)doc" )
-            .value( "planet_nr",
-                    tudat::input_output::TrackingDataType::planet_nr,
-                    R"doc(No documentation available.)doc" )
-            .value( "tdb_spacecraft_j2000",
-                    tudat::input_output::TrackingDataType::tdb_spacecraft_j2000,
-                    R"doc(No documentation available.)doc" )
-            .value( "x_planet_frame",
-                    tudat::input_output::TrackingDataType::x_planet_frame,
-                    R"doc(No documentation available.)doc" )
-            .value( "y_planet_frame",
-                    tudat::input_output::TrackingDataType::y_planet_frame,
-                    R"doc(No documentation available.)doc" )
-            .value( "z_planet_frame",
-                    tudat::input_output::TrackingDataType::z_planet_frame,
-                    R"doc(No documentation available.)doc" )
-            .value( "vx_planet_frame",
-                    tudat::input_output::TrackingDataType::vx_planet_frame,
-                    R"doc(No documentation available.)doc" )
-            .value( "vy_planet_frame",
-                    tudat::input_output::TrackingDataType::vy_planet_frame,
-                    R"doc(No documentation available.)doc" )
-            .value( "vz_planet_frame",
-                    tudat::input_output::TrackingDataType::vz_planet_frame,
-                    R"doc(No documentation available.)doc" )
-            .value( "residual_de405",
-                    tudat::input_output::TrackingDataType::residual_de405,
-                    R"doc(No documentation available.)doc" )
-            .value( "spacecraft_transponder_delay",
-                    tudat::input_output::TrackingDataType::spacecraft_transponder_delay,
-                    R"doc(No documentation available.)doc" )
-            .value( "uplink_frequency",
-                    tudat::input_output::TrackingDataType::uplink_frequency,
-                    R"doc(No documentation available.)doc" )
-            .value( "downlink_frequency",
-                    tudat::input_output::TrackingDataType::downlink_frequency,
-                    R"doc(No documentation available.)doc" )
-            .value( "signal_to_noise",
-                    tudat::input_output::TrackingDataType::signal_to_noise,
-                    R"doc(No documentation available.)doc" )
-            .value( "spectral_max",
-                    tudat::input_output::TrackingDataType::spectral_max,
-                    R"doc(No documentation available.)doc" )
-            .value( "doppler_measured_frequency",
-                    tudat::input_output::TrackingDataType::doppler_measured_frequency,
-                    R"doc(No documentation available.)doc" )
-            .value( "doppler_base_frequency",
-                    tudat::input_output::TrackingDataType::doppler_base_frequency,
-                    R"doc(No documentation available.)doc" )
-            .value( "doppler_noise",
-                    tudat::input_output::TrackingDataType::doppler_noise,
-                    R"doc(No documentation available.)doc" )
-            .value( "doppler_bandwidth",
-                    tudat::input_output::TrackingDataType::doppler_bandwidth,
-                    R"doc(No documentation available.)doc" )
-            .value( "receiving_station_name",
-                    tudat::input_output::TrackingDataType::receiving_station_name,
-                    R"doc(No documentation available.)doc" )
-            .value( "transmitting_station_name",
-                    tudat::input_output::TrackingDataType::transmitting_station_name,
-                    R"doc(No documentation available.)doc" )
-            .export_values( );
 };
 
 }  // namespace data
