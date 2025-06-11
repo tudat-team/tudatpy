@@ -277,7 +277,7 @@ def test_reader():
         spacecraft_name="-202",
     )
     observationCollection = trkProcessor.process()
-    trkProcessor.set_tnf_information_in_bodies(bodies)
+    # trkProcessor.set_tnf_information_in_bodies(bodies) This requires tudatpy to be compiled with time scalr type tudat::Time
 
     single_obs_sets = observationCollection.get_single_observation_sets()
     assert single_obs_sets, "No observation sets found in the observation collection."
