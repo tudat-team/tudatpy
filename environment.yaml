@@ -43,3 +43,4 @@ dependencies:
      - sphinxcontrib-bibtex
      - furo
      - sphinx_copybutton
+     - git+https://github.com/NASA-PDS/PyTrk234.git
