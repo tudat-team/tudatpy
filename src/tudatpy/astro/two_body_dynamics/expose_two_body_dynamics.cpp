@@ -126,6 +126,14 @@ void expose_two_body_dynamics( py::module &m )
      needed to achieve the specified excess velocity at infinity and the current orbital velocity at the
      pericenter.
 
+    py::class_< tms::PericenterFindingFunctions, std::shared_ptr< tms::PericenterFindingFunctions > >( m, "PericenterFindingFunctions" )
+            .def( py::init< const double, const double, const double >( ),
+                  py::arg( "absolute_incoming_semi_major_axis" ),
+                  py::arg( "absolute_outgoing_semi_major_axis" ),
+                  py::arg( "bending_angle" ) )
+            .def( "compute_pericenter_radius_fn", &tms::PericenterFindingFunctions::computePericenterRadiusFunction )
+            .def( "compute_derivative_pericenter_radius_fn",
+                  &tms::PericenterFindingFunctions::computeFirstDerivativePericenterRadiusFunction );
 
 
 
