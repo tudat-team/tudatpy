@@ -313,9 +313,11 @@ def test_reader():
     # Check observation times and values.
     obsTimes = obs_set.observation_times
     
+    # Check observation times and values.
+    obsTimes = obs_set.observation_times
     # This requires tudatpy to be compiled with time scalr type tudat::Time
     # assert obsTimes[0].to_float() == pytest.approx(
-        617245672.6834568
+    #     617245672.6834568
     # ), f"Unexpected observation time: {obsTimes[0].to_float()}"
     assert obsTimes[0] == pytest.approx(
         617245672.6834568
