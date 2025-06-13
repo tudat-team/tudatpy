@@ -104,9 +104,7 @@ BOOST_AUTO_TEST_CASE( testDateTimeConversions )
                                            3600.0 * std::numeric_limits< long double >::epsilon( ) );
                     }
 
-                    std::cout << "Pre-reconstruct" << std::endl;
                     DateTime reconstructedDateTime = DateTime::fromTime( currentTime );
-                    std::cout << "Post-reconstruct" << std::endl;
 
                     BOOST_CHECK_EQUAL( reconstructedDateTime.getYear( ), currentDateTime.getYear( ) );
                     BOOST_CHECK_EQUAL( reconstructedDateTime.getMonth( ), currentDateTime.getMonth( ) );
@@ -156,6 +154,27 @@ BOOST_AUTO_TEST_CASE( testDateTimeConversions )
 
 BOOST_AUTO_TEST_CASE( testTimePointConversions )
 {
+    std::time_t min_tt = std::numeric_limits< std::time_t >::min( );
+    std::time_t max_tt = std::numeric_limits< std::time_t >::max( );
+
+    constexpr std::chrono::system_clock::duration::rep minTickCount =
+            std::numeric_limits< std::chrono::system_clock::duration::rep >::min( );
+    std::chrono::system_clock::duration minDuration( minTickCount );
+    std::chrono::duration< double > minSecondsDuration = minDuration;
+    double lowerRepresentationCount = minSecondsDuration.count( );
+
+    constexpr std::chrono::system_clock::duration::rep maxTickCount =
+            std::numeric_limits< std::chrono::system_clock::duration::rep >::max( );
+    std::chrono::system_clock::duration maxDuration( maxTickCount );
+    std::chrono::duration< double > maxSecondsDuration = maxDuration;
+    double upperRepresentationCount = maxSecondsDuration.count( );
+
+    std::cout << "min time_t: " << std::to_string( min_tt ) << std::endl;
+    std::cout << "max time_t: " << std::to_string( max_tt ) << std::endl;
+
+    std::cout << "lower chrono seconds representation: " << std::to_string( lowerRepresentationCount ) << std::endl;
+    std::cout << "upper chrono seconds representation: " << std::to_string( upperRepresentationCount ) << std::endl;
+
     for( unsigned int i = 0; i < years.size( ); i++ )
     {
         for( unsigned int j = 0; j < dates.size( ); j++ )
