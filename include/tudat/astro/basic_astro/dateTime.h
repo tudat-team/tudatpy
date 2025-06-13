@@ -285,7 +285,11 @@ public:
         tm.tm_year = this->getYear( ) - 1900;
 
         tm.tm_isdst = -1;
-        std::chrono::system_clock::time_point timePoint = std::chrono::system_clock::from_time_t( std::mktime( &tm ) );
+
+        std::time_t tt = std::mktime( &tm );
+        std::cout << "time_t from mktime: " << std::to_string( tt ) << std::endl;
+
+        std::chrono::system_clock::time_point timePoint = std::chrono::system_clock::from_time_t( tt );
         return timePoint +
                 std::chrono::microseconds(
                         static_cast< int >( std::round( ( this->getSeconds( ) - static_cast< long double >( tm.tm_sec ) ) *
@@ -295,6 +299,9 @@ public:
     static DateTime fromTimePoint( const std::chrono::system_clock::time_point datetime )
     {
         std::time_t tt = std::chrono::system_clock::to_time_t( datetime );
+
+        std::cout << "time_t from time_point: " << std::to_string( tt ) << std::endl;
+
         std::tm local_tm = *localtime( &tt );
 
         using namespace std::chrono;
