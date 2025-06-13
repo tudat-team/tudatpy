@@ -286,6 +286,11 @@ public:
 
         tm.tm_isdst = -1;
 
+        std::cout << "Tudat IsoString: " << this->isoString( false, 3 ) << std::endl;
+
+        std::cout << "tm from tudat: " << local_tm.tm_year << " " << local_tm.tm_mon << " " << local_tm.tm_mday << " " << local_tm.tm_hour
+                  << " " << local_tm.tm_min << " " << local_tm.tm_sec << std::endl;
+
         std::time_t tt = std::mktime( &tm );
         std::cout << "time_t from mktime: " << std::to_string( tt ) << std::endl;
 
