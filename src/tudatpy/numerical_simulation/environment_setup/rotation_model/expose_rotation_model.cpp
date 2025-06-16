@@ -744,7 +744,7 @@ void expose_rotation_model_setup( py::module &m )
 
  Function for creating a high-accuracy Mars rotation model, using the default parameters of `Konopliv et al. (2016) <https://www.sciencedirect.com/science/article/abs/pii/S0019103516001305>`_
  and the mathematical model of `Konopliv et al. (2006) <https://www.sciencedirect.com/science/article/pii/S0019103506000297>`_ . The rotation matrix formulation is given in Eq. (13)-(19) of that paper.
- Note that, at the moment, all parameters in this rotation model are hard coded, and cannot be adapted by the user (except by estimating a number of its constituent parameters, see :ref:`\`\`parameter\`\`` module )
+ Note that, at the moment, all parameters in this rotation model are hard coded, and cannot be adapted by the user (except by estimating a number of its constituent parameters, see :ref:`parameter` module )
  As such, this model is at present applicable to Mars rotation only. If you require more fine-grained control of the parameters, please contact the Tudat support team
 
 

@@ -33,11 +33,11 @@ class DependentVariableDictionary(dict):
     The goal of this class is to make dependent variable time history retrieval semantic and
     straight-forward:
 
-    ```
-    total_acceleration_history = dep_vars_dict[
-        propagation_setup.dependent_variable.total_acceleration("Delfi-C3")
-    ]
-    ```
+    .. code-block:: python
+
+        total_acceleration_history = dep_vars_dict[
+            propagation_setup.dependent_variable.total_acceleration("Delfi-C3")
+        ]
 
     Example usage:
     --------------
@@ -45,41 +45,38 @@ class DependentVariableDictionary(dict):
     See the example below. As you can see, we can use as keys either the
 
     * Original dependent variable settings object (`dependent_variables_to_save[0]`),
-
     * Or a newly created dependent variable settings object (`propagation_setup.dependent_variable.total_acceleration("Delfi-C3")`)
 
-    ```
-    # Create simulation object and propagate the dynamics
-    dynamics_simulator = numerical_simulation.create_dynamics_simulator(
-        bodies, propagator_settings
-    )
+    .. code-block:: python
 
-    # Create DependentVariableDictionary
-    dep_vars_dict = result2dict(dynamics_simulator)
+        # Create simulation object and propagate the dynamics
+        dynamics_simulator = numerical_simulation.create_dynamics_simulator(
+            bodies, propagator_settings
+        )
 
-    # Retrieve the time history (in `dict[epoch: value]` form) of the total acceleration experienced by Delft-C3
-    total_acceleration_history = dep_vars_dict[
-        # This can be done using either the `SingleAccelerationDependentVariableSaveSettings`
-        # corresponding to this dependent variable
-        dependent_variables_to_save[0]
-    ]
-    total_acceleration_history = dep_vars_dict[
-        # Or a newly created one
-        propagation_setup.dependent_variable.total_acceleration("Delfi-C3")
-    ]
-    ```
+        # Create DependentVariableDictionary
+        dep_vars_dict = result2dict(dynamics_simulator)
+
+        # Retrieve the time history (in `dict[epoch: value]` form) of the total acceleration experienced by Delft-C3
+        total_acceleration_history = dep_vars_dict[
+            # This can be done using either the `SingleAccelerationDependentVariableSaveSettings`
+            # corresponding to this dependent variable
+            dependent_variables_to_save[0]
+        ]
+        total_acceleration_history = dep_vars_dict[
+            # Or a newly created one
+            propagation_setup.dependent_variable.total_acceleration("Delfi-C3")
+        ]
 
     How are time histories saved in a `DependentVariableDictionary`?
-    -----------------------------------------------------------
+    ----------------------------------------------------------------
 
     A `DependentVariableDictionary` maps which maps dependent variables, identified by either their
     corresponding dependent variable settings object (an instance of a `VariableSettings`-derived
     class) or its string ID, to their time histories.
 
     The time history of each dependent variable is a Python `dict` which maps epochs (`float`) to
-    NumPy arrays (`np.ndarray`) of shape `(A, B)`:
-
-        dict[epoch: np.ndarray[A, B]]
+    NumPy arrays (`np.ndarray`) of shape `(A, B)`: dict[epoch: np.ndarray[A, B]].
 
     **Important**: in `(A, B)`, we remove singleton/trivial dimensions (dimensions, `A` or `B`, of size 1).
     In the case of scalar dependent variables, the value associated to each epoch is a `np.ndarray` of shape `(1,)`.
@@ -92,10 +89,14 @@ class DependentVariableDictionary(dict):
     | Data Type | Shape       |
     +===========+=============+
     | Scalar    | `(1,)`      |
+    +-----------+-------------+
     | Vectorial | `(3,)`      |
+    +-----------+-------------+
     | Matrix    | `(A, B)`    |
+    +-----------+-------------+
     | Tensor    | `(A, B, C)` |
-    +===========+=============+
+    +-----------+-------------+
+
     """
 
     def __read_key(self, key: VariableSettings):
@@ -178,9 +179,9 @@ class DependentVariableDictionary(dict):
 
         Output
         ------
+            Time history of the dependent variable, returned as a `dict` mapping epochs (`float`)
+            to `np.ndarray`s containing the value of the dependent variable at each given epoch.
 
-        * Time history of the dependent variable, returned as a `dict` mapping epochs (`float`)
-          to `np.ndarray`s containing the value of the dependent variable at each given epoch.
         """
         try:
             return super().__getitem__(self.__read_key(__key))
@@ -235,11 +236,13 @@ class DependentVariableDictionary(dict):
 
         Arguments
         ---------
-        - key: dependent variable settings object or string ID of the dependent variable
+        key : VariableSettings
+            dependent variable settings object or string ID of the dependent variable
 
-        Output
+        Returns
         ------
-        - time_history: time history of the dependent variable, returned as a NumPy array
+        time_history : np.ndarray
+            time history of the dependent variable, returned as a NumPy array
         """
         return np.array(list(self[key].values()))
 
@@ -254,11 +257,13 @@ def create_dependent_variable_dictionary(
 
     Arguments
     ---------
-    - dynamics_simulator: `SingleArcSimulator` object containing the results of the numerical propagation
+    dynamics_simulator : SingleArcSimulator
+        `SingleArcSimulator` object containing the results of the numerical propagation
 
-    Output
+    Returns
     ------
-    - dependent_variable_dictionary: `DependentVariableDictionary` of propagation
+    dependent_variable_dictionary : DependentVariableDictionary
+        `DependentVariableDictionary` of propagation
     """
 
     # --------------------------------------------------------------------

@@ -1,1 +1,1 @@
-from ....kernel.numerical_simulation.propagation_setup.torque import *
+from tudatpy.kernel.numerical_simulation.propagation_setup.torque import *

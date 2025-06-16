@@ -1,3 +1,5 @@
+.. _vehicle_systems:
+
 ``vehicle_systems``
 ===================
 This module contains a set of factory functions for setting up physical and system properties of a vehicle.
@@ -10,7 +12,7 @@ calculation of aerodynamic coefficients in both rarefied and hypersonic flow.
 The current panels in Tudat allow a list of panels to be defined, with the geometrical properties of panel :math:`i` defined by the
 surface normal vector :math:`\hat{\mathbf{n}}_{i}` and the surface area :math:`A_{i}`. Note that, since the panel shape or
 location is not yet defined, computing torques due to surface forces, or incorporating shadowing into the panel
-force calculatuion, is not yet supported.
+force calculation, is not yet supported.
 
 The panel surface normal may be defined in either the body-fixed frame :math:`\mathcal{B}` of the vehicle, or to a 'vehicle-part-fixed frame'
 :math:`\mathcal{F}_{j}`. A 'vehicle part' is defined as a part of the vehicle that can move/rotate w.r.t. the body-fixed frame of the
@@ -28,9 +30,9 @@ a reflection law to compute the influence of radiation pressure) using the
 
 The vehicle macromodel, and the rotation models from the body-fixed frame to the (optional) part-fixed frames are defined by
 using the :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.full_panelled_body_settings` function, and
-assigned to the ``vehicle_shape_settings`` attribute of the :class:`~tudatpy.numerical_simulation.environment_setup.BodySettings` class.
+assigned to the :attr:`~tudatpy.numerical_simulation.environment_setup.BodySettings.vehicle_shape_settings` attribute of the :class:`~tudatpy.numerical_simulation.environment_setup.BodySettings` class.
 When a full macromodel is not available to the user, a 'box-wing' model may also be used, which creates the macromodel
-bassed on user settings, using the :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.box_wing_panelled_body_settings` function.
+based on user settings, using the :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.box_wing_panelled_body_settings` function.
 
 
 
@@ -88,6 +90,10 @@ Classes
 
    BodyPanelGeometrySettings
 
+   FrameFixedBodyPanelGeometrySettings
+
+   FrameVariableBodyPanelGeometrySettings
+
    BodyPanelSettings
 
    FullPanelledBodySettings
@@ -95,6 +101,12 @@ Classes
 
 
 .. autoclass:: tudatpy.numerical_simulation.environment_setup.vehicle_systems.BodyPanelGeometrySettings
+   :members:
+
+.. autoclass:: tudatpy.numerical_simulation.environment_setup.vehicle_systems.FrameFixedBodyPanelGeometrySettings
+   :members:
+
+.. autoclass:: tudatpy.numerical_simulation.environment_setup.vehicle_systems.FrameVariableBodyPanelGeometrySettings
    :members:
 
 .. autoclass:: tudatpy.numerical_simulation.environment_setup.vehicle_systems.BodyPanelSettings

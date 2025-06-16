@@ -1,3 +1,5 @@
+.. _time_conversion:
+
 ``time_conversion``
 ===================
 Conversions and computation on date and time.
@@ -65,7 +67,7 @@ Functions
 
    modified_julian_day_to_julian_day
 
-   calendar_date_to_day_of_year
+   .. calendar_date_to_day_of_year
 
    year_and_days_in_year_to_calendar_date
 
@@ -130,7 +132,7 @@ Functions
 
 .. autofunction:: tudatpy.astro.time_conversion.modified_julian_day_to_julian_day
 
-.. autofunction:: tudatpy.astro.time_conversion.calendar_date_to_day_of_year
+.. .. autofunction:: tudatpy.astro.time_conversion.calendar_date_to_day_of_year
 
 .. autofunction:: tudatpy.astro.time_conversion.year_and_days_in_year_to_calendar_date
 

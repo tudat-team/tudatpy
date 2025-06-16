@@ -441,7 +441,6 @@ void expose_dependent_variable_setup( py::module &m )
  w.r.t. the atmosphere of body 'Earth', use:
 
  .. code-block:: python
-    :emphasize-lines: 18
 
     # Define save settings for Mach number
     propagation_setup.dependent_variable.mach_number( "Spacecraft", "Earth" )
@@ -825,7 +824,6 @@ void expose_dependent_variable_setup( py::module &m )
  exerted by a body named 'Earth', use:
 
  .. code-block:: python
-    :emphasize-lines: 18
 
     # Define save settings for point-mass acceleration on Spacecraft by Earth
     propagation_setup.dependent_variable.single_acceleration(
@@ -869,7 +867,6 @@ void expose_dependent_variable_setup( py::module &m )
  exerted by a body named 'Earth', use:
 
  .. code-block:: python
-    :emphasize-lines: 18
 
     # Define save settings for point-mass acceleration on Spacecraft by Earth
     propagation_setup.dependent_variable.single_acceleration_norm(
@@ -1071,7 +1068,6 @@ void expose_dependent_variable_setup( py::module &m )
  nine entries (three acceleration components for 2/0, 2/1 and 2/2, respectively).
 
  .. code-block:: python
-    :emphasize-lines: 18
 
     # Define degree/order combinations for which to save acceleration contributions
     spherical_harmonic_terms = [ (2,0), (2,1), (2,2) ]
@@ -1119,7 +1115,6 @@ void expose_dependent_variable_setup( py::module &m )
  three entries (one acceleration norm for 2/0, 2/1 and 2/2, respectively).
 
  .. code-block:: python
-    :emphasize-lines: 18
 
 
     # Define degree/order combinations for which to save acceleration contributions
@@ -2257,6 +2252,24 @@ void expose_dependent_variable_setup( py::module &m )
            &tp::paneledRadiationSourceGeometry,
            py::arg( "target_name" ),
            py::arg( "source_name" ),
+           R"doc(No documentation found.)doc" );
+    
+    m.def( "illuminated_panel_fraction",
+           &tp::illuminatedPanelFractionDependentVariable,
+           py::arg( "target_name" ),
+           py::arg( "source_name" ),
+           py::arg( "panel_type" ) = "",
+           R"doc(No documentation found.)doc" );
+
+    m.def( "cross_section_change",
+           &tp::crossSectionChangeDependentVariable,
+           py::arg( "target_name" ),
+           py::arg( "source_name" ),
+           R"doc(No documentation found.)doc" );
+
+    m.def( "full_body_paneled_geometry",
+           &tp::fullBodyPaneledGeometryDependentVariable,
+           py::arg( "target_name" ),
            R"doc(No documentation found.)doc" );
 }
 
