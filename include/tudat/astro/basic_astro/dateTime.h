@@ -291,6 +291,20 @@ public:
         std::cout << "tm from tudat: " << tm.tm_year << " " << tm.tm_mon << " " << tm.tm_mday << " " << tm.tm_hour << " " << tm.tm_min
                   << " " << tm.tm_sec << std::endl;
 
+        #if defined(_WIN64) || defined(_WIN32)
+            std::cout<<"Test Windows macro"<<std::endl;
+            if( tm.tm_year < 1970 || tm.tm_year > 3000 )
+            {
+                throw std::runtime_error( "Error when creating time point on Windows, only years 1970-3000 supported ")
+            }
+        #elif __APPLE__
+            std::cout<<"Test Mac macro"<<std::endl;
+            if( tm.tm_year <= 1900 )
+            {
+                throw std::runtime_error( "Error when creating time point on MacOS, only years > 1900 supported ")
+            }
+        #endif
+
         std::time_t tt = std::mktime( &tm );
         std::cout << "time_t from mktime: " << std::to_string( tt ) << std::endl;
 
