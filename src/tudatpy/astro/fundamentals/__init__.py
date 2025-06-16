@@ -1,1 +1,1 @@
-from ...kernel.astro.fundamentals import *
+from tudatpy.kernel.astro.fundamentals import *

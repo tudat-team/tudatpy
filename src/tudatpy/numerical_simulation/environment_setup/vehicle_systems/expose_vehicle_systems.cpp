@@ -39,13 +39,61 @@ void expose_vehicle_systems_setup( py::module& m )
             "BodyPanelGeometrySettings",
             R"doc(
 
-         Base class for defining the geometrical properties of a single panel on the vehicle's exterior
-
-
-
+         Base class for defining the geometrical properties of a single panel on the vehicle's exterior.
+         A derived class of this can be instantiated through the :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.frame_fixed_panel_geometry`, :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.time_varying_panel_geometry`, or :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.body_tracking_panel_geometry` functions.
 
 
       )doc" );
+
+
+      py::class_< tss::FrameFixedBodyPanelGeometrySettings,
+      tss::BodyPanelGeometrySettings,
+      std::shared_ptr< tss::FrameFixedBodyPanelGeometrySettings > >( m,
+
+      "FrameFixedBodyPanelGeometrySettings",
+        R"doc(
+
+Derived class for defining the geometrical properties of a single panel on the vehicle's exterior, with a fixed orientation in a given frame.
+This class is typically instantiated through the :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.frame_fixed_panel_geometry` function.
+)doc" )
+  .def_readwrite( "surface_normal",
+                  &tss::FrameFixedBodyPanelGeometrySettings::surfaceNormal_,
+                  R"doc(
+Panel outward surface normal vector (in specified frame)
+
+:type: np.array
+)doc" )
+  .def_readwrite( "area",
+                  &tss::FrameFixedBodyPanelGeometrySettings::area_,
+                  R"doc(
+Panel surface area
+
+:type: float
+)doc" );
+
+py::class_< tss::FrameVariableBodyPanelGeometrySettings,
+      tss::BodyPanelGeometrySettings,
+      std::shared_ptr< tss::FrameVariableBodyPanelGeometrySettings > >( m,
+
+    "FrameVariableBodyPanelGeometrySettings",
+    R"doc(
+Derived class for defining the geometrical properties of a single panel on the vehicle's exterior, with a time-variable orientation in a given frame.
+This class is typically instantiated through the :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.time_varying_panel_geometry` or :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.body_tracking_panel_geometry` functions.
+)doc" )
+  .def_readwrite( "surface_normal_function",
+                  &tss::FrameVariableBodyPanelGeometrySettings::surfaceNormalFunction_,
+                  R"doc(
+Function which takes the current epoch as input and returns the panel outward surface normal vector (in specified frame).
+
+:type: Callable[[float], np.ndarray]
+)doc" )
+  .def_readwrite( "area",
+                  &tss::FrameVariableBodyPanelGeometrySettings::area_,
+                  R"doc(
+Panel surface area
+
+:type: float
+)doc" );
 
     m.def( "frame_fixed_panel_geometry",
            py::overload_cast< const Eigen::Vector3d&, const double, const std::string& >(
@@ -148,12 +196,12 @@ void expose_vehicle_systems_setup( py::module& m )
 
  Parameters
  ----------
- surface_normal_function : np.array
-     Panel outward surface normal vector (in specified frame)
+ surface_normal_function : Callable[[], np.ndarray]
+    Function which takes the current epoch as input and returns the panel outward surface normal vector (in specified frame).
  area : float
      Panel surface area
  frame_orientation : str, default = ""
-     Identifier of the frame to which the panel is fixed (if body-fixed frame, this can be left empty)
+     Identifier of the frame in which the panel normal is defined
  Returns
  -------
  BodyPanelGeometrySettings
@@ -171,15 +219,36 @@ void expose_vehicle_systems_setup( py::module& m )
             "BodyPanelSettings",
             R"doc(
 
-         Class for defining the complete properties of a single panel on the vehicle's exterior
+         Class for defining the complete properties of a single panel on the vehicle's exterior.
+         This class is typically instantiated through the :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.body_panel_settings` function.
 
 
 
 
 
       )doc" )
+      .def_readwrite( "panel_geometry", &tss::BodyPanelSettings::panelGeometry_, R"doc(
+        
+        Geometric properties of the panel, including surface normal vector and area.
+
+        :type: BodyPanelGeometrySettings
+
+        )doc" )
             .def_readwrite( "reflection_law_settings",
-                            &tss::BodyPanelSettings::reflectionLawSettings_ );
+                            &tss::BodyPanelSettings::reflectionLawSettings_,
+                            R"doc(
+        Reflection law settings of the panel.
+            
+        :type: BodyPanelReflectionLawSettings
+            )doc"
+
+                            )
+            .def_readwrite( "panel_type_id", &tss::BodyPanelSettings::panelTypeId_, R"doc(
+        Optional identifier for panel type.
+        This is typically used to identify the type of panel and can be used to assign a rotation model to a specific panel type, see the :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.full_panelled_body_settings` function.
+
+        :type: str
+        )doc" );
 
     m.def( "body_panel_settings",
            &tss::bodyPanelSettings,
@@ -190,7 +259,8 @@ void expose_vehicle_systems_setup( py::module& m )
 
  Function for creating settings for a full panel
 
- Function for creating settings for a full panel (presently only geometry and reflection properties). The panel
+ Function for creating settings for a full panel (presently only geometry and reflection properties). The :class:`~tudatpy.numerical_simulation.environment_setup.radiation_pressure.BodyPanelReflectionLawSettings` can be created using the :func:`~tudatpy.numerical_simulation.environment_setup.radiation_pressure.specular_diffuse_body_panel_reflection` or :func:`~tudatpy.numerical_simulation.environment_setup.radiation_pressure.lambertian_body_panel_reflection` functions.
+ The panel
  can also be endowed with an identifier to specify the type of the panel. This has no direct consequences for the model,
  but may be useful in estimation, to for instance estimate the reflection properties of all panels specified with identified "MLI"
  as a single parameter
@@ -221,13 +291,29 @@ void expose_vehicle_systems_setup( py::module& m )
             "FullPanelledBodySettings",
             R"doc(
 
-         Class for providing the complete settings for a panelled body exterior
+         Class for providing the complete settings for a panelled body exterior.
+        
+         This is typically defined through the :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.full_panelled_body_settings` or :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.box_wing_panelled_body_settings` functions.
+         The class contains a list of panel settings, and (optionally) a list of rotation model settings for vehicle parts.
 
 
+     )doc" )
+            .def_readwrite( "panel_settings_list", &tss::FullPanelledBodySettings::panelSettingsList_, R"doc(
+        List of individual body panel settings on the body.
+        
+        :type: list[BodyPanelSettings]
+        )doc" )
+            .def_readwrite( "part_rotation_model_settings",
+                            &tss::FullPanelledBodySettings::partRotationModelSettings_,
+                            R"doc(
+        Dictionary of rotation model settings per vehicle parts.
+        The rotation model settings are defined per `panel_type_id`, as defined in the :class:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.BodyPanelSettings`.
+    
+        :type: dict[str,RotationModelSettings]
 
+        )doc"
 
-
-      )doc" );
+            );
 
     m.def( "full_panelled_body_settings",
            &tss::fullPanelledBodySettings,
@@ -236,7 +322,7 @@ void expose_vehicle_systems_setup( py::module& m )
                    std::map< std::string, std::shared_ptr< tss::RotationModelSettings > >( ),
            R"doc(
 
- Function for creating settings for a full panelled vehicle exterior
+ Function for creating settings for a full panelled vehicle exterior.
 
  Function for creating settings for a full panelled vehicle exterior, taking a list of panel settings,
  and (optionally) a list of rotation model settings for vehicle parts. The identifiers for the rotation models
@@ -327,6 +413,53 @@ void expose_vehicle_systems_setup( py::module& m )
 
 
      )doc" );
+
+    m.def( "body_panel_settings_list_from_dae",
+        &tss::bodyPanelSettingsListFromDae,
+        py::arg( "file_path" ),
+        py::arg( "frame_origin" ),
+        py::arg( "material_properties" ),
+        py::arg( "reradiation_settings" ),
+        py::arg( "frame_orientation" ) = "",
+        R"doc(
+Function for creating list of panel body settings
+        
+Function for creating list of panel body settings from a .dae (COLLADA) file containing the 3D geometry and the
+material for the paneled surface.
+Parameters
+----------
+file_path : str
+    Path to .dae file with geometry data.
+frame_origin : np.array
+    Frame origin of the .dae part to be loaded.
+material_properties : dict[str, np.array]
+    Dictionary of material properties, as they appear in the .dae file provided.
+reradiation_settings : dict[str, bool]
+    Dictionary of re-radiation settings for materials, as they appear in the .dae file provided.
+frame_orientation : str, default = "
+    Identifier of the frame to which the panel is fixed (if body-fixed frame, this can be left empty).
+    
+Returns
+-------
+list[BodyPanelSettings]
+    List of settings for body panels
+    )doc" );
+
+    m.def( "merge_body_panel_setting_lists",
+       &tss::mergeBodyPanelSettingsLists,
+       py::arg( "list_of_lists_of_body_panel_settings" ),
+       R"doc(
+Function for merging lists of panel body settings
+Parameters
+----------
+list_of_lists_of_body_panel_settings : list[list[BodyPanelSettings], ...]
+    List of lists of body panel settings.
+Returns
+-------
+list[BodyPanelSettings]
+    List of settings for body panels assembled from different parts, creating a coherent list of body panel settings.
+    )doc" );
+    
 }
 
 }  // namespace vehicle_systems

@@ -96,8 +96,6 @@ void expose_thrust_setup( py::module &m )
              Value of the constant thrust magnitude.
          specific_impulse : float
              Value of the constant specific impulse.
-         specific_impulse : numpy.ndarray
-             Thrust direction vector expressed in the body-fixed reference frame.
 
 
 
@@ -125,14 +123,14 @@ void expose_thrust_setup( py::module &m )
 
       )doc" );
 
-    m.def( "get_propulsion_input_variables",
-           &tss::getPropulsionInputVariables,
-           py::arg( "body_with_guidance" ) = std::shared_ptr< tss::Body >( ),
-           py::arg( "independent_variables" ) =
-                   std::vector< tudat::propulsion::ThrustIndependentVariables >( ),
-           py::arg( "guidance_input_functions" ) =
-                   std::vector< std::function< double( ) > >( ) );  //,
-    //          get_docstring("get_propulsion_input_variables").c_str());
+//    m.def( "get_propulsion_input_variables",
+//           &tss::getPropulsionInputVariables,
+//           py::arg( "body_with_guidance" ) = std::shared_ptr< tss::Body >( ),
+//           py::arg( "independent_variables" ) =
+//                   std::vector< tudat::propulsion::ThrustIndependentVariables >( ),
+//           py::arg( "guidance_input_functions" ) =
+//                   std::vector< std::function< double( ) > >( ) );  //,
+//    //          get_docstring("get_propulsion_input_variables").c_str());
 
     // Thrust orientation factory functions
 

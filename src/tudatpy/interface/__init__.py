@@ -1,1 +1,1 @@
-from ..kernel.interface import spice
+from tudatpy.kernel.interface import *

@@ -52,6 +52,42 @@ namespace environment_setup
 
 void expose_environment_setup( py::module &m )
 {
+    auto aerodynamic_coefficient_setup = m.def_submodule( "aerodynamic_coefficients" );
+    aerodynamic_coefficients::expose_aerodynamic_coefficient_setup( aerodynamic_coefficient_setup );
+
+    auto radiation_pressure_setup = m.def_submodule( "radiation_pressure" );
+    radiation_pressure::expose_radiation_pressure_setup( radiation_pressure_setup );
+
+    auto rotation_model_setup = m.def_submodule( "rotation_model" );
+    rotation_model::expose_rotation_model_setup( rotation_model_setup );
+
+    auto gravity_field_setup = m.def_submodule( "gravity_field" );
+    gravity_field::expose_gravity_field_setup( gravity_field_setup );
+
+    auto ephemeris_setup = m.def_submodule( "ephemeris" );
+    ephemeris::expose_ephemeris_setup( ephemeris_setup );
+
+    auto atmosphere_setup = m.def_submodule( "atmosphere" );
+    atmosphere::expose_atmosphere_setup( atmosphere_setup );
+
+    auto shape_setup = m.def_submodule( "shape" );
+    shape::expose_shape_setup( shape_setup );
+
+    auto gravity_variation_setup = m.def_submodule( "gravity_field_variation" );
+    gravity_field_variation::expose_gravity_field_variation_setup( gravity_variation_setup );
+
+    auto shape_deformation_setup = m.def_submodule( "shape_deformation" );
+    shape_deformation::expose_shape_deformation_setup( shape_deformation_setup );
+
+    auto ground_station_setup = m.def_submodule( "ground_station" );
+    ground_station::expose_ground_station_setup( ground_station_setup );
+
+    auto rigid_body_setup = m.def_submodule( "rigid_body" );
+    rigid_body::expose_rigid_body_setup( rigid_body_setup );
+
+    auto vehicle_systems_setup = m.def_submodule( "vehicle_systems" );
+    vehicle_systems::expose_vehicle_systems_setup( vehicle_systems_setup );
+
     //        m.def("get_body_gravitational_parameter",
     //              &tss::getBodyGravitationalParameter,
     //              py::arg("body_collection"),
@@ -81,7 +117,7 @@ void expose_environment_setup( py::module &m )
 
          Object that defines the settings of the atmosphere model that is to be created. Note that wind model settings
          may be defined inside this object. A variable of this type is typically assigned by using a function from the
-         :ref:`\`\`atmosphere\`\`` module.
+         :ref:`atmosphere` module.
 
 
          :type: AtmosphereSettings
@@ -89,7 +125,7 @@ void expose_environment_setup( py::module &m )
             .def_readwrite( "ephemeris_settings", &tss::BodySettings::ephemerisSettings, R"doc(
 
          Object that defines the settings of the ephemeris model that is to be created. A variable of this type is typically
-         assigned by using a function from the :ref:`\`\`ephemeris\`\`` module.
+         assigned by using a function from the :ref:`ephemeris` module.
 
 
          :type: EphemerisSettings
@@ -99,7 +135,7 @@ void expose_environment_setup( py::module &m )
                             R"doc(
 
          Object that defines the settings of the gravity field model that is to be created. A variable of this type is typically
-         assigned by using a function from the :ref:`\`\`gravity_field\`\`` module.
+         assigned by using a function from the :ref:`gravity_field` module.
 
 
          :type: GravityFieldSettings
@@ -109,7 +145,7 @@ void expose_environment_setup( py::module &m )
                             R"doc(
 
          Object that defines the settings of the rotation model that is to be created. A variable of this type is typically
-         assigned by using a function from the :ref:`\`\`rotation_model\`\`` module.
+         assigned by using a function from the :ref:`rotation_model` module.
 
 
          :type: RotationModelSettings
@@ -119,7 +155,7 @@ void expose_environment_setup( py::module &m )
                             R"doc(
 
          Object that defines the settings of the shape model that is to be created. A variable of this type is typically
-         assigned by using a function from the :ref:`\`\`shape\`\`` module.
+         assigned by using a function from the :ref:`shape` module.
 
 
          :type: BodyShapeSettings
@@ -129,7 +165,7 @@ void expose_environment_setup( py::module &m )
                             R"doc(
 
          Object that defines the settings of the aerodynamic coefficient model that is to be created. A variable of this type is typically
-         assigned by using a function from the :ref:`\`\`aerodynamic_coefficients\`\`` module.
+         assigned by using a function from the :ref:`aerodynamic_coefficients` module.
 
 
          :type: AerodynamicCoefficientSettings
@@ -139,7 +175,7 @@ void expose_environment_setup( py::module &m )
                             R"doc(
 
          List of objects that define the settings of time variations of the gravity field variation models that are to be created. Variables in this list are typically
-         assigned by using a function from the :ref:`\`\`gravity_field_variations\`\`` module.
+         assigned by using a function from the :ref:`gravity_field_variation` module.
 
 
          :type: list[GravityFieldVariationSettings]
@@ -149,7 +185,7 @@ void expose_environment_setup( py::module &m )
                             R"doc(
 
          List of objects that define the settings of time variations of the exterior shape of natural bodies are to be created. Variables in this list are typically
-         assigned by using a function from the :ref:`\`\`shape_deformation\`\`` module.
+         assigned by using a function from the :ref:`shape_deformation` module.
 
 
          :type: list[BodyDeformationSettings]
@@ -162,7 +198,7 @@ void expose_environment_setup( py::module &m )
                             R"doc(
 
          Object that defines the settings of the body rigid body (mass, center of mass, inertia) properties that are to be created. A variable of this type is typically
-         assigned by using a function from the :ref:`\`\`rigid_body\`\`` module. Note that this setting does *not* define
+         assigned by using a function from the :ref:`rigid_body` module. Note that this setting does *not* define
          the gravity field, but rather only the mass, center of mass and inertia tensor.
 
 
@@ -173,7 +209,7 @@ void expose_environment_setup( py::module &m )
                             R"doc(
 
          Object that defines the settings of the radiation pressure target model that is to be created. A variable of this type is typically
-         assigned by using a function from the :ref:`\`\`radiation_pressure\`\`` module.
+         assigned by using a function from the :ref:`radiation_pressure` module.
 
 
          :type: RadiationPressureTargetModelSettings
@@ -183,7 +219,7 @@ void expose_environment_setup( py::module &m )
                             R"doc(
 
          Object that defines the settings of the radiation source model that is to be created. A variable of this type is typically
-         assigned by using a function from the :ref:`\`\`radiation_pressure\`\`` module.
+         assigned by using a function from the :ref:`radiation_pressure` module.
 
 
          :type: RadiationSourceModelSettings
@@ -192,7 +228,7 @@ void expose_environment_setup( py::module &m )
                     "vehicle_shape_settings", &tss::BodySettings::bodyExteriorPanelSettings_, R"doc(
 
          Object that defines the settings of an exterior panelled vehicle shape that is to be created. A variable of this type is typically
-         assigned by using a function from the :ref:`\`\`vehicle_systems\`\`` module.
+         assigned by using a function from the :ref:`vehicle_systems` module.
 
 
          :type: FullPanelledBodySettings
@@ -750,14 +786,14 @@ void expose_environment_setup( py::module &m )
            py::arg( "radiation_pressure_target_settings" ),
            R"doc(
 
- Function that creates an radiation pressure interface from settings, and adds it to an existing body.
+ Function that creates a radiation pressure target model from settings, and adds it to an existing body.
 
- This function can be used to add an radiation pressure interface to an existing body. It requires
- settings for the radiation pressure interface, created using one of the functions from the :ref:`\`\`radiation_pressure\`\`` module.
- This function creates the actual coefficient interface from these settings, and assigns it to the
+ This function can be used to add a radiation pressure target model to an existing body. It requires
+ settings for the radiation pressure target model, created using one of the functions from the :ref:`radiation_pressure` module.
+ This function creates the actual target model from these settings, and assigns it to the
  selected body. In addition to the identifier for the body to which it is assigned, this function
  requires the full :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies` as input, to facilitate
- inter-body dependencies in the radiation pressure interface
+ inter-body dependencies in the radiation pressure interface.
 
 
  Parameters
@@ -766,8 +802,8 @@ void expose_environment_setup( py::module &m )
      Object defining the physical environment, with all properties of artificial and natural bodies.
  body_name : str
      Name of the body to which the radiation pressure interface is to be assigned
- radiation_pressure_settings : RadiationPressureInterfaceSettings
-     Settings defining the radiation pressure interface that is to be created.
+ radiation_pressure_target_settings : RadiationPressureTargetModelSettings
+    Settings defining the radiation pressure target model that is to be created.
 
 
 
@@ -872,7 +908,7 @@ void expose_environment_setup( py::module &m )
  assigned to this engine model are:
 
  * The (constant) direction in body-fixed frame in which the engine is pointing (e.g. the body-fixed thrust direction when the engine is on)
- * Settings for computing the thrust magnitude (as a function of time and/or other parameters), using a suitable function from the :ref:`\`\`thrust\`\`` submodule
+ * Settings for computing the thrust magnitude (as a function of time and/or other parameters), using a suitable function from the :ref:`thrust` submodule
 
 
  Parameters
@@ -1007,41 +1043,7 @@ void expose_environment_setup( py::module &m )
     //              py::arg( "station_name" ),
     //              py::arg( "times" ) );
 
-    auto aerodynamic_coefficient_setup = m.def_submodule( "aerodynamic_coefficients" );
-    aerodynamic_coefficients::expose_aerodynamic_coefficient_setup( aerodynamic_coefficient_setup );
 
-    auto radiation_pressure_setup = m.def_submodule( "radiation_pressure" );
-    radiation_pressure::expose_radiation_pressure_setup( radiation_pressure_setup );
-
-    auto rotation_model_setup = m.def_submodule( "rotation_model" );
-    rotation_model::expose_rotation_model_setup( rotation_model_setup );
-
-    auto gravity_field_setup = m.def_submodule( "gravity_field" );
-    gravity_field::expose_gravity_field_setup( gravity_field_setup );
-
-    auto ephemeris_setup = m.def_submodule( "ephemeris" );
-    ephemeris::expose_ephemeris_setup( ephemeris_setup );
-
-    auto atmosphere_setup = m.def_submodule( "atmosphere" );
-    atmosphere::expose_atmosphere_setup( atmosphere_setup );
-
-    auto shape_setup = m.def_submodule( "shape" );
-    shape::expose_shape_setup( shape_setup );
-
-    auto gravity_variation_setup = m.def_submodule( "gravity_field_variation" );
-    gravity_field_variation::expose_gravity_field_variation_setup( gravity_variation_setup );
-
-    auto shape_deformation_setup = m.def_submodule( "shape_deformation" );
-    shape_deformation::expose_shape_deformation_setup( shape_deformation_setup );
-
-    auto ground_station_setup = m.def_submodule( "ground_station" );
-    ground_station::expose_ground_station_setup( ground_station_setup );
-
-    auto rigid_body_setup = m.def_submodule( "rigid_body" );
-    rigid_body::expose_rigid_body_setup( rigid_body_setup );
-
-    auto vehicle_systems_setup = m.def_submodule( "vehicle_systems" );
-    vehicle_systems::expose_vehicle_systems_setup( vehicle_systems_setup );
 
     //        auto system_model_setup =
     //        m.def_submodule("system_models");
