@@ -198,11 +198,13 @@ void expose_aerodynamic_coefficient_setup( py::module &m )
     m.def( "panelled",
             py::overload_cast< const ta::GasSurfaceInteractionModelType,
                             const double,
-                            const int >(
+                            const int,
+                            const bool >(
                    &tss::panelledAerodynamicCoefficientSettings ),
            py::arg( "gas_surface_interaction_model" ),
            py::arg( "reference_area" ),
            py::arg( "maximum_number_of_pixels" ) = 0,
+           py::arg( "only_drag_component" ) = false,
             R"doc(No documentation found.)doc" );
             
     m.def( "constant",
