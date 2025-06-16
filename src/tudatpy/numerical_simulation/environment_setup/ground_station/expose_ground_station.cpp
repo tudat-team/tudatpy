@@ -34,10 +34,9 @@ namespace ground_station
 
 void expose_ground_station_setup( py::module &m )
 {
-    py::class_< tss::GroundStationSettings, std::shared_ptr< tss::GroundStationSettings > >(
-            m,
-            "GroundStationSettings",
-            R"doc(
+    py::class_< tss::GroundStationSettings, std::shared_ptr< tss::GroundStationSettings > >( m,
+                                                                                             "GroundStationSettings",
+                                                                                             R"doc(
 
          Base class for providing settings for the creation of a ground station.
 
@@ -49,11 +48,9 @@ void expose_ground_station_setup( py::module &m )
 
             .def_property_readonly( "station_name", &tss::GroundStationSettings::getStationName );
 
-    py::class_< tss::GroundStationMotionSettings,
-                std::shared_ptr< tss::GroundStationMotionSettings > >(
-            m,
-            "GroundStationMotionSettings",
-            R"doc(
+    py::class_< tss::GroundStationMotionSettings, std::shared_ptr< tss::GroundStationMotionSettings > >( m,
+                                                                                                         "GroundStationMotionSettings",
+                                                                                                         R"doc(
 
          Base class for providing settings for the motion of a single ground station.
 
@@ -121,8 +118,7 @@ void expose_ground_station_setup( py::module &m )
            py::arg( "station_name" ),
            py::arg( "station_nominal_position" ),
            py::arg( "station_position_element_type" ) = tcc::cartesian_position,
-           py::arg( "station_motion_settings" ) =
-                   std::vector< std::shared_ptr< tss::GroundStationMotionSettings > >( ),
+           py::arg( "station_motion_settings" ) = std::vector< std::shared_ptr< tss::GroundStationMotionSettings > >( ),
            R"doc(
 
  Function for creating settings for a ground station
@@ -173,6 +169,24 @@ void expose_ground_station_setup( py::module &m )
 
      )doc" );
 
+    m.def(
+            "get_approximate_dsn_ground_station_positions",
+            []( ) -> py::dict {
+                // Call the C++ function
+                std::map< std::string, Eigen::Vector3d > stationPositions = tss::getApproximateDsnGroundStationPositions( );
+
+                // Convert the std::map to a Python dict
+                py::dict pythonDict;
+                for( const auto &entry: stationPositions )
+                {
+                    // entry.first is the station name, entry.second is the Eigen::Vector3d
+                    pythonDict[ entry.first.c_str( ) ] = entry.second;
+                }
+
+                return pythonDict;
+            },
+            "Returns a dictionary mapping DSN station names (str) to approximate positions (Eigen::Vector3d)." );
+
     m.def( "dsn_stations",
            &tss::getDsnStationSettings,
            R"doc(
@@ -180,7 +194,7 @@ void expose_ground_station_setup( py::module &m )
  Function for creating settings for all DSN stations
 
  Function for creating settings for all DSN stations, defined by nominal positions and linear velocities, as defined
- by Cartesian elements in *DSN No. 810-005, 301, Rev. K*,  see `this link <https://deepspace.jpl.nasa.gov/dsndocs/810-005/301/301K.pdf>`_.
+ by Cartesian elements in *DSN No. 810-005, 301, Rev. K*,  see `this link <https://deepspace.jpl.nasa.gov/dsndocs/810-005/301/301K.pdf>`__.
  Note that calling these settings will use the Cartesian elements provided in this document (in ITRF93) and apply them to the Earth-fixed
  station positions, regardless of the selected Earth rotation model.
 
@@ -197,7 +211,7 @@ void expose_ground_station_setup( py::module &m )
 
  Function for creating settings for all EVN stations.
 
- Function for creating settings for all EVN stations. EVN stations are defined by nominal positions and linear velocities, as defined by the glo.sit station file, see `this link <https://gitlab.com/gofrito/pysctrack/-/blob/master/cats/glo.sit?ref_type=heads>`_.
+ Function for creating settings for all EVN stations. EVN stations are defined by nominal positions and linear velocities, as defined by the glo.sit station file, see `this link <https://gitlab.com/gofrito/pysctrack/-/blob/master/cats/glo.sit?ref_type=heads>`__.
  Note that calling these settings will use the Cartesian elements provided by these documents and apply them to the Earth-fixed station positions, regardless of the selected Earth rotation model.
 
  Returns
@@ -214,8 +228,8 @@ void expose_ground_station_setup( py::module &m )
  Function for creating settings for all DSN and EVN stations.
 
  Function for creating settings for all DSN and EVN stations.
- DSN stations are defined by nominal positions and linear velocities, as defined by Cartesian elements in DSN No. 810-005, 301, Rev. K., see `this link <https://deepspace.jpl.nasa.gov/dsndocs/810-005/301/301K.pdf>`_.
- EVN stations are defined by nominal positions and linear velocities, as defined by the glo.sit station file, see `this link <https://gitlab.com/gofrito/pysctrack/-/blob/master/cats/glo.sit?ref_type=heads>`_.
+ DSN stations are defined by nominal positions and linear velocities, as defined by Cartesian elements in DSN No. 810-005, 301, Rev. K., see `this link <https://deepspace.jpl.nasa.gov/dsndocs/810-005/301/301K.pdf>`__.
+ EVN stations are defined by nominal positions and linear velocities, as defined by the glo.sit station file, see `this link <https://gitlab.com/gofrito/pysctrack/-/blob/master/cats/glo.sit?ref_type=heads>`__.
  Note that calling these settings will use the Cartesian elements provided by these documents and apply them to the Earth-fixed station positions, regardless of the selected Earth rotation model.
 
  Returns
@@ -306,9 +320,7 @@ void expose_ground_station_setup( py::module &m )
 
      )doc" );
 
-    m.def( "approximate_ground_stations_position",
-           &tss::getCombinedApproximateGroundStationPositions,
-           R"doc(No documentation found.)doc" );
+    m.def( "approximate_ground_stations_position", &tss::getCombinedApproximateGroundStationPositions, R"doc(No documentation found.)doc" );
 }
 
 }  // namespace ground_station

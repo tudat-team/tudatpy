@@ -1,3 +1,5 @@
+.. _estimation_setup:
+
 ``estimation_setup``
 ====================
 This module contains a set of factory functions for setting up the
