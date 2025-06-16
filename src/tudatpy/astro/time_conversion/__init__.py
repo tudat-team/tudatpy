@@ -1,1 +1,1 @@
-from ...kernel.astro.time_conversion import *
+from tudatpy.kernel.astro.time_conversion import *

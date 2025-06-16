@@ -1,3 +1,5 @@
+.. _propagation_setup:
+
 ``propagation_setup``
 =====================
 Definition of propagation settings.

@@ -64,14 +64,15 @@ void expose_propagation_setup( py::module &m )
     auto integrator_setup = m.def_submodule( "integrator" );
     integrator::expose_integrator_setup( integrator_setup );
 
+    auto dependent_variable_setup = m.def_submodule( "dependent_variable" );
+    dependent_variable::expose_dependent_variable_setup( dependent_variable_setup );
+
     auto propagator_setup = m.def_submodule( "propagator" );
     propagator::expose_propagator_setup( propagator_setup );
 
     auto mass_setup = m.def_submodule( "mass_rate" );
     mass_rate::expose_mass_rate_setup( mass_setup );
 
-    auto dependent_variable_setup = m.def_submodule( "dependent_variable" );
-    dependent_variable::expose_dependent_variable_setup( dependent_variable_setup );
 
     m.def( "create_acceleration_models",
            py::overload_cast< const tss::SystemOfBodies &,
@@ -103,8 +104,8 @@ void expose_propagation_setup( py::module &m )
      List of central bodies, each referred to each propagated body in the same order.
  Returns
  -------
- AccelerationMap
-     Set of accelerations acting on the bodies to propagate, provided as dual key-value container, similar to the acceleration settings input, but now with ``AccelerationModel`` lists as inner value
+ AccelerationMap : dict[str, list[AccelerationModel]]
+    Set of accelerations acting on the bodies to propagate, provided as dual key-value container (dictionary), similar to the acceleration settings input, but now with ``AccelerationModel`` lists as inner value
 
 
 
@@ -227,7 +228,7 @@ void expose_propagation_setup( py::module &m )
      System of bodies to be used in the propagation.
  selected_mass_rates_per_body : Dict[str, List[MassRateModelSettings]]
      Key-value container, with key denoting the body with changing mass, and the value containing a list of mass rate settings (in most cases, this list will have only a single entry)
- acceleration_models : AccelerationMap
+ acceleration_models : dict[str, list[AccelerationModel]]
      Sorted list of acceleration models, as created by :func:`create_acceleration_models`
  Returns
  -------

@@ -44,86 +44,116 @@ void expose_element_conversion( py::module& m )
     py::enum_< toec::KeplerianElementIndices >( m,
                                                 "KeplerianElementIndices",
                                                 R"doc(
-         Enumeration for indices of Keplerian elements"
-      )doc" )
+
+Enumeration for indices of Keplerian elements
+
+)doc" )
             .value( "semi_major_axis_index",
                     toec::KeplerianElementIndices::semiMajorAxisIndex,
                     R"doc(
- Element 0 in vector of Keplerian elements (for eccentricity not equal to 1.0)
-      )doc" )
+
+Element 0 in vector of Keplerian elements (for eccentricity not equal to 1.0)
+
+)doc" )
             .value( "semi_latus_rectum_index",
                     toec::KeplerianElementIndices::semiLatusRectumIndex,
                     R"doc(
- Element 0 in vector of Keplerian elements (for eccentricity equal to 1.0)
-      )doc" )
+
+Element 0 in vector of Keplerian elements (for eccentricity equal to 1.0)
+
+)doc" )
             .value( "eccentricity_index",
                     toec::KeplerianElementIndices::eccentricityIndex,
                     R"doc(
- Element 1 in vector of Keplerian elements
-      )doc" )
+
+Element 1 in vector of Keplerian elements
+
+)doc" )
             .value( "inclination_index",
                     toec::KeplerianElementIndices::inclinationIndex,
                     R"doc(
- Element 2 in vector of Keplerian elements
-      )doc" )
+
+Element 2 in vector of Keplerian elements
+
+)doc" )
             .value( "argument_of_periapsis_index",
                     toec::KeplerianElementIndices::argumentOfPeriapsisIndex,
                     R"doc(
- Element 3 in vector of Keplerian elements
-      )doc" )
+
+Element 3 in vector of Keplerian elements
+
+)doc" )
             .value( "longitude_of_ascending_node_index",
                     toec::KeplerianElementIndices::longitudeOfAscendingNodeIndex,
                     R"doc(
- Element 4 in vector of Keplerian elements
-      )doc" )
+
+Element 4 in vector of Keplerian elements
+
+)doc" )
             .value( "true_anomaly_index",
                     toec::KeplerianElementIndices::trueAnomalyIndex,
                     R"doc(
- Element 5 in vector of Keplerian elements
-      )doc" )
+
+Element 5 in vector of Keplerian elements
+
+)doc" )
             .export_values( );
 
     py::enum_< toec::SphericalOrbitalStateElementIndices >( m,
                                                             "SphericalOrbitalStateElementIndices",
                                                             R"doc(
-         Enumeration for indices of spherical orbital state elements"
-      )doc" )
+
+Enumeration for indices of spherical orbital state elements"
+
+)doc" )
             .value( "radius_index",
                     toec::SphericalOrbitalStateElementIndices::radiusIndex,
                     R"doc(
- Element 0 in vector of spherical orbital state elements
-      )doc" )
+
+Element 0 in vector of spherical orbital state elements
+
+)doc" )
             .value( "latitude_index",
                     toec::SphericalOrbitalStateElementIndices::latitudeIndex,
                     R"doc(
- Element 1 in vector of spherical orbital state elements
-      )doc" )
+
+Element 1 in vector of spherical orbital state elements
+
+)doc" )
             .value( "longitude_index",
                     toec::SphericalOrbitalStateElementIndices::longitudeIndex,
                     R"doc(
- Element 2 in vector of spherical orbital state elements
-      )doc" )
+
+Element 2 in vector of spherical orbital state elements
+
+)doc" )
             .value( "speed_index",
                     toec::SphericalOrbitalStateElementIndices::speedIndex,
                     R"doc(
- Element 3 in vector of spherical orbital state elements
-      )doc" )
+
+Element 3 in vector of spherical orbital state elements
+
+)doc" )
             .value( "flight_path_index",
                     toec::SphericalOrbitalStateElementIndices::flightPathIndex,
                     R"doc(
- Element 4 in vector of spherical orbital state elements
-      )doc" )
+
+Element 4 in vector of spherical orbital state elements
+
+)doc" )
             .value( "heading_angle_index",
                     toec::SphericalOrbitalStateElementIndices::headingAngleIndex,
                     R"doc(
- Element 5 in vector of spherical orbital state elements
-      )doc" )
+
+Element 5 in vector of spherical orbital state elements
+
+)doc" )
             .export_values( );
 
     py::enum_< tcc::PositionElementTypes >( m,
                                             "PositionElementTypes",
                                             R"doc(
- Enumeration describing different types of position element types (typically used for body-centered, body-0fixed position)
+Enumeration describing different types of position element types (typically used for body-centered, body-fixed position)
       )doc" )
             .value( "cartesian_position_type", tcc::PositionElementTypes::cartesian_position )
             .value( "spherical_position_type", tcc::PositionElementTypes::spherical_position )
@@ -154,6 +184,48 @@ void expose_element_conversion( py::module& m )
      Geodetic coordinates, as computed from Cartesian element input.
 
 
+
+     )doc" );
+
+    m.def( "convert_geographic_to_geodetic_latitude",
+    &tcc::convertGeographicToGeodeticLatitude,
+    py::arg( "geographic_latitude" ),
+    py::arg( "equatorial_radius" ),
+    py::arg( "flattening" ),
+    py::arg( "altitude" ),
+    py::arg( "tolerance" ),
+    py::arg( "maximum_number_of_iterations" ),
+    R"doc(
+
+ Convert geographic latitude to geodetic latitude.
+
+ This function converts a geographic latitude to a geodetic latitude, given the equatorial radius, flattening, altitude, 
+ and a convergence tolerance. The conversion is performed iteratively, with a maximum number of iterations allowed.
+
+ Parameters
+ ----------
+ geographic_latitude : float
+     Geographic latitude (in radians) to be converted.
+ equatorial_radius : float
+     Equatorial radius of the reference ellipsoid (in meters).
+ flattening : float
+     Flattening of the reference ellipsoid.
+ altitude : float
+     Altitude above the reference ellipsoid (in meters).
+ tolerance : float
+     Convergence tolerance for the iterative conversion (in radians).
+ maximum_number_of_iterations : int
+     Maximum number of iterations allowed for the conversion process.
+
+ Returns
+ -------
+ float
+     Geodetic latitude (in radians), as computed from the geographic latitude input.
+
+ Raises
+ ------
+ RuntimeError
+     If the maximum number of iterations is exceeded without achieving the desired tolerance.
 
      )doc" );
 
@@ -1305,7 +1377,7 @@ void expose_element_conversion( py::module& m )
            &tsi::getRotationFromJ2000ToEclipJ2000,
            R"doc(
 
- Provides the (constant) rotation matrix from the J2000 to the ECLIPJ2000 frame, as defined in the SPICE library (see :ref:`\`\`spice\`\`` for more details on our interface with this library).
+ Provides the (constant) rotation matrix from the J2000 to the ECLIPJ2000 frame, as defined in the SPICE library (see :ref:`spice` for more details on our interface with this library).
 
  Returns
  -------
@@ -1319,7 +1391,7 @@ void expose_element_conversion( py::module& m )
            &tsi::getRotationFromEclipJ2000ToJ2000,
            R"doc(
 
- Provides the (constant) rotation matrix from the ECLIPJ2000 to the J2000 frame, as defined in the SPICE library (see :ref:`\`\`spice\`\`` for more details on our interface with this library).
+ Provides the (constant) rotation matrix from the ECLIPJ2000 to the J2000 frame, as defined in the SPICE library (see :ref:`spice` for more details on our interface with this library).
 
  Returns
  -------

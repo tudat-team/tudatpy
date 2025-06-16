@@ -976,20 +976,23 @@ void expose_radiation_pressure_setup( py::module& m )
 
     m.def( "panelled_radiation_target",
            &tss::paneledRadiationPressureTargetModelSettingsWithOccultationMap,
-           py::arg( "source_to_target_occulting_bodies" ) =
-                   std::map< std::string, std::vector< std::string > >( ),
+           py::arg( "source_to_target_occulting_bodies" ) = std::map< std::string, std::vector< std::string > >( ),
+           py::arg( "maximum_number_of_pixels_per_source" ) = std::map< std::string, int >( ),
            R"doc(
 
  Function for creating settings for a paneled radiation pressure target model
 
  Function for creating settings for a paneled radiation pressure target model. Each source can have
  its own set of occulting bodies.
-
+ This model requires the :attr:`~tudatpy.numerical_simulation.environment_setup.BodySettings.vehicle_shape_settings` of type :class:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.FullPanelledBodySettings` to be defined.
+ The functions to define the panelled body settings are available in the :ref:`vehicle_systems` module.
 
  Parameters
  ----------
- source_to_target_occulting_bodies : Dict[str, List[str]]
-     Map (source name -> list of occulting body names) of bodies to occult sources as seen from this target.
+ source_to_target_occulting_bodies : dict[str, list[str]]
+     Dictionary (source name -> list of occulting body names) of bodies to occult sources as seen from this target.
+ maximum_number_of_pixels : Dict[str, int]
+     Maximum number of pixels used in the self-shadowing algorithm per source, omitting a the value or setting it to zero equals to not considering self-shadowing for a given source.
  Returns
  -------
  RadiationPressureTargetModelSettings

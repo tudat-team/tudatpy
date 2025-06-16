@@ -347,7 +347,7 @@ void expose_numerical_simulation_simulator( py::module &m )
     Function to create object that propagates the dynamics.
 
     Function to create object that propagates the dynamics, as specified by propagator settings, and the physical environment.
-    Depending on the specific input type (e.g. which function from the :ref:`\`\`propagator\`\`` module was used),
+    Depending on the specific input type (e.g. which function from the :ref:`propagator` module was used),
     a single-, multi- or hybrid-arc simulator is created. The environment is typically created by the :func:`~tudatpy.numerical_simulation.environment_setup.create_system_of_bodies`
     function.
 
