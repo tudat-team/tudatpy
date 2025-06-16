@@ -17,6 +17,7 @@ from colorama import Fore
 from collections import defaultdict
 
 
+
 ### Class for Loading PDS files
 class LoadPDS:
 
@@ -811,7 +812,7 @@ class LoadPDS:
         try:
             reqs = requests.get(url)
             reqs.raise_for_status()
-        except:
+        except Exception as e:
             raise ValueError(f"Error fetching data from {url}: {e}")
 
         # Parse links from the HTML response
@@ -923,7 +924,7 @@ class LoadPDS:
                             )
                             self.relevant_files.append(full_local_path)
                         except Exception as e:
-                            print(f"Failed to download {full_download_url}: {e}")
+                            print(f"!! Failed to download {full_download_url}: {e} !!")
                 else:
                     try:
                         print(
@@ -935,7 +936,7 @@ class LoadPDS:
                         )
                         self.relevant_files.append(full_local_path)
                     except Exception as e:
-                        print(f"Failed to download {full_download_url}: {e}")
+                        print(f"!! Failed to download {full_download_url}: {e} !!")
 
         if len(self.relevant_files) == 0:
             print("Nothing to download.")
@@ -1349,13 +1350,7 @@ class LoadPDS:
         else:
             raise ValueError("Selected Mission Not Supported (yet!) Aborting ...")
 
-        if data_type_lower == "radioscience":
-            data_type_types = supported_radio_science_types
-
-        elif data_type_lower == "kernels":
-            data_type_types = supported_spice_kernels_types
-
-        elif data_type_lower == "all":
+        if data_type_lower == "all":
             data_type_types = all_supported_types
 
         elif data_type_lower in all_supported_types:
@@ -1533,6 +1528,8 @@ class LoadPDS:
 
         meta_kernel_url = self.get_latest_meta_kernel(input_mission)
 
+        self.kernel_files_names['mk'].append(meta_kernel_url) # add meta kernel to the list of downloadable kernels
+
         try:
             # Fetch the meta-kernel file content
             response = requests.get(meta_kernel_url)
@@ -1589,6 +1586,8 @@ class LoadPDS:
         input_mission = input_mission.lower()
         self.kernel_files_to_load = self.extract_kernels_from_meta_kernel(input_mission)
 
+        print(self.kernel_files_to_load)
+
         for kernel_type, kernel_urls in self.kernel_files_to_load.items():
             for kernel_url in kernel_urls:
                 kernel_name = kernel_url.split("/")[-1]
@@ -1597,12 +1596,14 @@ class LoadPDS:
                 local_file_path = os.path.join(local_kernel_folder, kernel_name)
                 if not os.path.exists(local_kernel_folder):
                     os.mkdir(local_kernel_folder)
-                    print(f"Downloading: '{kernel_url}' to: {local_file_path}")
-                    urlretrieve(kernel_url, local_file_path)
 
-                else:
-                    print(f"Downloading: '{kernel_url}' to: {local_file_path}")
+                print(f"Downloading: '{kernel_url}' to: {local_file_path}")
+
+                try:
                     urlretrieve(kernel_url, local_file_path)
+                except Exception as e:
+                    print(f"!! Failed to download: '{kernel_url}' to: {local_file_path}. Exception: {e}!! ")
+
 
         return self.kernel_files_to_load
 
@@ -2011,7 +2012,7 @@ class LoadPDS:
 
                     except Exception as e:
                         print(
-                            f"Failed to load kernel: {converted_kernel_file}, Error: {e}"
+                            f"!! Failed to load kernel: {converted_kernel_file}, Error: {e} !!"
                         )
         else:
             print("No Kernel Files to Load.")
@@ -2037,7 +2038,7 @@ class LoadPDS:
                                 spice.load_kernel(ancillary_file)
 
                     except Exception as e:
-                        print(f"Failed to load kernel: {ancillary_file}, Error: {e}")
+                        print(f"!! Failed to load kernel: {ancillary_file}, Error: {e} !!")
         else:
             print("No Ancillary Files to Load.")
 
