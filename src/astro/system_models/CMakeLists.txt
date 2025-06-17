@@ -13,11 +13,15 @@ set(system_models_HEADERS
         "engineModel.h"
         "vehicleSystems.h"
         "timingSystem.h"
+        "vehicleExteriorPanels.h"
+        "panelGeometryUtils.h"
+        "selfShadowing.h"
         )
 
 set(system_models_SOURCES
         "dummySystemModel.cpp"
         "timingSystem.cpp"
+        "selfShadowing.cpp"
         )
 
 TUDAT_ADD_LIBRARY("system_models"

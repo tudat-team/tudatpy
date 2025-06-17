@@ -44,6 +44,8 @@ set(electromagnetism_SOURCES
 TUDAT_ADD_LIBRARY("electromagnetism"
         "${electromagnetism_SOURCES}"
         "${electromagnetism_HEADERS}"
+        PUBLIC_LINKS
+        tudat_system_models
 #        PRIVATE_LINKS "${Boost_LIBRARIES}"
 #        PRIVATE_INCLUDES "${EIGEN3_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}"
         )

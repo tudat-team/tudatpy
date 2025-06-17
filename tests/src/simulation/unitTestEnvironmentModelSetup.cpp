@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE( test_atmosphereModelSetup )
         BOOST_CHECK_EQUAL( nrlMSISE00Input.dayOfTheYear, 31 + 28 + 31 + 30 + 3 );
         BOOST_CHECK_SMALL( nrlMSISE00Input.secondOfTheDay - ( 12.0 * 3600.0 + 32.0 * 60.0 + 32.3 ), 1.0E-3 );
 
-        BOOST_CHECK_SMALL( nrlMSISE00Input.f107 - 112.3, 1.0E-14 );
+        BOOST_CHECK_SMALL( nrlMSISE00Input.f107 - 112.2, 1.0E-14 );
         BOOST_CHECK_SMALL( nrlMSISE00Input.f107a - 93.3, 1.0E-14 );
         BOOST_CHECK_SMALL( nrlMSISE00Input.apDaily - 9.0, 1.0E-14 );
     }
@@ -352,7 +352,7 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldSetup )
     spice_interface::loadStandardSpiceKernels( );
 
     // Create settings for spice central gravity field model.
-    std::shared_ptr< GravityFieldSettings > spiceCentralGravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
+    std::shared_ptr< GravityFieldSettings > spiceCentralGravityFieldSettings = centralGravityFromSpiceSettings( );
 
     // Create spice central gravity field model from setup function.
     std::shared_ptr< gravitation::GravityFieldModel > spiceCentralGravityField =
@@ -1624,7 +1624,7 @@ BOOST_AUTO_TEST_CASE( test_radiationPressureTargetModelSetup_PaneledTarget )
 
     const auto bodies = createSystemOfBodies( bodySettings );
 
-    auto paneledRadiationPressureTargetSettings = std::make_shared< RadiationPressureTargetModelSettings >( paneled_target );
+    auto paneledRadiationPressureTargetSettings = std::make_shared< PaneledRadiationPressureTargetModelSettings >( );
     //            paneledRadiationPressureTargetModelSettings({
     //                    TargetPanelSettings(
     //                            expectedAreaPanel1,

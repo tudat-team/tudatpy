@@ -12,6 +12,7 @@
 #include "tudat/simulation/environment_setup/createThrustModelGuidance.h"
 #include "tudat/simulation/environment_setup/createRadiationPressureTargetModel.h"
 
+
 namespace tudat
 {
 
@@ -74,9 +75,12 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
 
     double panelArea = TUDAT_NAN;
     double panelTemperature = TUDAT_NAN;
-    std::function< Eigen::Vector3d( ) > localFrameSurfaceNormal = nullptr;
-    std::function< Eigen::Vector3d( ) > localFramePositionVector = nullptr;
+    std::function< Eigen::Vector3d( ) > localFrameSurfaceNormal = [ = ]( ) { return Eigen::Vector3d::Constant( TUDAT_NAN ); };
+    std::function< Eigen::Vector3d( ) > localFramePositionVector = [ = ]( ) { return Eigen::Vector3d::Constant( TUDAT_NAN ); };
     std::string trackedBodyName = "";
+    bool geometry3dLoaded = false;
+    system_models::Triangle3d triangle3d = system_models::Triangle3d( );
+    Eigen::Vector3d frameOrigin = Eigen::Vector3d::Zero( );
 
     if( std::dynamic_pointer_cast< FrameFixedBodyPanelGeometrySettings >( panelSettings->panelGeometry_ ) != nullptr )
     {
@@ -87,6 +91,13 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
 
         localFrameSurfaceNormal = [ = ]( ) { return fixedBodyPanelGeometrySettings->surfaceNormal_; };
         localFramePositionVector = [ = ]( ) { return fixedBodyPanelGeometrySettings->positionVector_; };
+        // load 3d geometry
+        geometry3dLoaded = ( fixedBodyPanelGeometrySettings->geometry3dLoaded_ == true );
+        Eigen::Vector3d vertexA = fixedBodyPanelGeometrySettings->vertexA_;
+        Eigen::Vector3d vertexB = fixedBodyPanelGeometrySettings->vertexB_;
+        Eigen::Vector3d vertexC = fixedBodyPanelGeometrySettings->vertexC_;
+        triangle3d = system_models::Triangle3d(vertexA, vertexB, vertexC);
+        frameOrigin = fixedBodyPanelGeometrySettings->frameOrigin_;
     }
     else if( std::dynamic_pointer_cast< FrameVariableBodyPanelGeometrySettings >( panelSettings->panelGeometry_ ) != nullptr )
     {
@@ -126,9 +137,9 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
             throw std::runtime_error( "Error, neither explicit panel orientation, nor tracking target are defined" );
         }
     }
-
     std::shared_ptr< system_models::VehicleExteriorPanel > exteriorPanel = std::make_shared< system_models::VehicleExteriorPanel >(
-            localFrameSurfaceNormal, localFramePositionVector, panelArea, panelTemperature, trackedBodyName );
+            localFrameSurfaceNormal, localFramePositionVector, panelArea, panelTemperature, trackedBodyName, nullptr,
+            triangle3d, frameOrigin, geometry3dLoaded );
 
     if( panelSettings->reflectionLawSettings_ != nullptr )
     {
@@ -179,7 +190,7 @@ void addBodyExteriorPanelledShape( const std::shared_ptr< FullPanelledBodySettin
     std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > > vehicleExteriorPanels;
 
     for( unsigned int i = 0; i < panelSettings->panelSettingsList_.size( ); i++ )
-    {
+    {   
         std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string > currentPanel =
                 createBodyExteriorPanel( panelSettings->panelSettingsList_.at( i ), bodyName, bodies );
         vehicleExteriorPanels[ currentPanel.second ].push_back( currentPanel.first );

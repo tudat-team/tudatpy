@@ -183,7 +183,7 @@ void EstrackWeatherData::readSingleWeatherDataFile( const std::string& weatherFi
             boost::algorithm::split(
                     currentSplitLine, currentLine, boost::algorithm::is_any_of( " \t" ), boost::algorithm::token_compress_on );
             std::string utcString = currentSplitLine.at( 1 );
-            double utc = basic_astrodynamics::dateTimeFromIsoString( utcString ).epoch< double >( );
+            double utc = basic_astrodynamics::DateTime::fromIsoString( utcString ).epoch< double >( );
             double humidity = std::stod( currentSplitLine.at( 4 ) ) / 100.0;
             double pressure = std::stod( currentSplitLine.at( 5 ) ) * 100.0;
             double temperature = std::stod( currentSplitLine.at( 6 ) ) + 273.15;
