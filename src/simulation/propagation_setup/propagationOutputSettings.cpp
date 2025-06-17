@@ -315,6 +315,15 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
         case nrlmsise_input_data:
             variableName = "NRLMSISE00 input data vector";
             break;
+        case illuminated_panel_fraction:
+            variableName = "Illuminated fractions";
+            break;
+        case cross_section_change:
+            variableName = "Cross section change";
+            break;
+        case full_body_paneled_geometry:
+            variableName = "Full body paneled geometry";
+            break;
         default:
             std::string errorMessage = "Error, dependent variable " + std::to_string( propagationDependentVariables ) +
                     "not found when retrieving parameter name ";
@@ -441,6 +450,30 @@ std::string getDependentVariableId( const std::shared_ptr< SingleDependentVariab
         {
             variableId += " w.r.t. body translational state of " + partialDependentVariableSettings->derivativeWrtBody_;
         }
+    }
+    if ( dependentVariableSettings->dependentVariableType_ == illuminated_panel_fraction )
+    {
+        std::shared_ptr< IlluminatedPanelFractionDependentVariableSaveSettings > illuminatedPanelFractionDependentVariableSettings =
+                std::dynamic_pointer_cast< IlluminatedPanelFractionDependentVariableSaveSettings >( dependentVariableSettings );
+        if( illuminatedPanelFractionDependentVariableSettings == nullptr )
+        {
+            throw std::runtime_error( "Error when getting dependent variable ID, input is inconsistent (illuminated panel fraction)" );
+        }
+        else
+        {
+            variableId += " of body " + illuminatedPanelFractionDependentVariableSettings->associatedBody_ + " w.r.t. source " +
+                            illuminatedPanelFractionDependentVariableSettings->secondaryBody_ + " for panel " + 
+                            illuminatedPanelFractionDependentVariableSettings->panelTypeId_;
+        }
+    }
+    if ( dependentVariableSettings->dependentVariableType_ == cross_section_change )
+    {
+        variableId += " of body " + dependentVariableSettings->associatedBody_ + " w.r.t. source " +
+                        dependentVariableSettings->secondaryBody_;
+    }
+    if ( dependentVariableSettings->dependentVariableType_ == full_body_paneled_geometry )
+    {
+        variableId += " of body " + dependentVariableSettings->associatedBody_;
     }
 
     return variableId;

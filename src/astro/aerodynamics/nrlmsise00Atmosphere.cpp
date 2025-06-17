@@ -9,6 +9,8 @@
  */
 
 #include "tudat/astro/aerodynamics/nrlmsise00Atmosphere.h"
+#include "tudat/astro/aerodynamics/gasProperties.h"
+#include "tudat/astro/basic_astro/geodeticCoordinateConversions.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include <iostream>
 
@@ -18,16 +20,16 @@ namespace tudat
 namespace aerodynamics
 {
 
-void NRLMSISE00Atmosphere::setInputStruct( const double altitude, const double longitude, const double latitude, const double time )
+void NRLMSISE00Atmosphere::setInputStruct( const double altitude, const double longitude, const double geodeticLatitude, const double time )
 {
     // Retrieve input data.
-    inputData_ = nrlmsise00InputFunction_( altitude, longitude, latitude, time );
+    inputData_ = nrlmsise00InputFunction_( altitude, longitude, geodeticLatitude, time );
     std::copy( inputData_.apVector.begin( ), inputData_.apVector.end( ), aph_.a );
     std::copy( inputData_.switches.begin( ), inputData_.switches.end( ), flags_.switches );
 
-    input_.g_lat = latitude * 180.0 / mathematical_constants::PI;    // rad to deg
-    input_.g_long = longitude * 180.0 / mathematical_constants::PI;  // rad to deg
-    input_.alt = altitude * 1.0E-3;                                  // m to km
+    input_.g_lat = geodeticLatitude * 180.0 / mathematical_constants::PI;  // rad to deg
+    input_.g_long = longitude * 180.0 / mathematical_constants::PI;        // rad to deg
+    input_.alt = altitude * 1.0E-3;                                        // m to km
     input_.year = inputData_.year;
     input_.doy = inputData_.dayOfTheYear;
     input_.sec = inputData_.secondOfTheDay;
@@ -38,10 +40,13 @@ void NRLMSISE00Atmosphere::setInputStruct( const double altitude, const double l
     input_.ap_a = &aph_;
 }
 
-void NRLMSISE00Atmosphere::computeProperties( const double altitude, const double longitude, const double latitude, const double time )
+void NRLMSISE00Atmosphere::computeProperties( const double altitude,
+                                              const double longitude,
+                                              const double geodeticLatitude,
+                                              const double time )
 {
     // Compute the hash key
-    size_t hashKey = hashFunc( altitude, longitude, latitude, time );
+    size_t hashKey = hashFunc( altitude, longitude, geodeticLatitude, time );
 
     // If hash key is same do nothing
     if( hashKey == hashKey_ )
@@ -50,10 +55,17 @@ void NRLMSISE00Atmosphere::computeProperties( const double altitude, const doubl
     }
     hashKey_ = hashKey;
 
-    setInputStruct( altitude, longitude, latitude, time );
+    setInputStruct( altitude, longitude, geodeticLatitude, time );
 
-    // Call NRLMSISE00
-    gtd7( &input_, &flags_, &output_ );
+    // Call NRLMSISE00 accounting for the contributions from anomalous oxygen
+    if( useAnomalousOxygen_ )
+    {
+        gtd7d( &input_, &flags_, &output_ );
+    }
+    else
+    {
+        gtd7( &input_, &flags_, &output_ );
+    }
 
     // Retrieve density and temperature
     density_ = output_.d[ 5 ] * 1000.0;  // GM/CM3 to kg/M3
@@ -79,28 +91,29 @@ void NRLMSISE00Atmosphere::computeProperties( const double altitude, const doubl
     averageNumberDensity_ = sumOfNumberDensity / double( numberDensities_.size( ) );
 
     // Mean molar mass (Thermodynamics an Engineering Approach, Michael A. Boles)
-    meanMolarMass_ = numberDensities_[ 0 ] * gasComponentProperties_.molarMassHelium;
-    meanMolarMass_ += numberDensities_[ 1 ] * gasComponentProperties_.molarMassAtomicOxygen;
-    meanMolarMass_ += numberDensities_[ 2 ] * gasComponentProperties_.molarMassNitrogen;
-    meanMolarMass_ += numberDensities_[ 3 ] * gasComponentProperties_.molarMassOxygen;
-    meanMolarMass_ += numberDensities_[ 4 ] * gasComponentProperties_.molarMassArgon;
-    meanMolarMass_ += numberDensities_[ 5 ] * gasComponentProperties_.molarMassAtomicHydrogen;
-    meanMolarMass_ += numberDensities_[ 6 ] * gasComponentProperties_.molarMassAtomicNitrogen;
-    meanMolarMass_ += numberDensities_[ 7 ] * gasComponentProperties_.molarMassOxygen;
+    meanMolarMass_ = numberDensities_[ 0 ] * MOLAR_MASS_HELIUM;
+    meanMolarMass_ += numberDensities_[ 1 ] * MOLAR_MASS_ATOMIC_OXYGEN;
+    meanMolarMass_ += numberDensities_[ 2 ] * MOLAR_MASS_NITROGEN;
+    meanMolarMass_ += numberDensities_[ 3 ] * MOLAR_MASS_OXYGEN;
+    meanMolarMass_ += numberDensities_[ 4 ] * MOLAR_MASS_ARGON;
+    meanMolarMass_ += numberDensities_[ 5 ] * MOLAR_MASS_ATOMIC_HYDROGEN;
+    meanMolarMass_ += numberDensities_[ 6 ] * MOLAR_MASS_ATOMIC_NITROGEN;
+    meanMolarMass_ += numberDensities_[ 7 ] * MOLAR_MASS_OXYGEN;
     meanMolarMass_ = meanMolarMass_ / sumOfNumberDensity;
 
     // Speed of sound
-    speedOfSound_ = aerodynamics::computeSpeedOfSound( temperature_, specificHeatRatio_, molarGasConstant_ / meanMolarMass_ );
+    speedOfSound_ =
+            aerodynamics::computeSpeedOfSound( temperature_, specificHeatRatio_, physical_constants::MOLAR_GAS_CONSTANT / meanMolarMass_ );
 
     // Collision diameter
-    weightedAverageCollisionDiameter_ = numberDensities_[ 0 ] * gasComponentProperties_.diameterHelium;
-    weightedAverageCollisionDiameter_ += numberDensities_[ 1 ] * gasComponentProperties_.diameterAtomicOxygen;
-    weightedAverageCollisionDiameter_ += numberDensities_[ 2 ] * gasComponentProperties_.diameterNitrogen;
-    weightedAverageCollisionDiameter_ += numberDensities_[ 3 ] * gasComponentProperties_.diameterOxygen;
-    weightedAverageCollisionDiameter_ += numberDensities_[ 4 ] * gasComponentProperties_.diameterArgon;
-    weightedAverageCollisionDiameter_ += numberDensities_[ 5 ] * gasComponentProperties_.diameterAtomicHydrogen;
-    weightedAverageCollisionDiameter_ += numberDensities_[ 6 ] * gasComponentProperties_.diameterAtomicNitrogen;
-    weightedAverageCollisionDiameter_ += numberDensities_[ 7 ] * gasComponentProperties_.diameterAtomicOxygen;
+    weightedAverageCollisionDiameter_ = numberDensities_[ 0 ] * DIAMETER_HELIUM;
+    weightedAverageCollisionDiameter_ += numberDensities_[ 1 ] * DIAMETER_ATOMIC_OXYGEN;
+    weightedAverageCollisionDiameter_ += numberDensities_[ 2 ] * DIAMETER_NITROGEN;
+    weightedAverageCollisionDiameter_ += numberDensities_[ 3 ] * DIAMETER_OXYGEN;
+    weightedAverageCollisionDiameter_ += numberDensities_[ 4 ] * DIAMETER_ARGON;
+    weightedAverageCollisionDiameter_ += numberDensities_[ 5 ] * DIAMETER_ATOMIC_HYDROGEN;
+    weightedAverageCollisionDiameter_ += numberDensities_[ 6 ] * DIAMETER_ATOMIC_NITROGEN;
+    weightedAverageCollisionDiameter_ += numberDensities_[ 7 ] * DIAMETER_ATOMIC_OXYGEN;
     weightedAverageCollisionDiameter_ = weightedAverageCollisionDiameter_ / sumOfNumberDensity;
 
     // Mean free path.
@@ -109,7 +122,7 @@ void NRLMSISE00Atmosphere::computeProperties( const double altitude, const doubl
     // Calculate pressure using ideal gas law (Thermodynamics an Engineering Approach, Michael A. Boles)
     if( useIdealGasLaw_ )
     {
-        pressure_ = density_ * molarGasConstant_ * temperature_ / meanMolarMass_;
+        pressure_ = density_ * physical_constants::MOLAR_GAS_CONSTANT * temperature_ / meanMolarMass_;
     }
     else
     {
@@ -147,11 +160,11 @@ std::ostream& operator<<( std::ostream& stream, NRLMSISE00Input& nrlmsiseInput )
 //! Get the full model output
 std::pair< std::vector< double >, std::vector< double > > NRLMSISE00Atmosphere::getFullOutput( const double altitude,
                                                                                                const double longitude,
-                                                                                               const double latitude,
+                                                                                               const double geodeticLatitude,
                                                                                                const double time )
 {
     // Compute the properties
-    computeProperties( altitude, longitude, latitude, time );
+    computeProperties( altitude, longitude, geodeticLatitude, time );
     std::pair< std::vector< double >, std::vector< double > > output;
 
     // Copy array members of struct to vectors on the pair.

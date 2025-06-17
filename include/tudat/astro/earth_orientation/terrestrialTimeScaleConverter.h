@@ -463,13 +463,13 @@ private:
 std::shared_ptr< TerrestrialTimeScaleConverter > createDefaultTimeConverter(
         const std::shared_ptr< EOPReader > eopReader = std::make_shared< EOPReader >( ) );
 
-static const std::shared_ptr< TerrestrialTimeScaleConverter > defaultTimeConverter = createDefaultTimeConverter( );
+// static const std::shared_ptr< TerrestrialTimeScaleConverter > defaultTimeConverter = createDefaultTimeConverter( );
 
 template< typename TimeType >
 TimeType convertTimeScale( const TimeType& inputTime,
                            const basic_astrodynamics::TimeScales inputScale,
                            const basic_astrodynamics::TimeScales outputScale,
-                           const std::shared_ptr< TerrestrialTimeScaleConverter > timeConverter = defaultTimeConverter,
+                           const std::shared_ptr< TerrestrialTimeScaleConverter > timeConverter = createDefaultTimeConverter( ),
                            const Eigen::Vector3d& earthFixedPosition = Eigen::Vector3d::Zero( ) )
 {
     Time time = Time( inputTime );
@@ -480,7 +480,7 @@ template< typename TimeType >
 TimeType convertToTimeScale( const basic_astrodynamics::DateTime inputDateTime,
                              const basic_astrodynamics::TimeScales inputScale,
                              const basic_astrodynamics::TimeScales outputScale,
-                             const std::shared_ptr< TerrestrialTimeScaleConverter > timeConverter = defaultTimeConverter,
+                             const std::shared_ptr< TerrestrialTimeScaleConverter > timeConverter = createDefaultTimeConverter( ),
                              const Eigen::Vector3d& earthFixedPosition = Eigen::Vector3d::Zero( ) )
 {
     Time time = inputDateTime.epoch< Time >( );

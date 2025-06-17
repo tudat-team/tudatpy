@@ -255,13 +255,6 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
     return rotationMatrixPartials;
 }
 
-// std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameDerivativeWrtNominalPolePosition(
-//         const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
-//         const double ephemerisTime )
-//{
-
-//}
-
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrtPolePositionRate(
         const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
         const double ephemerisTime )
@@ -279,6 +272,31 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
               reference_frames::getDerivativeOfXAxisRotationWrtAngle( rotationModel->getCurrentDeclinationRotationAboutXAxis( ) ) *
               rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) )
                     .transpose( ) );
+    return rotationMatrixPartials;
+}
+
+std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrtLongitudinalLibrationAmplitudes(
+        const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
+        const std::vector< double > librationFrequencies,
+        const double ephemerisTime )
+{
+    std::map< double, std::pair< double, double > > librationTerms = rotationModel->getMeridianPeriodicTermsReference( );
+
+    rotationModel->updateRotationMatrices( ephemerisTime );
+
+    std::vector< Eigen::Matrix3d > rotationMatrixPartials;
+
+    for( unsigned int librationIndex = 0; librationIndex < librationFrequencies.size( ); librationIndex++ )
+    {
+        std::pair< double, double > signature = librationTerms.at( librationFrequencies.at( librationIndex ) );
+        double currentLibrationTerm = std::sin( librationFrequencies.at( librationIndex ) * ephemerisTime + signature.second );
+
+        rotationMatrixPartials.push_back(
+                ( reference_frames::getDerivativeOfZAxisRotationWrtAngle( rotationModel->getCurrentMeridianRotationAboutZAxis( ) ) *
+                  rotationModel->getCurrentDeclinationRotationAboutXAxis( ) * rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) )
+                        .transpose( ) *
+                currentLibrationTerm );
+    }
     return rotationMatrixPartials;
 }
 

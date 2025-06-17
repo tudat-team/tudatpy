@@ -191,6 +191,16 @@ public:
             {
                 currentVehiclePartRotationToBodyFixedFrame_[ it.first ] = it.second->getRotationToBaseFrame( time );
             }
+            currentVehiclePartRotationToBodyFixedFrame_[ "" ] = Eigen::Quaterniond::Identity( );
+            unsigned int buffer = 0;
+            for( auto it: vehicleExteriorPanels_ )
+            {
+                for( unsigned int i = 0; i < it.second.size( ); i++ )
+                {
+                    allPanels_.at( i + buffer )->updatePanel( currentVehiclePartRotationToBodyFixedFrame_.at( it.first ) );
+                }
+                buffer += it.second.size( );
+            }
             currentOrientationTime_ = time;
         }
     }
@@ -221,11 +231,74 @@ public:
             const std::map< std::string, std::vector< std::shared_ptr< VehicleExteriorPanel > > > vehicleExteriorPanels )
     {
         vehicleExteriorPanels_ = vehicleExteriorPanels;
+        // group all panels in a vector
+        totalNumberOfPanels_ = 0;
+        for( auto it: vehicleExteriorPanels_ )
+        {
+            allPanels_.insert( allPanels_.end( ), it.second.begin( ), it.second.end( ) );
+            totalNumberOfPanels_ += it.second.size( );
+        }
+        // check if macro-model is loaded (find at least one isGeometryDefined == false)
+        panelGeometryDefined_ = true;
+        for( int i = 0; i < totalNumberOfPanels_; i++ )
+        {
+            if( !allPanels_.at( i )->isGeometryDefined( ) )
+            {
+                panelGeometryDefined_ = false;
+                break;
+            }
+        }
+        if( panelGeometryDefined_ )
+        {
+            system_models::Triangle3d triangleI, triangleJ;
+            std::vector< Eigen::Vector3d > verticesI, verticesJ;
+            // find neighbours
+            for( int i = 0; i < totalNumberOfPanels_; i++ )
+            {
+                std::vector< int > neighboringSurfaces;
+                for( int j = 0; j < totalNumberOfPanels_; j++ )
+                {
+                    if( i == j )
+                    {
+                        continue;
+                    }
+                    system_models::Triangle3d triangleI = allPanels_.at( i )->getFrameFixedTriangle3d( );
+                    system_models::Triangle3d triangleJ = allPanels_.at( j )->getFrameFixedTriangle3d( );
+                    verticesI = { triangleI.getVertexA( ), triangleI.getVertexB( ), triangleI.getVertexC( ) };
+                    verticesJ = { triangleJ.getVertexA( ), triangleJ.getVertexB( ), triangleJ.getVertexC( ) };
+                    int match = 0;
+                    for( int n = 0; n < 3; n++ )
+                    {
+                        for( int m = 0; m < 3; m++ )
+                        {
+                            if( verticesI[ n ].isApprox( verticesJ[ m ] ) )
+                            {
+                                match++;
+                            }
+                        }
+                    }
+                    if( match == 2 )
+                    {
+                        neighboringSurfaces.push_back( j );
+                    }
+                    if( neighboringSurfaces.size( ) == 3 )
+                    {
+                        allPanels_.at( i )->setNeighboringSurfaces( neighboringSurfaces );
+                        break;  // found all the neighbours, skip to next panel
+                    }
+                }
+            }
+        }
     }
 
     std::map< std::string, std::vector< std::shared_ptr< VehicleExteriorPanel > > > getVehicleExteriorPanels( )
     {
         return vehicleExteriorPanels_;
+    }
+
+    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& getAllPanels( )
+    {
+        return allPanels_;
     }
 
     int getTotalNumberOfPanels( )
@@ -333,12 +406,28 @@ public:
         return referencePoints_.at( referencePoint )->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( time );
     }
 
+    bool isPanelGeometryDefined( ) const
+    {
+        return panelGeometryDefined_;
+    }
+
+    int getTotalNumberOfPanels( ) const
+    {
+        return totalNumberOfPanels_;
+    }
+
 private:
     std::map< std::string, std::shared_ptr< ephemerides::Ephemeris > > referencePoints_;
 
     std::map< std::string, std::shared_ptr< ephemerides::RotationalEphemeris > > vehiclePartOrientation_;
 
     std::map< std::string, std::vector< std::shared_ptr< VehicleExteriorPanel > > > vehicleExteriorPanels_;
+
+    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > allPanels_;
+
+    bool panelGeometryDefined_;
+
+    int totalNumberOfPanels_;
 
     double currentOrientationTime_;
 

@@ -10,6 +10,7 @@
  */
 
 #include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/interface/spice/spiceException.h"
 #include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/paths.hpp"
@@ -41,20 +42,61 @@ std::string getCorrectedTargetBodyName( const std::string &targetBodyName )
 //! Convert a Julian date to ephemeris time (equivalent to TDB in Spice).
 double convertJulianDateToEphemerisTime( const double julianDate )
 {
-    return ( julianDate - j2000_c( ) ) * spd_c( );
+    setSpiceErrorHandling( );
+
+    double ephemerisTime = ( julianDate - j2000_c( ) ) * spd_c( );
+
+    if( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
+
+    return ephemerisTime;
+}
+
+double getApproximateUtcFromTdb( const double ephemerisTime )
+{
+    setSpiceErrorHandling( );
+
+    double timeOffset = TUDAT_NAN;
+    deltet_c( ephemerisTime, "ET", &timeOffset );
+
+    if( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
+
+    return ephemerisTime - timeOffset;
 }
 
 //! Convert ephemeris time (equivalent to TDB) to a Julian date.
 double convertEphemerisTimeToJulianDate( const double ephemerisTime )
 {
-    return j2000_c( ) + ( ephemerisTime ) / spd_c( );
+    setSpiceErrorHandling( );
+
+    double julianDate = j2000_c( ) + ( ephemerisTime ) / spd_c( );
+
+    if( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
+
+    return julianDate;
 }
 
 //! Converts a date string to ephemeris time.
 double convertDateStringToEphemerisTime( const std::string &dateString )
 {
+    setSpiceErrorHandling( );
+
     double ephemerisTime = 0.0;
     str2et_c( dateString.c_str( ), &ephemerisTime );
+
+    if( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
+
     return ephemerisTime;
 }
 
@@ -65,6 +107,8 @@ Eigen::Vector6d getBodyCartesianStateAtEpoch( const std::string &targetBodyName,
                                               const std::string &aberrationCorrections,
                                               const double ephemerisTime )
 {
+    setSpiceErrorHandling( );
+
     if( !( ephemerisTime == ephemerisTime ) )
     {
         throw std::invalid_argument( "Error when retrieving Cartesian state from Spice, input time is " + std::to_string( ephemerisTime ) );
@@ -84,7 +128,7 @@ Eigen::Vector6d getBodyCartesianStateAtEpoch( const std::string &targetBodyName,
 
     // Put result in Eigen Vector.
     Eigen::Vector6d cartesianStateVector;
-    if( !checkFailure( ) )
+    if( !failed_c( ) )
     {
         for( unsigned int i = 0; i < 6; i++ )
         {
@@ -93,7 +137,8 @@ Eigen::Vector6d getBodyCartesianStateAtEpoch( const std::string &targetBodyName,
     }
     else
     {
-        cartesianStateVector.setConstant( 1.0E12 );
+        handleSpiceException( );
+        // cartesianStateVector.setConstant( 1.0E12 );
     }
 
     // Convert from km(/s) to m(/s).
@@ -107,6 +152,8 @@ Eigen::Vector3d getBodyCartesianPositionAtEpoch( const std::string &targetBodyNa
                                                  const std::string &aberrationCorrections,
                                                  const double ephemerisTime )
 {
+    setSpiceErrorHandling( );
+
     if( !( ephemerisTime == ephemerisTime ) )
     {
         throw std::invalid_argument( "Error when retrieving Cartesian position from Spice, input time is " +
@@ -128,7 +175,7 @@ Eigen::Vector3d getBodyCartesianPositionAtEpoch( const std::string &targetBodyNa
     // Put result in Eigen Vector.
     Eigen::Vector3d cartesianPositionVector;
 
-    if( !checkFailure( ) )
+    if( !failed_c( ) )
     {
         for( unsigned int i = 0; i < 3; i++ )
         {
@@ -137,6 +184,7 @@ Eigen::Vector3d getBodyCartesianPositionAtEpoch( const std::string &targetBodyNa
     }
     else
     {
+        handleSpiceException( );
         cartesianPositionVector.setConstant( 1.0E12 );
     }
 
@@ -147,6 +195,8 @@ Eigen::Vector3d getBodyCartesianPositionAtEpoch( const std::string &targetBodyNa
 //! Get Cartesian state of a satellite from its two-line element set at a specified epoch.
 Eigen::Vector6d getCartesianStateFromTleAtEpoch( double epoch, std::shared_ptr< ephemerides::Tle > tle )
 {
+    setSpiceErrorHandling( );
+
     if( !( epoch == epoch ) )
     {
         throw std::invalid_argument( "Error when retrieving TLE from Spice, input time is " + std::to_string( epoch ) );
@@ -176,7 +226,7 @@ Eigen::Vector6d getCartesianStateFromTleAtEpoch( double epoch, std::shared_ptr< 
 
     // Put result in Eigen Vector.
     Eigen::Vector6d cartesianStateVector;
-    if( !checkFailure( ) )
+    if( !failed_c( ) )
     {
         for( unsigned int i = 0; i < 6; i++ )
         {
@@ -185,6 +235,7 @@ Eigen::Vector6d getCartesianStateFromTleAtEpoch( double epoch, std::shared_ptr< 
     }
     else
     {
+        handleSpiceException( );
         cartesianStateVector.setConstant( 1.0E12 );
     }
 
@@ -197,6 +248,8 @@ Eigen::Quaterniond computeRotationQuaternionBetweenFrames( const std::string &or
                                                            const std::string &newFrame,
                                                            const double ephemerisTime )
 {
+    setSpiceErrorHandling( );
+
     if( !( ephemerisTime == ephemerisTime ) )
     {
         throw std::invalid_argument( "Error when retrieving rotation quaternion from Spice, input time is " +
@@ -211,7 +264,7 @@ Eigen::Quaterniond computeRotationQuaternionBetweenFrames( const std::string &or
 
     // Put rotation matrix in Eigen Matrix3d.
     Eigen::Matrix3d rotationMatrix;
-    if( !checkFailure( ) )
+    if( !failed_c( ) )
     {
         for( unsigned int i = 0; i < 3; i++ )
         {
@@ -223,6 +276,7 @@ Eigen::Quaterniond computeRotationQuaternionBetweenFrames( const std::string &or
     }
     else
     {
+        handleSpiceException( );
         rotationMatrix.setIdentity( );
     }
 
@@ -242,6 +296,8 @@ Eigen::Matrix6d computeStateRotationMatrixBetweenFrames( const std::string &orig
                                                          const std::string &newFrame,
                                                          const double ephemerisTime )
 {
+    setSpiceErrorHandling( );
+
     if( !( ephemerisTime == ephemerisTime ) )
     {
         throw std::invalid_argument( "Error when retrieving state rotation matrix from Spice, input time is " +
@@ -255,7 +311,7 @@ Eigen::Matrix6d computeStateRotationMatrixBetweenFrames( const std::string &orig
 
     // Put rotation matrix in Eigen Matrix6d
     Eigen::Matrix6d stateTransitionMatrix = Eigen::Matrix6d::Zero( );
-    if( !checkFailure( ) )
+    if( !failed_c( ) )
     {
         for( unsigned int i = 0; i < 6; i++ )
         {
@@ -267,6 +323,7 @@ Eigen::Matrix6d computeStateRotationMatrixBetweenFrames( const std::string &orig
     }
     else
     {
+        handleSpiceException( );
         stateTransitionMatrix.setIdentity( );
     }
 
@@ -278,6 +335,8 @@ Eigen::Matrix3d computeRotationMatrixDerivativeBetweenFrames( const std::string 
                                                               const std::string &newFrame,
                                                               const double ephemerisTime )
 {
+    setSpiceErrorHandling( );
+
     if( !( ephemerisTime == ephemerisTime ) )
     {
         throw std::invalid_argument( "Error when retrieving rotation matrix derivative from Spice, input time is " +
@@ -291,7 +350,7 @@ Eigen::Matrix3d computeRotationMatrixDerivativeBetweenFrames( const std::string 
 
     // Put rotation matrix derivative in Eigen Matrix3d
     Eigen::Matrix3d matrixDerivative = Eigen::Matrix3d::Zero( );
-    if( !checkFailure( ) )
+    if( !failed_c( ) )
     {
         for( unsigned int i = 0; i < 3; i++ )
         {
@@ -303,6 +362,7 @@ Eigen::Matrix3d computeRotationMatrixDerivativeBetweenFrames( const std::string 
     }
     else
     {
+        handleSpiceException( );
         matrixDerivative.setZero( );
     }
 
@@ -314,6 +374,8 @@ Eigen::Vector3d getAngularVelocityVectorOfFrameInOriginalFrame( const std::strin
                                                                 const std::string &newFrame,
                                                                 const double ephemerisTime )
 {
+    setSpiceErrorHandling( );
+
     if( !( ephemerisTime == ephemerisTime ) )
     {
         throw std::invalid_argument( "Error when retrieving angular velocity from Spice, input time is " +
@@ -331,12 +393,13 @@ Eigen::Vector3d getAngularVelocityVectorOfFrameInOriginalFrame( const std::strin
     // Calculate angular velocity vector.
     xf2rav_c( stateTransition, rotation, angularVelocity );
 
-    if( !checkFailure( ) )
+    if( !failed_c( ) )
     {
         return ( Eigen::Vector3d( ) << angularVelocity[ 0 ], angularVelocity[ 1 ], angularVelocity[ 2 ] ).finished( );
     }
     else
     {
+        handleSpiceException( );
         return Eigen::Vector3d::Zero( );
     }
 }
@@ -346,6 +409,8 @@ std::pair< Eigen::Quaterniond, Eigen::Matrix3d > computeRotationQuaternionAndRot
         const std::string &newFrame,
         const double ephemerisTime )
 {
+    setSpiceErrorHandling( );
+
     double stateTransition[ 6 ][ 6 ];
 
     if( !( ephemerisTime == ephemerisTime ) )
@@ -358,7 +423,7 @@ std::pair< Eigen::Quaterniond, Eigen::Matrix3d > computeRotationQuaternionAndRot
 
     Eigen::Matrix3d matrixDerivative;
     Eigen::Matrix3d rotationMatrix;
-    if( !checkFailure( ) )
+    if( !failed_c( ) )
     {
         for( unsigned int i = 0; i < 3; i++ )
         {
@@ -371,6 +436,7 @@ std::pair< Eigen::Quaterniond, Eigen::Matrix3d > computeRotationQuaternionAndRot
     }
     else
     {
+        handleSpiceException( );
         rotationMatrix.setIdentity( );
         matrixDerivative.setZero( );
     }
@@ -381,6 +447,8 @@ std::pair< Eigen::Quaterniond, Eigen::Matrix3d > computeRotationQuaternionAndRot
 //! Get property of a body from Spice.
 std::vector< double > getBodyProperties( const std::string &body, const std::string &property, const int maximumNumberOfValues )
 {
+    setSpiceErrorHandling( );
+
     // Delcare variable in which raw result is to be put by Spice function.
     double *propertyArray = new double[ maximumNumberOfValues ];
 
@@ -396,18 +464,31 @@ std::vector< double > getBodyProperties( const std::string &body, const std::str
         bodyProperties.at( i ) = propertyArray[ i ];
     }
     delete[] propertyArray;
+
+    if( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
+
     return bodyProperties;
 }
 
 //! Get gravitational parameter of a body.
 double getBodyGravitationalParameter( const std::string &body )
 {
+    setSpiceErrorHandling( );
+
     // Delcare variable in which raw result is to be put by Spice function.
     double gravitationalParameter[ 1 ];
 
     // Call Spice function to retrieve gravitational parameter.
     SpiceInt numberOfReturnedParameters;
     bodvrd_c( body.c_str( ), "GM", 1, &numberOfReturnedParameters, gravitationalParameter );
+
+    if( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
 
     // Convert from km^3/s^2 to m^3/s^2
     return unit_conversions::convertKilometersToMeters< double >( unit_conversions::convertKilometersToMeters< double >(
@@ -417,12 +498,19 @@ double getBodyGravitationalParameter( const std::string &body )
 //! Get the (arithmetic) mean of the three principal axes of the tri-axial ellipsoid shape.
 double getAverageRadius( const std::string &body )
 {
+    setSpiceErrorHandling( );
+
     // Delcare variable in which raw result is to be put by Spice function.
     double radii[ 3 ];
 
     // Call Spice function to retrieve gravitational parameter.
     SpiceInt numberOfReturnedParameters;
     bodvrd_c( body.c_str( ), "RADII", 3, &numberOfReturnedParameters, radii );
+
+    if( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
 
     // Compute average and convert from km to m.
     return unit_conversions::convertKilometersToMeters< double >( radii[ 0 ] + radii[ 1 ] + radii[ 2 ] ) / 3.0;
@@ -431,12 +519,19 @@ double getAverageRadius( const std::string &body )
 //! Get the (arithmetic) mean of the two equatorial axes of the tri-axial ellipsoid shape.
 double getAverageEquatorialRadius( const std::string &body )
 {
+    setSpiceErrorHandling( );
+
     // Declare variable in which raw result is to be put by Spice function.
     double radii[ 3 ];
 
     // Call Spice function to retrieve gravitational parameter.
     SpiceInt numberOfReturnedParameters;
     bodvrd_c( body.c_str( ), "RADII", 3, &numberOfReturnedParameters, radii );
+
+    if( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
 
     // Compute average and convert from km to m.
     return unit_conversions::convertKilometersToMeters< double >( radii[ 0 ] + radii[ 1 ] ) / 2.0;
@@ -445,12 +540,19 @@ double getAverageEquatorialRadius( const std::string &body )
 //! Get the polar radius of the tri-axial ellipsoid shape.
 double getPolarRadius( const std::string &body )
 {
+    setSpiceErrorHandling( );
+
     // Declare variable in which raw result is to be put by Spice function.
     double radii[ 3 ];
 
     // Call Spice function to retrieve gravitational parameter.
     SpiceInt numberOfReturnedParameters;
     bodvrd_c( body.c_str( ), "RADII", 3, &numberOfReturnedParameters, radii );
+
+    if( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
 
     // Compute average and convert from km to m.
     return unit_conversions::convertKilometersToMeters< double >( radii[ 2 ] );
@@ -459,10 +561,17 @@ double getPolarRadius( const std::string &body )
 //! Convert a body name to its NAIF identification number.
 int convertBodyNameToNaifId( const std::string &bodyName )
 {
+    setSpiceErrorHandling( );
+
     // Convert body name to NAIF ID number.
     SpiceInt bodyNaifId;
     SpiceBoolean isIdFound;
     bods2c_c( bodyName.c_str( ), &bodyNaifId, &isIdFound );
+
+    if( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
 
     // Convert SpiceInt (typedef for long) to int and return.
     return static_cast< int >( bodyNaifId );
@@ -471,10 +580,17 @@ int convertBodyNameToNaifId( const std::string &bodyName )
 //! Convert a NAIF identification number to its body name.
 std::string convertNaifIdToBodyName( int bodyNaifId )
 {
+    setSpiceErrorHandling( );
+
     // Maximum SPICE name length is 32. Therefore, a name length of 33 is used (+1 for null terminator)
     SpiceChar bodyName[ 33 ];
 
     bodc2s_c( bodyNaifId, 33, bodyName );
+
+    if( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
 
     // Convert SpiceChar to std::string
     return static_cast< std::string >( bodyName );
@@ -483,32 +599,64 @@ std::string convertNaifIdToBodyName( int bodyNaifId )
 //! Check if a certain property of a body is in the kernel pool.
 bool checkBodyPropertyInKernelPool( const std::string &bodyName, const std::string &bodyProperty )
 {
+    setSpiceErrorHandling( );
+
     // Convert body name to NAIF ID.
     const int naifId = convertBodyNameToNaifId( bodyName );
 
     // Determine if property is in pool.
     SpiceBoolean isPropertyInPool = bodfnd_c( naifId, bodyProperty.c_str( ) );
+
+    if( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
+
     return static_cast< bool >( isPropertyInPool );
 }
 
 //! Load a Spice kernel.
 void loadSpiceKernelInTudat( const std::string &fileName )
 {
+    setSpiceErrorHandling( );
+
+    setSpiceErrorHandling( );
+
     furnsh_c( fileName.c_str( ) );
+
+    if( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
 }
 
 //! Get the amount of loaded Spice kernels.
 int getTotalCountOfKernelsLoaded( )
 {
+    setSpiceErrorHandling( );
+
     SpiceInt count;
     ktotal_c( "ALL", &count );
+
+    if( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
+
     return count;
 }
 
 //! Clear all Spice kernels.
 void clearSpiceKernels( )
 {
+    setSpiceErrorHandling( );
+
     kclear_c( );
+
+    if( failed_c( ) )
+    {
+        handleSpiceException( );
+    }
 }
 
 //! Get all standard Spice kernels used in tudat.
@@ -573,21 +721,44 @@ Eigen::Matrix3d getRotationFromEclipJ2000ToJ2000( )
 
 void toggleErrorReturn( )
 {
-    erract_c( "SET", 0, "RETURN" );
+    std::string deprecationMessage =
+            std::string( "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" ) +
+            "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
+            "See https://github.com/tudat-team/tudat/pull/323 for more information.";
+    std::cerr << deprecationMessage << std::endl;
+    char errorAction[] = "RETURN";
+    erract_c( "SET", 0, errorAction );
 }
 
 void toggleErrorAbort( )
 {
-    errdev_c( "SET", 0, "ABORT" );
+    std::string deprecationMessage =
+            std::string( "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" ) +
+            "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
+            "See https://github.com/tudat-team/tudat/pull/323 for more information.";
+    std::cerr << deprecationMessage << std::endl;
+    char errorDevice[] = "ABORT";
+    errdev_c( "SET", 0, errorDevice );
 }
 
 void suppressErrorOutput( )
 {
-    errdev_c( "SET", 0, "NULL" );
+    std::string deprecationMessage =
+            std::string( "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" ) +
+            "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
+            "See https://github.com/tudat-team/tudat/pull/323 for more information.";
+    std::cerr << deprecationMessage << std::endl;
+    char errorDevice[] = "NULL";
+    errdev_c( "SET", 0, errorDevice );
 }
 
 std::string getErrorMessage( )
 {
+    std::string deprecationMessage =
+            std::string( "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" ) +
+            "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
+            "See https://github.com/tudat-team/tudat/pull/323 for more information.";
+    std::cerr << deprecationMessage << std::endl;
     if( failed_c( ) )
     {
         SpiceChar message[ 1841 ];
@@ -602,9 +773,14 @@ std::string getErrorMessage( )
 
 bool checkFailure( )
 {
+    std::string deprecationMessage =
+            std::string( "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" ) +
+            "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
+            "See https://github.com/tudat-team/tudat/pull/323 for more information.";
+    std::cerr << deprecationMessage << std::endl;
     if( failed_c( ) )
     {
-        reset_c( );
+        // reset_c( );
         return true;
     }
     else
@@ -612,5 +788,36 @@ bool checkFailure( )
         return false;
     }
 }
+
+void setSpiceErrorHandling( )
+{
+    char errorAction[] = "RETURN";
+    char errorDevice[] = "NULL";
+    erract_c( "SET", 0, errorAction );
+    errdev_c( "SET", 0, errorDevice );
+}
+
+void handleSpiceException( )
+{
+    // error message lengths are defined in cspice/SpiceErr.h
+    SpiceChar shortMessage[ SPICE_ERROR_SMSGLN ];
+    SpiceChar explanation[ SPICE_ERROR_XMSGLN ];
+    SpiceChar longMessage[ SPICE_ERROR_LMSGLN ];
+    SpiceChar traceback[ SPICE_ERROR_TRCLEN ];
+
+    // Get the error messages from SPICE
+    getmsg_c( "SHORT", SPICE_ERROR_SMSGLN, shortMessage );
+    getmsg_c( "EXPLAIN", SPICE_ERROR_XMSGLN, explanation );
+    getmsg_c( "LONG", SPICE_ERROR_LMSGLN, longMessage );
+
+    // Get the traceback
+    qcktrc_c( SPICE_ERROR_TRCLEN, traceback );
+
+    // Reset the error state to avoid interference with SPICE function calls
+    reset_c( );
+
+    exceptions::throwSpiceException( shortMessage, explanation, longMessage, traceback );
+}
+
 }  // namespace spice_interface
 }  // namespace tudat

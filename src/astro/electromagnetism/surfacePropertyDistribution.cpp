@@ -36,7 +36,7 @@ double SphericalHarmonicsSurfacePropertyDistribution::getValue( double latitude,
     {
         for( int order = 0; order <= degree; order++ )
         {
-            const double legendrePolynomial = legendreCache_->getLegendrePolynomial( degree, order );
+            const double legendrePolynomial = legendreCache_.getLegendrePolynomial( degree, order );
             value += legendrePolynomial *
                     ( cosineCoefficients_( degree, order ) * sphericalHarmonicsCache_.getCosineOfMultipleLongitude( order ) +
                       sineCoefficients_( degree, order ) * sphericalHarmonicsCache_.getSineOfMultipleLongitude( order ) );

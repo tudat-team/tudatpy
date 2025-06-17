@@ -270,7 +270,11 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
                                                                  Eigen::Vector3d::UnitX( ),  // never pointing towards source in these tests
                                                                  reflectionLawFromAbsorptivityAndDiffuseReflectivity( 0.3, 0.4 ) )
     };
-    auto targetModel = std::make_shared< PaneledRadiationPressureTargetModel >( panels );
+    auto targetModel = std::make_shared< PaneledRadiationPressureTargetModel >( panels, panels );
+    for( auto it: panels )
+    {
+        it->updatePanel( Eigen::Quaterniond::Identity( ) );
+    }
 
     // Using the same target position but different target rotations
     {
@@ -480,12 +484,17 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
                         2.3, -Eigen::Vector3d::UnitX( ), reflectionLawFromSpecularAndDiffuseReflectivity( 0.1, 0.46 ) ),
             };
         }
-        bodies.at( "Vehicle" )->setRadiationPressureTargetModels( { std::make_shared< PaneledRadiationPressureTargetModel >( panels ) } );
+        bodies.at( "Vehicle" )
+                ->setRadiationPressureTargetModels( { std::make_shared< PaneledRadiationPressureTargetModel >( panels, panels ) } );
 
         std::vector< double > areas;
         std::vector< Eigen::Vector3d > panelSurfaceNormals;
         std::vector< double > specularReflectivities;
         std::vector< double > diffuseReflectivities;
+        for( auto it: panels )
+        {
+            it->updatePanel( Eigen::Quaterniond::Identity( ) );
+        }
         for( auto& panel: panels )
         {
             areas.push_back( panel->getPanelArea( ) );
@@ -842,8 +851,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
                         4.0, -Eigen::Vector3d::UnitX( ), reflectionLawFromSpecularAndDiffuseReflectivity( 0.1, 0.46 ) ),
             };
             bodies.at( "Vehicle" )
-                    ->setRadiationPressureTargetModels( { std::make_shared< PaneledRadiationPressureTargetModel >( panels ) } );
-
+                    ->setRadiationPressureTargetModels( { std::make_shared< PaneledRadiationPressureTargetModel >( panels, panels ) } );
             SelectedAccelerationMap accelerationMap{ { "Vehicle",
                                                        {
                                                                { "Sun", { radiationPressureAcceleration( paneled_target ) } },
@@ -855,6 +863,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
             // Compute radiation pressure acceleration for different Sun positions.
             Eigen::Vector3d sunCenteredVehiclePosition;
             std::shared_ptr< Ephemeris > vehicleEphemeris = bodies.at( "Vehicle" )->getEphemeris( );
+            for( auto it: panels )
+            {
+                it->updatePanel( Eigen::Quaterniond::Identity( ) );
+            }
 
             for( unsigned int i = 0; i < testTimes.size( ); i++ )
             {
@@ -915,7 +927,7 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
                         reflectionLawFromSpecularAndDiffuseReflectivity( 0.1, 0.46 ) ),
             };
             bodies.at( "Vehicle" )
-                    ->setRadiationPressureTargetModels( { std::make_shared< PaneledRadiationPressureTargetModel >( panels ),
+                    ->setRadiationPressureTargetModels( { std::make_shared< PaneledRadiationPressureTargetModel >( panels, panels ),
                                                           std::make_shared< CannonballRadiationPressureTargetModel >( 1000.0, 0.3 ) } );
 
             SelectedAccelerationMap accelerationMap{ { "Vehicle",
@@ -925,6 +937,10 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_IsotropicPointSource_Pan
             auto accelerationModelMap = createAccelerationModelsMap(
                     bodies, accelerationMap, std::vector< std::string >{ "Vehicle" }, std::vector< std::string >{ "Sun" } );
             auto accelerationModelTimeVaryingPanelSurfaceNormal = accelerationModelMap.at( "Vehicle" ).at( "Sun" ).at( 0 );
+            for( auto it: panels )
+            {
+                it->updatePanel( Eigen::Quaterniond::Identity( ) );
+            }
 
             // Compute radiation pressure acceleration for different Sun positions.
             Eigen::Vector3d sunCenteredVehiclePosition;
@@ -1006,8 +1022,11 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_StaticallyPaneledSource_
                                                                  Eigen::Vector3d::UnitX( ),  // never pointing towards source in these tests
                                                                  reflectionLawFromAbsorptivityAndDiffuseReflectivity( 0.3, 0.4 ) )
     };
-    auto targetModel = std::make_shared< PaneledRadiationPressureTargetModel >( targetPanels );
-
+    auto targetModel = std::make_shared< PaneledRadiationPressureTargetModel >( targetPanels, targetPanels );
+    for( auto it: targetPanels )
+    {
+        it->updatePanel( Eigen::Quaterniond::Identity( ) );
+    }
     // Only panel 1 towards source
     // Magnitude 2/pi because target area 1, source area 2, for target only absorption, pi due to diffuse albedo of source
     const Eigen::Vector3d expectedAcceleration = 2 * Eigen::Vector3d::UnitX( ) / mathematical_constants::PI;
