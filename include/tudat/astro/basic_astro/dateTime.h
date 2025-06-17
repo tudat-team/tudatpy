@@ -282,7 +282,7 @@ public:
         double minimumChronoEpoch = minimumChronoRepresentableEpoch( );
         double maximumChronoEpoch = maximumChronoRepresentableEpoch( );
 
-        if( this->epoch< double >( ) > maximumChronoEpoch || this->epoch< double >( ) < minimumChronoEpoch )
+        if( this->epoch< double >( ) >= maximumChronoEpoch || this->epoch< double >( ) <= minimumChronoEpoch )
         {
             throw std::runtime_error( " Date " + this->isoString( false, 3 ) +
                                       " is out of range for conversion to time point. Lower limit (in seconds from J2000) is: " +
