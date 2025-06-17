@@ -1886,6 +1886,8 @@ numpy.ndarray[numpy.float64[6, 1]]
                 te::LongitudeLibrationCalculator >( m, "DirectLongitudeLibrationCalculator" )
             .def( py::init< const double >( ), py::arg( "scaled_libration_amplitude" ) );
 
+
+
     py::class_< te::SynchronousRotationalEphemeris, std::shared_ptr< te::SynchronousRotationalEphemeris >, te::RotationalEphemeris >(
             m, "SynchronousRotationalEphemeris" )
             .def_property( "libration_calculator",
