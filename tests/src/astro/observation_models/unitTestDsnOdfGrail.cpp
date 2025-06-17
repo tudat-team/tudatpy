@@ -178,8 +178,8 @@ int main( )
     Time initialTime = timeBounds.first - 3600.0;
     Time finalTime = timeBounds.second + 3600.0;
 
-    std::cout << "Initial time: " << basic_astrodynamics::getCalendarDateFromTime( initialTime ).isoString( false, 3 ) << std::endl;
-    std::cout << "Final time: " << basic_astrodynamics::getCalendarDateFromTime( finalTime ).isoString( false, 3 ) << std::endl;
+    std::cout << "Initial time: " << basic_astrodynamics::DateTime::fromTime( initialTime ).isoString( false, 3 ) << std::endl;
+    std::cout << "Final time: " << basic_astrodynamics::DateTime::fromTime( finalTime ).isoString( false, 3 ) << std::endl;
 
     /****************************************************************************************
      ************************** CREATE OBSERVATION MODEL SETTINGS

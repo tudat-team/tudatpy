@@ -181,7 +181,7 @@ BOOST_AUTO_TEST_CASE( test_ObservationModelContinuity )
     double initialTimeEnvironment = Time( 107561, 2262.19 ) - 2.0 * 3600.0;
     double finalTimeEnvironment = initialTimeEnvironment + 2.0 * 86400.0;
 
-    DateTime dateTime = getCalendarDateFromTime< double >( initialTimeEnvironment );
+    DateTime dateTime = DateTime::fromTime< double >( initialTimeEnvironment );
 
     std::cout << dateTime.isoString( ) << std::endl;
     // Load spice kernels
