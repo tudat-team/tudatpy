@@ -441,7 +441,7 @@ Function to convert a Python `datetime.datetime` object to a Tudat :class:`DateT
 
     This function uses the C++ `std::chrono` library, which is limited in the time range it can represent. If the range is exceeded, the conversion will overflow and **NOT** throw an exception.
 
-    The exact range is platform-dependent. Dates between 1678-01-01 and 2261-12-31 are representable on all platforms.
+    The exact range is platform-dependent. On Windows, dates between 1970-01-01 and 3000-12-31 are allowed, on MacOS dates after 1900-01-01 are allowed and on Linux dates between 1678-01-01 and 2261-12-31 are allowed.
 
 Parameters
 ----------
@@ -452,7 +452,21 @@ Returns
 DateTime
     DateTime object defined in Tudat
 
-            )doc" )
+Examples
+--------
+In this example, the Tudat DateTime object is constructed from python native datetime object.
+
+.. code-block:: python
+
+    from datetime import datetime
+    from tudatpy.astro.time_conversion import DateTime
+
+    python_datetime = datetime(2025, 1, 1, 0, 0, 0)
+
+    dt = DateTime.from_python_datetime(python_datetime)
+    print(dt) # prints 2025-01-01 00:00:00.000000000000000
+
+                        )doc" )
             .def_static( "from_year_and_day_of_year",
                          &tba::DateTime::fromYearAndDaysInYear,
                          py::arg( "year" ),
@@ -498,7 +512,18 @@ In this example, the calendar date corresponding to when 122 days have passed in
  DateTime
      Tudat ``DateTime`` object.
 
-            )doc" )
+ Examples
+ --------
+ In this example, the datetime is constructed from the iso string.
+ 
+ .. code-block:: python
+ 
+     from tudatpy.astro.time_conversion import DateTime
+
+     dt = DateTime.from_iso_string("2025-01-01T00:00:00.000")
+     print(dt) # prints 2025-01-01 00:00:00.000000000000000
+                         
+                         )doc" )
             .def_static( "from_epoch",
                          &tba::DateTime::fromTime< TIME_TYPE >,
                          py::arg( "epoch" ),
@@ -516,14 +541,29 @@ In this example, the calendar date corresponding to when 122 days have passed in
  DateTime
      Tudat ``DateTime`` object.
 
-     )doc" )
+ Examples
+ --------
+ In this example, the datetime is constructed from an epoch in seconds since J2000.
+ 
+ .. code-block:: python
+ 
+     from tudatpy.astro.time_conversion import DateTime
+
+     epoch_et = 788961600.0
+
+     dt = DateTime.from_epoch(epoch_et)
+     print(dt) # prints 2025-01-01 00:00:00.000000000000000
+                         
+                         )doc" )
             .def( "to_python_datetime", &tba::DateTime::timePoint, R"doc(
                 
 Method to convert retrieve a Python datetime.datetime object from the Tudat :class:`DateTime` object. This is the inverse of the :meth:`~tudatpy.astro.time_conversion.DateTime.from_python_datetime` method.
 
 .. note::
 
-    The conversion uses the C++ `std::chrono` library, which is limited the time range it can represent. If the range is exceeded, the conversion will fail and throw an exception. The exact range is platform-dependent. Dates between 1678-01-01 and 2261-12-31 are representable on all platforms.
+    The conversion uses the C++ `std::chrono` library, which is limited the time range it can represent. If the range is exceeded, the conversion will fail and throw an exception.
+    
+    The exact range is platform-dependent. On Windows, dates between 1970-01-01 and 3000-12-31 are allowed, on MacOS dates after 1900-01-01 are allowed and on Linux dates between 1678-01-01 and 2261-12-31 are allowed.
 
 Returns
 -------
@@ -547,7 +587,23 @@ datetime.datetime
  -------
  DateTime
      Tudat-native Datetime object created by adding the given number of seconds to the original DateTime
-            
+ 
+ Examples
+ --------
+ In this example, 86400 seconds are added to a DateTime object to construct a new DateTime.
+ 
+ .. code-block:: python
+ 
+     from tudatpy.astro.time_conversion import DateTime
+
+     dt = DateTime(2025, 1, 1, 0, 0, 0.0)
+     dt_seconds_added = dt.add_seconds(86400.0)
+     print(f"Original dt: {dt}")
+     print(f"dt with seconds added: {dt_seconds_added}")
+     # prints:
+     # Original dt: 2025-01-01 00:00:00.000000000000000
+     # dt with seconds added: 2025-01-02 00:00:00.000000000000000   
+
             )doc" )
             .def( "add_days", &tba::DateTime::addDaysToDateTime< TIME_TYPE >, py::arg( "days_to_add" ), R"doc(
             
@@ -565,6 +621,21 @@ datetime.datetime
  -------
  DateTime
      Tudat-native Datetime object created by adding the given number of days to the original DateTime
+ Examples
+ --------
+ In this example, 1 day is added to a DateTime object to construct a new DateTime.
+ 
+ .. code-block:: python
+ 
+     from tudatpy.astro.time_conversion import DateTime
+
+     dt = DateTime(2025, 1, 1, 0, 0, 0.0)
+     dt_days_added = dt.add_days(1.0)
+     print(f"Original dt: {dt}")
+     print(f"dt with days added: {dt_days_added}")
+     # prints:
+     # Original dt: 2025-01-01 00:00:00.000000000000000
+     # dt with days added: 2025-01-02 00:00:00.000000000000000   
 
             )doc" );
 
