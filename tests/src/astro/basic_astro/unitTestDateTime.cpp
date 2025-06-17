@@ -29,7 +29,8 @@ BOOST_AUTO_TEST_SUITE( test_date_time )
 using namespace mathematical_constants;
 using namespace basic_astrodynamics;
 
-std::vector< int > years = { 2023, 2373, 1910, 1621, 1900, 2000, 2004, 1899, 1900, 1901, 1969, 1970, 1971, 2999, 3000, 3001 };
+std::vector< int > years = { 1899, 1901, 1969, 1970, 1971, 2999, 3000, 3001, 2023, 2373, 1910, 1621, 1900, 2000, 2004 };
+// std::vector< int > years = { 1899, 1901, 1969, 1970, 1971, 2999, 3000, 3001, 2023, 2373, 1910, 1621, 1900, 2000, 2004 };
 std::vector< std::pair< int, int > > dates = {
     { 5, 17 }, { 1, 1 }, { 8, 31 }, { 12, 17 }, { 12, 31 }, { 2, 29 },
 };
@@ -139,7 +140,7 @@ BOOST_AUTO_TEST_CASE( testDateTimeConversions )
                     exceptionCaught = true;
                 }
 
-                if( j == 5 && i < 5 )
+                if( j == 5 && i < 13 )
                 {
                     BOOST_CHECK_EQUAL( exceptionCaught, true );
                 }
@@ -185,7 +186,7 @@ BOOST_AUTO_TEST_CASE( testTimePointConversions )
 
                 // the DateTime constructor is tested in testDateTimeConversions
                 // therefore all invalid dates are skipped here
-                if( j == 5 && i < 5 )
+                if( j == 5 && i < 13 )
                 {
                     continue;
                 }
