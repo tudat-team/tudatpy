@@ -86,7 +86,9 @@ enum EstimatebleParametersEnum {
     diffuse_reflectivity,
     mode_coupled_tidal_love_numbers,
     nominal_rotation_pole_position,
-    rotation_pole_position_rate
+    rotation_pole_position_rate,
+    rotation_longitudinal_libration_terms
+
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );

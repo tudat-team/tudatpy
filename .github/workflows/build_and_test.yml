@@ -84,37 +84,37 @@ jobs:
       shell: bash
 
 
-    - name: Cache conda environment
-      # Cache the conda environment to avoid re-installing the same packages every time the workflow runs. The cache key is based on the environment.yml file, the operating system, and the date. The cache is restored if the cache key matches the cache key of the previous run.
-      uses: actions/cache@v4
-      with:
-          path: ${{ matrix.path_conda_env }}
-          key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('environment.yml') }}-${{steps.get-date.outputs.today}}
-      id: cache
+    # - name: Cache conda environment
+    #   # Cache the conda environment to avoid re-installing the same packages every time the workflow runs. The cache key is based on the environment.yml file, the operating system, and the date. The cache is restored if the cache key matches the cache key of the previous run.
+    #   uses: actions/cache@v4
+    #   with:
+    #       path: ${{ matrix.path_conda_env }}
+    #       key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('environment.yml') }}-${{steps.get-date.outputs.today}}
+    #   id: cache
 
 
     - name: Create conda environment from environment.yml
       # Update the tudat conda environment created using the environment.yml file if the cache is not restored
       run: conda env update -n tudat -f environment.yml
-      if: steps.cache.outputs.cache-hit != 'true'
+      # if: steps.cache.outputs.cache-hit != 'true'
 
 
-    - name: Download tudat resources data files for Linux and MacOS
-      # The data files in tudat-resources are downloaded upon the installation of
-      # the tudat-resources conda package in the previous step, but the data files are
-      # not cached by the cache action. When the cache is hit, the update environment
-      # step is skipped, skipping the installation of the tudat-resources package,
-      # thereby skipping the download of the data files. Therefore, the data files must
-      # be downloaded manually when the cache is hit.
-      # This step downloads the data files in the tudat-resources package by running
-      # the post-link scripts in https://github.com/tudat-team/tudat-resources-feedstock/blob/master/recipe/
-      if: (runner.os == 'Linux' || runner.os == 'MacOS') && steps.cache.outputs.cache-hit == 'true'
-      run: bash -c "$(curl -fsSL https://raw.githubusercontent.com/tudat-team/tudat-resources-feedstock/master/recipe/post-link.sh)"
+    # - name: Download tudat resources data files for Linux and MacOS
+    #   # The data files in tudat-resources are downloaded upon the installation of
+    #   # the tudat-resources conda package in the previous step, but the data files are
+    #   # not cached by the cache action. When the cache is hit, the update environment
+    #   # step is skipped, skipping the installation of the tudat-resources package,
+    #   # thereby skipping the download of the data files. Therefore, the data files must
+    #   # be downloaded manually when the cache is hit.
+    #   # This step downloads the data files in the tudat-resources package by running
+    #   # the post-link scripts in https://github.com/tudat-team/tudat-resources-feedstock/blob/master/recipe/
+    #   if: (runner.os == 'Linux' || runner.os == 'MacOS') && steps.cache.outputs.cache-hit == 'true'
+    #   run: bash -c "$(curl -fsSL https://raw.githubusercontent.com/tudat-team/tudat-resources-feedstock/master/recipe/post-link.sh)"
 
 
-    - name: Download tudat-resources data files for Windows
-      if: runner.os == 'Windows' && steps.cache.outputs.cache-hit == 'true'
-      run: cmd /c "curl -fsSL https://raw.githubusercontent.com/tudat-team/tudat-resources-feedstock/master/recipe/post-link.bat | cmd"
+    # - name: Download tudat-resources data files for Windows
+    #   if: runner.os == 'Windows' && steps.cache.outputs.cache-hit == 'true'
+    #   run: cmd /c "curl -fsSL https://raw.githubusercontent.com/tudat-team/tudat-resources-feedstock/master/recipe/post-link.bat | cmd"
 
 
     - name: Restore cached compilation results

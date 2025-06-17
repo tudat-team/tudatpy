@@ -37,7 +37,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
         for( unsigned int i = 0; i < updateIterator->second.size( ); i++ )
         {
             // Ignore global required updates.
-                if( updateIterator->second.at( i ) != "" )
+            if( updateIterator->second.at( i ) != "" )
             {
                 // Check if body exists.
                 if( bodies.count( updateIterator->second.at( i ) ) == 0 )
@@ -429,7 +429,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                                 }
                             }
 
-                            if( paneledRadiationPressureTargetModel->getSegmentFixedPanels( ).size( ) > 0 )
+                            if( paneledRadiationPressureTargetModel->getTotalNumberOfPanels( ) > 0 )
                             {
                                 singleAccelerationUpdateNeeds[ body_segment_orientation_update ].push_back( targetName );
                             }
@@ -1074,6 +1074,12 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
             break;
         case nrlmsise_input_data:
             variablesToUpdate[ vehicle_flight_conditions_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+            break;
+        case illuminated_panel_fraction:
+            break;
+        case cross_section_change:
+            break;
+        case full_body_paneled_geometry:
             break;
         default:
             throw std::runtime_error( "Error when getting environment updates for dependent variables, parameter " +

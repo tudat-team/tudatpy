@@ -742,11 +742,16 @@ template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< HybridArcPropagatorSettings< StateScalarType, TimeType > > hybridArcPropagatorSettings(
         const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > singleArcPropagatorSettings,
         const std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > multiArcPropagatorSettings,
-        const std::shared_ptr< HybridArcPropagatorProcessingSettings > outputSettings =
-                std::make_shared< HybridArcPropagatorProcessingSettings >( ) )
+        const std::shared_ptr< HybridArcPropagatorProcessingSettings > outputSettings = nullptr )
 {
+    std::shared_ptr< HybridArcPropagatorProcessingSettings > outputSettingsToUse = outputSettings;
+    if( outputSettingsToUse == nullptr )
+    {
+        outputSettingsToUse = std::make_shared< HybridArcPropagatorProcessingSettings >( );
+    }
+
     return std::make_shared< HybridArcPropagatorSettings< StateScalarType, TimeType > >(
-            singleArcPropagatorSettings, multiArcPropagatorSettings, outputSettings );
+            singleArcPropagatorSettings, multiArcPropagatorSettings, outputSettingsToUse );
 }
 
 //! Class for defining settings for propagating translational dynamics.
@@ -1044,9 +1049,14 @@ inline std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, T
         const TranslationalPropagatorType propagator = cowell,
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
                 std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-        const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
-                std::make_shared< SingleArcPropagatorProcessingSettings >( ) )
+        const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings = nullptr )
 {
+    std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettingsToUse = outputSettings;
+    if( outputSettingsToUse == nullptr )
+    {
+        outputSettingsToUse = std::make_shared< SingleArcPropagatorProcessingSettings >( );
+    }
+
     return std::make_shared< TranslationalStatePropagatorSettings< StateScalarType, TimeType > >( centralBodies,
                                                                                                   accelerationsMap,
                                                                                                   bodiesToIntegrate,
@@ -1056,7 +1066,7 @@ inline std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, T
                                                                                                   terminationSettings,
                                                                                                   propagator,
                                                                                                   dependentVariablesToSave,
-                                                                                                  outputSettings );
+                                                                                                  outputSettingsToUse );
 }
 
 //! Class for defining settings for propagating rotational dynamics.
@@ -1242,9 +1252,14 @@ inline std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType, Time
         const RotationalPropagatorType propagator = quaternions,
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
                 std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-        const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
-                std::make_shared< SingleArcPropagatorProcessingSettings >( ) )
+        const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings = nullptr )
 {
+    std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettingsToUse = outputSettings;
+    if( outputSettingsToUse == nullptr )
+    {
+        outputSettingsToUse = std::make_shared< SingleArcPropagatorProcessingSettings >( );
+    }
+
     return std::make_shared< RotationalStatePropagatorSettings< StateScalarType, TimeType > >( torqueModelMap,
                                                                                                bodiesToIntegrate,
                                                                                                initialBodyStates,
@@ -1253,7 +1268,7 @@ inline std::shared_ptr< RotationalStatePropagatorSettings< StateScalarType, Time
                                                                                                terminationSettings,
                                                                                                propagator,
                                                                                                dependentVariablesToSave,
-                                                                                               outputSettings );
+                                                                                               outputSettingsToUse );
 }
 
 //! Class for defining settings for propagating the mass of a body
@@ -1494,9 +1509,14 @@ inline std::shared_ptr< MassPropagatorSettings< StateScalarType, TimeType > > ma
         const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
                 std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-        const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
-                std::make_shared< SingleArcPropagatorProcessingSettings >( ) )
+        const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings = nullptr )
 {
+    std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettingsToUse = outputSettings;
+    if( outputSettingsToUse == nullptr )
+    {
+        outputSettingsToUse = std::make_shared< SingleArcPropagatorProcessingSettings >( );
+    }
+
     return std::make_shared< MassPropagatorSettings< StateScalarType, TimeType > >( bodiesWithMassToPropagate,
                                                                                     massRateModels,
                                                                                     initialBodyMasses,
@@ -1504,7 +1524,7 @@ inline std::shared_ptr< MassPropagatorSettings< StateScalarType, TimeType > > ma
                                                                                     integratorSettings,
                                                                                     terminationSettings,
                                                                                     dependentVariablesToSave,
-                                                                                    outputSettings );
+                                                                                    outputSettingsToUse );
 }
 
 // template< typename StateScalarType = double, typename TimeType = double >
@@ -1710,16 +1730,20 @@ inline std::shared_ptr< CustomStatePropagatorSettings< StateScalarType, TimeType
         const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
                 std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-        const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
-                std::make_shared< SingleArcPropagatorProcessingSettings >( ) )
+        const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings = nullptr )
 {
+    std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettingsToUse = outputSettings;
+    if( outputSettingsToUse == nullptr )
+    {
+        outputSettingsToUse = std::make_shared< SingleArcPropagatorProcessingSettings >( );
+    }
     return std::make_shared< CustomStatePropagatorSettings< StateScalarType, TimeType > >( stateDerivativeFunction,
                                                                                            initialState,
                                                                                            initialTime,
                                                                                            integratorSettings,
                                                                                            terminationSettings,
                                                                                            dependentVariablesToSave,
-                                                                                           outputSettings );
+                                                                                           outputSettingsToUse );
 }
 
 //! Function to create multi-arc propagator settings by merging an existing multi-arc with single-arc settings
@@ -2219,11 +2243,15 @@ inline std::shared_ptr< MultiTypePropagatorSettings< StateScalarType, TimeType >
         const std::shared_ptr< PropagationTerminationSettings > terminationSettings,
         const std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariablesToSave =
                 std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > >( ),
-        const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings =
-                std::make_shared< SingleArcPropagatorProcessingSettings >( ) )
+        const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings = nullptr )
 {
+    std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettingsToUse = outputSettings;
+    if( outputSettingsToUse == nullptr )
+    {
+        outputSettingsToUse = std::make_shared< SingleArcPropagatorProcessingSettings >( );
+    }
     return std::make_shared< MultiTypePropagatorSettings< StateScalarType, TimeType > >(
-            propagatorSettingsVector, integratorSettings, initialTime, terminationSettings, dependentVariablesToSave, outputSettings );
+            propagatorSettingsVector, integratorSettings, initialTime, terminationSettings, dependentVariablesToSave, outputSettingsToUse );
 }
 
 // extern template class PropagatorSettings< double >;

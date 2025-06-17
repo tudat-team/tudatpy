@@ -340,7 +340,7 @@ BOOST_AUTO_TEST_CASE( test_PanelledRadiationPressureEstimation )
             addBodyExteriorPanelledShape( panelSettings, "Vehicle", bodies );
             bodies.at( "Vehicle" )
                     ->setRadiationPressureTargetModels( { createRadiationPressureTargetModel(
-                            std::make_shared< RadiationPressureTargetModelSettings >( paneled_target ), "Vehicle", bodies ) } );
+                            std::make_shared< PaneledRadiationPressureTargetModelSettings >( ), "Vehicle", bodies ) } );
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -441,7 +441,8 @@ BOOST_AUTO_TEST_CASE( test_PanelledRadiationPressureEstimation )
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        //////////////////    PERTURB PARAMETER VECTOR AND ESTIMATE PARAMETERS     ////////////////////////////////////////////
+        //////////////////    PERTURB PARAMETER VECTOR AND ESTIMATE PARAMETERS     ///////////        //
+/////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Perturb parameter estimate.
@@ -462,8 +463,6 @@ BOOST_AUTO_TEST_CASE( test_PanelledRadiationPressureEstimation )
         Eigen::Matrix< double, Eigen::Dynamic, 1 > testValues = parametersToEstimate->template getFullParameterValues< double >( );
         std::cout << "TEST A:" << truthParameters.transpose( ) << std::endl;
         std::cout << "TEST B:" << testValues.transpose( ) << std::endl;
-
-        //
 
         // Define estimation input
         std::shared_ptr< EstimationInput< double, double > > estimationInput =

@@ -23,7 +23,7 @@
 #include "tudat/math/basic/mathematicalConstants.h"
 #include "tudat/astro/electromagnetism/reflectionLaw.h"
 #include "tudat/astro/system_models/vehicleExteriorPanels.h"
-#include "tudat/astro/system_models/vehicleExteriorPanels.h"
+#include "tudat/astro/system_models/selfShadowing.h"
 
 namespace tudat
 {
@@ -109,7 +109,7 @@ public:
     virtual void saveLocalComputations( const std::string sourceName, const bool saveCosines ) { }
 
 protected:
-    virtual void updateMembers_( const double currentTime ) { };
+    virtual void updateMembers_( const double currentTime ) {};
 
     double currentTime_{ TUDAT_NAN };
     // Only needed to transfer occultation settings from body setup to acceleration setup
@@ -236,27 +236,52 @@ public:
      */
     explicit PaneledRadiationPressureTargetModel(
             const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& bodyFixedPanels,
+            const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& allPanels,
             const std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > >& segmentFixedPanels =
                     std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > >( ),
             const std::map< std::string, std::function< Eigen::Quaterniond( ) > >& segmentFixedToBodyFixedRotations =
                     std::map< std::string, std::function< Eigen::Quaterniond( ) > >( ),
-            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = { } ):
+            const std::map< std::string, std::vector< std::string > >& sourceToTargetOccultingBodies = { },
+            const std::map< std::string, int > maximumNumberOfPixelsPerSource = { },
+            bool panelGeometryDefined = false ):
         RadiationPressureTargetModel( sourceToTargetOccultingBodies ), bodyFixedPanels_( bodyFixedPanels ),
-        segmentFixedPanels_( segmentFixedPanels ), segmentFixedToBodyFixedRotations_( segmentFixedToBodyFixedRotations )
+        segmentFixedPanels_( segmentFixedPanels ), segmentFixedToBodyFixedRotations_( segmentFixedToBodyFixedRotations ),
+        maximumNumberOfPixelsPerSource_( maximumNumberOfPixelsPerSource ), allPanels_( allPanels ),
+        panelGeometryDefined_( panelGeometryDefined )
     {
-        totalNumberOfPanels_ = bodyFixedPanels_.size( );
-        fullPanels_ = bodyFixedPanels_;
-
-        int counter = 1;
-        for( auto it: segmentFixedPanels_ )
-        {
-            totalNumberOfPanels_ += it.second.size( );
-            fullPanels_.insert( fullPanels_.end( ), it.second.begin( ), it.second.end( ) );
-        }
-
+        totalNumberOfPanels_ = allPanels.size( );
         panelForces_.resize( totalNumberOfPanels_ );
         surfacePanelCosines_.resize( totalNumberOfPanels_ );
         surfaceNormals_.resize( totalNumberOfPanels_ );
+        illuminatedPanelFractions_.resize( totalNumberOfPanels_ );
+
+        // create panelTypeIdList for dependent variable save
+        panelTypeIdList_ = std::vector< std::string >( totalNumberOfPanels_ );
+        for( int i = 0; i < totalNumberOfPanels_; i++ )
+        {
+            panelTypeIdList_[ i ] = allPanels_[ i ]->getPanelTypeId( );
+        }
+        // create map of self-shadowing objects per source
+        for( auto it: maximumNumberOfPixelsPerSource_ )
+        {
+            if( it.second < 0 || it.second == 1 )
+            {
+                throw std::runtime_error( "Error, invalid maximum number of pixels for source " + it.first + ", value should be > 2." );
+            }
+            if( it.second > 1 && !panelGeometryDefined_ )
+            {
+                throw std::runtime_error( "Error, maximum number of pixels given for source " + it.first +
+                                          ", however, no panel geometry is defined." );
+            }
+            if( it.second == 0 )
+            {
+                continue;
+            }
+            selfShadowingPerSource_[ it.first ] =
+                    std::make_shared< system_models::SelfShadowing >( system_models::SelfShadowing( allPanels_, it.second ) );
+        }
+
+        unityIlluminationFraction_ = std::vector< double >( totalNumberOfPanels_, 1.0 );
     }
 
     void enableTorqueComputation( const std::function< Eigen::Vector3d( ) > centerOfMassFunction ) override
@@ -329,17 +354,37 @@ public:
         return panelForcesPerSource_[ sourceName ];
     }
 
-    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& getFullPanels( )
+    const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& getAllPanels( ) const
     {
-        return fullPanels_;
-    }
-
-    int getTotalNumberOfPanels( )
-    {
-        return totalNumberOfPanels_;
+        return allPanels_;
     }
 
     void saveLocalComputations( const std::string sourceName, const bool saveCosines ) override;
+
+    std::vector< double > getIlluminatedPanelFractions( const std::string& sourceName )
+    {
+        if( illuminatedPanelFractionsPerSource_.count( sourceName ) == 0 )
+        {
+            throw std::runtime_error( "Error when getting panelled radiation pressure illuminated panel fractions from body " + sourceName +
+                                      ", no such source is saved" );
+        }
+        return illuminatedPanelFractionsPerSource_[ sourceName ];
+    }
+
+    std::vector< std::string > getPanelTypeIdList( ) const
+    {
+        return panelTypeIdList_;
+    }
+
+    std::map< std::string, std::shared_ptr< system_models::SelfShadowing > > getSelfShadowingPerSources( ) const
+    {
+        return selfShadowingPerSource_;
+    }
+
+    int getTotalNumberOfPanels( ) const
+    {
+        return totalNumberOfPanels_;
+    }
 
 private:
     void updateMembers_( double currentTime ) override;
@@ -357,13 +402,27 @@ private:
             panelTorques_.at( i ).setZero( );
         }
         panelTorquesPerSource_[ sourceName ] = panelTorques_;
+
+        for( unsigned int i = 0; i < surfacePanelCosines_.size( ); i++ )
+        {
+            surfacePanelCosines_.at( i ) = 0.0;
+        }
+        surfacePanelCosinesPerSource_[ sourceName ] = surfacePanelCosines_;
+
+        for( unsigned int i = 0; i < illuminatedPanelFractions_.size( ); i++ )
+        {
+            illuminatedPanelFractions_.at( i ) = 0.0;
+        }
+        illuminatedPanelFractionsPerSource_[ sourceName ] = illuminatedPanelFractions_;
+        for( auto it: selfShadowingPerSource_ )
+        {
+            it.second->reset( );
+        }
     }
 
     std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > bodyFixedPanels_;
 
     std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > > segmentFixedPanels_;
-
-    std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > fullPanels_;
 
     std::map< std::string, std::function< Eigen::Quaterniond( ) > > segmentFixedToBodyFixedRotations_;
 
@@ -377,10 +436,20 @@ private:
     std::vector< double > surfacePanelCosines_;
     std::vector< Eigen::Vector3d > panelForces_;
     std::vector< Eigen::Vector3d > panelTorques_;
+    std::vector< double > illuminatedPanelFractions_;
 
     std::map< std::string, std::vector< double > > surfacePanelCosinesPerSource_;
     std::map< std::string, std::vector< Eigen::Vector3d > > panelForcesPerSource_;
     std::map< std::string, std::vector< Eigen::Vector3d > > panelTorquesPerSource_;
+    std::map< std::string, std::vector< double > > illuminatedPanelFractionsPerSource_;
+
+    // ssh variables
+    std::map< std::string, int > maximumNumberOfPixelsPerSource_;
+    std::map< std::string, std::shared_ptr< system_models::SelfShadowing > > selfShadowingPerSource_;
+    std::vector< std::string > panelTypeIdList_;
+    std::vector< double > unityIlluminationFraction_;
+    const std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& allPanels_;
+    bool panelGeometryDefined_;
 };
 
 }  // namespace electromagnetism
