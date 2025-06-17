@@ -237,6 +237,15 @@ public:
         std::cout << "Lower representation count" << lowerRepresentationCount << std::endl;
         std::cout << "Minimum representable epoch" << minimumRepresentableEpoch << std::endl;
 
+#if defined( _WIN64 ) || defined( _WIN32 )
+        std::cout << "Test Windows macro" << std::endl;
+        minimumRepresentableEpoch = std::max( minimumRepresentableEpoch, DateTime( 1970, 1, 1, 0, 0, 0.0L ).epoch< double >( ) );
+
+#elif defined( __APPLE__ )
+        std::cout << "Test Mac macro" << std::endl;
+        minimumRepresentableEpoch = std::max( minimumRepresentableEpoch, DateTime( 1900, 1, 1, 0, 0, 0.0L ).epoch< double >( ) );
+#endif
+
         return minimumRepresentableEpoch;
     }
 
@@ -261,6 +270,10 @@ public:
         std::cout << "Upper representation count" << upperRepresentationCount << std::endl;
         std::cout << "Maximum representable epoch" << maximumRepresentableEpoch << std::endl;
 
+#if defined( _WIN64 ) || defined( _WIN32 )
+        std::cout << "Test Windows macro" << std::endl;
+        maximumRepresentableEpoch = std::min( maximumRepresentableEpoch, DateTime( 3000, 12, 31, 23, 59, 59.0L ).epoch< double >( ) );
+#endif
         return maximumRepresentableEpoch;
     }
 
@@ -290,20 +303,6 @@ public:
 
         std::cout << "tm from tudat: " << tm.tm_year << " " << tm.tm_mon << " " << tm.tm_mday << " " << tm.tm_hour << " " << tm.tm_min
                   << " " << tm.tm_sec << std::endl;
-
-        #if defined(_WIN64) || defined(_WIN32)
-            std::cout<<"Test Windows macro"<<std::endl;
-            if( tm.tm_year < 1970 || tm.tm_year > 3000 )
-            {
-                throw std::runtime_error( "Error when creating time point on Windows, only years 1970-3000 supported ")
-            }
-        #elif __APPLE__
-            std::cout<<"Test Mac macro"<<std::endl;
-            if( tm.tm_year <= 1900 )
-            {
-                throw std::runtime_error( "Error when creating time point on MacOS, only years > 1900 supported ")
-            }
-        #endif
 
         std::time_t tt = std::mktime( &tm );
         std::cout << "time_t from mktime: " << std::to_string( tt ) << std::endl;
