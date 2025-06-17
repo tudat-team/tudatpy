@@ -62,9 +62,9 @@ BOOST_AUTO_TEST_CASE( test_centralGravityModelSetup )
     bodySettings.addSettings( "Sun" );
     bodySettings.at( "Mars" )->ephemerisSettings = std::make_shared< ApproximateJplEphemerisSettings >( "Mars", 0 );
     bodySettings.at( "Jupiter" )->ephemerisSettings = std::make_shared< ApproximateJplEphemerisSettings >( "Jupiter", 0 );
-    bodySettings.at( "Mars" )->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
-    bodySettings.at( "Jupiter" )->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
-    bodySettings.at( "Sun" )->gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
+    bodySettings.at( "Mars" )->gravityFieldSettings = centralGravityFromSpiceSettings( );
+    bodySettings.at( "Jupiter" )->gravityFieldSettings = centralGravityFromSpiceSettings( );
+    bodySettings.at( "Sun" )->gravityFieldSettings = centralGravityFromSpiceSettings( );
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
     // Defins state of Sun to be all zero.

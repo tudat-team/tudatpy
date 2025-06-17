@@ -29,25 +29,24 @@ BOOST_AUTO_TEST_SUITE( test_date_time )
 using namespace mathematical_constants;
 using namespace basic_astrodynamics;
 
+std::vector< int > years = { 1899, 1901, 1969, 1970, 1971, 2999, 3000, 3001, 2023, 2373, 1910, 1621, 1900, 2000, 2004 };
+// std::vector< int > years = { 1899, 1901, 1969, 1970, 1971, 2999, 3000, 3001, 2023, 2373, 1910, 1621, 1900, 2000, 2004 };
+std::vector< std::pair< int, int > > dates = {
+    { 5, 17 }, { 1, 1 }, { 8, 31 }, { 12, 17 }, { 12, 31 }, { 2, 29 },
+};
+std::vector< std::tuple< int, int, long double > > times = { { 8, 34, 30.234567890123456789L },
+                                                             { 11, 34, 30.234567890123456789L },
+                                                             { 18, 34, 30.234567890123456789L },
+                                                             { 23, 34, 30.234567890123456789L },
+                                                             { 0, 0, 0.0L },
+                                                             { 12, 0, 0.0L },
+                                                             { 11, 59, 60.0L - std::numeric_limits< long double >::epsilon( ) * 3600.0L },
+                                                             { 23, 59, 60.0L - std::numeric_limits< long double >::epsilon( ) * 3600.0L },
+                                                             { 11, 59, std::numeric_limits< long double >::epsilon( ) * 3600.0L },
+                                                             { 23, 59, std::numeric_limits< long double >::epsilon( ) * 3600.0L } };
+
 BOOST_AUTO_TEST_CASE( testDateTimeConversions )
 {
-    std::vector< int > years = { 2023, 2373, 1910, 1621, 1900, 2000, 2004 };
-    std::vector< std::pair< int, int > > dates = {
-        { 5, 17 }, { 1, 1 }, { 8, 31 }, { 12, 17 }, { 12, 31 }, { 2, 29 },
-    };
-    std::vector< std::tuple< int, int, long double > > times = {
-        { 8, 34, 30.234567890123456789L },
-        { 11, 34, 30.234567890123456789L },
-        { 18, 34, 30.234567890123456789L },
-        { 23, 34, 30.234567890123456789L },
-        { 0, 0, 0.0L },
-        { 12, 0, 0.0L },
-        { 11, 59, 60.0L - std::numeric_limits< long double >::epsilon( ) * 3600.0L },
-        { 23, 59, 60.0L - std::numeric_limits< long double >::epsilon( ) * 3600.0L },
-        { 11, 59, std::numeric_limits< long double >::epsilon( ) * 3600.0L },
-        { 23, 59, std::numeric_limits< long double >::epsilon( ) * 3600.0L }
-    };
-
     for( unsigned int i = 0; i < years.size( ); i++ )
     {
         for( unsigned int j = 0; j < dates.size( ); j++ )
@@ -57,7 +56,7 @@ BOOST_AUTO_TEST_CASE( testDateTimeConversions )
                 bool exceptionCaught = 0;
                 try
                 {
-                    std::cout << i << " " << j << " " << k << std::endl;
+                    std::cout << "i = " << i << ", j = " << j << ", k = " << k << std::endl;
                     DateTime currentDateTime( years.at( i ),
                                               dates.at( j ).first,
                                               dates.at( j ).second,
@@ -106,7 +105,8 @@ BOOST_AUTO_TEST_CASE( testDateTimeConversions )
                                            3600.0 * std::numeric_limits< long double >::epsilon( ) );
                     }
 
-                    DateTime reconstructedDateTime = getCalendarDateFromTime( currentTime );
+                    DateTime reconstructedDateTime = DateTime::fromTime( currentTime );
+
                     BOOST_CHECK_EQUAL( reconstructedDateTime.getYear( ), currentDateTime.getYear( ) );
                     BOOST_CHECK_EQUAL( reconstructedDateTime.getMonth( ), currentDateTime.getMonth( ) );
                     BOOST_CHECK_EQUAL( reconstructedDateTime.getDay( ), currentDateTime.getDay( ) );
@@ -134,12 +134,13 @@ BOOST_AUTO_TEST_CASE( testDateTimeConversions )
                     BOOST_CHECK_SMALL( std::fabs( static_cast< double >( modifiedJulianDayFromDateTime - currentModifiedJulianDay ) ),
                                        modifiedJulianDayTolerance );
                 }
-                catch( ... )
+                catch( std::runtime_error &caughtException )
                 {
+                    std::cout << "Exception " << caughtException.what( ) << std::endl;
                     exceptionCaught = true;
                 }
 
-                if( j == 5 && i < 5 )
+                if( j == 5 && i < 13 )
                 {
                     BOOST_CHECK_EQUAL( exceptionCaught, true );
                 }
@@ -152,8 +153,134 @@ BOOST_AUTO_TEST_CASE( testDateTimeConversions )
     }
 }
 
+BOOST_AUTO_TEST_CASE( testTimePointConversions )
+{
+    std::time_t min_tt = std::numeric_limits< std::time_t >::min( );
+    std::time_t max_tt = std::numeric_limits< std::time_t >::max( );
+
+    constexpr std::chrono::system_clock::duration::rep minTickCount =
+            std::numeric_limits< std::chrono::system_clock::duration::rep >::min( );
+    std::chrono::system_clock::duration minDuration( minTickCount );
+    std::chrono::duration< double > minSecondsDuration = minDuration;
+    double lowerRepresentationCount = minSecondsDuration.count( );
+
+    constexpr std::chrono::system_clock::duration::rep maxTickCount =
+            std::numeric_limits< std::chrono::system_clock::duration::rep >::max( );
+    std::chrono::system_clock::duration maxDuration( maxTickCount );
+    std::chrono::duration< double > maxSecondsDuration = maxDuration;
+    double upperRepresentationCount = maxSecondsDuration.count( );
+
+    std::cout << "min time_t: " << std::to_string( min_tt ) << std::endl;
+    std::cout << "max time_t: " << std::to_string( max_tt ) << std::endl;
+
+    std::cout << "lower chrono seconds representation: " << std::to_string( lowerRepresentationCount ) << std::endl;
+    std::cout << "upper chrono seconds representation: " << std::to_string( upperRepresentationCount ) << std::endl;
+
+    for( unsigned int i = 0; i < years.size( ); i++ )
+    {
+        for( unsigned int j = 0; j < dates.size( ); j++ )
+        {
+            for( unsigned int k = 0; k < times.size( ); k++ )
+            {
+                std::cout << "i = " << i << ", j = " << j << ", k = " << k << std::endl;
+
+                // the DateTime constructor is tested in testDateTimeConversions
+                // therefore all invalid dates are skipped here
+                if( j == 5 && i < 13 )
+                {
+                    continue;
+                }
+
+                std::cout << "Create date time" << std::endl;
+                DateTime currentDateTime( years.at( i ),
+                                          dates.at( j ).first,
+                                          dates.at( j ).second,
+                                          std::get< 0 >( times.at( k ) ),
+                                          std::get< 1 >( times.at( k ) ),
+                                          std::get< 2 >( times.at( k ) ) );
+                std::cout << "Created date time " << currentDateTime.isoString( ) << std::endl;
+                std::cout << "Epoch: " << currentDateTime.epoch< double >( ) << std::endl;
+
+                if( currentDateTime.epoch< double >( ) <= DateTime::minimumChronoRepresentableEpoch( ) ||
+                    currentDateTime.epoch< double >( ) >= DateTime::maximumChronoRepresentableEpoch( ) )
+                {
+                    // For the years 2373 and 1621, the date is out of range for std::chrono::system_clock
+                    std::cout << "Epoch out of chrono range: " << currentDateTime.epoch< double >( ) << std::endl;
+                    BOOST_CHECK_THROW( currentDateTime.timePoint( ), std::runtime_error );
+                    continue;
+                }
+
+                std::cout << "Epoch in chrono range. Creating time point" << std::endl;
+
+                std::chrono::system_clock::time_point timePoint = currentDateTime.timePoint( );
+                std::cout << "Created time point" << std::endl;
+                DateTime reconstructedDateTimeFromTimePoint = DateTime::fromTimePoint( timePoint );
+                std::cout << "Reconstructed date time " << reconstructedDateTimeFromTimePoint.isoString( ) << std::endl;
+
+                // in the construction of the timepoint, the microseconds are rounded to the nearest integer, thus a tolerance of 1e-6
+                // is used
+                BOOST_CHECK_SMALL( std::fabs( static_cast< double >( currentDateTime.epoch< Time >( ) -
+                                                                     reconstructedDateTimeFromTimePoint.epoch< Time >( ) ) ),
+                                   1e-6 );
+
+                // due to the microsecond rounding, the seconds may not match exactly and can overflow to the other components depending
+                // on the date
+                double secondsOffSet = 0.0;
+                int minuteOffSet = 0;
+                int hourOffSet = 0;
+                int dayOffSet = 0;
+                int monthOffSet = 0;
+                int yearOffSet = 0;
+                if( k == 6 )  // 11:59:60 -> 12:00:00
+                {
+                    secondsOffSet = currentDateTime.getSeconds( );
+                    minuteOffSet = -59;
+                    hourOffSet = 1;
+                }
+                else if( k == 7 )  // 23:59:60 -> 00:00:00
+                {
+                    secondsOffSet = currentDateTime.getSeconds( );
+                    minuteOffSet = -59;
+                    hourOffSet = -23;
+                    if( j == 2 )  // 08/31 -> 09/01
+                    {
+                        dayOffSet = -30;
+                        monthOffSet = 1;
+                    }
+                    else if( j == 4 )  // 12/31 -> 01/01
+                    {
+                        dayOffSet = -30;
+                        monthOffSet = -11;
+                        yearOffSet = 1;
+                    }
+                    else if( j == 5 )  // 02/29 -> 03/01
+                    {
+                        dayOffSet = -28;
+                        monthOffSet = 1;
+                    }
+                    else
+                    {
+                        dayOffSet = 1;
+                    }
+                }
+
+                BOOST_CHECK_EQUAL( reconstructedDateTimeFromTimePoint.getYear( ), currentDateTime.getYear( ) + yearOffSet );
+                BOOST_CHECK_EQUAL( reconstructedDateTimeFromTimePoint.getMonth( ), currentDateTime.getMonth( ) + monthOffSet );
+                BOOST_CHECK_EQUAL( reconstructedDateTimeFromTimePoint.getDay( ), currentDateTime.getDay( ) + dayOffSet );
+                BOOST_CHECK_EQUAL( reconstructedDateTimeFromTimePoint.getHour( ), currentDateTime.getHour( ) + hourOffSet );
+                BOOST_CHECK_EQUAL( reconstructedDateTimeFromTimePoint.getMinute( ), currentDateTime.getMinute( ) + minuteOffSet );
+                BOOST_CHECK_SMALL( std::fabs( static_cast< double >( reconstructedDateTimeFromTimePoint.getSeconds( ) -
+                                                                     currentDateTime.getSeconds( ) + secondsOffSet ) ),
+                                   1e-6 );
+            }
+        }
+    }
+    std::cout << "Testing time point conversions done." << std::endl;
+}
+
 BOOST_AUTO_TEST_CASE( testIsoInitialization )
 {
+    std::cout << "Testing ISO initialization" << std::endl;
     std::vector< std::string > testStrings = { "2023-06-20T00:05:23.28176583402943837",
                                                "2020-02-29T23:59:59.99999999999999998",
                                                "2000-01-01T12:00:00.00000000000000000",
@@ -162,7 +289,8 @@ BOOST_AUTO_TEST_CASE( testIsoInitialization )
     std::vector< double > julianDays = { 2460116., 2458909., 2451545., 2361551 };
     for( unsigned int i = 0; i < testStrings.size( ); i++ )
     {
-        DateTime dateTime = dateTimeFromIsoString( testStrings.at( i ) );
+        std::cout << "Testing string i = " << i << ": " << testStrings.at( i ) << std::endl;
+        DateTime dateTime = DateTime::fromIsoString( testStrings.at( i ) );
         std::string reconstuctedString = dateTime.isoString( true, 17 );
 
         // TODO: fix test for long doubles with 64-bit precision
@@ -179,6 +307,39 @@ BOOST_AUTO_TEST_CASE( testIsoInitialization )
                            std::numeric_limits< double >::epsilon( ) );
     }
 }
+
+BOOST_AUTO_TEST_CASE( testDateTimeDayInYearConversions )
+{
+    {
+        std::cout << "Testing DateTime day in year conversions" << std::endl;
+        // Test conversion from Julian day to calendar date
+        // same test as in testTimeConversions, but using DateTime class
+        int testYear = 2008;
+        int testMonth = 4;
+        int testDay = 27;
+        int testHour = 0;
+        int testMinute = 0;
+        long double testSeconds = 0.0;
+        DateTime testDateTime( testYear, testMonth, testDay, testHour, testMinute, testSeconds );
+
+        // day of year returns 0 for first day of year, thus we need to subtract 1 to get the day of year
+        BOOST_CHECK_EQUAL( getDaysInMonth( 1, testYear ) + getDaysInMonth( 2, testYear ) + getDaysInMonth( 3, testYear ) + testDay - 1,
+                           testDateTime.dayOfYear( ) );
+
+        DateTime constructedDateTime = DateTime::fromYearAndDaysInYear(
+                testYear,
+                ( getDaysInMonth( 1, testYear ) + getDaysInMonth( 2, testYear ) + getDaysInMonth( 3, testYear ) + testDay -
+                  1 ) );  // Subtract 1 to go to day 0 for first day of year.
+        BOOST_CHECK_EQUAL( testYear, constructedDateTime.getYear( ) );
+        BOOST_CHECK_EQUAL( testMonth, constructedDateTime.getMonth( ) );
+        BOOST_CHECK_EQUAL( testDay, constructedDateTime.getDay( ) );
+        BOOST_CHECK_EQUAL( testHour, constructedDateTime.getHour( ) );
+        BOOST_CHECK_EQUAL( testMinute, constructedDateTime.getMinute( ) );
+        BOOST_CHECK_SMALL( std::fabs( static_cast< double >( testSeconds - constructedDateTime.getSeconds( ) ) ),
+                           std::numeric_limits< double >::epsilon( ) );
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

@@ -226,20 +226,32 @@ BOOST_AUTO_TEST_CASE( test2DimensionsBoundaryCase )
         MultiLinearInterpolator< double, double, 2 > twoDimensionalInterpolator(
                 independentValues, dependentValues, huntingAlgorithm, static_cast< BoundaryInterpolationType >( i ) );
 
+        std::vector< int > errorThrowingIndependentValueIndex( 5 );
+        errorThrowingIndependentValueIndex[ 0 ] = 0;
+        errorThrowingIndependentValueIndex[ 1 ] = 0;
+        errorThrowingIndependentValueIndex[ 2 ] = 1;
+        errorThrowingIndependentValueIndex[ 3 ] = 1;
+        errorThrowingIndependentValueIndex[ 4 ] = 0;
+
         for( unsigned int j = 0; j < 5; j++ )
         {
             if( static_cast< BoundaryInterpolationType >( i ) == throw_exception_at_boundary )
             {
-                exceptionIsCaught = false;
+                // Test that the expected exception is thrown for value below minimum value
+                BOOST_CHECK_THROW( twoDimensionalInterpolator.interpolate( targetValue.at( j ) ),
+                                   tudat::exceptions::InterpolationOutOfBoundsError< double > );
                 try
                 {
                     twoDimensionalInterpolator.interpolate( targetValue.at( j ) );
                 }
-                catch( std::runtime_error const& )
+                catch( tudat::exceptions::InterpolationOutOfBoundsError< double > const& e )
                 {
-                    exceptionIsCaught = true;
+                    int throwingIndex = errorThrowingIndependentValueIndex.at( j );
+                    // Check that the exception instance has the expected values
+                    BOOST_CHECK_CLOSE_FRACTION( e.requestedValue, targetValue.at( j ).at( throwingIndex ), 1.0E-15 );
+                    BOOST_CHECK_CLOSE_FRACTION( e.lowerBound, independentValues.at( throwingIndex ).front( ), 1.0E-15 );
+                    BOOST_CHECK_CLOSE_FRACTION( e.upperBound, independentValues.at( throwingIndex ).back( ), 1.0E-15 );
                 }
-                BOOST_CHECK_EQUAL( exceptionIsCaught, true );
             }
             else if( ( static_cast< BoundaryInterpolationType >( i ) == use_boundary_value ) ||
                      ( static_cast< BoundaryInterpolationType >( i ) == use_boundary_value_with_warning ) )

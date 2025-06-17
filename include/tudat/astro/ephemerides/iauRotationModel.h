@@ -91,6 +91,21 @@ public:
         return polePrecession_;
     }
 
+    std::map< double, std::pair< double, double > > getMeridianPeriodicTerms( )
+    {
+        return meridianPeriodicTerms_;
+    }
+
+    std::map< double, std::pair< double, double > > getMeridianPeriodicTermsReference( )
+    {
+        return meridianPeriodicTerms_;
+    }
+
+    void setMeridianPeriodicTerms( const std::map< double, std::pair< double, double > >& meridianPeriodicTerms )
+    {
+        meridianPeriodicTerms_ = meridianPeriodicTerms;
+    }
+
     void setPolePrecession( const Eigen::Vector2d& polePrecession )
     {
         polePrecession_ = polePrecession;
