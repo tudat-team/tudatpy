@@ -201,8 +201,8 @@ BOOST_AUTO_TEST_CASE( testTimePointConversions )
                 std::cout << "Created date time " << currentDateTime.isoString( ) << std::endl;
                 std::cout << "Epoch: " << currentDateTime.epoch< double >( ) << std::endl;
 
-                if( currentDateTime.epoch< double >( ) < DateTime::minimumChronoRepresentableEpoch( ) ||
-                    currentDateTime.epoch< double >( ) > DateTime::maximumChronoRepresentableEpoch( ) )
+                if( currentDateTime.epoch< double >( ) <= DateTime::minimumChronoRepresentableEpoch( ) ||
+                            currentDateTime.epoch< double >( ) = > DateTime::maximumChronoRepresentableEpoch( ) )
                 {
                     // For the years 2373 and 1621, the date is out of range for std::chrono::system_clock
                     std::cout << "Epoch out of chrono range: " << currentDateTime.epoch< double >( ) << std::endl;
