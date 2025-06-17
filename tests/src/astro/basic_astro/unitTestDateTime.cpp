@@ -275,10 +275,12 @@ BOOST_AUTO_TEST_CASE( testTimePointConversions )
             }
         }
     }
+    std::cout << "Testing time point conversions done." << std::endl;
 }
 
 BOOST_AUTO_TEST_CASE( testIsoInitialization )
 {
+    std::cout << "Testing ISO initialization" << std::endl;
     std::vector< std::string > testStrings = { "2023-06-20T00:05:23.28176583402943837",
                                                "2020-02-29T23:59:59.99999999999999998",
                                                "2000-01-01T12:00:00.00000000000000000",
@@ -287,6 +289,7 @@ BOOST_AUTO_TEST_CASE( testIsoInitialization )
     std::vector< double > julianDays = { 2460116., 2458909., 2451545., 2361551 };
     for( unsigned int i = 0; i < testStrings.size( ); i++ )
     {
+        std::cout << "Testing string i = " << i << ": " << testStrings.at( i ) << std::endl;
         DateTime dateTime = DateTime::fromIsoString( testStrings.at( i ) );
         std::string reconstuctedString = dateTime.isoString( true, 17 );
 
@@ -308,6 +311,7 @@ BOOST_AUTO_TEST_CASE( testIsoInitialization )
 BOOST_AUTO_TEST_CASE( testDateTimeDayInYearConversions )
 {
     {
+        std::cout << "Testing DateTime day in year conversions" << std::endl;
         // Test conversion from Julian day to calendar date
         // same test as in testTimeConversions, but using DateTime class
         int testYear = 2008;
