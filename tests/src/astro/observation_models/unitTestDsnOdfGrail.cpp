@@ -167,8 +167,8 @@ int main( )
     for( auto it: linkEndIds )
     {
         std::cout << it.first << ", (" << it.second[ transmitter ].bodyName_ << ", " << it.second[ transmitter ].stationName_ << "); "
-                  << ", (" << it.second[ retransmitter ].bodyName_ << ", " << it.second[ retransmitter ].stationName_ << "); "
-                  << ", (" << it.second[ receiver ].bodyName_ << ", " << it.second[ receiver ].stationName_ << ")" << std::endl;
+                  << ", (" << it.second[ retransmitter ].bodyName_ << ", " << it.second[ retransmitter ].stationName_ << "); " << ", ("
+                  << it.second[ receiver ].bodyName_ << ", " << it.second[ receiver ].stationName_ << ")" << std::endl;
     }
 
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< double, double > > > > arcStartEndTimes;
