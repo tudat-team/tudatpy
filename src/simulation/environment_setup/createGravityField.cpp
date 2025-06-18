@@ -222,6 +222,7 @@ std::pair< double, double > readGravityFieldFile( const std::string& fileName,
     {
         // Read current line
         std::getline( stream, line );
+        bool isFirstLine = true;
         if( !line.empty( ) )
         {
             // Trim input string (removes all leading and trailing whitespaces).
@@ -252,8 +253,21 @@ std::pair< double, double > readGravityFieldFile( const std::string& fileName,
                     // Set cosine and sine coefficients for current degree and order.
                     if( currentDegree <= maximumDegree && currentOrder <= maximumOrder )
                     {
+                        if( isFirstLine )
+                        {
+                            for (char c : vectorOfIndividualStrings[ 2 ] )
+                            {
+                                if ( c == 'd' || c == 'D' )
+                                {
+                                    throw std::runtime_error(
+                                        "Error when reading spherical harmonic file, coefficients are provided with 'd' or 'D' to denote exponent. Use 'e' or 'E'." )
+                                }
+                            }
+                            isFirstLine = false;
+                        }
                         cosineCoefficients( currentDegree, currentOrder ) = std::stod( vectorOfIndividualStrings[ 2 ] );
                         sineCoefficients( currentDegree, currentOrder ) = std::stod( vectorOfIndividualStrings[ 3 ] );
+
                     }
                 }
             }
