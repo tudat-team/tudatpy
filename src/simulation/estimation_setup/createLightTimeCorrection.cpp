@@ -9,6 +9,7 @@
  */
 
 #include "tudat/io/readViennaMappingFunctionData.h"
+#include "tudat/io/readIonexFile.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"
 #include "tudat/astro/observation_models/corrections/firstOrderRelativisticCorrection.h"
@@ -276,6 +277,96 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
 
             break;
         }
+        case vmf3_tropospheric:
+        {
+            // Cast correction settings
+            std::shared_ptr< VMF3TroposphericCorrectionSettings > vmf3Settings =
+                std::dynamic_pointer_cast< VMF3TroposphericCorrectionSettings >( correctionSettings );
+
+            if( correctionSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating VMF3 tropospheric correction: incompatible settings type." );
+            }
+
+            if( !isRadiometricObservableType( observableType ) )
+            {
+                throw std::runtime_error(
+                    "Error when creating VMF3 tropospheric correction: selected observable type is not radiometric." );
+            }
+
+            // If one of the link ends is the body with the atmosphere then create the tropospheric correction
+            if( transmitter.bodyName_ != receiver.bodyName_ &&
+                ( transmitter.bodyName_ == vmf3Settings->getBodyWithAtmosphere( ) ||
+                receiver.bodyName_ == vmf3Settings->getBodyWithAtmosphere( ) ) )
+            {
+                bool isUplinkCorrection;
+                LinkEndId groundStation;
+                if( transmitter.bodyName_ == vmf3Settings->getBodyWithAtmosphere( ) )
+                {
+                    isUplinkCorrection = true;
+                    groundStation = transmitter;
+                }
+                else
+                {
+                    isUplinkCorrection = false;
+                    groundStation = receiver;
+                }
+
+                // Create elevation mapping (currently fixed to Niell)
+                std::shared_ptr< TroposhericElevationMapping > troposphericElevationMapping =
+                    createTroposphericElevationMapping(
+                        vmf3Settings->getTroposphericMappingModelType( ),
+                        bodies,
+                        transmitter,
+                        receiver,
+                        isUplinkCorrection );
+
+                // Get geodetic position function
+                std::function< Eigen::Vector3d( double ) > groundStationGeodeticPositionFunction =
+                    std::bind(
+                        &ground_stations::GroundStationState::getNominalGeodeticPosition,
+                        bodies.getBody( groundStation.bodyName_ )
+                            ->getGroundStation( groundStation.stationName_ )
+                            ->getNominalStationState( ) );
+
+                // Get tropospheric data
+                std::shared_ptr< ground_stations::StationTroposphereData > troposphereData =
+                    bodies.getBody( groundStation.bodyName_ )
+                        ->getGroundStation( groundStation.stationName_ )
+                        ->getTroposphereData( );
+
+                if( troposphereData == nullptr )
+                {
+                    throw std::runtime_error(
+                        "Error when creating vmf3 tropospheric correction: no troposphere data set in ground station.");
+                }
+                bool useGradientCorrection = vmf3Settings->getUseGradientCorrection( );
+
+                if( useGradientCorrection )
+                {
+                    auto interpolatedData = std::dynamic_pointer_cast< ground_stations::InterpolatedStationTroposphereData >( troposphereData );
+                    if( interpolatedData == nullptr || !interpolatedData->hasGradientData( ) )
+                    {
+                        std::cerr << "Warning: VMF3 gradient correction requested, but no gradient data available for station "
+                                << groundStation.stationName_ << ". Proceeding without gradient terms." << std::endl;
+                        useGradientCorrection = false;
+                    }
+                }
+
+                // Create the light-time correction object
+                lightTimeCorrection = std::make_shared< VMF3TroposphericCorrection >(
+                    troposphericElevationMapping,
+                    isUplinkCorrection,
+                    troposphereData,
+                    useGradientCorrection );
+            }
+            else
+            {
+                lightTimeCorrection = nullptr;
+            }
+
+            break;
+        }
         case tabulated_ionospheric: {
             std::shared_ptr< TabulatedIonosphericCorrectionSettings > ionosphericCorrectionSettings =
                     std::dynamic_pointer_cast< TabulatedIonosphericCorrectionSettings >( correctionSettings );
@@ -404,7 +495,6 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                                                                     ionosphericCorrectionSettings->getIonosphereHeight( ) );
 
                 // Create ionospheric correction
-
                 std::function< double( Eigen::Vector3d, double ) > elevationFunction =
                         std::bind( &ground_stations::PointingAnglesCalculator::calculateElevationAngleFromInertialVector,
                                    bodies.getBody( groundStation.bodyName_ )
@@ -456,6 +546,7 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                         baseObservableType,
                         isUplinkCorrection,
                         equatorialRadius,
+                        jakowski_vtec_ionospheric,
                         ionosphericCorrectionSettings->getFirstOrderDelayCoefficient( ) );
             }
             // Set correction to nullptr if correction isn't valid for selected link ends
@@ -466,6 +557,103 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
 
             break;
         }
+        case ionex_vtec_ionospheric: {
+            std::shared_ptr< IonexIonosphericCorrectionSettings > ionosphericCorrectionSettings =
+                    std::dynamic_pointer_cast< IonexIonosphericCorrectionSettings >( correctionSettings );
+            if( correctionSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating Global TEC ionospheric correction: incompatible settings type." );
+            }
+            // check that the Earth ionosphere is defined, else throw an error
+
+            // If one of the link ends is the body with the atmosphere then create the ionospheric correction
+            if( transmitter.bodyName_ != receiver.bodyName_ &&
+                ( transmitter.bodyName_ == ionosphericCorrectionSettings->getBodyWithIonosphere( ) ||
+                  receiver.bodyName_ == ionosphericCorrectionSettings->getBodyWithIonosphere( ) ) )
+            {
+                bool isUplinkCorrection;
+                LinkEndId groundStation, spacecraft;
+                if( transmitter.bodyName_ == ionosphericCorrectionSettings->getBodyWithIonosphere( ) )
+                {
+                    isUplinkCorrection = true;
+                    groundStation = transmitter;
+                    spacecraft = receiver;
+                }
+                else
+                {
+                    isUplinkCorrection = false;
+                    groundStation = receiver;
+                    spacecraft = transmitter;
+                }
+
+                ObservableType baseObservableType = getBaseObservableType( observableType );
+
+                std::shared_ptr< GlobalIonosphereModelVtecCalculator > vtecCalculator = std::make_shared< GlobalIonosphereModelVtecCalculator >(
+                    bodies.getBody( ionosphericCorrectionSettings->getBodyWithIonosphere( ) )->getIonosphereModel( ) );
+
+                // Create ionospheric correction
+                std::function< double( Eigen::Vector3d, double ) > elevationFunction =
+                        std::bind( &ground_stations::PointingAnglesCalculator::calculateElevationAngleFromInertialVector,
+                                   bodies.getBody( groundStation.bodyName_ )
+                                           ->getGroundStation( groundStation.stationName_ )
+                                           ->getPointingAnglesCalculator( ),
+                                   std::placeholders::_1,
+                                   std::placeholders::_2 );
+                std::function< double( Eigen::Vector3d, double ) > azimuthFunction =
+                        std::bind( &ground_stations::PointingAnglesCalculator::calculateAzimuthAngleFromInertialVector,
+                                   bodies.getBody( groundStation.bodyName_ )
+                                           ->getGroundStation( groundStation.stationName_ )
+                                           ->getPointingAnglesCalculator( ),
+                                   std::placeholders::_1,
+                                   std::placeholders::_2 );
+
+                // Nominal geodetic position, i.e. ignoring station motion
+                std::function< Eigen::Vector3d( double ) > groundStationGeodeticPositionFunction =
+                        std::bind( &ground_stations::GroundStationState::getNominalGeodeticPosition,
+                                   bodies.getBody( groundStation.bodyName_ )
+                                           ->getGroundStation( groundStation.stationName_ )
+                                           ->getNominalStationState( ) );
+
+                // Get equatorial radius
+                double equatorialRadius;
+                std::shared_ptr< basic_astrodynamics::BodyShapeModel > shapeModel =
+                        bodies.getBody( groundStation.bodyName_ )->getShapeModel( );
+                if( std::dynamic_pointer_cast< basic_astrodynamics::SphericalBodyShapeModel >( shapeModel ) != nullptr )
+                {
+                    equatorialRadius =
+                            std::dynamic_pointer_cast< basic_astrodynamics::SphericalBodyShapeModel >( shapeModel )->getAverageRadius( );
+                }
+                else if( std::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( shapeModel ) != nullptr )
+                {
+                    equatorialRadius = std::dynamic_pointer_cast< basic_astrodynamics::OblateSpheroidBodyShapeModel >( shapeModel )
+                                               ->getEquatorialRadius( );
+                }
+                else
+                {
+                    throw std::runtime_error( "Error when creating Global TEC ionospheric corrections for body " + groundStation.bodyName_ +
+                                              ": shape model not recognized" );
+                }
+
+                lightTimeCorrection = std::make_shared< MappedVtecIonosphericCorrection >(
+                        vtecCalculator,
+                        createLinkFrequencyFunction( bodies, linkEnds, transmittingLinkEndType, receivingLinkEndType ),
+                        elevationFunction,
+                        azimuthFunction,
+                        groundStationGeodeticPositionFunction,
+                        baseObservableType,
+                        isUplinkCorrection,
+                        equatorialRadius,
+                        ionex_vtec_ionospheric,
+                        ionosphericCorrectionSettings->getFirstOrderDelayCoefficient( ) );
+            }
+            // Set correction to nullptr if correction isn't valid for selected link ends
+            else
+            {
+                lightTimeCorrection = nullptr;
+            }
+
+            break;
+        } 
         case inverse_power_series_solar_corona: {
             std::shared_ptr< InversePowerSeriesSolarCoronaCorrectionSettings > coronaCorrectionSettings =
                     std::dynamic_pointer_cast< InversePowerSeriesSolarCoronaCorrectionSettings >( correctionSettings );
@@ -563,6 +751,38 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
 
             break;
         }
+        case vmf3:
+        {
+            std::function< double( Eigen::Vector3d, double ) > elevationFunction =
+                std::bind( &ground_stations::PointingAnglesCalculator::calculateElevationAngleFromInertialVector,
+                        bodies.getBody( groundStation.bodyName_ )
+                                ->getGroundStation( groundStation.stationName_ )
+                                ->getPointingAnglesCalculator( ),
+                        std::placeholders::_1,
+                        std::placeholders::_2 );
+
+            std::function< double( Eigen::Vector3d, double ) > azimuthFunction =
+                std::bind( &ground_stations::PointingAnglesCalculator::calculateAzimuthAngleFromInertialVector,
+                        bodies.getBody( groundStation.bodyName_ )
+                                ->getGroundStation( groundStation.stationName_ )
+                                ->getPointingAnglesCalculator( ),
+                        std::placeholders::_1,
+                        std::placeholders::_2 );
+
+            std::function< Eigen::Vector3d( double ) > groundStationGeodeticPositionFunction =
+                std::bind( &ground_stations::GroundStationState::getNominalGeodeticPosition,
+                        bodies.getBody( groundStation.bodyName_ )
+                                ->getGroundStation( groundStation.stationName_ )
+                                ->getNominalStationState( ) );
+
+            troposphericMappingModel = std::make_shared< VMF3MappingModel >(
+                elevationFunction,
+                azimuthFunction,
+                groundStationGeodeticPositionFunction,
+                isUplinkCorrection );
+
+            break;
+        }
         default:
             throw std::runtime_error( "Error when creating tropospheric elevation mapping model: model type " +
                                       std::to_string( troposphericMappingModelType ) + " not recognized." );
@@ -621,6 +841,60 @@ void setVmfTroposphereCorrections( const std::vector< std::string >& dataFiles,
         }
     }
 }
+
+void setIonosphereModelFromIonex(
+    const std::vector< std::string >& dataFiles,
+    const simulation_setup::SystemOfBodies& bodies,
+    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings )
+{
+
+    // Use default interpolator if none provided
+    if ( interpolatorSettings == nullptr )
+    {
+        interpolatorSettings = std::make_shared< interpolators::InterpolatorSettings >(
+            interpolators::multi_linear_interpolator,
+            interpolators::huntingAlgorithm,
+            false,
+            std::vector< interpolators::BoundaryInterpolationType >(
+                3, interpolators::use_boundary_value_with_warning ) );
+    }
+
+    // Read TEC maps from IONEX file(s)
+    input_output::IonexTecMap tecData;
+    readIonexFiles( dataFiles, tecData );
+
+    const std::vector< double >& times = tecData.epochs;
+    const std::vector< double >& latitudes = tecData.latitudes;
+    const std::vector< double >& longitudes = tecData.longitudes;
+
+    // Initialize 3D TEC grid: [time][lat][lon]
+    boost::multi_array< double, 3 > tecGrid( boost::extents[
+        times.size( ) ][ latitudes.size( ) ][ longitudes.size( ) ] );
+
+    for ( std::size_t t = 0; t < times.size( ); ++t )
+    {
+        const Eigen::MatrixXd& map = tecData.tecMaps.at( times.at( t ) );
+        for ( std::size_t i = 0; i < latitudes.size( ); ++i )
+        {
+            for ( std::size_t j = 0; j < longitudes.size( ); ++j )
+            {
+                tecGrid[ t ][ i ][ j ] = map( i, j );
+            }
+        }
+    }
+
+    // Create interpolator
+    std::shared_ptr< interpolators::MultiDimensionalInterpolator< double, double, 3 > > interpolator =
+        interpolators::createMultiDimensionalInterpolator< double, double, 3 >(
+            { times, latitudes, longitudes }, tecGrid, interpolatorSettings );
+
+    // Create model and assign to Earth
+    std::shared_ptr< environment::IonosphereModel > ionosphereModel =
+        std::make_shared< environment::TabulatedIonosphereModel >( interpolator, tecData.referenceIonosphereHeight_ );
+
+    bodies.at( "Earth" )->setIonosphereModel( ionosphereModel );
+}
+
 
 std::function< double( std::vector< FrequencyBands >, double ) > createLinkFrequencyFunction(
         const simulation_setup::SystemOfBodies& bodies,
