@@ -260,7 +260,7 @@ std::pair< double, double > readGravityFieldFile( const std::string& fileName,
                                 if ( c == 'd' || c == 'D' )
                                 {
                                     throw std::runtime_error(
-                                        "Error when reading spherical harmonic file, coefficients are provided with 'd' or 'D' to denote exponent. Use 'e' or 'E'." )
+                                        "Error when reading spherical harmonic file, coefficients are provided with 'd' or 'D' to denote exponent. Use 'e' or 'E'." );
                                 }
                             }
                             isFirstLine = false;
