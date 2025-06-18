@@ -468,7 +468,8 @@ void expose_propagation( py::module &m )
             m, "DependentVariablesInterface", R"doc(No documentation found.)doc" );
 
     py::class_< tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >,
-                std::shared_ptr< tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > > >(
+                std::shared_ptr< tp::
+                SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > > >(
             m,
             "SimulationResults",
             R"doc(
@@ -725,7 +726,11 @@ void expose_propagation( py::module &m )
                     "solution_is_cleared",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE,
                                                      TIME_TYPE >::getSolutionIsCleared,
-                    R"doc(No documentation found.)doc" );
+                    R"doc(No documentation found.)doc" )
+            .def(
+                "clear_data",
+                py::overload_cast< >( &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE,
+                    TIME_TYPE >::reset ) );
 
     py::class_< tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr<

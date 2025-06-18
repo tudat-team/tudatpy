@@ -245,9 +245,7 @@ void expose_frame_conversion( py::module &m )
  This definition of a body-fixed orientation is used by, for
  instance, the IAU Working Group on Cartographic Coordinates and
  Rotational Elements. Rotation is performed by a successive z-x-z
- Euler angle rotation (see Archinal et al. [1]_).
-
-
+ Euler angle rotation (see :cite:t:`Archinal2018`).
 
 
      )doc" );
@@ -294,7 +292,7 @@ void expose_frame_conversion( py::module &m )
  This definition of a body-fixed orientation is used by,
  for instance, the IAU Working Group on Cartographic Coordinates
  and Rotational Elements. Rotation is performed by a successive z-x-z
- Euler angle rotation (see Archinal et al. [1]_).
+ Euler angle rotation (see :cite:t:`Archinal2018`).
 
 
 
