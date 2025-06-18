@@ -127,10 +127,6 @@ void expose_two_body_dynamics( py::module &m )
      pericenter.
 
 
-
-
-
-
      )doc" );
 
     py::class_< tms::PericenterFindingFunctions,
