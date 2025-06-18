@@ -210,6 +210,50 @@ private:
     WaterVaporPartialPressureModel waterVaporPartialPressureModelType_;
 };
 
+class VMF3TroposphericCorrectionSettings : public LightTimeCorrectionSettings
+{
+public:
+    //! Constructor
+    /*!
+     * \param bodyWithAtmosphere Name of the body with an atmosphere (default = "Earth")
+     * \param useGradientCorrection Whether gradient terms are present in the VMF3 data
+     * \param troposphericMappingModel Placeholder mapping model type (ignored, handled externally)
+     */
+    VMF3TroposphericCorrectionSettings(
+        const std::string& bodyWithAtmosphere = "Earth",
+        const bool useGradientCorrection = true,
+        const TroposphericMappingModel troposphericMappingModel = vmf3 ) :
+        LightTimeCorrectionSettings( vmf3_tropospheric ),
+        bodyWithAtmosphere_( bodyWithAtmosphere ),
+        useGradientCorrection_( useGradientCorrection ),
+        troposphericMappingModelType_( troposphericMappingModel )
+    { }
+
+    //! Get the body with atmosphere
+    std::string getBodyWithAtmosphere( ) const
+    {
+        return bodyWithAtmosphere_;
+    }
+
+    //! Check whether gradient correction is used
+    bool getUseGradientCorrection( ) const
+    {
+        return useGradientCorrection_;
+    }
+
+    //! Get the (placeholder) mapping model type
+    TroposphericMappingModel getTroposphericMappingModelType( ) const
+    {
+        return troposphericMappingModelType_;
+    }
+
+private:
+    std::string bodyWithAtmosphere_;
+    bool useGradientCorrection_;
+    TroposphericMappingModel troposphericMappingModelType_;
+};
+
+
 // Class defining settings for tabulated ionospheric corrections
 class TabulatedIonosphericCorrectionSettings : public LightTimeCorrectionSettings
 {
@@ -313,6 +357,52 @@ private:
     const std::string bodyWithAtmosphere_;
 };
 
+//! Settings for global model ionospheric correction (e.g., IONEX)
+class IonexIonosphericCorrectionSettings : public LightTimeCorrectionSettings
+{
+public:
+
+    //! Constructor
+    IonexIonosphericCorrectionSettings(
+        const std::string& bodyWithIonosphere,
+        const double ionosphereHeight,
+        const double firstOrderDelayCoefficient = 40.3 )
+        : LightTimeCorrectionSettings( ionex_vtec_ionospheric ),
+          bodyWithIonosphere_( bodyWithIonosphere ),
+          ionosphereHeight_( ionosphereHeight ),
+          firstOrderDelayCoefficient_( firstOrderDelayCoefficient )
+    {
+        if ( ionosphereHeight <= 0.0 )
+        {
+            throw std::runtime_error( "IonexIonosphericCorrectionSettings: ionosphereHeight must be positive." );
+        }
+    }
+
+    //! Body for which this ionospheric model applies
+    std::string getBodyWithIonosphere( ) const
+    {
+        return bodyWithIonosphere_;
+    }
+
+    //! Height of ionospheric shell (from model)
+    double getIonosphereHeight( ) const
+    {
+        return ionosphereHeight_;
+    }
+
+    //! First-order delay coefficient (default = 40.3)
+    double getFirstOrderDelayCoefficient( ) const
+    {
+        return firstOrderDelayCoefficient_;
+    }
+
+private:
+
+    const std::string bodyWithIonosphere_;
+    const double ionosphereHeight_;
+    const double firstOrderDelayCoefficient_;
+};
+
 // Class defining settings for tabulated ionospheric corrections
 class InversePowerSeriesSolarCoronaCorrectionSettings : public LightTimeCorrectionSettings
 {
@@ -389,6 +479,8 @@ inline std::shared_ptr< LightTimeCorrectionSettings > saastamoinenTroposphericCo
             bodyWithAtmosphere, troposphericMappingModel, waterVaporPartialPressureModel );
 }
 
+
+
 inline std::shared_ptr< LightTimeCorrectionSettings > tabulatedIonosphericCorrectionSettings(
         const std::vector< std::string > &ionosphericCorrectionFileNames,
         const std::map< int, std::string > &spacecraftNamePerSpacecraftId = std::map< int, std::string >( ),
@@ -425,6 +517,29 @@ inline std::shared_ptr< LightTimeCorrectionSettings > jakowskiIonosphericCorrect
                                                                       useUtcTimeForLocalTimeComputation,
                                                                       bodyWithAtmosphere );
 }
+
+inline std::shared_ptr< LightTimeCorrectionSettings > ionexIonosphericCorrectionSettings(
+        const std::string& bodyWithIonosphere,
+        const double ionosphereHeight,
+        const double firstOrderDelayCoefficient = 40.3 )
+{
+    return std::make_shared< IonexIonosphericCorrectionSettings >(
+        bodyWithIonosphere,
+        ionosphereHeight,
+        firstOrderDelayCoefficient );
+}
+
+inline std::shared_ptr< LightTimeCorrectionSettings > vmf3TroposphericCorrectionSettings(
+        const std::string& bodyWithAtmosphere = "Earth",
+        const bool useGradientCorrection = true,
+        const TroposphericMappingModel troposphericMappingModel = vmf3 )
+{
+    return std::make_shared< VMF3TroposphericCorrectionSettings >(
+        bodyWithAtmosphere,
+        useGradientCorrection,
+        troposphericMappingModel );
+}
+
 
 inline std::shared_ptr< LightTimeCorrectionSettings > inversePowerSeriesSolarCoronaCorrectionSettings(
         const std::vector< double > &coefficients = { 1.31 * 5.97e-6 },
@@ -479,6 +594,12 @@ void setVmfTroposphereCorrections(
         const bool setTropospherData = true,
         const bool setMeteoData = true,
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::cubicSplineInterpolation( ) );
+
+void setIonosphereModelFromIonex(
+    const std::vector< std::string >& dataFiles,
+    const simulation_setup::SystemOfBodies& bodies,
+    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr );
+
 
 /*!
  * Creates a function that returns the frequency at a given link, as a function of the frequency band used in each link

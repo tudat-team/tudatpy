@@ -88,10 +88,10 @@ public:
         ObservationScalarType observation = TUDAT_NAN;
         TimeType transmissionTime = TUDAT_NAN, receptionTime = TUDAT_NAN;
 
-        if( ancilliarySetings != nullptr )
-        {
-            throw std::runtime_error( "Error, calling one-way range observable with ancilliary settings, but none are supported." );
-        }
+        //if( ancilliarySetings != nullptr )
+        //{
+        //    throw std::runtime_error( "Error, calling one-way range observable with ancilliary settings, but none are supported." );
+        //}
 
         // Check link end associated with input time and compute observable
         switch( linkEndAssociatedWithTime )

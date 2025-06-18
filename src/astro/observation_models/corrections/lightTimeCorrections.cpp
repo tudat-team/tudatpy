@@ -24,10 +24,12 @@ bool requiresMultiLegIterations( const LightTimeCorrectionType& lightTimeCorrect
         case first_order_relativistic:
         case tabulated_tropospheric:
         case saastamoinen_tropospheric:
+        case vmf3_tropospheric:
             requiresMultiLegIterations = false;
             break;
         case tabulated_ionospheric:
         case jakowski_vtec_ionospheric:
+        case ionex_vtec_ionospheric:
         case inverse_power_series_solar_corona:
             requiresMultiLegIterations = true;
             break;
@@ -59,11 +61,17 @@ std::string getLightTimeCorrectionName( const LightTimeCorrectionType& lightTime
         case saastamoinen_tropospheric:
             name = "Saastamoinen tropospheric";
             break;
+        case vmf3_tropospheric:
+            name = "VMF3 tropospheric";
+            break;
         case jakowski_vtec_ionospheric:
             name = "Jakowski VTEC ionospheric";
             break;
         case inverse_power_series_solar_corona:
             name = "inverse power series solar corona";
+            break;
+        case ionex_vtec_ionospheric:
+            name = "global IGS TEC maps ionospheric";
             break;
         default:
             throw std::runtime_error(
