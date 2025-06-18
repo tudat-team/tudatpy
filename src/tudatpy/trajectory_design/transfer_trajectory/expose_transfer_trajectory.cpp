@@ -98,9 +98,7 @@ void expose_transfer_trajectory( py::module &m )
 
          Class for defining low-thrust spherical-shaping leg.
 
-         `TransferLeg` derived class for defining a low-thrust leg described using spherical shaping [3]_.
-
-
+         `TransferLeg` derived class for defining a low-thrust leg described using spherical shaping :cite:p:`roegiers2014`.
 
 
 
@@ -114,7 +112,7 @@ void expose_transfer_trajectory( py::module &m )
 
          Class for defining low-thrust hodographic-shaping leg.
 
-         `TransferLeg` derived class for defining a low-thrust leg described using hodographic shaping [4]_.
+         `TransferLeg` derived class for defining a low-thrust leg described using hodographic shaping :cite:p:`gondelach2012`.
 
 
 
@@ -241,7 +239,7 @@ void expose_transfer_trajectory( py::module &m )
 
  minimum_pericenters : dict[str, float], default=DEFAULT_MINIMUM_PERICENTERS
      Minimum pericenter radii, where each body is specified as key and the respective minimum pericenter radius as
-     value. Default values from Izzo [1]_.
+     value. Default values from :cite:t:`izzo2007`.
 
  Returns
  -------
@@ -293,7 +291,7 @@ void expose_transfer_trajectory( py::module &m )
 
  minimum_pericenters : dict[str, float], default=DEFAULT_MINIMUM_PERICENTERS
      Minimum pericenter radii, where each body is specified as key and the respective minimum pericenter radius as
-     value. Default values from Izzo [1]_.
+     value. Default values from :cite:t:`izzo2007`.
 
  Returns
  -------
@@ -345,7 +343,7 @@ void expose_transfer_trajectory( py::module &m )
 
  minimum_pericenters : dict[str, float], default=DEFAULT_MINIMUM_PERICENTERS
      Minimum pericenter radii, where each body is specified as key and the respective minimum pericenter radius as
-     value. Default values from Izzo [1]_.
+     value. Default values from :cite:t:`izzo2007`.
 
  Returns
  -------
@@ -420,7 +418,7 @@ void expose_transfer_trajectory( py::module &m )
 
  minimum_pericenters : dict[str, float], default=DEFAULT_MINIMUM_PERICENTERS
      Minimum pericenter radii, where each body is specified as key and the respective minimum pericenter radius as
-     value. Default values from Izzo [1]_.
+     value. Default values from :cite:t:`izzo2007`.
 
  Returns
  -------
@@ -487,7 +485,7 @@ void expose_transfer_trajectory( py::module &m )
 
  minimum_pericenters : dict[str, float], default=DEFAULT_MINIMUM_PERICENTERS
      Minimum pericenter radii, where each body is specified as key and the respective minimum pericenter radius as
-     value. Default values from Izzo [1]_.
+     value. Default values from :cite:t:`izzo2007`.
 
  Returns
  -------
@@ -553,7 +551,7 @@ void expose_transfer_trajectory( py::module &m )
 
  minimum_pericenters : dict[str, float], default=DEFAULT_MINIMUM_PERICENTERS
      Minimum pericenter radii, where each body is specified as key and the respective minimum pericenter radius as
-     value. Default values from Izzo [1]_.
+     value. Default values from :cite:t:`izzo2007`.
 
  Returns
  -------
@@ -842,7 +840,7 @@ void expose_transfer_trajectory( py::module &m )
  Given the departure and arrival position, this leg computes the departure and arrival velocity using a Lambert
  targeter.
  The calculations performed in this leg do not involve any numerical integration, and are solved by
- (semi-)analytical models. For details see Musegaas, 2012 [2]_.
+ (semi-)analytical models. For details see :cite:t:`musegaas2012`.
 
  Returns
  -------
@@ -870,7 +868,7 @@ void expose_transfer_trajectory( py::module &m )
  a Lambert targeter to compute the velocity after the DSM and the arrival velocity. The Delta V applied in the
  DSM is computed using the velocity before and after the DSM.
  The calculations performed in this leg do not involve any numerical integration, and are solved by
- (semi-)analytical models. For details see Musegaas, 2012 [2]_.
+ (semi-)analytical models. For details see :cite:t:`musegaas2012`.
 
  Returns
  -------
@@ -898,7 +896,7 @@ void expose_transfer_trajectory( py::module &m )
  and the arrival position, it computes the velocity after the DSM
  (which is used to compute the Delta V applied in the DSM) and the arrival velocity using a Lambert targeter.
  The calculations performed in this leg do not involve any numerical integration, and are solved by
- (semi-)analytical models. For details see Musegaas, 2012 [2]_.
+ (semi-)analytical models. For details see :cite:t:`musegaas2012`.
 
  Returns
  -------
@@ -930,7 +928,7 @@ void expose_transfer_trajectory( py::module &m )
  transfer. The trajectory depends on a single parameter, which is selected using the root finder in order to meet
  a user-specified time of flight.
  The calculations performed in this leg do not involve any numerical integration, and are solved by
- (semi-)analytical models. For details see Roegiers, 2014 [3]_.
+ (semi-)analytical models. For details see :cite:t:`roegiers2014`.
 
 
  Parameters
@@ -983,7 +981,7 @@ void expose_transfer_trajectory( py::module &m )
  component (radial, normal and axial); this is required to obtain a trajectory that satisfies the boundary
  conditions.
  The calculations performed in this leg do not involve any numerical integration, and are solved by
- (semi-)analytical models. For details see Gondelach, 2012 [4]_.
+ (semi-)analytical models. For details see :cite:t:`gondelach2012`.
 
 
  Parameters
@@ -1029,7 +1027,7 @@ void expose_transfer_trajectory( py::module &m )
  gravity assist, possibly with a Delta V at the a periapsis. Given known incoming and outgoing velocities,
  the node computes the Delta V required to meet those.
  The calculations performed in this node do not involve any numerical integration, and are solved by
- (semi-)analytical models. For details see Musegaas, 2012 [2]_.
+ (semi-)analytical models. For details see :cite:t:`musegaas2012`.
 
 
  Parameters
@@ -1063,7 +1061,7 @@ void expose_transfer_trajectory( py::module &m )
  Given the initial orbit and the departure velocity, the node computes the Delta V that needs to be applied
  at the periapsis of the initial orbit to enter the escape trajectory.
  The calculations performed in this node do not involve any numerical integration, and are solved by
- (semi-)analytical models. For details see Musegaas, 2012 [2]_.
+ (semi-)analytical models. For details see :cite:t:`musegaas2012`.
 
 
  Parameters
@@ -1097,7 +1095,7 @@ void expose_transfer_trajectory( py::module &m )
  Given the the arrival velocity and the final orbit, the node computes the Delta V that needs to be applied
  at the periapsis of the final orbit to exit the capture trajectory.
  The calculations performed in this node do not involve any numerical integration, and are solved by
- (semi-)analytical models. For details see Musegaas, 2012 [2]_.
+ (semi-)analytical models. For details see :cite:t:`musegaas2012`.
 
 
  Parameters
