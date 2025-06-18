@@ -1130,6 +1130,11 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris( const std::shared
                             ? bodyName
                             : directEphemerisSettings->getBodyNameOverride( );
 
+                    if( inputName == directEphemerisSettings->getFrameOrigin( ) )
+                    {
+                        throw std::runtime_error( "Error when creating direct spice ephemeris, frame origin and body ID are identical" );
+                    }
+                    
                     // Create corresponding ephemeris object.
                     ephemeris = std::make_shared< SpiceEphemeris >( inputName,
                                                                     directEphemerisSettings->getFrameOrigin( ),
