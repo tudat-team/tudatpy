@@ -34,7 +34,8 @@ astrodynamics.
 
 
 
+Bibliography
+------------
 
-
-
-
+.. bibliography::
+   

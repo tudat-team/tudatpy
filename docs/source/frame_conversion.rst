@@ -49,12 +49,12 @@ Notes
 
 
 
-References
-----------
-.. [1] Archinal, B.A., Acton, C.H., A’Hearn, M.F. et al. Report of
-       the IAU Working Group on Cartographic Coordinates and
-       Rotational Elements: 2015. Celest Mech Dyn Astr 130, 22
-       (2018). https://doi.org/10.1007/s10569-017-9805-5
+.. References
+.. ----------
+.. .. [1] Archinal, B.A., Acton, C.H., A’Hearn, M.F. et al. Report of
+..        the IAU Working Group on Cartographic Coordinates and
+..        Rotational Elements: 2015. Celest Mech Dyn Astr 130, 22
+..        (2018). https://doi.org/10.1007/s10569-017-9805-5
 
 
 
