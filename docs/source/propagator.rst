@@ -11,13 +11,13 @@ This module provides the functionality for creating propagator settings.
 
 
 
-References
-----------
-.. [1] Vittaldev, V., Mooij, E., & Naeije, M. C. (2012). Unified State Model theory and
-       application in Astrodynamics. Celestial Mechanics and Dynamical Astronomy, 112(3), 253-282.
-.. [2] Wakker, K. F. (2015). Fundamentals of astrodynamics.
-.. [3] Hintz, G. R. (2008). Survey of orbit element sets. Journal of guidance, control, and dynamics, 31(3), 785-790.
-.. [4] Vallado, D. A. (2001). Fundamentals of astrodynamics and applications (Vol. 12). Springer Science & Business Media.
+.. References
+.. ----------
+.. .. [1] Vittaldev, V., Mooij, E., & Naeije, M. C. (2012). Unified State Model theory and
+..        application in Astrodynamics. Celestial Mechanics and Dynamical Astronomy, 112(3), 253-282.
+.. .. [2] Wakker, K. F. (2015). Fundamentals of astrodynamics.
+.. .. [3] Hintz, G. R. (2008). Survey of orbit element sets. Journal of guidance, control, and dynamics, 31(3), 785-790.
+.. .. [4] Vallado, D. A. (2001). Fundamentals of astrodynamics and applications (Vol. 12). Springer Science & Business Media.
 
 
 
