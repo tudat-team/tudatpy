@@ -1134,7 +1134,7 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris( const std::shared
                     {
                         throw std::runtime_error( "Error when creating direct spice ephemeris, frame origin and body ID are identical" );
                     }
-                    
+
                     // Create corresponding ephemeris object.
                     ephemeris = std::make_shared< SpiceEphemeris >( inputName,
                                                                     directEphemerisSettings->getFrameOrigin( ),
@@ -1160,6 +1160,12 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris( const std::shared
                     std::string inputName = ( interpolatedEphemerisSettings->getBodyNameOverride( ) == "" )
                             ? bodyName
                             : interpolatedEphemerisSettings->getBodyNameOverride( );
+
+                    if( inputName == directEphemerisSettings->getFrameOrigin( ) )
+                    {
+                        throw std::runtime_error( "Error when creating direct spice ephemeris, frame origin and body ID are identical" );
+                    }
+
                     ephemeris = createTabulatedEphemerisFromSpice< StateScalarType, TimeType >(
                             inputName,
                             interpolatedEphemerisSettings->getInitialTime( ),
