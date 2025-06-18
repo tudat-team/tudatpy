@@ -1161,7 +1161,7 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris( const std::shared
                             ? bodyName
                             : interpolatedEphemerisSettings->getBodyNameOverride( );
 
-                    if( inputName == directEphemerisSettings->getFrameOrigin( ) )
+                    if( inputName == interpolatedEphemerisSettings->getFrameOrigin( ) )
                     {
                         throw std::runtime_error( "Error when creating direct spice ephemeris, frame origin and body ID are identical" );
                     }
