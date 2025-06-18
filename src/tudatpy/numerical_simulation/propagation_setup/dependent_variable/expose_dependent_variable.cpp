@@ -1162,7 +1162,7 @@ void expose_dependent_variable_setup( py::module &m )
 
  Function to add the aerodynamic moment coefficients to the dependent variables to save.
 
- Function to add the aerodynamic force coefficients to the dependent variables to save. It requires an aerodynamic coefficient interface to be defined for the vehicle. The coefficients are returned in the following order: C_l, C_m, C_n , respectively about the X, Y, Z axes of the body-fixed frame, see (see Mooij, 1994 [1]_)
+ Function to add the aerodynamic force coefficients to the dependent variables to save. It requires an aerodynamic coefficient interface to be defined for the vehicle. The coefficients are returned in the following order: C_l, C_m, C_n , respectively about the X, Y, Z axes of the body-fixed frame, see (see :cite:t:`mooij1994`)
 
  Parameters
  ----------
@@ -1174,9 +1174,6 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
-
-
 
 
 
@@ -1302,7 +1299,7 @@ void expose_dependent_variable_setup( py::module &m )
 
  Function to add the heading angle to the dependent variables to save.
 
- Function to add the heading angle to the dependent variables to save, as defined by Mooij, 1994 [1]_ .
+ Function to add the heading angle to the dependent variables to save, as defined by :cite:t:`mooij1994`.
 
  Parameters
  ----------
@@ -1330,7 +1327,7 @@ void expose_dependent_variable_setup( py::module &m )
 
  Function to add the flight path angle to the dependent variables to save.
 
- Function to add the flight path angle to the dependent variables to save, as defined by Mooij, 1994 [1]_ .
+ Function to add the flight path angle to the dependent variables to save, as defined by :cite:t:`mooij1994`.
 
  Parameters
  ----------
@@ -1358,7 +1355,7 @@ void expose_dependent_variable_setup( py::module &m )
 
  Function to add the angle of attack to the dependent variables to save.
 
- Function to add the angle of attack angle to the dependent variables to save, as defined by Mooij, 1994 [1]_ .
+ Function to add the angle of attack angle to the dependent variables to save, as defined by :cite:t:`mooij1994`.
 
  Parameters
  ----------
@@ -1384,7 +1381,7 @@ void expose_dependent_variable_setup( py::module &m )
            py::arg( "central_body" ),
            R"doc(
 
- Function to add the sideslip angle to the dependent variables to save, as defined by Mooij, 1994 [1]_ .
+ Function to add the sideslip angle to the dependent variables to save, as defined by :cite:t:`mooij1994`.
 
 
  Parameters
@@ -1411,7 +1408,7 @@ void expose_dependent_variable_setup( py::module &m )
            py::arg( "central_body" ),
            R"doc(
 
- Function to add the bank angle to the dependent variables to save, as defined by Mooij, 1994 [1]_ .
+ Function to add the bank angle to the dependent variables to save, as defined by :cite:t:`mooij1994`.
 
 
  Parameters

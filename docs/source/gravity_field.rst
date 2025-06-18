@@ -24,13 +24,13 @@ Rigid body properties will always be created automatically when a body is endowe
 
 
 
-References
-----------
-.. [1] Balmino, G. (1994). Gravitational potential harmonics from the shape of an homogeneous body. Celestial
-      Mechanics and Dynamical Astronomy, 60(3), 331-364.
-.. [2] Werner, R. A., and Scheeres, D. J. (1997). Exterior Gravitation of a Polyhedron Derived and Compared With
-      Harmonic and Mascon Gravitation Representations of Asteroid 4769 Castalia. Celestial Mechanics and Dynamical
-      Astronomy, 65, 313-344.
+.. References
+.. ----------
+.. .. [1] Balmino, G. (1994). Gravitational potential harmonics from the shape of an homogeneous body. Celestial
+..       Mechanics and Dynamical Astronomy, 60(3), 331-364.
+.. .. [2] Werner, R. A., and Scheeres, D. J. (1997). Exterior Gravitation of a Polyhedron Derived and Compared With
+..       Harmonic and Mascon Gravitation Representations of Asteroid 4769 Castalia. Celestial Mechanics and Dynamical
+..       Astronomy, 65, 313-344.
 
 
 

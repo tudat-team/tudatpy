@@ -471,11 +471,17 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
     m.def( "central_spice",
            &tss::centralGravityFromSpiceSettings,
+           py::arg( "body_name_to_use" ) = "",
            R"doc(
 
  Function to create central gravity field settings from Spice settings.
 
  Function for settings object, defining a point-mass gravity field model. This function provides the same model as :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field.central`), but with gravitational parameter :math:`\mu` from Spice.
+
+ Parameters
+ ----------
+ body_name_to_use : str, default = ""
+     Body from which Spice gravitational paramerer is queried (if empty, it uses the name of the body to which the settings are assigned, see :func:`~tudatpy.numerical_simulation.environment_setup.ephemeris.direct_spice` for example of analogous functionality for spice ephemeris).
 
  Returns
  -------
@@ -732,7 +738,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  It represents the frame in which the polyhedron field is defined.
 
  The gravitational potential, acceleration, Laplacian of potential and Hessian of potential are computed according
- to Werner and Scheeres [2]_.
+ to :cite:t:`werner1997`.
 
  This function uses the gravitational parameter to define the gravity field. To instead use the density
  constant see :func:`~tudatpy.astro.gravitation.polyhedron_from_density`. Since both models tend to be computationally intensive,
@@ -791,7 +797,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  It represents the frame in which the polyhedron field is defined.
 
  The gravitational potential, acceleration, Laplacian of potential and Hessian of potential are computed according
- to Werner and Scheeres [2]_.
+ to :cite:t:`werner1997`.
 
  This function uses the density to define the gravity field. To instead use the
  gravitational parameter see :func:`~tudatpy.astro.gravitation.polyhedron_from_mu`.
@@ -856,7 +862,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Gravity fields from this setting object are expressed in normalized spherical harmonic coefficients.
  The constant mass distribution is defined by the density and gravitational constant (optional).
  The body-fixed x-, y- and z- axes are assumed to be along the A-, B- and C- axes.
- This function implements the models of (see Balmino [1]_).
+ This function implements the models of (see :cite:t:`balmino1994`).
 
 
  Parameters
@@ -881,8 +887,6 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  -------
  SphericalHarmonicsGravityFieldSettings
      Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.GravityFieldSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings` class
-
-
 
 
 
@@ -931,7 +935,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Gravity fields from this setting object are expressed in normalized spherical harmonic coefficients.
  The constant mass distribution is defined by the gravitational parameter.
  The body-fixed x-, y- and z- axes are assumed to be along the A-, B- and C- axes.
- This function implements the models of (see Balmino [1]_).
+ This function implements the models of (see :cite:t:`balmino1994`).
 
 
  Parameters
