@@ -255,19 +255,19 @@ std::pair< double, double > readGravityFieldFile( const std::string& fileName,
                     {
                         if( isFirstLine )
                         {
-                            for (char c : vectorOfIndividualStrings[ 2 ] )
+                            for( char c: vectorOfIndividualStrings[ 2 ] )
                             {
-                                if ( c == 'd' || c == 'D' )
+                                if( c == 'd' || c == 'D' )
                                 {
                                     throw std::runtime_error(
-                                        "Error when reading spherical harmonic file, coefficients are provided with 'd' or 'D' to denote exponent. Use 'e' or 'E'." );
+                                            "Error when reading spherical harmonic file, coefficients are provided with 'd' or 'D' to "
+                                            "denote exponent. Use 'e' or 'E'." );
                                 }
                             }
                             isFirstLine = false;
                         }
                         cosineCoefficients( currentDegree, currentOrder ) = std::stod( vectorOfIndividualStrings[ 2 ] );
                         sineCoefficients( currentDegree, currentOrder ) = std::stod( vectorOfIndividualStrings[ 3 ] );
-
                     }
                 }
             }
