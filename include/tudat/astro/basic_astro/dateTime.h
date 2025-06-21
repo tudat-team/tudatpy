@@ -216,6 +216,12 @@ public:
         return basic_astrodynamics::convertDayMonthYearToDayOfYear( day_, month_, year_ );
     }
 
+    template< typename TimeType >
+    TimeType daySinceReferenceJulianDay( const TimeType referenceJulianDay = getJulianDayOnJ2000< TimeType >( ) )
+    {
+        return julianDay< TimeType >( ) - referenceJulianDay;
+    }
+
     static double minimumChronoRepresentableEpoch( )
     {
         // std::chrono::system_clock uses the Unix epoch (1970-01-01 00:00:00 UTC) as reference point
@@ -355,6 +361,16 @@ public:
 
         decomposedDateTimeFromIsoString( isoTime, year, month, days, hours, minutes, seconds );
         return DateTime( year, month, days, hours, minutes, seconds );
+    }
+
+    static DateTime fromJulianDay( const double julianDay )
+    {
+        return DateTime::fromTime< double >( tudat::timeFromJulianDay< double >( julianDay ) );
+    }
+
+    static DateTime fromModifiedJulianDay( const double modifiedJulianDay )
+    {
+        return DateTime::fromTime< double >( tudat::timeFromModifiedJulianDay< double >( modifiedJulianDay ) );
     }
 
     template< typename TimeType >
