@@ -123,11 +123,22 @@ BOOST_AUTO_TEST_CASE( testDateTimeConversions )
                     long double julianDayFromDateTime = currentDateTime.julianDay< long double >( );
                     double julianDayTolerance = 3.0 * currentJulianDay * std::numeric_limits< long double >::epsilon( );
                     BOOST_CHECK_SMALL( std::fabs( static_cast< double >( julianDayFromDateTime - currentJulianDay ) ), julianDayTolerance );
+                    reconstructedDateTime = DateTime::fromJulianDay( currentJulianDay );
+                    long double julianDayFromReconstructedDateTime = reconstructedDateTime.julianDay< long double >( );
+                    double reconstructedJdTolerance = std::fabs( 3.0 * currentJulianDay * std::numeric_limits< double >::epsilon( ) );
+                    BOOST_CHECK_SMALL( std::fabs( static_cast< double >( julianDayFromReconstructedDateTime - currentJulianDay ) ),
+                                       reconstructedJdTolerance );
 
                     long double currentModifiedJulianDay = modifiedJulianDayFromTime< long double >( currentTime );
                     reconstructedTime = timeFromModifiedJulianDay< long double >( currentModifiedJulianDay );
                     timeTolerance = std::fabs( 3.0 * currentModifiedJulianDay * 86400.0 * std::numeric_limits< long double >::epsilon( ) );
                     BOOST_CHECK_SMALL( std::fabs( static_cast< double >( reconstructedTime - currentTime ) ), timeTolerance );
+                    reconstructedDateTime = DateTime::fromModifiedJulianDay( currentModifiedJulianDay );
+                    long double mjdFromReconstructedDateTime = reconstructedDateTime.modifiedJulianDay< long double >( );
+                    double reconstructedMjdTolerance =
+                            std::fabs( 3.0 * currentModifiedJulianDay * std::numeric_limits< double >::epsilon( ) );
+                    BOOST_CHECK_SMALL( std::fabs( static_cast< double >( mjdFromReconstructedDateTime - currentModifiedJulianDay ) ),
+                                       reconstructedMjdTolerance );
 
                     long double modifiedJulianDayFromDateTime = currentDateTime.modifiedJulianDay< long double >( );
                     double modifiedJulianDayTolerance = 3.0 * currentJulianDay * std::numeric_limits< long double >::epsilon( );
