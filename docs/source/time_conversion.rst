@@ -50,17 +50,11 @@ Functions
 
    iso_string_to_epoch
 
-   julian_day_to_python_datetime
-
    julian_day_to_seconds_since_epoch
 
    julian_day_to_modified_julian_day
 
    modified_julian_day_to_julian_day
-
-   python_datetime_to_julian_day
-
-   python_datetime_to_days_since_epoch
 
    seconds_since_epoch_to_julian_day
 
@@ -99,17 +93,11 @@ Functions
 
 .. autofunction:: tudatpy.astro.time_conversion.iso_string_to_epoch
 
-.. autofunction:: tudatpy.astro.time_conversion.julian_day_to_python_datetime
-
 .. autofunction:: tudatpy.astro.time_conversion.julian_day_to_seconds_since_epoch
 
 .. autofunction:: tudatpy.astro.time_conversion.julian_day_to_modified_julian_day
 
 .. autofunction:: tudatpy.astro.time_conversion.modified_julian_day_to_julian_day
-
-.. autofunction:: tudatpy.astro.time_conversion.python_datetime_to_julian_day
-
-.. autofunction:: tudatpy.astro.time_conversion.python_datetime_to_days_since_epoch
 
 .. autofunction:: tudatpy.astro.time_conversion.seconds_since_epoch_to_julian_day
 
