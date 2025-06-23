@@ -2065,41 +2065,36 @@ class LoadPDS:
                     ) = self.get_grail_b_files(local_folder, start_date, end_date)
 
         if kernel_files_to_load:
-            if "mk" in kernel_files_to_load.keys() and load_kernels:
+            meta_kernel_present = "mk" in kernel_files_to_load
+
+            # Always populate self.all_kernel_files with all converted kernels
+            for kernel_type, kernel_files in kernel_files_to_load.items():
+                self.all_kernel_files[kernel_type] = []
+                for kernel_file in kernel_files:
+                    converted_kernel_file = self.spice_transfer2binary(kernel_file)
+                    self.all_kernel_files[kernel_type].append(converted_kernel_file)
+
+            # If meta-kernel is present and load_kernels is True: load only meta-kernel
+            if meta_kernel_present and load_kernels:
                 try:
-                    # Load the meta-kernel file
-                    meta_kernel_file = kernel_files_to_load["mk"][0]
+                    meta_kernel_file = self.all_kernel_files["mk"][0]
                     spice.load_kernel(meta_kernel_file)
                 except Exception as e:
                     print(
                         f"Failed to load meta-kernel file: {meta_kernel_file}, Error: {e}"
                     )
-            else:
-                for kernel_type, kernel_files in kernel_files_to_load.items():
-                    if not kernel_type == "mk": # meta-kernel files are not loaded
-                        for kernel_file in kernel_files:
-                            converted_kernel_file = self.spice_transfer2binary(
-                                kernel_file
+
+            # If meta-kernel is not present: load individual kernels if requested
+            elif not meta_kernel_present and load_kernels:
+                for kernel_type, kernel_files in self.all_kernel_files.items():
+                    for converted_kernel_file in kernel_files:
+                        try:
+                            spice.load_kernel(converted_kernel_file)
+                        except Exception as e:
+                            print(
+                                f"!! Failed to load kernel: {converted_kernel_file}, Error: {e} !!"
                             )
-                            try:
-                                if kernel_type not in self.all_kernel_files.keys():
-                                    self.all_kernel_files[kernel_type] = [
-                                        converted_kernel_file
-                                    ]
-                                    if load_kernels:
-                                        spice.load_kernel(converted_kernel_file)
 
-                                else:
-                                    self.all_kernel_files[kernel_type].append(
-                                        converted_kernel_file
-                                    )
-                                    if load_kernels:
-                                        spice.load_kernel(converted_kernel_file)
-
-                            except Exception as e:
-                                print(
-                                    f"!! Failed to load kernel: {converted_kernel_file}, Error: {e} !!"
-                                )
         else:
             print("No Kernel Files to Load.")
 
