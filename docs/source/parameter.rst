@@ -1,3 +1,5 @@
+.. _parameter:
+
 ``parameter``
 =============
 This module contains a set of factory functions for setting up the
@@ -153,12 +155,20 @@ Enumerations
 
    EstimatableParameterTypes
 
+   EmpiricalAccelerationComponents
+
+   EmpiricalAccelerationFunctionalShapes
+
 
 
 .. autoclass:: tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterTypes
    :members:
 
+.. autoclass:: tudatpy.numerical_simulation.estimation_setup.parameter.EmpiricalAccelerationComponents
+   :members:
 
+.. autoclass:: tudatpy.numerical_simulation.estimation_setup.parameter.EmpiricalAccelerationFunctionalShapes
+   :members:
 
 
 Classes
@@ -169,11 +179,5 @@ Classes
 
    EstimatableParameterSettings
 
-   ArcWiseRadiationPressureCoefficientEstimatableParameterSettings
-
 .. autoclass:: tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings
    :members:
-
-.. autoclass:: tudatpy.numerical_simulation.estimation_setup.parameter.ArcWiseRadiationPressureCoefficientEstimatableParameterSettings
-   :members:
-

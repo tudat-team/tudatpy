@@ -1,3 +1,5 @@
+.. _dependent_variable:
+
 ``dependent_variable``
 ======================
 This module provides the functionality for creating dependent variable
@@ -10,11 +12,11 @@ settings. Note that *all* output is in SI units (meters, radians, seconds). All 
 
 
 
-References
-----------
-.. [1] Mooij, E. The motion of a vehicle in a planetary atmosphere.
-       Delft University of Technology, Faculty of Aerospace Engineering,
-       Report LR-768 (1994).
+.. References
+.. ----------
+.. .. [1] Mooij, E. The motion of a vehicle in a planetary atmosphere.
+..        Delft University of Technology, Faculty of Aerospace Engineering,
+..        Report LR-768 (1994).
 
 
 
