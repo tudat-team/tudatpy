@@ -64,15 +64,19 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.githubpages",
     "sphinx.ext.napoleon",
-    "sphinx.ext.autosectionlabel",
+    # "sphinx.ext.autosectionlabel", # removed to avoid conflicts of class/function heading labels
     "sphinx_copybutton",
     # 'breathe',
     # 'exhale'
+    "sphinxcontrib.bibtex"
 ]
 autosummary_generate = True  # Turn on sphinx.ext.autosummary
 
 add_module_names = False
 autodoc_member_order = "groupwise"
+
+bibtex_bibfiles = ["refs.bib"]
+bibtex_default_style = "plain"
 
 # napoleon_type_aliases = {
 #     "Dict": ":class:`~typing.Dict`",

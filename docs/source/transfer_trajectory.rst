@@ -1,3 +1,5 @@
+.. _transfer_trajectory:
+
 ``transfer_trajectory``
 =======================
 Functionalities for multiple-leg interplanetary transfer trajectories.
@@ -13,22 +15,22 @@ transfers with high-thrust legs, low-thrust legs or a mix of the two.
 
 
 
-References
-----------
-.. [1] Izzo, D. 1st ACT global trajectory optimisation competition: Problem
-      description and summary of the results. Acta Astronautica 61, 9 (2007).
-      https://doi.org/10.1016/j.actaastro.2007.03.003
-.. [2] Musegaas, P. Optimization of Space Trajectories Including Multiple
-      Gravity Assists and Deep Space Maneuvers. Delft University of Technology,
-      MSc thesis (2012).
-      http://resolver.tudelft.nl/uuid:02468c77-5c64-4df8-9a24-1ed7ad9d1408
-.. [3] Roegiers, T. Application of the Spherical Shaping Method to a Low-Thrust Multiple Asteroid Rendezvous
-      Mission: Implementation, Limitations and Solutions. Delft University of Technology,
-      MSc thesis (2014).
-      http://resolver.tudelft.nl/uuid:9994980c-e1df-47a6-880a-3a226797e34a
-.. [4] Gondelach, D. A Hodographic-Shaping Method for Low-Thrust Trajectory Design.
-      Delft University of Technology, MSc thesis (2012).
-      http://resolver.tudelft.nl/uuid:6a4f1673-88b1-4823-b2ef-9d864c84ab11
+.. References
+.. ----------
+.. .. [1] Izzo, D. 1st ACT global trajectory optimisation competition: Problem
+..       description and summary of the results. Acta Astronautica 61, 9 (2007).
+..       https://doi.org/10.1016/j.actaastro.2007.03.003
+.. .. [2] Musegaas, P. Optimization of Space Trajectories Including Multiple
+..       Gravity Assists and Deep Space Maneuvers. Delft University of Technology,
+..       MSc thesis (2012).
+..       http://resolver.tudelft.nl/uuid:02468c77-5c64-4df8-9a24-1ed7ad9d1408
+.. .. [3] Roegiers, T. Application of the Spherical Shaping Method to a Low-Thrust Multiple Asteroid Rendezvous
+..       Mission: Implementation, Limitations and Solutions. Delft University of Technology,
+..       MSc thesis (2014).
+..       http://resolver.tudelft.nl/uuid:9994980c-e1df-47a6-880a-3a226797e34a
+.. .. [4] Gondelach, D. A Hodographic-Shaping Method for Low-Thrust Trajectory Design.
+..       Delft University of Technology, MSc thesis (2012).
+..       http://resolver.tudelft.nl/uuid:6a4f1673-88b1-4823-b2ef-9d864c84ab11
 
 
 
