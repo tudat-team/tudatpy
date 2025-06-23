@@ -2096,10 +2096,10 @@ class LoadPDS:
                                     if load_kernels:
                                         spice.load_kernel(converted_kernel_file)
 
-                    except Exception as e:
-                        print(
-                            f"!! Failed to load kernel: {converted_kernel_file}, Error: {e} !!"
-                        )
+                            except Exception as e:
+                                print(
+                                    f"!! Failed to load kernel: {converted_kernel_file}, Error: {e} !!"
+                                )
         else:
             print("No Kernel Files to Load.")
 
