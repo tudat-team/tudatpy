@@ -22,8 +22,6 @@ Functions
 
 .. autosummary::
 
-   get_propulsion_input_variables
-
    constant_thrust_magnitude
 
    custom_thrust_magnitude
@@ -35,8 +33,6 @@ Functions
    custom_thrust_acceleration_magnitude_fixed_isp
 
 
-
-.. autofunction:: tudatpy.numerical_simulation.propagation_setup.thrust.get_propulsion_input_variables
 
 .. autofunction:: tudatpy.numerical_simulation.propagation_setup.thrust.constant_thrust_magnitude
 
