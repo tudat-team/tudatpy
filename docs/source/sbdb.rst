@@ -1,3 +1,5 @@
+.. _sbdb:
+
 ``sbdb``
 =================
 This module contains a wrapper for the SBDB (small-body database) interface of the astroquery package

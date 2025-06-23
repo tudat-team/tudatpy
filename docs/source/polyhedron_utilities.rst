@@ -1,3 +1,5 @@
+.. _polyhedron_utilities:
+
 ``polyhedron_utilities``
 ========================
 Polyhedron processing functions.
@@ -13,9 +15,9 @@ modify or retrieved information from the specified polyhedron mesh.
 
 
 
-References
-----------
-.. [1] Dobrovolskis, A. (1996). "Inertia of Any Polyhedron", Icarus, 124 (243), 698-704.
+.. References
+.. ----------
+.. .. [1] Dobrovolskis, A. (1996). "Inertia of Any Polyhedron", Icarus, 124 (243), 698-704.
 
 
 

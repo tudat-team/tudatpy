@@ -1,10 +1,13 @@
+.. _shape_based_thrust:
+
 ``shape_based_thrust``
 ======================
 Functionalities for shape-based low-thrust trajectory design.
 
 This module provides the functionality for creating shape-based low-thrust trajectory design legs.
 Without using any numerical propagation, this generates a preliminary low-thrust trajectory using
-relatively simple (semi-)analytical methods
+relatively simple (semi-)analytical methods.
+For background information on the methods, see :cite:p:`gondelach2015`.
 
 
 
@@ -13,10 +16,10 @@ relatively simple (semi-)analytical methods
 
 
 
-References
-----------
-.. [1] Gondelach, David J., and Ron Noomen. "Hodographic-shaping method for 
-       low-thrust interplanetary trajectory design." Journal of Spacecraft and Rockets 52.3 (2015): 728-738.
+.. References
+.. ----------
+.. .. [1] Gondelach, David J., and Ron Noomen. "Hodographic-shaping method for 
+..        low-thrust interplanetary trajectory design." Journal of Spacecraft and Rockets 52.3 (2015): 728-738.
 
 
 
