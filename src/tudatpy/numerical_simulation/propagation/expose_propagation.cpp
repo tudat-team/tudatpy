@@ -557,7 +557,7 @@ void expose_propagation( py::module &m )
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE,
                                                      TIME_TYPE >::getDependentVariableHistory,
                     R"doc(
-
+                    
          **read-only**
 
          Dependent variables computed during the propagation as key-value pairs.
