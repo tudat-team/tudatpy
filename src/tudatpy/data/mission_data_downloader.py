@@ -1934,16 +1934,7 @@ class LoadPDS:
                 f"Folder: {base_folder} already exists and will not be overwritten."
             )
         
-        # TODO
-        # subfolders = list(self.type_to_extension.keys())
-        # # Create each subfolder inside the main folder
-        # for local_folder in local_folder_list:
-        #     for subfolder in subfolders:
-        #         local_subfolder = os.path.join(local_folder, subfolder)
-        #         if os.path.exists(local_subfolder) == False:
-        #             os.makedirs(local_subfolder)
-        #         else:
-        #             continue
+       
         print(
             f"===============================================================================================================\n"
         )
@@ -2080,31 +2071,41 @@ class LoadPDS:
                     ) = self.get_grail_b_files(local_folder, start_date, end_date)
 
         if kernel_files_to_load:
-            for kernel_type, kernel_files in kernel_files_to_load.items():
-                if not kernel_type == "mk": # meta-kernel files are not loaded
-                    for kernel_file in kernel_files:
-                        converted_kernel_file = self.spice_transfer2binary(
-                            kernel_file
-                        )
-                        try:
-                            if kernel_type not in self.all_kernel_files.keys():
-                                self.all_kernel_files[kernel_type] = [
-                                    converted_kernel_file
-                                ]
-                                if load_kernels:
-                                    spice.load_kernel(converted_kernel_file)
-
-                            else:
-                                self.all_kernel_files[kernel_type].append(
-                                    converted_kernel_file
-                                )
-                                if load_kernels:
-                                    spice.load_kernel(converted_kernel_file)
-
-                        except Exception as e:
-                            print(
-                                f"Failed to load kernel: {converted_kernel_file}, Error: {e}"
+            if "mk" in kernel_files_to_load.keys() and load_kernels: 
+                try:
+                    # Load the meta-kernel file
+                    meta_kernel_file = kernel_files_to_load["mk"][0]
+                    spice.load_kernel(meta_kernel_file)
+                except Exception as e:
+                    print(
+                        f"Failed to load meta-kernel file: {meta_kernel_file}, Error: {e}"
+                    )
+            else:
+                for kernel_type, kernel_files in kernel_files_to_load.items():
+                    if not kernel_type == "mk": # meta-kernel files are not loaded
+                        for kernel_file in kernel_files:
+                            converted_kernel_file = self.spice_transfer2binary(
+                                kernel_file
                             )
+                            try:
+                                if kernel_type not in self.all_kernel_files.keys():
+                                    self.all_kernel_files[kernel_type] = [
+                                        converted_kernel_file
+                                    ]
+                                    if load_kernels:
+                                        spice.load_kernel(converted_kernel_file)
+
+                                else:
+                                    self.all_kernel_files[kernel_type].append(
+                                        converted_kernel_file
+                                    )
+                                    if load_kernels:
+                                        spice.load_kernel(converted_kernel_file)
+
+                            except Exception as e:
+                                print(
+                                    f"Failed to load kernel: {converted_kernel_file}, Error: {e}"
+                                )
         else:
             print("No Kernel Files to Load.")
 
@@ -2881,11 +2882,7 @@ class LoadPDS:
     ########################################################################################################################################
 
     # --------------------------------------------------------------------------------------------------------------------------------------#
-
-    ########################################################################################################################################
-    ################################################### START OF MRO SECTION ###############################################################
-    ########################################################################################################################################
-
+    
     ########################################################################################################################################
     ################################################### START OF MRO SECTION ###############################################################
     ########################################################################################################################################
