@@ -216,6 +216,12 @@ public:
         return basic_astrodynamics::convertDayMonthYearToDayOfYear( day_, month_, year_ );
     }
 
+    template< typename TimeType >
+    TimeType daySinceReferenceJulianDay( const TimeType referenceJulianDay = getJulianDayOnJ2000< TimeType >( ) )
+    {
+        return julianDay< TimeType >( ) - referenceJulianDay;
+    }
+
     static double minimumChronoRepresentableEpoch( )
     {
         // std::chrono::system_clock uses the Unix epoch (1970-01-01 00:00:00 UTC) as reference point
@@ -229,20 +235,13 @@ public:
         std::chrono::duration< double > secondsDuration = minDuration;
 
         double lowerRepresentationCount = secondsDuration.count( );
-        // const double lowerRepresentationCount =
-        //         std::chrono::duration< double >( std::chrono::system_clock::time_point::min( ).time_since_epoch( ) ).count( );
 
         double minimumRepresentableEpoch = referenceDateTime.epoch< double >( ) + lowerRepresentationCount;
 
-        std::cout << "Lower representation count" << lowerRepresentationCount << std::endl;
-        std::cout << "Minimum representable epoch" << minimumRepresentableEpoch << std::endl;
-
 #if defined( _WIN64 ) || defined( _WIN32 )
-        std::cout << "Test Windows macro" << std::endl;
         minimumRepresentableEpoch = std::max( minimumRepresentableEpoch, DateTime( 1970, 1, 1, 0, 0, 0.0L ).epoch< double >( ) );
 
 #elif defined( __APPLE__ )
-        std::cout << "Test Mac macro" << std::endl;
         minimumRepresentableEpoch = std::max( minimumRepresentableEpoch, DateTime( 1900, 1, 1, 0, 0, 0.0L ).epoch< double >( ) );
 #endif
 
@@ -262,16 +261,10 @@ public:
         std::chrono::duration< double > secondsDuration = maxDuration;
 
         double upperRepresentationCount = secondsDuration.count( );
-        // const double upperRepresentationCount =
-        //         std::chrono::duration< double >( std::chrono::system_clock::time_point::max( ).time_since_epoch( ) ).count( );
 
         double maximumRepresentableEpoch = referenceDateTime.epoch< double >( ) + upperRepresentationCount;
 
-        std::cout << "Upper representation count" << upperRepresentationCount << std::endl;
-        std::cout << "Maximum representable epoch" << maximumRepresentableEpoch << std::endl;
-
 #if defined( _WIN64 ) || defined( _WIN32 )
-        std::cout << "Test Windows macro" << std::endl;
         maximumRepresentableEpoch = std::min( maximumRepresentableEpoch, DateTime( 3000, 12, 31, 23, 59, 59.0L ).epoch< double >( ) );
 #endif
         return maximumRepresentableEpoch;
@@ -299,13 +292,7 @@ public:
 
         tm.tm_isdst = -1;
 
-        std::cout << "Tudat IsoString: " << this->isoString( false, 3 ) << std::endl;
-
-        std::cout << "tm from tudat: " << tm.tm_year << " " << tm.tm_mon << " " << tm.tm_mday << " " << tm.tm_hour << " " << tm.tm_min
-                  << " " << tm.tm_sec << std::endl;
-
         std::time_t tt = std::mktime( &tm );
-        std::cout << "time_t from mktime: " << std::to_string( tt ) << std::endl;
 
         std::chrono::system_clock::time_point timePoint = std::chrono::system_clock::from_time_t( tt );
         return timePoint +
@@ -318,24 +305,11 @@ public:
     {
         std::time_t tt = std::chrono::system_clock::to_time_t( datetime );
 
-        std::cout << "time_t from time_point: " << std::to_string( tt ) << std::endl;
-
         std::tm local_tm = *localtime( &tt );
 
         using namespace std::chrono;
         microseconds timeInMicroSeconds = duration_cast< microseconds >( datetime.time_since_epoch( ) );
         long long fractional_seconds = timeInMicroSeconds.count( ) % 1000000LL;
-
-        std::cout << "Local tm: " << local_tm.tm_year << " " << local_tm.tm_mon << " " << local_tm.tm_mday << " " << local_tm.tm_hour << " "
-                  << local_tm.tm_min << " " << local_tm.tm_sec << std::endl;
-        std::cout << "Time in microseconds: " << timeInMicroSeconds.count( ) << std::endl;
-        std::cout << "Fractional seconds: " << fractional_seconds << std::endl;
-
-        std::cout << "Input seconds to DateTime: "
-                  << static_cast< long double >( local_tm.tm_sec ) +
-                        static_cast< long double >( fractional_seconds ) /
-                                tudat::mathematical_constants::getFloatingInteger< long double >( 1000000LL )
-                  << std::endl;
 
         return DateTime( local_tm.tm_year + 1900,
                          local_tm.tm_mon + 1,
@@ -355,9 +329,7 @@ public:
     template< typename TimeType >
     static DateTime fromTime( const TimeType &timeInput )
     {
-        std::cout << "Creating DateTime from time " << timeInput << std::endl;
         Time time = Time( timeInput );
-        std::cout << "Creating DateTime from time " << time.getFullPeriods( ) << std::endl;
 
         int fullPeriodsSinceMidnightJD0 = time.getFullPeriods( ) +
                 basic_astrodynamics::JULIAN_DAY_ON_J2000_INT * TIME_NORMALIZATION_TERMS_PER_DAY + TIME_NORMALIZATION_TERMS_PER_HALF_DAY;
@@ -377,10 +349,7 @@ public:
         int hour = time.fullPeriodsSinceMidnight( );
         int minute = std::floor( time.getSecondsIntoFullPeriod( ) / 60.0L );
 
-        std::cout << "Test output A" << minute << " " << time.getSecondsIntoFullPeriod( ) << " " << 60.0L << std::endl;
         long double seconds = time.getSecondsIntoFullPeriod( ) - static_cast< long double >( 60 * minute );
-        std::cout << "Test output B" << seconds << " " << time.getSecondsIntoFullPeriod( ) << " "
-                  << static_cast< long double >( 60 * minute ) << " " << 60 * minute << std::endl;
 
         return DateTime( year, month, day, hour, minute, seconds );
     }
@@ -392,6 +361,16 @@ public:
 
         decomposedDateTimeFromIsoString( isoTime, year, month, days, hours, minutes, seconds );
         return DateTime( year, month, days, hours, minutes, seconds );
+    }
+
+    static DateTime fromJulianDay( const double julianDay )
+    {
+        return DateTime::fromTime< double >( tudat::timeFromJulianDay< double >( julianDay ) );
+    }
+
+    static DateTime fromModifiedJulianDay( const double modifiedJulianDay )
+    {
+        return DateTime::fromTime< double >( tudat::timeFromModifiedJulianDay< double >( modifiedJulianDay ) );
     }
 
     template< typename TimeType >
@@ -424,8 +403,6 @@ protected:
 
     void verifyDay( )
     {
-        std::cout << "Verifying day " << day_ << " " << month_ << " " << year_ << " "
-                  << basic_astrodynamics::getDaysInMonth( month_, year_ ) << std::endl;
         if( day_ > basic_astrodynamics::getDaysInMonth( month_, year_ ) )
         {
             throw std::runtime_error( "Error when creating Tudat DateTime, input date was " + std::to_string( day_ ) + "-" +
