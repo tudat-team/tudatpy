@@ -462,7 +462,7 @@ std::map< std::string, Eigen::Vector3d > getApproximateDsnGroundStationPositions
         { "DSS-43", ( Eigen::Vector3d( ) << -4460894.917, +2682361.507, -3674748.152 ).finished( ) },
         { "DSS-45", ( Eigen::Vector3d( ) << -4460935.578, +2682765.661, -3674380.982 ).finished( ) },
         //{ "DSS-47",
-        //  ( Eigen::Vector3d( ) << -4750915.837, +2792906.182, -3200483.747 )
+        //( Eigen::Vector3d( ) << -4750915.837, +2792906.182, -3200483.747 )
         //          .finished( ) },  // W196:
                                    // https://www.narrabri.atnf.csiro.au/observing/users_guide/html_old_20090512/Cartesian_Coordinates.html
                                    // (may not be entirely accurate)
