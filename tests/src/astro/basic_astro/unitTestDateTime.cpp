@@ -123,11 +123,22 @@ BOOST_AUTO_TEST_CASE( testDateTimeConversions )
                     long double julianDayFromDateTime = currentDateTime.julianDay< long double >( );
                     double julianDayTolerance = 3.0 * currentJulianDay * std::numeric_limits< long double >::epsilon( );
                     BOOST_CHECK_SMALL( std::fabs( static_cast< double >( julianDayFromDateTime - currentJulianDay ) ), julianDayTolerance );
+                    reconstructedDateTime = DateTime::fromJulianDay( currentJulianDay );
+                    long double julianDayFromReconstructedDateTime = reconstructedDateTime.julianDay< long double >( );
+                    double reconstructedJdTolerance = std::fabs( 3.0 * currentJulianDay * std::numeric_limits< double >::epsilon( ) );
+                    BOOST_CHECK_SMALL( std::fabs( static_cast< double >( julianDayFromReconstructedDateTime - currentJulianDay ) ),
+                                       reconstructedJdTolerance );
 
                     long double currentModifiedJulianDay = modifiedJulianDayFromTime< long double >( currentTime );
                     reconstructedTime = timeFromModifiedJulianDay< long double >( currentModifiedJulianDay );
                     timeTolerance = std::fabs( 3.0 * currentModifiedJulianDay * 86400.0 * std::numeric_limits< long double >::epsilon( ) );
                     BOOST_CHECK_SMALL( std::fabs( static_cast< double >( reconstructedTime - currentTime ) ), timeTolerance );
+                    reconstructedDateTime = DateTime::fromModifiedJulianDay( currentModifiedJulianDay );
+                    long double mjdFromReconstructedDateTime = reconstructedDateTime.modifiedJulianDay< long double >( );
+                    double reconstructedMjdTolerance =
+                            std::fabs( 3.0 * currentModifiedJulianDay * std::numeric_limits< double >::epsilon( ) );
+                    BOOST_CHECK_SMALL( std::fabs( static_cast< double >( mjdFromReconstructedDateTime - currentModifiedJulianDay ) ),
+                                       reconstructedMjdTolerance );
 
                     long double modifiedJulianDayFromDateTime = currentDateTime.modifiedJulianDay< long double >( );
                     double modifiedJulianDayTolerance = 3.0 * currentJulianDay * std::numeric_limits< long double >::epsilon( );
@@ -155,27 +166,6 @@ BOOST_AUTO_TEST_CASE( testDateTimeConversions )
 
 BOOST_AUTO_TEST_CASE( testTimePointConversions )
 {
-    std::time_t min_tt = std::numeric_limits< std::time_t >::min( );
-    std::time_t max_tt = std::numeric_limits< std::time_t >::max( );
-
-    constexpr std::chrono::system_clock::duration::rep minTickCount =
-            std::numeric_limits< std::chrono::system_clock::duration::rep >::min( );
-    std::chrono::system_clock::duration minDuration( minTickCount );
-    std::chrono::duration< double > minSecondsDuration = minDuration;
-    double lowerRepresentationCount = minSecondsDuration.count( );
-
-    constexpr std::chrono::system_clock::duration::rep maxTickCount =
-            std::numeric_limits< std::chrono::system_clock::duration::rep >::max( );
-    std::chrono::system_clock::duration maxDuration( maxTickCount );
-    std::chrono::duration< double > maxSecondsDuration = maxDuration;
-    double upperRepresentationCount = maxSecondsDuration.count( );
-
-    std::cout << "min time_t: " << std::to_string( min_tt ) << std::endl;
-    std::cout << "max time_t: " << std::to_string( max_tt ) << std::endl;
-
-    std::cout << "lower chrono seconds representation: " << std::to_string( lowerRepresentationCount ) << std::endl;
-    std::cout << "upper chrono seconds representation: " << std::to_string( upperRepresentationCount ) << std::endl;
-
     for( unsigned int i = 0; i < years.size( ); i++ )
     {
         for( unsigned int j = 0; j < dates.size( ); j++ )
@@ -275,7 +265,6 @@ BOOST_AUTO_TEST_CASE( testTimePointConversions )
             }
         }
     }
-    std::cout << "Testing time point conversions done." << std::endl;
 }
 
 BOOST_AUTO_TEST_CASE( testIsoInitialization )
