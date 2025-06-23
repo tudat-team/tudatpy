@@ -4,14 +4,14 @@
 =============
 This module contains constants that are used in the tudatpy library or commonly used in astrodynamic calculations.
 
-References
-----------
-.. [1] NASA SSD. Astrodynamic Parameters, http://ssd.jpl.nasa.gov/?constants#ref, 6th September, 2011, last accessed: 21st February, 2012.
-.. [2] Standish, E.M. (1995) "Report of the IAU WGAS Sub-Group on Numerical Standards", in Highlights of Astronomy (I. Appenzeller, ed.), Table 1, Kluwer Academic Publishers, Dordrecht
-.. [3] IAU 2012, Resolution B2. https://www.iau.org/static/resolutions/IAU2012_English.pdf
-.. [4] Anderson, J.D. Jr. Hypersonic and High-Temperature Gas Dynamics, Second Edition, p469, 2006
-.. [5] NIST reference on constants, units and uncertainty. http://physics.nist.gov/cuu/Constants/index.html, last accessed: 11th January, 2013
-.. [6] Wolfram Research, http://scienceworld.wolfram.com/physics/Stefan-BoltzmannLaw.html, last accessed: 11th January 2013.
+.. References
+.. ----------
+.. .. [1] NASA SSD. Astrodynamic Parameters, http://ssd.jpl.nasa.gov/?constants#ref, 6th September, 2011, last accessed: 21st February, 2012.
+.. .. [2] Standish, E.M. (1995) "Report of the IAU WGAS Sub-Group on Numerical Standards", in Highlights of Astronomy (I. Appenzeller, ed.), Table 1, Kluwer Academic Publishers, Dordrecht
+.. .. [3] IAU 2012, Resolution B2. https://www.iau.org/static/resolutions/IAU2012_English.pdf
+.. .. [4] Anderson, J.D. Jr. Hypersonic and High-Temperature Gas Dynamics, Second Edition, p469, 2006
+.. .. [5] NIST reference on constants, units and uncertainty. http://physics.nist.gov/cuu/Constants/index.html, last accessed: 11th January, 2013
+.. .. [6] Wolfram Research, http://scienceworld.wolfram.com/physics/Stefan-BoltzmannLaw.html, last accessed: 11th January 2013.
 
 
 Constants
@@ -24,11 +24,11 @@ Constants
     
 .. autodata:: tudatpy.constants.JULIAN_DAY
     
-    Julian day in seconds [1]_.
+    Julian day in seconds :cite:p:`NASASSD2011`.
 
 .. autodata:: tudatpy.constants.JULIAN_YEAR_IN_DAYS
 
-    Julian year in Julian days [1]_.
+    Julian year in Julian days :cite:p:`NASASSD2011`.
 
 .. autodata:: tudatpy.constants.JULIAN_YEAR
 
@@ -36,11 +36,11 @@ Constants
 
 .. autodata:: tudatpy.constants.SIDEREAL_DAY
 
-    Sidereal day in seconds [1]_.
+    Sidereal day in seconds :cite:p:`NASASSD2011`.
 
 .. autodata:: tudatpy.constants.SIDEREAL_YEAR_IN_DAYS
 
-    Sidereal year in Julian days in quasar reference frame [1]_.
+    Sidereal year in Julian days in quasar reference frame :cite:p:`NASASSD2011`.
 
 .. autodata:: tudatpy.constants.SIDEREAL_YEAR
 
@@ -48,36 +48,36 @@ Constants
 
 .. autodata:: tudatpy.constants.SPEED_OF_LIGHT
 
-    Speed of light in meters per second [2]_.
+    Speed of light in meters per second :cite:p:`standish1995`.
 
 .. autodata:: tudatpy.constants.GRAVITATIONAL_CONSTANT
 
-    Gravitational constant in :math:`\mathrm{m}^3/\mathrm{s}^2` [2]_.
+    Gravitational constant in :math:`\mathrm{m}^3/\mathrm{s}^2` :cite:p:`standish1995`.
 
 .. autodata:: tudatpy.constants.ASTRONOMICAL_UNIT
 
-    Astronomical Unit in meters [3]_.
+    Astronomical Unit in meters :cite:p:`iau2012`.
 
 .. autodata:: tudatpy.constants.SPECIFIC_GAS_CONSTANT_AIR
 
-    The specific gas constant of air in :math:`\mathrm{J}/(\mathrm{kg} \, \mathrm{K})` [4]_.
+    The specific gas constant of air in :math:`\mathrm{J}/(\mathrm{kg} \, \mathrm{K})` :cite:p:`anderson2006`.
 
 .. autodata:: tudatpy.constants.MOLAR_GAS_CONSTANT
 
-    The molar gas constant in :math:`\mathrm{J}/(\mathrm{mol} \, \mathrm{K})` [5]_.
+    The molar gas constant in :math:`\mathrm{J}/(\mathrm{mol} \, \mathrm{K})` :cite:p:`nistconstants`.
     Also known as universal gas constant.
 
 .. autodata:: tudatpy.constants.PLANCK_CONSTANT
 
-    Planck's constant in :math:`\mathrm{m}^{2} \, \mathrm{kg}/\mathrm{s}` [5]_.
+    Planck's constant in :math:`\mathrm{m}^{2} \, \mathrm{kg}/\mathrm{s}` :cite:p:`nistconstants`.
 
 .. autodata:: tudatpy.constants.BOLTZMANN_CONSTANT
 
-    The Boltzmann constant (gas constant per particle) in  :math:`\mathrm{m}^{2} \, \mathrm{kg} / ( \mathrm{s}^{2} \, \mathrm{K} )`, [5]_.
+    The Boltzmann constant (gas constant per particle) in  :math:`\mathrm{m}^{2} \, \mathrm{kg} / ( \mathrm{s}^{2} \, \mathrm{K} )`, :cite:p:`nistconstants`.
 
 .. autodata:: tudatpy.constants.STEFAN_BOLTZMANN_CONSTANT
 
-    Stefan-Boltzmann constant, used for calculating black body radiation intensity in :math:`\mathrm{J} / (\mathrm{s} \, \mathrm{m}^{2} \, \mathrm{K}^{4} )` [6]_.
+    Stefan-Boltzmann constant, used for calculating black body radiation intensity in :math:`\mathrm{J} / (\mathrm{s} \, \mathrm{m}^{2} \, \mathrm{K}^{4} )` :cite:p:`wolfram2013`.
 
 .. autodata:: tudatpy.constants.INVERSE_SQUARE_SPEED_OF_LIGHT
 

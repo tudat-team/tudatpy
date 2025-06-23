@@ -75,6 +75,38 @@ Functions
 
 
 
+Enumerations
+------------
+.. currentmodule:: tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients
+
+.. autosummary::
+
+   AerodynamicsReferenceFrameAngles
+   
+   AerodynamicsReferenceFrames
+
+   AerodynamicCoefficientFrames
+
+   AerodynamicCoefficientsIndependentVariables
+   
+   AtmosphericCompositionSpecies
+
+
+.. autoclass:: tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicsReferenceFrameAngles
+   :members:
+
+.. autoclass:: tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicsReferenceFrames
+   :members:
+
+.. autoclass:: tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientFrames
+   :members:
+
+.. autoclass:: tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientsIndependentVariables
+   :members:
+
+.. autoclass:: tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AtmosphericCompositionSpecies
+   :members:
+
 
 
 Classes
