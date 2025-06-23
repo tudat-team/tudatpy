@@ -38,38 +38,6 @@ Functions
 .. autofunction:: tudatpy.numerical_simulation.environment.transform_to_inertial_orientation
 
 
-
-Enumerations
-------------
-.. currentmodule:: tudatpy.numerical_simulation.environment
-
-.. autosummary::
-
-   AerodynamicsReferenceFrames
-
-   AerodynamicCoefficientFrames
-
-   AerodynamicCoefficientsIndependentVariables
-   
-   AtmosphericCompositionSpecies
-
-
-.. autoclass:: tudatpy.numerical_simulation.environment.AerodynamicsReferenceFrameAngles
-   :members:
-
-.. autoclass:: tudatpy.numerical_simulation.environment.AerodynamicsReferenceFrames
-   :members:
-
-.. autoclass:: tudatpy.numerical_simulation.environment.AerodynamicCoefficientFrames
-   :members:
-
-.. autoclass:: tudatpy.numerical_simulation.environment.AerodynamicCoefficientsIndependentVariables
-   :members:
-
-.. autoclass:: tudatpy.numerical_simulation.environment.AtmosphericCompositionSpecies
-   :members:
-
-
 Classes
 -------
 .. currentmodule:: tudatpy.numerical_simulation.environment

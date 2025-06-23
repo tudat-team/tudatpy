@@ -76,42 +76,42 @@ Propagation of Cartesian elements (state vector size 6), without any transformat
                     tp::TranslationalPropagatorType::encke,
                     R"doc(
 
-Propagation of the difference in Cartesian elements of the orbit w.r.t. an unperturbed reference orbit. The reference orbit is generated from the initial state/central body, and not updated during the propagation (see Wakker, 2015 [2]_)
+Propagation of the difference in Cartesian elements of the orbit w.r.t. an unperturbed reference orbit. The reference orbit is generated from the initial state/central body, and not updated during the propagation (see :cite:t:`wakker2015`)
 
 )doc" )
             .value( "gauss_keplerian",
                     tp::TranslationalPropagatorType::gauss_keplerian,
                     R"doc(
 
-Propagation of Keplerian elements (state vector size 6), with true anomaly as the 'fast' element  (see Vallado, 2001 [4]_)
+Propagation of Keplerian elements (state vector size 6), with true anomaly as the 'fast' element  (see :cite:t:`vallado2001`)
 
 )doc" )
             .value( "gauss_modified_equinoctial",
                     tp::TranslationalPropagatorType::gauss_modified_equinoctial,
                     R"doc(
 
-Propagation of Modified equinoctial elements (state vector size 6), with the element :math:`I` defining the location of the singularity based on the initial condition (see Hintz, 2008 [3]_)
+Propagation of Modified equinoctial elements (state vector size 6), with the element :math:`I` defining the location of the singularity based on the initial condition (see :cite:t:`hintz2008`)
 
 )doc" )
             .value( "unified_state_model_quaternions",
                     tp::TranslationalPropagatorType::unified_state_model_quaternions,
                     R"doc(
 
-Propagation of Unified state model using quaternions (state vector size 7, see Vittaldev et al., 2012 [1]_)
+Propagation of Unified state model using quaternions (state vector size 7, see :cite:t:`vittaldev2012`)
 
 )doc" )
             .value( "unified_state_model_modified_rodrigues_parameters",
                     tp::TranslationalPropagatorType::unified_state_model_modified_rodrigues_parameters,
                     R"doc(
 
-Propagation of Unified state model using modified Rodrigues parameters (state vector size 7, last element represents shadow parameter, see Vittaldev et al., 2012 [1]_)
+Propagation of Unified state model using modified Rodrigues parameters (state vector size 7, last element represents shadow parameter, see :cite:t:`vittaldev2012`)
 
 )doc" )
             .value( "unified_state_model_exponential_map",
                     tp::unified_state_model_exponential_map,
                     R"doc(
 
-Propagation of Unified state model using exponential map (state vector size 7, last element represents shadow parameter, see Vittaldev et al., 2012 [1]_)
+Propagation of Unified state model using exponential map (state vector size 7, last element represents shadow parameter, see :cite:t:`vittaldev2012`)
 
 )doc" )
             .export_values( );
@@ -121,8 +121,6 @@ Propagation of Unified state model using exponential map (state vector size 7, l
                                                R"doc(
 
 Enumeration of available rotational propagator types.
-
-
 
 
 
@@ -285,44 +283,9 @@ Enumeration of available integrated state types.
          detail `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/processed_propagated_elements.html>`__.
          Summarizing: the processed state is the 'typical' formulation of the state (for translational dynamics: Cartesian states).
 
-         .. note:: The same information can be retrieved from the
-                   :py:attr:`SingleArcSimulationResults.processed_state_ids`
-                   attribute.
+         .. note::
 
-    py::class_< tp::SingleArcPropagatorProcessingSettings,
-                std::shared_ptr< tp::SingleArcPropagatorProcessingSettings >,
-                tp::PropagatorProcessingSettings >(
-            m, "SingleArcPropagatorProcessingSettings", get_docstring( "SingleArcPropagatorProcessingSettings" ).c_str( ) )
-            .def_property_readonly( "print_settings",
-                                    &tp::SingleArcPropagatorProcessingSettings::getPrintSettings,
-                                    get_docstring( "SingleArcPropagatorProcessingSettings.print_settings" ).c_str( ) )
-            .def_property( "results_save_frequency_in_steps",
-                           &tp::SingleArcPropagatorProcessingSettings::getResultsSaveFrequencyInSteps,
-                           &tp::SingleArcPropagatorProcessingSettings::setResultsSaveFrequencyInSteps,
-                           get_docstring( "SingleArcPropagatorProcessingSettings.results_save_frequency_in_steps" ).c_str( ) )
-            .def_property( "results_save_frequency_in_seconds",
-                           &tp::SingleArcPropagatorProcessingSettings::getResultsSaveFrequencyInSeconds,
-                           &tp::SingleArcPropagatorProcessingSettings::setResultsSaveFrequencyInSeconds,
-                           get_docstring( "SingleArcPropagatorProcessingSettings.results_save_frequency_in_seconds" ).c_str( ) );
-
-    py::class_< tp::MultiArcPropagatorProcessingSettings,
-                std::shared_ptr< tp::MultiArcPropagatorProcessingSettings >,
-                tp::PropagatorProcessingSettings >(
-            m, "MultiArcPropagatorProcessingSettings", get_docstring( "MultiArcPropagatorProcessingSettings" ).c_str( ) )
-            .def( "set_print_settings_for_all_arcs",
-                  &tp::MultiArcPropagatorProcessingSettings::resetAndApplyConsistentSingleArcPrintSettings,
-                  py::arg( "single_arc_print_settings" ),
-                  get_docstring( "MultiArcPropagatorProcessingSettings.set_print_settings_for_all_arcs" ).c_str( ) )
-            .def_property( "print_output_on_first_arc_only",
-                           &tp::MultiArcPropagatorProcessingSettings::getPrintFirstArcOnly,
-                           &tp::MultiArcPropagatorProcessingSettings::resetPrintFirstArcOnly,
-                           get_docstring( "MultiArcPropagatorProcessingSettings.print_output_on_first_arc_only" ).c_str( ) )
-            .def_property_readonly( "identical_settings_per_arc",
-                                    &tp::MultiArcPropagatorProcessingSettings::useIdenticalSettings,
-                                    get_docstring( "MultiArcPropagatorProcessingSettings.identical_settings_per_arc" ).c_str( ) )
-            .def_property_readonly( "single_arc_settings",
-                                    &tp::MultiArcPropagatorProcessingSettings::getSingleArcSettings,
-                                    get_docstring( "MultiArcPropagatorProcessingSettings.single_arc_settings" ).c_str( ) );
+             The same information can be retrieved from the :py:attr:`SingleArcSimulationResults.processed_state_ids` attribute.
 
          :type: bool
       )doc" )
@@ -709,14 +672,6 @@ Enumeration of available integrated state types.
          Functional base class to define settings for propagators.
 
          Base class to define settings for propagators. Derived classes are split into settings for single- and multi-arc dynamics.
-
-    py::class_< tp::TranslationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
-                std::shared_ptr< tp::TranslationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
-                tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >(
-            m, "TranslationalStatePropagatorSettings", get_docstring( "TranslationalStatePropagatorSettings" ).c_str( ) )
-
-
-
 
       )doc" )
             .def_property( "initial_states",
@@ -1398,12 +1353,6 @@ HybridArcPropagatorSettings
  This behaviour can be suppressed by providing the optional input argument
  ``terminate_exactly_on_final_condition=True``, in which case the final propagation step will be *exactly* on the
  specified time.
-
-    m.def( "non_sequential_termination",
-           &tp::nonSequentialPropagationTerminationSettings,
-           py::arg( "forward_termination_settings" ),
-           py::arg( "backward_termination_settings" ),
-           get_docstring( "non_sequential_termination" ).c_str( ) );
 
  Parameters
  ----------

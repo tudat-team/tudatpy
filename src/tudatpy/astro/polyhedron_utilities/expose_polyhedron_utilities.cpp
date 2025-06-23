@@ -36,7 +36,7 @@ void expose_polyhedron_utilities( py::module &m )
            py::arg( "vertices_defining_each_facet" ),
            R"doc(
 
- Computes the surface area of a polyhedron [1]_.
+ Computes the surface area of a polyhedron :cite:p:`Dobrovolskis1996`.
 
 
  Parameters
@@ -56,10 +56,6 @@ void expose_polyhedron_utilities( py::module &m )
      Surface area.
 
 
-
-
-
-
      )doc" );
 
     m.def( "volume",
@@ -68,7 +64,7 @@ void expose_polyhedron_utilities( py::module &m )
            py::arg( "vertices_defining_each_facet" ),
            R"doc(
 
- Computes the volume of a polyhedron [1]_.
+ Computes the volume of a polyhedron :cite:p:`Dobrovolskis1996`.
 
 
  Parameters
@@ -100,7 +96,7 @@ void expose_polyhedron_utilities( py::module &m )
            py::arg( "vertices_defining_each_facet" ),
            R"doc(
 
- Computes the position of the centroid of a polyhedron [1]_.
+ Computes the position of the centroid of a polyhedron :cite:p:`Dobrovolskis1996`.
 
 
  Parameters
@@ -122,8 +118,6 @@ void expose_polyhedron_utilities( py::module &m )
 
 
 
-
-
      )doc" );
 
     m.def( "modify_centroid",
@@ -136,7 +130,7 @@ void expose_polyhedron_utilities( py::module &m )
  Modifies vertex coordinates of the polyhedron based on the desired position of the centroid.
 
  Modifies the coordinates of the polyhedron vertices, such that the centroid of the modified polyhedron coincides
- with the specified position. The centroid is computed according to Dobrovolskis [1]_.
+ with the specified position. The centroid is computed according to :cite:t:`Dobrovolskis1996`.
 
 
  Parameters
@@ -175,7 +169,7 @@ void expose_polyhedron_utilities( py::module &m )
 
  Compute the inertia tensor of a polyhedron, from the density.
 
- Computes the inertia tensor of a polyhedron, according to Dobrovolskis [1]_.
+ Computes the inertia tensor of a polyhedron, according to :cite:t:`Dobrovolskis1996`.
 
  The mass distribution is defined using the density of the polyhedron. To instead use the gravitational
  parameter see :func:`~tudatpy.astro.polyhedron_utilities.inertia_tensor_from_gravitational_parameter`.
@@ -220,7 +214,7 @@ void expose_polyhedron_utilities( py::module &m )
 
  Compute the inertia tensor of a polyhedron, from the gravitational parameter.
 
- Computes the inertia tensor of a polyhedron, according to Dobrovolskis [1]_.
+ Computes the inertia tensor of a polyhedron, according to :cite:t:`Dobrovolskis1996`.
 
  The mass distribution is defined using the gravitational parameter of the polyhedron. To instead use the density
  see :func:`~tudatpy.astro.polyhedron_utilities.inertia_tensor_from_density`.
