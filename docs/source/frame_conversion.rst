@@ -1,3 +1,5 @@
+.. _frame_conversion:
+
 ``frame_conversion``
 ====================
 Conversions between different reference frames.
@@ -6,8 +8,8 @@ Conversions between different reference frames.
 This module provide a variety of functions and classes to convert
 between different reference frames. Functionality to convert between
 different state representations is provided in the
-:ref:`\`\`element_conversion\`\`` module. Note that the functionality
-here may be used independent of the Tudat models in :ref:`\`\`numerical_simulation\`\``. 
+:ref:`element_conversion` module. Note that the functionality
+here may be used independent of the Tudat models in :ref:`numerical_simulation`. 
 For more details on the use of frames in the context of these models, see 
 `this page <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html>`_
 
@@ -33,7 +35,7 @@ Notes
   well as the SPICE-defined ECLIPJ2000 frame (see `this description <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/available_state_definitions_conversions.html#predefined-inertial-frames>`_
   on our user guide). The use of the ICRF frame (difference from J2000
   is <0.1 arcseconds) in Tudat is presently limited to the
-  :ref:`\`\`numerical_simulation\`\`` model, see
+  :ref:`numerical_simulation` model, see
   :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.gcrs_to_itrs`.
 
 .. raw:: html
@@ -47,12 +49,12 @@ Notes
 
 
 
-References
-----------
-.. [1] Archinal, B.A., Acton, C.H., A’Hearn, M.F. et al. Report of
-       the IAU Working Group on Cartographic Coordinates and
-       Rotational Elements: 2015. Celest Mech Dyn Astr 130, 22
-       (2018). https://doi.org/10.1007/s10569-017-9805-5
+.. References
+.. ----------
+.. .. [1] Archinal, B.A., Acton, C.H., A’Hearn, M.F. et al. Report of
+..        the IAU Working Group on Cartographic Coordinates and
+..        Rotational Elements: 2015. Celest Mech Dyn Astr 130, 22
+..        (2018). https://doi.org/10.1007/s10569-017-9805-5
 
 
 

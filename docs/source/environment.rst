@@ -1,3 +1,5 @@
+.. _environment:
+
 ``environment``
 ===============
 Functionalities of environment objects.
@@ -6,7 +8,7 @@ This module provides functionalities for environment objects. Specifically, it c
 classes and functions that perform computations related to environment models of natural and artificial bodies.
 Much of the functionality in this module concerns classes stored inside :class:`~tudatpy.numerical_simulation.environment.Body` objects, a list of which is in turn
 stored in a :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies` object. Note that the classes in this module are rarely created manually, 
-but are instead created by the functionality in the :ref:`\`\`environment_setup\`\`` module. 
+but are instead created by the functionality in the :ref:`environment_setup` module. 
 
 
 
@@ -34,38 +36,6 @@ Functions
 .. autofunction:: tudatpy.numerical_simulation.environment.save_vehicle_mesh_to_file
 
 .. autofunction:: tudatpy.numerical_simulation.environment.transform_to_inertial_orientation
-
-
-
-Enumerations
-------------
-.. currentmodule:: tudatpy.numerical_simulation.environment
-
-.. autosummary::
-
-   AerodynamicsReferenceFrames
-
-   AerodynamicCoefficientFrames
-
-   AerodynamicCoefficientsIndependentVariables
-   
-   AtmosphericCompositionSpecies
-
-
-.. autoclass:: tudatpy.numerical_simulation.environment.AerodynamicsReferenceFrameAngles
-   :members:
-
-.. autoclass:: tudatpy.numerical_simulation.environment.AerodynamicsReferenceFrames
-   :members:
-
-.. autoclass:: tudatpy.numerical_simulation.environment.AerodynamicCoefficientFrames
-   :members:
-
-.. autoclass:: tudatpy.numerical_simulation.environment.AerodynamicCoefficientsIndependentVariables
-   :members:
-
-.. autoclass:: tudatpy.numerical_simulation.environment.AtmosphericCompositionSpecies
-   :members:
 
 
 Classes
