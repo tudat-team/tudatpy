@@ -18,6 +18,9 @@
 #include "tudat/astro/ephemerides/itrsToGcrsRotationModel.h"
 #include "tudat/astro/earth_orientation/sofaEarthOrientationCookbookExamples.h"
 #include "tudat/interface/spice/spiceInterface.h"
+#include "tudat/simulation/environment_setup/body.h"
+#include "tudat/simulation/environment_setup/createBodies.h"
+#include "tudat/simulation/environment_setup/defaultBodies.h"
 
 namespace tudat
 {
@@ -27,6 +30,7 @@ namespace unit_tests
 using namespace ephemerides;
 using namespace earth_orientation;
 using namespace basic_astrodynamics;
+using namespace simulation_setup;
 
 BOOST_AUTO_TEST_SUITE( test_itrs_to_gcrs_rotation )
 
@@ -176,6 +180,76 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationAgainstSofaCookbook )
             }
         }
     }
+}
+
+//! Test ITRS <-> GCRS rotation by comparing results from different base frames.
+BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationConsistency )
+{
+    // 1. Load SPICE kernels
+    spice_interface::loadStandardSpiceKernels( );
+
+    // 2. Define test time
+    double testTime = 1.0E8;
+
+    // 3. Scenario 1: J2000 as global frame
+    Eigen::Vector3d marsPositionInItrsFromJ2000;
+    {
+        // Define bodies to be created
+        std::vector< std::string > bodiesToCreate = { "Earth", "Mars" };
+
+        // Define body settings
+        BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate, "SSB", "J2000" );
+
+        // Create system of bodies
+        SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+        // Set Earth rotation model with J2000 as base frame
+        auto earthRotationModelJ2000 =
+                std::make_shared< GcrsToItrsRotationModel >( createStandardEarthOrientationCalculator( ), tdb_scale, "J2000" );
+        bodies.at( "Earth" )->setRotationalEphemeris( earthRotationModelJ2000 );
+
+        // Calculate Mars position w.r.t. Earth in J2000
+        Eigen::Vector3d marsPositionInJ2000 = bodies.at( "Mars" )->getStateInBaseFrameFromEphemeris( testTime ).segment< 3 >( 0 ) -
+                bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( testTime ).segment< 3 >( 0 );
+
+        // Get rotation from J2000 to ITRS
+        Eigen::Quaterniond rotationJ2000ToItrs = earthRotationModelJ2000->getRotationToTargetFrame( testTime );
+
+        // Transform Mars position to ITRS
+        marsPositionInItrsFromJ2000 = rotationJ2000ToItrs.toRotationMatrix( ) * marsPositionInJ2000;
+    }
+
+    // 4. Scenario 2: ECLIPJ2000 as global frame
+    Eigen::Vector3d marsPositionInItrsFromEclipj2000;
+    {
+        // Define bodies to be created
+        std::vector< std::string > bodiesToCreate = { "Earth", "Mars" };
+
+        // Define body settings
+        BodyListSettings bodySettings = getDefaultBodySettings( bodiesToCreate, "SSB", "ECLIPJ2000" );
+
+        // Create system of bodies
+        SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+        // Set Earth rotation model with ECLIPJ2000 as base frame
+        auto earthRotationModelEclipj2000 =
+                std::make_shared< GcrsToItrsRotationModel >( createStandardEarthOrientationCalculator( ), tdb_scale, "ECLIPJ2000" );
+        bodies.at( "Earth" )->setRotationalEphemeris( earthRotationModelEclipj2000 );
+
+        // Calculate Mars position w.r.t. Earth in ECLIPJ2000
+        Eigen::Vector3d marsPositionInEclipj2000 = bodies.at( "Mars" )->getStateInBaseFrameFromEphemeris( testTime ).segment< 3 >( 0 ) -
+                bodies.at( "Earth" )->getStateInBaseFrameFromEphemeris( testTime ).segment< 3 >( 0 );
+
+        // Get rotation from ECLIPJ2000 to ITRS
+        Eigen::Quaterniond rotationEclipj2000ToItrs = earthRotationModelEclipj2000->getRotationToTargetFrame( testTime );
+
+        // Transform Mars position to ITRS
+        marsPositionInItrsFromEclipj2000 = rotationEclipj2000ToItrs.toRotationMatrix( ) * marsPositionInEclipj2000;
+    }
+
+    // 5. Comparison in ITRS
+    // Check that the two positions in ITRS are consistent
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( marsPositionInItrsFromJ2000, marsPositionInItrsFromEclipj2000, 1.0E-4 );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
