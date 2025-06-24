@@ -249,7 +249,10 @@ BOOST_AUTO_TEST_CASE( test_ItrsToGcrsRotationConsistency )
 
     // 5. Comparison in ITRS
     // Check that the two positions in ITRS are consistent
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( marsPositionInItrsFromJ2000, marsPositionInItrsFromEclipj2000, 1.0E-4 );
+    for( unsigned int i = 0; i < 3; i++ )
+    {
+        BOOST_CHECK_CLOSE_FRACTION( marsPositionInItrsFromJ2000( i ), marsPositionInItrsFromEclipj2000( i ), 1.0E-15 );
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
