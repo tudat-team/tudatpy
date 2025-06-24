@@ -132,16 +132,6 @@ if(TUDAT_BUILD_WITH_SOFA_INTERFACE)
     TUDAT_ADD_TEST_CASE(ItrsToGcrsRotationModel
             PRIVATE_LINKS
             ${Tudat_PROPAGATION_LIBRARIES}
-        #     tudat_simulation_setup
-        #     tudat
-        #     tudat_ephemerides
-        #     tudat_spice_interface
-        #     tudat_reference_frames
-        #     tudat_earth_orientation
-        #     tudat_sofa_interface
-        #     tudat_basic_astrodynamics
-        #     tudat_basic_mathematics
-        #     tudat_input_output
             )
 
 endif( )
