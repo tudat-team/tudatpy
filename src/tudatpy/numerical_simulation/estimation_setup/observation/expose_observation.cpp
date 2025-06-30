@@ -3052,7 +3052,7 @@ Examples
     m.def( "body_occultation_viability_list",
            py::overload_cast< const std::vector< std::pair< std::string, std::string > >, const std::string >(
                    &tom::bodyOccultationViabilitySettings ),
-           py::arg( "link_end_id" ),
+           py::arg( "link_end_ids" ),
            py::arg( "occulting_body" ),
            R"doc(
 
