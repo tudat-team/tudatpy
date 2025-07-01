@@ -1928,6 +1928,71 @@ BOOST_AUTO_TEST_CASE( test_groundStationCreation )
     }
 }
 
+BOOST_AUTO_TEST_CASE( test_dsnGroundStationCreation )
+{
+    std::vector< std::string > goldstoneStationNames = { "DSS-12", "DSS-13", "DSS-14", "DSS-15", "DSS-24", "DSS-25", "DSS-26", "DSS-27" };
+    std::vector< std::string > canberraStationNames = { "DSS-34", "DSS-35", "DSS-36", "DSS-42", "DSS-43", "DSS-45" };
+    std::vector< std::string > madridStationNames = { "DSS-54", "DSS-55", "DSS-61", "DSS-63", "DSS-65" };
+    std::vector< std::string > invalidStationNames = { "DSS-01", "DSN-12", "TUD-12" };
+
+    Eigen::Vector3d goldstoneStationVelocity( -0.0180, 0.0065, -0.0038 );
+    goldstoneStationVelocity /= physical_constants::JULIAN_YEAR;
+    Eigen::Vector3d canberraStationVelocity( -0.0335, -0.0041, 0.0392 );
+    canberraStationVelocity /= physical_constants::JULIAN_YEAR;
+    Eigen::Vector3d madridStationVelocity( -0.0100, 0.0242, 0.0156 );
+    madridStationVelocity /= physical_constants::JULIAN_YEAR;
+
+    std::vector< std::shared_ptr< GroundStationSettings > > dsnStationSettings( getDsnStationSettings( ) );
+
+    for( std::string& stationName: goldstoneStationNames )
+    {
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( getDsnStationVelocity( stationName ), goldstoneStationVelocity, 1.0E-5 );
+
+        bool groundStationCreated = false;
+        for( const auto& setting: dsnStationSettings )
+        {
+            if( setting->getStationName( ) == stationName )
+            {
+                groundStationCreated = true;
+            }
+        }
+        BOOST_CHECK( groundStationCreated );
+    }
+    for( std::string& stationName: canberraStationNames )
+    {
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( getDsnStationVelocity( stationName ), canberraStationVelocity, 1.0E-5 );
+
+        bool groundStationCreated = false;
+        for( const auto& setting: dsnStationSettings )
+        {
+            if( setting->getStationName( ) == stationName )
+            {
+                groundStationCreated = true;
+            }
+        }
+        BOOST_CHECK( groundStationCreated );
+    }
+    for( std::string& stationName: madridStationNames )
+    {
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( getDsnStationVelocity( stationName ), madridStationVelocity, 1.0E-5 );
+
+        bool groundStationCreated = false;
+        for( const auto& setting: dsnStationSettings )
+        {
+            if( setting->getStationName( ) == stationName )
+            {
+                groundStationCreated = true;
+            }
+        }
+        BOOST_CHECK( groundStationCreated );
+    }
+
+    for( std::string& stationName: invalidStationNames )
+    {
+        BOOST_CHECK_THROW( getDsnStationSetting( stationName ), std::runtime_error );
+    }
+}
+
 BOOST_AUTO_TEST_CASE( test_DefaultSettingsDifferentBody )
 {
     BodyListSettings bodySettings;
