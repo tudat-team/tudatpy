@@ -574,7 +574,7 @@ std::vector< std::shared_ptr< GroundStationSettings > > getDsnStationSettings( )
     goldstoneStationVelocity /= physical_constants::JULIAN_YEAR;
     Eigen::Vector3d canberraStationVelocity( -0.0335, -0.0041, 0.0392 );
     canberraStationVelocity /= physical_constants::JULIAN_YEAR;
-    Eigen::Vector3d madridStationVelocity( -0.0100, -0.0242, 0.0156 );
+    Eigen::Vector3d madridStationVelocity( -0.0100, 0.0242, 0.0156 );
     madridStationVelocity /= physical_constants::JULIAN_YEAR;
 
     std::vector< std::shared_ptr< GroundStationSettings > > stationSettingsList;
