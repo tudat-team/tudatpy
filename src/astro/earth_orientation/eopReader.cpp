@@ -21,15 +21,21 @@ namespace earth_orientation
 //! Constructor
 EOPReader::EOPReader( const std::string& eopFile, const std::string& format, const basic_astrodynamics::IAUConventions nutationTheory )
 {
-    if( format != "C04" )
+    if ( format != "C04" )
     {
         throw std::runtime_error( "Error, only C04 EOP file format currently supported by reader." );
     }
-    if( !( nutationTheory == basic_astrodynamics::iau_2000_a || nutationTheory == basic_astrodynamics::iau_2006 ) )
+    if ( !( nutationTheory == basic_astrodynamics::iau_2000_a || nutationTheory == basic_astrodynamics::iau_2006 ))
     {
         std::cerr << ( "Warning, only IAU2000 nutation theory format currently supported by reader." ) << std::endl;
     }
     readEopFile( eopFile );
+
+    // Add one hour buffer time
+    cipInItrs[ cipInItrs.begin( )->first - 3600.0 ] = cipInItrs.begin( )->second;
+    cipInGcrsCorrection[ cipInGcrsCorrection.begin( )->first - 3600.0 ] = cipInGcrsCorrection.begin( )->second;
+    ut1MinusUtc[ ut1MinusUtc.begin( )->first - 3600.0 ] = ut1MinusUtc.begin( )->second;
+    lengthOfDayOffset[ lengthOfDayOffset.begin( )->first - 3600.0 ] = lengthOfDayOffset.begin( )->second;
 }
 
 //! Function to read EOP file

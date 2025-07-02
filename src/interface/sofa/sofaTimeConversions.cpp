@@ -121,13 +121,26 @@ double getTDBminusTT( const double ttOrTdbSinceJ2000,
     double tai = basic_astrodynamics::convertTTtoTAI< double >( ttOrTdbSinceJ2000 );
 
     // Calculate current UT1 (by assuming it equal to UTC)
-    double ut1 = static_cast< double >( convertTAItoUTC< double >( tai ) );
+    double ut1 = TUDAT_NAN;
+
+    // Conversion is only valid from 1961 onwards
+    if( static_cast< double >( tai ) / physical_constants::JULIAN_DAY > ( basic_astrodynamics::JULIAN_DAY_OF_UTC_INTRODUCTION - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) )
+    {
+        ut1 = static_cast< double >( convertTAItoUTC< double >( tai ) );
+    }
+    else
+    {
+        // Rough approximation, but suficient for TT<->TDB computation
+        ut1 = tai;
+    }
     double ut1FractionOfDay = std::fmod(
             ( ut1 / physical_constants::JULIAN_DAY ) - static_cast< double >( std::floor( ut1 / physical_constants::JULIAN_DAY ) ) + 0.5,
             1.0 );
 
     // Calculate and return difference (introducing addition approximation if input is in TT, by assuming TDB is equal to TT)
-    return getTDBminusTT( ttOrTdbSinceJ2000, ut1FractionOfDay, stationLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane );
+    double tdbMinusTT = getTDBminusTT( ttOrTdbSinceJ2000, ut1FractionOfDay, stationLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane );
+
+    return tdbMinusTT;
 }
 
 //! Function to calculate difference between TDB and TT.
