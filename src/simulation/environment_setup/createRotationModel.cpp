@@ -429,12 +429,16 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
                 // Load polar motion corrections
                 std::shared_ptr< interpolators::LinearInterpolator< double, Eigen::Vector2d > > cipInItrsInterpolator =
                         std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >(
-                                eopReader->getCipInItrsMapInSecondsSinceJ2000( ) );
+                                eopReader->getCipInItrsMapInSecondsSinceJ2000( ), interpolators::huntingAlgorithm,
+                                interpolators::use_default_value, std::make_pair( Eigen::Vector2d::Zero( ), Eigen::Vector2d::Zero( ) ) );
+
 
                 // Load nutation corrections
                 std::shared_ptr< interpolators::LinearInterpolator< double, Eigen::Vector2d > > cipInGcrsCorrectionInterpolator =
                         std::make_shared< interpolators::LinearInterpolator< double, Eigen::Vector2d > >(
-                                eopReader->getCipInGcrsCorrectionMapInSecondsSinceJ2000( ) );
+                                eopReader->getCipInGcrsCorrectionMapInSecondsSinceJ2000( ), interpolators::huntingAlgorithm,
+                                interpolators::use_default_value, std::make_pair( Eigen::Vector2d::Zero( ), Eigen::Vector2d::Zero( ) ) );
+
 
                 // Create polar motion correction (sub-diural frequencies) object
                 std::shared_ptr< earth_orientation::ShortPeriodEarthOrientationCorrectionCalculator< Eigen::Vector2d > >
@@ -473,7 +477,8 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
 
                 std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > dailyUtcUt1CorrectionInterpolator =
                         std::make_shared< interpolators::JumpDataLinearInterpolator< double, double > >(
-                                eopReader->getUt1MinusUtcMapInSecondsSinceJ2000( ), 0.5, 1.0 );
+                                eopReader->getUt1MinusUtcMapInSecondsSinceJ2000( ), 0.5, 1.0, interpolators::huntingAlgorithm,
+                                interpolators::use_default_value, 0.0 );
 
                 // Create default time scale converter
                 std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter =
