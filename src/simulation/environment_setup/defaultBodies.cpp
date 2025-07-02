@@ -564,47 +564,77 @@ std::map< std::string, Eigen::Vector3d >& getVlbiStationVelocities( )
 //   return groundStationCodesFromFile.at(shortStationName);
 // }
 
-std::vector< std::shared_ptr< GroundStationSettings > > getDsnStationSettings( )
+Eigen::Vector3d getDsnStationVelocity( std::string stationName )
 {
-    // DSS positions: at 2003.0 with respect to ITRF93
-    double stationPositionsReferenceEpoch = 3.0 * physical_constants::JULIAN_YEAR;
-    std::map< std::string, Eigen::Vector3d > dsnStationPositionsItrf93 = getApproximateDsnGroundStationPositions( );
-
     Eigen::Vector3d goldstoneStationVelocity( -0.0180, 0.0065, -0.0038 );
     goldstoneStationVelocity /= physical_constants::JULIAN_YEAR;
     Eigen::Vector3d canberraStationVelocity( -0.0335, -0.0041, 0.0392 );
     canberraStationVelocity /= physical_constants::JULIAN_YEAR;
     Eigen::Vector3d madridStationVelocity( -0.0100, 0.0242, 0.0156 );
     madridStationVelocity /= physical_constants::JULIAN_YEAR;
+    Eigen::Vector3d stationVelocityItrf93 = Eigen::Vector3d::Constant( TUDAT_NAN );
+    if( stationName[ 4 ] == '1' || stationName[ 4 ] == '2' )
+    {
+        stationVelocityItrf93 = goldstoneStationVelocity;
+    }
+    else if( stationName[ 4 ] == '3' || stationName[ 4 ] == '4' )
+    {
+        stationVelocityItrf93 = canberraStationVelocity;
+    }
+    else if( stationName[ 4 ] == '5' || stationName[ 4 ] == '6' )
+    {
+        stationVelocityItrf93 = madridStationVelocity;
+    }
+    else
+    {
+        throw std::runtime_error( "Error when retrieving approximate ground station velocity: station name " + stationName +
+                                  "not recognized." );
+    }
+
+    return stationVelocityItrf93;
+}
+
+std::shared_ptr< GroundStationSettings > getDsnStationSetting( std::string stationName )
+{
+    // DSS positions: at 2003.0 with respect to ITRF93
+    double stationPositionsReferenceEpoch = 3.0 * physical_constants::JULIAN_YEAR;
+    std::map< std::string, Eigen::Vector3d > dsnStationPositionsItrf93 = getApproximateDsnGroundStationPositions( );
+
+    if( dsnStationPositionsItrf93.find( stationName ) == dsnStationPositionsItrf93.end( ) )
+    {
+        throw std::runtime_error( "Error when retrieving approximate ground station position: station name " + stationName +
+                                  "not recognized." );
+    }
+
+    // Get the station velocity in ITRF93
+    Eigen::Vector3d stationVelocityItrf93 = getDsnStationVelocity( stationName );
+
+    // Convert ground station state to ITRF2014
+    Eigen::Vector6d stationStateItrf2014 = reference_frames::convertGroundStationStateArbitraryItrfToItrf2014(
+            ( Eigen::Vector6d( ) << dsnStationPositionsItrf93[ stationName ], stationVelocityItrf93 ).finished( ),
+            stationPositionsReferenceEpoch,
+            "ITRF93" );
+
+    std::shared_ptr< GroundStationMotionSettings > stationMotion =
+            std::make_shared< LinearGroundStationMotionSettings >( stationStateItrf2014.segment( 3, 3 ), stationPositionsReferenceEpoch );
+
+    std::shared_ptr< GroundStationSettings > stationSettings =
+            std::make_shared< GroundStationSettings >( stationName, stationStateItrf2014.segment( 0, 3 ) );
+    stationSettings->addStationMotionSettings( stationMotion );
+
+    return stationSettings;
+}
+
+std::vector< std::shared_ptr< GroundStationSettings > > getDsnStationSettings( )
+{
+    std::map< std::string, Eigen::Vector3d > dsnStationPositionsItrf93 = getApproximateDsnGroundStationPositions( );
 
     std::vector< std::shared_ptr< GroundStationSettings > > stationSettingsList;
 
     for( auto it: dsnStationPositionsItrf93 )
     {
-        Eigen::Vector3d stationVelocityItrf93 = Eigen::Vector3d::Constant( TUDAT_NAN );
-        if( it.first[ 4 ] == '1' || it.first[ 4 ] == '2' )
-        {
-            stationVelocityItrf93 = goldstoneStationVelocity;
-        }
-        else if( it.first[ 4 ] == '3' || it.first[ 4 ] == '4' )
-        {
-            stationVelocityItrf93 = canberraStationVelocity;
-        }
-        else if( it.first[ 4 ] == '5' || it.first[ 4 ] == '6' )
-        {
-            stationVelocityItrf93 = madridStationVelocity;
-        }
+        std::shared_ptr< GroundStationSettings > stationSettings( getDsnStationSetting( it.first ) );
 
-        // Convert ground station state to ITRF2014
-        Eigen::Vector6d stationStateItrf2014 = reference_frames::convertGroundStationStateArbitraryItrfToItrf2014(
-                ( Eigen::Vector6d( ) << it.second, stationVelocityItrf93 ).finished( ), stationPositionsReferenceEpoch, "ITRF93" );
-
-        std::shared_ptr< GroundStationMotionSettings > stationMotion = std::make_shared< LinearGroundStationMotionSettings >(
-                stationStateItrf2014.segment( 3, 3 ), stationPositionsReferenceEpoch );
-
-        std::shared_ptr< GroundStationSettings > stationSettings =
-                std::make_shared< GroundStationSettings >( it.first, stationStateItrf2014.segment( 0, 3 ) );
-        stationSettings->addStationMotionSettings( stationMotion );
         stationSettingsList.push_back( stationSettings );
     }
 
