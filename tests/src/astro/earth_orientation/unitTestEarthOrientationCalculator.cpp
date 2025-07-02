@@ -214,6 +214,40 @@ BOOST_AUTO_TEST_CASE( testEarthOrientationAngleFunctionsAgainstSofa )
     BOOST_CHECK_SMALL( std::fabs( era - eraTime ), 1.0E-12 );
 }
 
+BOOST_AUTO_TEST_CASE( testHistoricalEarthRotation )
+{
+    std::shared_ptr< EarthOrientationAnglesCalculator > earthOrientationCalculator = createStandardEarthOrientationCalculator( );
+    basic_astrodynamics::DateTime dateTimePreC04( 1958, 12, 30, 12, 0.0, 0.0 );
+    basic_astrodynamics::DateTime dateTimeStartC04( 1962, 1, 1, 0, 0.0, 0.0 );
+
+    Eigen::Vector2d polarMotionPreC04 = earthOrientationCalculator->getPolarMotionCalculator()->getDailyIersValueInterpolator( )->interpolate( dateTimePreC04.epoch< double >( ) );
+    Eigen::Vector2d polarMotionPostC04 = earthOrientationCalculator->getPolarMotionCalculator()->getDailyIersValueInterpolator( )->interpolate( dateTimeStartC04.epoch< double >( ) );
+
+    Eigen::Vector2d pnCorrectionPreC04 = earthOrientationCalculator->getPrecessionNutationCalculator()->getDailyCorrectionInterpolator()->interpolate( dateTimePreC04.epoch< double >( ) );
+    Eigen::Vector2d pnCorrectionPostC04 = earthOrientationCalculator->getPrecessionNutationCalculator()->getDailyCorrectionInterpolator()->interpolate( dateTimeStartC04.epoch< double >( ) );
+
+    double ut1CorrectionPreC04 = earthOrientationCalculator->getTerrestrialTimeScaleConverter()->getDailyUtcUt1CorrectionInterpolator( )->interpolate( dateTimePreC04.epoch< double >( ) );
+    double ut1CorrectionPostC04 = earthOrientationCalculator->getTerrestrialTimeScaleConverter()->getDailyUtcUt1CorrectionInterpolator( )->interpolate( dateTimeStartC04.epoch< double >( ) );
+
+    // Check if polar motion is zero before c04 file starts
+    BOOST_CHECK_EQUAL( polarMotionPreC04( 0 ) == 0, true );
+    BOOST_CHECK_EQUAL( polarMotionPreC04( 1 ) == 0, true );
+
+    BOOST_CHECK_EQUAL( polarMotionPostC04( 0 ) == 0, false );
+    BOOST_CHECK_EQUAL( polarMotionPostC04( 1 ) == 0, false );
+
+    // Check if pn correction is zero before c04 file starts (also 0 after it starts due to absence of corrections)
+    BOOST_CHECK_EQUAL( pnCorrectionPreC04( 0 ) == 0, true );
+    BOOST_CHECK_EQUAL( pnCorrectionPreC04( 1 ) == 0, true );
+
+    BOOST_CHECK_EQUAL( pnCorrectionPostC04( 0 ) == 0, true );
+    BOOST_CHECK_EQUAL( pnCorrectionPostC04( 1 ) == 0, true );
+
+    // Check if UTC-UT1 is zero before c04 file starts
+    BOOST_CHECK_EQUAL( ut1CorrectionPreC04 == 0, true );
+    BOOST_CHECK_EQUAL( ut1CorrectionPostC04 == 0, false );
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

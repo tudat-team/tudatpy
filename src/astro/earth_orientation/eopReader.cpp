@@ -32,10 +32,10 @@ EOPReader::EOPReader( const std::string& eopFile, const std::string& format, con
     readEopFile( eopFile );
 
     // Add one hour buffer time
-    cipInItrs[ cipInItrs.begin( )->first - 3600.0 ] = cipInItrs.begin( )->second;
-    cipInGcrsCorrection[ cipInGcrsCorrection.begin( )->first - 3600.0 ] = cipInGcrsCorrection.begin( )->second;
-    ut1MinusUtc[ ut1MinusUtc.begin( )->first - 3600.0 ] = ut1MinusUtc.begin( )->second;
-    lengthOfDayOffset[ lengthOfDayOffset.begin( )->first - 3600.0 ] = lengthOfDayOffset.begin( )->second;
+    cipInItrs[ cipInItrs.begin( )->first - 1.0 / 24.0 ] = cipInItrs.begin( )->second;
+    cipInGcrsCorrection[ cipInGcrsCorrection.begin( )->first - 1.0 / 24.0 ] = cipInGcrsCorrection.begin( )->second;
+    ut1MinusUtc[ ut1MinusUtc.begin( )->first - 1.0 / 24.0 ] = ut1MinusUtc.begin( )->second;
+    lengthOfDayOffset[ lengthOfDayOffset.begin( )->first - 1.0 / 24.0 ] = lengthOfDayOffset.begin( )->second;
 }
 
 //! Function to read EOP file
