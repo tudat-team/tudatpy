@@ -310,6 +310,7 @@ protected:
                         {
                             throw std::runtime_error( "Error when checking interpolation boundary, inconsistent data encountered" );
                         }
+
                         break;
                     }
                     case use_nan_value:
