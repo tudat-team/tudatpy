@@ -187,6 +187,45 @@ void expose_ground_station_setup( py::module &m )
             },
             "Returns a dictionary mapping DSN station names (str) to approximate positions (Eigen::Vector3d)." );
 
+    m.def( "dsn_station",
+           &tss::getDsnStationSetting,
+           py::arg( "station_name" ),
+           R"doc(
+
+ Function for creating settings for single DSN station
+
+ Function for creating settings for single DSN station, defined by nominal positions and linear velocities, as defined
+ by Cartesian elements in *DSN No. 810-005, 301, Rev. K*,  see `this link <https://deepspace.jpl.nasa.gov/dsndocs/810-005/301/301K.pdf>`__.
+ Note that calling these settings will use the Cartesian elements provided in this document (in ITRF93) and apply them to the Earth-fixed
+ station positions, regardless of the selected Earth rotation model.
+
+ Parameters
+ ----------
+ station_name : str
+     String with the name of the station, e.g. "DSS-12"
+
+ Returns
+ -------
+ GroundStationSettings
+     Settings to create DSN station
+
+ Examples
+ --------
+
+ In this example, settings for the 70m DSN dishes DSS-14, DSS-43 and DSS-63 are created and assigned to the Earth ground station settings:
+
+ .. code-block:: python
+
+     from tudatpy.numerical_simulation.environment_setup.ground_station import \
+         dsn_station
+
+     dss_station_names = ["DSS-14", "DSS-43", "DSS-63"]
+     dss_station_settings = [dsn_station(station_name) for station_name in dss_station_names]
+
+     body_settings.get("Earth").ground_station_settings = dss_station_settings
+
+
+     )doc" );
     m.def( "dsn_stations",
            &tss::getDsnStationSettings,
            R"doc(
