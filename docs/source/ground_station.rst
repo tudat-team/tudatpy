@@ -58,6 +58,8 @@ Functions
 
     basic_station
 
+    dsn_station
+
     dsn_stations
 
     radio_telescope_stations
@@ -73,6 +75,8 @@ Functions
 
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.ground_station.basic_station
+
+.. autofunction:: tudatpy.numerical_simulation.environment_setup.ground_station.dsn_station
 
 .. autofunction:: tudatpy.numerical_simulation.environment_setup.ground_station.dsn_stations
 
