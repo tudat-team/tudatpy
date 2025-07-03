@@ -18,6 +18,7 @@
 #include "tudat/math/interpolators/interpolator.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
 #include "tudat/astro/earth_orientation/earthOrientationCalculator.h"
+#include "tudat/interface/spice/spiceInterface.h"
 
 namespace tudat
 {
@@ -75,12 +76,19 @@ public:
                            anglesCalculator,
                            std::placeholders::_1,
                            inputTimeScale );
+
         if( baseFrame == "J2000" )
         {
             frameBias_ = sofa_interface::getFrameBias(
                     0.0, anglesCalculator->getPrecessionNutationCalculator( )->getPrecessionNutationTheory( ) );
         }
-        else if( baseFrame != "GCRS" )
+        else if( baseFrame == "ECLIPJ2000" )
+        {
+            frameBias_ = spice_interface::getRotationFromJ2000ToEclipJ2000( ) *
+                    sofa_interface::getFrameBias( 0.0,
+                                                  anglesCalculator->getPrecessionNutationCalculator( )->getPrecessionNutationTheory( ) );
+        }
+        else if( baseFrame != "J2000" && baseFrame != "ECLIPJ2000" && baseFrame != "GCRS" )
         {
             throw std::runtime_error( "Error in GCRS<->ITRS model, base frame not recognized" );
         }

@@ -751,8 +751,7 @@ public:
     DirectTleEphemerisSettings( std::shared_ptr< ephemerides::Tle > tle,
                                 const std::string frameOrigin = "Earth",
                                 const std::string frameOrientation = "J2000" ):
-        EphemerisSettings( direct_tle_ephemeris, frameOrigin, frameOrientation ),
-        tle_( tle )
+        EphemerisSettings( direct_tle_ephemeris, frameOrigin, frameOrientation ), tle_( tle )
     { }
 
     const std::shared_ptr< ephemerides::Tle > getTle( ) const
@@ -1130,6 +1129,11 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris( const std::shared
                             ? bodyName
                             : directEphemerisSettings->getBodyNameOverride( );
 
+                    if( inputName == directEphemerisSettings->getFrameOrigin( ) )
+                    {
+                        throw std::runtime_error( "Error when creating direct spice ephemeris, frame origin and body ID are identical" );
+                    }
+
                     // Create corresponding ephemeris object.
                     ephemeris = std::make_shared< SpiceEphemeris >( inputName,
                                                                     directEphemerisSettings->getFrameOrigin( ),
@@ -1155,6 +1159,12 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris( const std::shared
                     std::string inputName = ( interpolatedEphemerisSettings->getBodyNameOverride( ) == "" )
                             ? bodyName
                             : interpolatedEphemerisSettings->getBodyNameOverride( );
+
+                    if( inputName == interpolatedEphemerisSettings->getFrameOrigin( ) )
+                    {
+                        throw std::runtime_error( "Error when creating direct spice ephemeris, frame origin and body ID are identical" );
+                    }
+
                     ephemeris = createTabulatedEphemerisFromSpice< StateScalarType, TimeType >(
                             inputName,
                             interpolatedEphemerisSettings->getInitialTime( ),

@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE( testControlSurfaceIncrementInterfaceInPropagation )
     // Define simulation body settings.
     BodyListSettings bodySettings = getDefaultBodySettings(
             { "Earth", "Moon" }, simulationStartEpoch - 10.0 * fixedStepSize, simulationEndEpoch + 10.0 * fixedStepSize );
-    bodySettings.at( "Earth" )->gravityFieldSettings = std::make_shared< simulation_setup::GravityFieldSettings >( central_spice );
+    bodySettings.at( "Earth" )->gravityFieldSettings = centralGravityFromSpiceSettings( );
 
     // Create Earth object
     simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );

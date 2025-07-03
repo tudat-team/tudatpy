@@ -113,7 +113,7 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< GravityFieldS
             return;
         }
         case central_spice: {
-            gravityFieldSettings = std::make_shared< GravityFieldSettings >( central_spice );
+            gravityFieldSettings = centralGravityFromSpiceSettings( );
             return;
         }
         case spherical_harmonic: {

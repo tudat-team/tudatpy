@@ -582,7 +582,7 @@ BOOST_AUTO_TEST_CASE( testTabulatedAndJakowskiIonosphericCorrectionsConsistency 
 BOOST_AUTO_TEST_CASE( testMediaCorrectionDerivatives )
 {
     double initialTime = 544795200.0 + 100.0;
-    DateTime initialDate = getCalendarDateFromTime< double >( initialTime );
+    DateTime initialDate = DateTime::fromTime< double >( initialTime );
     std::cout << initialDate.isoString( ) << std::endl;
 
     // Create bodies
