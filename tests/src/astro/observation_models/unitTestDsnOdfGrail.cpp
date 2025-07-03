@@ -167,8 +167,8 @@ int main( )
     for( auto it: linkEndIds )
     {
         std::cout << it.first << ", (" << it.second[ transmitter ].bodyName_ << ", " << it.second[ transmitter ].stationName_ << "); "
-                  << ", (" << it.second[ retransmitter ].bodyName_ << ", " << it.second[ retransmitter ].stationName_ << "); "
-                  << ", (" << it.second[ receiver ].bodyName_ << ", " << it.second[ receiver ].stationName_ << ")" << std::endl;
+                  << ", (" << it.second[ retransmitter ].bodyName_ << ", " << it.second[ retransmitter ].stationName_ << "); " << ", ("
+                  << it.second[ receiver ].bodyName_ << ", " << it.second[ receiver ].stationName_ << ")" << std::endl;
     }
 
     std::map< ObservableType, std::map< LinkEnds, std::vector< std::pair< double, double > > > > arcStartEndTimes;
@@ -178,8 +178,8 @@ int main( )
     Time initialTime = timeBounds.first - 3600.0;
     Time finalTime = timeBounds.second + 3600.0;
 
-    std::cout << "Initial time: " << basic_astrodynamics::getCalendarDateFromTime( initialTime ).isoString( false, 3 ) << std::endl;
-    std::cout << "Final time: " << basic_astrodynamics::getCalendarDateFromTime( finalTime ).isoString( false, 3 ) << std::endl;
+    std::cout << "Initial time: " << basic_astrodynamics::DateTime::fromTime( initialTime ).isoString( false, 3 ) << std::endl;
+    std::cout << "Final time: " << basic_astrodynamics::DateTime::fromTime( finalTime ).isoString( false, 3 ) << std::endl;
 
     /****************************************************************************************
      ************************** CREATE OBSERVATION MODEL SETTINGS

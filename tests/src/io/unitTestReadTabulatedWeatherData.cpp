@@ -369,7 +369,7 @@ BOOST_AUTO_TEST_CASE( setEstrackWeatherData )
         }
 
         {
-            double testEpoch = basic_astrodynamics::dateTimeFromIsoString( "2013-12-28T17:43:20.000" ).epoch< double >( );
+            double testEpoch = basic_astrodynamics::DateTime::fromIsoString( "2013-12-28T17:43:20.000" ).epoch< double >( );
 
             double testTemperature = 19.6 + 273.15;
             double testHumidity = 0.549;
@@ -386,7 +386,7 @@ BOOST_AUTO_TEST_CASE( setEstrackWeatherData )
         }
 
         {
-            double testEpoch = basic_astrodynamics::dateTimeFromIsoString( "2013-12-28T22:21:20.000" ).epoch< double >( );
+            double testEpoch = basic_astrodynamics::DateTime::fromIsoString( "2013-12-28T22:21:20.000" ).epoch< double >( );
 
             double testTemperature = 21.9 + 273.15;
             double testHumidity = 0.385;
@@ -404,7 +404,7 @@ BOOST_AUTO_TEST_CASE( setEstrackWeatherData )
 
         if( test < 3 )
         {
-            double testEpoch = basic_astrodynamics::dateTimeFromIsoString( "2013-12-28T18:26:50.000" ).epoch< double >( );
+            double testEpoch = basic_astrodynamics::DateTime::fromIsoString( "2013-12-28T18:26:50.000" ).epoch< double >( );
 
             double testTemperature = ( 19.8 + 19.7 ) / 2.0 + 273.15;
             double testHumidity = ( 0.529 + 0.533 ) / 2.0;
