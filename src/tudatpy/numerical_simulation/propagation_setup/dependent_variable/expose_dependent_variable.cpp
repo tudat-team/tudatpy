@@ -1650,7 +1650,25 @@ void expose_dependent_variable_setup( py::module &m )
 
  Function to add the rotation matrix from inertial to body-fixed frame to the dependent variables to save.
 
- Function to add the rotation matrix from inertial to body-fixed frame to the dependent variables to save. This requires the rotation of the body to be defined (either in the environment or the state vector). NOTE: a rotation matrix is returned as a nine-entry vector in the dependent variable output, where entry :math:`(i,j)` of the matrix is stored in entry :math:`(3i+j)` of the vector (with :math:`i,j=0,1,2`),
+ Function to add the rotation matrix from inertial to body-fixed frame to the dependent variables to save. This requires the rotation of the body to be defined (either in the environment or the state vector). 
+ 
+ .. note:: 
+ 
+     A rotation matrix is returned as a nine-entry vector in the dependent variable output, where entry :math:`(i,j)` of the matrix is stored in entry :math:`(3i+j)` of the vector (with :math:`i,j=0,1,2`).
+
+     You can convert this vector to a matrix using numpy's `reshape` function, e.g.:
+     
+     .. code-block:: python
+
+        import numpy as np
+
+        # Index where the rotation matrix starts in the dependent variable history
+        start_index = ...
+        rotation_matrix_components = dependent_variable_array[:, start_index : start_index + 9]
+
+        rotation_matrix_history = rotation_matrix_components.reshape(
+            (rotation_matrix_components.shape[0], 3, 3)
+        )
 
  Parameters
  ----------
@@ -1676,7 +1694,25 @@ void expose_dependent_variable_setup( py::module &m )
 
  Function to add the rotation matrix from the TNW to the inertial frame to the dependent variables to save.
 
- Function to add the rotation matrix from the TNW to the inertial frame to the dependent variables to save. It has the x-axis pointing along the velocity vector, the z-axis along the orbital angular momentum vector, and the y-axis completing the right-handed system. NOTE: a rotation matrix is returned as a nine-entry vector in the dependent variable output, where entry :math:`(i,j)` of the matrix is stored in entry :math:`(3i+j)` of the vector (with :math:`i,j=0,1,2`),
+ Function to add the rotation matrix from the TNW to the inertial frame to the dependent variables to save. It has the x-axis pointing along the velocity vector, the z-axis along the orbital angular momentum vector, and the y-axis completing the right-handed system.
+ 
+ .. note:: 
+ 
+     A rotation matrix is returned as a nine-entry vector in the dependent variable output, where entry :math:`(i,j)` of the matrix is stored in entry :math:`(3i+j)` of the vector (with :math:`i,j=0,1,2`).
+
+     You can convert this vector to a matrix using numpy's `reshape` function, e.g.:
+     
+     .. code-block:: python
+
+        import numpy as np
+
+        # Index where the rotation matrix starts in the dependent variable history
+        start_index = ...
+        rotation_matrix_components = dependent_variable_array[:, start_index : start_index + 9]
+
+        rotation_matrix_history = rotation_matrix_components.reshape(
+            (rotation_matrix_components.shape[0], 3, 3)
+        )
 
  Parameters
  ----------
@@ -1704,7 +1740,25 @@ void expose_dependent_variable_setup( py::module &m )
 
  Function to add the rotation matrix from the RSW to the inertial frame to the dependent variables to save.
 
- Function to add the rotation matrix from the RSW to the inertial frame to the dependent variables to save. It has the x-axis pointing along the position vector (away from the central body), the z-axis along the orbital angular momentum vector, and the y-axis completing the right-handed system. NOTE: a rotation matrix is returned as a nine-entry vector in the dependent variable output, where entry :math:`(i,j)` of the matrix is stored in entry :math:`(3i+j)` of the vector (with :math:`i,j=0,1,2`),
+ Function to add the rotation matrix from the RSW to the inertial frame to the dependent variables to save. It has the x-axis pointing along the position vector (away from the central body), the z-axis along the orbital angular momentum vector, and the y-axis completing the right-handed system.
+
+ .. note:: 
+ 
+     A rotation matrix is returned as a nine-entry vector in the dependent variable output, where entry :math:`(i,j)` of the matrix is stored in entry :math:`(3i+j)` of the vector (with :math:`i,j=0,1,2`).
+
+     You can convert this vector to a matrix using numpy's `reshape` function, e.g.:
+     
+     .. code-block:: python
+
+        import numpy as np
+
+        # Index where the rotation matrix starts in the dependent variable history
+        start_index = ...
+        rotation_matrix_components = dependent_variable_array[:, start_index : start_index + 9]
+
+        rotation_matrix_history = rotation_matrix_components.reshape(
+            (rotation_matrix_components.shape[0], 3, 3)
+        )
 
  Parameters
  ----------
@@ -1759,7 +1813,25 @@ void expose_dependent_variable_setup( py::module &m )
 
  Function to add the rotation matrix between any two reference frames used in aerodynamic calculations.
 
- Function to add the rotation matrix between any two reference frames used in aerodynamic calculations. The list of available frames is defined by the :class:`AerodynamicsReferenceFrames` enum. NOTE: a rotation matrix is returned as a nine-entry vector in the dependent variable output, where entry :math:`(i,j)` of the matrix is stored in entry :math:`(3i+j)` of the vector (with :math:`i,j=0,1,2`),
+ Function to add the rotation matrix between any two reference frames used in aerodynamic calculations. The list of available frames is defined by the :class:`AerodynamicsReferenceFrames` enum.
+
+ .. note:: 
+ 
+     A rotation matrix is returned as a nine-entry vector in the dependent variable output, where entry :math:`(i,j)` of the matrix is stored in entry :math:`(3i+j)` of the vector (with :math:`i,j=0,1,2`).
+
+     You can convert this vector to a matrix using numpy's `reshape` function, e.g.:
+     
+     .. code-block:: python
+
+        import numpy as np
+
+        # Index where the rotation matrix starts in the dependent variable history
+        start_index = ...
+        rotation_matrix_components = dependent_variable_array[:, start_index : start_index + 9]
+
+        rotation_matrix_history = rotation_matrix_components.reshape(
+            (rotation_matrix_components.shape[0], 3, 3)
+        )
 
  Parameters
  ----------
