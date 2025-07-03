@@ -222,6 +222,7 @@ std::pair< double, double > readGravityFieldFile( const std::string& fileName,
     {
         // Read current line
         std::getline( stream, line );
+        bool isFirstLine = true;
         if( !line.empty( ) )
         {
             // Trim input string (removes all leading and trailing whitespaces).
@@ -252,6 +253,19 @@ std::pair< double, double > readGravityFieldFile( const std::string& fileName,
                     // Set cosine and sine coefficients for current degree and order.
                     if( currentDegree <= maximumDegree && currentOrder <= maximumOrder )
                     {
+                        if( isFirstLine )
+                        {
+                            for( char c: vectorOfIndividualStrings[ 2 ] )
+                            {
+                                if( c == 'd' || c == 'D' )
+                                {
+                                    throw std::runtime_error(
+                                            "Error when reading spherical harmonic file, coefficients are provided with 'd' or 'D' to "
+                                            "denote exponent. Use 'e' or 'E'." );
+                                }
+                            }
+                            isFirstLine = false;
+                        }
                         cosineCoefficients( currentDegree, currentOrder ) = std::stod( vectorOfIndividualStrings[ 2 ] );
                         sineCoefficients( currentDegree, currentOrder ) = std::stod( vectorOfIndividualStrings[ 3 ] );
                     }
@@ -310,8 +324,20 @@ std::shared_ptr< gravitation::GravityFieldModel > createGravityFieldModel(
             }
             else
             {
+                std::shared_ptr< SpiceCentralGravityFieldSettings > spiceGravityFieldSettings =
+                        std::dynamic_pointer_cast< SpiceCentralGravityFieldSettings >( gravityFieldSettings );
+
+                std::string bodyNameToUse = body;
+                if( spiceGravityFieldSettings != nullptr )
+                {
+                    if( spiceGravityFieldSettings->getBodyOverrideName( ) != "" )
+                    {
+                        bodyNameToUse = spiceGravityFieldSettings->getBodyOverrideName( );
+                    }
+                }
                 // Create and initialize point mass gravity field model from Spice.
-                gravityFieldModel = std::make_shared< GravityFieldModel >( spice_interface::getBodyGravitationalParameter( body ) );
+                gravityFieldModel =
+                        std::make_shared< GravityFieldModel >( spice_interface::getBodyGravitationalParameter( bodyNameToUse ) );
             }
 
             break;

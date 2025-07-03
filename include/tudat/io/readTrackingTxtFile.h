@@ -202,7 +202,7 @@ public:
     { }
     double toDouble( std::string& rawField ) const
     {
-        return basic_astrodynamics::dateTimeFromIsoString( rawField ).epoch< double >( );
+        return basic_astrodynamics::DateTime::fromIsoString( rawField ).epoch< double >( );
     }
 };
 
