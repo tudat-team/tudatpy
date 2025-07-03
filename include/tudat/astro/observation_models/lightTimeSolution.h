@@ -317,7 +317,8 @@ public:
      *  for which solution is accepted.
      *  \return The value of the light time between the link ends.
      */
-    ObservationScalarType calculateLightTime( const TimeType time, const bool isTimeAtReception = true )
+    ObservationScalarType calculateLightTime( const TimeType time,
+                                              const bool isTimeAtReception = true )
     {
         // Declare and initialize variables for receiver and transmitter state (returned by reference).
         StateType receiverState;
@@ -381,6 +382,20 @@ public:
 
         return lightTime;
     }
+
+    ObservationScalarType calculateFirstIterationLightTime(
+        const TimeType time,
+        const bool isTimeAtReception = 1 )
+    {
+        std::vector< StateType > linkEndsStates( 2, StateType::Constant( TUDAT_NAN ) );
+        std::vector< TimeType > linkEndsTimes( 2, TUDAT_NAN );
+
+        ObservationScalarType lightTime = calculateLightTimeWithMultiLegLinkEndsStates(
+            linkEndsStates, linkEndsTimes, time, isTimeAtReception, 0, nullptr, false );
+
+        return lightTime;
+    }
+
 
     //! Function to calculate the light time and link-ends states, given an initial guess for all legs.
     /*!
@@ -658,6 +673,19 @@ public:
     std::shared_ptr< ephemerides::Ephemeris > getEphemerisOfReceivingBody( )
     {
         return ephemerisOfReceivingBody_;
+    }
+
+    bool doCorrectionsNeedFrequency( )
+    {
+        bool correctionsNeedFrequency = false;
+        for( int i = 0; i < correctionFunctions_.size( ); i++ )
+        {
+            if( requiresMultiLegIterations( correctionFunctions_.at( i )->getLightTimeCorrectionType() ) )
+            {
+                correctionsNeedFrequency = true;
+            }
+        }
+        return correctionsNeedFrequency;
     }
 
 protected:
