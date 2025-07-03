@@ -431,7 +431,7 @@ BOOST_AUTO_TEST_CASE( testReadIonexFile )
 
     // 1. Load test IONEX file
     std::vector< std::string > filePaths = {
-        tudat::paths::getSpaceWeatherDataPath( ) + "/IGS0OPSRAP_20251220000_01D_02H_GIM.INX" };
+        tudat::paths::getTudatTestDataPath() + "/IGS0OPSRAP_20251220000_01D_02H_GIM.INX" };
 
     // 2. Create Earth body and assign ionosphere model via helper
     SystemOfBodies bodies;
