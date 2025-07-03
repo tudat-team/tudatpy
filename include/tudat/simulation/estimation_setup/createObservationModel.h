@@ -1952,16 +1952,24 @@ public:
                 }
 
                 // Create observation model
-                observationModel = std::make_shared< OneWayRangeObservationModel< ObservationScalarType, TimeType > >(
+                std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator =
+                    createLightTimeCalculator< ObservationScalarType, TimeType >( linkEnds,
+                                                                              transmitter,
+                                                                              receiver,
+                                                                              bodies,
+                                                                              topLevelObservableType,
+                                                                              observationSettings->lightTimeCorrectionsList_,
+                                                                              observationSettings->lightTimeConvergenceCriteria_ );
+                std::shared_ptr< OneWayRangeObservationModel< ObservationScalarType, TimeType > >
+                    oneWayRangeObservationModel = std::make_shared< OneWayRangeObservationModel< ObservationScalarType, TimeType > >(
                         linkEnds,
-                        createLightTimeCalculator< ObservationScalarType, TimeType >( linkEnds,
-                                                                                      transmitter,
-                                                                                      receiver,
-                                                                                      bodies,
-                                                                                      topLevelObservableType,
-                                                                                      observationSettings->lightTimeCorrectionsList_,
-                                                                                      observationSettings->lightTimeConvergenceCriteria_ ),
+                        lightTimeCalculator,
                         observationBias );
+                if( lightTimeCalculator->doCorrectionsNeedFrequency( ) )
+                {
+                    oneWayRangeObservationModel->setFrequencyInterpolator(
+                        getTransmittingFrequencyInterpolator( bodies, linkEnds ) );
+                }
 
                 break;
             }
