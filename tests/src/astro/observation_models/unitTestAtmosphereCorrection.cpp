@@ -792,7 +792,7 @@ BOOST_AUTO_TEST_CASE( testVmf3TroposphericCorrection )
 
     // Load VMF3 test data
     // https://vmf.geo.tuwien.ac.at/trop_products/VLBI/V3GR/V3GR_OP/daily/2025/
-    std::string vmf3TestFile = paths::getTudatTestDataPath( ) + "2025150.v3gr_r.txt";
+    std::string vmf3TestFile = paths::getTudatTestDataPath( ) + "2025150.v3gr_r";
     setVmfTroposphereCorrections( { vmf3TestFile }, true, true, bodies, true, true );
 
     auto station = bodies.getBody( "Earth" )->getGroundStation( "ARECIBO" );
