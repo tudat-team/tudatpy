@@ -761,12 +761,11 @@ double SaastamoinenTroposphericCorrection::computeWetZenithRangeCorrection( cons
 
 TabulatedIonosphericCorrection::TabulatedIonosphericCorrection(
         std::shared_ptr< TabulatedMediaReferenceCorrectionManager > referenceCorrectionCalculator,
-        std::function< double( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction,
         ObservableType baseObservableType,
         bool isUplinkCorrection,
         double referenceFrequency ):
     LightTimeCorrection( tabulated_ionospheric ), referenceCorrectionCalculator_( referenceCorrectionCalculator ),
-    transmittedFrequencyFunction_( transmittedFrequencyFunction ), referenceFrequency_( referenceFrequency ),
+    referenceFrequency_( referenceFrequency ),
     isUplinkCorrection_( isUplinkCorrection )
 {
     if( isRadiometricObservableType( baseObservableType ) )
@@ -938,7 +937,6 @@ double JakowskiVtecCalculator::calculateVtec( const double time, const Eigen::Ve
 
 MappedVtecIonosphericCorrection::MappedVtecIonosphericCorrection(
         std::shared_ptr< VtecCalculator > vtecCalculator,
-        std::function< double( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction,
         std::function< double( Eigen::Vector3d inertialVectorAwayFromStation, double time ) > elevationFunction,
         std::function< double( Eigen::Vector3d inertialVectorAwayFromStation, double time ) > azimuthFunction,
         std::function< Eigen::Vector3d( double time ) > groundStationGeodeticPositionFunction,
@@ -948,7 +946,7 @@ MappedVtecIonosphericCorrection::MappedVtecIonosphericCorrection(
         LightTimeCorrectionType correctionType,
         double firstOrderDelayCoefficient ):
     LightTimeCorrection( correctionType ), vtecCalculator_( vtecCalculator ),
-    transmittedFrequencyFunction_( transmittedFrequencyFunction ), elevationFunction_( elevationFunction ),
+    elevationFunction_( elevationFunction ),
     azimuthFunction_( azimuthFunction ), groundStationGeodeticPositionFunction_( groundStationGeodeticPositionFunction ),
     bodyWithAtmosphereMeanEquatorialRadius_( bodyWithAtmosphereMeanEquatorialRadius ),
     firstOrderDelayCoefficient_( firstOrderDelayCoefficient ), isUplinkCorrection_( isUplinkCorrection )
