@@ -387,13 +387,9 @@ public:
         const TimeType time,
         const bool isTimeAtReception = 1 )
     {
-        std::vector< StateType > linkEndsStates( 2, StateType::Constant( TUDAT_NAN ) );
-        std::vector< TimeType > linkEndsTimes( 2, TUDAT_NAN );
-
-        ObservationScalarType lightTime = calculateLightTimeWithMultiLegLinkEndsStates(
-            linkEndsStates, linkEndsTimes, time, isTimeAtReception, 0, nullptr, false );
-
-        return lightTime;
+        return ( ephemerisOfReceivingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( time ) -
+                    ephemerisOfTransmittingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( time ) ).segment( 0, 3 ).norm( ) /
+                 physical_constants::SPEED_OF_LIGHT;
     }
 
 
@@ -678,7 +674,7 @@ public:
     bool doCorrectionsNeedFrequency( )
     {
         bool correctionsNeedFrequency = false;
-        for( int i = 0; i < correctionFunctions_.size( ); i++ )
+        for( unsigned int i = 0; i < correctionFunctions_.size( ); i++ )
         {
             if( requiresMultiLegIterations( correctionFunctions_.at( i )->getLightTimeCorrectionType() ) )
             {
@@ -960,8 +956,7 @@ public:
         return newLightTimeEstimate;
     }
 
-    ObservationScalarType calculateFirstIterationLightTimeWithLinkEndsStates( const TimeType time,
-                                                                              const LinkEndType linkEndAssociatedWithTime )
+    ObservationScalarType calculateFirstIterationLightTime( const TimeType time, const LinkEndType linkEndAssociatedWithTime )
     {
         resetLinkEndDelays( nullptr, false );
         setStartLinkIndex( linkEndAssociatedWithTime );
