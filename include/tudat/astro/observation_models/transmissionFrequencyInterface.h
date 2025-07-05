@@ -37,18 +37,15 @@ void setTransmissionFrequency(
     const LinkEndType linkEndAssociatedWithTime,
     const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings )
 {
-    TimeType approximateTransmissionTime, approximateReceptionTime;
+    TimeType approximateTransmissionTime;
     if( linkEndAssociatedWithTime == receiver )
     {
-        approximateReceptionTime = observationTime;
         approximateTransmissionTime = observationTime -
           lightTimeCalculator->calculateFirstIterationLightTime( observationTime, true );
     }
     else if( linkEndAssociatedWithTime == transmitter )
     {
         approximateTransmissionTime = observationTime;
-        approximateReceptionTime = observationTime +
-                                         lightTimeCalculator->calculateFirstIterationLightTime( observationTime, false );
     }
     else
     {
@@ -56,7 +53,7 @@ void setTransmissionFrequency(
     }
 
     TimeType approximateUtcTransmissionTime = timeScaleConverter->getCurrentTime< TimeType >(
-        basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, approximateTdbTransmissionTime );
+        basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, approximateTransmissionTime );
 
     double approximateTransmissionFrequency =
         transmittingFrequencyCalculator->getTemplatedCurrentFrequency< double, TimeType >( approximateUtcTransmissionTime );
