@@ -819,7 +819,9 @@ public:
         lightTimeCalculators_( lightTimeCalculators ), lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
         numberOfLinks_( lightTimeCalculators.size( ) ), numberOfLinkEnds_( lightTimeCalculators.size( ) + 1 ),
         iterateMultiLegLightTime_( iterateMultiLegLightTime )
-    { }
+    {
+        initializeMultiLegLightTimeCalculator( );
+    }
 
     // Constructor for a single leg
     MultiLegLightTimeCalculator( const std::function< StateType( const TimeType ) > ephemerisOfTransmittingBody,
@@ -834,6 +836,7 @@ public:
         lightTimeCalculators_.clear( );
         lightTimeCalculators_.push_back( std::make_shared< LightTimeCalculator< ObservationScalarType, TimeType > >(
                 ephemerisOfTransmittingBody, ephemerisOfReceivingBody, correctionFunctions, lightTimeConvergenceCriteria ) );
+        initializeMultiLegLightTimeCalculator( );
     }
 
     void resetLinkEndDelays( const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
@@ -1006,7 +1009,26 @@ public:
         return iterateMultiLegLightTime_;
     }
 
+    bool doCorrectionsNeedFrequency( )
+    {
+        return correctionsNeedFrequency_;
+    }
+
+
 private:
+
+    void initializeMultiLegLightTimeCalculator( )
+    {
+        correctionsNeedFrequency_ = false;
+        for( unsigned int i = 0; i < lightTimeCalculators_.size( ); i++ )
+        {
+            if( lightTimeCalculators_.at( i )->doCorrectionsNeedFrequency( ) )
+            {
+                correctionsNeedFrequency_ = true;
+            }
+        }
+    }
+
     ObservationScalarType calculateMultiLegLightTimeEstimate(
             const TimeType time,
             std::vector< TimeType >& linkEndTimes,
@@ -1092,6 +1114,8 @@ private:
     std::vector< std::vector< unsigned int > > singleLegIterationsPerMultiLegIteration_;
 
     const bool iterateMultiLegLightTime_;
+
+    const bool correctionsNeedFrequency_;
 };
 
 }  // namespace observation_models

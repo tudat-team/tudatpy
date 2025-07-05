@@ -105,7 +105,7 @@ public:
             else
             {
                 setTransmissionFrequency(
-                    lightTimeCalculator_, timeScaleConverter_, frequencyInterpolator_, time, ancilliarySetings );
+                    lightTimeCalculator_, timeScaleConverter_, frequencyInterpolator_, time, linkEndAssociatedWithTime, ancilliarySetings );
             }
         }
 

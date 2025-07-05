@@ -33,11 +33,27 @@ void setTransmissionFrequency(
     const std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
     const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter,
     const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
-    const TimeType receptionTdbTime,
+    const TimeType observationTime,
+    const LinkEndType linkEndAssociatedWithTime,
     const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings )
 {
-    TimeType approximateTdbTransmissionTime = receptionTdbTime -
-        lightTimeCalculator->calculateFirstIterationLightTime( receptionTdbTime, true );
+    TimeType approximateTransmissionTime, approximateReceptionTime;
+    if( linkEndAssociatedWithTime == receiver )
+    {
+        approximateReceptionTime = observationTime;
+        approximateTransmissionTime = observationTime -
+          lightTimeCalculator->calculateFirstIterationLightTime( observationTime, true );
+    }
+    else if( linkEndAssociatedWithTime == transmitter )
+    {
+        approximateTransmissionTime = observationTime;
+        approximateReceptionTime = observationTime +
+                                         lightTimeCalculator->calculateFirstIterationLightTime( observationTime, false );
+    }
+    else
+    {
+        throw std::runtime_error( "Error when getting transmission frequency for one-way, reference link end is incompatible. " );
+    }
 
     TimeType approximateUtcTransmissionTime = timeScaleConverter->getCurrentTime< TimeType >(
         basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, approximateTdbTransmissionTime );
@@ -56,9 +72,14 @@ void setTransmissionReceptionFrequencies(
     const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter,
     const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
     const TimeType receptionTdbTime,
+    const LinkEndType referenceLinkEndType,
     const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings,
     const double turnAroundratio )
 {
+    if( referenceLinkEndType != receiver )
+    {
+        throw std::runtime_error( "Error when getting n-way transmission frequency, reference link end is incompatible. " );
+    }
     TimeType approximateTdbTransmissionTime = receptionTdbTime -
                                               multiLegLightTimeCalculator->calculateFirstIterationLightTime( receptionTdbTime, receiver );
 
