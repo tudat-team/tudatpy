@@ -248,12 +248,13 @@ public:
                 : stationStates_.at( transmitter )->getNominalCartesianPosition( );
 
         // Set frequencies for ionosphere/corona
-        if( true )
+        if( arcStartObservationModel_->getMultiLegLightTimeCalculator( )->doCorrectionsNeedFrequency( ) )
         {
             setTransmissionReceptionFrequencies( arcStartObservationModel_->getMultiLegLightTimeCalculator( ),
                                                  terrestrialTimeScaleConverter_,
                                                  transmittingFrequencyCalculator_,
                                                  receptionTdbStartTime,
+                                                 linkEndAssociatedWithTime,
                                                  ancillarySettings,
                                                  currentTurnAroundRatio );
         }
@@ -265,12 +266,13 @@ public:
                 physical_constants::getSpeedOfLight< ObservationScalarType >( );
 
         // Set frequencies for ionosphere/corona
-        if( true )
+        if( arcEndObservationModel_->getMultiLegLightTimeCalculator( )->doCorrectionsNeedFrequency( ) )
         {
             setTransmissionReceptionFrequencies( arcEndObservationModel_->getMultiLegLightTimeCalculator( ),
                                                  terrestrialTimeScaleConverter_,
                                                  transmittingFrequencyCalculator_,
                                                  receptionTdbEndTime,
+                                                 linkEndAssociatedWithTime,
                                                  ancillarySettings,
                                                  currentTurnAroundRatio );
         }
