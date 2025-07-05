@@ -1115,7 +1115,7 @@ private:
 
     const bool iterateMultiLegLightTime_;
 
-    const bool correctionsNeedFrequency_;
+    bool correctionsNeedFrequency_;
 };
 
 }  // namespace observation_models
