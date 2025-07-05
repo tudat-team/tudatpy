@@ -1970,6 +1970,7 @@ public:
                     oneWayRangeObservationModel->setFrequencyInterpolator(
                         getTransmittingFrequencyInterpolator( bodies, linkEnds ) );
                 }
+                observationModel = oneWayRangeObservationModel;
 
                 break;
             }
