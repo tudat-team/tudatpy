@@ -23,6 +23,7 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/observationFrequencies.h"
 #include "tudat/astro/observation_models/nWayRangeObservationModel.h"
+#include "tudat/astro/observation_models/transmissionFrequencyInterface.h"
 
 namespace tudat
 {
@@ -30,26 +31,6 @@ namespace tudat
 namespace observation_models
 {
 
-template< typename ObservationScalarType = double, typename TimeType = Time >
-void setTransmissionReceptionFrequencies(
-        const std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > multiLegLightTimeCalculator,
-        const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter,
-        const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
-        const TimeType receptionTdbTime,
-        const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings,
-        const double turnAroundratio )
-{
-    TimeType approximateTdbTransmissionTime = receptionTdbTime -
-            multiLegLightTimeCalculator->calculateFirstIterationLightTimeWithLinkEndsStates( receptionTdbTime, receiver );
-
-    TimeType approximateUtcTransmissionTime = timeScaleConverter->getCurrentTime< TimeType >(
-            basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, approximateTdbTransmissionTime );
-
-    double approximateTransmissionFrequency =
-            transmittingFrequencyCalculator->getTemplatedCurrentFrequency< double, TimeType >( approximateUtcTransmissionTime );
-    ancillarySettings->setIntermediateDoubleData( received_frequency_intermediate, approximateTransmissionFrequency * turnAroundratio );
-    ancillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, approximateTransmissionFrequency );
-}
 
 /*! Calculate the scaling factor for computing partials via DifferencedObservablePartial.
  *

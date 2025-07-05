@@ -18,6 +18,7 @@
 
 #include "tudat/astro/electromagnetism/reflectionLaw.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
+#include "tudat/astro/ground_stations/transmittingFrequencies.h"
 #include "tudat/astro/system_models/engineModel.h"
 #include "tudat/astro/system_models/timingSystem.h"
 #include "tudat/astro/system_models/vehicleExteriorPanels.h"

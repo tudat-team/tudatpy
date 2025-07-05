@@ -811,22 +811,6 @@ double TabulatedIonosphericCorrection::calculateLightTimeCorrectionWithMultiLegL
                                             legTransmissionTime,
                                             legReceptionTime );
 
-    //    // Retrieve frequency bands
-    //    std::vector< FrequencyBands > frequencyBands;
-    //    if( ancillarySettings == nullptr )
-    //    {
-    //        throw std::runtime_error( "Error when computing tabulated ionospheric corrections: no ancillary settings found. " );
-    //    }
-    //    try
-    //    {
-    //        frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
-    //    }
-    //    catch( std::runtime_error& caughtException )
-    //    {
-    //        throw std::runtime_error( "Error when retrieving frequency bands for tabulated ionospheric corrections: " +
-    //                                  std::string( caughtException.what( ) ) );
-    //    }
-
     // Compute light-time correction
     double stationTime = TUDAT_NAN;
     double lightTimeCorrection = 0.0;
@@ -842,13 +826,6 @@ double TabulatedIonosphericCorrection::calculateLightTimeCorrectionWithMultiLegL
         currentFrequency = ancillarySettings->getIntermediateDoubleData( received_frequency_intermediate, true );
     }
     double stationTimeUtc = sofa_interface::convertTTtoUTC( stationTime );
-
-    //    // Convert times from TDB TO UTC. To speed up the conversion, we actually convert from TT to UTC. This approximation should be
-    //    accurate
-    //    // enough for ionospheric delay computation.
-    //    double firstLegTransmissionTime = linkEndsTimes.front( );
-    //    double firstLegTransmissionTimeUtc = sofa_interface::convertTTtoUTC( firstLegTransmissionTime );
-    //    double stationTimeUtc = sofa_interface::convertTTtoUTC( stationTime );
 
     if( !std::isnan( currentFrequency ) )
     {
