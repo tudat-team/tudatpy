@@ -22,6 +22,7 @@
 #include "tudat/astro/ephemerides/simpleRotationalEphemeris.h"
 #include "tudat/astro/observation_models/observationModel.h"
 #include "tudat/astro/observation_models/lightTimeSolution.h"
+#include "tudat/astro/observation_models/transmissionFrequencyInterface.h"
 
 namespace tudat
 {
@@ -29,26 +30,6 @@ namespace tudat
 namespace observation_models
 {
 
-template< typename ObservationScalarType = double, typename TimeType = Time >
-void setTransmissionFrequency(
-    const std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
-    const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter,
-    const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
-    const TimeType receptionTdbTime,
-    const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings )
-{
-    TimeType approximateTdbTransmissionTime = receptionTdbTime -
-        lightTimeCalculator->calculateFirstIterationLightTime( receptionTdbTime, true );
-
-    TimeType approximateUtcTransmissionTime = timeScaleConverter->getCurrentTime< TimeType >(
-        basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, approximateTdbTransmissionTime );
-
-    double approximateTransmissionFrequency =
-        transmittingFrequencyCalculator->getTemplatedCurrentFrequency< double, TimeType >( approximateUtcTransmissionTime );
-    ancillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, approximateTransmissionFrequency );
-    ancillarySettings->setIntermediateDoubleData( received_frequency_intermediate, approximateTransmissionFrequency );
-
-}
 
 //! Class for simulating one-way range observables.
 /*!
