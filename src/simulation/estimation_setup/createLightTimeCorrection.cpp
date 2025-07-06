@@ -462,7 +462,6 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                         std::make_pair( groundStation.stationName_, spacecraft.bodyName_ );
 
                 // Create Jakowski VTEC calculator
-
                 std::shared_ptr< input_output::solar_activity::SolarActivityContainer > solarActivityContainer =
                         std::make_shared< input_output::solar_activity::SolarActivityContainer >(
                                 ionosphericCorrectionSettings->getSolarActivityData( ) );
