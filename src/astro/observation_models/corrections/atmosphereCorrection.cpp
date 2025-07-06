@@ -815,6 +815,7 @@ double TabulatedIonosphericCorrection::calculateLightTimeCorrectionWithMultiLegL
     double stationTime = TUDAT_NAN;
     double lightTimeCorrection = 0.0;
     double currentFrequency = TUDAT_NAN;
+
     if( isUplinkCorrection_ )
     {
         stationTime = legTransmissionTime;
