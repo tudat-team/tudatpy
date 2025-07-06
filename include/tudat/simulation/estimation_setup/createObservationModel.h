@@ -1965,7 +1965,6 @@ public:
                         linkEnds,
                         lightTimeCalculator,
                         observationBias );
-                std::cout<<"Correction need frequency "<<lightTimeCalculator->doCorrectionsNeedFrequency( )<<std::endl;
                 if( lightTimeCalculator->doCorrectionsNeedFrequency( ) )
                 {
                     oneWayRangeObservationModel->setFrequencyInterpolator(
