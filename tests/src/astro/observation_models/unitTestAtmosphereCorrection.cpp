@@ -835,10 +835,10 @@ BOOST_AUTO_TEST_CASE( testVmf3TroposphericCorrection )
     BOOST_CHECK_CLOSE_FRACTION( zenithDelays( 0 ), 2.1967, 1.0e-4 );       // ZHD
     BOOST_CHECK_CLOSE_FRACTION( zenithDelays( 1 ), 0.2074, 1.0e-4 );       // ZWD
 
-    BOOST_CHECK_CLOSE_FRACTION( gradients( 0 ), -0.179, 1.0e-8 );       // Gn_h [m]
-    BOOST_CHECK_CLOSE_FRACTION( gradients( 1 ),  0.026, 1.0e-8 );       // Ge_h [m]
-    BOOST_CHECK_CLOSE_FRACTION( gradients( 2 ),  0.483, 1.0e-8 );       // Gn_w [m]
-    BOOST_CHECK_CLOSE_FRACTION( gradients( 3 ),  0.119, 1.0e-8 );       // Ge_w [m]
+    BOOST_CHECK_CLOSE_FRACTION( gradients( 0 ), -0.179E-3, 1.0e-8 );       // Gn_h [m]
+    BOOST_CHECK_CLOSE_FRACTION( gradients( 1 ),  0.026E-3, 1.0e-8 );       // Ge_h [m]
+    BOOST_CHECK_CLOSE_FRACTION( gradients( 2 ),  0.483E-3, 1.0e-8 );       // Gn_w [m]
+    BOOST_CHECK_CLOSE_FRACTION( gradients( 3 ),  0.119E-3, 1.0e-8 );       // Ge_w [m]
 
     BOOST_CHECK_CLOSE_FRACTION( mfh, 2.89550, 1.0e-2 );
     BOOST_CHECK_CLOSE_FRACTION( mfw, 2.94098, 1.0e-1 );
