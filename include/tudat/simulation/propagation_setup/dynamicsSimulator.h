@@ -1737,7 +1737,10 @@ public:
                         PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ),
                         true ) );
                 singleArcResults.push_back( singleArcDynamicsSimulators_.at( i )->getSingleArcPropagationResults( ) );
-                singleArcDynamicsSimulators_.at( i )->createAndSetIntegratedStateProcessors( );
+                if( singleArcDynamicsSimulators_.at( i )->getPropagatorSettings( )->getOutputSettings( )->getSetIntegratedResult( ) )
+                {
+                    singleArcDynamicsSimulators_.at( i )->createAndSetIntegratedStateProcessors( );
+                }
             }
 
             std::vector< std::shared_ptr< SingleArcDependentVariablesInterface< TimeType > > > singleArcInterfaces;
