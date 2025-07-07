@@ -14,8 +14,7 @@ namespace input_output
 {
 // https://cddis.nasa.gov/archive/gnss/products/ionex
 //! Struct to store a parsed IONEX TEC map and metadata
-struct IonexTecMap
-{
+struct IonexTecMap {
 public:
     IonexTecMap( ) = default;
 
@@ -41,24 +40,24 @@ public:
     double hgtMax = 450.0;
     double dHgt = 0.0;
     double referenceIonosphereHeight_ = 450.0e3;
-    
-    std::string solutionType;  // e.g., "RAP", "FIN"
-    std::string samplingInterval; // e.g., "01H", "02H"
-    std::string contentType; // GIM, ROT
+
+    std::string solutionType;      // e.g., "RAP", "FIN"
+    std::string samplingInterval;  // e.g., "01H", "02H"
+    std::string contentType;       // GIM, ROT
 
     //! Validate consistency
     void validate( ) const
     {
-        for ( const auto& entry : tecMaps )
+        for( const auto& entry: tecMaps )
         {
             const Eigen::MatrixXd& tec = entry.second;
-            if ( static_cast< std::size_t >( tec.rows( ) ) != latitudes.size( ) ||
-                 static_cast< std::size_t >( tec.cols( ) ) != longitudes.size( ) )
+            if( static_cast< std::size_t >( tec.rows( ) ) != latitudes.size( ) ||
+                static_cast< std::size_t >( tec.cols( ) ) != longitudes.size( ) )
             {
                 throw std::runtime_error( "IONEX: Data matrix size inconsistent with lat/lon grid." );
             }
         }
-        if ( epochs.size( ) != tecMaps.size( ) )
+        if( epochs.size( ) != tecMaps.size( ) )
         {
             throw std::runtime_error( "IONEX: Mismatch between epochs and stored TEC maps." );
         }
@@ -73,14 +72,11 @@ public:
         std::cout << "  EPOCH OF FIRST MAP: " << epochStart << " [s since J2000]\n";
         std::cout << "  EPOCH OF LAST  MAP: " << epochEnd << " [s since J2000]\n";
 
-        std::cout << "  LAT grid: [" << latMax << ", " << latMin << "], dLat = " << dLat << " ("
-                  << latitudes.size( ) << " points)\n";
-        std::cout << "  LON grid: [" << lonMin << ", " << lonMax << "], dLon = " << dLon << " ("
-                  << longitudes.size( ) << " points)\n";
+        std::cout << "  LAT grid: [" << latMax << ", " << latMin << "], dLat = " << dLat << " (" << latitudes.size( ) << " points)\n";
+        std::cout << "  LON grid: [" << lonMin << ", " << lonMax << "], dLon = " << dLon << " (" << longitudes.size( ) << " points)\n";
         std::cout << "  HGT: " << hgtMin << " to " << hgtMax << " km, step = " << dHgt << "\n";
 
-        std::cout << "  Sampling: " << samplingInterval << ", Content: " << contentType
-                  << ", Solution: " << solutionType << "\n";
+        std::cout << "  Sampling: " << samplingInterval << ", Content: " << contentType << ", Solution: " << solutionType << "\n";
         std::cout << "  # Epochs parsed: " << epochs.size( ) << "\n";
         std::cout << "----------------------------------------\n";
     }
@@ -92,8 +88,8 @@ void readIonexFile( const std::string& filePath, IonexTecMap& data );
 //! Read and merge multiple IONEX files
 void readIonexFiles( const std::vector< std::string >& filePaths, IonexTecMap& data );
 
-} // namespace input_output
+}  // namespace input_output
 
-} // namespace tudat
+}  // namespace tudat
 
-#endif // TUDAT_READIONEXFILE_H
+#endif  // TUDAT_READIONEXFILE_H
