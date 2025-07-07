@@ -51,7 +51,7 @@ public:
 
     inline double operator( )( int i, int j ) const
     {
-        return ( i == 0 && j == 0 ) ? getPointMassTerm( ) : (*matrix_)( i, j );
+        return ( i == 0 && j == 0 ) ? getPointMassTerm( ) : ( *matrix_ )( i, j );
     }
 
     inline int rows( ) const
@@ -68,7 +68,7 @@ public:
     {
         if( matrixUpdateFunction_ != nullptr )
         {
-            matrix_ = &matrixUpdateFunction_();
+            matrix_ = &matrixUpdateFunction_( );
         }
     }
 
@@ -85,7 +85,7 @@ public:
 private:
     double getPointMassTerm( ) const
     {
-        return enablePointMass_ ? (*matrix_)( 0, 0 ) : 0.0;
+        return enablePointMass_ ? ( *matrix_ )( 0, 0 ) : 0.0;
     }
 
     std::function< Eigen::MatrixXd&( ) > matrixUpdateFunction_;
