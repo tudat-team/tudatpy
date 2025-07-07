@@ -93,8 +93,6 @@ public:
         ObservationScalarType observation = TUDAT_NAN;
         TimeType transmissionTime = TUDAT_NAN, receptionTime = TUDAT_NAN;
 
-
-
         // Check link end associated with input time and compute observable
         switch( linkEndAssociatedWithTime )
         {
