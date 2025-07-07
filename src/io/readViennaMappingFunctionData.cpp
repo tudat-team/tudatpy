@@ -166,7 +166,8 @@ void readVMFFile( const std::string& fileName,
                     currentStartIndex = currentIndex;
                     for( ; currentIndex < currentStartIndex + 4; currentIndex++ )
                     {
-                        currentGradientData[ currentIndex - currentStartIndex ] = std::stod( currentSplitLine.at( currentIndex ) );
+                        currentGradientData[ currentIndex - currentStartIndex ] =
+                            std::stod( currentSplitLine.at( currentIndex ) ) / 1000.0; // convert mm to m
                     }
                     vmfData[ stationName ].gradientData[ currentMjd ] = currentGradientData;
                 }
