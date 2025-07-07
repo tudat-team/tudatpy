@@ -1263,7 +1263,7 @@ MultiTypePropagatorSettings
            &tp::multiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "single_arc_settings" ),
            py::arg( "transfer_state_to_next_arc" ) = false,
-           py::arg( "processing_settings" ) = multiArcProcessingSettings( ),
+           py::arg( "processing_settings" ) = nullptr,
            R"doc(
 
 Function to create multi-arc propagator settings.
