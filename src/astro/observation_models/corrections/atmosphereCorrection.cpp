@@ -907,7 +907,7 @@ MappedVtecIonosphericCorrection::MappedVtecIonosphericCorrection(
         double bodyWithAtmosphereMeanEquatorialRadius,
         LightTimeCorrectionType correctionType,
         double firstOrderDelayCoefficient ):
-    LightTimeCorrection( correctionType ), vtecCalculator_( vtecCalculator ), transmittedFrequencyFunction_( transmittedFrequencyFunction ),
+    LightTimeCorrection( correctionType ), vtecCalculator_( vtecCalculator ), 
     elevationFunction_( elevationFunction ), azimuthFunction_( azimuthFunction ),
     groundStationGeodeticPositionFunction_( groundStationGeodeticPositionFunction ),
     bodyWithAtmosphereMeanEquatorialRadius_( bodyWithAtmosphereMeanEquatorialRadius ),
