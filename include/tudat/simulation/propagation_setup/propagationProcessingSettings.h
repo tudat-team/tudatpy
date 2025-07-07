@@ -451,7 +451,7 @@ public:
 
     virtual void setIntegratedResult( const bool setIntegratedResult )
     {
-        this->setIntegratedResult( setIntegratedResult );
+        setIntegratedResult_ = setIntegratedResult;
         this->setCreateStateProcessors( setIntegratedResult );
         singleArcSettings_->setIntegratedResult( setIntegratedResult );
         multiArcSettings_->setIntegratedResult( setIntegratedResult );
