@@ -461,7 +461,8 @@ BOOST_AUTO_TEST_CASE( testJakowskiIonosphericCorrectionGodot )
                                                      groundStationGeodeticPositionFunction,
                                                      observation_models::dsn_n_way_averaged_doppler,
                                                      true,
-                                                     earthEquatorialRadius );
+                                                     earthEquatorialRadius,
+                                                     jakowski_vtec_ionospheric );
 
             dummyAncillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, frequencies.at( j ) );
 
@@ -764,6 +765,92 @@ BOOST_AUTO_TEST_CASE( testMediaCorrectionDerivatives )
         std::cout << maxError << " " << maxErrorRelative << " " << maxErrorElevation << std::endl;
     }
 }
+
+BOOST_AUTO_TEST_CASE( testVmf3TroposphericCorrection )
+{
+    using namespace tudat;
+    using namespace tudat::observation_models;
+    using namespace tudat::ground_stations;
+    using namespace tudat::interpolators;
+    using namespace unit_conversions;
+    using namespace coordinate_conversions;
+    using namespace basic_astrodynamics;
+
+    spice_interface::loadStandardSpiceKernels();
+
+    // Reference: https://vmf.geo.tuwien.ac.at/raytracer.html
+    // Careful: the online ray tracer tool uses slightly different methods than the DISCRETE TROPOSPHERE DELAY MODELS, so the validation daya may be different within a few cm
+
+    // Setup Earth body with ARECIBO station
+    std::vector< std::string > bodiesToCreate = { "Earth" };
+    simulation_setup::BodyListSettings bodySettings = simulation_setup::getDefaultBodySettings( bodiesToCreate );
+    Eigen::Vector3d testGeodeticPosition( 451.59, convertDegreesToRadians( 18.3400 ), convertDegreesToRadians( -66.75 ) );
+    bodySettings.at( "Earth" )->groundStationSettings.push_back(
+        std::make_shared< simulation_setup::GroundStationSettings >( "ARECIBO", testGeodeticPosition, geodetic_position ) );
+
+    simulation_setup::SystemOfBodies bodies = simulation_setup::createSystemOfBodies( bodySettings );
+
+    // Load VMF3 test data
+    // https://vmf.geo.tuwien.ac.at/trop_products/VLBI/V3GR/V3GR_OP/daily/2025/
+    std::string vmf3TestFile = paths::getTudatTestDataPath( ) + "2025150.v3gr_r";
+    setVmfTroposphereCorrections( { vmf3TestFile }, true, true, bodies, true, true );
+
+    auto station = bodies.getBody( "Earth" )->getGroundStation( "ARECIBO" );
+    auto troposphereData = std::dynamic_pointer_cast< InterpolatedStationTroposphereData >( station->getTroposphereData( ) );
+    BOOST_REQUIRE( troposphereData != nullptr );
+
+    double mjd = 60825.0;
+    double currentTt = ( mjd - basic_astrodynamics::getModifiedJulianDayOnJ2000< double >( ) ) * physical_constants::JULIAN_DAY;
+    double currentUtc = sofa_interface::convertTTtoUTC< double >( currentTt );
+
+    // Get data from interpolators
+    Eigen::Vector2d zenithDelays = troposphereData->getZenithDelay( currentUtc );
+    Eigen::Vector2d mappingCoeffs = troposphereData->getMappingFunction( currentUtc );
+    Eigen::Vector4d gradients = troposphereData->getGradient( currentUtc );
+    double temperature = station->getTemperatureFunction( )( currentUtc );
+    double pressure = station->getPressureFunction( )( currentUtc );
+
+    // Create mapping model
+    std::function< double( Eigen::Vector3d, double ) > elevationFunction = [ = ]( Eigen::Vector3d, double ) {
+        return 0.349065850398866;
+    };
+    std::function< double( Eigen::Vector3d, double ) > azimuthFunction = [ = ]( Eigen::Vector3d, double ) {
+        return 0.349065850398866;
+    };
+    std::function< Eigen::Vector3d( double ) > geodeticFunction = [ = ]( double ){ return testGeodeticPosition; };
+
+    VMF3MappingModel model( elevationFunction, azimuthFunction, geodeticFunction, false );
+    model.updateMappingCoefficients( mappingCoeffs );
+
+    Eigen::Vector6d dummy = Eigen::Vector6d::Zero( );
+    double mfh = model.computeDryTroposphericMapping( dummy, dummy, currentUtc, currentUtc );
+    double mfw = model.computeWetTroposphericMapping( dummy, dummy, currentUtc, currentUtc );
+    double gradientDelay = model.computeGradientContribution( dummy, dummy, currentUtc, currentUtc, gradients );
+
+    double slantDry = zenithDelays( 0 ) * mfh;
+    double slantWet = zenithDelays( 1 ) * mfw;
+    double totalSlantDelay = slantDry + slantWet; //+ gradientDelay;
+
+    // Check expected values from TU Wien raytracer
+    BOOST_CHECK_CLOSE_FRACTION( mappingCoeffs( 0 ), 0.00126633, 1.0e-7 );  // ah
+    BOOST_CHECK_CLOSE_FRACTION( mappingCoeffs( 1 ), 0.00053827, 1.0e-7 );  // aw
+
+    BOOST_CHECK_CLOSE_FRACTION( zenithDelays( 0 ), 2.1967, 1.0e-4 );       // ZHD
+    BOOST_CHECK_CLOSE_FRACTION( zenithDelays( 1 ), 0.2074, 1.0e-4 );       // ZWD
+
+    BOOST_CHECK_CLOSE_FRACTION( gradients( 0 ), -0.179E-3, 1.0e-8 );       // Gn_h [m]
+    BOOST_CHECK_CLOSE_FRACTION( gradients( 1 ),  0.026E-3, 1.0e-8 );       // Ge_h [m]
+    BOOST_CHECK_CLOSE_FRACTION( gradients( 2 ),  0.483E-3, 1.0e-8 );       // Gn_w [m]
+    BOOST_CHECK_CLOSE_FRACTION( gradients( 3 ),  0.119E-3, 1.0e-8 );       // Ge_w [m]
+
+    BOOST_CHECK_CLOSE_FRACTION( mfh, 2.89550, 1.0e-2 );
+    BOOST_CHECK_CLOSE_FRACTION( mfw, 2.94098, 1.0e-1 );
+    BOOST_CHECK_CLOSE_FRACTION( slantDry, 6.3605, 1.0e-1 );
+    BOOST_CHECK_CLOSE_FRACTION( slantWet, 0.6100, 1.0e-1 );
+    BOOST_CHECK_CLOSE_FRACTION( totalSlantDelay, 6.9705, 1.0e-1 );
+}
+
+
 
 BOOST_AUTO_TEST_SUITE_END( )
 
