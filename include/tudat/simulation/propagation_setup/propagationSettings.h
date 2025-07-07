@@ -604,11 +604,15 @@ template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > multiArcPropagatorSettings(
         const std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > >& singleArcSettings,
         const bool transferInitialStateInformationPerArc = 0,
-        const std::shared_ptr< MultiArcPropagatorProcessingSettings > outputSettings =
-                std::make_shared< MultiArcPropagatorProcessingSettings >( ) )
+        const std::shared_ptr< MultiArcPropagatorProcessingSettings > outputSettings = nullptr )
 {
+    std::shared_ptr< MultiArcPropagatorProcessingSettings > outputSettingsToUse = outputSettings;
+    if( outputSettingsToUse == nullptr )
+    {
+        outputSettingsToUse = std::make_shared< MultiArcPropagatorProcessingSettings >( );
+    }
     return std::make_shared< MultiArcPropagatorSettings< StateScalarType, TimeType > >(
-            singleArcSettings, transferInitialStateInformationPerArc, outputSettings );
+            singleArcSettings, transferInitialStateInformationPerArc, outputSettingsToUse );
 }
 
 //! Class for defining setting of a propagator for a combination of single- and multi-arc dynamics
