@@ -1791,7 +1791,7 @@ public:
     {
         return ionosphereModel_;
     }
-    
+
 protected:
 private:
     //! Variable denoting whether this body is the global frame origin (1 if true, 0 if false, -1 if not yet set)
