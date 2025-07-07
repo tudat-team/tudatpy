@@ -39,6 +39,7 @@ public:
                                   const bool setIntegratedResult = false,
                                   const bool updateDependentVariableInterpolator = false ):
         clearNumericalSolutions_( clearNumericalSolutions ), setIntegratedResult_( setIntegratedResult ),
+        createStateProcessors_( setIntegratedResult ),
         updateDependentVariableInterpolator_( updateDependentVariableInterpolator )
     { }
 
@@ -67,7 +68,20 @@ public:
     virtual void setIntegratedResult( const bool setIntegratedResult )
     {
         setIntegratedResult_ = setIntegratedResult;
+        createStateProcessors_ = setIntegratedResult;
     }
+
+    bool getCreateStateProcessors( )
+    {
+        return createStateProcessors_;
+    }
+
+    void setCreateStateProcessors( const bool createStateProcessors )
+    {
+        createStateProcessors_ = createStateProcessors;
+    }
+
+
 
     virtual void setUpdateDependentVariableInterpolator( const bool updateDependentVariableInterpolator )
     {
@@ -83,7 +97,9 @@ public:
 protected:
     bool clearNumericalSolutions_;
     bool setIntegratedResult_;
+    bool createStateProcessors_;
     bool updateDependentVariableInterpolator_;
+
 };
 
 //! Base class for defining output and processing settings for single-arc propagation.
@@ -251,7 +267,7 @@ public:
             singleArcSettings_.at( i )->setClearNumericalSolutions( false );
             singleArcSettings_.at( i )->setIntegratedResult( false );
             singleArcSettings_.at( i )->setAsMultiArc( i, printCurrentArcIndex_ );
-
+            singleArcSettings_.at( i )->setCreateStateProcessors( setIntegratedResult_ );
             if( useIdenticalSettings_ )
             {
                 if( consistentSingleArcPrintSettings_ == nullptr )
@@ -351,6 +367,16 @@ public:
         return singleArcSettings_;
     }
 
+    virtual void setIntegratedResult( const bool setIntegratedResult )
+    {
+        setIntegratedResult_ = setIntegratedResult;
+        createStateProcessors_ = setIntegratedResult;
+        for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
+        {
+            singleArcSettings_.at( i )->setCreateStateProcessors( setIntegratedResult_ );
+        }
+    }
+
 protected:
     std::shared_ptr< PropagationPrintSettings > consistentSingleArcPrintSettings_;
 
@@ -425,7 +451,8 @@ public:
 
     virtual void setIntegratedResult( const bool setIntegratedResult )
     {
-        this->setIntegratedResult_ = setIntegratedResult;
+        this->setIntegratedResult( setIntegratedResult );
+        this->setCreateStateProcessors( setIntegratedResult );
         singleArcSettings_->setIntegratedResult( setIntegratedResult );
         multiArcSettings_->setIntegratedResult( setIntegratedResult );
     }
