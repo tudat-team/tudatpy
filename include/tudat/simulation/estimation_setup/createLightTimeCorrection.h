@@ -219,14 +219,11 @@ public:
      * \param useGradientCorrection Whether gradient terms are present in the VMF3 data
      * \param troposphericMappingModel Placeholder mapping model type (ignored, handled externally)
      */
-    VMF3TroposphericCorrectionSettings(
-        const std::string& bodyWithAtmosphere = "Earth",
-        const bool useGradientCorrection = true,
-        const TroposphericMappingModel troposphericMappingModel = vmf3 ) :
-        LightTimeCorrectionSettings( vmf3_tropospheric ),
-        bodyWithAtmosphere_( bodyWithAtmosphere ),
-        useGradientCorrection_( useGradientCorrection ),
-        troposphericMappingModelType_( troposphericMappingModel )
+    VMF3TroposphericCorrectionSettings( const std::string &bodyWithAtmosphere = "Earth",
+                                        const bool useGradientCorrection = true,
+                                        const TroposphericMappingModel troposphericMappingModel = vmf3 ):
+        LightTimeCorrectionSettings( vmf3_tropospheric ), bodyWithAtmosphere_( bodyWithAtmosphere ),
+        useGradientCorrection_( useGradientCorrection ), troposphericMappingModelType_( troposphericMappingModel )
     { }
 
     //! Get the body with atmosphere
@@ -252,7 +249,6 @@ private:
     bool useGradientCorrection_;
     TroposphericMappingModel troposphericMappingModelType_;
 };
-
 
 // Class defining settings for tabulated ionospheric corrections
 class TabulatedIonosphericCorrectionSettings : public LightTimeCorrectionSettings
@@ -361,18 +357,14 @@ private:
 class IonexIonosphericCorrectionSettings : public LightTimeCorrectionSettings
 {
 public:
-
     //! Constructor
-    IonexIonosphericCorrectionSettings(
-        const std::string& bodyWithIonosphere,
-        const double ionosphereHeight,
-        const double firstOrderDelayCoefficient = 40.3 )
-        : LightTimeCorrectionSettings( ionex_vtec_ionospheric ),
-          bodyWithIonosphere_( bodyWithIonosphere ),
-          ionosphereHeight_( ionosphereHeight ),
-          firstOrderDelayCoefficient_( firstOrderDelayCoefficient )
+    IonexIonosphericCorrectionSettings( const std::string &bodyWithIonosphere,
+                                        const double ionosphereHeight,
+                                        const double firstOrderDelayCoefficient = 40.3 ):
+        LightTimeCorrectionSettings( ionex_vtec_ionospheric ), bodyWithIonosphere_( bodyWithIonosphere ),
+        ionosphereHeight_( ionosphereHeight ), firstOrderDelayCoefficient_( firstOrderDelayCoefficient )
     {
-        if ( ionosphereHeight <= 0.0 )
+        if( ionosphereHeight <= 0.0 )
         {
             throw std::runtime_error( "IonexIonosphericCorrectionSettings: ionosphereHeight must be positive." );
         }
@@ -397,7 +389,6 @@ public:
     }
 
 private:
-
     const std::string bodyWithIonosphere_;
     const double ionosphereHeight_;
     const double firstOrderDelayCoefficient_;
@@ -479,8 +470,6 @@ inline std::shared_ptr< LightTimeCorrectionSettings > saastamoinenTroposphericCo
             bodyWithAtmosphere, troposphericMappingModel, waterVaporPartialPressureModel );
 }
 
-
-
 inline std::shared_ptr< LightTimeCorrectionSettings > tabulatedIonosphericCorrectionSettings(
         const std::vector< std::string > &ionosphericCorrectionFileNames,
         const std::map< int, std::string > &spacecraftNamePerSpacecraftId = std::map< int, std::string >( ),
@@ -518,28 +507,20 @@ inline std::shared_ptr< LightTimeCorrectionSettings > jakowskiIonosphericCorrect
                                                                       bodyWithAtmosphere );
 }
 
-inline std::shared_ptr< LightTimeCorrectionSettings > ionexIonosphericCorrectionSettings(
-        const std::string& bodyWithIonosphere,
-        const double ionosphereHeight,
-        const double firstOrderDelayCoefficient = 40.3 )
+inline std::shared_ptr< LightTimeCorrectionSettings > ionexIonosphericCorrectionSettings( const std::string &bodyWithIonosphere,
+                                                                                          const double ionosphereHeight,
+                                                                                          const double firstOrderDelayCoefficient = 40.3 )
 {
-    return std::make_shared< IonexIonosphericCorrectionSettings >(
-        bodyWithIonosphere,
-        ionosphereHeight,
-        firstOrderDelayCoefficient );
+    return std::make_shared< IonexIonosphericCorrectionSettings >( bodyWithIonosphere, ionosphereHeight, firstOrderDelayCoefficient );
 }
 
 inline std::shared_ptr< LightTimeCorrectionSettings > vmf3TroposphericCorrectionSettings(
-        const std::string& bodyWithAtmosphere = "Earth",
+        const std::string &bodyWithAtmosphere = "Earth",
         const bool useGradientCorrection = true,
         const TroposphericMappingModel troposphericMappingModel = vmf3 )
 {
-    return std::make_shared< VMF3TroposphericCorrectionSettings >(
-        bodyWithAtmosphere,
-        useGradientCorrection,
-        troposphericMappingModel );
+    return std::make_shared< VMF3TroposphericCorrectionSettings >( bodyWithAtmosphere, useGradientCorrection, troposphericMappingModel );
 }
-
 
 inline std::shared_ptr< LightTimeCorrectionSettings > inversePowerSeriesSolarCoronaCorrectionSettings(
         const std::vector< double > &coefficients = { 1.31 * 5.97e-6 },
@@ -595,11 +576,9 @@ void setVmfTroposphereCorrections(
         const bool setMeteoData = true,
         const std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = interpolators::cubicSplineInterpolation( ) );
 
-void setIonosphereModelFromIonex(
-    const std::vector< std::string >& dataFiles,
-    const simulation_setup::SystemOfBodies& bodies,
-    std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr );
-
+void setIonosphereModelFromIonex( const std::vector< std::string > &dataFiles,
+                                  const simulation_setup::SystemOfBodies &bodies,
+                                  std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings = nullptr );
 
 /*!
  * Creates a function that returns the frequency at a given link, as a function of the frequency band used in each link
