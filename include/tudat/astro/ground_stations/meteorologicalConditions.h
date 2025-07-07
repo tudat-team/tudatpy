@@ -241,16 +241,12 @@ public:
 class InterpolatedStationTroposphereData : public StationTroposphereData
 {
 public:
-
     InterpolatedStationTroposphereData(
-    const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > troposphereInterpolator,
-    const bool dataHasMappingFunction,
-    const bool dataHasGradient ) :
-    troposphereInterpolator_( troposphereInterpolator ),
-    dataHasMappingFunction_( dataHasMappingFunction ),
-    dataHasGradient_( dataHasGradient ),
-    gradientStartIndex_( dataHasMappingFunction ? 4 : 2 ),
-    currentUtc_( TUDAT_NAN )
+            const std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::VectorXd > > troposphereInterpolator,
+            const bool dataHasMappingFunction,
+            const bool dataHasGradient ):
+        troposphereInterpolator_( troposphereInterpolator ), dataHasMappingFunction_( dataHasMappingFunction ),
+        dataHasGradient_( dataHasGradient ), gradientStartIndex_( dataHasMappingFunction ? 4 : 2 ), currentUtc_( TUDAT_NAN )
     { }
 
     ~InterpolatedStationTroposphereData( ) { }
@@ -287,7 +283,7 @@ public:
         return currentData_.segment( gradientStartIndex_, 4 );
     }
 
-    bool hasGradientData() const
+    bool hasGradientData( ) const
     {
         return dataHasGradient_;
     }
