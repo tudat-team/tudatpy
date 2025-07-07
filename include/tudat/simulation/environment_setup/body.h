@@ -24,6 +24,7 @@
 #include "tudat/astro/basic_astro/accelerationModel.h"
 #include "tudat/astro/basic_astro/bodyShapeModel.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/astro/basic_astro/ionosphereModel.h"
 #include "tudat/astro/electromagnetism/radiationPressureInterface.h"
 #include "tudat/astro/electromagnetism/radiationSourceModel.h"
 #include "tudat/astro/electromagnetism/radiationPressureTargetModel.h"
@@ -1781,6 +1782,16 @@ public:
         bodyName_ = bodyName;
     }
 
+    void setIonosphereModel( const std::shared_ptr< environment::IonosphereModel >& ionosphereModel )
+    {
+        ionosphereModel_ = ionosphereModel;
+    }
+
+    std::shared_ptr< environment::IonosphereModel > getIonosphereModel( ) const
+    {
+        return ionosphereModel_;
+    }
+    
 protected:
 private:
     //! Variable denoting whether this body is the global frame origin (1 if true, 0 if false, -1 if not yet set)
@@ -1883,6 +1894,8 @@ private:
     bool isStateSet_;
 
     bool isRotationSet_;
+
+    std::shared_ptr< environment::IonosphereModel > ionosphereModel_;
 };
 
 //! Typdef for a list of body objects (as unordered_map for efficiency reasons)

@@ -37,6 +37,8 @@ set(io_SOURCES
         "readTrackingTxtFile.cpp"
         "readVariousPdsFiles.cpp"
         "readViennaMappingFunctionData.cpp"
+        "readIonexFile.cpp"
+
 )
 
 # Add header files.
