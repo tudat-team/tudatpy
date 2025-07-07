@@ -41,17 +41,17 @@ class SphericalHarmonicsBlock
 {
 public:
     SphericalHarmonicsBlock( const std::function< Eigen::MatrixXd&( ) > matrixUpdateFunction, const int rows, const int columns ):
-        matrixUpdateFunction_( matrixUpdateFunction ), matrix_( matrixUpdateFunction_( ) ), enablePointMass_( true ), rows_( rows ),
+        matrixUpdateFunction_( matrixUpdateFunction ), matrix_( &matrixUpdateFunction_( ) ), enablePointMass_( true ), rows_( rows ),
         columns_( columns )
     { }
 
     SphericalHarmonicsBlock( Eigen::MatrixXd& matrix ):
-        matrixUpdateFunction_( nullptr ), matrix_( matrix ), enablePointMass_( true ), rows_( matrix.rows( ) ), columns_( matrix.cols( ) )
+        matrixUpdateFunction_( nullptr ), matrix_( &matrix ), enablePointMass_( true ), rows_( matrix.rows( ) ), columns_( matrix.cols( ) )
     { }
 
     inline double operator( )( int i, int j ) const
     {
-        return ( i == 0 && j == 0 ) ? getPointMassTerm( ) : matrix_( i, j );
+        return ( i == 0 && j == 0 ) ? getPointMassTerm( ) : (*matrix_)( i, j );
     }
 
     inline int rows( ) const
@@ -68,7 +68,7 @@ public:
     {
         if( matrixUpdateFunction_ != nullptr )
         {
-            matrix_ = matrixUpdateFunction_( );
+            matrix_ = &matrixUpdateFunction_();
         }
     }
 
@@ -85,12 +85,12 @@ public:
 private:
     double getPointMassTerm( ) const
     {
-        return enablePointMass_ ? matrix_( 0, 0 ) : 0.0;
+        return enablePointMass_ ? (*matrix_)( 0, 0 ) : 0.0;
     }
 
     std::function< Eigen::MatrixXd&( ) > matrixUpdateFunction_;
 
-    Eigen::MatrixXd& matrix_;
+    Eigen::MatrixXd* matrix_;
 
     bool enablePointMass_;
 
