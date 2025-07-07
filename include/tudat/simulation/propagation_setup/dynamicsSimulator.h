@@ -687,7 +687,7 @@ public:
         checkPropagatedStatesFeasibility( propagatorSettings_, bodies_, isPartOfMultiArc );
 
         // Create objects that reset the environment (e.g. ephemerides) after propagation is required
-        if( propagatorSettings_->getOutputSettings( )->getSetIntegratedResult( ) )
+        if( propagatorSettings_->getOutputSettings( )->getCreateStateProcessors( ) )
         {
             createAndSetIntegratedStateProcessors( );
         }
@@ -1737,7 +1737,10 @@ public:
                         PredefinedSingleArcStateDerivativeModels< StateScalarType, TimeType >( ),
                         true ) );
                 singleArcResults.push_back( singleArcDynamicsSimulators_.at( i )->getSingleArcPropagationResults( ) );
-                singleArcDynamicsSimulators_.at( i )->createAndSetIntegratedStateProcessors( );
+                if( singleArcDynamicsSimulators_.at( i )->getPropagatorSettings( )->getOutputSettings( )->getSetIntegratedResult( ) )
+                {
+                    singleArcDynamicsSimulators_.at( i )->createAndSetIntegratedStateProcessors( );
+                }
             }
 
             std::vector< std::shared_ptr< SingleArcDependentVariablesInterface< TimeType > > > singleArcInterfaces;
@@ -1986,7 +1989,10 @@ public:
                 {
                     std::map< IntegratedStateType, std::shared_ptr< SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > >
                             currentArcStateProcessors = singleArcDynamicsSimulators_.at( i )->getIntegratedStateProcessors( );
-
+                    if( currentArcStateProcessors.size( ) == 0 )
+                    {
+                        throw std::runtime_error( "Error when resetting multi-arc states, no state processors found" );
+                    }
                     for( auto itr: currentArcStateProcessors )
                     {
                         singleArcIntegratedStatesProcessors[ itr.first ].push_back( itr.second );
