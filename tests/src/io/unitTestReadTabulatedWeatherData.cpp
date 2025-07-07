@@ -430,25 +430,19 @@ BOOST_AUTO_TEST_CASE( testReadIonexFile )
     using namespace tudat::environment;
 
     // 1. Load test IONEX file
-    std::vector< std::string > filePaths = {
-        tudat::paths::getTudatTestDataPath() + "/IGS0OPSRAP_20251220000_01D_02H_GIM.INX" };
+    std::vector< std::string > filePaths = { tudat::paths::getTudatTestDataPath( ) + "/IGS0OPSRAP_20251220000_01D_02H_GIM.INX" };
 
     // 2. Create Earth body and assign ionosphere model via helper
     SystemOfBodies bodies;
     bodies.createEmptyBody( "Earth" );
 
-    auto settings = std::make_shared< InterpolatorSettings >(
-    multi_linear_interpolator,
-    huntingAlgorithm,
-    false,
-    std::vector< BoundaryInterpolationType >(
-        3, use_boundary_value_with_warning ) );
+    auto settings =
+            std::make_shared< InterpolatorSettings >( multi_linear_interpolator,
+                                                      huntingAlgorithm,
+                                                      false,
+                                                      std::vector< BoundaryInterpolationType >( 3, use_boundary_value_with_warning ) );
 
-
-    setIonosphereModelFromIonex(
-        filePaths,
-        bodies,
-        settings );
+    setIonosphereModelFromIonex( filePaths, bodies, settings );
 
     // 3. Retrieve model
     std::shared_ptr< IonosphereModel > ionoModel = bodies.at( "Earth" )->getIonosphereModel( );
@@ -456,12 +450,12 @@ BOOST_AUTO_TEST_CASE( testReadIonexFile )
 
     // 4. Convert test epochs
     double t_08 = tudat::basic_astrodynamics::convertJulianDayToSecondsSinceEpoch(
-        tudat::basic_astrodynamics::convertCalendarDateToJulianDay( 2025, 5, 2, 8, 0, 0.0 ),
-        tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+            tudat::basic_astrodynamics::convertCalendarDateToJulianDay( 2025, 5, 2, 8, 0, 0.0 ),
+            tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
     double t_10 = tudat::basic_astrodynamics::convertJulianDayToSecondsSinceEpoch(
-        tudat::basic_astrodynamics::convertCalendarDateToJulianDay( 2025, 5, 2, 10, 0, 0.0 ),
-        tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000 );
+            tudat::basic_astrodynamics::convertCalendarDateToJulianDay( 2025, 5, 2, 10, 0, 0.0 ),
+            tudat::basic_astrodynamics::JULIAN_DAY_ON_J2000 );
 
     // 5. Known grid point
     double lat = 87.5;
@@ -479,8 +473,6 @@ BOOST_AUTO_TEST_CASE( testReadIonexFile )
     BOOST_CHECK_CLOSE_FRACTION( tecAt08, 10.4, 1.0e-12 );
     BOOST_CHECK_CLOSE_FRACTION( tecAt10, 12.7, 1.0e-12 );
 }
-
-
 
 BOOST_AUTO_TEST_SUITE_END( )
 
