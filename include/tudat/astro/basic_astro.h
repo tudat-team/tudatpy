@@ -44,5 +44,6 @@
 #include "basic_astro/unifiedStateModelModifiedRodriguesParameterElementConversions.h"
 #include "basic_astro/unifiedStateModelQuaternionElementConversions.h"
 #include "basic_astro/unitConversions.h"
+#include "basic_astro/ionosphereModel.h"
 
 #endif  // TUDAT_BASIC_ASTRO_H
