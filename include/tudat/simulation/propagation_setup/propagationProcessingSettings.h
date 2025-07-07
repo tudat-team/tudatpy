@@ -39,8 +39,7 @@ public:
                                   const bool setIntegratedResult = false,
                                   const bool updateDependentVariableInterpolator = false ):
         clearNumericalSolutions_( clearNumericalSolutions ), setIntegratedResult_( setIntegratedResult ),
-        createStateProcessors_( setIntegratedResult ),
-        updateDependentVariableInterpolator_( updateDependentVariableInterpolator )
+        createStateProcessors_( setIntegratedResult ), updateDependentVariableInterpolator_( updateDependentVariableInterpolator )
     { }
 
     virtual ~PropagatorProcessingSettings( ) { }
@@ -81,8 +80,6 @@ public:
         createStateProcessors_ = createStateProcessors;
     }
 
-
-
     virtual void setUpdateDependentVariableInterpolator( const bool updateDependentVariableInterpolator )
     {
         updateDependentVariableInterpolator_ = updateDependentVariableInterpolator;
@@ -99,7 +96,6 @@ protected:
     bool setIntegratedResult_;
     bool createStateProcessors_;
     bool updateDependentVariableInterpolator_;
-
 };
 
 //! Base class for defining output and processing settings for single-arc propagation.
