@@ -184,6 +184,26 @@ std::map< KeyType, std::vector< ScalarValueType > > readStlVectorMapFromFile( co
     return dataMap_;
 }
 
+template< typename KeyType, typename ScalarValueType >
+std::map< KeyType, ScalarValueType > readFloatingPointMapFromFile( const std::string& relativePath,
+                                                                              const std::string& separators = "\t ;,",
+                                                                              const std::string& skipLinesCharacter = "%" )
+{
+    std::map< KeyType, std::vector< ScalarValueType > > vectorMap = readStlVectorMapFromFile< KeyType, ScalarValueType >(
+        relativePath, separators, skipLinesCharacter );
+
+    std::map< KeyType, ScalarValueType > floatingPointMap;
+    for( auto it : vectorMap )
+    {
+        if( it.second.size( ) != 1 )
+        {
+            throw std::runtime_error( "Error when reading floating point map from file, rows contain more than one value for a key." );
+        }
+        floatingPointMap[ it.first ] = it.second.at( 0 );
+    }
+    return floatingPointMap;
+}
+
 }  // namespace input_output
 
 }  // namespace tudat
