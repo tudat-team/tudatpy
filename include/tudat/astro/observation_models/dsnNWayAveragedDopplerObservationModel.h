@@ -31,7 +31,6 @@ namespace tudat
 namespace observation_models
 {
 
-
 /*! Calculate the scaling factor for computing partials via DifferencedObservablePartial.
  *
  * Calculate the scaling factor for computing partials via DifferencedObservablePartial, for DSN n-way Doppler

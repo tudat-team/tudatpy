@@ -29,19 +29,17 @@ namespace observation_models
 {
 
 template< typename ObservationScalarType = double, typename TimeType = Time >
-void setTransmissionFrequency(
-    const std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
-    const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter,
-    const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
-    const TimeType observationTime,
-    const LinkEndType linkEndAssociatedWithTime,
-    const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings )
+void setTransmissionFrequency( const std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
+                               const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter,
+                               const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
+                               const TimeType observationTime,
+                               const LinkEndType linkEndAssociatedWithTime,
+                               const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings )
 {
     TimeType approximateTransmissionTime;
     if( linkEndAssociatedWithTime == receiver )
     {
-        approximateTransmissionTime = observationTime -
-          lightTimeCalculator->calculateFirstIterationLightTime( observationTime, true );
+        approximateTransmissionTime = observationTime - lightTimeCalculator->calculateFirstIterationLightTime( observationTime, true );
     }
     else if( linkEndAssociatedWithTime == transmitter )
     {
@@ -53,38 +51,36 @@ void setTransmissionFrequency(
     }
 
     TimeType approximateUtcTransmissionTime = timeScaleConverter->getCurrentTime< TimeType >(
-        basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, approximateTransmissionTime );
+            basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, approximateTransmissionTime );
 
     double approximateTransmissionFrequency =
-        transmittingFrequencyCalculator->getTemplatedCurrentFrequency< double, TimeType >( approximateUtcTransmissionTime );
+            transmittingFrequencyCalculator->getTemplatedCurrentFrequency< double, TimeType >( approximateUtcTransmissionTime );
     ancillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, approximateTransmissionFrequency );
     ancillarySettings->setIntermediateDoubleData( received_frequency_intermediate, approximateTransmissionFrequency );
-
 }
-
 
 template< typename ObservationScalarType = double, typename TimeType = Time >
 void setTransmissionReceptionFrequencies(
-    const std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > multiLegLightTimeCalculator,
-    const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter,
-    const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
-    const TimeType receptionTdbTime,
-    const LinkEndType referenceLinkEndType,
-    const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings,
-    const double turnAroundratio )
+        const std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > multiLegLightTimeCalculator,
+        const std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter,
+        const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
+        const TimeType receptionTdbTime,
+        const LinkEndType referenceLinkEndType,
+        const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings,
+        const double turnAroundratio )
 {
     if( referenceLinkEndType != receiver )
     {
         throw std::runtime_error( "Error when getting n-way transmission frequency, reference link end is incompatible. " );
     }
-    TimeType approximateTdbTransmissionTime = receptionTdbTime -
-                                              multiLegLightTimeCalculator->calculateFirstIterationLightTime( receptionTdbTime, receiver );
+    TimeType approximateTdbTransmissionTime =
+            receptionTdbTime - multiLegLightTimeCalculator->calculateFirstIterationLightTime( receptionTdbTime, receiver );
 
     TimeType approximateUtcTransmissionTime = timeScaleConverter->getCurrentTime< TimeType >(
-        basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, approximateTdbTransmissionTime );
+            basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, approximateTdbTransmissionTime );
 
     double approximateTransmissionFrequency =
-        transmittingFrequencyCalculator->getTemplatedCurrentFrequency< double, TimeType >( approximateUtcTransmissionTime );
+            transmittingFrequencyCalculator->getTemplatedCurrentFrequency< double, TimeType >( approximateUtcTransmissionTime );
     ancillarySettings->setIntermediateDoubleData( received_frequency_intermediate, approximateTransmissionFrequency * turnAroundratio );
     ancillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, approximateTransmissionFrequency );
 }

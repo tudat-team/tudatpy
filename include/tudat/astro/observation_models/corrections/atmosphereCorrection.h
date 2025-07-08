@@ -929,11 +929,10 @@ public:
      *      reception on spacecraft) or downlink (i.e. transmission from spacecraft, reception at ground station)
      * @param referenceFrequency Frequency for which the reference corrections are given.
      */
-    TabulatedIonosphericCorrection(
-            std::shared_ptr< TabulatedMediaReferenceCorrectionManager > referenceCorrectionCalculator,
-            ObservableType baseObservableType,
-            bool isUplinkCorrection,
-            double referenceFrequency = 2295e6 );
+    TabulatedIonosphericCorrection( std::shared_ptr< TabulatedMediaReferenceCorrectionManager > referenceCorrectionCalculator,
+                                    ObservableType baseObservableType,
+                                    bool isUplinkCorrection,
+                                    double referenceFrequency = 2295e6 );
 
     /*!
      * Function to compute the ionospheric light-time correction, using tabulated DSN data, according to Moyer (2000),

@@ -30,7 +30,6 @@ namespace tudat
 namespace observation_models
 {
 
-
 //! Class for simulating one-way range observables.
 /*!
  *  Class for simulating one-way range, based on light-time and light-time corrections.
@@ -57,7 +56,7 @@ public:
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
         ObservationModel< 1, ObservationScalarType, TimeType >( one_way_range, linkEnds, observationBiasCalculator ),
         lightTimeCalculator_( lightTimeCalculator ), frequencyInterpolator_( nullptr )
-    {  }
+    { }
 
     //! Destructor
     ~OneWayRangeObservationModel( ) { }
@@ -115,7 +114,6 @@ public:
                 throw std::runtime_error( errorMessage );
         }
 
-
         // Convert light time to range.
         observation *= physical_constants::getSpeedOfLight< ObservationScalarType >( );
 
@@ -146,19 +144,18 @@ public:
     }
 
 private:
-
-    bool setFrequencyProperties(
-        const TimeType time,
-        const LinkEndType linkEndAssociatedWithTime,
-        const std::shared_ptr< ObservationAncilliarySimulationSettings > inputAncilliarySetings,
-        std::shared_ptr< ObservationAncilliarySimulationSettings >& ancilliarySetingsToUse )
+    bool setFrequencyProperties( const TimeType time,
+                                 const LinkEndType linkEndAssociatedWithTime,
+                                 const std::shared_ptr< ObservationAncilliarySimulationSettings > inputAncilliarySetings,
+                                 std::shared_ptr< ObservationAncilliarySimulationSettings >& ancilliarySetingsToUse )
     {
         if( frequencyInterpolator_ != nullptr )
         {
-            if ( linkEndAssociatedWithTime != receiver )
+            if( linkEndAssociatedWithTime != receiver )
             {
                 throw std::runtime_error(
-                    "Error when computing one-way range, frequency interpolator use is only compatible with transmitter reference frrquency at present" );
+                        "Error when computing one-way range, frequency interpolator use is only compatible with transmitter reference "
+                        "frrquency at present" );
             }
             else
             {
@@ -170,8 +167,12 @@ private:
                 {
                     ancilliarySetingsToUse = inputAncilliarySetings;
                 }
-                setTransmissionFrequency(
-                    lightTimeCalculator_, timeScaleConverter_, frequencyInterpolator_, time, linkEndAssociatedWithTime, ancilliarySetingsToUse );
+                setTransmissionFrequency( lightTimeCalculator_,
+                                          timeScaleConverter_,
+                                          frequencyInterpolator_,
+                                          time,
+                                          linkEndAssociatedWithTime,
+                                          ancilliarySetingsToUse );
             }
             return true;
         }

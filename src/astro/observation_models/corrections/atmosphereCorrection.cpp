@@ -749,8 +749,7 @@ TabulatedIonosphericCorrection::TabulatedIonosphericCorrection(
         bool isUplinkCorrection,
         double referenceFrequency ):
     LightTimeCorrection( tabulated_ionospheric ), referenceCorrectionCalculator_( referenceCorrectionCalculator ),
-    referenceFrequency_( referenceFrequency ),
-    isUplinkCorrection_( isUplinkCorrection )
+    referenceFrequency_( referenceFrequency ), isUplinkCorrection_( isUplinkCorrection )
 {
     if( isRadiometricObservableType( baseObservableType ) )
     {
@@ -907,9 +906,8 @@ MappedVtecIonosphericCorrection::MappedVtecIonosphericCorrection(
         double bodyWithAtmosphereMeanEquatorialRadius,
         LightTimeCorrectionType correctionType,
         double firstOrderDelayCoefficient ):
-    LightTimeCorrection( correctionType ), vtecCalculator_( vtecCalculator ), 
-    elevationFunction_( elevationFunction ), azimuthFunction_( azimuthFunction ),
-    groundStationGeodeticPositionFunction_( groundStationGeodeticPositionFunction ),
+    LightTimeCorrection( correctionType ), vtecCalculator_( vtecCalculator ), elevationFunction_( elevationFunction ),
+    azimuthFunction_( azimuthFunction ), groundStationGeodeticPositionFunction_( groundStationGeodeticPositionFunction ),
     bodyWithAtmosphereMeanEquatorialRadius_( bodyWithAtmosphereMeanEquatorialRadius ),
     firstOrderDelayCoefficient_( firstOrderDelayCoefficient ), isUplinkCorrection_( isUplinkCorrection )
 {
