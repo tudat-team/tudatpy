@@ -114,14 +114,15 @@ public:
         }
 
         // Definition of epoch at which UTC was introduced (with 2 hour buffer time)
-        utcIntroductionEpochInTai_ = ( basic_astrodynamics::JULIAN_DAY_OF_EOP_INTRODUCTION - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * physical_constants::JULIAN_DAY;
+        utcIntroductionEpochInTai_ = ( basic_astrodynamics::JULIAN_DAY_OF_EOP_INTRODUCTION - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) *
+                physical_constants::JULIAN_DAY;
 
         // Read historical Delta T values
         std::map< double, double > historicalDeltaTMap = input_output::readFloatingPointMapFromFile< double, double >(
-            paths::getEarthOrientationDataFilesPath( ) + "/historicalDeltaT.txt",",","#");
+                paths::getEarthOrientationDataFilesPath( ) + "/historicalDeltaT.txt", ",", "#" );
 
-        historicalDeltaTInterpolator_ = interpolators::createOneDimensionalInterpolator(
-            historicalDeltaTMap, interpolators::cubicSplineInterpolation( ) );
+        historicalDeltaTInterpolator_ =
+                interpolators::createOneDimensionalInterpolator( historicalDeltaTMap, interpolators::cubicSplineInterpolation( ) );
     }
 
     //! Function to convert a time value from the input to the output scale.
@@ -430,8 +431,8 @@ private:
         if( getCurrentTimeList< TimeType >( ).tai < utcIntroductionEpochInTai_ )
         {
             double approximateYear = getCurrentTimeList< TimeType >( ).tt / physical_constants::JULIAN_YEAR + 2000.0;
-            getCurrentTimeList< TimeType >( ).ut1 = getCurrentTimeList< TimeType >( ).tt - historicalDeltaTInterpolator_->interpolate(
-                approximateYear );
+            getCurrentTimeList< TimeType >( ).ut1 =
+                    getCurrentTimeList< TimeType >( ).tt - historicalDeltaTInterpolator_->interpolate( approximateYear );
             getCurrentTimeList< TimeType >( ).utc = getCurrentTimeList< TimeType >( ).ut1;
         }
         else
@@ -440,15 +441,14 @@ private:
 
             if( dailyUtcUt1CorrectionInterpolator_ != nullptr )
             {
-                getCurrentTimeList< TimeType >( ).ut1 =
-                        static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( getCurrentTimeList< TimeType >( ).utc ) ) +
+                getCurrentTimeList< TimeType >( ).ut1 = static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate(
+                                                                getCurrentTimeList< TimeType >( ).utc ) ) +
                         getCurrentTimeList< TimeType >( ).utc;
 
-                getCurrentTimeList< TimeType >( ).ut1 +=
-                        static_cast< TimeType >( shortPeriodUt1CorrectionCalculator_->getCorrections( getCurrentTimeList< TimeType >( ).tt ) );
+                getCurrentTimeList< TimeType >( ).ut1 += static_cast< TimeType >(
+                        shortPeriodUt1CorrectionCalculator_->getCorrections( getCurrentTimeList< TimeType >( ).tt ) );
             }
         }
-
     }
 
     //! Interpolator for UT1 corrections, values published daily by IERS

@@ -376,24 +376,20 @@ BOOST_AUTO_TEST_CASE( testTimeScaleConversionDuringLeapSeconds )
 //! Test validity of time scale converter around leap seconds
 BOOST_AUTO_TEST_CASE( testHistoricalDeltaTValues )
 {
-    std::vector< basic_astrodynamics::DateTime > testDateTimes =
-        { basic_astrodynamics::DateTime( 1972, 1, 1, 0, 0, 0.0 ),
-          basic_astrodynamics::DateTime( 1962, 1, 1, 0, 0, 60.0 ),
-          basic_astrodynamics::DateTime( 1961, 12, 31, 23, 0, 0.0 ) };
+    std::vector< basic_astrodynamics::DateTime > testDateTimes = { basic_astrodynamics::DateTime( 1972, 1, 1, 0, 0, 0.0 ),
+                                                                   basic_astrodynamics::DateTime( 1962, 1, 1, 0, 0, 60.0 ),
+                                                                   basic_astrodynamics::DateTime( 1961, 12, 31, 23, 0, 0.0 ) };
 
-    std::vector< double > referenceUTDifference =
-        { -0.0454859,
-          0.0326338,
-          0.0 };
+    std::vector< double > referenceUTDifference = { -0.0454859, 0.0326338, 0.0 };
 
     std::shared_ptr< TerrestrialTimeScaleConverter > timeScaleConverter =
-        createStandardEarthOrientationCalculator( )->getTerrestrialTimeScaleConverter( );
+            createStandardEarthOrientationCalculator( )->getTerrestrialTimeScaleConverter( );
 
     for( unsigned int i = 0; i < testDateTimes.size( ); i++ )
     {
         double currentUt1 = timeScaleConverter->getCurrentTime( tdb_scale, ut1_scale, testDateTimes.at( i ).epoch< double >( ) );
         double currentUtc = timeScaleConverter->getCurrentTime( tdb_scale, utc_scale, testDateTimes.at( i ).epoch< double >( ) );
-        BOOST_CHECK_SMALL( ( currentUt1-currentUtc ) - referenceUTDifference.at( i ), 1.0E-4 );
+        BOOST_CHECK_SMALL( ( currentUt1 - currentUtc ) - referenceUTDifference.at( i ), 1.0E-4 );
     }
 
     double switchEpoch = ( JULIAN_DAY_OF_EOP_INTRODUCTION - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * physical_constants::JULIAN_DAY;
@@ -401,7 +397,7 @@ BOOST_AUTO_TEST_CASE( testHistoricalDeltaTValues )
 
     double currentUt1 = timeScaleConverter->getCurrentTime( tai_scale, ut1_scale, dateTimeJustAfterSwitch.epoch< double >( ) );
     double currentUtc = timeScaleConverter->getCurrentTime( tai_scale, utc_scale, dateTimeJustAfterSwitch.epoch< double >( ) );
-    double expectedUtDifference = 0.0326338 + 1.5314e-05; // First entrt from C04 file plus short-period correction
+    double expectedUtDifference = 0.0326338 + 1.5314e-05;  // First entrt from C04 file plus short-period correction
     BOOST_CHECK_SMALL( expectedUtDifference - ( currentUt1 - currentUtc ), 1.0E-6 );
 
     basic_astrodynamics::DateTime dateTimeJustBeforeSwitch = basic_astrodynamics::DateTime::fromTime( switchEpoch - 1.0 );
@@ -409,7 +405,6 @@ BOOST_AUTO_TEST_CASE( testHistoricalDeltaTValues )
     currentUt1 = timeScaleConverter->getCurrentTime( tai_scale, ut1_scale, dateTimeJustBeforeSwitch.epoch< double >( ) );
     currentUtc = timeScaleConverter->getCurrentTime( tai_scale, utc_scale, dateTimeJustBeforeSwitch.epoch< double >( ) );
     BOOST_CHECK_EQUAL( currentUt1, currentUtc );
-
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
