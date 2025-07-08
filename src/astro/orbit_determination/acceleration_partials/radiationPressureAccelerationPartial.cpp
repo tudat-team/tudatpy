@@ -34,7 +34,8 @@ void computeRadiationPressureAccelerationWrtSourceDirectionScaling(
     Eigen::Vector3d unscaledAcceleration = accelerationModel->getCurrentUnscaledAcceleration( );
     Eigen::Vector3d targetUnitVector = accelerationModel->getTargetCenterPositionInSourceFrame( ).normalized( );
     Eigen::Vector3d toTargetComponent = unscaledAcceleration - targetUnitVector.dot( unscaledAcceleration ) * targetUnitVector;
-    partial = toTargetComponent;
+    partial = unscaledAcceleration - toTargetComponent;
+
 }
 
 void computeRadiationPressureAccelerationWrtSourcePerpendicularDirectionScaling(
@@ -44,7 +45,7 @@ void computeRadiationPressureAccelerationWrtSourcePerpendicularDirectionScaling(
     Eigen::Vector3d unscaledAcceleration = accelerationModel->getCurrentUnscaledAcceleration( );
     Eigen::Vector3d targetUnitVector = accelerationModel->getTargetCenterPositionInSourceFrame( ).normalized( );
     Eigen::Vector3d toTargetComponent = unscaledAcceleration - targetUnitVector.dot( unscaledAcceleration ) * targetUnitVector;
-    partial = unscaledAcceleration - toTargetComponent;
+    partial = toTargetComponent;
 }
 
 void CannonBallRadiationPressurePartial::wrtRadiationPressureCoefficient( Eigen::MatrixXd& partial )
