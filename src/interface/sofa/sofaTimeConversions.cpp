@@ -124,7 +124,8 @@ double getTDBminusTT( const double ttOrTdbSinceJ2000,
     double ut1 = TUDAT_NAN;
 
     // Conversion is only valid from 1961 onwards
-    if( static_cast< double >( tai ) / physical_constants::JULIAN_DAY > ( basic_astrodynamics::JULIAN_DAY_OF_UTC_INTRODUCTION - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) )
+    if( static_cast< double >( tai ) / physical_constants::JULIAN_DAY >
+        ( basic_astrodynamics::JULIAN_DAY_OF_UTC_INTRODUCTION - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) )
     {
         ut1 = static_cast< double >( convertTAItoUTC< double >( tai ) );
     }
@@ -138,7 +139,8 @@ double getTDBminusTT( const double ttOrTdbSinceJ2000,
             1.0 );
 
     // Calculate and return difference (introducing addition approximation if input is in TT, by assuming TDB is equal to TT)
-    double tdbMinusTT = getTDBminusTT( ttOrTdbSinceJ2000, ut1FractionOfDay, stationLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane );
+    double tdbMinusTT =
+            getTDBminusTT( ttOrTdbSinceJ2000, ut1FractionOfDay, stationLongitude, distanceFromSpinAxis, distanceFromEquatorialPlane );
 
     return tdbMinusTT;
 }

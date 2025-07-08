@@ -186,14 +186,14 @@ std::map< KeyType, std::vector< ScalarValueType > > readStlVectorMapFromFile( co
 
 template< typename KeyType, typename ScalarValueType >
 std::map< KeyType, ScalarValueType > readFloatingPointMapFromFile( const std::string& relativePath,
-                                                                              const std::string& separators = "\t ;,",
-                                                                              const std::string& skipLinesCharacter = "%" )
+                                                                   const std::string& separators = "\t ;,",
+                                                                   const std::string& skipLinesCharacter = "%" )
 {
-    std::map< KeyType, std::vector< ScalarValueType > > vectorMap = readStlVectorMapFromFile< KeyType, ScalarValueType >(
-        relativePath, separators, skipLinesCharacter );
+    std::map< KeyType, std::vector< ScalarValueType > > vectorMap =
+            readStlVectorMapFromFile< KeyType, ScalarValueType >( relativePath, separators, skipLinesCharacter );
 
     std::map< KeyType, ScalarValueType > floatingPointMap;
-    for( auto it : vectorMap )
+    for( auto it: vectorMap )
     {
         if( it.second.size( ) != 1 )
         {
