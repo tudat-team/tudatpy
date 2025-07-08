@@ -924,8 +924,6 @@ public:
      * Constructor
      * @param referenceCorrectionCalculator Range correction calculator. Corrections based on real time data, which should
      *      read from DSN TRK-2-23 files.
-     * @param transmittedFrequencyFunction Function calculating the frequency at the current link given a vector with
-     *     the frequency bands in each link of the model and the transmission time.
      * @param baseObservableType Observable type associated with the correction.
      * @param isUplinkCorrection Boolean indicating whether correction is for uplink (i.e. transmitting station on planet,
      *      reception on spacecraft) or downlink (i.e. transmission from spacecraft, reception at ground station)
@@ -933,7 +931,6 @@ public:
      */
     TabulatedIonosphericCorrection(
             std::shared_ptr< TabulatedMediaReferenceCorrectionManager > referenceCorrectionCalculator,
-            std::function< double( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction,
             ObservableType baseObservableType,
             bool isUplinkCorrection,
             double referenceFrequency = 2295e6 );
@@ -957,9 +954,6 @@ public:
 private:
     // Range correction calculator. Correction determined for referenceFrequency_
     std::shared_ptr< TabulatedMediaReferenceCorrectionManager > referenceCorrectionCalculator_;
-
-    // Frequency at the link as a function of the frequency bands per link, and of the current time
-    std::function< double( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction_;
 
     // Reference frequency for which the reference corrections where calculated
     double referenceFrequency_;
@@ -1137,8 +1131,6 @@ public:
     /*!
      * Constructor.
      * @param vtecCalculator Class to calculate the vertical total electron content (VTEC)
-     * @param transmittedFrequencyFunction Function calculating the frequency at the current link given a vector with
-     *     the frequency bands in each link of the model and the transmission time.
      * @param elevationFunction Function that computes the elevation as seen from the ground station, given the vector to
      *      the target and the current time.
      * @param azimuthFunction Function that computes the azimuth as seen from the ground station, given the vector to
@@ -1153,7 +1145,6 @@ public:
      */
     MappedVtecIonosphericCorrection(
             std::shared_ptr< VtecCalculator > vtecCalculator,
-            std::function< double( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction,
             std::function< double( Eigen::Vector3d inertialVectorAwayFromStation, double time ) > elevationFunction,
             std::function< double( Eigen::Vector3d inertialVectorAwayFromStation, double time ) > azimuthFunction,
             std::function< Eigen::Vector3d( double time ) > groundStationGeodeticPositionFunction,
@@ -1189,9 +1180,6 @@ public:
 private:
     // Class to calculate the vertical total electron content (VTEC)
     std::shared_ptr< VtecCalculator > vtecCalculator_;
-
-    // Frequency at the link as a function of the frequency bands per link, and of the current time
-    std::function< double( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction_;
 
     // Function that computes the elevation as seen from the ground station, given the vector to the target and the current time.
     std::function< double( Eigen::Vector3d inertialVectorAwayFromStation, double time ) > elevationFunction_;

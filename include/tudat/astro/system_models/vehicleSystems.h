@@ -18,6 +18,7 @@
 
 #include "tudat/astro/electromagnetism/reflectionLaw.h"
 #include "tudat/astro/ephemerides/rotationalEphemeris.h"
+#include "tudat/astro/ground_stations/transmittingFrequencies.h"
 #include "tudat/astro/system_models/engineModel.h"
 #include "tudat/astro/system_models/timingSystem.h"
 #include "tudat/astro/system_models/vehicleExteriorPanels.h"
@@ -416,6 +417,16 @@ public:
         return totalNumberOfPanels_;
     }
 
+    std::shared_ptr< ground_stations::StationFrequencyInterpolator > getTransmittedFrequencyCalculator( )
+    {
+        return transmittedFrequencyCalculator_;
+    }
+
+    void setTransmittedFrequencyCalculator( const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittedFrequencyCalculator )
+    {
+        transmittedFrequencyCalculator_ = transmittedFrequencyCalculator;
+    }
+
 private:
     std::map< std::string, std::shared_ptr< ephemerides::Ephemeris > > referencePoints_;
 
@@ -452,6 +463,9 @@ private:
 
     std::function< double( observation_models::FrequencyBands uplinkBand, observation_models::FrequencyBands downlinkBand ) >
             transponderTurnaroundRatio_;
+
+    std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittedFrequencyCalculator_;
+
 };
 
 }  // namespace system_models
