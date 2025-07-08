@@ -422,7 +422,8 @@ public:
         return transmittedFrequencyCalculator_;
     }
 
-    void setTransmittedFrequencyCalculator( const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittedFrequencyCalculator )
+    void setTransmittedFrequencyCalculator(
+            const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittedFrequencyCalculator )
     {
         transmittedFrequencyCalculator_ = transmittedFrequencyCalculator;
     }
@@ -465,7 +466,6 @@ private:
             transponderTurnaroundRatio_;
 
     std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittedFrequencyCalculator_;
-
 };
 
 }  // namespace system_models
