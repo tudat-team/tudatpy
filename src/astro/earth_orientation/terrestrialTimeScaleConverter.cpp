@@ -68,8 +68,12 @@ std::shared_ptr< TerrestrialTimeScaleConverter > createDefaultTimeConverter( con
             getDefaultUT1CorrectionCalculator( );
     std::shared_ptr< interpolators::JumpDataLinearInterpolator< double, double > > ut1MinusUtcInterpolator =
             std::make_shared< interpolators::JumpDataLinearInterpolator< double, double > >(
-                    eopReader->getUt1MinusUtcMapInSecondsSinceJ2000( ), 0.5, 1.0, interpolators::huntingAlgorithm,
-                    interpolators::use_default_value, 0.0 );
+                    eopReader->getUt1MinusUtcMapInSecondsSinceJ2000( ),
+                    0.5,
+                    1.0,
+                    interpolators::huntingAlgorithm,
+                    interpolators::use_default_value,
+                    0.0 );
     return std::make_shared< TerrestrialTimeScaleConverter >( ut1MinusUtcInterpolator, shortPeriodUt1CorrectionCalculator );
 }
 
