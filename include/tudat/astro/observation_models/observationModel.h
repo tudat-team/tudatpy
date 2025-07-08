@@ -20,6 +20,7 @@
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/astro/observation_models/observationBias.h"
 #include "tudat/astro/observation_models/observationFrequencies.h"
+#include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
@@ -379,6 +380,8 @@ inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDefaultAnci
     }
     return ancilliarySettings;
 }
+
+
 
 //! Base class for models of observables (i.e. range, range-rate, etc.).
 /*!

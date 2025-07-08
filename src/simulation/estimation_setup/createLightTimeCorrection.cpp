@@ -397,7 +397,6 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                             ionosphericCorrectionSettings->getReferenceRangeCorrection( )
                                     .at( stationSpacecraftPair )
                                     .at( baseObservableType ),
-                            createLinkFrequencyFunction( bodies, linkEnds, transmittingLinkEndType, receivingLinkEndType ),
                             baseObservableType,
                             isUplinkCorrection,
                             ionosphericCorrectionSettings->getReferenceFrequency( ) );
@@ -452,7 +451,6 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                         std::make_pair( groundStation.stationName_, spacecraft.bodyName_ );
 
                 // Create Jakowski VTEC calculator
-
                 std::shared_ptr< input_output::solar_activity::SolarActivityContainer > solarActivityContainer =
                         std::make_shared< input_output::solar_activity::SolarActivityContainer >(
                                 ionosphericCorrectionSettings->getSolarActivityData( ) );
@@ -528,7 +526,6 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
 
                 lightTimeCorrection = std::make_shared< MappedVtecIonosphericCorrection >(
                         vtecCalculator,
-                        createLinkFrequencyFunction( bodies, linkEnds, transmittingLinkEndType, receivingLinkEndType ),
                         elevationFunction,
                         azimuthFunction,
                         groundStationGeodeticPositionFunction,
@@ -626,7 +623,6 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
 
                 lightTimeCorrection = std::make_shared< MappedVtecIonosphericCorrection >(
                         vtecCalculator,
-                        createLinkFrequencyFunction( bodies, linkEnds, transmittingLinkEndType, receivingLinkEndType ),
                         elevationFunction,
                         azimuthFunction,
                         groundStationGeodeticPositionFunction,
@@ -881,10 +877,43 @@ std::function< double( std::vector< FrequencyBands >, double ) > createLinkFrequ
         const LinkEndType& transmittingLinkEndType,
         const LinkEndType& receivingLinkEndType )
 {
-    std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittedFrequencyCalculator =
-            bodies.getBody( linkEnds.at( transmitter ).bodyName_ )
-                    ->getGroundStation( linkEnds.at( transmitter ).stationName_ )
-                    ->getTransmittingFrequencyCalculator( );
+    std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittedFrequencyCalculator;
+
+    if( bodies.getBody( linkEnds.at( transmitter ).bodyName_ )->getGroundStationMap( ).count( linkEnds.at( transmitter ).stationName_ ) > 0 )
+    {
+        if( bodies.getBody( linkEnds.at( transmitter ).bodyName_ )
+                ->getGroundStation( linkEnds.at( transmitter ).stationName_ )
+                ->getTransmittingFrequencyCalculator( ) != nullptr )
+        {
+            transmittedFrequencyCalculator = bodies.getBody( linkEnds.at( transmitter ).bodyName_ )
+                ->getGroundStation( linkEnds.at( transmitter ).stationName_ )
+                ->getTransmittingFrequencyCalculator( );
+        }
+        else
+        {
+            throw std::runtime_error( "Error when creating link frequency function, no transmitter found in station " +
+                                          linkEnds.at( transmitter ).bodyName_ + "; " + linkEnds.at( transmitter ).stationName_ );
+        }
+    }
+    else if( bodies.getBody( linkEnds.at( transmitter ).bodyName_ )->getVehicleSystems( ) != nullptr )
+    {
+        if( bodies.getBody( linkEnds.at( transmitter ).bodyName_ )->getVehicleSystems( )->getTransmittedFrequencyCalculator( ) != nullptr )
+        {
+            transmittedFrequencyCalculator = bodies.getBody( linkEnds.at( transmitter ).bodyName_ )
+                ->getVehicleSystems( )->getTransmittedFrequencyCalculator( );
+        }
+        else
+        {
+            throw std::runtime_error( "Error when creating link frequency function, no transmitter found in vehicle systems of " +
+                                      linkEnds.at( transmitter ).bodyName_ );
+        }
+    }
+    else
+    {
+        throw std::runtime_error( "Error when creating link frequency function, " +
+                                  linkEnds.at( transmitter ).bodyName_ + "; " + linkEnds.at( transmitter ).stationName_ +
+                                  " has not transmitter in either the vehicle systems of station" );
+    }
 
     std::vector< std::function< double( FrequencyBands, FrequencyBands ) > > turnaroundRatioFunctions;
 

@@ -171,12 +171,13 @@ public:
         FrequencyBands downlinkBand = frequencyBands.at( 1 );
 
         double currentTurnAroundRatio = turnaroundRatio_( uplinkBand, downlinkBand );
-        if( true )
+        if( lighTimeCalculator_->doCorrectionsNeedFrequency( ) )
         {
             setTransmissionReceptionFrequencies( lighTimeCalculator_,
                                                  terrestrialTimeScaleConverter_,
                                                  transmittingFrequencyCalculator_,
                                                  time,
+                                                 linkEndAssociatedWithTime,
                                                  ancillarySettings,
                                                  currentTurnAroundRatio );
         }
