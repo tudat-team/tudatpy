@@ -220,14 +220,26 @@ BOOST_AUTO_TEST_CASE( testHistoricalEarthRotation )
     basic_astrodynamics::DateTime dateTimePreC04( 1958, 12, 30, 12, 0.0, 0.0 );
     basic_astrodynamics::DateTime dateTimeStartC04( 1962, 1, 1, 0, 0.0, 0.0 );
 
-    Eigen::Vector2d polarMotionPreC04 = earthOrientationCalculator->getPolarMotionCalculator()->getDailyIersValueInterpolator( )->interpolate( dateTimePreC04.epoch< double >( ) );
-    Eigen::Vector2d polarMotionPostC04 = earthOrientationCalculator->getPolarMotionCalculator()->getDailyIersValueInterpolator( )->interpolate( dateTimeStartC04.epoch< double >( ) );
+    Eigen::Vector2d polarMotionPreC04 =
+            earthOrientationCalculator->getPolarMotionCalculator( )->getDailyIersValueInterpolator( )->interpolate(
+                    dateTimePreC04.epoch< double >( ) );
+    Eigen::Vector2d polarMotionPostC04 =
+            earthOrientationCalculator->getPolarMotionCalculator( )->getDailyIersValueInterpolator( )->interpolate(
+                    dateTimeStartC04.epoch< double >( ) );
 
-    Eigen::Vector2d pnCorrectionPreC04 = earthOrientationCalculator->getPrecessionNutationCalculator()->getDailyCorrectionInterpolator()->interpolate( dateTimePreC04.epoch< double >( ) );
-    Eigen::Vector2d pnCorrectionPostC04 = earthOrientationCalculator->getPrecessionNutationCalculator()->getDailyCorrectionInterpolator()->interpolate( dateTimeStartC04.epoch< double >( ) );
+    Eigen::Vector2d pnCorrectionPreC04 =
+            earthOrientationCalculator->getPrecessionNutationCalculator( )->getDailyCorrectionInterpolator( )->interpolate(
+                    dateTimePreC04.epoch< double >( ) );
+    Eigen::Vector2d pnCorrectionPostC04 =
+            earthOrientationCalculator->getPrecessionNutationCalculator( )->getDailyCorrectionInterpolator( )->interpolate(
+                    dateTimeStartC04.epoch< double >( ) );
 
-    double ut1CorrectionPreC04 = earthOrientationCalculator->getTerrestrialTimeScaleConverter()->getDailyUtcUt1CorrectionInterpolator( )->interpolate( dateTimePreC04.epoch< double >( ) );
-    double ut1CorrectionPostC04 = earthOrientationCalculator->getTerrestrialTimeScaleConverter()->getDailyUtcUt1CorrectionInterpolator( )->interpolate( dateTimeStartC04.epoch< double >( ) );
+    double ut1CorrectionPreC04 =
+            earthOrientationCalculator->getTerrestrialTimeScaleConverter( )->getDailyUtcUt1CorrectionInterpolator( )->interpolate(
+                    dateTimePreC04.epoch< double >( ) );
+    double ut1CorrectionPostC04 =
+            earthOrientationCalculator->getTerrestrialTimeScaleConverter( )->getDailyUtcUt1CorrectionInterpolator( )->interpolate(
+                    dateTimeStartC04.epoch< double >( ) );
 
     // Check if polar motion is zero before c04 file starts
     BOOST_CHECK_EQUAL( polarMotionPreC04( 0 ) == 0, true );
