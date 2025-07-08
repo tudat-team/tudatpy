@@ -745,12 +745,11 @@ double SaastamoinenTroposphericCorrection::computeWetZenithRangeCorrection( cons
 
 TabulatedIonosphericCorrection::TabulatedIonosphericCorrection(
         std::shared_ptr< TabulatedMediaReferenceCorrectionManager > referenceCorrectionCalculator,
-        std::function< double( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction,
         ObservableType baseObservableType,
         bool isUplinkCorrection,
         double referenceFrequency ):
     LightTimeCorrection( tabulated_ionospheric ), referenceCorrectionCalculator_( referenceCorrectionCalculator ),
-    transmittedFrequencyFunction_( transmittedFrequencyFunction ), referenceFrequency_( referenceFrequency ),
+    referenceFrequency_( referenceFrequency ),
     isUplinkCorrection_( isUplinkCorrection )
 {
     if( isRadiometricObservableType( baseObservableType ) )
@@ -796,26 +795,11 @@ double TabulatedIonosphericCorrection::calculateLightTimeCorrectionWithMultiLegL
                                             legTransmissionTime,
                                             legReceptionTime );
 
-    //    // Retrieve frequency bands
-    //    std::vector< FrequencyBands > frequencyBands;
-    //    if( ancillarySettings == nullptr )
-    //    {
-    //        throw std::runtime_error( "Error when computing tabulated ionospheric corrections: no ancillary settings found. " );
-    //    }
-    //    try
-    //    {
-    //        frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
-    //    }
-    //    catch( std::runtime_error& caughtException )
-    //    {
-    //        throw std::runtime_error( "Error when retrieving frequency bands for tabulated ionospheric corrections: " +
-    //                                  std::string( caughtException.what( ) ) );
-    //    }
-
     // Compute light-time correction
     double stationTime = TUDAT_NAN;
     double lightTimeCorrection = 0.0;
     double currentFrequency = TUDAT_NAN;
+
     if( isUplinkCorrection_ )
     {
         stationTime = legTransmissionTime;
@@ -827,13 +811,6 @@ double TabulatedIonosphericCorrection::calculateLightTimeCorrectionWithMultiLegL
         currentFrequency = ancillarySettings->getIntermediateDoubleData( received_frequency_intermediate, true );
     }
     double stationTimeUtc = sofa_interface::convertTTtoUTC( stationTime );
-
-    //    // Convert times from TDB TO UTC. To speed up the conversion, we actually convert from TT to UTC. This approximation should be
-    //    accurate
-    //    // enough for ionospheric delay computation.
-    //    double firstLegTransmissionTime = linkEndsTimes.front( );
-    //    double firstLegTransmissionTimeUtc = sofa_interface::convertTTtoUTC( firstLegTransmissionTime );
-    //    double stationTimeUtc = sofa_interface::convertTTtoUTC( stationTime );
 
     if( !std::isnan( currentFrequency ) )
     {
@@ -922,7 +899,6 @@ double JakowskiVtecCalculator::calculateVtec( const double time, const Eigen::Ve
 
 MappedVtecIonosphericCorrection::MappedVtecIonosphericCorrection(
         std::shared_ptr< VtecCalculator > vtecCalculator,
-        std::function< double( std::vector< FrequencyBands > frequencyBands, double time ) > transmittedFrequencyFunction,
         std::function< double( Eigen::Vector3d inertialVectorAwayFromStation, double time ) > elevationFunction,
         std::function< double( Eigen::Vector3d inertialVectorAwayFromStation, double time ) > azimuthFunction,
         std::function< Eigen::Vector3d( double time ) > groundStationGeodeticPositionFunction,
@@ -931,7 +907,7 @@ MappedVtecIonosphericCorrection::MappedVtecIonosphericCorrection(
         double bodyWithAtmosphereMeanEquatorialRadius,
         LightTimeCorrectionType correctionType,
         double firstOrderDelayCoefficient ):
-    LightTimeCorrection( correctionType ), vtecCalculator_( vtecCalculator ), transmittedFrequencyFunction_( transmittedFrequencyFunction ),
+    LightTimeCorrection( correctionType ), vtecCalculator_( vtecCalculator ), 
     elevationFunction_( elevationFunction ), azimuthFunction_( azimuthFunction ),
     groundStationGeodeticPositionFunction_( groundStationGeodeticPositionFunction ),
     bodyWithAtmosphereMeanEquatorialRadius_( bodyWithAtmosphereMeanEquatorialRadius ),

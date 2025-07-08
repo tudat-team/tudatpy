@@ -226,6 +226,115 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModel )
     }
 }
 
+BOOST_AUTO_TEST_CASE( testOneWayRangeModelWithFrequencyDependentCorrections )
+{
+
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Define bodies to use.
+    std::vector< std::string > bodiesToCreate;
+    bodiesToCreate.push_back( "Earth" );
+    bodiesToCreate.push_back( "Sun" );
+    bodiesToCreate.push_back( "Mars" );
+
+    // Specify initial time
+    double initialEphemerisTime = 0.0;
+    double finalEphemerisTime = initialEphemerisTime + 7.0 * 86400.0;
+    double testTime = ( initialEphemerisTime + finalEphemerisTime ) / 2.0;
+
+    // Create bodies settings needed in simulation
+    BodyListSettings defaultBodySettings = getDefaultBodySettings( bodiesToCreate );
+    defaultBodySettings.get( "Earth" )->groundStationSettings = getDsnStationSettings( );
+
+    // Create bodies
+    SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
+
+    // Define frequencies
+    double earthFrequency = 8.0E9;
+    double marsFrequency = 1.0E9;
+    bodies.at( "Earth" )->getGroundStation( "DSS-25" )->setTransmittingFrequencyCalculator(
+        std::make_shared< ground_stations::ConstantFrequencyInterpolator > ( earthFrequency ) );
+    bodies.at( "Mars" )->getVehicleSystems( )->setTransmittedFrequencyCalculator(
+        std::make_shared< ground_stations::ConstantFrequencyInterpolator > ( marsFrequency ) );
+
+
+    // Create light-time correction settings.
+    std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionSettings;
+    lightTimeCorrectionSettings.push_back(
+        std::make_shared< JakowskiIonosphericCorrectionSettings >( ) );
+
+    for( int test = 0; test < 2; test++ )
+    {
+        // Define link ends for observations.
+        LinkEnds linkEnds;
+        if ( test == 0 )
+        {
+            linkEnds[ transmitter ] = std::make_pair<std::string, std::string>( "Earth", "DSS-25" );
+            linkEnds[ receiver ] = std::make_pair<std::string, std::string>( "Mars", "" );
+        }
+        else
+        {
+            linkEnds[ receiver ] = std::make_pair<std::string, std::string>( "Earth", "DSS-25" );
+            linkEnds[ transmitter ] = std::make_pair<std::string, std::string>( "Mars", "" );
+        }
+        // Create observation settings
+        std::shared_ptr<ObservationModelSettings>
+            observableSettingsCorrected = std::make_shared<ObservationModelSettings>(
+            one_way_range,
+            linkEnds,
+            lightTimeCorrectionSettings );
+        std::shared_ptr<ObservationModelSettings>
+            observableSettingsUncorrected = std::make_shared<ObservationModelSettings>(
+            one_way_range,
+            linkEnds );
+
+        // Create observation models.
+        std::shared_ptr<ObservationModel<1, double, double> > observationModelCorrected =
+            ObservationModelCreator<1, double, double>::createObservationModel( observableSettingsCorrected, bodies );
+        std::shared_ptr<ObservationModel<1, double, double> > observationModelUncorrected =
+            ObservationModelCreator<1, double, double>::createObservationModel( observableSettingsUncorrected, bodies );
+
+        // Create direct correction model
+        std::shared_ptr<LightTimeCorrection> ionosphereCorrectionModel = createLightTimeCorrections(
+            std::make_shared<JakowskiIonosphericCorrectionSettings>( ), bodies, linkEnds, transmitter, receiver,
+            one_way_range );
+
+        // Compute uncorrected range
+        std::vector<double> linkEndTimes;
+        std::vector<Eigen::Matrix<double, 6, 1> > linkEndStates;
+        double uncorrectedObservation = observationModelUncorrected->computeIdealObservationsWithLinkEndData(
+            testTime, receiver, linkEndTimes, linkEndStates )( 0 );
+
+        // Compute corrected range
+        double correctedObservation = observationModelCorrected->computeIdealObservations( testTime, receiver )( 0 );
+
+        // Compute correction
+        std::shared_ptr<ObservationAncilliarySimulationSettings> ancillarySettings =
+            std::make_shared<ObservationAncilliarySimulationSettings>( );
+        if ( test == 0 )
+        {
+            ancillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, earthFrequency );
+        }
+        else
+        {
+            ancillarySettings->setIntermediateDoubleData( received_frequency_intermediate, marsFrequency );
+        }
+        double ionosphereCorrection =
+            ionosphereCorrectionModel->calculateLightTimeCorrectionWithMultiLegLinkEndStates(
+                linkEndStates, linkEndTimes, 0, ancillarySettings );
+
+        // Compare observation difference with direct correction (limited by double precision over several AU)
+        BOOST_CHECK_SMALL( ionosphereCorrection * physical_constants::SPEED_OF_LIGHT + ( uncorrectedObservation - correctedObservation ), 1.0E-3 );
+
+        // Compute correction with ancillary settings input
+        correctedObservation = observationModelCorrected->computeIdealObservations(
+            testTime, receiver, std::make_shared<ObservationAncilliarySimulationSettings>( ))( 0 );
+        BOOST_CHECK_SMALL( ionosphereCorrection * physical_constants::SPEED_OF_LIGHT + ( uncorrectedObservation - correctedObservation ), 1.0E-3 );
+
+
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests

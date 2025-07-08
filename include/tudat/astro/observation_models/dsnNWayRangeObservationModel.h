@@ -167,12 +167,13 @@ public:
         // Set approximate up- and down-link frequencies.
         double currentTurnAroundRatio = static_cast< ObservationScalarType >( turnaroundRatio_( uplinkBand, downlinkBand ) );
 
-        if( true )
+        if( lightTimeCalculator_->doCorrectionsNeedFrequency( ) )
         {
             setTransmissionReceptionFrequencies( lightTimeCalculator_,
                                                  terrestrialTimeScaleConverter_,
                                                  transmittingFrequencyCalculator_,
                                                  time,
+                                                 linkEndAssociatedWithTime,
                                                  ancillarySettings,
                                                  currentTurnAroundRatio );
         }

@@ -441,8 +441,6 @@ BOOST_AUTO_TEST_CASE( testJakowskiIonosphericCorrectionGodot )
             };
             std::function< double( double ) > sunDeclinationFunction = [ = ]( double time ) { return sunDeclinations.at( j ); };
             std::function< double( double ) > f10p7FluxFunction = [ = ]( double time ) { return f10p7Fluxes.at( j ); };
-            std::function< double( std::vector< FrequencyBands >, double ) > frequencyFunction =
-                    [ = ]( std::vector< FrequencyBands > freqBands, double time ) { return frequencies.at( j ); };
             std::function< double( Eigen::Vector3d, double ) > elevationFunction = [ = ]( Eigen::Vector3d inertialVectorAwayFromStation,
                                                                                           double time ) { return elevations.at( j ); };
             std::function< double( Eigen::Vector3d, double ) > azimuthFunction = [ = ]( Eigen::Vector3d inertialVectorAwayFromStation,
@@ -455,7 +453,6 @@ BOOST_AUTO_TEST_CASE( testJakowskiIonosphericCorrectionGodot )
             // Create ionospheric correction model
             MappedVtecIonosphericCorrection ionosphericCorrection =
                     MappedVtecIonosphericCorrection( vtecCalculator,
-                                                     frequencyFunction,
                                                      elevationFunction,
                                                      azimuthFunction,
                                                      groundStationGeodeticPositionFunction,
