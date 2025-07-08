@@ -1341,9 +1341,9 @@ BOOST_AUTO_TEST_CASE( testRadiationPressureAcceleration_DynamicallyPanelunitestr
         Eigen::Vector3d originalAccelerationPerpendicularToEarthDirection = acceleration - originalAccelerationInEarthDirection;
         Eigen::Vector3d scaledAccelerationPerpendicularToEarthDirection = scaledAcceleration - scaledAccelerationInEarthDirection;
 
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( 1.5 * originalAccelerationInEarthDirection ), scaledAccelerationInEarthDirection, 1.0E-12 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( ( 0.8 * originalAccelerationInEarthDirection ), scaledAccelerationInEarthDirection, 1.0E-12 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                ( 0.8 * originalAccelerationPerpendicularToEarthDirection ), scaledAccelerationPerpendicularToEarthDirection, 1.0E-12 );
+                ( 1.5 * originalAccelerationPerpendicularToEarthDirection ), scaledAccelerationPerpendicularToEarthDirection, 1.0E-12 );
     }
 }
 
