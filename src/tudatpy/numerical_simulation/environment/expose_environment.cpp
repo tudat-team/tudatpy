@@ -1962,11 +1962,48 @@ void expose_environment( py::module &m )
     py::class_< tg::TimeDependentSphericalHarmonicsGravityField,
                 std::shared_ptr< tg::TimeDependentSphericalHarmonicsGravityField >,
                 tg::SphericalHarmonicsGravityField >(
-            m, "TimeDependentSphericalHarmonicsGravityField", R"doc(No documentation found.)doc" )
+            m, "TimeDependentSphericalHarmonicsGravityField", R"doc(
+
+            Derived class of :class:`~SphericalHarmonicsGravityField` that is created when any gravity field variations are detected.
+
+            Derived class of :class:`~SphericalHarmonicsGravityField` that is created instead when any gravity field variations are detected during object creation
+            (typically during a call of :func:`numerical_simulation.environment_setup.create_system_of_bodies`)
+            This object computes the time-variability of spherical harmonic coefficients from a list of :class:`~GravityFieldVariationModel` objects.
+            The ``cosine_coefficients`` and ``sine_coefficients`` attributes provide the instantaneous coefficients (including the time-variability)
+            The ``nominal_cosine_coefficients`` and ``nominal_sine_coefficients`` provide the static (e.g. without time-variations) coefficients
+
+              .)doc" )
+
+        .def_property( "nominal_cosine_coefficients",
+                       &tg::TimeDependentSphericalHarmonicsGravityField::getNominalCosineCoefficients,
+                       &tg::TimeDependentSphericalHarmonicsGravityField::setNominalCosineCoefficients,
+                       R"doc(
+
+         Matrix with cosine spherical harmonic coefficients :math:`\bar{C}_{lm}` (geodesy normalized) *excluding* time-variations. Entry :math:`(i,j)` denotes coefficient at degree :math:`i` and order :math:`j`.
+
+         :type: numpy.ndarray[numpy.float64[l, m]]
+      )doc" )
+        .def_property( "nominal_sine_coefficients",
+                       &tg::TimeDependentSphericalHarmonicsGravityField::getNominalSineCoefficients,
+                       &tg::TimeDependentSphericalHarmonicsGravityField::setNominalSineCoefficients,
+                       R"doc(
+
+         Matrix with sine spherical harmonic coefficients :math:`\bar{S}_{lm}` (geodesy normalized) *excluding* time-variations. Entry :math:`(i,j)` denotes coefficient at degree :math:`i` and order :math:`j`.
+
+         :type: numpy.ndarray[numpy.float64[l, m]]
+      )doc" )
+
             .def_property_readonly(
                     "gravity_field_variation_models",
                     &tg::TimeDependentSphericalHarmonicsGravityField::getGravityFieldVariations,
-                    R"doc(No documentation found.)doc" );
+                    R"doc(
+
+         **read-only**
+
+         List of gravity field variation models that the object uses to update the spherical harmonic coefficients at every time step
+
+         :type: list[GravityFieldVariationModel]
+        )doc" );
 
     py::class_< tg::PolyhedronGravityField,
                 std::shared_ptr< tg::PolyhedronGravityField >,
@@ -1978,7 +2015,12 @@ void expose_environment( py::module &m )
                                     &tg::PolyhedronGravityField::getVerticesDefiningEachFacet );
 
     py::class_< tg::GravityFieldVariations, std::shared_ptr< tg::GravityFieldVariations > >(
-            m, "GravityFieldVariationModel" );
+            m, "GravityFieldVariationModel", R"doc(
+
+        Object that computes a single type of gravity field variation.
+
+        Object that computes a single type of gravity field variation. This object is typically not used directly, but internally by the :class:`~TimeDependentSphericalHarmonicsGravityField` class.
+    )doc" );
 
     /*!
      **************   RADIATION MODELS  ******************
@@ -1993,6 +2035,10 @@ void expose_environment( py::module &m )
             .def_property( "radiation_pressure_coefficient",
                            &tem::CannonballRadiationPressureTargetModel::getCoefficient,
                            &tem::CannonballRadiationPressureTargetModel::resetCoefficient );
+
+    py::class_< tem::RadiationSourceModel,
+        std::shared_ptr< tem::RadiationSourceModel > >(
+        m, "RadiationSourceModel" );
     /*!
      **************   SHAPE MODELS  ******************
      */
@@ -2590,7 +2636,33 @@ void expose_environment( py::module &m )
      )doc" )
             .def_property( "radiation_pressure_target_models",
                            &tss::Body::getRadiationPressureTargetModels,
-                           &tss::Body::setRadiationPressureTargetModels )
+                           &tss::Body::setRadiationPressureTargetModels,
+                           R"doc(
+
+        List of radiation pressure target models that exist in the body. These objects define how incoming radiation interacts with the body to produce
+        a force/torque. A single body may be endowed with multiple target models, which may be selected
+        for an acceleration depending on the application. For instance, a body may have a cannonball target model and a panelled target model available,
+        and use one for solar radiation pressure acceleration, and the other for planetary radiation pressure acceleration (see :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.radiation_pressure`).
+        This attribute is a list of :class:`~RadiationPressureTargetModel`, or a derived class thereof.
+
+
+        :type: list[RadiationPressureTargetModel]
+
+     )doc" )
+        .def_property( "radiation_pressure_source_model",
+                       &tss::Body::getRadiationSourceModel,
+                       &tss::Body::setRadiationSourceModel,
+                       R"doc(
+
+        Object that defines the radiation that a body emits, primarily for the calculation of radiation pressure acceleration.
+        It computes the irradiance at a given target location.
+
+        This attribute is a list of :class:`~RadiationSourceModel`, or a derived class thereof.
+
+
+        :type: RadiationSourceModel
+
+     )doc" )
             .def_property_readonly(
                     "gravitational_parameter", &tss::Body::getGravitationalParameter, R"doc(
          **read-only**
