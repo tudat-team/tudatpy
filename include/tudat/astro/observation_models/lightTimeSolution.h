@@ -317,8 +317,7 @@ public:
      *  for which solution is accepted.
      *  \return The value of the light time between the link ends.
      */
-    ObservationScalarType calculateLightTime( const TimeType time,
-                                              const bool isTimeAtReception = true )
+    ObservationScalarType calculateLightTime( const TimeType time, const bool isTimeAtReception = true )
     {
         // Declare and initialize variables for receiver and transmitter state (returned by reference).
         StateType receiverState;
@@ -383,15 +382,14 @@ public:
         return lightTime;
     }
 
-    ObservationScalarType calculateFirstIterationLightTime(
-        const TimeType time,
-        const bool isTimeAtReception = 1 )
+    ObservationScalarType calculateFirstIterationLightTime( const TimeType time, const bool isTimeAtReception = 1 )
     {
         return ( ephemerisOfReceivingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( time ) -
-                    ephemerisOfTransmittingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( time ) ).segment( 0, 3 ).norm( ) /
-                 physical_constants::SPEED_OF_LIGHT;
+                 ephemerisOfTransmittingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( time ) )
+                       .segment( 0, 3 )
+                       .norm( ) /
+                physical_constants::SPEED_OF_LIGHT;
     }
-
 
     //! Function to calculate the light time and link-ends states, given an initial guess for all legs.
     /*!
@@ -676,7 +674,7 @@ public:
         bool correctionsNeedFrequency = false;
         for( unsigned int i = 0; i < correctionFunctions_.size( ); i++ )
         {
-            if( requiresMultiLegIterations( correctionFunctions_.at( i )->getLightTimeCorrectionType() ) )
+            if( requiresMultiLegIterations( correctionFunctions_.at( i )->getLightTimeCorrectionType( ) ) )
             {
                 correctionsNeedFrequency = true;
             }
@@ -1014,9 +1012,7 @@ public:
         return correctionsNeedFrequency_;
     }
 
-
 private:
-
     void initializeMultiLegLightTimeCalculator( )
     {
         correctionsNeedFrequency_ = false;

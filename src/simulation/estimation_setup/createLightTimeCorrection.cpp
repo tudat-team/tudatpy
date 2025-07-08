@@ -879,28 +879,29 @@ std::function< double( std::vector< FrequencyBands >, double ) > createLinkFrequ
 {
     std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittedFrequencyCalculator;
 
-    if( bodies.getBody( linkEnds.at( transmitter ).bodyName_ )->getGroundStationMap( ).count( linkEnds.at( transmitter ).stationName_ ) > 0 )
+    if( bodies.getBody( linkEnds.at( transmitter ).bodyName_ )->getGroundStationMap( ).count( linkEnds.at( transmitter ).stationName_ ) >
+        0 )
     {
         if( bodies.getBody( linkEnds.at( transmitter ).bodyName_ )
-                ->getGroundStation( linkEnds.at( transmitter ).stationName_ )
-                ->getTransmittingFrequencyCalculator( ) != nullptr )
+                    ->getGroundStation( linkEnds.at( transmitter ).stationName_ )
+                    ->getTransmittingFrequencyCalculator( ) != nullptr )
         {
             transmittedFrequencyCalculator = bodies.getBody( linkEnds.at( transmitter ).bodyName_ )
-                ->getGroundStation( linkEnds.at( transmitter ).stationName_ )
-                ->getTransmittingFrequencyCalculator( );
+                                                     ->getGroundStation( linkEnds.at( transmitter ).stationName_ )
+                                                     ->getTransmittingFrequencyCalculator( );
         }
         else
         {
             throw std::runtime_error( "Error when creating link frequency function, no transmitter found in station " +
-                                          linkEnds.at( transmitter ).bodyName_ + "; " + linkEnds.at( transmitter ).stationName_ );
+                                      linkEnds.at( transmitter ).bodyName_ + "; " + linkEnds.at( transmitter ).stationName_ );
         }
     }
     else if( bodies.getBody( linkEnds.at( transmitter ).bodyName_ )->getVehicleSystems( ) != nullptr )
     {
         if( bodies.getBody( linkEnds.at( transmitter ).bodyName_ )->getVehicleSystems( )->getTransmittedFrequencyCalculator( ) != nullptr )
         {
-            transmittedFrequencyCalculator = bodies.getBody( linkEnds.at( transmitter ).bodyName_ )
-                ->getVehicleSystems( )->getTransmittedFrequencyCalculator( );
+            transmittedFrequencyCalculator =
+                    bodies.getBody( linkEnds.at( transmitter ).bodyName_ )->getVehicleSystems( )->getTransmittedFrequencyCalculator( );
         }
         else
         {
@@ -910,8 +911,8 @@ std::function< double( std::vector< FrequencyBands >, double ) > createLinkFrequ
     }
     else
     {
-        throw std::runtime_error( "Error when creating link frequency function, " +
-                                  linkEnds.at( transmitter ).bodyName_ + "; " + linkEnds.at( transmitter ).stationName_ +
+        throw std::runtime_error( "Error when creating link frequency function, " + linkEnds.at( transmitter ).bodyName_ + "; " +
+                                  linkEnds.at( transmitter ).stationName_ +
                                   " has not transmitter in either the vehicle systems of station" );
     }
 

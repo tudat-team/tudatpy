@@ -381,8 +381,6 @@ inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDefaultAnci
     return ancilliarySettings;
 }
 
-
-
 //! Base class for models of observables (i.e. range, range-rate, etc.).
 /*!
  *  Base class for models of observables to be used in (for instance) orbit
