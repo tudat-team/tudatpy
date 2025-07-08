@@ -161,6 +161,12 @@ void expose_rotation_model_setup( py::module &m )
                 tss::RotationModelSettings >(
             m, "PlanetaryRotationModelSettings", R"doc(No documentation found.)doc" );
 
+    py::class_<tss::IauRotationModelSettings,
+                std::shared_ptr<tss::IauRotationModelSettings>,
+                tss::RotationModelSettings>(
+            m, "IAURotationModelSettings", R"doc(No documentation found.)doc" );
+
+
     m.def( "simple",
            py::overload_cast< const std::string &,
                               const std::string &,
