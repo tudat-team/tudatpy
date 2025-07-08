@@ -88,7 +88,6 @@ std::shared_ptr< ground_stations::StationFrequencyInterpolator > getTransmitting
         const simulation_setup::SystemOfBodies& bodies,
         const LinkEnds& linkEnds )
 {
-
     std::string transmittingBody = linkEnds.at( observation_models::transmitter ).bodyName_;
     std::string transmittingPoint = linkEnds.at( observation_models::transmitter ).stationName_;
 
@@ -106,9 +105,10 @@ std::shared_ptr< ground_stations::StationFrequencyInterpolator > getTransmitting
 
     if( bodies.at( transmittingBody )->getGroundStationMap( ).count( transmittingPoint ) != 0 )
     {
-        if( bodies.getBody( transmittingBody )->getGroundStation( transmittingPoint)->getTransmittingFrequencyCalculator( ) != nullptr )
+        if( bodies.getBody( transmittingBody )->getGroundStation( transmittingPoint )->getTransmittingFrequencyCalculator( ) != nullptr )
         {
-            transmitterFrequency = bodies.getBody( transmittingBody )->getGroundStation( transmittingPoint)->getTransmittingFrequencyCalculator( );
+            transmitterFrequency =
+                    bodies.getBody( transmittingBody )->getGroundStation( transmittingPoint )->getTransmittingFrequencyCalculator( );
             if( transmitterFound == false )
             {
                 transmitterFound = true;
