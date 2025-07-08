@@ -112,6 +112,16 @@ public:
                     interpolators::createOneDimensionalInterpolator< double, double >( correctionFunction, tdbToTtInterpolatorSettings );
             tdbToTtInterpolators_[ std::make_tuple( 0.0, 0.0, 0.0 ) ] = correctionInterpolator;
         }
+
+        // Definition of epoch at which UTC was introduced (with 2 hour buffer time)
+        utcIntroductionEpochInTai_ = ( basic_astrodynamics::JULIAN_DAY_OF_EOP_INTRODUCTION - basic_astrodynamics::JULIAN_DAY_ON_J2000 ) * physical_constants::JULIAN_DAY;
+
+        // Read historical Delta T values
+        std::map< double, double > historicalDeltaTMap = input_output::readFloatingPointMapFromFile< double, double >(
+            paths::getEarthOrientationDataFilesPath( ) + "/historicalDeltaT.txt",",","#");
+
+        historicalDeltaTInterpolator_ = interpolators::createOneDimensionalInterpolator(
+            historicalDeltaTMap, interpolators::cubicSplineInterpolation( ) );
     }
 
     //! Function to convert a time value from the input to the output scale.
@@ -286,7 +296,6 @@ public:
                 tdbMinusTt = static_cast< TimeType >( this->getTDBminusTT( inputTimeValue, earthFixedPosition ) );
                 timesToUpdate.tt = timesToUpdate.tdb - tdbMinusTt;
                 timesToUpdate.tai = basic_astrodynamics::convertTTtoTAI< TimeType >( timesToUpdate.tt );
-
                 calculateUniversalTimes< TimeType >( );
                 break;
 
@@ -418,17 +427,28 @@ private:
     template< typename TimeType >
     void calculateUniversalTimes( )
     {
-        getCurrentTimeList< TimeType >( ).utc = sofa_interface::convertTAItoUTC< TimeType >( getCurrentTimeList< TimeType >( ).tai );
-
-        if( dailyUtcUt1CorrectionInterpolator_ != nullptr )
+        if( getCurrentTimeList< TimeType >( ).tai < utcIntroductionEpochInTai_ )
         {
-            getCurrentTimeList< TimeType >( ).ut1 =
-                    static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( getCurrentTimeList< TimeType >( ).utc ) ) +
-                    getCurrentTimeList< TimeType >( ).utc;
-
-            getCurrentTimeList< TimeType >( ).ut1 +=
-                    static_cast< TimeType >( shortPeriodUt1CorrectionCalculator_->getCorrections( getCurrentTimeList< TimeType >( ).tt ) );
+            double approximateYear = getCurrentTimeList< TimeType >( ).tt / physical_constants::JULIAN_YEAR + 2000.0;
+            getCurrentTimeList< TimeType >( ).ut1 = getCurrentTimeList< TimeType >( ).tt - historicalDeltaTInterpolator_->interpolate(
+                approximateYear );
+            getCurrentTimeList< TimeType >( ).utc = getCurrentTimeList< TimeType >( ).ut1;
         }
+        else
+        {
+            getCurrentTimeList< TimeType >( ).utc = sofa_interface::convertTAItoUTC< TimeType >( getCurrentTimeList< TimeType >( ).tai );
+
+            if( dailyUtcUt1CorrectionInterpolator_ != nullptr )
+            {
+                getCurrentTimeList< TimeType >( ).ut1 =
+                        static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( getCurrentTimeList< TimeType >( ).utc ) ) +
+                        getCurrentTimeList< TimeType >( ).utc;
+
+                getCurrentTimeList< TimeType >( ).ut1 +=
+                        static_cast< TimeType >( shortPeriodUt1CorrectionCalculator_->getCorrections( getCurrentTimeList< TimeType >( ).tt ) );
+            }
+        }
+
     }
 
     //! Interpolator for UT1 corrections, values published daily by IERS
@@ -451,6 +471,10 @@ private:
 
     std::map< std::tuple< double, double, double >, std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > >
             tdbToTtInterpolators_;
+
+    double utcIntroductionEpochInTai_;
+
+    std::shared_ptr< interpolators::OneDimensionalInterpolator< double, double > > historicalDeltaTInterpolator_;
 };
 
 //! Function to create the default Earth time scales conversion object
