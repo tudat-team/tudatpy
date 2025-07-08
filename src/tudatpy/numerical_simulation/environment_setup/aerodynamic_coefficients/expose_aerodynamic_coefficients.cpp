@@ -229,14 +229,55 @@ The coefficients are defined in aerodynamic frame, with the directions the same 
         .export_values( );
 
     py::enum_< trf::AerodynamicsReferenceFrameAngles >(
-        m, "AerodynamicsReferenceFrameAngles", R"doc(No documentation found.)doc" )
-        .value( "latitude_angle", trf::AerodynamicsReferenceFrameAngles::latitude_angle )
-        .value( "longitude_angle", trf::AerodynamicsReferenceFrameAngles::longitude_angle )
-        .value( "heading_angle", trf::AerodynamicsReferenceFrameAngles::heading_angle )
-        .value( "flight_path_angle", trf::AerodynamicsReferenceFrameAngles::flight_path_angle )
-        .value( "angle_of_attack", trf::AerodynamicsReferenceFrameAngles::angle_of_attack )
-        .value( "angle_of_sideslip", trf::AerodynamicsReferenceFrameAngles::angle_of_sideslip )
-        .value( "bank_angle", trf::AerodynamicsReferenceFrameAngles::bank_angle )
+        m, "AerodynamicsReferenceFrameAngles", R"doc(
+
+                Enumeration of angles typical for (atmospheric) flight dynamics and aerodynamic calculations.
+
+                Enumeration of angles typical for (atmospheric) flight dynamics and aerodynamic calculation. They define angles between
+                frames of a body (see class:`~AerodynamicsReferenceFrames`) and its central body with the details given by Mooij (1994).
+                .)doc" )
+        .value( "latitude_angle", trf::AerodynamicsReferenceFrameAngles::latitude_angle,
+                R"doc(
+
+                Geocentric latitude angle in the central body-fixed frame where the body is located
+
+                )doc" )
+        .value( "longitude_angle", trf::AerodynamicsReferenceFrameAngles::longitude_angle,
+                R"doc(
+
+                Longitude angle in the central body-fixed frame where the body is located
+
+                )doc" )
+        .value( "heading_angle", trf::AerodynamicsReferenceFrameAngles::heading_angle,
+                R"doc(
+
+                Heading angle: between north direction and the local horizontal (in xy-plane of the vertical frame) component of the airspeed-based velocity vector
+
+                )doc" )
+        .value( "flight_path_angle", trf::AerodynamicsReferenceFrameAngles::flight_path_angle,
+                R"doc(
+
+                Flight path angle: between the local horizontal plane (xy-plane of the vertical frame) and the airspeed-based velocity vector
+
+                )doc" )
+        .value( "angle_of_attack", trf::AerodynamicsReferenceFrameAngles::angle_of_attack,
+                R"doc(
+
+                Angle of attack: rotation angle about the body-fixed y-axis w.r.t. the xy-plane of the aerodynamic frame
+
+                )doc" )
+        .value( "angle_of_sideslip", trf::AerodynamicsReferenceFrameAngles::angle_of_sideslip,
+                R"doc(
+
+                Sideslip angle: rotation angle about the body-fixed z-axis w.r.t. the xz-plane of the aerodynamic frame
+
+                )doc" )
+        .value( "bank_angle", trf::AerodynamicsReferenceFrameAngles::bank_angle,
+                R"doc(
+
+                Bank angle: between the horizontal (xy-plane) of the vertical frame and the xy-plane of the vertical frame
+
+                )doc" )
         .export_values( );
 
     py::enum_< trf::AerodynamicsReferenceFrames >( m,
