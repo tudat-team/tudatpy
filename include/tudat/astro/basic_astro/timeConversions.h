@@ -83,6 +83,10 @@ const static double TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION = 2443144.5003725;
 //! Julian day at which TT, TCG, and TCB all show exact same time (1977 January 1, 00:00:32.184), in long double precision.
 const static long double TAI_JULIAN_DAY_AT_TIME_SYNCHRONIZATION_LONG = 2443144.5003725L;
 
+const static double JULIAN_DAY_OF_UTC_INTRODUCTION = 2436934.5;
+
+const static double JULIAN_DAY_OF_EOP_INTRODUCTION = 2437665.5;
+
 //! Function to get the synchronization Julian day of TT, TCG, and TCB.
 /*!
  *  Function to get the synchronization Julian day of TT, TCG, and TCB, in the requested time representation type
