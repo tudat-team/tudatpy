@@ -150,8 +150,8 @@ protected:
             Eigen::Vector3d targetUnitVector = targetCenterPositionInSourceFrame_.normalized( );
             Eigen::Vector3d perpendicularToTargetComponent =
                     currentUnscaledAcceleration_ - targetUnitVector.dot( currentUnscaledAcceleration_ ) * targetUnitVector;
-            currentAcceleration_ =  perpendicularSourceDirectionScaling_ * perpendicularToTargetComponent +
-                sourceDirectionScaling_ * ( currentUnscaledAcceleration_ - perpendicularToTargetComponent );
+            currentAcceleration_ = perpendicularSourceDirectionScaling_ * perpendicularToTargetComponent +
+                    sourceDirectionScaling_ * ( currentUnscaledAcceleration_ - perpendicularToTargetComponent );
         }
     }
 
