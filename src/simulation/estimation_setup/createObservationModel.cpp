@@ -88,19 +88,47 @@ std::shared_ptr< ground_stations::StationFrequencyInterpolator > getTransmitting
         const simulation_setup::SystemOfBodies& bodies,
         const LinkEnds& linkEnds )
 {
-    if( bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )
-                ->getGroundStation( linkEnds.at( observation_models::transmitter ).stationName_ )
-                ->getTransmittingFrequencyCalculator( ) == nullptr )
+
+    std::string transmittingBody = linkEnds.at( observation_models::transmitter ).bodyName_;
+    std::string transmittingPoint = linkEnds.at( observation_models::transmitter ).stationName_;
+
+    bool transmitterFound = false;
+    std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmitterFrequency;
+
+    if( bodies.at( transmittingBody )->getVehicleSystems( ) != nullptr )
+    {
+        if( bodies.at( transmittingBody )->getVehicleSystems( )->getTransmittedFrequencyCalculator( ) != nullptr )
+        {
+            transmitterFrequency = bodies.at( transmittingBody )->getVehicleSystems( )->getTransmittedFrequencyCalculator( );
+            transmitterFound = true;
+        }
+    }
+
+    if( bodies.at( transmittingBody )->getGroundStationMap( ).count( transmittingPoint ) != 0 )
+    {
+        if( bodies.getBody( transmittingBody )->getGroundStation( transmittingPoint)->getTransmittingFrequencyCalculator( ) != nullptr )
+        {
+            transmitterFrequency = bodies.getBody( transmittingBody )->getGroundStation( transmittingPoint)->getTransmittingFrequencyCalculator( );
+            if( transmitterFound == false )
+            {
+                transmitterFound = true;
+            }
+            else
+            {
+                throw std::runtime_error( "Error when finding transmitter, two candidates found (in body station and in body systems)" );
+            }
+        }
+    }
+
+    if( transmitterFound == false )
     {
         throw std::runtime_error(
-                "Error when creating DSN N-way averaged Doppler observation model: transmitted frequency not  "
-                "defined for link end station " +
+                "Error when creating observation model: transmitted frequency not  "
+                "defined for link end " +
                 linkEnds.at( observation_models::transmitter ).bodyName_ + ", " +
                 linkEnds.at( observation_models::transmitter ).stationName_ );
     }
-    return bodies.getBody( linkEnds.at( observation_models::transmitter ).bodyName_ )
-            ->getGroundStation( linkEnds.at( observation_models::transmitter ).stationName_ )
-            ->getTransmittingFrequencyCalculator( );
+    return transmitterFrequency;
 }
 
 }  // namespace observation_models
