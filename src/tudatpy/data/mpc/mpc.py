@@ -812,7 +812,7 @@ class BatchMPC:
         ----------
         MPCcodes : List[int]
             List of integer MPC object codes for minor planets or and comets.
-        drop_misc_observations : List[int]
+        drop_misc_observations : bool, default True
             Drops observations made by method: radar and offset (natural satellites).
             Drops observations made by roaming observers.
             Drops duplicate listings to denote first observation.
