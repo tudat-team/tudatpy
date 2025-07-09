@@ -182,11 +182,11 @@ Variation model due to pole tides
  a single tide-raising body :math:`j`.
 
  .. math::
-     \Delta \bar{C}_{lm}-i\Delta \bar{S}_{lm}=\frac{1}{2l+1}k_{l}\frac{\mu_{j}}{\mu}\left(\frac{R}{r_{j}}\right)^{l+1}\bar{P}_{lm}(\sin\phi_{j})\left(\cos m\theta_{j}-i\sin m\theta_{j}\right)\label{eq:solidBodyTidalGravityFieldVariation}
+     \Delta \bar{C}_{lm}-i\Delta \bar{S}_{lm}=\frac{1}{2l+1}k_{l}\frac{\mu_{j}}{\mu}\left(\frac{R}{r_{j}}\right)^{l+1}\bar{P}_{lm}(\sin\phi_{j})\left(\cos m\theta_{j}-i\sin m\theta_{j}\right)
 
-where quantities without subscripts represent properties of the body $B$ for which the gravity field's time variations are computed.
-Here, $\mu_{j}$ is the gravitational parameter of the tide-raising body $j$, and $r_{j}$, $\phi_{j}$ and $\theta_{j}$ represent the spherical position
-of body $j$ in a frame fixed to body $B$, and :math:`\bar{P}_{lm}` are the fully normalized associated Legendre polynomials
+where quantities without subscripts represent properties of the body :math:`B` for which the gravity field's time variations are computed.
+Here, :math:`\mu_{j}` is the gravitational parameter of the tide-raising body :math:`j`, and :math:`r_{j}`, :math:`\phi_{j}` and :math:`\theta_{j}` represent the spherical position
+of body :math:`j` in a frame fixed to body :math:`B`, and :math:`\bar{P}_{lm}` are the fully normalized associated Legendre polynomials
 
  Parameters
  ----------
@@ -196,13 +196,11 @@ of body $j$ in a frame fixed to body $B$, and :math:`\bar{P}_{lm}` are the fully
      Constant real Love number to use for body undergoing deformation, at the spherical harmonic degree defined by 'degree' input.
  degree : int
      Degree of the spherical harmonic gravity field, and associated Love number, that is to be considered.
+
  Returns
  -------
  BasicSolidBodyGravityFieldVariationSettings
      Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
-
-
-
 
 
  Examples
@@ -243,6 +241,7 @@ of body $j$ in a frame fixed to body $B$, and :math:`\bar{P}_{lm}` are the fully
      Constant real Love number to use for body undergoing deformation, at the spherical harmonic degree defined by 'degree' input.
  degree : int
      Degree of the spherical harmonic gravity field, and associated Love number, that is to be considered.
+
  Returns
  -------
  BasicSolidBodyGravityFieldVariationSettings
@@ -276,14 +275,11 @@ and a single tide-raising body :math:`j`.
      Name of body raising the tide.
  love_number_per_degree : dict( int, float )
      Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the Love number :math:`k_{l}` itself
- Returns
+
+Returns
  -------
  BasicSolidBodyGravityFieldVariationSettings
      Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
-
-
-
-
 
  Examples
  --------
@@ -322,8 +318,9 @@ but with complex values for the Love numbers.
      Name of body raising the tide.
  love_number_per_degree : dict( int, complex )
      Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the Love number :math:`k_{l}` itself.
- Returns
- -------
+
+Returns
+-------
  BasicSolidBodyGravityFieldVariationSettings
      Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
 
@@ -349,7 +346,7 @@ This function evaluates Eq. (6.6) from the IERS Conventions 2010, with a set of 
 at a set of values of :math:`l` and a single tide-raising body :math:`j`.
 
 The mathematical model of this function is effectively nearly equal to that of :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide`
-with the modification that :math:`k_{l}\rightarrow\k_{lm}`.
+with the modification that :math:`k_{l}\rightarrow k_{lm}`.
 
  Parameters
  ----------
@@ -357,13 +354,11 @@ with the modification that :math:`k_{l}\rightarrow\k_{lm}`.
      Name of body raising the tide.
  love_number_per_degree_and_order : dict( int, list( float ) )
      Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the list of Love numbers :math:`k_{lm}` at this degree. Note that, for Love numbers at degree :math:`l`, the associated list should contain :math:`l+1` entries, representing the Love numbers (in order) :math:`k_{l0}`, :math:`k_{l1}`... :math:`k_{ll}`.
- Returns
+
+Returns
  -------
  BasicSolidBodyGravityFieldVariationSettings
      Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
-
-
-
 
 
  Examples
@@ -434,6 +429,7 @@ tide_raising_body : str
     Name of body raising the tide.
 love_number_per_degree : dict( int, list( complex ) )
     Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the list of Love numbers :math:`k_{lm}` at this degree. Note that, for Love numbers at degree :math:`l`, the associated list should contain :math:`l+1` entries, representing the Love numbers (in order) :math:`k_{l0}`, :math:`k_{l1}`...:math:`k_{ll}`.
+
 Returns
 -------
 BasicSolidBodyGravityFieldVariationSettings
@@ -456,11 +452,11 @@ Function for creating solid body tides with coupling between different forcing d
 with multiple tide-raising bodies and the option to have forcing and response at different degrees and orders
 
  .. math::
-     \Delta \bar{C}_{l'm'}-i\Delta \bar{S}_{l'm'}=\sum_{j}\frac{1}{2l+1}k_{lm}^{l'm'}\frac{\mu_{j}}{\mu}\left(\frac{R}{r_{j}}\right)^{l+1}\bar{P}_{lm}(\sin\phi_{j})\left(\cos m\theta_{j}-i\sin m\theta_{j}\right)\label{eq:solidBodyTidalGravityFieldVariation}
+     \Delta \bar{C}_{l'm'}-i\Delta \bar{S}_{l'm'}=\sum_{j}\frac{1}{2l+1}k_{lm}^{l'm'}\frac{\mu_{j}}{\mu}\left(\frac{R}{r_{j}}\right)^{l+1}\bar{P}_{lm}(\sin\phi_{j})\left(\cos m\theta_{j}-i\sin m\theta_{j}\right)
 
-where quantities without subscripts represent properties of the body $B$ for which the gravity field's time variations are computed.
-Here, $\mu_{j}$ is the gravitational parameter of the tide-raising body $j$, and $r_{j}$, $\phi_{j}$ and $\theta_{j}$ represent the spherical position
-of body $j$ in a frame fixed to body $B$, and :math:`\bar{P}_{lm}` are the fully normalized associated Legendre polynomials.
+where quantities without subscripts represent properties of the body :math:`B` for which the gravity field's time variations are computed.
+Here, :math:`\mu_{j}` is the gravitational parameter of the tide-raising body :math:`j`, and :math:`r_{j}`, :math:`\phi_{j}` and :math:`\theta_{j}` represent the spherical position
+of body :math:`j` in a frame fixed to body :math:`B`, and :math:`\bar{P}_{lm}` are the fully normalized associated Legendre polynomials.
 
 The quantities :math:`l` and :math:`m` denote the degree and order of the forcing, while :math:`l'` and :math:`m'` denote the degree and order of the
 response
@@ -473,6 +469,7 @@ tide_raising_body : str
 love_number_per_degree : dict[tuple[int, int], dict[tuple[int,int],float]]
     Double dictionary of Love numbers for each combination for forcing and response degree and order, and the value (``float``) the associated
     mode-coupled Love number :math:`k_{lm}^{l'm'}`. The first tuple is the forcing degree and order :math:`l,m`, the second tuple is the response degree and order :math:`l',m'`
+
 Returns
 -------
 BasicSolidBodyGravityFieldVariationSettings
@@ -504,10 +501,10 @@ The cosine and sine coefficient variations at degree and order :math:`l` and :ma
      \Delta{\bar{C}}_{lm}=\sum_{i=1}^{N}\left(A_{i,\bar{C}_{lm}}\cos\left(f_{i}(t-t_{0})\right) + B_{i,\bar{C}_{lm}}\sin\left(f_{i}(t-t_{0})\right) \right)
      \Delta{\bar{S}}_{lm}=\sum_{i=1}^{N}\left(A_{i,\bar{S}_{lm}}\cos\left(f_{i}(t-t_{0})\right) + B_{i,\bar{S}_{lm}}\sin\left(f_{i}(t-t_{0})\right) \right)
 
-The summation is over all $N$ frequencies that are provided by the user. For each frequency, the user provides a block of coefficients :math:`A_{\bar{C}_{lm}}`,
+The summation is over all :math:`N` frequencies that are provided by the user. For each frequency, the user provides a block of coefficients :math:`A_{\bar{C}_{lm}}`,
 :math:`A_{i,\bar{S}_{lm}}`, :math:`B_{i,\bar{S}_{lm}}` and :math:`B_{i,\bar{S}_{lm}}`. These blocks give the spherical harmonic coefficient variations
-at degree $l_{\text{min}}$ until degree $l_{\text{min}}+l_{\text{size}}$, and order $m_{\text{min}}$ until degree $m_{\text{min}}+m_{\text{size}}$.
-The $l_{\text{min}}$  and $m_{\text{min}}$ are defined by the ``minimum_degree`` and ``minimum_order`` inputs. The $l_{\text{size}}$  and $m_{\text{size}}$
+at degree :math:`l_{\text{min}}` until degree :math:`l_{\text{min}}+l_{\text{size}}`, and order :math:`m_{\text{min}}` until degree :math:`m_{\text{min}}+m_{\text{size}}`.
+The :math:`l_{\text{min}}`  and :math:`m_{\text{min}}` are defined by the ``minimum_degree`` and ``minimum_order`` inputs. The :math`l_{\text{size}}`  and :math`m_{\text{size}}`
 are defined by the size of the matrices in the first four input lists to this function (starting with ``cosine_coefficient_amplitudes_cosine_time``).
 
 For instance, if ``minimum_degree`` is set to 2, and ``minimum_order`` to 0, and each matrix block for coefficient amplitudes provided is a 1x3 matrix, these
@@ -611,10 +608,10 @@ The cosine and sine coefficient variations at degree and order :math:`l` and :ma
      \Delta{\bar{C}}_{lm}=\sum_{i=1}^{N}\left(K_{i,\bar{C}_{lm}} (t-t_{0})^{p_{i}} \right)
      \Delta{\bar{S}}_{lm}=\sum_{i=1}^{N}\left(K_{i,\bar{S}_{lm}} (t-t_{0})^{p_{i}} \right)
 
-The summation is over all $N$ polynomial exponents that are provided by the user. For each exponent, the user provides a block of coefficients :math:`K_{i,\bar{C}_{lm}}`,
+The summation is over all :math:`N` polynomial exponents that are provided by the user. For each exponent, the user provides a block of coefficients :math:`K_{i,\bar{C}_{lm}}`,
 and :math:`K_{i,\bar{S}_{lm}}`. These blocks give the spherical harmonic coefficient variations
-at degree $l_{\text{min}}$ until degree $l_{\text{min}}+l_{\text{size}}$, and order $m_{\text{min}}$ until degree $m_{\text{min}}+m_{\text{size}}$.
-The $l_{\text{min}}$  and $m_{\text{min}}$ are defined by the ``minimum_degree`` and ``minimum_order`` inputs. The $l_{\text{size}}$  and $m_{\text{size}}$
+at degree :math:`l_{\text{min}}` until degree :math:`l_{\text{min}}+l_{\text{size}}`, and order :math:`m_{\text{min}}` until degree :math:`m_{\text{min}}+m_{\text{size}}`.
+The :math:`l_{\text{min}}`  and :math:`m_{\text{min}}` are defined by the ``minimum_degree`` and ``minimum_order`` inputs. The :math`l_{\text{size}}`  and :math`m_{\text{size}}`
 are defined by the size of the matrices in the first two input lists to this function (starting with ``cosine_amplitudes_per_power``).
 
 For instance, if ``minimum_degree`` is set to 2, and ``minimum_order`` to 0, and each matrix block for coefficient amplitudes provided is a 1x3 matrix, these
@@ -702,8 +699,8 @@ gravity field variation
 
 The user provides a tables of blocks of coefficient variation at epochs :math:`t_{i}` :math:`\Delta \bar{C}_{lm}(t_{i})`.
  These blocks give the spherical harmonic coefficient variations
-at degree $l_{\text{min}}$ until degree $l_{\text{min}}+l_{\text{size}}$, and order $m_{\text{min}}$ until degree $m_{\text{min}}+m_{\text{size}}$.
-The $l_{\text{min}}$  and $m_{\text{min}}$ are defined by the ``minimum_degree`` and ``minimum_order`` inputs. The $l_{\text{size}}$  and $m_{\text{size}}$
+at degree :math:`l_{\text{min}}` until degree :math:`l_{\text{min}}+l_{\text{size}}`, and order :math:`m_{\text{min}}` until degree :math:`m_{\text{min}}+m_{\text{size}}`.
+The :math:`l_{\text{min}}`  and :math:`m_{\text{min}}` are defined by the ``minimum_degree`` and ``minimum_order`` inputs. The :math`l_{\text{size}}`  and :math`m_{\text{size}}`
 are defined by the size of the matrices in the tabulated inputs
 
 For instance, if ``minimum_degree`` is set to 2, and ``minimum_order`` to 0, and each matrix block for coefficient amplitudes provided is a 1x3 matrix, these
