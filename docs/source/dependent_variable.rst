@@ -29,6 +29,12 @@ Functions
 
 .. autosummary::
 
+   get_dependent_variable_id
+
+   get_dependent_variable_size
+
+   get_dependent_variable_shape
+
    mach_number
 
    altitude
@@ -146,6 +152,12 @@ Functions
    received_irradiance_shadow_function
 
 
+
+.. autofunction:: tudatpy.numerical_simulation.propagation_setup.dependent_variable.get_dependent_variable_id
+
+.. autofunction:: tudatpy.numerical_simulation.propagation_setup.dependent_variable.get_dependent_variable_size
+
+.. autofunction:: tudatpy.numerical_simulation.propagation_setup.dependent_variable.get_dependent_variable_shape
 
 .. autofunction:: tudatpy.numerical_simulation.propagation_setup.dependent_variable.mach_number
 
