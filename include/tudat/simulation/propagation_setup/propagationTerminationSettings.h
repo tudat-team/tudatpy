@@ -16,14 +16,13 @@
 #include <memory>
 
 #include "tudat/math/root_finders/createRootFinder.h"
+#include "tudat/simulation/propagation_setup/propagationOutputSettings.h"
 
 namespace tudat
 {
 
 namespace propagators
 {
-
-class SingleDependentVariableSaveSettings;
 
 //! Enum listing the available types of propagation termination settings.
 enum PropagationTerminationTypes {
