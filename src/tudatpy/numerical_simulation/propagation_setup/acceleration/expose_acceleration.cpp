@@ -737,7 +737,7 @@ The acceleration (in the gravity-field fixed frame) then becomes:
 
 .. math::
 
-   \mathbf{a} = -G \rho\left( \sum_{e \in \text{edges}} \mathbf{E}_e \cdot \mathbf{r}_e L_e  - \sum_{f \in \text{faces}} \mathbf{F}_f \cdot \mathbf{r}_f \omega_f \right)
+   \mathbf{a}^{(B)} = -G \rho\left( \sum_{e \in \text{edges}} \mathbf{E}_e \cdot \mathbf{r}_e L_e  - \sum_{f \in \text{faces}} \mathbf{F}_f \cdot \mathbf{r}_f \omega_f \right)
 
 where two summation are over all edges and faces of the polygon, respectively; :math:`\mathbf{r}_e` is the vector from the middle of the edge :math:`e` to the
 body undergoing acceleration, and :math:`\mathbf{r}_f` is the vector from the face centroid :math:`f` to the body undergoing acceleration
@@ -780,7 +780,7 @@ with :math:`G` the gravitational constant, and :math:`\mathbf{r}=[x,y,z]` the po
 
 .. math::
 
-     \mathbf{a}^{(B)}=\begin{pmatrix}-A_{r}x\-A_{r}y\\-A(z)\end{pmatrix}
+     \mathbf{a}^{(B)}=\begin{pmatrix}-A_{r}x\\-A_{r}y\\-A_{z}z\end{pmatrix}
 
 This acceleration is then rotated to the inertial orientation using the body-fixed to inertial rotation associated with the ring gravity field (equal to the rotation model of the body that is endowed with a ring gravity model)
 
