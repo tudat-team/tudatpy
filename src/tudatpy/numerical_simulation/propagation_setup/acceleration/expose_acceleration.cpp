@@ -393,11 +393,11 @@ void expose_acceleration_setup( py::module &m )
  .. math::
     \mathbf{a}=\frac{\mu}{{r}^{2}}\hat{\mathbf{r}}
 
- with :math:`\mathbf{r}` the position vector measured from the center of mass of the body exerting the acceleration.
+ with :math:`\mathbf{r}` the position vector measured from the center of mass of the body exerting the acceleration, and :math:`\mu` this body's gravitational parameter.
+
+Depending on the body undergoing the acceleration :math:`A`, the body exerting the acceleration :math:`B`, and the central body of propagation :math:`C`, choosing this option may create a direct point-mass attraction (:math:`\mu=\mu_{B}`), a central point-mass attraction (:math:`\mu=\mu_{B}+\mu_{A}`) or a third-body point-mass attraction (see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/third_body_acceleration.html>`_ for more details).
 
  The body exerting the acceleration needs to have a gravity field model (:ref:`gravity_field` module) defined to use this acceleration.
-
- Depending on the body undergoing the acceleration :math:`A`, the body exerting the acceleration :math:`B`, and the central body of propagation :math:`C`, choosing this option may create a direct point-mass attraction (:math:`\mu=\mu_{B}`), a central point-mass attraction (:math:`\mu=\mu_{B}+\mu_{A}`) or a third-body point-mass attraction (see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/third_body_acceleration.html>`_ for more details).
 
  Returns
  -------
@@ -422,7 +422,58 @@ void expose_acceleration_setup( py::module &m )
 
      )doc" );
 
-    m.def( "einstein_infeld_hofmann", &tss::einsteinInfledHoffmannGravityAcceleration );
+    m.def( "einstein_infeld_hofmann", &tss::einsteinInfledHoffmannGravityAcceleration,
+           R"doc(
+
+Creates settings for the Einstein-Infeld-Hoffman acceleration.
+
+Creates settings for the Einstein-Infeld-Hoffman (EIH) acceleration, which is the first-order post-Newtonian (expanded to order :math:`1/c^{2}`) expansion
+of the gravitational interaction between point masses in barycentric coordinates, in the framework of general relativity. The equations are parameterized
+by the Parametrized Post-Newtonian (PPN) parameters :math:`\beta` and :math:`\gamma`.
+
+The formulation for the EIH acceleration exerted on body :math:`a` is (see e.g. :cite:t:`will2018`):
+
+.. math::
+   \ddot{\mathbf{r}}_a = & -G \sum_{\substack{b=1 \\ b \neq a}}^N m_b \frac{\mathbf{r}_{ab}}{r_{ab}^3} \Bigg[ 1 - \frac{1}{c^2} \left( (1 + 2\gamma) \sum_{\substack{c=1}}^N \frac{G m_c}{r_{bc}} + (1 + 2\beta) \sum_{\substack{c=1}}^N \frac{G m_c}{r_{ac}} \right) \\
+    & + \frac{1}{2c^2} \left( v_a^2 + v_b^2 - 4\gamma \, \mathbf{v}_a \cdot \mathbf{v}_b - \frac{3}{2} (\mathbf{n}_{ab} \cdot \mathbf{v}_b)^2 \right) \Bigg] \\
+    & + \frac{G}{c^2} \sum_{\substack{b=1 \\ b \neq a}}^N m_b \left[ \frac{\mathbf{r}_{ab}}{r_{ab}^3} (\mathbf{r}_{ab} \cdot (\mathbf{a}_a - \mathbf{a}_b)) + \frac{7}{2} \frac{\mathbf{a}_b}{r_{ab}} \right]
+
+where:
+
+* :math:`\mathbf{r}_a`: position of body :math:`a`
+* :math:`\mathbf{v}_a = \dot{\mathbf{x}}_a`: velocity of body :math:`a`
+* :math:`\mathbf{a}_a = \ddot{\mathbf{x}}_a`: acceleration of body :math:`a`
+* :math:`\mathbf{r}_{ab} = \mathbf{r}_a - \mathbf{r}_b`, :math:`r_{ab} = |\mathbf{r}_{ab}|`
+* :math:`\mathbf{n}_{ab} = \mathbf{r}_{ab} / r_{ab}`: unit vector from :math:`b` to :math:`a`
+* :math:`G`: Newtonian gravitational constant
+* :math:`c`: speed of light
+
+Note that this acceleration *includes* the mutual point mass atrraction.
+
+Technically, these equations are implicit, since  the terms :math:`\mathbf{a}_{a}`
+and :math:`\mathbf{a}_{b}` occur on the left- and right-hand sides of the equations (when evaluating the above for a set of bodies).
+We simplify this by using the partial acceleration (above formulation *without* the acceleration-dependence on the RHS) to fill in the accelerations
+on the right-hand side. The error induced by this approximation is of order :math:`1/c^{4}`
+
+At present, the implementation of the EIH equation computes the full accelerations for *all* bodies that are involved in an EIH acceleration.
+In other words, if 10 bodies have an EIH acceleration as body undergoing an acceleration, but 100 bodies are used (including the 10
+bodies undergoing acceleration) to exert the EIH acceleration, the implementation will compute the acceleration for *all 100 bodies*
+(and only 10 of these accelerations will be used in the propagation). Therefore, be aware that the implementation is designed for
+a set of mutually interacting bodies (e.g. propagating all bodies that are exerting an EIH acceleration).
+Other user cases are supported, but less computationally efficient.
+
+The EIH acceleration formulation is slightly different from other accelerations. If :math:`N` bodies have EIH accelerations exerted on them
+(by a common set of exerting bodies, which may include (a subset of) the :math:`N` propagated bodies themselves, these accelerations are
+evaluated concurrently. This does not imply any different interaction on the side of the
+user, but impacts the implementation of the underlying acceleration model.
+
+Returns
+-------
+AccelerationSettings
+
+    Acceleration settings object.
+
+     )doc" );
 
     m.def( "aerodynamic",
            &tss::aerodynamicAcceleration,
@@ -458,48 +509,6 @@ void expose_acceleration_setup( py::module &m )
     accelerations_acting_on_vehicle = dict()
     # Add aerodynamic acceleration exerted by Earth
     accelerations_acting_on_vehicle["Earth"] = [propagation_setup.acceleration.aerodynamic()]
-
-
-     )doc" );
-
-    m.def( "cannonball_radiation_pressure",
-           &tss::cannonBallRadiationPressureAcceleration,
-           R"doc(
-
- Creates settings for the cannonball radiation pressure acceleration.
-
- Creates settings for the radiation pressure acceleration, for which a cannonball model is used. The acceleration is computed from:
-
- .. math::
-
-    \mathbf{a}=\left(\frac{P}{4\pi c}\right)\left(\frac{C_{r}S_{ref}}{m}\right)\frac{\hat{\mathbf{r}}}{r^{2}}
-
- with :math:`P` the total emitted radiation power for the body exerting the acceleration, :math:`C_{r}` the radiation pressure coefficient with reference area :math:`S_{ref}`, :math:`\mathbf{r}` the vector from the body exerting the acceleration to the body undergoing the acceleration, and :math:`m` the mass of the body undergoing acceleration
-
- In this model,
- the effective acceleration is colinear with the vector connecting the source of radiation and the target.
- The body undergoing the acceleration needs to have a radiation pressure model defined, while the body emitting
- radiation needs to have radiative properties defined.
-
- Returns
- -------
- AccelerationSettings
-     Acceleration settings object.
-
-
-
-
-
- Examples
- --------
- In this example, we define the aerodynamic acceleration exerted by the Sun on the vehicle:
-
- .. code-block:: python
-
-    # Create acceleration dict
-    accelerations_acting_on_vehicle = dict()
-    # Add cannonball radiation pressure acceleration exerted by Sun
-    accelerations_acting_on_vehicle["Sun"] = [propagation_setup.acceleration.cannonball_radiation_pressure()]
 
 
      )doc" );
@@ -544,9 +553,9 @@ void expose_acceleration_setup( py::module &m )
 
  with :math:`\mathbf{r}` the position vector measured from the center of mass of the body exerting the acceleration, :math:`\mathbf{R}^{(I/B)}` the rotation matrix from body-fixed to inertial frame, and :math:`\nabla^{(B)}` the gradient operator in a body-fixed frame, and :math:`U` the spherical harmonic gravitational potential, expanded up to the provided ``maximum_degree`` and ``maximum_order``.
 
- The body exerting the acceleration needs to have a spherical harmonic gravity field model (see :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.spherical_harmonic`) and a rotation model (:ref:`rotation_model` module) defined.
-
  Depending on the body undergoing the acceleration :math:`A`, the body exerting the acceleration :math:`B`, and the central body of propagation :math:`C`, choosing this option may create a direct spherical harmonic attraction (:math:`\mu=\mu_{B}`), a central spherical harmonic attraction (:math:`\mu=\mu_{B}+\mu_{A}`) or a third-body spherical harmonic attraction (see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/third_body_acceleration.html>`_ for more details).
+
+ The body exerting the acceleration needs to have a spherical harmonic gravity field model (see :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.spherical_harmonic`) and a rotation model (:ref:`rotation_model` module) defined.
 
 
  Parameters
@@ -688,12 +697,56 @@ void expose_acceleration_setup( py::module &m )
            &tss::polyhedronAcceleration,
            R"doc(
 
- Creates settings for the polyhedron gravity acceleration.
+Creates settings for the polyhedron gravity acceleration.
 
- Creates settings for the polyhedron gravity acceleration, which follows from defining a body to have polyhedral gravity.
+Creates settings for the polyhedron gravity acceleration, which follows from defining a body to have polyhedral gravity. The model is described in
+e.g. :cite:t:`wernerscheeres1996`, and the acceleration implememtation is from Eq. (16) of that reference.
 
- Returns
- -------
+Summarizing, it is computed from using combinations of geometric quantities associated with the polyhedron's edges and faces.
+
+The quantity :math:`\mathbf{E}_e` is the edge contribution tensor for edge :math:`e`, defined as
+
+.. math::
+
+   \mathbf{E}_e = \hat{\mathbf{n}}_A \hat{\mathbf{n}}_{Ae} + \hat{\mathbf{n}}_B \hat{\mathbf{n}}_{Be},
+
+where :math:`\hat{\mathbf{n}}_A` and :math:`\hat{\mathbf{n}}_B` are the outward unit normal vectors of the two faces that share edge :math:`e`,
+and :math:`\hat{\mathbf{n}}_{Ae}` and :math:`\hat{\mathbf{n}}_{Be}` are the outward-pointing unit vectors perpendicular to edge :math:`e`
+and lying within the planes of faces :math:`A` and :math:`B`, respectively.
+The outer product notation :math:`\hat{\mathbf{a}} \hat{\mathbf{b}}` denotes a rank-2 tensor (or matrix)
+
+The face contribution rank-2 tensor :math:`\mathbf{F}_f` for face :math:`f` is given by
+
+.. math::
+
+   \mathbf{F}_f = \hat{\mathbf{n}}_f \hat{\mathbf{n}}_f,
+
+where :math:`\hat{\mathbf{n}}_f` is the outward unit normal to the face :math:`f`.
+
+.. math::
+
+   L_e = \ln \left( \frac{r_i + r_j + e}{r_i + r_j - l_e} \right),
+
+where :math:`r_i` and :math:`r_j` are the distances from the body undergoing acceleration to the two vertices (:math:`i` and :math:`j`) at the ends of edge :math:`e`,
+and :math:`l_e` is the length of the edge.
+
+The scalar :math:`\omega_f` is the signed solid angle subtended by face :math:`f` as seen from the body undergoing acceleration.
+Its value encodes both the visibility of the face and whether the field point lies in front of or behind the face.
+
+The acceleration (in the gravity-field fixed frame) then becomes:
+
+.. math::
+
+   \mathbf{a} = -G \rho\left( \sum_{e \in \text{edges}} \mathbf{E}_e \cdot \mathbf{r}_e L_e  - \sum_{f \in \text{faces}} \mathbf{F}_f \cdot \mathbf{r}_f \omega_f \right)
+
+where two summation are over all edges and faces of the polygon, respectively; :math:`\mathbf{r}_e` is the vector from the middle of the edge :math:`e` to the
+body undergoing acceleration, and :math:`\mathbf{r}_f` is the vector from the face centroid :math:`f` to the body undergoing acceleration
+
+This acceleration is then rotated to the inertial orientation using the body-fixed to inertial rotation associated with the gravity field
+(equal to the rotation model of the body that is endowed with a gravity model)
+
+Returns
+-------
  AccelerationSettings
      Acceleration settings object.
 
@@ -708,14 +761,36 @@ void expose_acceleration_setup( py::module &m )
            &tss::ringAcceleration,
            R"doc(
 
- Creates settings for the ring gravity acceleration.
+Creates settings for the ring gravity acceleration.
 
- Creates settings for the ring gravity acceleration, which follows from defining a body to have ring gravity.
+Creates settings for the ring gravity acceleration, an infinitely thin circular mass with constant linear mass distribution (e.g. along its circumference). This acceleration model requires a body have a ring gravity field model (create using the :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field.ring_model` gravity field setting)
+The ring acceleration is computed according to the model presented by :cite:t:`fukushima2010`. For a ring mass :math:`m` and ring radius :math:`a`, it is computed by
+first calculating the quantities:
 
- Returns
- -------
- AccelerationSettings
-     Acceleration settings object.
+.. math::
+
+     r &\equiv \sqrt{x^2 + y^2}, \\
+     p &\equiv \sqrt{(r + a)^2 + z^2},\\
+     q &\equiv \sqrt{(r - a)^2 + z^2},\\
+     \lambda &= \frac{G}{2\pi a}\\
+     A_r &= \frac{8 \lambda a}{p^3} \left[ \left( \frac{r^2 + z^2 - a^2}{q^2} \right) B(m) + \left( \frac{2a(r + a)}{p^2} \right) S(m) \right]\\
+     A_z &= \frac{4\lambda aE(m)}{pq^{2}}
+
+with :math:`G` the gravitational constant, and :math:`\mathbf{r}=[x,y,z]` the position of the body undergoing the acceleration in the ring-fixed frame (which has its origin at the center of the ring). The acceleration is then computed in the ring-fixed frame from:
+
+.. math::
+
+     \mathbf{a}^{(B)}=\begin{pmatrix}-A_{r}x\-A_{r}y\\-A(z)\end{pmatrix}
+
+This acceleration is then rotated to the inertial orientation using the body-fixed to inertial rotation associated with the ring gravity field (equal to the rotation model of the body that is endowed with a ring gravity model)
+
+in the above :math:`B(m), S(m), E(M)` are elliptical integrals, see :cite:t:`fukushima2010` for details.
+
+Returns
+-------
+AccelerationSettings
+
+    Acceleration settings object.
 
 
 
