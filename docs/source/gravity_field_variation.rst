@@ -50,6 +50,18 @@ Functions
 
 
 
+Enumerations
+------------
+.. currentmodule:: tudatpy.numerical_simulation.environment_setup.gravity_field_variation
+
+.. autosummary::
+
+   BodyDeformationTypes
+   
+
+
+.. autoclass:: tudatpy.numerical_simulation.environment_setup.gravity_field_variation.BodyDeformationTypes
+   :members:
 
 
 
