@@ -24,15 +24,17 @@ Functions
 
    mutual_spherical_harmonic_gravity
 
-   polyhedron_gravity
-
-   ring_gravity
-
    aerodynamic
 
    radiation_pressure
 
+   polyhedron_gravity
+
+   ring_gravity
+
    relativistic_correction
+
+   einstein_infeld_hofmann
 
    empirical
 
@@ -58,13 +60,15 @@ Functions
 
 .. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.mutual_spherical_harmonic_gravity
 
+.. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.aerodynamic
+
+.. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.radiation_pressure
+
 .. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.polyhedron_gravity
 
 .. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.ring_gravity
 
-.. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.aerodynamic
-
-.. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.radiation_pressure
+.. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.einstein_infeld_hofmann
 
 .. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.relativistic_correction
 
