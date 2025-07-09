@@ -496,12 +496,7 @@ void expose_propagation( py::module &m )
             "SingleArcSimulationResults",
             R"doc(
 
-         Class that stores all the results (including logging data) of a single-arc propagation
-
-
-
-
-
+         Class that stores all the results (including logging data) of a single-arc propagation of states
 
       )doc" )
             .def_property_readonly(
@@ -721,22 +716,58 @@ void expose_propagation( py::module &m )
                 std::shared_ptr<
                         tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > >,
                 tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > >(
-            m, "SingleArcVariationalSimulationResults", R"doc(No documentation found.)doc" )
+            m, "SingleArcVariationalSimulationResults", R"doc(
+
+        Class that stores all the results (including logging data) of a single-arc propagation of states and variational equations
+
+        Class that stores all the results (including logging data) of a single-arc propagation of states and variational equations. The
+        propagation results of the states are accessed through the ``dynamics_results`` attribute.
+
+)doc" )
             .def_property_readonly(
                     "state_transition_matrix_history",
                     &tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
                             getStateTransitionSolution,
-                    R"doc(No documentation found.)doc" )
+    R"doc(
+
+         **read-only**
+
+         Numerical solution of the state transition matrix :math:`\partial \mathbf{x}/\partial\mathbf{x}_{0}` from the variational equations as key-value pairs. The key denotes the epoch. The value contains the
+         numerically calculated state transition matrix at this epoch. The states :math:`\mathbf{x}` and :math:`\mathbf{x}_{0}` in the definition are always in the so-called
+         'processed' formulations (e.g. Cartesian states for translational dynamics), see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/processed_propagated_elements.html>`_
+         for details. See :attr:`~SingleArcSimulationResults.state_history` for the definition of the order of the elements of the states.
+
+
+         :type: dict[float, numpy.ndarray]
+      )doc" )
             .def_property_readonly(
                     "sensitivity_matrix_history",
                     &tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE,
                                                                 TIME_TYPE >::getSensitivitySolution,
-                    R"doc(No documentation found.)doc" )
+                    R"doc(
+
+         **read-only**
+
+         Numerical solution of the sensitivity matrix :math:`\partial \mathbf{x}/\partial\mathbf{p}` from the variational equations as key-value pairs. The key denotes the epoch. The value contains the
+         numerically calculated sensitivity matrix at this epoch. The state :math:`\mathbf{x}` in the definition is always in the so-called
+         'processed' formulations (e.g. Cartesian states for translational dynamics), see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/processed_propagated_elements.html>`_
+         for details. See :attr:`~SingleArcSimulationResults.state_history` for the definition of the order of the elements of the states.
+
+
+         :type: dict[float, numpy.ndarray]
+      )doc" )
             .def_property_readonly(
                     "dynamics_results",
                     &tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE,
                                                                 TIME_TYPE >::getDynamicsResults,
-                    R"doc(No documentation found.)doc" );
+                    R"doc(
+       **read-only**
+
+         Object with all results of the propagation results of the states, as well as details on propagation termination reason, runtime, function evaluations, etc.
+
+
+         :type: SingleArcSimulationResults
+)doc" );
 
     py::class_< tp::MultiArcSimulationResults< tp::SingleArcSimulationResults,
                                                STATE_SCALAR_TYPE,
