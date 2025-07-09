@@ -17,4 +17,12 @@
 #define TIME_TYPE double // tudat::Time
 #define INTERPOLATOR_TIME_TYPE double // tudat::Time
 
+#define TUDATPY_TYPE_ID_double 1
+#define TUDATPY_TYPE_ID_long_double 2
+#define TUDATPY_TYPE_ID_Time 3
+
+#define TUDATPY_TYPE_ID_INDIR(x) TUDATPY_TYPE_ID_##x
+#define TUDATPY_TYPE_ID(x) TUDATPY_TYPE_ID_INDIR(x)
+
+
 #endif  // TUDATPY_SCALAR_TYPES_H
