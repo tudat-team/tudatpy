@@ -425,28 +425,28 @@ Depending on the body undergoing the acceleration :math:`A`, the body exerting t
     m.def( "einstein_infeld_hofmann", &tss::einsteinInfledHoffmannGravityAcceleration,
            R"doc(
 
- Creates settings for the Einstein-Infeld-Hoffman acceleration.
+Creates settings for the Einstein-Infeld-Hoffman acceleration.
 
- Creates settings for the Einstein-Infeld-Hoffman (EIH) acceleration, which is the first-order post-Newtonian (expanded to order :math:`1/c^{2}`) expansion
- of the gravitational interaction between point masses in barycentric coordinates, in the framework of general relativity. The equations are parameterized
- by the Parametrized Post-Newtonian (PPN) parameters :math:`\beta` and :math:`\gamma`.
+Creates settings for the Einstein-Infeld-Hoffman (EIH) acceleration, which is the first-order post-Newtonian (expanded to order :math:`1/c^{2}`) expansion
+of the gravitational interaction between point masses in barycentric coordinates, in the framework of general relativity. The equations are parameterized
+by the Parametrized Post-Newtonian (PPN) parameters :math:`\beta` and :math:`\gamma`.
 
- The formulation for the EIH acceleration exerted on body :math:`a` is (see e.g. :cite:t:`will2018`):
+The formulation for the EIH acceleration exerted on body :math:`a` is (see e.g. :cite:t:`will2018`):
 
- .. math::
-    \ddot{\mathbf{r}}_a = & -G \sum_{\substack{b=1 \\ b \neq a}}^N m_b \frac{\mathbf{r}_{ab}}{r_{ab}^3} \Bigg[ 1 - \frac{1}{c^2} \left( (1 + 2\gamma) \sum_{\substack{c=1}}^N \frac{G m_c}{r_{bc}} + (1 + 2\beta) \sum_{\substack{c=1}}^N \frac{G m_c}{r_{ac}} \right) \\
-     & + \frac{1}{2c^2} \left( v_a^2 + v_b^2 - 4\gamma \, \mathbf{v}_a \cdot \mathbf{v}_b - \frac{3}{2} (\mathbf{n}_{ab} \cdot \mathbf{v}_b)^2 \right) \Bigg] \\
-     & + \frac{G}{c^2} \sum_{\substack{b=1 \\ b \neq a}}^N m_b \left[ \frac{\mathbf{r}_{ab}}{r_{ab}^3} (\mathbf{r}_{ab} \cdot (\mathbf{a}_a - \mathbf{a}_b)) + \frac{7}{2} \frac{\mathbf{a}_b}{r_{ab}} \right]
+.. math::
+   \ddot{\mathbf{r}}_a = & -G \sum_{\substack{b=1 \\ b \neq a}}^N m_b \frac{\mathbf{r}_{ab}}{r_{ab}^3} \Bigg[ 1 - \frac{1}{c^2} \left( (1 + 2\gamma) \sum_{\substack{c=1}}^N \frac{G m_c}{r_{bc}} + (1 + 2\beta) \sum_{\substack{c=1}}^N \frac{G m_c}{r_{ac}} \right) \\
+    & + \frac{1}{2c^2} \left( v_a^2 + v_b^2 - 4\gamma \, \mathbf{v}_a \cdot \mathbf{v}_b - \frac{3}{2} (\mathbf{n}_{ab} \cdot \mathbf{v}_b)^2 \right) \Bigg] \\
+    & + \frac{G}{c^2} \sum_{\substack{b=1 \\ b \neq a}}^N m_b \left[ \frac{\mathbf{r}_{ab}}{r_{ab}^3} (\mathbf{r}_{ab} \cdot (\mathbf{a}_a - \mathbf{a}_b)) + \frac{7}{2} \frac{\mathbf{a}_b}{r_{ab}} \right]
 
 where:
 
-   * $\mathbf{r}_a$: position of body $a$
-   * $\mathbf{v}_a = \dot{\mathbf{x}}_a$: velocity of body $a$
-   * $\mathbf{a}_a = \ddot{\mathbf{x}}_a$: acceleration of body $a$
-   * $\mathbf{r}_{ab} = \mathbf{r}_a - \mathbf{r}_b$, $r_{ab} = |\mathbf{r}_{ab}|$
-   * $\mathbf{n}_{ab} = \mathbf{r}_{ab}/r_{ab}$: unit vector from $b$ to $a$
-   * $G$: Newtonian gravitational constant
-   * $c$: speed of light
+* :math:`\mathbf{r}_a`: position of body :math:`a`
+* :math:`\mathbf{v}_a = \dot{\mathbf{x}}_a`: velocity of body :math:`a`
+* :math:`\mathbf{a}_a = \ddot{\mathbf{x}}_a`: acceleration of body :math:`a`
+* :math:`\mathbf{r}_{ab} = \mathbf{r}_a - \mathbf{r}_b`, :math:`r_{ab} = |\mathbf{r}_{ab}|`
+* :math:`\mathbf{n}_{ab} = \mathbf{r}_{ab} / r_{ab}`: unit vector from :math:`b` to :math:`a`
+* :math:`G`: Newtonian gravitational constant
+* :math:`c`: speed of light
 
 Note that this acceleration *includes* the mutual point mass atrraction.
 
@@ -455,19 +455,23 @@ and :math:`\mathbf{a}_{b}` occur on the left- and right-hand sides of the equati
 We simplify this by using the partial acceleration (above formulation *without* the acceleration-dependence on the RHS) to fill in the accelerations
 on the right-hand side. The error induced by this approximation is of order :math:`1/c^{4}`
 
-At present, the implementation of the EIH equation computes the full accelerations for *all* bodies that are involved in an EIH acceleration. In other words,
-if 10 bodies have an EIH acceleration as body undergoing an acceleration, but 100 bodies are used (including the 10 bodies undergoing acceleration) to exert the EIH acceleration, the implementation will
-compute the acceleration for *all 100 bodies* (and only 10 of these accelerations will be used in the propagation). Therefore, be aware that the implementation is designed for
-a set of mutually interacting bodies (e.g. propagating all bodies that are exerting an EIH acceleration). Other user cases are supported, but less computationally efficient.
+At present, the implementation of the EIH equation computes the full accelerations for *all* bodies that are involved in an EIH acceleration.
+In other words, if 10 bodies have an EIH acceleration as body undergoing an acceleration, but 100 bodies are used (including the 10
+bodies undergoing acceleration) to exert the EIH acceleration, the implementation will compute the acceleration for *all 100 bodies*
+(and only 10 of these accelerations will be used in the propagation). Therefore, be aware that the implementation is designed for
+a set of mutually interacting bodies (e.g. propagating all bodies that are exerting an EIH acceleration).
+Other user cases are supported, but less computationally efficient.
 
- The EIH acceleration formulation is slightly different from other accelerations. If :math:`N` bodies have EIH accelerations exerted on them (by a common set of exerting bodies, which
- may include (a subset of) the :math:`N` propagated bodies themselves, these accelerations are evaluated concurrently. This does not imply any different interaction on the side of the
- user, but impacts the implementation of the underlying acceleration model.
+The EIH acceleration formulation is slightly different from other accelerations. If :math:`N` bodies have EIH accelerations exerted on them
+(by a common set of exerting bodies, which may include (a subset of) the :math:`N` propagated bodies themselves, these accelerations are
+evaluated concurrently. This does not imply any different interaction on the side of the
+user, but impacts the implementation of the underlying acceleration model.
 
- Returns
- -------
- AccelerationSettings
-     Acceleration settings object.
+Returns
+-------
+AccelerationSettings
+
+    Acceleration settings object.
 
      )doc" );
 
@@ -693,9 +697,9 @@ a set of mutually interacting bodies (e.g. propagating all bodies that are exert
            &tss::polyhedronAcceleration,
            R"doc(
 
- Creates settings for the polyhedron gravity acceleration.
+Creates settings for the polyhedron gravity acceleration.
 
- Creates settings for the polyhedron gravity acceleration, which follows from defining a body to have polyhedral gravity. The model is described in
+Creates settings for the polyhedron gravity acceleration, which follows from defining a body to have polyhedral gravity. The model is described in
 e.g. :cite:t:`wernerscheeres1996`, and the acceleration implememtation is from Eq. (16) of that reference.
 
 Summarizing, it is computed from using combinations of geometric quantities associated with the polyhedron's edges and faces.
@@ -735,8 +739,8 @@ The acceleration (in the gravity-field fixed frame) then becomes:
 
    \mathbf{a} = -G \rho\left( \sum_{e \in \text{edges}} \mathbf{E}_e \cdot \mathbf{r}_e L_e  - \sum_{f \in \text{faces}} \mathbf{F}_f \cdot \mathbf{r}_f \omega_f \right)
 
-where two summation are over all edges and faces of the polygon, respectively; :mathbf:`\mathbf{r}_e` is the vector from the middle of the edge :math:`e` to the
- body undergoing acceleration, and :mathbf:`\mathbf{r}_f` is the vector from the face centroid :math:`f` to the body undergoing acceleration
+where two summation are over all edges and faces of the polygon, respectively; :math:`\mathbf{r}_e` is the vector from the middle of the edge :math:`e` to the
+body undergoing acceleration, and :math:`\mathbf{r}_f` is the vector from the face centroid :math:`f` to the body undergoing acceleration
 
 This acceleration is then rotated to the inertial orientation using the body-fixed to inertial rotation associated with the gravity field
 (equal to the rotation model of the body that is endowed with a gravity model)
@@ -757,15 +761,13 @@ Returns
            &tss::ringAcceleration,
            R"doc(
 
- Creates settings for the ring gravity acceleration.
+Creates settings for the ring gravity acceleration.
 
- Creates settings for the ring gravity acceleration.
-
-This acceleration model requires a body have a ring gravity field model (create using the :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field.ring_model` gravity field setting)
+Creates settings for the ring gravity acceleration, an infinitely thin circular mass with constant linear mass distribution (e.g. along its circumference). This acceleration model requires a body have a ring gravity field model (create using the :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field.ring_model` gravity field setting)
 The ring acceleration is computed according to the model presented by :cite:t:`fukushima2010`. For a ring mass :math:`m` and ring radius :math:`a`, it is computed by
 first calculating the quantities:
 
-  .. math::
+.. math::
 
      r &\equiv \sqrt{x^2 + y^2}, \\
      p &\equiv \sqrt{(r + a)^2 + z^2},\\
@@ -776,18 +778,19 @@ first calculating the quantities:
 
 with :math:`G` the gravitational constant, and :math:`\mathbf{r}=[x,y,z]` the position of the body undergoing the acceleration in the ring-fixed frame (which has its origin at the center of the ring). The acceleration is then computed in the ring-fixed frame from:
 
-  .. math::
+.. math::
 
-     \mathbf{a}^{(B)}=\begin{pmatrix}-A_{r}x\-A_{r}y\\-A(z)\frac\end{pmatrix}
+     \mathbf{a}^{(B)}=\begin{pmatrix}-A_{r}x\-A_{r}y\\-A(z)\end{pmatrix}
 
 This acceleration is then rotated to the inertial orientation using the body-fixed to inertial rotation associated with the ring gravity field (equal to the rotation model of the body that is endowed with a ring gravity model)
 
 in the above :math:`B(m), S(m), E(M)` are elliptical integrals, see :cite:t:`fukushima2010` for details.
 
- Returns
- -------
- AccelerationSettings
-     Acceleration settings object.
+Returns
+-------
+AccelerationSettings
+
+    Acceleration settings object.
 
 
 
