@@ -171,6 +171,26 @@ public:
         secondaryBody_( secondaryBody ), componentIndex_( componentIndex )
     { }
 
+    PropagationDependentVariables getDependentVariableType( )
+    {
+        return dependentVariableType_;
+    }
+
+    std::string getAssociatedBody( )
+    {
+        return associatedBody_;
+    }
+
+    std::string getSecondaryBody( )
+    {
+        return secondaryBody_;
+    }
+
+    int getComponentIndex( )
+    {
+        return componentIndex_;
+    }
+
     // Type of dependent variable that is to be saved.
     PropagationDependentVariables dependentVariableType_;
 
@@ -218,6 +238,11 @@ public:
                 componentIndex ),
         accelerationModelType_( accelerationModelType )
     { }
+
+    basic_astrodynamics::AvailableAcceleration getAccelerationModelType( )
+    {
+        return accelerationModelType_;
+    }
 
     // Type of acceleration that is to be saved.
     basic_astrodynamics::AvailableAcceleration accelerationModelType_;
@@ -629,14 +654,15 @@ public:
     std::vector< std::pair< int, int > > componentIndices_;
 };
 
-class IlluminatedPanelFractionDependentVariableSaveSettings: public SingleDependentVariableSaveSettings
+class IlluminatedPanelFractionDependentVariableSaveSettings : public SingleDependentVariableSaveSettings
 {
 public:
-    IlluminatedPanelFractionDependentVariableSaveSettings( const std::string& bodyName, 
-        const std::string& sourceName, const std::string& panelTypeId = ""):
+    IlluminatedPanelFractionDependentVariableSaveSettings( const std::string& bodyName,
+                                                           const std::string& sourceName,
+                                                           const std::string& panelTypeId = "" ):
         SingleDependentVariableSaveSettings( illuminated_panel_fraction, bodyName, sourceName ), panelTypeId_( panelTypeId )
     { }
-    
+
     std::string panelTypeId_;
 };
 
@@ -745,7 +771,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > modifiedEquinoctia
 }
 
 //! @get_docstring(singleAccelerationDependentVariable)
-inline std::shared_ptr< SingleDependentVariableSaveSettings > singleAccelerationDependentVariable(
+inline std::shared_ptr< SingleAccelerationDependentVariableSaveSettings > singleAccelerationDependentVariable(
         const basic_astrodynamics::AvailableAcceleration accelerationModelType,
         const std::string& bodyUndergoingAcceleration,
         const std::string& bodyExertingAcceleration )
@@ -755,7 +781,7 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > singleAcceleration
 }
 
 //! @get_docstring(singleAccelerationNormDependentVariable)
-inline std::shared_ptr< SingleDependentVariableSaveSettings > singleAccelerationNormDependentVariable(
+inline std::shared_ptr< SingleAccelerationDependentVariableSaveSettings > singleAccelerationNormDependentVariable(
         const basic_astrodynamics::AvailableAcceleration accelerationModelType,
         const std::string& bodyUndergoingAcceleration,
         const std::string& bodyExertingAcceleration )
@@ -1320,21 +1346,21 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > nrlmsiseInputDepen
 }
 
 inline std::shared_ptr< SingleDependentVariableSaveSettings > illuminatedPanelFractionDependentVariable( const std::string& bodyName,
-                                                                                                         const std::string& sourceName, 
-                                                                                                         const std::string& panelTypeId)
+                                                                                                         const std::string& sourceName,
+                                                                                                         const std::string& panelTypeId )
 {
     return std::make_shared< IlluminatedPanelFractionDependentVariableSaveSettings >( bodyName, sourceName, panelTypeId );
 }
 
 inline std::shared_ptr< SingleDependentVariableSaveSettings > crossSectionChangeDependentVariable( const std::string& bodyName,
-    const std::string& sourceName )
+                                                                                                   const std::string& sourceName )
 {
-return std::make_shared< SingleDependentVariableSaveSettings >( cross_section_change, bodyName, sourceName );
+    return std::make_shared< SingleDependentVariableSaveSettings >( cross_section_change, bodyName, sourceName );
 }
 
 inline std::shared_ptr< SingleDependentVariableSaveSettings > fullBodyPaneledGeometryDependentVariable( const std::string& bodyName )
 {
-return std::make_shared< SingleDependentVariableSaveSettings >( full_body_paneled_geometry, bodyName );
+    return std::make_shared< SingleDependentVariableSaveSettings >( full_body_paneled_geometry, bodyName );
 }
 
 }  // namespace propagators
