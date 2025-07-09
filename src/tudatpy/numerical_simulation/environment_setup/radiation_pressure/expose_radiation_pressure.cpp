@@ -213,7 +213,31 @@ void expose_radiation_pressure_setup( py::module& m )
  LuminosityModelSettings
      Object defining settings for source luminosity
 
+ Examples
+ --------
+ In this example, we create a constant luminosity model for the Sun, based on the solar constant, which defines the irradiance at 1 AU. Different values exist in literature for the solar constant, in this case we assume 1367 W/m^2 at 1 AU (Vallado 2013).
+ Assuming an isotropic radiation source, we then create the radiation source settings for the Sun.
 
+ .. code-block:: python
+
+     ...
+
+     from tudatpy import constants
+
+     irradiance_at_1AU = 1367.0  # W/m^2, Vallado 2013
+
+     luminosity_model_settings = (
+         environment_setup.radiation_pressure.irradiance_based_constant_luminosity(
+             irradiance_at_1AU, constants.ASTRONOMICAL_UNIT
+         )
+     )
+     radiation_source_settings_sun = (
+         environment_setup.radiation_pressure.isotropic_radiation_source(
+             luminosity_model_settings
+         )
+     )
+
+     body_settings.get("Sun").radiation_source_settings = radiation_source_settings_sun
 
 
 
@@ -875,6 +899,31 @@ void expose_radiation_pressure_setup( py::module& m )
  -------
  RadiationSourceModelSettings
      Object defining settings for source model irradiance
+ Examples
+ --------
+ In this example, we create a constant luminosity model for the Sun, based on the solar constant, which defines the irradiance at 1 AU. Different values exist in literature for the solar constant, in this case we assume 1367 W/m^2 at 1 AU (Vallado 2013).
+ Assuming an isotropic radiation source, we then create the radiation source settings for the Sun.
+
+ .. code-block:: python
+
+     ...
+
+     from tudatpy import constants
+
+     irradiance_at_1AU = 1367.0  # W/m^2, Vallado 2013
+
+     luminosity_model_settings = (
+         environment_setup.radiation_pressure.irradiance_based_constant_luminosity(
+             irradiance_at_1AU, constants.ASTRONOMICAL_UNIT
+         )
+     )
+     radiation_source_settings_sun = (
+         environment_setup.radiation_pressure.isotropic_radiation_source(
+             luminosity_model_settings
+         )
+     )
+
+     body_settings.get("Sun").radiation_source_settings = radiation_source_settings_sun
 
 
 
