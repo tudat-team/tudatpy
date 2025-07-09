@@ -175,11 +175,11 @@ Variation model due to pole tides
            py::arg( "degree" ),
            R"doc(
 
- Function for creating solid body tides.
+Function for creating solid body tides.
 
- Function for creating solid body tides, using a single real Love number :math:`k_{l}` at a single degree :math:`l` (e.g. :math:`k_{2}`, :math:`k_{3}`, etc.).
- This function evaluates Eq. (6.6) from the IERS Conventions 2010, with real :math:`k_{l}=k_{lm}`, a single value of :math:`l` and
- a single tide-raising body :math:`j`.
+Function for creating solid body tides, using a single real Love number :math:`k_{l}` at a single degree :math:`l` (e.g. :math:`k_{2}`, :math:`k_{3}`, etc.).
+This function evaluates Eq. (6.6) from the IERS Conventions 2010, with real :math:`k_{l}=k_{lm}`, a single value of :math:`l` and
+a single tide-raising body :math:`j`.
 
  .. math::
      \Delta \bar{C}_{lm}-i\Delta \bar{S}_{lm}=\frac{1}{2l+1}k_{l}\frac{\mu_{j}}{\mu}\left(\frac{R}{r_{j}}\right)^{l+1}\bar{P}_{lm}(\sin\phi_{j})\left(\cos m\theta_{j}-i\sin m\theta_{j}\right)
@@ -188,19 +188,19 @@ where quantities without subscripts represent properties of the body :math:`B` f
 Here, :math:`\mu_{j}` is the gravitational parameter of the tide-raising body :math:`j`, and :math:`r_{j}`, :math:`\phi_{j}` and :math:`\theta_{j}` represent the spherical position
 of body :math:`j` in a frame fixed to body :math:`B`, and :math:`\bar{P}_{lm}` are the fully normalized associated Legendre polynomials
 
- Parameters
- ----------
- tide_raising_body : str
-     Name of body raising the tide.
- love_number : float
-     Constant real Love number to use for body undergoing deformation, at the spherical harmonic degree defined by 'degree' input.
- degree : int
-     Degree of the spherical harmonic gravity field, and associated Love number, that is to be considered.
+Parameters
+----------
+tide_raising_body : str
+    Name of body raising the tide.
+love_number : float
+    Constant real Love number to use for body undergoing deformation, at the spherical harmonic degree defined by 'degree' input.
+degree : int
+    Degree of the spherical harmonic gravity field, and associated Love number, that is to be considered.
 
- Returns
- -------
- BasicSolidBodyGravityFieldVariationSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
+Returns
+-------
+BasicSolidBodyGravityFieldVariationSettings
+    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
 
 
  Examples
@@ -261,31 +261,31 @@ of body :math:`j` in a frame fixed to body :math:`B`, and :math:`\bar{P}_{lm}` a
            py::arg( "love_number_per_degree" ),
            R"doc(
 
- Function for creating solid body tides.
+Function for creating solid body tides.
 
- Function for creating solid body tides, using a set of real, separate, Love numbers at any number of degrees
+Function for creating solid body tides, using a set of real, separate, Love numbers at any number of degrees
 (e.g. :math:`k_{2}`, :math:`k_{3}`, etc.). This output and mathematical model of this function is effectively identical to a list of outputs to
 :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide`, with differing degrees and associated Love numbers.
 This function evaluates Eq. (6.6) from the IERS Conventions 2010, with a set of real values :math:`k_{l}=k_{lm}`, at a set of values of :math:`l`
 and a single tide-raising body :math:`j`.
 
- Parameters
- ----------
- tide_raising_body : str
-     Name of body raising the tide.
- love_number_per_degree : dict( int, float )
-     Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the Love number :math:`k_{l}` itself
+Parameters
+----------
+tide_raising_body : str
+    Name of body raising the tide.
+love_number_per_degree : dict( int, float )
+    Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the Love number :math:`k_{l}` itself
 
 Returns
  -------
- BasicSolidBodyGravityFieldVariationSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
+BasicSolidBodyGravityFieldVariationSettings
+    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
 
- Examples
- --------
- In this example, we create gravity field variations of Earth for a tide raised by the Moon, with a Love numbers :math:`k_{2}=0.301`, and :math:`k_{3}=0.09`, and add it to the list of gravity field variations
+Examples
+--------
+In this example, we create gravity field variations of Earth for a tide raised by the Moon, with a Love numbers :math:`k_{2}=0.301`, and :math:`k_{3}=0.09`, and add it to the list of gravity field variations
 
- .. code-block:: python
+.. code-block:: python
 
     tide_raising_body = "Moon"
     love_numbers = dict( )
@@ -306,18 +306,18 @@ Returns
            py::arg( "love_number_per_degree" ),
            R"doc(
 
- Function for creating solid body tides.
+Function for creating solid body tides.
 
 As :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide_degree_variable_k`,
 but with complex values for the Love numbers.
 
 
- Parameters
- ----------
- tide_raising_body : str
-     Name of body raising the tide.
- love_number_per_degree : dict( int, complex )
-     Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the Love number :math:`k_{l}` itself.
+Parameters
+----------
+tide_raising_body : str
+    Name of body raising the tide.
+love_number_per_degree : dict( int, complex )
+    Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the Love number :math:`k_{l}` itself.
 
 Returns
 -------
@@ -338,7 +338,7 @@ Returns
            py::arg( "love_number_per_degree_and_order" ),
            R"doc(
 
- Function for creating solid body tides.
+Function for creating solid body tides.
 
 Function for creating solid body tides, using a set of real, separate, Love numbers at any number of degrees and orders
 (e.g. :math:`k_{20}`, :math:`k_{21}`, :math:`k_{22}`, :math:`k_{30}`, etc.).
@@ -348,24 +348,24 @@ at a set of values of :math:`l` and a single tide-raising body :math:`j`.
 The mathematical model of this function is effectively nearly equal to that of :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide`
 with the modification that :math:`k_{l}\rightarrow k_{lm}`.
 
- Parameters
- ----------
- tide_raising_body : str
-     Name of body raising the tide.
- love_number_per_degree_and_order : dict( int, list( float ) )
-     Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the list of Love numbers :math:`k_{lm}` at this degree. Note that, for Love numbers at degree :math:`l`, the associated list should contain :math:`l+1` entries, representing the Love numbers (in order) :math:`k_{l0}`, :math:`k_{l1}`... :math:`k_{ll}`.
+Parameters
+----------
+tide_raising_body : str
+    Name of body raising the tide.
+love_number_per_degree_and_order : dict( int, list( float ) )
+    Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the list of Love numbers :math:`k_{lm}` at this degree. Note that, for Love numbers at degree :math:`l`, the associated list should contain :math:`l+1` entries, representing the Love numbers (in order) :math:`k_{l0}`, :math:`k_{l1}`... :math:`k_{ll}`.
 
 Returns
- -------
- BasicSolidBodyGravityFieldVariationSettings
+-------
+BasicSolidBodyGravityFieldVariationSettings
      Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
 
 
- Examples
- --------
- In this example, we create gravity field variations of the Moon, for a tide raised by Earth, with a Love numbers :math:`k_{20}=0.024615`, :math:`k_{21}=0.023915` and :math:`k_{21}=0.024852`, and add it to the list of gravity field variations
+Examples
+--------
+In this example, we create gravity field variations of the Moon, for a tide raised by Earth, with a Love numbers :math:`k_{20}=0.024615`, :math:`k_{21}=0.023915` and :math:`k_{21}=0.024852`, and add it to the list of gravity field variations
 
- .. code-block:: python
+.. code-block:: python
 
     tide_raising_body = "Earth"
     love_numbers = dict( )
@@ -391,18 +391,19 @@ Returns
 
 Function for creating solid body tides raised by multiple bodies.
 
- As :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_k`, but with the same
+As :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_k`, but with the same
 set of Love numbers used for tides raised by multiple bodies :math:`j`
 
- Parameters
- ----------
- tide_raising_bodies : list[str]
-     Names of bodies raising the tide.
- love_number_per_degree_and_order : dict( int, list( float ) )
-     Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the list of Love numbers :math:`k_{lm}` at this degree. Note that, for Love numbers at degree :math:`l`, the associated list should contain :math:`l+1` entries, representing the Love numbers (in order) :math:`k_{l0}`, :math:`k_{l1}`... :math:`k_{ll}`.
- Returns
- -------
- BasicSolidBodyGravityFieldVariationSettings
+Parameters
+----------
+tide_raising_bodies : list[str]
+    Names of bodies raising the tide.
+love_number_per_degree_and_order : dict( int, list( float ) )
+    Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the list of Love numbers :math:`k_{lm}` at this degree. Note that, for Love numbers at degree :math:`l`, the associated list should contain :math:`l+1` entries, representing the Love numbers (in order) :math:`k_{l0}`, :math:`k_{l1}`... :math:`k_{ll}`.
+
+Returns
+-------
+BasicSolidBodyGravityFieldVariationSettings
      Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
 
 
@@ -451,8 +452,8 @@ Function for creating solid body tides with coupling between different forcing d
 :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_k`, but
 with multiple tide-raising bodies and the option to have forcing and response at different degrees and orders
 
- .. math::
-     \Delta \bar{C}_{l'm'}-i\Delta \bar{S}_{l'm'}=\sum_{j}\frac{1}{2l+1}k_{lm}^{l'm'}\frac{\mu_{j}}{\mu}\left(\frac{R}{r_{j}}\right)^{l+1}\bar{P}_{lm}(\sin\phi_{j})\left(\cos m\theta_{j}-i\sin m\theta_{j}\right)
+.. math::
+    \Delta \bar{C}_{l'm'}-i\Delta \bar{S}_{l'm'}=\sum_{j}\frac{1}{2l+1}k_{lm}^{l'm'}\frac{\mu_{j}}{\mu}\left(\frac{R}{r_{j}}\right)^{l+1}\bar{P}_{lm}(\sin\phi_{j})\left(\cos m\theta_{j}-i\sin m\theta_{j}\right)
 
 where quantities without subscripts represent properties of the body :math:`B` for which the gravity field's time variations are computed.
 Here, :math:`\mu_{j}` is the gravitational parameter of the tide-raising body :math:`j`, and :math:`r_{j}`, :math:`\phi_{j}` and :math:`\theta_{j}` represent the spherical position
@@ -497,7 +498,7 @@ Function for creating time-periodic gravity field variations.
 Function for creating gravity field variations that are a superposition of purely sinusoidal variations in the gravity field coefficients.
 The cosine and sine coefficient variations at degree and order :math:`l` and :math:`m` are computed from:
 
- .. math::
+.. math::
      \Delta{\bar{C}}_{lm}=\sum_{i=1}^{N}\left(A_{i,\bar{C}_{lm}}\cos\left(f_{i}(t-t_{0})\right) + B_{i,\bar{C}_{lm}}\sin\left(f_{i}(t-t_{0})\right) \right)
      \Delta{\bar{S}}_{lm}=\sum_{i=1}^{N}\left(A_{i,\bar{S}_{lm}}\cos\left(f_{i}(t-t_{0})\right) + B_{i,\bar{S}_{lm}}\sin\left(f_{i}(t-t_{0})\right) \right)
 
@@ -604,7 +605,7 @@ Function for creating time-polynomial gravity field variations.
 Function for creating gravity field variations that are a superposition of purely polynomial variations in the gravity field coefficients.
 The cosine and sine coefficient variations at degree and order :math:`l` and :math:`m` are computed from:
 
- .. math::
+.. math::
      \Delta{\bar{C}}_{lm}=\sum_{i=1}^{N}\left(K_{i,\bar{C}_{lm}} (t-t_{0})^{p_{i}} \right)
      \Delta{\bar{S}}_{lm}=\sum_{i=1}^{N}\left(K_{i,\bar{S}_{lm}} (t-t_{0})^{p_{i}} \right)
 
