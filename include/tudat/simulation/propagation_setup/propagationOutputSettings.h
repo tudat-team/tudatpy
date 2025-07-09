@@ -17,7 +17,7 @@
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/astro/gravitation/gravityFieldVariations.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
-#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+#if( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 #include "tudat/astro/orbit_determination/stateDerivativePartial.h"
 #endif
 
