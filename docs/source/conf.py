@@ -84,7 +84,8 @@ bibtex_default_style = "plain"
 #     "List": ":class:`~typing.List`",
 # }
 
-
+# custom section to define the size of dependent variables
+napoleon_custom_sections = [('Variable Size', 'params_style')]
 # to not skip __init__
 # def skip(app, what, name, obj, would_skip, options):
 #     if name == "__init__":
