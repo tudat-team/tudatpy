@@ -494,31 +494,33 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
              Dependent variable values used by the interpolator
          )doc" );
 
+#if TUDATPY_TYPE_ID(TIME_TYPE) != TUDATPY_TYPE_ID_double
 
-//    py::class_< ti::OneDimensionalInterpolator< double, STATE_SCALAR_TYPE >,
-//                std::shared_ptr< ti::OneDimensionalInterpolator< double, STATE_SCALAR_TYPE > > >( m,
-//                                                                                                     "OneDimensionalInterpolatorScalarFloat",
-//                                                                                                     R"doc(
-//         Object that performs interpolation for scalar dependent variables .
-//
-//         Object that performs interpolation for scalar dependent variables and float independent variables (regardless of compilation TIME_TYPE; class is equal to :class:`OneDimensionalInterpolatorScalar` when compiling tudatpy with regular settings ). This object is
-//         not created manually, but is set up using the :func:`create_one_dimensional_scalar_interpolator` function.
-//     )doc" )
-//            .def( "interpolate",
-//                  py::overload_cast< const double >( &ti::OneDimensionalInterpolator< double, STATE_SCALAR_TYPE >::interpolate ),
-//                  py::arg( "independent_variable_value" ),
-//                  R"doc(
-//        This function performs the interpolation at the requested independent variable value.
-//        Parameters
-//        ----------
-//        independent_variable_value : float
-//            Value of independent variable at which the interpolation is to bse performed.
-//        Returns
-//        -------
-//        float
-//            Interpolated dependent variable value, using implemented algorithm at requested independent variable value
-//    )doc" );
+    py::class_< ti::OneDimensionalInterpolator< double, STATE_SCALAR_TYPE >,
+                std::shared_ptr< ti::OneDimensionalInterpolator< double, STATE_SCALAR_TYPE > > >( m,
+                                                                                                     "OneDimensionalInterpolatorScalarFloat",
+                                                                                                     R"doc(
+         Object that performs interpolation for scalar dependent variables .
 
+         Object that performs interpolation for scalar dependent variables and float independent variables (regardless of compilation TIME_TYPE; class is equal to :class:`OneDimensionalInterpolatorScalar` when compiling tudatpy with regular settings ). This object is
+         not created manually, but is set up using the :func:`create_one_dimensional_scalar_interpolator` function.
+     )doc" )
+            .def( "interpolate",
+                  py::overload_cast< const double >( &ti::OneDimensionalInterpolator< double, STATE_SCALAR_TYPE >::interpolate ),
+                  py::arg( "independent_variable_value" ),
+                  R"doc(
+        This function performs the interpolation at the requested independent variable value.
+        Parameters
+        ----------
+        independent_variable_value : float
+            Value of independent variable at which the interpolation is to bse performed.
+        Returns
+        -------
+        float
+            Interpolated dependent variable value, using implemented algorithm at requested independent variable value
+    )doc" );
+
+#endif
 
 
     py::class_< ti::OneDimensionalInterpolator< TIME_TYPE, Eigen::VectorXd >,
@@ -584,33 +586,34 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
              Dependent variable values used by the interpolator
          )doc" );
 
+#if TUDATPY_TYPE_ID(TIME_TYPE) != TUDATPY_TYPE_ID_double
 
-//    py::class_< ti::OneDimensionalInterpolator< double, Eigen::VectorXd >,
-//            std::shared_ptr< ti::OneDimensionalInterpolator< double, Eigen::VectorXd > > >( m,
-//                                                                                               "OneDimensionalInterpolatorVectorFloat",
-//                                                                                               R"doc(
-//         Object that performs interpolation for vector dependent variables.
-//
-//         Object that performs interpolation for vector dependent variables and TIME_TYPE independent variables
-//         (regardless of compilation TIME_TYPE; class is equal to :class:`OneDimensionalInterpolatorVector` when compiling tudatpy with regular settings ). This object is
-//         not created manually, but is set up using the :func:`create_one_dimensional_vector_interpolator_from_float` function.
-//
-//     )doc" )
-//        .def( "interpolate",
-//              py::overload_cast< const double >( &ti::OneDimensionalInterpolator< double, Eigen::VectorXd >::interpolate ),
-//              py::arg( "independent_variable_value" ),
-//              R"doc(
-//        This function performs the interpolation at the requested independent variable value.
-//        Parameters
-//        ----------
-//        independent_variable_value : float
-//            Value of independent variable at which the interpolation is to be performed.
-//        Returns
-//        -------
-//        np.array
-//            Interpolated dependent variable value, using implemented algorithm at requested independent variable value
-//    )doc" );
+    py::class_< ti::OneDimensionalInterpolator< double, Eigen::VectorXd >,
+            std::shared_ptr< ti::OneDimensionalInterpolator< double, Eigen::VectorXd > > >( m,
+                                                                                               "OneDimensionalInterpolatorVectorFloat",
+                                                                                               R"doc(
+         Object that performs interpolation for vector dependent variables.
 
+         Object that performs interpolation for vector dependent variables and TIME_TYPE independent variables
+         (regardless of compilation TIME_TYPE; class is equal to :class:`OneDimensionalInterpolatorVector` when compiling tudatpy with regular settings ). This object is
+         not created manually, but is set up using the :func:`create_one_dimensional_vector_interpolator_from_float` function.
+
+     )doc" )
+        .def( "interpolate",
+              py::overload_cast< const double >( &ti::OneDimensionalInterpolator< double, Eigen::VectorXd >::interpolate ),
+              py::arg( "independent_variable_value" ),
+              R"doc(
+        This function performs the interpolation at the requested independent variable value.
+        Parameters
+        ----------
+        independent_variable_value : float
+            Value of independent variable at which the interpolation is to be performed.
+        Returns
+        -------
+        np.array
+            Interpolated dependent variable value, using implemented algorithm at requested independent variable value
+    )doc" );
+#endif
 
 
     py::class_< ti::OneDimensionalInterpolator< TIME_TYPE, Eigen::MatrixXd >,
@@ -677,33 +680,34 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
              Dependent variable values used by the interpolator
          )doc" );
 
+#if TUDATPY_TYPE_ID(TIME_TYPE) != TUDATPY_TYPE_ID_double
 
-//    py::class_< ti::OneDimensionalInterpolator< double, Eigen::MatrixXd >,
-//        std::shared_ptr< ti::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( m,
-//                                                                                           "OneDimensionalInterpolatorMatrixFloat",
-//                                                                                           R"doc(
-//         Object that performs interpolation for matrix dependent variables.
-//
-//         Object that performs interpolation for matrix dependent variables and TIME_TYPE independent variables
-//         (regardless of compilation TIME_TYPE; class is equal to :class:`OneDimensionalInterpolatorMatrix` when compiling tudatpy with regular settings ). This object is
-//         not created manually, but is set up using the :func:`create_one_dimensional_matrix_interpolator_from_float` function.
-//
-//     )doc" )
-//    .def( "interpolate",
-//          py::overload_cast< const double >( &ti::OneDimensionalInterpolator< double, Eigen::MatrixXd >::interpolate ),
-//          py::arg( "independent_variable_value" ),
-//          R"doc(
-//        This function performs the interpolation at the requested independent variable value.
-//        Parameters
-//        ----------
-//        independent_variable_value : float
-//            Value of independent variable at which the interpolation is to be performed.
-//        Returns
-//        -------
-//        np.array
-//            Interpolated dependent variable value, using implemented algorithm at requested independent variable value
-//    )doc" );
+    py::class_< ti::OneDimensionalInterpolator< double, Eigen::MatrixXd >,
+        std::shared_ptr< ti::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( m,
+                                                                                           "OneDimensionalInterpolatorMatrixFloat",
+                                                                                           R"doc(
+         Object that performs interpolation for matrix dependent variables.
 
+         Object that performs interpolation for matrix dependent variables and TIME_TYPE independent variables
+         (regardless of compilation TIME_TYPE; class is equal to :class:`OneDimensionalInterpolatorMatrix` when compiling tudatpy with regular settings ). This object is
+         not created manually, but is set up using the :func:`create_one_dimensional_matrix_interpolator_from_float` function.
+
+     )doc" )
+    .def( "interpolate",
+          py::overload_cast< const double >( &ti::OneDimensionalInterpolator< double, Eigen::MatrixXd >::interpolate ),
+          py::arg( "independent_variable_value" ),
+          R"doc(
+        This function performs the interpolation at the requested independent variable value.
+        Parameters
+        ----------
+        independent_variable_value : float
+            Value of independent variable at which the interpolation is to be performed.
+        Returns
+        -------
+        np.array
+            Interpolated dependent variable value, using implemented algorithm at requested independent variable value
+    )doc" );
+#endif
 
     m.def( "create_one_dimensional_scalar_interpolator",
            &ti::createOneDimensionalInterpolatorBasic< TIME_TYPE, STATE_SCALAR_TYPE >,
