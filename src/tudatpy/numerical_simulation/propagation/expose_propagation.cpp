@@ -766,7 +766,7 @@ void expose_propagation( py::module &m )
          Object with all results of the propagation results of the states, as well as details on propagation termination reason, runtime, function evaluations, etc.
 
 
-         :type: dict[float, numpy.ndarray]
+         :type: SingleArcSimulationResults
 )doc" );
 
     py::class_< tp::MultiArcSimulationResults< tp::SingleArcSimulationResults,

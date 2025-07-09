@@ -93,37 +93,51 @@ void expose_gravity_field_variation_setup( py::module& m )
     py::enum_< tg::BodyDeformationTypes >( m, "BodyDeformationTypes",
                                            R"doc(
 
-         Enumeration listing the different types of gravity and/or shape field variation models available in tudat.
-         Note that for some types, only one of the two types of variations is available
+Enumeration listing the different types of gravity and/or shape field variation models available in tudat.
+Note that for some types, only one of the two types of variations is available
 
       )doc" )
             .value( "basic_solid_body", tg::basic_solid_body,
                     R"doc(
-         Basic tidal variation model, assuming a single constant Love number for the variation
-      )doc" )
+
+Basic tidal variation model, assuming a single constant Love number for the variation
+
+)doc" )
         .value( "iers_2010_tidal", tg::iers_2010,
                 R"doc(
-         High-fidelity Earth tidal variation model based on IERS 2010 conventions
-      )doc" )
+
+High-fidelity Earth tidal variation model based on IERS 2010 conventions
+
+)doc" )
             .value( "tabulated_deformation", tg::tabulated_variation,
         R"doc(
-         Variation model using interpolated tabular data for the variation model
-      )doc" )
+
+Variation model using interpolated tabular data for the variation model
+
+)doc" )
         .value( "periodic_variation", tg::periodic_variation,
                 R"doc(
-         Variation model using purely sinusoidal variations (as a function of time) for gravity field coefficients
-      )doc" )
+
+Variation model using purely sinusoidal variations (as a function of time) for gravity field coefficients
+
+)doc" )
         .value( "polynomial_variation", tg::polynomial_variation,
                 R"doc(
-         Variation model using polynomial functions of time for gravity field coefficients variations
-      )doc" )
+
+Variation model using polynomial functions of time for gravity field coefficients variations
+
+)doc" )
         .value( "ocean_tide", tg::ocean_tide,
                 R"doc(
-         Variation model due to ocean tides
-      )doc" )
+
+Variation model due to ocean tides
+
+)doc" )
         .value( "pole_tide", tg::pole_tide,
                 R"doc(
-         Variation model due to pole tides
+
+Variation model due to pole tides
+
       )doc" )
             .export_values( );
 
