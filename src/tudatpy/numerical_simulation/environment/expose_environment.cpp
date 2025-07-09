@@ -1967,12 +1967,12 @@ void expose_environment( py::module &m )
             Derived class of :class:`~SphericalHarmonicsGravityField` that is created when any gravity field variations are detected.
 
             Derived class of :class:`~SphericalHarmonicsGravityField` that is created instead when any gravity field variations are detected during object creation
-            (typically during a call of :func:`numerical_simulation.environment_setup.create_system_of_bodies`)
+            (typically during a call of :func:`~tudatpy.numerical_simulation.environment_setup.create_system_of_bodies`)
             This object computes the time-variability of spherical harmonic coefficients from a list of :class:`~GravityFieldVariationModel` objects.
             The ``cosine_coefficients`` and ``sine_coefficients`` attributes provide the instantaneous coefficients (including the time-variability)
-            The ``nominal_cosine_coefficients`` and ``nominal_sine_coefficients`` provide the static (e.g. without time-variations) coefficients
-
-              .)doc" )
+            The ``nominal_cosine_coefficients`` and ``nominal_sine_coefficients`` provide the static (e.g. without time-variations) coefficients.
+            
+            )doc" )
 
         .def_property( "nominal_cosine_coefficients",
                        &tg::TimeDependentSphericalHarmonicsGravityField::getNominalCosineCoefficients,
