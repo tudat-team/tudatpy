@@ -54,8 +54,12 @@ Classes
    EarthOrientationAnglesCalculator
 
    GravityFieldModel
+
+   GravityFieldVariationModel
    
    SphericalHarmonicsGravityField
+
+   TimeDependentSphericalHarmonicsGravityField
    
    BodyShapeModel
    
@@ -63,6 +67,8 @@ Classes
       
    AtmosphereModel
    
+   RadiationSourceModel
+
    AerodynamicCoefficientInterface
 
    HypersonicLocalInclinationAnalysis
@@ -102,10 +108,16 @@ Classes
 
 .. autoclass:: tudatpy.numerical_simulation.environment.GravityFieldModel
    :members:
-      
+
+.. autoclass:: tudatpy.numerical_simulation.environment.GravityFieldVariationModel
+   :members:
+
 .. autoclass:: tudatpy.numerical_simulation.environment.SphericalHarmonicsGravityField
    :members:
       
+.. autoclass:: tudatpy.numerical_simulation.environment.TimeDependentSphericalHarmonicsGravityField
+   :members:
+
 .. autoclass:: tudatpy.numerical_simulation.environment.BodyShapeModel
    :members:
   
@@ -114,7 +126,10 @@ Classes
 
 .. autoclass:: tudatpy.numerical_simulation.environment.AtmosphereModel
    :members:     
-   
+
+.. autoclass:: tudatpy.numerical_simulation.environment.RadiationSourceModel
+   :members:   
+
 .. autoclass:: tudatpy.numerical_simulation.environment.AerodynamicCoefficientInterface
    :members:
 
