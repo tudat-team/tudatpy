@@ -494,6 +494,7 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
              Dependent variable values used by the interpolator
          )doc" );
 
+#if TUDATPY_TYPE_ID(TIME_TYPE) != TUDATPY_TYPE_ID_double
 
     py::class_< ti::OneDimensionalInterpolator< double, STATE_SCALAR_TYPE >,
                 std::shared_ptr< ti::OneDimensionalInterpolator< double, STATE_SCALAR_TYPE > > >( m,
@@ -519,6 +520,7 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
             Interpolated dependent variable value, using implemented algorithm at requested independent variable value
     )doc" );
 
+#endif
 
 
     py::class_< ti::OneDimensionalInterpolator< TIME_TYPE, Eigen::VectorXd >,
@@ -584,6 +586,7 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
              Dependent variable values used by the interpolator
          )doc" );
 
+#if TUDATPY_TYPE_ID(TIME_TYPE) != TUDATPY_TYPE_ID_double
 
     py::class_< ti::OneDimensionalInterpolator< double, Eigen::VectorXd >,
             std::shared_ptr< ti::OneDimensionalInterpolator< double, Eigen::VectorXd > > >( m,
@@ -610,7 +613,7 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
         np.array
             Interpolated dependent variable value, using implemented algorithm at requested independent variable value
     )doc" );
-
+#endif
 
 
     py::class_< ti::OneDimensionalInterpolator< TIME_TYPE, Eigen::MatrixXd >,
@@ -677,6 +680,7 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
              Dependent variable values used by the interpolator
          )doc" );
 
+#if TUDATPY_TYPE_ID(TIME_TYPE) != TUDATPY_TYPE_ID_double
 
     py::class_< ti::OneDimensionalInterpolator< double, Eigen::MatrixXd >,
         std::shared_ptr< ti::OneDimensionalInterpolator< double, Eigen::MatrixXd > > >( m,
@@ -703,7 +707,7 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
         np.array
             Interpolated dependent variable value, using implemented algorithm at requested independent variable value
     )doc" );
-
+#endif
 
     m.def( "create_one_dimensional_scalar_interpolator",
            &ti::createOneDimensionalInterpolatorBasic< TIME_TYPE, STATE_SCALAR_TYPE >,
