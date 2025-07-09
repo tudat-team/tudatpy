@@ -24,7 +24,7 @@ from tudatpy.kernel.numerical_simulation.environment_setup import (
 class HorizonsQuery:
     """This class provides an interface to JPL's Horizon System.
     JPL Horizons provides access to highly accurate ephemerides for many solar system objects,
-    including asteriuds, comets, planets, moons and select spacecraft.
+    including asteroids, comets, planets, moons and select spacecraft.
     The class extends astroquery's to cater to the needs of Tudat users,
     while maintaining compatibility with all of astroquery's features.
 
@@ -1193,10 +1193,7 @@ class HorizonsBatch:
         aberations : str, optional
             Aberations to be accounted for. Options are: 'geometric', 'astrometric' and
             'apparent', by default "geometric".
-
-        See the Horizons System Manual for more info:
-
-        https://ssd.jpl.nasa.gov/horizons/manual.html#output
+            See the Horizons System Manual for more info: https://ssd.jpl.nasa.gov/horizons/manual.html#output
 
         """
 
