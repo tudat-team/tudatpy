@@ -395,7 +395,7 @@ void expose_acceleration_setup( py::module &m )
 
  with :math:`\mathbf{r}` the position vector measured from the center of mass of the body exerting the acceleration, and :math:`\mu` this body's gravitational parameter.
 
-Depending on the body undergoing the acceleration :math:`A`, the body exerting the acceleration :math:`B`, and the central body of propagation :math:`C`, choosing this option may create a direct point-mass attraction (:math:`\mu=\mu_{B}`), a central point-mass attraction (:math:`\mu=\mu_{B}+\mu_{A}`) or a third-body point-mass attraction (see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/third_body_acceleration.html>`_ for more details).
+ Depending on the body undergoing the acceleration :math:`A`, the body exerting the acceleration :math:`B`, and the central body of propagation :math:`C`, choosing this option may create a direct point-mass attraction (:math:`\mu=\mu_{B}`), a central point-mass attraction (:math:`\mu=\mu_{B}+\mu_{A}`) or a third-body point-mass attraction (see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/third_body_acceleration.html>`_ for more details).
 
  The body exerting the acceleration needs to have a gravity field model (:ref:`gravity_field` module) defined to use this acceleration.
 
@@ -518,17 +518,29 @@ AccelerationSettings
            py::arg( "target_type" ) = tss::undefined_target,
            R"doc(
 
- Creates settings for the radiation pressure acceleration.
+Creates settings for the radiation pressure acceleration.
 
- Creates settings for the radiation pressure acceleration. This function takes the source model of the body exerting the acceleration, and the target model of the
- body undergoing the acceleration, and links these models to set up the specific acceleration model, regardless of how the source and target models are defined.
- For more extensive details on how this is done, check out the
- `radiation pressure acceleration page <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/radiation_pressure_acceleration.html>`_.
+Creates settings for the radiation pressure acceleration. This function takes the source model of the body exerting the acceleration, and the target model of the
+body undergoing the acceleration, and links these models to set up the specific acceleration model, regardless of how the source and target models are defined.
 
- Returns
- -------
- AccelerationSettings
-     Acceleration settings object.
+Settings for how to define the source and target model are provided in the :ref:`radiation_pressure` module. Typical target models are the
+:func:`numerical_simulation.environment_setup.radiation_pressure.cannonball_radiation_target` model and the :func:`numerical_simulation.environment_setup.radiation_pressure.panelled_radiation_target`
+target models. Typical source models are the :func:`numerical_simulation.environment_setup.radiation_pressure.isotropic_radiation_source` (typically used for the Sun) and the
+:func:`numerical_simulation.environment_setup.radiation_pressure.panelled_extended_radiation_source` (typically used for planetary radiation pressure).
+
+For more extensive details on how this is done, check out the
+`radiation pressure acceleration page <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/radiation_pressure_acceleration.html>`_.
+
+Parameters
+----------
+target_type : RadiationPressureTargetModelType
+     The type of target model that is to be used. Typically this entry can be left undefined (at its default). It is only relevant if the body undergoing
+     acceleration has multiple target models defined (and the user has to choose one to use for this specific source).
+
+Returns
+-------
+AccelerationSettings
+    Acceleration settings object.
 
 
 
@@ -551,7 +563,7 @@ AccelerationSettings
  .. math::
     \mathbf{a}=\mathbf{R}^{(I/B)}\nabla^{(B)}U(\mathbf{r})
 
- with :math:`\mathbf{r}` the position vector measured from the center of mass of the body exerting the acceleration, :math:`\mathbf{R}^{(I/B)}` the rotation matrix from body-fixed to inertial frame, and :math:`\nabla^{(B)}` the gradient operator in a body-fixed frame, and :math:`U` the spherical harmonic gravitational potential, expanded up to the provided ``maximum_degree`` and ``maximum_order``.
+ with :math:`\mathbf{r}` the position vector measured from the center of mass of the body exerting the acceleration, :math:`\mathbf{R}^{(I/B)}` the rotation matrix from body-fixed to inertial frame, and :math:`\nabla^{(B)}` the gradient operator in a body-fixed frame, and :math:`U` the spherical harmonic gravitational potential (see :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.spherical_harmonic`), expanded up to the provided ``maximum_degree`` and ``maximum_order``.
 
  Depending on the body undergoing the acceleration :math:`A`, the body exerting the acceleration :math:`B`, and the central body of propagation :math:`C`, choosing this option may create a direct spherical harmonic attraction (:math:`\mu=\mu_{B}`), a central spherical harmonic attraction (:math:`\mu=\mu_{B}+\mu_{A}`) or a third-body spherical harmonic attraction (see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/third_body_acceleration.html>`_ for more details).
 
@@ -610,7 +622,7 @@ AccelerationSettings
 
  .. math::
 
-    \mathbf{a}={-\frac{\mu_{_{B}}}{{r}^{2}}\hat{\mathbf{r}}}+{\mathbf{R}^{(I/B)}\nabla^{(B)}U_{\hat{B}}(\mathbf{r})}-{\frac{\mu_{_{B}}}{\mu_{_{A}}}\mathbf{R}^{(I/A)}\nabla^{(A)}U_{\hat{A}}(-\mathbf{r})}
+    \mathbf{a}={-\frac{\mu_{B}}{{r}^{2}}\hat{\mathbf{r}}}+{\mathbf{R}^{(I/B)}\nabla^{(B)}U_{\hat{B}}(\mathbf{r})}-{\frac{\mu_{B}}{\mu_{_{A}}}\mathbf{R}^{(I/A)}\nabla^{(A)}U_{\hat{A}}(-\mathbf{r})}
 
  where :math:`U_{\hat{B}}` and :math:`U_{\hat{A}}` denote the spherical harmonic gravity fields a degree :math:`>=1` of bodies :math:`B` and :math:`A`, respectively.
  Both the body exerting the acceleration and the body undergoing it need to
@@ -737,7 +749,7 @@ The acceleration (in the gravity-field fixed frame) then becomes:
 
 .. math::
 
-   \mathbf{a} = -G \rho\left( \sum_{e \in \text{edges}} \mathbf{E}_e \cdot \mathbf{r}_e L_e  - \sum_{f \in \text{faces}} \mathbf{F}_f \cdot \mathbf{r}_f \omega_f \right)
+   \mathbf{a}^{(B)} = -G \rho\left( \sum_{e \in \text{edges}} \mathbf{E}_e \cdot \mathbf{r}_e L_e  - \sum_{f \in \text{faces}} \mathbf{F}_f \cdot \mathbf{r}_f \omega_f \right)
 
 where two summation are over all edges and faces of the polygon, respectively; :math:`\mathbf{r}_e` is the vector from the middle of the edge :math:`e` to the
 body undergoing acceleration, and :math:`\mathbf{r}_f` is the vector from the face centroid :math:`f` to the body undergoing acceleration
@@ -780,7 +792,7 @@ with :math:`G` the gravitational constant, and :math:`\mathbf{r}=[x,y,z]` the po
 
 .. math::
 
-     \mathbf{a}^{(B)}=\begin{pmatrix}-A_{r}x\-A_{r}y\\-A(z)\end{pmatrix}
+     \mathbf{a}^{(B)}=\begin{pmatrix}-A_{r}x\\-A_{r}y\\-A_{z}z\end{pmatrix}
 
 This acceleration is then rotated to the inertial orientation using the body-fixed to inertial rotation associated with the ring gravity field (equal to the rotation model of the body that is endowed with a ring gravity model)
 
@@ -808,41 +820,60 @@ AccelerationSettings
            py::arg( "lense_thirring_angular_momentum" ) = Eigen::Vector3d::Zero( ),
            R"doc(
 
- Creates settings for the relativistic acceleration correction.
+Creates settings for the relativistic acceleration correction.
 
- Creates settings for typical relativistic acceleration corrections: the Schwarzschild, Lense-Thirring and de
- Sitter terms, where each of the three terms can be toggled on or of (see 'General relativity and Space Geodesy' by L. Combrinck, 2012). It implements the model of
- 2010 Conventions (chapter 10, section 3). Here, the ‘primary body’ for a planetary orbiter should always be set
- as the Sun (only relevant for de Sitter correction). The angular momentum vector of the orbited body is only
- relevant for Lense-Thirring correction.
+Creates settings for typical relativistic acceleration corrections: the Schwarzschild, Lense-Thirring and de
+Sitter terms, where each of the three terms can be toggled on or of.
+It implements the model of 2010 Conventions (chapter 10, section 3).
+
+For the Schwarzschild correction, we have:
+
+.. math::
+   
+   \mathbf{a}=\frac{\mu_{B}}{c^{2}r^{3}}\left(\left(2(\beta+\gamma)\frac{\mu_{B}}{r}-\gamma(\mathbf{v}\cdot\mathbf{v}) \right)\mathbf{r} +2(1+\gamma)(\mathbf{r}\cdot\mathbf{v})\mathbf{v}\right)
+
+For the Lense-Thirring correction, we have:
+
+.. math::
+
+   \mathbf{a}=(1+\gamma)\frac{\mu_{B}}{c^{2}r^{3}}\left(\frac{3}{r^{2}}\left(\mathbf{r}\times\mathbf{v} \right)(\mathbf{r}\cdot\mathbf{h}_{B})+(\mathbf{v}\times\mathbf{h}_{B})\right)
+
+For the de Sitter correction, we have:
+
+.. math::
+
+   \mathbf{a}=(1 + 2\gamma) \left(\mathbf{R}_{S} \times \left( \frac{-\mu_{S} \mathbf{R}_{S}}{c^2 R_{S}^3} \right) \right) \times \mathbf{v}
+
+where :math:`\gamma` and :math:`beta` are the Parametrized Post-Newtonian (PPN) parameters, :math:`\mathbf{v}` and :math:`\mathbf{r}` are velocity and position
+of the body undergoing the acceleration w.r.t. the body exerting the acceleration, :math:`\mu_{B}` is the gravitational parameter of the body undergoing the
+acceleration, :math:`h`_{B}` is the angular momentum vector per unit mass of the body exerting the acceleration (in the global frame orientation), and :math:`\mu_{S}` and
+:math:`\mathbf{R}_{S}` are the gravitational parameter of the 'de Sitter central body' and the position of the body exerting the acceleration w.r.t. the 'de Sitter central body'.
+For normal applications, the 'de Sitter central body' should be set as the Sun, if the body exerting the acceleration is a natural solar system body (except the Sun itself)
 
 
- Parameters
- ----------
- use_schwarzschild : bool, default=False
-     Boolean defining whether or not to use the Schwarzschild contribution to the acceleration correction
- use_lense_thirring : bool, default=False
-     Boolean defining whether or not to use the Lense-Thirring contribution to the acceleration correction
- use_de_sitter : bool, default=False
-     Boolean defining whether or not to use the de Sitter contribution to the acceleration correction
- de_sitter_central_body : str, default=""
-     Body used as 'perturbed' in the calculation of the de Sitter acceleration. For the case of an Earth-orbiting satellite, this would be the Sun
- lense_thirring_angular_momentum : numpy.ndarray, default=numpy.array([0, 0, 0])
-     Angular momentum vector per unit mass (in global frame) that is to be used for the calculation of the Lense-Thirring acceleration
- Returns
- -------
- RelativisticAccelerationCorrectionSettings
-     Relativistic acceleration correction settings object.
+Parameters
+----------
+use_schwarzschild : bool, default=False
+    Boolean defining whether or not to use the Schwarzschild contribution to the acceleration correction
+use_lense_thirring : bool, default=False
+    Boolean defining whether or not to use the Lense-Thirring contribution to the acceleration correction
+use_de_sitter : bool, default=False
+    Boolean defining whether or not to use the de Sitter contribution to the acceleration correction
+de_sitter_central_body : str, default=""
+    Body used as 'third body' in the calculation of the de Sitter acceleration. For the case of (for instance) an Earth-orbiting satellite, this would be the Sun (and only the Sun)
+lense_thirring_angular_momentum : numpy.ndarray, default=numpy.array([0, 0, 0])
+    Angular momentum vector per unit mass (in global frame) that is to be used for the calculation of the Lense-Thirring acceleration
 
+Returns
+-------
+RelativisticAccelerationCorrectionSettings
+    Relativistic acceleration correction settings object.
 
+Examples
+--------
+In this example, we define the relativistic correction acceleration for a Mars orbiter:
 
-
-
- Examples
- --------
- In this example, we define the relativistic correction acceleration for a Mars orbiter:
-
- .. code-block:: python
+.. code-block:: python
 
     # Select terms to be used
     use_schwarzschild = True
@@ -880,7 +911,7 @@ AccelerationSettings
  a constant, sine and cosine term (with true anomaly as argument) for each of the three independent directions of
  the RSW frame. The empirical acceleration is calculated as:
 
-  .. math::
+ .. math::
 
      \mathbf{a}=R^{I/RSW}\left(\mathbf{a}_{\text{const.}}+\mathbf{a}_{\sin}\sin\theta+\mathbf{a}_{\cos}\cos\theta \right)
 
