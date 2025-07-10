@@ -202,12 +202,11 @@ Returns
 BasicSolidBodyGravityFieldVariationSettings
     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
 
+Examples
+--------
+In this example, we create gravity field variations of Earth for a tide raised by the Moon, with a single Love number :math:`k_{2}` of 0.301, and add it to the list of gravity field variations
 
- Examples
- --------
- In this example, we create gravity field variations of Earth for a tide raised by the Moon, with a single Love number :math:`k_{2}` of 0.301, and add it to the list of gravity field variations
-
- .. code-block:: python
+.. code-block:: python
 
     tide_raising_body = "Moon"
     degree = 2
@@ -277,7 +276,7 @@ love_number_per_degree : dict( int, float )
     Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the Love number :math:`k_{l}` itself
 
 Returns
- -------
+-------
 BasicSolidBodyGravityFieldVariationSettings
     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
 
@@ -499,7 +498,7 @@ Function for creating gravity field variations that are a superposition of purel
 The cosine and sine coefficient variations at degree and order :math:`l` and :math:`m` are computed from:
 
 .. math::
-     \Delta{\bar{C}}_{lm}=\sum_{i=1}^{N}\left(A_{i,\bar{C}_{lm}}\cos\left(f_{i}(t-t_{0})\right) + B_{i,\bar{C}_{lm}}\sin\left(f_{i}(t-t_{0})\right) \right)
+     \Delta{\bar{C}}_{lm}=\sum_{i=1}^{N}\left(A_{i,\bar{C}_{lm}}\cos\left(f_{i}(t-t_{0})\right) + B_{i,\bar{C}_{lm}}\sin\left(f_{i}(t-t_{0})\right) \right)\\
      \Delta{\bar{S}}_{lm}=\sum_{i=1}^{N}\left(A_{i,\bar{S}_{lm}}\cos\left(f_{i}(t-t_{0})\right) + B_{i,\bar{S}_{lm}}\sin\left(f_{i}(t-t_{0})\right) \right)
 
 The summation is over all :math:`N` frequencies that are provided by the user. For each frequency, the user provides a block of coefficients :math:`A_{\bar{C}_{lm}}`,
@@ -542,7 +541,7 @@ BasicSolidBodyGravityFieldVariationSettings
     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.PeriodicGravityFieldVariationsSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
 
 
-.)doc" );
+)doc" );
 
     m.def( "single_period_periodic",
            &tss::periodicGravityFieldVariationsSettingsSingleFrequency,
@@ -588,7 +587,7 @@ BasicSolidBodyGravityFieldVariationSettings
     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.PeriodicGravityFieldVariationsSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
 
 
-.)doc" );
+)doc" );
 
 
     m.def( "polynomial",
@@ -606,7 +605,7 @@ Function for creating gravity field variations that are a superposition of purel
 The cosine and sine coefficient variations at degree and order :math:`l` and :math:`m` are computed from:
 
 .. math::
-     \Delta{\bar{C}}_{lm}=\sum_{i=1}^{N}\left(K_{i,\bar{C}_{lm}} (t-t_{0})^{p_{i}} \right)
+     \Delta{\bar{C}}_{lm}=\sum_{i=1}^{N}\left(K_{i,\bar{C}_{lm}} (t-t_{0})^{p_{i}} \right)\\
      \Delta{\bar{S}}_{lm}=\sum_{i=1}^{N}\left(K_{i,\bar{S}_{lm}} (t-t_{0})^{p_{i}} \right)
 
 The summation is over all :math:`N` polynomial exponents that are provided by the user. For each exponent, the user provides a block of coefficients :math:`K_{i,\bar{C}_{lm}}`,
@@ -640,7 +639,7 @@ BasicSolidBodyGravityFieldVariationSettings
     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.PeriodicGravityFieldVariationsSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
 
 
-.)doc" );
+)doc" );
 
     m.def( "single_power_polynomial",
            &tss::polynomialGravityFieldVariationsSettingsSinglePower,
@@ -679,7 +678,7 @@ BasicSolidBodyGravityFieldVariationSettings
     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.PeriodicGravityFieldVariationsSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
 
 
-.)doc" );
+)doc" );
 
 
 
@@ -698,8 +697,7 @@ Function for creating gravity field variations from tabular variation values as 
 Function for creating gravity field variations from tabular variation values as a function of time, which are interpolated to compute the instantaneous
 gravity field variation
 
-The user provides a tables of blocks of coefficient variation at epochs :math:`t_{i}` :math:`\Delta \bar{C}_{lm}(t_{i})`.
- These blocks give the spherical harmonic coefficient variations
+The user provides a tables of blocks of coefficient variation at epochs :math:`t_{i}` :math:`\Delta \bar{C}_{lm}(t_{i})`. These blocks give the spherical harmonic coefficient variations
 at degree :math:`l_{\text{min}}` until degree :math:`l_{\text{min}}+l_{\text{size}}`, and order :math:`m_{\text{min}}` until degree :math:`m_{\text{min}}+m_{\text{size}}`.
 The :math:`l_{\text{min}}`  and :math:`m_{\text{min}}` are defined by the ``minimum_degree`` and ``minimum_order`` inputs. The :math`l_{\text{size}}`  and :math`m_{\text{size}}`
 are defined by the size of the matrices in the tabulated inputs
@@ -731,7 +729,7 @@ BasicSolidBodyGravityFieldVariationSettings
     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.PeriodicGravityFieldVariationsSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
 
 
-.)doc" );
+)doc" );
 }
 
 }  // namespace gravity_field_variation

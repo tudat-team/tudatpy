@@ -395,7 +395,7 @@ void expose_acceleration_setup( py::module &m )
 
  with :math:`\mathbf{r}` the position vector measured from the center of mass of the body exerting the acceleration, and :math:`\mu` this body's gravitational parameter.
 
-Depending on the body undergoing the acceleration :math:`A`, the body exerting the acceleration :math:`B`, and the central body of propagation :math:`C`, choosing this option may create a direct point-mass attraction (:math:`\mu=\mu_{B}`), a central point-mass attraction (:math:`\mu=\mu_{B}+\mu_{A}`) or a third-body point-mass attraction (see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/third_body_acceleration.html>`_ for more details).
+ Depending on the body undergoing the acceleration :math:`A`, the body exerting the acceleration :math:`B`, and the central body of propagation :math:`C`, choosing this option may create a direct point-mass attraction (:math:`\mu=\mu_{B}`), a central point-mass attraction (:math:`\mu=\mu_{B}+\mu_{A}`) or a third-body point-mass attraction (see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/third_body_acceleration.html>`_ for more details).
 
  The body exerting the acceleration needs to have a gravity field model (:ref:`gravity_field` module) defined to use this acceleration.
 
@@ -863,20 +863,17 @@ de_sitter_central_body : str, default=""
     Body used as 'third body' in the calculation of the de Sitter acceleration. For the case of (for instance) an Earth-orbiting satellite, this would be the Sun (and only the Sun)
 lense_thirring_angular_momentum : numpy.ndarray, default=numpy.array([0, 0, 0])
     Angular momentum vector per unit mass (in global frame) that is to be used for the calculation of the Lense-Thirring acceleration
+
 Returns
 -------
 RelativisticAccelerationCorrectionSettings
     Relativistic acceleration correction settings object.
 
+Examples
+--------
+In this example, we define the relativistic correction acceleration for a Mars orbiter:
 
-
-
-
- Examples
- --------
- In this example, we define the relativistic correction acceleration for a Mars orbiter:
-
- .. code-block:: python
+.. code-block:: python
 
     # Select terms to be used
     use_schwarzschild = True
