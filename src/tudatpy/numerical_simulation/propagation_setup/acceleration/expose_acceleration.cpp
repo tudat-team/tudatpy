@@ -1177,29 +1177,56 @@ through the spherical harmonic gravity:
  The acceleration model is purpose-built to represent short bursts of thrust, such as a momentum wheel desaturation.
  A typical use case is precise orbit determination, but the functionality can be used just as well in propagation
  (for instance to model an impulsive manuever in a continuous manner when going from preliminary modelling to
- full modelling). The thrust is modelled similarly to Fig. 3 of Alessi et al. (2012), with the main difference
+ full modelling).
+
+ The thrust is modelled similarly to Fig. 3 of :cite:p:`alessi2012`, with the main difference
  being that a third-order polynomial to go from zero acceleration to the maximum acceleration level is employed.
  By using a 3rd-order polynomial and imposing continuity in the value and first derivative of the acceleration,
  defining the rise time (time it takes acceleration to go from 0 to its maximum level), the total time where
- there is non-zero thrust (total maneuver time), and the total Delta V exerted by a single maneuver,
+ there is non-zero thrust (total maneuver time), and the total :math:`\Delta V` exerted by a single maneuver,
  the acceleration profile is fully defined.
 
+ Specifically, for each thrust arc :math:`i` centered at :math:`t_{i}`, with :math:`\Delta \mathbf{V}_{i}`, maneuver duration
+ :math:`t_{M}` and maneuver rise time :math:`t_{R}` a maximum acceleration :math:`\mathbf{a}_{i}` is
+ computed from
+
+ .. math::
+    \mathbf{a}_{i}=\Delta \mathbf{V}_{i}/(t_{M}+t_{R})
+
+ such that the integrated thrust over the maneuver duration equals :math:`\Delta \mathbf{V}_{i}`.
+ The acceleration is only non-zero at a time :math:`t` if there exists an :math:`i`, such
+
+ .. math::
+    t_{i}-t_{M}/2-t_{R}\le t \le t_{i}+t_{M}/2+t_{R}
+
+ if we have furthermore :math:`t_{i}-t_{M}/2\le t \le t_{i}-t_{M}/2`, we have
+
+ .. math::
+    \mathbf{a}=\mathbf{a}_{i}
+
+ for this acceleration (thrust is at its maximum for the shot)
+ Otherwise, if the epoch is during the rise time (either at the beginning or end of the thrust interval), we have
+
+ .. math::
+    \mathbf{a}=T^{2}(3-2T)\mathbf{a}_{i}
+
+ with :math:`T=\Delta t/t_{R}` (for which by definition :math:`0\le T\le 1), with :math:`\Delta t` the positive time interval length from the maneuver start
+ :math:`t_{i}-t_{M}/2-t_{R}` (or end :math:`t_{i}+t_{M}/2+t_{R}`)
 
  Parameters
  ----------
  thrust_mid_times : list[float]
-     Set of middle point in times in the maneuver denoting the epoch of each maneuver.
+     Set of middle point in times :math:`t_{i}` in the maneuver denoting the epoch of each maneuver.
  delta_v_values : list[numpy.ndarray]
-     Set of delta V, one for each maneuver.
+     Set of delta V values :math:`\Delta \mathbf{V}_{i}`, one for each maneuver.
  total_maneuver_time : float
-     Total duration of every maneuver.
+     Total duration of every maneuver :math:`t_{M}`.
  maneuver_rise_time : float
-     Time taken by the acceleration to go from zero to its maximum level.
+     Time  :math:`t_{R}` taken by the acceleration to go from zero to its maximum level.
  Returns
  -------
  MomentumWheelDesaturationAccelerationSettings
      Momentum wheel desaturation acceleration settings object.
-
 
 
 
