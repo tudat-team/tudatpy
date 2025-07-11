@@ -352,7 +352,7 @@ Parameters
 tide_raising_body : str
     Name of body raising the tide.
 love_number_per_degree_and_order : dict( int, list( float ) )
-    Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the list of Love numbers :math:`k_{lm}` at this degree. Note that, for Love numbers at degree :math:`l`, the associated list should contain :math:`l+1` entries, representing the Love numbers (in order) :math:`k_{l0}`, :math:`k_{l1}`... :math:`k_{ll}`.
+    Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the list of Love numbers :math:`k_{lm}` at this degree. Note that, for Love numbers at degree :math:`l`, the associated list can contain up to :math:`l+1` entries, representing the Love numbers (in order) :math:`k_{l0}`, :math:`k_{l1}`... :math:`k_{ll}`.
 
 Returns
 -------
@@ -398,7 +398,7 @@ Parameters
 tide_raising_bodies : list[str]
     Names of bodies raising the tide.
 love_number_per_degree_and_order : dict( int, list( float ) )
-    Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the list of Love numbers :math:`k_{lm}` at this degree. Note that, for Love numbers at degree :math:`l`, the associated list should contain :math:`l+1` entries, representing the Love numbers (in order) :math:`k_{l0}`, :math:`k_{l1}`... :math:`k_{ll}`.
+    Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the list of Love numbers :math:`k_{lm}` at this degree. Note that, for Love numbers at degree :math:`l`, the associated list can contain up to :math:`l+1` entries, representing the Love numbers (in order) :math:`k_{l0}`, :math:`k_{l1}`... :math:`k_{ll}`.
 
 Returns
 -------
@@ -428,7 +428,7 @@ Parameters
 tide_raising_body : str
     Name of body raising the tide.
 love_number_per_degree : dict( int, list( complex ) )
-    Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the list of Love numbers :math:`k_{lm}` at this degree. Note that, for Love numbers at degree :math:`l`, the associated list should contain :math:`l+1` entries, representing the Love numbers (in order) :math:`k_{l0}`, :math:`k_{l1}`...:math:`k_{ll}`.
+    Dictionary of Love numbers for each degree that is to be taken into account, with the key representing the degree :math:`l` of the Love number, and value containing the list of Love numbers :math:`k_{lm}` at this degree. Note that, for Love numbers at degree :math:`l`, the associated list can contain up to :math:`l+1` entries, representing the Love numbers (in order) :math:`k_{l0}`, :math:`k_{l1}`...:math:`k_{ll}`.
 
 Returns
 -------
@@ -521,11 +521,11 @@ cosine_coefficient_amplitudes_sine_time : list[np.array]
 sine_coefficient_amplitudes_cosine_time : list[np.array]
     List of coefficient amplitude blocks :math:`A_{i,\bar{S}_{lm}}`, with each entry in the list corresponding to the frequency provided by the same entry in ``angular_frequencies``.
     The first entry in each matrix block provides the coefficient variation amplitude at degree equal to ``minimum_degree`` and order equal to ``minimum_order``.
-    Note that if ``minimum_order`` is equal to 0, the first column of values in each matrix will be unused (since there is not :math:`S_{l0} coefficient).
+    Note that if ``minimum_order`` is equal to 0, the first column of values in each matrix will be unused (since there is no :math:`S_{l0}` coefficient).
 sine_coefficient_amplitudes_sine_time : list[np.array]
     List of coefficient amplitude blocks :math:`B_{i,\bar{S}_{lm}}`, with each entry in the list corresponding to the frequency provided by the same entry in ``angular_frequencies``.
     The first entry in each matrix block provides the coefficient variation amplitude at degree equal to ``minimum_degree`` and order equal to ``minimum_order``.
-    Note that if ``minimum_order`` is equal to 0, the first column of values in each matrix will be unused (since there is not :math:`S_{l0} coefficient).
+    Note that if ``minimum_order`` is equal to 0, the first column of values in each matrix will be unused (since there is no :math:`S_{l0}` coefficient).
 angular_frequencies : list[float]
     List of angular frequencies (in rad/s) at which variations are to be added
 reference_epoch: float
@@ -568,10 +568,10 @@ cosine_coefficient_amplitude_sine_time : np.array
     Coefficient amplitude block :math:`B_{i,\bar{C}_{lm}}`. The first entry in each matrix block provides the coefficient variation amplitude at degree equal to ``minimum_degree`` and order equal to ``minimum_order``.
 sine_coefficient_amplitude_cosine_time : np.array
     Coefficient amplitude block :math:`A_{i,\bar{S}_{lm}}`. The first entry in each matrix block provides the coefficient variation amplitude at degree equal to ``minimum_degree`` and order equal to ``minimum_order``.
-    Note that if ``minimum_order`` is equal to 0, the first column of values in each matrix will be unused (since there is not :math:`S_{l0} coefficient).
+    Note that if ``minimum_order`` is equal to 0, the first column of values in each matrix will be unused (since there is no :math:`S_{l0}` coefficient).
 sine_coefficient_amplitude_sine_time : np.array
     Coefficient amplitude block :math:`B_{i,\bar{S}_{lm}}`. The first entry in each matrix block provides the coefficient variation amplitude at degree equal to ``minimum_degree`` and order equal to ``minimum_order``.
-    Note that if ``minimum_order`` is equal to 0, the first column of values in each matrix will be unused (since there is not :math:`S_{l0} coefficient).
+    Note that if ``minimum_order`` is equal to 0, the first column of values in each matrix will be unused (since there is no :math:`S_{l0}` coefficient).
 angular_frequency : list[float]
     Angular frequencies (in rad/s) at which variations are to be added
 reference_epoch: float
@@ -625,7 +625,7 @@ cosine_amplitudes_per_power : dict[int, np.array]
 sine_amplitudes_per_power : list[np.array]
     Dictionary of sine coefficient amplitude blocks, with each key in the list corresponding to the polynomial power :math:`p_{i}`, and
     the dictionary value the corresponding :math:`K_{i,\bar{S}_{lm}}`. The first entry in each matrix block provides the coefficient variation amplitude at degree equal to ``minimum_degree`` and order equal to ``minimum_order``.
-    Note that if ``minimum_order`` is equal to 0, the first column of values in each matrix will be unused (since there is not :math:`S_{l0} coefficient).
+    Note that if ``minimum_order`` is equal to 0, the first column of values in each matrix will be unused (since there is no :math:`S_{l0}` coefficient).
 reference_epoch: float
     Reference epoch :math:`t_{0}` for the variations
 minimum_degree: int
@@ -662,7 +662,7 @@ cosine_amplitudes_per_power : np.array
     Cosine coefficient amplitude block :math:`K_{\bar{C}_{lm}}`. The first entry in each matrix block provides the coefficient variation amplitude at degree equal to ``minimum_degree`` and order equal to ``minimum_order``.
 sine_amplitudes_per_power : list[np.array]
     Sine coefficient amplitude block :math:`K_{\bar{S}_{lm}}`. The first entry in each matrix block provides the coefficient variation amplitude at degree equal to ``minimum_degree`` and order equal to ``minimum_order``.
-    Note that if ``minimum_order`` is equal to 0, the first column of values in each matrix will be unused (since there is not :math:`S_{l0} coefficient).
+    Note that if ``minimum_order`` is equal to 0, the first column of values in each matrix will be unused (since there is no :math:`S_{l0}` coefficient).
 polynomial_power: float
     Polynomial power :math:`p` used in the computation
 reference_epoch: float
@@ -715,7 +715,7 @@ sine_amplitudes_per_power : dict[float, np.array]
     Dictionary of sine coefficient variations, with each key in list corresponding to epoch :math:`t_{i}` and the value to the corresponding variation
     :math:`\Delta \bar{C}_{lm}(t_{i})`. The first entry in each matrix block provides the coefficient variation at degree equal to ``minimum_degree`` and order equal to
     ``minimum_order``.
-    Note that if ``minimum_order`` is equal to 0, the first column of values in each matrix will be unused (since there is not :math:`S_{l0} coefficient).
+    Note that if ``minimum_order`` is equal to 0, the first column of values in each matrix will be unused (since there is no :math:`S_{l0}` coefficient).
 minimum_degree: int
     Minimum degree :math:`l_{\text{min}}` of gravity field variations
 minimum_order: int
