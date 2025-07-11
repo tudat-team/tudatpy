@@ -2268,38 +2268,6 @@ Examples
           py::arg( "time" ),
           py::arg( "sub_ionospheric_point" ));
 
-    py::class_< tom::ObservationBiasSettings, std::shared_ptr< tom::ObservationBiasSettings > >(
-            m, "ObservationBiasSettings", R"doc(
-
-         Base class to defining observation bias settings.
-
-         Base class to defining observation bias settings.
-         Specific observation bias settings must be defined using an object derived from this class.
-         Instances of this class are typically created via the
-         :func:`~tudatpy.numerical_simulation.estimation_setup.observation.absolute_bias` or :func:`~tudatpy.numerical_simulation.estimation_setup.observation.relative_bias` function.
-
-
-         Examples
-         --------
-         .. code-block:: python
-        
-             # Code snippet to show the creation of an ObservationBiasSettings object
-             # using absolute and relative bias settings
-             from tudatpy.numerical_simulation.estimation_setup import observation
-             import numpy as np
-
-             bias_array = np.array([1e-2])
-
-             # Use absolute_bias function
-             absolute_bias_settings = observation.absolute_bias(bias_array)
-             # Show that it is an ObservationBiasSettings object.
-             print(absolute_bias_settings)
-
-             # Use relative_bias function
-             relative_bias_settings = observation.relative_bias(bias_array)
-             # Show that it is an ObservationBiasSettings object.
-             print(relative_bias_settings)
-      )doc" );
 
     m.def( "clock_induced_bias",
            &tom::clockInducedBias,

@@ -888,12 +888,6 @@ void expose_estimated_parameter_setup( py::module& m )
  :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
      :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` object for the specified body's constant spin rate.
 
-
-
-
-
-
-
      )doc" );
 
     m.def( "rotation_pole_position",
@@ -1324,15 +1318,6 @@ void expose_estimated_parameter_setup( py::module& m )
            R"doc(No documentation found.)doc" );
 
     m.def( "order_invariant_k_love_number",
-           py::overload_cast< const std::string&, const int, const std::string, const bool >(
-                   &tep::orderInvariantKLoveNumber ),
-           py::arg( "deformed_body" ),
-           py::arg( "degree" ),
-           py::arg( "deforming_body" ),
-           py::arg( "use_complex_love_number" ) = 0,
-           R"doc(No documentation found.)doc" );
-
-    m.def( "order_invariant_k_love_number",
            py::overload_cast< const std::string&,
                               const int,
                               const std::vector< std::string >&,
@@ -1341,28 +1326,39 @@ void expose_estimated_parameter_setup( py::module& m )
            py::arg( "degree" ),
            py::arg( "deforming_bodies" ),
            py::arg( "use_complex_love_number" ) = 0,
-           R"doc(No documentation found.)doc" );
+           R"doc(
 
-    m.def( "order_invariant_k_love_number",
-           py::overload_cast< const std::string&, const int, const bool >(
-                   &tep::orderInvariantKLoveNumber ),
-           py::arg( "deformed_body" ),
-           py::arg( "degree" ),
-           py::arg( "use_complex_love_number" ) = 0,
-           R"doc(No documentation found.)doc" );
+Function for defining parameter settings for a body's :math:`k_{l}` Love number.
 
-    m.def( "order_varying_k_love_number",
-           py::overload_cast< const std::string&,
-                              const int,
-                              const std::vector< int >&,
-                              const std::string,
-                              const bool >( &tep::orderVaryingKLoveNumber ),
-           py::arg( "deformed_body" ),
-           py::arg( "degree" ),
-           py::arg( "orders" ),
-           py::arg( "deforming_body" ),
-           py::arg( "use_complex_love_number" ) = 0,
-           R"doc(No documentation found.)doc" );
+Function for defining parameter settings for a body's :math:`k_{l}` Love number. When using this function,
+we assume (for the case of degree 2 Love number) that :math:`k_{20}=k_{21}=k_{22}`. The estimation of
+the Love number can be limited to a subset of the bodies that raise a tide on the body undergoing tidal deformation.
+
+Using the :math:`k_{l}` Love number as estimatable parameter requires:
+
+* A :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide` gravity field variation model in the ``deformed_body`` (or one the more complex ones such as :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_k`). The parameter settings have to match the specifics of the variation model. For instance, if ``use_complex_love_number`` is set to true, the gravity field variation has to have been created using a complex Love number
+* Any dynamical model to depend on the gravity field of the body specified by the ``deformed_body`` parameter
+
+
+Parameters
+----------
+deformed_body : str
+    Name of the body that is undergoing tidal deformation
+degree : int
+    Degree :math:`l` of the Love number :math:`k_{l}` that is to be estimated
+deforming_bodies : list[str]
+    List of bodies that raise a tide on ``deformed_body`` for which the single Love number defined by this setting is to be used. If the list is left empty, all tide-raising bodies will be used. By using this parameter, the value of :math:`k_{l}` will be indentical for the tides raised by each body in this list once parameter values are reset, even if they were different upon environment initialization
+use_complex_love_number: bool
+    Boolean defining whether the estimated Love number is real or imaginary
+
+Returns
+-------
+:class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
+    Object for the specified body's Love number :math:`k_{l}` for the tides raised by the specified bodies
+
+
+    )doc" );
+
 
     m.def( "order_varying_k_love_number",
            py::overload_cast< const std::string&,
@@ -1374,40 +1370,150 @@ void expose_estimated_parameter_setup( py::module& m )
            py::arg( "degree" ),
            py::arg( "orders" ),
            py::arg( "deforming_bodies" ),
-           py::arg( "use_complex_love_number" ) = 0,
-           R"doc(No documentation found.)doc" );
+           py::arg( "use_complex_love_number" ),
+           R"doc(
 
-    m.def( "order_varying_k_love_number",
-           py::overload_cast< const std::string&,
-                              const int,
-                              const std::vector< int >&,
-                              const bool >( &tep::orderVaryingKLoveNumber ),
-           py::arg( "deformed_body" ),
-           py::arg( "degree" ),
-           py::arg( "orders" ),
-           py::arg( "use_complex_love_number" ) = 0,
-           R"doc(No documentation found.)doc" );
+Function for defining parameter settings for a body's :math:`k_{lm}` Love numbers.
+
+Function for defining parameter settings for a body's :math:`k_{lm}` Love numbers. When using this function,
+we assume (for the case of degree 2 Love number) that :math:`k_{20}\neq k_{21}\neq k_{22}`. The estimation of
+the Love numbers can be limited to a subset of the bodies that raise a tide on the body undergoing tidal deformation.
+
+Using the :math:`k_{lm}` Love number as estimatable parameter requires:
+
+* A :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_k` gravity field variation model in the ``deformed_body`` (or :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_complex_k` if ``use_complex_love_number`` is set to true)
+* Any dynamical model to depend on the gravity field of the body specified by the ``deformed_body`` parameter
+
+
+Parameters
+----------
+deformed_body : str
+    Name of the body that is undergoing tidal deformation
+degree : int
+    Degree :math:`l` of the Love numbers :math:`k_{lm}` that are to be estimated
+degree : list[int]
+    Orders :math:`m` of the Love numbers :math:`k_{lm}` that are to be estimated
+deforming_bodies : list[str]
+    List of bodies that raise a tide on ``deformed_body`` for which the Love numbers defined by this setting is to be used. If the list is left empty, all tide-raising bodies will be used. By using this parameter, the values of :math:`k_{lm}` will be indentical for the tides raised by each body in this list once parameter values are reset, even if they were different upon environment initialization
+use_complex_love_number: bool
+    Boolean defining whether the estimated Love number is real or imaginary
+
+Returns
+-------
+:class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
+    Object for the specified body's Love numbers :math:`k_{lm}` for the tides raised by the specified bodies
+
+
+    )doc" );
+
 
     m.def( "mode_coupled_k_love_numbers",
            &tep::modeCoupledTidalLoveNumberEstimatableParameterSettings,
            py::arg( "deformed_body" ),
            py::arg( "love_number_indices" ),
            py::arg( "deforming_bodies" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+Function for defining parameter settings for a body's mode-coupled :math:`k_{lm}^{l'm'}` Love numbers.
+
+Function for defining parameter settings for a body's :math:`k_{lm}^{l'm'}` Love numbers (see :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.mode_coupled_solid_body_tide model` details). The estimation of
+the Love numbers can be limited to a subset of the bodies that raise a (mode-coupled) tide on the body undergoing tidal deformation.
+
+Using the :math:`k_{lm}` Love number as estimatable parameter requires:
+
+* A :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.mode_coupled_solid_body_tide` gravity field variation model in the ``deformed_body``.
+* Any dynamical model to depend on the gravity field of the body specified by the ``deformed_body`` parameter
+
+
+Parameters
+----------
+deformed_body : str
+    Name of the body that is undergoing tidal deformation
+love_number_per_degree : dict[tuple[int, int], list[int,int]]]
+    Dictionary of Love number indices for each combination for forcing and response degree and order.
+    The first tuple (key) is the forcing degree and order :math:`l,m`, the list of tuples (key) is the list of associated response degrees and orders :math:`l',m'`
+    for which the Love numbers are to be estimated (see :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.mode_coupled_solid_body_tide` for mathematical definition))
+deforming_bodies : list[str]
+    List of bodies that raise a tide on ``deformed_body`` for which the Love numbers defined by this setting is to be used. If the list is left empty, all tide-raising bodies will be used. By using this parameter, the values of :math:`k_{lm}` will be indentical for the tides raised by each body in this list once parameter values are reset, even if they were different upon environment initialization
+
+Returns
+-------
+:class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
+    Object for the specified body's mode-coupled Love numbers :math:`k_{lm}^{l'm'}` for the tides raised by the specified bodies
+
+    )doc" );
 
     m.def( "polynomial_gravity_field_variation_amplitudes",
            &tep::polynomialGravityFieldVariationParameter,
            py::arg( "body_name" ),
            py::arg( "cosine_indices_per_power" ),
            py::arg( "sine_indices_per_power" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+Function for defining parameter settings for a body's polynomial gravity field amplitudes.
+
+Function for defining parameter settings for a body's polynomial gravity field amplitudes :math:`K_{i,\bar{C}_{lm}}` and :math:`K_{i,\bar{S}_{lm}}`,
+as defined in :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.polynomial`.
+
+Using this settings as estimatable parameter requires:
+
+* A :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.polynomial` (or :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.single_power_polynomial`) gravity field variation model in the ``body_name``.
+* Any dynamical model to depend on the gravity field of the body specified by the ``deformed_body`` parameter
+
+When using this parameter, a subset of all the variation amplitudes defined in the gravity field variation model can be estimated. These are defined in the ``cosine_indices_per_power`` and ``sine_indices_per_power`` inputs
+
+Parameters
+----------
+body_name : str
+    Name of the body that is undergoing gravity field variation
+cosine_indices_per_power : dict[int, list[int,int]]
+    Dictionary of powers :math:`i` (as keys) with list of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`K_{i,\bar{C}_{lm}}` as values (see :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
+sine_indices_per_power : dict[int, list[int,int]]
+    Dictionary of powers :math:`i` (as keys) with list of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`K_{i,\bar{S}_{lm}}` as values (see :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
+
+Returns
+-------                                                                       -------
+:class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
+    Object for the specified body's polynomial gravity field variations
+
+    )doc" );
 
     m.def( "periodic_gravity_field_variation_amplitudes",
            &tep::periodicGravityFieldVariationParameter,
            py::arg( "body_name" ),
-           py::arg( "cosine_indices_per_power" ),
-           py::arg( "sine_indices_per_power" ),
-           R"doc(No documentation found.)doc" );
+           py::arg( "cosine_indices_per_period" ),
+           py::arg( "sine_indices_per_period" ),
+           R"doc(
+
+Function for defining parameter settings for a body's polynomial gravity field variation amplitudes
+
+Function for defining parameter settings for a body's polynomial gravity field variation amplitudes
+:math:`A_{i,\bar{C}_{lm}}`, :math:`B_{i,\bar{C}_{lm}}`, :math:`A_{i,\bar{S}_{lm}}` and :math:`B_{i,\bar{S}_{lm}}`
+as defined in :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.single_period_periodic`.
+
+Using this settings as estimatable parameter requires:
+
+* A :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.periodic` (or :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.single_period_periodic`) gravity field variation model in the ``body_name``.
+* Any dynamical model to depend on the gravity field of the body specified by the ``deformed_body`` parameter
+
+When using this parameter, a subset of all the variation amplitudes defined in the gravity field variation model can be estimated.
+These are defined in the ``cosine_indices_per_period`` and ``sine_indices_per_period`` inputs
+
+Parameters
+----------
+body_name : str
+    Name of the body that is undergoing gravity field variation
+cosine_indices_per_period : dict[int, list[int,int]]
+    Dictionary of frequency index :math:`i` (as keys; corresponding to frequency :math:`f_{i}`) with list of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`A_{i,\bar{C}_{lm}}` and :math:`B_{i,\bar{C}_{lm}}` as values (see :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.periodic` for mathematical definition)
+sine_indices_per_period : dict[int, list[int,int]]
+    Dictionary of frequency index :math:`i` (as keys; corresponding to frequency :math:`f_{i}`) with list of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`A_{i,\bar{S}_{lm}}` and :math:`B_{i,\bar{S}_{lm}}` as values (see :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.periodic` for mathematical definition)
+
+Returns
+-------
+:class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
+    Object for the specified body's periodic gravity field variations
+
+    )doc" );
 
     m.def( "monomial_gravity_field_variation_amplitudes",
            &tep::polynomialSinglePowerGravityFieldVariationParameter,
@@ -1415,10 +1521,30 @@ void expose_estimated_parameter_setup( py::module& m )
            py::arg( "power" ),
            py::arg( "cosine_indices" ),
            py::arg( "sine_indices" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+Function for defining parameter settings for a body's polynomial gravity field amplitudes at a single power.
 
-    m.def( "monomial_full_block_gravity_field_variation_"
-           "amplitudes",
+Identical to :func:`~polynomial`, but for only a single power.
+
+Parameters
+----------
+body_name : str
+    Name of the body that is undergoing gravity field variation
+power: int
+    Power :math:`i` for which to estimate polynomial gravity field variations
+cosine_indices: list[int,int]
+    List of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`K_{i,\bar{C}_{lm}}` (see :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
+sine_indices: list[int,int]
+    List of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`K_{i,\bar{S}_{lm}}` (see :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
+
+Returns
+-------
+:class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
+    Object for the specified body's polynomial gravity field variations
+
+    )doc" );
+
+    m.def( "monomial_full_block_gravity_field_variation_amplitudes",
            &tep::polynomialSinglePowerFullBlockGravityFieldVariationParameter,
            py::arg( "body_name" ),
            py::arg( "power" ),
@@ -1426,7 +1552,34 @@ void expose_estimated_parameter_setup( py::module& m )
            py::arg( "minimum_order" ),
            py::arg( "maximum_degree" ),
            py::arg( "maximum_order" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+Function for defining parameter settings for a body's polynomial gravity field amplitudes at a single power.
+
+Identical to :func:`~polynomial`, but for only a single power, and a full block of spherical harminic coefficient degrees :math:`l` and orders :math`m`
+For each degree :math:`l_{\text{min}}\le l \le l_{\text{max}}`, variations are estimated for all orders :math:`m_{\text{min}}\le m \le \left( \text{min}(m_{\text{max}},l) \right)`
+
+Parameters
+----------
+body_name : str
+    Name of the body that is undergoing gravity field variation
+power: int
+    Power :math:`i` for which to estimate polynomial gravity field variations
+minimum_degree: int
+    Minimum degree :math:`l_{\text{min}}` for which :math:`K_{i,\bar{C}_{lm}}` and :math:`K_{i,\bar{S}_{lm}}` are to be estimated (see :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
+minimum_order: int
+    Minimum order :math:`m_{\text{min}}` for which :math:`K_{i,\bar{C}_{lm}}` and :math:`K_{i,\bar{S}_{lm}}` are to be estimated (see :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
+maximum_degree: int
+    Maximum degree :math:`l_{\text{max}}` for which :math:`K_{i,\bar{C}_{lm}}` and :math:`K_{i,\bar{S}_{lm}}` are to be estimated (see :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
+maximum_order: int
+    Maximum degree :math:`m_{\text{max}}` for which :math:`K_{i,\bar{C}_{lm}}` and :math:`K_{i,\bar{S}_{lm}}` are to be estimated (see :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
+
+Returns
+-------
+:class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
+    Object for the specified body's polynomial gravity field variations
+
+    )doc" );
 
     m.def( "scaled_longitude_libration_amplitude",
            &tep::scaledLongitudeLibrationAmplitude,
