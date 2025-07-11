@@ -549,6 +549,9 @@ AccelerationSettings
 
      )doc" );
 
+    m.def("cannonball_radiation_pressure",
+          &tss::cannonBallRadiationPressureAcceleration );
+
     m.def( "spherical_harmonic_gravity",
            &tss::sphericalHarmonicAcceleration,
            py::arg( "maximum_degree" ),
