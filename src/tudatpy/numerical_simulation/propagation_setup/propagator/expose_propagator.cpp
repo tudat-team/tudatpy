@@ -712,7 +712,32 @@ Enumeration of available integrated state types.
 
             :type: MultiArcPropagatorProcessingSettings
 
+)doc" )
+        .def_property_readonly( "initial_state_list",
+                                &tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getInitialStateList,
+                                R"doc(
+            **read-only**
+
+            List of initial states per arc (e.g. entry j of this list is the initial state for arc j).
+
+            :type: list[np.array]
+
+)doc" )
+
+        .def_property_readonly( "single_arc_settings",
+                                &tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getInitialStateList,
+                                R"doc(
+            **read-only**
+
+            List of single arc settings (e.g. entry j of this list is the single-arc propagator setting for arc j).
+
+            :type: list[SingleArcPropagatorSettings]
+
 )doc" );
+
+
+
+
 
     py::class_< tp::HybridArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::HybridArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
