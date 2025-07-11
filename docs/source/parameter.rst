@@ -60,6 +60,20 @@ Functions
 
    rotation_pole_position
 
+   order_invariant_k_love_number
+
+   order_varying_k_love_number
+
+   mode_coupled_k_love_numbers
+
+   polynomial_gravity_field_variation_amplitudes
+
+   periodic_gravity_field_variation_amplitudes
+
+   monomial_gravity_field_variation_amplitudes
+
+   monomial_full_block_gravity_field_variation_amplitudes
+
    mean_moment_of_inertia
 
    periodic_spin_variations
@@ -119,6 +133,20 @@ Functions
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.parameter.constant_rotation_rate
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.parameter.rotation_pole_position
+
+.. autofunction:: tudatpy.numerical_simulation.estimation_setup.parameter.order_invariant_k_love_number
+
+.. autofunction:: tudatpy.numerical_simulation.estimation_setup.parameter.order_varying_k_love_number
+
+.. autofunction:: tudatpy.numerical_simulation.estimation_setup.parameter.mode_coupled_k_love_numbers
+
+.. autofunction:: tudatpy.numerical_simulation.estimation_setup.parameter.polynomial_gravity_field_variation_amplitudes
+
+.. autofunction:: tudatpy.numerical_simulation.estimation_setup.parameter.periodic_gravity_field_variation_amplitudes
+
+.. autofunction:: tudatpy.numerical_simulation.estimation_setup.parameter.monomial_gravity_field_variation_amplitudes
+
+.. autofunction:: tudatpy.numerical_simulation.estimation_setup.parameter.monomial_full_block_gravity_field_variation_amplitudes
 
 .. autofunction:: tudatpy.numerical_simulation.estimation_setup.parameter.mean_moment_of_inertia
 
