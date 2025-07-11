@@ -247,10 +247,10 @@ Examples
             .value( "two_way_instantaneous_doppler_type", tom::ObservableType::two_way_doppler )
             .value( "n_way_averaged_doppler_type", tom::ObservableType::n_way_differenced_range )
             .value( "euler_angle_313_observable_type", tom::ObservableType::euler_angle_313_observable )
-            .value( "dsn_one_way_averaged_doppler", tom::ObservableType::dsn_one_way_averaged_doppler )
-            .value( "dsn_n_way_averaged_doppler", tom::ObservableType::dsn_n_way_averaged_doppler )
+            .value( "dsn_one_way_averaged_doppler_type", tom::ObservableType::dsn_one_way_averaged_doppler )
+            .value( "dsn_n_way_averaged_doppler_type", tom::ObservableType::dsn_n_way_averaged_doppler )
             .value( "doppler_measured_frequency_type", tom::ObservableType::doppler_measured_frequency )
-            .value( "dsn_n_way_range", tom::ObservableType::dsn_n_way_range )
+            .value( "dsn_n_way_range_type", tom::ObservableType::dsn_n_way_range )
             .export_values( );
 
     m.def( "one_way_downlink_link_ends",
@@ -1973,7 +1973,7 @@ Examples
            py::arg( "subtract_doppler_signature" ) = true,
            R"doc(No documentation found.)doc" );
 
-    m.def( "dsn_n_way_Range",
+    m.def( "dsn_n_way_nange",
            py::overload_cast< const tom::LinkDefinition&,
                               const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >,
                               const std::shared_ptr< tom::ObservationBiasSettings >,
