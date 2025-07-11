@@ -128,6 +128,17 @@ namespace environment
 
 void expose_environment( py::module &m )
 {
+    py::class_< tudat::environment::IonosphereModel, std::shared_ptr< tudat::environment::IonosphereModel > >(
+    m, "IonosphereModel",
+    R"doc(
+Base class for ionospheric models.
+
+Provides the vertical total electron content (VTEC) in TECU (1 TECU = 1e16 e-/m²) based on geodetic position (latitude, longitude) and time.
+
+This is the base class from which models like TabulatedIonosphereModel or GlobalIonosphereModelVtecCalculator retrieve electron content data. The model is typically stored
+inside a `Body` instance and used in observation corrections or environmental queries.
+)doc" );
+
 
 
     py::class_< ta::AtmosphereModel, std::shared_ptr< ta::AtmosphereModel > >( m,
@@ -2359,6 +2370,7 @@ void expose_environment( py::module &m )
 
          :type: numpy.ndarray
       )doc" )
+            .def( "get_ionosphere_model", &tudat::simulation_setup::Body::getIonosphereModel )
             .def_property_readonly( "position",
                                     &tss::Body::getPosition,
                                     R"doc(

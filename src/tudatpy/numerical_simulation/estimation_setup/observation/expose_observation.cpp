@@ -2216,6 +2216,22 @@ Examples
            py::arg( "use_utc_for_local_time_computation" ) = false,
            py::arg( "body_with_atmosphere_name" ) = "Earth",
            R"doc(No documentation found.)doc" );
+    
+    // IONEX-based VTEC correction
+    m.def( "ionex_ionospheric_light_time_correction",
+        &tom::ionexIonosphericCorrectionSettings,
+        py::arg( "body_with_ionosphere_name" ),
+        py::arg( "ionosphere_height" ),
+        py::arg( "first_order_delay_coefficient" ) = 40.3,
+        R"doc(Create IONEX-based ionospheric light time correction settings.)doc" );
+
+    // VMF3 Tropospheric correction
+    m.def( "vmf3_tropospheric_light_time_correction",
+        &tom::vmf3TroposphericCorrectionSettings,
+        py::arg( "body_with_atmosphere_name" ) = "Earth",
+        py::arg( "use_gradient_correction" ) = true,
+        py::arg( "tropospheric_mapping_model" ) = tom::vmf3,
+        R"doc(Create VMF3 tropospheric light time correction settings.)doc" );
 
     m.def( "inverse_power_series_solar_corona_light_time_correction",
            &tom::inversePowerSeriesSolarCoronaCorrectionSettings,
@@ -2224,6 +2240,66 @@ Examples
            py::arg( "delay_coefficient" ) = 40.3,
            py::arg( "sun_body_name" ) = "Sun",
            R"doc(No documentation found.)doc" );
+
+    py::class_<tom::VtecCalculator, std::shared_ptr<tom::VtecCalculator>>(m, "VtecCalculator");
+
+    py::class_<tom::JakowskiVtecCalculator, std::shared_ptr<tom::JakowskiVtecCalculator>, tom::VtecCalculator>(
+        m, "JakowskiVtecCalculator")
+        .def(py::init<
+            std::function<double(double)>,
+            std::function<double(double)>,
+            bool>(),
+            py::arg("sun_declination_function"),
+            py::arg("f10p7_function"),
+            py::arg("use_utc_time_for_local_time") = false)
+        .def( "calculate_vtec",
+            &tudat::observation_models::JakowskiVtecCalculator::calculateVtec,
+            py::arg( "time" ),
+            py::arg( "sub_ionospheric_point" ));
+
+    py::class_<tom::GlobalIonosphereModelVtecCalculator,
+            std::shared_ptr<tom::GlobalIonosphereModelVtecCalculator>,
+            tom::VtecCalculator>(
+        m, "GlobalIonosphereModelVtecCalculator")
+        .def(py::init< std::shared_ptr<tudat::environment::IonosphereModel> >(),
+            py::arg("ionosphere_model"))
+        .def( "calculate_vtec",
+          &tudat::observation_models::GlobalIonosphereModelVtecCalculator::calculateVtec,
+          py::arg( "time" ),
+          py::arg( "sub_ionospheric_point" ));
+
+    py::class_< tom::ObservationBiasSettings, std::shared_ptr< tom::ObservationBiasSettings > >(
+            m, "ObservationBiasSettings", R"doc(
+
+         Base class to defining observation bias settings.
+
+         Base class to defining observation bias settings.
+         Specific observation bias settings must be defined using an object derived from this class.
+         Instances of this class are typically created via the
+         :func:`~tudatpy.numerical_simulation.estimation_setup.observation.absolute_bias` or :func:`~tudatpy.numerical_simulation.estimation_setup.observation.relative_bias` function.
+
+
+         Examples
+         --------
+         .. code-block:: python
+        
+             # Code snippet to show the creation of an ObservationBiasSettings object
+             # using absolute and relative bias settings
+             from tudatpy.numerical_simulation.estimation_setup import observation
+             import numpy as np
+
+             bias_array = np.array([1e-2])
+
+             # Use absolute_bias function
+             absolute_bias_settings = observation.absolute_bias(bias_array)
+             # Show that it is an ObservationBiasSettings object.
+             print(absolute_bias_settings)
+
+             # Use relative_bias function
+             relative_bias_settings = observation.relative_bias(bias_array)
+             # Show that it is an ObservationBiasSettings object.
+             print(relative_bias_settings)
+      )doc" );
 
     m.def( "clock_induced_bias",
            &tom::clockInducedBias,
@@ -4509,7 +4585,13 @@ Examples
            py::arg( "set_troposphere_data" ) = true,
            py::arg( "set_meteo_data" ) = true,
            py::arg( "interpolator_settings" ) = ti::cubicSplineInterpolation( ) );
+    m.def( "set_ionosphere_model_from_ionex",
+       &tom::setIonosphereModelFromIonex,
+       py::arg( "data_files" ),
+       py::arg( "bodies" ),
+       py::arg( "interpolator_settings" ) = std::shared_ptr< ti::InterpolatorSettings >( ) );
 }
+
 
 }  // namespace observation
 }  // namespace estimation_setup
