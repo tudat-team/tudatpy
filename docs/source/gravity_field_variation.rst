@@ -9,7 +9,7 @@ The main interfaces with Tudat is the :attr:`~tudatpy.numerical_simulation.envir
 list attribute of the body settings, which defines settings for time-variations of spherical harmonic coefficients of a body.
 The functions in this submodule are used to create the settings objects that go into this list.
 
-Once created, the gravity field variation settings defined through the settings in this submodule each compute a :math:`\Delta C_{j,lm}`
+Once created, the gravity field variation settings defined through the settings in this submodule each compute a :math:`\Delta \bar{C}_{j,lm}`
 and :math:`\Delta \bar{S}_{j,lm}` variation to the cosine and sine coefficients at degree :math:`l` and order :math:`m`.
 Each of the :math:`N` gravity field variation models defined for a given body is evaluated at each time step to produce:
 
