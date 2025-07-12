@@ -472,8 +472,8 @@ love_number_per_degree : dict[tuple[int, int], dict[tuple[int,int],float]]
 
 Returns
 -------
-BasicSolidBodyGravityFieldVariationSettings
-    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
+GravityFieldVariationSettings
+    Instance of a :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` derived class containing required settings
 
 
 
@@ -537,8 +537,8 @@ minimum_order: int
 
 Returns
 -------
-BasicSolidBodyGravityFieldVariationSettings
-    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.PeriodicGravityFieldVariationsSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
+GravityFieldVariationSettings
+    Instance of a :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` derived class containing required settings
 
 
 )doc" );
@@ -583,8 +583,8 @@ minimum_order: int
 
 Returns
 -------
-BasicSolidBodyGravityFieldVariationSettings
-    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.PeriodicGravityFieldVariationsSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
+GravityFieldVariationSettings
+    Instance of a :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` derived class containing required settings
 
 
 )doc" );
@@ -635,8 +635,8 @@ minimum_order: int
 
 Returns
 -------
-BasicSolidBodyGravityFieldVariationSettings
-    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.PeriodicGravityFieldVariationsSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
+GravityFieldVariationSettings
+    Instance of a :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` derived class containing required settings
 
 
 )doc" );
@@ -674,9 +674,8 @@ minimum_order: int
 
 Returns
 -------
-BasicSolidBodyGravityFieldVariationSettings
-    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.PeriodicGravityFieldVariationsSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
-
+GravityFieldVariationSettings
+    Instance of a :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` derived class containing required settings
 
 )doc" );
 
@@ -725,9 +724,8 @@ interpolation_settings: InterpolatorSettings
 
 Returns
 -------
-BasicSolidBodyGravityFieldVariationSettings
-    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.PeriodicGravityFieldVariationsSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
-
+GravityFieldVariationSettings
+    Instance of a :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` derived class containing required settings
 
 )doc" );
 }
