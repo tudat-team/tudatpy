@@ -42,9 +42,6 @@ void expose_shape_deformation_setup( py::module &m )
          Body shape deformation model settings requiring additional information must be defined using an object derived from this class.
 
 
-
-
-
       )doc" );
 
     py::class_< tss::BasicSolidBodyDeformationSettings,
@@ -171,17 +168,13 @@ void expose_shape_deformation_setup( py::module &m )
 
  Function for creating full IERS 2010 shape deformation model
 
- Function for creating full IERS 2010 shape deformation model, computing the tidal shape variation due to the full model defined in Section 7.1.1 of the IERS Conventions 2010, implementing Eqs. (7.5)-(7.13), including all terms from Tables 7.3a and 7.3b. At present, none of the input parameters of the model can be varied.
+ Function for creating full IERS 2010 shape deformation model, computing the tidal shape variation due to the full model defined in
+ Section 7.1.1 of the IERS Conventions 2010, implementing Eqs. (7.5)-(7.13), including all terms from Tables 7.3a and 7.3b. At present, none of the input parameters of the model can be varied.
 
  Returns
  -------
  BodyDeformationSettings
      Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.shape_deformation.BodyDeformationSettings` defining the IERS 2010 settings
-
-
-
-
-
 
      )doc" );
 

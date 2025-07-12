@@ -3,18 +3,18 @@
 ``radiation_pressure``
 ======================
 This module contains a set of factory functions for setting up the
-radiation pressure models of celestial bodies in an environment, including relevant models
+radiation pressure models of bodies in an environment, including relevant models
 solar luminosity, solar system body albedo and emissivity, spacecraft surface reaction to radiation pressure.
 
+The main interfaces with Tudat are the :attr:`~tudatpy.numerical_simulation.environment_setup.BodySettings.radiation_source_settings` and
+:attr:`~tudatpy.numerical_simulation.environment_setup.BodySettings.radiation_pressure_target_settings` attributes of the body settings, which define
+settings for radiation pressure source and target settings of a body. The functions in this submodule are used to create these settings objects.
 
+For isotropic source models, the :func:`~tudatpy.numerical_simulation.environment_setup.radiation_pressure.isotropic_radiation_source` is used, which requires an input of type :class:`tudatpy.numerical_simulation.environment_setup.radiation_pressure.LuminosityModelSettings` (or
+derived class) to define an irradiance model. For bodies with a variable emission over the surface (albedo, infrared), the :func:`~tudatpy.numerical_simulation.environment_setup.radiation_pressure.panelled_extended_radiation_source` model is
+used, which requires a list of :class:`tudatpy.numerical_simulation.environment_setup.radiation_pressure.PanelRadiosityModelSettings` (or derived classes) to define an irradiance model.
 
-
-
-
-
-
-
-
+More details on the link between different aspects of radiation pressure in Tudat are described on `a dedicated page <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/radiation_pressure_acceleration.html>`_. in the user guide.
 
 
 Functions
