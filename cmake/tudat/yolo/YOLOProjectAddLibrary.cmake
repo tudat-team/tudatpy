@@ -51,7 +51,7 @@ function(TUDAT_ADD_LIBRARY arg1 arg2 arg3)
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
             )
 
-    add_library(${PROJECT_NAME}::${target_name} ALIAS "${target_name}")
+    add_library(Tudat::${target_name} ALIAS "${target_name}")
     #==========================================================================
     # INSTALL-TREE.
     #==========================================================================
@@ -117,7 +117,7 @@ function(TUDAT_ADD_TEST_LIBRARY arg1 arg2 arg3)
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
             )
 
-    add_library(${PROJECT_NAME}::${target_name} ALIAS "${target_name}")
+    add_library(Tudat::${target_name} ALIAS "${target_name}")
     #==========================================================================
     # INSTALL-TREE.
     #==========================================================================
