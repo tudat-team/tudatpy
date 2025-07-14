@@ -1,0 +1,106 @@
+{
+    "initialEpoch": 0,
+    "globalFrameOrientation": "J2000",
+    "spice": {
+        "useStandardKernels": true,
+        "preloadEphemeris": false
+    },
+    "bodies": {
+        "Earth": {
+            "useDefaultSettings": true,
+            "ephemeris": {
+                "type": "constant",
+                "constantState": [0, 0, 0, 0, 0, 0],
+                "frameOrientation": "J2000"
+            }
+        },
+        "Apollo": {
+            "initialState": {
+                "type": "spherical",
+                "altitude": 120000,
+                "latitude": 0,
+                "longitude": 1.2,
+                "speed": 7700,
+                "flightPathAngle": -0.015707963267948967,
+                "headingAngle": 0.6
+            },
+            "mass": 5000
+        }
+    },
+    "propagators": [
+        {
+            "integratedStateType": "translational",
+            "bodiesToPropagate": [ "Apollo" ],
+            "centralBodies": [ "Earth" ],
+            "accelerations": {
+                "Apollo": {
+                    "Earth": [
+                        {
+                            "type": "sphericalHarmonicGravity",
+                            "maximumDegree": 4,
+                            "maximumOrder": 0
+                        },
+                        {
+                            "type": "aerodynamic"
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "termination": {
+        "variable": {
+            "body": "Apollo",
+            "dependentVariableType": "altitude",
+            "relativeToBody": "Earth"
+        },
+        "lowerLimit": 25000
+    },
+    "integrator": {
+        "type": "rungeKutta4",
+        "stepSize": 1
+    },
+    "export": [
+        {
+            "file": "",
+            "variables": [
+                {
+                    "type": "state"
+                }
+            ]
+        },
+        {
+            "file": "",
+            "variables": [
+                {
+                    "body": "Apollo",
+                    "dependentVariableType": "machNumber"
+                },
+                "${termination.variable}",
+                {
+                    "body": "Apollo",
+                    "dependentVariableType": "accelerationNorm",
+                    "accelerationType": "aerodynamic",
+                    "bodyExertingAcceleration": "Earth"
+                },
+                {
+                    "body": "Apollo",
+                    "dependentVariableType": "aerodynamicForceCoefficients"
+                },
+                {
+                    "body": "Apollo",
+                    "dependentVariableType": "accelerationNorm",
+                    "accelerationType": "sphericalHarmonicGravity",
+                    "bodyExertingAcceleration": "Earth"
+                },
+                {
+                    "body": "Apollo",
+                    "dependentVariableType": "sphericalHarmonicsAccelerationTermNorms",
+                    "bodyExertingAcceleration": "Earth",
+                    "componentIndices": [ [ 2, 0 ], [ 3, 0 ], [ 4, 0 ] ]
+                }
+            ]
+        }
+    ],
+    "printVariableTypes": true
+}

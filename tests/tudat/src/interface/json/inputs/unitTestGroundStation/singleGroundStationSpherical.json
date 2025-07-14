@@ -1,0 +1,9 @@
+{
+  "stationName": "station",
+  "stationPosition": [
+  		6377734.023012809,
+		-0.1259851829553764,
+ 		1.262974717378488
+   ],
+  "positionElementType": "sphericalPosition"
+}
