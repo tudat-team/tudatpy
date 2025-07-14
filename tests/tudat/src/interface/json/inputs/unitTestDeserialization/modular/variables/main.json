@@ -1,0 +1,15 @@
+{
+  "time": {
+    "type": "independent"
+  },
+  "position": {
+    "body": "satellite",
+    "dependentVariableType": "relativePosition",
+    "relatieToBody": "Earth"
+  },
+  "velocity": {
+    "body": "satellite",
+    "dependentVariableType": "relativeVelocity",
+    "relatieToBody": "Earth"
+  }
+}

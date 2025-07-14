@@ -1,0 +1,82 @@
+{% set name = "tudat" %}
+  {% set version = "2.8.26" %}
+
+package:
+  name: {{ name }}
+  version: {{ version }}
+
+source:
+  git_url: https://github.com/tudat-team/tudat.git
+  git_rev: ddb4319c9361e177be3e10e9379ea8d59f3ccb80
+
+build:
+  # A non-negative integer representing the build number of the package.
+  #  Unlike the build string, the build_number is inspected by conda.
+  #  Conda uses it to sort packages that have otherwise identical names
+  #  and versions to determine the latest one. This is important because
+  #  new builds that contain bug fixes for the way a package is built may be
+  #  added to a repository.
+  number: 101
+#  ignore_run_exports:
+#    - m2w64-gcc-libs  # [win]
+#    - vs2015_runtime  # [win]
+#    - vs2008_runtime  # [win]
+
+requirements:
+  build:
+    # Tools required to build the package. These packages are run on the build
+    # system and include things such as revision control systems (Git, SVN) make
+    # tools (GNU make, Autotool, CMake) and compilers (real cross, pseudo-cross,
+    # or native when not cross-compiling), and any source pre-processors.
+    - {{ compiler('cxx') }}            # [not win]
+    - {{ compiler('c') }}              # [not win]
+    - {{ compiler('m2w64_c') }}        # [win]
+    - m2w64-toolchain                  # [win]
+    - m2w64-gcc                        # [win]
+    - cmake
+
+outputs:
+  - name: {{ name }}
+    build:
+#      ignore_run_exports:
+#        - m2w64-gcc-libs  # [win]
+      run_exports:
+        - tudat-resources
+        - cspice-cmake
+        - sofa-cmake
+      detect_binary_files_with_prefix: true
+      missing_dso_whitelist:
+        - libgcc-ng
+        - libstdcxx-ng
+        - libm
+        - libc
+    requirements:
+      host:
+        # Packages that need to be specific to the target platform when the
+        # target platform is not necessarily the same as the native build
+        # platform
+        - tudat-resources
+        - boost-cpp
+        - cspice-cmake
+        - sofa-cmake
+        - nlohmann_json
+        - eigen
+      run:
+        # Packages required to run the package. These are the dependencies
+        # that are installed automatically whenever the package is installed.
+        # Package names should follow the package match specifications.
+        - {{ pin_compatible('boost-cpp', max_pin='x.x') }}
+    test:
+      downstreams:
+        - tudatpy
+
+about:
+  home: http://tudat.tudelft.nl/
+  license: BSD
+  license_family: BSD
+  summary: A C++ platform to perform astrodynamics and space research.
+
+extra:
+  recipe-maintainers:
+    - ggarrett13
+

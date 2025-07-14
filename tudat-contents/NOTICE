@@ -1,0 +1,16 @@
+Tudat
+Copyright 2010-2013 Delft University of Technology
+
+This product includes software developed in the Astrodynamics and Space missions
+research chair at the Faculty of Aerospace Engineering, Delft University of 
+Technology, The Netherlands. Most of this software was developed in conjunction 
+with graduate student research.
+
+More information on the Tudat project can be found at http://tudat.tudelft.nl.
+The Tudat Wiki (http://tudat.tudelft.nl/projects/tudat/wiki) contains extensive
+documentation, howtos, and tutorials.
+
+This software makes use of the Eigen (http://eigen.tuxfamily.org/) and Boost C++ 
+(http://www.boost.org/).
+
+For any enquires, please contact tudat-AE@tudelft.nl.
