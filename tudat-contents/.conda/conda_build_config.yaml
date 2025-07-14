@@ -1,0 +1,14 @@
+channel_targets:
+  - tudat-team main
+boost:
+  - 1.64.0
+channel_sources:
+  - tudat-team
+  - conda-forge
+  - defaults
+channels:
+  sources: [tudat-team, conda-forge, defaults]
+  targets:
+    - [tudat-team, main]
+
+

@@ -1,0 +1,12 @@
+name: tudat
+channels:
+  - conda-forge
+  - tudat-team
+dependencies:
+  - eigen
+  - boost-cpp
+  - tudat-resources
+  - sofa-cmake
+  - nrlmsise-00
+  - cspice-cmake
+  - fftw
