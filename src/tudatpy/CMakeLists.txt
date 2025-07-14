@@ -1,7 +1,8 @@
 # Update version
+# This should be replaced with setuptools_scm based versioning
 configure_file(
-    "${TUDATPY_SOURCE_DIR}/../../__init__.py.in"
-    "${TUDATPY_SOURCE_DIR}/__init__.py"
+    "${PROJECT_SOURCE_DIR}/configuration/tudatpy/__init__.py.in"
+    "${PROJECT_SOURCE_DIR}/src/tudatpy/__init__.py"
     @ONLY
 )
 
