@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2019, Delft University of Technology
+/*    Copyright (c) 2010-2021, Delft University of Technology
  *    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_OBSERVABLE_MODELS_SETUP_H
-#define TUDATPY_EXPOSE_OBSERVABLE_MODELS_SETUP_H
+#ifndef TUDATPY_EXPOSE_MODEL_SETTINGS_H
+#define TUDATPY_EXPOSE_MODEL_SETTINGS_H
 
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
@@ -17,10 +17,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "biases/expose_biases.h"
-#include "links/expose_links.h"
-#include "light_time_corrections/expose_light_time_corrections.h"
-#include "model_settings/expose_model_settings.h"
 
 namespace py = pybind11;
 
@@ -31,10 +27,14 @@ namespace estimation_refactoring
 namespace observable_models_setup
 {
 
-void expose_observable_models_setup( py::module &m );
+namespace model_settings
+{
 
+void expose_model_settings( py::module &m );
+
+}  // namespace model_settings
 }  // namespace observable_models_setup
 }  // namespace estimation_refactoring
 }  // namespace tudatpy
 
-#endif  // TUDATPY_EXPOSE_OBSERVABLE_MODELS_SETUP_H
+#endif  // TUDATPY_EXPOSE_MODEL_SETTINGS_H

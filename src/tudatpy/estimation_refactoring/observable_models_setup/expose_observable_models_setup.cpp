@@ -20,10 +20,6 @@
 #include "scalarTypes.h"
 
 namespace py = pybind11;
-// namespace tss = tudat::simulation_setup;
-// namespace tp = tudat::propagators;
-// namespace tom = tudat::observation_models;
-// namespace tep = tudat::estimatable_parameters;
 
 namespace tudatpy
 {
@@ -39,9 +35,14 @@ void expose_observable_models_setup( py::module& m )
     auto biases = m.def_submodule( "biases" );
     biases::expose_biases( biases );
 
-    // ************** Modules ***************
     auto links = m.def_submodule( "links" );
     links::expose_links( links );
+
+    auto light_time_corrections = m.def_submodule( "light_time_corrections" );
+    light_time_corrections::expose_light_time_corrections( light_time_corrections );
+
+    auto model_settings = m.def_submodule( "model_settings" );
+    model_settings::expose_model_settings( model_settings );
 
 }
 
