@@ -18,6 +18,7 @@
 #include <pybind11/stl.h>
 
 #include "biases/expose_biases.h"
+#include "links/expose_links.h"
 
 namespace py = pybind11;
 
