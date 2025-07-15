@@ -1,0 +1,55 @@
+---
+Language: Cpp
+BasedOnStyle: Google
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+AllowShortFunctionsOnASingleLine: Empty
+
+NamespaceIndentation: None
+
+BraceWrapping:
+  AfterNamespace: true
+  AfterFunction: true
+  AfterControlStatement: true
+  AfterClass: true
+  SplitEmptyFunction: false
+  BeforeCatch: true
+  BeforeElse: true
+  BeforeLambdaBody: false
+
+AlignAfterOpenBracket: Align
+AlignOperands: false
+
+BreakBeforeBraces: Custom
+
+BinPackParameters: false
+BinPackArguments: false
+Cpp11BracedListStyle: false
+
+PointerAlignment: Left
+
+SpacesInContainerLiterals: true
+SpaceBeforeParens: Never
+SpaceBeforeRangeBasedForLoopColon: false
+
+AllowAllParametersOfDeclarationOnNextLine: false
+
+CommentPragmas: '^!|^@'
+SpaceAfterTemplateKeyword: false
+SpacesInTemplateDeclarations: true
+
+ContinuationIndentWidth: 8
+ConstructorInitializerIndentWidth: 4
+BreakConstructorInitializers: AfterColon
+ConstructorInitializerAllOnOneLineOrOnePerLine: false
+
+SpacesInAngles: true
+SpacesInParentheses: true
+SpacesInSquareBrackets: true
+SpaceInEmptyParentheses: true
+SpaceInEmptySquareBrackets: true
+SpaceInEmptyBlock: true
+
+ColumnLimit: 100
+---
