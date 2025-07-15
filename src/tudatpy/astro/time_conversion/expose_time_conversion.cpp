@@ -362,13 +362,9 @@ void expose_time_conversion( py::module& m )
 
 
  )doc" )
-            .def(
-                    "to_epoch",
-                    []( const tba::DateTime& dt ) {
-                        // Call epoch<TIME_TYPE> and explicitly convert to double
-                        return static_cast< double >( dt.epoch< TIME_TYPE >( ).getSeconds< double >( ) );
-                    },
-                    R"doc(
+            .def( "to_epoch",
+                  &tba::DateTime::epoch< double >,
+                  R"doc(
 
  Function to get the epoch in seconds since J2000 for the current date and time
 
@@ -384,7 +380,7 @@ void expose_time_conversion( py::module& m )
 
  )doc" )
             .def( "to_epoch_time_object",
-                  &tba::DateTime::epoch< TIME_TYPE >,
+                  &tba::DateTime::epoch< Time >,
                   R"doc(
 
  Function to get the epoch in seconds since J2000 for the current date and time

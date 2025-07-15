@@ -31,6 +31,7 @@ namespace detail
 template<>
 struct type_caster< double > {
 public:
+    // Register implicit conversion from Time -> float/double
     PYBIND11_TYPE_CASTER( double, _( "float" ) );
 
     bool load( handle src, bool convert )
