@@ -140,30 +140,26 @@ void expose_time_conversion( py::module& m )
  * Leap seconds as per the latest SOFA package
 
  )doc" )
-            .def( "convert_time_object",
-                  &teo::TerrestrialTimeScaleConverter::getCurrentTime< TIME_TYPE >,
+            .def( "convert_time",
+                  &teo::TerrestrialTimeScaleConverter::getCurrentTime< double >,
                   py::arg( "input_scale" ),
                   py::arg( "output_scale" ),
                   py::arg( "input_value" ),
                   py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ) )
-            .def(
-                    "convert_time",
-                    []( teo::TerrestrialTimeScaleConverter& converter,
-                        const tba::TimeScales input_scale,
-                        const tba::TimeScales output_scale,
-                        const TIME_TYPE& input_value,
-                        const Eigen::Vector3d& earth_fixed_position = Eigen::Vector3d::Zero( ) ) {
-                        // Call getCurrentTime and explicitly convert to double
-                        return static_cast< double >(
-                                converter.getCurrentTime< TIME_TYPE >( input_scale, output_scale, input_value, earth_fixed_position )
-                                        .getSeconds< double >( ) );
-                    },
-                    py::arg( "input_scale" ),
-                    py::arg( "output_scale" ),
-                    py::arg( "input_value" ),
-                    py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ) )
+            .def( "convert_time_object",
+                  &teo::TerrestrialTimeScaleConverter::getCurrentTime< Time >,
+                  py::arg( "input_scale" ),
+                  py::arg( "output_scale" ),
+                  py::arg( "input_value" ),
+                  py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ) )
             .def( "get_time_difference",
                   &teo::TerrestrialTimeScaleConverter::getCurrentTimeDifference< double >,
+                  py::arg( "input_scale" ),
+                  py::arg( "output_scale" ),
+                  py::arg( "input_value" ),
+                  py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ) )
+            .def( "get_time_object_difference",
+                  &teo::TerrestrialTimeScaleConverter::getCurrentTimeDifference< Time >,
                   py::arg( "input_scale" ),
                   py::arg( "output_scale" ),
                   py::arg( "input_value" ),
@@ -342,7 +338,7 @@ void expose_time_conversion( py::module& m )
 
  )doc" )
             .def( "epoch",
-                  &tba::DateTime::epoch< TIME_TYPE >,
+                  &tba::DateTime::epoch< double >,
                   R"doc(
 
  .. warning::
@@ -362,6 +358,11 @@ void expose_time_conversion( py::module& m )
 
 
  )doc" )
+            .def( "epoch_time_object",
+                  &tba::DateTime::epoch< tudat::Time >,
+                  R"doc(
+
+ )doc" )
             .def( "to_epoch",
                   &tba::DateTime::epoch< double >,
                   R"doc(
@@ -375,24 +376,10 @@ void expose_time_conversion( py::module& m )
      Current epoch in seconds since J2000
 
 
-
-
-
  )doc" )
             .def( "to_epoch_time_object",
                   &tba::DateTime::epoch< Time >,
                   R"doc(
-
- Function to get the epoch in seconds since J2000 for the current date and time
-
-
- Returns
- -------
- Time
-     Current epoch in seconds since J2000 as numerical_simulation.Time object
-
-
-
 
 
  )doc" )
@@ -564,7 +551,7 @@ In this example, the calendar date corresponding to when 122 days have passed in
                          
                          )doc" )
             .def_static( "from_epoch",
-                         &tba::DateTime::fromTime< TIME_TYPE >,
+                         &tba::DateTime::fromTime< double >,
                          py::arg( "epoch" ),
                          R"doc(
 
@@ -593,6 +580,13 @@ In this example, the calendar date corresponding to when 122 days have passed in
      dt = DateTime.from_epoch(epoch_et)
      print(dt) # prints 2025-01-01 00:00:00.000000000000000
                          
+                         )doc" )
+            .def_static( "from_epoch_time_object",
+                         &tba::DateTime::fromTime< tudat::Time >,
+                         py::arg( "epoch" ),
+                         R"doc(
+
+
                          )doc" )
             .def_static( "from_julian_day",
                          &tba::DateTime::fromJulianDay,
@@ -1421,7 +1415,7 @@ datetime.datetime
      )doc" );
 
     m.def( "date_time_components_to_epoch",
-           &tba::timeFromDecomposedDateTime< TIME_TYPE >,
+           &tba::timeFromDecomposedDateTime< double >,
            py::arg( "year" ),
            py::arg( "month" ),
            py::arg( "day" ),
@@ -1466,8 +1460,19 @@ datetime.datetime
 
      )doc" );
 
+    m.def( "date_time_components_to_epoch_time_object",
+           &tba::timeFromDecomposedDateTime< Time >,
+           py::arg( "year" ),
+           py::arg( "month" ),
+           py::arg( "day" ),
+           py::arg( "hour" ),
+           py::arg( "minute" ),
+           py::arg( "seconds" ),
+           R"doc(
+     )doc" );
+
     m.def( "iso_string_to_epoch",
-           &tba::timeFromIsoString< TIME_TYPE >,
+           &tba::timeFromIsoString< double >,
            py::arg( "iso_datetime" ),
            R"doc(
 
@@ -1489,6 +1494,13 @@ datetime.datetime
 
 
 
+
+     )doc" );
+
+    m.def( "iso_string_to_epoch_time_object",
+           &tba::timeFromIsoString< Time >,
+           py::arg( "iso_datetime" ),
+           R"doc(
 
      )doc" );
 
