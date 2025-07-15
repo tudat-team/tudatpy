@@ -220,12 +220,12 @@ endif ()
 # Set required boost components.
 set(
     _TUDAT_REQUIRED_BOOST_LIBS
-    filesystem system regex date_time thread chrono atomic
+    filesystem system regex date_time thread chrono atomic unit_test_framework
 )
-if (TUDAT_BUILD_TESTS)
-    # Add the unit test framework, if needed.
-    list(APPEND _TUDAT_REQUIRED_BOOST_LIBS unit_test_framework)
-endif ()
+# if (TUDAT_BUILD_TESTS)
+#     # Add the unit test framework, if needed.
+#     list(APPEND _TUDAT_REQUIRED_BOOST_LIBS unit_test_framework)
+# endif ()
 
 # Download boost if option is used.
 if (
@@ -400,8 +400,6 @@ include(YOLOProjectAddExternalData)
 
 # Define list of libraries in tudat and run setup for submodules
 include(TudatLinkLibraries)
-set(Tudat_PROPAGATION_LIBRARIES ${Tudat_PROPAGATION_LIBRARIES} PARENT_SCOPE)
-set(Tudat_ESTIMATION_LIBRARIES ${Tudat_ESTIMATION_LIBRARIES} PARENT_SCOPE)
 add_subdirectory(src/tudat/astro)
 add_subdirectory(src/tudat/basics)
 add_subdirectory(src/tudat/interface)
@@ -514,7 +512,8 @@ message(STATUS Tudat: [Tudat_INCLUDE_DIRS] ${Tudat_INCLUDE_DIRS})
 
 # Pybind11 dependency
 include(YACMAPythonSetup)
-find_package(pybind11 REQUIRED)
+set(PYBIND11_FINDPYTHON ON)
+find_package(pybind11 CONFIG REQUIRED)
 set(pybind11_INCLUDE_DIRS ${pybind11_BUILD_INCLUDE_DIRS}) # TODO: Check
 set(pybind11_INCLUDE_DIR ${pybind11_BUILD_INCLUDE_DIRS})  # TODO: Check
 
@@ -522,7 +521,10 @@ set(pybind11_INCLUDE_DIR ${pybind11_BUILD_INCLUDE_DIRS})  # TODO: Check
 set(TUDATPY_SOURCE_DIR ${BASE_DIRECTORY}/src/tudatpy)
 
 # Add docs to build directory
-file(COPY ${BASE_DIRECTORY}/docs DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(
+    COPY ${BASE_DIRECTORY}/docs/tudatpy
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/docs
+)
 
 # Include tudatpy CMake configuration
 include_directories(include/tudatpy)
