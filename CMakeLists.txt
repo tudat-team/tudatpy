@@ -82,7 +82,7 @@ option(
 option(
     TUDAT_BUILD_TUDAT_TUTORIALS
     "Build C++ tutorials."
-    ON
+    OFF
 )
 option(
     TUDAT_BUILD_STATIC_LIBRARY
@@ -410,6 +410,10 @@ add_subdirectory(src/tudat/utils)
 if (TUDAT_BUILD_TESTS)
     add_subdirectory(tests/tudat)
 endif ()
+
+if (TUDAT_BUILD_TUDAT_TUTORIALS)
+    add_subdirectory(examples/tudat)
+endif()
 
 # Additional contents from original tudat cmake
 # ========================================================================
