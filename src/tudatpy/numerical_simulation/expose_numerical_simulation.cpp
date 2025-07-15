@@ -31,7 +31,7 @@ namespace tudatpy
 namespace numerical_simulation
 {
 
-void expose_numerical_simulation( py::module &m )
+void expose_numerical_simulation( py::module& m )
 {
     auto environment_setup_submodule = m.def_submodule( "environment_setup" );
     environment_setup::expose_environment_setup( environment_setup_submodule );
@@ -56,15 +56,20 @@ void expose_numerical_simulation( py::module &m )
     estimation::expose_estimation_propagated_covariance( estimation_submodule );
     estimation::expose_estimation_single_observation_set( estimation_submodule );
 
+    m.def( "get_integrated_type_and_body_list",
+           &tp::getIntegratedTypeAndBodyList< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "propagator_settings" ) );
 
-    py::class_< tudat::Time >( m, "Time", R"doc(No documentation found.)doc" )
-            .def( py::init< const int, const long double >( ),
-                  py::arg( "full_periods" ),
-                  py::arg( "seconds_into_full_period" ) )
+    m.def( "get_single_integration_size", &tp::getSingleIntegrationSize, py::arg( "state_type" ) );
+
+    // Define the Time class at the top-level of the kernel module
+    py::class_< tudat::Time >( m, "Time", R"doc(Tudat custom time class)doc" )
             .def( py::init< const double >( ), py::arg( "seconds_since_j2000" ) )
+            .def( py::init< const int, const long double >( ), py::arg( "full_periods" ), py::arg( "seconds_into_full_period" ) )
             .def( "to_float",
                   &tudat::Time::getSeconds< double >,
-                  R"doc(No documentation found.)doc" )
+                  R"doc(Converts the time to a float (double) representing seconds since J2000.)doc" )
+            .def( "__float__", &tudat::Time::getSeconds< double > )
             .def( py::self + py::self )
             .def( py::self + double( ) )
             .def( double( ) + py::self )
@@ -99,12 +104,9 @@ void expose_numerical_simulation( py::module &m )
             .def( double( ) >= py::self )
             .def( py::self >= double( ) );
 
-    m.def( "get_integrated_type_and_body_list",
-           &tp::getIntegratedTypeAndBodyList< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "propagator_settings" ) );
-
-    m.def( "get_single_integration_size", &tp::getSingleIntegrationSize, py::arg( "state_type" ) );
-};
+    // Register implicit conversion from float/double -> Time
+    py::implicitly_convertible< double, tudat::Time >( );
+}
 
 }  // namespace numerical_simulation
 }  // namespace tudatpy
