@@ -126,7 +126,7 @@ void expose_numerical_simulation_simulator( py::module &m )
 
 
          :type: SingleArcSimulationResults
-      )doc" )
+      )doc" ) // TIME_TODO
             .def_property_readonly(
                     "state_history",
                     &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::
@@ -137,7 +137,7 @@ void expose_numerical_simulation_simulator( py::module &m )
          Shorthand for propagation_results.state_history
 
          :type: dict[float, numpy.ndarray]
-      )doc" )
+      )doc" ) // TIME_TODO
             .def_property_readonly(
                     "unprocessed_state_history",
                     &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::
@@ -148,7 +148,7 @@ void expose_numerical_simulation_simulator( py::module &m )
          Shorthand for propagation_results.unprocessed_state_history
 
          :type: dict[float, numpy.ndarray]
-      )doc" )
+      )doc" ) // TIME_TODO
             .def_property_readonly(
                     "dependent_variable_history",
                     &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE,
@@ -159,7 +159,7 @@ void expose_numerical_simulation_simulator( py::module &m )
          Shorthand for propagation_results.dependent_variable_history
 
          :type: dict[float, numpy.ndarray]
-      )doc" )
+      )doc" ) // TIME_TODO
             .def_property_readonly(
                     "cumulative_computation_time_history",
                     &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::
@@ -170,7 +170,7 @@ void expose_numerical_simulation_simulator( py::module &m )
          Shorthand for propagation_results.cumulative_computation_time_history
 
          :type: dict[float, float]
-      )doc" )
+      )doc" ) // TIME_TODO
             .def_property_readonly(
                     "cumulative_number_of_function_evaluations",
                     &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::
