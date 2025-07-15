@@ -15,16 +15,15 @@
 
 using tudat::Time;
 
-#define STATE_SCALAR_TYPE double // long double
-#define TIME_TYPE double // tudat::Time
-#define INTERPOLATOR_TIME_TYPE double // tudat::Time
+#define STATE_SCALAR_TYPE double  // long double
+#define TIME_TYPE Time
+#define INTERPOLATOR_TIME_TYPE Time
 
 #define TUDATPY_TYPE_ID_double 1
 #define TUDATPY_TYPE_ID_long_double 2
 #define TUDATPY_TYPE_ID_Time 3
 
-#define TUDATPY_TYPE_ID_INDIR(x) TUDATPY_TYPE_ID_##x
-#define TUDATPY_TYPE_ID(x) TUDATPY_TYPE_ID_INDIR(x)
-
+#define TUDATPY_TYPE_ID_INDIR( x ) TUDATPY_TYPE_ID_##x
+#define TUDATPY_TYPE_ID( x ) TUDATPY_TYPE_ID_INDIR( x )
 
 #endif  // TUDATPY_SCALAR_TYPES_H
