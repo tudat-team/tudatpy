@@ -140,20 +140,23 @@ void expose_time_conversion( py::module& m )
  * Leap seconds as per the latest SOFA package
 
  )doc" )
-            .def( "convert_time",
+            .def( "convert_time_object",
                   &teo::TerrestrialTimeScaleConverter::getCurrentTime< TIME_TYPE >,
                   py::arg( "input_scale" ),
                   py::arg( "output_scale" ),
                   py::arg( "input_value" ),
                   py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ) )
             .def(
-                    "convert_time_object",
+                    "convert_time",
                     []( teo::TerrestrialTimeScaleConverter& converter,
                         const tba::TimeScales input_scale,
                         const tba::TimeScales output_scale,
                         const TIME_TYPE& input_value,
                         const Eigen::Vector3d& earth_fixed_position = Eigen::Vector3d::Zero( ) ) {
-                        return converter.getCurrentTime< tudat::Time >( input_scale, output_scale, input_value, earth_fixed_position );
+                        // Call getCurrentTime and explicitly convert to double
+                        return static_cast< double >(
+                                converter.getCurrentTime< TIME_TYPE >( input_scale, output_scale, input_value, earth_fixed_position )
+                                        .getSeconds< double >( ) );
                     },
                     py::arg( "input_scale" ),
                     py::arg( "output_scale" ),
@@ -359,9 +362,13 @@ void expose_time_conversion( py::module& m )
 
 
  )doc" )
-            .def( "to_epoch",
-                  &tba::DateTime::epoch< TIME_TYPE >,
-                  R"doc(
+            .def(
+                    "to_epoch",
+                    []( const tba::DateTime& dt ) {
+                        // Call epoch<TIME_TYPE> and explicitly convert to double
+                        return static_cast< double >( dt.epoch< TIME_TYPE >( ).getSeconds< double >( ) );
+                    },
+                    R"doc(
 
  Function to get the epoch in seconds since J2000 for the current date and time
 
@@ -376,10 +383,9 @@ void expose_time_conversion( py::module& m )
 
 
  )doc" )
-            .def(
-                    "to_epoch_time_object",
-                    []( const tba::DateTime& dt ) { return dt.epoch< tudat::Time >( ); },
-                    R"doc(
+            .def( "to_epoch_time_object",
+                  &tba::DateTime::epoch< TIME_TYPE >,
+                  R"doc(
 
  Function to get the epoch in seconds since J2000 for the current date and time
 

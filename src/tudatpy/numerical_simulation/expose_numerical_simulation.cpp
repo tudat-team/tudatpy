@@ -24,7 +24,51 @@ namespace tni = tudat::numerical_integrators;
 namespace tep = tudat::estimatable_parameters;
 namespace tom = tudat::observation_models;
 namespace tba = tudat::basic_astrodynamics;
+namespace pybind11
+{
+namespace detail
+{
+template<>
+struct type_caster< double > {
+public:
+    PYBIND11_TYPE_CASTER( double, _( "float" ) );
 
+    bool load( handle src, bool convert )
+    {
+        // Handle existing conversions first
+        if( PyFloat_Check( src.ptr( ) ) )
+        {
+            value = PyFloat_AsDouble( src.ptr( ) );
+            return !PyErr_Occurred( );
+        }
+
+        // Try to convert from Time
+        if( convert )
+        {
+            try
+            {
+                auto time_type = module_::import( "tudatpy.kernel" ).attr( "Time" );
+                if( isinstance( src, time_type ) )
+                {
+                    value = src.attr( "to_float" )( ).cast< double >( );
+                    return true;
+                }
+            }
+            catch( const error_already_set& )
+            {
+                PyErr_Clear( );
+            }
+        }
+        return false;
+    }
+
+    static handle cast( double src, return_value_policy policy, handle parent )
+    {
+        return PyFloat_FromDouble( src );
+    }
+};
+}  // namespace detail
+}  // namespace pybind11
 namespace tudatpy
 {
 
@@ -33,35 +77,6 @@ namespace numerical_simulation
 
 void expose_numerical_simulation( py::module& m )
 {
-    auto environment_setup_submodule = m.def_submodule( "environment_setup" );
-    environment_setup::expose_environment_setup( environment_setup_submodule );
-
-    auto environment_submodule = m.def_submodule( "environment" );
-    environment::expose_environment( environment_submodule );
-
-    auto propagation_setup_submodule = m.def_submodule( "propagation_setup" );
-    propagation_setup::expose_propagation_setup( propagation_setup_submodule );
-
-    auto propagation_submodule = m.def_submodule( "propagation" );
-    propagation::expose_propagation( propagation_submodule );
-
-    auto estimation_setup_submodule = m.def_submodule( "estimation_setup" );
-    estimation_setup::expose_estimation_setup( estimation_setup_submodule );
-
-    auto estimation_submodule = m.def_submodule( "estimation" );
-
-    estimation::expose_estimation_filter_parser( estimation_submodule );
-    estimation::expose_estimation( estimation_submodule );
-    estimation::expose_estimation_observation_collection( estimation_submodule );
-    estimation::expose_estimation_propagated_covariance( estimation_submodule );
-    estimation::expose_estimation_single_observation_set( estimation_submodule );
-
-    m.def( "get_integrated_type_and_body_list",
-           &tp::getIntegratedTypeAndBodyList< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "propagator_settings" ) );
-
-    m.def( "get_single_integration_size", &tp::getSingleIntegrationSize, py::arg( "state_type" ) );
-
     // Define the Time class at the top-level of the kernel module
     py::class_< tudat::Time >( m, "Time", R"doc(Tudat custom time class)doc" )
             .def( py::init< const double >( ), py::arg( "seconds_since_j2000" ) )
@@ -106,6 +121,35 @@ void expose_numerical_simulation( py::module& m )
 
     // Register implicit conversion from float/double -> Time
     py::implicitly_convertible< double, tudat::Time >( );
+
+    auto environment_setup_submodule = m.def_submodule( "environment_setup" );
+    environment_setup::expose_environment_setup( environment_setup_submodule );
+
+    auto environment_submodule = m.def_submodule( "environment" );
+    environment::expose_environment( environment_submodule );
+
+    auto propagation_setup_submodule = m.def_submodule( "propagation_setup" );
+    propagation_setup::expose_propagation_setup( propagation_setup_submodule );
+
+    auto propagation_submodule = m.def_submodule( "propagation" );
+    propagation::expose_propagation( propagation_submodule );
+
+    auto estimation_setup_submodule = m.def_submodule( "estimation_setup" );
+    estimation_setup::expose_estimation_setup( estimation_setup_submodule );
+
+    auto estimation_submodule = m.def_submodule( "estimation" );
+
+    estimation::expose_estimation_filter_parser( estimation_submodule );
+    estimation::expose_estimation( estimation_submodule );
+    estimation::expose_estimation_observation_collection( estimation_submodule );
+    estimation::expose_estimation_propagated_covariance( estimation_submodule );
+    estimation::expose_estimation_single_observation_set( estimation_submodule );
+
+    m.def( "get_integrated_type_and_body_list",
+           &tp::getIntegratedTypeAndBodyList< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "propagator_settings" ) );
+
+    m.def( "get_single_integration_size", &tp::getSingleIntegrationSize, py::arg( "state_type" ) );
 }
 
 }  // namespace numerical_simulation
