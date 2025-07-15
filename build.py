@@ -119,6 +119,15 @@ class BuildParser(argparse.ArgumentParser):
             help="Verbose output during build",
         )
 
+        # CI options
+        ci_group = self.add_argument_group("CI options")
+        ci_group.add_argument(
+            "--build-github-actions",
+            dest="build_github_actions",
+            action="store_true",
+            help="Build tudatpy with GitHub Actions",
+        )
+
         return None
 
 
@@ -975,6 +984,10 @@ class Builder:
         # self.skip_tudat = "OFF" if self.args.build_tudat else "ON"
         # self.skip_tudatpy = "OFF" if self.args.build_tudatpy else "ON"
         self.build_tests = "ON" if self.args.build_tests else "OFF"
+        if self.args.build_github_actions:
+            self.build_github_actions = "ON"
+        else:
+            self.build_github_actions = "OFF"
 
         return None
 
@@ -1073,6 +1086,7 @@ class Builder:
                             "-DBoost_NO_BOOST_CMAKE=ON",
                             f"-DCMAKE_BUILD_TYPE={self.args.build_type}",
                             f"-DTUDAT_BUILD_TESTS={self.build_tests}",
+                            f"-DTUDAT_BUILD_GITHUB_ACTIONS={self.build_github_actions}",
                             "-B",
                             f"{self.build_dir}",
                             "-S",
@@ -1092,6 +1106,7 @@ class Builder:
                                 "-DBoost_NO_BOOST_CMAKE=ON",
                                 f"-DCMAKE_BUILD_TYPE={self.args.build_type}",
                                 f"-DTUDAT_BUILD_TESTS={self.build_tests}",
+                                f"-DTUDAT_BUILD_GITHUB_ACTIONS={self.build_github_actions}",
                                 "-B",
                                 f"{self.build_dir}",
                                 "-S",
