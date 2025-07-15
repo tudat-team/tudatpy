@@ -511,7 +511,7 @@ void expose_propagation( py::module &m )
             .def_property_readonly(
                     "state_history",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
-                            getEquationsOfMotionNumericalSolution,
+                            getEquationsOfMotionNumericalSolutionTemplated< double >,
                     R"doc(
 
          **read-only**
@@ -532,18 +532,22 @@ void expose_propagation( py::module &m )
 
          :type: dict[float, numpy.ndarray]
       )doc" )
-            .def_property_readonly(
-                    "state_history_float",
-                    &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
-                            getEquationsOfMotionNumericalSolutionDouble,
-                    R"doc(
-
-         **read-only**
-
-         Same as ``state_history``, but with independent variable of the dictionary being equal to ``float`` regardless of compilation settings.
-
-         :type: dict[float, numpy.ndarray]
-      )doc" )
+        .def_property_readonly(
+            "state_history_time_object",
+            &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
+            getEquationsOfMotionNumericalSolutionTemplated< Time > )
+//            .def_property_readonly(
+//                    "state_history_float",
+//                    &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
+//                            getEquationsOfMotionNumericalSolutionDouble,
+//                    R"doc(
+//
+//         **read-only**
+//
+//         Same as ``state_history``, but with independent variable of the dictionary being equal to ``float`` regardless of compilation settings.
+//
+//         :type: dict[float, numpy.ndarray]
+//      )doc" )
             .def_property_readonly(
                     "state_history_float_split",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
@@ -559,7 +563,7 @@ void expose_propagation( py::module &m )
             .def_property_readonly(
                     "unprocessed_state_history",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
-                            getEquationsOfMotionNumericalSolutionRaw,
+                            getEquationsOfMotionNumericalSolutionRawTemplated< double >,
                     R"doc(
 
          **read-only**
@@ -572,10 +576,15 @@ void expose_propagation( py::module &m )
 
          :type: dict[float, numpy.ndarray]
       )doc" )
-            .def_property_readonly(
+
+        .def_property_readonly(
+            "unprocessed_state_history_time_object",
+            &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
+            getEquationsOfMotionNumericalSolutionRawTemplated< Time > )
+        .def_property_readonly(
                     "dependent_variable_history",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE,
-                                                     TIME_TYPE >::getDependentVariableHistory,
+                                                     TIME_TYPE >::getDependentVariableHistoryTemplated< double >,
                     R"doc(
                     
          **read-only**
@@ -588,15 +597,8 @@ void expose_propagation( py::module &m )
          :type: dict[float, numpy.ndarray]
       )doc" )
 
-            .def_property_readonly( "dependent_variable_history_float",
-                           &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariableHistoryDouble,
-                           R"doc(
-         **read-only**
-
-         Same as ``dependent_variable_history``, but with independent variable of the dictionary being equal to ``float`` regardless of compilation settings.
-
-         :type: dict[float, numpy.ndarray]
-     )doc" )
+            .def_property_readonly( "dependent_variable_history_time_object",
+                           &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariableHistoryTemplated< Time >
 
 
             .def_property_readonly(
