@@ -408,7 +408,7 @@ add_subdirectory(src/tudat/simulation)
 add_subdirectory(src/tudat/io)
 add_subdirectory(src/tudat/utils)
 if (TUDAT_BUILD_TESTS)
-    add_subdirectory(tests/tudat)
+    add_subdirectory(tests/test_tudat)
 endif ()
 
 if (TUDAT_BUILD_TUDAT_TUTORIALS)
