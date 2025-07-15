@@ -204,7 +204,7 @@ void expose_numerical_simulation_variational( py::module &m )
 
 
          :type: :class:`~tudatpy.numerical_simulation.estimation.EstimatableParameterSet`
-      )doc" )
+      )doc" ) // TIME_TODO
             .def_property_readonly(
                     "variational_equations_history",
                     &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::
@@ -218,7 +218,7 @@ void expose_numerical_simulation_variational( py::module &m )
 
 
          :type: list[ dict[float, numpy.ndarray] ]
-      )doc" )
+      )doc" ) // TIME_TODO
             .def_property_readonly(
                     "state_transition_matrix_history",
                     &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::
@@ -232,7 +232,7 @@ void expose_numerical_simulation_variational( py::module &m )
 
 
          :type: dict[float, numpy.ndarray]
-      )doc" )
+      )doc" ) // TIME_TODO
             .def_property_readonly(
                     "sensitivity_matrix_history",
                     &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::
@@ -246,7 +246,7 @@ void expose_numerical_simulation_variational( py::module &m )
 
 
          :type: dict[float, numpy.ndarray]
-      )doc" )
+      )doc" ) // TIME_TODO
             .def_property_readonly(
                     "state_history",
                     &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::
