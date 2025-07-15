@@ -531,7 +531,7 @@ In this example, the calendar date corresponding to when 122 days have passed in
                          
                          )doc" )
             .def_static( "from_epoch",
-                         &tba::DateTime::fromTime< TIME_TYPE >,
+                         &tba::DateTime::fromTime< double >,
                          py::arg( "epoch" ),
                          R"doc(
 
@@ -560,6 +560,13 @@ In this example, the calendar date corresponding to when 122 days have passed in
      dt = DateTime.from_epoch(epoch_et)
      print(dt) # prints 2025-01-01 00:00:00.000000000000000
                          
+                         )doc" )
+        .def_static( "from_epoch_time_object",
+                     &tba::DateTime::fromTime< tudat::Time >,
+                     py::arg( "epoch" ),
+                     R"doc(
+
+
                          )doc" )
             .def_static( "from_julian_day",
                          &tba::DateTime::fromJulianDay,
@@ -1388,7 +1395,7 @@ datetime.datetime
      )doc" );
 
     m.def( "date_time_components_to_epoch",
-           &tba::timeFromDecomposedDateTime< TIME_TYPE >,
+           &tba::timeFromDecomposedDateTime< double >,
            py::arg( "year" ),
            py::arg( "month" ),
            py::arg( "day" ),
@@ -1431,6 +1438,17 @@ datetime.datetime
 
 
 
+     )doc" );
+
+    m.def( "date_time_components_to_epoch_time_object",
+           &tba::timeFromDecomposedDateTime< Time >,
+           py::arg( "year" ),
+           py::arg( "month" ),
+           py::arg( "day" ),
+           py::arg( "hour" ),
+           py::arg( "minute" ),
+           py::arg( "seconds" ),
+           R"doc(
      )doc" );
 
     m.def( "iso_string_to_epoch",
