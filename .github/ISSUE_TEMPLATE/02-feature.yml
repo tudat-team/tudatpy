@@ -1,0 +1,34 @@
+name: Features and Enhancements
+description: Something that `tudatpy` should have
+title: "[F&E]: <Short and descriptive title>"
+labels: "type: feature"
+
+body:
+- type: markdown
+  attributes:
+    value: >
+      Thank you for taking the time to suggest a feature!
+
+- type: textarea
+  attributes:
+    label: "Description:"
+    description: >
+      Provide a concise description of the feature, and explan why it is important.
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: "Suggestions for implementation:"
+    description: >
+      If you want, you can suggest a high-level approach to implementing this feature. Feel free to open a Pull Request if you want to implement it yourself!
+  validations:
+    required: false
+
+- type: textarea
+  attributes:
+    label: "Additional context:"
+    placeholder: |
+      << your explanation here >>
+  validations:
+    required: false
