@@ -1,1 +1,1 @@
-from tudatpy.kernel.numerical_simulation.environment_setup.gravity_field_variation import *
+from tudatpy.kernel.dynamics.environment_setup.gravity_field_variation import *

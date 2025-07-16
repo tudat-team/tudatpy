@@ -1,1 +1,1 @@
-from tudatpy.kernel.numerical_simulation.environment_setup.atmosphere import *
+from tudatpy.kernel.dynamics.environment_setup.atmosphere import *
