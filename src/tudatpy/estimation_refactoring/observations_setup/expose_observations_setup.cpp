@@ -31,11 +31,20 @@ namespace observations_setup
 void expose_observations_setup( py::module& m )
 {
 
-    // ************** Modules ***************
+    auto ancillary_settings = m.def_submodule( "ancillary_settings" );
+    ancillary_settings::expose_ancillary_settings( ancillary_settings );
 
-    // TO BE MODIFIED ACCORDINGLY - this was for the observable_models_setup module
-    // auto biases = m.def_submodule( "biases" );
-    // biases::expose_biases( biases );
+    auto observations_dependent_variables = m.def_submodule( "observations_dependent_variables" );
+    observations_dependent_variables::expose_observations_dependent_variables( observations_dependent_variables );
+
+    auto observations_simulation_settings = m.def_submodule( "observations_simulation_settings" );
+    observations_simulation_settings::expose_observations_simulation_settings( observations_simulation_settings );
+
+    auto random_noise = m.def_submodule( "random_noise" );
+    random_noise::expose_random_noise( random_noise );
+
+    auto viability = m.def_submodule( "viability" );
+    viability::expose_viability( viability );
 
 }
 
