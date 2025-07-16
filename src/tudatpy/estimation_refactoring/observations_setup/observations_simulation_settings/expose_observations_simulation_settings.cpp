@@ -354,6 +354,13 @@ void expose_observations_simulation_settings( py::module& m )
                            { tom::dsn_n_way_averaged_doppler, tom::n_way_differenced_range },
                            { tom::dsn_one_way_averaged_doppler, tom::one_way_differenced_range } },
            R"doc(No documentation found.)doc" );
+
+    //    m.def("create_odf_observation_simulation_settings_list",
+    //          &tom::createOdfObservationSimulationSettingsList<
+    //          STATE_SCALAR_TYPE, TIME_TYPE >,
+    //          py::arg("observed_observation_collection"),
+    //          get_docstring("create_odf_observation_simulation_settings_list").c_str()
+    //          );
 }
 
 }

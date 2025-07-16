@@ -401,6 +401,29 @@ Examples
            py::arg( "observable_type" ),
            py::arg( "link_ends" ),
            R"doc(No documentation found.)doc" );
+
+    
+           /////////////////////////////////////////////////////////////////////////////////////////////////
+    // FREQUENCIES
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+
+    py::enum_< tom::FrequencyBands >( m, "FrequencyBands", R"doc(No documentation found.)doc" )
+            .value( "s_band", tom::FrequencyBands::s_band )
+            .value( "x_band", tom::FrequencyBands::x_band )
+            .value( "ka_band", tom::FrequencyBands::ka_band )
+            .value( "ku_band", tom::FrequencyBands::ku_band );
+
+    m.def( "dsn_default_turnaround_ratios",
+           &tom::getDsnDefaultTurnaroundRatios,
+           py::arg( "uplink_band" ),
+           py::arg( "downlink_band" ),
+           R"doc(No documentation found.)doc" );
+
+    m.def( "cassini_turnaround_ratios",
+           &tom::getCassiniTurnaroundRatio,
+           py::arg( "uplink_band" ),
+           py::arg( "downlink_band" ),
+           R"doc(No documentation found.)doc" );
 }
 
 }
