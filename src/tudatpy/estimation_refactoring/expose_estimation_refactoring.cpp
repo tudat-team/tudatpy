@@ -45,8 +45,8 @@ void expose_estimation_refactoring( py::module &m )
     auto observations_submodule = m.def_submodule( "observations" );
     observations::expose_observations( observations_submodule );
 
-    auto runner_submodule = m.def_submodule( "runner" );
-    runner::expose_runner( runner_submodule );
+    auto estimation_analysis_submodule = m.def_submodule( "estimation_analysis" );
+    estimation_analysis::expose_estimation_analysis( estimation_analysis_submodule );
 
     // auto estimation_submodule = m.def_submodule( "estimation" );
     // estimation::expose_estimation_filter_parser( estimation_submodule );

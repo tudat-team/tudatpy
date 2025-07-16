@@ -17,6 +17,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include "observations_processing/expose_observations_processing.h"
+
 
 namespace py = pybind11;
 

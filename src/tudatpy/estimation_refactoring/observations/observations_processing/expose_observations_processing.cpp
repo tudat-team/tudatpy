@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 #define PYBIND11_DETAILED_ERROR_MESSAGES
-#include "expose_observations.h"
+#include "expose_observations_processing.h"
 
 #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -27,15 +27,17 @@ namespace estimation_refactoring
 {
 namespace observations
 {
-
-void expose_observations( py::module& m )
+namespace observations_processing
 {
 
-    auto observations_processing = m.def_submodule( "observations_processing" );
-    observations_processing::expose_observations_processing( observations_processing );
+void expose_observations_processing( py::module& m )
+{
+
+
 
 }
 
+}  // namespace observations_processing
 }  // namespace observations
 }  // namespace estimation_refactoring
 }  // namespace tudatpy
