@@ -17,7 +17,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "observation/expose_observation.h"
 #include "parameter/expose_parameter.h"
 #include "tudat/simulation/estimation_setup.h"
 
