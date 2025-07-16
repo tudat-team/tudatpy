@@ -33,9 +33,7 @@ namespace numerical_simulation
 
 void expose_numerical_simulation( py::module &m )
 {
-    auto environment_setup_submodule = m.def_submodule( "environment_setup" );
-    environment_setup::expose_environment_setup( environment_setup_submodule );
-
+      
     auto propagation_setup_submodule = m.def_submodule( "propagation_setup" );
     propagation_setup::expose_propagation_setup( propagation_setup_submodule );
 
