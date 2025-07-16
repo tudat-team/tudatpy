@@ -22,7 +22,7 @@
 #include "observable_models_setup/expose_observable_models_setup.h"
 #include "observations/expose_observations.h"
 #include "observations_setup/expose_observations_setup.h"
-#include "runner/expose_runner.h"
+#include "estimation_analysis/expose_estimation_analysis.h"
 
 namespace py = pybind11;
 
