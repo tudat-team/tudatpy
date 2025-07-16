@@ -20,6 +20,7 @@
 #include "ancillary_settings/expose_ancillary_settings.h"
 #include "observations_dependent_variables/expose_observations_dependent_variables.h"
 #include "observations_simulation_settings/expose_observations_simulation_settings.h"
+#include "observations_wrapper/expose_observations_wrapper.h"
 #include "random_noise/expose_random_noise.h"
 #include "viability/expose_viability.h"
 

@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 #define PYBIND11_DETAILED_ERROR_MESSAGES
-#include "expose_runner.h"
+#include "expose_estimation_analysis.h"
 
 #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -25,10 +25,10 @@ namespace tudatpy
 {
 namespace estimation_refactoring
 {
-namespace runner
+namespace estimation_analysis
 {
 
-void expose_runner( py::module& m )
+void expose_estimation_analysis( py::module& m )
 {
 
     // ************** Modules ***************
@@ -39,6 +39,6 @@ void expose_runner( py::module& m )
 
 }
 
-}  // namespace runner
+}  // namespace estimation_analysis
 }  // namespace estimation_refactoring
 }  // namespace tudatpy

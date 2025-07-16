@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2019, Delft University of Technology
+/*    Copyright (c) 2010-2021, Delft University of Technology
  *    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -7,30 +7,28 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
-
-#ifndef TUDATPY_EXPOSE_RUNNER_H
-#define TUDATPY_EXPOSE_RUNNER_H
-
-#include <pybind11/eigen.h>
+#define PYBIND11_DETAILED_ERROR_MESSAGES
+#include "expose_observations_wrapper.h"
 #include <pybind11/functional.h>
-#include <pybind11/numpy.h>
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include "scalarTypes.h"
 
-
-namespace py = pybind11;
 
 namespace tudatpy
 {
 namespace estimation_refactoring
 {
-namespace runner
+namespace observations_setup
 {
 
-void expose_runner( py::module &m );
+namespace observations_wrapper
+{
 
-}  // namespace runner
-}  // namespace estimation_refactoring
-}  // namespace tudatpy
+void expose_observations_wrapper( py::module& m )
+{
+    
+}
 
-#endif  // TUDATPY_EXPOSE_RUNNER_H
+}
+}
+}
+}
