@@ -13,12 +13,7 @@
 #include "scalarTypes.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 
-#include "tudat/simulation/estimation_setup/createObservationModel.h"
-
-// namespace tss = tudat::simulation_setup;
 namespace tom = tudat::observation_models;
-// namespace tuc = tudat::unit_conversions;
-// namespace ti = tudat::interpolators;
 
 namespace tudatpy
 {
