@@ -624,7 +624,6 @@ void expose_propagation( py::module &m )
 
          Same as :func:`~dependent_variable_history`, but using the high-resolution :func:`~Time` type used as independent variable in the propagation as key
 
-
          :type: dict[Time, numpy.ndarray]
       )doc"  )
 
