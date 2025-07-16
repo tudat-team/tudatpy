@@ -28,7 +28,7 @@ jobs:
 
       - name: Create conda environment
         run: |
-          conda create -f environment.yaml
+          conda env create -f environment.yaml
 
       - name: Activate environment in different step
         run: |
