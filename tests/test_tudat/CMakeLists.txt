@@ -1,3 +1,4 @@
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 add_subdirectory(src/astro)
 add_subdirectory(src/basics)
 add_subdirectory(src/interface)

@@ -1,0 +1,39 @@
+name: Tests
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  run_tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest, macos-latest, macos-13, windows-latest]
+        python-version: [3.9]
+    name: "${{ matrix.os }} :: Python ${{ matrix.python-version }}"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          allow-prereleases: true
+
+      # - name: Set fortran compiler on macos
+      #   if: runner.os == 'macOS'
+      #   run: |
+      #     echo "PATH=$(brew --prefix gfortran)/bin:$PATH" >> $GITHUB_ENV
+
+      - name: Create conda environment
+        run: |
+          conda env create -f environment.yaml
+
+      - name: Activate environment in different step
+        run: |
+          conda activate tudat-bundle
+          conda list
+
+      # - name: Test package
+      #   run: python -m pytest
