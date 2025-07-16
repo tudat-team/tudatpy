@@ -18,7 +18,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "environment/expose_environment.h"
 #include "environment_setup/expose_environment_setup.h"
 #include "estimation/expose_estimation.h"
 #include "estimation_setup/expose_estimation_setup.h"
