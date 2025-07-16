@@ -9,13 +9,7 @@
  */
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 #include "expose_numerical_simulation.h"
-
-#include <pybind11/operators.h>
-#include <pybind11/stl.h>
-
 #include "scalarTypes.h"
-#include "tudat/astro/basic_astro/dateTime.h"
-#include "tudat/basics/timeType.h"
 
 namespace py = pybind11;
 namespace tp = tudat::propagators;
@@ -51,53 +45,12 @@ void expose_numerical_simulation( py::module &m )
     estimation::expose_estimation_propagated_covariance( estimation_submodule );
     estimation::expose_estimation_single_observation_set( estimation_submodule );
 
-
-    py::class_< tudat::Time >( m, "Time", R"doc(No documentation found.)doc" )
-            .def( py::init< const int, const long double >( ),
-                  py::arg( "full_periods" ),
-                  py::arg( "seconds_into_full_period" ) )
-            .def( py::init< const double >( ), py::arg( "seconds_since_j2000" ) )
-            .def( "to_float",
-                  &tudat::Time::getSeconds< double >,
-                  R"doc(No documentation found.)doc" )
-            .def( py::self + py::self )
-            .def( py::self + double( ) )
-            .def( double( ) + py::self )
-            .def( py::self += py::self )
-            .def( py::self += double( ) )
-            .def( py::self - py::self )
-            .def( py::self - double( ) )
-            .def( py::self -= py::self )
-            .def( py::self -= double( ) )
-            .def( double( ) - py::self )
-            .def( py::self * double( ) )
-            .def( double( ) * py::self )
-            .def( py::self *= double( ) )
-            .def( py::self / double( ) )
-            .def( py::self /= double( ) )
-            .def( py::self == py::self )
-            .def( double( ) == py::self )
-            .def( py::self == double( ) )
-            .def( py::self != py::self )
-            .def( py::self != double( ) )
-            .def( double( ) != py::self )
-            .def( py::self < py::self )
-            .def( py::self < double( ) )
-            .def( double( ) < py::self )
-            .def( py::self > py::self )
-            .def( py::self > double( ) )
-            .def( double( ) > py::self )
-            .def( py::self <= py::self )
-            .def( py::self <= double( ) )
-            .def( double( ) <= py::self )
-            .def( py::self >= py::self )
-            .def( double( ) >= py::self )
-            .def( py::self >= double( ) );
-
+    // SAM NOTE: TO BE MOVED TO PROPAGATION_SETUP  (cpp function in propagationSettings.h)
     m.def( "get_integrated_type_and_body_list",
            &tp::getIntegratedTypeAndBodyList< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "propagator_settings" ) );
 
+    // SAM NOTE: TO BE MOVED TO PROPAGATION (?) (cpp function in tudat/src/astro/propagators/singleStateTypeDerivative.cpp)       
     m.def( "get_single_integration_size", &tp::getSingleIntegrationSize, py::arg( "state_type" ) );
 };
 

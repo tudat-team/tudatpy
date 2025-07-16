@@ -18,6 +18,7 @@
 #include <tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h>
 #include <tudat/math/basic/mathematicalConstants.h>
 #include <tudat/basics/deprecationWarnings.h>
+#include <pybind11/operators.h>
 
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <chrono>
@@ -104,6 +105,49 @@ namespace time_conversion
 
 void expose_time_conversion( py::module& m )
 {
+
+    py::class_< tudat::Time >( m, "Time", R"doc(No documentation found.)doc" )
+            .def( py::init< const int, const long double >( ),
+                  py::arg( "full_periods" ),
+                  py::arg( "seconds_into_full_period" ) )
+            .def( py::init< const double >( ), py::arg( "seconds_since_j2000" ) )
+            .def( "to_float",
+                  &tudat::Time::getSeconds< double >,
+                  R"doc(No documentation found.)doc" )
+            .def( py::self + py::self )
+            .def( py::self + double( ) )
+            .def( double( ) + py::self )
+            .def( py::self += py::self )
+            .def( py::self += double( ) )
+            .def( py::self - py::self )
+            .def( py::self - double( ) )
+            .def( py::self -= py::self )
+            .def( py::self -= double( ) )
+            .def( double( ) - py::self )
+            .def( py::self * double( ) )
+            .def( double( ) * py::self )
+            .def( py::self *= double( ) )
+            .def( py::self / double( ) )
+            .def( py::self /= double( ) )
+            .def( py::self == py::self )
+            .def( double( ) == py::self )
+            .def( py::self == double( ) )
+            .def( py::self != py::self )
+            .def( py::self != double( ) )
+            .def( double( ) != py::self )
+            .def( py::self < py::self )
+            .def( py::self < double( ) )
+            .def( double( ) < py::self )
+            .def( py::self > py::self )
+            .def( py::self > double( ) )
+            .def( double( ) > py::self )
+            .def( py::self <= py::self )
+            .def( py::self <= double( ) )
+            .def( double( ) <= py::self )
+            .def( py::self >= py::self )
+            .def( double( ) >= py::self )
+            .def( py::self >= double( ) );
+
     //    m.attr("default_time_converter") =
     //    tudat::earth_orientation::defaultTimeConverter;
 
