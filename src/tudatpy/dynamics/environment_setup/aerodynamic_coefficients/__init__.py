@@ -1,1 +1,1 @@
-from tudatpy.kernel.numerical_simulation.environment_setup.aerodynamic_coefficients import *
+from tudatpy.kernel.dynamics.environment_setup.aerodynamic_coefficients import *
