@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2019, Delft University of Technology
+/*    Copyright (c) 2010-2021, Delft University of Technology
  *    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -8,20 +8,14 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_OBSERVATIONS_SETUP_H
-#define TUDATPY_EXPOSE_OBSERVATIONS_SETUP_H
+#ifndef TUDATPY_EXPOSE_VIABILITY_H
+#define TUDATPY_EXPOSE_VIABILITY_H
 
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-
-#include "ancillary_settings/expose_ancillary_settings.h"
-#include "observations_dependent_variables/expose_observations_dependent_variables.h"
-#include "observations_simulation_settings/expose_observations_simulation_settings.h"
-#include "random_noise/expose_random_noise.h"
-#include "viability/expose_viability.h"
 
 
 namespace py = pybind11;
@@ -33,10 +27,14 @@ namespace estimation_refactoring
 namespace observations_setup
 {
 
-void expose_observations_setup( py::module &m );
+namespace viability
+{
 
+void expose_viability( py::module &m );
+
+}  // namespace viability
 }  // namespace observations_setup
 }  // namespace estimation_refactoring
 }  // namespace tudatpy
 
-#endif  // TUDATPY_EXPOSE_OBSERVATIONS_SETUP_H
+#endif  // TUDATPY_EXPOSE_VIABILITY_H
