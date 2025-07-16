@@ -10,8 +10,8 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-latest, macos-latest, macos-13]
-        python-version: [3.9, 3.10, 3.11]
+        os: [ubuntu-latest, macos-latest, macos-13, windows-latest]
+        python-version: [3.9]
     name: "${{ matrix.os }} :: Python ${{ matrix.python-version }}"
     steps:
       - uses: actions/checkout@v4
@@ -21,14 +21,19 @@ jobs:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
 
-      - name: Set fortran compiler on macos
-        if: runner.os == 'macOS'
-        run: |
-          echo "PATH=$(brew --prefix gfortran)/bin:$PATH" >> $GITHUB_ENV
+      # - name: Set fortran compiler on macos
+      #   if: runner.os == 'macOS'
+      #   run: |
+      #     echo "PATH=$(brew --prefix gfortran)/bin:$PATH" >> $GITHUB_ENV
 
-      - name: Install package
+      - name: Create conda environment
         run: |
-          which conda
+          conda create -f environment.yaml
+
+      - name: Activate environment in different step
+        run: |
+          conda activate tudat-bundle
+          conda list
 
       # - name: Test package
       #   run: python -m pytest
