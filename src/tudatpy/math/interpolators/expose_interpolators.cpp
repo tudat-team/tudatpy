@@ -506,7 +506,7 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
                   py::arg( "independent_variable_value" ),
                   R"doc(
 
-         This function performs the interpolation at the requested independent variable value.
+        This function performs the interpolation at the requested independent variable value.
 
         Parameters
         ----------
