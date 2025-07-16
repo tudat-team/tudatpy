@@ -21,7 +21,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
 
-      - name: Set fortran compiler on macOS
+      - name: Set fortran compiler on macos
         if: runner.os == 'macOS'
         run: |
           echo "PATH=$(brew --prefix gfortran)/bin:$PATH" >> $GITHUB_ENV
