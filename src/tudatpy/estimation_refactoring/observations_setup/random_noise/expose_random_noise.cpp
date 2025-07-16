@@ -87,7 +87,7 @@ namespace tudatpy
 {
 namespace estimation_refactoring
 {
-namespace observable_models_setup
+namespace observations_setup
 {
 
 namespace random_noise
