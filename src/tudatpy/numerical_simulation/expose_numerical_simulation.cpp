@@ -78,13 +78,96 @@ namespace numerical_simulation
 
 void expose_numerical_simulation( py::module& m )
 {
-    // Define the Time class at the top-level of the kernel module
-    py::class_< tudat::Time >( m, "Time", R"doc(Tudat custom time class)doc" )
-            .def( py::init< const double >( ), py::arg( "seconds_since_j2000" ) )
-            .def( py::init< const int, const long double >( ), py::arg( "full_periods" ), py::arg( "seconds_into_full_period" ) )
+    py::class_< tudat::Time >( m, "Time", R"doc(
+        
+    Class for defining time with a resolution that is sub-femtosecond for very long periods of time.
+    
+    Using double or long double precision as a representation of time, the issue of reduced precision will 
+    occur over long time periods. For instance, over a period of 10^8 seconds (about 3 years), double and 
+    long double representations have resolution of about 10^-8 and 10^-11 s respectively, which is 
+    insufficient for various applications. 
+    
+    This class uses an integer to represent the number of hours since an epoch, and a long double to 
+    represent the number of seconds into the present hour. This provides a resolution of < 1 femtosecond, 
+    over a range of 2147483647 hours (about 300,000 years), which is more than sufficient for practical 
+    applications.
+    
+    The Time class supports standard arithmetic operations (+, -, *, /) with Time objects and floats, comparison operations, and 
+    automatic conversion to/from floating-point types.
+        )doc" )
+            .def( py::init< const double >( ),
+                  py::arg( "seconds_since_j2000" ),
+                  R"doc(
+
+     Create a Time object from seconds since J2000.
+     
+     Parameters
+     ----------
+     seconds_since_j2000 : float
+         Number of seconds since J2000 epoch
+     
+     Returns
+     -------
+     Time
+         Time object initialized to specified seconds since J2000
+     
+     Examples
+     --------
+     >>> from tudatpy.kernel import Time
+     >>> t = Time(3600.0)  # 1 hour after J2000
+     )doc" )
+
+            // Add docstring for the second constructor
+            .def( py::init< const int, const long double >( ),
+                  py::arg( "full_periods" ),
+                  py::arg( "seconds_into_full_period" ),
+                  R"doc(
+
+     Create a Time object from full periods (hours) and seconds into the current period.
+     
+     Parameters
+     ----------
+     full_periods : int
+         Number of full hours since epoch
+     seconds_into_full_period : float
+         Number of seconds into current hour. Need not be in range [0, 3600];
+         the time representation is normalized automatically.
+     
+     Returns
+     -------
+     Time
+         Time object initialized to specified time
+     
+     Examples
+     --------
+     >>> from tudatpy.kernel import Time
+     >>> t = Time(2, 1800.0)  # 2.5 hours after epoch
+     )doc" )
             .def( "to_float",
                   &tudat::Time::getSeconds< double >,
-                  R"doc(Converts the time to a float (double) representing seconds since J2000.)doc" )
+                  R"doc(
+    Converts the time to a float (double) representing seconds since J2000.
+        
+    Returns
+    -------
+    float
+        Number of seconds since J2000
+    
+    Examples
+    --------
+    In this example, a Time object is converted back to seconds since J2000.
+    
+    .. code-block:: python
+    
+        from tudatpy.kernel import Time
+        
+        # Create a Time object from seconds since J2000
+        t = Time(3600.0)  # 1 hour after J2000
+        
+        # Convert back to seconds
+        seconds = t.to_float()
+        print(seconds)  # prints 3600.0
+    )doc" )
             .def( "__float__", &tudat::Time::getSeconds< double > )
             .def( py::self + py::self )
             .def( py::self + double( ) )
