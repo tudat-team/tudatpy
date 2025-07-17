@@ -86,6 +86,9 @@ void expose_numerical_simulation( py::module& m )
                   &tudat::Time::getSeconds< double >,
                   R"doc(Converts the time to a float (double) representing seconds since J2000.)doc" )
             .def( "__float__", &tudat::Time::getSeconds< double > )
+            .def("__eq__", [](const tudat::Time& self, const tudat::Time& other) {
+                return self == other; })
+            .def("__hash__", [](const Time &self) { return self.hash(); } )
             .def( py::self + py::self )
             .def( py::self + double( ) )
             .def( double( ) + py::self )
