@@ -15,7 +15,7 @@ from typing import Union, List, Any
 import datetime
 
 from tudatpy import constants
-from tudatpy.kernel.numerical_simulation.environment_setup import (
+from tudatpy.kernel.dynamics.environment_setup import (
     ephemeris,
     BodySettings,
 )
