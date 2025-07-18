@@ -110,8 +110,8 @@ public:
     void manuallySetSecondaryData( const std::shared_ptr< SingleArcSimulationResults< StateScalarType, TimeType > > resultsToCopy )
     {
         dependentVariableHistory_ = resultsToCopy->getDependentVariableHistory( );
-        cumulativeComputationTimeHistory_ = resultsToCopy->getCumulativeComputationTimeHistory( );
-        cumulativeNumberOfFunctionEvaluations_ = resultsToCopy->getCumulativeNumberOfFunctionEvaluations( );
+        cumulativeComputationTimeHistory_ = resultsToCopy->getCumulativeComputationTimeHistoryTimeType( );
+        cumulativeNumberOfFunctionEvaluations_ = resultsToCopy->getCumulativeNumberOfFunctionEvaluationsTimeType( );
         propagationTerminationReason_ = resultsToCopy->getPropagationTerminationReason( );
         propagationIsPerformed_ = true;
     }
@@ -219,16 +219,17 @@ public:
         return equationsOfMotionNumericalSolution_;
     }
 
-    std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > getEquationsOfMotionNumericalSolutionDouble( )
+    template< typename OutputTimeType >
+    std::map< OutputTimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > getEquationsOfMotionNumericalSolutionTemplated( )
     {
-        return utilities::staticCastMapKeys< double, TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >(
-                equationsOfMotionNumericalSolution_ );
+        return utilities::staticCastMapKeys<OutputTimeType, TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, 1> >(
+            getEquationsOfMotionNumericalSolution( ) );
     }
 
     std::pair< std::vector< double >, std::vector< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >
     getEquationsOfMotionNumericalSolutionDoubleSplit( )
     {
-        std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > stateMap = getEquationsOfMotionNumericalSolutionDouble( );
+        std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > stateMap = getEquationsOfMotionNumericalSolutionTemplated< double >( );
         return std::make_pair( utilities::createVectorFromMapKeys( stateMap ), utilities::createVectorFromMapValues( stateMap ) );
     }
 
@@ -238,10 +239,24 @@ public:
         return equationsOfMotionNumericalSolutionRaw_;
     }
 
+    template< typename OutputTimeType >
+    std::map< OutputTimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > getEquationsOfMotionNumericalSolutionRawTemplated( )
+    {
+        return utilities::staticCastMapKeys<OutputTimeType, TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, 1> >(
+            getEquationsOfMotionNumericalSolutionRaw( ) );
+    }
+
     std::map< TimeType, Eigen::VectorXd >& getDependentVariableHistory( )
     {
         checkAvailabilityOfSolution( "dependent variable history", false );
         return dependentVariableHistory_;
+    }
+
+    template< typename OutputTimeType >
+    std::map< OutputTimeType, Eigen::VectorXd > getDependentVariableHistoryTemplated( )
+    {
+        return utilities::staticCastMapKeys<OutputTimeType, TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, 1> >(
+            getDependentVariableHistory( ) );
     }
 
     std::map< double, Eigen::VectorXd > getDependentVariableHistoryDouble( )
@@ -250,10 +265,16 @@ public:
         return utilities::staticCastMapKeys< double, TimeType, Eigen::VectorXd >( dependentVariableHistory_ );
     }
 
-    std::map< TimeType, double >& getCumulativeComputationTimeHistory( )
+    std::map< TimeType, double > getCumulativeComputationTimeHistoryTimeType( )
     {
         checkAvailabilityOfSolution( "cumulative computation time history", false );
         return cumulativeComputationTimeHistory_;
+    }
+
+    std::map< double, double > getCumulativeComputationTimeHistory( )
+    {
+        return utilities::staticCastMapKeys<double, TimeType, double >(
+            cumulativeComputationTimeHistory_ );
     }
 
     double getTotalComputationRuntime( )
@@ -262,10 +283,16 @@ public:
         return std::max( cumulativeComputationTimeHistory_.begin( )->second, cumulativeComputationTimeHistory_.rbegin( )->second );
     }
 
-    std::map< TimeType, unsigned int >& getCumulativeNumberOfFunctionEvaluations( )
+
+    std::map< TimeType, unsigned int > getCumulativeNumberOfFunctionEvaluationsTimeType( )
     {
-        checkAvailabilityOfSolution( "cumulative number of function evaluations", false );
         return cumulativeNumberOfFunctionEvaluations_;
+    }
+
+    std::map< double, unsigned int > getCumulativeNumberOfFunctionEvaluations( )
+    {
+        return utilities::staticCastMapKeys<double, TimeType, unsigned int >(
+            cumulativeNumberOfFunctionEvaluations_ );
     }
 
     double getTotalNumberOfFunctionEvaluations( )
@@ -836,7 +863,7 @@ public:
         {
             for( unsigned int i = 0; i < singleArcResults_.size( ); i++ )
             {
-                concatenatedResults.push_back( singleArcResults_.at( i )->getCumulativeComputationTimeHistory( ) );
+                concatenatedResults.push_back( singleArcResults_.at( i )->getCumulativeComputationTimeHistoryTimeType( ) );
             }
         }
         return concatenatedResults;
@@ -1008,7 +1035,7 @@ public:
         }
         if( !singleArcResults_->getSolutionIsCleared( ) )
         {
-            concatenatedResults.push_back( singleArcResults_->getCumulativeComputationTimeHistory( ) );
+            concatenatedResults.push_back( singleArcResults_->getCumulativeComputationTimeHistoryTimeType( ) );
             std::vector< std::map< TimeType, double > > multiArcResults =
                     multiArcResults_->getConcatenatedCumulativeComputationTimeHistory( );
             concatenatedResults.insert( concatenatedResults.end( ), multiArcResults.begin( ), multiArcResults.end( ) );
