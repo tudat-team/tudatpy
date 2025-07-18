@@ -20,6 +20,7 @@
 #include "tudat/math/interpolators/multiLinearInterpolator.h"
 #include "tudat/math/interpolators/createInterpolator.h"
 #include "tudat/paths.hpp"
+#include "tudat/astro/aerodynamics/gasSurfaceInteractionModel.h"
 
 namespace tudat
 {
@@ -186,7 +187,7 @@ public:
         controlSurfaceSettings_[ controlSurfaceName ] = controlSurfaceSetting;
     }
 
-private:
+protected:
     //  Type of atmosphere model that is to be created.
     AerodynamicCoefficientTypes aerodynamicCoefficientTypes_;
 
@@ -446,6 +447,59 @@ private:
     std::function< Eigen::Vector3d( const std::vector< double >& ) > momentCoefficientFunction_;
 };
 
+class PanelledAerodynamicCoefficientSettings: public AerodynamicCoefficientSettings
+{
+public:
+
+PanelledAerodynamicCoefficientSettings( const tudat::aerodynamics::GasSurfaceInteractionModelType gasSurfaceInteractionModelType,
+                                        const double referenceArea, 
+                                        const int maximumNumberOfPixels,
+                                        const bool onlyDrag, 
+                                        const aerodynamics::AerodynamicCoefficientFrames coefficientFrame,
+                                        const Eigen::Vector3d& constantForceCoefficient = Eigen::Vector3d::Zero( ) ):
+                                        AerodynamicCoefficientSettings( panelled_coefficients, TUDAT_NAN, referenceArea, 
+                                            Eigen::Vector3d::Zero( ), {}, coefficientFrame ),
+                                        gasSurfaceInteractionModelType_( gasSurfaceInteractionModelType ),
+                                        maximumNumberOfPixels_( maximumNumberOfPixels ),
+                                        onlyDrag_( onlyDrag ),
+                                        constantForceCoefficient_( constantForceCoefficient )
+{ }
+
+int getMaximumNumberOfPixels( ) const
+{
+    return maximumNumberOfPixels_;
+}
+
+tudat::aerodynamics::GasSurfaceInteractionModelType getGasSurfaceInteractionModelType( ) const
+{
+    return gasSurfaceInteractionModelType_;
+}
+
+bool getOnlyDrag( ) const
+{
+    return onlyDrag_;
+}
+
+Eigen::Vector3d getConstantForceCoefficient( ) const
+{
+    return constantForceCoefficient_;
+}
+
+private:
+
+tudat::aerodynamics::GasSurfaceInteractionModelType gasSurfaceInteractionModelType_;
+
+int maximumNumberOfPixels_;
+
+bool onlyDrag_;
+
+aerodynamics::AerodynamicCoefficientFrames coefficientFrame_;
+
+// constant force coefficient (variable cross-section)
+Eigen::Vector3d constantForceCoefficient_;
+
+};
+
 //! @get_docstring(constantAerodynamicCoefficientSettings)
 inline std::shared_ptr< AerodynamicCoefficientSettings > constantAerodynamicCoefficientSettingsDeprecated(
         const double referenceArea,
@@ -605,6 +659,25 @@ inline std::shared_ptr< AerodynamicCoefficientSettings > customAerodynamicCoeffi
             independentVariableNames,
             forceCoefficientsFrame,
             aerodynamics::undefined_frame_coefficients );
+}
+
+inline std::shared_ptr< AerodynamicCoefficientSettings > panelledAerodynamicCoefficientSettings( 
+        const tudat::aerodynamics::GasSurfaceInteractionModelType gasSurfaceInteractionModelType,
+        const double referenceArea, 
+        const int maximumNumberOfPixels = 0,
+        const bool onlyDrag = false ) 
+{
+    return std::make_shared< PanelledAerodynamicCoefficientSettings >( gasSurfaceInteractionModelType, referenceArea, 
+        maximumNumberOfPixels, onlyDrag, aerodynamics::body_fixed_frame_coefficients );
+}
+
+inline std::shared_ptr< AerodynamicCoefficientSettings > panelledConstantAerodynamicCoefficientSettings( 
+        const Eigen::Vector3d& constantForceCoefficient,
+        const int maximumNumberOfPixels = 0, 
+        const aerodynamics::AerodynamicCoefficientFrames coefficientFrame = aerodynamics::negative_aerodynamic_frame_coefficients) 
+{
+    return std::make_shared< PanelledAerodynamicCoefficientSettings >( tudat::aerodynamics::constantCoefficients, TUDAT_NAN, 
+        maximumNumberOfPixels, false, coefficientFrame, constantForceCoefficient );
 }
 
 //  Base class (non-functional) for the different classes of TabulatedAerodynamicCoefficientSettings.

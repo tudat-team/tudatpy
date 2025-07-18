@@ -662,6 +662,25 @@ private:
 
                             break;
                         }
+                        case body_segment_orientation_update: {
+                            if( bodyList_.at( currentBodies.at( i ) )->getVehicleSystems( ) == nullptr )
+                            {
+                                throw std::runtime_error( "Request body segment orientation update of " + currentBodies.at( i ) +
+                                                          ", but body has no vehicle systems" );
+                            }
+                            updateTimeFunctionList[ body_segment_orientation_update ].push_back(
+                                    std::make_pair( currentBodies.at( i ),
+                                                    std::bind( &system_models::VehicleSystems::updatePartOrientations,
+                                                               bodyList_.at( currentBodies.at( i ) )->getVehicleSystems( ),
+                                                               std::placeholders::_1 ) ) );
+
+                            resetFunctionVector_.push_back(
+                                    boost::make_tuple( body_segment_orientation_update,
+                                                       currentBodies.at( i ),
+                                                       std::bind( &system_models::VehicleSystems::resetTime,
+                                                                  bodyList_.at( currentBodies.at( i ) )->getVehicleSystems( ) ) ) );
+                            break;
+                        }
                         case vehicle_flight_conditions_update: {
                             // Check if current body has flight conditions set.
                             if( bodyList_.at( currentBodies.at( i ) )->getFlightConditions( ) != nullptr )
@@ -740,25 +759,6 @@ private:
                                                     std::bind( &electromagnetism::RadiationPressureTargetModel::updateMembers,
                                                                targetModel,
                                                                std::placeholders::_1 ) ) );
-                            break;
-                        }
-                        case body_segment_orientation_update: {
-                            if( bodyList_.at( currentBodies.at( i ) )->getVehicleSystems( ) == nullptr )
-                            {
-                                throw std::runtime_error( "Request body segment orientation update of " + currentBodies.at( i ) +
-                                                          ", but body has no vehicle systems" );
-                            }
-                            updateTimeFunctionList[ body_segment_orientation_update ].push_back(
-                                    std::make_pair( currentBodies.at( i ),
-                                                    std::bind( &system_models::VehicleSystems::updatePartOrientations,
-                                                               bodyList_.at( currentBodies.at( i ) )->getVehicleSystems( ),
-                                                               std::placeholders::_1 ) ) );
-
-                            resetFunctionVector_.push_back(
-                                    boost::make_tuple( body_segment_orientation_update,
-                                                       currentBodies.at( i ),
-                                                       std::bind( &system_models::VehicleSystems::resetTime,
-                                                                  bodyList_.at( currentBodies.at( i ) )->getVehicleSystems( ) ) ) );
                             break;
                         }
                     }
