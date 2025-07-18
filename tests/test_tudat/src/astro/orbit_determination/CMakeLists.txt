@@ -23,7 +23,7 @@ TUDAT_ADD_TEST_CASE(EstimationInput
     ${Tudat_ESTIMATION_LIBRARIES}
     )
 
-TUDAT_ADD_TEST_CASE2(EstimationFromIdealDataDoubleDouble
+TUDAT_ADD_TEST_CASE(EstimationFromIdealDataDoubleDouble
     PRIVATE_LINKS
     ${Tudat_ESTIMATION_LIBRARIES}
     )
@@ -150,17 +150,17 @@ TUDAT_ADD_TEST_CASE(CovariancePropagation
  if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
 
 
-    TUDAT_ADD_TEST_CASE2(EstimationFromIdealDataTimeDouble
+    TUDAT_ADD_TEST_CASE(EstimationFromIdealDataTimeDouble
             PRIVATE_LINKS
             ${Tudat_ESTIMATION_LIBRARIES}
     )
 
-    TUDAT_ADD_TEST_CASE2(EstimationFromIdealDataDoubleLongDouble
+    TUDAT_ADD_TEST_CASE(EstimationFromIdealDataDoubleLongDouble
         PRIVATE_LINKS
         ${Tudat_ESTIMATION_LIBRARIES}
         )
 
-    TUDAT_ADD_TEST_CASE2(EstimationFromIdealDataTimeLongDouble
+    TUDAT_ADD_TEST_CASE(EstimationFromIdealDataTimeLongDouble
         PRIVATE_LINKS
         ${Tudat_ESTIMATION_LIBRARIES}
         )
