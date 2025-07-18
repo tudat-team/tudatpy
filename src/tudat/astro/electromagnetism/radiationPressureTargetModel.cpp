@@ -81,13 +81,15 @@ void PaneledRadiationPressureTargetModel::updateRadiationPressureForcing( double
         illuminatedPanelFractions_ = selfShadowingPerSource_.at( sourceName )->getIlluminatedPanelFractions( );
     }
     // common logic
-    for( int i = 0; i < totalNumberOfPanels_; i++ )
+    double surfacePanelCosine;
+    for ( int i = 0; i< totalNumberOfPanels_; i++)
     {
         surfaceNormals_[ i ] = this->allPanels_.at( i )->getBodyFixedSurfaceNormal( )( );
-        surfacePanelCosines_[ i ] = ( -sourceToTargetDirectionLocalFrame ).dot( surfaceNormals_[ i ] );
+        surfacePanelCosine = ( -sourceToTargetDirectionLocalFrame ).dot( surfaceNormals_[ i ] );
+        surfacePanelCosines_[ i ] = surfacePanelCosine > 0 ? surfacePanelCosine : 0.0;
         if( computeTorques_ )
         {
-            panelCentroidMomentArms_[ i ] = this->allPanels_.at( i )->getFrameFixedPositionVector( )( ) - currentCenterOfMass;
+            panelCentroidMomentArms_[ i ] = this->allPanels_.at( i )->getBodyFixedPositionVector( )( ) - currentCenterOfMass ;
         }
         if( surfacePanelCosines_[ i ] > 0 )
         {
