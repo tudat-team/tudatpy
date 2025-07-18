@@ -138,28 +138,23 @@ void expose_dependent_variable_setup( py::module &m )
                     R"doc(
       )doc" )
             .value( "aerodynamic_force_coefficients_type",
-                    tp::PropagationDependentVariables::
-                            aerodynamic_force_coefficients_dependent_variable,
+                    tp::PropagationDependentVariables::aerodynamic_force_coefficients_dependent_variable,
                     R"doc(
       )doc" )
             .value( "aerodynamic_moment_coefficients_type",
-                    tp::PropagationDependentVariables::
-                            aerodynamic_moment_coefficients_dependent_variable,
+                    tp::PropagationDependentVariables::aerodynamic_moment_coefficients_dependent_variable,
                     R"doc(
       )doc" )
             .value( "rotation_matrix_to_body_fixed_frame_type",
-                    tp::PropagationDependentVariables::
-                            inertial_to_body_fixed_rotation_matrix_variable,
+                    tp::PropagationDependentVariables::inertial_to_body_fixed_rotation_matrix_variable,
                     R"doc(
       )doc" )
             .value( "intermediate_aerodynamic_rotation_matrix_type",
-                    tp::PropagationDependentVariables::
-                            intermediate_aerodynamic_rotation_matrix_variable,
+                    tp::PropagationDependentVariables::intermediate_aerodynamic_rotation_matrix_variable,
                     R"doc(
       )doc" )
             .value( "relative_body_aerodynamic_orientation_angle_type",
-                    tp::PropagationDependentVariables::
-                            relative_body_aerodynamic_orientation_angle_variable,
+                    tp::PropagationDependentVariables::relative_body_aerodynamic_orientation_angle_variable,
                     R"doc(
       )doc" )
             .value( "body_fixed_airspeed_based_velocity_type",
@@ -171,8 +166,7 @@ void expose_dependent_variable_setup( py::module &m )
                     R"doc(
       )doc" )
             .value( "stagnation_point_heat_flux_type",
-                    tp::PropagationDependentVariables::
-                            stagnation_point_heat_flux_dependent_variable,
+                    tp::PropagationDependentVariables::stagnation_point_heat_flux_dependent_variable,
                     R"doc(No documentation found.)doc" )
             .value( "local_temperature_type",
                     tp::PropagationDependentVariables::local_temperature_dependent_variable,
@@ -183,8 +177,7 @@ void expose_dependent_variable_setup( py::module &m )
                     R"doc(
       )doc" )
             .value( "control_surface_deflection_type",
-                    tp::PropagationDependentVariables::
-                            control_surface_deflection_dependent_variable,
+                    tp::PropagationDependentVariables::control_surface_deflection_dependent_variable,
                     R"doc(
       )doc" )
             .value( "total_mass_rate_type",
@@ -192,13 +185,11 @@ void expose_dependent_variable_setup( py::module &m )
                     R"doc(
       )doc" )
             .value( "tnw_to_inertial_frame_rotation_type",
-                    tp::PropagationDependentVariables::
-                            tnw_to_inertial_frame_rotation_dependent_variable,
+                    tp::PropagationDependentVariables::tnw_to_inertial_frame_rotation_dependent_variable,
                     R"doc(
       )doc" )
             .value( "rsw_to_inertial_frame_rotation_type",
-                    tp::PropagationDependentVariables::
-                            rsw_to_inertial_frame_rotation_dependent_variable,
+                    tp::PropagationDependentVariables::rsw_to_inertial_frame_rotation_dependent_variable,
                     R"doc(
       )doc" )
             .value( "periapsis_altitude_type",
@@ -226,8 +217,7 @@ void expose_dependent_variable_setup( py::module &m )
                     R"doc(
       )doc" )
             .value( "body_fixed_groundspeed_based_velocity_type",
-                    tp::PropagationDependentVariables::
-                            body_fixed_groundspeed_based_velocity_variable,
+                    tp::PropagationDependentVariables::body_fixed_groundspeed_based_velocity_variable,
                     R"doc(
       )doc" )
             .value( "keplerian_state_type",
@@ -239,13 +229,11 @@ void expose_dependent_variable_setup( py::module &m )
                     R"doc(
       )doc" )
             .value( "spherical_harmonic_acceleration_terms_type",
-                    tp::PropagationDependentVariables::
-                            spherical_harmonic_acceleration_terms_dependent_variable,
+                    tp::PropagationDependentVariables::spherical_harmonic_acceleration_terms_dependent_variable,
                     R"doc(
       )doc" )
             .value( "spherical_harmonic_acceleration_norm_terms_type",
-                    tp::PropagationDependentVariables::
-                            spherical_harmonic_acceleration_norm_terms_dependent_variable,
+                    tp::PropagationDependentVariables::spherical_harmonic_acceleration_norm_terms_dependent_variable,
                     R"doc(
       )doc" )
             .value( "body_fixed_relative_cartesian_position_type",
@@ -266,14 +254,12 @@ void expose_dependent_variable_setup( py::module &m )
       )doc" )
             .value( "single_gravity_field_variation_acceleration_terms_"
                     "type",
-                    tp::PropagationDependentVariables::
-                            single_gravity_field_variation_acceleration_terms,
+                    tp::PropagationDependentVariables::single_gravity_field_variation_acceleration_terms,
                     R"doc(
       )doc" )
             .value( "acceleration_partial_wrt_body_translational_state_"
                     "type",
-                    tp::PropagationDependentVariables::
-                            acceleration_partial_wrt_body_translational_state,
+                    tp::PropagationDependentVariables::acceleration_partial_wrt_body_translational_state,
                     R"doc(
       )doc" )
             .value( "local_dynamic_pressure_type",
@@ -292,20 +278,16 @@ void expose_dependent_variable_setup( py::module &m )
                     R"doc(
       )doc" )
             .value( "radiation_pressure_coefficient_type",
-                    tp::PropagationDependentVariables::
-                            radiation_pressure_coefficient_dependent_variable,
+                    tp::PropagationDependentVariables::radiation_pressure_coefficient_dependent_variable,
                     R"doc(
       )doc" )
-            .value( "custom_type",
-                    tp::PropagationDependentVariables::custom_dependent_variable,
-                    R"doc(No documentation found.)doc" )
+            .value( "custom_type", tp::PropagationDependentVariables::custom_dependent_variable, R"doc(No documentation found.)doc" )
             .value( "gravity_field_potential_type",
                     tp::PropagationDependentVariables::gravity_field_potential_dependent_variable,
                     R"doc(
       )doc" )
             .value( "gravity_field_laplacian_of_potential_type",
-                    tp::PropagationDependentVariables::
-                            gravity_field_laplacian_of_potential_dependent_variable,
+                    tp::PropagationDependentVariables::gravity_field_laplacian_of_potential_dependent_variable,
                     R"doc(
       )doc" )
             .export_values( );
@@ -331,11 +313,10 @@ void expose_dependent_variable_setup( py::module &m )
 
       )doc" );
 
-    py::class_< tp::SingleDependentVariableSaveSettings,
-                std::shared_ptr< tp::SingleDependentVariableSaveSettings >,
-                tp::VariableSettings >( m,
-                                        "SingleDependentVariableSaveSettings",
-                                        R"doc(
+    py::class_< tp::SingleDependentVariableSaveSettings, std::shared_ptr< tp::SingleDependentVariableSaveSettings >, tp::VariableSettings >(
+            m,
+            "SingleDependentVariableSaveSettings",
+            R"doc(
 
          `VariableSettings`-derived class to define settings for dependent variables that are to be saved during propagation.
 
@@ -347,7 +328,50 @@ void expose_dependent_variable_setup( py::module &m )
 
 
 
-      )doc" );
+      )doc" )
+            .def_property_readonly( "dependent_variable_type",
+                                    &tp::SingleDependentVariableSaveSettings::getDependentVariableType,
+                                    R"doc(
+                                    
+Type of the dependent variable that is being saved.
+
+:type: PropagationDependentVariables
+
+)doc" )
+            .def_property_readonly( "associated_body",
+                                    &tp::SingleDependentVariableSaveSettings::getAssociatedBody,
+                                    R"doc(
+Body associated with variable.
+
+:type: str
+
+)doc" )
+            .def_property_readonly( "secondary_body",
+                                    &tp::SingleDependentVariableSaveSettings::getSecondaryBody,
+                                    R"doc(
+                                    
+Secondary body w.r.t. which parameter is defined, e.g. relative position is defined for the associated body w.r.t. secondary body.
+
+.. note::
+
+    This parameter is not necessarily defined. In this case an empty string is returned.                    
+                                    
+:type: str
+
+                                    )doc" )
+            .def_property_readonly( "component_index",
+                                    &tp::SingleDependentVariableSaveSettings::getComponentIndex,
+                                    R"doc(
+                                    
+Index of the component to be saved.
+
+.. note::
+
+    This parameter is only applicable for vectorial dependent variables. If negative, all components of the vector are saved.                    
+                                    
+:type: int
+
+                                    )doc" );
     //            .def(py::init<
     //                 const tp::PropagationDependentVariables,
     //                 const std::string &,
@@ -360,10 +384,9 @@ void expose_dependent_variable_setup( py::module &m )
 
     py::class_< tp::SingleAccelerationDependentVariableSaveSettings,
                 std::shared_ptr< tp::SingleAccelerationDependentVariableSaveSettings >,
-                tp::SingleDependentVariableSaveSettings >(
-            m,
-            "SingleAccelerationDependentVariableSaveSettings",
-            R"doc(
+                tp::SingleDependentVariableSaveSettings >( m,
+                                                           "SingleAccelerationDependentVariableSaveSettings",
+                                                           R"doc(
 
          `SingleDependentVariableSaveSettings`-derived class to save a single acceleration (norm or vector) during propagation.
 
@@ -372,7 +395,16 @@ void expose_dependent_variable_setup( py::module &m )
 
 
 
-      )doc" );
+      )doc" )
+            .def_property_readonly( "acceleration_model_type",
+                                    &tp::SingleAccelerationDependentVariableSaveSettings::getAccelerationModelType,
+                                    R"doc(
+                                    
+The type of the acceleration that is to be saved.
+
+:type: AvailableAcceleration
+
+)doc" );
 
     //            .def(py::init<
     //                 const
@@ -390,19 +422,99 @@ void expose_dependent_variable_setup( py::module &m )
     m.def( "get_dependent_variable_id",
            &tp::getDependentVariableId,
            py::arg( "dependent_variable_settings" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+ Function to return a string representation of the dependent variable.
+
+ Parameters
+ ----------
+ dependent_variable_settings : SingleDependentVariableSaveSettings
+     Dependent variable settings for which the representation is to be returned.
+ Returns
+ -------
+ str
+     String representation of the dependent variable.
+ Examples
+ --------
+
+ .. code-block:: python
+
+     from tudatpy.numerical_simulation import propagation_setup
+
+     dep_var_settings = propagation_setup.dependent_variable.single_acceleration(propagation_setup.acceleration.point_mass_gravity_type, "SC", "Earth")
+
+     print(propagation_setup.dependent_variable.get_dependent_variable_id(dep_var_settings))
+     # prints "Single acceleration in inertial frame of type central gravity , acting on SC, exerted by Earth"
+
+     )doc" );
 
     m.def( "get_dependent_variable_size",
            &tp::getDependentVariableSaveSize,
            py::arg( "dependent_variable_settings" ),
            py::arg( "bodies" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+ Function to get the size of a dependent variable.
+
+ Parameters
+ ----------
+ dependent_variable_settings : SingleDependentVariableSaveSettings
+     Dependent variable settings for which the size is to be returned.
+ bodies : SystemOfBodies
+     Bodies that contain the bodies associated with the dependent variable.
+ Returns
+ -------
+ int
+     Size of the dependent variable.
+ Examples
+ --------
+
+ .. code-block:: python
+
+     from tudatpy.numerical_simulation import propagation_setup
+
+     bodies = ...
+
+     dep_var_settings = propagation_setup.dependent_variable.single_acceleration(propagation_setup.acceleration.point_mass_gravity_type, "SC", "Earth")
+
+     print(propagation_setup.dependent_variable.get_dependent_variable_size(dep_var_settings, bodies))
+     # prints 3
+
+     )doc" );
 
     m.def( "get_dependent_variable_shape",
            &tp::getDependentVariableShape,
            py::arg( "dependent_variable_settings" ),
            py::arg( "bodies" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+ Function to get the shape of a dependent variable.
+
+ Parameters
+ ----------
+ dependent_variable_settings : SingleDependentVariableSaveSettings
+     Dependent variable settings for which the shape is to be returned.
+ bodies : SystemOfBodies
+     Bodies that contain the bodies associated with the dependent variable.
+ Returns
+ -------
+ tuple[int, int]
+     Shape of the dependent variable.
+ Examples
+ --------
+
+ .. code-block:: python
+
+     from tudatpy.numerical_simulation import propagation_setup
+
+     bodies = ...
+
+     dep_var_settings = propagation_setup.dependent_variable.single_acceleration(propagation_setup.acceleration.point_mass_gravity_type, "SC", "Earth")
+
+     print(propagation_setup.dependent_variable.get_dependent_variable_shape(dep_var_settings, bodies))
+     # prints (3, 1)
+
+     )doc" );
 
     //////////////////////////////////////////////////////////////////////////////////////
     /// FREE FUNCTIONS
@@ -429,7 +541,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -468,7 +582,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -496,7 +612,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -524,7 +642,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -552,7 +672,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -580,7 +702,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -613,7 +737,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -641,7 +767,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -669,7 +797,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 3
 
 
 
@@ -697,7 +827,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -725,7 +857,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 3
 
 
 
@@ -753,7 +887,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 6
 
 
 
@@ -781,7 +917,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 6
 
 
 
@@ -810,9 +948,11 @@ void expose_dependent_variable_setup( py::module &m )
      Body exerting acceleration.
  Returns
  -------
- SingleDependentVariableSaveSettings
+ SingleAccelerationDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 3
 
 
 
@@ -853,9 +993,11 @@ void expose_dependent_variable_setup( py::module &m )
      Body exerting acceleration.
  Returns
  -------
- SingleDependentVariableSaveSettings
+ SingleAccelerationDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -891,7 +1033,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -915,7 +1059,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 3
 
 
 
@@ -945,7 +1091,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -975,7 +1123,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 3
 
 
 
@@ -999,7 +1149,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -1023,7 +1175,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 3
 
 
 
@@ -1054,7 +1208,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 3*``len(component_indices)``
 
 
 
@@ -1101,7 +1257,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ ``len(component_indices)``
 
 
 
@@ -1146,7 +1304,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 3
 
 
 
@@ -1174,7 +1334,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 3
 
 
      )doc" );
@@ -1227,7 +1389,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -1255,7 +1419,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -1283,7 +1449,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -1311,7 +1479,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -1339,7 +1509,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -1367,7 +1539,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -1394,7 +1568,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -1421,7 +1597,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -1449,7 +1627,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -1477,7 +1657,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 3
 
 
 
@@ -1511,7 +1693,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 3
 
 
 
@@ -1547,7 +1731,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 3*``len(component_indices)``
 
 
 
@@ -1607,7 +1793,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 3
 
 
 
@@ -1635,7 +1823,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 3
 
 
 
@@ -1650,7 +1840,25 @@ void expose_dependent_variable_setup( py::module &m )
 
  Function to add the rotation matrix from inertial to body-fixed frame to the dependent variables to save.
 
- Function to add the rotation matrix from inertial to body-fixed frame to the dependent variables to save. This requires the rotation of the body to be defined (either in the environment or the state vector). NOTE: a rotation matrix is returned as a nine-entry vector in the dependent variable output, where entry :math:`(i,j)` of the matrix is stored in entry :math:`(3i+j)` of the vector (with :math:`i,j=0,1,2`),
+ Function to add the rotation matrix from inertial to body-fixed frame to the dependent variables to save. This requires the rotation of the body to be defined (either in the environment or the state vector). 
+ 
+ .. note:: 
+ 
+     A rotation matrix is returned as a nine-entry vector in the dependent variable output, where entry :math:`(i,j)` of the matrix is stored in entry :math:`(3i+j)` of the vector (with :math:`i,j=0,1,2`).
+
+     You can convert this vector to a matrix using numpy's `reshape` function, e.g.:
+     
+     .. code-block:: python
+
+        import numpy as np
+
+        # Index where the rotation matrix starts in the dependent variable history
+        start_index = ...
+        rotation_matrix_components = dependent_variable_array[:, start_index : start_index + 9]
+
+        rotation_matrix_history = rotation_matrix_components.reshape(
+            (rotation_matrix_components.shape[0], 3, 3)
+        )
 
  Parameters
  ----------
@@ -1660,7 +1868,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 9
 
 
 
@@ -1676,7 +1886,25 @@ void expose_dependent_variable_setup( py::module &m )
 
  Function to add the rotation matrix from the TNW to the inertial frame to the dependent variables to save.
 
- Function to add the rotation matrix from the TNW to the inertial frame to the dependent variables to save. It has the x-axis pointing along the velocity vector, the z-axis along the orbital angular momentum vector, and the y-axis completing the right-handed system. NOTE: a rotation matrix is returned as a nine-entry vector in the dependent variable output, where entry :math:`(i,j)` of the matrix is stored in entry :math:`(3i+j)` of the vector (with :math:`i,j=0,1,2`),
+ Function to add the rotation matrix from the TNW to the inertial frame to the dependent variables to save. It has the x-axis pointing along the velocity vector, the z-axis along the orbital angular momentum vector, and the y-axis completing the right-handed system.
+ 
+ .. note:: 
+ 
+     A rotation matrix is returned as a nine-entry vector in the dependent variable output, where entry :math:`(i,j)` of the matrix is stored in entry :math:`(3i+j)` of the vector (with :math:`i,j=0,1,2`).
+
+     You can convert this vector to a matrix using numpy's `reshape` function, e.g.:
+     
+     .. code-block:: python
+
+        import numpy as np
+
+        # Index where the rotation matrix starts in the dependent variable history
+        start_index = ...
+        rotation_matrix_components = dependent_variable_array[:, start_index : start_index + 9]
+
+        rotation_matrix_history = rotation_matrix_components.reshape(
+            (rotation_matrix_components.shape[0], 3, 3)
+        )
 
  Parameters
  ----------
@@ -1688,7 +1916,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 9
 
 
 
@@ -1704,7 +1934,25 @@ void expose_dependent_variable_setup( py::module &m )
 
  Function to add the rotation matrix from the RSW to the inertial frame to the dependent variables to save.
 
- Function to add the rotation matrix from the RSW to the inertial frame to the dependent variables to save. It has the x-axis pointing along the position vector (away from the central body), the z-axis along the orbital angular momentum vector, and the y-axis completing the right-handed system. NOTE: a rotation matrix is returned as a nine-entry vector in the dependent variable output, where entry :math:`(i,j)` of the matrix is stored in entry :math:`(3i+j)` of the vector (with :math:`i,j=0,1,2`),
+ Function to add the rotation matrix from the RSW to the inertial frame to the dependent variables to save. It has the x-axis pointing along the position vector (away from the central body), the z-axis along the orbital angular momentum vector, and the y-axis completing the right-handed system.
+
+ .. note:: 
+ 
+     A rotation matrix is returned as a nine-entry vector in the dependent variable output, where entry :math:`(i,j)` of the matrix is stored in entry :math:`(3i+j)` of the vector (with :math:`i,j=0,1,2`).
+
+     You can convert this vector to a matrix using numpy's `reshape` function, e.g.:
+     
+     .. code-block:: python
+
+        import numpy as np
+
+        # Index where the rotation matrix starts in the dependent variable history
+        start_index = ...
+        rotation_matrix_components = dependent_variable_array[:, start_index : start_index + 9]
+
+        rotation_matrix_history = rotation_matrix_components.reshape(
+            (rotation_matrix_components.shape[0], 3, 3)
+        )
 
  Parameters
  ----------
@@ -1716,7 +1964,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 9
 
 
 
@@ -1741,7 +1991,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 3
 
 
 
@@ -1759,7 +2011,25 @@ void expose_dependent_variable_setup( py::module &m )
 
  Function to add the rotation matrix between any two reference frames used in aerodynamic calculations.
 
- Function to add the rotation matrix between any two reference frames used in aerodynamic calculations. The list of available frames is defined by the :class:`AerodynamicsReferenceFrames` enum. NOTE: a rotation matrix is returned as a nine-entry vector in the dependent variable output, where entry :math:`(i,j)` of the matrix is stored in entry :math:`(3i+j)` of the vector (with :math:`i,j=0,1,2`),
+ Function to add the rotation matrix between any two reference frames used in aerodynamic calculations. The list of available frames is defined by the :class:`AerodynamicsReferenceFrames` enum.
+
+ .. note:: 
+ 
+     A rotation matrix is returned as a nine-entry vector in the dependent variable output, where entry :math:`(i,j)` of the matrix is stored in entry :math:`(3i+j)` of the vector (with :math:`i,j=0,1,2`).
+
+     You can convert this vector to a matrix using numpy's `reshape` function, e.g.:
+     
+     .. code-block:: python
+
+        import numpy as np
+
+        # Index where the rotation matrix starts in the dependent variable history
+        start_index = ...
+        rotation_matrix_components = dependent_variable_array[:, start_index : start_index + 9]
+
+        rotation_matrix_history = rotation_matrix_components.reshape(
+            (rotation_matrix_components.shape[0], 3, 3)
+        )
 
  Parameters
  ----------
@@ -1775,7 +2045,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 9
 
 
 
@@ -1803,7 +2075,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -1831,7 +2105,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -1865,7 +2141,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 3
 
 
 
@@ -1892,7 +2170,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 3
 
 
 
@@ -1916,7 +2196,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -1943,7 +2225,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -1968,7 +2252,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -1996,7 +2282,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ ``variable_size``
 
 
 
@@ -2004,10 +2292,7 @@ void expose_dependent_variable_setup( py::module &m )
 
      )doc" );
 
-    m.def( "custom",
-           &tp::customDependentVariableDeprecated,
-           py::arg( "custom_function" ),
-           py::arg( "variable_size" ) );
+    m.def( "custom", &tp::customDependentVariableDeprecated, py::arg( "custom_function" ), py::arg( "variable_size" ) );
 
     m.def( "gravity_field_potential",
            &tp::gravityFieldPotentialDependentVariable,
@@ -2029,7 +2314,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -2057,7 +2344,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -2085,7 +2374,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 2
 
 
 
@@ -2119,7 +2410,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 3
 
 
 
@@ -2127,15 +2420,9 @@ void expose_dependent_variable_setup( py::module &m )
 
      )doc" );
 
-    m.def( "center_of_mass",
-           &tp::centerOfMassVariableSaveSettings,
-           py::arg( "body" ),
-           R"doc(No documentation found.)doc" );
+    m.def( "center_of_mass", &tp::centerOfMassVariableSaveSettings, py::arg( "body" ), R"doc(No documentation found.)doc" );
 
-    m.def( "inertia_tensor",
-           &tp::inertiaTensorVariableSaveSettings,
-           py::arg( "body" ),
-           R"doc(No documentation found.)doc" );
+    m.def( "inertia_tensor", &tp::inertiaTensorVariableSaveSettings, py::arg( "body" ), R"doc(No documentation found.)doc" );
 
     m.def( "received_irradiance",
            &tp::receivedIrradianceDependentVariable,
@@ -2157,7 +2444,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -2185,7 +2474,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -2213,7 +2504,9 @@ void expose_dependent_variable_setup( py::module &m )
  -------
  SingleDependentVariableSaveSettings
      Dependent variable settings object.
-
+ Variable Size
+ -------------
+ 1
 
 
 
@@ -2250,7 +2543,7 @@ void expose_dependent_variable_setup( py::module &m )
            py::arg( "target_name" ),
            py::arg( "source_name" ),
            R"doc(No documentation found.)doc" );
-    
+
     m.def( "illuminated_panel_fraction",
            &tp::illuminatedPanelFractionDependentVariable,
            py::arg( "target_name" ),

@@ -3,14 +3,18 @@
 ``acceleration``
 ================
 
+Here, you will find a list of all acceleration models available in Tudat. The functions here all create settings
+objects for accelerations that are provided as input to the :func:`~tudatpy.numerical_simulation.propagation_setup.create_acceleration_models`
+function. For more details on how these accelerations interface with the rest of the Tudat propagation framework,
+see our user guide page on `translational dynamics <https://docs.tudat.space/en/latest/user-guide/state-propagation/propagation-setup/translational.html>`_
 
+Mathematical model descriptions are provided either directly here per acceleration, or on a dedicated page of the Tudat user guide for
+ * `Gravitational accelerations <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/third_body_acceleration.html>`_
+ * `Thrust accelerations <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/thrust_models.html>`_
+ * `Radiation pressure accelerations <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/radiation_pressure_acceleration.html>`_.
 
-
-
-
-
-
-
+The functions in this submodule create objects of type :class:`~AccelerationSettings` or (in case more information than only
+the type of acceleration is needed to create the acceleration), one of its derived classes.
 
 Functions
 ---------
@@ -24,15 +28,17 @@ Functions
 
    mutual_spherical_harmonic_gravity
 
-   polyhedron_gravity
-
-   ring_gravity
-
    aerodynamic
 
    radiation_pressure
 
+   polyhedron_gravity
+
+   ring_gravity
+
    relativistic_correction
+
+   einstein_infeld_hofmann
 
    empirical
 
@@ -58,13 +64,15 @@ Functions
 
 .. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.mutual_spherical_harmonic_gravity
 
+.. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.aerodynamic
+
+.. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.radiation_pressure
+
 .. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.polyhedron_gravity
 
 .. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.ring_gravity
 
-.. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.aerodynamic
-
-.. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.radiation_pressure
+.. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.einstein_infeld_hofmann
 
 .. autofunction:: tudatpy.numerical_simulation.propagation_setup.acceleration.relativistic_correction
 
