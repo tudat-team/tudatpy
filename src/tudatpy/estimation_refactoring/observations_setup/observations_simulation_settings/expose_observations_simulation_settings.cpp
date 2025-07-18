@@ -361,6 +361,54 @@ void expose_observations_simulation_settings( py::module& m )
     //          py::arg("observed_observation_collection"),
     //          get_docstring("create_odf_observation_simulation_settings_list").c_str()
     //          );
+
+
+    // #   Observation Model Settings --> Observation Simulator #
+    m.def( "create_observation_simulators",
+           py::overload_cast<
+               const std::vector< std::shared_ptr< tom::ObservationModelSettings > >&,
+               const tss::SystemOfBodies& >(
+               &tom::createObservationSimulators< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::arg( "observation_settings" ),
+           py::arg( "bodies" ),
+           R"doc(
+
+ Function for creating observation simulator objects.
+
+ Function for creating observation simulator objects from observation settings.
+ Note that each observation (i.e. combination of observable and link geometry) requires its own observation simulator object.
+
+
+ Parameters
+ ----------
+ observation_settings : List[ ObservationSettings ]
+     List of settings objects, each object defining the observation model settings for one combination of observable and link geometry that is to be simulated.
+
+ bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
+     Object consolidating all bodies and environment models, including ground station models, that constitute the physical environment.
+
+ Returns
+ -------
+ List[ :class:`~tudatpy.numerical_simulation.estimation.ObservationSimulator` ]
+     List of :class:`~tudatpy.numerical_simulation.estimation.ObservationSimulator` objects, each object hosting the functionality for simulating one combination of observable type and link geometry.
+
+ Examples
+ --------
+ .. code-block:: python
+
+     # Create bodies
+     bodies = ...
+     # Define parameters settings
+     observation_settings = ...
+     # Create observation simulators
+     observation_simulators = estimation_setup.create_observation_simulators(observation_settings, bodies)
+
+ This code snippet closely follows what is done in: The following snippet closely follows what is done in: `Galilean Moons State Estimation Example <https://github.com/tudat-team/tudatpy-examples/blob/master/estimation/galilean_moons_state_estimation.ipynb>`_.
+
+
+
+     )doc" );
+     
 }
 
 }

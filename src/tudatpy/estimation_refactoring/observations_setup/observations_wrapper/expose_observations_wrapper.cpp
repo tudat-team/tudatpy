@@ -14,6 +14,7 @@
 
 #include "tudat/simulation/estimation_setup/processOdfFile.h"
 #include "tudat/simulation/estimation_setup/processTrackingTxtFile.h"
+#include "tudat/simulation/estimation_setup/fitOrbitToEphemeris.h"
 
 namespace tom = tudat::observation_models;
 namespace tss = tudat::simulation_setup;
@@ -166,6 +167,110 @@ void expose_observations_wrapper( py::module& m )
            py::arg( "earth_fixed_ground_station_positions" ) = tss::getApproximateDsnGroundStationPositions( ),
            py::arg( "ancillary_settings" ) = tom::ObservationAncilliarySimulationSettings( ),
            R"doc(No documentation found.)doc" );
+
+
+       m.def( "create_pseudo_observations_and_models",
+           &tss::simulatePseudoObservations< TIME_TYPE, STATE_SCALAR_TYPE >,
+           py::arg( "bodies" ),
+           py::arg( "observed_bodies" ),
+           py::arg( "central_bodies" ),
+           py::arg( "initial_time" ),
+           py::arg( "final_time" ),
+           py::arg( "time_step" ),
+           R"doc(No documentation found.)doc" );
+
+       m.def( "create_filtered_observation_collection",
+           py::overload_cast<
+                   const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                   const std::map< std::shared_ptr< tom::ObservationCollectionParser >, std::shared_ptr< tom::ObservationFilterBase > > & >(
+                   &tom::filterObservations< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::arg( "original_observation_collection" ),
+           py::arg( "observation_filters_map" ),
+           R"doc(No documentation found.)doc" );
+
+    m.def( "create_filtered_observation_collection",
+           py::overload_cast< const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                              const std::shared_ptr< tom::ObservationFilterBase >,
+                              const std::shared_ptr< tom::ObservationCollectionParser > >(
+                   &tom::filterObservations< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::arg( "original_observation_collection" ),
+           py::arg( "observation_filter" ),
+           py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+           R"doc(No documentation found.)doc" );
+
+    m.def( "split_observation_collection",
+           &tom::splitObservationSets< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "original_observation_collection" ),
+           py::arg( "observation_set_splitter" ),
+           py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+           R"doc(No documentation found.)doc" );
+
+    m.def( "create_new_observation_collection",
+           &tom::createNewObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "original_observation_collection" ),
+           py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+           R"doc(No documentation found.)doc" );
+
+    m.def( "set_existing_observations",
+           &tss::setExistingObservations< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "observations" ),
+           py::arg( "reference_link_end" ),
+           py::arg( "ancilliary_settings_per_observatble" ) =
+                   std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >( ) );
+
+    m.def( "simulate_observations",
+           &tss::simulateObservations< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "simulation_settings" ),
+           py::arg( "observation_simulators" ),
+           py::arg( "bodies" ),
+           R"doc(
+
+ Function to simulate observations.
+
+ Function to simulate observations from set observation simulators and observation simulator settings.
+ Automatically iterates over all provided observation simulators, generating the full set of simulated observations.
+
+
+ Parameters
+ ----------
+ observation_to_simulate : List[ :class:`ObservationSimulationSettings` ]
+     List of settings objects, each object providing the observation time settings for simulating one type of observable and link end set.
+
+ observation_simulators : List[ :class:`~tudatpy.numerical_simulation.estimation.ObservationSimulator` ]
+     List of :class:`~tudatpy.numerical_simulation.estimation.ObservationSimulator` objects, each object hosting the functionality for simulating one type of observable and link end set.
+
+ bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
+     Object consolidating all bodies and environment models, including ground station models, that constitute the physical environment.
+
+ Returns
+ -------
+ :class:`~tudatpy.numerical_simulation.estimation.ObservationCollection`
+     Object collecting all products of the observation simulation.
+
+
+
+
+
+
+     )doc" );
+
+     m.def( "single_type_observation_collection",
+           py::overload_cast<
+               const tom::ObservableType,
+               const tom::LinkDefinition&,
+               const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >&,
+               const std::vector< TIME_TYPE >,
+               const tom::LinkEndType,
+               const std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >(
+               &tom::createManualObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::arg( "observable_type" ),
+           py::arg( "link_ends" ),
+           py::arg( "observations_list" ),
+           py::arg( "times_list" ),
+           py::arg( "reference_link_end" ),
+           py::arg( "ancilliary_settings" ) = nullptr,
+           R"doc(No documentation found.)doc" );
+
 }
 
 }

@@ -38,12 +38,7 @@ void expose_numerical_simulation( py::module &m )
     estimation_setup::expose_estimation_setup( estimation_setup_submodule );
 
     auto estimation_submodule = m.def_submodule( "estimation" );
-
-    estimation::expose_estimation_filter_parser( estimation_submodule );
-    estimation::expose_estimation( estimation_submodule );
-    estimation::expose_estimation_observation_collection( estimation_submodule );
     estimation::expose_estimation_propagated_covariance( estimation_submodule );
-    estimation::expose_estimation_single_observation_set( estimation_submodule );
 
     // SAM NOTE: TO BE MOVED TO PROPAGATION_SETUP  (cpp function in propagationSettings.h)
     m.def( "get_integrated_type_and_body_list",
