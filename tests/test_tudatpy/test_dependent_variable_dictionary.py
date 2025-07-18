@@ -6,14 +6,14 @@ from matplotlib import pyplot as plt
 # Load tudatpy modules
 from tudatpy.interface import spice
 from tudatpy import numerical_simulation
-from tudatpy.numerical_simulation import environment_setup, propagation_setup
+from tudatpy.dynamics import environment_setup, propagation_setup
 from tudatpy.astro import element_conversion
 from tudatpy import constants
 from tudatpy.util import result2array
 
 # Semantic variable history stuff
 import pickle
-from tudatpy.numerical_simulation.propagation import create_dependent_variable_dictionary
+from tudatpy.dynamics.propagation import create_dependent_variable_dictionary
 
 
 def test_dependent_variable_dictionary():

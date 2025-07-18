@@ -16,8 +16,8 @@ from numbers import Number
 
 # Tudat imports
 from tudatpy import constants
-from tudatpy.astro import time_conversion
-from tudatpy.numerical_simulation import environment
+from tudatpy.astro import time_representation
+from tudatpy.dynamics import environment
 from tudatpy.trajectory_design.porkchop._plot_porkchop import plot_porkchop
 from tudatpy.trajectory_design.porkchop._lambert import (
     calculate_lambert_arc_impulsive_delta_v,
@@ -91,10 +91,10 @@ def calculate_delta_v_time_map(
     bodies: environment.SystemOfBodies,
     departure_body: str,
     target_body: str,
-    earliest_departure_time: time_conversion.DateTime,
-    latest_departure_time: time_conversion.DateTime,
-    earliest_arrival_time: time_conversion.DateTime,
-    latest_arrival_time: time_conversion.DateTime,
+    earliest_departure_time: time_representation.DateTime,
+    latest_departure_time: time_representation.DateTime,
+    earliest_arrival_time: time_representation.DateTime,
+    latest_arrival_time: time_representation.DateTime,
     time_resolution: float,
     function_to_calculate_delta_v: callable = calculate_lambert_arc_impulsive_delta_v,
 ):
@@ -181,10 +181,10 @@ def porkchop(
     bodies: environment.SystemOfBodies,
     departure_body: str,
     target_body: str,
-    earliest_departure_time: time_conversion.DateTime,
-    latest_departure_time: time_conversion.DateTime,
-    earliest_arrival_time: time_conversion.DateTime,
-    latest_arrival_time: time_conversion.DateTime,
+    earliest_departure_time: time_representation.DateTime,
+    latest_departure_time: time_representation.DateTime,
+    earliest_arrival_time: time_representation.DateTime,
+    latest_arrival_time: time_representation.DateTime,
     time_resolution: float,
     function_to_calculate_delta_v: callable = calculate_lambert_arc_impulsive_delta_v,
     # Plot arguments
