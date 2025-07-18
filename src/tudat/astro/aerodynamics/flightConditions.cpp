@@ -119,8 +119,6 @@ void AtmosphericFlightConditions::updateConditions( const double currentTime )
         // Calculate state of vehicle in global frame and corotating frame.
         currentBodyCenteredAirspeedBasedBodyFixedState_ = bodyCenteredPseudoBodyFixedStateFunction_( );
 
-        updateAerodynamicCoefficientInput( );
-
         // Update angles from aerodynamic to body-fixed frame (if relevant).
         if( aerodynamicAngleCalculator_ != nullptr )
         {
