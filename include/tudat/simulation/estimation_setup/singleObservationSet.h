@@ -542,7 +542,7 @@ public:
         for( unsigned int i = 0; i < singleObservationSize_; i++ )
         {
             // Calculate RMS of the residuals for each observation component
-            for( int j = 0; j < numberOfObservations_; j++ )
+            for( unsigned int j = 0; j < numberOfObservations_; j++ )
             {
                 rmsResiduals[ i ] += residuals_[ j ]( i, 0 ) * residuals_[ j ]( i, 0 );
             }

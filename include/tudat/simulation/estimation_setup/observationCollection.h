@@ -295,7 +295,7 @@ namespace tudat
                         {
                             std::pair<int, int> singleSetStartAndSize =
                                 observationSetStartAndSize_.at(obsIt.first).at(linkEndsIt.first).at(index);
-                            for (unsigned int k = singleSetStartAndSize.first; k < (singleSetStartAndSize.first + singleSetStartAndSize.second);
+                            for ( int k = singleSetStartAndSize.first; k < (singleSetStartAndSize.first + singleSetStartAndSize.second);
                                  k++)
                             {
                                 subsetConcatenatedLinkEndIds.push_back(concatenatedLinkEndIds_[k]);
