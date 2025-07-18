@@ -24,6 +24,8 @@ update_sources(constants sources)
 update_sources(interface sources)
 update_sources(data sources)
 update_sources(numerical_simulation sources)
+update_sources(dynamics sources)
+update_sources(estimation sources)
 update_sources(exceptions sources)
 
 YACMA_PYTHON_MODULE(kernel ${sources})
