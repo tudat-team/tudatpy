@@ -217,6 +217,46 @@ public:
         return frameOrigin_;
     }
 
+    void setEnergyAccomodationCoefficient( const double energyAccomodationCoefficient )
+    {
+        energyAccomodationCoefficient_ = energyAccomodationCoefficient;
+    }
+
+    void setNormalAccomodationCoefficient( const double normalAccomodationCoefficient )
+    {
+        normalAccomodationCoefficient_ = normalAccomodationCoefficient;
+    }
+
+    void setTangentialAccomodationCoefficient( const double tangentialAccomodationCoefficient )
+    {
+        tangentialAccomodationCoefficient_ = tangentialAccomodationCoefficient;
+    }
+
+    void setNormalVelocityAtWallRatio( const double normalVelocityAtWallRatio )
+    {
+        normalVelocityAtWallRatio_ = normalVelocityAtWallRatio;
+    }
+
+    double getEnergyAccomodationCoefficient( ) const
+    {
+        return energyAccomodationCoefficient_;
+    }
+
+    double getNormalAccomodationCoefficient( ) const
+    {
+        return normalAccomodationCoefficient_;
+    }
+
+    double getTangentialAccomodationCoefficient( ) const
+    {
+        return tangentialAccomodationCoefficient_;
+    }
+
+    double getNormalVelocityAtWallRatio( ) const
+    {
+        return normalVelocityAtWallRatio_;
+    }
+
 protected:
     std::function< Eigen::Vector3d( ) > frameFixedSurfaceNormal_;
 
@@ -248,6 +288,16 @@ protected:
     std::function< Eigen::Vector3d( ) > bodyFixedPositionVector_;
 
     Triangle3d bodyFixedTriangle3d_;
+
+    // aerodynamic material properties
+    double energyAccomodationCoefficient_;
+
+    double normalAccomodationCoefficient_;
+
+    double tangentialAccomodationCoefficient_;
+
+    double normalVelocityAtWallRatio_;
+
 };
 
 }  // namespace system_models

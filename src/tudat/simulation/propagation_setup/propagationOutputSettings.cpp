@@ -321,8 +321,14 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
         case cross_section_change:
             variableName = "Cross section change";
             break;
+        case actual_cross_section:
+            variableName = "Actual cross section";
+            break;
         case full_body_paneled_geometry:
             variableName = "Full body paneled geometry";
+            break;
+        case aerodynamic_coefficients:
+            variableName = "Aerodynamic coefficients";
             break;
         default:
             std::string errorMessage = "Error, dependent variable " + std::to_string( propagationDependentVariables ) +
@@ -471,7 +477,16 @@ std::string getDependentVariableId( const std::shared_ptr< SingleDependentVariab
         variableId += " of body " + dependentVariableSettings->associatedBody_ + " w.r.t. source " +
                         dependentVariableSettings->secondaryBody_;
     }
+    if ( dependentVariableSettings->dependentVariableType_ == actual_cross_section )
+    {
+        variableId += " of body " + dependentVariableSettings->associatedBody_ + " w.r.t. source " +
+                        dependentVariableSettings->secondaryBody_;
+    }
     if ( dependentVariableSettings->dependentVariableType_ == full_body_paneled_geometry )
+    {
+        variableId += " of body " + dependentVariableSettings->associatedBody_;
+    }
+    if ( dependentVariableSettings->dependentVariableType_ == aerodynamic_coefficients )
     {
         variableId += " of body " + dependentVariableSettings->associatedBody_;
     }
