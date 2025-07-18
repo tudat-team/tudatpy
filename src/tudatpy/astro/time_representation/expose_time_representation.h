@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_TIME_CONVERSIONS_H
-#define TUDATPY_EXPOSE_TIME_CONVERSIONS_H
+#ifndef TUDATPY_EXPOSE_TIME_REPRESENTATION_H
+#define TUDATPY_EXPOSE_TIME_REPRESENTATION_H
 
 #include <pybind11/pybind11.h>
 
@@ -20,13 +20,13 @@ namespace tudatpy
 
 namespace astro
 {
-namespace time_conversion
+namespace time_representation
 {
 
-void expose_time_conversion( py::module &m );
+void expose_time_representation( py::module &m );
 
-}  // namespace time_conversion
+}  // namespace time_representation
 }  // namespace astro
 }  // namespace tudatpy
 
-#endif  // TUDATPY_EXPOSE_TIME_CONVERSIONS_H
+#endif  // TUDATPY_EXPOSE_TIME_REPRESENTATION_H
