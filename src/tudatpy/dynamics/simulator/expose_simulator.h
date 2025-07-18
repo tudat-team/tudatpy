@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_OBSERVATIONS_SIMULATION_H
-#define TUDATPY_EXPOSE_OBSERVATIONS_SIMULATION_H
+#ifndef TUDATPY_EXPOSE_SIMULATOR_H
+#define TUDATPY_EXPOSE_SIMULATOR_H
 
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
@@ -22,18 +22,15 @@ namespace py = pybind11;
 
 namespace tudatpy
 {
-namespace estimation_refactoring
+namespace dynamics
 {
-namespace observations
-{
-namespace observations_simulation
+namespace simulator
 {
 
-void expose_observations_simulation( py::module &m );
+void expose_simulator( py::module &m );
 
-}  // namespace observations_simulation
-}  // namespace observations
-}  // namespace estimation_refactoring
+}  // namespace simulator
+}  // namespace dynamics
 }  // namespace tudatpy
 
-#endif  // TUDATPY_EXPOSE_OBSERVATIONS_SIMULATION_H
+#endif  // TUDATPY_EXPOSE_SIMULATOR_H

@@ -54,19 +54,6 @@ singleObservationSetWithoutDependentVariables(
             ancilliarySettings );
 }
 
-std::pair< std::vector< double >, std::vector< Eigen::VectorXd > > getTargetAnglesAndRangeVector(
-        const simulation_setup::SystemOfBodies &bodies,
-        const std::pair< std::string, std::string > groundStationId,
-        const std::string &targetBody,
-        const std::vector< double > times,
-        const bool transmittingToTarget )
-{
-    std::map< double, Eigen::VectorXd > targetAnglesAndRange =
-            getTargetAnglesAndRange( bodies, groundStationId, targetBody, times, transmittingToTarget );
-    return std::make_pair( utilities::createVectorFromMapKeys( targetAnglesAndRange ),
-                           utilities::createVectorFromMapValues( targetAnglesAndRange ) );
-}
-
 }  // namespace simulation_setup
 
 }  // namespace tudat
@@ -84,8 +71,8 @@ void expose_observations( py::module& m )
     auto observations_processing = m.def_submodule( "observations_processing" );
     observations_processing::expose_observations_processing( observations_processing );
 
-    auto observations_simulation = m.def_submodule( "observations_simulation" );
-    observations_simulation::expose_observations_simulation( observations_simulation );
+    auto observations_geometry = m.def_submodule( "observations_geometry" );
+    observations_geometry::expose_observations_geometry( observations_geometry );
 
 
     // SINGLE OBSERVATION SET
@@ -352,6 +339,23 @@ void expose_observations( py::module& m )
            py::arg( "observation_times" ),
            py::arg( "reference_link_end" ),
            py::arg( "ancilliary_settings" ) = nullptr,
+           R"doc(No documentation found.)doc" );
+
+    m.def( "create_single_observation_set",
+           py::overload_cast<
+                   const tom::ObservableType,
+                   const tom::LinkEnds&,
+                   const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >&,
+                   const std::vector< TIME_TYPE >,
+                   const tom::LinkEndType,
+                   const std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >(
+                   &tom::createSingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::arg( "observable_type" ),
+           py::arg( "link_ends" ),
+           py::arg( "observations" ),
+           py::arg( "observation_times" ),
+           py::arg( "reference_link_end" ),
+           py::arg( "ancillary_settings" ),
            R"doc(No documentation found.)doc" );
 
 
@@ -946,55 +950,6 @@ observation_parser : ObservationCollectionParser
            R"doc(No documentation found.)doc" );
 
 
-    // observation geometry       
-    m.def( "compute_target_angles_and_range",
-           &tss::getTargetAnglesAndRange,
-           py::arg( "bodies" ),
-           py::arg( "station_id" ),
-           py::arg( "target_body" ),
-           py::arg( "observation_times" ),
-           py::arg( "is_station_transmitting" ),
-           R"doc(
-
- Function to compute the azimuth angle, elevation angle and range at a ground station.
-
- Function to compute the azimuth angle, elevation angle and range at a ground station. This functions is provided as a function of
- convenience, to prevent users having to manually define the relevant settings for this often-needed functionality. This function
- takes an observing station and a target body as input, and provides the observed angles and current range (without correction for aberrations, with correction for light time)
- as observed at that station
-
-
- Parameters
- ----------
- bodies : SystemOfBodies
-     System of bodies that defines the full physical environment
-
- station_id : tuple[ str, str]
-     Identifier for the observing station, as a pair of strings: the body name and the station name.
-
- target_body : str
-     Name of body which is observed by ground station
-
- observation_times : list[float]
-     List of times at which the ground station observations are to be analyzed
-
- is_station_transmitting : bool
-     Boolean defining whether the observation times define times at which the station is transmitting to, or receiving from, the ground station.
-     This has an impact on the whether the light-time is computed forward or backward in time from the ground station to the target
-
- Returns
- -------
- dict[float,numpy.ndarray[numpy.float64[3, 1]]]
-     Dictionary with the required output. Key defines the observation time, the value is an array of size three containing entry 0 - elevation angle, entry 1 - azimuth angle, entry 2 - range
-
-
-
-
-
-
-     )doc" );
-
-
      m.def( "filter_observations",
            py::overload_cast< const std::shared_ptr<
                                       tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -1017,75 +972,44 @@ observation_parser : ObservationCollectionParser
            py::arg( "print_warning" ) = true,
            R"doc(No documentation found.)doc" );
 
-
     m.def( "merge_observation_collections",
            &tss::mergeObservationCollections< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "observation_collection_list" ) );
 
-    m.def( "create_single_observation_set",
+
+    // The following functions create a new ObservationCollection object from an existing one 
+
+    m.def( "create_filtered_observation_collection",
            py::overload_cast<
-                   const tom::ObservableType,
-                   const tom::LinkEnds&,
-                   const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >&,
-                   const std::vector< TIME_TYPE >,
-                   const tom::LinkEndType,
-                   const std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >(
-                   &tom::createSingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > ),
-           py::arg( "observable_type" ),
-           py::arg( "link_ends" ),
-           py::arg( "observations" ),
-           py::arg( "observation_times" ),
-           py::arg( "reference_link_end" ),
-           py::arg( "ancillary_settings" ),
+                   const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                   const std::map< std::shared_ptr< tom::ObservationCollectionParser >, std::shared_ptr< tom::ObservationFilterBase > > & >(
+                   &tom::filterObservations< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::arg( "original_observation_collection" ),
+           py::arg( "observation_filters_map" ),
            R"doc(No documentation found.)doc" );
 
+    m.def( "create_filtered_observation_collection",
+           py::overload_cast< const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                              const std::shared_ptr< tom::ObservationFilterBase >,
+                              const std::shared_ptr< tom::ObservationCollectionParser > >(
+                   &tom::filterObservations< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::arg( "original_observation_collection" ),
+           py::arg( "observation_filter" ),
+           py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+           R"doc(No documentation found.)doc" );
 
-    m.def( "compute_target_angles_and_range_vectors",
-           &tss::getTargetAnglesAndRangeVector,
-           py::arg( "bodies" ),
-           py::arg( "station_id" ),
-           py::arg( "target_body" ),
-           py::arg( "observation_times" ),
-           py::arg( "is_station_transmitting" ),
-           R"doc(
+    m.def( "split_observation_collection",
+           &tom::splitObservationSets< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "original_observation_collection" ),
+           py::arg( "observation_set_splitter" ),
+           py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+           R"doc(No documentation found.)doc" );
 
- Function to compute the azimuth angle, elevation angle and range at a ground station.
-
- Function to compute the azimuth angle, elevation angle and range at a ground station. This functions is provided as a function of
- convenience, to prevent users having to manually define the relevant settings for this often-needed functionality. This function
- takes an observing station and a target body as input, and provides the observed angles and current range (without correction for aberrations, with correction for light time)
- as observed at that station
-
-
- Parameters
- ----------
- bodies : SystemOfBodies
-     System of bodies that defines the full physical environment
-
- station_id : tuple[ str, str]
-     Identifier for the observing station, as a pair of strings: the body name and the station name.
-
- target_body : str
-     Name of body which is observed by ground station
-
- observation_times : list[float]
-     List of times at which the ground station observations are to be analyzed
-
- is_station_transmitting : bool
-     Boolean defining whether the observation times define times at which the station is transmitting to, or receiving from, the ground station.
-     This has an impact on the whether the light-time is computed forward or backward in time from the ground station to the target
-
- Returns
- -------
- dict[float,numpy.ndarray[numpy.float64[3, 1]]]
-     Dictionary with the required output. Key defines the observation time, the value is an array of size three containing entry 0 - elevation angle, entry 1 - azimuth angle, entry 2 - range
-
-
-
-
-
-
-     )doc" );
+    m.def( "create_new_observation_collection",
+           &tom::createNewObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "original_observation_collection" ),
+           py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+           R"doc(No documentation found.)doc" );
 
 }
 

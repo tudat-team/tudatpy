@@ -17,6 +17,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include "observables_simulation/expose_observables_simulation.h"
 
 namespace py = pybind11;
 
