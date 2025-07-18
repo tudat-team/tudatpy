@@ -9,10 +9,9 @@
 #include "exceptions/expose_exceptions.h"
 #include "interface/expose_interface.h"
 #include "math/expose_math.h"
-#include "numerical_simulation/expose_numerical_simulation.h"
 #include "trajectory_design/expose_trajectory_design.h"
 #include "dynamics/expose_dynamics.h"
-#include "estimation_refactoring/expose_estimation_refactoring.h"
+#include "estimation/expose_estimation.h"
 
 namespace py = pybind11;
 
@@ -60,15 +59,8 @@ PYBIND11_MODULE( kernel, m )
     tudatpy::dynamics::expose_dynamics( dynamics );
 
     // estimation module
-    auto estimation_refactoring = m.def_submodule( "estimation_refactoring" );
-    tudatpy::estimation_refactoring::expose_estimation_refactoring( estimation_refactoring );
-
-    // simulation module
-    auto numerical_simulation = m.def_submodule( "numerical_simulation" );
-    tudatpy::numerical_simulation::expose_numerical_simulation( numerical_simulation );
-    tudatpy::numerical_simulation::expose_numerical_simulation_simulator( numerical_simulation );
-    tudatpy::numerical_simulation::expose_numerical_simulation_variational( numerical_simulation );
-    // tudatpy::numerical_simulation::expose_numerical_simulation_estimator( numerical_simulation );
+    auto estimation = m.def_submodule( "estimation" );
+    tudatpy::estimation::expose_estimation( estimation );
 
     // exceptions module
     auto exceptions = m.def_submodule( "exceptions" );
