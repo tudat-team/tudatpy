@@ -120,7 +120,6 @@ namespace atmosphere {
         m.def("mars_dtm",
               &tss::marsDtmAtmosphereSettings,
               py::arg("mars_dtm_file" ),
-              py::arg("polar_radius" ),
               get_docstring("mars_dtm").c_str());
 
         m.def("tabulated",
