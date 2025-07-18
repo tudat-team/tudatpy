@@ -1,4 +1,4 @@
-/*    Copyright (c) 2010-2019, Delft University of Technology
+/*    Copyright (c) 2010-2021, Delft University of Technology
  *    All rights reserved
  *
  *    This file is part of the Tudat. Redistribution and use in source and
@@ -8,31 +8,24 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 #define PYBIND11_DETAILED_ERROR_MESSAGES
-#include "expose_observations_simulation.h"
-
-#include <pybind11/chrono.h>
-#include <pybind11/eigen.h>
+#include "expose_observables_simulation.h"
 #include <pybind11/functional.h>
-#include <pybind11/numpy.h>
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-
 #include "scalarTypes.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 
-namespace py = pybind11;
 namespace tom = tudat::observation_models;
 
 namespace tudatpy
 {
 namespace estimation_refactoring
 {
-namespace observations
-{
-namespace observations_simulation
+namespace observable_models
 {
 
-void expose_observations_simulation( py::module& m )
+namespace observables_simulation
+{
+
+void expose_observables_simulation( py::module& m )
 {
 
     py::class_< tom::ObservationViabilityCalculator, std::shared_ptr< tom::ObservationViabilityCalculator > >(
@@ -82,6 +75,7 @@ void expose_observations_simulation( py::module& m )
 
      )doc" );
 
+    
     py::class_< tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE > > >( m,
                                                                                                     "ObservationSimulator",
@@ -120,7 +114,7 @@ void expose_observations_simulation( py::module& m )
 
 }
 
-}  // namespace observations_simulation
-}  // namespace observations
-}  // namespace estimation_refactoring
-}  // namespace tudatpy
+}
+}
+}
+}

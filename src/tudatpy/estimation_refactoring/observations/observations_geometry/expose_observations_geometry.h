@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDATPY_EXPOSE_RUNNER_H
-#define TUDATPY_EXPOSE_RUNNER_H
+#ifndef TUDATPY_EXPOSE_OBSERVATIONS_GEOMETRY_H
+#define TUDATPY_EXPOSE_OBSERVATIONS_GEOMETRY_H
 
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
@@ -22,15 +22,18 @@ namespace py = pybind11;
 
 namespace tudatpy
 {
-namespace dynamics
+namespace estimation_refactoring
 {
-namespace runner
+namespace observations
+{
+namespace observations_geometry
 {
 
-void expose_runner( py::module &m );
+void expose_observations_geometry( py::module &m );
 
-}  // namespace runner
-}  // namespace dynamics
+}  // namespace observations_geometry
+}  // namespace observations
+}  // namespace estimation_refactoring
 }  // namespace tudatpy
 
-#endif  // TUDATPY_EXPOSE_RUNNER_H
+#endif  // TUDATPY_EXPOSE_OBSERVATIONS_GEOMETRY_H

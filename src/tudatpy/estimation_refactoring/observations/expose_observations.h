@@ -18,7 +18,7 @@
 #include <pybind11/stl.h>
 
 #include "observations_processing/expose_observations_processing.h"
-#include "observations_simulation/expose_observations_simulation.h"
+#include "observations_geometry/expose_observations_geometry.h"
 
 
 namespace py = pybind11;
