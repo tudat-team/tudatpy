@@ -669,15 +669,24 @@ Enumeration of available integrated state types.
             "PropagatorSettings",
             R"doc(
 
-         Functional base class to define settings for propagators.
+         Base class to define settings for propagators.
 
-         Base class to define settings for propagators. Derived classes are split into settings for single- and multi-arc dynamics.
+         Base class to define settings for propagators. Derived classes are split into settings for single-, multi-arc and hybrid-arc dynamics.
+         Single-arc settings are in turn split into specific derived classes per dynamics type
+
 
       )doc" )
             .def_property( "initial_states",
                            &tp::PropagatorSettings< STATE_SCALAR_TYPE >::getInitialStates,
                            &tp::PropagatorSettings< STATE_SCALAR_TYPE >::resetInitialStates,
-                           R"doc(No propagator documentation found.)doc" );
+                           R"doc(
+
+            Vector of initial state values for the numerical propagation. For the multi-arc, this contains the
+            concatenated single-arc initial states. For the hybrid-arc, this contains first the list of single-arc component initial states,
+            followed by the multi-arc component initial states.
+
+            :type: np.array
+)doc" );
 
     py::class_< tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -685,16 +694,50 @@ Enumeration of available integrated state types.
                                                                "MultiArcPropagatorSettings",
                                                                R"doc(
 
-         `PropagatorSettings`-derived class to define settings for multi-arc dynamics.
+            Class derived from :class:`PropagatorSettings` to define settings for multi-arc dynamics
 
-
-
+            Class derived from :class:`PropagatorSettings` to define settings for multi-arc dynamics
+            An object of this type is typically created using the dedicated creation function :func:`~multi_arc`
 
 
       )doc" )
             .def_property_readonly( "processing_settings",
                                     &tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getOutputSettings,
-                                    R"doc(No propagator documentation found.)doc" );
+                                    R"doc(
+            **read-only**
+
+            Settings that determine how the multi-arc propagation results are processed (e.g. if the results are used to update the body ephemeris, if
+            data from each epoch is saved, etc.), and which data is printed to the console
+            See `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/propagation-setup/printing-processing-results.html#automatic-processing>`_ for more details.
+
+            :type: MultiArcPropagatorProcessingSettings
+
+)doc" )
+        .def_property_readonly( "initial_state_list",
+                                &tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getInitialStateList,
+                                R"doc(
+            **read-only**
+
+            List of initial states per arc (e.g. entry j of this list is the initial state for arc j).
+
+            :type: list[np.array]
+
+)doc" )
+
+        .def_property_readonly( "single_arc_settings",
+                                &tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getInitialStateList,
+                                R"doc(
+            **read-only**
+
+            List of single arc settings (e.g. entry j of this list is the single-arc propagator setting for arc j).
+
+            :type: list[SingleArcPropagatorSettings]
+
+)doc" );
+
+
+
+
 
     py::class_< tp::HybridArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::HybridArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -702,16 +745,24 @@ Enumeration of available integrated state types.
                                                                "HybridArcPropagatorSettings",
                                                                R"doc(
 
-         `PropagatorSettings`-derived class to define settings for hybrid-arc dynamics.
+            Class derived from :class:`PropagatorSettings` to define settings for hybrid-arc dynamics
 
-
-
-
+            Class derived from :class:`PropagatorSettings` to define settings for hybrid-arc dynamics
+            An object of this type is typically created using the dedicated creation function :func:`~hybrid_arc`
 
       )doc" )
             .def_property_readonly( "processing_settings",
                                     &tp::HybridArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getOutputSettings,
-                                    R"doc(No propagator documentation found.)doc" );
+                                    R"doc(
+            **read-only**
+
+            Settings that determine how the hybrid-arc propagation results are processed (e.g. if the results are used to update the body ephemeris, if
+            data from each epoch is saved, etc.), and which data is printed to the console
+            See `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/propagation-setup/printing-processing-results.html#automatic-processing>`_ for more details.
+
+            :type: HybridArcPropagatorProcessingSettings
+
+.)doc" );
 
     py::class_< tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -719,28 +770,51 @@ Enumeration of available integrated state types.
                                                                "SingleArcPropagatorSettings",
                                                                R"doc(
 
-         `PropagatorSettings`-derived class to define settings for single-arc dynamics.
-
-
+            Class derived from :class:`PropagatorSettings` to define settings for single-arc dynamics (of any type, including translational, rotational, etc.)
+            An object of this type is typically created using the specific propagator settings creation function, such as :func:`~translational`,
+            :func:`~rotational` of :func:`~multitype`
 
       )doc" )
             .def_property( "termination_settings",
                            &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getTerminationSettings,
                            &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::resetTerminationSettings,
-                           R"doc(Settings for creating the object that checks whether the propagation is finished.
-                           
-                           :type: PropagationTerminationSettings
+                           R"doc(
+            Settings for creating the object that checks whether the propagation is finished (e.g. on a final time, a final dependent variable, etc.)
+
+            :type: PropagationTerminationSettings
                            )doc" )
             .def_property( "integrator_settings",
                            &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getIntegratorSettings,
                            &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::setIntegratorSettings,
-                           R"doc(No propagator documentation found.)doc" )
+                           R"doc(
+
+            Settings for creating the numerical integrator object that is used to solve the equations of motion
+
+            :type: IntegratorSettings
+                           )doc" )
             .def_property_readonly( "processing_settings",
                                     &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getOutputSettings,
-                                    R"doc(No propagator documentation found.)doc" )
+                                    R"doc(
+            **read-only**
+
+            Settings that determine how the propagation results are processed (e.g. if the results are used to update the body ephemeris, if
+            data from each epoch is saved, etc.), and which data is printed to the console
+            See `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/propagation-setup/printing-processing-results.html#automatic-processing>`_ for more details.
+
+            :type: SingleArcPropagatorProcessingSettings
+
+                            )doc" )
             .def_property_readonly( "print_settings",
                                     &tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getPrintSettings,
-                                    R"doc(No propagator documentation found.)doc" );
+                                    R"doc(
+            **read-only**
+
+            Settings that determine which information is printed to the console during the propagation. NOTE: this object can also be retrieved from the ``processing_settings`` attribute
+            See `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/propagation-setup/printing-processing-results.html#console-output>`_ for more details.
+
+            :type: PropagationPrintSettings
+
+                            )doc" );
 
     py::class_< tp::TranslationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::TranslationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -749,15 +823,6 @@ Enumeration of available integrated state types.
                                                                                    R"doc(
 
          `SingleArcPropagatorSettings`-derived class to define settings for single-arc translational dynamics.
-
-
-         Attributes
-         ----------
-         acceleration_settings : SelectedAccelerationMap
-             Settings for retrieving the accelerations acting on the body during propagation.
-
-
-
 
       )doc" )
 
@@ -1263,7 +1328,7 @@ MultiTypePropagatorSettings
            &tp::multiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "single_arc_settings" ),
            py::arg( "transfer_state_to_next_arc" ) = false,
-           py::arg( "processing_settings" ) = multiArcProcessingSettings( ),
+           py::arg( "processing_settings" ) = nullptr,
            R"doc(
 
 Function to create multi-arc propagator settings.
