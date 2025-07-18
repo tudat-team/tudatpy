@@ -1145,6 +1145,11 @@ public:
         return propagationResults_->equationsOfMotionNumericalSolution_;
     }
 
+    std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > getEquationsOfMotionNumericalSolutionDouble( )
+    {
+        return propagationResults_->template getEquationsOfMotionNumericalSolutionTemplated< double >( );
+    }
+
     //! Function to return the map of state history of numerically integrated bodies, in propagation coordinates.
     /*!
      * Function to return the map of state history of numerically integrated bodies, in propagation coordinates.
@@ -1153,6 +1158,11 @@ public:
     const std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& getEquationsOfMotionNumericalSolutionRaw( )
     {
         return propagationResults_->equationsOfMotionNumericalSolutionRaw_;
+    }
+
+    std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > getEquationsOfMotionNumericalSolutionRawDouble( )
+    {
+        return propagationResults_->template getEquationsOfMotionNumericalSolutionRawTemplated< double >( );
     }
 
     //! Function to return the map of dependent variable history that was saved during numerical propagation.
@@ -1165,6 +1175,11 @@ public:
         return propagationResults_->dependentVariableHistory_;
     }
 
+    std::map< double, Eigen::VectorXd > getDependentVariableHistoryDouble( )
+    {
+        return propagationResults_->template getDependentVariableHistoryTemplated< double >( );
+    }
+
     //! Function to return the map of cumulative computation time history that was saved during numerical propagation.
     /*!
      * Function to return the map of cumulative computation time history that was saved during numerical propagation.
@@ -1175,7 +1190,12 @@ public:
         return propagationResults_->cumulativeComputationTimeHistory_;
     }
 
-    //! Function to return the map of number of cumulative function evaluations that was saved during numerical propagation.
+    std::map< double, double > getCumulativeComputationTimeHistoryDouble( )
+    {
+        return propagationResults_->getCumulativeComputationTimeHistory( );
+    }
+
+        //! Function to return the map of number of cumulative function evaluations that was saved during numerical propagation.
     /*!
      * Function to return the map of cumulative number of function evaluations that was saved during numerical propagation.
      * \return Map of cumulative number of function evaluations that was saved during numerical propagation.
@@ -1183,6 +1203,11 @@ public:
     std::map< TimeType, unsigned int > getCumulativeNumberOfFunctionEvaluations( )
     {
         return propagationResults_->cumulativeNumberOfFunctionEvaluations_;
+    }
+
+    std::map< double, unsigned int > getCumulativeNumberOfFunctionEvaluationsDouble( )
+    {
+        return propagationResults_->getCumulativeNumberOfFunctionEvaluations( );
     }
 
     //! Function to retrieve the event that triggered the termination of the last propagation
