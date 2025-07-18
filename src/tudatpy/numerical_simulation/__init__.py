@@ -9,3 +9,4 @@ from tudatpy.kernel.dynamics import *
 from tudatpy.kernel.estimation import *
 
 from tudatpy.kernel.dynamics.simulator import * 
+from tudatpy.kernel.estimation.estimation_analysis import * 
