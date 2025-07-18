@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 #define PYBIND11_DETAILED_ERROR_MESSAGES
-#include "expose_time_conversion.h"
+#include "expose_time_representation.h"
 
 #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
@@ -100,10 +100,10 @@ namespace tudatpy
 
 namespace astro
 {
-namespace time_conversion
+namespace time_representation
 {
 
-void expose_time_conversion( py::module& m )
+void expose_time_representation( py::module& m )
 {
 
     py::class_< tudat::Time >( m, "Time", R"doc(No documentation found.)doc" )
@@ -2053,6 +2053,6 @@ In this example, the calendar date corresponding to when 122 days have passed in
 
      )doc" );
 }
-}  // namespace time_conversion
+}  // namespace time_representation
 }  // namespace astro
 }  // namespace tudatpy
