@@ -1,12 +1,12 @@
 import warnings
 warnings.warn(
-    "tudatpy.numerical_simulation.estimation_setup is deprecated. " \
-    "Features got distributed over tudatpy.estimation.observable_models_setup, " \
-    " tudatpy.estimation.observable_models, "
-    " tudatpy.estimation.observations_setup, " \
-    " tudatpy.estimation.observations, " \
-    " tudatpy.dynamics.parameters_setup, " \
-    " tudatpy.dynamics.parameters, " \
+    "tudatpy.numerical_simulation.estimation_setup is deprecated.\nFeatures got distributed over:\n"
+    " tudatpy.estimation.observable_models_setup, \n" +
+    " tudatpy.estimation.observable_models, \n" +
+    " tudatpy.estimation.observations_setup, \n" +
+    " tudatpy.estimation.observations, \n" +
+    " tudatpy.dynamics.parameters_setup, \n" +
+    " tudatpy.dynamics.parameters, \n" +
     " and tudatpy.estimation.estimation_analysis instead.",
     FutureWarning,
     stacklevel=1
