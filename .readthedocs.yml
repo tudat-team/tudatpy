@@ -15,6 +15,21 @@ build:
   os: "ubuntu-20.04"
   tools:
     python: "mambaforge-4.10"
+  jobs:
+    pre_install:
+      - LATEST_TAG=$(git describe --tags --abbrev=0) ; echo Downloading $LATEST_TAG ;
+       wget https://github.com/tudat-team/tudatpy/archive/refs/tags/$LATEST_TAG.zip; unzip $LATEST_TAG.zip; rm -rf docs/; LT=$(echo $LATEST_TAG | cut -c 2-); mv tudatpy-$LT/docs/ .
+
+      # The pre-install step enables building the docs on the latest tag
+      # instead of the latest commit. Since Read the Docs uses the latest
+      # tudatpy dev conda package to find the binaries (see docs/source/conf.
+      # py) and extract docs form them, it must use the corresponding source
+      # code to build the docs to avoid any inconsistencies. The pre-install
+      # step overrides the default behavior of Read the Docs to build the docs
+      # on the latest commit. The pre-install step replaces the docs/
+      # directory with the docs/ directory of the latest tag.
 
 conda:
   environment: docs/environment_readthedocs.yaml
+
+
