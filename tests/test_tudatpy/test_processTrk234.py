@@ -4,7 +4,7 @@ import requests
 import os
 import pytest
 from tudatpy.interface import spice
-from tudatpy.numerical_simulation.environment_setup import (
+from tudatpy.dynamics.environment_setup import (
     get_default_body_settings,
     ground_station,
     create_system_of_bodies,

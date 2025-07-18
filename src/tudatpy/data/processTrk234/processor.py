@@ -2,8 +2,8 @@ import trk234
 from . import converters as cnv
 from pandas import concat as pd_concat
 from tudatpy.numerical_simulation.estimation import ObservationCollection
-from tudatpy.astro import time_conversion
-from tudatpy.numerical_simulation.environment import (
+from tudatpy.astro import time_representation
+from tudatpy.dynamics.environment import (
     PiecewiseLinearFrequencyInterpolator,
 )
 
@@ -140,10 +140,10 @@ class Trk234Processor:
         ramp_df = self.ramp_converter.process(all_ramps)
 
         ramp_df["start_time_seconds"] = ramp_df["start_time"].apply(
-            lambda x: time_conversion.datetime_to_tudat(x).epoch()
+            lambda x: time_representation.datetime_to_tudat(x).epoch()
         )
         ramp_df["end_time_seconds"] = ramp_df["end_time"].apply(
-            lambda x: time_conversion.datetime_to_tudat(x).epoch()
+            lambda x: time_representation.datetime_to_tudat(x).epoch()
         )
         earth = bodies.get("Earth")
         for station in ramp_df["station"].unique():
