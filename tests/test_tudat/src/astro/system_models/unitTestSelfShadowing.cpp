@@ -51,21 +51,22 @@ BOOST_AUTO_TEST_CASE( testFractionAnalytical )
     bodyNames.push_back( "Sun" );
     SystemOfBodies bodies = createSystemOfBodies( getDefaultBodySettings( bodyNames, initialEphemerisTime, finalEphemerisTime ) );
 
-    std::map< std::string, std::vector< double > > materialProperties;
-    materialProperties[ "dummy" ] = { 0.0, 0.0 };
-    materialProperties[ "TO_BE_SHADOWED" ] = { 0.0, 0.0 };
-    materialProperties[ "TO_BE_LIT" ] = { 0.0, 0.0 };
+    std::map< std::string, std::shared_ptr< MaterialProperties > > materialPropertiesMap;
+    materialPropertiesMap[ "dummy" ] = materialProperties( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 );
+    materialPropertiesMap[ "TO_BE_SHADOWED" ] = materialProperties( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 );
+    materialPropertiesMap[ "TO_BE_LIT" ] = materialProperties( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 );
 
     std::map< std::string, bool > instantaneousReradiation;
     instantaneousReradiation[ "dummy" ] = true;
     instantaneousReradiation[ "TO_BE_SHADOWED" ] = true;
     instantaneousReradiation[ "TO_BE_LIT" ] = true;
 
-    std::vector< std::shared_ptr< BodyPanelSettings > > bodyPanelSettingList =
-            bodyPanelSettingsListFromDae( tudat::paths::getTudatTestDataPath( ) + "selfShadowingUnitTest.dae",
-                                          Eigen::Vector3d::Zero( ),
-                                          materialProperties,
-                                          instantaneousReradiation );
+    std::vector< std::shared_ptr< BodyPanelSettings > > bodyPanelSettingList = bodyPanelSettingsListFromDae( 
+        tudat::paths::getTudatTestDataPath( ) + "selfShadowingUnitTest.dae",
+        Eigen::Vector3d::Zero( ),
+        materialPropertiesMap,
+        instantaneousReradiation
+    );
 
     std::shared_ptr< FullPanelledBodySettings > panelSettings = fullPanelledBodySettings( bodyPanelSettingList );
 
@@ -164,21 +165,22 @@ BOOST_AUTO_TEST_CASE( testComputationalEfficiency )
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////             CREATE VEHICLE            /////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    std::map< std::string, std::vector< double > > materialProperties;
-    materialProperties[ "dummy" ] = { 0.4, 0.4 };
-    materialProperties[ "TO_BE_SHADOWED" ] = { 0.4, 0.4 };
-    materialProperties[ "TO_BE_LIT" ] = { 0.4, 0.4 };
+    std::map< std::string, std::shared_ptr< MaterialProperties > > materialPropertiesMap;
+    materialPropertiesMap[ "dummy" ] = materialProperties( 0.4, 0.4, 0.0, 0.0, 0.0, 0.0 );
+    materialPropertiesMap[ "TO_BE_SHADOWED" ] = materialProperties( 0.4, 0.4, 0.0, 0.0, 0.0, 0.0 );
+    materialPropertiesMap[ "TO_BE_LIT" ] = materialProperties( 0.4, 0.4, 0.0, 0.0, 0.0, 0.0 );
 
     std::map< std::string, bool > instantaneousReradiation;
     instantaneousReradiation[ "dummy" ] = true;
     instantaneousReradiation[ "TO_BE_SHADOWED" ] = true;
     instantaneousReradiation[ "TO_BE_LIT" ] = true;
 
-    std::vector< std::shared_ptr< BodyPanelSettings > > bodyPanelSettingList =
-            bodyPanelSettingsListFromDae( tudat::paths::getTudatTestDataPath( ) + "selfShadowingUnitTest.dae",
-                                          Eigen::Vector3d::Zero( ),
-                                          materialProperties,
-                                          instantaneousReradiation );
+    std::vector< std::shared_ptr< BodyPanelSettings > > bodyPanelSettingList = bodyPanelSettingsListFromDae( 
+        tudat::paths::getTudatTestDataPath( ) + "selfShadowingUnitTest.dae",
+        Eigen::Vector3d::Zero( ),
+        materialPropertiesMap,
+        instantaneousReradiation
+    );
 
     std::shared_ptr< FullPanelledBodySettings > panelSettings = fullPanelledBodySettings( bodyPanelSettingList );
     // Create spacecraft object.

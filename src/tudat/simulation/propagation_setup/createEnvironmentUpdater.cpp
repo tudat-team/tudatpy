@@ -12,6 +12,7 @@
 #include "tudat/astro/basic_astro/torqueModelTypes.h"
 #include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
+#include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
 
 namespace tudat
 {
@@ -368,11 +369,21 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                         }
                         break;
                     }
-                    case aerodynamic:
+                    case aerodynamic: {
                         singleAccelerationUpdateNeeds[ body_rotational_state_update ].push_back( accelerationModelIterator->first );
                         singleAccelerationUpdateNeeds[ vehicle_flight_conditions_update ].push_back( acceleratedBodyIterator->first );
                         singleAccelerationUpdateNeeds[ body_mass_update ].push_back( acceleratedBodyIterator->first );
+                        std::shared_ptr< aerodynamics::AerodynamicAcceleration > aerodynamicAcceleration =
+                                std::dynamic_pointer_cast< aerodynamics::AerodynamicAcceleration >(
+                                        accelerationModelIterator->second.at( i ) );
+                        auto panelledAerodynamicCoefficientInterface = std::dynamic_pointer_cast< aerodynamics::PanelledAerodynamicCoefficientInterface >( 
+                            aerodynamicAcceleration->getCoefficientInterface( ) );
+                        if ( panelledAerodynamicCoefficientInterface != nullptr )
+                        {
+                            singleAccelerationUpdateNeeds[body_segment_orientation_update].push_back( acceleratedBodyIterator->first );
+                        }
                         break;
+                    }
                     case radiation_pressure: {
                         const auto sourceName = accelerationModelIterator->first;
                         const auto targetName = acceleratedBodyIterator->first;
@@ -1079,7 +1090,11 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
             break;
         case cross_section_change:
             break;
+        case actual_cross_section:
+            break;
         case full_body_paneled_geometry:
+            break;
+        case aerodynamic_coefficients:
             break;
         default:
             throw std::runtime_error( "Error when getting environment updates for dependent variables, parameter " +
