@@ -137,55 +137,88 @@ void expose_simulator( py::module& m )
 
          :type: SingleArcSimulationResults
       )doc" )
-            .def_property_readonly(
-                    "state_history",
-                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::
-                            getEquationsOfMotionNumericalSolution,
-                    R"doc(
+        .def_property_readonly(
+            "state_history_time_object",
+            &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::
+            getEquationsOfMotionNumericalSolution,
+            R"doc(
+         **read-only**
+
+         Shorthand for propagation_results.state_history_time_object
+
+         :type: dict[float, numpy.ndarray]
+      )doc" )
+        .def_property_readonly(
+            "state_history",
+            &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::
+            getEquationsOfMotionNumericalSolutionDouble,
+            R"doc(
          **read-only**
 
          Shorthand for propagation_results.state_history
 
          :type: dict[float, numpy.ndarray]
       )doc" )
-            .def_property_readonly(
-                    "unprocessed_state_history",
-                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::
-                            getEquationsOfMotionNumericalSolutionRaw,
-                    R"doc(
+        .def_property_readonly(
+            "unprocessed_state_history_time_object",
+            &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::
+            getEquationsOfMotionNumericalSolutionRaw,
+            R"doc(
+         **read-only**
+
+         Shorthand for propagation_results.unprocessed_state_history_time_object
+
+         :type: dict[float, numpy.ndarray]
+      )doc" )
+        .def_property_readonly(
+            "unprocessed_state_history",
+            &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::
+            getEquationsOfMotionNumericalSolutionRawDouble,
+            R"doc(
          **read-only**
 
          Shorthand for propagation_results.unprocessed_state_history
 
          :type: dict[float, numpy.ndarray]
       )doc" )
-            .def_property_readonly(
-                    "dependent_variable_history",
-                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE,
-                                                     TIME_TYPE >::getDependentVariableHistory,
-                    R"doc(
+        .def_property_readonly(
+            "dependent_variable_history",
+            &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE,
+                TIME_TYPE >::getDependentVariableHistoryDouble,
+            R"doc(
          **read-only**
 
          Shorthand for propagation_results.dependent_variable_history
 
          :type: dict[float, numpy.ndarray]
       )doc" )
-            .def_property_readonly(
-                    "cumulative_computation_time_history",
-                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::
-                            getCumulativeComputationTimeHistory,
-                    R"doc(
+        .def_property_readonly(
+            "dependent_variable_history_time_object",
+            &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE,
+                TIME_TYPE >::getDependentVariableHistory,
+            R"doc(
+         **read-only**
+
+         Shorthand for propagation_results.dependent_variable_history_time_object
+
+         :type: dict[float, numpy.ndarray]
+      )doc" )
+        .def_property_readonly(
+            "cumulative_computation_time_history",
+            &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::
+            getCumulativeComputationTimeHistoryDouble,
+            R"doc(
          **read-only**
 
          Shorthand for propagation_results.cumulative_computation_time_history
 
          :type: dict[float, float]
       )doc" )
-            .def_property_readonly(
-                    "cumulative_number_of_function_evaluations",
-                    &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::
-                            getCumulativeNumberOfFunctionEvaluations,
-                    R"doc(
+        .def_property_readonly(
+            "cumulative_number_of_function_evaluations",
+            &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::
+            getCumulativeNumberOfFunctionEvaluationsDouble,
+            R"doc(
          **read-only**
 
          Shorthand for propagation_results.cumulative_number_of_function_evaluations
