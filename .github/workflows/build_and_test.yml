@@ -8,9 +8,9 @@ name: Build and Test
 
 on:
   push:
-    branches: [ "master", "develop"]
+    branches: [ "master", "develop", "develop_v10"]
   pull_request:
-    branches: [ "master", "develop"]
+    branches: [ "master", "develop", "develop_v10"]
 
 jobs:
   build-and-test:
