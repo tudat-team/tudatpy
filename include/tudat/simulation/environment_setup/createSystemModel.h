@@ -25,6 +25,35 @@ namespace tudat
 namespace simulation_setup
 {
 
+class MaterialProperties
+{
+public:
+    MaterialProperties( const double specularReflectivity, const double diffuseReflectivity,
+                        const double energyAccomodationCoefficient, const double normalAccomodationCoefficient, 
+                        const double tangentialAccomodationCoefficient, const double normalVelocityAtWallRatio ):
+                        specularReflectivity_( specularReflectivity ), diffuseReflectivity_( diffuseReflectivity ),
+                        energyAccomodationCoefficient_( energyAccomodationCoefficient ), 
+                        normalAccomodationCoefficient_( normalAccomodationCoefficient ),
+                        tangentialAccomodationCoefficient_( tangentialAccomodationCoefficient ),
+                        normalVelocityAtWallRatio_( normalVelocityAtWallRatio )
+    { }
+
+    double specularReflectivity_;    
+    double diffuseReflectivity_;
+    double energyAccomodationCoefficient_;
+    double normalAccomodationCoefficient_;
+    double tangentialAccomodationCoefficient_;
+    double normalVelocityAtWallRatio_;
+};
+
+inline std::shared_ptr< MaterialProperties > materialProperties( const double specularReflectivity, const double diffuseReflectivity,
+                    const double energyAccomodationCoefficient, const double normalAccomodationCoefficient, 
+                    const double tangentialAccomodationCoefficient, const double normalVelocityAtWallRatio )
+{
+    return std::make_shared< MaterialProperties >( specularReflectivity, diffuseReflectivity, energyAccomodationCoefficient,
+                                                   normalAccomodationCoefficient, tangentialAccomodationCoefficient, normalVelocityAtWallRatio );
+}
+
 class BodyPanelGeometrySettings
 {
 public:
@@ -195,8 +224,10 @@ class BodyPanelSettings
 public:
     BodyPanelSettings( const std::shared_ptr< BodyPanelGeometrySettings > panelGeometry,
                        const std::shared_ptr< BodyPanelReflectionLawSettings > reflectionLawSettings,
-                       const std::string panelTypeId = "" ):
-        panelGeometry_( panelGeometry ), reflectionLawSettings_( reflectionLawSettings ), panelTypeId_( panelTypeId )
+                       const std::string panelTypeId = "",
+                       const std::shared_ptr< MaterialProperties > materialProperties = nullptr ):
+        panelGeometry_( panelGeometry ), reflectionLawSettings_( reflectionLawSettings ), panelTypeId_( panelTypeId ),
+        materialProperties_( materialProperties )
     { }
 
     std::shared_ptr< BodyPanelGeometrySettings > panelGeometry_;
@@ -205,14 +236,17 @@ public:
 
     std::string panelTypeId_;
 
+    std::shared_ptr< MaterialProperties > materialProperties_;
+
 };
 
 inline std::shared_ptr< BodyPanelSettings > bodyPanelSettings(
         const std::shared_ptr< BodyPanelGeometrySettings > panelGeometry,
         const std::shared_ptr< BodyPanelReflectionLawSettings > reflectionLawSettings,
-        const std::string panelTypeId = "" )
+        const std::string panelTypeId = "",
+        const std::shared_ptr< MaterialProperties > materialProperties = nullptr )
 {
-    return std::make_shared< BodyPanelSettings >( panelGeometry, reflectionLawSettings, panelTypeId );
+    return std::make_shared< BodyPanelSettings >( panelGeometry, reflectionLawSettings, panelTypeId, materialProperties );
 }
 
 class FullPanelledBodySettings
@@ -237,7 +271,7 @@ public:
 inline std::vector< std::shared_ptr< BodyPanelSettings > > bodyPanelSettingsListFromDae( 
     const std::string filePath,
     const Eigen::Vector3d frameOrigin,
-    std::map< std::string, std::vector< double > > materialProperties, 
+    std::map< std::string, std::shared_ptr< MaterialProperties> > materialPropertiesMap, 
     std::map< std::string, bool > instantaneousReradiation,
     const std::string frameOrientation = "")
 {
@@ -274,15 +308,14 @@ inline std::vector< std::shared_ptr< BodyPanelSettings > > bodyPanelSettingsList
     // error handling
     for (const auto& materialId : panelMaterialIdList) 
     {
-        
-        auto matIt = materialProperties.find(materialId);
-        if (matIt == materialProperties.end())
+        if ( materialPropertiesMap.count( materialId ) == 0 )
         {
             throw std::runtime_error("Material ID " + materialId + " not found in material properties settings!");
         }
-        if (matIt->second.size() != 2) 
+        if ( materialPropertiesMap.at( materialId )->specularReflectivity_ == -1 ||
+             materialPropertiesMap.at( materialId )->diffuseReflectivity_ == -1 )
         {
-            throw std::runtime_error("Material properties for " + materialId + " do not have the expected dimension.");
+             throw std::runtime_error("Material ID " + materialId + " has no specular or diffuse reflectivity coefficients!");
         }
         auto reradIt = instantaneousReradiation.find(materialId);
         if (reradIt == instantaneousReradiation.end())
@@ -324,10 +357,11 @@ inline std::vector< std::shared_ptr< BodyPanelSettings > > bodyPanelSettingsList
                 std::make_shared< FrameFixedBodyPanelGeometrySettings >(panelVerticesList[a],
                      panelVerticesList[b], panelVerticesList[c], surfaceNormal, area, frameOrigin, frameOrientation);
             bodyPanelSettingsList.push_back(bodyPanelSettings(currentGeometrySettings, 
-                specularDiffuseBodyPanelReflectionLawSettings(materialProperties[panelMaterialIdList[i]][0], 
-                                                              materialProperties[panelMaterialIdList[i]][1],
+                specularDiffuseBodyPanelReflectionLawSettings(materialPropertiesMap[panelMaterialIdList[i]]->specularReflectivity_, 
+                                                              materialPropertiesMap[panelMaterialIdList[i]]->diffuseReflectivity_,
                                                               instantaneousReradiation[panelMaterialIdList[i]]),
-                                                              panelMaterialIdList[i]));
+                                                              panelMaterialIdList[i],
+                                                              materialPropertiesMap[ panelMaterialIdList[i] ]) );
                                                             
         }
         pos = end_p;

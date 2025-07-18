@@ -151,6 +151,21 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
         }
     }
 
+    if ( panelSettings->materialProperties_ != nullptr )
+    {
+        exteriorPanel->setEnergyAccomodationCoefficient( panelSettings->materialProperties_->energyAccomodationCoefficient_ );
+        exteriorPanel->setNormalAccomodationCoefficient( panelSettings->materialProperties_->normalAccomodationCoefficient_ );
+        exteriorPanel->setTangentialAccomodationCoefficient( panelSettings->materialProperties_->tangentialAccomodationCoefficient_ );
+        exteriorPanel->setNormalVelocityAtWallRatio( panelSettings->materialProperties_->normalVelocityAtWallRatio_ );
+    }
+    else
+    {
+        exteriorPanel->setEnergyAccomodationCoefficient( TUDAT_NAN );
+        exteriorPanel->setNormalAccomodationCoefficient( TUDAT_NAN );
+        exteriorPanel->setTangentialAccomodationCoefficient( TUDAT_NAN );
+        exteriorPanel->setNormalVelocityAtWallRatio( TUDAT_NAN );
+    }
+
     if( bodies.at( bodyName )->getRotationalEphemeris( ) == nullptr )
     {
         throw std::runtime_error( "Error when creating body exterior panel model for body " + bodyName +

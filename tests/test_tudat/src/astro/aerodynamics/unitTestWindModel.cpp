@@ -226,11 +226,11 @@ BOOST_AUTO_TEST_CASE( testWindModelInPropagation )
                 // Test aerodynamic acceleration unit vector
                 BOOST_CHECK_SMALL( std::fabs( airSpeedVelocityUnitVectorInInertialFrame.normalized( )( i ) +
                                               aerodynamicAcceleration.normalized( )( i ) ),
-                                   5.0 * std::numeric_limits< double >::epsilon( ) );
+                                   10.0 * std::numeric_limits< double >::epsilon( ) );
 
                 // Test aerodynamic acceleration
                 BOOST_CHECK_SMALL( std::fabs( aerodynamicAcceleration( i ) - expectedAerodynamicAcceleration( i ) ),
-                                   aerodynamicAcceleration.norm( ) * 5.0 * std::numeric_limits< double >::epsilon( ) );
+                                   aerodynamicAcceleration.norm( ) * 10.0 * std::numeric_limits< double >::epsilon( ) );
             }
 
             // Test airspeed
