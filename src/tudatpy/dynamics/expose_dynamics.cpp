@@ -38,8 +38,8 @@ void expose_dynamics( py::module &m )
     auto propagation_submodule = m.def_submodule( "propagation" );
     propagation::expose_propagation( propagation_submodule );
 
-    auto runner_submodule = m.def_submodule( "runner" );
-    runner::expose_runner( runner_submodule );
+    auto simulator_submodule = m.def_submodule( "simulator" );
+    simulator::expose_simulator( simulator_submodule );
 
 };
 
