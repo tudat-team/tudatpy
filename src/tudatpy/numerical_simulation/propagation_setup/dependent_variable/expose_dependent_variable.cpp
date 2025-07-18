@@ -2555,11 +2555,25 @@ The type of the acceleration that is to be saved.
            &tp::crossSectionChangeDependentVariable,
            py::arg( "target_name" ),
            py::arg( "source_name" ),
+           py::arg( "acceleration_type" ) = "radiation_pressure",
            R"doc(No documentation found.)doc" );
 
     m.def( "full_body_paneled_geometry",
            &tp::fullBodyPaneledGeometryDependentVariable,
            py::arg( "target_name" ),
+           R"doc(No documentation found.)doc" );
+
+    m.def( "aerodynamic_coefficients",
+           &tp::aerodynamicCoefficientsDependentVariable,
+           py::arg( "target_name" ),
+           py::arg( "central_body_name" ),
+           R"doc(No documentation found.)doc" );
+
+    m.def( "actual_cross_section",
+           &tp::actualCrossSectionDependentVariable,
+           py::arg( "target_name" ),
+           py::arg( "central_body_name" ),
+           py::arg( "acceleration_type" ) = "radiation_pressure",
            R"doc(No documentation found.)doc" );
 }
 

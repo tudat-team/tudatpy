@@ -604,6 +604,9 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
         case cross_section_change:
             variableSize = 1;
             break;
+        case actual_cross_section:
+            variableSize = 1;
+            break;
         case full_body_paneled_geometry: {
             std::string targetBody = dependentVariableSettings->associatedBody_;
             if( !bodies.at( targetBody )->getVehicleSystems( )->isPanelGeometryDefined( ) )
@@ -614,6 +617,9 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
             variableSize = 9 * totalNumberOfPanels;
             break;
         }
+        case aerodynamic_coefficients:
+            variableSize = 3;
+            break;
         default:
             std::string errorMessage = "Error, did not recognize dependent variable size of type: " +
                     std::to_string( dependentVariableSettings->dependentVariableType_ );
