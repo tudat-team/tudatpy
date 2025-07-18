@@ -41,6 +41,12 @@ void expose_dynamics( py::module &m )
     auto simulator_submodule = m.def_submodule( "simulator" );
     simulator::expose_simulator( simulator_submodule );
 
+    auto parameters_setup_submodule = m.def_submodule( "parameters_setup" );
+    parameters_setup::expose_parameters_setup( parameters_setup_submodule );
+
+    auto parameters_submodule = m.def_submodule( "parameters" );
+    parameters::expose_parameters( parameters_submodule );
+
 };
 
 }  // namespace dynamics
