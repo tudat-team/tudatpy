@@ -1,6 +1,6 @@
 
 # tests for data weights functionality
-from tudatpy.numerical_simulation import environment_setup
+from tudatpy.dynamics import environment_setup
 from tudatpy.numerical_simulation import estimation
 from tudatpy.data.mpc import BatchMPC
 from tudatpy.interface import spice
