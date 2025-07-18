@@ -468,6 +468,34 @@ The body-fixed frame of the body itself.
             "tings",
             R"doc(No documentation found.)doc" );
 
+    py::enum_< ta::GasSurfaceInteractionModelType >(m, "gas_surface_interaction_model" )
+        .value( "newton", ta::newton )
+        .value( "storch", ta::storch )
+        .value( "sentman", ta::sentman )
+        .value( "cook", ta::cook );
+
+    m.def( "panelled",
+            py::overload_cast< const ta::GasSurfaceInteractionModelType,
+                               const double,
+                               const int,
+                               const bool >(
+                   &tss::panelledAerodynamicCoefficientSettings ),
+           py::arg( "gas_surface_interaction_model" ),
+           py::arg( "reference_area" ),
+           py::arg( "maximum_number_of_pixels" ) = 0,
+           py::arg( "only_drag_component" ) = false,
+            R"doc(No documentation found.)doc" );
+    
+    m.def( "constant_variable_cross_section",
+            py::overload_cast< const Eigen::Vector3d &,
+                               const int,
+                               const ta::AerodynamicCoefficientFrames >(
+                   &tss::panelledConstantAerodynamicCoefficientSettings ),
+           py::arg( "constant_force_coefficient" ),
+           py::arg( "maximum_number_of_pixels" ) = 0,
+           py::arg( "force_coefficients_frame" ) = ta::negative_aerodynamic_frame_coefficients,
+            R"doc(No documentation found.)doc" );
+            
     m.def( "constant",
            py::overload_cast< const double,
                               const Eigen::Vector3d &,
