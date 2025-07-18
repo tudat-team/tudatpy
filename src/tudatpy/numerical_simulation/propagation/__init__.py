@@ -1,6 +1,8 @@
-from tudatpy.kernel.numerical_simulation.propagation import *
-
-from .dependent_variable_dictionary import (
-    DependentVariableDictionary,
-    create_dependent_variable_dictionary,
+import warnings
+warnings.warn(
+    "tudatpy.numerical_simulation.propagation is deprecated. Use tudatpy.dynamics.propagation instead.",
+    FutureWarning,
+    stacklevel=1
 )
+
+from tudatpy.dynamics.propagation import *
