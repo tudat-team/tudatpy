@@ -349,7 +349,8 @@ void expose_data( py::module &m )
 
     py::class_< tio::solar_activity::SolarActivityData,
                 std::shared_ptr< tio::solar_activity::SolarActivityData > >(
-            m, "SolarActivityData", R"doc(No documentation available.)doc" );
+            m, "SolarActivityData", R"doc(No documentation available.)doc" )
+            .def_readonly( "solar_radio_flux_107_observed", &tio::solar_activity::SolarActivityData::solarRadioFlux107Observed );
 
     // py::class_<std::map<
     //     double,
@@ -365,6 +366,21 @@ void expose_data( py::module &m )
  :param file_path: Path to the space weather data file.
  )doc" );
 
+        py::class_< tio::solar_activity::SolarActivityContainer,
+                std::shared_ptr< tio::solar_activity::SolarActivityContainer > >(m, "SolarActivityContainer")
+
+        .def(py::init< const std::map< double, std::shared_ptr< tio::solar_activity::SolarActivityData > >& >(),
+                py::arg( "solar_activity_data_map" ))
+
+        .def("get_solar_activity_data", &tio::solar_activity::SolarActivityContainer::getSolarActivityData,
+                py::arg("time"),
+                R"doc(
+        Returns the nearest SolarActivityData (in UTC Julian days) for the given time in seconds since J2000.
+        )doc")
+
+        .def("get_solar_activity_data_map", &tio::solar_activity::SolarActivityContainer::getSolarActivityDataMap,
+                R"doc(Returns the full map of SolarActivityData.)doc");
+                        
     py::class_< tio::OdfRawFileContents, std::shared_ptr< tio::OdfRawFileContents > >(
             m, "OdfRawFileContents", R"doc(No documentation available.)doc" )
             .def( "write_to_text_file",
