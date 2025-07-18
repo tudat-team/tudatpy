@@ -68,7 +68,7 @@ PYBIND11_MODULE( kernel, m )
     tudatpy::numerical_simulation::expose_numerical_simulation( numerical_simulation );
     tudatpy::numerical_simulation::expose_numerical_simulation_simulator( numerical_simulation );
     tudatpy::numerical_simulation::expose_numerical_simulation_variational( numerical_simulation );
-    tudatpy::numerical_simulation::expose_numerical_simulation_estimator( numerical_simulation );
+    // tudatpy::numerical_simulation::expose_numerical_simulation_estimator( numerical_simulation );
 
     // exceptions module
     auto exceptions = m.def_submodule( "exceptions" );
