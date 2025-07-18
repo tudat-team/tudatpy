@@ -179,38 +179,6 @@ void expose_observations_wrapper( py::module& m )
            py::arg( "time_step" ),
            R"doc(No documentation found.)doc" );
 
-       m.def( "create_filtered_observation_collection",
-           py::overload_cast<
-                   const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >,
-                   const std::map< std::shared_ptr< tom::ObservationCollectionParser >, std::shared_ptr< tom::ObservationFilterBase > > & >(
-                   &tom::filterObservations< STATE_SCALAR_TYPE, TIME_TYPE > ),
-           py::arg( "original_observation_collection" ),
-           py::arg( "observation_filters_map" ),
-           R"doc(No documentation found.)doc" );
-
-    m.def( "create_filtered_observation_collection",
-           py::overload_cast< const std::shared_ptr< tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > >,
-                              const std::shared_ptr< tom::ObservationFilterBase >,
-                              const std::shared_ptr< tom::ObservationCollectionParser > >(
-                   &tom::filterObservations< STATE_SCALAR_TYPE, TIME_TYPE > ),
-           py::arg( "original_observation_collection" ),
-           py::arg( "observation_filter" ),
-           py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
-           R"doc(No documentation found.)doc" );
-
-    m.def( "split_observation_collection",
-           &tom::splitObservationSets< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "original_observation_collection" ),
-           py::arg( "observation_set_splitter" ),
-           py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
-           R"doc(No documentation found.)doc" );
-
-    m.def( "create_new_observation_collection",
-           &tom::createNewObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >,
-           py::arg( "original_observation_collection" ),
-           py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
-           R"doc(No documentation found.)doc" );
-
     m.def( "set_existing_observations",
            &tss::setExistingObservations< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "observations" ),
