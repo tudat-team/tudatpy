@@ -997,37 +997,11 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
     {
         throw std::runtime_error( "Error when making aerodynamic acceleration, found flight conditions that are not atmospheric." );
     }
-
-    // Retrieve frame in which aerodynamic coefficients are defined.
-    std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > aerodynamicCoefficients =
-            bodyUndergoingAcceleration->getAerodynamicCoefficientInterface( );
-    reference_frames::AerodynamicsReferenceFrames accelerationFrame =
-            aerodynamics::getCompleteFrameForCoefficients( aerodynamicCoefficients->getForceCoefficientsFrame( ) );
-
-    // Create function to transform from frame of aerodynamic coefficienrs to that of propagation.
-    std::function< void( Eigen::Vector3d&, const Eigen::Vector3d& ) > toPropagationFrameTransformation;
-    toPropagationFrameTransformation = reference_frames::getAerodynamicForceTransformationReferenceFunction(
-            bodyFlightConditions->getAerodynamicAngleCalculator( ),
-            accelerationFrame,
-            std::bind( &Body::getCurrentRotationToGlobalFrameReference, bodyExertingAcceleration ),
-            reference_frames::inertial_frame );
-
-    std::function< Eigen::Vector3d&( ) > coefficientFunction =
-            std::bind( &AerodynamicCoefficientInterface::getCurrentForceCoefficientsReference, aerodynamicCoefficients );
-    std::function< void( Eigen::Vector3d& ) > coefficientInPropagationFrameFunction =
-            std::bind( &reference_frames::transformVectorFunctionFromVectorReferenceFunctions,
-                       std::placeholders::_1,
-                       coefficientFunction,
-                       toPropagationFrameTransformation );
-
     // Create acceleration model.
     return std::make_shared< AerodynamicAcceleration >(
-            coefficientInPropagationFrameFunction,
-            std::bind( &AtmosphericFlightConditions::getCurrentDensity, bodyFlightConditions ),
-            std::bind( &AtmosphericFlightConditions::getCurrentAirspeed, bodyFlightConditions ),
-            std::bind( &Body::getBodyMass, bodyUndergoingAcceleration ),
-            std::bind( &AerodynamicCoefficientInterface::getReferenceArea, aerodynamicCoefficients ),
-            aerodynamics::areCoefficientsInNegativeDirection( aerodynamicCoefficients->getForceCoefficientsFrame( ) ) );
+            bodyFlightConditions,
+            std::bind( &Body::getBodyMass, bodyUndergoingAcceleration ) );
+    
 }
 
 std::shared_ptr< RadiationPressureAcceleration > createRadiationPressureAccelerationModel(
