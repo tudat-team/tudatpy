@@ -33,10 +33,15 @@ Functions
 
    create_one_dimensional_scalar_interpolator
 
+   create_one_dimensional_scalar_interpolator_time_object
+
    create_one_dimensional_vector_interpolator
+
+   create_one_dimensional_vector_interpolator_time_object
 
    create_one_dimensional_matrix_interpolator
 
+   create_one_dimensional_matrix_interpolator_time_object
 
 
 .. autofunction:: tudatpy.math.interpolators.linear_interpolation
@@ -51,10 +56,15 @@ Functions
 
 .. autofunction:: tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator
 
+.. autofunction:: tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator_time_object
+
 .. autofunction:: tudatpy.math.interpolators.create_one_dimensional_vector_interpolator
+
+.. autofunction:: tudatpy.math.interpolators.create_one_dimensional_vector_interpolator_time_object
 
 .. autofunction:: tudatpy.math.interpolators.create_one_dimensional_matrix_interpolator
 
+.. autofunction:: tudatpy.math.interpolators.create_one_dimensional_matrix_interpolator_time_object
 
 
 
@@ -96,10 +106,15 @@ Classes
 
    OneDimensionalInterpolatorScalar
 
+   OneDimensionalInterpolatorScalarTimeObject
+
    OneDimensionalInterpolatorVector
+
+   OneDimensionalInterpolatorVectorTimeObject
 
    OneDimensionalInterpolatorMatrix
 
+   OneDimensionalInterpolatorMatrixTimeObject
 
 
 .. autoclass:: tudatpy.math.interpolators.InterpolatorSettings
@@ -111,11 +126,19 @@ Classes
 .. autoclass:: tudatpy.math.interpolators.OneDimensionalInterpolatorScalar
    :members:
 
+.. autoclass:: tudatpy.math.interpolators.OneDimensionalInterpolatorScalarTimeObject
+   :members:
+
 .. autoclass:: tudatpy.math.interpolators.OneDimensionalInterpolatorVector
+   :members:
+
+.. autoclass:: tudatpy.math.interpolators.OneDimensionalInterpolatorVectorTimeObject
    :members:
 
 .. autoclass:: tudatpy.math.interpolators.OneDimensionalInterpolatorMatrix
    :members:
 
+.. autoclass:: tudatpy.math.interpolators.OneDimensionalInterpolatorMatrixTimeObject
+   :members:
 
 
