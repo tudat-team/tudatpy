@@ -511,12 +511,15 @@ void expose_propagation( py::module &m )
             .def_property_readonly(
                     "state_history",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
-                            getEquationsOfMotionNumericalSolution,
+                            getEquationsOfMotionNumericalSolutionTemplated< double >,
                     R"doc(
 
          **read-only**
 
-         Numerical solution of the equations of motion as key-value pairs. The key denotes the epoch. The value contains the
+         Numerical solution of the equations of motion as key-value pairs. The key denotes the epoch as a float. If the output
+         with the higher-resolution :func:`~Time` object is required, use the :func:`~state_history_time_object` function.
+
+         The values of this dictionary contains the
          numerically calculated state at this epoch. For this function, the states are always converted to so-called
          'processed' formulations (e.g. Cartesian states for translational dynamics), see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/processed_propagated_elements.html>`_
          for details. For the history of the states that were actually propagated, use the ``unprocessed_state_history``.
@@ -532,24 +535,28 @@ void expose_propagation( py::module &m )
 
          :type: dict[float, numpy.ndarray]
       )doc" )
-            .def_property_readonly(
-                    "state_history_float",
-                    &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
-                            getEquationsOfMotionNumericalSolutionDouble,
-                    R"doc(
+        .def_property_readonly(
+            "state_history_time_object",
+            &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
+            getEquationsOfMotionNumericalSolutionTemplated< Time >,
+            R"doc(
 
          **read-only**
 
-         Same as ``state_history``, but with independent variable of the dictionary being equal to ``float`` regardless of compilation settings.
+         Same as :func:`~state_history`, but using the high-resolution :func:`~Time` type used as independent variable in the propagation as key
 
-         :type: dict[float, numpy.ndarray]
+
+         :type: dict[Time, numpy.ndarray]
       )doc" )
+            .def_property_readonly(
+                    "state_history_float",
+                    &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
+                            getEquationsOfMotionNumericalSolutionTemplated< double > )
             .def_property_readonly(
                     "state_history_float_split",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
                             getEquationsOfMotionNumericalSolutionDoubleSplit,
                     R"doc(
-
          **read-only**
 
          Same as ``state_history``, but with a return type of two lists (one with times and one with states)
@@ -559,12 +566,16 @@ void expose_propagation( py::module &m )
             .def_property_readonly(
                     "unprocessed_state_history",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
-                            getEquationsOfMotionNumericalSolutionRaw,
+                            getEquationsOfMotionNumericalSolutionRawTemplated< double >,
                     R"doc(
 
          **read-only**
 
-         Numerical solution of the equations of motion as key-value pairs, without any processing applied. The key denotes the epoch. The value contains the
+         Numerical solution of the equations of motion as key-value pairs, without any processing applied.
+         The key denotes the epoch as a float. If the output
+         with the higher-resolution :func:`~Time` object is required, use the :func:`~unprocessed_state_history_time_object` function.
+
+         The values contain the
          numerically calculated state at this epoch. This attribute contains the states of the propagated bodies expressed in the
          "raw" form in which the propagation took place. For instance, when using a Gauss-Kepler propagation scheme, this
          attribute will contain the numerically propagated Keplerian elements at each time epoch
@@ -572,15 +583,32 @@ void expose_propagation( py::module &m )
 
          :type: dict[float, numpy.ndarray]
       )doc" )
-            .def_property_readonly(
+
+        .def_property_readonly(
+            "unprocessed_state_history_time_object",
+            &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
+            getEquationsOfMotionNumericalSolutionRawTemplated< Time >,
+            R"doc(
+
+         **read-only**
+
+         Same as :func:`~unprocessed_state_history`, but using the high-resolution :func:`~Time` type used as independent variable in the propagation as key
+
+
+         :type: dict[Time, numpy.ndarray]
+      )doc"  )
+
+        .def_property_readonly(
                     "dependent_variable_history",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE,
-                                                     TIME_TYPE >::getDependentVariableHistory,
+                                                     TIME_TYPE >::getDependentVariableHistoryTemplated< double >,
                     R"doc(
                     
          **read-only**
 
-         Dependent variables computed during the propagation as key-value pairs.
+         Dependent variables computed during the propagation as key-value pairs. The key denotes the epoch as a float. If the output
+         with the higher-resolution :func:`~Time` object is required, use the :func:`~dependent_variable_history_time_object` function.
+
          The vector of all dependent variables concatenated into a single vector as value, with the epoch as key.
          They order of the concatenated dependent variables in a single value is provided by the ``dependent_variable_ids`` attribute of this object.
 
@@ -588,15 +616,16 @@ void expose_propagation( py::module &m )
          :type: dict[float, numpy.ndarray]
       )doc" )
 
-            .def_property_readonly( "dependent_variable_history_float",
-                           &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariableHistoryDouble,
-                           R"doc(
+            .def_property_readonly( "dependent_variable_history_time_object",
+                           &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariableHistoryTemplated< Time >,
+                                    R"doc(
+
          **read-only**
 
-         Same as ``dependent_variable_history``, but with independent variable of the dictionary being equal to ``float`` regardless of compilation settings.
+         Same as :func:`~dependent_variable_history`, but using the high-resolution :func:`~Time` type used as independent variable in the propagation as key
 
-         :type: dict[float, numpy.ndarray]
-     )doc" )
+         :type: dict[Time, numpy.ndarray]
+      )doc"  )
 
 
             .def_property_readonly(
@@ -608,7 +637,7 @@ void expose_propagation( py::module &m )
          **read-only**
 
          History of cumulative computation time in seconds needed during the propagation as key-value
-         pairs. At each epoch (key) the computation time (value) in seconds is the total computation time
+         pairs. At each epoch (key, as a float) the computation time (value) in seconds is the total computation time
          used up to and including that time step. This includes the total time up to and including the current time step,
          since the beginning of the (single-arc) propagation.
 
@@ -624,7 +653,7 @@ void expose_propagation( py::module &m )
          **read-only**
 
          History of cumulative number of function evaluations (e.g. number of times the state derivative model is evaluated)
-         as key-value pairs. At each epoch (key) the cumulative number of function evaluations (value) including the current one is included.
+         as key-value pairs. At each epoch (key, as a float) the cumulative number of function evaluations (value) including the current one is included.
 
          .. note:: At present, this dictionary is updated during each function evaluation, including the minor stages of (for instance) a multi-stage integrator. This is unlike the rest of the data in this object, which is provided only after each full time step. For variable-time step integration, this also means that the values need not be monotonically increasing with propagation time (if a step size is rejected and recomputed with smaller step size).
 

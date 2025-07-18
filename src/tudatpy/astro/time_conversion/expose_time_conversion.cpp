@@ -10,6 +10,9 @@
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 #include "expose_time_conversion.h"
 
+#include <pybind11/operators.h>
+#include <pybind11/stl.h>
+
 #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
 #include <pybind11/pybind11.h>
@@ -35,6 +38,52 @@ namespace pc = tudat::physical_constants;
 namespace teo = tudat::earth_orientation;
 namespace tutil = tudat::utilities;
 
+namespace pybind11
+{
+namespace detail
+{
+template<>
+struct type_caster< double > {
+public:
+    // Register implicit conversion from Time -> float/double
+    PYBIND11_TYPE_CASTER( double, _( "float" ) );
+
+    bool load( handle src, bool convert )
+    {
+        // Handle existing conversions first
+        if( PyFloat_Check( src.ptr( ) ) )
+        {
+            value = PyFloat_AsDouble( src.ptr( ) );
+            return !PyErr_Occurred( );
+        }
+
+        // Try to convert from Time
+        if( convert )
+        {
+            try
+            {
+                auto time_type = module_::import( "tudatpy.kernel" ).attr( "Time" );
+                if( isinstance( src, time_type ) )
+                {
+                    value = src.attr( "to_float" )( ).cast< double >( );
+                    return true;
+                }
+            }
+            catch( const error_already_set& )
+            {
+                PyErr_Clear( );
+            }
+        }
+        return false;
+    }
+
+    static handle cast( double src, return_value_policy policy, handle parent )
+    {
+        return PyFloat_FromDouble( src );
+    }
+};
+}  // namespace detail
+}  // namespace pybind11
 namespace tudat
 {
 
@@ -105,15 +154,100 @@ namespace time_conversion
 
 void expose_time_conversion( py::module& m )
 {
+    //    m.attr("default_time_converter") =
+    //    tudat::earth_orientation::defaultTimeConverter;
 
-    py::class_< tudat::Time >( m, "Time", R"doc(No documentation found.)doc" )
+    py::class_< tudat::Time >( m, "Time", R"doc(
+        
+    Class for defining time with a resolution that is sub-femtosecond for very long periods of time.
+    
+    Using double or long double precision as a representation of time, the issue of reduced precision will 
+    occur over long time periods. For instance, over a period of 10^8 seconds (about 3 years), double and 
+    long double representations have resolution of about 10^-8 and 10^-11 s respectively, which is 
+    insufficient for various applications. 
+    
+    This class uses an integer to represent the number of hours since an epoch, and a long double to 
+    represent the number of seconds into the present hour. This provides a resolution of < 1 femtosecond, 
+    over a range of 2147483647 hours (about 300,000 years), which is more than sufficient for practical 
+    applications.
+    
+    The Time class supports standard arithmetic operations (+, -, *, /) with Time objects and floats, comparison operations, and 
+    automatic conversion to/from floating-point types.
+        )doc" )
+            .def( py::init< const double >( ),
+                  py::arg( "seconds_since_j2000" ),
+                  R"doc(
+
+     Create a Time object from seconds since J2000.
+     
+     Parameters
+     ----------
+     seconds_since_j2000 : float
+         Number of seconds since J2000 epoch
+     
+     Returns
+     -------
+     Time
+         Time object initialized to specified seconds since J2000
+     
+     Examples
+     --------
+     >>> from tudatpy.kernel import Time
+     >>> t = Time(3600.0)  # 1 hour after J2000
+     )doc" )
+
+            // Add docstring for the second constructor
             .def( py::init< const int, const long double >( ),
                   py::arg( "full_periods" ),
-                  py::arg( "seconds_into_full_period" ) )
-            .def( py::init< const double >( ), py::arg( "seconds_since_j2000" ) )
+                  py::arg( "seconds_into_full_period" ),
+                  R"doc(
+
+     Create a Time object from full periods (hours) and seconds into the current period.
+     
+     Parameters
+     ----------
+     full_periods : int
+         Number of full hours since epoch
+     seconds_into_full_period : float
+         Number of seconds into current hour. Need not be in range [0, 3600];
+         the time representation is normalized automatically.
+     
+     Returns
+     -------
+     Time
+         Time object initialized to specified time
+     
+     Examples
+     --------
+     >>> from tudatpy.kernel import Time
+     >>> t = Time(2, 1800.0)  # 2.5 hours after epoch
+     )doc" )
             .def( "to_float",
                   &tudat::Time::getSeconds< double >,
-                  R"doc(No documentation found.)doc" )
+                  R"doc(
+    Converts the time to a float (double) representing seconds since J2000.
+        
+    Returns
+    -------
+    float
+        Number of seconds since J2000
+    
+    Examples
+    --------
+    In this example, a Time object is converted back to seconds since J2000.
+    
+    .. code-block:: python
+    
+        from tudatpy.kernel import Time
+        
+        # Create a Time object from seconds since J2000
+        t = Time(3600.0)  # 1 hour after J2000
+        
+        # Convert back to seconds
+        seconds = t.to_float()
+        print(seconds)  # prints 3600.0
+    )doc" )
+            .def( "__float__", &tudat::Time::getSeconds< double > )
             .def( py::self + py::self )
             .def( py::self + double( ) )
             .def( double( ) + py::self )
@@ -148,9 +282,8 @@ void expose_time_conversion( py::module& m )
             .def( double( ) >= py::self )
             .def( py::self >= double( ) );
 
-    //    m.attr("default_time_converter") =
-    //    tudat::earth_orientation::defaultTimeConverter;
-
+    // Register implicit conversion from float/double -> Time
+    py::implicitly_convertible< double, tudat::Time >( );
     py::enum_< tba::TimeScales >( m,
                                   "TimeScales",
                                   R"doc(
@@ -185,13 +318,25 @@ void expose_time_conversion( py::module& m )
 
  )doc" )
             .def( "convert_time",
-                  &teo::TerrestrialTimeScaleConverter::getCurrentTime< TIME_TYPE >,
+                  &teo::TerrestrialTimeScaleConverter::getCurrentTime< double >,
+                  py::arg( "input_scale" ),
+                  py::arg( "output_scale" ),
+                  py::arg( "input_value" ),
+                  py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ) )
+            .def( "convert_time_object",
+                  &teo::TerrestrialTimeScaleConverter::getCurrentTime< Time >,
                   py::arg( "input_scale" ),
                   py::arg( "output_scale" ),
                   py::arg( "input_value" ),
                   py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ) )
             .def( "get_time_difference",
                   &teo::TerrestrialTimeScaleConverter::getCurrentTimeDifference< double >,
+                  py::arg( "input_scale" ),
+                  py::arg( "output_scale" ),
+                  py::arg( "input_value" ),
+                  py::arg( "earth_fixed_position" ) = Eigen::Vector3d::Zero( ) )
+            .def( "get_time_object_difference",
+                  &teo::TerrestrialTimeScaleConverter::getCurrentTimeDifference< Time >,
                   py::arg( "input_scale" ),
                   py::arg( "output_scale" ),
                   py::arg( "input_value" ),
@@ -370,7 +515,7 @@ void expose_time_conversion( py::module& m )
 
  )doc" )
             .def( "epoch",
-                  &tba::DateTime::epoch< TIME_TYPE >,
+                  &tba::DateTime::epoch< double >,
                   R"doc(
 
  .. warning::
@@ -390,8 +535,13 @@ void expose_time_conversion( py::module& m )
 
 
  )doc" )
+            .def( "epoch_time_object",
+                  &tba::DateTime::epoch< tudat::Time >,
+                  R"doc(
+
+ )doc" )
             .def( "to_epoch",
-                  &tba::DateTime::epoch< TIME_TYPE >,
+                  &tba::DateTime::epoch< double >,
                   R"doc(
 
  Function to get the epoch in seconds since J2000 for the current date and time
@@ -403,7 +553,10 @@ void expose_time_conversion( py::module& m )
      Current epoch in seconds since J2000
 
 
-
+ )doc" )
+            .def( "to_epoch_time_object",
+                  &tba::DateTime::epoch< Time >,
+                  R"doc(
 
 
  )doc" )
@@ -575,7 +728,7 @@ In this example, the calendar date corresponding to when 122 days have passed in
                          
                          )doc" )
             .def_static( "from_epoch",
-                         &tba::DateTime::fromTime< TIME_TYPE >,
+                         &tba::DateTime::fromTime< double >,
                          py::arg( "epoch" ),
                          R"doc(
 
@@ -604,6 +757,13 @@ In this example, the calendar date corresponding to when 122 days have passed in
      dt = DateTime.from_epoch(epoch_et)
      print(dt) # prints 2025-01-01 00:00:00.000000000000000
                          
+                         )doc" )
+            .def_static( "from_epoch_time_object",
+                         &tba::DateTime::fromTime< tudat::Time >,
+                         py::arg( "epoch" ),
+                         R"doc(
+
+
                          )doc" )
             .def_static( "from_julian_day",
                          &tba::DateTime::fromJulianDay,
@@ -1432,7 +1592,7 @@ datetime.datetime
      )doc" );
 
     m.def( "date_time_components_to_epoch",
-           &tba::timeFromDecomposedDateTime< TIME_TYPE >,
+           &tba::timeFromDecomposedDateTime< double >,
            py::arg( "year" ),
            py::arg( "month" ),
            py::arg( "day" ),
@@ -1477,8 +1637,19 @@ datetime.datetime
 
      )doc" );
 
+    m.def( "date_time_components_to_epoch_time_object",
+           &tba::timeFromDecomposedDateTime< Time >,
+           py::arg( "year" ),
+           py::arg( "month" ),
+           py::arg( "day" ),
+           py::arg( "hour" ),
+           py::arg( "minute" ),
+           py::arg( "seconds" ),
+           R"doc(
+     )doc" );
+
     m.def( "iso_string_to_epoch",
-           &tba::timeFromIsoString< TIME_TYPE >,
+           &tba::timeFromIsoString< double >,
            py::arg( "iso_datetime" ),
            R"doc(
 
@@ -1500,6 +1671,13 @@ datetime.datetime
 
 
 
+
+     )doc" );
+
+    m.def( "iso_string_to_epoch_time_object",
+           &tba::timeFromIsoString< Time >,
+           py::arg( "iso_datetime" ),
+           R"doc(
 
      )doc" );
 
