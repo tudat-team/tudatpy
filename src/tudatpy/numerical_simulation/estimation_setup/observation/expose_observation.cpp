@@ -1973,7 +1973,7 @@ Examples
            py::arg( "subtract_doppler_signature" ) = true,
            R"doc(No documentation found.)doc" );
 
-    m.def( "dsn_n_way_nange",
+    m.def( "dsn_n_way_range",
            py::overload_cast< const tom::LinkDefinition&,
                               const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >,
                               const std::shared_ptr< tom::ObservationBiasSettings >,
