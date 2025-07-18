@@ -38,3 +38,5 @@ from tudatpy.kernel.estimation.observations.observations_geometry import *
 from tudatpy.kernel.estimation.observations.observations_processing import * 
 
 from tudatpy.kernel.estimation.estimation_analysis import * 
+
+from tudatpy.kernel.astro.time_conversions import * 
