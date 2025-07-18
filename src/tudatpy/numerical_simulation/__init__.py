@@ -7,3 +7,5 @@ warnings.warn(
 
 from tudatpy.kernel.dynamics import *
 from tudatpy.kernel.estimation import *
+
+from tudatpy.kernel.dynamics.simulator import * 
