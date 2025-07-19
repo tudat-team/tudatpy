@@ -252,7 +252,7 @@ void expose_estimation_analysis( py::module& m )
 
          Parameters
          ----------
-         bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
+         bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
              Object defining the physical environment, with all
              properties of artificial and natural bodies.
 

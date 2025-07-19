@@ -123,7 +123,7 @@ void expose_observations_dependent_variables( py::module& m )
  dependent_variable_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationDependentVariableSettings` ]
      List of one or more :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationDependentVariableSettings` objects, defining the dependent variables to be considered.
 
- bodies : :class:`~tudatpy.numerical_simulation.environment_setup.SystemOfBodies`
+ bodies : :class:`~tudatpy.dynamics.environment_setup.SystemOfBodies`
      Object consolidating all bodies and environment models that constitute the physical environment.
 
 
@@ -158,7 +158,7 @@ void expose_observations_dependent_variables( py::module& m )
  dependent_variable_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationDependentVariableSettings` ]
      List of one or more :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationDependentVariableSettings` objects, defining the dependent variables to be considered.
 
- bodies : :class:`~tudatpy.numerical_simulation.environment_setup.SystemOfBodies`
+ bodies : :class:`~tudatpy.dynamics.environment_setup.SystemOfBodies`
      Object consolidating all bodies and environment models that constitute the physical environment.
 
  observable_type : :class:`ObservableType`

@@ -384,7 +384,7 @@ void expose_observations_simulation_settings( py::module& m )
  observation_settings : List[ ObservationSettings ]
      List of settings objects, each object defining the observation model settings for one combination of observable and link geometry that is to be simulated.
 
- bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
+ bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
      Object consolidating all bodies and environment models, including ground station models, that constitute the physical environment.
 
  Returns

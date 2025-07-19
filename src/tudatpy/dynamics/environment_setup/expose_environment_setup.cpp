@@ -106,7 +106,7 @@ void expose_environment_setup( py::module& m )
          Mass that gets assigned to the vehicle. This mass does *not* automatically define a gravity field
          model, but is instead used for the calculation of non-conservative forces only. When creating a body with a gravity field,
          leave this entry empty. NOTE: this option is a shorthand for assigning a mass-only
-         :func:`~tudatpy.numerical_simulation.environment_setup.rigid_body.constant_rigid_body_properties` to ``mass_property_settings``, and will be deprecated.
+         :func:`~tudatpy.dynamics.environment_setup.rigid_body.constant_rigid_body_properties` to ``mass_property_settings``, and will be deprecated.
 
 
          :type: float
@@ -239,7 +239,7 @@ void expose_environment_setup( py::module& m )
 
          .. warning::
 
-             This interface is deprecated and will be removed in a future release. Use :attr:`~tudatpy.numerical_simulation.environment_setup.BodySettings.radiation_source_settings` and :attr:`~tudatpy.numerical_simulation.environment_setup.BodySettings.radiation_pressure_target_settings` instead.
+             This interface is deprecated and will be removed in a future release. Use :attr:`~tudatpy.dynamics.environment_setup.BodySettings.radiation_source_settings` and :attr:`~tudatpy.dynamics.environment_setup.BodySettings.radiation_pressure_target_settings` instead.
 
 
       )doc" );
@@ -269,7 +269,7 @@ void expose_environment_setup( py::module& m )
          .. note::
 
              When creating BodyListSettings from this method, the settings for each body will have to be added manually.
-             It is typically more convenient to use the :func:`~tudatpy.numerical_simulation.environment_setup.get_default_body_settings` function to create a BodyListSettings object with default settings for all bodies, and then modify the settings for specific bodies as needed.
+             It is typically more convenient to use the :func:`~tudatpy.dynamics.environment_setup.get_default_body_settings` function to create a BodyListSettings object with default settings for all bodies, and then modify the settings for specific bodies as needed.
 
 
          Parameters
@@ -311,7 +311,7 @@ void expose_environment_setup( py::module& m )
          .. warning::
 
              This method is rarely called by the user, as :class:`BodySettings` objects cannot be created directly but only be extracted from a BodyListSettings instance.
-             Instead, users are recommended to use the :func:`~tudatpy.numerical_simulation.environment_setup.get_default_body_settings` to create settings for major celestial bodies, and the :func:`~tudatpy.numerical_simulation.environment_setup.BodyListSettings.add_empty_settings` function to create settings for custom bodies.
+             Instead, users are recommended to use the :func:`~tudatpy.dynamics.environment_setup.get_default_body_settings` to create settings for major celestial bodies, and the :func:`~tudatpy.dynamics.environment_setup.BodyListSettings.add_empty_settings` function to create settings for custom bodies.
              See the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/creation_celestial_body_settings.html>`_ for more information.
 
 
@@ -424,7 +424,7 @@ void expose_environment_setup( py::module& m )
 
  Function that retrieves the default settings for the given set of input bodies, with a limited valid time interval.
 
- Same as :func:`~tudatpy.numerical_simulation.environment_setup.get_default_body_settings`, but with body settings valid over a limited time interval. This makes the
+ Same as :func:`~tudatpy.dynamics.environment_setup.get_default_body_settings`, but with body settings valid over a limited time interval. This makes the
  the extraction of states from ephemerides more computationally efficient, at the expense of more RAM usage, and a
  constrained time interval over which the ephemerides are valid. See `this page <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/default_env_models/default_bodies_limited_time_range.html>`_ for more details.
 
@@ -464,7 +464,7 @@ void expose_environment_setup( py::module& m )
 
  Function that retrieves the default settings for a single body.
 
- As :func:`~tudatpy.numerical_simulation.environment_setup.get_default_body_settings`, but for retrieving default settings of only a single body
+ As :func:`~tudatpy.dynamics.environment_setup.get_default_body_settings`, but for retrieving default settings of only a single body
 
 
  Parameters
@@ -500,7 +500,7 @@ void expose_environment_setup( py::module& m )
 
  Function that retrieves the default settings for a single body, with a limited valid time interval.
 
- As :func:`~tudatpy.numerical_simulation.environment_setup.get_default_body_settings_time_limited`, but for retrieving default settings of only a single body
+ As :func:`~tudatpy.dynamics.environment_setup.get_default_body_settings_time_limited`, but for retrieving default settings of only a single body
 
 
  Parameters
@@ -537,7 +537,7 @@ void expose_environment_setup( py::module& m )
 
  Function that retrieves the default settings for a single body, and assigns them to another body.
 
- As :func:`~tudatpy.numerical_simulation.environment_setup.get_default_body_settings`, but for retrieving default settings of only a single body,
+ As :func:`~tudatpy.dynamics.environment_setup.get_default_body_settings`, but for retrieving default settings of only a single body,
  where the default settings of body with name ``source_body_name`` are retrieved and assigned to a body with name ``body_name``.
  For instance, if ``source_body_name`` is set to "Mars", and ````body_name`` is set to "Earth" body name Earth will be created, with all the properties
  of Mars
@@ -580,7 +580,7 @@ void expose_environment_setup( py::module& m )
 
  Function that retrieves the default settings for a single body, with a limited valid time interval.
 
- As :func:`~tudatpy.numerical_simulation.environment_setup.get_default_body_settings_time_limited`, but for retrieving default settings of only a single body,
+ As :func:`~tudatpy.dynamics.environment_setup.get_default_body_settings_time_limited`, but for retrieving default settings of only a single body,
  where the default settings of body with name ``source_body_name`` are retrieved and assigned to a body with name ``body_name``.
  For instance, if ``source_body_name`` is set to "Mars", and ````body_name`` is set to "Earth" body name Earth will be created, with all the properties
  of Mars
@@ -630,7 +630,7 @@ void expose_environment_setup( py::module& m )
      Initial system time in seconds since J2000.
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
+ :class:`~tudatpy.dynamics.environment.SystemOfBodies`
      Object containing the objects for bodies and environment models constituting the physical environment
 
 
@@ -648,7 +648,7 @@ void expose_environment_setup( py::module& m )
  Function that creates a System of bodies from associated settings.
 
  Function that creates a System of bodies from associated settings. This function creates the separate :class:`~tudatpy.numerical_simulation.Body`
- objects and stores them in a :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies` object. This object represents the full
+ objects and stores them in a :class:`~tudatpy.dynamics.environment.SystemOfBodies` object. This object represents the full
  physical environment in the simulation.
 
 
@@ -658,7 +658,7 @@ void expose_environment_setup( py::module& m )
      Object defining the physical environment, with all properties of artificial and natural bodies.
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
+ :class:`~tudatpy.dynamics.environment.SystemOfBodies`
      Object containing the objects for bodies and environment models constituting the physical environment
 
 
@@ -695,7 +695,7 @@ void expose_environment_setup( py::module& m )
 
  Function that creates an Ephemeris object.
 
- Function that creates an :class:`~tudatpy.numerical_simulation.environment.Ephemeris` object, but does *not*
+ Function that creates an :class:`~tudatpy.dynamics.environment.Ephemeris` object, but does *not*
  associate it with any specific body (e.g., it does not go into the environment, but can be used independently of it)
 
 
@@ -707,7 +707,7 @@ void expose_environment_setup( py::module& m )
      Name of body for which the ephemeris is created. Note that this input is only relevant for some ephemeris settings (for instance, a spice ephemeris setting), and it does *not* imply that the ephemeris object is associated with a Body object of this name.
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.environment.Ephemeris`
+ :class:`~tudatpy.dynamics.environment.Ephemeris`
      Ephemeris object, created according to the provided settings
 
 
@@ -742,7 +742,7 @@ void expose_environment_setup( py::module& m )
  settings for the aerodynamic coefficients, created using one of the functions from the `~tudatpy.numerical_simulation_environment_setup.aerodynamic_coefficient` module.
  This function creates the actual coefficient interface from these settings, and assigns it to the
  selected body. In addition to the identifier for the body to which it is assigned, this function
- requires the full :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies` as input, to facilitate
+ requires the full :class:`~tudatpy.dynamics.environment.SystemOfBodies` as input, to facilitate
  inter-body dependencies in the coefficient interface
 
 
@@ -792,7 +792,7 @@ void expose_environment_setup( py::module& m )
  settings for the radiation pressure target model, created using one of the functions from the :ref:`radiation_pressure` module.
  This function creates the actual target model from these settings, and assigns it to the
  selected body. In addition to the identifier for the body to which it is assigned, this function
- requires the full :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies` as input, to facilitate
+ requires the full :class:`~tudatpy.dynamics.environment.SystemOfBodies` as input, to facilitate
  inter-body dependencies in the radiation pressure interface.
 
 
@@ -820,13 +820,13 @@ void expose_environment_setup( py::module& m )
 
  Function that creates a rotation model, and adds it to an existing body.
 
- This function can be used to add  a :class:`~tudatpy.numerical_simulation.environment.RotationalEphemeris` object to an existing body.
- Typically, the ``RotationalEphemeris`` is created along with the :class:`~tudatpy.numerical_simulation.environment.Body` itself. However, in some cases it may be useful
+ This function can be used to add  a :class:`~tudatpy.dynamics.environment.RotationalEphemeris` object to an existing body.
+ Typically, the ``RotationalEphemeris`` is created along with the :class:`~tudatpy.dynamics.environment.Body` itself. However, in some cases it may be useful
  to create a rotation model after the Body objects have been created. This function requires
  settings for the rotation model, created using one of the functions from the :ref:`rotation_model` module.
  This function creates the actual coefficient interface from these settings, and assigns it to the
  selected body. In addition to the identifier for the body to which it is assigned, this function
- requires the full :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies` as input, to facilitate
+ requires the full :class:`~tudatpy.dynamics.environment.SystemOfBodies` as input, to facilitate
  inter-body dependencies in the radiation model
 
 
@@ -869,8 +869,8 @@ void expose_environment_setup( py::module& m )
 
  Function that creates a rigid body property model, and adds it to an existing body.
 
- This function can be used to add a :class:`~tudatpy.numerical_simulation.environment.RigidBodyProperties` object to an existing body.
- Typically, the ``RigidBodyProperties`` are created along with the :class:`~tudatpy.numerical_simulation.environment.Body` itself. However, in some cases it may be useful
+ This function can be used to add a :class:`~tudatpy.dynamics.environment.RigidBodyProperties` object to an existing body.
+ Typically, the ``RigidBodyProperties`` are created along with the :class:`~tudatpy.dynamics.environment.Body` itself. However, in some cases it may be useful
  to create body mass properties after the Body objects have been created. This function requires
  settings for the rigid body properties, created using one of the functions from the :ref:`rigid_body` module.
  This function creates the actual rigid body properties from these settings, and assigns it to the
@@ -904,7 +904,7 @@ void expose_environment_setup( py::module& m )
  Function that creates an engine model (to be used for thrust calculations), and adds it to an existing body.
 
  Function that creates an engine model (to be used for thrust calculations), and adds it to an existing body. It creates and
- object of class :class:`~tudatpy.numerical_simulation.environment.EngineModel`, and adds it to an existing body. Properties
+ object of class :class:`~tudatpy.dynamics.environment.EngineModel`, and adds it to an existing body. Properties
  assigned to this engine model are:
 
  * The (constant) direction in body-fixed frame in which the engine is pointing (e.g. the body-fixed thrust direction when the engine is on)
@@ -972,13 +972,13 @@ void expose_environment_setup( py::module& m )
 
  Function that creates a flight conditions, and adds it to an existing body.
 
- This function can be used to add  a :class:`~tudatpy.numerical_simulation.environment.FlightConditions` object to an existing body.
+ This function can be used to add  a :class:`~tudatpy.dynamics.environment.FlightConditions` object to an existing body.
  Typically, the ``FlightConditions`` are created automatically when they are required (for the calculation of an
  aerodynamic acceleration, or the saving of certain dependent variables). However, in some cases it may be useful
  to manually trigger their creation, which is done through this function. If the ``central_body_name`` input
- denotes a body that is endowed with an :class:`~tudatpy.numerical_simulation.environment.AtmosphereModel`, this function
- automatically creates an :class:`~tudatpy.numerical_simulation.environment.AtmosphericFlightConditions` object (capable of
- calculating density, speed of sound, etc.), instead of the more basic :class:`~tudatpy.numerical_simulation.environment.FlightConditions`
+ denotes a body that is endowed with an :class:`~tudatpy.dynamics.environment.AtmosphereModel`, this function
+ automatically creates an :class:`~tudatpy.dynamics.environment.AtmosphericFlightConditions` object (capable of
+ calculating density, speed of sound, etc.), instead of the more basic :class:`~tudatpy.dynamics.environment.FlightConditions`
  (which is limited to properties such as altitude, latitude, etc.)
 
 
