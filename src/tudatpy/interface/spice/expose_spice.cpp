@@ -514,7 +514,7 @@ void expose_spice( py::module &m )
  .. note::
 
      The gravitational parameter returned is directly retrieved from the loaded SPICE kernels.
-     This value does *not* necessarily correspond to the gravitational parameter used in Tudat's default models, as retrieved from e.g. :func:`~tudatpy.numerical_simulation.environment_setup.get_default_body_settings`.
+     This value does *not* necessarily correspond to the gravitational parameter used in Tudat's default models, as retrieved from e.g. :func:`~tudatpy.dynamics.environment_setup.get_default_body_settings`.
      For more information on the default gravity models, see the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/default_env_models.html#gravity-field>`_.
 
  .. _`bodvrd_c`: https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/bodvrd_c.html

@@ -252,23 +252,23 @@ void expose_estimation_analysis( py::module& m )
 
          Parameters
          ----------
-         bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
+         bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
              Object defining the physical environment, with all
              properties of artificial and natural bodies.
 
-         estimated_parameters : :class:`~tudatpy.numerical_simulation.estimation.EstimatableParameterSet`
+         estimated_parameters : :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
              Object defining a consolidated set of estimatable parameters,
              linked to the environment and acceleration settings of the simulation.
 
-         observation_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`
+         observation_settings : :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings`
              List of settings objects, each object defining the observation model settings for one
              combination of observable and link geometry that is to be simulated.
 
-         integrator_settings : :class:`~tudatpy.numerical_simulation.propagation_setup.integrator.IntegratorSettings`
+         integrator_settings : :class:`~tudatpy.dynamics.propagation_setup.integrator.IntegratorSettings`
              Settings to create the numerical integrator that is to be
              used for the integration of the equations of motion
 
-         propagator_settings : :class:`~tudatpy.numerical_simulation.propagation_setup.propagator.PropagatorSettings`
+         propagator_settings : :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagatorSettings`
              Settings to create the propagator that is to be
              used for the propagation of dynamics
 
@@ -294,7 +294,7 @@ void expose_estimation_analysis( py::module& m )
          the functionality for simulating a given observable over the defined link geometry.
 
 
-         :type: list[ :class:`~tudatpy.numerical_simulation.estimation.ObservationSimulator` ]
+         :type: list[ :class:`~tudatpy.estimation.observable_models.observables_simulation.ObservationSimulator` ]
       )doc" )
             .def_property_readonly(
                     "observation_managers",
@@ -308,7 +308,7 @@ void expose_estimation_analysis( py::module& m )
          calculate observation partials for all link ends involved in the given observable type.
 
 
-         :type: dict[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservableType`, :class:`~tudatpy.numerical_simulation.estimation.ObservationManager` ]
+         :type: dict[ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservableType`, :class:`~tudatpy.estimation.observations.ObservationManager` ]
       )doc" )
             .def_property_readonly(
                     "state_transition_interface",
@@ -322,7 +322,7 @@ void expose_estimation_analysis( py::module& m )
          Estimator object.
 
 
-         :type: :class:`~tudatpy.numerical_simulation.estimation.CombinedStateTransitionAndSensitivityMatrixInterface`
+         :type: :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
       )doc" )
             .def( "perform_estimation",
                   &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE,
@@ -334,19 +334,19 @@ void expose_estimation_analysis( py::module& m )
 
 
          Function to trigger the parameter estimation. Much of the process and requirements are similar to those described in the
-         :func:`~tudatpy.numerical_simulation.Estimator.compute_covariance` function. This function uses an iterative least-squares
+         :func:`~tudatpy.estimation.estimation_analysis.Estimator.compute_covariance` function. This function uses an iterative least-squares
          estimate process to fit the data (inside ``estimation_input``) to the model defined by the inputs to the ``Estimator`` constructor.s
 
 
          Parameters
          ----------
-         estimation_input : :class:`~tudatpy.numerical_simulation.estimation.EstimationInput`
+         estimation_input : :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
              Object consolidating all relevant settings for the estimation
              This includes foremost the simulated observations, as well as a priori information about the estimatable parameters and convergence criteria for the least squares estimation.
 
          Returns
          -------
-         :class:`~tudatpy.numerical_simulation.estimation.EstimationOutput`
+         :class:`~tudatpy.estimation.estimation_analysis.EstimationOutput`
              Object containing all outputs from the estimation process.
 
 
@@ -381,13 +381,13 @@ void expose_estimation_analysis( py::module& m )
 
          Parameters
          ----------
-         covariance_analysis_input : :class:`~tudatpy.numerical_simulation.estimation.CovarianceAnalysisInput`
+         covariance_analysis_input : :class:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisInput`
              Object consolidating all relevant settings for the covariance analysis
              This includes foremost the simulated observations, as well as a priori information about the estimatable parameters
 
          Returns
          -------
-         :class:`~tudatpy.numerical_simulation.estimation.vOutput`
+         :class:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput`
              Object containing all outputs from the estimation process.
 
 
@@ -406,7 +406,7 @@ void expose_estimation_analysis( py::module& m )
          Variational equations solver, which is used to manage and execute the numerical integration of
          equations of motion and variational equations/dynamics in the Estimator object.
 
-         :type: :class:`~tudatpy.numerical_simulation.SingleArcVariationalSimulator`
+         :type: :class:`~tudatpy.dynamics.simulator.SingleArcVariationalSimulator`
       )doc" );
 
 
@@ -419,7 +419,7 @@ void expose_estimation_analysis( py::module& m )
          Class defining the convergence criteria for an estimation.
 
          Class defining the convergence criteria for an estimation.
-         The user typically creates instances of this class via the :func:`~tudatpy.numerical_simulation.estimation.estimation_convergence_checker` function.
+         The user typically creates instances of this class via the :func:`~tudatpy.estimation.estimation_analysis.estimation_convergence_checker` function.
 
 
 
@@ -435,9 +435,9 @@ void expose_estimation_analysis( py::module& m )
            py::arg( "number_of_iterations_without_improvement" ) = 2,
            R"doc(
 
- Function for creating an :class:`~tudatpy.numerical_simulation.estimation.EstimationConvergenceChecker` object.
+ Function for creating an :class:`~tudatpy.estimation.estimation_analysis.EstimationConvergenceChecker` object.
 
- Function for creating an :class:`~tudatpy.numerical_simulation.estimation.EstimationConvergenceChecker` object, which is required for defining the convergence criteria of an estimation.
+ Function for creating an :class:`~tudatpy.estimation.estimation_analysis.EstimationConvergenceChecker` object, which is required for defining the convergence criteria of an estimation.
 
 
  Parameters
@@ -452,8 +452,8 @@ void expose_estimation_analysis( py::module& m )
      Number of iterations without reduction of residual.
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation.EstimationConvergenceChecker`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation.EstimationConvergenceChecker` class, defining the convergence criteria for an estimation.
+ :class:`~tudatpy.estimation.estimation_analysis.EstimationConvergenceChecker`
+     Instance of the :class:`~tudatpy.estimation.estimation_analysis.EstimationConvergenceChecker` class, defining the convergence criteria for an estimation.
 
 
 
@@ -497,8 +497,8 @@ void expose_estimation_analysis( py::module& m )
              A priori covariance matrix (unnormalized) of estimated parameters. This should be either a size 0x0 matrix (no a priori information), or a square matrix with the same size as the number of parameters that are considered
          Returns
          -------
-         :class:`~tudatpy.numerical_simulation.estimation.CovarianceAnalysisInput`
-             Instance of the :class:`~tudatpy.numerical_simulation.estimation.CovarianceAnalysisInput` class, defining the data and other settings to be used for the covariance analysis.
+         :class:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisInput`
+             Instance of the :class:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisInput` class, defining the data and other settings to be used for the covariance analysis.
 
 
 
@@ -584,7 +584,7 @@ void expose_estimation_analysis( py::module& m )
 
          Parameters
          ----------
-         constant_weight : Dict[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservableType`, float ]
+         constant_weight : Dict[ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservableType`, float ]
              Constant weight factor that is to be applied to all observations.
          Returns
          -------
@@ -697,12 +697,12 @@ void expose_estimation_analysis( py::module& m )
              Total data structure of observations and associated times/link ends/type/etc.
          inverse_apriori_covariance : numpy.ndarray[numpy.float64[m, n]], default = [ ]
              A priori covariance matrix (unnormalized) of estimated parameters. This should be either a size 0x0 matrix (no a priori information), or a square matrix with the same size as the number of parameters that are considered
-         convergence_checker : :class:`~tudatpy.numerical_simulation.estimation.EstimationConvergenceChecker`, default = :func:`~tudatpy.numerical_simulation.estimation.estimation_convergence_checker`
+         convergence_checker : :class:`~tudatpy.estimation.estimation_analysis.EstimationConvergenceChecker`, default = :func:`~tudatpy.estimation.estimation_analysis.estimation_convergence_checker`
              Object defining when the estimation is converged.
          Returns
          -------
-         :class:`~tudatpy.numerical_simulation.estimation.EstimationInput`
-             Instance of the :class:`~tudatpy.numerical_simulation.estimation.EstimationInput` class, defining the data and other settings to be used for the estimation.
+         :class:`~tudatpy.estimation.estimation_analysis.EstimationInput`
+             Instance of the :class:`~tudatpy.estimation.estimation_analysis.EstimationInput` class, defining the data and other settings to be used for the estimation.
 
 
 
@@ -1058,7 +1058,7 @@ void expose_estimation_analysis( py::module& m )
      System covariance matrix (symmetric and positive semi-definite) at initial time.
      Dimensions have to be consistent with estimatable parameters in the system (specified by `state_transition_interface`)
 
- state_transition_interface : :class:`~tudatpy.numerical_simulation.estimation.CombinedStateTransitionAndSensitivityMatrixInterface`
+ state_transition_interface : :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
      Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time.
 
  output_times : List[ float ]
@@ -1102,7 +1102,7 @@ void expose_estimation_analysis( py::module& m )
      System covariance matrix (symmetric and positive semi-definite) at initial time.
      Dimensions have to be consistent with estimatable parameters in the system (specified by `state_transition_interface`)
 
- state_transition_interface : :class:`~tudatpy.numerical_simulation.estimation.CombinedStateTransitionAndSensitivityMatrixInterface`
+ state_transition_interface : :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
      Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time.
 
  output_times : List[ float ]
@@ -1146,7 +1146,7 @@ void expose_estimation_analysis( py::module& m )
      System covariance matrix (symmetric and positive semi-definite) at initial time.
      Dimensions have to be consistent with estimatable parameters in the system (specified by `state_transition_interface`)
 
- state_transition_interface : :class:`~tudatpy.numerical_simulation.estimation.CombinedStateTransitionAndSensitivityMatrixInterface`
+ state_transition_interface : :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
      Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time.
 
  output_times : List[ float ]

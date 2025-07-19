@@ -47,9 +47,9 @@ customAerodynamicCoefficientSettingsDeprecatedPy(
     if( isWarningPrinted == false )
     {
         tudat::utilities::printDeprecationWarning(
-                "tudatpy.numerical_simulation.environment_setup."
+                "tudatpy.dynamics.environment_setup."
                 "aerodynamic_coefficients.custom",
-                "tudatpy.numerical_simulation.environment_setup."
+                "tudatpy.dynamics.environment_setup."
                 "aerodynamic_coefficients.custom_aerodynamic_force_"
                 "coefficients" );
         isWarningPrinted = true;
@@ -171,7 +171,7 @@ Can be used for a custom coefficient interface with other variables, at the expe
 Enumeration of reference frames used for definition of aerodynamic coefficients.
 
 Enumeration of reference frames used for definition of aerodynamic coefficients. There is a partial overlap between this enum
-and the :class:`~tudatpy.numerical_simulation.environment.AerodynamicsReferenceFrames`. This enum combines a subset of those
+and the :class:`~tudatpy.dynamics.environment.AerodynamicsReferenceFrames`. This enum combines a subset of those
 frames (which are typically used for aerodynamic coefficient definition), and a swap in sign. For instance, aerodynamic
 force coefficients are often defined positive along *negative* axes of the aerodynamic frame (drag, side force and lift coefficients)
 
@@ -387,7 +387,7 @@ The body-fixed frame of the body itself.
                            R"doc(
      Point w.r.t. aerodynamic moment coefficients are defined. This variable is used to calculate the contribution of the aerodynamic
      force coefficients to the effective moment coefficients. See the ``add_force_contribution_to_moments`` attribute of the
-     :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` for more details.
+     :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` for more details.
      If the present input is set to NaN (as is the default), the reference point is left undefined, and the aerodynamic moments are computed
      without computing any force coefficient contribution to the moment coefficients.
 
@@ -526,11 +526,11 @@ force_coefficients_frame : AerodynamicCoefficientFrames, default = negative_aero
 Returns
 -------
 ConstantAerodynamicCoefficientSettings
-    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.ConstantAerodynamicCoefficientSettings` class
+    Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.ConstantAerodynamicCoefficientSettings` class
 
 Examples
 --------
-In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` for the artificial body "Vehicle", using only constant aerodynamic coefficients:
+In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` for the artificial body "Vehicle", using only constant aerodynamic coefficients:
 
 .. code-block:: python
 
@@ -575,7 +575,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
  moment_reference_point : numpy.ndarray[numpy.float64[3, 1]] = np.full([3, 1], np.nan)
      Point w.r.t. aerodynamic moment coefficients are defined. This variable is used to calculate the contribution of the aerodynamic
      force coefficients to the effective moment coefficients. See the ``add_force_contribution_to_moments`` attribute of the
-     :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` for more details.
+     :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` for more details.
      If the present input is set to NaN (as is the default), the reference point is left undefined, and the aerodynamic moments are computed
      without computing any force coefficient contribution to the moment coefficients.
  constant_force_coefficient : numpy.ndarray
@@ -592,13 +592,13 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
  Returns
  -------
  ConstantAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.ConstantAerodynamicCoefficientSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.ConstantAerodynamicCoefficientSettings` class
 
 
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` for the artificial body "Vehicle", using only constant aerodynamic coefficients:
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` for the artificial body "Vehicle", using only constant aerodynamic coefficients:
 
  .. code-block:: python
 
@@ -656,7 +656,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
  Returns
  -------
  CustomAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.CustomAerodynamicCoefficientSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.CustomAerodynamicCoefficientSettings` class
 
 
 
@@ -664,7 +664,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` for the artificial body "Vehicle", using a function based on the mach number:
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` for the artificial body "Vehicle", using a function based on the mach number:
 
  .. code-block:: python
 
@@ -743,14 +743,14 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
  moment_reference_point : numpy.ndarray[numpy.float64[3, 1]] = np.full([3, 1], np.nan)
      Point w.r.t. aerodynamic moment coefficients are defined. This variable is used to calculate the contribution of the aerodynamic
      force coefficients to the effective moment coefficients. See the ``add_force_contribution_to_moments`` attribute of the
-     :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` for more details.
+     :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` for more details.
      If the present input is set to NaN (as is the default), the reference point is left undefined, and the aerodynamic moments are computed
      without computing any force coefficient contribution to the moment coefficients.
 
  Returns
  -------
  CustomAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.CustomAerodynamicCoefficientSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.CustomAerodynamicCoefficientSettings` class
 
 
 
@@ -814,7 +814,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
  moment_reference_point : numpy.ndarray[numpy.float64[3, 1]] = np.full([3, 1], np.nan)
      Point w.r.t. aerodynamic moment coefficients are defined. This variable is used to calculate the contribution of the aerodynamic
      force coefficients to the effective moment coefficients. See the ``add_force_contribution_to_moments`` attribute of the
-     :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` for more details.
+     :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` for more details.
      If the present input is set to NaN (as is the default), the reference point is left undefined, and the aerodynamic moments are computed
      without computing any force coefficient contribution to the moment coefficients.
 
@@ -823,7 +823,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
  Returns
  -------
  TabulatedAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class (via :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettingsBase` class)
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class (via :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettingsBase` class)
 
 
 
@@ -908,7 +908,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
  Returns
  -------
  TabulatedAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class
 
 
 
@@ -979,7 +979,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
  Returns
  -------
  TabulatedAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class
 
 
 
@@ -1059,7 +1059,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
  moment_reference_point : numpy.ndarray[numpy.float64[3, 1]] = np.full([3, 1], np.nan)
      Point w.r.t. aerodynamic moment coefficients are defined. This variable is used to calculate the contribution of the aerodynamic
      force coefficients to the effective moment coefficients. See the ``add_force_contribution_to_moments`` attribute of the
-     :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` for more details.
+     :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` for more details.
      If the present input is set to NaN (as is the default), the reference point is left undefined, and the aerodynamic moments are computed
      without computing any force coefficient contribution to the moment coefficients.
 
@@ -1069,7 +1069,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
  Returns
  -------
  TabulatedAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.TabulatedAerodynamicCoefficientSettings` class
 
 
 
@@ -1145,7 +1145,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
  Returns
  -------
  ScaledAerodynamicCoefficientInterfaceSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.ScaledAerodynamicCoefficientInterfaceSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.ScaledAerodynamicCoefficientInterfaceSettings` class
 
 
 
@@ -1226,7 +1226,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
  Returns
  -------
  ScaledAerodynamicCoefficientInterfaceSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.ScaledAerodynamicCoefficientInterfaceSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.ScaledAerodynamicCoefficientInterfaceSettings` class
 
 
 
@@ -1294,7 +1294,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
  Returns
  -------
  ScaledAerodynamicCoefficientInterfaceSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.ScaledAerodynamicCoefficientInterfaceSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` derived :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.ScaledAerodynamicCoefficientInterfaceSettings` class
 
 
 
@@ -1343,7 +1343,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
  Function for creating control surface aerodynamic model settings from custom coefficients.
 
  Function for create a settings object that defines control surface aerodynamic coefficients via a custom force and moment coefficient function
- This function is essentially the control-surface equivalent of the :func:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.custom_aerodynamic_force_and_moment_coefficients` function for body coefficient settings.
+ This function is essentially the control-surface equivalent of the :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.custom_aerodynamic_force_and_moment_coefficients` function for body coefficient settings.
 
 
  Parameters
@@ -1355,7 +1355,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
  Returns
  -------
  ControlSurfaceIncrementAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.ControlSurfaceIncrementAerodynamicCoefficientSettings` derived class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.ControlSurfaceIncrementAerodynamicCoefficientSettings` derived class
 
 
 
@@ -1363,7 +1363,7 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.ControlSurfaceIncrementAerodynamicCoefficientSettings` for the artificial body "Vehicle", using a function based on the mach number:
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.ControlSurfaceIncrementAerodynamicCoefficientSettings` for the artificial body "Vehicle", using a function based on the mach number:
 
  .. code-block:: python
 
@@ -1401,12 +1401,12 @@ In this example, we create :class:`~tudatpy.numerical_simulation.environment_set
 
  Function for settings object, defining control surface aerodynamic interface model via user-defined, tabulated aerodynamic force and moment coefficients
  (tabulated w.r.t. independent variable), obtained from data files.. This function is essentially the control-surface equivalent of the
- :func:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.tabulated_from_files` function for body coefficient settings.
+ :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.tabulated_from_files` function for body coefficient settings.
 
  Returns
  -------
  ControlSurfaceIncrementAerodynamicCoefficientSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.ControlSurfaceIncrementAerodynamicCoefficientSettings` derived class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.ControlSurfaceIncrementAerodynamicCoefficientSettings` derived class
 
 
      )doc" );
