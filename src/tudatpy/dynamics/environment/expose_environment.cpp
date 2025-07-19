@@ -551,7 +551,7 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
          check_force_contribution : bool, default = True
              Boolean that determines if the force contribution to the aerodynamic moments should be added. Note that this input is
-             only used if the :attr:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings.add_force_contribution_to_moments` attribute is set to True.
+             only used if the :attr:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings.add_force_contribution_to_moments` attribute is set to True.
 
 
 
@@ -866,7 +866,7 @@ inside a `Body` instance and used in observation corrections or environmental qu
                   R"doc(
 
          Function to update the body properties to the current time. This function is called automatically during a propagation loop.
-         In case these properties are not time-dependent (e.g. when using the :func:`~tudatpy.numerical_simulation.environment_setup.rigid_body.constant_rigid_body_properties` settings)
+         In case these properties are not time-dependent (e.g. when using the :func:`~tudatpy.dynamics.environment_setup.rigid_body.constant_rigid_body_properties` settings)
          this function does nothing (since no update is needed).
 
          Parameters
@@ -1728,9 +1728,9 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
  Function to convert a Cartesian state vector from a body-fixed to an inertial frame
 
- Function to convert a Cartesian state vector from a body-fixed to an inertial frame, using a :class:`~tudatpy.numerical_simulation.environment.RotationalEphemeris`
- object as a model for the rotation. The body-fixed frame from which the conversion takes place is the :attr:`~tudatpy.numerical_simulation.environment.RotationalEphemeris.body_fixed_frame_name` frame,
- the (assumedly) inertial frame to which the conversion is done is :attr:`~tudatpy.numerical_simulation.environment.RotationalEphemeris.inertial_frame_name`.
+ Function to convert a Cartesian state vector from a body-fixed to an inertial frame, using a :class:`~tudatpy.dynamics.environment.RotationalEphemeris`
+ object as a model for the rotation. The body-fixed frame from which the conversion takes place is the :attr:`~tudatpy.dynamics.environment.RotationalEphemeris.body_fixed_frame_name` frame,
+ the (assumedly) inertial frame to which the conversion is done is :attr:`~tudatpy.dynamics.environment.RotationalEphemeris.inertial_frame_name`.
 
  This function calls :func:`~tudatpy.astro.element_conversion.rotate_state_to_frame` (with frame :math:`A` the inertial frame, and frame :math:`B` the body-fixed frame). The present function
  computes the required rotation matrix and its time derivative from the ``rotational_ephemeris`` input given here.
@@ -1797,7 +1797,7 @@ inside a `Body` instance and used in observation corrections or environmental qu
          Function to compute high-accuracy Earth orientation angles
 
          Function to compute high-accuracy Earth orientation angle quantities :math:`X,Y,s,x_{p},y_{p}` and UT1 (from which :math:`\theta_{E}` is computed)
-         as described in :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.gcrs_to_itrs`
+         as described in :func:`~tudatpy.dynamics.environment_setup.rotation_model.gcrs_to_itrs`
 
          Parameters
          ----------
@@ -1820,7 +1820,7 @@ inside a `Body` instance and used in observation corrections or environmental qu
          Object for high-accuracy GCRS<->ITRS rotation.
 
          Object derived from :class:`~RotationalEphemeris` that implements the high-accuracy GCRS<->ITRS rotation as per the IERS 2010 Conventions. The details of the model are described in
-         :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.gcrs_to_itrs`
+         :func:`~tudatpy.dynamics.environment_setup.rotation_model.gcrs_to_itrs`
          With the exception of :math:`s'`, the list of angles used to compute the full rotation are computed by an object of type :class:`~EarthOrientationAnglesCalculator` (which can be retrieved from this rotation model
          through :attr:`~GcrsToItrsRotationModel.angles_calculator`.
 
@@ -1908,7 +1908,7 @@ inside a `Body` instance and used in observation corrections or environmental qu
          Object that provides a spherical harmonic gravity field of a body.
 
          Object (typically stored inside a :class:`~Body` object) that provides a spherical harmonic gravity field of a body, typically (but not exclusively) for
-         use in gravitational acceleration and torque models. This class is derived from :class:`~GravityFieldModel`.  This object is typically created using the :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field.spherical_harmonic`
+         use in gravitational acceleration and torque models. This class is derived from :class:`~GravityFieldModel`.  This object is typically created using the :func:`~tudatpy.dynamics.environment_setup.gravity_field.spherical_harmonic`
          settings function. If any time variations of the gravity field are provided, an object of the derived class :class:`~TimeVariableSphericalHarmonicsGravityField` is created.
 
      )doc" )
@@ -1969,7 +1969,7 @@ inside a `Body` instance and used in observation corrections or environmental qu
             Derived class of :class:`~SphericalHarmonicsGravityField` that is created when any gravity field variations are detected.
 
             Derived class of :class:`~SphericalHarmonicsGravityField` that is created instead when any gravity field variations are detected during object creation
-            (typically during a call of :func:`~tudatpy.numerical_simulation.environment_setup.create_system_of_bodies`)
+            (typically during a call of :func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies`)
             This object computes the time-variability of spherical harmonic coefficients from a list of :class:`~GravityFieldVariationModel` objects.
             The ``cosine_coefficients`` and ``sine_coefficients`` attributes provide the instantaneous coefficients (including the time-variability)
             The ``nominal_cosine_coefficients`` and ``nominal_sine_coefficients`` provide the static (e.g. without time-variations) coefficients.
@@ -2156,9 +2156,9 @@ inside a `Body` instance and used in observation corrections or environmental qu
          **read-only**
 
          Rotation matrix from the body-fixed frame (of the station's central body) to the topocentric frame
-         of the ground station. The body-fixed frame is defined by the rotation model of the body object (:attr:`~tudatpy.numerical_simulation.environment.Body.rotation_model`).
+         of the ground station. The body-fixed frame is defined by the rotation model of the body object (:attr:`~tudatpy.dynamics.environment.Body.rotation_model`).
          The axes of the topocentric frame are defined such that the x-axis is in East direction, the z-direction is upwards, perpendicular to the body's surface sphere
-         (with properties defined by the central body's shape model :attr:`~tudatpy.numerical_simulation.environment.Body.shape_model`). The y-axis completes the frame, and is in northern direction.
+         (with properties defined by the central body's shape model :attr:`~tudatpy.dynamics.environment.Body.shape_model`). The y-axis completes the frame, and is in northern direction.
          For time-varying ground station positions, this function uses the station position at reference epoch for the computation of the axes.
 
          :type: numpy.ndarray[numpy.float64[3, 3]]
@@ -2480,7 +2480,7 @@ inside a `Body` instance and used in observation corrections or environmental qu
          types of rigid-body properties, this attribute cannot be used to (re)set the current
          mass. If the body has no    :attr:`Body.rigid_body_properties`, and this function is used to
          set a mass, a new object is automatically created, with settings analogous to the
-         the :func:`~tudatpy.numerical_simulation.environment_setup.rigid_body.constant_rigid_body_properties` setting.
+         the :func:`~tudatpy.dynamics.environment_setup.rigid_body.constant_rigid_body_properties` setting.
 
          Unlike the attributes containing the state, orientation, angular velocity
          of the Body, this attribute may be used to retrieve the state during the
@@ -2645,7 +2645,7 @@ inside a `Body` instance and used in observation corrections or environmental qu
         List of radiation pressure target models that exist in the body. These objects define how incoming radiation interacts with the body to produce
         a force/torque. A single body may be endowed with multiple target models, which may be selected
         for an acceleration depending on the application. For instance, a body may have a cannonball target model and a panelled target model available,
-        and use one for solar radiation pressure acceleration, and the other for planetary radiation pressure acceleration (see :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.radiation_pressure`).
+        and use one for solar radiation pressure acceleration, and the other for planetary radiation pressure acceleration (see :func:`~tudatpy.dynamics.propagation_setup.acceleration.radiation_pressure`).
         This attribute is a list of :class:`~RadiationPressureTargetModel`, or a derived class thereof.
 
 

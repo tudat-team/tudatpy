@@ -44,7 +44,7 @@ void expose_parameters( py::module& m )
          Class containing a consolidated set of estimatable parameters.
 
          Class containing a consolidated set of estimatable parameters, linked to the environment and acceleration settings of the simulation.
-         The user typically creates instances of this class via the :func:`~tudatpy.numerical_simulation.estimation_setup.create_parameter_set` function.
+         The user typically creates instances of this class via the :func:`~tudatpy.dynamics.parameters_setup.create_parameter_set` function.
 
 
 
@@ -133,7 +133,7 @@ void expose_parameters( py::module& m )
 
          Parameters
          ----------
-         parameter_type : Tuple[ :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterTypes`, Tuple[str, str] ]
+         parameter_type : Tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, Tuple[str, str] ]
              help
          Returns
          -------
@@ -160,8 +160,8 @@ void expose_parameters( py::module& m )
 
  Parameters
  ----------
- parameter_set : :class:`~tudatpy.numerical_simulation.estimation.EstimatableParameterSet`.
-     Instance of :class:`~tudatpy.numerical_simulation.estimation.EstimatableParameterSet` class, consolidating all estimatable parameters and simulation models.
+ parameter_set : :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`.
+     Instance of :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet` class, consolidating all estimatable parameters and simulation models.
 
  Returns
  -------
@@ -174,8 +174,9 @@ void expose_parameters( py::module& m )
 
      import numpy as np
      from tudatpy.interface import spice
-     from tudatpy.numerical_simulation import environment_setup, propagation_setup, estimation_setup
-     from tudatpy.astro.time_conversion import DateTime
+     from tudatpy.dynamics import environment_setup, propagation_setup, parameters_setup, parameters
+     from tudatpy
+     from tudatpy.astro.time_representation import DateTime
 
      # Load SPICE kernels
      spice.load_standard_kernels()
@@ -219,12 +220,12 @@ void expose_parameters( py::module& m )
        simulation_start_epoch, integrator_settings, termination_condition)
 
      # Define parameters to estimate
-     parameter_settings = estimation_setup.parameter.initial_states(propagator_settings, bodies)
-     parameter_settings.append(estimation_setup.parameter.gravitational_parameter("Earth"))
-     parameters_to_estimate = estimation_setup.create_parameter_set(parameter_settings, bodies)
+     parameter_settings = parameters_setup.initial_states(propagator_settings, bodies)
+     parameter_settings.append(parameters_setup.gravitational_parameter("Earth"))
+     parameters_to_estimate = parameters_setup.create_parameter_set(parameter_settings, bodies)
 
      # Print parameter names
-     print(estimation_setup.print_parameter_names(parameters_to_estimate))
+     print(parameters.print_parameter_names(parameters_to_estimate))
 
 
 

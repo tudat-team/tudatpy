@@ -37,14 +37,14 @@ Examples
 .. code-block:: python
 
     # Code snippet to print all available Observable Types
-    from tudatpy.numerical_simulation import estimation_setup
+    from tudatpy.estimation.observable_models_setup import model_settings
 
-    num_observable_types = len(estimation_setup.observation.ObservableType.__members__)
+    num_observable_types = len(model_settings.ObservableType.__members__)
     print(f'The length of all available Tudatpy Observable Types is: {num_observable_types}')
 
     # Print all available Observable Types using the "name" property
     for i in range(num_observable_types):
-        print(i, estimation_setup.observation.ObservableType(i).name)
+        print(i, model_settings.ObservableType(i).name)
 
 
 
@@ -95,8 +95,8 @@ Examples
          They can furthermore set observation biases and/or light-time corrections.
          Simple observation models settings that are fully characterised by these elements can be managed by this base class.
          Instances of this class are typically created via functions, such as
-         :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`, :func:`~tudatpy.numerical_simulation.estimation_setup.observation.cartesian_position`,
-         :func:`~tudatpy.numerical_simulation.estimation_setup.observation.angular_position`, etc.
+         :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_range`, :func:`~tudatpy.estimation.observable_models_setup.model_settings.cartesian_position`,
+         :func:`~tudatpy.estimation.observable_models_setup.model_settings.angular_position`, etc.
          Model settings for specific observation models that require additional information such as integration time, retransmission time, etc. must be defined using an object derived from this class.
          The derived classes are made accessible through further functions.
 
@@ -105,19 +105,19 @@ Examples
          .. code-block:: python
 
              # Code snippet to show the creation of an ObservationSettings object
-             from tudatpy.numerical_simulation.estimation_setup import observation
+             from tudatpy.estimation.observable_models_setup import links, model_settings
 
              # Create Link Ends dictionary
              link_ends = dict()
-             link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
-             link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+             link_ends[links.receiver] = links.body_origin_link_end_id("Earth")
+             link_ends[links.transmitter] = links.body_origin_link_end_id("Delfi-C3")
 
              # Create a Link Definition Object from link_ends dictionary
-             Link_Definition_Object = observation.LinkDefinition(link_ends)
+             Link_Definition_Object = links.LinkDefinition(link_ends)
 
              # Create minimal ObservationSettings object (only required Link_Definition_Object argument is passed)
              # Other optional parameters (bias_settings, light_time_correction_settings,  light_time_convergence_settings) are set by default
-             observation_settings = observation.one_way_range(Link_Definition_Object)
+             observation_settings = model_settings.one_way_range(Link_Definition_Object)
 
              # Show that it is an ObservationSettings object.
              print(observation_settings)
@@ -137,27 +137,27 @@ Examples
 
          Derived Class for defining the settings of one-way instantaneous Doppler observation models.
          Settings object can account for additional observation model aspects such as light time corrections and proper time rate settings.
-         Instances of this class can be created via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_doppler_instantaneous` function.
-         Associated base class: :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`.
+         Instances of this class can be created via the :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_doppler_instantaneous` function.
+         Associated base class: :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings`.
 
          Examples
          --------
          .. code-block:: python
 
              # Code snippet to show the creation of a OneWayDopplerObservationSettings object
-             from tudatpy.numerical_simulation.estimation_setup import observation
+             from tudatpy.estimation.observable_models_setup import links, model_settings
 
              # Create Link Ends dictionary
              link_ends = dict()
-             link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
-             link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+             link_ends[links.receiver] = links.body_origin_link_end_id("Earth")
+             link_ends[links.transmitter] = links.body_origin_link_end_id("Delfi-C3")
 
              # Create a Link Definition Object from link_ends dictionary
-             Link_Definition_Object = observation.LinkDefinition(link_ends)
+             Link_Definition_Object = links.LinkDefinition(link_ends)
 
-             # Use: observation.one_way_doppler_instantaneous to create a OneWayDopplerObservationSettings object (only required Link_Definition_Object argument is passed)
+             # Use: model_settings.one_way_doppler_instantaneous to create a OneWayDopplerObservationSettings object (only required Link_Definition_Object argument is passed)
              # Other optional parameters (bias_settings, light_time_correction_settings,  light_time_convergence_settings, proper time rate) are set by default
-             doppler_observation_settings = observation.one_way_doppler_instantaneous(Link_Definition_Object)
+             doppler_observation_settings = model_settings.one_way_doppler_instantaneous(Link_Definition_Object)
 
              # Show that it is an OneWayDopplerObservationSettings object.
              print(doppler_observation_settings)
@@ -201,22 +201,22 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires the
-     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+     `transmitter` and `receiver` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
- light_time_correction_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` ], default = list()
+ light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
      List of corrections for the light-time that are to be used. Default is none, which will result
      in the signal being modelled as moving in a straight line with the speed of light
 
- bias_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings`, default = None
+ bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is None (unbiased observation)
 
- light_time_convergence_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+ light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
      Settings for convergence of the light-time
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the one-way observable.
+ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings`
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings` class defining the settings for the one-way observable.
 
 
  Examples
@@ -224,19 +224,19 @@ Examples
  .. code-block:: python
 
      # Code Snippet to showcase the use of the one_way_range function
-     from tudatpy.numerical_simulation.estimation_setup import observation
+     from tudatpy.estimation.observable_models_setup import links, model_settings
 
      # Create Link Ends dictionary
      link_ends = dict()
-     link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
-     link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+     link_ends[links.receiver] = links.body_origin_link_end_id("Earth")
+     link_ends[links.transmitter] = links.body_origin_link_end_id("Delfi-C3")
 
      # Create a Link Definition Object from link_ends dictionary. This will be the input to the function.
-     Link_Definition_Object = observation.LinkDefinition(link_ends)
+     Link_Definition_Object = links.LinkDefinition(link_ends)
 
      # Create minimal ObservationSettings object (only required Link_Definition_Object argument is passed)
      # Note: other optional parameters (bias_settings, light_time_correction_settings,  light_time_convergence_settings) can be set
-     observation_settings = observation.one_way_range(Link_Definition_Object)
+     observation_settings = model_settings.one_way_range(Link_Definition_Object)
 
      # Show that this returns an ObservationSettings object.
      print(observation_settings)
@@ -255,7 +255,7 @@ Examples
 
  Function for creating settings for a two-way range observable.
 
- Same as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_range`, with :math:`n=2`. This function is provided
+ Same as :func:`~tudatpy.estimation.observable_models_setup.model_settings.n_way_range`, with :math:`n=2`. This function is provided
  for convenience.
 
 
@@ -263,44 +263,44 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires the
-     `transmitter`, `retransmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined
+     `transmitter`, `retransmitter` and `receiver` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined
 
- light_time_correction_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` ], default = list()
+ light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
      List of corrections for the light-time that are to be used for each constituent one-way range. Default is none, which will result
      in the signal being modelled as moving in a straight line with the speed of light
 
- bias_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings`, default = None
+ bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation).
      Note that only one bias setting is applied to the n-way observable.
 
- light_time_convergence_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+ light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
      Settings for convergence of the light-time
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings` class.
+ :class:`~tudatpy.estimation.observable_models_setup.model_settings.NWayRangeObservationSettings`
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings` derived :class:`~tudatpy.estimation.observable_models_setup.model_settings.NWayRangeObservationSettings` class.
 
  Examples
  --------
  .. code-block:: python
 
      # Code Snippet to showcase the use of the two_way_range function
-     from tudatpy.numerical_simulation.estimation_setup import observation
+     from tudatpy.estimation.observable_models_setup import links, model_settings
 
      # two_way_range() takes a Link Definition Object as input to the function.
      # Note: as for this case, transmitter, retransmitter and receiver are required to define the Link Ends dictionary
      link_ends = dict()
-     link_ends[observation.transmitter] = observation.body_origin_link_end_id("Earth")
-     link_ends[observation.retransmitter] = observation.body_origin_link_end_id("Delfi-C3")
-     link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+     link_ends[links.transmitter] = links.body_origin_link_end_id("Earth")
+     link_ends[links.retransmitter] = links.body_origin_link_end_id("Delfi-C3")
+     link_ends[links.receiver] = links.body_origin_link_end_id("Earth")
 
      # Create the LinkDefinition object
-     Link_Definition_Object = observation.LinkDefinition(link_ends)
+     Link_Definition_Object = links.LinkDefinition(link_ends)
 
      # Create minimal ObservationSettings object (only required Link_Definition_Object argument is passed)
      # Note: other optional parameters (bias_settings, light_time_correction_settings,  light_time_convergence_settings) can be set
-     observation_settings = observation.two_way_range(Link_Definition_Object)
+     observation_settings = model_settings.two_way_range(Link_Definition_Object)
 
      # Show that two_way_range() returns an NWayRangeObservationSettings object.
      print(observation_settings)
@@ -317,45 +317,45 @@ Examples
 
  Function for creating settings for a two-way range observable.
 
- Same as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_range_from_one_way_links`, with :math:`n=2`. This function is provided
+ Same as :func:`~tudatpy.estimation.observable_models_setup.model_settings.n_way_range_from_one_way_links`, with :math:`n=2`. This function is provided
  for convenience.
 
 
  Parameters
  ----------
- one_way_range_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` ]
+ one_way_range_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings` ]
      List of observation model settings of size two, with the first entry the one-way range settings for the uplink, and the second entry the one-way range settings for the downlink.
      The ``LinkDefinition`` of this two-way range observable is created from this list, with the ``transmitter`` and ``retransmitter`` defined by the
      ``transmitter`` and ``receiver`` of the first entry in this list. The ``retransmitter`` and ``receiver`` are defined by the
      ``transmitter`` and ``receiver`` of the second entry of this list.
 
- bias_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings`, default = None
+ bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation).
      Note that only one bias setting is applied to the n-way observable.
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings` class.
+ :class:`~tudatpy.estimation.observable_models_setup.model_settings.NWayRangeObservationSettings`
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings` derived :class:`~tudatpy.estimation.observable_models_setup.model_settings.NWayRangeObservationSettings` class.
 
  Examples
  --------
  .. code-block:: python
 
      # Code Snippet to showcase the use of the two_way_range_from_one_way_links function
-     from tudatpy.numerical_simulation.estimation_setup import observation
+     from tudatpy.estimation.observable_models_setup import links, model_settings
 
      # two_way_range_from_one_way_links() takes a list of ObservationSettings objects
      # Note: as for this case, transmitter, retransmitter and receiver are required to define the Link Ends dictionary
      link_ends = dict()
-     link_ends[observation.transmitter] = observation.body_origin_link_end_id("Earth")
-     link_ends[observation.retransmitter] = observation.body_origin_link_end_id("Delfi-C3")
-     link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
+     link_ends[links.transmitter] = links.body_origin_link_end_id("Earth")
+     link_ends[links.retransmitter] = links.body_origin_link_end_id("Delfi-C3")
+     link_ends[links.receiver] = links.body_origin_link_end_id("Earth")
 
      # Create the LinkDefinition object to be used as input
-     Link_Definition_Object = observation.LinkDefinition(link_ends) # define LinkDefinition object
-     two_way_range_observation_settings_list = [observation.two_way_range(Link_Definition_Object)] # define (minimal) NWayRangeObservationSettings object
-     two_way_range_one_way_link_settings = observation.two_way_range_from_one_way_links(two_way_range_observation_settings_list)
+     Link_Definition_Object = links.LinkDefinition(link_ends) # define LinkDefinition object
+     two_way_range_observation_settings_list = [model_settings.two_way_range(Link_Definition_Object)] # define (minimal) NWayRangeObservationSettings object
+     two_way_range_one_way_link_settings = model_settings.two_way_range_from_one_way_links(two_way_range_observation_settings_list)
 
      # Show that two_way_range_from_one_way_links() returns an NWayRangeObservationSettings object.
      print(two_way_range_one_way_link_settings)
@@ -376,8 +376,8 @@ Examples
 
  Function for creating observation model settings of n-way range type observables, for a single link definition. The associated observation model creates
  a single-valued observable :math:`h_{_{\text{N-range}}}` by combining together a series :math:`n` one-way range observations
- (see :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`). By default, the reception time of the :math:`i^{th}` one-way range is set as the
- transmission time of the :math:`(i+1)^{th}` one-way range. A retransmission delay may be defined by ancilliary settings (see :func:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationAncilliarySimulationSettings`) when creating observation
+ (see :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_range`). By default, the reception time of the :math:`i^{th}` one-way range is set as the
+ transmission time of the :math:`(i+1)^{th}` one-way range. A retransmission delay may be defined by ancilliary settings (see :func:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings`) when creating observation
  simulation setings.
 
  For this function, the settings for each constituent one-way range (with the exception of the link end identifiers) are equal.
@@ -387,24 +387,24 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires the
-     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined, as well
+     `transmitter` and `receiver` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined, as well
      as a `retransmitter1`, `retransmitter2`, .... (with the number of retransmitters to be defined by the user).
 
- light_time_correction_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` ], default = list()
+ light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
      List of corrections for the light-time that are to be used for each constituent one-way range. Default is none, which will result
      in the signal being modelled as moving in a straight line with the speed of light
 
- bias_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings`, default = None
+ bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation).
      Note that only one bias setting is applied to the n-way observable.
 
- light_time_convergence_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+ light_time_convergence_settings : :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
      Settings for convergence of the light-time
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings` class.
+ :class:`~tudatpy.estimation.observable_models_setup.model_settings.NWayRangeObservationSettings`
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings` derived :class:`~tudatpy.estimation.observable_models_setup.model_settings.NWayRangeObservationSettings` class.
 
 
  Examples
@@ -412,20 +412,20 @@ Examples
  .. code-block:: python
 
      # Code Snippet to showcase the use of the n_way_range function
-     from tudatpy.numerical_simulation.estimation_setup import observation
+     from tudatpy.estimation.observable_models_setup import links, model_settings
 
      # Create Link Ends dictionary
      link_ends = dict()
-     link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
-     link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+     link_ends[links.receiver] = links.body_origin_link_end_id("Earth")
+     link_ends[links.transmitter] = links.body_origin_link_end_id("Delfi-C3")
 
      # n_way_range() takes a Link Definition Object as input to the function.
      # Let's create it from link_ends
-     Link_Definition_Object = observation.LinkDefinition(link_ends)
+     Link_Definition_Object = links.LinkDefinition(link_ends)
 
      # Create minimal ObservationSettings object (only required Link_Definition_Object argument is passed)
      # Note: other optional parameters (bias_settings, light_time_correction_settings,  light_time_convergence_settings) can be set
-     observation_settings = observation.n_way_range(Link_Definition_Object)
+     observation_settings = model_settings.n_way_range(Link_Definition_Object)
 
      # Show that n_way_range() returns an NWayRangeObservationSettings object.
      print(observation_settings)
@@ -445,45 +445,45 @@ Examples
  Function for creating settings for a n-way range observable.
 
  Function for creating observation model settings of n-way range type observables, for a single link definition. The
- implementation is the same as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_range`, with the difference
+ implementation is the same as :func:`~tudatpy.estimation.observable_models_setup.model_settings.n_way_range`, with the difference
  that the constituent one-way ranges may have different settings.s
 
 
  Parameters
  ----------
- one_way_range_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` ]
+ one_way_range_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings` ]
      List of observation model settings for each of the :math:`n` constituent one-way ranges of the n-way range observable.
      The ``LinkDefinition`` of this n-way range observable is created from this list, with the ``transmitter`` and ``retransmitter`` defined by the
      ``transmitter`` and ``receiver`` of the first entry in this list. The ``retransmitter`` (n-1) and ``receiver`` are defined by the
      ``transmitter`` and ``receiver`` of the :math:`\text{n}^{th}` entry of this list.
 
- bias_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings`, default = None
+ bias_settings : :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation).
      Note that only one bias setting is applied to the n-way observable.
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings` class.
+ :class:`~tudatpy.estimation.observable_models_setup.model_settings.NWayRangeObservationSettings`
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings` derived :class:`~tudatpy.estimation.observable_models_setup.model_settings.NWayRangeObservationSettings` class.
 
  Examples
  --------
  .. code-block:: python
 
      # Code Snippet to showcase the use of the n_way_range_from_one_way_links function
-     from tudatpy.numerical_simulation.estimation_setup import observation
+     from tudatpy.estimation.observable_models_setup import links, model_settings
 
      # Create Link Ends dictionary
      link_ends = dict()
-     link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
-     link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+     link_ends[links.receiver] = links.body_origin_link_end_id("Earth")
+     link_ends[links.transmitter] = links.body_origin_link_end_id("Delfi-C3")
 
      # n_way_range_from_one_way_links() takes 1) a list of ObservationSettings objects and 2) bias as input (default is None)
      # Let's create it.
-     Link_Definition_Object = observation.LinkDefinition(link_ends) # define LinkDefinition object
-     n_way_observation_settings_list = [observation.n_way_range(Link_Definition_Object)] # define (minimal) ObservationSettings object
+     Link_Definition_Object = links.LinkDefinition(link_ends) # define LinkDefinition object
+     n_way_observation_settings_list = [model_settings.n_way_range(Link_Definition_Object)] # define (minimal) ObservationSettings object
 
-     n_way_from_one_link_observation_settings = observation.n_way_range_from_one_way_links(n_way_observation_settings_list, bias_settings = None)
+     n_way_from_one_link_observation_settings = model_settings.n_way_range_from_one_way_links(n_way_observation_settings_list, bias_settings = None)
 
      # Show that n_way_range_from_one_way_links() returns an NWayRangeObservationSettings object.
      print(n_way_from_one_link_observation_settings)
@@ -511,7 +511,7 @@ Examples
     \delta=\frac{\Delta r_{z}}{\sqrt{\Delta r_{x}^{2}+\Delta r_{y}^{2}}}\\
     \mathbf{h}_{_{\text{ang.pos.}}} = [\alpha;\delta]
 
- The relative position vector :math:`\Delta\mathbf{r}` is computed identically as described for the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`
+ The relative position vector :math:`\Delta\mathbf{r}` is computed identically as described for the :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_range`
  The angular position observable can be used for optical astrometry, VLBI, etc. Due to the definition of this observable, the xy-plane is defined by the global frame orientation of the
  environment.
 
@@ -520,9 +520,9 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires the
-     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+     `transmitter` and `receiver` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
- light_time_correction_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` ], default = list()
+ light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
      List of corrections for the light-time that are to be used. Default is none, which will result
      in the signal being modelled as moving in a straight line with the speed of light
 
@@ -535,7 +535,7 @@ Examples
  Returns
  -------
  :class:`ObservationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the angular position observable.
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings` class defining the settings for the angular position observable.
 
 
 
@@ -567,7 +567,7 @@ Examples
     \delta_{2} =\frac{\Delta r_{2z}}{\sqrt{\Delta r_{2x}^{2}+\Delta r_{2y}^{2}}} \\
     \mathbf{h}_{_{\text{rel.ang.pos.}}} = [\alpha_{2}-\alpha_{1};\delta_{2}-\delta_{1}]
 
- The relative position vectors :math:`\Delta\mathbf{r}_1` and :math:`\Delta\mathbf{r}_2` are computed identically as described for the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`
+ The relative position vectors :math:`\Delta\mathbf{r}_1` and :math:`\Delta\mathbf{r}_2` are computed identically as described for the :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_range`
  The relative angular position observable can be used for optical astrometry, optical navigation, etc. Due to the definition of this observable, the xy-plane is defined by the global frame orientation of the
  environment.
 
@@ -576,9 +576,9 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires the
-     `transmitter`, `transmitter2` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+     `transmitter`, `transmitter2` and `receiver` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
- light_time_correction_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` ], default = list()
+ light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
      List of corrections for the light-time that are to be used. Default is none, which will result
      in the signal being modelled as moving in a straight line with the speed of light
 
@@ -591,7 +591,7 @@ Examples
  Returns
  -------
  :class:`ObservationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the relative angular position observable.
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings` class defining the settings for the relative angular position observable.
 
 
 
@@ -618,7 +618,7 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires that the
-     `observed_body` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+     `observed_body` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
  bias_settings : :class:`ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
@@ -626,7 +626,7 @@ Examples
  Returns
  -------
  :class:`ObservationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the cartesian position observable.
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings` class defining the settings for the cartesian position observable.
 
 
 
@@ -653,7 +653,7 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires that the
-     `observed_body` and `observer` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+     `observed_body` and `observer` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
  bias_settings : :class:`ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
@@ -661,7 +661,7 @@ Examples
  Returns
  -------
  :class:`ObservationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the relative Cartesian position observable.
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings` class defining the settings for the relative Cartesian position observable.
 
 
 
@@ -688,7 +688,7 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires that the
-     `observed_body` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+     `observed_body` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
  bias_settings : :class:`ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
@@ -696,7 +696,7 @@ Examples
  Returns
  -------
  :class:`ObservationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` class defining the settings for the cartesian velocity observable.
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings` class defining the settings for the cartesian velocity observable.
 
 
 
@@ -731,12 +731,12 @@ Examples
     h_{_{\text{1-Dopp.}}}=c\left(\frac{d\tau_{T}}{dt_{T}}\frac{t_{T}}{dt_{R}}\frac{dt_{R}}{d\tau_{R}}-1\right)
 
  where :math:`t` and :math:`\tau` denote coordinate and proper time of the transmitter T and receiver R, respectively.
- The receiver and transmitter position and coordinate time are computed identically as described for the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`.
+ The receiver and transmitter position and coordinate time are computed identically as described for the :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_range`.
  The detailed mathematical implementation are described in: `Moyer, T.D. (2000) Formulation for Observed and Computed Values of Deep Space Network Data Types for Navigation. Monograph 2, Deep Space Communications and Navigation Series, JPL Publication 00-7 <https://www.scirp.org/reference/referencespapers?referenceid=1827210>`_.
 
  This observable represents the 'instantaneous (non-integrated)' Doppler observable, as obtained from open-loop observations.
  It should *not* be used for the modelling of the typical closed-loop observations used in deep space tracking (for which the
- :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_doppler_averaged` should be used)
+ :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_doppler_averaged` should be used)
 
  The coordinate
  time derivative :math:`\frac{t_{A}}{dt_{B}}` is always computed when generating this observable. Settings for the proper time
@@ -750,7 +750,7 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires that the
-     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+     `transmitter` and `receiver` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
  light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
      List of corrections for the light-time that are to be used. Default is none, which will result
@@ -774,7 +774,7 @@ Examples
  Returns
  -------
  :class:`OneWayDopplerObservationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived :class:`OneWayDopplerObservationSettings` class defining the settings for the one-way open doppler observable observable.
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings` derived :class:`OneWayDopplerObservationSettings` class defining the settings for the one-way open doppler observable observable.
 
 
 
@@ -796,7 +796,7 @@ Examples
 
 
  Function for creating settings for a two-way instantaneous Doppler observable for a single link definition. The
- implementation is the same as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.two_way_doppler_instantaneous`, with the difference
+ implementation is the same as :func:`~tudatpy.estimation.observable_models_setup.model_settings.two_way_doppler_instantaneous`, with the difference
  that the constituent one-way ranges may have different settings.
 
  The observable may be non-dimensionalized by the speed of light :math:`c` (in the constituent one-way Doppler observable settings),
@@ -806,10 +806,10 @@ Examples
  Parameters
  ----------
  uplink_doppler_settings : :class:`OneWayDopplerObservationSettings`
-     Settings for uplink leg of one-way observable, created using :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_open_loop_doppler`
+     Settings for uplink leg of one-way observable, created using :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_open_loop_doppler`
 
  downlink_doppler_settings : :class:`OneWayDopplerObservationSettings`
-     Settings for downlink leg of one-way observable, created using :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_open_loop_doppler`
+     Settings for downlink leg of one-way observable, created using :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_open_loop_doppler`
 
  bias_settings : :class:`ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the full observation, default is none (unbiased observation). Note that,
@@ -821,7 +821,7 @@ Examples
  Returns
  -------
  :class:`TwoWayDopplerObservationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived :class:`TwoWayDopplerObservationSettings` class defining the settings for the two-way open doppler observable.
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings` derived :class:`TwoWayDopplerObservationSettings` class defining the settings for the two-way open doppler observable.
 
 
 
@@ -864,7 +864,7 @@ Examples
                               &=\frac{h_{_{\text{1-range}}}(t_{R}=t+\Delta t,t_{T})-h_{_{\text{1-range}}}(t_{R}=t,t_{T})}{\Delta t}
 
  where, in the latter formulation (which is the one that is implemented), the observable is referenced to the receiver time. This averaged Doppler observable
- is computed as the difference of two one-way range observables (see :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_range`),
+ is computed as the difference of two one-way range observables (see :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_range`),
  with the reference time shifted by :math:`\Delta t`. As such, it is sensitive to numerical errors for small :math:`\Delta t`
 
  The integration time :math:`\Delta t` is defined in the ancilliary settings when simulating the observations (with 60 s as default).
@@ -874,7 +874,7 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires that the
-     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+     `transmitter` and `receiver` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
  light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
      List of corrections for the light-time that are to be used. Default is none, which will result
@@ -889,7 +889,7 @@ Examples
  Returns
  -------
  :class:`ObservationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived `OneWayDifferencedRangeRateObservationSettings` class defining the settings for the one-way closed-loop doppler observable.
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings` derived `OneWayDifferencedRangeRateObservationSettings` class defining the settings for the one-way closed-loop doppler observable.
 
 
 
@@ -913,7 +913,7 @@ Examples
  Function for creating settings for an n-way averaged Doppler observable.
 
  Function for creating observation model settings for n-way averaged Doppler observables, for a single link definition. The implementation is
- analogous to the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_doppler_averaged` observable. But, in the present case
+ analogous to the :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_doppler_averaged` observable. But, in the present case
  the observable is computed from the difference of two n-way range observables, with the reference time shifted by :math:`\Delta t`.
 
  The integration time :math:`\Delta t` is defined in the ancilliary settings when simulating the observations (with 60 s as default).
@@ -923,7 +923,7 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires the
-     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined, as well
+     `transmitter` and `receiver` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined, as well
      as a `retransmitter1`, `retransmitter2`, .... (with the number of retransmitters to be defined by the user).
 
  light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
@@ -938,8 +938,8 @@ Examples
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived `~tudatpy.numerical_simulation.estimation_setup.observation.NWayDifferencedRangeRateObservationSettings` class defining the settings for the one-way closed-loop doppler observable.
+ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings`
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings` derived `~tudatpy.estimation.observable_models_setup.model_settings.NWayDifferencedRangeRateObservationSettings` class defining the settings for the one-way closed-loop doppler observable.
 
 
 
@@ -958,7 +958,7 @@ Examples
  Function for creating settings for an n-way averaged Doppler observable.
 
  Function for creating observation model settings for n-way averaged Doppler observables, for a single link definition. The implemenation is
- analogous to the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_doppler_averaged` observable. But, in the present case
+ analogous to the :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_doppler_averaged` observable. But, in the present case
  the observable is computed from the difference of two n-way range observables, with the reference time shifted by :math:`\Delta t`.
 
  The integration time :math:`\Delta t` is defined in the ancilliary settings when simulating the observations (with 60 s as default).
@@ -968,7 +968,7 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires the
-     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined, as well
+     `transmitter` and `receiver` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined, as well
      as a `retransmitter1`, `retransmitter2`, .... (with the number of retransmitters to be defined by the user).
 
  light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
@@ -983,8 +983,8 @@ Examples
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived `~tudatpy.numerical_simulation.estimation_setup.observation.NWayDifferencedRangeRateObservationSettings` class defining the settings for the one-way closed-loop doppler observable.
+ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings`
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings` derived `~tudatpy.estimation.observable_models_setup.model_settings.NWayDifferencedRangeRateObservationSettings` class defining the settings for the one-way closed-loop doppler observable.
 
 
 
@@ -1007,7 +1007,7 @@ Examples
  Function for creating settings for an n-way averaged Doppler observable.
 
  Function for creating observation model settings for n-way averaged Doppler observables, for a single link definition. The implementation is
- analogous to the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.one_way_doppler_averaged` observable. But, in the present case
+ analogous to the :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_doppler_averaged` observable. But, in the present case
  the observable is computed from the difference of two n-way range observables, with the reference time shifted by :math:`\Delta t`.
 
  The integration time :math:`\Delta t` is defined in the ancilliary settings when simulating the observations (with 60 s as default).
@@ -1017,7 +1017,7 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires the
-     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined, as well
+     `transmitter` and `receiver` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined, as well
      as a `retransmitter1`, `retransmitter2`, .... (with the number of retransmitters to be defined by the user).
 
  light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
@@ -1032,8 +1032,8 @@ Examples
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived `~tudatpy.numerical_simulation.estimation_setup.observation.NWayDifferencedRangeRateObservationSettings` class defining the settings for the one-way closed-loop doppler observable.
+ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings`
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings` derived `~tudatpy.estimation.observable_models_setup.model_settings.NWayDifferencedRangeRateObservationSettings` class defining the settings for the one-way closed-loop doppler observable.
 
 
 
@@ -1054,7 +1054,7 @@ Examples
  Function for creating settings for an n-way averaged Doppler observable.
 
  Function for creating observation model settings for n-way averaged Doppler observables, for a single link definition.
- The implementation is the same as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_doppler_averaged`, with the difference
+ The implementation is the same as :func:`~tudatpy.estimation.observable_models_setup.model_settings.n_way_doppler_averaged`, with the difference
  that the constituent one-way range observables may have different settings.
 
 
@@ -1071,8 +1071,8 @@ Examples
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings` derived `~tudatpy.numerical_simulation.estimation_setup.observation.NWayDifferencedRangeRateObservationSettings` class defining the settings for the one-way closed-loop doppler observable.
+ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings`
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings` derived `~tudatpy.estimation.observable_models_setup.model_settings.NWayDifferencedRangeRateObservationSettings` class defining the settings for the one-way closed-loop doppler observable.
 
 
 
