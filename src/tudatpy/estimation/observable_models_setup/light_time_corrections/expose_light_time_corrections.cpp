@@ -69,7 +69,7 @@ void expose_light_time_corrections( py::module& m )
          Specific light time correction settings must be defined using an object derived from this class.
 
          Instances of this class are typically created via the
-         :func:`~tudatpy.numerical_simulation.estimation_setup.observation.first_order_relativistic_light_time_correction` function
+         :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.first_order_relativistic_light_time_correction` function
 
          Examples
          --------
