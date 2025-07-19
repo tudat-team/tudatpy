@@ -41,9 +41,9 @@ inline std::shared_ptr< TorqueSettings > customTorqueSettingsDeprecated(
     if( isWarningPrinted == false )
     {
         tudat::utilities::printDeprecationWarning(
-                "tudatpy.numerical_simulation.propagation_setup."
+                "tudatpy.dynamics.propagation_setup."
                 "acceleration.custom",
-                "tudatpy.numerical_simulation.propagation_setup."
+                "tudatpy.dynamics.propagation_setup."
                 "acceleration.custom_torque" );
         isWarningPrinted = true;
     }

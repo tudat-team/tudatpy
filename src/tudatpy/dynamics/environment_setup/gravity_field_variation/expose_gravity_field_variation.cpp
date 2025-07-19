@@ -200,7 +200,7 @@ degree : int
 Returns
 -------
 BasicSolidBodyGravityFieldVariationSettings
-    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
+    Instance of the :class:`~tudatpy.dynamics.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.dynamics.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
 
 Examples
 --------
@@ -229,7 +229,7 @@ In this example, we create gravity field variations of Earth for a tide raised b
 
  Function for creating solid body tides.
 
- As :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide`, but with complex value for the Love number.
+ As :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.solid_body_tide`, but with complex value for the Love number.
 
 
  Parameters
@@ -244,7 +244,7 @@ In this example, we create gravity field variations of Earth for a tide raised b
  Returns
  -------
  BasicSolidBodyGravityFieldVariationSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.dynamics.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
 
 
 
@@ -264,7 +264,7 @@ Function for creating solid body tides.
 
 Function for creating solid body tides, using a set of real, separate, Love numbers at any number of degrees
 (e.g. :math:`k_{2}`, :math:`k_{3}`, etc.). This output and mathematical model of this function is effectively identical to a list of outputs to
-:func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide`, with differing degrees and associated Love numbers.
+:func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.solid_body_tide`, with differing degrees and associated Love numbers.
 This function evaluates Eq. (6.6) from the IERS Conventions 2010, with a set of real values :math:`k_{l}=k_{lm}`, at a set of values of :math:`l`
 and a single tide-raising body :math:`j`.
 
@@ -278,7 +278,7 @@ love_number_per_degree : dict( int, float )
 Returns
 -------
 BasicSolidBodyGravityFieldVariationSettings
-    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
+    Instance of the :class:`~tudatpy.dynamics.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.dynamics.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
 
 Examples
 --------
@@ -307,7 +307,7 @@ In this example, we create gravity field variations of Earth for a tide raised b
 
 Function for creating solid body tides.
 
-As :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide_degree_variable_k`,
+As :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.solid_body_tide_degree_variable_k`,
 but with complex values for the Love numbers.
 
 
@@ -321,7 +321,7 @@ love_number_per_degree : dict( int, complex )
 Returns
 -------
  BasicSolidBodyGravityFieldVariationSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.dynamics.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
 
 
 
@@ -344,7 +344,7 @@ Function for creating solid body tides, using a set of real, separate, Love numb
 This function evaluates Eq. (6.6) from the IERS Conventions 2010, with a set of real values :math:`k_{lm}`,
 at a set of values of :math:`l` and a single tide-raising body :math:`j`.
 
-The mathematical model of this function is effectively nearly equal to that of :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide`
+The mathematical model of this function is effectively nearly equal to that of :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.solid_body_tide`
 with the modification that :math:`k_{l}\rightarrow k_{lm}`.
 
 Parameters
@@ -357,7 +357,7 @@ love_number_per_degree_and_order : dict( int, list( float ) )
 Returns
 -------
 BasicSolidBodyGravityFieldVariationSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.dynamics.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
 
 
 Examples
@@ -390,7 +390,7 @@ In this example, we create gravity field variations of the Moon, for a tide rais
 
 Function for creating solid body tides raised by multiple bodies.
 
-As :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_k`, but with the same
+As :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_k`, but with the same
 set of Love numbers used for tides raised by multiple bodies :math:`j`
 
 Parameters
@@ -403,7 +403,7 @@ love_number_per_degree_and_order : dict( int, list( float ) )
 Returns
 -------
 BasicSolidBodyGravityFieldVariationSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.dynamics.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
 
 
 
@@ -420,7 +420,7 @@ BasicSolidBodyGravityFieldVariationSettings
 
 Function for creating solid body tides.
 
-As :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_k`,
+As :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_k`,
 but with complex values for the Love number.
 
 Parameters
@@ -433,7 +433,7 @@ love_number_per_degree : dict( int, list( complex ) )
 Returns
 -------
 BasicSolidBodyGravityFieldVariationSettings
-    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
+    Instance of the :class:`~tudatpy.dynamics.environment_setup.gravity_field_variation.BasicSolidBodyGravityFieldVariationSettings` derived :class:`~tudatpy.dynamics.environment_setup.gravity_field_variation.GravityFieldVariationSettings` class
 
 
      )doc" );
@@ -448,7 +448,7 @@ BasicSolidBodyGravityFieldVariationSettings
 Function for creating solid body tides with coupling between different forcing degree and orders.
 
 Function for creating solid body tides with coupling between different forcing degree and orders, similar to
-:func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_k`, but
+:func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_k`, but
 with multiple tide-raising bodies and the option to have forcing and response at different degrees and orders
 
 .. math::
@@ -473,7 +473,7 @@ love_number_per_degree : dict[tuple[int, int], dict[tuple[int,int],float]]
 Returns
 -------
 GravityFieldVariationSettings
-    Instance of a :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` derived class containing required settings
+    Instance of a :class:`~tudatpy.dynamics.environment_setup.gravity_field_variation.GravityFieldVariationSettings` derived class containing required settings
 
 
 
@@ -538,7 +538,7 @@ minimum_order: int
 Returns
 -------
 GravityFieldVariationSettings
-    Instance of a :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` derived class containing required settings
+    Instance of a :class:`~tudatpy.dynamics.environment_setup.gravity_field_variation.GravityFieldVariationSettings` derived class containing required settings
 
 
 )doc" );
@@ -584,7 +584,7 @@ minimum_order: int
 Returns
 -------
 GravityFieldVariationSettings
-    Instance of a :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` derived class containing required settings
+    Instance of a :class:`~tudatpy.dynamics.environment_setup.gravity_field_variation.GravityFieldVariationSettings` derived class containing required settings
 
 
 )doc" );
@@ -636,7 +636,7 @@ minimum_order: int
 Returns
 -------
 GravityFieldVariationSettings
-    Instance of a :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` derived class containing required settings
+    Instance of a :class:`~tudatpy.dynamics.environment_setup.gravity_field_variation.GravityFieldVariationSettings` derived class containing required settings
 
 
 )doc" );
@@ -675,7 +675,7 @@ minimum_order: int
 Returns
 -------
 GravityFieldVariationSettings
-    Instance of a :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` derived class containing required settings
+    Instance of a :class:`~tudatpy.dynamics.environment_setup.gravity_field_variation.GravityFieldVariationSettings` derived class containing required settings
 
 )doc" );
 
@@ -725,7 +725,7 @@ interpolation_settings: InterpolatorSettings
 Returns
 -------
 GravityFieldVariationSettings
-    Instance of a :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.GravityFieldVariationSettings` derived class containing required settings
+    Instance of a :class:`~tudatpy.dynamics.environment_setup.gravity_field_variation.GravityFieldVariationSettings` derived class containing required settings
 
 )doc" );
 }
