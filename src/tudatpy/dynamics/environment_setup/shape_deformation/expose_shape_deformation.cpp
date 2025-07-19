@@ -82,7 +82,7 @@ void expose_shape_deformation_setup( py::module &m )
  Returns
  -------
  BasicSolidBodyDeformationSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.shape_deformation.BodyDeformationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.shape_deformation.BasicSolidBodyDeformationSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.shape_deformation.BodyDeformationSettings` derived :class:`~tudatpy.dynamics.environment_setup.shape_deformation.BasicSolidBodyDeformationSettings` class
 
 
 
@@ -135,7 +135,7 @@ void expose_shape_deformation_setup( py::module &m )
  Returns
  -------
  BasicSolidBodyDeformationSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.shape_deformation.BodyDeformationSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.shape_deformation.BasicSolidBodyDeformationSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.shape_deformation.BodyDeformationSettings` derived :class:`~tudatpy.dynamics.environment_setup.shape_deformation.BasicSolidBodyDeformationSettings` class
 
 
 
@@ -174,7 +174,7 @@ void expose_shape_deformation_setup( py::module &m )
  Returns
  -------
  BodyDeformationSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.shape_deformation.BodyDeformationSettings` defining the IERS 2010 settings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.shape_deformation.BodyDeformationSettings` defining the IERS 2010 settings
 
      )doc" );
 

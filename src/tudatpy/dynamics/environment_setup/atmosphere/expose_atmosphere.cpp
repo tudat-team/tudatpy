@@ -255,13 +255,13 @@ void expose_atmosphere_setup( py::module &m )
  wind_velocity : numpy.ndarray[numpy.float64[3, 1]]
      Constant wind velocity in the specified reference frame.
 
- associated_reference_frame : numerical_simulation.environment.AerodynamicsReferenceFrames, default = AerodynamicsReferenceFrames.vertical_frame
+ associated_reference_frame : dynamics.environment.AerodynamicsReferenceFrames, default = AerodynamicsReferenceFrames.vertical_frame
      Reference frame in which constant wind velocity is defined.
 
  Returns
  -------
  ConstantWindModelSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.WindModelSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.ConstantWindModelSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.WindModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.atmosphere.ConstantWindModelSettings` class
 
 
 
@@ -269,7 +269,7 @@ void expose_atmosphere_setup( py::module &m )
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.WindModelSettings`,
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.atmosphere.WindModelSettings`,
  using a constant wind-velocity vector defined in a vertical aerodynamic reference frame:
 
  .. code-block:: python
@@ -308,13 +308,13 @@ void expose_atmosphere_setup( py::module &m )
  wind_velocity : callable[[float, float, float, float], numpy.ndarray[numpy.float64[3, 1]]]
      Custom wind velocity function (w.r.t. altitude, longitude, latitude and time) in the specified reference frame.
 
- associated_reference_frame : numerical_simulation.environment.AerodynamicsReferenceFrames, default = AerodynamicsReferenceFrames.vertical_frame
+ associated_reference_frame : dynamics.environment.AerodynamicsReferenceFrames, default = AerodynamicsReferenceFrames.vertical_frame
      Reference frame in which wind velocity is defined.
 
  Returns
  -------
  CustomWindModelSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.WindModelSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.CustomWindModelSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.WindModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.atmosphere.CustomWindModelSettings` class
 
 
 
@@ -322,7 +322,7 @@ void expose_atmosphere_setup( py::module &m )
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.WindModelSettings`,
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.atmosphere.WindModelSettings`,
  using a user-defined wind-velocity function (of altitude, longitude, latitude and time), defined in a vertical aerodynamic reference frame:
 
  .. code-block:: python
@@ -396,7 +396,7 @@ void expose_atmosphere_setup( py::module &m )
  Returns
  -------
  ExponentialAtmosphereSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.ExponentialAtmosphereSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` derived :class:`~tudatpy.dynamics.environment_setup.atmosphere.ExponentialAtmosphereSettings` class
 
 
 
@@ -404,7 +404,7 @@ void expose_atmosphere_setup( py::module &m )
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings` for Mars,
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` for Mars,
  using the interface of the predefined exponential model, using pre-encoded values:
 
  .. code-block:: python
@@ -454,7 +454,7 @@ void expose_atmosphere_setup( py::module &m )
  Returns
  -------
  ExponentialAtmosphereSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.ExponentialAtmosphereSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` derived :class:`~tudatpy.dynamics.environment_setup.atmosphere.ExponentialAtmosphereSettings` class
 
 
 
@@ -462,7 +462,7 @@ void expose_atmosphere_setup( py::module &m )
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings` for Earth,
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` for Earth,
  using the minimalist interface to the exponential model and taking parameters with classic values for Earth:
 
  .. code-block:: python
@@ -503,7 +503,7 @@ use_anomalous_oxygen : bool, default = true
 Returns
 -------
 AtmosphereSettings
-    Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings` class
+    Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` class
 
 
 
@@ -511,7 +511,7 @@ AtmosphereSettings
 
 Examples
 --------
-In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings` for Earth,
+In this example, we create :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` for Earth,
 using the NRLMSISE-00 global reference model:
 
 .. code-block:: python
@@ -545,7 +545,7 @@ using the NRLMSISE-00 global reference model:
  Returns
  -------
  AtmosphereSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` class
 
 
 
@@ -553,7 +553,7 @@ using the NRLMSISE-00 global reference model:
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings` for Earth,
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` for Earth,
  using the US76 standard atmosphere model:
 
  .. code-block:: python
@@ -599,7 +599,7 @@ using the NRLMSISE-00 global reference model:
  Returns
  -------
  CustomConstantTemperatureAtmosphereSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.CustomConstantTemperatureAtmosphereSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` derived :class:`~tudatpy.dynamics.environment_setup.atmosphere.CustomConstantTemperatureAtmosphereSettings` class
 
 
 
@@ -607,7 +607,7 @@ using the NRLMSISE-00 global reference model:
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings` for Earth,
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` for Earth,
  with constant temperature and composition, but a density which varies with altitude according to a user-defined model:
 
  .. code-block:: python
@@ -668,7 +668,7 @@ using the NRLMSISE-00 global reference model:
  Returns
  -------
  CustomConstantTemperatureAtmosphereSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.CustomConstantTemperatureAtmosphereSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` derived :class:`~tudatpy.dynamics.environment_setup.atmosphere.CustomConstantTemperatureAtmosphereSettings` class
 
 
 
@@ -676,7 +676,7 @@ using the NRLMSISE-00 global reference model:
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings` for Earth,
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` for Earth,
  with constant temperature and composition (gas constant and ratio of specific heats), but a density which varies with altitude, longitude, latitude and time, according to a user-defined model:
 
  .. code-block:: python
@@ -726,7 +726,7 @@ using the NRLMSISE-00 global reference model:
  Returns
  -------
  ScaledAtmosphereSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.ScaledAtmosphereSettings` class.
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` derived :class:`~tudatpy.dynamics.environment_setup.atmosphere.ScaledAtmosphereSettings` class.
 
 
 
@@ -740,8 +740,8 @@ using the NRLMSISE-00 global reference model:
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings` for Earth,
- by modifying an existing :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings` object such, that the resulting air density profile is scaled with a user-defined function of time:
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` for Earth,
+ by modifying an existing :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` object such, that the resulting air density profile is scaled with a user-defined function of time:
 
  .. code-block:: python
 
@@ -785,7 +785,7 @@ using the NRLMSISE-00 global reference model:
  Returns
  -------
  ScaledAtmosphereSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.ScaledAtmosphereSettings` class.
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` derived :class:`~tudatpy.dynamics.environment_setup.atmosphere.ScaledAtmosphereSettings` class.
 
 
 
@@ -799,8 +799,8 @@ using the NRLMSISE-00 global reference model:
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings` for Earth,
- by modifying an existing :class:`~tudatpy.numerical_simulation.environment_setup.atmosphere.AtmosphereSettings` object such that the resulting air density profile is scaled by a constant:
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` for Earth,
+ by modifying an existing :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` object such that the resulting air density profile is scaled by a constant:
 
  .. code-block:: python
 
