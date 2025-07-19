@@ -1,6 +1,6 @@
 import math
 from datetime import datetime
-from tudatpy.kernel.astro import time_conversion
+from tudatpy.astro import time_conversion
 
 
 def test_datetime_conversions():
