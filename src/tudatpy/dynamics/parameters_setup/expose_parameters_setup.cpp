@@ -189,7 +189,7 @@ void expose_parameters_setup( py::module& m )
  bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
      Object consolidating all bodies and environment models, including ground station models, that constitute the physical environment.
 
- propagator_settings : :class:`~tudatpy.numerical_simulation.propagation_setup.propagator.PropagatorSettings`
+ propagator_settings : :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagatorSettings`
      Object containing the consolidated propagation settings of the simulation.
 
  Returns
@@ -254,7 +254,7 @@ void expose_parameters_setup( py::module& m )
 
  Parameters
  ----------
- propagator_settings : :class:`~tudatpy.numerical_simulation.propagation_setup.propagator.PropagatorSettings`
+ propagator_settings : :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagatorSettings`
      Object containing the consolidated propagation settings of the simulation in the context of which the given model parameters are to be estimated.
 
  bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
@@ -290,7 +290,7 @@ void expose_parameters_setup( py::module& m )
  Using the constant drag coefficient as an estimatable parameter requires:
 
  * A :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.constant` aerodynamic interface to be defined for the body specified by the ``body`` parameter
- * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.aerodynamic` acceleration
+ * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.aerodynamic` acceleration
 
 
  Parameters
@@ -324,7 +324,7 @@ void expose_parameters_setup( py::module& m )
  Using the arc-wise constant drag coefficient as an estimatable parameter requires:
 
  * A :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.constant` aerodynamic interface to be defined for the body specified by the ``body`` parameter
- * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.aerodynamic` acceleration
+ * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.aerodynamic` acceleration
 
  When using this parameter, whenever :math:`C_{D}` is required at a time :math:`t`, the index math:`i` in the ``arc_initial_times`` ordered list is
  found for which :math:`t_{i}\le t<t_{i+1}` (or, if :math:`t` is larger than the largest value in the list, :math:`i` is set to be last index of the list),
@@ -365,7 +365,7 @@ void expose_parameters_setup( py::module& m )
  Using the radiation pressure coefficient as an estimatable parameter requires:
 
  * A :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.cannonball` radiation pressure interface to be defined for the body specified by the ``body`` parameter
- * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.cannonball_radiation_pressure` acceleration
+ * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.cannonball_radiation_pressure` acceleration
 
 
  Parameters
@@ -398,7 +398,7 @@ void expose_parameters_setup( py::module& m )
  Using the radiation pressure coefficient as an estimatable parameter requires:
 
  * A :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.cannonball_radiation_target` target model to be defined for the body specified by the ``body`` parameter
- * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.radiation_pressure` acceleration
+ * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.radiation_pressure` acceleration
  
  When using this parameter, whenever :math:`C_{r}` is required at a time :math:`t`, the index math:`i` in the ``arc_initial_times`` ordered list is
  found for which :math:`t_{i}\le t<t_{i+1}` (or, if :math:`t` is larger than the largest value in the list, :math:`i` is set to be last index of the list),
@@ -442,7 +442,7 @@ void expose_parameters_setup( py::module& m )
 
  Using this parameter requires:
 
- * The body specified by the ``target_body`` parameter to undergo :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.radiation_pressure` acceleration exerted by ``source_body``
+ * The body specified by the ``target_body`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.radiation_pressure` acceleration exerted by ``source_body``
            
  Parameters
  ----------
@@ -471,7 +471,7 @@ void expose_parameters_setup( py::module& m )
 
  Using this parameter requires:
 
- * The body specified by the ``target_body`` parameter to undergo :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.radiation_pressure` acceleration exerted by ``source_body``
+ * The body specified by the ``target_body`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.radiation_pressure` acceleration exerted by ``source_body``
 
  Parameters
  ----------
@@ -500,7 +500,7 @@ void expose_parameters_setup( py::module& m )
  Function for creating parameter settings object for empirical acceleration magnitudes.
  Using the empirical acceleration terms as estimatable parameters requires:
 
- * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.empirical` acceleration, which include constant (in RSW frame) terms
+ * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.empirical` acceleration, which include constant (in RSW frame) terms
 
  Any subset of the directions and functional shapes  can be estimated. The values in the parameter
  vector are ordered first by functional shape (constant, sine, cosine) and then by component (radial, normal, cross-track)
@@ -594,7 +594,7 @@ void expose_parameters_setup( py::module& m )
  Function for creating parameter settings object for arc-wise empirical acceleration magnitudes (arc-wise version of :func:`~tudatpy.numerical_simulation.estimation_setup.parameter.empirical_accelerations`).
  Using the empirical acceleration terms as estimatable parameters requires:
 
- * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.empirical` acceleration, which include constant (in RSW frame) terms
+ * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.empirical` acceleration, which include constant (in RSW frame) terms
 
  When using this parameter, whenever an empirical acceleration is required at a time :math:`t`, the index math:`i` in the ``arc_initial_times`` ordered list is
  found for which :math:`t_{i}\le t<t_{i+1}` (or, if :math:`t` is larger than the largest value in the list, :math:`i` is set to be last index of the list),
@@ -663,10 +663,10 @@ void expose_parameters_setup( py::module& m )
  Function for creating parameter settings for quasi-impulsive shots.
 
  Function for creating parameter settings object for so-called 'quasi-impulsive shots', such as desaturation maneuvers.
- With this parameter, the total :math:`\Delta \mathbf{V}` vector of a set of such maneuvers can be estimated (see :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.quasi_impulsive_shots_acceleration for mathematical details).
+ With this parameter, the total :math:`\Delta \mathbf{V}` vector of a set of such maneuvers can be estimated (see :func:`~tudatpy.dynamics.propagation_setup.acceleration.quasi_impulsive_shots_acceleration for mathematical details).
  Using the quasi-impulsive shots as an estimatable parameter requires:
 
- * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.quasi_impulsive_shots_acceleration` acceleration
+ * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.quasi_impulsive_shots_acceleration` acceleration
 
  .. note:: this parameter considers *all* shots/maneuvers used in the above acceleration model, and estimates the value of the 'delta_v_values' input of this acceleration.
 
@@ -739,7 +739,7 @@ void expose_parameters_setup( py::module& m )
  Using the spherical harmonics cosine coefficients as estimatable parameter requires:
 
  * A :func:`~tudatpy.dynamics.environment_setup.gravity_field.spherical_harmonic` (or derived) gravity model to be defined for the body specified by the ``body`` parameter
- * Any dynamical or observational model to depend on the estimated cosine coefficients of the body specified by the ``body`` parameter. Typically, this dependency will be a :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.spherical_harmonic` acceleration
+ * Any dynamical or observational model to depend on the estimated cosine coefficients of the body specified by the ``body`` parameter. Typically, this dependency will be a :func:`~tudatpy.dynamics.propagation_setup.acceleration.spherical_harmonic` acceleration
 
 
  Parameters
@@ -820,7 +820,7 @@ void expose_parameters_setup( py::module& m )
  Using the spherical harmonics cosine coefficients as estimatable parameter requires:
 
  * A :func:`~tudatpy.dynamics.environment_setup.gravity_field.spherical_harmonic` (or derived) gravity model to be defined for the body specified by the ``body`` parameter
- * Any dynamical or observational model to depend on the estimated cosine coefficients of the body specified by the ``body`` parameter. Typically, this dependency will be a :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.spherical_harmonic` acceleration
+ * Any dynamical or observational model to depend on the estimated cosine coefficients of the body specified by the ``body`` parameter. Typically, this dependency will be a :func:`~tudatpy.dynamics.propagation_setup.acceleration.spherical_harmonic` acceleration
 
 
  Parameters
@@ -1669,7 +1669,7 @@ Returns
  Function for creating parameter settings object for a global PPN :math:`\gamma` parameter.
  Using the post-newtonian gamma parameter as estimatable parameter requires at least one of the following:
 
- * An acceleration model depending on this parameter, such as :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.relativistic_correction`
+ * An acceleration model depending on this parameter, such as :func:`~tudatpy.dynamics.propagation_setup.acceleration.relativistic_correction`
  * An observation model with a light-time correction depending on this parameter, such as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.first_order_relativistic_light_time_correction`
 
  Returns
@@ -1694,7 +1694,7 @@ Returns
  Function for creating parameter settings object for a global PPN :math:`\beta` parameter.
  Using the post-newtonian gamma parameter as estimatable parameter requires at least one of the following:
 
- * An acceleration model depending on this parameter, such as :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.relativistic_correction`
+ * An acceleration model depending on this parameter, such as :func:`~tudatpy.dynamics.propagation_setup.acceleration.relativistic_correction`
  * An observation model with a light-time correction depending on this parameter (none yet implemented)
 
  Returns

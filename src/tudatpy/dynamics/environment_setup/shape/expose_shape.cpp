@@ -336,7 +336,7 @@ void expose_shape_setup( py::module &m )
 
  Note 2: If the goal of using the shape model is only to detect collisions with the surface and not to explicitly
  obtain the altitude, it is instead recommended to use the Laplacian of the gravitational potential (see
- :func:`~tudatpy.numerical_simulation.propagation_setup.dependent_variable.gravity_field_laplacian_of_potential`).
+ :func:`~tudatpy.dynamics.propagation_setup.dependent_variable.gravity_field_laplacian_of_potential`).
  This allows reducing the computational time, but is only valid if the same polyhedron model that is used to define
  the gravitational acceleration should also be used to detect the impacts.
 
