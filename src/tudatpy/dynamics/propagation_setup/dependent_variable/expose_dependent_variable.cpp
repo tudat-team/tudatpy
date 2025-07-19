@@ -439,7 +439,7 @@ The type of the acceleration that is to be saved.
 
  .. code-block:: python
 
-     from tudatpy.numerical_simulation import propagation_setup
+     from tudatpy.dynamics import propagation_setup
 
      dep_var_settings = propagation_setup.dependent_variable.single_acceleration(propagation_setup.acceleration.point_mass_gravity_type, "SC", "Earth")
 
@@ -471,7 +471,7 @@ The type of the acceleration that is to be saved.
 
  .. code-block:: python
 
-     from tudatpy.numerical_simulation import propagation_setup
+     from tudatpy.dynamics import propagation_setup
 
      bodies = ...
 
@@ -505,7 +505,7 @@ The type of the acceleration that is to be saved.
 
  .. code-block:: python
 
-     from tudatpy.numerical_simulation import propagation_setup
+     from tudatpy.dynamics import propagation_setup
 
      bodies = ...
 

@@ -100,7 +100,7 @@ Examples
 
      # Code Snippet to showcase the use of the one_way_downlink_link_ends function to return a LinkDefinition object
 
-     from tudatpy.kernel.numerical_simulation.estimation_setup import observation
+     from tudatpy.numerical_simulation.estimation_setup import observation
 
      # Create a dictionary of LinkEndId objects
      link_ends = {
@@ -159,7 +159,7 @@ Examples
  .. code-block:: python
 
      # Code Snippet to showcase the use of the one_way_uplink_link_ends function to return a LinkDefinition object
-     from tudatpy.kernel.numerical_simulation.estimation_setup import observation
+     from tudatpy.numerical_simulation.estimation_setup import observation
 
      # Create a dictionary of LinkEndId objects
      link_ends = {

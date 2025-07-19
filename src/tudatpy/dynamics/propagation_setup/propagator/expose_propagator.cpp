@@ -444,7 +444,7 @@ Enumeration of available integrated state types.
          but the (for instance) Ephemeris of the propagated body
          is not updated with the propagation results. If this
          variable is set to True, the properties of the propagated
-         :class:`~tudatpy.numerical_simulation.environment.Body`
+         :class:`~tudatpy.dynamics.environment.Body`
          object will be updated as per the numerical results
          (see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html#automatic-processing>`__ for details).
 
@@ -1033,7 +1033,7 @@ acceleration_models : dict[str, list[AccelerationModel]]
 bodies_to_integrate : list[str]
     List of bodies to be numerically propagated, whose order reflects the order of the central bodies.
 initial_states : numpy.ndarray
-    Initial states of the bodies to integrate (one initial state for each body, concatenated into a single array), provided in the same order as the bodies to integrate. The initial states must be expressed in Cartesian elements, w.r.t. the central body of each integrated body. The states must be defined with the same frame orientation as the global frame orientation of the environment (specified when creating a system of bodies, see for instance :func:`~tudatpy.numerical_simulation.environment_setup.get_default_body_settings` and :func:`~tudatpy.numerical_simulation.environment_setup.create_system_of_bodies`). Consequently, for N integrated bodies, this input is a vector with size size 6N.
+    Initial states of the bodies to integrate (one initial state for each body, concatenated into a single array), provided in the same order as the bodies to integrate. The initial states must be expressed in Cartesian elements, w.r.t. the central body of each integrated body. The states must be defined with the same frame orientation as the global frame orientation of the environment (specified when creating a system of bodies, see for instance :func:`~tudatpy.dynamics.environment_setup.get_default_body_settings` and :func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies`). Consequently, for N integrated bodies, this input is a vector with size size 6N.
 initial_time : float
     Initial epoch of the numerical propagation
 integrator_settings : IntegratorSettings

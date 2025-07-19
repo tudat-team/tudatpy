@@ -678,7 +678,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
  
  .. code-block:: python
 
-     from tudatpy.numerical_simulation import propagation_setup
+     from tudatpy.dynamics import propagation_setup
      ...
      # Define integrator step settings
      initial_time_step = 10.0
@@ -798,7 +798,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
  .. code-block:: python
 
      import numpy as np
-     from tudatpy.numerical_simulation import propagation_setup
+     from tudatpy.dynamics import propagation_setup
      ...
      # Define integrator step settings
      initial_time_step = 10.0
