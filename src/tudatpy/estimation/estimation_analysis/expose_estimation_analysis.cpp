@@ -406,7 +406,7 @@ void expose_estimation_analysis( py::module& m )
          Variational equations solver, which is used to manage and execute the numerical integration of
          equations of motion and variational equations/dynamics in the Estimator object.
 
-         :type: :class:`~tudatpy.numerical_simulation.SingleArcVariationalSimulator`
+         :type: :class:`~tudatpy.dynamics.simulator.SingleArcVariationalSimulator`
       )doc" );
 
 

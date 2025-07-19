@@ -647,7 +647,7 @@ void expose_environment_setup( py::module& m )
 
  Function that creates a System of bodies from associated settings.
 
- Function that creates a System of bodies from associated settings. This function creates the separate :class:`~tudatpy.numerical_simulation.Body`
+ Function that creates a System of bodies from associated settings. This function creates the separate :class:`~tudatpy.dynamics.environment.Body`
  objects and stores them in a :class:`~tudatpy.dynamics.environment.SystemOfBodies` object. This object represents the full
  physical environment in the simulation.
 
@@ -739,7 +739,7 @@ void expose_environment_setup( py::module& m )
  Function that creates an aerodynamic coefficient interface from settings, and adds it to an existing body.
 
  This function can be used to add an aerodynamic coefficient interface to an existing body. It requires
- settings for the aerodynamic coefficients, created using one of the functions from the `~tudatpy.numerical_simulation_environment_setup.aerodynamic_coefficient` module.
+ settings for the aerodynamic coefficients, created using one of the functions from the `~tudatpy.dynamics.environment_setup.aerodynamic_coefficients` module.
  This function creates the actual coefficient interface from these settings, and assigns it to the
  selected body. In addition to the identifier for the body to which it is assigned, this function
  requires the full :class:`~tudatpy.dynamics.environment.SystemOfBodies` as input, to facilitate
