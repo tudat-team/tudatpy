@@ -353,6 +353,21 @@ void expose_parameters_setup( py::module& m )
 
 
      )doc" );
+    
+    m.def( "drag_component_scaling",
+           &tep::dragComponentScaling,
+           py::arg( "body" ),
+           R"doc(No documentation.)doc" );
+    
+    m.def( "side_component_scaling",
+           &tep::sideComponentScaling,
+           py::arg( "body" ),
+           R"doc(No documentation.)doc" );
+    
+    m.def( "lift_component_scaling",
+           &tep::liftComponentScaling,
+           py::arg( "body" ),
+           R"doc(No documentation.)doc" );
 
     m.def( "radiation_pressure_coefficient",
            &tep::radiationPressureCoefficient,
