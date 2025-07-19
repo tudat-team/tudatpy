@@ -586,7 +586,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
  Creates settings for integrator step-size control, using element-wise analysis for the propagated states.
 
  Function to create settings for integrator step-size control, using element-wise analysis for the propagated states. This function
- is similar to :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.step_size_control_elementwise_scalar_tolerance`,
+ is similar to :func:`~tudatpy.dynamics.propagation_setup.integrator.step_size_control_elementwise_scalar_tolerance`,
  with the differences that the tolerances are provided as a vector/matrix (which must be of equal size as the propagates state), such that
  different tolerances can be provided for each state element. The behaviour of the algorithm is then such that
  :math:`\epsilon_{r}\rightarrow\epsilon_{r,i}` and :math:`\epsilon_{a}\rightarrow\epsilon_{a,i}`.
@@ -631,7 +631,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
  Creates settings for integrator step-size control, using block-wise analysis for the propagated states.
 
  Function to create settings for integrator step-size control, using block-wise analysis for the propagated states. This function
- is similar to :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.step_size_control_elementwise_scalar_tolerance`,
+ is similar to :func:`~tudatpy.dynamics.propagation_setup.integrator.step_size_control_elementwise_scalar_tolerance`,
  with the difference that the error estimation :math:`\boldsymbol{\epsilon}` is not used on an element-by-element basis, but using the norms
  of user defined matrix blocks. This is for instance very useful when propagating Cartesian states, where the tolerances are then
  typically applied twice: once to the norm of the position error, and once to the norm of the velocity error.
@@ -643,7 +643,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
  .. note::
 
-     If you would like to create block indices that group the position and velocity elements, take a look at the :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.standard_cartesian_state_element_blocks` function.
+     If you would like to create block indices that group the position and velocity elements, take a look at the :func:`~tudatpy.dynamics.propagation_setup.integrator.standard_cartesian_state_element_blocks` function.
      The function will create a list of blocks that can be used as input to the `block_indices` argument of this function.
 
  Parameters
@@ -668,7 +668,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
  Examples
  --------
- In this example, step size control settings are created for a Cartesian state vector, which group the position and velocity elements for the step size validation. Note, these block indices can also be conveniently created using the :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.standard_cartesian_state_element_blocks` function.
+ In this example, step size control settings are created for a Cartesian state vector, which group the position and velocity elements for the step size validation. Note, these block indices can also be conveniently created using the :func:`~tudatpy.dynamics.propagation_setup.integrator.standard_cartesian_state_element_blocks` function.
  Here we will create them manually for demonstration purposes.
  We would like to create integrator settings with the following settings:
  
@@ -755,7 +755,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
  Creates settings for integrator step-size control, using block-wise analysis for the propagated states.
 
  Function to create settings for integrator step-size control, using block-wise analysis for the propagated states. This function
- is similar to :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.step_size_control_blockwise_scalar_tolerance`,
+ is similar to :func:`~tudatpy.dynamics.propagation_setup.integrator.step_size_control_blockwise_scalar_tolerance`,
  with the differences that the tolerances are provided as a list (which must be of equal size as the number of state blocks used), such that
  different tolerances can be provided for each state block.
 
@@ -764,7 +764,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
  .. note::
 
-    If you would like to create block indices that group the position and velocity elements, take a look at the :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.standard_cartesian_state_element_blocks` function.
+    If you would like to create block indices that group the position and velocity elements, take a look at the :func:`~tudatpy.dynamics.propagation_setup.integrator.standard_cartesian_state_element_blocks` function.
     The function will create a list of blocks that can be used as input to the `block_indices` argument of this function.
 
  Parameters
@@ -788,7 +788,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
  Examples
  --------
- In this example, step size control settings are created for a Cartesian state vector, which group the position and velocity elements for the step size validation. Note, these block indices can also be conveniently created using the :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.standard_cartesian_state_element_blocks` function.
+ In this example, step size control settings are created for a Cartesian state vector, which group the position and velocity elements for the step size validation. Note, these block indices can also be conveniently created using the :func:`~tudatpy.dynamics.propagation_setup.integrator.standard_cartesian_state_element_blocks` function.
  Here we will create them manually for demonstration purposes.
  We would like to create integrator settings with the following settings:
 
@@ -878,8 +878,8 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
  Function to generate step size control blocks on position and velocity elements for numerical integration
 
  Function to generate step size control blocks on position and velocity elements for numerical integration, typically provided
- to the :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.step_size_control_custom_blockwise_scalar_tolerance` or
- :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.step_size_control_custom_blockwise_matrix_tolerance` function.
+ to the :func:`~tudatpy.dynamics.propagation_setup.integrator.step_size_control_custom_blockwise_scalar_tolerance` or
+ :func:`~tudatpy.dynamics.propagation_setup.integrator.step_size_control_custom_blockwise_matrix_tolerance` function.
  By providing this function to one of these step-size control functions, the final column of the state vector is taken (such that
  it works  both for state-only, and variational equations and state propagation) and combined into :math:`N` blocks of size 3.
  The step-size control is then done on each of these blocks, which will represent the position and velocity blocks.
@@ -894,7 +894,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
  Returns
  -------
  list[tuple[int,int,int,int]]
-     List of matrix blocks over which the step size control is to be done (see ``block_indices_function`` input to :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.step_size_control_custom_blockwise_scalar_tolerance`)
+     List of matrix blocks over which the step size control is to be done (see ``block_indices_function`` input to :func:`~tudatpy.dynamics.propagation_setup.integrator.step_size_control_custom_blockwise_scalar_tolerance`)
 
 
 
@@ -921,9 +921,9 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
  Creates settings for integrator step-size control, using block-wise analysis for the propagated states.
 
  Function to create settings for integrator step-size control, using block-wise analysis for the propagated states. This function
- is similar to :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.step_size_control_blockwise_scalar_tolerance`,
+ is similar to :func:`~tudatpy.dynamics.propagation_setup.integrator.step_size_control_blockwise_scalar_tolerance`,
  but rather than providing the ``block_indices`` directly, a function to determine the block indices, based on the size of the
- propagated state, is provided. For instance, the :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.standard_cartesian_state_element_blocks`
+ propagated state, is provided. For instance, the :func:`~tudatpy.dynamics.propagation_setup.integrator.standard_cartesian_state_element_blocks`
  can be provided to this function (as ``block_indices_function``), which will adapt the block indices depending on the size of the propagated state
  (e.g. regardless of how many bodies are propagated, step size control will always be done on position and velocity element blocks)
 
@@ -969,8 +969,8 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
  Creates settings for integrator step-size control, using block-wise analysis for the propagated states.
 
  Function to create settings for integrator step-size control, using block-wise analysis for the propagated states. This function
- is similar to :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.step_size_control_custom_blockwise_scalar_tolerance`,
- but uses blockwise tolerances (as in :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.step_size_control_blockwise_matrix_tolerance`)
+ is similar to :func:`~tudatpy.dynamics.propagation_setup.integrator.step_size_control_custom_blockwise_scalar_tolerance`,
+ but uses blockwise tolerances (as in :func:`~tudatpy.dynamics.propagation_setup.integrator.step_size_control_blockwise_matrix_tolerance`)
 
 
 
@@ -1076,8 +1076,8 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
  Function to create settings for the Runge-Kutta variable step size integrator.
  Different coefficient sets (Butcher's tableau) can be used (see the :class:`CoefficientSets` enum).
- The step-size control algorithm is defined by a :class:`~tudatpy.numerical_simulation.propagation_setup.integrator.IntegratorStepSizeControlSettings` and
- :class:`~tudatpy.numerical_simulation.propagation_setup.integrator.IntegratorStepSizeValidationSettings` object, created using one of the functions
+ The step-size control algorithm is defined by a :class:`~tudatpy.dynamics.propagation_setup.integrator.IntegratorStepSizeControlSettings` and
+ :class:`~tudatpy.dynamics.propagation_setup.integrator.IntegratorStepSizeValidationSettings` object, created using one of the functions
  listed above.
 
 
@@ -1166,8 +1166,8 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
  For instance, using the ``bulirsch_stoer_sequence`` sequence, and 5 iterations, the same step is done using 2, 4, 6, 8 and 12 substeps,
  and the results are then extrapolated to an infinite number of steps. Different extrapolation sequences can be used (see the `ExtrapolationMethodStepSequences` enum).
 
- The step-size control algorithm is defined by a :class:`~tudatpy.numerical_simulation.propagation_setup.integrator.IntegratorStepSizeControlSettings` and
- :class:`~tudatpy.numerical_simulation.propagation_setup.integrator.IntegratorStepSizeValidationSettings` object, created using one of the functions
+ The step-size control algorithm is defined by a :class:`~tudatpy.dynamics.propagation_setup.integrator.IntegratorStepSizeControlSettings` and
+ :class:`~tudatpy.dynamics.propagation_setup.integrator.IntegratorStepSizeValidationSettings` object, created using one of the functions
  listed above. The time step control uses the result from the final, and second to final iteration to generate an error estimate of the current step.
 
 
@@ -1232,7 +1232,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
  Creates the settings for the fixed time-step Bulirsch-Stoer integrator.
 
  Function to create settings for the fixed time-step Bulirsch-Stoer integrator. The
- underlying method is the same as :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.bulirsch_stoer_variable_step`,
+ underlying method is the same as :func:`~tudatpy.dynamics.propagation_setup.integrator.bulirsch_stoer_variable_step`,
  but using a fixed, user-defined, time step.
 
 
@@ -1289,7 +1289,7 @@ Creates the settings for the Adams-Bashforth-Moulton integrator.
 
 Function to create settings for the Adams-Bashforth-Moulton multistep integrator.
 For this integrator, the step size and order are both according to a control algorithm
-similar to :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.step_size_control_elementwise_scalar_tolerance`.
+similar to :func:`~tudatpy.dynamics.propagation_setup.integrator.step_size_control_elementwise_scalar_tolerance`.
 The integrator is initialized using an RKF7(8) integrator.
 
 NOTE: this integrator's step-size and order control algorithm work in a method that is overly simplistic,
@@ -1344,7 +1344,7 @@ IntegratorSettings
 
 Creates the settings for the Adams-Bashforth-Moulton integrator of fixed order.
 
-Same as :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.adams_bashforth_moulton`, but
+Same as :func:`~tudatpy.dynamics.propagation_setup.integrator.adams_bashforth_moulton`, but
 with fixed order and variable step
 
 Parameters
@@ -1390,7 +1390,7 @@ IntegratorSettings
 
  Creates the settings for the Adams-Bashforth-Moulton fixed-step integrator.
 
- Same as :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.adams_bashforth_moulton`, but
+ Same as :func:`~tudatpy.dynamics.propagation_setup.integrator.adams_bashforth_moulton`, but
  with fixed step and variable order
 
 
@@ -1431,7 +1431,7 @@ IntegratorSettings
 
  Creates the settings for the Adams-Bashforth-Moulton fixed-step, fixed-order integrator.
 
- Same as :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.adams_bashforth_moulton`, but
+ Same as :func:`~tudatpy.dynamics.propagation_setup.integrator.adams_bashforth_moulton`, but
  with fixed step and fixed order
 
 
@@ -1478,7 +1478,7 @@ IntegratorSettings
 
  Creates the settings for the Runge-Kutta variable step size integrator with vector tolerances.
 
- NOTE: THIS FUNCTION IS DEPRECATED, IT IS RECOMMENDED TO USE THE NEW :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.runge_kutta_variable_step` INTERFACE INSTEAD
+ NOTE: THIS FUNCTION IS DEPRECATED, IT IS RECOMMENDED TO USE THE NEW :func:`~tudatpy.dynamics.propagation_setup.integrator.runge_kutta_variable_step` INTERFACE INSTEAD
 
  Function to create settings for the Runge-Kutta variable step size integrator with vector tolerances.
  For this integrator, the step size is varied based on the tolerances and safety factor provided.
@@ -1545,7 +1545,7 @@ IntegratorSettings
 
  Creates the settings for the Runge-Kutta variable step size integrator with scalar tolerances.
 
- NOTE: THIS FUNCTION IS DEPRECATED, IT IS RECOMMENDED TO USE THE NEW :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.runge_kutta_variable_step` INTERFACE INSTEAD
+ NOTE: THIS FUNCTION IS DEPRECATED, IT IS RECOMMENDED TO USE THE NEW :func:`~tudatpy.dynamics.propagation_setup.integrator.runge_kutta_variable_step` INTERFACE INSTEAD
 
  Function to create settings for the Runge-Kutta variable step size integrator with scalar tolerances.
  For this integrator, the step size is varied based on the tolerances and safety factor provided.
@@ -1701,7 +1701,7 @@ IntegratorSettings
  Creates the settings for the Bulirsch-Stoer integrator.
 
 
- NOTE: THIS FUNCTION IS DEPRECATED, IT IS RECOMMENDED TO USE THE NEW :func:`~tudatpy.numerical_simulation.propagation_setup.integrator.bulirsch_stoer_variable_step` INTERFACE INSTEAD
+ NOTE: THIS FUNCTION IS DEPRECATED, IT IS RECOMMENDED TO USE THE NEW :func:`~tudatpy.dynamics.propagation_setup.integrator.bulirsch_stoer_variable_step` INTERFACE INSTEAD
 
  Function to create settings for the Bulirsch-Stoer integrator.
  For this integrator, the step size is varied based on the tolerances and safety factor provided.

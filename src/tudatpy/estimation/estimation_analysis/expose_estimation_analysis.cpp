@@ -264,11 +264,11 @@ void expose_estimation_analysis( py::module& m )
              List of settings objects, each object defining the observation model settings for one
              combination of observable and link geometry that is to be simulated.
 
-         integrator_settings : :class:`~tudatpy.numerical_simulation.propagation_setup.integrator.IntegratorSettings`
+         integrator_settings : :class:`~tudatpy.dynamics.propagation_setup.integrator.IntegratorSettings`
              Settings to create the numerical integrator that is to be
              used for the integration of the equations of motion
 
-         propagator_settings : :class:`~tudatpy.numerical_simulation.propagation_setup.propagator.PropagatorSettings`
+         propagator_settings : :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagatorSettings`
              Settings to create the propagator that is to be
              used for the propagation of dynamics
 
