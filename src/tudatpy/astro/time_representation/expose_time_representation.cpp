@@ -662,7 +662,7 @@ In this example, the Tudat DateTime object is constructed from python native dat
 .. code-block:: python
 
     from datetime import datetime
-    from tudatpy.astro.time_conversion import DateTime
+    from tudatpy.astro.time_representation import DateTime
 
     python_datetime = datetime(2025, 1, 1, 0, 0, 0)
 
@@ -696,7 +696,7 @@ In this example, the calendar date corresponding to when 122 days have passed in
 .. code-block:: python
 
     # Compute the calendar date when 122 days have passed in 2020
-    currentDate = time_conversion.DateTime.from_year_and_day_of_year(2020, 122)
+    currentDate = time_representation.DateTime.from_year_and_day_of_year(2020, 122)
     # Print the converted output
     print(currentDate)  # prints (2020, 5, 2, 0, 0)
                          
@@ -721,7 +721,7 @@ In this example, the calendar date corresponding to when 122 days have passed in
  
  .. code-block:: python
  
-     from tudatpy.astro.time_conversion import DateTime
+     from tudatpy.astro.time_representation import DateTime
 
      dt = DateTime.from_iso_string("2025-01-01T00:00:00.000")
      print(dt) # prints 2025-01-01 00:00:00.000000000000000
@@ -750,7 +750,7 @@ In this example, the calendar date corresponding to when 122 days have passed in
  
  .. code-block:: python
  
-     from tudatpy.astro.time_conversion import DateTime
+     from tudatpy.astro.time_representation import DateTime
 
      epoch_et = 788961600.0
 
@@ -788,7 +788,7 @@ In this example, the calendar date corresponding to when 122 days have passed in
  
  .. code-block:: python
  
-     from tudatpy.astro.time_conversion import DateTime
+     from tudatpy.astro.time_representation import DateTime
 
      julian_day = 2451545.0 
 
@@ -819,7 +819,7 @@ In this example, the calendar date corresponding to when 122 days have passed in
  
  .. code-block:: python
  
-     from tudatpy.astro.time_conversion import DateTime
+     from tudatpy.astro.time_representation import DateTime
 
      modified_julian_day = 51544.5
 
@@ -829,7 +829,7 @@ In this example, the calendar date corresponding to when 122 days have passed in
                          )doc" )
             .def( "to_python_datetime", &tba::DateTime::timePoint, R"doc(
                 
-Method to convert retrieve a Python datetime.datetime object from the Tudat :class:`DateTime` object. This is the inverse of the :meth:`~tudatpy.astro.time_conversion.DateTime.from_python_datetime` method.
+Method to convert retrieve a Python datetime.datetime object from the Tudat :class:`DateTime` object. This is the inverse of the :meth:`~tudatpy.astro.time_representation.DateTime.from_python_datetime` method.
 
 .. note::
 
@@ -866,7 +866,7 @@ datetime.datetime
 
  .. code-block:: python
 
-   from tudatpy.astro.time_conversion import DateTime
+   from tudatpy.astro.time_representation import DateTime
 
    # Define the calendar date using datetime
    dt = DateTime(2022, 5, 21, 13, 52, 41)
@@ -900,7 +900,7 @@ datetime.datetime
  
  .. code-block:: python
  
-     from tudatpy.astro.time_conversion import DateTime
+     from tudatpy.astro.time_representation import DateTime
 
      dt = DateTime(2025, 1, 1, 0, 0, 0.0)
      dt_seconds_added = dt.add_seconds(86400.0)
@@ -933,7 +933,7 @@ datetime.datetime
  
  .. code-block:: python
  
-     from tudatpy.astro.time_conversion import DateTime
+     from tudatpy.astro.time_representation import DateTime
 
      dt = DateTime(2025, 1, 1, 0, 0, 0.0)
      dt_days_added = dt.add_days(1.0)
@@ -978,7 +978,7 @@ datetime.datetime
    # Define the Julian date in days since January 1st 4713 BC
    julian_date = 2459721.0783
    # Convert the Julian date to the number of seconds since J2000
-   seconds_since_J2000 = time_conversion.julian_day_to_seconds_since_epoch(julian_date)
+   seconds_since_J2000 = time_representation.julian_day_to_seconds_since_epoch(julian_date)
    # Print the converted output
    print(seconds_since_J2000)  # prints 706413165.1200145
 
@@ -1020,7 +1020,7 @@ datetime.datetime
    # Define the amount of seconds since January 1st 2000
    seconds_since_J2000 = 706413165.1200145
    # Convert the amount of seconds since J2000 to the Julian date
-   julian_date = time_conversion.seconds_since_epoch_to_julian_day(seconds_since_J2000)
+   julian_date = time_representation.seconds_since_epoch_to_julian_day(seconds_since_J2000)
    # Print the converted output
    print(julian_date)  # prints 2459721.0783
 
@@ -1061,7 +1061,7 @@ datetime.datetime
    # Define the number of seconds elapsed
    seconds_since_epoch = 706413165.12
    # Convert the number of seconds to Julian years
-   julian_years = time_conversion.seconds_since_epoch_to_julian_years_since_epoch(seconds_since_epoch)
+   julian_years = time_representation.seconds_since_epoch_to_julian_years_since_epoch(seconds_since_epoch)
    # Print the converted output
    print(julian_years)  # prints 22.38488240930869
 
@@ -1102,7 +1102,7 @@ datetime.datetime
    # Define the number of seconds elapsed
    seconds_since_epoch = 706413165.12
    # Convert the number of seconds to Julian centuries
-   julian_centuries = time_conversion.seconds_since_epoch_to_julian_centuries_since_epoch(seconds_since_epoch)
+   julian_centuries = time_representation.seconds_since_epoch_to_julian_centuries_since_epoch(seconds_since_epoch)
    # Print the converted output
    print(julian_centuries)  # prints 0.2238488240930869
 
@@ -1137,7 +1137,7 @@ datetime.datetime
  .. code-block:: python
 
    # Convert from Julian Days to Modified Julian Days
-   MJD = time_conversion.julian_day_to_modified_julian_day(constants.JULIAN_DAY_ON_J2000)
+   MJD = time_representation.julian_day_to_modified_julian_day(constants.JULIAN_DAY_ON_J2000)
    # Print the converted output
    print(MJD)  # prints 51544.5
 
@@ -1175,7 +1175,7 @@ datetime.datetime
    # Define J2000 in Modified Julian Days
    J2000_MJD = 51544.5
    # Convert from Modified Julian Days to Julian Days
-   J2000 = time_conversion.modified_julian_day_to_julian_day(J2000_MJD)
+   J2000 = time_representation.modified_julian_day_to_julian_day(J2000_MJD)
    # Print the converted output
    print(J2000)  # prints 2451545.0
 
@@ -1210,11 +1210,11 @@ datetime.datetime
  .. code-block:: python
 
    # Check known leap years
-   leap_years = [time_conversion.is_leap_year(year) for year in [2020, 2016, 2000, 2400]]
+   leap_years = [time_representation.is_leap_year(year) for year in [2020, 2016, 2000, 2400]]
    # Print the converted output
    print(leap_years)  # prints [True, True, True, True]
    # Check known non-leap years
-   non_leap_years = [time_conversion.is_leap_year(year) for year in [2021, 2022, 2100, 2001]]
+   non_leap_years = [time_representation.is_leap_year(year) for year in [2021, 2022, 2100, 2001]]
    # Print the converted output
    print(non_leap_years)  # prints [False, False, False, False]
 
@@ -1252,11 +1252,11 @@ datetime.datetime
  .. code-block:: python
 
    # Check the number of days in February 2021
-   days_feb_2021 = time_conversion.get_days_in_month(2, 2021)
+   days_feb_2021 = time_representation.get_days_in_month(2, 2021)
    # Print the converted output
    print(days_feb_2021)  # prints 28
    # Check the number of days in February 2022
-   days_feb_2020 = time_conversion.get_days_in_month(2, 2020)
+   days_feb_2020 = time_representation.get_days_in_month(2, 2020)
    # Print the converted output
    print(days_feb_2020)  # prints 29
 
@@ -1291,7 +1291,7 @@ datetime.datetime
  .. code-block:: python
 
    # Compute the number of seconds that have passed in the given Julian day
-   seconds_passed = time_conversion.calculate_seconds_in_current_julian_day(constants.JULIAN_DAY_ON_J2000)
+   seconds_passed = time_representation.calculate_seconds_in_current_julian_day(constants.JULIAN_DAY_ON_J2000)
    # Print the converted output
    print(seconds_passed)  # prints 43200.0
 
@@ -1332,11 +1332,11 @@ datetime.datetime
    # Define the date and time
    date = datetime.datetime(2022, 2, 17, 15, 41, 2)
    # Convert it in Julian days since J2000
-   date_J2000 = time_conversion.python_datetime_to_julian_day(date)
+   date_J2000 = time_representation.python_datetime_to_julian_day(date)
    # Convert it in Julian seconds since J2000
-   date_J2000_sec = time_conversion.julian_day_to_seconds_since_epoch(date_J2000)
+   date_J2000_sec = time_representation.julian_day_to_seconds_since_epoch(date_J2000)
    # Check the date from the TCB scale to the TDB scale
-   date_TDB_scale = time_conversion.TCB_to_TDB(date_J2000_sec)
+   date_TDB_scale = time_representation.TCB_to_TDB(date_J2000_sec)
    # Print the converted output
    print(date_TDB_scale)  # prints 698384439.9176273
 
@@ -1795,7 +1795,7 @@ datetime.datetime
    # Define the calendar date using datetime
    calendar_date = datetime.datetime(2022, 5, 21, 13, 52, 41)
    # Convert the calendar date to Julian days since J2000
-   julian_date = time_conversion.calendar_date_to_days_since_epoch(calendar_date)
+   julian_date = time_representation.calendar_date_to_days_since_epoch(calendar_date)
    # Print the converted output
    print(julian_date)  # prints 8176.07825231459
 
@@ -1840,7 +1840,7 @@ datetime.datetime
    # Define the calendar date using datetime
    calendar_date = datetime.datetime(2022, 5, 21, 13, 52, 41)
    # Convert the calendar date to Julian days since J2000
-   julian_date = time_conversion.python_datetime_to_days_since_epoch(calendar_date)
+   julian_date = time_representation.python_datetime_to_days_since_epoch(calendar_date)
    # Print the converted output
    print(julian_date)  # prints 8176.07825231459
 
@@ -1882,7 +1882,7 @@ datetime.datetime
    # Define the Julian date in days since January 1st 4713 BC
    julian_date = 2459721.0783
    # Convert the Julian date to a calendar date
-   calendar_date = time_conversion.julian_day_to_calendar_date(julian_date)
+   calendar_date = time_representation.julian_day_to_calendar_date(julian_date)
    # Print the converted output
    print(calendar_date)  # prints datetime.datetime(2022, 5, 21, 13, 52, 45)
 
@@ -1925,7 +1925,7 @@ datetime.datetime
    # Define the Julian date in days since January 1st 4713 BC
    julian_date = 2459721.0783
    # Convert the Julian date to a calendar date
-   calendar_date = time_conversion.julian_day_to_python_datetime(julian_date)
+   calendar_date = time_representation.julian_day_to_python_datetime(julian_date)
    # Print the converted output
    print(calendar_date)  # prints datetime.datetime(2022, 5, 21, 13, 52, 45)
 
@@ -1966,7 +1966,7 @@ datetime.datetime
    # Define the calendar date using datetime
    calendar_date = datetime.datetime(2022, 5, 21, 13, 52, 41)
    # Convert the calendar date to Julian days since January 1st 4713 BC
-   julian_date = time_conversion.calendar_date_to_julian_day(calendar_date)
+   julian_date = time_representation.calendar_date_to_julian_day(calendar_date)
    # Print the converted output
    print(julian_date)  # prints 2459721.0782523146
 
@@ -2007,7 +2007,7 @@ datetime.datetime
    # Define the calendar date using datetime
    calendar_date = datetime.datetime(2022, 5, 21, 13, 52, 41)
    # Convert the calendar date to Julian days since January 1st 4713 BC
-   julian_date = time_conversion.python_datetime_to_julian_day(calendar_date)
+   julian_date = time_representation.python_datetime_to_julian_day(calendar_date)
    # Print the converted output
    print(julian_date)  # prints 2459721.0782523146
 
@@ -2066,7 +2066,7 @@ In this example, the calendar date corresponding to when 122 days have passed in
 .. code-block:: python
 
     # Compute the calendar date when 122 days have passed in 2020
-    currentDate = time_conversion.year_and_days_in_year_to_calendar_date(2020, 122)
+    currentDate = time_representation.year_and_days_in_year_to_calendar_date(2020, 122)
     # Print the converted output
     print(currentDate)  # prints (2020, 5, 2, 0, 0)
 
