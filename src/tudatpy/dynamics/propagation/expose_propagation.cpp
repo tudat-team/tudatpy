@@ -395,7 +395,7 @@ void expose_propagation( py::module &m )
 
 
          Derived class from :class:`PropagationTerminationDetails` that provides information on the reason for the termination of the propagation,
-         for the case of hybrid termination conditions (defined using the :func:`~tudatpy.numerical_simulation.propagation_setup.propagator.hybrid_termination`)
+         for the case of hybrid termination conditions (defined using the :func:`~tudatpy.dynamics.propagation_setup.propagator.hybrid_termination`)
          function
 
 
@@ -408,7 +408,7 @@ void expose_propagation( py::module &m )
                                             getWasConditionMetWhenStopping,
                                     R"doc(
 
-         List of booleans defining, per entry in ``termination_settings`` when calling :func:`~tudatpy.numerical_simulation.propagation_setup.propagator.hybrid_termination`,
+         List of booleans defining, per entry in ``termination_settings`` when calling :func:`~tudatpy.dynamics.propagation_setup.propagator.hybrid_termination`,
          whether the corresponding entry of the hybrid termination settings was met or not.
 
 
@@ -417,7 +417,7 @@ void expose_propagation( py::module &m )
          Examples
          --------
 
-         Assuming the hybrid termination settings were defined similar to the example in the :func:`~tudatpy.numerical_simulation.propagation_setup.propagator.hybrid_termination`:
+         Assuming the hybrid termination settings were defined similar to the example in the :func:`~tudatpy.dynamics.propagation_setup.propagator.hybrid_termination`:
 
          .. code-block:: python
 

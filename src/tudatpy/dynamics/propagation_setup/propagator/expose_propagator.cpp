@@ -444,7 +444,7 @@ Enumeration of available integrated state types.
          but the (for instance) Ephemeris of the propagated body
          is not updated with the propagation results. If this
          variable is set to True, the properties of the propagated
-         :class:`~tudatpy.numerical_simulation.environment.Body`
+         :class:`~tudatpy.dynamics.environment.Body`
          object will be updated as per the numerical results
          (see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/printing_processing_results.html#automatic-processing>`__ for details).
 
@@ -461,7 +461,7 @@ Enumeration of available integrated state types.
          done, the :py:attr:`~state_history`,
          :py:attr:`~unprocessed_state_history` and
          :py:attr:`~dependent_variable_history` will not be
-         available in the :py:class:`~tudatpy.numerical_simulation.propagator.SingleArcSimulationResults` class. Putting this setting to True (deleting the
+         available in the :class:`~tudatpy.dynamics.propagation.SingleArcSimulationResults` class. Putting this setting to True (deleting the
          results) is only sensible when the
          :py:attr:`~set_integrated_result` is set to True. In that
          case, the propagated states are *not* accessible directly
@@ -1021,7 +1021,7 @@ Function to create translational state propagator settings for N bodies.
 The propagated state vector is defined by the combination of integrated bodies, and their central body, the combination
 of which define the relative translational states for which a differential equation is to be solved. The propagator
 input defines the formulation in which the differential equations are set up
-The dynamical models are defined by an ``AccelerationMap`` (dict[str, list[AccelerationModel]]), as created by :func:`~tudatpy.numerical_simulation.propagation_setup.create_acceleration_models` function.
+The dynamical models are defined by an ``AccelerationMap`` (dict[str, list[AccelerationModel]]), as created by :func:`~tudatpy.dynamics.propagation_setup.create_acceleration_models` function.
 Details on the usage of this function are discussed in more detail in the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational.html>`__.
 
 Parameters
@@ -1033,7 +1033,7 @@ acceleration_models : dict[str, list[AccelerationModel]]
 bodies_to_integrate : list[str]
     List of bodies to be numerically propagated, whose order reflects the order of the central bodies.
 initial_states : numpy.ndarray
-    Initial states of the bodies to integrate (one initial state for each body, concatenated into a single array), provided in the same order as the bodies to integrate. The initial states must be expressed in Cartesian elements, w.r.t. the central body of each integrated body. The states must be defined with the same frame orientation as the global frame orientation of the environment (specified when creating a system of bodies, see for instance :func:`~tudatpy.numerical_simulation.environment_setup.get_default_body_settings` and :func:`~tudatpy.numerical_simulation.environment_setup.create_system_of_bodies`). Consequently, for N integrated bodies, this input is a vector with size size 6N.
+    Initial states of the bodies to integrate (one initial state for each body, concatenated into a single array), provided in the same order as the bodies to integrate. The initial states must be expressed in Cartesian elements, w.r.t. the central body of each integrated body. The states must be defined with the same frame orientation as the global frame orientation of the environment (specified when creating a system of bodies, see for instance :func:`~tudatpy.dynamics.environment_setup.get_default_body_settings` and :func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies`). Consequently, for N integrated bodies, this input is a vector with size size 6N.
 initial_time : float
     Initial epoch of the numerical propagation
 integrator_settings : IntegratorSettings
@@ -1099,7 +1099,7 @@ The propagated state vector is defined by the integrated bodies, which defines t
 differential equation defining the evolution of the rotational state between an
 inertial and body-fixed frame are to be solved. The propagator input defines the
 formulation in which the differential equations are set up. The dynamical models are
-defined by a ``TorqueModelMap``, as created by :func:`~tudatpy.numerical_simulation.propagation_setup.create_torque_models` function.
+defined by a ``TorqueModelMap``, as created by :func:`~tudatpy.dynamics.propagation_setup.create_torque_models` function.
 Details on the usage of this function are discussed in more detail in the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/rotational.html>`__
 
 
@@ -1633,11 +1633,11 @@ HybridArcPropagatorSettings
 
  .. note::
 
-     When using this option, the :attr:`~tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.termination_details` of
-     the simulation results object (obtained from here after a propagation: :attr:`~tudatpy.numerical_simulation.SingleArcSimulator.propagation_results`)
-     is of derived type :class:`~tudatpy.numerical_simulation.propagation.PropagationTerminationDetailsFromHybridCondition`.
+     When using this option, the :attr:`~tudatpy.dynamics.propagation.SingleArcSimulationResults.termination_details` of
+     the simulation results object (obtained from here after a propagation: :attr:`~tudatpy.dynamics.simulator.SingleArcSimulator.propagation_results`)
+     is of derived type :class:`~tudatpy.dynamics.propagation.PropagationTerminationDetailsFromHybridCondition`.
 
-     See the :attr:`~tudatpy.numerical_simulation.propagation.PropagationTerminationDetailsFromHybridCondition.was_condition_met_when_stopping` attribute for an example of how to retrieve which condition was met when the propagation was terminated.
+     See the :attr:`~tudatpy.dynamics.propagation.PropagationTerminationDetailsFromHybridCondition.was_condition_met_when_stopping` attribute for an example of how to retrieve which condition was met when the propagation was terminated.
 
 
  Parameters
@@ -1750,11 +1750,11 @@ HybridArcPropagatorSettings
 
  Function to add dependent variables to existing propagator settings.
 
- Function to add dependent variables to existing :class:`~tudatpy.numerical_simulation.propagation_setup.propagator.SingleArcPropagatorSettings`
+ Function to add dependent variables to existing :class:`~tudatpy.dynamics.propagation_setup.propagator.SingleArcPropagatorSettings`
  object. This function is added as an alternative to teh regular manner in which to defined dependent variables (use of input to
- functions for single-arc propagator settings :func:`~tudatpy.numerical_simulation.propagation_setup.propagator.translational`,
- :func:`~tudatpy.numerical_simulation.propagation_setup.propagator.rotational`, :func:`~tudatpy.numerical_simulation.propagation_setup.propagator.mass`,
- :func:`~tudatpy.numerical_simulation.propagation_setup.propagator.multitype`). Typically, this function is used to modify
+ functions for single-arc propagator settings :func:`~tudatpy.dynamics.propagation_setup.propagator.translational`,
+ :func:`~tudatpy.dynamics.propagation_setup.propagator.rotational`, :func:`~tudatpy.dynamics.propagation_setup.propagator.mass`,
+ :func:`~tudatpy.dynamics.propagation_setup.propagator.multitype`). Typically, this function is used to modify
  existing propagator settings in a loop when running multiple simulations
 
 

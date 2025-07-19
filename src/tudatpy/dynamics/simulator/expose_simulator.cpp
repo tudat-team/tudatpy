@@ -391,7 +391,7 @@ void expose_simulator( py::module& m )
 
     Function to create object that propagates the dynamics, as specified by propagator settings, and the physical environment.
     Depending on the specific input type (e.g. which function from the :ref:`propagator` module was used),
-    a single-, multi- or hybrid-arc simulator is created. The environment is typically created by the :func:`~tudatpy.numerical_simulation.environment_setup.create_system_of_bodies`
+    a single-, multi- or hybrid-arc simulator is created. The environment is typically created by the :func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies`
     function.
 
     .. note::
@@ -401,20 +401,20 @@ void expose_simulator( py::module& m )
 
     Parameters
     ----------
-    bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
+    bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
         Object defining the physical environment, with all
         properties of artificial and natural bodies.
 
-    propagator_settings : :class:`~tudatpy.numerical_simulation.propagation_setup.propagator.PropagatorSettings`
+    propagator_settings : :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagatorSettings`
         Settings to be used for the numerical propagation (dynamics type, termination conditions, integrator, etc.)
 
     simulate_dynamics_on_creation : bool, default=True
         Boolean defining whether to propagate the dynamics upon creation of the Simulator. If false, the dynamics c
-        can be propagated at a later time by calling the :class:`~tudatpy.numerical_simulation.DynamicsSimulator.integrate_equations_of_motion` function
+        can be propagated at a later time by calling the :func:`~tudatpy.dynamics.simulator.DynamicsSimulator.integrate_equations_of_motion` function
 
     Returns
     -------
-    :class:`~tudatpy.numerical_simulation.DynamicsSimulator`
+    :class:`~tudatpy.dynamics.simulator.DynamicsSimulator`
         Object that propagates the dynamics, and processes the results.
         Depending on the ``propagator_settings``, this object can be a single-, multi- or hybrid-arc simulator.
 
@@ -492,17 +492,17 @@ void expose_simulator( py::module& m )
 
          Parameters
          ----------
-         bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
+         bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
              Object defining the physical environment, with all
              properties of artificial and natural bodies.
 
-         integrator_settings : :class:`~tudatpy.numerical_simulation.propagation_setup.integrator.IntegratorSettings`
+         integrator_settings : :class:`~tudatpy.dynamics.propagation_setup.integrator.IntegratorSettings`
              Settings to create the numerical integrator that is to be used for the integration of the equations of motion.
 
-         propagator_settings : :class:`~tudatpy.numerical_simulation.propagation_setup.propagator.PropagatorSettings`
+         propagator_settings : :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagatorSettings`
              Settings to create the propagator that is to be used for the propagation of the dynamics.
 
-         estimated_parameters : :class:`~tudatpy.numerical_simulation.estimation.EstimatableParameterSet`
+         estimated_parameters : :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
              Object defining a consolidated set of (estimatable) parameters (w.r.t. variational equations are defined),
              linked to the environment and acceleration settings of the simulation.
 
@@ -510,7 +510,7 @@ void expose_simulator( py::module& m )
              Boolean defining whether equations of motion and variational equations are to be propagated concurrently
              (if true) or sequentially (of false).
 
-         variational_only_integrator_settings : :class:`~tudatpy.numerical_simulation.propagation_setup.integrator.IntegratorSettings`, default = []
+         variational_only_integrator_settings : :class:`~tudatpy.dynamics.propagation_setup.integrator.IntegratorSettings`, default = []
              Settings to create the numerical integrator that is to be used for integration the variational equations.
              If none is given (default), the numerical integration settings are taken to be the same as the ones applied
              in the integration of the equations of motions (specified by the `integrator_settings` parameter).
@@ -548,7 +548,7 @@ void expose_simulator( py::module& m )
          Returns
          -------
          None
-             Creates / modifies the `state_history` property of the :class:`~tudatpy.numerical_simulation.SingleArcVariationalSimulator` object.
+             Creates / modifies the `state_history` property of the :class:`~tudatpy.dynamics.simulator.SingleArcVariationalSimulator` object.
 
 
 
@@ -601,7 +601,7 @@ void expose_simulator( py::module& m )
          w.r.t. the variational dynamics in the Variational Simulator are defined.
 
 
-         :type: :class:`~tudatpy.numerical_simulation.estimation.EstimatableParameterSet`
+         :type: :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
       )doc" )
             .def_property_readonly(
                     "variational_equations_history",
@@ -671,7 +671,7 @@ void expose_simulator( py::module& m )
          Simulator object containing all functionality for solving of the (regular) equations of motion.
 
 
-         :type: :class:`~tudatpy.numerical_simulation.SingleArcSimulator`
+         :type: :class:`~tudatpy.dynamics.simulator.SingleArcSimulator`
       )doc" );
 
     m.def( "create_variational_equations_solver",
@@ -686,29 +686,29 @@ void expose_simulator( py::module& m )
 
  Function to create object that propagates the dynamics and variational equations, as specified by propagator settings, the physical environment, and a set of parameters for which to compute the partials.
  Depending on the specific input type (e.g. which function from the :ref:`propagator` module was used to define the propagator settings),
- a single-, multi- or hybrid-arc variational solver is created. The environment is typically created by the :func:`~tudatpy.numerical_simulation.environment_setup.create_system_of_bodies`
+ a single-, multi- or hybrid-arc variational solver is created. The environment is typically created by the :func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies`
  function. When using default settings, calling this function will automatically propagate the dynamics.
 
  Parameters
  ----------
- bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
+ bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
   Object defining the physical environment, with all
   properties of artificial and natural bodies.
 
- propagator_settings : :class:`~tudatpy.numerical_simulation.propagation_setup.propagator.PropagatorSettings`
+ propagator_settings : :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagatorSettings`
   Settings to be used for the numerical propagation (dynamics type, termination conditions, integrator, etc.)
 
- parameters_to_estimate : :class:`~tudatpy.numerical_simulation.estimation.EstimatableParameterSet`
+ parameters_to_estimate : :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
   Object defining a consolidated set of (estimatable) parameters (w.r.t. variational equations are defined),
   linked to the environment and acceleration settings of the simulation.
 
  simulate_dynamics_on_creation : bool, default=True
   Boolean defining whether to propagate the dynamics upon creation of the Simulator. If false, the dynamics
-  can be propagated at a later time by calling the :class:`~tudatpy.numerical_simulation.Simulator.integrate_equations_of_motion` function
+  can be propagated at a later time by calling the :func:`~tudatpy.dynamics.DynamicsSimulator.integrate_equations_of_motion` function
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.VariationalSimulator`
+ :class:`~tudatpy.dynamics.simulator.VariationalSimulator`
   Object that propagates the dynamics, and processes the results.
 
   )doc" );
@@ -727,8 +727,8 @@ void expose_simulator( py::module& m )
          Class establishing an interface with the simulation's State Transition and Sensitivity Matrices.
 
          Class establishing an interface to the State Transition and Sensitivity Matrices.
-         Instances of this class are instantiated automatically upon creation of :class:`~tudatpy.numerical_simulation.Estimator` objects,
-         using the simulation information in the observation, propagation and integration settings that the :class:`~tudatpy.numerical_simulation.Estimator` instance is linked to.
+         Instances of this class are instantiated automatically upon creation of :class:`~tudatpy.estimation.estimation_analysis.Estimator` objects,
+         using the simulation information in the observation, propagation and integration settings that the :class:`~tudatpy.estimation.estimation_analysis.Estimator` instance is linked to.
 
 
 

@@ -71,9 +71,9 @@ createHomogeneousTriAxialEllipsoidGravitySettingsDeprecated(
     if( isWarningPrinted == false )
     {
         tudat::utilities::printDeprecationWarning(
-                "tudatpy.numerical_simulation.environment_setup.gravity_"
+                "tudatpy.dynamics.environment_setup.gravity_"
                 "field.spherical_harmonic_triaxial_body",
-                "tudatpy.numerical_simulation.environment_setup.gravity_"
+                "tudatpy.dynamics.environment_setup.gravity_"
                 "field.sh_triaxial_ellipsoid_from_density" );
         isWarningPrinted = true;
     }
@@ -449,7 +449,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Returns
  -------
  CentralGravityFieldSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.GravityFieldSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.CentralGravityFieldSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.gravity_field.GravityFieldSettings` derived :class:`~tudatpy.dynamics.environment_setup.gravity_field.CentralGravityFieldSettings` class
 
 
 
@@ -457,7 +457,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.GravityFieldSettings` for Earth using a simple central gravity field model:
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.gravity_field.GravityFieldSettings` for Earth using a simple central gravity field model:
 
  .. code-block:: python
 
@@ -476,17 +476,17 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
  Function to create central gravity field settings from Spice settings.
 
- Function for settings object, defining a point-mass gravity field model. This function provides the same model as :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field.central`), but with gravitational parameter :math:`\mu` from Spice.
+ Function for settings object, defining a point-mass gravity field model. This function provides the same model as :func:`~tudatpy.dynamics.environment_setup.gravity_field.central`), but with gravitational parameter :math:`\mu` from Spice.
 
  Parameters
  ----------
  body_name_to_use : str, default = ""
-     Body from which Spice gravitational paramerer is queried (if empty, it uses the name of the body to which the settings are assigned, see :func:`~tudatpy.numerical_simulation.environment_setup.ephemeris.direct_spice` for example of analogous functionality for spice ephemeris).
+     Body from which Spice gravitational paramerer is queried (if empty, it uses the name of the body to which the settings are assigned, see :func:`~tudatpy.dynamics.environment_setup.ephemeris.direct_spice` for example of analogous functionality for spice ephemeris).
 
  Returns
  -------
  GravityFieldSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.GravityFieldSettings` class of gravity field type ``central_spice``
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.gravity_field.GravityFieldSettings` class of gravity field type ``central_spice``
 
 
 
@@ -494,7 +494,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.GravityFieldSettings` for Earth using a simple central gravity field model and data from Spice:
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.gravity_field.GravityFieldSettings` for Earth using a simple central gravity field model and data from Spice:
 
  .. code-block:: python
 
@@ -530,7 +530,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
  with :math:`\mathbf{r}` the position vector of the evaluation point, measured from the body's center of mass. The angles :math:`\phi` and :math:`\theta` are the body-fixed latitude and longitude of the evaluation point, and :math:`\bar{P}_{lm}` is the associated Legendre polynomial (at degree/order :math:`l/m`).
 
- For the spherical harmonic gravity field (including other spherical harmonic functions), the normalized mean moment of inertia must be set by the user, to allow an inertia tensor to be computed. This is done using the :attr:`~tudatpy.numerical_simulation.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings.scaled_mean_moment_of_inertia` attribute of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings` class, as in the example below
+ For the spherical harmonic gravity field (including other spherical harmonic functions), the normalized mean moment of inertia must be set by the user, to allow an inertia tensor to be computed. This is done using the :attr:`~tudatpy.dynamics.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings.scaled_mean_moment_of_inertia` attribute of the :class:`~tudatpy.dynamics.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings` class, as in the example below
 
  .. code-block:: python
 
@@ -565,7 +565,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Returns
  -------
  SphericalHarmonicsGravityFieldSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.GravityFieldSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.gravity_field.GravityFieldSettings` derived :class:`~tudatpy.dynamics.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings` class
 
 
 
@@ -573,7 +573,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.GravityFieldSettings` for Earth using a spherical harmonics gravity model:
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.gravity_field.GravityFieldSettings` for Earth using a spherical harmonics gravity model:
 
  .. code-block:: python
 
@@ -660,7 +660,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Returns
  -------
  SphericalHarmonicsGravityFieldSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.GravityFieldSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.gravity_field.GravityFieldSettings` derived :class:`~tudatpy.dynamics.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings` class
 
 
 
@@ -668,7 +668,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.GravityFieldSettings` for the Moon using GGGRX spherical harmonics gravity model, up to degree and order 300:
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.gravity_field.GravityFieldSettings` for the Moon using GGGRX spherical harmonics gravity model, up to degree and order 300:
 
  .. code-block:: python
 
@@ -699,7 +699,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Returns
  -------
  SphericalHarmonicsGravityFieldSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.GravityFieldSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.gravity_field.GravityFieldSettings` derived :class:`~tudatpy.dynamics.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings` class
 
 
 
@@ -707,7 +707,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.GravityFieldSettings` for Earth using EGM96 spherical harmonics gravity model, up to degree and order 32:
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.gravity_field.GravityFieldSettings` for Earth using EGM96 spherical harmonics gravity model, up to degree and order 32:
 
  .. code-block:: python
 
@@ -768,7 +768,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Returns
  -------
  PolyhedronGravityFieldSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.GravityFieldSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.PolyhedronGravityFieldSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.gravity_field.GravityFieldSettings` derived :class:`~tudatpy.dynamics.environment_setup.gravity_field.PolyhedronGravityFieldSettings` class
 
 
 
@@ -825,7 +825,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Returns
  -------
  PolyhedronGravityFieldSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.GravityFieldSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.PolyhedronGravityFieldSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.gravity_field.GravityFieldSettings` derived :class:`~tudatpy.dynamics.environment_setup.gravity_field.PolyhedronGravityFieldSettings` class
 
 
 
@@ -857,7 +857,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
  Function for spherical harmonics gravity field settings object from triaxial ellipsoid parameters, using the density to define the mass distribution.
 
- Function for settings object, defining a gravity field model through spherical harmonic expansion of a homogeneous triaxial ellipsoid, same as :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.spherical_harmonic`
+ Function for settings object, defining a gravity field model through spherical harmonic expansion of a homogeneous triaxial ellipsoid, same as :class:`~tudatpy.dynamics.environment_setup.gravity_field.spherical_harmonic`
  The constant mass distribution in the specified ellipsoid shape is expanded to obtain a spherical harmonic coefficient representation.
  Gravity fields from this setting object are expressed in normalized spherical harmonic coefficients.
  The constant mass distribution is defined by the density and gravitational constant (optional).
@@ -886,13 +886,13 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Returns
  -------
  SphericalHarmonicsGravityFieldSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.GravityFieldSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.gravity_field.GravityFieldSettings` derived :class:`~tudatpy.dynamics.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings` class
 
 
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.GravityFieldSettings` for Earth using the expansion of a homogeneous triaxial ellipsoid into a spherical harmonics gravity model:
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.gravity_field.GravityFieldSettings` for Earth using the expansion of a homogeneous triaxial ellipsoid into a spherical harmonics gravity model:
 
  .. code-block:: python
 
@@ -930,7 +930,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
  Function for spherical harmonics gravity field settings object from triaxial ellipsoid parameters, using the gravitational parameter to define the mass distribution..
 
- Function for settings object, defining a gravity field model through spherical harmonic expansion of a homogeneous triaxial ellipsoid, same as :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.spherical_harmonic`
+ Function for settings object, defining a gravity field model through spherical harmonic expansion of a homogeneous triaxial ellipsoid, same as :class:`~tudatpy.dynamics.environment_setup.gravity_field.spherical_harmonic`
  The constant mass distribution in the specified ellipsoid shape is expanded to obtain a spherical harmonic coefficient representation.
  Gravity fields from this setting object are expressed in normalized spherical harmonic coefficients.
  The constant mass distribution is defined by the gravitational parameter.
@@ -957,7 +957,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  Returns
  -------
  SphericalHarmonicsGravityFieldSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.GravityFieldSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.gravity_field.GravityFieldSettings` derived :class:`~tudatpy.dynamics.environment_setup.gravity_field.SphericalHarmonicsGravityFieldSettings` class
 
 
 
