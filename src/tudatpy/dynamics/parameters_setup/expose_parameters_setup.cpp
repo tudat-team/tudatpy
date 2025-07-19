@@ -119,7 +119,7 @@ void expose_parameters_setup( py::module& m )
     py::enum_< tba::EmpiricalAccelerationComponents >(
             m, "EmpiricalAccelerationComponents", R"doc(Enumeration of the available empirical acceleration components that are available to estimate.
             
-            These are used in the :func:`~tudatpy.numerical_simulation.estimation_setup.parameter.empirical_accelerations` function to specify which components of the empirical acceleration are to be estimated.
+            These are used in the :func:`~tudatpy.dynamics.parameters_setup.empirical_accelerations` function to specify which components of the empirical acceleration are to be estimated.
             )doc" )
             .value( "radial_empirical_acceleration_component",
                     tba::EmpiricalAccelerationComponents::radial_empirical_acceleration_component )
@@ -134,7 +134,7 @@ void expose_parameters_setup( py::module& m )
     py::enum_< tba::EmpiricalAccelerationFunctionalShapes >(
             m, "EmpiricalAccelerationFunctionalShapes", R"doc(Enumeration of the available empirical acceleration shapes that are available per component
             
-            These are used in the :func:`~tudatpy.numerical_simulation.estimation_setup.parameter.empirical_accelerations` function to specify the signature of the estimated empirical acceleration component.
+            These are used in the :func:`~tudatpy.dynamics.parameters_setup.empirical_accelerations` function to specify the signature of the estimated empirical acceleration component.
             .)doc" )
             .value( "constant_empirical",
                     tba::EmpiricalAccelerationFunctionalShapes::constant_empirical )
@@ -183,7 +183,7 @@ void expose_parameters_setup( py::module& m )
 
  Parameters
  ----------
- parameter_settings : list( :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` )
+ parameter_settings : list( :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` )
      List of objects that define the settings for the parameters that are to be created. Each entry in this list is typically created by a call to a function in the :ref:`parameter` module
 
  bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
@@ -194,8 +194,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation.EstimatableParameterSet`
-     Instance of :class:`~tudatpy.numerical_simulation.estimation.EstimatableParameterSet` class, consolidating all estimatable parameters and simulation models.
+ :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
+     Instance of :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet` class, consolidating all estimatable parameters and simulation models.
 
  Examples
  --------
@@ -265,8 +265,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- List[ :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` ]
-     List of :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` objects, one per component of each initial state in the simulation.
+ List[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` ]
+     List of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` objects, one per component of each initial state in the simulation.
 
 
 
@@ -300,8 +300,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` object for the specified body's constant drag coefficient.
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's constant drag coefficient.
 
 
 
@@ -320,7 +320,7 @@ void expose_parameters_setup( py::module& m )
  Function for creating parameter settings for arc-wise constant drag coefficients.
 
  Function for creating parameter settings object for arc-wise constant drag coefficients :math:`C_{D}` 
- (arc-wise version of :func:`~tudatpy.numerical_simulation.estimation_setup.parameter.constant_drag_coefficient`).
+ (arc-wise version of :func:`~tudatpy.dynamics.parameters_setup.constant_drag_coefficient`).
  Using the arc-wise constant drag coefficient as an estimatable parameter requires:
 
  * A :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.constant` aerodynamic interface to be defined for the body specified by the ``body`` parameter
@@ -342,8 +342,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     Instance of :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.ArcWiseDragCoefficientEstimatableParameterSettings` class
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` derived :class:`~tudatpy.dynamics.parameters_setup.ArcWiseDragCoefficientEstimatableParameterSettings` class
      for arc-wise treatment of the specified body's constant drag coefficient.
 
 
@@ -375,8 +375,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` object for the specified body's radiation pressure coefficient.
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's radiation pressure coefficient.
 
 
 
@@ -394,7 +394,7 @@ void expose_parameters_setup( py::module& m )
 
  Function for creating parameter settings for arc-wise radiation pressure coefficients.
 
- Function for creating parameter settings object for arc-wise radiation pressure coefficients :math:`C_{r}` (arc-wise version of :func:`~tudatpy.numerical_simulation.estimation_setup.parameter.radiation_pressure_coefficient`).
+ Function for creating parameter settings object for arc-wise radiation pressure coefficients :math:`C_{r}` (arc-wise version of :func:`~tudatpy.dynamics.parameters_setup.radiation_pressure_coefficient`).
  Using the radiation pressure coefficient as an estimatable parameter requires:
 
  * A :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.cannonball_radiation_target` target model to be defined for the body specified by the ``body`` parameter
@@ -416,8 +416,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     Instance of :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.ArcWiseRadiationPressureCoefficientEstimatableParameterSettings` class
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` derived :class:`~tudatpy.dynamics.parameters_setup.ArcWiseRadiationPressureCoefficientEstimatableParameterSettings` class
      for arc-wise treatment of the specified body's radiation pressure coefficient.
            
      )doc" );
@@ -453,8 +453,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     Instance of :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` class dedining parallel radiation pressure scaling
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class dedining parallel radiation pressure scaling
 
      )doc" );
 
@@ -482,8 +482,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     Instance of :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` class dedining parallel radiation pressure scaling
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class dedining parallel radiation pressure scaling
 
      )doc" );
 
@@ -520,8 +520,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     Instance of :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EmpiricalAccelerationEstimatableParameterSettings` class
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` derived :class:`~tudatpy.dynamics.parameters_setup.EmpiricalAccelerationEstimatableParameterSettings` class
      for the specified body's empirical acceleration terms.
 
      )doc" );
@@ -535,7 +535,7 @@ void expose_parameters_setup( py::module& m )
 
  Function for creating parameter settings for constant empirical acceleration terms.
 
- As :func:`~tudatpy.numerical_simulation.estimation_setup.parameter.empirical_accelerations`, but only using the constant R, S and W components (no sine or cosine term estimation). This function is added as a function of convenience
+ As :func:`~tudatpy.dynamics.parameters_setup.empirical_accelerations`, but only using the constant R, S and W components (no sine or cosine term estimation). This function is added as a function of convenience
 
 
  Parameters
@@ -548,8 +548,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     Instance of :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EmpiricalAccelerationEstimatableParameterSettings` class
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` derived :class:`~tudatpy.dynamics.parameters_setup.EmpiricalAccelerationEstimatableParameterSettings` class
      for the specified body's empirical acceleration terms.
 
 
@@ -563,7 +563,7 @@ void expose_parameters_setup( py::module& m )
 
  Function for creating parameter settings for empirical acceleration magnitudes for all components.
 
- As :func:`~tudatpy.numerical_simulation.estimation_setup.parameter.empirical_accelerations`, but using selecting all nine components. This function is added as a function of convenience
+ As :func:`~tudatpy.dynamics.parameters_setup.empirical_accelerations`, but using selecting all nine components. This function is added as a function of convenience
 
  Parameters
  ----------
@@ -575,8 +575,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     Instance of :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EmpiricalAccelerationEstimatableParameterSettings` class
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` derived :class:`~tudatpy.dynamics.parameters_setup.EmpiricalAccelerationEstimatableParameterSettings` class
      for the specified body's empirical acceleration terms.
 
      )doc" );
@@ -591,7 +591,7 @@ void expose_parameters_setup( py::module& m )
 
  Function for creating parameter settings for arc-wise empirical acceleration magnitudes.
 
- Function for creating parameter settings object for arc-wise empirical acceleration magnitudes (arc-wise version of :func:`~tudatpy.numerical_simulation.estimation_setup.parameter.empirical_accelerations`).
+ Function for creating parameter settings object for arc-wise empirical acceleration magnitudes (arc-wise version of :func:`~tudatpy.dynamics.parameters_setup.empirical_accelerations`).
  Using the empirical acceleration terms as estimatable parameters requires:
 
  * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.empirical` acceleration, which include constant (in RSW frame) terms
@@ -616,8 +616,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     Instance of :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EmpiricalAccelerationEstimatableParameterSettings` class
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` derived :class:`~tudatpy.dynamics.parameters_setup.EmpiricalAccelerationEstimatableParameterSettings` class
      for the specified body's arc-wise empirical acceleration terms.
 
 
@@ -633,7 +633,7 @@ void expose_parameters_setup( py::module& m )
 
  Function for creating parameter settings for arc-wise constant empirical acceleration terms.
 
- As :func:`~tudatpy.numerical_simulation.estimation_setup.parameter.arcwise_empirical_accelerations`, but only using the constant R, S and W components (no sine or cosine term estimation). This function is added as a function of convenience
+ As :func:`~tudatpy.dynamics.parameters_setup.arcwise_empirical_accelerations`, but only using the constant R, S and W components (no sine or cosine term estimation). This function is added as a function of convenience
 
  Parameters
  ----------
@@ -648,8 +648,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     Instance of :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EmpiricalAccelerationEstimatableParameterSettings` class
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` derived :class:`~tudatpy.dynamics.parameters_setup.EmpiricalAccelerationEstimatableParameterSettings` class
      for the specified body's arc-wise constant empirical acceleration terms.
 
 
@@ -677,8 +677,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` object for the specified body's quasi-impulsive shots
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's quasi-impulsive shots
 
 
 
@@ -712,8 +712,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` object for the specified body's gravitational parameter.
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's gravitational parameter.
 
 
 
@@ -757,8 +757,8 @@ void expose_parameters_setup( py::module& m )
      Maximum order of c-coefficients to be included.
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     Instance of :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.SphericalHarmonicEstimatableParameterSettings` class
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` derived :class:`~tudatpy.dynamics.parameters_setup.SphericalHarmonicEstimatableParameterSettings` class
      for the applicable spherical harmonics c-coefficients of the specified body's gravitational model.
 
 
@@ -778,7 +778,7 @@ void expose_parameters_setup( py::module& m )
 
  Function for creating parameter settings for the cosine coefficients of body's spherical harmonics gravitational model.
 
- As :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.spherical_harmonics_c_coefficients`, but with a manually defined set of coefficients.
+ As :class:`~tudatpy.dynamics.parameters_setup.spherical_harmonics_c_coefficients`, but with a manually defined set of coefficients.
 
 
  Parameters
@@ -792,8 +792,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     Instance of :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.SphericalHarmonicEstimatableParameterSettings` class
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` derived :class:`~tudatpy.dynamics.parameters_setup.SphericalHarmonicEstimatableParameterSettings` class
      for the applicable spherical harmonics c-coefficients of the specified body's gravitational model.
 
 
@@ -838,8 +838,8 @@ void expose_parameters_setup( py::module& m )
      Maximum order of s-coefficients to be included.
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     Instance of :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.SphericalHarmonicEstimatableParameterSettings` class
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` derived :class:`~tudatpy.dynamics.parameters_setup.SphericalHarmonicEstimatableParameterSettings` class
      for the applicable spherical harmonics s-coefficients of the specified body's gravitational model.
 
 
@@ -859,7 +859,7 @@ void expose_parameters_setup( py::module& m )
 
  Function for creating parameter settings for the sine coefficients of body's spherical harmonics gravitational model.
 
- As :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.spherical_harmonics_s_coefficients`, but with a manually defined set of coefficients.
+ As :class:`~tudatpy.dynamics.parameters_setup.spherical_harmonics_s_coefficients`, but with a manually defined set of coefficients.
 
 
  Parameters
@@ -873,8 +873,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     Instance of :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.SphericalHarmonicEstimatableParameterSettings` class
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` derived :class:`~tudatpy.dynamics.parameters_setup.SphericalHarmonicEstimatableParameterSettings` class
      for the applicable spherical harmonics s-coefficients of the specified body's gravitational model.
 
 
@@ -909,8 +909,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` object for the specified body's mean moment of inertia.
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's mean moment of inertia.
 
 
 
@@ -941,8 +941,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` object for the specified body's constant spin rate.
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's constant spin rate.
 
      )doc" );
 
@@ -967,8 +967,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` object for the specified body's rotation pole position.
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's rotation pole position.
 
 
 
@@ -999,8 +999,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` object for the specified body's core factor.
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's core factor.
 
 
 
@@ -1031,8 +1031,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` object for the specified body's free core nutation rate.
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's free core nutation rate.
 
 
 
@@ -1063,8 +1063,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` object for the specified body's periodic spin variations.
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's periodic spin variations.
 
 
 
@@ -1095,8 +1095,8 @@ void expose_parameters_setup( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` object for the specified body's polar motion amplitudes.
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's polar motion amplitudes.
 
 
 
@@ -1120,20 +1120,20 @@ void expose_parameters_setup( py::module& m )
  Function for creating parameter settings object for an observation's absolute bias parameter.
  Using the absolute observation bias as estimatable parameter requires:
 
- * The observation model (corresponding to the `link_ends` and `observable_type`) to include an absolute bias (:func:`~tudatpy.numerical_simulation.estimation_setup.observation.absolute_bias`)
+ * The observation model (corresponding to the `link_ends` and `observable_type`) to include an absolute bias (:func:`~tudatpy.estimation.observable_models_setup.biases.absolute_bias`)
 
 
  Parameters
  ----------
- link_ends : Dict[:class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType`, Tuple[str, str]
+ link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, Tuple[str, str]
      Set of link ends that define the geometry of the biased observations.
 
  observable_type : ObservableType
      Observable type of the biased observations.
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.ConstantObservationBiasEstimatableParameterSettings`
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of the :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` derived :class:`~tudatpy.dynamics.parameters_setup.ConstantObservationBiasEstimatableParameterSettings`
      for the specified observation's arc-wise absolute bias.
 
 
@@ -1157,12 +1157,12 @@ void expose_parameters_setup( py::module& m )
  Function for creating parameter settings object for the arc-wise treatment of an observation's absolute bias parameter.
  Using the arc-wise absolute observation bias as estimatable parameter requires
 
- * The observation model (corresponding to the `link_ends` and `observable_type`) to include an arc-wise absolute bias (:func:`~tudatpy.numerical_simulation.estimation_setup.observation.arcwise_absolute_bias`)
+ * The observation model (corresponding to the `link_ends` and `observable_type`) to include an arc-wise absolute bias (:func:`~tudatpy.estimation.observable_models_setup.biases.arcwise_absolute_bias`)
 
 
  Parameters
  ----------
- link_ends : Dict[:class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType`, Tuple[str, str]
+ link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, Tuple[str, str]
      Set of link ends that define the geometry of the biased observations.
 
  observable_type : ObservableType
@@ -1173,8 +1173,8 @@ void expose_parameters_setup( py::module& m )
      The link end type (transmitter, receiver, etc.) at which the arc_start_times is evaluated.
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.ArcWiseConstantObservationBiasEstimatableParameterSettings`
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of the :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` derived :class:`~tudatpy.dynamics.parameters_setup.ArcWiseConstantObservationBiasEstimatableParameterSettings`
      for the specified observation's arc-wise absolute bias.
 
 
@@ -1209,19 +1209,19 @@ void expose_parameters_setup( py::module& m )
  Function for creating parameter settings object for an observation's relative bias parameter.
  Using the relative observation bias as estimatable parameter requires
 
- * The observation model (corresponding to the `link_ends` and `observable_type`) to include a relative bias (:func:`~tudatpy.numerical_simulation.estimation_setup.observation.relative_bias`)
+ * The observation model (corresponding to the `link_ends` and `observable_type`) to include a relative bias (:func:`~tudatpy.estimation.observable_models_setup.biases.relative_bias`)
 
  Parameters
  ----------
- link_ends : Dict[:class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType`, Tuple[str, str]
+ link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, Tuple[str, str]
      Set of link ends that define the geometry of the biased observations.
 
  observable_type : ObservableType
      Observable type of the biased observations.
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.ConstantObservationBiasEstimatableParameterSettings`
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of the :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` derived :class:`~tudatpy.dynamics.parameters_setup.ConstantObservationBiasEstimatableParameterSettings`
      for the specified observation's arc-wise relative bias.
 
 
@@ -1245,14 +1245,14 @@ void expose_parameters_setup( py::module& m )
  Function for creating parameter settings object for the arc-wise treatment of an observation's relative bias parameter.
  Using the arc-wise relative observation bias as estimatable parameter requires
 
- * The observation model (corresponding to the `link_ends` and `observable_type`) to include an arc-wise relative bias (:func:`~tudatpy.numerical_simulation.estimation_setup.observation.arcwise_relative_bias`)
+ * The observation model (corresponding to the `link_ends` and `observable_type`) to include an arc-wise relative bias (:func:`~tudatpy.estimation.observable_models_setup.biases.arcwise_relative_bias`)
 
  .. note:: This parameter may be estimated for a single-arc propagation, or a multi-arc propagation. In the latter case, the arcs selected for the estimation of the bias may, but need not, correspond to the arcs used for a multi-arc propagation.
 
 
  Parameters
  ----------
- link_ends : Dict[:class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType`, Tuple[str, str]
+ link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, Tuple[str, str]
      Set of link ends that define the geometry of the biased observations.
 
  observable_type : ObservableType
@@ -1263,8 +1263,8 @@ void expose_parameters_setup( py::module& m )
      The link end type (transmitter, receiver, etc.) at which the arc_start_times is evaluated.
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.ArcWiseConstantObservationBiasEstimatableParameterSettings`
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of the :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` derived :class:`~tudatpy.dynamics.parameters_setup.ArcWiseConstantObservationBiasEstimatableParameterSettings`
      for the specified observation's arc-wise relative bias.
 
 
@@ -1325,8 +1325,8 @@ void expose_parameters_setup( py::module& m )
      Name which identifies the position-biased ground station.
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` object for the specified ground station's position bias.
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified ground station's position bias.
 
 
 
@@ -1409,7 +1409,7 @@ use_complex_love_number: bool
 
 Returns
 -------
-:class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
+:class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
     Object for the specified body's Love number :math:`k_{l}` for the tides raised by the specified bodies
 
 
@@ -1456,7 +1456,7 @@ use_complex_love_number: bool
 
 Returns
 -------
-:class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
+:class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
     Object for the specified body's Love numbers :math:`k_{lm}` for the tides raised by the specified bodies
 
 
@@ -1494,7 +1494,7 @@ deforming_bodies : list[str]
 
 Returns
 -------
-:class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
+:class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
     Object for the specified body's mode-coupled Love numbers :math:`k_{lm}^{l'm'}` for the tides raised by the specified bodies
 
     )doc" );
@@ -1529,7 +1529,7 @@ sine_indices_per_power : dict[int, list[int,int]]
 
 Returns
 -------                                                                       -------
-:class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
+:class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
     Object for the specified body's polynomial gravity field variations
 
     )doc" );
@@ -1566,7 +1566,7 @@ sine_indices_per_period : dict[int, list[int,int]]
 
 Returns
 -------
-:class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
+:class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
     Object for the specified body's periodic gravity field variations
 
     )doc" );
@@ -1595,7 +1595,7 @@ sine_indices: list[int,int]
 
 Returns
 -------
-:class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
+:class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
     Object for the specified body's polynomial gravity field variations
 
     )doc" );
@@ -1632,7 +1632,7 @@ maximum_order: int
 
 Returns
 -------
-:class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
+:class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
     Object for the specified body's polynomial gravity field variations
 
     )doc" );
@@ -1670,12 +1670,12 @@ Returns
  Using the post-newtonian gamma parameter as estimatable parameter requires at least one of the following:
 
  * An acceleration model depending on this parameter, such as :func:`~tudatpy.dynamics.propagation_setup.acceleration.relativistic_correction`
- * An observation model with a light-time correction depending on this parameter, such as :func:`~tudatpy.numerical_simulation.estimation_setup.observation.first_order_relativistic_light_time_correction`
+ * An observation model with a light-time correction depending on this parameter, such as :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.first_order_relativistic_light_time_correction`
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` object for a global post-newtonian :math:`\gamma` parameter.
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for a global post-newtonian :math:`\gamma` parameter.
 
 
 
@@ -1699,8 +1699,8 @@ Returns
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
-     :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` object for a global post-newtonian :math:`\beta` parameter.
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for a global post-newtonian :math:`\beta` parameter.
 
 
 

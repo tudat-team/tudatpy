@@ -39,15 +39,15 @@ Examples
 .. code-block:: python
 
     # Code snippet to print all available Link End Types
-    from tudatpy.numerical_simulation import estimation_setup
+    from tudatpy.estimation import observable_models_setup
 
     # Check how many Link End Types are available in Tudatpy
-    num_link_end_types = len(estimation_setup.observation.LinkEndType.__members__)
+    num_link_end_types = len(observable_models_setup.links.LinkEndType.__members__)
     print(f'The length of all available Tudatpy Link End Types is: {num_link_end_types}')
 
     # Print all available Link End Types using the "name" property
     for i in range(num_link_end_types):
-        print(i, estimation_setup.observation.LinkEndType(i).name)
+        print(i, observable_models_setup.links.LinkEndType(i).name)
 
 
 
@@ -92,7 +92,7 @@ Examples
  -------
  List[ LinkDefinition ]
      List of one or more :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkDefinition` types, each defining the geometry for one one-way downlink.
-     A `LinkDefinition` type for a one one-way link is composed a dict with one `receiver` and one `transmitter` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` key, to each of which a :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` type is mapped.
+     A `LinkDefinition` type for a one one-way link is composed a dict with one `receiver` and one `transmitter` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` key, to each of which a :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` type is mapped.
 
  Examples
  --------
@@ -152,7 +152,7 @@ Examples
  -------
  List[ LinkDefinition ]
      List of one or more :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkDefinition` types, each defining the geometry for one one-way uplink.
-     A :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` type for a one one-way link is made of a dict with one `receiver` and one `transmitter` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` key, to each of which a :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` type is mapped.
+     A :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` type for a one one-way link is made of a dict with one `receiver` and one `transmitter` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` key, to each of which a :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndId` type is mapped.
 
  Examples
  --------
