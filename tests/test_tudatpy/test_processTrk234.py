@@ -9,7 +9,8 @@ from tudatpy.dynamics.environment_setup import (
     ground_station,
     create_system_of_bodies,
 )
-from tudatpy.numerical_simulation.estimation_setup import observation
+from tudatpy.estimation.observations_setup import ancillary_settings
+from tudatpy.estimation.observable_models_setup import links
 from tudatpy.data.processTrk234.processor import Trk234Processor
 from tudatpy.data.processTrk234 import converters as cnv
 
@@ -286,7 +287,7 @@ def test_reader():
 
     # Check doppler integration time.
     dopplerCount = obs_set.ancilliary_settings.get_float_settings(
-        observation.doppler_integration_time
+        ancillary_settings.doppler_integration_time
     )
     assert (
         dopplerCount == 1.0
@@ -294,7 +295,7 @@ def test_reader():
 
     # Check link end delays.
     linkEndDelays = obs_set.ancilliary_settings.get_float_list_settings(
-        observation.link_ends_delays
+        ancillary_settings.link_ends_delays
     )
     expected_delays = [4.915100149105456e-08, 0.0, -1.8370300836068054e-07]
     assert linkEndDelays == pytest.approx(
@@ -303,9 +304,9 @@ def test_reader():
 
     # Check link definition.
     linkEndType = obs_set.link_definition
-    transmitter = linkEndType.link_end_id(observation.transmitter).reference_point
-    sc = linkEndType.link_end_id(observation.reflector1).body_name
-    rcv = linkEndType.link_end_id(observation.receiver).reference_point
+    transmitter = linkEndType.link_end_id(links.transmitter).reference_point
+    sc = linkEndType.link_end_id(links.reflector1).body_name
+    rcv = linkEndType.link_end_id(links.receiver).reference_point
     assert transmitter == "DSS-65", f"Expected transmitter 'DSS-65', got {transmitter}"
     assert sc == "-202", f"Expected spacecraft '-202', got {sc}"
     assert rcv == "DSS-65", f"Expected receiver 'DSS-65', got {rcv}"

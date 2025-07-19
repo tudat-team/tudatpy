@@ -1,7 +1,7 @@
 import trk234
 from . import converters as cnv
 from pandas import concat as pd_concat
-from tudatpy.numerical_simulation.estimation import ObservationCollection
+from tudatpy.estimation.observations import ObservationCollection
 from tudatpy.astro import time_representation
 from tudatpy.dynamics.environment import (
     PiecewiseLinearFrequencyInterpolator,
