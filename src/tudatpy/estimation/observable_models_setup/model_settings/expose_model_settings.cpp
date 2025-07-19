@@ -201,7 +201,7 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires the
-     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+     `transmitter` and `receiver` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
  light_time_correction_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` ], default = list()
      List of corrections for the light-time that are to be used. Default is none, which will result
@@ -263,7 +263,7 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires the
-     `transmitter`, `retransmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined
+     `transmitter`, `retransmitter` and `receiver` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined
 
  light_time_correction_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` ], default = list()
      List of corrections for the light-time that are to be used for each constituent one-way range. Default is none, which will result
@@ -387,7 +387,7 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires the
-     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined, as well
+     `transmitter` and `receiver` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined, as well
      as a `retransmitter1`, `retransmitter2`, .... (with the number of retransmitters to be defined by the user).
 
  light_time_correction_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` ], default = list()
@@ -520,7 +520,7 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires the
-     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+     `transmitter` and `receiver` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
  light_time_correction_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` ], default = list()
      List of corrections for the light-time that are to be used. Default is none, which will result
@@ -576,7 +576,7 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires the
-     `transmitter`, `transmitter2` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+     `transmitter`, `transmitter2` and `receiver` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
  light_time_correction_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` ], default = list()
      List of corrections for the light-time that are to be used. Default is none, which will result
@@ -618,7 +618,7 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires that the
-     `observed_body` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+     `observed_body` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
  bias_settings : :class:`ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
@@ -653,7 +653,7 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires that the
-     `observed_body` and `observer` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+     `observed_body` and `observer` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
  bias_settings : :class:`ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
@@ -688,7 +688,7 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires that the
-     `observed_body` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+     `observed_body` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
  bias_settings : :class:`ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
@@ -750,7 +750,7 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires that the
-     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+     `transmitter` and `receiver` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
  light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
      List of corrections for the light-time that are to be used. Default is none, which will result
@@ -874,7 +874,7 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires that the
-     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined.
+     `transmitter` and `receiver` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
 
  light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
      List of corrections for the light-time that are to be used. Default is none, which will result
@@ -923,7 +923,7 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires the
-     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined, as well
+     `transmitter` and `receiver` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined, as well
      as a `retransmitter1`, `retransmitter2`, .... (with the number of retransmitters to be defined by the user).
 
  light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
@@ -968,7 +968,7 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires the
-     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined, as well
+     `transmitter` and `receiver` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined, as well
      as a `retransmitter1`, `retransmitter2`, .... (with the number of retransmitters to be defined by the user).
 
  light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
@@ -1017,7 +1017,7 @@ Examples
  ----------
  link_ends : LinkDefinition
      Set of link ends that define the geometry of the observation. This observable requires the
-     `transmitter` and `receiver` :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LinkEndType` entries to be defined, as well
+     `transmitter` and `receiver` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined, as well
      as a `retransmitter1`, `retransmitter2`, .... (with the number of retransmitters to be defined by the user).
 
  light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
