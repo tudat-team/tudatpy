@@ -4,10 +4,10 @@ import pickle
 import numpy as np
 
 # Load Tudatpy modules
-from tudatpy.kernel import numerical_simulation
+from tudatpy import numerical_simulation
 from tudatpy.data import read_solar_activity_data, get_space_weather_path
-from tudatpy.kernel.astro.time_conversion import epoch_from_date_time_iso_string
-from tudatpy.kernel.astro.element_conversion import convert_geographic_to_geodetic_latitude
+from tudatpy.astro.time_conversion import epoch_from_date_time_iso_string
+from tudatpy.astro.element_conversion import convert_geographic_to_geodetic_latitude
 
 
 def test_nrlmsise00():
