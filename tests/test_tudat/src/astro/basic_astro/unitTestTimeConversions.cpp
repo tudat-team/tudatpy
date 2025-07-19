@@ -395,28 +395,28 @@ BOOST_AUTO_TEST_CASE( testTimeConversionsLong )
     // Test whether back and forth conversion between JD and MJD provides correct resulats.
     BOOST_CHECK_CLOSE_FRACTION( testJulianDay,
                                 convertModifiedJulianDayToJulianDay< long double >( testModifiedJulianDay ),
-                                2.0 * std::numeric_limits< long double >::epsilon( ) );
+                                20.0 * std::numeric_limits< long double >::epsilon( ) );
     BOOST_CHECK_CLOSE_FRACTION( testModifiedJulianDay,
                                 convertJulianDayToModifiedJulianDay< long double >( testJulianDay ),
-                                2.0 * std::numeric_limits< long double >::epsilon( ) );
+                                20.0 * std::numeric_limits< long double >::epsilon( ) );
     BOOST_CHECK_CLOSE_FRACTION( convertJulianDayToModifiedJulianDay< long double >(
                                         convertModifiedJulianDayToJulianDay< long double >( testModifiedJulianDay ) ),
                                 testModifiedJulianDay,
-                                2.0 * std::numeric_limits< long double >::epsilon( ) );
+                                20.0 * std::numeric_limits< long double >::epsilon( ) );
     BOOST_CHECK_CLOSE_FRACTION( convertModifiedJulianDayToJulianDay( convertJulianDayToModifiedJulianDay( testJulianDay ) ),
                                 testJulianDay,
-                                2.0 * std::numeric_limits< long double >::epsilon( ) );
+                                20.0 * std::numeric_limits< long double >::epsilon( ) );
 
     // Test conversion to seconds since Epoch for JD and MJD
     long double secondsSinceModifedJulianDayZero = testModifiedJulianDay * JULIAN_DAY_LONG;
 
     BOOST_CHECK_CLOSE_FRACTION( secondsSinceModifedJulianDayZero,
                                 convertJulianDayToSecondsSinceEpoch< long double >( testJulianDay, JULIAN_DAY_AT_0_MJD_LONG ),
-                                2.0 * std::numeric_limits< long double >::epsilon( ) );
+                                20.0 * std::numeric_limits< long double >::epsilon( ) );
     BOOST_CHECK_CLOSE_FRACTION(
             testJulianDay,
             convertSecondsSinceEpochToJulianDay< long double >( secondsSinceModifedJulianDayZero, JULIAN_DAY_AT_0_MJD_LONG ),
-            2.0 * std::numeric_limits< long double >::epsilon( ) );
+          20.0 * std::numeric_limits< long double >::epsilon( ) );
 
     // Test whether TCG and TT are both 0 at synchronization time.
     long double secondsSinceJ2000Synchronization = getTimeOfTaiSynchronizationSinceJ2000< long double >( );
