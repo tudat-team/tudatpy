@@ -42,9 +42,9 @@ inline std::shared_ptr< AccelerationSettings > customAccelerationSettingsDepreca
     if( isWarningPrinted == false )
     {
         tudat::utilities::printDeprecationWarning(
-                "tudatpy.numerical_simulation.propagation_setup."
+                "tudatpy.dynamics.propagation_setup."
                 "acceleration.custom",
-                "tudatpy.numerical_simulation.propagation_setup."
+                "tudatpy.dynamics.propagation_setup."
                 "acceleration.custom_acceleration" );
         isWarningPrinted = true;
     }
@@ -57,7 +57,7 @@ inline std::shared_ptr< AccelerationSettings > thrustAccelerationRemoved1(
         const std::shared_ptr< tss::ThrustMagnitudeSettings > thrustMagnitudeSettings )
 {
     tudat::utilities::printDeprecationError(
-            "tudatpy.numerical_simulation.propagation_setup.acceleration."
+            "tudatpy.dynamics.propagation_setup.acceleration."
             "thrust_from_direction_and_magnitude",
             "https://docs.tudat.space/en/stable/_src_user_guide/"
             "state_propagation/environment_setup/thrust_refactor/"
@@ -72,7 +72,7 @@ inline std::shared_ptr< AccelerationSettings > thrustAccelerationRemoved2(
         const std::string centralBody = "" )
 {
     tudat::utilities::printDeprecationError(
-            "tudatpy.numerical_simulation.propagation_setup.acceleration."
+            "tudatpy.dynamics.propagation_setup.acceleration."
             "thrust_and_isp_from_custom_function",
             "https://docs.tudat.space/en/stable/_src_user_guide/"
             "state_propagation/environment_setup/thrust_refactor/"
@@ -87,7 +87,7 @@ inline std::shared_ptr< AccelerationSettings > thrustAccelerationRemoved3(
         const std::string centralBody = "" )
 {
     tudat::utilities::printDeprecationError(
-            "tudatpy.numerical_simulation.propagation_setup.acceleration."
+            "tudatpy.dynamics.propagation_setup.acceleration."
             "thrust_from_custom_function",
             "https://docs.tudat.space/en/stable/_src_user_guide/"
             "state_propagation/environment_setup/thrust_refactor/"
@@ -129,7 +129,7 @@ void expose_acceleration_setup( py::module &m )
 
          Enumeration of acceleration types supported by tudat. This enum is not used directly by the user to
          create accelerations, but is used in other parts of the library where a type of acceleration is to be
-         identified (for instance in :func:`~tudatpy.numerical_simulation.propagation_setup.dependent_variable.single_acceleration`
+         identified (for instance in :func:`~tudatpy.dynamics.propagation_setup.dependent_variable.single_acceleration`
          to save an acceleration as dependent variable`
 
 
@@ -637,7 +637,7 @@ AccelerationSettings
  Creates settings for the mutual spherical harmonic gravity acceleration.
 
  Creates settings for the mutual spherical harmonic gravity acceleration. This model computes the total spherical harmonic acceleration exerted by a body :math:`B` on a body :math:`A`, where the influence of the gravity field coefficients of body :math:`A` itself has been included. The model includes couplings between the mass of each body, and the gravity field coefficients of the other body. It does not include the 'figure-figure' interactions (coupling between the two-bodies' gravity field coefficients). It corresponds to the model presented by :cite:p:`lainey2004,dirkx2016`
- The model combines the spherical harmonic accelerations of the two bodies (see :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.spherical_harmonic_gravity`) on each other. The direct acceleration (acceleration w.r.t. an inertial origin) is computed from:
+ The model combines the spherical harmonic accelerations of the two bodies (see :func:`~tudatpy.dynamics.propagation_setup.acceleration.spherical_harmonic_gravity`) on each other. The direct acceleration (acceleration w.r.t. an inertial origin) is computed from:
 
  .. math::
 

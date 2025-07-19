@@ -42,9 +42,9 @@ inline std::shared_ptr< MassRateModelSettings > customMassRateDeprecated(
     if( isWarningPrinted == false )
     {
         tudat::utilities::printDeprecationWarning(
-                "tudatpy.numerical_simulation.propagation_setup.mass_rate."
+                "tudatpy.dynamics.propagation_setup.mass_rate."
                 "custom",
-                "tudatpy.numerical_simulation.propagation_setup.mass_rate."
+                "tudatpy.dynamics.propagation_setup.mass_rate."
                 "custom_mass_rate" );
         isWarningPrinted = true;
     }

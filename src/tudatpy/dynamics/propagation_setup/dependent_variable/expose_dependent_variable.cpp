@@ -42,9 +42,9 @@ std::shared_ptr< SingleDependentVariableSaveSettings > customDependentVariableDe
     if( isWarningPrinted == false )
     {
         tudat::utilities::printDeprecationWarning(
-                "tudatpy.numerical_simulation.propagation_setup.dependent_"
+                "tudatpy.dynamics.propagation_setup.dependent_"
                 "variable.custom",
-                "tudatpy.numerical_simulation.propagation_setup.dependent_"
+                "tudatpy.dynamics.propagation_setup.dependent_"
                 "variable.custom_dependent_variable" );
         isWarningPrinted = true;
     }

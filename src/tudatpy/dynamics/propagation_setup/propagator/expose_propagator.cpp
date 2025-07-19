@@ -1021,7 +1021,7 @@ Function to create translational state propagator settings for N bodies.
 The propagated state vector is defined by the combination of integrated bodies, and their central body, the combination
 of which define the relative translational states for which a differential equation is to be solved. The propagator
 input defines the formulation in which the differential equations are set up
-The dynamical models are defined by an ``AccelerationMap`` (dict[str, list[AccelerationModel]]), as created by :func:`~tudatpy.numerical_simulation.propagation_setup.create_acceleration_models` function.
+The dynamical models are defined by an ``AccelerationMap`` (dict[str, list[AccelerationModel]]), as created by :func:`~tudatpy.dynamics.propagation_setup.create_acceleration_models` function.
 Details on the usage of this function are discussed in more detail in the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational.html>`__.
 
 Parameters
@@ -1099,7 +1099,7 @@ The propagated state vector is defined by the integrated bodies, which defines t
 differential equation defining the evolution of the rotational state between an
 inertial and body-fixed frame are to be solved. The propagator input defines the
 formulation in which the differential equations are set up. The dynamical models are
-defined by a ``TorqueModelMap``, as created by :func:`~tudatpy.numerical_simulation.propagation_setup.create_torque_models` function.
+defined by a ``TorqueModelMap``, as created by :func:`~tudatpy.dynamics.propagation_setup.create_torque_models` function.
 Details on the usage of this function are discussed in more detail in the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/rotational.html>`__
 
 
@@ -1633,11 +1633,11 @@ HybridArcPropagatorSettings
 
  .. note::
 
-     When using this option, the :attr:`~tudatpy.numerical_simulation.propagation.SingleArcSimulationResults.termination_details` of
+     When using this option, the :attr:`~tudatpy.dynamics.propagation.SingleArcSimulationResults.termination_details` of
      the simulation results object (obtained from here after a propagation: :attr:`~tudatpy.numerical_simulation.SingleArcSimulator.propagation_results`)
-     is of derived type :class:`~tudatpy.numerical_simulation.propagation.PropagationTerminationDetailsFromHybridCondition`.
+     is of derived type :class:`~tudatpy.dynamics.propagation.PropagationTerminationDetailsFromHybridCondition`.
 
-     See the :attr:`~tudatpy.numerical_simulation.propagation.PropagationTerminationDetailsFromHybridCondition.was_condition_met_when_stopping` attribute for an example of how to retrieve which condition was met when the propagation was terminated.
+     See the :attr:`~tudatpy.dynamics.propagation.PropagationTerminationDetailsFromHybridCondition.was_condition_met_when_stopping` attribute for an example of how to retrieve which condition was met when the propagation was terminated.
 
 
  Parameters
@@ -1750,11 +1750,11 @@ HybridArcPropagatorSettings
 
  Function to add dependent variables to existing propagator settings.
 
- Function to add dependent variables to existing :class:`~tudatpy.numerical_simulation.propagation_setup.propagator.SingleArcPropagatorSettings`
+ Function to add dependent variables to existing :class:`~tudatpy.dynamics.propagation_setup.propagator.SingleArcPropagatorSettings`
  object. This function is added as an alternative to teh regular manner in which to defined dependent variables (use of input to
- functions for single-arc propagator settings :func:`~tudatpy.numerical_simulation.propagation_setup.propagator.translational`,
- :func:`~tudatpy.numerical_simulation.propagation_setup.propagator.rotational`, :func:`~tudatpy.numerical_simulation.propagation_setup.propagator.mass`,
- :func:`~tudatpy.numerical_simulation.propagation_setup.propagator.multitype`). Typically, this function is used to modify
+ functions for single-arc propagator settings :func:`~tudatpy.dynamics.propagation_setup.propagator.translational`,
+ :func:`~tudatpy.dynamics.propagation_setup.propagator.rotational`, :func:`~tudatpy.dynamics.propagation_setup.propagator.mass`,
+ :func:`~tudatpy.dynamics.propagation_setup.propagator.multitype`). Typically, this function is used to modify
  existing propagator settings in a loop when running multiple simulations
 
 
