@@ -5,8 +5,7 @@ from matplotlib import pyplot as plt
 
 # Load tudatpy modules
 from tudatpy.interface import spice
-from tudatpy import numerical_simulation
-from tudatpy.dynamics import environment_setup, propagation_setup
+from tudatpy.dynamics import environment_setup, propagation_setup, simulator
 from tudatpy.astro import element_conversion
 from tudatpy import constants
 from tudatpy.util import result2array
@@ -170,7 +169,7 @@ def test_dependent_variable_dictionary():
     )
 
     # Create simulation object and propagate the dynamics
-    dynamics_simulator = numerical_simulation.create_dynamics_simulator(
+    dynamics_simulator = simulator.create_dynamics_simulator(
         bodies, propagator_settings
     )
 
