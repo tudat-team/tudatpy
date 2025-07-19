@@ -35,7 +35,7 @@ class Trk234Processor:
     >>> # Process observations
     >>> observations = tnf_processor.process()
     >>>
-    >>> # Set frequency information in the bodies assuming you have a bodies object tudatpy.numerical_simulation.environment.SystemOfBodies
+    >>> # Set frequency information in the bodies assuming you have a bodies object tudatpy.dynamics.environment.SystemOfBodies
     >>> tnf_processor.set_tnf_information_in_bodies(bodies)
     """
 
