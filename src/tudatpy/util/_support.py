@@ -1,18 +1,19 @@
 import numpy as np
 from tudatpy.math import interpolators
-from tudatpy import numerical_simulation
+from tudatpy.dynamics import propagation
+from tudatpy.dynamics.propagation_setup import propagator
 import os
 from typing import Union, TYPE_CHECKING, Callable
 
 if TYPE_CHECKING:
-    from ..numerical_simulation.propagation_setup import propagator
+    from ..dynamics.propagation_setup import propagator
 
 
 def result2array(result: dict[float, np.ndarray]):
     """Initial prototype function to convert dict result from DynamicsSimulator
 
     The `state_history` and `dependent_history` retrieved from classes
-    deriving from the :class:`~tudatpy.numerical_simulation.SingleArcSimulator`
+    deriving from the :class:`~tudatpy.dynamics.simulator.SingleArcSimulator`
     return these time series as a mapping illustrated by:
 
     .. code-block:: python
@@ -290,7 +291,7 @@ def split_history(
         Dictionary mapping the simulation time steps to the propagated
         state time series.
 
-    propagator_settings : tudatpy.kernel.numerical_simulation.propagation_setup.propagator.PropagatorSettings
+    propagator_settings : tudatpy.dynamics.propagation_setup.propagator.PropagatorSettings
         Settings used for the propagation.
 
     Returns
@@ -300,7 +301,7 @@ def split_history(
     """
     # Get the propagated state types and names of the propagated bodies from the integrator settings.
     integrated_type_and_body_list = (
-        numerical_simulation.get_integrated_type_and_body_list(
+        propagator.get_integrated_type_and_body_list(
             propagator_settings
         )
     )
@@ -317,7 +318,7 @@ def split_history(
             n_bodies = len(body_list)
             body_names = [body_list[i][0] for i in range(n_bodies)]
         # Get the state size for the current state type.
-        state_size = numerical_simulation.get_single_integration_size(
+        state_size = propagation.get_single_integration_size(
             state_type
         )
         propagated_states_sizes.append(state_size)
@@ -350,7 +351,7 @@ def vector2matrix(flat_matrix: np.ndarray):
 
     Following Tudat standards, a rotation matrix is returned as a nine-entry vector in the dependent variable output,
     where entry (i,j) of the matrix is stored in entry (3i+j) of the vector with i,j = 0,1,2.
-    This is detailled in the :func:`~tudatpy.numerical_simulation.propagation_setup.dependent_variable.inertial_to_body_fixed_rotation_frame` docs.
+    This is detailled in the :func:`~tudatpy.dynamics.propagation_setup.dependent_variable.inertial_to_body_fixed_rotation_frame` docs.
 
     Parameters
     -----------
