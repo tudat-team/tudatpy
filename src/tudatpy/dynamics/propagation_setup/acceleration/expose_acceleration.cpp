@@ -42,9 +42,9 @@ inline std::shared_ptr< AccelerationSettings > customAccelerationSettingsDepreca
     if( isWarningPrinted == false )
     {
         tudat::utilities::printDeprecationWarning(
-                "tudatpy.numerical_simulation.propagation_setup."
+                "tudatpy.dynamics.propagation_setup."
                 "acceleration.custom",
-                "tudatpy.numerical_simulation.propagation_setup."
+                "tudatpy.dynamics.propagation_setup."
                 "acceleration.custom_acceleration" );
         isWarningPrinted = true;
     }
@@ -57,7 +57,7 @@ inline std::shared_ptr< AccelerationSettings > thrustAccelerationRemoved1(
         const std::shared_ptr< tss::ThrustMagnitudeSettings > thrustMagnitudeSettings )
 {
     tudat::utilities::printDeprecationError(
-            "tudatpy.numerical_simulation.propagation_setup.acceleration."
+            "tudatpy.dynamics.propagation_setup.acceleration."
             "thrust_from_direction_and_magnitude",
             "https://docs.tudat.space/en/stable/_src_user_guide/"
             "state_propagation/environment_setup/thrust_refactor/"
@@ -72,7 +72,7 @@ inline std::shared_ptr< AccelerationSettings > thrustAccelerationRemoved2(
         const std::string centralBody = "" )
 {
     tudat::utilities::printDeprecationError(
-            "tudatpy.numerical_simulation.propagation_setup.acceleration."
+            "tudatpy.dynamics.propagation_setup.acceleration."
             "thrust_and_isp_from_custom_function",
             "https://docs.tudat.space/en/stable/_src_user_guide/"
             "state_propagation/environment_setup/thrust_refactor/"
@@ -87,7 +87,7 @@ inline std::shared_ptr< AccelerationSettings > thrustAccelerationRemoved3(
         const std::string centralBody = "" )
 {
     tudat::utilities::printDeprecationError(
-            "tudatpy.numerical_simulation.propagation_setup.acceleration."
+            "tudatpy.dynamics.propagation_setup.acceleration."
             "thrust_from_custom_function",
             "https://docs.tudat.space/en/stable/_src_user_guide/"
             "state_propagation/environment_setup/thrust_refactor/"
@@ -129,7 +129,7 @@ void expose_acceleration_setup( py::module &m )
 
          Enumeration of acceleration types supported by tudat. This enum is not used directly by the user to
          create accelerations, but is used in other parts of the library where a type of acceleration is to be
-         identified (for instance in :func:`~tudatpy.numerical_simulation.propagation_setup.dependent_variable.single_acceleration`
+         identified (for instance in :func:`~tudatpy.dynamics.propagation_setup.dependent_variable.single_acceleration`
          to save an acceleration as dependent variable`
 
 
@@ -495,7 +495,7 @@ AccelerationSettings
  .. math::
     \mathbf{a}=-\frac{1}{m}\mathbf{R}^{(I/\text{Aero})}\left(\frac{1}{2}\rho v_{\text{air}}^{2}S_{ref}\begin{pmatrix} C_{D} \\ C_{S} \\ C_{L}\end{pmatrix}\right)
 
- with :math:`\mathbf{R}^{(I/\text{Aero})}` the rotation matrix from the aerodynamic frame of the body undergoing acceleration to the inertial frame, see ::cite:p:`mooij1994` or :class:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.AerodynamicsReferenceFrames`,
+ with :math:`\mathbf{R}^{(I/\text{Aero})}` the rotation matrix from the aerodynamic frame of the body undergoing acceleration to the inertial frame, see ::cite:p:`mooij1994` or :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicsReferenceFrames`,
  :math:`\rho` the local freestream atmospheric density, :math:`v_{\text{air}}` the airspeed,  :math:`C_{D,S,L}` the drag, side and lift coefficients (which may depend on any number of properties of the body/environment) with reference area :math:`S_{ref}`,
  and :math:`m` the mass of the body undergoing acceleration
  The body exerting the acceleration needs to have an atmosphere (:ref:`atmosphere` module), shape (:ref:`shape` module) and rotation model (:ref:`rotation_model` module) defined. The body undergoing the acceleration needs to have aerodynamic coefficients (:ref:`aerodynamic_coefficients` module) defined.
@@ -534,12 +534,12 @@ Creates settings for the radiation pressure acceleration. This function takes th
 body undergoing the acceleration, and links these models to set up the specific acceleration model, regardless of how the source and target models are defined.
 
 Settings for how to define the source and target model are provided in the :ref:`radiation_pressure` module. The source model is used to compute the
-irradiance :math:`\Phi` at the location of the target. Typical source models are the :func:`~tudatpy.numerical_simulation.environment_setup.radiation_pressure.isotropic_radiation_source` (typically used for the Sun), which
+irradiance :math:`\Phi` at the location of the target. Typical source models are the :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.isotropic_radiation_source` (typically used for the Sun), which
 computes a single irradiance value :math:`Phi` and the
-:func:`~tudatpy.numerical_simulation.environment_setup.radiation_pressure.panelled_extended_radiation_source` (typically used for planetary radiation pressure),
+:func:`~tudatpy.dynamics.environment_setup.radiation_pressure.panelled_extended_radiation_source` (typically used for planetary radiation pressure),
 which computes a separate irradiance value from each of the panels on the source body.
 Typical target models are the
-:func:`~tudatpy.numerical_simulation.environment_setup.radiation_pressure.cannonball_radiation_target` model and the :func:`~tudatpy.numerical_simulation.environment_setup.radiation_pressure.panelled_radiation_target`
+:func:`~tudatpy.dynamics.environment_setup.radiation_pressure.cannonball_radiation_target` model and the :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.panelled_radiation_target`
 target models.
 
 For more extensive details on how this is done, check out the
@@ -580,11 +580,11 @@ AccelerationSettings
  .. math::
     \mathbf{a}=\mathbf{R}^{(I/B)}\nabla^{(B)}U(\mathbf{r})
 
- with :math:`\mathbf{r}` the position vector measured from the center of mass of the body exerting the acceleration, :math:`\mathbf{R}^{(I/B)}` the rotation matrix from body-fixed to inertial frame, and :math:`\nabla^{(B)}` the gradient operator in a body-fixed frame, and :math:`U` the spherical harmonic gravitational potential (see :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.spherical_harmonic`), expanded up to the provided ``maximum_degree`` and ``maximum_order``.
+ with :math:`\mathbf{r}` the position vector measured from the center of mass of the body exerting the acceleration, :math:`\mathbf{R}^{(I/B)}` the rotation matrix from body-fixed to inertial frame, and :math:`\nabla^{(B)}` the gradient operator in a body-fixed frame, and :math:`U` the spherical harmonic gravitational potential (see :class:`~tudatpy.dynamics.environment_setup.gravity_field.spherical_harmonic`), expanded up to the provided ``maximum_degree`` and ``maximum_order``.
 
  Depending on the body undergoing the acceleration :math:`A`, the body exerting the acceleration :math:`B`, and the central body of propagation :math:`C`, choosing this option may create a direct spherical harmonic attraction (:math:`\mu=\mu_{B}`), a central spherical harmonic attraction (:math:`\mu=\mu_{B}+\mu_{A}`) or a third-body spherical harmonic attraction (see `dedicated user guide page  <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/third_body_acceleration.html>`_ for more details).
 
- The body exerting the acceleration needs to have a spherical harmonic gravity field model with coefficients up to at least the ``maximum_degree`` and ``maximum_order`` provided (see :class:`~tudatpy.numerical_simulation.environment_setup.gravity_field.spherical_harmonic`) and a rotation model (:ref:`rotation_model` module) defined.
+ The body exerting the acceleration needs to have a spherical harmonic gravity field model with coefficients up to at least the ``maximum_degree`` and ``maximum_order`` provided (see :class:`~tudatpy.dynamics.environment_setup.gravity_field.spherical_harmonic`) and a rotation model (:ref:`rotation_model` module) defined.
 
  Note that, if the body exerting the acceleration has any :ref:`gravity_field_variation` defines, the influence of these variations on the acceleration is automatically accounted for.
 
@@ -637,7 +637,7 @@ AccelerationSettings
  Creates settings for the mutual spherical harmonic gravity acceleration.
 
  Creates settings for the mutual spherical harmonic gravity acceleration. This model computes the total spherical harmonic acceleration exerted by a body :math:`B` on a body :math:`A`, where the influence of the gravity field coefficients of body :math:`A` itself has been included. The model includes couplings between the mass of each body, and the gravity field coefficients of the other body. It does not include the 'figure-figure' interactions (coupling between the two-bodies' gravity field coefficients). It corresponds to the model presented by :cite:p:`lainey2004,dirkx2016`
- The model combines the spherical harmonic accelerations of the two bodies (see :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.spherical_harmonic_gravity`) on each other. The direct acceleration (acceleration w.r.t. an inertial origin) is computed from:
+ The model combines the spherical harmonic accelerations of the two bodies (see :func:`~tudatpy.dynamics.propagation_setup.acceleration.spherical_harmonic_gravity`) on each other. The direct acceleration (acceleration w.r.t. an inertial origin) is computed from:
 
  .. math::
 
@@ -794,7 +794,7 @@ Returns
 
 Creates settings for the ring gravity acceleration.
 
-Creates settings for the ring gravity acceleration, an infinitely thin circular mass with constant linear mass distribution (e.g. along its circumference). This acceleration model requires a body have a ring gravity field model (create using the :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field.ring_model` gravity field setting)
+Creates settings for the ring gravity acceleration, an infinitely thin circular mass with constant linear mass distribution (e.g. along its circumference). This acceleration model requires a body have a ring gravity field model (create using the :func:`~tudatpy.dynamics.environment_setup.gravity_field.ring_model` gravity field setting)
 The ring acceleration is computed according to the model presented by :cite:t:`fukushima2010`. For a ring mass :math:`m` and ring radius :math:`a`, it is computed by
 first calculating the quantities:
 

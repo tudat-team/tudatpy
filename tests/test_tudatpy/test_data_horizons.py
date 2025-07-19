@@ -1,6 +1,6 @@
 from tudatpy.data.horizons import HorizonsQuery, HorizonsBatch
-from tudatpy.numerical_simulation.environment_setup.ephemeris import jpl_horizons
-from tudatpy.numerical_simulation import environment_setup
+from tudatpy.dynamics.environment_setup.ephemeris import jpl_horizons
+from tudatpy.dynamics import environment_setup
 
 
 from tudatpy.interface import spice

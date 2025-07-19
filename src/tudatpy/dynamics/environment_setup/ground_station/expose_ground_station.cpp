@@ -140,7 +140,7 @@ void expose_ground_station_setup( py::module &m )
  Returns
  -------
  GroundStationSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ground_station.GroundStationSettings` defining settings of the to be created ground station
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ground_station.GroundStationSettings` defining settings of the to be created ground station
 
 
 
@@ -216,7 +216,7 @@ void expose_ground_station_setup( py::module &m )
 
  .. code-block:: python
 
-     from tudatpy.numerical_simulation.environment_setup.ground_station import \
+     from tudatpy.dynamics.environment_setup.ground_station import \
          dsn_station
 
      dss_station_names = ["DSS-14", "DSS-43", "DSS-63"]
@@ -298,7 +298,7 @@ void expose_ground_station_setup( py::module &m )
  Returns
  -------
  GroundStationMotionSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ground_station.GroundStationMotionSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ground_station.LinearGroundStationMotionSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ground_station.GroundStationMotionSettings` derived :class:`~tudatpy.dynamics.environment_setup.ground_station.LinearGroundStationMotionSettings` class
 
 
 
@@ -323,7 +323,7 @@ void expose_ground_station_setup( py::module &m )
  Returns
  -------
  GroundStationMotionSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ground_station.GroundStationMotionSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ground_station.PiecewiseConstantGroundStationMotionSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ground_station.GroundStationMotionSettings` derived :class:`~tudatpy.dynamics.environment_setup.ground_station.PiecewiseConstantGroundStationMotionSettings` class
 
 
 
@@ -350,7 +350,7 @@ void expose_ground_station_setup( py::module &m )
  Returns
  -------
  GroundStationMotionSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ground_station.GroundStationMotionSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ground_station.CustomGroundStationMotionSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ground_station.GroundStationMotionSettings` derived :class:`~tudatpy.dynamics.environment_setup.ground_station.CustomGroundStationMotionSettings` class
 
 
 

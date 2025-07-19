@@ -104,7 +104,7 @@ void expose_rigid_body_setup( py::module &m )
  Returns
  -------
  RigidBodyPropertiesSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.rigid_body.RigidBodyPropertiesSettings` object with the given settings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.rigid_body.RigidBodyPropertiesSettings` object with the given settings
 
 
 
@@ -138,7 +138,7 @@ void expose_rigid_body_setup( py::module &m )
  Returns
  -------
  RigidBodyPropertiesSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.rigid_body.RigidBodyPropertiesSettings` object with the given settings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.rigid_body.RigidBodyPropertiesSettings` object with the given settings
 
 
 
@@ -171,7 +171,7 @@ void expose_rigid_body_setup( py::module &m )
  Returns
  -------
  RigidBodyPropertiesSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.rigid_body.RigidBodyPropertiesSettings` object with the given settings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.rigid_body.RigidBodyPropertiesSettings` object with the given settings
 
 
 

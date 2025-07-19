@@ -222,7 +222,7 @@ void expose_shape_setup( py::module &m )
  Returns
  -------
  SphericalBodyShapeSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.shape.SphericalBodyShapeSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.shape.BodyShapeSettings` derived :class:`~tudatpy.dynamics.environment_setup.shape.SphericalBodyShapeSettings` class
 
 
 
@@ -230,7 +230,7 @@ void expose_shape_setup( py::module &m )
 
  Examples
  --------
- In this example, we create a :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeSettings` using a perfectly spherical shape model:
+ In this example, we create a :class:`~tudatpy.dynamics.environment_setup.shape.BodyShapeSettings` using a perfectly spherical shape model:
 
  .. code-block:: python
 
@@ -253,7 +253,7 @@ void expose_shape_setup( py::module &m )
  Returns
  -------
  BodyShapeSettings
-     Instance of :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeSettings` class
+     Instance of :class:`~tudatpy.dynamics.environment_setup.shape.BodyShapeSettings` class
 
 
 
@@ -261,7 +261,7 @@ void expose_shape_setup( py::module &m )
 
  Examples
  --------
- In this example, we create a :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeSettings` using a perfectly spherical shape model and data from Spice:
+ In this example, we create a :class:`~tudatpy.dynamics.environment_setup.shape.BodyShapeSettings` using a perfectly spherical shape model and data from Spice:
 
  .. code-block:: python
 
@@ -291,7 +291,7 @@ void expose_shape_setup( py::module &m )
  Returns
  -------
  OblateSphericalBodyShapeSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.shape.OblateSphericalBodyShapeSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.shape.BodyShapeSettings` derived :class:`~tudatpy.dynamics.environment_setup.shape.OblateSphericalBodyShapeSettings` class
 
 
 
@@ -299,7 +299,7 @@ void expose_shape_setup( py::module &m )
 
  Examples
  --------
- In this example, we create a :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeSettings` using a perfectly oblate spherical shape model:
+ In this example, we create a :class:`~tudatpy.dynamics.environment_setup.shape.BodyShapeSettings` using a perfectly oblate spherical shape model:
 
  .. code-block:: python
 
@@ -330,13 +330,13 @@ void expose_shape_setup( py::module &m )
 
  Note 1: The evaluation of the altitude with a polyhedron model tends to be computationally expensive. To reduce the
  computational time, it might be useful to instead define a hybrid shape model (see
- :func:`~tudatpy.numerical_simulation.environment_setup.shape.hybrid`), which allows using a high-resolution
+ :func:`~tudatpy.dynamics.environment_setup.shape.hybrid`), which allows using a high-resolution
  polyhedron (with a large number of facets) at low altitudes and a low-resolution one (with smaller number of facets)
  at high-altitudes.
 
  Note 2: If the goal of using the shape model is only to detect collisions with the surface and not to explicitly
  obtain the altitude, it is instead recommended to use the Laplacian of the gravitational potential (see
- :func:`~tudatpy.numerical_simulation.propagation_setup.dependent_variable.gravity_field_laplacian_of_potential`).
+ :func:`~tudatpy.dynamics.propagation_setup.dependent_variable.gravity_field_laplacian_of_potential`).
  This allows reducing the computational time, but is only valid if the same polyhedron model that is used to define
  the gravitational acceleration should also be used to detect the impacts.
 
@@ -367,8 +367,8 @@ void expose_shape_setup( py::module &m )
  Returns
  -------
  PolyhedronBodyShapeSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeSettings` derived
-     :class:`~tudatpy.numerical_simulation.environment_setup.shape.PolyhedronBodyShapeSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.shape.BodyShapeSettings` derived
+     :class:`~tudatpy.dynamics.environment_setup.shape.PolyhedronBodyShapeSettings` class
 
 
 
@@ -416,8 +416,8 @@ void expose_shape_setup( py::module &m )
  Returns
  -------
  HybridBodyShapeSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.shape.BodyShapeSettings` derived
-     :class:`~tudatpy.numerical_simulation.environment_setup.shape.HybridBodyShapeSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.shape.BodyShapeSettings` derived
+     :class:`~tudatpy.dynamics.environment_setup.shape.HybridBodyShapeSettings` class
 
 
 
