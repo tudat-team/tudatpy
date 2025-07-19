@@ -410,11 +410,11 @@ void expose_simulator( py::module& m )
 
     simulate_dynamics_on_creation : bool, default=True
         Boolean defining whether to propagate the dynamics upon creation of the Simulator. If false, the dynamics c
-        can be propagated at a later time by calling the :class:`~tudatpy.numerical_simulation.DynamicsSimulator.integrate_equations_of_motion` function
+        can be propagated at a later time by calling the :func:`~tudatpy.dynamics.simulator.DynamicsSimulator.integrate_equations_of_motion` function
 
     Returns
     -------
-    :class:`~tudatpy.numerical_simulation.DynamicsSimulator`
+    :class:`~tudatpy.dynamics.simulator.DynamicsSimulator`
         Object that propagates the dynamics, and processes the results.
         Depending on the ``propagator_settings``, this object can be a single-, multi- or hybrid-arc simulator.
 
@@ -548,7 +548,7 @@ void expose_simulator( py::module& m )
          Returns
          -------
          None
-             Creates / modifies the `state_history` property of the :class:`~tudatpy.numerical_simulation.SingleArcVariationalSimulator` object.
+             Creates / modifies the `state_history` property of the :class:`~tudatpy.dynamics.simulator.SingleArcVariationalSimulator` object.
 
 
 
@@ -671,7 +671,7 @@ void expose_simulator( py::module& m )
          Simulator object containing all functionality for solving of the (regular) equations of motion.
 
 
-         :type: :class:`~tudatpy.numerical_simulation.SingleArcSimulator`
+         :type: :class:`~tudatpy.dynamics.simulator.SingleArcSimulator`
       )doc" );
 
     m.def( "create_variational_equations_solver",
@@ -704,11 +704,11 @@ void expose_simulator( py::module& m )
 
  simulate_dynamics_on_creation : bool, default=True
   Boolean defining whether to propagate the dynamics upon creation of the Simulator. If false, the dynamics
-  can be propagated at a later time by calling the :class:`~tudatpy.numerical_simulation.Simulator.integrate_equations_of_motion` function
+  can be propagated at a later time by calling the :func:`~tudatpy.dynamics.DynamicsSimulator.integrate_equations_of_motion` function
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.VariationalSimulator`
+ :class:`~tudatpy.dynamics.simulator.VariationalSimulator`
   Object that propagates the dynamics, and processes the results.
 
   )doc" );

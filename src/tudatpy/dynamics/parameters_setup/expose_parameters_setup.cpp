@@ -206,7 +206,7 @@ void expose_parameters_setup( py::module& m )
      # Define parameters settings
      parameter_settings = ...
      # Create the parameters that will be estimated
-     parameters_to_estimate = estimation_setup.create_parameter_set(parameter_settings, bodies)
+     parameters_to_estimate = dynamics.parameters_setup.create_parameter_set(parameter_settings, bodies)
 
  This code snippet closely follows what is done in: `Full Estimation Example <https://github.com/tudat-team/tudatpy-examples/blob/master/estimation/full_estimation_example.ipynb>`_.
 
@@ -246,10 +246,10 @@ void expose_parameters_setup( py::module& m )
     ...
 
     # bad: list creation statement --> will result in nested list, undesired!
-    list_of_all_parameters = [estimation_setup.parameter.initial_states(...), single_parameter_1, single_parameter_2, ...]
+    list_of_all_parameters = [dynamics.parameters_setup.initial_states(...), single_parameter_1, single_parameter_2, ...]
 
     # better: list concatenation --> will result in simple list, desired!
-    list_of_all_parameters = estimation_setup.parameter.initial_states(...) + [single_parameter_1, single_parameter_2, ...]
+    list_of_all_parameters = dynamics.parameters_setup.initial_states(...) + [single_parameter_1, single_parameter_2, ...]
 
 
  Parameters
