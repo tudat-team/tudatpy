@@ -6,7 +6,8 @@ from tudatpy.dynamics.environment_setup.ground_station import (
     # from tudatpy.dynamics.environment import (
     get_approximate_dsn_ground_station_positions,
 )
-from tudatpy.numerical_simulation.estimation_setup import observation  # type:ignore
+from tudatpy.estimation.observations_setup.ancillary_settings import FrequencyBands  # type:ignore
+from tudatpy.estimation.observable_models_setup import links
 from tudatpy.astro import time_conversion
 from . import Converter
 from trk234 import bands
@@ -24,10 +25,10 @@ class RadioBase(Converter):
     time_scale_converter = time_conversion.default_time_scale_converter()
 
     frequencyBandsDict = {
-        "S": observation.FrequencyBands.s_band,
-        "X": observation.FrequencyBands.x_band,
-        # "K": observation.FrequencyBands.ku_band,
-        "Ka": observation.FrequencyBands.ka_band,
+        "S": FrequencyBands.s_band,
+        "X": FrequencyBands.x_band,
+        # "K": FrequencyBands.ku_band,
+        "Ka": FrequencyBands.ka_band,
     }
 
     stationDict = get_approximate_dsn_ground_station_positions()
@@ -127,24 +128,24 @@ class RadioBase(Converter):
 
         # Set custom spacecraft name if provided
         if spacecraftName is not None:
-            spacecraft = observation.body_origin_link_end_id(spacecraftName)
+            spacecraft = links.body_origin_link_end_id(spacecraftName)
         else:
-            spacecraft = observation.body_origin_link_end_id(link_end_tuple[1])
+            spacecraft = links.body_origin_link_end_id(link_end_tuple[1])
 
         if link_end_tuple[0] == "nan" and len(link_end_tuple) == 2:
             return {
-                observation.transmitter: spacecraft,
-                observation.receiver: observation.body_reference_point_link_end_id(
+                links.transmitter: spacecraft,
+                links.receiver: links.body_reference_point_link_end_id(
                     "Earth", link_end_tuple[2]
                 ),
             }
         else:
             return {
-                observation.transmitter: observation.body_reference_point_link_end_id(
+                links.transmitter: links.body_reference_point_link_end_id(
                     "Earth", link_end_tuple[0]
                 ),
-                observation.reflector1: spacecraft,
-                observation.receiver: observation.body_reference_point_link_end_id(
+                links.reflector1: spacecraft,
+                links.receiver: links.body_reference_point_link_end_id(
                     "Earth", link_end_tuple[2]
                 ),
             }
