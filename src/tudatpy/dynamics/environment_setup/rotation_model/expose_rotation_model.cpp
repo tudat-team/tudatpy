@@ -212,7 +212,7 @@ void expose_rotation_model_setup( py::module &m )
  Returns
  -------
  SimpleRotationModelSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.SimpleRotationModelSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.SimpleRotationModelSettings` class
 
 
 
@@ -220,7 +220,7 @@ void expose_rotation_model_setup( py::module &m )
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.RotationModelSettings` for Earth,
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` for Earth,
  using a simple rotation model with constant orientation of the rotation axis (body-fixed z-axis), and constant rotation rate about this axis:
 
  .. code-block:: python
@@ -252,9 +252,9 @@ void expose_rotation_model_setup( py::module &m )
 
  Function for creating simple rotation model settings using initial orientation and rotation rates from Spice.
 
- Function for settings object, defining a :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.simple` rotation model with the added functionality that the initial orientation and rotation rate are extracted from Spice, as opposed to provided manually.
+ Function for settings object, defining a :func:`~tudatpy.dynamics.environment_setup.rotation_model.simple` rotation model with the added functionality that the initial orientation and rotation rate are extracted from Spice, as opposed to provided manually.
  Note that `only` the initial orientation and rotation rate ( at the time defined by ``initial_time`` ) are extracted from Spice - for
- the full Spice rotation model see :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.spice`.
+ the full Spice rotation model see :func:`~tudatpy.dynamics.environment_setup.rotation_model.spice`.
  Also note the distinction between the ``target_frame`` and ``target_frame_spice`` parameters.
 
 
@@ -271,20 +271,20 @@ void expose_rotation_model_setup( py::module &m )
  Returns
  -------
  SimpleRotationModelSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.SimpleRotationModelSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.SimpleRotationModelSettings` class
 
 
 
  Notes
  -----
- In order to create a :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.SimpleRotationModelSettings` object which describes a synchronous rotation w.r.t. some ``central_body``,
- we require an ``ephemeris_settings`` attribute to the :class:`~tudatpy.numerical_simulation.environment_setup.BodySettings` object of the ``central_body``.
+ In order to create a :class:`~tudatpy.dynamics.environment_setup.rotation_model.SimpleRotationModelSettings` object which describes a synchronous rotation w.r.t. some ``central_body``,
+ we require an ``ephemeris_settings`` attribute to the :class:`~tudatpy.dynamics.environment_setup.BodySettings` object of the ``central_body``.
 
 
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.RotationModelSettings` for Earth,
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` for Earth,
  using a simple rotation model with constant orientation of the rotation axis (body-fixed z-axis), and constant rotation rate about this axis.
  The initial orientation and rotation rate are extracted from Spice at the time defined by ``initial_time``:
 
@@ -331,7 +331,7 @@ void expose_rotation_model_setup( py::module &m )
  Returns
  -------
  SynchronousRotationModelSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.SynchronousRotationModelSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.SynchronousRotationModelSettings` class
 
 
 
@@ -339,7 +339,7 @@ void expose_rotation_model_setup( py::module &m )
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.RotationModelSettings` for the martian moon Phobos,
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` for the martian moon Phobos,
  We do so by assigning a synchronous rotation model to the rotation model settings of Phobos, using in this case ``"ECLIPJ2000"`` as the base frame,
  and ``"Phobos_Fixed"`` as the target frame.
 
@@ -379,7 +379,7 @@ void expose_rotation_model_setup( py::module &m )
  Returns
  -------
  RotationModelSettings
-     Instance of :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.RotationModelSettings` class.
+     Instance of :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` class.
 
 
 
@@ -387,7 +387,7 @@ void expose_rotation_model_setup( py::module &m )
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.RotationModelSettings` for Earth,
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` for Earth,
  using full rotation model data from Spice:
 
  .. code-block:: python
@@ -429,10 +429,10 @@ void expose_rotation_model_setup( py::module &m )
  * :math:`s'`: The TIO (Terrestial Intermediate Origin)
 
  Depending on the selected ``precession_nutation_theory`` input, the SOFA function ``iauXys00a``, ``iauXys00b`` or ``iauXys06a`` is used to compute :math:`X,Y,s`, when selecting
- :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.IAUConventions` ``iau_2000a``, ``iau_2000b`` or ``iau_2006``, respectively. For epoch 01-01-1962 and later, corrections to the nominal values of :math:`X,Y`
+ :class:`~tudatpy.dynamics.environment_setup.rotation_model.IAUConventions` ``iau_2000a``, ``iau_2000b`` or ``iau_2006``, respectively. For epoch 01-01-1962 and later, corrections to the nominal values of :math:`X,Y`
  are applied using linear interpolation of daily corrections for :math:`X,Y` from the eopc04_14_IAU2000.62-now.txt file. The quantity :math:`s'` is computed from Eq. (5.13) (implemented in SOFA's ``iauSp00`` function).
 
- The value of :math:`\theta_{E}` is computed directly from UTC-UT1, which is computed using settings given in :func:`~tudatpy.astro.time_conversion.default_time_scale_converter`, the computation of
+ The value of :math:`\theta_{E}` is computed directly from UTC-UT1, which is computed using settings given in :func:`~tudatpy.astro.time_representation.default_time_scale_converter`, the computation of
  :math:`\theta_{E}` from this quantity follows from Eq. (5.15), implemented by SOFA's ``iauEra00`` function.
 
  The polar motion components :math:`x_{p}`, :math:`y_{p}` are computed from:
@@ -455,7 +455,7 @@ void expose_rotation_model_setup( py::module &m )
  Returns
  -------
  GcrsToItrsRotationModelSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.GcrsToItrsRotationModelSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.GcrsToItrsRotationModelSettings` class
 
 
 
@@ -463,7 +463,7 @@ void expose_rotation_model_setup( py::module &m )
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.RotationModelSettings` for Earth,
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` for Earth,
  using a high-accuracy Earth rotation model as defined by IERS Conventions 2010:
 
 
@@ -519,7 +519,7 @@ void expose_rotation_model_setup( py::module &m )
  Returns
  -------
  CustomRotationModelSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.CustomRotationModelSettings` class, which defines the required settings for the rotation model.
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.CustomRotationModelSettings` class, which defines the required settings for the rotation model.
 
 
 
@@ -557,7 +557,7 @@ void expose_rotation_model_setup( py::module &m )
  Returns
  -------
  CustomRotationModelSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.CustomRotationModelSettings` class, which defines the required settings for the rotation model.
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.CustomRotationModelSettings` class, which defines the required settings for the rotation model.
 
 
 
@@ -601,7 +601,7 @@ void expose_rotation_model_setup( py::module &m )
  Returns
  -------
  BodyFixedDirectionBasedRotationSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.BodyFixedDirectionBasedRotationSettings` class, which defines the required settings for the rotation model.
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.BodyFixedDirectionBasedRotationSettings` class, which defines the required settings for the rotation model.
 
 
 
@@ -645,7 +645,7 @@ void expose_rotation_model_setup( py::module &m )
  Returns
  -------
  BodyFixedDirectionBasedRotationSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.BodyFixedDirectionBasedRotationSettings` class, which defines the required settings for the rotation model.
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.BodyFixedDirectionBasedRotationSettings` class, which defines the required settings for the rotation model.
 
 
 
@@ -679,7 +679,7 @@ void expose_rotation_model_setup( py::module &m )
  Returns
  -------
  SimpleRotationModelSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.SimpleRotationModelSettings` class.
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.SimpleRotationModelSettings` class.
 
 
 
@@ -687,7 +687,7 @@ void expose_rotation_model_setup( py::module &m )
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.RotationModelSettings` for Earth,
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` for Earth,
  using a constant rotation matrix between Earth-fixed and inertial frame:
 
  .. code-block:: python
@@ -733,8 +733,8 @@ void expose_rotation_model_setup( py::module &m )
      Step size to use when computing the rotation matrix derivative numerically
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.CustomRotationModelSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.CustomRotationModelSettings` class, which defines the required settings for the rotation model.
+ :class:`~tudatpy.dynamics.environment_setup.rotation_model.CustomRotationModelSettings`
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.CustomRotationModelSettings` class, which defines the required settings for the rotation model.
 
 
 
@@ -763,7 +763,7 @@ void expose_rotation_model_setup( py::module &m )
  Returns
  -------
  RotationModelSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.rotation_model.PlanetaryRotationModelSettings` class, which defines the required settings for the rotation model.
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.PlanetaryRotationModelSettings` class, which defines the required settings for the rotation model.
 
 
 

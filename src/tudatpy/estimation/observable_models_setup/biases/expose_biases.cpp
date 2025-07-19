@@ -36,7 +36,7 @@ void expose_biases( py::module& m )
          Base class to defining observation bias settings.
          Specific observation bias settings must be defined using an object derived from this class.
          Instances of this class are typically created via the
-         :func:`~tudatpy.numerical_simulation.estimation_setup.observation.absolute_bias` or :func:`~tudatpy.numerical_simulation.estimation_setup.observation.relative_bias` function.
+         :func:`~tudatpy.estimation.observable_models_setup.biases.absolute_bias` or :func:`~tudatpy.estimation.observable_models_setup.biases.relative_bias` function.
 
 
          Examples
@@ -45,18 +45,18 @@ void expose_biases( py::module& m )
 
              # Code snippet to show the creation of an ObservationBiasSettings object
              # using absolute and relative bias settings
-             from tudatpy.numerical_simulation.estimation_setup import observation
+             from tudatpy.estimation.observable_models_setup import biases
              import numpy as np
 
              bias_array = np.array([1e-2])
 
              # Use absolute_bias function
-             absolute_bias_settings = observation.absolute_bias(bias_array)
+             absolute_bias_settings = biases.absolute_bias(bias_array)
              # Show that it is an ObservationBiasSettings object.
              print(absolute_bias_settings)
 
              # Use relative_bias function
-             relative_bias_settings = observation.relative_bias(bias_array)
+             relative_bias_settings = biases.relative_bias(bias_array)
              # Show that it is an ObservationBiasSettings object.
              print(relative_bias_settings)
       )doc" );
@@ -91,20 +91,20 @@ void expose_biases( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ConstantObservationBiasSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` defining the settings for a constant, absolute observation bias.
+ :class:`~tudatpy.estimation.observable_models_setup.biases.ConstantObservationBiasSettings`
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` defining the settings for a constant, absolute observation bias.
 
  Examples
  --------
  .. code-block:: python
 
      # Code Snippet to showcase the use of the absolute_bias function
-     from tudatpy.numerical_simulation.estimation_setup import observation
+     from tudatpy.estimation.observable_models_setup import biases
      import numpy as np
 
      # The function absolute_bias() requires a numpy.array of bias values in input
      bias_array = np.array([1e-2])
-     absolute_bias_settings = observation.absolute_bias(bias_array)
+     absolute_bias_settings = biases.absolute_bias(bias_array)
 
      # Show that it returns an ObservationBiasSettings object.
      print(absolute_bias_settings)
@@ -138,7 +138,7 @@ void expose_biases( py::module& m )
  Returns
  -------
  :class:`ConstantObservationBiasSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` class,
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` class,
      defining the settings for a constant, relative observation bias.
 
  Examples
@@ -146,12 +146,12 @@ void expose_biases( py::module& m )
  .. code-block:: python
 
      # Code Snippet to showcase the use of the relative_bias function
-     from tudatpy.numerical_simulation.estimation_setup import observation
+     from tudatpy.estimation.observable_models_setup import biases
      import numpy as np
 
      # The function relative_bias() requires a numpy.array of bias values in input
      bias_array = np.array([1e-2])
-     relative_bias_settings_settings = observation.relative_bias(bias_array)
+     relative_bias_settings_settings = biases.relative_bias(bias_array)
 
      # Show that it returns an ObservationBiasSettings object.
      print(relative_bias_settings_settings)
@@ -172,7 +172,7 @@ void expose_biases( py::module& m )
  Function for creating settings for arc-wise absolute observation biases.
 
  Function for creating settings for arc-wise absolute observation biases.
- This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.absolute_bias` setting only through the option of setting the `bias_value` :math:`K` to a different values for each arc.
+ This bias setting differs from the :class:`~tudatpy.estimation.observable_models_setup.biases.absolute_bias` setting only through the option of setting the `bias_value` :math:`K` to a different values for each arc.
 
 
  Parameters
@@ -189,15 +189,15 @@ void expose_biases( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings` class.
+ :class:`~tudatpy.estimation.observable_models_setup.biases.ArcWiseConstantObservationBiasSettings`
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` derived :class:`~tudatpy.estimation.observable_models_setup.biases.ArcWiseConstantObservationBiasSettings` class.
 
  Examples
  --------
  .. code-block:: python
 
      # Code Snippet to showcase the use of the arcwise_absolute_bias function
-     from tudatpy.numerical_simulation.estimation_setup import observation
+     from tudatpy.estimation.observable_models_setup import biases
      import numpy as np
 
      # The function arcwise_absolute_bias() requires:
@@ -205,8 +205,8 @@ void expose_biases( py::module& m )
      # Let's simulate two arcs
      arc_start_times = [0, 60] # define start time in seconds
      arcwise_bias_array = [np.array([1e-2]), np.array([2e-2])] # set arc bias
-     reference_link_end_type = observation.receiver # set bias at receiving link end
-     arcwise_absolute_bias_settings = observation.arcwise_absolute_bias(arc_start_times, arcwise_bias_array, observation.receiver)
+     reference_link_end_type = biases.receiver # set bias at receiving link end
+     arcwise_absolute_bias_settings = biases.arcwise_absolute_bias(arc_start_times, arcwise_bias_array, biases.receiver)
 
      # Show that it returns an ObservationBiasSettings object.
      print(arcwise_absolute_bias_settings)
@@ -225,7 +225,7 @@ void expose_biases( py::module& m )
  Function for creating settings for arc-wise absolute observation biases.
 
  Function for creating settings for arc-wise absolute observation biases.
- This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.absolute_bias` setting only through the option of setting the `bias_value` :math:`K` to a different values for each arc.
+ This bias setting differs from the :class:`~tudatpy.estimation.observable_models_setup.biases.absolute_bias` setting only through the option of setting the `bias_value` :math:`K` to a different values for each arc.
 
 
  Parameters
@@ -239,15 +239,15 @@ void expose_biases( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings` class.
+ :class:`~tudatpy.estimation.observable_models_setup.biases.ArcWiseConstantObservationBiasSettings`
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` derived :class:`~tudatpy.estimation.observable_models_setup.biases.ArcWiseConstantObservationBiasSettings` class.
 
  Examples
  --------
  .. code-block:: python
 
  # Code Snippet to showcase the use of the arcwise_absolute_bias function
- from tudatpy.numerical_simulation.estimation_setup import observation
+ from tudatpy.estimation.observable_models_setup import biases
  import numpy as np
 
      # The function arcwise_absolute_bias_settings_per_time() requires:
@@ -256,9 +256,9 @@ void expose_biases( py::module& m )
      bias_value_per_start_time = dict()
      bias_value_per_start_time[0] = np.array([1e-2])
      bias_value_per_start_time[60] = np.array([2e-2])
-     reference_link_end_type = observation.receiver # set bias at receiving link end
+     reference_link_end_type = biases.receiver # set bias at receiving link end
 
-     arcwise_absolute_bias_settings_per_time = observation.arcwise_absolute_bias_per_time(bias_value_per_start_time, reference_link_end_type)
+     arcwise_absolute_bias_settings_per_time = biases.arcwise_absolute_bias_per_time(bias_value_per_start_time, reference_link_end_type)
 
      # Show that it returns an ObservationBiasSettings object.
      print(arcwise_absolute_bias_settings_per_time)
@@ -278,7 +278,7 @@ void expose_biases( py::module& m )
  Function for creating settings for arc-wise relative observation biases.
 
  Function for creating settings for arc-wise relative observation biases.
- This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.relative_bias` setting only through the option of setting the `bias_value` :math:`K` to a different values for each arc.
+ This bias setting differs from the :class:`~tudatpy.estimation.observable_models_setup.biases.relative_bias` setting only through the option of setting the `bias_value` :math:`K` to a different values for each arc.
 
 
  Parameters
@@ -296,14 +296,14 @@ void expose_biases( py::module& m )
  Returns
  -------
  :class:`ArcWiseConstantObservationBiasSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings` class.
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` derived :class:`~tudatpy.estimation.observable_models_setup.biases.ArcWiseConstantObservationBiasSettings` class.
 
  Examples
  --------
  .. code-block:: python
 
      # Code Snippet to showcase the use of the arcwise_relative_bias function
-     from tudatpy.numerical_simulation.estimation_setup import observation
+     from tudatpy.estimation.observable_models_setup import biases
      import numpy as np
 
      # The function arcwise_relative_bias() requires:
@@ -311,8 +311,8 @@ void expose_biases( py::module& m )
      # Let's simulate two arcs
      arc_start_times = [0, 60] # define start time in seconds
      arcwise_bias_array = [np.array([1e-2]), np.array([2e-2])] # set arc bias
-     reference_link_end_type = observation.receiver # set bias at receiving link end
-     arcwise_relative_bias_settings = observation.arcwise_relative_bias(arc_start_times, arcwise_bias_array, reference_link_end_type)
+     reference_link_end_type = biases.receiver # set bias at receiving link end
+     arcwise_relative_bias_settings = biases.arcwise_relative_bias(arc_start_times, arcwise_bias_array, reference_link_end_type)
 
      # Show that it returns an ObservationBiasSettings object.
      print(arcwise_relative_bias_settings)
@@ -331,7 +331,7 @@ void expose_biases( py::module& m )
  Function for creating settings for arc-wise relative observation biases.
 
  Function for creating settings for arc-wise relative observation biases.
- This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.relative_bias` setting only through the option of setting the `bias_value` :math:`K` to a different values for each arc.
+ This bias setting differs from the :class:`~tudatpy.estimation.observable_models_setup.biases.relative_bias` setting only through the option of setting the `bias_value` :math:`K` to a different values for each arc.
 
 
  Parameters
@@ -346,14 +346,14 @@ void expose_biases( py::module& m )
  Returns
  -------
  :class:`ArcWiseConstantObservationBiasSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings` class.
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` derived :class:`~tudatpy.estimation.observable_models_setup.biases.ArcWiseConstantObservationBiasSettings` class.
 
  Examples
  --------
  .. code-block:: python
 
      # Code Snippet to showcase the use of the arcwise_relative_bias function
-     from tudatpy.numerical_simulation.estimation_setup import observation
+     from tudatpy.estimation.observable_models_setup import biases
      import numpy as np
 
      # The function arcwise_relative_bias_per_time() requires:
@@ -362,9 +362,9 @@ void expose_biases( py::module& m )
      bias_value_per_start_time = dict()
      bias_value_per_start_time[0] = np.array([1e-2])
      bias_value_per_start_time[60] = np.array([2e-2])
-     reference_link_end_type = observation.receiver # set bias at receiving link end
+     reference_link_end_type = biases.receiver # set bias at receiving link end
 
-     arcwise_relative_bias_settings_per_time = observation.arcwise_relative_bias_per_time(bias_value_per_start_time, reference_link_end_type)
+     arcwise_relative_bias_settings_per_time = biases.arcwise_relative_bias_per_time(bias_value_per_start_time, reference_link_end_type)
 
      # Show that it returns an ObservationBiasSettings object.
      print(arcwise_relative_bias_settings_per_time)
@@ -402,7 +402,7 @@ void expose_biases( py::module& m )
  Returns
  -------
  :class:`constantTimeDriftBias`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.constantTimeDriftBias` class,
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` derived :class:`~tudatpy.estimation.observable_models_setup.biases.constantTimeDriftBias` class,
      defining the settings for a constant, relative observation bias.
 
  Examples
@@ -410,14 +410,14 @@ void expose_biases( py::module& m )
  .. code-block:: python
 
      # Code Snippet to showcase the use of the time_drift_bias function
-     from tudatpy.numerical_simulation.estimation_setup import observation
+     from tudatpy.estimation.observable_models_setup import biases
      import numpy as np
 
      # The function time_drift_bias() requires a numpy.array of bias value, time_link_end and ref_epoch as inputs
      bias_array = np.array([1e-2])
-     time_link_end = observation.receiver
+     time_link_end = biases.receiver
      ref_epoch = 0
-     time_drift_bias_settings = observation.time_drift_bias(bias_array, time_link_end, ref_epoch)
+     time_drift_bias_settings = biases.time_drift_bias(bias_array, time_link_end, ref_epoch)
 
      # Show that it returns an ObservationBiasSettings object.
      print(time_drift_bias_settings)
@@ -443,7 +443,7 @@ void expose_biases( py::module& m )
  Function for creating settings for arc-wise time-drift biases.
 
  Function for creating settings for arc-wise time-drift biases.
- This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.time_drift_bias` setting only through the option of setting the `bias_value` (time drift bias) to a different values for each arc.
+ This bias setting differs from the :class:`~tudatpy.estimation.observable_models_setup.biases.time_drift_bias` setting only through the option of setting the `bias_value` (time drift bias) to a different values for each arc.
 
 
  Parameters
@@ -463,15 +463,15 @@ void expose_biases( py::module& m )
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`ArcWiseConstantObservationBiasSettings` class.
+ :class:`~tudatpy.estimation.observable_models_setup.biases.ArcWiseConstantObservationBiasSettings`
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` derived :class:`ArcWiseConstantObservationBiasSettings` class.
 
  Examples
  --------
  .. code-block:: python
 
      # Code Snippet to showcase the use of the arcwise_time_drift_bias function
-     from tudatpy.numerical_simulation.estimation_setup import observation
+     from tudatpy.estimation.observable_models_setup import biases
      import numpy as np
 
      # The function arcwise_time_drift_bias() requires:
@@ -479,9 +479,9 @@ void expose_biases( py::module& m )
      # Let's simulate two arcs
      arc_start_times = [0, 60] # define start time in seconds
      arcwise_bias_array = [np.array([1e-2]), np.array([2e-2])] # set arc bias
-     reference_link_end_type = observation.receiver # set bias at receiving link end
+     reference_link_end_type = biases.receiver # set bias at receiving link end
      ref_epochs = [0,60]
-     arcwise_time_drift_bias_settings = observation.arc_wise_time_drift_bias(arcwise_bias_array, arc_start_times, observation.receiver, ref_epochs)
+     arcwise_time_drift_bias_settings = biases.arc_wise_time_drift_bias(arcwise_bias_array, arc_start_times, biases.receiver, ref_epochs)
 
      # Show that it returns an ObservationBiasSettings object.
      print(arcwise_time_drift_bias_settings)
@@ -502,7 +502,7 @@ void expose_biases( py::module& m )
  Function for creating settings for arc-wise time-drift biases.
 
  Function for creating settings for arc-wise time-drift biases.
- This bias setting differs from the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.time_drift_bias` setting only through the option of setting the `bias_value` (time drift bias) to a different values for each arc.
+ This bias setting differs from the :class:`~tudatpy.estimation.observable_models_setup.biases.time_drift_bias` setting only through the option of setting the `bias_value` (time drift bias) to a different values for each arc.
 
  Parameters
  ----------
@@ -519,14 +519,14 @@ void expose_biases( py::module& m )
  Returns
  -------
  :class:`ArcWiseConstantObservationBiasSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ArcWiseConstantObservationBiasSettings` class.
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` derived :class:`~tudatpy.estimation.observable_models_setup.biases.ArcWiseConstantObservationBiasSettings` class.
 
  Examples
  --------
  .. code-block:: python
 
      # Code Snippet to showcase the use of the arcwise_time_drift_bias_per_time function
-     from tudatpy.numerical_simulation.estimation_setup import observation
+     from tudatpy.estimation.observable_models_setup import biases
      import numpy as np
 
      # The function arcwise_time_drift_bias_per_time() requires:
@@ -535,9 +535,9 @@ void expose_biases( py::module& m )
      bias_value_per_start_time = dict()
      bias_value_per_start_time[0] = np.array([1e-2])
      bias_value_per_start_time[60] = np.array([2e-2])
-     reference_link_end_type = observation.receiver # set bias at receiving link end
+     reference_link_end_type = biases.receiver # set bias at receiving link end
      ref_epochs = [0,60]
-     arcwise_time_drift_bias_settings = observation.arc_wise_time_drift_bias(bias_value_per_start_time, reference_link_end_type, ref_epochs)
+     arcwise_time_drift_bias_settings = biases.arc_wise_time_drift_bias(bias_value_per_start_time, reference_link_end_type, ref_epochs)
 
      # Show that it returns an ObservationBiasSettings object.
      print(arcwise_time_drift_bias_settings)
@@ -577,20 +577,20 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- bias_list : List[:class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings`]
+ bias_list : List[:class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`]
      A list containing the bias settings that are to be applied to the observable.
 
  Returns
  -------
- :class:`~tudatpy.numerical_simulation.estimation_setup.observation.multipleObservationBiasSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationBiasSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.multipleObservationBiasSettings` class, combining the settings for multiple observation biases.
+ :class:`~tudatpy.estimation.observable_models_setup.biases.multipleObservationBiasSettings`
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings` derived :class:`~tudatpy.estimation.observable_models_setup.biases.multipleObservationBiasSettings` class, combining the settings for multiple observation biases.
 
  Examples
  --------
  .. code-block:: python
 
      # Code Snippet to showcase the use of the combined_bias function
-     from tudatpy.numerical_simulation.estimation_setup import observation
+     from tudatpy.estimation.observable_models_setup import biases
      import numpy as np
 
      # The function combined_bias() allows to combine multiple ObservationBiasSettings objects.
@@ -598,17 +598,17 @@ void expose_biases( py::module& m )
      bias_array = np.array([1e-2])
 
      # Define absolute and relative bias settings
-     absolute_bias_settings = observation.absolute_bias(bias_array)
-     relative_bias_settings = observation.absolute_bias(bias_array)
+     absolute_bias_settings = biases.absolute_bias(bias_array)
+     relative_bias_settings = biases.absolute_bias(bias_array)
 
      # Define Time Drift Bias
-     time_link_end = observation.receiver
+     time_link_end = biases.receiver
      ref_epoch = 0
-     time_drift_bias_settings = observation.time_drift_bias(bias_array, time_link_end, ref_epoch)
+     time_drift_bias_settings = biases.time_drift_bias(bias_array, time_link_end, ref_epoch)
 
      # combined_bias takes a list of ObservationBiasSettings objects as input
      bias_list = [absolute_bias_settings, relative_bias_settings, time_drift_bias_settings]
-     combined_bias = observation.combined_bias(bias_list)
+     combined_bias = biases.combined_bias(bias_list)
 
      # Show that it returns an ObservationBiasSettings object.
      print(combined_bias)

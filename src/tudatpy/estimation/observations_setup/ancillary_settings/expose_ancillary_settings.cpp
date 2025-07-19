@@ -71,14 +71,14 @@ Examples
 .. code-block:: python
 
     # Code snippet to print all available Observation Ancillary Variable Types
-    from tudatpy.numerical_simulation import estimation_setup
+    from tudatpy.estimation.observations_setup import ancillary_settings
 
-    num_observation_ancillary_variable_types = len(estimation_setup.observation.ObservationAncilliarySimulationVariable.__members__)
+    num_observation_ancillary_variable_types = len(ancillary_settings.ObservationAncilliarySimulationVariable.__members__)
     print(f'The length of all available Tudatpy  Observation Ancillary Variable Types is: {num_observation_ancillary_variable_types}')
 
     # Print all Observation Ancillary Variable Types using the "name" property
     for i in range(num_observation_ancillary_variable_types):
-        print(i, estimation_setup.observation.ObservationAncilliarySimulationVariable(i).name)
+        print(i, ancillary_settings.ObservationAncilliarySimulationVariable(i).name)
 
 
 
@@ -102,33 +102,33 @@ Examples
          Base class for holding ancilliary settings for observation simulation.
 
          Base class for holding ancilliary settings for observation simulation.
-         The user can create instances of this class via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.elevation_angle_dependent_variable` function.
+         The user can create instances of this class via the :func:`~estimation.observations_setup.observations_dependent_variables.elevation_angle_dependent_variable` function.
 
          Examples
          --------
          .. code-block:: python
 
              # Code snippet to show the creation of an ObservationAncillarySimulationSettings object
-             from tudatpy.numerical_simulation.estimation_setup import observation
+             from tudatpy.estimation.observations_setup import ancillary_settings
 
-             # Example 1: Create ObservationAncillarySimulationSettings object using observation.n_way_range_ancilliary_settings function
+             # Example 1: Create ObservationAncillarySimulationSettings object using ancillary_settings.n_way_range_ancilliary_settings function
              # In this case the frequency bands of the retransmitter - we set it to x band.
-             n_way_range_ancillary_settings = observation.n_way_range_ancilliary_settings(frequency_bands=[observation.FrequencyBands.x_band])
+             n_way_range_ancillary_settings = ancillary_settings.n_way_range_ancilliary_settings(frequency_bands=[ancillary_settings.FrequencyBands.x_band])
 
              # Show that this is indeed an ObservationAncillarySimulationSettings object
              print(n_way_range_ancillary_settings)
 
-             # Example 2: Create ObservationAncillarySimulationSettings object using observation.one_way_doppler_instantaneous function
+             # Example 2: Create ObservationAncillarySimulationSettings object using ancillary_settings.doppler_ancilliary_settings function
              # In this case the integration time (in seconds) has to be given as input - we set it to 60s
-             doppler_ancillary_settings = observation.doppler_ancilliary_settings(60)
+             doppler_ancillary_settings = ancillary_settings.doppler_ancilliary_settings(60)
 
              # Show that this is indeed an ObservationAncillarySimulationSettings object
              print(doppler_ancillary_settings)
 
              # [OPTIONAL] Verify that we indeed added Frequency Bands as Ancillary Simulation Variables for the n_way_range_ancillary_settings.
-             list_num = n_way_range_ancillary_settings.get_float_list_settings(observation.ObservationAncilliarySimulationVariable.frequency_bands)
+             list_num = n_way_range_ancillary_settings.get_float_list_settings(ancillary_settings.ObservationAncilliarySimulationVariable.frequency_bands)
              for num in list_num:
-                 name = observation.ObservationAncilliarySimulationVariable(int(num)).name
+                 name = ancillary_settings.ObservationAncilliarySimulationVariable(int(num)).name
                  print(f'Ancillary Simulation Variable(s): {name}, corresponding to enumeration object n. {int(num)} of the ObservationAncilliarySimulationVariable Enumeration')
 
 
@@ -186,15 +186,15 @@ Examples
              # Code snippet to show how to retrieve ObservationAncillarySimulationSettings info
              # using the ObservationAncilliarySimulationSettings.get_float_settings function
 
-             from tudatpy.numerical_simulation.estimation_setup import observation
+             from tudatpy.estimation.observations_setup import ancillary_settings
 
              # Create Ancillary Settings
-             n_way_range_ancillary_settings = observation.n_way_range_ancilliary_settings(frequency_bands=[observation.FrequencyBands.x_band])
+             n_way_range_ancillary_settings = ancillary_settings.n_way_range_ancilliary_settings(frequency_bands=[ancillary_settings.FrequencyBands.x_band])
 
              # Verify that we indeed added Frequency Bands as Ancillary Simulation Variables, using n_way_range_ancillary_settings.get_float_list_settings
-             list_num = n_way_range_ancillary_settings.get_float_list_settings(observation.ObservationAncilliarySimulationVariable.frequency_bands)
+             list_num = n_way_range_ancillary_settings.get_float_list_settings(ancillary_settings.ObservationAncilliarySimulationVariable.frequency_bands)
              for num in list_num:
-                 name = observation.ObservationAncilliarySimulationVariable(int(num)).name
+                 name = ancillary_settings.ObservationAncilliarySimulationVariable(int(num)).name
                  print(f'Ancillary Simulation Variable(s): {name}, corresponding to enumeration object n. {int(num)} of the ObservationAncilliarySimulationVariable Enumeration')
 
 
@@ -230,7 +230,7 @@ Examples
  Returns
  -------
  :class:`ObservationAncilliarySimulationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationAncilliarySimulationSettings` with the required settings.
+     Instance of the :class:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings` with the required settings.
 
 
 
@@ -250,7 +250,7 @@ Examples
 
  Function for creating ancilliary settings for a two-way range observable. Specifically, this
  function can be used to create settings for the retransmission delay of the observable. NOTE:
- this function is provided for convenience, and is equivalent to calling :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_range_ancilliary_settings`
+ this function is provided for convenience, and is equivalent to calling :func:`~tudatpy.estimation.observations_setup.ancillary_settings.n_way_range_ancilliary_settings`
  with a single retransmission delay.
 
 
@@ -261,7 +261,7 @@ Examples
  Returns
  -------
  :class:`ObservationAncilliarySimulationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationAncilliarySimulationSettings` with the required settings.
+     Instance of the :class:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings` with the required settings.
 
 
 
@@ -280,7 +280,7 @@ Examples
 
  Function for creating ancilliary settings for a two-way range observable. Specifically, this
  function can be used to create settings for the retransmission delay of the observable.  NOTE:
- this function is provided for convenience, and is equivalent to calling :func:`~tudatpy.numerical_simulation.estimation_setup.observation.n_way_doppler_ancilliary_settings`
+ this function is provided for convenience, and is equivalent to calling :func:`~tudatpy.estimation.observations_setup.ancillary_settings.n_way_doppler_ancilliary_settings`
  with a single retransmission delay.
 
 
@@ -293,7 +293,7 @@ Examples
  Returns
  -------
  :class:`ObservationAncilliarySimulationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationAncilliarySimulationSettings` with the required settings.
+     Instance of the :class:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings` with the required settings.
 
 
 
@@ -321,7 +321,7 @@ Examples
  Returns
  -------
  :class:`ObservationAncilliarySimulationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationAncilliarySimulationSettings` with the required settings.
+     Instance of the :class:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings` with the required settings.
 
 
 
@@ -352,7 +352,7 @@ Examples
  Returns
  -------
  :class:`ObservationAncilliarySimulationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationAncilliarySimulationSettings` with the required settings.
+     Instance of the :class:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings` with the required settings.
 
 
 
