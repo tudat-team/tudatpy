@@ -260,7 +260,7 @@ void expose_estimation_analysis( py::module& m )
              Object defining a consolidated set of estimatable parameters,
              linked to the environment and acceleration settings of the simulation.
 
-         observation_settings : :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`
+         observation_settings : :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings`
              List of settings objects, each object defining the observation model settings for one
              combination of observable and link geometry that is to be simulated.
 
@@ -294,7 +294,7 @@ void expose_estimation_analysis( py::module& m )
          the functionality for simulating a given observable over the defined link geometry.
 
 
-         :type: list[ :class:`~tudatpy.numerical_simulation.estimation.ObservationSimulator` ]
+         :type: list[ :class:`~tudatpy.estimation.observable_models.observables_simulation.ObservationSimulator` ]
       )doc" )
             .def_property_readonly(
                     "observation_managers",
@@ -308,7 +308,7 @@ void expose_estimation_analysis( py::module& m )
          calculate observation partials for all link ends involved in the given observable type.
 
 
-         :type: dict[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservableType`, :class:`~tudatpy.numerical_simulation.estimation.ObservationManager` ]
+         :type: dict[ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservableType`, :class:`~tudatpy.estimation.observations.ObservationManager` ]
       )doc" )
             .def_property_readonly(
                     "state_transition_interface",
@@ -584,7 +584,7 @@ void expose_estimation_analysis( py::module& m )
 
          Parameters
          ----------
-         constant_weight : Dict[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservableType`, float ]
+         constant_weight : Dict[ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservableType`, float ]
              Constant weight factor that is to be applied to all observations.
          Returns
          -------
