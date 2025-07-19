@@ -21,7 +21,7 @@ from matplotlib.ticker import AutoMinorLocator, FuncFormatter
 
 # Tudat imports
 from tudatpy import constants
-from tudatpy.astro import time_conversion
+from tudatpy.astro import time_representation
 
 
 def plot_porkchop_of_single_field(
@@ -309,7 +309,7 @@ def plot_porkchop_of_single_field(
 
     # Tick labels
     dt = 40
-    tick_formatter = lambda epoch: time_conversion.date_time_from_epoch(
+    tick_formatter = lambda epoch: time_representation.date_time_from_epoch(
         epoch
     ).iso_string()[:10]
     # X axis

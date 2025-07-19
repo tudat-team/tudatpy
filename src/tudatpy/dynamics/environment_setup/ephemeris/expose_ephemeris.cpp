@@ -43,9 +43,9 @@ inline std::shared_ptr< EphemerisSettings > customEphemerisSettingsDeprecated(
     if( isWarningPrinted == false )
     {
         tudat::utilities::printDeprecationWarning(
-                "tudatpy.numerical_simulation.environment_setup.ephemeris."
+                "tudatpy.dynamics.environment_setup.ephemeris."
                 "custom",
-                "tudatpy.numerical_simulation.environment_setup.ephemeris."
+                "tudatpy.dynamics.environment_setup.ephemeris."
                 "custom_ephemeris" );
         isWarningPrinted = true;
     }
@@ -454,7 +454,7 @@ void expose_ephemeris_setup( py::module& m )
  Returns
  -------
  KeplerEphemerisSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.KeplerEphemerisSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.dynamics.environment_setup.ephemeris.KeplerEphemerisSettings` class
 
 
 
@@ -462,7 +462,7 @@ void expose_ephemeris_setup( py::module& m )
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` for a simple, barycentric (SSB) Kepler orbit of Jupiter:
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` for a simple, barycentric (SSB) Kepler orbit of Jupiter:
 
  .. code-block:: python
 
@@ -526,7 +526,7 @@ void expose_ephemeris_setup( py::module& m )
  Returns
  -------
  KeplerEphemerisSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.KeplerEphemerisSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.dynamics.environment_setup.ephemeris.KeplerEphemerisSettings` class
 
 
 
@@ -534,7 +534,7 @@ void expose_ephemeris_setup( py::module& m )
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` for a simple, barycentric (SSB) Kepler orbit of Jupiter.
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` for a simple, barycentric (SSB) Kepler orbit of Jupiter.
  The initial keplerian state is extracted from Spice as the state of ``body_name`` w.r.t. ``frame_origin``
 
  .. code-block:: python
@@ -555,7 +555,7 @@ void expose_ephemeris_setup( py::module& m )
        frame_orientation )
 
 
- Additionally, as is the case for the :func:`~tudatpy.numerical_simulation.environment_setup.ephemeris.direct_spice`, :func:`~tudatpy.numerical_simulation.environment_setup.ephemeris.approximate_jpl_model` and :func:`~tudatpy.numerical_simulation.environment_setup.ephemeris.interpolated_spice` functions, the ephemeris model from Spice can be retrieved for some body and assigned to a custom body.
+ Additionally, as is the case for the :func:`~tudatpy.dynamics.environment_setup.ephemeris.direct_spice`, :func:`~tudatpy.dynamics.environment_setup.ephemeris.approximate_jpl_model` and :func:`~tudatpy.dynamics.environment_setup.ephemeris.interpolated_spice` functions, the ephemeris model from Spice can be retrieved for some body and assigned to a custom body.
 
 
      )doc" );
@@ -579,7 +579,7 @@ void expose_ephemeris_setup( py::module& m )
  Returns
  -------
  ApproximateJplEphemerisSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.ApproximateJplEphemerisSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.dynamics.environment_setup.ephemeris.ApproximateJplEphemerisSettings` class
 
 
 
@@ -587,7 +587,7 @@ void expose_ephemeris_setup( py::module& m )
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` for Jupiter using JPL's approximate planet position model:
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` for Jupiter using JPL's approximate planet position model:
 
  .. code-block:: python
 
@@ -632,7 +632,7 @@ void expose_ephemeris_setup( py::module& m )
  Returns
  -------
  DirectSpiceEphemerisSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.DirectSpiceEphemerisSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.dynamics.environment_setup.ephemeris.DirectSpiceEphemerisSettings` class
 
 
 
@@ -640,7 +640,7 @@ void expose_ephemeris_setup( py::module& m )
 
  Examples
  --------
- In this example, we create barycentric (origin: SSB) :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` with axes along J2000, using data directly from spice:
+ In this example, we create barycentric (origin: SSB) :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` with axes along J2000, using data directly from spice:
 
  .. code-block:: python
 
@@ -683,7 +683,7 @@ void expose_ephemeris_setup( py::module& m )
  These data are then used to create an interpolator, which is put into the environment, and called during the propagation.
  This option has the downside of being applicable only during a limited time interval and requiring the tabulated data to be stored in RAM,
  but may for `some special cases <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/default_env_models/default_bodies_limited_time_range.html>`_
- offer an advantage over a direct Spice ephemeris (:func:`~tudatpy.numerical_simulation.environment_setup.ephemeris.direct_spice`).
+ offer an advantage over a direct Spice ephemeris (:func:`~tudatpy.dynamics.environment_setup.ephemeris.direct_spice`).
 
 
  Parameters
@@ -705,7 +705,7 @@ void expose_ephemeris_setup( py::module& m )
  Returns
  -------
  InterpolatedSpiceEphemerisSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.DirectSpiceEphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.InterpolatedSpiceEphemerisSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ephemeris.DirectSpiceEphemerisSettings` derived :class:`~tudatpy.dynamics.environment_setup.ephemeris.InterpolatedSpiceEphemerisSettings` class
 
 
 
@@ -713,7 +713,7 @@ void expose_ephemeris_setup( py::module& m )
 
  Examples
  --------
- In this example, we define :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` for Jupiter by retrieving ephemeris data from Spice at 3600 s intervals between t=0 and t=1.0E8:
+ In this example, we define :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` for Jupiter by retrieving ephemeris data from Spice at 3600 s intervals between t=0 and t=1.0E8:
 
  .. code-block:: python
 
@@ -731,7 +731,7 @@ void expose_ephemeris_setup( py::module& m )
 
  By default, a 6th order Lagrange interpolator is used (NOTE: the Lagrange interpolator is not reliable at the edges of the interpolation interval, as discussed here: :func:`~tudatpy.math.interpolators.lagrange_interpolation`).
  Settings for an alternative interpolator can be use by specifying the optional input argument.
- Additionally, as is the case for the :func:`~tudatpy.numerical_simulation.environment_setup.ephemeris.direct_spice` and :func:`~tudatpy.numerical_simulation.environment_setup.ephemeris.approximate_jpl_model` functions, an optional input argument ``body_name_to_use`` allows to use an ephemeris model from Spice for some body and assign it to a custom body.
+ Additionally, as is the case for the :func:`~tudatpy.dynamics.environment_setup.ephemeris.direct_spice` and :func:`~tudatpy.dynamics.environment_setup.ephemeris.approximate_jpl_model` functions, an optional input argument ``body_name_to_use`` allows to use an ephemeris model from Spice for some body and assign it to a custom body.
 
 
      )doc" );
@@ -763,7 +763,7 @@ void expose_ephemeris_setup( py::module& m )
  Returns
  -------
  TabulatedEphemerisSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.TabulatedEphemerisSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.dynamics.environment_setup.ephemeris.TabulatedEphemerisSettings` class
 
 
 
@@ -771,7 +771,7 @@ void expose_ephemeris_setup( py::module& m )
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` for Jupiter from tabulated state history data:
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` for Jupiter from tabulated state history data:
 
  .. code-block:: python
 
@@ -821,7 +821,7 @@ void expose_ephemeris_setup( py::module& m )
 
  Parameters
  ----------
- ephemeris_settings : tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings
+ ephemeris_settings : tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings
      Existing ephemeris settings that have to be tabulated.
  start_time : float
      Initial time for which to create the tabulated ephemeris.
@@ -834,7 +834,7 @@ void expose_ephemeris_setup( py::module& m )
  Returns
  -------
  TabulatedEphemerisSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.TabulatedEphemerisSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.dynamics.environment_setup.ephemeris.TabulatedEphemerisSettings` class
 
 
 
@@ -842,7 +842,7 @@ void expose_ephemeris_setup( py::module& m )
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` for Io.
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` for Io.
  First, we extract the existing ephemeris. Then, we define new tabulated ephemeris settings, from the original settings.
 
  .. code-block:: python
@@ -888,13 +888,13 @@ void expose_ephemeris_setup( py::module& m )
  Returns
  -------
  DirectTleEphemerisSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.DirectTleEphemerisSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.dynamics.environment_setup.ephemeris.DirectTleEphemerisSettings` class
 
 
 
  Examples
  --------
- In this example, we create ephemeris settings for Jupiter, by scaling an existing :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` object with factors from a custom function:
+ In this example, we create ephemeris settings for Jupiter, by scaling an existing :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` object with factors from a custom function:
 
  .. code-block:: python
 
@@ -932,7 +932,7 @@ void expose_ephemeris_setup( py::module& m )
  Returns
  -------
  ConstantEphemerisSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.ConstantEphemerisSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.dynamics.environment_setup.ephemeris.ConstantEphemerisSettings` class
 
 
 
@@ -940,7 +940,7 @@ void expose_ephemeris_setup( py::module& m )
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` for a time-independent, constant state of Jupiter:
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` for a time-independent, constant state of Jupiter:
 
  .. code-block:: python
 
@@ -983,7 +983,7 @@ void expose_ephemeris_setup( py::module& m )
  Returns
  -------
  ScaledEphemerisSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.ScaledEphemerisSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.dynamics.environment_setup.ephemeris.ScaledEphemerisSettings` class
 
 
 
@@ -991,7 +991,7 @@ void expose_ephemeris_setup( py::module& m )
 
  Examples
  --------
- In this example, we create ephemeris settings for Jupiter, by scaling an existing :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettingsObject` with a constant factor:
+ In this example, we create ephemeris settings for Jupiter, by scaling an existing :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettingsObject` with a constant factor:
 
  .. code-block:: python
 
@@ -1034,7 +1034,7 @@ void expose_ephemeris_setup( py::module& m )
  Returns
  -------
  ScaledEphemerisSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.ScaledEphemerisSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.dynamics.environment_setup.ephemeris.ScaledEphemerisSettings` class
 
 
 
@@ -1042,7 +1042,7 @@ void expose_ephemeris_setup( py::module& m )
 
  Examples
  --------
- In this example, we create ephemeris settings for Jupiter, by scaling an existing :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettingsObject` with the constant elements of a vector:
+ In this example, we create ephemeris settings for Jupiter, by scaling an existing :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettingsObject` with the constant elements of a vector:
 
  .. code-block:: python
 
@@ -1086,7 +1086,7 @@ void expose_ephemeris_setup( py::module& m )
  Returns
  -------
  ScaledEphemerisSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.ScaledEphemerisSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.dynamics.environment_setup.ephemeris.ScaledEphemerisSettings` class
 
 
 
@@ -1094,7 +1094,7 @@ void expose_ephemeris_setup( py::module& m )
 
  Examples
  --------
- In this example, we create ephemeris settings for Jupiter, by scaling an existing :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` object with factors from a custom function:
+ In this example, we create ephemeris settings for Jupiter, by scaling an existing :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` object with factors from a custom function:
 
  .. code-block:: python
 
@@ -1139,7 +1139,7 @@ void expose_ephemeris_setup( py::module& m )
  Returns
  -------
  CustomEphemerisSettings
-     Instance of the :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.CustomEphemerisSettings` class
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` derived :class:`~tudatpy.dynamics.environment_setup.ephemeris.CustomEphemerisSettings` class
 
 
 
@@ -1147,7 +1147,7 @@ void expose_ephemeris_setup( py::module& m )
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.numerical_simulation.environment_setup.ephemeris.EphemerisSettings` for Earth from a custom state history function:
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` for Earth from a custom state history function:
 
  .. code-block:: python
 

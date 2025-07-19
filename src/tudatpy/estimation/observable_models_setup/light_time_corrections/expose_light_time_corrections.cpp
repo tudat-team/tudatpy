@@ -38,17 +38,17 @@ void expose_light_time_corrections( py::module& m )
          Base class to define criteria of light time convergence.
          This class is not used for calculations of corrections, but is used for the purpose of defining the light time convergence criteria.
          Specific light time convergence criteria must be defined using an object derived from this class.
-         Instances of this class are typically created via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.light_time_convergence_settings` function.
+         Instances of this class are typically created via the :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings` function.
 
          Examples
          --------
          .. code-block:: python
 
              # Code snippet to show the creation of a LightTimeConvergenceCriteria object
-             from tudatpy.numerical_simulation.estimation_setup import observation
+             from tudatpy.estimation.observable_models_setup import light_time_corrections
 
              # Create Default Light Time Convergence Settings (no args specified = setting default arguments)
-             light_time_convergence_settings = observation.light_time_convergence_settings()
+             light_time_convergence_settings = light_time_corrections.light_time_convergence_settings()
 
              # Show that it is an LightTimeConvergenceCriteria object.
              print(light_time_convergence_settings)
@@ -69,27 +69,27 @@ void expose_light_time_corrections( py::module& m )
          Specific light time correction settings must be defined using an object derived from this class.
 
          Instances of this class are typically created via the
-         :func:`~tudatpy.numerical_simulation.estimation_setup.observation.first_order_relativistic_light_time_correction` function
+         :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.first_order_relativistic_light_time_correction` function
 
          Examples
          --------
          .. code-block:: python
 
              # Code snippet to show the creation of a LightTimeCorrectionSettings object
-             from tudatpy.numerical_simulation.estimation_setup import observation
+             from tudatpy.estimation.observable_models_setup import light_time_corrections, links
 
              # Create Link Ends dictionary
              link_ends = dict()
-             link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
-             link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+             link_ends[links.receiver] = links.body_origin_link_end_id("Earth")
+             link_ends[links.transmitter] = links.body_origin_link_end_id("Delfi-C3")
 
              # Create a Link Definition Object from link_ends dictionary
-             Link_Definition_Object = observation.LinkDefinition(link_ends)
+             Link_Definition_Object = links.LinkDefinition(link_ends)
 
              # Case 1: perturbing body (Earth) involved in the observations
              # In this case, Earth is a receiver, so the body’s state will be evaluated at the reception time.
              perturbing_body = ['Earth']
-             doppler_observation_settings = observation.first_order_relativistic_light_time_correction(perturbing_body)
+             doppler_observation_settings = light_time_corrections.first_order_relativistic_light_time_correction(perturbing_body)
 
              # Show that it is a LightTimeCorrectionSettings object.
              print(doppler_observation_settings)
@@ -98,9 +98,9 @@ void expose_light_time_corrections( py::module& m )
              # In this case, the body's state will be evaluated at the midpoint time between the transmission and reception events.
              perturbing_body = ['Sun']
 
-             # Use: observation.first_order_relativistic_light_time_correction to create a LightTimeCorrectionSettings object
+             # Use: light_time_corrections.first_order_relativistic_light_time_correction to create a LightTimeCorrectionSettings object
              # Note: first_order_relativistic_light_time_correction only requires the perturbing list of bodies to be passed as arguments
-             doppler_observation_settings = observation.first_order_relativistic_light_time_correction(perturbing_body)
+             doppler_observation_settings = light_time_corrections.first_order_relativistic_light_time_correction(perturbing_body)
 
              # Show that it is an LightTimeCorrectionSettings object.
              print(doppler_observation_settings.transmitter_proper_time_rate_settings)
@@ -119,14 +119,14 @@ Examples
 .. code-block:: python
 
     # Code snippet to print all available Light Time Failure Handling Types
-    from tudatpy.numerical_simulation import estimation_setup
+    from tudatpy.estimation.observable_models_setup import light_time_corrections
 
-    num_LightTimeFailureHandling_types = len(estimation_setup.observation.LightTimeFailureHandling.__members__)
+    num_LightTimeFailureHandling_types = len(light_time_corrections.LightTimeFailureHandling.__members__)
     print(f'The length of all available Tudatpy Light Time Failure Handling Types is: {num_LightTimeFailureHandling_types}')
 
     # Print all available Observation Viability Types using the "name" property
     for i in range(num_LightTimeFailureHandling_types):
-        print(i, estimation_setup.observation.LightTimeFailureHandling(i).name)
+        print(i, light_time_corrections.LightTimeFailureHandling(i).name)
 
 
 
@@ -179,25 +179,25 @@ Examples
  Returns
  -------
  :class:`LightTimeConvergenceCriteria`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeConvergenceCriteria` with the required settings.
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeConvergenceCriteria` with the required settings.
 
  Examples
  --------
  .. code-block:: python
 
      # Code Snippet to showcase the use of the light_time_convergence_settings function
-     from tudatpy.numerical_simulation.estimation_setup import observation
+     from tudatpy.estimation.observable_models_setup import light_time_corrections
 
      # The light_time_convergence_settings function can be used with default inputs as just:
-     light_time_convergence_settings = observation.light_time_convergence_settings()
+     light_time_convergence_settings = light_time_corrections.light_time_convergence_settings()
      # A LightTimeConvergenceCriteria object is returned
      print(light_time_convergence_settings)
 
      # Users can also specify the following input arguments:
      # iterate_corrections, maximum_number_of_iterations, absolute_tolerance, failure_handling.
      # Let's set the failure_handling argument to LightTimeFailureHandling.print_warning_and_accept (default was LightTimeFailureHandling.accept_without_warning)
-     light_time_convergence_settings = observation.light_time_convergence_settings(
-         failure_handling = observation.LightTimeFailureHandling.print_warning_and_accept
+     light_time_convergence_settings = light_time_corrections.light_time_convergence_settings(
+         failure_handling = light_time_corrections.LightTimeFailureHandling.print_warning_and_accept
      )
      # Again, a LightTimeConvergenceCriteria object is returned
      print(light_time_convergence_settings)
@@ -234,8 +234,8 @@ perturbing_bodies : List[str]
 
 Returns
 -------
-:class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` configured to include
+:class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings`
+    Instance of the :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` configured to include
     first-order relativistic light-time corrections.
 
 Examples
@@ -243,20 +243,20 @@ Examples
 .. code-block:: python
 
     # Code Snippet to showcase the use of the first_order_relativistic_light_time_correction function
-    from tudatpy.numerical_simulation.estimation_setup import observation
+    from tudatpy.estimation.observable_models_setup import light_time_corrections, links
 
     # Create Link Ends dictionary
     link_ends = dict()
-    link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
-    link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+    link_ends[links.receiver] = links.body_origin_link_end_id("Earth")
+    link_ends[links.transmitter] = links.body_origin_link_end_id("Delfi-C3")
 
     # Create a Link Definition Object from link_ends dictionary
-    Link_Definition_Object = observation.LinkDefinition(link_ends)
+    Link_Definition_Object = links.LinkDefinition(link_ends)
 
     # The function first_order_relativistic_light_time_correction() requires a list of strings (perturbing body/bodies) as input
     # and a boolean value for bending (default is True).
     perturbing_body = ['Earth']
-    doppler_observation_settings = observation.first_order_relativistic_light_time_correction(perturbing_body)
+    doppler_observation_settings = light_time_corrections.first_order_relativistic_light_time_correction(perturbing_body)
 
     # Show that it returns a LightTimeCorrectionSettings object.
     print(doppler_observation_settings)
@@ -292,8 +292,8 @@ perturbing_bodies : List[str]
 
 Returns
 -------
-:class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` configured to include
+:class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings`
+    Instance of the :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` configured to include
     approximated second-order relativistic light-time corrections.
 
 Examples
@@ -301,19 +301,19 @@ Examples
 .. code-block:: python
 
     # Code Snippet to showcase the use of the first_order_relativistic_light_time_correction function
-    from tudatpy.numerical_simulation.estimation_setup import observation
+    from tudatpy.estimation.observable_models_setup import light_time_corrections, links
 
     # Create Link Ends dictionary
     link_ends = dict()
-    link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
-    link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+    link_ends[links.receiver] = links.body_origin_link_end_id("Earth")
+    link_ends[links.transmitter] = links.body_origin_link_end_id("Delfi-C3")
 
     # Create a Link Definition Object from link_ends dictionary
-    Link_Definition_Object = observation.LinkDefinition(link_ends)
+    Link_Definition_Object = links.LinkDefinition(link_ends)
 
     # The function first_order_relativistic_light_time_correction() requires a list of strings (perturbing body/bodies) as input
     perturbing_body = ['Earth']
-    doppler_observation_settings = observation.aprroximated_second_order_relativistic_light_time_correction(perturbing_body)
+    doppler_observation_settings = light_time_corrections.approximated_second_order_relativistic_light_time_correction(perturbing_body)
 
     # Show that it returns a LightTimeCorrectionSettings object.
     print(doppler_observation_settings)
@@ -349,8 +349,8 @@ perturbing_bodies : List[str]
 
 Returns
 -------
-:class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings`
-    Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings` configured to include
+:class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings`
+    Instance of the :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` configured to include
     approximated second-order relativistic light-time corrections.
 
 Examples
@@ -358,20 +358,20 @@ Examples
 .. code-block:: python
 
     # Code Snippet to showcase the use of the first_order_relativistic_light_time_correction function
-    from tudatpy.numerical_simulation.estimation_setup import observation
+    from tudatpy.estimation.observable_models_setup import light_time_corrections, links
 
     # Create Link Ends dictionary
     link_ends = dict()
-    link_ends[observation.receiver] = observation.body_origin_link_end_id("Earth")
-    link_ends[observation.transmitter] = observation.body_origin_link_end_id("Delfi-C3")
+    link_ends[links.receiver] = links.body_origin_link_end_id("Earth")
+    link_ends[links.transmitter] = links.body_origin_link_end_id("Delfi-C3")
 
     # Create a Link Definition Object from link_ends dictionary
-    Link_Definition_Object = observation.LinkDefinition(link_ends)
+    Link_Definition_Object = links.LinkDefinition(link_ends)
 
     # The function first_order_relativistic_light_time_correction() requires a list of strings (perturbing body/bodies) as input
     # and a boolean value for bending (default is True).
     perturbing_body = ['Earth']
-    doppler_observation_settings = observation.aprroximated_second_order_relativistic_light_time_correction(perturbing_body)
+    doppler_observation_settings = light_time_corrections.approximated_second_order_relativistic_light_time_correction(perturbing_body)
 
     # Show that it returns a LightTimeCorrectionSettings object.
     print(doppler_observation_settings)
