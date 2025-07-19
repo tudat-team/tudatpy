@@ -1,11 +1,7 @@
-from tudatpy.numerical_simulation.estimation_setup.observation import (
-    dsn_n_way_doppler_ancilliary_settings,
-    link_definition,
-    receiver,
-    reflector1,
-    dsn_n_way_averaged_doppler,
-)
-from tudatpy.numerical_simulation.estimation import single_observation_set
+from tudatpy.estimation.observations_setup.ancillary_settings import dsn_n_way_doppler_ancilliary_settings
+from tudatpy.estimation.observable_models_setup.links import link_definition, receiver, reflector1
+from tudatpy.estimation.observable_models_setup.model_settings import dsn_n_way_averaged_doppler
+from tudatpy.estimation.observations import single_observation_set
 from . import RadioBase
 from pandas import DataFrame
 
