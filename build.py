@@ -137,7 +137,7 @@ class StubGenerator:
     indentation: str = " " * 4
 
     # Ignored modules and methods
-    ignored_modules: list[str] = ["temp", "io"]
+    ignored_modules: list[str] = ["temp", "io", "numerical_simulation"]
     ignored_methods: list[str] = ["_pybind11_conduit_v1_"]
 
     def __init__(self, build_dir: Path, mock_env: "Environment") -> None:
