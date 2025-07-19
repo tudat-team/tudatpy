@@ -186,7 +186,7 @@ void expose_parameters_setup( py::module& m )
  parameter_settings : list( :class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings` )
      List of objects that define the settings for the parameters that are to be created. Each entry in this list is typically created by a call to a function in the :ref:`parameter` module
 
- bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
+ bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
      Object consolidating all bodies and environment models, including ground station models, that constitute the physical environment.
 
  propagator_settings : :class:`~tudatpy.numerical_simulation.propagation_setup.propagator.PropagatorSettings`
@@ -257,7 +257,7 @@ void expose_parameters_setup( py::module& m )
  propagator_settings : :class:`~tudatpy.numerical_simulation.propagation_setup.propagator.PropagatorSettings`
      Object containing the consolidated propagation settings of the simulation in the context of which the given model parameters are to be estimated.
 
- bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
+ bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
      Object consolidating all bodies and environment models that constitute the physical environment.
 
  arc_initial_times : List[ float ] = []
@@ -289,7 +289,7 @@ void expose_parameters_setup( py::module& m )
  Function for creating parameter settings object for a constant drag coefficient parameter :math:`C_{D}`.
  Using the constant drag coefficient as an estimatable parameter requires:
 
- * A :func:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.constant` aerodynamic interface to be defined for the body specified by the ``body`` parameter
+ * A :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.constant` aerodynamic interface to be defined for the body specified by the ``body`` parameter
  * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.aerodynamic` acceleration
 
 
@@ -323,7 +323,7 @@ void expose_parameters_setup( py::module& m )
  (arc-wise version of :func:`~tudatpy.numerical_simulation.estimation_setup.parameter.constant_drag_coefficient`).
  Using the arc-wise constant drag coefficient as an estimatable parameter requires:
 
- * A :func:`~tudatpy.numerical_simulation.environment_setup.aerodynamic_coefficients.constant` aerodynamic interface to be defined for the body specified by the ``body`` parameter
+ * A :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.constant` aerodynamic interface to be defined for the body specified by the ``body`` parameter
  * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.aerodynamic` acceleration
 
  When using this parameter, whenever :math:`C_{D}` is required at a time :math:`t`, the index math:`i` in the ``arc_initial_times`` ordered list is
@@ -364,7 +364,7 @@ void expose_parameters_setup( py::module& m )
  Function for creating parameter settings object for a radiation pressure coefficient  :math:`C_{r}`.
  Using the radiation pressure coefficient as an estimatable parameter requires:
 
- * A :func:`~tudatpy.numerical_simulation.environment_setup.radiation_pressure.cannonball` radiation pressure interface to be defined for the body specified by the ``body`` parameter
+ * A :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.cannonball` radiation pressure interface to be defined for the body specified by the ``body`` parameter
  * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.cannonball_radiation_pressure` acceleration
 
 
@@ -397,7 +397,7 @@ void expose_parameters_setup( py::module& m )
  Function for creating parameter settings object for arc-wise radiation pressure coefficients :math:`C_{r}` (arc-wise version of :func:`~tudatpy.numerical_simulation.estimation_setup.parameter.radiation_pressure_coefficient`).
  Using the radiation pressure coefficient as an estimatable parameter requires:
 
- * A :func:`~tudatpy.numerical_simulation.environment_setup.radiation_pressure.cannonball_radiation_target` target model to be defined for the body specified by the ``body`` parameter
+ * A :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.cannonball_radiation_target` target model to be defined for the body specified by the ``body`` parameter
  * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.radiation_pressure` acceleration
  
  When using this parameter, whenever :math:`C_{r}` is required at a time :math:`t`, the index math:`i` in the ``arc_initial_times`` ordered list is
@@ -738,7 +738,7 @@ void expose_parameters_setup( py::module& m )
  Function for creating parameter settings object for the spherical harmonics cosine-coefficients (:math:`\bar{C}_{lm}`) of a body with a spherical harmonic gravity field. Using this function, a 'full' set of spherical harmonic coefficients between an minimum/maximum degree/order are estimated. For instance, for minimum degree/order of 2/0, and maximum degree/order 4/4, all spherical harmonic cosine coefficients of degrees 2, 3 and 4 are estimated. If the maximum degree/order is set to 4/2, only coefficients with an order of 0, 1 and 2 are included. The entries in the parameter are sorted first by degree, and then by order (both in ascending order)
  Using the spherical harmonics cosine coefficients as estimatable parameter requires:
 
- * A :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field.spherical_harmonic` (or derived) gravity model to be defined for the body specified by the ``body`` parameter
+ * A :func:`~tudatpy.dynamics.environment_setup.gravity_field.spherical_harmonic` (or derived) gravity model to be defined for the body specified by the ``body`` parameter
  * Any dynamical or observational model to depend on the estimated cosine coefficients of the body specified by the ``body`` parameter. Typically, this dependency will be a :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.spherical_harmonic` acceleration
 
 
@@ -819,7 +819,7 @@ void expose_parameters_setup( py::module& m )
  Function for creating parameter settings object for the spherical harmonics sine-coefficients (:math:`\bar{S}_{lm}`) of a body with a spherical harmonic gravity field. Using this function, a 'full' set of spherical harmonic coefficients between an minimum/maximum degree/order are estimated. For instance, for minimum degree/order of 2/1 (there is no order 0 sine coefficient), and maximum degree/order 4/4, all spherical harmonic sine coefficients of degrees 2, 3 and 4 are estimated. If the maximum degree/order is set to 4/2, only coefficients with an order of 1 and 2 are included. The entries in the parameter are sorted first by degree, and then by order (both in ascending order)
  Using the spherical harmonics cosine coefficients as estimatable parameter requires:
 
- * A :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field.spherical_harmonic` (or derived) gravity model to be defined for the body specified by the ``body`` parameter
+ * A :func:`~tudatpy.dynamics.environment_setup.gravity_field.spherical_harmonic` (or derived) gravity model to be defined for the body specified by the ``body`` parameter
  * Any dynamical or observational model to depend on the estimated cosine coefficients of the body specified by the ``body`` parameter. Typically, this dependency will be a :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.spherical_harmonic` acceleration
 
 
@@ -930,7 +930,7 @@ void expose_parameters_setup( py::module& m )
  Function for creating parameter settings object for a body's constant rotation rate parameter.
  Using the constant rotation rate as estimatable parameter requires:
 
- * A :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.simple` or :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.simple_from_spice` rotation model specified by the ``body`` parameter
+ * A :func:`~tudatpy.dynamics.environment_setup.rotation_model.simple` or :func:`~tudatpy.dynamics.environment_setup.rotation_model.simple_from_spice` rotation model specified by the ``body`` parameter
  * Any dynamical or observational model to depend on the rotation model of the body specified by the ``body`` parameter
 
 
@@ -956,7 +956,7 @@ void expose_parameters_setup( py::module& m )
  Function for creating parameter settings object for a body's rotation pole position, parameterized by the constant pole rotation angles (:math:`\alpha` and :math:`\delta`).
  Using the rotation pole position as estimatable parameter requires:
 
- * A :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.simple` or :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.simple_from_spice` rotation model specified by the ``body`` parameter
+ * A :func:`~tudatpy.dynamics.environment_setup.rotation_model.simple` or :func:`~tudatpy.dynamics.environment_setup.rotation_model.simple_from_spice` rotation model specified by the ``body`` parameter
  * Any dynamical or observational model to depend on the rotation model of the body specified by the ``body`` parameter
 
 
@@ -988,7 +988,7 @@ void expose_parameters_setup( py::module& m )
  Function for creating parameter settings object for a body's core factor.
  Using the core factor as estimatable parameter requires
 
- * A :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.mars_high_accuracy` rotation model specified by the ``body`` parameter
+ * A :func:`~tudatpy.dynamics.environment_setup.rotation_model.mars_high_accuracy` rotation model specified by the ``body`` parameter
  * Any dynamical or observational model to depend on the rotation model of the body specified by the ``body`` parameter
 
 
@@ -1020,7 +1020,7 @@ void expose_parameters_setup( py::module& m )
  Function for creating parameter settings object for a body's free core nutation rate.
  Using the free core nutation rate as estimatable parameter requires
 
- * A :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.mars_high_accuracy` rotation model specified by the ``body`` parameter
+ * A :func:`~tudatpy.dynamics.environment_setup.rotation_model.mars_high_accuracy` rotation model specified by the ``body`` parameter
  * Any dynamical or observational model to depend on the rotation model of the body specified by the ``body`` parameter
 
 
@@ -1052,7 +1052,7 @@ void expose_parameters_setup( py::module& m )
  Function for creating parameter settings object for a body's periodic spin variation parameters.
  Using the mean moment of inertia as estimatable parameter requires:
 
- * A :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.mars_high_accuracy` rotation model specified by the ``body`` parameter
+ * A :func:`~tudatpy.dynamics.environment_setup.rotation_model.mars_high_accuracy` rotation model specified by the ``body`` parameter
  * Any dynamical or observational model to depend on the rotation model of the body specified by the ``body`` parameter
 
 
@@ -1084,7 +1084,7 @@ void expose_parameters_setup( py::module& m )
  Function for creating parameter settings object for a body's polar motion amplitudes.
  Using the polar motion amplitudes as estimatable parameter requires
 
- * A :func:`~tudatpy.numerical_simulation.environment_setup.rotation_model.mars_high_accuracy` rotation model specified by the ``body`` parameter
+ * A :func:`~tudatpy.dynamics.environment_setup.rotation_model.mars_high_accuracy` rotation model specified by the ``body`` parameter
  * Any dynamical or observational model to depend on the rotation model of the body specified by the ``body`` parameter
 
 
@@ -1392,7 +1392,7 @@ the Love number can be limited to a subset of the bodies that raise a tide on th
 
 Using the :math:`k_{l}` Love number as estimatable parameter requires:
 
-* A :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide` gravity field variation model in the ``deformed_body`` (or one the more complex ones such as :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_k`). The parameter settings have to match the specifics of the variation model. For instance, if ``use_complex_love_number`` is set to true, the gravity field variation has to have been created using a complex Love number
+* A :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.solid_body_tide` gravity field variation model in the ``deformed_body`` (or one the more complex ones such as :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_k`). The parameter settings have to match the specifics of the variation model. For instance, if ``use_complex_love_number`` is set to true, the gravity field variation has to have been created using a complex Love number
 * Any dynamical model to depend on the gravity field of the body specified by the ``deformed_body`` parameter
 
 
@@ -1437,7 +1437,7 @@ the Love numbers can be limited to a subset of the bodies that raise a tide on t
 
 Using the :math:`k_{lm}` Love number as estimatable parameter requires:
 
-* A :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_k` gravity field variation model in the ``deformed_body`` (or :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_complex_k` if ``use_complex_love_number`` is set to true)
+* A :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_k` gravity field variation model in the ``deformed_body`` (or :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.solid_body_tide_degree_order_variable_complex_k` if ``use_complex_love_number`` is set to true)
 * Any dynamical model to depend on the gravity field of the body specified by the ``deformed_body`` parameter
 
 
@@ -1472,12 +1472,12 @@ Returns
 
 Function for creating parameter settings for a body's mode-coupled :math:`k_{lm}^{l'm'}` Love numbers.
 
-Function for creating parameter settings for a body's :math:`k_{lm}^{l'm'}` Love numbers (see :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.mode_coupled_solid_body_tide model` details). The estimation of
+Function for creating parameter settings for a body's :math:`k_{lm}^{l'm'}` Love numbers (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.mode_coupled_solid_body_tide model` details). The estimation of
 the Love numbers can be limited to a subset of the bodies that raise a (mode-coupled) tide on the body undergoing tidal deformation.
 
 Using the :math:`k_{lm}` Love number as estimatable parameter requires:
 
-* A :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.mode_coupled_solid_body_tide` gravity field variation model in the ``deformed_body``.
+* A :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.mode_coupled_solid_body_tide` gravity field variation model in the ``deformed_body``.
 * Any dynamical model to depend on the gravity field of the body specified by the ``deformed_body`` parameter
 
 
@@ -1488,7 +1488,7 @@ deformed_body : str
 love_number_per_degree : dict[tuple[int, int], list[int,int]]]
     Dictionary of Love number indices for each combination for forcing and response degree and order.
     The first tuple (key) is the forcing degree and order :math:`l,m`, the list of tuples (key) is the list of associated response degrees and orders :math:`l',m'`
-    for which the Love numbers are to be estimated (see :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.mode_coupled_solid_body_tide` for mathematical definition))
+    for which the Love numbers are to be estimated (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.mode_coupled_solid_body_tide` for mathematical definition))
 deforming_bodies : list[str]
     List of bodies that raise a tide on ``deformed_body`` for which the Love numbers defined by this setting is to be used. If the list is left empty, all tide-raising bodies will be used. By using this parameter, the values of :math:`k_{lm}` will be indentical for the tides raised by each body in this list once parameter values are reset, even if they were different upon environment initialization
 
@@ -1509,11 +1509,11 @@ Returns
 Function for creating parameter settings for a body's polynomial gravity field amplitudes.
 
 Function for creating parameter settings for a body's polynomial gravity field amplitudes :math:`K_{i,\bar{C}_{lm}}` and :math:`K_{i,\bar{S}_{lm}}`,
-as defined in :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.polynomial`.
+as defined in :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.polynomial`.
 
 Using this settings as estimatable parameter requires:
 
-* A :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.polynomial` (or :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.single_power_polynomial`) gravity field variation model in the ``body_name``.
+* A :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.polynomial` (or :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.single_power_polynomial`) gravity field variation model in the ``body_name``.
 * Any dynamical model to depend on the gravity field of the body specified by the ``deformed_body`` parameter
 
 When using this parameter, a subset of all the variation amplitudes defined in the gravity field variation model can be estimated. These are defined in the ``cosine_indices_per_power`` and ``sine_indices_per_power`` inputs
@@ -1523,9 +1523,9 @@ Parameters
 body_name : str
     Name of the body that is undergoing gravity field variation
 cosine_indices_per_power : dict[int, list[int,int]]
-    Dictionary of powers :math:`i` (as keys) with list of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`K_{i,\bar{C}_{lm}}` as values (see :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
+    Dictionary of powers :math:`i` (as keys) with list of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`K_{i,\bar{C}_{lm}}` as values (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
 sine_indices_per_power : dict[int, list[int,int]]
-    Dictionary of powers :math:`i` (as keys) with list of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`K_{i,\bar{S}_{lm}}` as values (see :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
+    Dictionary of powers :math:`i` (as keys) with list of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`K_{i,\bar{S}_{lm}}` as values (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
 
 Returns
 -------                                                                       -------
@@ -1545,11 +1545,11 @@ Function for creating parameter settings for a body's polynomial gravity field v
 
 Function for creating parameter settings for a body's polynomial gravity field variation amplitudes
 :math:`A_{i,\bar{C}_{lm}}`, :math:`B_{i,\bar{C}_{lm}}`, :math:`A_{i,\bar{S}_{lm}}` and :math:`B_{i,\bar{S}_{lm}}`
-as defined in :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.single_period_periodic`.
+as defined in :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.single_period_periodic`.
 
 Using this settings as estimatable parameter requires:
 
-* A :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.periodic` (or :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.single_period_periodic`) gravity field variation model in the ``body_name``.
+* A :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.periodic` (or :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.single_period_periodic`) gravity field variation model in the ``body_name``.
 * Any dynamical model to depend on the gravity field of the body specified by the ``deformed_body`` parameter
 
 When using this parameter, a subset of all the variation amplitudes defined in the gravity field variation model can be estimated.
@@ -1560,9 +1560,9 @@ Parameters
 body_name : str
     Name of the body that is undergoing gravity field variation
 cosine_indices_per_period : dict[int, list[int,int]]
-    Dictionary of frequency index :math:`i` (as keys; corresponding to frequency :math:`f_{i}`) with list of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`A_{i,\bar{C}_{lm}}` and :math:`B_{i,\bar{C}_{lm}}` as values (see :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.periodic` for mathematical definition)
+    Dictionary of frequency index :math:`i` (as keys; corresponding to frequency :math:`f_{i}`) with list of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`A_{i,\bar{C}_{lm}}` and :math:`B_{i,\bar{C}_{lm}}` as values (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.periodic` for mathematical definition)
 sine_indices_per_period : dict[int, list[int,int]]
-    Dictionary of frequency index :math:`i` (as keys; corresponding to frequency :math:`f_{i}`) with list of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`A_{i,\bar{S}_{lm}}` and :math:`B_{i,\bar{S}_{lm}}` as values (see :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.periodic` for mathematical definition)
+    Dictionary of frequency index :math:`i` (as keys; corresponding to frequency :math:`f_{i}`) with list of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`A_{i,\bar{S}_{lm}}` and :math:`B_{i,\bar{S}_{lm}}` as values (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.periodic` for mathematical definition)
 
 Returns
 -------
@@ -1589,9 +1589,9 @@ body_name : str
 power: int
     Power :math:`i` for which to estimate polynomial gravity field variations
 cosine_indices: list[int,int]
-    List of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`K_{i,\bar{C}_{lm}}` (see :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
+    List of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`K_{i,\bar{C}_{lm}}` (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
 sine_indices: list[int,int]
-    List of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`K_{i,\bar{S}_{lm}}` (see :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
+    List of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`K_{i,\bar{S}_{lm}}` (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
 
 Returns
 -------
@@ -1622,13 +1622,13 @@ body_name : str
 power: int
     Power :math:`i` for which to estimate polynomial gravity field variations
 minimum_degree: int
-    Minimum degree :math:`l_{\text{min}}` for which :math:`K_{i,\bar{C}_{lm}}` and :math:`K_{i,\bar{S}_{lm}}` are to be estimated (see :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
+    Minimum degree :math:`l_{\text{min}}` for which :math:`K_{i,\bar{C}_{lm}}` and :math:`K_{i,\bar{S}_{lm}}` are to be estimated (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
 minimum_order: int
-    Minimum order :math:`m_{\text{min}}` for which :math:`K_{i,\bar{C}_{lm}}` and :math:`K_{i,\bar{S}_{lm}}` are to be estimated (see :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
+    Minimum order :math:`m_{\text{min}}` for which :math:`K_{i,\bar{C}_{lm}}` and :math:`K_{i,\bar{S}_{lm}}` are to be estimated (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
 maximum_degree: int
-    Maximum degree :math:`l_{\text{max}}` for which :math:`K_{i,\bar{C}_{lm}}` and :math:`K_{i,\bar{S}_{lm}}` are to be estimated (see :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
+    Maximum degree :math:`l_{\text{max}}` for which :math:`K_{i,\bar{C}_{lm}}` and :math:`K_{i,\bar{S}_{lm}}` are to be estimated (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
 maximum_order: int
-    Maximum degree :math:`m_{\text{max}}` for which :math:`K_{i,\bar{C}_{lm}}` and :math:`K_{i,\bar{S}_{lm}}` are to be estimated (see :func:`~tudatpy.numerical_simulation.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
+    Maximum degree :math:`m_{\text{max}}` for which :math:`K_{i,\bar{C}_{lm}}` and :math:`K_{i,\bar{S}_{lm}}` are to be estimated (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
 
 Returns
 -------

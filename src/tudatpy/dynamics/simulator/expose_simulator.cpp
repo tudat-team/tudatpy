@@ -391,7 +391,7 @@ void expose_simulator( py::module& m )
 
     Function to create object that propagates the dynamics, as specified by propagator settings, and the physical environment.
     Depending on the specific input type (e.g. which function from the :ref:`propagator` module was used),
-    a single-, multi- or hybrid-arc simulator is created. The environment is typically created by the :func:`~tudatpy.numerical_simulation.environment_setup.create_system_of_bodies`
+    a single-, multi- or hybrid-arc simulator is created. The environment is typically created by the :func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies`
     function.
 
     .. note::
@@ -401,7 +401,7 @@ void expose_simulator( py::module& m )
 
     Parameters
     ----------
-    bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
+    bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
         Object defining the physical environment, with all
         properties of artificial and natural bodies.
 
@@ -492,7 +492,7 @@ void expose_simulator( py::module& m )
 
          Parameters
          ----------
-         bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
+         bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
              Object defining the physical environment, with all
              properties of artificial and natural bodies.
 
@@ -686,12 +686,12 @@ void expose_simulator( py::module& m )
 
  Function to create object that propagates the dynamics and variational equations, as specified by propagator settings, the physical environment, and a set of parameters for which to compute the partials.
  Depending on the specific input type (e.g. which function from the :ref:`propagator` module was used to define the propagator settings),
- a single-, multi- or hybrid-arc variational solver is created. The environment is typically created by the :func:`~tudatpy.numerical_simulation.environment_setup.create_system_of_bodies`
+ a single-, multi- or hybrid-arc variational solver is created. The environment is typically created by the :func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies`
  function. When using default settings, calling this function will automatically propagate the dynamics.
 
  Parameters
  ----------
- bodies : :class:`~tudatpy.numerical_simulation.environment.SystemOfBodies`
+ bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
   Object defining the physical environment, with all
   properties of artificial and natural bodies.
 
