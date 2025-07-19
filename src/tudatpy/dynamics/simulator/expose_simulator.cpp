@@ -405,7 +405,7 @@ void expose_simulator( py::module& m )
         Object defining the physical environment, with all
         properties of artificial and natural bodies.
 
-    propagator_settings : :class:`~tudatpy.numerical_simulation.propagation_setup.propagator.PropagatorSettings`
+    propagator_settings : :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagatorSettings`
         Settings to be used for the numerical propagation (dynamics type, termination conditions, integrator, etc.)
 
     simulate_dynamics_on_creation : bool, default=True
@@ -496,10 +496,10 @@ void expose_simulator( py::module& m )
              Object defining the physical environment, with all
              properties of artificial and natural bodies.
 
-         integrator_settings : :class:`~tudatpy.numerical_simulation.propagation_setup.integrator.IntegratorSettings`
+         integrator_settings : :class:`~tudatpy.dynamics.propagation_setup.integrator.IntegratorSettings`
              Settings to create the numerical integrator that is to be used for the integration of the equations of motion.
 
-         propagator_settings : :class:`~tudatpy.numerical_simulation.propagation_setup.propagator.PropagatorSettings`
+         propagator_settings : :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagatorSettings`
              Settings to create the propagator that is to be used for the propagation of the dynamics.
 
          estimated_parameters : :class:`~tudatpy.numerical_simulation.estimation.EstimatableParameterSet`
@@ -510,7 +510,7 @@ void expose_simulator( py::module& m )
              Boolean defining whether equations of motion and variational equations are to be propagated concurrently
              (if true) or sequentially (of false).
 
-         variational_only_integrator_settings : :class:`~tudatpy.numerical_simulation.propagation_setup.integrator.IntegratorSettings`, default = []
+         variational_only_integrator_settings : :class:`~tudatpy.dynamics.propagation_setup.integrator.IntegratorSettings`, default = []
              Settings to create the numerical integrator that is to be used for integration the variational equations.
              If none is given (default), the numerical integration settings are taken to be the same as the ones applied
              in the integration of the equations of motions (specified by the `integrator_settings` parameter).
@@ -695,7 +695,7 @@ void expose_simulator( py::module& m )
   Object defining the physical environment, with all
   properties of artificial and natural bodies.
 
- propagator_settings : :class:`~tudatpy.numerical_simulation.propagation_setup.propagator.PropagatorSettings`
+ propagator_settings : :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagatorSettings`
   Settings to be used for the numerical propagation (dynamics type, termination conditions, integrator, etc.)
 
  parameters_to_estimate : :class:`~tudatpy.numerical_simulation.estimation.EstimatableParameterSet`

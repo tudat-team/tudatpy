@@ -2645,7 +2645,7 @@ inside a `Body` instance and used in observation corrections or environmental qu
         List of radiation pressure target models that exist in the body. These objects define how incoming radiation interacts with the body to produce
         a force/torque. A single body may be endowed with multiple target models, which may be selected
         for an acceleration depending on the application. For instance, a body may have a cannonball target model and a panelled target model available,
-        and use one for solar radiation pressure acceleration, and the other for planetary radiation pressure acceleration (see :func:`~tudatpy.numerical_simulation.propagation_setup.acceleration.radiation_pressure`).
+        and use one for solar radiation pressure acceleration, and the other for planetary radiation pressure acceleration (see :func:`~tudatpy.dynamics.propagation_setup.acceleration.radiation_pressure`).
         This attribute is a list of :class:`~RadiationPressureTargetModel`, or a derived class thereof.
 
 
