@@ -21,7 +21,7 @@ def _recursively_find_children(module):
 
 def test_tudatpy_kernel_module_exposure():
 
-    import tudatpy as kernel
+    import tudatpy.kernel as kernel
 
     exposed_kernel_modules = [
         # 'utils',
