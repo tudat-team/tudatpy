@@ -397,12 +397,14 @@ void expose_observations_simulation_settings( py::module& m )
  --------
  .. code-block:: python
 
+     from tudatpy.estimation.observations_setup import observations_simulation_settings
+
      # Create bodies
      bodies = ...
      # Define parameters settings
      observation_settings = ...
      # Create observation simulators
-     observation_simulators = estimation_setup.create_observation_simulators(observation_settings, bodies)
+     observation_simulators = observations_simulation_settings.create_observation_simulators(observation_settings, bodies)
 
  This code snippet closely follows what is done in: The following snippet closely follows what is done in: `Galilean Moons State Estimation Example <https://github.com/tudat-team/tudatpy-examples/blob/master/estimation/galilean_moons_state_estimation.ipynb>`_.
 

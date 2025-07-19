@@ -461,7 +461,7 @@ Enumeration of available integrated state types.
          done, the :py:attr:`~state_history`,
          :py:attr:`~unprocessed_state_history` and
          :py:attr:`~dependent_variable_history` will not be
-         available in the :py:class:`~tudatpy.numerical_simulation.propagator.SingleArcSimulationResults` class. Putting this setting to True (deleting the
+         available in the :class:`~tudatpy.dynamics.propagation.SingleArcSimulationResults` class. Putting this setting to True (deleting the
          results) is only sensible when the
          :py:attr:`~set_integrated_result` is set to True. In that
          case, the propagated states are *not* accessible directly
@@ -1634,7 +1634,7 @@ HybridArcPropagatorSettings
  .. note::
 
      When using this option, the :attr:`~tudatpy.dynamics.propagation.SingleArcSimulationResults.termination_details` of
-     the simulation results object (obtained from here after a propagation: :attr:`~tudatpy.numerical_simulation.SingleArcSimulator.propagation_results`)
+     the simulation results object (obtained from here after a propagation: :attr:`~tudatpy.dynamics.simulator.SingleArcSimulator.propagation_results`)
      is of derived type :class:`~tudatpy.dynamics.propagation.PropagationTerminationDetailsFromHybridCondition`.
 
      See the :attr:`~tudatpy.dynamics.propagation.PropagationTerminationDetailsFromHybridCondition.was_condition_met_when_stopping` attribute for an example of how to retrieve which condition was met when the propagation was terminated.
