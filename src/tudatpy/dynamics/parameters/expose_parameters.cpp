@@ -176,7 +176,7 @@ void expose_parameters( py::module& m )
      from tudatpy.interface import spice
      from tudatpy.dynamics import environment_setup, propagation_setup, parameters_setup, parameters
      from tudatpy
-     from tudatpy.astro.time_conversion import DateTime
+     from tudatpy.astro.time_representation import DateTime
 
      # Load SPICE kernels
      spice.load_standard_kernels()

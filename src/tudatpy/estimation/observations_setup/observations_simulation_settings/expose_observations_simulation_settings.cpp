@@ -84,7 +84,7 @@ void expose_observations_simulation_settings( py::module& m )
 
              # Code snippet to show the creation of a TabulatedObservationSimulationSettings object
              import numpy as np
-             from tudatpy.astro.time_conversion import DateTime
+             from tudatpy.astro.time_representation import DateTime
              from tudatpy.estimation.observable_models_setup import links, model_settings
              from tudatpy.estimation.observations_setup import observations_simulation_settings
 
