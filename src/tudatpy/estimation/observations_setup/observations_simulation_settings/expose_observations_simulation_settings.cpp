@@ -73,10 +73,10 @@ void expose_observations_simulation_settings( py::module& m )
          Class for defining settings for simulating observations at a predefined set of times.
          This type defines predefined time epochs at which applicable observations are to be simulated, stored in a rigid, "tabulated" form.
          Some observation times may be discarded due to the use of viability settings.
-         Instances of this class are typically created via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings`
-         and :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings_list` functions.
+         Instances of this class are typically created via the :func:`~tudatpy.estimation.observations_setup.observations_simulation_settings.tabulated_simulation_settings`
+         and :func:`~tudatpy.estimation.observations_setup.observations_simulation_settings.tabulated_simulation_settings_list` functions.
 
-         Associated base class: :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings`
+         Associated base class: :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings`
 
          Examples
          --------
@@ -85,7 +85,8 @@ void expose_observations_simulation_settings( py::module& m )
              # Code snippet to show the creation of a TabulatedObservationSimulationSettings object
              import numpy as np
              from tudatpy.astro.time_conversion import DateTime
-             from tudatpy.numerical_simulation.estimation_setup import observation
+             from tudatpy.estimation.observable_models_setup import links, model_settings
+             from tudatpy.estimation.observations_setup import observations_simulation_settings
 
              # Set simulation start and end epochs
              simulation_start_epoch = DateTime(2000, 1, 1).epoch()
@@ -93,19 +94,19 @@ void expose_observations_simulation_settings( py::module& m )
 
              # Define the uplink link ends for one-way observable
              link_ends = dict()
-             link_ends[observation.transmitter] = observation.body_origin_link_end_id("Earth")
-             link_ends[observation.receiver] = observation.body_origin_link_end_id("Delfi-C3")
+             link_ends[links.transmitter] = links.body_origin_link_end_id("Earth")
+             link_ends[links.receiver] = links.body_origin_link_end_id("Delfi-C3")
 
              # Create LinkDefinition Object and set observation settings for each link/observable
-             link_definition = observation.LinkDefinition(link_ends)
-             observation_settings_list = [observation.one_way_doppler_instantaneous(link_definition)]
+             link_definition = links.LinkDefinition(link_ends)
+             observation_settings_list = [model_settings.one_way_doppler_instantaneous(link_definition)]
 
              # Define observation simulation times (separated by steps of 1 minute)
              observation_times = np.arange(simulation_start_epoch, simulation_end_epoch, 60.0)
 
              # Create TabulatedObservationSimulationSettings object
-             tabulated_observation_simulation_settings = observation.tabulated_simulation_settings(
-                 observation.one_way_instantaneous_doppler_type,
+             tabulated_observation_simulation_settings = observations_simulation_settings.tabulated_simulation_settings(
+                 model_settings.one_way_instantaneous_doppler_type,
                  link_definition,
                  observation_times
              )
@@ -155,7 +156,7 @@ void expose_observations_simulation_settings( py::module& m )
  Returns
  -------
  :class:`TabulatedObservationSimulationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.TabulatedObservationSimulationSettings` class.
+     Instance of the :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` derived :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.TabulatedObservationSimulationSettings` class.
 
 
 
@@ -175,7 +176,7 @@ void expose_observations_simulation_settings( py::module& m )
  Function for creating a list of settings object for observation simulation, using a predefined list of observation times.
 
  Function for creating multiple tabulated observation simulation settings objects in a list. This function is
- equivalent to calling the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings` repeatedly, with the different
+ equivalent to calling the :func:`~tudatpy.estimation.observations_setup.observations_simulation_settings.tabulated_simulation_settings` repeatedly, with the different
  observables and link definition provided here through `link_ends_per_observable`.
  During a single call to this function, one simulation settings object is created for each combination of observable type and link geometry given by the `link_ends_per_observable` parameter.
 
@@ -197,7 +198,7 @@ void expose_observations_simulation_settings( py::module& m )
  Returns
  -------
  List[ TabulatedObservationSimulationSettings ]
-     List of :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.TabulatedObservationSimulationSettings` objects.
+     List of :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` derived :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.TabulatedObservationSimulationSettings` objects.
 
 
 
@@ -224,7 +225,7 @@ void expose_observations_simulation_settings( py::module& m )
 
  Function for creating settings object for observation simulation, using observation times according to a requirement for a continuous tracking arc.
 
- Function for creating settings object for observation simulation. Unlike the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.tabulated_simulation_settings`
+ Function for creating settings object for observation simulation. Unlike the :func:`~tudatpy.estimation.observations_setup.observations_simulation_settings.tabulated_simulation_settings`
  function, the resulting settings do not define the observation times explicitly. Instead, this settings object determines the observation times adaptively during the
  simulation of the observation, with the requirement that observations should be simulated over a set of contiguous arcs (if possible). The exact algorithm meets the following conditions:
 
@@ -273,7 +274,7 @@ void expose_observations_simulation_settings( py::module& m )
  Returns
  -------
  :class:`TabulatedObservationSimulationSettings`
-     Instance of the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.TabulatedObservationSimulationSettings` class.
+     Instance of the :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` derived :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.TabulatedObservationSimulationSettings` class.
 
 
 
@@ -299,7 +300,7 @@ void expose_observations_simulation_settings( py::module& m )
  Function for creating a list of settings object for observation simulation, using observation times according to a requirement for a continuous tracking arc.
 
  Function for creating multiple settings objects for observation simulation in a list. This function is
- equivalent to calling the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.continuous_arc_simulation_settings` repeatedly, with the different
+ equivalent to calling the :func:`~tudatpy.estimation.observations_setup.observations_simulation_settings.continuous_arc_simulation_settings` repeatedly, with the different
  observables and link definition provided here through `link_ends_per_observable`.
  During a single call to this function, one simulation settings object is created for each combination of observable type and link geometry given by the `link_ends_per_observable` parameter.
 
@@ -331,7 +332,7 @@ void expose_observations_simulation_settings( py::module& m )
  Returns
  -------
  List[ :class:`TabulatedObservationSimulationSettings` ]
-     List of :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` derived :class:`~tudatpy.numerical_simulation.estimation_setup.observation.TabulatedObservationSimulationSettings` objects.
+     List of :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` derived :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.TabulatedObservationSimulationSettings` objects.
 
 
 
@@ -389,8 +390,8 @@ void expose_observations_simulation_settings( py::module& m )
 
  Returns
  -------
- List[ :class:`~tudatpy.numerical_simulation.estimation.ObservationSimulator` ]
-     List of :class:`~tudatpy.numerical_simulation.estimation.ObservationSimulator` objects, each object hosting the functionality for simulating one combination of observable type and link geometry.
+ List[ :class:`~tudatpy.estimation.observable_models.observables_simulation.ObservationSimulator` ]
+     List of :class:`~tudatpy.estimation.observable_models.observables_simulation.ObservationSimulator` objects, each object hosting the functionality for simulating one combination of observable type and link geometry.
 
  Examples
  --------

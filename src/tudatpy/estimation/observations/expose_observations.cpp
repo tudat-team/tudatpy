@@ -369,7 +369,7 @@ void expose_observations( py::module& m )
          Class collecting all observations and associated data for use in an estimation.
 
          Class containing the full set of observations and associated data, typically for input into the estimation. When using simulated data,
-         this class is instantiated via a call to the :func:`~tudatpy.numerical_simulation.estimation.simulate_observations` function. More information is provided
+         this class is instantiated via a call to the :func:`~tudatpy.estimation.observations_setup.observations_wrapper.simulate_observations` function. More information is provided
          on the `user guide <https://docs.tudat.space/en/stable/_src_user_guide/state_estimation/observation_simulation.html#accessing-and-analyzing-the-observations>`_
 
 
