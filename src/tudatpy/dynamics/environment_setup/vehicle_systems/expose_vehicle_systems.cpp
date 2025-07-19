@@ -41,7 +41,7 @@ void expose_vehicle_systems_setup( py::module& m )
             R"doc(
 
          Base class for defining the geometrical properties of a single panel on the vehicle's exterior.
-         A derived class of this can be instantiated through the :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.frame_fixed_panel_geometry`, :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.time_varying_panel_geometry`, or :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.body_tracking_panel_geometry` functions.
+         A derived class of this can be instantiated through the :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.frame_fixed_panel_geometry`, :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.time_varying_panel_geometry`, or :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.body_tracking_panel_geometry` functions.
 
 
       )doc" );
@@ -55,7 +55,7 @@ void expose_vehicle_systems_setup( py::module& m )
         R"doc(
 
 Derived class for defining the geometrical properties of a single panel on the vehicle's exterior, with a fixed orientation in a given frame.
-This class is typically instantiated through the :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.frame_fixed_panel_geometry` function.
+This class is typically instantiated through the :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.frame_fixed_panel_geometry` function.
 )doc" )
   .def_readwrite( "surface_normal",
                   &tss::FrameFixedBodyPanelGeometrySettings::surfaceNormal_,
@@ -79,7 +79,7 @@ py::class_< tss::FrameVariableBodyPanelGeometrySettings,
     "FrameVariableBodyPanelGeometrySettings",
     R"doc(
 Derived class for defining the geometrical properties of a single panel on the vehicle's exterior, with a time-variable orientation in a given frame.
-This class is typically instantiated through the :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.time_varying_panel_geometry` or :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.body_tracking_panel_geometry` functions.
+This class is typically instantiated through the :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.time_varying_panel_geometry` or :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.body_tracking_panel_geometry` functions.
 )doc" )
   .def_readwrite( "surface_normal_function",
                   &tss::FrameVariableBodyPanelGeometrySettings::surfaceNormalFunction_,
@@ -221,7 +221,7 @@ Panel surface area
             R"doc(
 
          Class for defining the complete properties of a single panel on the vehicle's exterior.
-         This class is typically instantiated through the :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.body_panel_settings` function.
+         This class is typically instantiated through the :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.body_panel_settings` function.
 
 
 
@@ -246,7 +246,7 @@ Panel surface area
                             )
             .def_readwrite( "panel_type_id", &tss::BodyPanelSettings::panelTypeId_, R"doc(
         Optional identifier for panel type.
-        This is typically used to identify the type of panel and can be used to assign a rotation model to a specific panel type, see the :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.full_panelled_body_settings` function.
+        This is typically used to identify the type of panel and can be used to assign a rotation model to a specific panel type, see the :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.full_panelled_body_settings` function.
 
         :type: str
         )doc" );
@@ -261,7 +261,7 @@ Panel surface area
 
  Function for creating settings for a full panel
 
- Function for creating settings for a full panel (presently only geometry and reflection properties). The :class:`~tudatpy.numerical_simulation.environment_setup.radiation_pressure.BodyPanelReflectionLawSettings` can be created using the :func:`~tudatpy.numerical_simulation.environment_setup.radiation_pressure.specular_diffuse_body_panel_reflection` or :func:`~tudatpy.numerical_simulation.environment_setup.radiation_pressure.lambertian_body_panel_reflection` functions.
+ Function for creating settings for a full panel (presently only geometry and reflection properties). The :class:`~tudatpy.dynamics.environment_setup.radiation_pressure.BodyPanelReflectionLawSettings` can be created using the :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.specular_diffuse_body_panel_reflection` or :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.lambertian_body_panel_reflection` functions.
  The panel
  can also be endowed with an identifier to specify the type of the panel. This has no direct consequences for the model,
  but may be useful in estimation, to for instance estimate the reflection properties of all panels specified with identified "MLI"
@@ -295,7 +295,7 @@ Panel surface area
 
          Class for providing the complete settings for a panelled body exterior.
         
-         This is typically defined through the :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.full_panelled_body_settings` or :func:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.box_wing_panelled_body_settings` functions.
+         This is typically defined through the :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.full_panelled_body_settings` or :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.box_wing_panelled_body_settings` functions.
          The class contains a list of panel settings, and (optionally) a list of rotation model settings for vehicle parts.
 
 
@@ -309,7 +309,7 @@ Panel surface area
                             &tss::FullPanelledBodySettings::partRotationModelSettings_,
                             R"doc(
         Dictionary of rotation model settings per vehicle parts.
-        The rotation model settings are defined per `panel_type_id`, as defined in the :class:`~tudatpy.numerical_simulation.environment_setup.vehicle_systems.BodyPanelSettings`.
+        The rotation model settings are defined per `panel_type_id`, as defined in the :class:`~tudatpy.dynamics.environment_setup.vehicle_systems.BodyPanelSettings`.
     
         :type: dict[str,RotationModelSettings]
 
@@ -378,8 +378,8 @@ Panel surface area
  * The spacecraft shape is defined by a rectangular box (cuboid) and solar array
  * The box has its faces parallel to the xy-, xz- and yz-planes
  * The solar array surface normal always points towards the Sun
- * Each box face has identical reflection law settings, defined by :func:`~tudatpy.numerical_simulation.environment_setup.radiation_pressure.specular_diffuse_body_panel_reflection` settings.
- * The solar array has reflection law settings, defined by :func:`~tudatpy.numerical_simulation.environment_setup.radiation_pressure.specular_diffuse_body_panel_reflection` settings.
+ * Each box face has identical reflection law settings, defined by :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.specular_diffuse_body_panel_reflection` settings.
+ * The solar array has reflection law settings, defined by :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.specular_diffuse_body_panel_reflection` settings.
 
 
  Parameters
