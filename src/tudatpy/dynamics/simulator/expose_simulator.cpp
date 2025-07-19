@@ -502,7 +502,7 @@ void expose_simulator( py::module& m )
          propagator_settings : :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagatorSettings`
              Settings to create the propagator that is to be used for the propagation of the dynamics.
 
-         estimated_parameters : :class:`~tudatpy.numerical_simulation.estimation.EstimatableParameterSet`
+         estimated_parameters : :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
              Object defining a consolidated set of (estimatable) parameters (w.r.t. variational equations are defined),
              linked to the environment and acceleration settings of the simulation.
 
@@ -601,7 +601,7 @@ void expose_simulator( py::module& m )
          w.r.t. the variational dynamics in the Variational Simulator are defined.
 
 
-         :type: :class:`~tudatpy.numerical_simulation.estimation.EstimatableParameterSet`
+         :type: :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
       )doc" )
             .def_property_readonly(
                     "variational_equations_history",
@@ -698,7 +698,7 @@ void expose_simulator( py::module& m )
  propagator_settings : :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagatorSettings`
   Settings to be used for the numerical propagation (dynamics type, termination conditions, integrator, etc.)
 
- parameters_to_estimate : :class:`~tudatpy.numerical_simulation.estimation.EstimatableParameterSet`
+ parameters_to_estimate : :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
   Object defining a consolidated set of (estimatable) parameters (w.r.t. variational equations are defined),
   linked to the environment and acceleration settings of the simulation.
 
@@ -727,8 +727,8 @@ void expose_simulator( py::module& m )
          Class establishing an interface with the simulation's State Transition and Sensitivity Matrices.
 
          Class establishing an interface to the State Transition and Sensitivity Matrices.
-         Instances of this class are instantiated automatically upon creation of :class:`~tudatpy.numerical_simulation.Estimator` objects,
-         using the simulation information in the observation, propagation and integration settings that the :class:`~tudatpy.numerical_simulation.Estimator` instance is linked to.
+         Instances of this class are instantiated automatically upon creation of :class:`~tudatpy.estimation.estimation_analysis.Estimator` objects,
+         using the simulation information in the observation, propagation and integration settings that the :class:`~tudatpy.estimation.estimation_analysis.Estimator` instance is linked to.
 
 
 
