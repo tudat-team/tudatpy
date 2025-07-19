@@ -20,7 +20,7 @@ class Converter(ABC):
         """
         Process a merged DataFrame (from multiple files extract outputs) into Tudat structured format.
         For observable converters, this will be a list of
-        tudatpy.numerical_simulation.estimation_setup.observation.single_observation_sets;
+        tudatpy.estimation.observations.single_observation_sets;
         For the ramp converter, a merged ramp DataFrame.
 
         Parameters
