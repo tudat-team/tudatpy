@@ -248,6 +248,9 @@ void expose_time_representation( py::module& m )
         print(seconds)  # prints 3600.0
     )doc" )
             .def( "__float__", &tudat::Time::getSeconds< double > )
+            .def("__eq__", [](const tudat::Time& self, const tudat::Time& other) {
+                return self == other; })
+            .def("__hash__", [](const Time &self) { return self.hash(); } )
             .def( py::self + py::self )
             .def( py::self + double( ) )
             .def( double( ) + py::self )

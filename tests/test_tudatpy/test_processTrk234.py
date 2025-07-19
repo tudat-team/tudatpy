@@ -320,11 +320,11 @@ def test_reader():
     # assert obsTimes[0].to_float() == pytest.approx(
     #     617245672.6834568
     # ), f"Unexpected observation time: {obsTimes[0].to_float()}"
-    assert obsTimes[0] == pytest.approx(
+    assert float( obsTimes[0] ) == pytest.approx(
         617245672.6834568
     ), f"Unexpected observation time: {obsTimes[0]}"
     obsValues = obs_set.concatenated_observations
-    assert obsValues[0] == pytest.approx(
+    assert float( obsValues[0] ) == pytest.approx(
         -8445646929.490659
     ), f"Unexpected observation value: {obsValues[0]}"
 

@@ -56,6 +56,16 @@ public:
         bodyStatePerturbations_ << 10.0, 10.0, 10.0, 1.0E-2, 1.0E-2, 1.0E-2;
     }
 
+    void computeAerodynamicAccelerationWrtDragComponent(
+        Eigen::MatrixXd& partial );
+
+    void computeAerodynamicAccelerationWrtSideComponent(
+        Eigen::MatrixXd& partial );
+
+    void computeAerodynamicAccelerationWrtLiftComponent(
+        Eigen::MatrixXd& partial );
+
+
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!
      *  Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration
@@ -207,25 +217,7 @@ public:
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
-            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
-    {
-        std::function< void( Eigen::MatrixXd& ) > partialFunction;
-        int numberOfColumns = 0;
-
-        // Check if parameter is gravitational parameter.
-        if( parameter->getParameterName( ).first == estimatable_parameters::constant_drag_coefficient )
-        {
-            // Check if parameter body is accelerated body,
-            if( parameter->getParameterName( ).second.first == acceleratedBody_ )
-            {
-                partialFunction = std::bind(
-                        &AerodynamicAccelerationPartial::computeAccelerationPartialWrtCurrentDragCoefficient, this, std::placeholders::_1 );
-                numberOfColumns = 1;
-            }
-        }
-
-        return std::make_pair( partialFunction, numberOfColumns );
-    }
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
     /*!
