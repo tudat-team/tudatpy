@@ -15,9 +15,9 @@ from inspect import getmro
 from typing import Any
 
 # Tudat imports
-from ...util import result2array
-from ...dynamics.simulator import SingleArcSimulator
-from ...dynamics.propagation_setup.dependent_variable import (
+from tudatpy.util import result2array
+from tudatpy.dynamics.simulator import SingleArcSimulator
+from tudatpy.dynamics.propagation_setup.dependent_variable import (
     VariableSettings,
     get_dependent_variable_id,
     get_dependent_variable_shape,
@@ -50,7 +50,7 @@ class DependentVariableDictionary(dict):
     .. code-block:: python
 
         # Create simulation object and propagate the dynamics
-        dynamics_simulator = numerical_simulation.create_dynamics_simulator(
+        dynamics_simulator = dynamics.simulator.create_dynamics_simulator(
             bodies, propagator_settings
         )
 
@@ -122,7 +122,7 @@ class DependentVariableDictionary(dict):
         elif not isinstance(key, str):
             raise TypeError(
                 "DependentVariableDictionary keys must be either instances of `VariableSettings`-derived classes, "
-                "or dependent variable string IDs (see `numerical_simulation.propagation_setup.dependent_variable.get_dependent_variable_id`)."
+                "or dependent variable string IDs (see `dynamics.propagation_setup.dependent_variable.get_dependent_variable_id`)."
             )
 
         return key

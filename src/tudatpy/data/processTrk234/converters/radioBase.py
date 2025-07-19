@@ -8,7 +8,7 @@ from tudatpy.dynamics.environment_setup.ground_station import (
 )
 from tudatpy.estimation.observations_setup.ancillary_settings import FrequencyBands  # type:ignore
 from tudatpy.estimation.observable_models_setup import links
-from tudatpy.astro import time_conversion
+from tudatpy.astro import time_representation
 from . import Converter
 from trk234 import bands
 
@@ -22,7 +22,7 @@ class RadioBase(Converter):
         3: "3W",
     }
 
-    time_scale_converter = time_conversion.default_time_scale_converter()
+    time_scale_converter = time_representation.default_time_scale_converter()
 
     frequencyBandsDict = {
         "S": FrequencyBands.s_band,
@@ -172,10 +172,10 @@ class RadioBase(Converter):
                 )
             )
 
-        epoch_utc = time_conversion.datetime_to_tudat(epoch).epoch()
+        epoch_utc = time_representation.datetime_to_tudat(epoch).epoch()
         epoch_tdb = self.time_scale_converter.convert_time(
-            input_scale=time_conversion.utc_scale,
-            output_scale=time_conversion.tdb_scale,
+            input_scale=time_representation.utc_scale,
+            output_scale=time_representation.tdb_scale,
             input_value=epoch_utc,
             earth_fixed_position=self.stationDict[station],
         )
