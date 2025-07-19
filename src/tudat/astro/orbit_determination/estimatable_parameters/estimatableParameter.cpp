@@ -183,6 +183,15 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case rotation_longitudinal_libration_terms:
             parameterDescription = "longitudinal libration terms ";
             break;
+        case drag_component_scaling_factor:
+            parameterDescription = "drag component scaling factor ";
+            break;
+        case side_component_scaling_factor:
+            parameterDescription = "side component scaling factor ";
+            break;
+        case lift_component_scaling_factor:
+            parameterDescription = "lift component scaling factor ";
+            break;
         default:
             std::string errorMessage =
                     "Error when getting parameter string, did not recognize parameter " + std::to_string( parameterType );
@@ -374,6 +383,15 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
             break;
         case rotation_longitudinal_libration_terms:
             isDoubleParameter = false;
+            break;
+        case drag_component_scaling_factor:
+            isDoubleParameter = true;
+            break;
+        case side_component_scaling_factor:
+            isDoubleParameter = true;
+            break;
+        case lift_component_scaling_factor:
+            isDoubleParameter = true;
             break;
         default:
             throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
