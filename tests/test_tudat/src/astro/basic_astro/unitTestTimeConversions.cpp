@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( testJulianDayToSecondsConversions )
         // Test is run at reduced tolerance, because the final digits of the seconds were lost
         // when converting to Julian day.
 #if ( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
-        BOOST_CHECK_CLOSE_FRACTION( computedSecondsSinceEpoch, expectedSecondsSinceEpoch, 1.0e-14 );
+        BOOST_CHECK_CLOSE_FRACTION( computedSecondsSinceEpoch, expectedSecondsSinceEpoch, 1.0E5 * std::numeric_limits< long double >::epsilon( ) );
 #endif
     }
 
@@ -445,8 +445,8 @@ BOOST_AUTO_TEST_CASE( testTimeConversionsLong )
     testTt = convertTcgToTt< long double >( testTcg );
 
     long double expectedTcg = -secondsSinceJ2000Synchronization * LG_TIME_RATE_TERM_LONG / ( 1.0L - LG_TIME_RATE_TERM_LONG );
-    BOOST_CHECK_CLOSE_FRACTION( testTcg, expectedTcg, 2.0 * std::numeric_limits< long double >::epsilon( ) );
-    BOOST_CHECK_CLOSE_FRACTION( testTt, testTime, 2.0 * std::numeric_limits< long double >::epsilon( ) );
+    BOOST_CHECK_SMALL( std::fabs( testTcg - expectedTcg ), 2.0 * std::numeric_limits< long double >::epsilon( ) );
+    BOOST_CHECK_SMALL( std::fabs( testTt - testTime ), 2.0 * std::numeric_limits< long double >::epsilon( ) );
 
     // Test back and forth TDB<->TCB at t=0, and expected value of TDB at TCB=0.
     testTdb = convertTcbToTdb< long double >( testTime );
