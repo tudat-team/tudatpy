@@ -76,7 +76,7 @@ void expose_observations_dependent_variables( py::module& m )
          Base class for setting observation dependent variables as part of the observation output.
 
          Base class for setting observation dependent variables as part of the observation output.
-         The user can create instances of this class via the :func:`~tudatpy.numerical_simulation.estimation_setup.observation.elevation_angle_dependent_variable` function.
+         The user can create instances of this class via the :func:`~tudatpy.estimation.observations_setup.observations_dependent_variables.elevation_angle_dependent_variable` function.
          Note: The associated functionality is not yet mature enough for the end user. Class is exposed for development purposes only.
 
          Examples
@@ -84,10 +84,11 @@ void expose_observations_dependent_variables( py::module& m )
          .. code-block:: python
 
              # Code snippet to show the creation of an ObservationDependentVariableSettings object
-             from tudatpy.numerical_simulation.estimation_setup import observation
+             from tudatpy.estimation.observations_setup import observations_dependent_variables
+             from tudatpy.estimation.observable_models_setup import links
 
              # Create ObservationDependentVariableSettings object
-             elevation_angle_settings = observation.elevation_angle_dependent_variable(observation.receiver)
+             elevation_angle_settings = observations_dependent_variables.elevation_angle_dependent_variable(links.receiver)
 
              # Show that this is indeed an ObservationDependentVariableSettings object
              print(elevation_angle_settings)
@@ -110,18 +111,18 @@ void expose_observations_dependent_variables( py::module& m )
  Function for including the computation and reporting of dependent variables into the observation simulation settings of all observables.
  Note: The associated functionality is not yet mature enough for the end user. Function is exposed for development purposes only.
 
- Modifications are applied to all given :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object(s),
- matching each :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` object with the corresponding :class:`ObservationDependentVariableSettings` entry in the `dependent_variable_settings` parameter.
- Note that the :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects are modified in-place and thus the function does not return anything.
+ Modifications are applied to all given :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` object(s),
+ matching each :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` object with the corresponding :class:`ObservationDependentVariableSettings` entry in the `dependent_variable_settings` parameter.
+ Note that the :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` objects are modified in-place and thus the function does not return anything.
 
 
  Parameters
  ----------
- observation_simulation_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` ]
-     Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects.
+ observation_simulation_settings : List[ :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` ]
+     Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` objects.
 
- dependent_variable_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationDependentVariableSettings` ]
-     List of one or more :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationDependentVariableSettings` objects, defining the dependent variables to be considered.
+ dependent_variable_settings : List[ :class:`~tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings` ]
+     List of one or more :class:`~tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings` objects, defining the dependent variables to be considered.
 
  bodies : :class:`~tudatpy.dynamics.environment_setup.SystemOfBodies`
      Object consolidating all bodies and environment models that constitute the physical environment.
@@ -146,17 +147,17 @@ void expose_observations_dependent_variables( py::module& m )
 
  Function for including dependent variables into selected existing observation simulation settings.
 
- As :func:`~tudatpy.numerical_simulation.estimation_setup.observation.add_dependent_variables_to_all`, except that the function only adds includes the
+ As :func:`~tudatpy.estimation.observations_setup.observations_dependent_variables.add_dependent_variables_to_all`, except that the function only adds includes the
  computation and reporting of dependent variables to entries of the `observation_simulation_settings` list that matches the specified `observable_type`.
 
 
  Parameters
  ----------
- observation_simulation_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` ]
-     Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationSimulationSettings` objects.
+ observation_simulation_settings : List[ :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` ]
+     Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` objects.
 
- dependent_variable_settings : List[ :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationDependentVariableSettings` ]
-     List of one or more :class:`~tudatpy.numerical_simulation.estimation_setup.observation.ObservationDependentVariableSettings` objects, defining the dependent variables to be considered.
+ dependent_variable_settings : List[ :class:`~tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings` ]
+     List of one or more :class:`~tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings` objects, defining the dependent variables to be considered.
 
  bodies : :class:`~tudatpy.dynamics.environment_setup.SystemOfBodies`
      Object consolidating all bodies and environment models that constitute the physical environment.
