@@ -19,8 +19,8 @@ This module contains submodules with specific trajectory design functionalities.
    :maxdepth: 2
    :caption: Modules
 
-   transfer_trajectory
-   shape_based_thrust
+   trajectory_design/transfer_trajectory
+   trajectory_design/shape_based_thrust
 
 
 
