@@ -24,6 +24,7 @@
 #include "observations_setup/expose_observations_setup.h"
 #include "estimation_analysis/expose_estimation_analysis.h"
 #include "estimation_analysis/expose_estimation_analysis_estimator.h"
+#include "estimation_analysis/expose_estimation_analysis_ephemeris_fit.h"
 
 namespace py = pybind11;
 

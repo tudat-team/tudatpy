@@ -40,6 +40,7 @@ void expose_estimation( py::module &m )
 
     auto estimation_analysis_submodule = m.def_submodule( "estimation_analysis" );
     estimation_analysis::expose_estimation_analysis_estimator( estimation_analysis_submodule );
+    estimation_analysis::expose_estimation_analysis_ephemeris_fit( estimation_analysis_submodule );
     estimation_analysis::expose_estimation_analysis( estimation_analysis_submodule );
 
 

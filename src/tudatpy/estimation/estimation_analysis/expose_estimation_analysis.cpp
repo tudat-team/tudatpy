@@ -18,7 +18,6 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
-#include "tudat/simulation/estimation_setup/fitOrbitToEphemeris.h"
 #include "tudat/astro/propagators/propagateCovariance.h"
 
 namespace py = pybind11;
@@ -795,22 +794,6 @@ void expose_estimation_analysis( py::module& m )
 
     m.attr( "PodOutput" ) = m.attr( "EstimationOutput" );
 
-
-    m.def( "create_best_fit_to_ephemeris",
-           &tss::createBestFitToCurrentEphemeris< TIME_TYPE, STATE_SCALAR_TYPE >,
-           py::arg( "bodies" ),
-           py::arg( "acceleration_models" ),
-           py::arg( "observed_bodies" ),
-           py::arg( "central_bodies" ),
-           py::arg( "integrator_settings" ),
-           py::arg( "initial_time" ),
-           py::arg( "final_time" ),
-           py::arg( "data_point_interval" ),
-           py::arg( "additional_parameter_names" ) = std::vector< std::shared_ptr< tep::EstimatableParameterSettings > >( ),
-           py::arg( "number_of_iterations" ) = 3,
-           py::arg( "reintegrate_variational_equations" ) = true,
-           py::arg( "results_print_frequency" ) = 0.0,
-           R"doc(No documentation found.)doc" );
 
 
     // PROPAGATE COVARIANCE
