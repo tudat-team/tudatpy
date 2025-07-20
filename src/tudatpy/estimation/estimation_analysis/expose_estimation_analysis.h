@@ -27,7 +27,7 @@ namespace estimation
 namespace estimation_analysis
 {
 
-void expose_estimation_analysis_estimator( py::module &m );
+void expose_estimation_analysis( py::module &m );
 
 }  // namespace estimation_analysis
 }  // namespace estimation
