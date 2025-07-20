@@ -1,0 +1,758 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="data" href="data.html" /><link rel="prev" title="fundamentals" href="fundamentals.html" />
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>constants - TudatPy API Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
+    <link rel="stylesheet" type="text/css" href="_static/style.css?v=ab9fdd52" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #eeffcc;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     Have questions or feedback? See the <a href='https://docs.tudat.space/en/latest/index_user_guide.html'>User Guide</a> or let us know in our <a href='https://github.com/orgs/tudat-team/discussions?discussions_q='>Github Discussion forum</a>! 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">TudatPy API Reference</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">TudatPy API Reference</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="astro.html"><code class="docutils literal notranslate"><span class="pre">astro</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of astro</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="frame_conversion.html"><code class="docutils literal notranslate"><span class="pre">frame_conversion</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="element_conversion.html"><code class="docutils literal notranslate"><span class="pre">element_conversion</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="time_conversion.html"><code class="docutils literal notranslate"><span class="pre">time_conversion</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="two_body_dynamics.html"><code class="docutils literal notranslate"><span class="pre">two_body_dynamics</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="polyhedron_utilities.html"><code class="docutils literal notranslate"><span class="pre">polyhedron_utilities</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="gravitation.html"><code class="docutils literal notranslate"><span class="pre">gravitation</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="fundamentals.html"><code class="docutils literal notranslate"><span class="pre">fundamentals</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">constants</span></code></a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="data.html"><code class="docutils literal notranslate"><span class="pre">data</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of data</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="horizons.html"><code class="docutils literal notranslate"><span class="pre">horizons</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpc.html"><code class="docutils literal notranslate"><span class="pre">mpc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sbdb.html"><code class="docutils literal notranslate"><span class="pre">sbdb</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="mission_data_downloader.html"><code class="docutils literal notranslate"><span class="pre">mission_data_downloader</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="exceptions.html"><code class="docutils literal notranslate"><span class="pre">exceptions</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of exceptions</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="spice_exceptions.html"><code class="docutils literal notranslate"><span class="pre">spice_exceptions</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="interface.html"><code class="docutils literal notranslate"><span class="pre">interface</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of interface</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="spice.html"><code class="docutils literal notranslate"><span class="pre">spice</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="math.html"><code class="docutils literal notranslate"><span class="pre">math</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of math</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="interpolators.html"><code class="docutils literal notranslate"><span class="pre">interpolators</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="root_finders.html"><code class="docutils literal notranslate"><span class="pre">root_finders</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="numerical_simulation.html"><code class="docutils literal notranslate"><span class="pre">numerical_simulation</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of numerical_simulation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="estimation_setup.html"><code class="docutils literal notranslate"><span class="pre">estimation_setup</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of estimation_setup</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="observation.html"><code class="docutils literal notranslate"><span class="pre">observation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameter.html"><code class="docutils literal notranslate"><span class="pre">parameter</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="environment_setup.html"><code class="docutils literal notranslate"><span class="pre">environment_setup</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of environment_setup</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="aerodynamic_coefficients.html"><code class="docutils literal notranslate"><span class="pre">aerodynamic_coefficients</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="atmosphere.html"><code class="docutils literal notranslate"><span class="pre">atmosphere</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ephemeris.html"><code class="docutils literal notranslate"><span class="pre">ephemeris</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="gravity_field.html"><code class="docutils literal notranslate"><span class="pre">gravity_field</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="gravity_field_variation.html"><code class="docutils literal notranslate"><span class="pre">gravity_field_variation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ground_station.html"><code class="docutils literal notranslate"><span class="pre">ground_station</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="radiation_pressure.html"><code class="docutils literal notranslate"><span class="pre">radiation_pressure</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="rigid_body.html"><code class="docutils literal notranslate"><span class="pre">rigid_body</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="rotation_model.html"><code class="docutils literal notranslate"><span class="pre">rotation_model</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="shape.html"><code class="docutils literal notranslate"><span class="pre">shape</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="shape_deformation.html"><code class="docutils literal notranslate"><span class="pre">shape_deformation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="vehicle_systems.html"><code class="docutils literal notranslate"><span class="pre">vehicle_systems</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="propagation_setup.html"><code class="docutils literal notranslate"><span class="pre">propagation_setup</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of propagation_setup</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="acceleration.html"><code class="docutils literal notranslate"><span class="pre">acceleration</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dependent_variable.html"><code class="docutils literal notranslate"><span class="pre">dependent_variable</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="integrator.html"><code class="docutils literal notranslate"><span class="pre">integrator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mass_rate.html"><code class="docutils literal notranslate"><span class="pre">mass_rate</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="propagator.html"><code class="docutils literal notranslate"><span class="pre">propagator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="torque.html"><code class="docutils literal notranslate"><span class="pre">torque</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="thrust.html"><code class="docutils literal notranslate"><span class="pre">thrust</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="estimation.html"><code class="docutils literal notranslate"><span class="pre">estimation</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="environment.html"><code class="docutils literal notranslate"><span class="pre">environment</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="propagation.html"><code class="docutils literal notranslate"><span class="pre">propagation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="trajectory_design.html"><code class="docutils literal notranslate"><span class="pre">trajectory_design</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of trajectory_design</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="transfer_trajectory.html"><code class="docutils literal notranslate"><span class="pre">transfer_trajectory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="shape_based_thrust.html"><code class="docutils literal notranslate"><span class="pre">shape_based_thrust</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html"><code class="docutils literal notranslate"><span class="pre">plotting</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="util.html"><code class="docutils literal notranslate"><span class="pre">util</span></code></a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/constants.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="constants">
+<span id="id1"></span><h1><code class="docutils literal notranslate"><span class="pre">constants</span></code><a class="headerlink" href="#constants" title="Link to this heading">¶</a></h1>
+<p>This module contains constants that are used in the tudatpy library or commonly used in astrodynamic calculations.</p>
+<section id="id2">
+<h2>Constants<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.SEA_LEVEL_GRAVITATIONAL_ACCELERATION">
+<span class="sig-name descname"><span class="pre">SEA_LEVEL_GRAVITATIONAL_ACCELERATION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">9.80665</span></em><a class="headerlink" href="#tudatpy.constants.SEA_LEVEL_GRAVITATIONAL_ACCELERATION" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>Standard gravitational acceleration at sea-level.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.JULIAN_DAY">
+<span class="sig-name descname"><span class="pre">JULIAN_DAY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">86400.0</span></em><a class="headerlink" href="#tudatpy.constants.JULIAN_DAY" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>Julian day in seconds <span id="id3">[<a class="reference internal" href="index.html#id3" title="NASA SSD. Astrodynamic parameters. URL: http://ssd.jpl.nasa.gov/?constants#ref (visited on 2012-02-21).">11</a>]</span>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.JULIAN_YEAR_IN_DAYS">
+<span class="sig-name descname"><span class="pre">JULIAN_YEAR_IN_DAYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">365.25</span></em><a class="headerlink" href="#tudatpy.constants.JULIAN_YEAR_IN_DAYS" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>Julian year in Julian days <span id="id4">[<a class="reference internal" href="index.html#id3" title="NASA SSD. Astrodynamic parameters. URL: http://ssd.jpl.nasa.gov/?constants#ref (visited on 2012-02-21).">11</a>]</span>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.JULIAN_YEAR">
+<span class="sig-name descname"><span class="pre">JULIAN_YEAR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">31557600.0</span></em><a class="headerlink" href="#tudatpy.constants.JULIAN_YEAR" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>Julian year in seconds. Result of JULIAN_YEAR_IN_DAYS * JULIAN_DAY.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.SIDEREAL_DAY">
+<span class="sig-name descname"><span class="pre">SIDEREAL_DAY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">86164.09054</span></em><a class="headerlink" href="#tudatpy.constants.SIDEREAL_DAY" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>Sidereal day in seconds <span id="id5">[<a class="reference internal" href="index.html#id3" title="NASA SSD. Astrodynamic parameters. URL: http://ssd.jpl.nasa.gov/?constants#ref (visited on 2012-02-21).">11</a>]</span>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.SIDEREAL_YEAR_IN_DAYS">
+<span class="sig-name descname"><span class="pre">SIDEREAL_YEAR_IN_DAYS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">365.25636</span></em><a class="headerlink" href="#tudatpy.constants.SIDEREAL_YEAR_IN_DAYS" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>Sidereal year in Julian days in quasar reference frame <span id="id6">[<a class="reference internal" href="index.html#id3" title="NASA SSD. Astrodynamic parameters. URL: http://ssd.jpl.nasa.gov/?constants#ref (visited on 2012-02-21).">11</a>]</span>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.SIDEREAL_YEAR">
+<span class="sig-name descname"><span class="pre">SIDEREAL_YEAR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">31558149.504</span></em><a class="headerlink" href="#tudatpy.constants.SIDEREAL_YEAR" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>Sidereal year in quasar reference frame. Result of SIDEREAL_YEAR_IN_DAYS * JULIAN_DAY.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.SPEED_OF_LIGHT">
+<span class="sig-name descname"><span class="pre">SPEED_OF_LIGHT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">299792458.0</span></em><a class="headerlink" href="#tudatpy.constants.SPEED_OF_LIGHT" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>Speed of light in meters per second <span id="id7">[<a class="reference internal" href="index.html#id4" title="E.M. Standish. Report of the IAU WGAS Sub-group on Numerical Standards. Highlights of Astronomy, 10:180-184, 1995. doi:10.1017/S1539299600010893.">8</a>]</span>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.GRAVITATIONAL_CONSTANT">
+<span class="sig-name descname"><span class="pre">GRAVITATIONAL_CONSTANT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6.67259e-11</span></em><a class="headerlink" href="#tudatpy.constants.GRAVITATIONAL_CONSTANT" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>Gravitational constant in <span class="math notranslate nohighlight">\(\mathrm{m}^3/\mathrm{s}^2\)</span> <span id="id8">[<a class="reference internal" href="index.html#id4" title="E.M. Standish. Report of the IAU WGAS Sub-group on Numerical Standards. Highlights of Astronomy, 10:180-184, 1995. doi:10.1017/S1539299600010893.">8</a>]</span>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.ASTRONOMICAL_UNIT">
+<span class="sig-name descname"><span class="pre">ASTRONOMICAL_UNIT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">149597870700.0</span></em><a class="headerlink" href="#tudatpy.constants.ASTRONOMICAL_UNIT" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>Astronomical Unit in meters <span id="id9">[<a class="reference internal" href="index.html#id5" title="IAU. Resolution B2. 2012. URL: https://www.iau.org/static/resolutions/IAU2012_English.pdf.">10</a>]</span>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.SPECIFIC_GAS_CONSTANT_AIR">
+<span class="sig-name descname"><span class="pre">SPECIFIC_GAS_CONSTANT_AIR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">287.0</span></em><a class="headerlink" href="#tudatpy.constants.SPECIFIC_GAS_CONSTANT_AIR" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>The specific gas constant of air in <span class="math notranslate nohighlight">\(\mathrm{J}/(\mathrm{kg} \, \mathrm{K})\)</span> <span id="id10">[<a class="reference internal" href="index.html#id6" title="John D. Anderson Jr. Hypersonic and High-Temperature Gas Dynamics. American Institute of Aeronautics and Astronautics, 2006. ISBN 9781600861956. Second Edition, p469. doi:10.2514/4.861956.">2</a>]</span>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.MOLAR_GAS_CONSTANT">
+<span class="sig-name descname"><span class="pre">MOLAR_GAS_CONSTANT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8.3144598</span></em><a class="headerlink" href="#tudatpy.constants.MOLAR_GAS_CONSTANT" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>The molar gas constant in <span class="math notranslate nohighlight">\(\mathrm{J}/(\mathrm{mol} \, \mathrm{K})\)</span> <span id="id11">[<a class="reference internal" href="index.html#id7" title="Nist reference on constants, units and uncertainty. URL: http://physics.nist.gov/cuu/Constants/index.html (visited on 2013-01-11).">1</a>]</span>.
+Also known as universal gas constant.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.PLANCK_CONSTANT">
+<span class="sig-name descname"><span class="pre">PLANCK_CONSTANT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6.62606957e-34</span></em><a class="headerlink" href="#tudatpy.constants.PLANCK_CONSTANT" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>Planck’s constant in <span class="math notranslate nohighlight">\(\mathrm{m}^{2} \, \mathrm{kg}/\mathrm{s}\)</span> <span id="id12">[<a class="reference internal" href="index.html#id7" title="Nist reference on constants, units and uncertainty. URL: http://physics.nist.gov/cuu/Constants/index.html (visited on 2013-01-11).">1</a>]</span>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.BOLTZMANN_CONSTANT">
+<span class="sig-name descname"><span class="pre">BOLTZMANN_CONSTANT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.3806488e-23</span></em><a class="headerlink" href="#tudatpy.constants.BOLTZMANN_CONSTANT" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>The Boltzmann constant (gas constant per particle) in  <span class="math notranslate nohighlight">\(\mathrm{m}^{2} \, \mathrm{kg} / ( \mathrm{s}^{2} \, \mathrm{K} )\)</span>, <span id="id13">[<a class="reference internal" href="index.html#id7" title="Nist reference on constants, units and uncertainty. URL: http://physics.nist.gov/cuu/Constants/index.html (visited on 2013-01-11).">1</a>]</span>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.STEFAN_BOLTZMANN_CONSTANT">
+<span class="sig-name descname"><span class="pre">STEFAN_BOLTZMANN_CONSTANT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5.6703726225913323e-08</span></em><a class="headerlink" href="#tudatpy.constants.STEFAN_BOLTZMANN_CONSTANT" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>Stefan-Boltzmann constant, used for calculating black body radiation intensity in <span class="math notranslate nohighlight">\(\mathrm{J} / (\mathrm{s} \, \mathrm{m}^{2} \, \mathrm{K}^{4} )\)</span> <span id="id14">[<a class="reference internal" href="index.html#id8" title="Wolfram Research. Stefan-boltzmann law. URL: http://scienceworld.wolfram.com/physics/Stefan-BoltzmannLaw.html (visited on 2013-01-11).">12</a>]</span>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.INVERSE_SQUARE_SPEED_OF_LIGHT">
+<span class="sig-name descname"><span class="pre">INVERSE_SQUARE_SPEED_OF_LIGHT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.1126500560536185e-17</span></em><a class="headerlink" href="#tudatpy.constants.INVERSE_SQUARE_SPEED_OF_LIGHT" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>Precomputed inverse-square of speed of light.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.INVERSE_CUBIC_SPEED_OF_LIGHT">
+<span class="sig-name descname"><span class="pre">INVERSE_CUBIC_SPEED_OF_LIGHT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3.711401092196984e-26</span></em><a class="headerlink" href="#tudatpy.constants.INVERSE_CUBIC_SPEED_OF_LIGHT" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>Precomputed inverse 3rd power of speed of light.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.INVERSE_QUARTIC_SPEED_OF_LIGHT">
+<span class="sig-name descname"><span class="pre">INVERSE_QUARTIC_SPEED_OF_LIGHT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.2379901472361205e-34</span></em><a class="headerlink" href="#tudatpy.constants.INVERSE_QUARTIC_SPEED_OF_LIGHT" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>Precomputed inverse 4th power of speed of light.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.INVERSE_QUINTIC_SPEED_OF_LIGHT">
+<span class="sig-name descname"><span class="pre">INVERSE_QUINTIC_SPEED_OF_LIGHT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4.129490633270435e-43</span></em><a class="headerlink" href="#tudatpy.constants.INVERSE_QUINTIC_SPEED_OF_LIGHT" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>Precomputed inverse 5th power of speed of light.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.VACUUM_PERMEABILITY">
+<span class="sig-name descname"><span class="pre">VACUUM_PERMEABILITY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.2566370614359173e-06</span></em><a class="headerlink" href="#tudatpy.constants.VACUUM_PERMEABILITY" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>Permeability of vacuum.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.VACUUM_PERMITTIVITY">
+<span class="sig-name descname"><span class="pre">VACUUM_PERMITTIVITY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8.85418781762039e-12</span></em><a class="headerlink" href="#tudatpy.constants.VACUUM_PERMITTIVITY" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>Permittivity of vacuum.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.LG_TIME_RATE_TERM">
+<span class="sig-name descname"><span class="pre">LG_TIME_RATE_TERM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6.969290134e-10</span></em><a class="headerlink" href="#tudatpy.constants.LG_TIME_RATE_TERM" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>Relative time rate difference between TCG and TT time scales.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.JULIAN_DAY_ON_J2000">
+<span class="sig-name descname"><span class="pre">JULIAN_DAY_ON_J2000</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2451545.0</span></em><a class="headerlink" href="#tudatpy.constants.JULIAN_DAY_ON_J2000" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>Julian day at J2000, i.e. 01-01-2000, at 12:00 (in TT).</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.JULIAN_DAY_AT_0_MJD">
+<span class="sig-name descname"><span class="pre">JULIAN_DAY_AT_0_MJD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2400000.5</span></em><a class="headerlink" href="#tudatpy.constants.JULIAN_DAY_AT_0_MJD" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>Julian day at Modified Julian Date 0, i.e. Nov 17, 1858, 00:00.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.E">
+<span class="sig-name descname"><span class="pre">E</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2.718281828459045</span></em><a class="headerlink" href="#tudatpy.constants.E" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>The constant E is base of the natural logarithm, and is also known as Napier’s constant.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.GOLDEN_RATIO">
+<span class="sig-name descname"><span class="pre">GOLDEN_RATIO</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.618033988749895</span></em><a class="headerlink" href="#tudatpy.constants.GOLDEN_RATIO" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>The golden ratio, also known as the divine proportion, golden mean, or golden section, is a number often encountered when taking the ratios of distances in simple geometric figures such as the pentagon, pentagram, decagon and dodecahedron.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.COMPLEX_I">
+<span class="sig-name descname"><span class="pre">COMPLEX_I</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1j</span></em><a class="headerlink" href="#tudatpy.constants.COMPLEX_I" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.13)">complex</a></p>
+</dd>
+</dl>
+<p>Independent root of -1, typically denoted <span class="math notranslate nohighlight">\(i\)</span>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.PI">
+<span class="sig-name descname"><span class="pre">PI</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3.141592653589793</span></em><a class="headerlink" href="#tudatpy.constants.PI" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>The constant PI, denoted <span class="math notranslate nohighlight">\(\pi\)</span>, is a real number defined as the ratio of a circle’s circumference <span class="math notranslate nohighlight">\(C\)</span> to its diameter, <span class="math notranslate nohighlight">\(d = 2r\)</span>.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="tudatpy.constants.TUDAT_NAN">
+<span class="sig-name descname"><span class="pre">TUDAT_NAN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">nan</span></em><a class="headerlink" href="#tudatpy.constants.TUDAT_NAN" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+<p>Tudat Not-A-Number (NaN) value.</p>
+</dd></dl>
+
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="data.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">data</span></code></div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="fundamentals.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">fundamentals</span></code></div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2025, Tudat Team
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">constants</span></code></a><ul>
+<li><a class="reference internal" href="#id2">Constants</a><ul>
+<li><a class="reference internal" href="#tudatpy.constants.SEA_LEVEL_GRAVITATIONAL_ACCELERATION"><code class="docutils literal notranslate"><span class="pre">SEA_LEVEL_GRAVITATIONAL_ACCELERATION</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.JULIAN_DAY"><code class="docutils literal notranslate"><span class="pre">JULIAN_DAY</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.JULIAN_YEAR_IN_DAYS"><code class="docutils literal notranslate"><span class="pre">JULIAN_YEAR_IN_DAYS</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.JULIAN_YEAR"><code class="docutils literal notranslate"><span class="pre">JULIAN_YEAR</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.SIDEREAL_DAY"><code class="docutils literal notranslate"><span class="pre">SIDEREAL_DAY</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.SIDEREAL_YEAR_IN_DAYS"><code class="docutils literal notranslate"><span class="pre">SIDEREAL_YEAR_IN_DAYS</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.SIDEREAL_YEAR"><code class="docutils literal notranslate"><span class="pre">SIDEREAL_YEAR</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.SPEED_OF_LIGHT"><code class="docutils literal notranslate"><span class="pre">SPEED_OF_LIGHT</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.GRAVITATIONAL_CONSTANT"><code class="docutils literal notranslate"><span class="pre">GRAVITATIONAL_CONSTANT</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.ASTRONOMICAL_UNIT"><code class="docutils literal notranslate"><span class="pre">ASTRONOMICAL_UNIT</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.SPECIFIC_GAS_CONSTANT_AIR"><code class="docutils literal notranslate"><span class="pre">SPECIFIC_GAS_CONSTANT_AIR</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.MOLAR_GAS_CONSTANT"><code class="docutils literal notranslate"><span class="pre">MOLAR_GAS_CONSTANT</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.PLANCK_CONSTANT"><code class="docutils literal notranslate"><span class="pre">PLANCK_CONSTANT</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.BOLTZMANN_CONSTANT"><code class="docutils literal notranslate"><span class="pre">BOLTZMANN_CONSTANT</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.STEFAN_BOLTZMANN_CONSTANT"><code class="docutils literal notranslate"><span class="pre">STEFAN_BOLTZMANN_CONSTANT</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.INVERSE_SQUARE_SPEED_OF_LIGHT"><code class="docutils literal notranslate"><span class="pre">INVERSE_SQUARE_SPEED_OF_LIGHT</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.INVERSE_CUBIC_SPEED_OF_LIGHT"><code class="docutils literal notranslate"><span class="pre">INVERSE_CUBIC_SPEED_OF_LIGHT</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.INVERSE_QUARTIC_SPEED_OF_LIGHT"><code class="docutils literal notranslate"><span class="pre">INVERSE_QUARTIC_SPEED_OF_LIGHT</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.INVERSE_QUINTIC_SPEED_OF_LIGHT"><code class="docutils literal notranslate"><span class="pre">INVERSE_QUINTIC_SPEED_OF_LIGHT</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.VACUUM_PERMEABILITY"><code class="docutils literal notranslate"><span class="pre">VACUUM_PERMEABILITY</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.VACUUM_PERMITTIVITY"><code class="docutils literal notranslate"><span class="pre">VACUUM_PERMITTIVITY</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.LG_TIME_RATE_TERM"><code class="docutils literal notranslate"><span class="pre">LG_TIME_RATE_TERM</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.JULIAN_DAY_ON_J2000"><code class="docutils literal notranslate"><span class="pre">JULIAN_DAY_ON_J2000</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.JULIAN_DAY_AT_0_MJD"><code class="docutils literal notranslate"><span class="pre">JULIAN_DAY_AT_0_MJD</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.E"><code class="docutils literal notranslate"><span class="pre">E</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.GOLDEN_RATIO"><code class="docutils literal notranslate"><span class="pre">GOLDEN_RATIO</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.COMPLEX_I"><code class="docutils literal notranslate"><span class="pre">COMPLEX_I</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.PI"><code class="docutils literal notranslate"><span class="pre">PI</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.constants.TUDAT_NAN"><code class="docutils literal notranslate"><span class="pre">TUDAT_NAN</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=8a448e45"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </body>
+</html>

@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../../../lib/libtudat_relativity.a CMakeFiles/tudat_relativity.dir/relativisticLightTimeCorrection.cpp.o CMakeFiles/tudat_relativity.dir/relativisticAccelerationCorrection.cpp.o CMakeFiles/tudat_relativity.dir/relativisticTimeConversion.cpp.o CMakeFiles/tudat_relativity.dir/metric.cpp.o CMakeFiles/tudat_relativity.dir/einsteinInfeldHoffmannEquations.cpp.o
+/usr/bin/ranlib ../../../../lib/libtudat_relativity.a

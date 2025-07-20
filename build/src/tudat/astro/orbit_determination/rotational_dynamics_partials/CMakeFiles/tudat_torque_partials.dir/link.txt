@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../../../../lib/libtudat_torque_partials.a CMakeFiles/tudat_torque_partials.dir/inertialTorquePartial.cpp.o CMakeFiles/tudat_torque_partials.dir/constantTorquePartial.cpp.o CMakeFiles/tudat_torque_partials.dir/secondDegreeGravitationalTorquePartial.cpp.o CMakeFiles/tudat_torque_partials.dir/sphericalHarmonicGravitationalTorquePartial.cpp.o
+/usr/bin/ranlib ../../../../../lib/libtudat_torque_partials.a

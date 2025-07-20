@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../../../lib/libtudat_spice_interface.a CMakeFiles/tudat_spice_interface.dir/spiceEphemeris.cpp.o CMakeFiles/tudat_spice_interface.dir/spiceRotationalEphemeris.cpp.o CMakeFiles/tudat_spice_interface.dir/spiceInterface.cpp.o CMakeFiles/tudat_spice_interface.dir/spiceException.cpp.o
+/usr/bin/ranlib ../../../../lib/libtudat_spice_interface.a

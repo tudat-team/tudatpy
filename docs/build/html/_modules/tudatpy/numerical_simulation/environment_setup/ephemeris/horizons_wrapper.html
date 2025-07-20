@@ -1,0 +1,1665 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../../../../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../../genindex.html" /><link rel="search" title="Search" href="../../../../../search.html" />
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>tudatpy.numerical_simulation.environment_setup.ephemeris.horizons_wrapper - TudatPy API Reference</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/furo-extensions.css?v=302659d7" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/style.css?v=ab9fdd52" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #eeffcc;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     Have questions or feedback? See the <a href='https://docs.tudat.space/en/latest/index_user_guide.html'>User Guide</a> or let us know in our <a href='https://github.com/orgs/tudat-team/discussions?discussions_q='>Github Discussion forum</a>! 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../../../index.html"><div class="brand">TudatPy API Reference</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../../index.html">
+  
+  
+  <span class="sidebar-brand-text">TudatPy API Reference</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../../../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../astro.html"><code class="docutils literal notranslate"><span class="pre">astro</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of astro</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../frame_conversion.html"><code class="docutils literal notranslate"><span class="pre">frame_conversion</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../element_conversion.html"><code class="docutils literal notranslate"><span class="pre">element_conversion</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../time_conversion.html"><code class="docutils literal notranslate"><span class="pre">time_conversion</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../two_body_dynamics.html"><code class="docutils literal notranslate"><span class="pre">two_body_dynamics</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../polyhedron_utilities.html"><code class="docutils literal notranslate"><span class="pre">polyhedron_utilities</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../gravitation.html"><code class="docutils literal notranslate"><span class="pre">gravitation</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../fundamentals.html"><code class="docutils literal notranslate"><span class="pre">fundamentals</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../constants.html"><code class="docutils literal notranslate"><span class="pre">constants</span></code></a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../data.html"><code class="docutils literal notranslate"><span class="pre">data</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of data</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../horizons.html"><code class="docutils literal notranslate"><span class="pre">horizons</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../mpc.html"><code class="docutils literal notranslate"><span class="pre">mpc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../sbdb.html"><code class="docutils literal notranslate"><span class="pre">sbdb</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../mission_data_downloader.html"><code class="docutils literal notranslate"><span class="pre">mission_data_downloader</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../exceptions.html"><code class="docutils literal notranslate"><span class="pre">exceptions</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of exceptions</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../spice_exceptions.html"><code class="docutils literal notranslate"><span class="pre">spice_exceptions</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../interface.html"><code class="docutils literal notranslate"><span class="pre">interface</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of interface</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../spice.html"><code class="docutils literal notranslate"><span class="pre">spice</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../math.html"><code class="docutils literal notranslate"><span class="pre">math</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of math</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../interpolators.html"><code class="docutils literal notranslate"><span class="pre">interpolators</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../root_finders.html"><code class="docutils literal notranslate"><span class="pre">root_finders</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../numerical_simulation.html"><code class="docutils literal notranslate"><span class="pre">numerical_simulation</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of numerical_simulation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../estimation_setup.html"><code class="docutils literal notranslate"><span class="pre">estimation_setup</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of estimation_setup</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../observation.html"><code class="docutils literal notranslate"><span class="pre">observation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../parameter.html"><code class="docutils literal notranslate"><span class="pre">parameter</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../environment_setup.html"><code class="docutils literal notranslate"><span class="pre">environment_setup</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of environment_setup</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../aerodynamic_coefficients.html"><code class="docutils literal notranslate"><span class="pre">aerodynamic_coefficients</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../atmosphere.html"><code class="docutils literal notranslate"><span class="pre">atmosphere</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../ephemeris.html"><code class="docutils literal notranslate"><span class="pre">ephemeris</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../gravity_field.html"><code class="docutils literal notranslate"><span class="pre">gravity_field</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../gravity_field_variation.html"><code class="docutils literal notranslate"><span class="pre">gravity_field_variation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../ground_station.html"><code class="docutils literal notranslate"><span class="pre">ground_station</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../radiation_pressure.html"><code class="docutils literal notranslate"><span class="pre">radiation_pressure</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../rigid_body.html"><code class="docutils literal notranslate"><span class="pre">rigid_body</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../rotation_model.html"><code class="docutils literal notranslate"><span class="pre">rotation_model</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../shape.html"><code class="docutils literal notranslate"><span class="pre">shape</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../shape_deformation.html"><code class="docutils literal notranslate"><span class="pre">shape_deformation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../vehicle_systems.html"><code class="docutils literal notranslate"><span class="pre">vehicle_systems</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../../propagation_setup.html"><code class="docutils literal notranslate"><span class="pre">propagation_setup</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of propagation_setup</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../acceleration.html"><code class="docutils literal notranslate"><span class="pre">acceleration</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../dependent_variable.html"><code class="docutils literal notranslate"><span class="pre">dependent_variable</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../integrator.html"><code class="docutils literal notranslate"><span class="pre">integrator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../mass_rate.html"><code class="docutils literal notranslate"><span class="pre">mass_rate</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../propagator.html"><code class="docutils literal notranslate"><span class="pre">propagator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../torque.html"><code class="docutils literal notranslate"><span class="pre">torque</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../thrust.html"><code class="docutils literal notranslate"><span class="pre">thrust</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../estimation.html"><code class="docutils literal notranslate"><span class="pre">estimation</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../environment.html"><code class="docutils literal notranslate"><span class="pre">environment</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../propagation.html"><code class="docutils literal notranslate"><span class="pre">propagation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../../trajectory_design.html"><code class="docutils literal notranslate"><span class="pre">trajectory_design</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of trajectory_design</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../transfer_trajectory.html"><code class="docutils literal notranslate"><span class="pre">transfer_trajectory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../shape_based_thrust.html"><code class="docutils literal notranslate"><span class="pre">shape_based_thrust</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../plotting.html"><code class="docutils literal notranslate"><span class="pre">plotting</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../util.html"><code class="docutils literal notranslate"><span class="pre">util</span></code></a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <h1>Source code for tudatpy.numerical_simulation.environment_setup.ephemeris.horizons_wrapper</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">astropy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astroquery.jplhorizons</span><span class="w"> </span><span class="kn">import</span> <span class="n">Horizons</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.time</span><span class="w"> </span><span class="kn">import</span> <span class="n">Time</span><span class="p">,</span> <span class="n">TimeDelta</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">astropy.units</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">u</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">vstack</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tudatpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">constants</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tudatpy.kernel.numerical_simulation.environment_setup</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ephemeris</span><span class="p">,</span>
+    <span class="n">BodySettings</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="HorizonsQuery">
+<a class="viewcode-back" href="../../../../../horizons.html#tudatpy.numerical_simulation.environment_setup.ephemeris.horizons_wrapper.HorizonsQuery">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HorizonsQuery</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This class provides an interface to JPL&#39;s Horizon System.</span>
+<span class="sd">    JPL Horizons provides access to highly accurate ephemerides for many solar system objects,</span>
+<span class="sd">    including asteroids, comets, planets, moons and select spacecraft.</span>
+<span class="sd">    The class extends astroquery&#39;s to cater to the needs of Tudat users,</span>
+<span class="sd">    while maintaining compatibility with all of astroquery&#39;s features.</span>
+
+<span class="sd">    There are some notable differences:</span>
+
+<span class="sd">    Time input has been simplified to reduce ambiguities:</span>
+<span class="sd">    - List of times are given in seconds since J2000 TDB.</span>
+<span class="sd">    - Start can be given in datetime format or seconds since J2000 TDB.</span>
+<span class="sd">    - Timesteps like months and years are not permitted.</span>
+
+<span class="sd">    And some additional features:</span>
+<span class="sd">    - Extended query allows data retrieval limits</span>
+<span class="sd">    to be broken by automatically splitting up a query into multiple subqueries</span>
+<span class="sd">    and combining the data.</span>
+<span class="sd">    - Ephemeris settings can automatically be generated using Vectors API.</span>
+
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">query_limit</span> <span class="o">=</span> <span class="mi">90024</span>
+
+    <span class="c1"># 50 is chosen to be conservative,</span>
+    <span class="c1"># 50 is chosen to prevent scenarios where higher precision is used,</span>
+    <span class="c1"># to prevent undefined behaviour when very futuristic dates are used,</span>
+    <span class="c1"># and because it is a nice human friendly number.</span>
+    <span class="c1"># Testing found a limit of 77 but this will not be conservative.</span>
+    <span class="n">query_limit_list</span> <span class="o">=</span> <span class="mi">50</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">query_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">location</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">query_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+        <span class="n">epoch_start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">epoch_end</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">epoch_step</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">epoch_list</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">extended_query</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Query object to retrieve Horizons data for a singular body.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        query_id : str</span>
+<span class="sd">            Query term for object to retrieve data for. The query may be ambiguous,</span>
+<span class="sd">            in which case suggestions for exact objects are presented.</span>
+<span class="sd">            The behaviour for this parameter changes based on the `query_type`</span>
+<span class="sd">            parameter.</span>
+<span class="sd">            The default behaviour is the same as the official Horizons API.</span>
+
+<span class="sd">            Here are some examples for the default behaviour:</span>
+
+<span class="sd">            - `Earth` - ambiguous, will</span>
+<span class="sd">            suggest 3 (Earth-Moon Barycentre) and 399 (Earth).</span>
+
+<span class="sd">            - `3` - will retrieve Earth-Moon Barycentre.</span>
+
+<span class="sd">            - `3;` - semi-colon searches for minor planets.\</span>
+<span class="sd">            In this case it will search for the minor planet with MPC code 3: Juno.</span>
+
+<span class="sd">            - `-3` - A minus sign searches for spacecraft.</span>
+<span class="sd">            In this case the Mars Orbiter Mission.</span>
+
+<span class="sd">            See the Horizons System manual</span>
+<span class="sd">            for an extensive explanation on this parameter and the timespans</span>
+<span class="sd">            page for some examples:</span>
+<span class="sd">            https://ssd.jpl.nasa.gov/horizons/manual.html#select</span>
+
+<span class="sd">            https://ssd.jpl.nasa.gov/horizons/time_spans.html</span>
+
+<span class="sd">        location : str</span>
+<span class="sd">            Coordinate centre for the data with syntax `site@body`.</span>
+
+<span class="sd">            In general, the syntax is: `site@body` but there are several shorthands.</span>
+<span class="sd">            The sight may be a specific location on the body, such as an observatory.</span>
+<span class="sd">            500 specifies the geocentre, and can be left out as a shorthand</span>
+<span class="sd">            (500@399 = @399).</span>
+<span class="sd">            Here are some examples:</span>
+
+<span class="sd">            - `@10` or `@Sun` - if no site is given, the geocenter will be taken.</span>
+
+<span class="sd">            - `500@399` or `@399` or `500` - Geocentric. The site defaults to `500`.</span>
+<span class="sd">            The body defaults to `@399`.</span>
+
+<span class="sd">            - `@0` or `@SSB` - The solar system barycentre.</span>
+
+<span class="sd">            - `0` - without the `@` symbol, this location is equivalent to `0@399`</span>
+<span class="sd">            which is the observatory with MPC code 0 on Earth and not the SSB.</span>
+<span class="sd">            In this case: Greenwich Observatory.</span>
+
+<span class="sd">            - `Greenwich` - Equivalent to `Greenwich@399`, Greenwich Observatory.</span>
+
+<span class="sd">            - `Earth` - Heaven on Earth Observatory, not equivalent to `@399`.</span>
+
+<span class="sd">            - `@Earth` - ambiguous, will suggest `@399` or `@3`.</span>
+
+<span class="sd">            - `Geocentric` - Equivalent to `500@399`.</span>
+
+<span class="sd">            As mistakes can easily made, it is highly recommended to consult</span>
+<span class="sd">            the manual and use specific codes for this parameter:</span>
+
+<span class="sd">            https://ssd.jpl.nasa.gov/horizons/manual.html#center</span>
+<span class="sd">        query_type : str, optional</span>
+<span class="sd">            The query type constrains the search for the `query_id` parameter.</span>
+<span class="sd">            Can have values: &#39;default&#39;, &#39;None&#39;, &#39;smallbody&#39;, &#39;designation&#39;, &#39;name&#39;,</span>
+<span class="sd">            &#39;asteroid_name&#39;, &#39;comet_name&#39;, by default &quot;default&quot;</span>
+
+<span class="sd">            While all objects can be found with the default parameter,</span>
+<span class="sd">            some queries have ambiguities. Specifying the query type eliminates the</span>
+<span class="sd">            specific syntax. For example searching Juno with `query_type` `spacecraft`</span>
+<span class="sd">            retrieves data for the spacecraft while setting `smallbody`</span>
+<span class="sd">            retrieves data for the asteroid Juno.</span>
+<span class="sd">            See the Horizons system Manual and astroquery documentation for more info:</span>
+
+<span class="sd">            https://ssd.jpl.nasa.gov/horizons/manual.html#select</span>
+
+<span class="sd">            https://astroquery.readthedocs.io/en/latest/jplhorizons/jplhorizons.html</span>
+
+<span class="sd">        epoch_start : Union[datetime.datetime, float, None], optional</span>
+<span class="sd">            Starting date to retrieve data for.</span>
+<span class="sd">            Must be either a python datetime object or a float seconds since J2000 TDB.</span>
+<span class="sd">            Combined with `epoch_end` and</span>
+<span class="sd">            `epoch_step` can be used to retrieve a range of data.</span>
+<span class="sd">            If `epoch_list` is used, value must be None, by default None</span>
+<span class="sd">        epoch_end : Union[datetime.datetime, float, None], optional</span>
+<span class="sd">            Final date to retrieve data for.</span>
+<span class="sd">            Must be either a python datetime object or a float seconds since J2000 TDB.</span>
+<span class="sd">            If the start stop, and step parameters dont result in an</span>
+<span class="sd">            integer multiple of values,the final date is not used.</span>
+<span class="sd">            Combined with `epoch_end` and</span>
+<span class="sd">            `epoch_step` can be used to retrieve a range of data.</span>
+<span class="sd">            If `epoch_list` is used, value must be None, by default None</span>
+<span class="sd">        epoch_step : Union[str, None], optional</span>
+<span class="sd">            Step for the range of epochs to retrieve data for.</span>
+<span class="sd">            Can be be either a specific timestep such as `15m`,</span>
+<span class="sd">            or a number of partitions `10` for 10 equidistant steps within the range.</span>
+<span class="sd">            For the timestep, quantifiers `m` for minute, `h` for hour and `d` for day</span>
+<span class="sd">            can be used. Seconds are not available, consider using the `epoch_list`</span>
+<span class="sd">            parameter or a number of partitions instead.</span>
+<span class="sd">            Month and Year are normally available in JPL Horizons but are restricted</span>
+<span class="sd">            here because they may produce ambiguous results (leap years etc.).</span>
+<span class="sd">            If `epoch_list` is used, value must be None, by default None</span>
+<span class="sd">        epoch_list : Union[list, None], optional</span>
+<span class="sd">            List of times in seconds since J2000 TDB. Can be used</span>
+<span class="sd">            to retrieve specific times instead of a range.</span>
+<span class="sd">            Must be None if start, end and step are set, by default None</span>
+<span class="sd">        extended_query : bool, optional</span>
+<span class="sd">            Enables the retrieval of larger collections of data, by default False.</span>
+<span class="sd">            Horizons System has a limit on how much data can be output (90024) lines.</span>
+<span class="sd">            Additionally there is a limit on input length which may be exceeded if a</span>
+<span class="sd">            long list of times is given with the `epoch_list` option (50 epochs).</span>
+<span class="sd">            When enabled, the times are split in to multiple subqueries.</span>
+<span class="sd">            The data of these subqueries is then combined and presented as a single</span>
+<span class="sd">            query. Using a very large number of queries may make data retrieval slow,</span>
+<span class="sd">            especially when using the list option. Consider whether your use case</span>
+<span class="sd">            requires a large number of specific times,</span>
+<span class="sd">            or if a range can be used instead.</span>
+
+<span class="sd">            The epoch step partitions (`10` not `10h`) is currently unsupported with</span>
+<span class="sd">            the extended_query.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_query_id</span> <span class="o">=</span> <span class="n">query_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_query_type</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">query_type</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span> <span class="k">else</span> <span class="n">query_type</span>
+
+        <span class="c1"># this gets set after vectors is run</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target_full_name</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># these get set if the above is not None and the name property gets called</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_MPC_number</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_designation</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epoch_type</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># the &#39;subqueries&#39; when using an extended query and their lengths.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queries</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">query_lengths</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># ##############</span>
+        <span class="c1"># error handling</span>
+        <span class="c1"># ##############</span>
+
+        <span class="c1"># epoch range format:</span>
+        <span class="c1"># epoch_list IS none rest is NOT none</span>
+        <span class="k">if</span> <span class="n">epoch_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="p">(</span><span class="n">epoch_start</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="p">(</span><span class="n">epoch_end</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="p">(</span><span class="n">epoch_step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Must specify either a list of times in sec since J2000 &quot;</span>
+                    <span class="o">+</span> <span class="s2">&quot;or a combined start, end and step parameters&quot;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ts_seconds</span><span class="p">,</span> <span class="n">num_lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpret_timestep</span><span class="p">(</span>
+                    <span class="n">epoch_step</span><span class="p">,</span> <span class="n">epoch_start</span><span class="p">,</span> <span class="n">epoch_end</span>
+                <span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_validate_time_range</span><span class="p">(</span><span class="n">epoch_start</span><span class="p">,</span> <span class="n">epoch_end</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\d+&quot;</span><span class="p">,</span> <span class="n">epoch_step</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">epoch_step</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">epoch_type</span> <span class="o">=</span> <span class="s2">&quot;partition&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">epoch_type</span> <span class="o">=</span> <span class="s2">&quot;range&quot;</span>
+
+        <span class="c1"># epoch list format:</span>
+        <span class="c1"># start step end IS none, list NOT none</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">epoch_start</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="n">epoch_end</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="n">epoch_step</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="n">epoch_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Must specify either a list of times in sec since J2000 &quot;</span>
+                    <span class="o">+</span> <span class="s2">&quot;or a combined start, end and step parameters not both&quot;</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="p">(</span>
+                <span class="nb">isinstance</span><span class="p">(</span><span class="n">epoch_list</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">epoch_list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">epoch_list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+            <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">epoch_type</span> <span class="o">=</span> <span class="s2">&quot;list&quot;</span>
+                <span class="n">num_lines</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">epoch_list</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;epoch_list must be a list of times in sec since J2000&quot;</span>
+                <span class="p">)</span>
+        <span class="c1"># Neither format indicated</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Must specify either a list of times in sec since J2000 &quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;or a combined start, end and step parameters&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># ########################################</span>
+        <span class="c1"># Check for query limit and create queries</span>
+        <span class="c1"># ########################################</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="p">(</span><span class="ow">not</span> <span class="n">extended_query</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="n">num_lines</span> <span class="o">&gt;</span> <span class="n">HorizonsQuery</span><span class="o">.</span><span class="n">query_limit</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epoch_type</span> <span class="o">==</span> <span class="s2">&quot;range&quot;</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">txt</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;The query is larger than Horizon&#39;s limit of &quot;</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">HorizonsQuery</span><span class="o">.</span><span class="n">query_limit</span><span class="si">}</span><span class="s2"> lines: (</span><span class="si">{</span><span class="n">num_lines</span><span class="si">}</span><span class="s2">). &quot;</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;Consider making the timestep higher than </span><span class="si">{</span><span class="n">epoch_step</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;or use the &#39;extended_query&#39; option.&quot;</span>
+            <span class="p">)</span>
+
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="p">(</span><span class="ow">not</span> <span class="n">extended_query</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="n">num_lines</span> <span class="o">&gt;</span> <span class="n">HorizonsQuery</span><span class="o">.</span><span class="n">query_limit</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epoch_type</span> <span class="o">==</span> <span class="s2">&quot;partition&quot;</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">txt</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;The query is larger than Horizon&#39;s limit of &quot;</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">HorizonsQuery</span><span class="o">.</span><span class="n">query_limit</span><span class="si">}</span><span class="s2"> lines: (</span><span class="si">{</span><span class="n">num_lines</span><span class="si">}</span><span class="s2">). &quot;</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;Consider using fewer partitions than </span><span class="si">{</span><span class="n">epoch_step</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;or use the &#39;extended_query&#39; option.&quot;</span>
+            <span class="p">)</span>
+
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="p">(</span><span class="ow">not</span> <span class="n">extended_query</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="n">num_lines</span> <span class="o">&gt;</span> <span class="n">HorizonsQuery</span><span class="o">.</span><span class="n">query_limit_list</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epoch_type</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="n">txt</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;The query is larger than Horizon&#39;s input limit of &quot;</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">HorizonsQuery</span><span class="o">.</span><span class="n">query_limit_list</span><span class="si">}</span><span class="s2"> lines: (</span><span class="si">{</span><span class="n">num_lines</span><span class="si">}</span><span class="s2">). &quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;Consider selecting fewer epochs to poll, &quot;</span>
+                <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;using the range option for up to </span><span class="si">{</span><span class="n">HorizonsQuery</span><span class="o">.</span><span class="n">query_limit</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;epochs (or higher with the &#39;extended_query&#39; option). &quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;Using the &#39;extended_query&#39; option with lists may be slow for &quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;a high number of epochs (&gt;200).&quot;</span>
+            <span class="p">)</span>
+
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+
+        <span class="c1"># query is smaller than limit -&gt; one batch</span>
+        <span class="c1"># seperate check for list as the num lines is smaller</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epoch_type</span> <span class="o">!=</span> <span class="s2">&quot;list&quot;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="n">num_lines</span> <span class="o">&lt;</span> <span class="n">HorizonsQuery</span><span class="o">.</span><span class="n">query_limit</span><span class="p">)</span>
+        <span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epoch_type</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="n">num_lines</span> <span class="o">&lt;</span> <span class="n">HorizonsQuery</span><span class="o">.</span><span class="n">query_limit_list</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">epoch_type</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
+                <span class="c1"># convert seconds since J2000 TDB to JD TDB</span>
+                <span class="n">epoch_def</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_time_list</span><span class="p">(</span><span class="n">epoch_list</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">epoch_def</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                    <span class="n">start</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_time_range</span><span class="p">(</span><span class="n">epoch_start</span><span class="p">),</span>
+                    <span class="n">stop</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_time_range</span><span class="p">(</span><span class="n">epoch_end</span><span class="p">),</span>
+                    <span class="n">step</span><span class="o">=</span><span class="n">epoch_step</span><span class="p">,</span>
+                <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">queries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">Horizons</span><span class="p">(</span>
+                    <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_query_id</span><span class="p">,</span>
+                    <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+                    <span class="n">id_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_query_type</span><span class="p">,</span>
+                    <span class="n">epochs</span><span class="o">=</span><span class="n">epoch_def</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">query_lengths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">num_lines</span><span class="p">)</span>
+
+        <span class="c1"># query is extended type -&gt; multiple batches</span>
+        <span class="k">elif</span> <span class="n">extended_query</span><span class="p">:</span>
+            <span class="c1"># case where its a list -&gt; split list</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">epoch_type</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
+                <span class="n">num_splits</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span>
+                    <span class="n">num_lines</span> <span class="o">/</span> <span class="n">HorizonsQuery</span><span class="o">.</span><span class="n">query_limit_list</span>
+                <span class="p">)</span>
+
+                <span class="n">epoch_def</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_time_list</span><span class="p">(</span><span class="n">epoch_list</span><span class="p">)</span>
+                <span class="n">splits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array_split</span><span class="p">(</span><span class="n">epoch_def</span><span class="p">,</span> <span class="n">num_splits</span><span class="p">)</span>
+
+                <span class="c1"># makes a set of queries that are at the query limit, plus 1 smaller one</span>
+                <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">split</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">splits</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">queries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">Horizons</span><span class="p">(</span>
+                            <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_query_id</span><span class="p">,</span>
+                            <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+                            <span class="n">id_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_query_type</span><span class="p">,</span>
+                            <span class="n">epochs</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">split</span><span class="p">),</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">query_lengths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">split</span><span class="p">))</span>
+
+            <span class="c1"># Case where it is a range.</span>
+            <span class="k">elif</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epoch_type</span> <span class="o">==</span> <span class="s2">&quot;range&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">epoch_type</span> <span class="o">==</span> <span class="s2">&quot;partition&quot;</span>
+            <span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">epoch_type</span> <span class="o">==</span> <span class="s2">&quot;partition&quot;</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                        <span class="s2">&quot;Using number of divisions for time &quot;</span>
+                        <span class="o">+</span> <span class="s2">&quot;range with extended queries is &quot;</span>
+                        <span class="o">+</span> <span class="s2">&quot;currently unsupported, please use &quot;</span>
+                        <span class="o">+</span> <span class="s2">&quot;timesteps like 15m instead.&quot;</span>
+                    <span class="p">)</span>
+
+                <span class="n">start_astro</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_time_to_astropy</span><span class="p">(</span><span class="n">epoch_start</span><span class="p">)</span>
+                <span class="n">end_astro</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_time_to_astropy</span><span class="p">(</span><span class="n">epoch_end</span><span class="p">)</span>
+
+                <span class="n">ts_seconds</span> <span class="o">=</span> <span class="n">ts_seconds</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">second</span>
+
+                <span class="n">max_query_step</span> <span class="o">=</span> <span class="n">TimeDelta</span><span class="p">(</span>
+                    <span class="p">((</span><span class="n">HorizonsQuery</span><span class="o">.</span><span class="n">query_limit</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">ts_seconds</span><span class="p">),</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;sec&quot;</span>
+                <span class="p">)</span>
+
+                <span class="n">next_start</span> <span class="o">=</span> <span class="n">start_astro</span>
+                <span class="n">next_limit</span> <span class="o">=</span> <span class="n">start_astro</span> <span class="o">+</span> <span class="n">max_query_step</span>
+
+                <span class="n">formatt</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S.</span><span class="si">%f</span><span class="s2">&quot;</span>
+
+                <span class="k">while</span> <span class="n">next_limit</span> <span class="o">&lt;</span> <span class="n">end_astro</span><span class="p">:</span>
+                    <span class="n">query_len</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span>
+                        <span class="p">(</span><span class="n">next_limit</span> <span class="o">-</span> <span class="n">next_start</span><span class="p">)</span> <span class="o">/</span> <span class="n">ts_seconds</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">query_lengths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">query_len</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">epoch_type</span> <span class="o">==</span> <span class="s2">&quot;partition&quot;</span><span class="p">:</span>
+                        <span class="n">epoch_step_batch</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">query_len</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">epoch_step_batch</span> <span class="o">=</span> <span class="n">epoch_step</span>
+
+                    <span class="n">epoch_def</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                        <span class="n">start</span><span class="o">=</span><span class="n">next_start</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">formatt</span><span class="p">),</span>
+                        <span class="n">stop</span><span class="o">=</span><span class="n">next_limit</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">formatt</span><span class="p">),</span>
+                        <span class="n">step</span><span class="o">=</span><span class="n">epoch_step_batch</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">queries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">Horizons</span><span class="p">(</span>
+                            <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_query_id</span><span class="p">,</span>
+                            <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+                            <span class="n">id_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_query_type</span><span class="p">,</span>
+                            <span class="n">epochs</span><span class="o">=</span><span class="n">epoch_def</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+
+                    <span class="n">next_start</span> <span class="o">=</span> <span class="n">next_limit</span> <span class="o">+</span> <span class="n">ts_seconds</span>
+                    <span class="n">next_limit</span> <span class="o">=</span> <span class="n">next_start</span> <span class="o">+</span> <span class="n">max_query_step</span>
+
+                <span class="c1"># the final batch:</span>
+                <span class="n">query_len</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">((</span><span class="n">end_astro</span> <span class="o">-</span> <span class="n">next_start</span><span class="p">)</span> <span class="o">/</span> <span class="n">ts_seconds</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">query_lengths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">query_len</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">epoch_type</span> <span class="o">==</span> <span class="s2">&quot;partition&quot;</span><span class="p">:</span>
+                    <span class="n">epoch_step_batch</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">query_len</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">epoch_step_batch</span> <span class="o">=</span> <span class="n">epoch_step</span>
+
+                <span class="n">epoch_def</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+                    <span class="n">start</span><span class="o">=</span><span class="n">next_start</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">formatt</span><span class="p">),</span>
+                    <span class="n">stop</span><span class="o">=</span><span class="n">end_astro</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">formatt</span><span class="p">),</span>
+                    <span class="n">step</span><span class="o">=</span><span class="n">epoch_step_batch</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">queries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">Horizons</span><span class="p">(</span>
+                        <span class="nb">id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_query_id</span><span class="p">,</span>
+                        <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+                        <span class="n">id_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_query_type</span><span class="p">,</span>
+                        <span class="n">epochs</span><span class="o">=</span><span class="n">epoch_def</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Undefined behaviour, (extended)&quot;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Undefined behaviour, (unknown error in init)&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_queries</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">queries</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_object_type</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve the name of the query&#39;s object.</span>
+<span class="sd">        The name is infered from the data retrieved and will return none</span>
+<span class="sd">        if data has not been retrieved yet.</span>
+<span class="sd">        Unnamed minor planets will use their designation instead.</span>
+<span class="sd">        If a name can not be infered, the raw name from Horizons will be returned.</span>
+<span class="sd">        Please consider raising an issue on the Tudat github in such cases.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_infer_name</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">_</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unable to infer name, will use full designation instead: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_target_full_name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target_full_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">MPC_number</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve the MPC (Minor Planet Centre) number of the object.</span>
+<span class="sd">        The MPC number is infered from data retrieved and will return none</span>
+<span class="sd">        if data has not been retrieved yet.</span>
+<span class="sd">        The MPC number is only relevant to minor planets such as asteroids, TNOs and</span>
+<span class="sd">        Near-Earth Asteroids.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_infer_name</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MPC_number</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">_</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">designation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve the relevant designation of the query&#39;s object.</span>
+<span class="sd">        The designation is infered from the data retrieved and will return none</span>
+<span class="sd">        if data has not been retrieved yet.</span>
+<span class="sd">        Minor planets and Comets will return their provisional designation</span>
+<span class="sd">        (1898 DQ for Eros, 1982 HG1 for Halley).</span>
+<span class="sd">        A comets&#39; formal designation can often be retrieved using the `name` property</span>
+<span class="sd">        Spacecraft and Major Planets/ Moons will return their JPL number</span>
+<span class="sd">        (-28 for JUICE, 6 for Saturn Barycentre).&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_infer_name</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_designation</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">_</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_infer_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Internal Method to extract the name, designation and MPC code for the</span>
+<span class="sd">        object from the data.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target_full_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">num_between_brackets</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span>
+                <span class="sa">r</span><span class="s2">&quot;\((.*?)\)&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target_full_name</span>
+            <span class="p">)</span>
+
+            <span class="c1"># comet</span>
+            <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;/&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target_full_name</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+                <span class="s2">&quot;S/2&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target_full_name</span>
+            <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_object_type</span> <span class="o">=</span> <span class="s2">&quot;comet&quot;</span>
+                <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target_full_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">temp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_designation</span> <span class="o">=</span> <span class="n">temp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># planet/moon</span>
+            <span class="k">elif</span> <span class="p">(</span>
+                <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_target_full_name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isnumeric</span><span class="p">())</span>
+                <span class="ow">and</span> <span class="n">num_between_brackets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">isnumeric</span><span class="p">()</span>
+            <span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_object_type</span> <span class="o">=</span> <span class="s2">&quot;major&quot;</span>
+                <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target_full_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">temp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_designation</span> <span class="o">=</span> <span class="n">num_between_brackets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># spacecraft</span>
+            <span class="k">elif</span> <span class="s2">&quot;spacecraft&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target_full_name</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_object_type</span> <span class="o">=</span> <span class="s2">&quot;spacecraft&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^[^\(]*&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target_full_name</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_designation</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\((.*?)\)&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target_full_name</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;(&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_designation</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="c1"># asteroids</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_object_type</span> <span class="o">=</span> <span class="s2">&quot;minorplanet&quot;</span>
+                <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target_full_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_MPC_number</span> <span class="o">=</span> <span class="n">temp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\(.+?\)\s*&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">temp</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_designation</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\((.*?)\)&quot;</span><span class="p">,</span> <span class="n">temp</span><span class="p">[</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;(&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="c1"># this is for unnamed asteroids</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_designation</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_convert_time_to_astropy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Time</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Internal method to convert inputted times to astropy&quot;&quot;&quot;</span>
+        <span class="c1"># time is tudat format: seconds since j2000 TDB</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="c1"># convert to julian days</span>
+            <span class="n">time</span> <span class="o">=</span> <span class="p">(</span><span class="n">time</span> <span class="o">/</span> <span class="n">constants</span><span class="o">.</span><span class="n">JULIAN_DAY</span><span class="p">)</span> <span class="o">+</span> <span class="n">constants</span><span class="o">.</span><span class="n">JULIAN_DAY_ON_J2000</span>
+            <span class="n">time_astro</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;jd&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="s2">&quot;tdb&quot;</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+        <span class="c1"># time is python datetime</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">time_astro</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;datetime&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="s2">&quot;tdb&quot;</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">time_astro</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_time_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Internal method to validate start/end user input&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;Incorrect start time given, must be datetime &quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;object or float seconds since J2000 TDB&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;Incorrect start time given, must be datetime &quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;object or float seconds since J2000 TDB&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_time_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Internal method to format input time ranges to a JPL accepted format&quot;&quot;&quot;</span>
+        <span class="c1"># https://ssd.jpl.nasa.gov/horizons/manual.html#time</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="c1"># convert sec since J2000 TDB to JD TDB</span>
+            <span class="n">formatt</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S.</span><span class="si">%f</span><span class="s2">&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_time_to_astropy</span><span class="p">(</span><span class="n">time</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">formatt</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">):</span>
+            <span class="c1"># using recommended 3 letter months may have compatibility issues with locales</span>
+            <span class="n">formatt</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S.</span><span class="si">%f</span><span class="s2">&quot;</span>
+            <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">formatt</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;Incorrect time value given, must be &quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;datetime object or seconds since J2000 TDB&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_time_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">times</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Time</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Internal method to format input time lists to a JPL accepted format&quot;&quot;&quot;</span>
+        <span class="c1"># This is accurate enough considering the precision JPL takes as input</span>
+        <span class="n">times</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_time_to_astropy</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">times</span><span class="p">)))</span><span class="o">.</span><span class="n">jd</span>
+        <span class="k">return</span> <span class="n">times</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_interpret_timestep</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">timestep</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+        <span class="n">end</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Internal method to determine the length of the timestep in seconds</span>
+<span class="sd">        This is to help partition the queries in the case of an extended query</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">numerical_part</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\d+&quot;</span><span class="p">,</span> <span class="n">timestep</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">numerical_part</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Timestep is incorrect&quot;</span><span class="p">)</span>
+        <span class="n">numerical_part</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">numerical_part</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">alpha_part</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\d+&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">timestep</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">time_seconds</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">ambiguoustxt</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;Time intervals like month and year &quot;</span>
+            <span class="o">+</span> <span class="s2">&quot;are ambigious, please reformulate the timestep in days instead&quot;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">alpha_part</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">alpha_part</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;mo&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">ambiguoustxt</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">alpha_part</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;d&quot;</span><span class="p">):</span>
+            <span class="n">time_seconds</span> <span class="o">=</span> <span class="mi">86400</span> <span class="o">*</span> <span class="n">numerical_part</span>
+        <span class="k">elif</span> <span class="n">alpha_part</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">):</span>
+            <span class="n">time_seconds</span> <span class="o">=</span> <span class="mi">3600</span> <span class="o">*</span> <span class="n">numerical_part</span>
+        <span class="k">elif</span> <span class="n">alpha_part</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">):</span>
+            <span class="n">time_seconds</span> <span class="o">=</span> <span class="mi">60</span> <span class="o">*</span> <span class="n">numerical_part</span>
+        <span class="c1"># if the timestep is a partition (no hour/day suffix)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">alpha_part</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">time_seconds</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Unrecognized time step, use &#39;1d&#39;, &#39;1min&#39;, &#39;2 hours&#39; etc.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">start_astro</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_time_to_astropy</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
+        <span class="n">end_astro</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_time_to_astropy</span><span class="p">(</span><span class="n">end</span><span class="p">)</span>
+
+        <span class="n">duration</span> <span class="o">=</span> <span class="p">(</span><span class="n">end_astro</span> <span class="o">-</span> <span class="n">start_astro</span><span class="p">)</span><span class="o">.</span><span class="n">sec</span>
+
+        <span class="k">if</span> <span class="n">time_seconds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">time_seconds</span> <span class="o">=</span> <span class="n">duration</span> <span class="o">/</span> <span class="n">numerical_part</span>
+            <span class="n">steps</span> <span class="o">=</span> <span class="n">numerical_part</span>
+            <span class="k">return</span> <span class="n">time_seconds</span><span class="p">,</span> <span class="n">steps</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">steps</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">duration</span> <span class="o">/</span> <span class="n">time_seconds</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">time_seconds</span><span class="p">,</span> <span class="n">steps</span>
+
+    <span class="c1"># ################</span>
+    <span class="c1"># END USER METHODS</span>
+    <span class="c1"># ################</span>
+
+<div class="viewcode-block" id="HorizonsQuery.vectors">
+<a class="viewcode-back" href="../../../../../horizons.html#tudatpy.numerical_simulation.environment_setup.ephemeris.horizons_wrapper.HorizonsQuery.vectors">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">vectors</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">frame_orientation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ECLIPJ2000&quot;</span><span class="p">,</span>
+        <span class="n">aberations</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;geometric&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">astropy</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">Table</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve Horizons Vectors api data in raw astropy format.</span>
+<span class="sd">        For general purposes, use the `.cartesian()` method instead.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        frame_orientation : str, optional</span>
+<span class="sd">            Reference Frame Orientation, equivalent to the astroquery refplane</span>
+<span class="sd">            parameter. Options are &#39;J2000&#39;/&#39;earth&#39;, &#39;ECLIPJ2000&#39;/&#39;ecliptic&#39; and &#39;body&#39;</span>
+<span class="sd">            , by default &quot;ECLIPJ2000&quot;.</span>
+<span class="sd">            See astroquery documentation for information about the &#39;body&#39; option:</span>
+
+<span class="sd">            https://astroquery.readthedocs.io/en/latest/jplhorizons/jplhorizons.html</span>
+<span class="sd">        aberations : str, optional</span>
+<span class="sd">            Aberations to be accounted for. Options are: &#39;geometric&#39;, &#39;astrometric&#39; and</span>
+<span class="sd">            &#39;apparent&#39;, by default &quot;geometric&quot;.</span>
+
+<span class="sd">            See the Horizons System Manual for more info:</span>
+
+<span class="sd">            https://ssd.jpl.nasa.gov/horizons/manual.html#output</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        astropy.table.Table</span>
+<span class="sd">            Unprocessed vectors API data in astropy Table format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># User input handling</span>
+        <span class="k">if</span> <span class="n">aberations</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;geometric&quot;</span><span class="p">,</span> <span class="s2">&quot;astrometric&quot;</span><span class="p">,</span> <span class="s2">&quot;apparent&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;refplane parameter must be one of: &quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;&#39;geometric&#39;, &#39;astrometric&#39;, &#39;apparent&#39;&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">frame_orientation</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s2">&quot;ECLIPJ2000&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;J2000&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ecliptic&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;earth&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;body&quot;</span><span class="p">,</span>
+        <span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;refplane parameter must be one of: &quot;</span>
+                <span class="o">+</span> <span class="s1">&#39;&quot;ECLIPJ2000&quot;, &quot;J2000&quot;, &quot;ecliptic&quot;, &quot;earth&quot;, &quot;body&quot;&#39;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># convert refplanet to one compatible with Horizons</span>
+        <span class="k">if</span> <span class="n">frame_orientation</span> <span class="o">==</span> <span class="s2">&quot;J2000&quot;</span><span class="p">:</span>
+            <span class="n">frame_orientation</span> <span class="o">=</span> <span class="s2">&quot;earth&quot;</span>
+        <span class="k">elif</span> <span class="n">frame_orientation</span> <span class="o">==</span> <span class="s2">&quot;ECLIPJ2000&quot;</span><span class="p">:</span>
+            <span class="n">frame_orientation</span> <span class="o">=</span> <span class="s2">&quot;ecliptic&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">frame_orientation</span> <span class="o">=</span> <span class="n">frame_orientation</span>
+
+        <span class="n">res_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">query</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">queries</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">vectors</span><span class="p">(</span>
+                <span class="n">refplane</span><span class="o">=</span><span class="n">frame_orientation</span><span class="p">,</span>
+                <span class="n">aberrations</span><span class="o">=</span><span class="n">aberations</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">res_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+
+        <span class="n">raw</span> <span class="o">=</span> <span class="n">vstack</span><span class="p">(</span><span class="n">res_list</span><span class="p">)</span>
+
+        <span class="c1"># retrieve the object&#39;s full name from Horizons</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target_full_name</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;targetname&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">raw</span></div>
+
+
+<div class="viewcode-block" id="HorizonsQuery.cartesian">
+<a class="viewcode-back" href="../../../../../horizons.html#tudatpy.numerical_simulation.environment_setup.ephemeris.horizons_wrapper.HorizonsQuery.cartesian">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cartesian</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">frame_orientation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ECLIPJ2000&quot;</span><span class="p">,</span>
+        <span class="n">aberations</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;geometric&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve the cartesian state using the Horizons Vector API.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        frame_orientation : str, optional</span>
+<span class="sd">            Reference Frame Orientation, equivalent to the astroquery refplane</span>
+<span class="sd">            parameter. Options are &#39;J2000&#39;/&#39;earth&#39;, &#39;ECLIPJ2000&#39;/&#39;ecliptic&#39; and &#39;body&#39;</span>
+<span class="sd">            , by default &quot;ECLIPJ2000&quot;.</span>
+<span class="sd">            See astroquery documentation for information about the &#39;body&#39; option:</span>
+
+<span class="sd">            https://astroquery.readthedocs.io/en/latest/jplhorizons/jplhorizons.html</span>
+<span class="sd">        aberations : str, optional</span>
+<span class="sd">            Aberations to be accounted for. Options are: &#39;geometric&#39;, &#39;astrometric&#39; and</span>
+<span class="sd">            &#39;apparent&#39;, by default &quot;geometric&quot;.</span>
+
+<span class="sd">            See the Horizons System Manual for more info:</span>
+
+<span class="sd">            https://ssd.jpl.nasa.gov/horizons/manual.html#output</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            returns an n by 7 array with the time in seconds since J2000 TDB,</span>
+<span class="sd">            and the cartesian position and velocities.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">raw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vectors</span><span class="p">(</span>
+            <span class="n">frame_orientation</span><span class="o">=</span><span class="n">frame_orientation</span><span class="p">,</span> <span class="n">aberations</span><span class="o">=</span><span class="n">aberations</span>
+        <span class="p">)</span>
+
+        <span class="c1"># A.D. 2019-Jan-05 22:40:00.0000</span>
+        <span class="n">timeformatt</span> <span class="o">=</span> <span class="s2">&quot;A.D. %Y-%b-</span><span class="si">%d</span><span class="s2"> %H:%M:%S.</span><span class="si">%f</span><span class="s2">&quot;</span>
+
+        <span class="n">tab</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">raw</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+            <span class="c1"># format time: first parse the time string and then into seconds since J2000</span>
+            <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">epoch_dt</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
+                    <span class="n">x</span><span class="o">.</span><span class="n">datetime_str</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">timeformatt</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">epochJ2000secondsTDB</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="p">(</span>
+                        <span class="n">Time</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">epoch_dt</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;datetime64&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">jd1</span>
+                        <span class="o">-</span> <span class="n">constants</span><span class="o">.</span><span class="n">JULIAN_DAY_ON_J2000</span>
+                    <span class="p">)</span>
+                    <span class="o">*</span> <span class="n">constants</span><span class="o">.</span><span class="n">JULIAN_DAY</span>
+                <span class="p">)</span>
+                <span class="o">+</span> <span class="p">(</span>
+                    <span class="p">(</span><span class="n">Time</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">epoch_dt</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;datetime64&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">jd2</span><span class="p">)</span>
+                    <span class="o">*</span> <span class="n">constants</span><span class="o">.</span><span class="n">JULIAN_DAY</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">constants</span><span class="o">.</span><span class="n">ASTRONOMICAL_UNIT</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">constants</span><span class="o">.</span><span class="n">ASTRONOMICAL_UNIT</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">z</span> <span class="o">*</span> <span class="n">constants</span><span class="o">.</span><span class="n">ASTRONOMICAL_UNIT</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">vx</span><span class="o">=</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">vx</span>
+                <span class="o">*</span> <span class="n">constants</span><span class="o">.</span><span class="n">ASTRONOMICAL_UNIT</span>
+                <span class="o">/</span> <span class="n">constants</span><span class="o">.</span><span class="n">JULIAN_DAY</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">vy</span><span class="o">=</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">vy</span>
+                <span class="o">*</span> <span class="n">constants</span><span class="o">.</span><span class="n">ASTRONOMICAL_UNIT</span>
+                <span class="o">/</span> <span class="n">constants</span><span class="o">.</span><span class="n">JULIAN_DAY</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">vz</span><span class="o">=</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">vz</span>
+                <span class="o">*</span> <span class="n">constants</span><span class="o">.</span><span class="n">ASTRONOMICAL_UNIT</span>
+                <span class="o">/</span> <span class="n">constants</span><span class="o">.</span><span class="n">JULIAN_DAY</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;epochJ2000secondsTDB&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="s2">&quot;vx&quot;</span><span class="p">,</span> <span class="s2">&quot;vy&quot;</span><span class="p">,</span> <span class="s2">&quot;vz&quot;</span><span class="p">]]</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">tab</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="HorizonsQuery.create_ephemeris_tabulated">
+<a class="viewcode-back" href="../../../../../horizons.html#tudatpy.numerical_simulation.environment_setup.ephemeris.horizons_wrapper.HorizonsQuery.create_ephemeris_tabulated">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_ephemeris_tabulated</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">frame_origin</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">frame_orientation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ECLIPJ2000&quot;</span><span class="p">,</span>
+        <span class="n">aberations</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;geometric&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ephemeris</span><span class="o">.</span><span class="n">EphemerisSettings</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create ephemeris settings for a body using Horizons Vector API.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        frame_origin : str</span>
+<span class="sd">            Global frame origin, should match the queries&#39; location parameter.</span>
+<span class="sd">        frame_orientation : str, optional</span>
+<span class="sd">            Reference Frame Orientation, equivalent to the astroquery refplane</span>
+<span class="sd">            parameter. Options are &#39;J2000&#39; and &#39;ECLIPJ2000&#39;, by default &quot;ECLIPJ2000&quot;.</span>
+<span class="sd">        aberations : str, optional</span>
+<span class="sd">            Aberations to be accounted for. Options are: &#39;geometric&#39;, &#39;astrometric&#39; and</span>
+<span class="sd">            &#39;apparent&#39;, by default &quot;geometric&quot;.</span>
+
+<span class="sd">            See the Horizons System Manual for more info:</span>
+
+<span class="sd">            https://ssd.jpl.nasa.gov/horizons/manual.html#output</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        environment_setup.ephemeris.EphemerisSettings</span>
+<span class="sd">            Ephemeris settings for the query&#39;s body.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Add Ephemerides of JUICE to the body_settings</span>
+
+<span class="sd">        &gt;&gt;&gt; body_settings.add_empty_settings(&quot;JUICE&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; body_settings.get(&quot;JUICE&quot;).ephemeris_settings = query.create_ephemeris_tabulated(</span>
+<span class="sd">                frame_origin=global_frame_origin,</span>
+<span class="sd">                frame_orientation=global_frame_orientation,</span>
+<span class="sd">            )</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">frame_orientation</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ECLIPJ2000&quot;</span><span class="p">,</span> <span class="s2">&quot;J2000&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;refplane parameter must be one of: &quot;</span> <span class="o">+</span> <span class="s1">&#39;&quot;ECLIPJ2000&quot;, &quot;J2000&quot;&#39;</span>
+            <span class="p">)</span>
+        <span class="n">vector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cartesian</span><span class="p">(</span>
+            <span class="n">frame_orientation</span><span class="o">=</span><span class="n">frame_orientation</span><span class="p">,</span> <span class="n">aberations</span><span class="o">=</span><span class="n">aberations</span>
+        <span class="p">)</span>
+
+        <span class="n">table</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">7</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vector</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">ephemeris</span><span class="o">.</span><span class="n">tabulated</span><span class="p">(</span>
+            <span class="n">body_state_history</span><span class="o">=</span><span class="n">table</span><span class="p">,</span>
+            <span class="n">frame_origin</span><span class="o">=</span><span class="n">frame_origin</span><span class="p">,</span>
+            <span class="n">frame_orientation</span><span class="o">=</span><span class="n">frame_orientation</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="HorizonsQuery.ephemerides">
+<a class="viewcode-back" href="../../../../../horizons.html#tudatpy.numerical_simulation.environment_setup.ephemeris.horizons_wrapper.HorizonsQuery.ephemerides">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ephemerides</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">reference_system</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;J2000&quot;</span><span class="p">,</span>
+        <span class="n">extra_precision</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">astropy</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">Table</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Implements the JPL Horizons ephemerides API and returns it in raw Astropy table format.</span>
+<span class="sd">        Ephemerides API provides time-interpolated observer parameters such as right ascension and declination.</span>
+<span class="sd">        Note that this means that values provided are not actual observations.</span>
+
+<span class="sd">        A number of quantities are retrieved, their definitions can be found here:</span>
+<span class="sd">        https://ssd.jpl.nasa.gov/horizons/manual.html#obsquan.</span>
+<span class="sd">        By default all available quantities are retrieved.</span>
+
+<span class="sd">        More parameters can be passed directly to the astroquery call. These can be passed as kwargs: kwargs=(&quot;refraction&quot;:True).</span>
+<span class="sd">        Check the astroquery documentation for an overview:</span>
+<span class="sd">        https://astroquery.readthedocs.io/en/latest/api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass.ephemerides</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        reference_system : str, optional</span>
+<span class="sd">            Coordinate reference system, value must be one of `ICRF`/`J2000` or B1950, by default &quot;J2000&quot;</span>
+<span class="sd">        extra_precision : bool, optional</span>
+<span class="sd">            Enables extra precision in right ascension and declination values, by default False</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        astropy.table.Table</span>
+<span class="sd">            Unprocessed output in astropy table format.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If time query has incorrect format or an incorrect reference system is chosen</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">reference_system</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ICRF&quot;</span><span class="p">,</span> <span class="s2">&quot;J2000&quot;</span><span class="p">,</span> <span class="s2">&quot;B1950&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;`reference_system` must be one of: `J2000`(=`ICRF`), `ICRF`, `B1950`&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">reference_system</span> <span class="o">==</span> <span class="s2">&quot;J2000&quot;</span><span class="p">:</span>
+            <span class="n">reference_system</span> <span class="o">=</span> <span class="s2">&quot;ICRF&quot;</span>
+
+        <span class="n">res_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">query</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">queries</span><span class="p">:</span>
+            <span class="c1"># EPHEMERIDES ONLY TAKES UT TIME (UTC)</span>
+            <span class="c1"># temporarily transform from TDB to UTC:</span>
+            <span class="c1"># NOTE the conversion back and forth is accurate to 1e-5 seconds</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">epochs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">query</span><span class="o">.</span><span class="n">epochs</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span>
+                    <span class="n">query</span><span class="o">.</span><span class="n">epochs</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;iso&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="s2">&quot;tdb&quot;</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">utc</span><span class="o">.</span><span class="n">iso</span>
+                <span class="n">query</span><span class="o">.</span><span class="n">epochs</span><span class="p">[</span><span class="s2">&quot;stop&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span>
+                    <span class="n">query</span><span class="o">.</span><span class="n">epochs</span><span class="p">[</span><span class="s2">&quot;stop&quot;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;iso&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="s2">&quot;tdb&quot;</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">utc</span><span class="o">.</span><span class="n">iso</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">epochs</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span>
+                <span class="n">query</span><span class="o">.</span><span class="n">epochs</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+            <span class="p">):</span>
+                <span class="n">query</span><span class="o">.</span><span class="n">epochs</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="p">(</span>
+                        <span class="n">Time</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;jd&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="s2">&quot;tdb&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">utc</span><span class="o">.</span><span class="n">jd1</span>
+                        <span class="o">+</span> <span class="n">Time</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;jd&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="s2">&quot;tdb&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">utc</span><span class="o">.</span><span class="n">jd2</span>
+                    <span class="p">)</span>
+                    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">query</span><span class="o">.</span><span class="n">epochs</span>
+                <span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;query epoch has incorrect format&quot;</span><span class="p">)</span>
+
+            <span class="n">res</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">ephemerides</span><span class="p">(</span>
+                <span class="n">refsystem</span><span class="o">=</span><span class="n">reference_system</span><span class="p">,</span>
+                <span class="n">extra_precision</span><span class="o">=</span><span class="n">extra_precision</span><span class="p">,</span>
+                <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">timeformatt</span> <span class="o">=</span> <span class="s2">&quot;%Y-%b-</span><span class="si">%d</span><span class="s2"> %H:%M:%S.</span><span class="si">%f</span><span class="s2">&quot;</span>
+            <span class="n">actual_time_tdb</span> <span class="o">=</span> <span class="n">Time</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span>
+                <span class="n">res</span><span class="p">[</span><span class="s2">&quot;datetime_str&quot;</span><span class="p">],</span> <span class="n">format_string</span><span class="o">=</span><span class="n">timeformatt</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="s2">&quot;utc&quot;</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">tdb</span>
+
+            <span class="n">res</span><span class="p">[</span><span class="s2">&quot;datetime_str&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">actual_time_tdb</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">timeformatt</span><span class="p">)</span>
+
+            <span class="n">new_actual_time_tdb</span> <span class="o">=</span> <span class="n">Time</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span>
+                <span class="n">res</span><span class="p">[</span><span class="s2">&quot;datetime_str&quot;</span><span class="p">],</span> <span class="n">format_string</span><span class="o">=</span><span class="n">timeformatt</span>
+            <span class="p">)</span>
+
+            <span class="n">res</span><span class="p">[</span><span class="s2">&quot;datetime_jd&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">new_actual_time_tdb</span><span class="o">.</span><span class="n">jd1</span> <span class="o">+</span> <span class="n">new_actual_time_tdb</span><span class="o">.</span><span class="n">jd2</span>
+            <span class="p">)</span>
+            <span class="n">res</span><span class="p">[</span><span class="s2">&quot;epochJ2000secondsTDB&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="p">(</span><span class="n">new_actual_time_tdb</span><span class="o">.</span><span class="n">jd1</span> <span class="o">-</span> <span class="n">constants</span><span class="o">.</span><span class="n">JULIAN_DAY_ON_J2000</span><span class="p">)</span>
+                <span class="o">*</span> <span class="n">constants</span><span class="o">.</span><span class="n">JULIAN_DAY</span>
+            <span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">new_actual_time_tdb</span><span class="o">.</span><span class="n">jd2</span> <span class="o">*</span> <span class="n">constants</span><span class="o">.</span><span class="n">JULIAN_DAY</span><span class="p">)</span>
+
+            <span class="n">res_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+
+            <span class="c1"># convert back</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">epochs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">query</span><span class="o">.</span><span class="n">epochs</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span>
+                    <span class="n">query</span><span class="o">.</span><span class="n">epochs</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;iso&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="s2">&quot;utc&quot;</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">tdb</span><span class="o">.</span><span class="n">iso</span>
+                <span class="n">query</span><span class="o">.</span><span class="n">epochs</span><span class="p">[</span><span class="s2">&quot;stop&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span>
+                    <span class="n">query</span><span class="o">.</span><span class="n">epochs</span><span class="p">[</span><span class="s2">&quot;stop&quot;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;iso&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="s2">&quot;utc&quot;</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">tdb</span><span class="o">.</span><span class="n">iso</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">epochs</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">query</span><span class="o">.</span><span class="n">epochs</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">Time</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;jd&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="s2">&quot;utc&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">tdb</span><span class="o">.</span><span class="n">jd</span>
+                    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">query</span><span class="o">.</span><span class="n">epochs</span>
+                <span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;query epoch has incorrect format&quot;</span><span class="p">)</span>
+
+        <span class="n">raw</span> <span class="o">=</span> <span class="n">vstack</span><span class="p">(</span><span class="n">res_list</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">raw</span></div>
+
+
+<div class="viewcode-block" id="HorizonsQuery.interpolated_observations">
+<a class="viewcode-back" href="../../../../../horizons.html#tudatpy.numerical_simulation.environment_setup.ephemeris.horizons_wrapper.HorizonsQuery.interpolated_observations">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">interpolated_observations</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">degrees</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">reference_system</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;J2000&quot;</span><span class="p">,</span>
+        <span class="n">extra_precision</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieves interpolated Right Ascension and Declination from the Horizons ephemerides API.</span>
+<span class="sd">        Note that these values are not real observations but instead interpolated</span>
+<span class="sd">        values based on the Horizons ephemeris system.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        degrees : bool, optional</span>
+<span class="sd">            return values in degrees if True, radians if False, by default false</span>
+<span class="sd">        reference_system : str, optional</span>
+<span class="sd">            Coordinate reference system, value must be one of `ICRF`/`J2000` or B1950, by default &quot;J2000&quot;</span>
+<span class="sd">        extra_precision : bool, optional</span>
+<span class="sd">            Enables extra precision in Right Ascension and Declination values, by default False</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            Numpy array (N, 3) with time in seconds since J2000 TDB and the Right Ascension and Declination.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If time query has incorrect format or an incorrect reference system is chosen</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;quantities&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># this gets Only Ra and Dec</span>
+        <span class="n">raw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ephemerides</span><span class="p">(</span>
+            <span class="n">reference_system</span><span class="o">=</span><span class="n">reference_system</span><span class="p">,</span>
+            <span class="n">extra_precision</span><span class="o">=</span><span class="n">extra_precision</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;epochJ2000secondsTDB&quot;</span><span class="p">,</span> <span class="s2">&quot;RA&quot;</span><span class="p">,</span> <span class="s2">&quot;DEC&quot;</span><span class="p">]]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">degrees</span><span class="p">:</span>
+            <span class="n">res</span><span class="p">[[</span><span class="s2">&quot;RA&quot;</span><span class="p">,</span> <span class="s2">&quot;DEC&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[[</span><span class="s2">&quot;RA&quot;</span><span class="p">,</span> <span class="s2">&quot;DEC&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">)</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">res</span></div>
+
+
+<div class="viewcode-block" id="HorizonsQuery.interpolated_station_angles">
+<a class="viewcode-back" href="../../../../../horizons.html#tudatpy.numerical_simulation.environment_setup.ephemeris.horizons_wrapper.HorizonsQuery.interpolated_station_angles">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">interpolated_station_angles</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">degrees</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">reference_system</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;J2000&quot;</span><span class="p">,</span>
+        <span class="n">extra_precision</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieves interpolated Right Ascension and Declination from the Horizons ephemerides API.</span>
+<span class="sd">        Note that these values are not real observations but instead interpolated</span>
+<span class="sd">        values based on the Horizons ephemeris system.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        degrees : bool, optional</span>
+<span class="sd">            return values in degrees if True, radians if False, by default false</span>
+<span class="sd">        reference_system : str, optional</span>
+<span class="sd">            Coordinate reference system, value must be one of `ICRF`/`J2000` or B1950, by default &quot;J2000&quot;</span>
+<span class="sd">        extra_precision : bool, optional</span>
+<span class="sd">            Enables extra precision in Right Ascension and Declination values, by default False</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            Numpy array (N, 3) with time in seconds since J2000 TDB and the Right Ascension and Declination.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If time query has incorrect format or an incorrect reference system is chosen</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;quantities&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>  <span class="c1"># This gets azimuth and elevation</span>
+        <span class="n">raw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ephemerides</span><span class="p">(</span>
+            <span class="n">reference_system</span><span class="o">=</span><span class="n">reference_system</span><span class="p">,</span>
+            <span class="n">extra_precision</span><span class="o">=</span><span class="n">extra_precision</span><span class="p">,</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;epochJ2000secondsTDB&quot;</span><span class="p">,</span> <span class="s2">&quot;AZ&quot;</span><span class="p">,</span> <span class="s2">&quot;EL&quot;</span><span class="p">]]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">degrees</span><span class="p">:</span>
+            <span class="n">res</span><span class="p">[[</span><span class="s2">&quot;AZ&quot;</span><span class="p">,</span> <span class="s2">&quot;EL&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[[</span><span class="s2">&quot;AZ&quot;</span><span class="p">,</span> <span class="s2">&quot;EL&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">)</span>
+
+        <span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">res</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="HorizonsBatch">
+<a class="viewcode-back" href="../../../../../horizons.html#tudatpy.numerical_simulation.environment_setup.ephemeris.horizons_wrapper.HorizonsBatch">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HorizonsBatch</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">query_id_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">location</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">epoch_list</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">epoch_start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">epoch_end</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">epoch_step</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">extended_query</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Query object to retrieve Horizons data for multiple bodies.</span>
+<span class="sd">        See documentation for `HorizonsQuery` for more extensive documentation.</span>
+<span class="sd">        Note that the epochs requested must have data for all bodies queried.</span>
+<span class="sd">        This class is useful for quickly creating ephemerides for many objects at once.</span>
+<span class="sd">        For general purposes, use `HorizonsQuery instead`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        query_id : str</span>
+<span class="sd">            List of query terms to retrieve data for,</span>
+<span class="sd">            all queries behave as type default and the `query_type` behaviour</span>
+<span class="sd">            can not be set for the `HorizonsBatch` class.</span>
+<span class="sd">        location : str</span>
+<span class="sd">            Coordinate centre for the data with syntax `site@body`.</span>
+<span class="sd">        epoch_start : Union[datetime.datetime, float, None], optional</span>
+<span class="sd">            Starting date to retrieve data for.</span>
+<span class="sd">            Must be either a python datetime object or a float seconds since J2000 TDB.</span>
+<span class="sd">            Combined with `epoch_end` and</span>
+<span class="sd">            `epoch_step` can be used to retrieve a range of data.</span>
+<span class="sd">            If `epoch_list` is used, value must be None, by default None</span>
+<span class="sd">        epoch_end : Union[datetime.datetime, float, None], optional</span>
+<span class="sd">            Final date to retrieve data for.</span>
+<span class="sd">            Must be either a python datetime object or a float seconds since J2000 TDB.</span>
+<span class="sd">            If the start stop, and step parameters dont result in an</span>
+<span class="sd">            integer multiple of values,the final date is not used.</span>
+<span class="sd">            Combined with `epoch_end` and</span>
+<span class="sd">            `epoch_step` can be used to retrieve a range of data.</span>
+<span class="sd">            If `epoch_list` is used, value must be None, by default None</span>
+<span class="sd">        epoch_step : Union[str, None], optional</span>
+<span class="sd">            Step for the range of epochs to retrieve data for.</span>
+<span class="sd">            Can be be either a specific timestep such as `15m`,</span>
+<span class="sd">            or a number of partitions `10` for 10 equidistant steps within the range.</span>
+<span class="sd">            For the timestep, quantifiers `m` for minute, `h` for hour and `d` for day</span>
+<span class="sd">            can be used. Seconds are not available, consider using the `epoch_list`</span>
+<span class="sd">            parameter or a number of partitions instead.</span>
+<span class="sd">            Month and Year are normally available in JPL Horizons but are restricted</span>
+<span class="sd">            here because they may produce ambiguous results (leap years etc.).</span>
+<span class="sd">            If `epoch_list` is used, value must be None, by default None</span>
+<span class="sd">        epoch_list : Union[list, None], optional</span>
+<span class="sd">            List of times in seconds since J2000 TDB. Can be used</span>
+<span class="sd">            to retrieve specific times instead of a range.</span>
+<span class="sd">            Must be None if start, end and step are set, by default None</span>
+<span class="sd">        extended_query : bool, optional</span>
+<span class="sd">            Enables the retrieval of larger collections of data, by default False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_query_objects</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_query_id_list</span> <span class="o">=</span> <span class="n">query_id_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_names</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">query_id</span> <span class="ow">in</span> <span class="n">query_id_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">query_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Ids in query_id_list must be of type str&quot;</span><span class="p">)</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="n">HorizonsQuery</span><span class="p">(</span>
+                <span class="n">query_id</span><span class="o">=</span><span class="n">query_id</span><span class="p">,</span>
+                <span class="n">location</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+                <span class="n">epoch_list</span><span class="o">=</span><span class="n">epoch_list</span><span class="p">,</span>
+                <span class="n">epoch_start</span><span class="o">=</span><span class="n">epoch_start</span><span class="p">,</span>
+                <span class="n">epoch_end</span><span class="o">=</span><span class="n">epoch_end</span><span class="p">,</span>
+                <span class="n">epoch_step</span><span class="o">=</span><span class="n">epoch_step</span><span class="p">,</span>
+                <span class="n">extended_query</span><span class="o">=</span><span class="n">extended_query</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_query_objects</span><span class="p">[</span><span class="n">query_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieves a list of names of the query objects. Returns `None`</span>
+<span class="sd">        if `add_batch_ephemerides` has not been run yet.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_names</span>
+
+<div class="viewcode-block" id="HorizonsBatch.add_batch_ephemerides">
+<a class="viewcode-back" href="../../../../../horizons.html#tudatpy.numerical_simulation.environment_setup.ephemeris.horizons_wrapper.HorizonsBatch.add_batch_ephemerides">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_batch_ephemerides</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">body_settings</span><span class="p">:</span> <span class="s2">&quot;BodyListSettings&quot;</span><span class="p">,</span>
+        <span class="n">frame_origin</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">frame_orientation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ECLIPJ2000&quot;</span><span class="p">,</span>
+        <span class="n">aberations</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;geometric&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Uses the data queried to add ephemerides of the bodies querried</span>
+<span class="sd">        to the body_settings. The names of the bodies added can be retrieved</span>
+<span class="sd">        using the names property.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        body_settings : environment_setup.BodyListSettings</span>
+<span class="sd">            Tudat body settings object.</span>
+<span class="sd">        frame_origin : str</span>
+<span class="sd">            Global frame origin, should match the queries&#39; location parameter.</span>
+<span class="sd">        frame_orientation : str, optional</span>
+<span class="sd">            Reference Frame Orientation, equivalent to the astroquery refplane</span>
+<span class="sd">            parameter. Options are &#39;J2000&#39; and &#39;ECLIPJ2000&#39;, by default &quot;ECLIPJ2000&quot;.</span>
+<span class="sd">        aberations : str, optional</span>
+<span class="sd">            Aberations to be accounted for. Options are: &#39;geometric&#39;, &#39;astrometric&#39; and</span>
+<span class="sd">            &#39;apparent&#39;, by default &quot;geometric&quot;.</span>
+<span class="sd">            See the Horizons System Manual for more info: https://ssd.jpl.nasa.gov/horizons/manual.html#output</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># add the body and its ephemerides to the body_settings</span>
+        <span class="k">for</span> <span class="n">query</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_objects</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">eph</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">create_ephemeris_tabulated</span><span class="p">(</span>
+                <span class="n">frame_origin</span><span class="o">=</span><span class="n">frame_origin</span><span class="p">,</span>
+                <span class="n">frame_orientation</span><span class="o">=</span><span class="n">frame_orientation</span><span class="p">,</span>
+                <span class="n">aberations</span><span class="o">=</span><span class="n">aberations</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+            <span class="n">body_settings</span><span class="o">.</span><span class="n">add_empty_settings</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">body_settings</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">ephemeris_settings</span> <span class="o">=</span> <span class="n">eph</span>
+
+        <span class="c1"># retrieve the names to a list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_names</span> <span class="o">=</span> <span class="n">names</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="jpl_horizons">
+<a class="viewcode-back" href="../../../../../ephemeris.html#tudatpy.numerical_simulation.environment_setup.ephemeris.horizons_wrapper.jpl_horizons">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">jpl_horizons</span><span class="p">(</span>
+    <span class="n">horizons_query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">horizons_location</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">frame_origin</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">frame_orientation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ECLIPJ2000&quot;</span><span class="p">,</span>
+    <span class="n">query_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+    <span class="n">epoch_start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">epoch_end</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">epoch_step</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">epoch_list</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">extended_query</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">aberations</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;geometric&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory function for creating ephemeris model settings from tabulated JPL Horizons vectors.</span>
+
+<span class="sd">    JPL Horizons provides access to highly accurate ephemerides for many solar system objects,</span>
+<span class="sd">    including asteriuds, comets, planets, moons and select spacecraft.</span>
+
+<span class="sd">    This function is a wrapper for the tudatpy.data.horizons functionality.</span>
+<span class="sd">    That api is not available on the api documentation yet.</span>
+<span class="sd">    For now, visit the HorizonsQuery souce code for extensive documentation:</span>
+<span class="sd">    https://github.com/tudat-team/tudatpy/blob/master/tudatpy/data/horizons.py</span>
+
+<span class="sd">    For more information on the Horizons System, visit: https://ssd.jpl.nasa.gov/horizons/manual.html</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Add Ephemerides of JUICE to the body_settings</span>
+
+<span class="sd">        &gt;&gt;&gt; juice_eph_settings = jpl_horizons(</span>
+<span class="sd">                horizons_query=&quot;-121&quot;, #-121 is the query code for JUICE</span>
+<span class="sd">                horizons_location=&quot;500@399&quot;, # Geocentre@Earth</span>
+<span class="sd">                frame_origin=&quot;Earth&quot;, #tudat frame origin and orientation</span>
+<span class="sd">                frame_orientation=&quot;ECLIPJ2000&quot;,</span>
+<span class="sd">                epoch_start=datetime.datetime(2018, 10, 21),</span>
+<span class="sd">                epoch_end=datetime.datetime(2023, 9, 1),</span>
+<span class="sd">                epoch_step=&quot;1d&quot;,</span>
+<span class="sd">                extended_query=True,</span>
+<span class="sd">            )</span>
+
+<span class="sd">        &gt;&gt;&gt; body_settings.add_empty_settings(&quot;JUICE&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; body_settings.get(&quot;JUICE&quot;).ephemeris_settings = juice_eph_settings</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="n">HorizonsQuery</span><span class="p">(</span>
+        <span class="n">query_id</span><span class="o">=</span><span class="n">horizons_query</span><span class="p">,</span>
+        <span class="n">location</span><span class="o">=</span><span class="n">horizons_location</span><span class="p">,</span>
+        <span class="n">query_type</span><span class="o">=</span><span class="n">query_type</span><span class="p">,</span>
+        <span class="n">epoch_start</span><span class="o">=</span><span class="n">epoch_start</span><span class="p">,</span>
+        <span class="n">epoch_end</span><span class="o">=</span><span class="n">epoch_end</span><span class="p">,</span>
+        <span class="n">epoch_step</span><span class="o">=</span><span class="n">epoch_step</span><span class="p">,</span>
+        <span class="n">epoch_list</span><span class="o">=</span><span class="n">epoch_list</span><span class="p">,</span>
+        <span class="n">extended_query</span><span class="o">=</span><span class="n">extended_query</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">eph</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">create_ephemeris_tabulated</span><span class="p">(</span>
+        <span class="n">frame_origin</span><span class="o">=</span><span class="n">frame_origin</span><span class="p">,</span>
+        <span class="n">frame_orientation</span><span class="o">=</span><span class="n">frame_orientation</span><span class="p">,</span>
+        <span class="n">aberations</span><span class="o">=</span><span class="n">aberations</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">eph</span></div>
+
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2025, Tudat Team
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../../../../_static/documentation_options.js?v=8a448e45"></script>
+    <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../../_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+    </body>
+</html>

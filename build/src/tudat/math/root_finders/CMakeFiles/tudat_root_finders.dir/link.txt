@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../../../lib/libtudat_root_finders.a CMakeFiles/tudat_root_finders.dir/createRootFinder.cpp.o
+/usr/bin/ranlib ../../../../lib/libtudat_root_finders.a

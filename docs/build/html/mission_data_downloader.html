@@ -1,0 +1,1496 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="exceptions" href="exceptions.html" /><link rel="prev" title="sbdb" href="sbdb.html" />
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>mission_data_downloader - TudatPy API Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
+    <link rel="stylesheet" type="text/css" href="_static/style.css?v=ab9fdd52" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #eeffcc;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     Have questions or feedback? See the <a href='https://docs.tudat.space/en/latest/index_user_guide.html'>User Guide</a> or let us know in our <a href='https://github.com/orgs/tudat-team/discussions?discussions_q='>Github Discussion forum</a>! 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">TudatPy API Reference</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">TudatPy API Reference</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="astro.html"><code class="docutils literal notranslate"><span class="pre">astro</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of astro</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="frame_conversion.html"><code class="docutils literal notranslate"><span class="pre">frame_conversion</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="element_conversion.html"><code class="docutils literal notranslate"><span class="pre">element_conversion</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="time_conversion.html"><code class="docutils literal notranslate"><span class="pre">time_conversion</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="two_body_dynamics.html"><code class="docutils literal notranslate"><span class="pre">two_body_dynamics</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="polyhedron_utilities.html"><code class="docutils literal notranslate"><span class="pre">polyhedron_utilities</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="gravitation.html"><code class="docutils literal notranslate"><span class="pre">gravitation</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="fundamentals.html"><code class="docutils literal notranslate"><span class="pre">fundamentals</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="constants.html"><code class="docutils literal notranslate"><span class="pre">constants</span></code></a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="data.html"><code class="docutils literal notranslate"><span class="pre">data</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of data</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="horizons.html"><code class="docutils literal notranslate"><span class="pre">horizons</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpc.html"><code class="docutils literal notranslate"><span class="pre">mpc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sbdb.html"><code class="docutils literal notranslate"><span class="pre">sbdb</span></code></a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">mission_data_downloader</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="exceptions.html"><code class="docutils literal notranslate"><span class="pre">exceptions</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of exceptions</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="spice_exceptions.html"><code class="docutils literal notranslate"><span class="pre">spice_exceptions</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="interface.html"><code class="docutils literal notranslate"><span class="pre">interface</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of interface</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="spice.html"><code class="docutils literal notranslate"><span class="pre">spice</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="math.html"><code class="docutils literal notranslate"><span class="pre">math</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of math</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="interpolators.html"><code class="docutils literal notranslate"><span class="pre">interpolators</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="root_finders.html"><code class="docutils literal notranslate"><span class="pre">root_finders</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="numerical_simulation.html"><code class="docutils literal notranslate"><span class="pre">numerical_simulation</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of numerical_simulation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="estimation_setup.html"><code class="docutils literal notranslate"><span class="pre">estimation_setup</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of estimation_setup</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="observation.html"><code class="docutils literal notranslate"><span class="pre">observation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameter.html"><code class="docutils literal notranslate"><span class="pre">parameter</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="environment_setup.html"><code class="docutils literal notranslate"><span class="pre">environment_setup</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of environment_setup</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="aerodynamic_coefficients.html"><code class="docutils literal notranslate"><span class="pre">aerodynamic_coefficients</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="atmosphere.html"><code class="docutils literal notranslate"><span class="pre">atmosphere</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ephemeris.html"><code class="docutils literal notranslate"><span class="pre">ephemeris</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="gravity_field.html"><code class="docutils literal notranslate"><span class="pre">gravity_field</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="gravity_field_variation.html"><code class="docutils literal notranslate"><span class="pre">gravity_field_variation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ground_station.html"><code class="docutils literal notranslate"><span class="pre">ground_station</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="radiation_pressure.html"><code class="docutils literal notranslate"><span class="pre">radiation_pressure</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="rigid_body.html"><code class="docutils literal notranslate"><span class="pre">rigid_body</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="rotation_model.html"><code class="docutils literal notranslate"><span class="pre">rotation_model</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="shape.html"><code class="docutils literal notranslate"><span class="pre">shape</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="shape_deformation.html"><code class="docutils literal notranslate"><span class="pre">shape_deformation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="vehicle_systems.html"><code class="docutils literal notranslate"><span class="pre">vehicle_systems</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="propagation_setup.html"><code class="docutils literal notranslate"><span class="pre">propagation_setup</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of propagation_setup</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="acceleration.html"><code class="docutils literal notranslate"><span class="pre">acceleration</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dependent_variable.html"><code class="docutils literal notranslate"><span class="pre">dependent_variable</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="integrator.html"><code class="docutils literal notranslate"><span class="pre">integrator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mass_rate.html"><code class="docutils literal notranslate"><span class="pre">mass_rate</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="propagator.html"><code class="docutils literal notranslate"><span class="pre">propagator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="torque.html"><code class="docutils literal notranslate"><span class="pre">torque</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="thrust.html"><code class="docutils literal notranslate"><span class="pre">thrust</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="estimation.html"><code class="docutils literal notranslate"><span class="pre">estimation</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="environment.html"><code class="docutils literal notranslate"><span class="pre">environment</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="propagation.html"><code class="docutils literal notranslate"><span class="pre">propagation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="trajectory_design.html"><code class="docutils literal notranslate"><span class="pre">trajectory_design</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of trajectory_design</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="transfer_trajectory.html"><code class="docutils literal notranslate"><span class="pre">transfer_trajectory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="shape_based_thrust.html"><code class="docutils literal notranslate"><span class="pre">shape_based_thrust</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html"><code class="docutils literal notranslate"><span class="pre">plotting</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="util.html"><code class="docutils literal notranslate"><span class="pre">util</span></code></a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/mission_data_downloader.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="mission-data-downloader">
+<span id="id1"></span><h1><code class="docutils literal notranslate"><span class="pre">mission_data_downloader</span></code><a class="headerlink" href="#mission-data-downloader" title="Link to this heading">¶</a></h1>
+<p>This module contains a set of functions to download:
+- spice kernels
+- radio doppler data (IFMS, ODF)
+- ancillary files</p>
+<p>for the the following supported missions:
+- Mars Reconnaissance Orbiter (MRO)
+- Mars Express (MEX)
+- JUpiter ICy-moons Explorer (JUICE)
+- Cassini
+- Grail (Grail-A and Grail-B)</p>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h2>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS" title="tudatpy.data.mission_data_downloader.LoadPDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LoadPDS</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LoadPDS</span></span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS" title="Link to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.add_custom_mission_kernel_pattern">
+<span class="sig-name descname"><span class="pre">add_custom_mission_kernel_pattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_mission</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_kernel_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_pattern</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.add_custom_mission_kernel_pattern"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.add_custom_mission_kernel_pattern" title="Link to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Description:</dt><dd><p>Allows users to define and add custom regex patterns for a specific mission to the list of supported patterns. Once added, the custom pattern can be used for mission data file matching.</p>
+</dd>
+<dt>Input:</dt><dd><ul class="simple">
+<li><p><cite>input_mission</cite> (<cite>str</cite>): The name of the mission for which the custom pattern is defined.</p></li>
+<li><p><cite>custom_kernel_type</cite>: the name of kernel type (eg ‘ck’., ‘spk’, etc…)</p></li>
+<li><p><cite>custom_pattern</cite> (<cite>str</cite>): The regular expression pattern that will be associated with the mission kernel.</p></li>
+</ul>
+</dd>
+<dt>Output:</dt><dd><ul class="simple">
+<li><p><cite>dict</cite>: The updated <cite>supported_patterns</cite> dictionary containing the new custom pattern.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This function updates the <cite>supported__kernel_patterns</cite> dictionary with the new mission and its associated pattern.</p></li>
+<li><p>Custom patterns can be added dynamically at runtime.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.add_custom_mission_kernel_url">
+<span class="sig-name descname"><span class="pre">add_custom_mission_kernel_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_mission</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.add_custom_mission_kernel_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.add_custom_mission_kernel_url" title="Link to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Description:</dt><dd><p>Allows users to define and add custom regex patterns for a specific mission to the list of supported patterns. Once added, the custom pattern can be used for mission data file matching.</p>
+</dd>
+<dt>Input:</dt><dd><ul class="simple">
+<li><p><cite>input_mission</cite> (<cite>str</cite>): The name of the mission for which the custom pattern is defined.</p></li>
+<li><p><cite>url</cite> (<cite>str</cite>): The url that will be associated with the mission.</p></li>
+</ul>
+</dd>
+<dt>Output:</dt><dd><ul class="simple">
+<li><p><cite>dict</cite>: The updated <cite>supported_mission_kernels_url</cite> dictionary containing the new custom pattern.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This function updates the <cite>supported_mission_kernels_url</cite> dictionary with the new mission and its associated pattern.</p></li>
+<li><p>Custom patterns can be added dynamically at runtime.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.add_custom_mission_meta_kernel_pattern">
+<span class="sig-name descname"><span class="pre">add_custom_mission_meta_kernel_pattern</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_mission</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_pattern</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.add_custom_mission_meta_kernel_pattern"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.add_custom_mission_meta_kernel_pattern" title="Link to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Description:</dt><dd><p>Allows users to define and add custom regex patterns for a specific mission to the list of supported patterns. Once added, the custom pattern can be used for mission data file matching.</p>
+</dd>
+<dt>Input:</dt><dd><ul class="simple">
+<li><p><cite>input_mission</cite> (<cite>str</cite>): The name of the mission for which the custom pattern is defined.</p></li>
+<li><p><cite>custom_pattern</cite> (<cite>str</cite>): The regular expression pattern that will be associated with the mission.</p></li>
+</ul>
+</dd>
+<dt>Output:</dt><dd><ul class="simple">
+<li><p><cite>dict</cite>: The updated <cite>supported_mission_kernel_pattern</cite> dictionary containing the new custom pattern.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This function updates the <cite>supported_mission_kernel_pattern</cite> dictionary with the new mission and its associated pattern.</p></li>
+<li><p>Custom patterns can be added dynamically at runtime.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.add_custom_mission_meta_kernel_url">
+<span class="sig-name descname"><span class="pre">add_custom_mission_meta_kernel_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_mission</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.add_custom_mission_meta_kernel_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.add_custom_mission_meta_kernel_url" title="Link to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Description:</dt><dd><p>Allows users to define and add custom regex patterns for a specific mission to the list of supported patterns. Once added, the custom pattern can be used for mission data file matching.</p>
+</dd>
+<dt>Input:</dt><dd><ul class="simple">
+<li><p><cite>input_mission</cite> (<cite>str</cite>): The name of the mission for which the custom pattern is defined.</p></li>
+<li><p><cite>url</cite> (<cite>str</cite>): The url that will be associated with the mission.</p></li>
+</ul>
+</dd>
+<dt>Output:</dt><dd><ul class="simple">
+<li><p><cite>dict</cite>: The updated <cite>supported_mission_meta_kernel_url</cite> dictionary containing the new custom pattern.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>This function updates the <cite>supported_mission_meta_kernel_url</cite> dictionary with the new mission and its associated pattern.</p></li>
+<li><p>Custom patterns can be added dynamically at runtime.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.add_ro_mission_phase_designation">
+<span class="sig-name descname"><span class="pre">add_ro_mission_phase_designation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mapping_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.add_ro_mission_phase_designation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.add_ro_mission_phase_designation" title="Link to this definition">¶</a></dt>
+<dd><p>Updates mapping_dict entries by adding an ‘Abbn’ field (mission phase abbreviation)
+based on each entry’s start_date_utc.
+The function caches the mapping from unique start dates to their mission phase.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mapping_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – Dictionary where keys are rsi_volume_id and values are lists
+of dictionaries, each having a ‘start_date_utc’ datetime object.</p>
+</dd>
+</dl>
+<p>Returns:
+dict: The updated mapping_dict with two additional keys for each entry:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“Abbn”: the mission phase abbreviation.</p></li>
+<li><dl class="simple">
+<dt>“target”: the target designation (“X” for non-target-specific or pre-comet phases,</dt><dd><p>“C” for comet, “M” for Mars, “A” for asteroid flybys).</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.cassini_flyby2experiment">
+<span class="sig-name descname"><span class="pre">cassini_flyby2experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flyby_ID</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.cassini_flyby2experiment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.cassini_flyby2experiment" title="Link to this definition">¶</a></dt>
+<dd><p>Description:
+Returns the experiment data for a given flyby ID from the <cite>cassini_titan_flyby_dict</cite>. If the provided
+flyby ID exists in the dictionary, it retrieves the corresponding data; otherwise, it returns a
+message indicating that the flyby ID was not found.</p>
+<dl class="simple">
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><p>flyby_ID (<cite>str</cite>): The identifier for a specific flyby.</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul class="simple">
+<li><p><cite>dict</cite> or <cite>str</cite>: The experiment data associated with the provided flyby ID if found,
+otherwise a message stating that the flyby ID was not found.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.check_existing_files">
+<span class="sig-name descname"><span class="pre">check_existing_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_subfolder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.check_existing_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.check_existing_files" title="Link to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Description:</dt><dd><p>Checks the local directory for files that match a given pattern and fall within a specified date range.
+This function filters and returns the files that already exist locally, based on their extensions and matching patterns.</p>
+</dd>
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><p>data_type (<cite>str</cite>): The type of data (e.g., ‘ck’, ‘spk’).</p></li>
+<li><p>local_subfolder (<cite>str</cite>): Path to the local directory where the files are stored.</p></li>
+<li><p>start_date (<cite>datetime</cite>): The start date of the time interval for which files are required.</p></li>
+<li><p>end_date (<cite>datetime</cite>): The end date of the time interval for which files are required.</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul class="simple">
+<li><p><cite>self.existing_files</cite> (<cite>list</cite>): A list of paths to the files that already exist and match the given pattern.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.clean_mission_archive">
+<span class="sig-name descname"><span class="pre">clean_mission_archive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_folder</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.clean_mission_archive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.clean_mission_archive" title="Link to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Description:</dt><dd><p>Cleans up the mission archive by removing empty subdirectories within the specified local folder.</p>
+</dd>
+<dt>Input:</dt><dd><ul class="simple">
+<li><p><cite>local_folder</cite> (<cite>str</cite>): Path to the local folder where the archive is stored.</p></li>
+</ul>
+</dd>
+<dt>Output:</dt><dd><ul class="simple">
+<li><p><cite>None</cite>: This function does not return any value. It performs in-place directory cleanup.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.download_url_files_time">
+<span class="sig-name descname"><span class="pre">download_url_files_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename_format</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_format</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices_date_filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.download_url_files_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.download_url_files_time" title="Link to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Description:</dt><dd><p>Downloads files within a specified time interval from a given URL. The function checks for existing files locally,
+identifies missing files for the given time interval, and downloads them if necessary.
+It handles cases where files are organized in nested folders at the target URL.</p>
+</dd>
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><p>local_path (<cite>str</cite>): The local directory path where files will be stored.</p></li>
+<li><p>filename_format (<cite>str</cite>): The format of the filenames to be downloaded, with date placeholders and optional folder structure.</p></li>
+<li><p>start_date (<cite>datetime</cite>): The start date of the time interval for which files are needed.</p></li>
+<li><p>end_date (<cite>datetime</cite>): The end date of the time interval for which files are needed.</p></li>
+<li><p>url (<cite>str</cite>): The base URL from which the files will be downloaded.</p></li>
+<li><p>time_format (<cite>str</cite>): The format string used to represent dates in the filenames (e.g., ‘%Y%m%d’).</p></li>
+<li><p>indices_date_filename (<cite>list[int]</cite>): A list of indices indicating where date strings are embedded within the filename format.</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul class="simple">
+<li><p><cite>self.relevant_files</cite> (<cite>list</cite>): A list of local file paths for files that were either already present or successfully downloaded.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>- Exception</strong> – If the <cite>filename_format</cite> contains more than one folder.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.dynamic_download_url_files_single_time">
+<span class="sig-name descname"><span class="pre">dynamic_download_url_files_single_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_mission</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.dynamic_download_url_files_single_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.dynamic_download_url_files_single_time" title="Link to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Description:</dt><dd><p>Downloads files for a single time interval based on specified mission parameters and date range.
+It checks if the files already exist locally, and if not, attempts to download them from the specified URL.
+The filenames are matched to supported patterns, and relevant files are downloaded if they are not already present.</p>
+</dd>
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><p>input_mission (<cite>str</cite>): The name of the mission (e.g., ‘cassini’, ‘mro’).</p></li>
+<li><p>local_path (<cite>str</cite>): The local directory where the files should be saved.</p></li>
+<li><p>start_date (<cite>datetime</cite>): The start date of the time interval for which files are required.</p></li>
+<li><p>end_date (<cite>datetime</cite>): The end date of the time interval for which files are required.</p></li>
+<li><p>url (<cite>str</cite>): The base URL where the files are hosted.</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul class="simple">
+<li><p><cite>self.relevant_files</cite> (<cite>list</cite>): A list of paths to the files that were either already present or successfully downloaded.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.dynamic_download_url_files_time_interval">
+<span class="sig-name descname"><span class="pre">dynamic_download_url_files_time_interval</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_mission</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.dynamic_download_url_files_time_interval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.dynamic_download_url_files_time_interval" title="Link to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Description:</dt><dd><p>Downloads files within a specified time interval from a given URL, checking if the files already exist locally before downloading them.
+This function is typically used to download mission data files for a specific time range, ensuring that files are only downloaded if they are not already present.</p>
+</dd>
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><p>input_mission (<cite>str</cite>): The name of the mission (e.g., ‘cassini’, ‘mro’).</p></li>
+<li><p>local_path (<cite>str</cite>): The directory path where files will be stored locally.</p></li>
+<li><p>start_date (<cite>datetime</cite>): The start date of the time interval for which files are required.</p></li>
+<li><p>end_date (<cite>datetime</cite>): The end date of the time interval for which files are required.</p></li>
+<li><p>url (<cite>str</cite>): The base URL for downloading the files.</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul class="simple">
+<li><p><cite>self.relevant_files</cite> (<cite>list</cite>): A list of local file paths for the files that were either found or successfully downloaded.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.extract_kernels_from_meta_kernel">
+<span class="sig-name descname"><span class="pre">extract_kernels_from_meta_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_mission</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.extract_kernels_from_meta_kernel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.extract_kernels_from_meta_kernel" title="Link to this definition">¶</a></dt>
+<dd><p>Fetches a meta-kernel file from an HTTPS URL and categorizes kernel files by type
+using the type-to-extension mapping.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>input_mission</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – e.g. ‘mex’, ‘mro’, ‘juice’, ‘ro’, etc…</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary categorizing kernel files by type based on <cite>type_to_extension</cite>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.filter_mapping_dict_by_radio_observation_type">
+<span class="sig-name descname"><span class="pre">filter_mapping_dict_by_radio_observation_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mapping_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radio_observation_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date_mex</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date_mex</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.filter_mapping_dict_by_radio_observation_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.filter_mapping_dict_by_radio_observation_type" title="Link to this definition">¶</a></dt>
+<dd><p>Description:
+Filters a mapping dictionary to extract entries based on a specified observation type and a date range.
+The function returns a new dictionary where each key corresponds to a filtered set of entries that match
+the specified observation type and fall within the given start and end dates.</p>
+<dl class="simple">
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>mapping_dict (<cite>dict</cite>): A dictionary where keys represent categories and values are lists of entries. Each entry is expected to be a dictionary containing:</dt><dd><ul>
+<li><p><cite>start_date_utc</cite> (<cite>str</cite>): The start date in UTC (format: YYYY-MM-DD).</p></li>
+<li><p><cite>radio_observation_type</cite> (<cite>str</cite>): The type of observation.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>radio_observation_type (<cite>str</cite>): The type of observation to filter by (e.g., ‘Phobos Gravity’).</p></li>
+<li><p>start_date_mex (<cite>str</cite>): The start date for filtering in UTC (format: YYYY-MM-DD).</p></li>
+<li><p>end_date_mex (<cite>str</cite>): The end date for filtering in UTC (format: YYYY-MM-DD).</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul class="simple">
+<li><p><cite>filtered_dict</cite> (<cite>dict</cite>): A dictionary where keys are the same as in <cite>mapping_dict</cite>, and values are lists
+of filtered entries that match the specified observation type and fall within the date range.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.format_datetime_to_string">
+<span class="sig-name descname"><span class="pre">format_datetime_to_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format_key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.format_datetime_to_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.format_datetime_to_string" title="Link to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Description:</dt><dd><p>Converts a <cite>datetime</cite> object to a string based on a specified format key from a list of supported formats. The function maps the provided format key (e.g., “YYMMDD”, “YYYY-jjj”) to a corresponding <cite>strftime</cite> format string and then formats the given <cite>datetime</cite> object accordingly.</p>
+</dd>
+<dt>Input:</dt><dd><ul class="simple">
+<li><p><cite>date</cite> (<cite>datetime</cite>): The <cite>datetime</cite> object to be formatted.</p></li>
+<li><p><cite>format_key</cite> (<cite>str</cite>): A key from the <cite>supported_time_formats</cite> dictionary that specifies the desired output format.</p></li>
+</ul>
+</dd>
+<dt>Output:</dt><dd><ul class="simple">
+<li><p><cite>str</cite>: The formatted date string according to the specified format key.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The function supports several predefined date formats, such as:
+- <cite>“YYMMDD”</cite>: e.g., <cite>220101</cite>
+- <cite>“YYYYjjj”</cite>: e.g., <cite>2022323</cite>
+- <cite>“YYYY-MM-DD”</cite>: e.g., <cite>2022-03-15</cite>
+If the provided <cite>format_key</cite> is not in the supported formats, an error message is printed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.format_string_to_datetime">
+<span class="sig-name descname"><span class="pre">format_string_to_datetime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.format_string_to_datetime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.format_string_to_datetime" title="Link to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Description:</dt><dd><p>Attempts to convert a given date string into a <cite>datetime</cite> object using multiple supported time formats. The function iterates over a list of predefined date formats (e.g., <cite>%y%m%d</cite>, <cite>%Y%j</cite>, <cite>%Y_%j</cite>) and tries each format until it successfully parses the date. This is used throughout the code to handle various date formats from different mission data files.</p>
+</dd>
+<dt>Input:</dt><dd><ul class="simple">
+<li><p><cite>date</cite> (<cite>str</cite>): The date string to be parsed.</p></li>
+</ul>
+</dd>
+<dt>Output:</dt><dd><ul class="simple">
+<li><p><cite>datetime</cite>: The parsed <cite>datetime</cite> object if a matching format is found, or <cite>None</cite> if no format matches.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The function supports multiple date formats, such as:
+- <cite>YYMMDD</cite> (e.g., <cite>220101</cite>)
+- <cite>YYYYjjj</cite> (e.g., <cite>2022323</cite>)
+- <cite>YYYY_MM_DD</cite> (e.g., <cite>2022_03_15</cite>)
+- And others, tailored for specific mission data.
+If no matching format is found, the function silently skips to the next format without throwing an error.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.get_cassini_flyby_cumindex_url">
+<span class="sig-name descname"><span class="pre">get_cassini_flyby_cumindex_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flyby_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.get_cassini_flyby_cumindex_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_cassini_flyby_cumindex_url" title="Link to this definition">¶</a></dt>
+<dd><p>Description:
+Constructs the URL for the cumulative index (CUMINDEX.TAB) file associated with a specific flyby
+experiment. The function extracts the ‘experiment’ and ‘cumindex_repo’ (or ‘pds_repo’) values from
+the provided <cite>flyby_dict</cite> to build the URL. It then checks if the URL exists by sending a HEAD request.
+If the URL is valid (status code 200), it returns the URL; otherwise, it attempts an alternative URL and
+returns it if valid. If neither URL is found, it returns <cite>None</cite> and prints an error message.</p>
+<dl class="simple">
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><p>flyby_dict (<cite>dict</cite>): A dictionary containing data for a specific flyby, including the ‘experiment’
+and ‘cumindex_repo’ (or ‘pds_repo’) keys used to construct the cumulative index URL.</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul class="simple">
+<li><p><cite>str</cite> or <cite>None</cite>: The constructed cumulative index URL if it exists; otherwise, <cite>None</cite> if the URL
+is not found or an error occurs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.get_cassini_flyby_files">
+<span class="sig-name descname"><span class="pre">get_cassini_flyby_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_folder</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.get_cassini_flyby_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_cassini_flyby_files" title="Link to this definition">¶</a></dt>
+<dd><p>Description:
+Downloads Cassini mission data files related to a specific flyby, including kernel, ancillary, and
+radio science files. The function fetches the cumulative index table and identifies the relevant
+files for download based on the provided flyby ID. It handles the file download process, ensuring
+that files are downloaded only if they are not already present in the specified local folder.</p>
+<dl class="simple">
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><p>local_folder (<cite>str</cite>): The path to the local directory where files should be downloaded.</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul class="simple">
+<li><p>kernel_files_to_load (<cite>dict</cite>): A dictionary containing kernel files (e.g., <cite>ck</cite>, <cite>spk</cite>).</p></li>
+<li><p>radio_science_files_to_load (<cite>dict</cite>): A dictionary containing radio science files (e.g., <cite>odf</cite>).</p></li>
+<li><p>ancillary_files_to_load (<cite>dict</cite>): A dictionary containing ancillary files (e.g., <cite>ion</cite>, <cite>tro</cite>, <cite>eop</cite>).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.get_cassini_flyby_volume_url">
+<span class="sig-name descname"><span class="pre">get_cassini_flyby_volume_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flyby_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.get_cassini_flyby_volume_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_cassini_flyby_volume_url" title="Link to this definition">¶</a></dt>
+<dd><p>Description:
+Retrieves the PDS (Planetary Data System) repository URL for a given flyby experiment. The function
+extracts the ‘experiment’ value from the provided <cite>flyby_dict</cite> and constructs the URL based on that
+information. It then checks whether the constructed URL exists by sending a HEAD request. If the URL
+is valid (status code 200), the function returns the URL; otherwise, it returns <cite>None</cite> and prints
+an error message.</p>
+<dl class="simple">
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><p>flyby_dict (<cite>dict</cite>): A dictionary containing data for a specific flyby, including the ‘experiment’
+key used to construct the URL.</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul class="simple">
+<li><p><cite>str</cite> or <cite>None</cite>: The constructed PDS repository URL if it exists; otherwise, <cite>None</cite> if the URL
+is not found or an error occurs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.get_cassini_full_moon_flybys_list">
+<span class="sig-name descname"><span class="pre">get_cassini_full_moon_flybys_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">moon</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.get_cassini_full_moon_flybys_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_cassini_full_moon_flybys_list" title="Link to this definition">¶</a></dt>
+<dd><p>Description:
+Returns a list of flyby IDs corresponding to either Titan or Enceladus. If the provided
+moon name is ‘titan’, it returns the flyby IDs from the <cite>cassini_titan_flyby_dict</cite>; if the name is
+‘enceladus’, it returns the flyby IDs from the <cite>enceladus_flyby_dict</cite>. If the input moon name
+is invalid, an error is raised.</p>
+<dl class="simple">
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><p>moon (<cite>str</cite>): The name of the moon (‘titan’ or ‘enceladus’) for which flyby IDs should
+be retrieved.</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul class="simple">
+<li><p><cite>list</cite>: A list of flyby IDs corresponding to the provided moon. If the moon name is invalid,
+a <cite>ValueError</cite> is raised.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.get_cassini_volume_cumindex_table">
+<span class="sig-name descname"><span class="pre">get_cassini_volume_cumindex_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cumindex_url</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.get_cassini_volume_cumindex_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_cassini_volume_cumindex_table" title="Link to this definition">¶</a></dt>
+<dd><p>Description:
+Constructs the URL for the cumulative index (CUMINDEX.TAB) file associated with a specific flyby
+experiment. The function extracts the ‘experiment’ and ‘cumindex_repo’ (or ‘pds_repo’) values from
+the provided <cite>flyby_dict</cite> to build the URL. It then checks if the URL exists by sending a HEAD request.
+If the URL is valid (status code 200), it returns the URL; otherwise, it attempts an alternative URL and
+returns it if valid. If neither URL is found, it returns <cite>None</cite> and prints an error message.</p>
+<dl class="simple">
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><p>flyby_dict (<cite>dict</cite>): A dictionary containing data for a specific flyby, including the ‘experiment’
+and ‘cumindex_repo’ (or ‘pds_repo’) keys used to construct the cumulative index URL.</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul class="simple">
+<li><p><cite>str</cite> or <cite>None</cite>: The constructed cumulative index URL if it exists; otherwise, <cite>None</cite> if the URL
+is not found or an error occurs.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.get_extension_for_data_type">
+<span class="sig-name descname"><span class="pre">get_extension_for_data_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.get_extension_for_data_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_extension_for_data_type" title="Link to this definition">¶</a></dt>
+<dd><p>Returns one or more file extensions for the given data type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The data type (e.g., ‘ck’, ‘spk’, etc.).</p></li>
+<li><p><strong>first_only</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – If True, returns only the first matching extension.
+If False, returns a list of all valid extensions.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Extension(s) for the given data type, or None if unsupported.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>] or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.get_grail_a_files">
+<span class="sig-name descname"><span class="pre">get_grail_a_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.get_grail_a_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_grail_a_files" title="Link to this definition">¶</a></dt>
+<dd><p>Description:
+Downloads various SPICE kernel and ancillary files for the GRAIL-A mission, including clock, frame,
+orientation, and SPK kernels, based on a specified date range. Files are saved in the provided local folder.</p>
+<dl class="simple">
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><p>local_folder (<cite>str</cite>): Path to the local folder where files will be saved.</p></li>
+<li><p>start_date (<cite>datetime</cite>): The start date for the data retrieval.</p></li>
+<li><p>end_date (<cite>datetime</cite>): The end date for the data retrieval.</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul class="simple">
+<li><p><cite>kernel_files_to_load</cite> (<cite>dict</cite>): A dictionary containing the loaded kernel files, categorized by type
+(e.g., ‘sclk’, ‘fk’, ‘ck’, ‘spk’).</p></li>
+<li><p><cite>radio_science_files_to_load</cite> (<cite>dict</cite>): An empty dictionary for now, intended for radio science files.</p></li>
+<li><p><cite>ancillary_files_to_load</cite> (<cite>dict</cite>): An empty dictionary for now, intended for ancillary files.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.get_grail_b_files">
+<span class="sig-name descname"><span class="pre">get_grail_b_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.get_grail_b_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_grail_b_files" title="Link to this definition">¶</a></dt>
+<dd><p>Description:
+Downloads various SPICE kernel and ancillary files for the GRAIL_B mission, including clock, frame,
+orientation, and SPK kernels, based on a specified date range. Files are saved in the provided local folder.</p>
+<dl class="simple">
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><p>local_folder (<cite>str</cite>): Path to the local folder where files will be saved.</p></li>
+<li><p>start_date (<cite>datetime</cite>): The start date for the data retrieval.</p></li>
+<li><p>end_date (<cite>datetime</cite>): The end date for the data retrieval.</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul class="simple">
+<li><p><cite>kernel_files_to_load</cite> (<cite>dict</cite>): A dictionary containing the loaded kernel files, categorized by type
+(e.g., ‘sclk’, ‘fk’, ‘ck’, ‘spk’).</p></li>
+<li><p><cite>radio_science_files_to_load</cite> (<cite>dict</cite>): An empty dictionary for now, intended for radio science files.</p></li>
+<li><p><cite>ancillary_files_to_load</cite> (<cite>dict</cite>): An empty dictionary for now, intended for ancillary files.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.get_juice_files">
+<span class="sig-name descname"><span class="pre">get_juice_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.get_juice_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_juice_files" title="Link to this definition">¶</a></dt>
+<dd><p>Description:
+Downloads various SPICE kernel and ancillary files for the JUICE mission, including clock, frame,
+orientation, and SPK kernels, based on a specified date range. Files are saved in the provided local folder.</p>
+<dl class="simple">
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><p>local_folder (<cite>str</cite>): Path to the local folder where files will be saved.</p></li>
+<li><p>start_date (<cite>datetime</cite>): The start date for the data retrieval.</p></li>
+<li><p>end_date (<cite>datetime</cite>): The end date for the data retrieval.</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul class="simple">
+<li><p><cite>kernel_files_to_load</cite> (<cite>dict</cite>): A dictionary containing the loaded kernel files, categorized by type
+(e.g., ‘sclk’, ‘fk’, ‘ck’, ‘spk’).</p></li>
+<li><p><cite>radio_science_files_to_load</cite> (<cite>dict</cite>): An empty dictionary for now, intended for radio science files.</p></li>
+<li><p><cite>ancillary_files_to_load</cite> (<cite>dict</cite>): An empty dictionary for now, intended for ancillary files.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.get_kernels">
+<span class="sig-name descname"><span class="pre">get_kernels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_mission</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wanted_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wanted_files_patterns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.get_kernels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_kernels" title="Link to this definition">¶</a></dt>
+<dd><p>Downloads specific SPICE kernel files or files matching a pattern from a given URL to a local directory
+if they do not already exist locally.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><ul class="simple">
+<li><p><cite>input_mission</cite> (<cite>str</cite>): The name of the mission</p></li>
+<li><p><cite>url</cite> (<cite>str</cite>): The base URL where the kernel files are hosted.</p></li>
+<li><p><cite>wanted_files</cite> (<cite>list</cite>, optional): A list of specific filenames to be downloaded from the URL.</p></li>
+<li><p><cite>wanted_files_pattern</cite> (<cite>str</cite>, optional): A pattern (e.g., ‘*.tf’) to match filenames for downloading.</p></li>
+<li><p><cite>custom_output</cite> (<cite>str</cite>, optional): The local directory where the downloaded files will be stored.</p></li>
+</ul>
+</dd>
+<dt>Output:</dt><dd><ul class="simple">
+<li><p><cite>list</cite>: A list of full file paths for the downloaded (or already existing) kernel files.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.get_latest_meta_kernel">
+<span class="sig-name descname"><span class="pre">get_latest_meta_kernel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_mission</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.get_latest_meta_kernel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_latest_meta_kernel" title="Link to this definition">¶</a></dt>
+<dd><p>Finds the most recent meta-kernel file URL based on year and version.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>base_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The base URL containing meta-kernel file links.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The URL of the most recent meta-kernel file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.get_mapping_dict_spk_mro">
+<span class="sig-name descname"><span class="pre">get_mapping_dict_spk_mro</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.get_mapping_dict_spk_mro"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_mapping_dict_spk_mro" title="Link to this definition">¶</a></dt>
+<dd><p>Description:
+Fetches and parses phase information for MRO SPK kernels from a given URL. It extracts the phase name
+along with the associated start and end dates, and returns a dictionary mapping date intervals to phase names.</p>
+<dl class="simple">
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><p>url (<cite>str</cite>): The URL from which to fetch the phase information.</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul class="simple">
+<li><p><cite>phase_dict</cite> (<cite>dict</cite>): A dictionary where the keys are tuples representing date intervals
+(start_date, end_date), and the values are dictionaries containing the SPK phase ID (<cite>spk_ID</cite>).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.get_mex_files">
+<span class="sig-name descname"><span class="pre">get_mex_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radio_observation_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.get_mex_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_mex_files" title="Link to this definition">¶</a></dt>
+<dd><p>Description:
+This function downloads and organizes various types of SPICE kernels and
+radio science files for the MEX (Mars Express) mission.
+It supports downloading kernel files related to radio science, clock data, frame data,
+SPK (spacecraft position) data, CK (orientation) data, and tropospheric/ionospheric correction files.
+The function interacts with remote FTP servers to retrieve the data and organizes them into the specified local folder.
+The data is filtered by a given date range, and the function returns the downloaded files for further use.</p>
+<dl>
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><p>local_folder (<cite>str</cite>): The local directory where the downloaded files will be saved.</p></li>
+<li><p>start_date (<cite>datetime</cite>): The start date for downloading data.
+This will filter the data to include only those within the date range.</p></li>
+<li><p>end_date (<cite>datetime</cite>): The end date for downloading data.
+This will filter the data to include only those within the date range.</p></li>
+<li><p>radio_observation_type (<cite>str</cite>): The type of radio science files to download (e.g. phobos gravity, commissioniong, etc…)</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul>
+<li><p>(<cite>dict</cite>, <cite>dict</cite>, <cite>dict</cite>): A tuple containing:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>kernel_files_to_load</cite> (<cite>dict</cite>): A dictionary where the keys are kernel types (e.g., ‘ck’, ‘spk’, ‘fk’, ‘sclk’) and values are lists of paths to the successfully downloaded and loaded kernel files.</p></li>
+<li><p><cite>radio_science_files_to_load</cite> (<cite>dict</cite>): A dictionary where keys are categories of radio science data (e.g., ‘ifms_dp2’, ‘dsn_dps’) and values are lists of paths to the successfully downloaded radio science files.</p></li>
+<li><p><cite>ancillary_files_to_load</cite> (<cite>dict</cite>): A dictionary where keys are categories of ancillary data (e.g., ‘ion’, ‘tropospheric’) and values are lists of paths to the successfully downloaded ancillary files, such as tropospheric and ionospheric corrections.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.get_mex_volume_ID_mapping">
+<span class="sig-name descname"><span class="pre">get_mex_volume_ID_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.get_mex_volume_ID_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_mex_volume_ID_mapping" title="Link to this definition">¶</a></dt>
+<dd><p>Description:
+Fetches data from a given URL and extracts volume ID, date range, and observation type
+for the Mars Express mission. The data is returned as a dictionary mapping date intervals
+to volume IDs and metadata.</p>
+<dl>
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><p>url (<cite>str</cite>): The URL from which to fetch the data (plain text format).</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul>
+<li><p><cite>mapping_dict</cite> (<cite>dict</cite>): A dictionary where keys are tuples of (start_date_utc, end_date_utc), and values are dictionaries with:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>volume_id</cite> (<cite>str</cite>): The volume ID.</p></li>
+<li><p><cite>start_date_file</cite> (<cite>str</cite>): Start date (YYYY-MM-DD).</p></li>
+<li><p><cite>end_date_file</cite> (<cite>str</cite>): End date (YYYY-MM-DD).</p></li>
+<li><p><cite>radio_observation_type</cite> (<cite>str</cite>): Type of observation.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.get_mission_files">
+<span class="sig-name descname"><span class="pre">get_mission_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_mission</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flyby_IDs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_meta_kernel_files</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_kernels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radio_observation_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radio_science_file_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'odf'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.get_mission_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_mission_files" title="Link to this definition">¶</a></dt>
+<dd><p>Description:
+This function downloads and organizes mission-specific data files (kernels, radio science files, and ancillary files)
+for a specified space mission. It supports downloading data for multiple missions such as Cassini, MEX, JUICE, MRO and ROSETTA.
+The function also allows for downloading files within a specific date range or for specific flybys (in the case of Cassini).
+It automatically creates the necessary folder structure for storing the downloaded data and loads the files into the SPICE kernel system.</p>
+<dl class="simple">
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>input_mission (<cite>str</cite>): The name of the space mission for which to download the data. Valid values include:</dt><dd><ul>
+<li><p>‘cassini’</p></li>
+<li><p>‘mex’</p></li>
+<li><p>‘juice’</p></li>
+<li><p>‘mro’</p></li>
+<li><p>‘ro’</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>start_date (<cite>datetime</cite>, optional): The start date for downloading data. If not provided, data is not filtered by date.</p></li>
+<li><dl class="simple">
+<dt>end_date (<cite>datetime</cite>, optional): The end date for downloading data (data from the end_date will be downloaded as well, meaning data from start_date &lt;= date &lt;= end_date).</dt><dd><p>If not provided, data is not filtered by date.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>flyby_IDs (<cite>list</cite> or <cite>str</cite>, optional): A list of flyby IDs (e.g., [‘T101’, ‘E303’]) for Cassini missions.</dt><dd><p>It can also include special values like ‘ALL_TITAN’ or ‘ALL_ENCELADUS’ to download all flybys for Titan or Enceladus.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>custom_output (<cite>str</cite>, optional): A custom path where the downloaded files will be stored. If not provided,</dt><dd><p>the default folder structure is used based on the mission name.</p>
+</dd>
+</dl>
+</li>
+<li><p>radio_observation_type: (‘str’, optional): type of (mex) radio_observation_type (e.g. phobos gravity, commissioning, occultation, etc …)</p></li>
+<li><p>radio_science_file_type (‘str’, optional): tnf or odf</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>(<cite>dict</cite>, <cite>dict</cite>, <cite>dict</cite>): A tuple containing:</dt><dd><ul>
+<li><p><cite>all_kernel_files</cite> (<cite>dict</cite>): A dictionary where keys are kernel types (e.g., ‘ck’, ‘spk’) and values are
+lists of paths to the successfully loaded kernel files.</p></li>
+<li><p><cite>all_radio_science_files</cite> (<cite>dict</cite>): A dictionary where keys are radio science data types and values are
+lists of paths to the successfully loaded radio science files.</p></li>
+<li><p><cite>all_ancillary_files</cite> (<cite>dict</cite>): A dictionary where keys are ancillary data types and values are
+lists of paths to the successfully loaded ancillary files.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.get_mro_files">
+<span class="sig-name descname"><span class="pre">get_mro_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radio_science_file_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'odf'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.get_mro_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_mro_files" title="Link to this definition">¶</a></dt>
+<dd><p>Description:
+Downloads various SPICE kernel and ancillary files for the MRO mission, including clock, frame,
+orientation, and SPK kernels, based on a specified date range. Files are saved in the provided local folder.</p>
+<dl class="simple">
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><p>local_folder (<cite>str</cite>): Path to the local folder where files will be saved.</p></li>
+<li><p>start_date (<cite>datetime</cite>): The start date for the data retrieval.</p></li>
+<li><p>end_date (<cite>datetime</cite>): The end date for the data retrieval.</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul class="simple">
+<li><p><cite>kernel_files_to_load</cite> (<cite>dict</cite>): A dictionary containing the loaded kernel files, categorized by type
+(e.g., ‘sclk’, ‘fk’, ‘ck’, ‘spk’).</p></li>
+<li><p><cite>radio_science_files_to_load</cite> (<cite>dict</cite>): An empty dictionary for now, intended for radio science files.</p></li>
+<li><p><cite>ancillary_files_to_load</cite> (<cite>dict</cite>): An empty dictionary for now, intended for ancillary files.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.get_mro_spk_ID">
+<span class="sig-name descname"><span class="pre">get_mro_spk_ID</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.get_mro_spk_ID"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_mro_spk_ID" title="Link to this definition">¶</a></dt>
+<dd><p>Description:
+Checks if the given date interval overlaps with any of the date intervals in the mapping dictionary,
+and returns a list of SPK IDs associated with those overlapping intervals.</p>
+<dl class="simple">
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><p>start_date (<cite>datetime</cite>): The start date of the input interval.</p></li>
+<li><p>end_date (<cite>datetime</cite>): The end date of the input interval.</p></li>
+<li><p>mapping_dict (<cite>dict</cite>): A dictionary mapping date intervals (as tuples of start and end dates)
+to SPK phase IDs (<cite>spk_ID</cite>).</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul class="simple">
+<li><p><cite>spk_id_list</cite> (<cite>list</cite>): A list of SPK IDs associated with the overlapping intervals.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>- ValueError</strong> – If no SPK IDs are found for the given date interval.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.get_ro_files">
+<span class="sig-name descname"><span class="pre">get_ro_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radio_observation_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.get_ro_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_ro_files" title="Link to this definition">¶</a></dt>
+<dd><p>Description:
+This function downloads and organizes various types of SPICE kernels and
+radio science files for the ROSETTA mission.
+It supports downloading kernel files related to radio science, clock data, frame data,
+SPK (spacecraft position) data, CK (orientation) data, and tropospheric/ionospheric correction files.
+The function interacts with remote FTP servers to retrieve the data and organizes them into the specified local folder.
+The data is filtered by a given date range, and the function returns the downloaded files for further use.</p>
+<dl>
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><p>local_folder (<cite>str</cite>): The local directory where the downloaded files will be saved.</p></li>
+<li><p>start_date (<cite>datetime</cite>): The start date for downloading data.
+This will filter the data to include only those within the date range.</p></li>
+<li><p>end_date (<cite>datetime</cite>): The end date for downloading data.
+This will filter the data to include only those within the date range.</p></li>
+<li><p>radio_observation_type (<cite>str</cite>): The type of radio science files to download (e.g. commissioning, checkout, solar conjuction, Lutetia, Global Gravity etc…)</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul>
+<li><dl>
+<dt>(<cite>dict</cite>, <cite>dict</cite>, <cite>dict</cite>): A tuple containing:</dt><dd><ul class="simple">
+<li><p><cite>kernel_files_to_load</cite> (<cite>dict</cite>): A dictionary where the keys are kernel types</p></li>
+</ul>
+<p>(e.g., ‘ck’, ‘spk’, ‘fk’, ‘sclk’) and values are lists of paths to the successfully downloaded and loaded kernel files.
+- <cite>radio_science_files_to_load</cite> (<cite>dict</cite>): A dictionary where keys are categories of
+radio science data (e.g., ‘ifms_dp2’, ‘dsn_dps’) and values are lists of paths
+to the successfully downloaded radio science files.
+- <cite>ancillary_files_to_load</cite> (<cite>dict</cite>): A dictionary where keys are categories
+of ancillary data (e.g., ‘ion’, ‘tropospheric’) and values are lists of paths
+to the successfully downloaded ancillary files, such as tropospheric and ionospheric corrections.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.get_ro_rsi_volume_ID">
+<span class="sig-name descname"><span class="pre">get_ro_rsi_volume_ID</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapping_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.get_ro_rsi_volume_ID"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_ro_rsi_volume_ID" title="Link to this definition">¶</a></dt>
+<dd><p>Given a start_date and end_date, iterate over the mapping_dict (which is keyed by rsi_volume_id)
+and return a list of rsi_volume_id values whose associated record’s start_date_utc falls within the interval.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start_date</strong> (<em>datetime</em>) – The start of the input date interval.</p></li>
+<li><p><strong>end_date</strong> (<em>datetime</em>) – The end of the input date interval.</p></li>
+<li><p><strong>mapping_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – A dictionary where the keys are rsi_volume_id strings and the values
+are lists of dictionaries. Each dictionary includes at least:
+- “rsi_volume_id”: the RSI volume ID
+- “start_date_utc”: a datetime object representing the record’s start date.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of rsi_volume_id strings that fall within the [start_date, end_date] interval.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.13)"><strong>ValueError</strong></a> – If no matching rsi_volume_id is found.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.get_ro_rsi_volume_ID_mapping">
+<span class="sig-name descname"><span class="pre">get_ro_rsi_volume_ID_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.get_ro_rsi_volume_ID_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_ro_rsi_volume_ID_mapping" title="Link to this definition">¶</a></dt>
+<dd><p>Description:
+Fetches data from a given URL and extracts volume ID, date range, and observation type
+for the Rosetta mission. The data is returned as a dictionary mapping date intervals
+to volume IDs and metadata.</p>
+<dl>
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><p>url (<cite>str</cite>): The URL from which to fetch the data (plain text format).</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul>
+<li><p><cite>mapping_dict</cite> (<cite>dict</cite>): A dictionary where keys are “rsi_volume_id”,
+and values are dictionaries with:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>rsi_volume_id</cite> (<cite>str</cite>): The rsi volume ID.</p></li>
+<li><p><cite>volume_id</cite> (<cite>str</cite>): The volume ID.</p></li>
+<li><p><cite>start_date_file</cite> (<cite>str</cite>): Start date (YYYY-MM-DD).</p></li>
+<li><p><cite>start_date_utc</cite> (<cite>datetime</cite>): Start date in UTC format.</p></li>
+<li><p><cite>radio_observation_type</cite> (<cite>str</cite>): Type of observation.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.get_url_mro_spk_files">
+<span class="sig-name descname"><span class="pre">get_url_mro_spk_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_date</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.get_url_mro_spk_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_url_mro_spk_files" title="Link to this definition">¶</a></dt>
+<dd><p>Description:
+Fetches the SPK file URLs associated with the given date range for the MRO mission. It first retrieves
+a mapping of SPK phases to date intervals, identifies the SPK IDs that overlap with the input interval,
+and then constructs the corresponding SPK file URLs.</p>
+<dl class="simple">
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><p>start_date (<cite>datetime</cite>): The start date of the input interval.</p></li>
+<li><p>end_date (<cite>datetime</cite>): The end date of the input interval.</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul class="simple">
+<li><p><cite>spk_ID_urls</cite> (<cite>list</cite>): A list of SPK file URLs corresponding to the overlapping SPK IDs.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>- ValueError</strong> – If no SPK file URLs are found for the given date range.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.is_date_in_intervals">
+<span class="sig-name descname"><span class="pre">is_date_in_intervals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intervals</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.is_date_in_intervals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.is_date_in_intervals" title="Link to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Description:</dt><dd><p>Checks if a given date falls within any of the specified date intervals.</p>
+</dd>
+<dt>Input:</dt><dd><ul class="simple">
+<li><p><cite>date</cite> (<cite>datetime</cite>): The date to check.</p></li>
+<li><p><cite>intervals</cite> (<cite>list</cite> of tuples): A list of tuples, where each tuple contains two <cite>datetime</cite> objects representing the start and end of an interval.</p></li>
+</ul>
+</dd>
+<dt>Output:</dt><dd><ul class="simple">
+<li><p><cite>bool</cite>: <cite>True</cite> if the date falls within any of the intervals, otherwise <cite>False</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.match_type_extension">
+<span class="sig-name descname"><span class="pre">match_type_extension</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.match_type_extension"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.match_type_extension" title="Link to this definition">¶</a></dt>
+<dd><p>Checks if the extension of a given file matches the expected extension for the specified data type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The data type (e.g., ‘ck’, ‘spk’, ‘odf’, etc.).</p></li>
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The filename whose extension is to be checked.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the file extension matches any valid extension for the given data type.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.parse_filename">
+<span class="sig-name descname"><span class="pre">parse_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_mission</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.parse_filename"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.parse_filename" title="Link to this definition">¶</a></dt>
+<dd><p>Description:
+This function parses a filename into its components based on the mission and data type patterns.
+It uses regular expressions to match the filename against predefined patterns for different mission types.
+It then returns the parsed components as a dictionary, along with the indices of underscores within the matched groups.</p>
+<dl class="simple">
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><p>input_mission (<cite>str</cite>): The mission name (e.g., ‘cassini’, ‘mro’, etc.).</p></li>
+<li><p>data_type (<cite>str</cite>): The type of data (e.g., “radioscience”, “kernels”, “all”).</p></li>
+<li><p>filename (<cite>str</cite>): The filename to be parsed.</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul class="simple">
+<li><p>(<cite>dict</cite>, <cite>list</cite>): A tuple containing:
+- <cite>dictionary</cite> (<cite>dict</cite>): A dictionary where the keys are the component names
+(e.g., ‘date’, ‘purpose’, etc.), and the values are the parsed values from the filename.
+- <cite>underscore_indices</cite> (<cite>list</cite>): A list of indices representing
+the positions of underscores in the matched groups.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.print_titan_flyby_table">
+<span class="sig-name descname"><span class="pre">print_titan_flyby_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.print_titan_flyby_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.print_titan_flyby_table" title="Link to this definition">¶</a></dt>
+<dd><p>Description:
+This method prints a table displaying the Titan flyby data in a readable format. It iterates over the <cite>cassini_titan_flyby_dict</cite>, extracts relevant information for each flyby, and constructs a table. The table is formatted with headers and colored using the <cite>colorama</cite> library for enhanced readability.</p>
+<dl class="simple">
+<dt>Input:</dt><dd><p>None.</p>
+</dd>
+<dt>Output:</dt><dd><p>None: This method prints the formatted table to the console.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.reconstruct_filename">
+<span class="sig-name descname"><span class="pre">reconstruct_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dictionary</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">underscore_indices</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.reconstruct_filename"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.reconstruct_filename" title="Link to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Description:</dt><dd><p>This function reconstructs the original filename by combining the parsed components (from the <cite>dictionary</cite>) and placing underscores at the specified indices (from the <cite>underscore_indices</cite>). It takes into account the specific format of the filename, ensuring the proper placement of underscores.</p>
+</dd>
+<dt>Inputs:</dt><dd><ul class="simple">
+<li><p>dictionary (<cite>dict</cite>): A dictionary containing the parsed components of the filename, where the keys are the component names and the values are the corresponding values extracted from the filename.</p></li>
+<li><p>underscore_indices (<cite>list</cite>): A list of indices where underscores should be placed in the reconstructed filename. These indices correspond to the position of the groups in the parsed dictionary.</p></li>
+</ul>
+</dd>
+<dt>Outputs:</dt><dd><ul class="simple">
+<li><p>(<cite>str</cite>): The reconstructed filename as a string, with underscores placed at the specified positions.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.data.mission_data_downloader.LoadPDS.spice_transfer2binary">
+<span class="sig-name descname"><span class="pre">spice_transfer2binary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/tudatpy/data/mission_data_downloader.html#LoadPDS.spice_transfer2binary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#tudatpy.data.mission_data_downloader.LoadPDS.spice_transfer2binary" title="Link to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Description:</dt><dd><p>Converts transfer-file format SPICE kernels (e.g., .ckf, .spk)
+into binary SPICE kernels (e.g., .ck, .bsp) using the SPACIT utility.
+This is necessary for loading the kernels with spice.load_kernels.
+The function handles the conversion by running the SPACIT tool as a subprocess and
+manages timeouts during the conversion process.</p>
+</dd>
+<dt>Input:</dt><dd><ul class="simple">
+<li><p>input_file (str): The path to the SPICE kernel file to be converted. It must have either a .ckf or .spk extension.</p></li>
+<li><p>timeout (int, optional): The timeout duration for the SPACIT process, default is 5 seconds.</p></li>
+</ul>
+</dd>
+<dt>Output:</dt><dd><ul class="simple">
+<li><p>str: The path to the output file (either .ck or .bsp), depending on the input file type. If the output file already exists, the function returns the existing output file path.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>If the conversion fails or times out, an error message is printed.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="exceptions.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">exceptions</span></code></div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="sbdb.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">sbdb</span></code></div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2025, Tudat Team
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">mission_data_downloader</span></code></a><ul>
+<li><a class="reference internal" href="#classes">Classes</a><ul>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS"><code class="docutils literal notranslate"><span class="pre">LoadPDS</span></code></a><ul>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.add_custom_mission_kernel_pattern"><code class="docutils literal notranslate"><span class="pre">LoadPDS.add_custom_mission_kernel_pattern()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.add_custom_mission_kernel_url"><code class="docutils literal notranslate"><span class="pre">LoadPDS.add_custom_mission_kernel_url()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.add_custom_mission_meta_kernel_pattern"><code class="docutils literal notranslate"><span class="pre">LoadPDS.add_custom_mission_meta_kernel_pattern()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.add_custom_mission_meta_kernel_url"><code class="docutils literal notranslate"><span class="pre">LoadPDS.add_custom_mission_meta_kernel_url()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.add_ro_mission_phase_designation"><code class="docutils literal notranslate"><span class="pre">LoadPDS.add_ro_mission_phase_designation()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.cassini_flyby2experiment"><code class="docutils literal notranslate"><span class="pre">LoadPDS.cassini_flyby2experiment()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.check_existing_files"><code class="docutils literal notranslate"><span class="pre">LoadPDS.check_existing_files()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.clean_mission_archive"><code class="docutils literal notranslate"><span class="pre">LoadPDS.clean_mission_archive()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.download_url_files_time"><code class="docutils literal notranslate"><span class="pre">LoadPDS.download_url_files_time()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.dynamic_download_url_files_single_time"><code class="docutils literal notranslate"><span class="pre">LoadPDS.dynamic_download_url_files_single_time()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.dynamic_download_url_files_time_interval"><code class="docutils literal notranslate"><span class="pre">LoadPDS.dynamic_download_url_files_time_interval()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.extract_kernels_from_meta_kernel"><code class="docutils literal notranslate"><span class="pre">LoadPDS.extract_kernels_from_meta_kernel()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.filter_mapping_dict_by_radio_observation_type"><code class="docutils literal notranslate"><span class="pre">LoadPDS.filter_mapping_dict_by_radio_observation_type()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.format_datetime_to_string"><code class="docutils literal notranslate"><span class="pre">LoadPDS.format_datetime_to_string()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.format_string_to_datetime"><code class="docutils literal notranslate"><span class="pre">LoadPDS.format_string_to_datetime()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_cassini_flyby_cumindex_url"><code class="docutils literal notranslate"><span class="pre">LoadPDS.get_cassini_flyby_cumindex_url()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_cassini_flyby_files"><code class="docutils literal notranslate"><span class="pre">LoadPDS.get_cassini_flyby_files()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_cassini_flyby_volume_url"><code class="docutils literal notranslate"><span class="pre">LoadPDS.get_cassini_flyby_volume_url()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_cassini_full_moon_flybys_list"><code class="docutils literal notranslate"><span class="pre">LoadPDS.get_cassini_full_moon_flybys_list()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_cassini_volume_cumindex_table"><code class="docutils literal notranslate"><span class="pre">LoadPDS.get_cassini_volume_cumindex_table()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_extension_for_data_type"><code class="docutils literal notranslate"><span class="pre">LoadPDS.get_extension_for_data_type()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_grail_a_files"><code class="docutils literal notranslate"><span class="pre">LoadPDS.get_grail_a_files()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_grail_b_files"><code class="docutils literal notranslate"><span class="pre">LoadPDS.get_grail_b_files()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_juice_files"><code class="docutils literal notranslate"><span class="pre">LoadPDS.get_juice_files()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_kernels"><code class="docutils literal notranslate"><span class="pre">LoadPDS.get_kernels()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_latest_meta_kernel"><code class="docutils literal notranslate"><span class="pre">LoadPDS.get_latest_meta_kernel()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_mapping_dict_spk_mro"><code class="docutils literal notranslate"><span class="pre">LoadPDS.get_mapping_dict_spk_mro()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_mex_files"><code class="docutils literal notranslate"><span class="pre">LoadPDS.get_mex_files()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_mex_volume_ID_mapping"><code class="docutils literal notranslate"><span class="pre">LoadPDS.get_mex_volume_ID_mapping()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_mission_files"><code class="docutils literal notranslate"><span class="pre">LoadPDS.get_mission_files()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_mro_files"><code class="docutils literal notranslate"><span class="pre">LoadPDS.get_mro_files()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_mro_spk_ID"><code class="docutils literal notranslate"><span class="pre">LoadPDS.get_mro_spk_ID()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_ro_files"><code class="docutils literal notranslate"><span class="pre">LoadPDS.get_ro_files()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_ro_rsi_volume_ID"><code class="docutils literal notranslate"><span class="pre">LoadPDS.get_ro_rsi_volume_ID()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_ro_rsi_volume_ID_mapping"><code class="docutils literal notranslate"><span class="pre">LoadPDS.get_ro_rsi_volume_ID_mapping()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.get_url_mro_spk_files"><code class="docutils literal notranslate"><span class="pre">LoadPDS.get_url_mro_spk_files()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.is_date_in_intervals"><code class="docutils literal notranslate"><span class="pre">LoadPDS.is_date_in_intervals()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.match_type_extension"><code class="docutils literal notranslate"><span class="pre">LoadPDS.match_type_extension()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.parse_filename"><code class="docutils literal notranslate"><span class="pre">LoadPDS.parse_filename()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.print_titan_flyby_table"><code class="docutils literal notranslate"><span class="pre">LoadPDS.print_titan_flyby_table()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.reconstruct_filename"><code class="docutils literal notranslate"><span class="pre">LoadPDS.reconstruct_filename()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.data.mission_data_downloader.LoadPDS.spice_transfer2binary"><code class="docutils literal notranslate"><span class="pre">LoadPDS.spice_transfer2binary()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=8a448e45"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    </body>
+</html>

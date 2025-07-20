@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../../../lib/libtudat_data.a CMakeFiles/tudat_data.dir/downloadFile.cpp.o
+/usr/bin/ranlib ../../../../lib/libtudat_data.a

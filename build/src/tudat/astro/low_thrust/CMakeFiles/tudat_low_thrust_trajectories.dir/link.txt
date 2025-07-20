@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../../../lib/libtudat_low_thrust_trajectories.a CMakeFiles/tudat_low_thrust_trajectories.dir/lowThrustLegSettings.cpp.o CMakeFiles/tudat_low_thrust_trajectories.dir/lowThrustLeg.cpp.o
+/usr/bin/ranlib ../../../../lib/libtudat_low_thrust_trajectories.a

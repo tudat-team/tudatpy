@@ -1,0 +1,2 @@
+/usr/bin/ar qc ../../../../lib/libtudat_system_models.a CMakeFiles/tudat_system_models.dir/dummySystemModel.cpp.o CMakeFiles/tudat_system_models.dir/timingSystem.cpp.o CMakeFiles/tudat_system_models.dir/selfShadowing.cpp.o
+/usr/bin/ranlib ../../../../lib/libtudat_system_models.a

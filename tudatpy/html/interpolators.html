@@ -1,0 +1,1166 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="root_finders" href="root_finders.html" /><link rel="prev" title="math" href="math.html" />
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>interpolators - TudatPy API Reference</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
+    <link rel="stylesheet" type="text/css" href="_static/style.css?v=ab9fdd52" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #eeffcc;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+<div class="announcement">
+  <aside class="announcement-content">
+     Have questions or feedback? See the <a href='https://docs.tudat.space/en/latest/index_user_guide.html'>User Guide</a> or let us know in our <a href='https://github.com/orgs/tudat-team/discussions?discussions_q='>Github Discussion forum</a>! 
+  </aside>
+</div>
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">TudatPy API Reference</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">TudatPy API Reference</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="astro.html"><code class="docutils literal notranslate"><span class="pre">astro</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of astro</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="frame_conversion.html"><code class="docutils literal notranslate"><span class="pre">frame_conversion</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="element_conversion.html"><code class="docutils literal notranslate"><span class="pre">element_conversion</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="time_conversion.html"><code class="docutils literal notranslate"><span class="pre">time_conversion</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="two_body_dynamics.html"><code class="docutils literal notranslate"><span class="pre">two_body_dynamics</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="polyhedron_utilities.html"><code class="docutils literal notranslate"><span class="pre">polyhedron_utilities</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="gravitation.html"><code class="docutils literal notranslate"><span class="pre">gravitation</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="fundamentals.html"><code class="docutils literal notranslate"><span class="pre">fundamentals</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="constants.html"><code class="docutils literal notranslate"><span class="pre">constants</span></code></a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="data.html"><code class="docutils literal notranslate"><span class="pre">data</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of data</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="horizons.html"><code class="docutils literal notranslate"><span class="pre">horizons</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpc.html"><code class="docutils literal notranslate"><span class="pre">mpc</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="sbdb.html"><code class="docutils literal notranslate"><span class="pre">sbdb</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="mission_data_downloader.html"><code class="docutils literal notranslate"><span class="pre">mission_data_downloader</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="exceptions.html"><code class="docutils literal notranslate"><span class="pre">exceptions</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of exceptions</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="spice_exceptions.html"><code class="docutils literal notranslate"><span class="pre">spice_exceptions</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="interface.html"><code class="docutils literal notranslate"><span class="pre">interface</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of interface</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="spice.html"><code class="docutils literal notranslate"><span class="pre">spice</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="math.html"><code class="docutils literal notranslate"><span class="pre">math</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of math</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">interpolators</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="root_finders.html"><code class="docutils literal notranslate"><span class="pre">root_finders</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="numerical_simulation.html"><code class="docutils literal notranslate"><span class="pre">numerical_simulation</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of numerical_simulation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="estimation_setup.html"><code class="docutils literal notranslate"><span class="pre">estimation_setup</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of estimation_setup</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="observation.html"><code class="docutils literal notranslate"><span class="pre">observation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="parameter.html"><code class="docutils literal notranslate"><span class="pre">parameter</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="environment_setup.html"><code class="docutils literal notranslate"><span class="pre">environment_setup</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of environment_setup</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="aerodynamic_coefficients.html"><code class="docutils literal notranslate"><span class="pre">aerodynamic_coefficients</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="atmosphere.html"><code class="docutils literal notranslate"><span class="pre">atmosphere</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ephemeris.html"><code class="docutils literal notranslate"><span class="pre">ephemeris</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="gravity_field.html"><code class="docutils literal notranslate"><span class="pre">gravity_field</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="gravity_field_variation.html"><code class="docutils literal notranslate"><span class="pre">gravity_field_variation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ground_station.html"><code class="docutils literal notranslate"><span class="pre">ground_station</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="radiation_pressure.html"><code class="docutils literal notranslate"><span class="pre">radiation_pressure</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="rigid_body.html"><code class="docutils literal notranslate"><span class="pre">rigid_body</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="rotation_model.html"><code class="docutils literal notranslate"><span class="pre">rotation_model</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="shape.html"><code class="docutils literal notranslate"><span class="pre">shape</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="shape_deformation.html"><code class="docutils literal notranslate"><span class="pre">shape_deformation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="vehicle_systems.html"><code class="docutils literal notranslate"><span class="pre">vehicle_systems</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="propagation_setup.html"><code class="docutils literal notranslate"><span class="pre">propagation_setup</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of propagation_setup</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="acceleration.html"><code class="docutils literal notranslate"><span class="pre">acceleration</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="dependent_variable.html"><code class="docutils literal notranslate"><span class="pre">dependent_variable</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="integrator.html"><code class="docutils literal notranslate"><span class="pre">integrator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="mass_rate.html"><code class="docutils literal notranslate"><span class="pre">mass_rate</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="propagator.html"><code class="docutils literal notranslate"><span class="pre">propagator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="torque.html"><code class="docutils literal notranslate"><span class="pre">torque</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="thrust.html"><code class="docutils literal notranslate"><span class="pre">thrust</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="estimation.html"><code class="docutils literal notranslate"><span class="pre">estimation</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="environment.html"><code class="docutils literal notranslate"><span class="pre">environment</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="propagation.html"><code class="docutils literal notranslate"><span class="pre">propagation</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="trajectory_design.html"><code class="docutils literal notranslate"><span class="pre">trajectory_design</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of trajectory_design</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="transfer_trajectory.html"><code class="docutils literal notranslate"><span class="pre">transfer_trajectory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="shape_based_thrust.html"><code class="docutils literal notranslate"><span class="pre">shape_based_thrust</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plotting.html"><code class="docutils literal notranslate"><span class="pre">plotting</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="util.html"><code class="docutils literal notranslate"><span class="pre">util</span></code></a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/interpolators.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="interpolators">
+<span id="id1"></span><h1><code class="docutils literal notranslate"><span class="pre">interpolators</span></code><a class="headerlink" href="#interpolators" title="Link to this heading">¶</a></h1>
+<p>Functions for performing numerical interpolation using various algorithms. More details on the usage of these functions is given in the <a class="reference external" href="https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/https://docs.tudat.space/en/latest/_src_user_guide/mathematics/interpolators.html">user guide</a>.</p>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.math.interpolators.linear_interpolation" title="tudatpy.math.interpolators.linear_interpolation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">linear_interpolation</span></code></a>(lookup_scheme, ...)</p></td>
+<td><p>Function to create settings for linear interpolation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tudatpy.math.interpolators.piecewise_constant_interpolation" title="tudatpy.math.interpolators.piecewise_constant_interpolation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">piecewise_constant_interpolation</span></code></a>(...)</p></td>
+<td><p>Function to create settings for piecewise constant interpolation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.math.interpolators.cubic_spline_interpolation" title="tudatpy.math.interpolators.cubic_spline_interpolation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cubic_spline_interpolation</span></code></a>(lookup_scheme, ...)</p></td>
+<td><p>Function to create settings for cubic spline interpolation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tudatpy.math.interpolators.hermite_spline_interpolation" title="tudatpy.math.interpolators.hermite_spline_interpolation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hermite_spline_interpolation</span></code></a>(lookup_scheme, ...)</p></td>
+<td><p>Function to create settings for cubic Hermite spline interpolation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.math.interpolators.lagrange_interpolation" title="tudatpy.math.interpolators.lagrange_interpolation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lagrange_interpolation</span></code></a>(number_of_points, ...)</p></td>
+<td><p>Function to create settings for cubic Lagrange interpolation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator" title="tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_one_dimensional_scalar_interpolator</span></code></a>(...)</p></td>
+<td><p>Function to create an interpolator for scalar dependent variables.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator_time_object" title="tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator_time_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_one_dimensional_scalar_interpolator_time_object</span></code></a>(...)</p></td>
+<td><p>Same as <a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator" title="tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_one_dimensional_scalar_interpolator()</span></code></a>, but using the high-resolution <code class="xref py py-func docutils literal notranslate"><span class="pre">Time()</span></code> type used as independent variable for interpolation</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_vector_interpolator" title="tudatpy.math.interpolators.create_one_dimensional_vector_interpolator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_one_dimensional_vector_interpolator</span></code></a>(...)</p></td>
+<td><p>Function to create an interpolator for vector dependent variables.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_vector_interpolator_time_object" title="tudatpy.math.interpolators.create_one_dimensional_vector_interpolator_time_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_one_dimensional_vector_interpolator_time_object</span></code></a>(...)</p></td>
+<td><p>Same as <a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_vector_interpolator" title="tudatpy.math.interpolators.create_one_dimensional_vector_interpolator"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_one_dimensional_vector_interpolator()</span></code></a>, but using the high-resolution <code class="xref py py-func docutils literal notranslate"><span class="pre">Time()</span></code> type used as independent variable for interpolation</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_matrix_interpolator" title="tudatpy.math.interpolators.create_one_dimensional_matrix_interpolator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_one_dimensional_matrix_interpolator</span></code></a>(...)</p></td>
+<td><p>Function to create an interpolator for matrix dependent variables.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_matrix_interpolator_time_object" title="tudatpy.math.interpolators.create_one_dimensional_matrix_interpolator_time_object"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_one_dimensional_matrix_interpolator_time_object</span></code></a>(...)</p></td>
+<td><p>Same as <a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_matrix_interpolator" title="tudatpy.math.interpolators.create_one_dimensional_matrix_interpolator"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_one_dimensional_matrix_interpolator()</span></code></a>, but using the high-resolution <code class="xref py py-func docutils literal notranslate"><span class="pre">Time()</span></code> type used as independent variable for interpolation</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.linear_interpolation">
+<span class="sig-name descname"><span class="pre">linear_interpolation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lookup_scheme:</span> <span class="pre">tudatpy.kernel.math.interpolators.AvailableLookupScheme</span> <span class="pre">=</span> <span class="pre">&lt;AvailableLookupScheme.hunting_algorithm:</span> <span class="pre">1&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_interpolation:</span> <span class="pre">tudatpy.kernel.math.interpolators.BoundaryInterpolationType</span> <span class="pre">=</span> <span class="pre">&lt;BoundaryInterpolationType.extrapolate_at_boundary_with_warning:</span> <span class="pre">4&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.math.interpolators.InterpolatorSettings" title="tudatpy.kernel.math.interpolators.InterpolatorSettings"><span class="pre">tudatpy.kernel.math.interpolators.InterpolatorSettings</span></a></span></span><a class="headerlink" href="#tudatpy.math.interpolators.linear_interpolation" title="Link to this definition">¶</a></dt>
+<dd><p>Function to create settings for linear interpolation.</p>
+<p>Function to create settings for linear interpolation, where the interpolator
+defines a linear curve between each two subsequent intervals of the
+independent variable input data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lookup_scheme</strong> (<a class="reference internal" href="#tudatpy.math.interpolators.AvailableLookupScheme" title="tudatpy.math.interpolators.AvailableLookupScheme"><em>AvailableLookupScheme</em></a><em>, </em><em>default = hunting_algorithm</em>) – Algorithm used to find the nearest neighbor in the independent variable input data when the interpolation scheme is called</p></li>
+<li><p><strong>boundary_interpolation</strong> (<a class="reference internal" href="#tudatpy.math.interpolators.BoundaryInterpolationType" title="tudatpy.math.interpolators.BoundaryInterpolationType"><em>BoundaryInterpolationType</em></a><em>, </em><em>default=extrapolate_at_boundary_with_warning</em>) – Interpolator behaviour that is to be used beyond the upper and lower boundaries of the independent variable input data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Linear interpolation settings object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.math.interpolators.InterpolatorSettings" title="tudatpy.math.interpolators.InterpolatorSettings">InterpolatorSettings</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.piecewise_constant_interpolation">
+<span class="sig-name descname"><span class="pre">piecewise_constant_interpolation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lookup_scheme:</span> <span class="pre">tudatpy.kernel.math.interpolators.AvailableLookupScheme</span> <span class="pre">=</span> <span class="pre">&lt;AvailableLookupScheme.hunting_algorithm:</span> <span class="pre">1&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_interpolation:</span> <span class="pre">tudatpy.kernel.math.interpolators.BoundaryInterpolationType</span> <span class="pre">=</span> <span class="pre">&lt;BoundaryInterpolationType.extrapolate_at_boundary_with_warning:</span> <span class="pre">4&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.math.interpolators.InterpolatorSettings" title="tudatpy.kernel.math.interpolators.InterpolatorSettings"><span class="pre">tudatpy.kernel.math.interpolators.InterpolatorSettings</span></a></span></span><a class="headerlink" href="#tudatpy.math.interpolators.piecewise_constant_interpolation" title="Link to this definition">¶</a></dt>
+<dd><p>Function to create settings for piecewise constant interpolation.</p>
+<p>Function to create settings for piecewise constant interpolation. If interpolator
+is to return the value at <span class="math notranslate nohighlight">\(t\)</span>, and <span class="math notranslate nohighlight">\(t_{i}\le t &lt; t_{i+1}\)</span>, the interpolator
+returns <span class="math notranslate nohighlight">\(\mathbf{x}_{i}\)</span></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lookup_scheme</strong> (<a class="reference internal" href="#tudatpy.math.interpolators.AvailableLookupScheme" title="tudatpy.math.interpolators.AvailableLookupScheme"><em>AvailableLookupScheme</em></a><em>, </em><em>default = hunting_algorithm</em>) – Algorithm used to find the nearest neighbor in the independent variable input data when the interpolation scheme is called</p></li>
+<li><p><strong>boundary_interpolation</strong> (<a class="reference internal" href="#tudatpy.math.interpolators.BoundaryInterpolationType" title="tudatpy.math.interpolators.BoundaryInterpolationType"><em>BoundaryInterpolationType</em></a><em>, </em><em>default = extrapolate_at_boundary_with_warning</em>) – Interpolator behaviour that is to be used beyond the upper and lower boundaries of the independent variable input data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Piecewise constant interpolation settings object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.math.interpolators.InterpolatorSettings" title="tudatpy.math.interpolators.InterpolatorSettings">InterpolatorSettings</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.cubic_spline_interpolation">
+<span class="sig-name descname"><span class="pre">cubic_spline_interpolation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lookup_scheme:</span> <span class="pre">tudatpy.kernel.math.interpolators.AvailableLookupScheme</span> <span class="pre">=</span> <span class="pre">&lt;AvailableLookupScheme.hunting_algorithm:</span> <span class="pre">1&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_interpolation:</span> <span class="pre">tudatpy.kernel.math.interpolators.BoundaryInterpolationType</span> <span class="pre">=</span> <span class="pre">&lt;BoundaryInterpolationType.extrapolate_at_boundary_with_warning:</span> <span class="pre">4&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.math.interpolators.InterpolatorSettings" title="tudatpy.kernel.math.interpolators.InterpolatorSettings"><span class="pre">tudatpy.kernel.math.interpolators.InterpolatorSettings</span></a></span></span><a class="headerlink" href="#tudatpy.math.interpolators.cubic_spline_interpolation" title="Link to this definition">¶</a></dt>
+<dd><p>Function to create settings for cubic spline interpolation.</p>
+<p>Function to create settings for cubic spline interpolation, where the interpolator
+defines a cubic curve polynomial curve between each two subsequent intervals of the
+independent variable input data. The curve has continuous value, first derivative and
+second derivate between subsequent intervals. As boundary condition, the spline has
+a zero second derivative imposed at the upper and lower boundaries of the interpolation
+domain.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lookup_scheme</strong> (<a class="reference internal" href="#tudatpy.math.interpolators.AvailableLookupScheme" title="tudatpy.math.interpolators.AvailableLookupScheme"><em>AvailableLookupScheme</em></a><em>, </em><em>default = hunting_algorithm</em>) – Algorithm used to find the nearest neighbor in the independent variable input data when the interpolation scheme is called</p></li>
+<li><p><strong>boundary_interpolation</strong> (<a class="reference internal" href="#tudatpy.math.interpolators.BoundaryInterpolationType" title="tudatpy.math.interpolators.BoundaryInterpolationType"><em>BoundaryInterpolationType</em></a><em>, </em><em>default = extrapolate_at_boundary_with_warning</em>) – Interpolator behaviour that is to be used beyond the upper and lower boundaries of the independent variable input data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Cubic spline settings object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.math.interpolators.InterpolatorSettings" title="tudatpy.math.interpolators.InterpolatorSettings">InterpolatorSettings</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.hermite_spline_interpolation">
+<span class="sig-name descname"><span class="pre">hermite_spline_interpolation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lookup_scheme:</span> <span class="pre">tudatpy.kernel.math.interpolators.AvailableLookupScheme</span> <span class="pre">=</span> <span class="pre">&lt;AvailableLookupScheme.hunting_algorithm:</span> <span class="pre">1&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_interpolation:</span> <span class="pre">tudatpy.kernel.math.interpolators.BoundaryInterpolationType</span> <span class="pre">=</span> <span class="pre">&lt;BoundaryInterpolationType.extrapolate_at_boundary_with_warning:</span> <span class="pre">4&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.math.interpolators.InterpolatorSettings" title="tudatpy.kernel.math.interpolators.InterpolatorSettings"><span class="pre">tudatpy.kernel.math.interpolators.InterpolatorSettings</span></a></span></span><a class="headerlink" href="#tudatpy.math.interpolators.hermite_spline_interpolation" title="Link to this definition">¶</a></dt>
+<dd><p>Function to create settings for cubic Hermite spline interpolation.</p>
+<p>Function to create settings for piecewise cubic Hermite spline interpolation. To use this
+interpolator, a key-value container of values, and a key-value container of first derivatives,
+must be provided to the function creating an interpolator (<a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator" title="tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_one_dimensional_scalar_interpolator()</span></code></a>,
+<a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_vector_interpolator" title="tudatpy.math.interpolators.create_one_dimensional_vector_interpolator"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_one_dimensional_vector_interpolator()</span></code></a>,  <a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_matrix_interpolator" title="tudatpy.math.interpolators.create_one_dimensional_matrix_interpolator"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_one_dimensional_matrix_interpolator()</span></code></a>). The resulting
+spline uses the value and first derivatives (four piece of information for each interval) at two subsequent nodes to construct
+a cubic polynomial between each two subsequent nodes. The resulting spline has constant values and first derivatives</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lookup_scheme</strong> (<a class="reference internal" href="#tudatpy.math.interpolators.AvailableLookupScheme" title="tudatpy.math.interpolators.AvailableLookupScheme"><em>AvailableLookupScheme</em></a><em>, </em><em>default = hunting_algorithm</em>) – Algorithm used to find the nearest neighbor in the independent variable input data when the interpolation scheme is called</p></li>
+<li><p><strong>boundary_interpolation</strong> (<a class="reference internal" href="#tudatpy.math.interpolators.BoundaryInterpolationType" title="tudatpy.math.interpolators.BoundaryInterpolationType"><em>BoundaryInterpolationType</em></a><em>, </em><em>default = extrapolate_at_boundary_with_warning</em>) – Interpolator behaviour that is to be used beyond the upper and lower boundaries of the independent variable input data</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Hermite spline interpolation settings object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.math.interpolators.InterpolatorSettings" title="tudatpy.math.interpolators.InterpolatorSettings">InterpolatorSettings</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.lagrange_interpolation">
+<span class="sig-name descname"><span class="pre">lagrange_interpolation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number_of_points:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lookup_scheme:</span> <span class="pre">tudatpy.kernel.math.interpolators.AvailableLookupScheme</span> <span class="pre">=</span> <span class="pre">&lt;AvailableLookupScheme.hunting_algorithm:</span> <span class="pre">1&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_interpolation:</span> <span class="pre">tudatpy.kernel.math.interpolators.BoundaryInterpolationType</span> <span class="pre">=</span> <span class="pre">&lt;BoundaryInterpolationType.extrapolate_at_boundary_with_warning:</span> <span class="pre">4&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lagrange_boundary_handling:</span> <span class="pre">tudatpy.kernel.math.interpolators.LagrangeInterpolatorBoundaryHandling</span> <span class="pre">=</span> <span class="pre">&lt;LagrangeInterpolatorBoundaryHandling.lagrange_cubic_spline_boundary_interpolation:</span> <span class="pre">0&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.math.interpolators.InterpolatorSettings" title="tudatpy.kernel.math.interpolators.InterpolatorSettings"><span class="pre">tudatpy.kernel.math.interpolators.InterpolatorSettings</span></a></span></span><a class="headerlink" href="#tudatpy.math.interpolators.lagrange_interpolation" title="Link to this definition">¶</a></dt>
+<dd><p>Function to create settings for cubic Lagrange interpolation.</p>
+<p>Function to create settings for piecewise cubic Lagrange interpolation.  This is typically the interpolator of highest accuracy that is available.
+The Lagrange interpolator uses <span class="math notranslate nohighlight">\(m\)</span> consecutive points (input to this function) from the input independent variables <span class="math notranslate nohighlight">\([t_{0}...t_{N}]\)</span>
+to create the polynomial of order <span class="math notranslate nohighlight">\(m-1\)</span> that interpolates these points. From here on, we assume <span class="math notranslate nohighlight">\(m\)</span> is even.
+The algorithm that is used (see <a class="reference external" href="https://mathworld.wolfram.com/LagrangeInterpolatingPolynomial.html">here</a> for mathematical details
+on interpolating Lagrange polynomials) works as follows:</p>
+<ul class="simple">
+<li><p>The nearest lower neighbor of the data point <span class="math notranslate nohighlight">\(t\)</span> at which the state <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> is to be interpolated is determined, and denoted <span class="math notranslate nohighlight">\(t_{i}\)</span>.</p></li>
+<li><p>An interpolating Lagrange polynomial is constructed from the consecutive data points <span class="math notranslate nohighlight">\([t_{i-(m/2-1)}...t_{i+m}]\)</span></p></li>
+<li><p>This resulting interpolating polynomial is <em>only</em> used in the interval <span class="math notranslate nohighlight">\([t_{i}...t_{i+1}]\)</span>, to prevent <a class="reference external" href="https://en.wikipedia.org/wiki/Runge%27s_phenomenon">Runge’s phenomenon</a>.</p></li>
+</ul>
+<p>For instance, if <span class="math notranslate nohighlight">\(m=8\)</span> we use a <span class="math notranslate nohighlight">\(7^{th}\)</span> order polynomial that interpolates a contiguous set of
+8 data points out of the full data set. Normally, the interpolating polynomial is only used between the
+<span class="math notranslate nohighlight">\(4^{th}\)</span> and <span class="math notranslate nohighlight">\(5^{th}\)</span> data point, where it will typically be of good accuracy. Consequently,
+a separate interpolating polynomial (using data over a span of <span class="math notranslate nohighlight">\(m\)</span> consecutive points) is used for
+each single interval <span class="math notranslate nohighlight">\([t_{i}...t_{i+1}]\)</span> (with the exception of the boundaries, see below).</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Issues can occur if the data point <span class="math notranslate nohighlight">\(t\)</span> at which the interpolation is to be
+performed is close to <span class="math notranslate nohighlight">\(t_{0}\)</span> or <span class="math notranslate nohighlight">\(t_{N}\)</span>. In those case, there is not sufficient
+data to construct the interpolating polynomial <em>and</em> to only use this interpolating polynomial
+between the middle two data points that were used to it. In these cases, the user has a number of
+options (all defined by an entry of the <a class="reference internal" href="#tudatpy.math.interpolators.LagrangeInterpolatorBoundaryHandling" title="tudatpy.math.interpolators.LagrangeInterpolatorBoundaryHandling"><code class="xref py py-class docutils literal notranslate"><span class="pre">LagrangeInterpolatorBoundaryHandling</span></code></a> variable,
+used as input to this function). In short, interpolation between the first and last <span class="math notranslate nohighlight">\(m/2\)</span>
+data points will lead to degraded results, warnings, or termination.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>number_of_points</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Number of consecutive data points that are used to construct a single interpolating polynomial.</p></li>
+<li><p><strong>lookup_scheme</strong> (<a class="reference internal" href="#tudatpy.math.interpolators.AvailableLookupScheme" title="tudatpy.math.interpolators.AvailableLookupScheme"><em>AvailableLookupScheme</em></a><em>, </em><em>default = hunting_algorithm</em>) – Algorithm used to find the nearest neighbor in the independent variable input data when the interpolation scheme is called</p></li>
+<li><p><strong>boundary_interpolation</strong> (<a class="reference internal" href="#tudatpy.math.interpolators.BoundaryInterpolationType" title="tudatpy.math.interpolators.BoundaryInterpolationType"><em>BoundaryInterpolationType</em></a><em>, </em><em>default = extrapolate_at_boundary_with_warning</em>) – Interpolator behaviour that is to be used beyond the upper and lower boundaries of the independent variable input data</p></li>
+<li><p><strong>lagrange_boundary_handling</strong> (<a class="reference internal" href="#tudatpy.math.interpolators.LagrangeInterpolatorBoundaryHandling" title="tudatpy.math.interpolators.LagrangeInterpolatorBoundaryHandling"><em>LagrangeInterpolatorBoundaryHandling</em></a><em>, </em><em>default = lagrange_cubic_spline_boundary_interpolation</em>) – Interpolator behaviour that is to be used at the boundaries of the domain, where the regular algorithm cannot be executed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Lagrange interpolation settings object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.math.interpolators.LagrangeInterpolatorSettings" title="tudatpy.math.interpolators.LagrangeInterpolatorSettings">LagrangeInterpolatorSettings</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator">
+<span class="sig-name descname"><span class="pre">create_one_dimensional_scalar_interpolator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_to_interpolate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolator_settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tudatpy.math.interpolators.InterpolatorSettings" title="tudatpy.kernel.math.interpolators.InterpolatorSettings"><span class="pre">tudatpy.kernel.math.interpolators.InterpolatorSettings</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_first_derivatives</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorScalar" title="tudatpy.kernel.math.interpolators.OneDimensionalInterpolatorScalar"><span class="pre">tudatpy.kernel.math.interpolators.OneDimensionalInterpolatorScalar</span></a></span></span><a class="headerlink" href="#tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator" title="Link to this definition">¶</a></dt>
+<dd><p>Function to create an interpolator for scalar dependent variables.</p>
+<p>Function to create an interpolator for scalar dependent variables, with a single float independent
+variable. This function takes the interpolator settings, and the data that is to be interpolated,
+as input to create the object that can perform the actual interpolation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_to_interpolate</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – Key-value container with pairs of independent variables (key) and dependent variables (value) from which the interpolation is to be performed</p></li>
+<li><p><strong>interpolator_settings</strong> (<a class="reference internal" href="#tudatpy.math.interpolators.InterpolatorSettings" title="tudatpy.math.interpolators.InterpolatorSettings"><em>InterpolatorSettings</em></a>) – Settings that define the type of interpolator that is to be used</p></li>
+<li><p><strong>data_first_derivatives</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>] </em><em>=</em><em> [</em><em>]</em>) – List of first derivative dependent variables w.r.t. independent variable from which the interpolation is to be performed. Must be of the same size as the number of data points in <code class="docutils literal notranslate"><span class="pre">data_to_interpolate</span></code>. This input is <em>only</em> required if the requested interpolation algorithm requires first derivatives as input (such as the Hermite spline interpolator).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Interpolator object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorScalar" title="tudatpy.math.interpolators.OneDimensionalInterpolatorScalar">OneDimensionalInterpolatorScalar</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator_time_object">
+<span class="sig-name descname"><span class="pre">create_one_dimensional_scalar_interpolator_time_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_to_interpolate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolator_settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tudatpy.math.interpolators.InterpolatorSettings" title="tudatpy.kernel.math.interpolators.InterpolatorSettings"><span class="pre">tudatpy.kernel.math.interpolators.InterpolatorSettings</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_first_derivatives</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorScalar" title="tudatpy.kernel.math.interpolators.OneDimensionalInterpolatorScalar"><span class="pre">tudatpy.kernel.math.interpolators.OneDimensionalInterpolatorScalar</span></a></span></span><a class="headerlink" href="#tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator_time_object" title="Link to this definition">¶</a></dt>
+<dd><p>Same as <a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator" title="tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_one_dimensional_scalar_interpolator()</span></code></a>, but using the high-resolution <code class="xref py py-func docutils literal notranslate"><span class="pre">Time()</span></code> type used as independent variable for interpolation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_to_interpolate</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em>[</em><em>Time</em><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em>) – Key-value container with pairs of independent variables (key) and dependent variables (value) from which the interpolation is to be performed</p></li>
+<li><p><strong>interpolator_settings</strong> (<a class="reference internal" href="#tudatpy.math.interpolators.InterpolatorSettings" title="tudatpy.math.interpolators.InterpolatorSettings"><em>InterpolatorSettings</em></a>) – Settings that define the type of interpolator that is to be used</p></li>
+<li><p><strong>data_first_derivatives</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>] </em><em>=</em><em> [</em><em>]</em>) – List of first derivative dependent variables w.r.t. independent variable from which the interpolation is to be performed. Must be of the same size as the number of data points in <code class="docutils literal notranslate"><span class="pre">data_to_interpolate</span></code>. This input is <em>only</em> required if the requested interpolation algorithm requires first derivatives as input (such as the Hermite spline interpolator).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Interpolator object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorScalarTimeObject" title="tudatpy.math.interpolators.OneDimensionalInterpolatorScalarTimeObject">OneDimensionalInterpolatorScalarTimeObject</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.create_one_dimensional_vector_interpolator">
+<span class="sig-name descname"><span class="pre">create_one_dimensional_vector_interpolator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_to_interpolate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">numpy.ndarray</span></a><span class="p"><span class="pre">[</span></span><span class="pre">numpy.float64</span><span class="p"><span class="pre">[</span></span><span class="pre">m</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">1</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolator_settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tudatpy.math.interpolators.InterpolatorSettings" title="tudatpy.kernel.math.interpolators.InterpolatorSettings"><span class="pre">tudatpy.kernel.math.interpolators.InterpolatorSettings</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_first_derivatives</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">numpy.ndarray</span></a><span class="p"><span class="pre">[</span></span><span class="pre">numpy.float64</span><span class="p"><span class="pre">[</span></span><span class="pre">m</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">1</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorVector" title="tudatpy.kernel.math.interpolators.OneDimensionalInterpolatorVector"><span class="pre">tudatpy.kernel.math.interpolators.OneDimensionalInterpolatorVector</span></a></span></span><a class="headerlink" href="#tudatpy.math.interpolators.create_one_dimensional_vector_interpolator" title="Link to this definition">¶</a></dt>
+<dd><p>Function to create an interpolator for vector dependent variables.</p>
+<p>As <a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator" title="tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_one_dimensional_scalar_interpolator()</span></code></a>, but with vectors as dependent variables</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_to_interpolate</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>np.array</em><em>]</em>) – Key-value container with pairs of independent variables (key) and dependent variables (value) from which the interpolation is to be performed</p></li>
+<li><p><strong>interpolator_settings</strong> (<a class="reference internal" href="#tudatpy.math.interpolators.InterpolatorSettings" title="tudatpy.math.interpolators.InterpolatorSettings"><em>InterpolatorSettings</em></a>) – Settings that define the type of interpolator that is to be used</p></li>
+<li><p><strong>data_first_derivatives</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><em>np.ndarray</em><em>] </em><em>=</em><em> [</em><em>]</em>) – List of first derivative dependent variables w.r.t. independent variable from which the interpolation is to be performed. Must be of the same size as the number of data points in <code class="docutils literal notranslate"><span class="pre">data_to_interpolate</span></code>. This input is <em>only</em> required if the requested interpolation algorithm requires first derivatives as input (such as the Hermite spline interpolator).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Interpolator object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorVector" title="tudatpy.math.interpolators.OneDimensionalInterpolatorVector">OneDimensionalInterpolatorVector</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.create_one_dimensional_vector_interpolator_time_object">
+<span class="sig-name descname"><span class="pre">create_one_dimensional_vector_interpolator_time_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_to_interpolate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict[tudat::Time,</span> <span class="pre">numpy.ndarray[numpy.float64[m,</span> <span class="pre">1]]]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolator_settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tudatpy.math.interpolators.InterpolatorSettings" title="tudatpy.kernel.math.interpolators.InterpolatorSettings"><span class="pre">tudatpy.kernel.math.interpolators.InterpolatorSettings</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_first_derivatives</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">numpy.ndarray</span></a><span class="p"><span class="pre">[</span></span><span class="pre">numpy.float64</span><span class="p"><span class="pre">[</span></span><span class="pre">m</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">1</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorVectorTimeObject" title="tudatpy.kernel.math.interpolators.OneDimensionalInterpolatorVectorTimeObject"><span class="pre">tudatpy.kernel.math.interpolators.OneDimensionalInterpolatorVectorTimeObject</span></a></span></span><a class="headerlink" href="#tudatpy.math.interpolators.create_one_dimensional_vector_interpolator_time_object" title="Link to this definition">¶</a></dt>
+<dd><p>Same as <a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_vector_interpolator" title="tudatpy.math.interpolators.create_one_dimensional_vector_interpolator"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_one_dimensional_vector_interpolator()</span></code></a>, but using the high-resolution <code class="xref py py-func docutils literal notranslate"><span class="pre">Time()</span></code> type used as independent variable for interpolation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_to_interpolate</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em>[</em><em>Time</em><em>, </em><em>np.array</em><em>]</em>) – Key-value container with pairs of independent variables (key) and dependent variables (value) from which the interpolation is to be performed</p></li>
+<li><p><strong>interpolator_settings</strong> (<a class="reference internal" href="#tudatpy.math.interpolators.InterpolatorSettings" title="tudatpy.math.interpolators.InterpolatorSettings"><em>InterpolatorSettings</em></a>) – Settings that define the type of interpolator that is to be used</p></li>
+<li><p><strong>data_first_derivatives</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><em>np.ndarray</em><em>] </em><em>=</em><em> [</em><em>]</em>) – List of first derivative dependent variables w.r.t. independent variable from which the interpolation is to be performed. Must be of the same size as the number of data points in <code class="docutils literal notranslate"><span class="pre">data_to_interpolate</span></code>. This input is <em>only</em> required if the requested interpolation algorithm requires first derivatives as input (such as the Hermite spline interpolator).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Interpolator object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorVectorTimeObject" title="tudatpy.math.interpolators.OneDimensionalInterpolatorVectorTimeObject">OneDimensionalInterpolatorVectorTimeObject</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.create_one_dimensional_matrix_interpolator">
+<span class="sig-name descname"><span class="pre">create_one_dimensional_matrix_interpolator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_to_interpolate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">numpy.ndarray</span></a><span class="p"><span class="pre">[</span></span><span class="pre">numpy.float64</span><span class="p"><span class="pre">[</span></span><span class="pre">m</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">n</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolator_settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tudatpy.math.interpolators.InterpolatorSettings" title="tudatpy.kernel.math.interpolators.InterpolatorSettings"><span class="pre">tudatpy.kernel.math.interpolators.InterpolatorSettings</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_first_derivatives</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">numpy.ndarray</span></a><span class="p"><span class="pre">[</span></span><span class="pre">numpy.float64</span><span class="p"><span class="pre">[</span></span><span class="pre">m</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">n</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorMatrix" title="tudatpy.kernel.math.interpolators.OneDimensionalInterpolatorMatrix"><span class="pre">tudatpy.kernel.math.interpolators.OneDimensionalInterpolatorMatrix</span></a></span></span><a class="headerlink" href="#tudatpy.math.interpolators.create_one_dimensional_matrix_interpolator" title="Link to this definition">¶</a></dt>
+<dd><p>Function to create an interpolator for matrix dependent variables.</p>
+<p>As <a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator" title="tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_one_dimensional_scalar_interpolator()</span></code></a>, but with matrices (2-dimensional arrays) as dependent variables</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_to_interpolate</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>np.array</em><em>]</em>) – Key-value container with pairs of independent variables (key) and dependent variables (value) from which the interpolation is to be performed</p></li>
+<li><p><strong>interpolator_settings</strong> (<a class="reference internal" href="#tudatpy.math.interpolators.InterpolatorSettings" title="tudatpy.math.interpolators.InterpolatorSettings"><em>InterpolatorSettings</em></a>) – Settings that define the type of interpolator that is to be used</p></li>
+<li><p><strong>data_first_derivatives</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><em>np.ndarray</em><em>] </em><em>=</em><em> [</em><em>]</em>) – List of first derivative dependent variables w.r.t. independent variable from which the interpolation is to be performed. Must be of the same size as the number of data points in <code class="docutils literal notranslate"><span class="pre">data_to_interpolate</span></code>. This input is <em>only</em> required if the requested interpolation algorithm requires first derivatives as input (such as the Hermite spline interpolator).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Interpolator object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorMatrix" title="tudatpy.math.interpolators.OneDimensionalInterpolatorMatrix">OneDimensionalInterpolatorMatrix</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.create_one_dimensional_matrix_interpolator_time_object">
+<span class="sig-name descname"><span class="pre">create_one_dimensional_matrix_interpolator_time_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_to_interpolate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict[tudat::Time,</span> <span class="pre">numpy.ndarray[numpy.float64[m,</span> <span class="pre">n]]]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolator_settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tudatpy.math.interpolators.InterpolatorSettings" title="tudatpy.kernel.math.interpolators.InterpolatorSettings"><span class="pre">tudatpy.kernel.math.interpolators.InterpolatorSettings</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_first_derivatives</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">numpy.ndarray</span></a><span class="p"><span class="pre">[</span></span><span class="pre">numpy.float64</span><span class="p"><span class="pre">[</span></span><span class="pre">m</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">n</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorMatrixTimeObject" title="tudatpy.kernel.math.interpolators.OneDimensionalInterpolatorMatrixTimeObject"><span class="pre">tudatpy.kernel.math.interpolators.OneDimensionalInterpolatorMatrixTimeObject</span></a></span></span><a class="headerlink" href="#tudatpy.math.interpolators.create_one_dimensional_matrix_interpolator_time_object" title="Link to this definition">¶</a></dt>
+<dd><p>Same as <a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_matrix_interpolator" title="tudatpy.math.interpolators.create_one_dimensional_matrix_interpolator"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_one_dimensional_matrix_interpolator()</span></code></a>, but using the high-resolution <code class="xref py py-func docutils literal notranslate"><span class="pre">Time()</span></code> type used as independent variable for interpolation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data_to_interpolate</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em>[</em><em>Time</em><em>, </em><em>np.array</em><em>]</em>) – Key-value container with pairs of independent variables (key) and dependent variables (value) from which the interpolation is to be performed</p></li>
+<li><p><strong>interpolator_settings</strong> (<a class="reference internal" href="#tudatpy.math.interpolators.InterpolatorSettings" title="tudatpy.math.interpolators.InterpolatorSettings"><em>InterpolatorSettings</em></a>) – Settings that define the type of interpolator that is to be used</p></li>
+<li><p><strong>data_first_derivatives</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><em>np.ndarray</em><em>] </em><em>=</em><em> [</em><em>]</em>) – List of first derivative dependent variables w.r.t. independent variable from which the interpolation is to be performed. Must be of the same size as the number of data points in <code class="docutils literal notranslate"><span class="pre">data_to_interpolate</span></code>. This input is <em>only</em> required if the requested interpolation algorithm requires first derivatives as input (such as the Hermite spline interpolator).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Interpolator object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorMatrixTimeObject" title="tudatpy.math.interpolators.OneDimensionalInterpolatorMatrixTimeObject">OneDimensionalInterpolatorMatrixTimeObject</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="enumerations">
+<h2>Enumerations<a class="headerlink" href="#enumerations" title="Link to this heading">¶</a></h2>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.math.interpolators.BoundaryInterpolationType" title="tudatpy.math.interpolators.BoundaryInterpolationType"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BoundaryInterpolationType</span></code></a></p></td>
+<td><p>Enumeration of types of behaviour to be used beyond the edges of the interpolation domain.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tudatpy.math.interpolators.AvailableLookupScheme" title="tudatpy.math.interpolators.AvailableLookupScheme"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AvailableLookupScheme</span></code></a></p></td>
+<td><p>Enumeration of types of behaviour to be used beyond the edges of the interpolation domain.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.math.interpolators.LagrangeInterpolatorBoundaryHandling" title="tudatpy.math.interpolators.LagrangeInterpolatorBoundaryHandling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LagrangeInterpolatorBoundaryHandling</span></code></a></p></td>
+<td><p>Enumeration of types of behaviour to be used close to the edges of the interpolation domain, for the Lagrange interpolator.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.BoundaryInterpolationType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BoundaryInterpolationType</span></span><a class="headerlink" href="#tudatpy.math.interpolators.BoundaryInterpolationType" title="Link to this definition">¶</a></dt>
+<dd><p>Enumeration of types of behaviour to be used beyond the edges of the interpolation domain.</p>
+<p>Enumeration of types of behaviour to be used beyond the edges of the interpolation domain. For independent variable
+data in the range <span class="math notranslate nohighlight">\([t_{0}...t_{N}]\)</span>, this enum is used to define the behaviour of the interpolator at
+<span class="math notranslate nohighlight">\(t&lt;t_{0}\)</span> and <span class="math notranslate nohighlight">\(t&gt;t_{N}\)</span></p>
+<p>Members:</p>
+<blockquote>
+<div><p>throw_exception_at_boundary :</p>
+</div></blockquote>
+<p>The program will terminate and throw a <a class="reference internal" href="exceptions.html#tudatpy.exceptions.InterpolationOutOfBoundsError" title="tudatpy.exceptions.InterpolationOutOfBoundsError"><code class="xref py py-class docutils literal notranslate"><span class="pre">InterpolationOutOfBoundsError</span></code></a> error when the interpolator is interrogated beyond the range <span class="math notranslate nohighlight">\([t_{0}...t_{N}]\)</span>.</p>
+<blockquote>
+<div><p>use_boundary_value :</p>
+</div></blockquote>
+<p>The value <span class="math notranslate nohighlight">\(\mathbf{x}_{0}\)</span> is returned for <span class="math notranslate nohighlight">\(t&lt;t_{0}\)</span> (and <span class="math notranslate nohighlight">\(\mathbf{x}_{N}\)</span> if <span class="math notranslate nohighlight">\(t&gt;t_{N}\)</span>).</p>
+<blockquote>
+<div><p>use_boundary_value_with_warning :</p>
+</div></blockquote>
+<p>Same as <code class="docutils literal notranslate"><span class="pre">use_boundary_value</span></code>, but a warning is printed to the terminal.</p>
+<blockquote>
+<div><p>extrapolate_at_boundary :</p>
+</div></blockquote>
+<p>The interpolation scheme is extended beyond the range <span class="math notranslate nohighlight">\(t_{0}...t_{N}\)</span> without any warning. That is, the mathematical equation used to compute the value of <span class="math notranslate nohighlight">\(x\)</span> in the range <span class="math notranslate nohighlight">\([t_{0}...t_{1}]\)</span> is used without any checks for <span class="math notranslate nohighlight">\(t&lt;t_{0}\)</span>  (and equivalently for <span class="math notranslate nohighlight">\(t&gt;t_{N}\)</span>). Warning, using this setting can result in divergent/unrealistic behaviour.</p>
+<blockquote>
+<div><p>extrapolate_at_boundary_with_warning :</p>
+</div></blockquote>
+<p>Same as <code class="docutils literal notranslate"><span class="pre">extrapolate_at_boundary</span></code>, but a warning is printed to the terminal.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.BoundaryInterpolationType.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#tudatpy.math.interpolators.BoundaryInterpolationType.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.AvailableLookupScheme">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AvailableLookupScheme</span></span><a class="headerlink" href="#tudatpy.math.interpolators.AvailableLookupScheme" title="Link to this definition">¶</a></dt>
+<dd><p>Enumeration of types of behaviour to be used beyond the edges of the interpolation domain.</p>
+<p>When the interpolation is performed, the interpolator scheme will typically start by finding the nearest neighbor of
+the requested value of the independent variable <span class="math notranslate nohighlight">\(t\)</span> in the data set <span class="math notranslate nohighlight">\([t_{0}...t_{N}]\)</span>.
+The choice of lookup scheme can have a significant influence on computational efficiency for large data sets and/or simple
+interpolation algorithms</p>
+<p>Members:</p>
+<blockquote>
+<div><p>hunting_algorithm :</p>
+</div></blockquote>
+<p>With this option, the interpolator ‘remembers’ which value of <span class="math notranslate nohighlight">\(t_{i}\)</span> was the nearest neighbor during the previous call to the interpolate function, and starts looking at/near this entry of the data set <span class="math notranslate nohighlight">\([t_{i}]\)</span> to find the nearest neighbor.</p>
+<blockquote>
+<div><p>binary_search :</p>
+</div></blockquote>
+<p>With this option, the algorithm uses a binary search algorithm to find the nearest neighbor, initially starting with the full data range <span class="math notranslate nohighlight">\([t_{0}...t_{N}]\)</span>.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.AvailableLookupScheme.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#tudatpy.math.interpolators.AvailableLookupScheme.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.LagrangeInterpolatorBoundaryHandling">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LagrangeInterpolatorBoundaryHandling</span></span><a class="headerlink" href="#tudatpy.math.interpolators.LagrangeInterpolatorBoundaryHandling" title="Link to this definition">¶</a></dt>
+<dd><p>Enumeration of types of behaviour to be used close to the edges of the interpolation domain, for the Lagrange interpolator.</p>
+<p>Enumeration of types of behaviour to be used close to the edges of the interpolation domain, for the Lagrange interpolator.
+As explained for <a class="reference internal" href="#tudatpy.math.interpolators.lagrange_interpolation" title="tudatpy.math.interpolators.lagrange_interpolation"><code class="xref py py-func docutils literal notranslate"><span class="pre">lagrange_interpolation()</span></code></a>, the algorithm for the Lagrange interpolation breaks down at the edges of
+the interpolation domain. This enum provides the available options a user has to deal with this.</p>
+<p>Members:</p>
+<blockquote>
+<div><p>lagrange_cubic_spline_boundary_interpolation :</p>
+</div></blockquote>
+<p>A cubic-spline interpolator is created from the first and last <span class="math notranslate nohighlight">\(\max(m/2-1,4)\)</span> data points of the full data set, and these cubic spline interpolators are used when an interpolation at <span class="math notranslate nohighlight">\(t&lt;t_{(m/2-1)}\)</span> or <span class="math notranslate nohighlight">\(t&lt;t_{N-(m/2)}\)</span> is called.</p>
+<blockquote>
+<div><p>lagrange_no_boundary_interpolation :</p>
+</div></blockquote>
+<p>The program will terminate and throw a <a class="reference internal" href="exceptions.html#tudatpy.exceptions.LagrangeInterpolationOutOfBoundsError" title="tudatpy.exceptions.LagrangeInterpolationOutOfBoundsError"><code class="xref py py-class docutils literal notranslate"><span class="pre">LagrangeInterpolationOutOfBoundsError</span></code></a> when the Lagrange interpolator is interrogated beyond its valid range.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.LagrangeInterpolatorBoundaryHandling.name">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#tudatpy.math.interpolators.LagrangeInterpolatorBoundaryHandling.name" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h2>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.math.interpolators.InterpolatorSettings" title="tudatpy.math.interpolators.InterpolatorSettings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InterpolatorSettings</span></code></a></p></td>
+<td><p>Base class to define settings for an interpolator.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tudatpy.math.interpolators.LagrangeInterpolatorSettings" title="tudatpy.math.interpolators.LagrangeInterpolatorSettings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LagrangeInterpolatorSettings</span></code></a></p></td>
+<td><p><a class="reference internal" href="#tudatpy.math.interpolators.InterpolatorSettings" title="tudatpy.math.interpolators.InterpolatorSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">InterpolatorSettings</span></code></a>-derived class to define settings for a Lagrange interpolator.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorScalar" title="tudatpy.math.interpolators.OneDimensionalInterpolatorScalar"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorScalar</span></code></a></p></td>
+<td><p>Object that performs interpolation for scalar dependent variables .</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorScalarTimeObject" title="tudatpy.math.interpolators.OneDimensionalInterpolatorScalarTimeObject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorScalarTimeObject</span></code></a></p></td>
+<td><p>Same as <a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorScalar" title="tudatpy.math.interpolators.OneDimensionalInterpolatorScalar"><code class="xref py py-func docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorScalar()</span></code></a>, but using the high-resolution <code class="xref py py-func docutils literal notranslate"><span class="pre">Time()</span></code> type used as independent variable for interpolation; created using <a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator_time_object" title="tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator_time_object"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_one_dimensional_scalar_interpolator_time_object()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorVector" title="tudatpy.math.interpolators.OneDimensionalInterpolatorVector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorVector</span></code></a></p></td>
+<td><p>Object that performs interpolation for vector dependent variables.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorVectorTimeObject" title="tudatpy.math.interpolators.OneDimensionalInterpolatorVectorTimeObject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorVectorTimeObject</span></code></a></p></td>
+<td><p>Same as <a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorVector" title="tudatpy.math.interpolators.OneDimensionalInterpolatorVector"><code class="xref py py-func docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorVector()</span></code></a>, but using the high-resolution <code class="xref py py-func docutils literal notranslate"><span class="pre">Time()</span></code> type used as independent variable for interpolation; created using <a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_vector_interpolator_time_object" title="tudatpy.math.interpolators.create_one_dimensional_vector_interpolator_time_object"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_one_dimensional_vector_interpolator_time_object()</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorMatrix" title="tudatpy.math.interpolators.OneDimensionalInterpolatorMatrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorMatrix</span></code></a></p></td>
+<td><p>Object that performs interpolation for matrix dependent variables.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorMatrixTimeObject" title="tudatpy.math.interpolators.OneDimensionalInterpolatorMatrixTimeObject"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorMatrixTimeObject</span></code></a></p></td>
+<td><p>Same as <a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorMatrix" title="tudatpy.math.interpolators.OneDimensionalInterpolatorMatrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorMatrix()</span></code></a>, but using the high-resolution <code class="xref py py-func docutils literal notranslate"><span class="pre">Time()</span></code> type used as independent variable for interpolation; created using <a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_matrix_interpolator_time_object" title="tudatpy.math.interpolators.create_one_dimensional_matrix_interpolator_time_object"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_one_dimensional_matrix_interpolator_time_object()</span></code></a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.InterpolatorSettings">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">InterpolatorSettings</span></span><a class="headerlink" href="#tudatpy.math.interpolators.InterpolatorSettings" title="Link to this definition">¶</a></dt>
+<dd><p>Base class to define settings for an interpolator.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.LagrangeInterpolatorSettings">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LagrangeInterpolatorSettings</span></span><a class="headerlink" href="#tudatpy.math.interpolators.LagrangeInterpolatorSettings" title="Link to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#tudatpy.math.interpolators.InterpolatorSettings" title="tudatpy.math.interpolators.InterpolatorSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">InterpolatorSettings</span></code></a>-derived class to define settings for a Lagrange interpolator.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.OneDimensionalInterpolatorScalar">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OneDimensionalInterpolatorScalar</span></span><a class="headerlink" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorScalar" title="Link to this definition">¶</a></dt>
+<dd><p>Object that performs interpolation for scalar dependent variables .</p>
+<p>Object that performs interpolation for scalar dependent variables and float independent variables. This object is
+not created manually, but is set up using the <a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator" title="tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_one_dimensional_scalar_interpolator()</span></code></a> function.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.OneDimensionalInterpolatorScalar.interpolate">
+<span class="sig-name descname"><span class="pre">interpolate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorScalar" title="tudatpy.kernel.math.interpolators.OneDimensionalInterpolatorScalar"><span class="pre">tudatpy.kernel.math.interpolators.OneDimensionalInterpolatorScalar</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">independent_variable_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></span><a class="headerlink" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorScalar.interpolate" title="Link to this definition">¶</a></dt>
+<dd><p>This function performs the interpolation at the requested independent variable value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>independent_variable_value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Value of independent variable at which the interpolation is to be performed.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Interpolated dependent variable value, using implemented algorithm at requested independent variable value</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.OneDimensionalInterpolatorScalar.dependent_values">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dependent_values</span></span><a class="headerlink" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorScalar.dependent_values" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the dependent variable values used by the interpolator.</p>
+<p>Returns the dependent variable values used by the interpolator. This is a read-only property.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dependent variable values used by the interpolator</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.OneDimensionalInterpolatorScalar.independent_values">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">independent_values</span></span><a class="headerlink" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorScalar.independent_values" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the independent variable values used by the interpolator.</p>
+<p>Returns the independent variable values used by the interpolator. This is a read-only property.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Independent variable values used by the interpolator</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.OneDimensionalInterpolatorScalarTimeObject">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OneDimensionalInterpolatorScalarTimeObject</span></span><a class="headerlink" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorScalarTimeObject" title="Link to this definition">¶</a></dt>
+<dd><p>Same as <a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorScalar" title="tudatpy.math.interpolators.OneDimensionalInterpolatorScalar"><code class="xref py py-func docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorScalar()</span></code></a>, but using the high-resolution <code class="xref py py-func docutils literal notranslate"><span class="pre">Time()</span></code> type used as independent variable for interpolation; created using <a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator_time_object" title="tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator_time_object"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_one_dimensional_scalar_interpolator_time_object()</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.OneDimensionalInterpolatorScalarTimeObject.interpolate">
+<span class="sig-name descname"><span class="pre">interpolate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self:</span> <span class="pre">tudatpy.kernel.math.interpolators.OneDimensionalInterpolatorScalarTimeObject</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">independent_variable_value:</span> <span class="pre">tudat::Time</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></span><a class="headerlink" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorScalarTimeObject.interpolate" title="Link to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>This function performs the interpolation at the requested independent variable value.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>independent_variable_value</strong> (<em>Time</em>) – Value of independent variable at which the interpolation is to be performed.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Interpolated dependent variable value, using implemented algorithm at requested independent variable value</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.OneDimensionalInterpolatorVector">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OneDimensionalInterpolatorVector</span></span><a class="headerlink" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorVector" title="Link to this definition">¶</a></dt>
+<dd><p>Object that performs interpolation for vector dependent variables.</p>
+<p>Object that performs interpolation for vector dependent variables and float independent variable. This object is
+not created manually, but is set up using the <a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_vector_interpolator" title="tudatpy.math.interpolators.create_one_dimensional_vector_interpolator"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_one_dimensional_vector_interpolator()</span></code></a> function.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.OneDimensionalInterpolatorVector.interpolate">
+<span class="sig-name descname"><span class="pre">interpolate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorVector" title="tudatpy.kernel.math.interpolators.OneDimensionalInterpolatorVector"><span class="pre">tudatpy.kernel.math.interpolators.OneDimensionalInterpolatorVector</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">independent_variable_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">numpy.ndarray</span></a><span class="p"><span class="pre">[</span></span><span class="pre">numpy.float64</span><span class="p"><span class="pre">[</span></span><span class="pre">m</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">1</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorVector.interpolate" title="Link to this definition">¶</a></dt>
+<dd><p>This function performs the interpolation at the requested independent variable value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>independent_variable_value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Value of independent variable at which the interpolation is to be performed.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Interpolated dependent variable value, using implemented algorithm at requested independent variable value</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.OneDimensionalInterpolatorVector.dependent_values">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dependent_values</span></span><a class="headerlink" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorVector.dependent_values" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the dependent variable values used by the interpolator.</p>
+<p>Returns the dependent variable values used by the interpolator. This is a read-only property.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dependent variable values used by the interpolator</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[np.ndarray]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.OneDimensionalInterpolatorVector.independent_values">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">independent_values</span></span><a class="headerlink" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorVector.independent_values" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the independent variable values used by the interpolator.</p>
+<p>Returns the independent variable values used by the interpolator. This is a read-only property.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Independent variable values used by the interpolator</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.OneDimensionalInterpolatorVectorTimeObject">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OneDimensionalInterpolatorVectorTimeObject</span></span><a class="headerlink" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorVectorTimeObject" title="Link to this definition">¶</a></dt>
+<dd><p>Same as <a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorVector" title="tudatpy.math.interpolators.OneDimensionalInterpolatorVector"><code class="xref py py-func docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorVector()</span></code></a>, but using the high-resolution <code class="xref py py-func docutils literal notranslate"><span class="pre">Time()</span></code> type used as independent variable for interpolation; created using <a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_vector_interpolator_time_object" title="tudatpy.math.interpolators.create_one_dimensional_vector_interpolator_time_object"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_one_dimensional_vector_interpolator_time_object()</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.OneDimensionalInterpolatorVectorTimeObject.interpolate">
+<span class="sig-name descname"><span class="pre">interpolate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self:</span> <span class="pre">tudatpy.kernel.math.interpolators.OneDimensionalInterpolatorVectorTimeObject</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">independent_variable_value:</span> <span class="pre">tudat::Time</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">numpy.ndarray</span></a><span class="p"><span class="pre">[</span></span><span class="pre">numpy.float64</span><span class="p"><span class="pre">[</span></span><span class="pre">m</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">1</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorVectorTimeObject.interpolate" title="Link to this definition">¶</a></dt>
+<dd><p>This function performs the interpolation at the requested independent variable value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>independent_variable_value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Value of independent variable at which the interpolation is to be performed.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Interpolated dependent variable value, using implemented algorithm at requested independent variable value</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.OneDimensionalInterpolatorMatrix">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OneDimensionalInterpolatorMatrix</span></span><a class="headerlink" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorMatrix" title="Link to this definition">¶</a></dt>
+<dd><p>Object that performs interpolation for matrix dependent variables.</p>
+<p>Object that performs interpolation for matrix dependent variables and float independent variables. This object is
+not created manually, but is set up using the <a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_vector_interpolator" title="tudatpy.math.interpolators.create_one_dimensional_vector_interpolator"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_one_dimensional_vector_interpolator()</span></code></a> function.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.OneDimensionalInterpolatorMatrix.interpolate">
+<span class="sig-name descname"><span class="pre">interpolate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorMatrix" title="tudatpy.kernel.math.interpolators.OneDimensionalInterpolatorMatrix"><span class="pre">tudatpy.kernel.math.interpolators.OneDimensionalInterpolatorMatrix</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">independent_variable_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">numpy.ndarray</span></a><span class="p"><span class="pre">[</span></span><span class="pre">numpy.float64</span><span class="p"><span class="pre">[</span></span><span class="pre">m</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">n</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorMatrix.interpolate" title="Link to this definition">¶</a></dt>
+<dd><p>This function performs the interpolation at the requested independent variable value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>independent_variable_value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Value of independent variable at which the interpolation is to be performed.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Interpolated dependent variable value, using implemented algorithm at requested independent variable value</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.OneDimensionalInterpolatorMatrix.dependent_values">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dependent_values</span></span><a class="headerlink" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorMatrix.dependent_values" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the dependent variable values used by the interpolator.</p>
+<p>Returns the dependent variable values used by the interpolator. This is a read-only property.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dependent variable values used by the interpolator</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[np.ndarray]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.OneDimensionalInterpolatorMatrix.independent_values">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">independent_values</span></span><a class="headerlink" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorMatrix.independent_values" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the independent variable values used by the interpolator.</p>
+<p>Returns the independent variable values used by the interpolator. This is a read-only property.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Independent variable values used by the interpolator</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.OneDimensionalInterpolatorMatrixTimeObject">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OneDimensionalInterpolatorMatrixTimeObject</span></span><a class="headerlink" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorMatrixTimeObject" title="Link to this definition">¶</a></dt>
+<dd><p>Same as <a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorMatrix" title="tudatpy.math.interpolators.OneDimensionalInterpolatorMatrix"><code class="xref py py-func docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorMatrix()</span></code></a>, but using the high-resolution <code class="xref py py-func docutils literal notranslate"><span class="pre">Time()</span></code> type used as independent variable for interpolation; created using <a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_matrix_interpolator_time_object" title="tudatpy.math.interpolators.create_one_dimensional_matrix_interpolator_time_object"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_one_dimensional_matrix_interpolator_time_object()</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="tudatpy.math.interpolators.OneDimensionalInterpolatorMatrixTimeObject.interpolate">
+<span class="sig-name descname"><span class="pre">interpolate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self:</span> <span class="pre">tudatpy.kernel.math.interpolators.OneDimensionalInterpolatorMatrixTimeObject</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">independent_variable_value:</span> <span class="pre">tudat::Time</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">numpy.ndarray</span></a><span class="p"><span class="pre">[</span></span><span class="pre">numpy.float64</span><span class="p"><span class="pre">[</span></span><span class="pre">m</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">n</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorMatrixTimeObject.interpolate" title="Link to this definition">¶</a></dt>
+<dd><p>This function performs the interpolation at the requested independent variable value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>independent_variable_value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Value of independent variable at which the interpolation is to be performed.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Interpolated dependent variable value, using implemented algorithm at requested independent variable value</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="root_finders.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">root_finders</span></code></div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="math.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title"><code class="docutils literal notranslate"><span class="pre">math</span></code></div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2025, Tudat Team
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">interpolators</span></code></a><ul>
+<li><a class="reference internal" href="#functions">Functions</a><ul>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.linear_interpolation"><code class="docutils literal notranslate"><span class="pre">linear_interpolation()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.piecewise_constant_interpolation"><code class="docutils literal notranslate"><span class="pre">piecewise_constant_interpolation()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.cubic_spline_interpolation"><code class="docutils literal notranslate"><span class="pre">cubic_spline_interpolation()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.hermite_spline_interpolation"><code class="docutils literal notranslate"><span class="pre">hermite_spline_interpolation()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.lagrange_interpolation"><code class="docutils literal notranslate"><span class="pre">lagrange_interpolation()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator"><code class="docutils literal notranslate"><span class="pre">create_one_dimensional_scalar_interpolator()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_scalar_interpolator_time_object"><code class="docutils literal notranslate"><span class="pre">create_one_dimensional_scalar_interpolator_time_object()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_vector_interpolator"><code class="docutils literal notranslate"><span class="pre">create_one_dimensional_vector_interpolator()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_vector_interpolator_time_object"><code class="docutils literal notranslate"><span class="pre">create_one_dimensional_vector_interpolator_time_object()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_matrix_interpolator"><code class="docutils literal notranslate"><span class="pre">create_one_dimensional_matrix_interpolator()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.create_one_dimensional_matrix_interpolator_time_object"><code class="docutils literal notranslate"><span class="pre">create_one_dimensional_matrix_interpolator_time_object()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#enumerations">Enumerations</a><ul>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.BoundaryInterpolationType"><code class="docutils literal notranslate"><span class="pre">BoundaryInterpolationType</span></code></a><ul>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.BoundaryInterpolationType.name"><code class="docutils literal notranslate"><span class="pre">BoundaryInterpolationType.name</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.AvailableLookupScheme"><code class="docutils literal notranslate"><span class="pre">AvailableLookupScheme</span></code></a><ul>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.AvailableLookupScheme.name"><code class="docutils literal notranslate"><span class="pre">AvailableLookupScheme.name</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.LagrangeInterpolatorBoundaryHandling"><code class="docutils literal notranslate"><span class="pre">LagrangeInterpolatorBoundaryHandling</span></code></a><ul>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.LagrangeInterpolatorBoundaryHandling.name"><code class="docutils literal notranslate"><span class="pre">LagrangeInterpolatorBoundaryHandling.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#classes">Classes</a><ul>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.InterpolatorSettings"><code class="docutils literal notranslate"><span class="pre">InterpolatorSettings</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.LagrangeInterpolatorSettings"><code class="docutils literal notranslate"><span class="pre">LagrangeInterpolatorSettings</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorScalar"><code class="docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorScalar</span></code></a><ul>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorScalar.interpolate"><code class="docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorScalar.interpolate()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorScalar.dependent_values"><code class="docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorScalar.dependent_values</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorScalar.independent_values"><code class="docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorScalar.independent_values</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorScalarTimeObject"><code class="docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorScalarTimeObject</span></code></a><ul>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorScalarTimeObject.interpolate"><code class="docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorScalarTimeObject.interpolate()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorVector"><code class="docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorVector</span></code></a><ul>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorVector.interpolate"><code class="docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorVector.interpolate()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorVector.dependent_values"><code class="docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorVector.dependent_values</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorVector.independent_values"><code class="docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorVector.independent_values</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorVectorTimeObject"><code class="docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorVectorTimeObject</span></code></a><ul>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorVectorTimeObject.interpolate"><code class="docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorVectorTimeObject.interpolate()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorMatrix"><code class="docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorMatrix</span></code></a><ul>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorMatrix.interpolate"><code class="docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorMatrix.interpolate()</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorMatrix.dependent_values"><code class="docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorMatrix.dependent_values</span></code></a></li>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorMatrix.independent_values"><code class="docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorMatrix.independent_values</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorMatrixTimeObject"><code class="docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorMatrixTimeObject</span></code></a><ul>
+<li><a class="reference internal" href="#tudatpy.math.interpolators.OneDimensionalInterpolatorMatrixTimeObject.interpolate"><code class="docutils literal notranslate"><span class="pre">OneDimensionalInterpolatorMatrixTimeObject.interpolate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=8a448e45"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </body>
+</html>
