@@ -1,2 +1,0 @@
-/usr/bin/ar qc ../../../../lib/libtudat_interpolators.a CMakeFiles/tudat_interpolators.dir/cubicSplineInterpolator.cpp.o CMakeFiles/tudat_interpolators.dir/linearInterpolator.cpp.o CMakeFiles/tudat_interpolators.dir/lagrangeInterpolator.cpp.o CMakeFiles/tudat_interpolators.dir/interpolator.cpp.o CMakeFiles/tudat_interpolators.dir/multiLinearInterpolator.cpp.o
-/usr/bin/ranlib ../../../../lib/libtudat_interpolators.a

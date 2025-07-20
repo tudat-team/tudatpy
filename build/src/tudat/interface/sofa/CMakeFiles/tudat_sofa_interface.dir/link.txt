@@ -1,2 +1,0 @@
-/usr/bin/ar qc ../../../../lib/libtudat_sofa_interface.a CMakeFiles/tudat_sofa_interface.dir/sofaTimeConversions.cpp.o CMakeFiles/tudat_sofa_interface.dir/fundamentalArguments.cpp.o CMakeFiles/tudat_sofa_interface.dir/earthOrientation.cpp.o
-/usr/bin/ranlib ../../../../lib/libtudat_sofa_interface.a

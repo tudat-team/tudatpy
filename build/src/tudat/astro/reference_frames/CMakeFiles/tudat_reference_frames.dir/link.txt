@@ -1,2 +1,0 @@
-/usr/bin/ar qc ../../../../lib/libtudat_reference_frames.a CMakeFiles/tudat_reference_frames.dir/referenceFrameTransformations.cpp.o CMakeFiles/tudat_reference_frames.dir/apparentAccelerationModel.cpp.o CMakeFiles/tudat_reference_frames.dir/aerodynamicAngleCalculator.cpp.o
-/usr/bin/ranlib ../../../../lib/libtudat_reference_frames.a

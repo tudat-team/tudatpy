@@ -1,2 +1,0 @@
-/usr/bin/ar qc ../../../../lib/libtudat_propulsion.a CMakeFiles/tudat_propulsion.dir/thrustAccelerationModel.cpp.o CMakeFiles/tudat_propulsion.dir/thrustGuidance.cpp.o CMakeFiles/tudat_propulsion.dir/thrustFunctions.cpp.o CMakeFiles/tudat_propulsion.dir/costateBasedThrustGuidance.cpp.o CMakeFiles/tudat_propulsion.dir/thrustMagnitudeWrapper.cpp.o
-/usr/bin/ranlib ../../../../lib/libtudat_propulsion.a

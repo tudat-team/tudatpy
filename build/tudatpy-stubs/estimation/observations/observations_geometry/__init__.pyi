@@ -1,2 +1,0 @@
-from .extension import compute_target_angles_and_range, compute_target_angles_and_range_vectors
-__all__ = ['compute_target_angles_and_range', 'compute_target_angles_and_range_vectors']

@@ -1,1 +1,0 @@
-from tudatpy.kernel.dynamics.simulator import *

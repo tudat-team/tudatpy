@@ -1,2 +1,0 @@
-/usr/bin/ar qc ../../../../lib/libtudat_numerical_quadrature.a CMakeFiles/tudat_numerical_quadrature.dir/dummyNumericalQuadrature.cpp.o CMakeFiles/tudat_numerical_quadrature.dir/gaussianQuadrature.cpp.o CMakeFiles/tudat_numerical_quadrature.dir/createNumericalQuadrature.cpp.o
-/usr/bin/ranlib ../../../../lib/libtudat_numerical_quadrature.a

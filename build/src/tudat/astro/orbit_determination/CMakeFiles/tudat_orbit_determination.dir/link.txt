@@ -1,2 +1,0 @@
-/usr/bin/ar qc ../../../../lib/libtudat_orbit_determination.a CMakeFiles/tudat_orbit_determination.dir/massDerivativePartial.cpp.o CMakeFiles/tudat_orbit_determination.dir/stateDerivativePartial.cpp.o CMakeFiles/tudat_orbit_determination.dir/podInputOutputTypes.cpp.o
-/usr/bin/ranlib ../../../../lib/libtudat_orbit_determination.a

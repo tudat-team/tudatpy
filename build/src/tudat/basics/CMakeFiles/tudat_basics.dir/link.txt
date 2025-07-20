@@ -1,2 +1,0 @@
-/usr/bin/ar qc ../../../lib/libtudat_basics.a CMakeFiles/tudat_basics.dir/utilities.cpp.o CMakeFiles/tudat_basics.dir/deprecationWarnings.cpp.o
-/usr/bin/ranlib ../../../lib/libtudat_basics.a
