@@ -14,12 +14,12 @@ estimation models in a simulation.
 
 
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Modules
+.. .. toctree::
+..    :maxdepth: 2
+..    :caption: Modules
 
-   observation
-   parameter
+..    observation
+..    parameter
 
 
 Functions
