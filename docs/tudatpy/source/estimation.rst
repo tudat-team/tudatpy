@@ -8,8 +8,10 @@
    :caption: Modules
 
    /estimation/estimation_analysis
-   /estimation/estimation_setup
-   /estimation/observation
+   /estimation/observable_models_setup
+   /estimation/observations_setup
+   /estimation/observable_models
+   /estimation/observations
 
 
 .. automodule:: tudatpy.estimation
