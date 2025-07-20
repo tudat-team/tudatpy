@@ -175,7 +175,7 @@ todo_include_todos = True
 html_theme = "furo"
 html_theme_options = {
     "navigation_with_keys": True,
-    "announcement": "WE ARE CURRENTLY EXPERIENCING ISSUES IN BUILDING THIS PAGE, PLEASE USE `https://tudat-team.github.io/tudatpy/ <https://tudat-team.github.io/tudatpy/>`_ </a>!",
+    "announcement": "WE ARE CURRENTLY EXPERIENCING ISSUES IN BUILDING THIS PAGE, PLEASE VISIT https://tudat-team.github.io/tudatpy/ AS TEMPORARY REPLACEMENT </a>!",
 }
 
 # Theme options are theme-specific and customize the look and feel of a theme
