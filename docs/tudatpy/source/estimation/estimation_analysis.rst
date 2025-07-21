@@ -21,28 +21,27 @@ Functions
 
 .. autosummary::
 
-   simulate_observations
-
-   compute_target_angles_and_range
-
    propagate_covariance
 
    propagate_formal_errors
 
+   propagate_formal_errors_split_output
+
    estimation_convergence_checker
 
+   create_best_fit_to_ephemeris
 
 
-.. autofunction:: tudatpy.estimation.estimation_analysis.simulate_observations
-
-.. autofunction:: tudatpy.estimation.estimation_analysis.compute_target_angles_and_range
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.propagate_covariance
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.propagate_formal_errors
 
+.. autofunction:: tudatpy.estimation.estimation_analysis.propagate_formal_errors_split_output
+
 .. autofunction:: tudatpy.estimation.estimation_analysis.estimation_convergence_checker
 
+.. autofunction:: tudatpy.estimation.estimation_analysis.create_best_fit_to_ephemeris
 
 
 
@@ -54,20 +53,6 @@ Classes
 
 .. autosummary::
 
-   EstimatableParameterSet
-
-   ObservationViabilityCalculator
-
-   ObservationSimulator
-
-   ObservationCollection
-
-   SingleObservationSet
-
-   CombinedStateTransitionAndSensitivityMatrixInterface
-
-   EstimationConvergenceChecker
-
    CovarianceAnalysisInput
 
    EstimationInput
@@ -78,28 +63,9 @@ Classes
 
    Estimator
 
+   EstimationConvergenceChecker
 
 
-.. autoclass:: tudatpy.estimation.estimation_analysis.EstimatableParameterSet
-   :members:
-
-.. autoclass:: tudatpy.estimation.estimation_analysis.ObservationViabilityCalculator
-   :members:
-
-.. autoclass:: tudatpy.estimation.estimation_analysis.ObservationSimulator
-   :members:
-
-.. autoclass:: tudatpy.estimation.estimation_analysis.ObservationCollection
-   :members:
-
-.. autoclass:: tudatpy.estimation.estimation_analysis.SingleObservationSet
-   :members:
-
-.. autoclass:: tudatpy.estimation.estimation_analysis.CombinedStateTransitionAndSensitivityMatrixInterface
-   :members:
-
-.. autoclass:: tudatpy.estimation.estimation_analysis.EstimationConvergenceChecker
-   :members:
 
 .. autoclass:: tudatpy.estimation.estimation_analysis.CovarianceAnalysisInput
    :members:
@@ -124,4 +90,6 @@ Classes
    :members:
    :special-members: __init__
 
+.. autoclass:: tudatpy.estimation.estimation_analysis.EstimationConvergenceChecker
+   :members:
 
