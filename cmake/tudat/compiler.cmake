@@ -149,16 +149,8 @@
          # if the clang msvc-like command line interface is being used
          if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" AND "x${CMAKE_CXX_SIMULATE_ID}" STREQUAL "xMSVC")
              if (NOT TUDAT_DISABLE_MSVC_CLANG_CL_FLAGS)
-                 set(CMAKE_CXX_FLAGS
-                         "${CMAKE_CXX_FLAGS}"
-                         " /MD"
-                         " /EHsc"
-                         " /W3"
-                         " /FC"
-                         " /Ox"
-                         " -D_SCL_SECURE_NO_WARNINGS"
-                         )
-                 string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+                 
+               
 
                  # clang-cl 9 doesn't properly implement an alternative for -isystem <dir>
                  # for system headers, all warnings incurred by eigen must be silenced to
