@@ -1616,6 +1616,45 @@ Returns
            py::arg( "central_body_name" ) = "Sun",
            R"doc(No documentation found.)doc" );
 
+
+    m.def( "rtg_force_vector",
+           &tep::rtgForceVector,
+           py::arg( "body_name" ),
+           R"doc(
+
+Function for creating parameter settings for the reference force vector (:math: `\mathbf{F}_\text{0}`) of the RTG acceleration model.
+
+Parameters
+----------
+body_name : str
+    Name of the body that is undergoing RTG acceleration
+
+Returns
+-------
+:class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
+    Object for the specified body's RTG acceleration model
+
+    )doc" );
+
+    m.def( "rtg_force_magnitude",
+           &tep::rtgForceVectorMagnitude,
+           py::arg( "body_name" ),
+           R"doc(
+
+Function for creating parameter settings for the reference force magnitude (:math: `|| \mathbf{F}_\text{0} ||`) of the RTG acceleration model.
+
+Parameters
+----------
+body_name : str
+    Name of the body that is undergoing RTG acceleration
+
+Returns
+-------
+:class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
+    Object for the specified body's RTG acceleration model
+
+    )doc" );
+
     m.def( "custom_parameter",
            &tep::customParameterSettings,
            py::arg( "custom_id" ),
