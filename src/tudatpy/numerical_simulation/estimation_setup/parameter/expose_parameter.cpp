@@ -71,6 +71,8 @@ void expose_estimated_parameter_setup( py::module& m )
                     tep::EstimatebleParametersEnum::ppn_parameter_gamma )
             .value( "ppn_parameter_beta_type", tep::EstimatebleParametersEnum::ppn_parameter_beta )
             .value("yarkovsky_parameter_type", tep::EstimatebleParametersEnum::yarkovsky_parameter )
+            .value("rtg_force_vector_type", tep::EstimatebleParametersEnum::rtg_force_vector )
+            .value("rtg_force_magnitude_type", tep::EstimatebleParametersEnum::rtg_force_vector_magnitude )
             .value( "ground_station_position_type",
                     tep::EstimatebleParametersEnum::ground_station_position )
             .value( "equivalence_principle_lpi_violation_parameter_"
