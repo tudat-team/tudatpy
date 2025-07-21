@@ -12,7 +12,3 @@
    /estimation/observations_setup
    /estimation/observable_models
    /estimation/observations
-
-
-.. automodule:: tudatpy.estimation
-   :members:
