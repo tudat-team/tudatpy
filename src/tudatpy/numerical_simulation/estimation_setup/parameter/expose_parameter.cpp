@@ -37,9 +37,6 @@ void expose_estimated_parameter_setup( py::module& m )
 
 
 
-
-
-
       )doc" )
             .value( "arc_wise_initial_body_state_type",
                     tep::EstimatebleParametersEnum::arc_wise_initial_body_state )
@@ -73,6 +70,7 @@ void expose_estimated_parameter_setup( py::module& m )
             .value( "ppn_parameter_gamma_type",
                     tep::EstimatebleParametersEnum::ppn_parameter_gamma )
             .value( "ppn_parameter_beta_type", tep::EstimatebleParametersEnum::ppn_parameter_beta )
+            .value("yarkovsky_parameter_type", tep::EstimatebleParametersEnum::yarkovsky_parameter )
             .value( "ground_station_position_type",
                     tep::EstimatebleParametersEnum::ground_station_position )
             .value( "equivalence_principle_lpi_violation_parameter_"
