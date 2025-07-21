@@ -16,7 +16,11 @@ Classes
 
    HorizonsQuery
 
+   HorizonsBatch
+
 
 .. autoclass:: tudatpy.data.horizons.HorizonsQuery
    :members:
 
+.. autoclass:: tudatpy.data.horizons.HorizonsBatch
+   :members:
