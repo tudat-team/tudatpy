@@ -476,7 +476,8 @@ void expose_propagation( py::module &m )
 
          Base class for objects that store all results of a numerical propagation.
 
-         Base class for objects that store all results of a numerical propagation. Derived class are implemented for single-, multi- and hybrid-arc propagation of both dynamics and variational equations
+         Base class for objects that store all results of a numerical propagation.
+         Derived class are implemented for single-, multi- and hybrid-arc propagation of both dynamics and variational equations
 
 
 
@@ -487,7 +488,15 @@ void expose_propagation( py::module &m )
                     "dependent_variable_interface",
                     &tp::SimulationResults< STATE_SCALAR_TYPE,
                                             TIME_TYPE >::getDependentVariablesInterface,
-                    R"doc(No documentation found.)doc" );
+                    R"doc(
+         **read-only**
+
+         Attrribute that allows for automatic interpolation and retrieval of dependent variables
+
+         :type: DependentVariablesInterface
+
+
+)doc" );
 
     py::class_< tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -496,12 +505,7 @@ void expose_propagation( py::module &m )
             "SingleArcSimulationResults",
             R"doc(
 
-         Class that stores all the results (including logging data) of a single-arc propagation
-
-
-
-
-
+         Class that stores all the results (including logging data) of a single-arc propagation of states
 
       )doc" )
             .def_property_readonly(
@@ -531,11 +535,27 @@ void expose_propagation( py::module &m )
             .def_property_readonly(
                     "state_history_float",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
-                            getEquationsOfMotionNumericalSolutionDouble )
+                            getEquationsOfMotionNumericalSolutionDouble,
+                    R"doc(
+
+         **read-only**
+
+         Same as ``state_history``, but with independent variable of the dictionary being equal to ``float`` regardless of compilation settings.
+
+         :type: dict[float, numpy.ndarray]
+      )doc" )
             .def_property_readonly(
                     "state_history_float_split",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
-                            getEquationsOfMotionNumericalSolutionDoubleSplit )
+                            getEquationsOfMotionNumericalSolutionDoubleSplit,
+                    R"doc(
+
+         **read-only**
+
+         Same as ``state_history``, but with a return type of two lists (one with times and one with states)
+
+         :type: tuple[ list[float], list[numpy.ndarray] ]
+      )doc" )
             .def_property_readonly(
                     "unprocessed_state_history",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
@@ -567,22 +587,18 @@ void expose_propagation( py::module &m )
 
          :type: dict[float, numpy.ndarray]
       )doc" )
-            .def_property_readonly(
-                    "cumulative_computation_time_history",
-                    &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
-                            getCumulativeComputationTimeHistory,
-                    R"doc(
 
+            .def_property_readonly( "dependent_variable_history_float",
+                           &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariableHistoryDouble,
+                           R"doc(
          **read-only**
 
-         History of cumulative computation time in seconds needed during the propagation as key-value
-         pairs. At each epoch (key) the computation time (value) in seconds is the total computation time
-         used up to and including that time step. This includes the total time up to and including the current time step,
-         since the beginning of the (single-arc) propagation.
+         Same as ``dependent_variable_history``, but with independent variable of the dictionary being equal to ``float`` regardless of compilation settings.
+
+         :type: dict[float, numpy.ndarray]
+     )doc" )
 
 
-         :type: dict[float, float]
-      )doc" )
             .def_property_readonly(
                     "cumulative_computation_time_history",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
@@ -603,17 +619,42 @@ void expose_propagation( py::module &m )
                     "cumulative_number_of_function_evaluations_history",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
                             getCumulativeNumberOfFunctionEvaluations,
-                    R"doc(No documentation found.)doc" )
+                    R"doc(
+
+         **read-only**
+
+         History of cumulative number of function evaluations (e.g. number of times the state derivative model is evaluated)
+         as key-value pairs. At each epoch (key) the cumulative number of function evaluations (value) including the current one is included.
+
+         .. note:: At present, this dictionary is updated during each function evaluation, including the minor stages of (for instance) a multi-stage integrator. This is unlike the rest of the data in this object, which is provided only after each full time step. For variable-time step integration, this also means that the values need not be monotonically increasing with propagation time (if a step size is rejected and recomputed with smaller step size).
+
+
+
+         :type: dict[float, float]
+)doc" )
             .def_property_readonly(
                     "total_computation_time",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE,
                                                      TIME_TYPE >::getTotalComputationRuntime,
-                    R"doc(No documentation found.)doc" )
+                    R"doc(
+
+         **read-only**
+
+         Total computation time (in seconds) that was required for the propagation.
+
+         :type: float
+)doc" )
             .def_property_readonly(
                     "total_number_of_function_evaluations",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
                             getTotalNumberOfFunctionEvaluations,
-                    R"doc(No documentation found.)doc" )
+                    R"doc(
+
+         **read-only**
+
+         Total number of function evaluations that were computed for the propagation
+
+         :type: float)doc" )
             .def_property_readonly(
                     "termination_details",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE,
@@ -659,13 +700,11 @@ void expose_propagation( py::module &m )
             .def_property_readonly(
                     "ordered_dependent_variable_settings",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
-                            getOrderedDependentVariableSettings,
-                    R"doc(No documentation found.)doc" )
+                            getOrderedDependentVariableSettings )
             .def_property_readonly(
                     "unordered_dependent_variable_settings",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
-                            getOriginalDependentVariableSettings,
-                    R"doc(No documentation found.)doc" )
+                            getOriginalDependentVariableSettings )
             .def_property_readonly(
                     "processed_state_ids",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE,
@@ -696,47 +735,107 @@ void expose_propagation( py::module &m )
                     "initial_and_final_times",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE,
                                                      TIME_TYPE >::getArcInitialAndFinalTime,
-                    R"doc(No documentation found.)doc" )
+                    R"doc(
+
+         **read-only**
+
+         Initial and final time of the propagation
+
+         :type: tuple[float,float]
+)doc" )
             .def_property_readonly(
                     "propagated_state_vector_length",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE,
                                                      TIME_TYPE >::getPropagatedStateSize,
-                    R"doc(No documentation found.)doc" )
+                    R"doc(
+
+         **read-only**
+
+         Length of the propagated state vector
+
+         :type: int
+)doc" )
+
             .def_property_readonly(
                     "propagation_is_performed",
                     &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE,
                                                      TIME_TYPE >::getPropagationIsPerformed,
-                    R"doc(No documentation found.)doc" )
-            .def_property_readonly(
-                    "solution_is_cleared",
-                    &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE,
-                                                     TIME_TYPE >::getSolutionIsCleared,
-                    R"doc(No documentation found.)doc" )
+                    R"doc(
+         **read-only**
+
+         Boolean indicating whether the propagation for which this object stores the results has been performed or not
+
+         :type: int
+)doc" )
             .def(
                 "clear_data",
                 py::overload_cast< >( &tp::SingleArcSimulationResults< STATE_SCALAR_TYPE,
-                    TIME_TYPE >::reset ) );
+                    TIME_TYPE >::clearSolutionMaps ),
+                R"doc(
+
+         Function to delete the contents of this object.
+
+         Function to delete the contents of this object. This function is typically called when wanting to manually reduce the
+         memory usage in large analyses by clearing data. It does not need to be used manually before repropagating.
+
+)doc" );
 
     py::class_< tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr<
                         tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > >,
                 tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > >(
-            m, "SingleArcVariationalSimulationResults", R"doc(No documentation found.)doc" )
+            m, "SingleArcVariationalSimulationResults", R"doc(
+
+        Class that stores all the results (including logging data) of a single-arc propagation of states and variational equations
+
+        Class that stores all the results (including logging data) of a single-arc propagation of states and variational equations. The
+        propagation results of the states are accessed through the ``dynamics_results`` attribute.
+
+)doc" )
             .def_property_readonly(
                     "state_transition_matrix_history",
                     &tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE, TIME_TYPE >::
                             getStateTransitionSolution,
-                    R"doc(No documentation found.)doc" )
+    R"doc(
+
+         **read-only**
+
+         Numerical solution of the state transition matrix :math:`\partial \mathbf{x}/\partial\mathbf{x}_{0}` from the variational equations as key-value pairs. The key denotes the epoch. The value contains the
+         numerically calculated state transition matrix at this epoch. The states :math:`\mathbf{x}` and :math:`\mathbf{x}_{0}` in the definition are always in the so-called
+         'processed' formulations (e.g. Cartesian states for translational dynamics), see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/processed_propagated_elements.html>`_
+         for details. See :attr:`~SingleArcSimulationResults.state_history` for the definition of the order of the elements of the states.
+
+
+         :type: dict[float, numpy.ndarray]
+      )doc" )
             .def_property_readonly(
                     "sensitivity_matrix_history",
                     &tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE,
                                                                 TIME_TYPE >::getSensitivitySolution,
-                    R"doc(No documentation found.)doc" )
+                    R"doc(
+
+         **read-only**
+
+         Numerical solution of the sensitivity matrix :math:`\partial \mathbf{x}/\partial\mathbf{p}` from the variational equations as key-value pairs. The key denotes the epoch. The value contains the
+         numerically calculated sensitivity matrix at this epoch. The state :math:`\mathbf{x}` in the definition is always in the so-called
+         'processed' formulations (e.g. Cartesian states for translational dynamics), see `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/processed_propagated_elements.html>`_
+         for details. See :attr:`~SingleArcSimulationResults.state_history` for the definition of the order of the elements of the states.
+
+
+         :type: dict[float, numpy.ndarray]
+      )doc" )
             .def_property_readonly(
                     "dynamics_results",
                     &tp::SingleArcVariationalSimulationResults< STATE_SCALAR_TYPE,
                                                                 TIME_TYPE >::getDynamicsResults,
-                    R"doc(No documentation found.)doc" );
+                    R"doc(
+       **read-only**
+
+         Object with all results of the propagation results of the states, as well as details on propagation termination reason, runtime, function evaluations, etc.
+
+
+         :type: SingleArcSimulationResults
+)doc" );
 
     py::class_< tp::MultiArcSimulationResults< tp::SingleArcSimulationResults,
                                                STATE_SCALAR_TYPE,
@@ -745,35 +844,62 @@ void expose_propagation( py::module &m )
                                                                 STATE_SCALAR_TYPE,
                                                                 TIME_TYPE > >,
                 tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > >(
-            m, "MultiArcSimulationResults", R"doc(No documentation found.)doc" )
+            m, "MultiArcSimulationResults", R"doc(
+
+Class that stores all the results (including logging data) of a multi-arc propagation of states.
+
+Class that stores all the results (including logging data) of a multi-arc propagation of states.
+The results of the constituent arcs are accessed through the ``single_arc_results`` attribute.
+
+)doc" )
             .def_property_readonly(
                     "single_arc_results",
                     &tp::MultiArcSimulationResults< tp::SingleArcSimulationResults,
                                                     STATE_SCALAR_TYPE,
                                                     TIME_TYPE >::getSingleArcResults,
-                    R"doc(No documentation found.)doc" )
+                    R"doc(
+         **read-only**
+
+         List of results from the single-arc propagations. The list of single-arc results objects store
+         all numerical and logging results from the constituent arc propagations. These single-arc result
+         objects are where the state history, etc. can be retrieved
+
+         :type: list[SingleArcSimulationResults]
+)doc" )
             .def_property_readonly( "arc_start_times",
                                     &tp::MultiArcSimulationResults< tp::SingleArcSimulationResults,
                                                                     STATE_SCALAR_TYPE,
                                                                     TIME_TYPE >::getArcStartTimes,
-                                    R"doc(No documentation found.)doc" )
+                                    R"doc(
+         **read-only**
+
+         List of epochs at which each of the arcs start (e.g. earliest epoch in state history per arc)
+
+         :type: list[float]
+)doc" )
             .def_property_readonly( "arc_end_times",
                                     &tp::MultiArcSimulationResults< tp::SingleArcSimulationResults,
                                                                     STATE_SCALAR_TYPE,
                                                                     TIME_TYPE >::getArcEndTimes,
-                                    R"doc(No documentation found.)doc" )
+                                    R"doc(
+         **read-only**
+
+         List of epochs at which each of the arcs end (e.g. latest epoch in state history per arc)
+
+         :type: list[float]
+)doc" )
             .def_property_readonly(
                     "propagation_is_performed",
                     &tp::MultiArcSimulationResults< tp::SingleArcSimulationResults,
                                                     STATE_SCALAR_TYPE,
                                                     TIME_TYPE >::getPropagationIsPerformed,
-                    R"doc(No documentation found.)doc" )
-            .def_property_readonly(
-                    "solution_is_cleared",
-                    &tp::MultiArcSimulationResults< tp::SingleArcSimulationResults,
-                                                    STATE_SCALAR_TYPE,
-                                                    TIME_TYPE >::getSolutionIsCleared,
-                    R"doc(No documentation found.)doc" );
+                    R"doc(
+         **read-only**
+
+         Boolean indicating whether the propagation for which this object stores the results has been performed or not
+
+         :type: int
+)doc" );
 
     py::class_< tp::MultiArcSimulationResults< tp::SingleArcVariationalSimulationResults,
                                                STATE_SCALAR_TYPE,
@@ -783,37 +909,40 @@ void expose_propagation( py::module &m )
                                                        STATE_SCALAR_TYPE,
                                                        TIME_TYPE > >,
                 tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > >(
-            m, "MultiArcVariationalSimulationResults", R"doc(No documentation found.)doc" )
+            m, "MultiArcVariationalSimulationResults", R"doc(
+
+        Class that stores all the results (including logging data) of a multi-arc propagation of states and variational equations
+
+        Class that stores all the results (including logging data) of a multi-arc propagation of states and variational equations. The
+        results of the constituent arcs are accessed through the ``single_arc_results`` attribute.
+
+)doc" )
             .def_property_readonly(
                     "single_arc_results",
                     &tp::MultiArcSimulationResults< tp::SingleArcVariationalSimulationResults,
                                                     STATE_SCALAR_TYPE,
                                                     TIME_TYPE >::getSingleArcResults,
-                    R"doc(No documentation found.)doc" )
-            .def_property_readonly(
-                    "arc_start_times",
-                    &tp::MultiArcSimulationResults< tp::SingleArcVariationalSimulationResults,
-                                                    STATE_SCALAR_TYPE,
-                                                    TIME_TYPE >::getArcStartTimes,
-                    R"doc(No documentation found.)doc" )
-            .def_property_readonly(
-                    "arc_end_times",
-                    &tp::MultiArcSimulationResults< tp::SingleArcVariationalSimulationResults,
-                                                    STATE_SCALAR_TYPE,
-                                                    TIME_TYPE >::getArcEndTimes,
-                    R"doc(No documentation found.)doc" )
+                    R"doc( R"doc(
+         **read-only**
+
+         List of results from the single-arc propagations. The list of single-arc results objects store
+         all numerical and logging results from the constituent arc propagations. These single-arc result
+         objects are where the state history, etc. can be retrieved
+
+         :type: list[SingleArcVariationalSimulationResults]
+)doc" )
             .def_property_readonly(
                     "propagation_is_performed",
                     &tp::MultiArcSimulationResults< tp::SingleArcVariationalSimulationResults,
                                                     STATE_SCALAR_TYPE,
                                                     TIME_TYPE >::getPropagationIsPerformed,
-                    R"doc(No documentation found.)doc" )
-            .def_property_readonly(
-                    "solution_is_cleared",
-                    &tp::MultiArcSimulationResults< tp::SingleArcVariationalSimulationResults,
-                                                    STATE_SCALAR_TYPE,
-                                                    TIME_TYPE >::getSolutionIsCleared,
-                    R"doc(No documentation found.)doc" );
+                    R"doc(
+         **read-only**
+
+         Boolean indicating whether the propagation for which this object stores the results has been performed or not
+
+         :type: int
+)doc" );
 
     py::class_< tp::HybridArcSimulationResults< tp::SingleArcSimulationResults,
                                                 STATE_SCALAR_TYPE,
@@ -822,19 +951,38 @@ void expose_propagation( py::module &m )
                                                                  STATE_SCALAR_TYPE,
                                                                  TIME_TYPE > >,
                 tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > >(
-            m, "HybridArcSimulationResults", R"doc(No documentation found.)doc" )
+            m, "HybridArcSimulationResults", R"doc(
+Class that stores all the results (including logging data) of a hybrid-arc propagation of states.
+
+Class that stores all the results (including logging data) of a hybrid-arc propagation of states.
+The results of the constituent arcs are accessed through the ``single_arc_results`` and ``multi_arc_results`` attribute1.
+)doc" )
             .def_property_readonly(
                     "single_arc_results",
                     &tp::HybridArcSimulationResults< tp::SingleArcSimulationResults,
                                                      STATE_SCALAR_TYPE,
                                                      TIME_TYPE >::getSingleArcResults,
-                    R"doc(No documentation found.)doc" )
+    R"doc(
+         **read-only**
+
+         Object with results from the single-arc propagation component of the hybrid-arc propagation. This object stores
+         all numerical and logging results from the single-arc component.
+
+         :type: SingleArcSimulationResults
+)doc" )
             .def_property_readonly(
                     "multi_arc_results",
                     &tp::HybridArcSimulationResults< tp::SingleArcSimulationResults,
                                                      STATE_SCALAR_TYPE,
                                                      TIME_TYPE >::getMultiArcResults,
-                    R"doc(No documentation found.)doc" );
+                    R"doc(
+         **read-only**
+
+         Object with results from the multi-arc propagation component of the hybrid-arc propagation. This object stores
+         all numerical and logging results from the multi-arc component.
+
+         :type: MultiArcSimulationResults
+)doc" );
 
     py::class_< tp::HybridArcSimulationResults< tp::SingleArcVariationalSimulationResults,
                                                 STATE_SCALAR_TYPE,
@@ -844,19 +992,38 @@ void expose_propagation( py::module &m )
                                                         STATE_SCALAR_TYPE,
                                                         TIME_TYPE > >,
                 tp::SimulationResults< STATE_SCALAR_TYPE, TIME_TYPE > >(
-            m, "HybridArcVariationalSimulationResults", R"doc(No documentation found.)doc" )
+            m, "HybridArcVariationalSimulationResults",  R"doc(
+Class that stores all the results (including logging data) of a hybrid-arc propagation of states and variational equations.
+
+Class that stores all the results (including logging data) of a hybrid-arc propagation of states and variational equations.
+The results of the constituent arcs are accessed through the ``single_arc_results`` and ``multi_arc_results`` attribute1.
+)doc" )
             .def_property_readonly(
                     "single_arc_results",
                     &tp::HybridArcSimulationResults< tp::SingleArcVariationalSimulationResults,
                                                      STATE_SCALAR_TYPE,
                                                      TIME_TYPE >::getSingleArcResults,
-                    R"doc(No documentation found.)doc" )
+                    R"doc(
+         **read-only**
+
+         Object with results from the single-arc propagation component of the hybrid-arc propagation. This object stores
+         all numerical and logging results from the single-arc component.
+
+         :type: SingleArcVariationalSimulationResults
+)doc" )
             .def_property_readonly(
                     "multi_arc_results",
                     &tp::HybridArcSimulationResults< tp::SingleArcVariationalSimulationResults,
                                                      STATE_SCALAR_TYPE,
                                                      TIME_TYPE >::getMultiArcResults,
-                    R"doc(No documentation found.)doc" );
+                    R"doc(
+         **read-only**
+
+         Object with results from the multi-arc propagation component of the hybrid-arc propagation. This object stores
+         all numerical and logging results from the multi-arc component.
+
+         :type: MultiArcVariationalSimulationResults
+)doc" );
 
     py::class_< tpr::ThrustMagnitudeWrapper, std::shared_ptr< tpr::ThrustMagnitudeWrapper > >(
             m, "ThrustMagnitudeWrapper" );

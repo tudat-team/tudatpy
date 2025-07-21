@@ -69,6 +69,16 @@ Classes
 
    SingleArcSimulationResults
 
+   SingleArcVariationalSimulationResults
+
+   MultiArcSimulationResults
+
+   MultiArcVariationalSimulationResults
+
+   HybridArcSimulationResults
+
+   HybridArcVariationalSimulationResults
+
    PropagationTerminationDetails
 
    PropagationTerminationDetailsFromHybridCondition
@@ -82,6 +92,21 @@ Classes
    :members:
 
 .. autoclass:: tudatpy.numerical_simulation.propagation.SingleArcSimulationResults
+   :members:
+
+.. autoclass:: tudatpy.numerical_simulation.propagation.SingleArcVariationalSimulationResults
+   :members:
+
+.. autoclass:: tudatpy.numerical_simulation.propagation.MultiArcSimulationResults
+   :members:
+
+.. autoclass:: tudatpy.numerical_simulation.propagation.MultiArcVariationalSimulationResults
+   :members:
+
+.. autoclass:: tudatpy.numerical_simulation.propagation.HybridArcSimulationResults
+   :members:
+
+.. autoclass:: tudatpy.numerical_simulation.propagation.HybridArcVariationalSimulationResults
    :members:
 
 .. autoclass:: tudatpy.numerical_simulation.propagation.PropagationTerminationDetails
