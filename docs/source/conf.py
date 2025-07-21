@@ -84,7 +84,8 @@ bibtex_default_style = "plain"
 #     "List": ":class:`~typing.List`",
 # }
 
-
+# custom section to define the size of dependent variables
+napoleon_custom_sections = [('Variable Size', 'params_style')]
 # to not skip __init__
 # def skip(app, what, name, obj, would_skip, options):
 #     if name == "__init__":
@@ -174,7 +175,7 @@ todo_include_todos = True
 html_theme = "furo"
 html_theme_options = {
     "navigation_with_keys": True,
-    "announcement": "Have questions or feedback? See the <a href='https://docs.tudat.space/en/latest/index_user_guide.html'>User Guide</a> or let us know in our <a href='https://github.com/orgs/tudat-team/discussions?discussions_q='>Github Discussion forum</a>!",
+    "announcement": "WE ARE CURRENTLY EXPERIENCING ISSUES IN BUILDING THIS PAGE, PLEASE VISIT https://tudat-team.github.io/tudatpy/ AS TEMPORARY REPLACEMENT </a>!",
 }
 
 # Theme options are theme-specific and customize the look and feel of a theme
