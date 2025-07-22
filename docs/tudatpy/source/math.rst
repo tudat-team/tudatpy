@@ -21,8 +21,8 @@ functionality. The other modules make extensive use of the functionality exposed
    :maxdepth: 2
    :caption: Modules
 
-   interpolators
-   root_finders
+   math/interpolators
+   math/root_finders
 
 
 

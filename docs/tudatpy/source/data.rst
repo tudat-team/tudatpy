@@ -14,10 +14,10 @@ to read inputs from other softwares and integrate them with Tudat(py).
    :maxdepth: 2
    :caption: Modules
 
-   horizons
-   mpc
-   sbdb
-   mission_data_downloader
+   data/horizons
+   data/mpc
+   data/sbdb
+   data/mission_data_downloader
 
 
 
