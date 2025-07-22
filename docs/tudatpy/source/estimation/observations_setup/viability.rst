@@ -27,23 +27,23 @@ Functions
 
    add_viability_check_to_observable_for_link_ends
 
-.. autofunction:: tudatpy.estimation.observations_setup.elevation_angle_viability
+.. autofunction:: tudatpy.estimation.observations_setup.viability.elevation_angle_viability
 
-.. autofunction:: tudatpy.estimation.observations_setup.body_avoidance_viability
+.. autofunction:: tudatpy.estimation.observations_setup.viability.body_avoidance_viability
 
-.. autofunction:: tudatpy.estimation.observations_setup.body_occultation_viability
+.. autofunction:: tudatpy.estimation.observations_setup.viability.body_occultation_viability
 
-.. autofunction:: tudatpy.estimation.observations_setup.elevation_angle_viability_list
+.. autofunction:: tudatpy.estimation.observations_setup.viability.elevation_angle_viability_list
 
-.. autofunction:: tudatpy.estimation.observations_setup.body_avoidance_viability_list
+.. autofunction:: tudatpy.estimation.observations_setup.viability.body_avoidance_viability_list
 
-.. autofunction:: tudatpy.estimation.observations_setup.body_occultation_viability_list
+.. autofunction:: tudatpy.estimation.observations_setup.viability.body_occultation_viability_list
 
-.. autofunction:: tudatpy.estimation.observations_setup.add_viability_check_to_all
+.. autofunction:: tudatpy.estimation.observations_setup.viability.add_viability_check_to_all
 
-.. autofunction:: tudatpy.estimation.observations_setup.add_viability_check_to_observable
+.. autofunction:: tudatpy.estimation.observations_setup.viability.add_viability_check_to_observable
 
-.. autofunction:: tudatpy.estimation.observations_setup.add_viability_check_to_observable_for_link_ends
+.. autofunction:: tudatpy.estimation.observations_setup.viability.add_viability_check_to_observable_for_link_ends
 
 Enumerations
 ------------

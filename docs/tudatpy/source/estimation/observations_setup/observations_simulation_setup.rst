@@ -1,11 +1,11 @@
-.. _observations_simulation_setup:
+.. _observations_simulation_settings:
 
-``observations_simulation_setup``
-=================================
+``observations_simulation_settings``
+====================================
 
 Functions
 ---------
-.. currentmodule:: tudatpy.estimation.observations_setup.observations_simulation_setup
+.. currentmodule:: tudatpy.estimation.observations_setup.observations_simulation_settings
 
 .. autosummary::
 
@@ -23,16 +23,16 @@ Functions
 
    create_observation_simulators
 
-.. autofunction:: tudatpy.estimation.observations_setup.observations_simulation_setup.tabulated_simulation_settings
+.. autofunction:: tudatpy.estimation.observations_setup.observations_simulation_settings.tabulated_simulation_settings
 
-.. autofunction:: tudatpy.estimation.observations_setup.observations_simulation_setup.tabulated_simulation_settings_list
+.. autofunction:: tudatpy.estimation.observations_setup.observations_simulation_settings.tabulated_simulation_settings_list
 
-.. autofunction:: tudatpy.estimation.observations_setup.observations_simulation_setup.continuous_arc_simulation_settings
+.. autofunction:: tudatpy.estimation.observations_setup.observations_simulation_settings.continuous_arc_simulation_settings
 
-.. autofunction:: tudatpy.estimation.observations_setup.observations_simulation_setup.continuous_arc_simulation_settings_list
+.. autofunction:: tudatpy.estimation.observations_setup.observations_simulation_settings.continuous_arc_simulation_settings_list
 
-.. autofunction:: tudatpy.estimation.observations_setup.observations_simulation_setup.observation_settings_from_collection
+.. autofunction:: tudatpy.estimation.observations_setup.observations_simulation_settings.observation_settings_from_collection
 
-.. autofunction:: tudatpy.estimation.observations_setup.observations_simulation_setup.change_simulation_settings_observable_types
+.. autofunction:: tudatpy.estimation.observations_setup.observations_simulation_settings.change_simulation_settings_observable_types
 
-.. autofunction:: tudatpy.estimation.observations_setup.observations_simulation_setup.create_observation_simulators
+.. autofunction:: tudatpy.estimation.observations_setup.observations_simulation_settings.create_observation_simulators
