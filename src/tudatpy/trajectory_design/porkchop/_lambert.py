@@ -14,7 +14,7 @@ import numpy as np
 
 # Tudat imports
 from tudatpy.astro import two_body_dynamics
-from tudatpy.numerical_simulation import environment
+from tudatpy.dynamics import environment
 
 
 def calculate_lambert_arc_impulsive_delta_v(

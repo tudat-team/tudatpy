@@ -4157,22 +4157,17 @@ class LoadPDS:
 
         Inputs:
             - local_folder (`str`): The local directory where the downloaded files will be saved.
-            - start_date (`datetime`): The start date for downloading data.
-              This will filter the data to include only those within the date range.
-            - end_date (`datetime`): The end date for downloading data.
-              This will filter the data to include only those within the date range.
+            - start_date (`datetime`): The start date for downloading data. This will filter the data to include only those within the date range.
+            - end_date (`datetime`): The end date for downloading data. This will filter the data to include only those within the date range.
             - radio_observation_type (`str`): The type of radio science files to download (e.g. commissioning, checkout, solar conjuction, Lutetia, Global Gravity etc...)
 
         Outputs:
-            - (`dict`, `dict`, `dict`): A tuple containing:
-                - `kernel_files_to_load` (`dict`): A dictionary where the keys are kernel types
-                (e.g., 'ck', 'spk', 'fk', 'sclk') and values are lists of paths to the successfully downloaded and loaded kernel files.
-                - `radio_science_files_to_load` (`dict`): A dictionary where keys are categories of
-                radio science data (e.g., 'ifms_dp2', 'dsn_dps') and values are lists of paths
-                to the successfully downloaded radio science files.
-                - `ancillary_files_to_load` (`dict`): A dictionary where keys are categories
-                of ancillary data (e.g., 'ion', 'tropospheric') and values are lists of paths
-                to the successfully downloaded ancillary files, such as tropospheric and ionospheric corrections.
+            (`dict`, `dict`, `dict`): A tuple containing:
+
+            - `kernel_files_to_load` (`dict`): A dictionary where the keys are kernel types (e.g., 'ck', 'spk', 'fk', 'sclk') and values are lists of paths to the successfully downloaded and loaded kernel files.
+            - `radio_science_files_to_load` (`dict`): A dictionary where keys are categories of radio science data (e.g., 'ifms_dp2', 'dsn_dps') and values are lists of paths to the successfully downloaded radio science files.
+            - `ancillary_files_to_load` (`dict`): A dictionary where keys are categories of ancillary data (e.g., 'ion', 'tropospheric') and values are lists of paths to the successfully downloaded ancillary files, such as tropospheric and ionospheric corrections.
+
         """
 
         self.radio_science_files_to_load = {}
@@ -4524,14 +4519,14 @@ class LoadPDS:
         The function caches the mapping from unique start dates to their mission phase.
 
         Parameters:
-            mapping_dict (dict): Dictionary where keys are rsi_volume_id and values are lists
-                                of dictionaries, each having a 'start_date_utc' datetime object.
+            mapping_dict (dict): Dictionary where keys are rsi_volume_id and values are lists of dictionaries, each having a 'start_date_utc' datetime object.
 
         Returns:
         dict: The updated mapping_dict with two additional keys for each entry:
+
               - "Abbn": the mission phase abbreviation.
-              - "target": the target designation ("X" for non-target-specific or pre-comet phases,
-                          "C" for comet, "M" for Mars, "A" for asteroid flybys).
+              - "target": the target designation ("X" for non-target-specific or pre-comet phases, "C" for comet, "M" for Mars, "A" for asteroid flybys).
+
     """
 
 
@@ -4634,6 +4629,7 @@ class LoadPDS:
         Outputs:
             - `mapping_dict` (`dict`): A dictionary where keys are "rsi_volume_id",
               and values are dictionaries with:
+
                 - `rsi_volume_id` (`str`): The rsi volume ID.
                 - `volume_id` (`str`): The volume ID.
                 - `start_date_file` (`str`): Start date (YYYY-MM-DD).

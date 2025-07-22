@@ -21,13 +21,13 @@ The other modules make extensive use of the functionality exposed here.
    :maxdepth: 2
    :caption: Modules
 
-   frame_conversion
-   element_conversion
-   time_conversion
-   two_body_dynamics
-   polyhedron_utilities
-   gravitation
-   fundamentals
+   astro/frame_conversion
+   astro/element_conversion
+   astro/time_representation
+   astro/two_body_dynamics
+   astro/polyhedron_utilities
+   astro/gravitation
+   astro/fundamentals
 
 
 
