@@ -296,7 +296,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 
         // Create observation settings
         std::shared_ptr< ObservationModelSettings > observableSettingsWithCorrections =
-                std::make_shared< OneWayDopplerObservationSettings >(
+                std::make_shared< OneWayDopplerObservationModelSettings >(
                         linkEndsStationSpacecraft,
                         std::shared_ptr< LightTimeCorrectionSettings >( ),
                         std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
@@ -588,29 +588,29 @@ BOOST_AUTO_TEST_CASE( testTwoWayDoppplerModel )
                 ObservationModelCreator< 1, double, double >::createObservationModel( observableSettingsWithoutCorrections, bodies );
 
         // Create observation settings
-        std::shared_ptr< OneWayDopplerObservationSettings > oneWayObservableUplinkSettingsWithCorrections =
-                std::make_shared< OneWayDopplerObservationSettings >(
+        std::shared_ptr< OneWayDopplerObservationModelSettings > oneWayObservableUplinkSettingsWithCorrections =
+                std::make_shared< OneWayDopplerObservationModelSettings >(
                         uplinkLinkEndsStationSpacecraft,
                         std::shared_ptr< LightTimeCorrectionSettings >( ),
                         std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
                         std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) );
-        std::shared_ptr< OneWayDopplerObservationSettings > oneWayObservableDownlinkSettingsWithCorrections =
-                std::make_shared< OneWayDopplerObservationSettings >(
+        std::shared_ptr< OneWayDopplerObservationModelSettings > oneWayObservableDownlinkSettingsWithCorrections =
+                std::make_shared< OneWayDopplerObservationModelSettings >(
                         downlinkLinkEndsStationSpacecraft,
                         std::shared_ptr< LightTimeCorrectionSettings >( ),
                         std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
                         std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) );
 
-        std::shared_ptr< OneWayDopplerObservationSettings > oneWayObservableUplinkSettingsWithoutCorrections =
-                std::make_shared< OneWayDopplerObservationSettings >( uplinkLinkEndsStationSpacecraft, nullptr );
-        std::shared_ptr< OneWayDopplerObservationSettings > oneWayObservableDownlinkSettingsWithoutCorrections =
-                std::make_shared< OneWayDopplerObservationSettings >( downlinkLinkEndsStationSpacecraft, nullptr );
+        std::shared_ptr< OneWayDopplerObservationModelSettings > oneWayObservableUplinkSettingsWithoutCorrections =
+                std::make_shared< OneWayDopplerObservationModelSettings >( uplinkLinkEndsStationSpacecraft, nullptr );
+        std::shared_ptr< OneWayDopplerObservationModelSettings > oneWayObservableDownlinkSettingsWithoutCorrections =
+                std::make_shared< OneWayDopplerObservationModelSettings >( downlinkLinkEndsStationSpacecraft, nullptr );
 
         std::shared_ptr< ObservationModelSettings > twoWayObservableSettingsWithCorrections =
-                std::make_shared< TwoWayDopplerObservationSettings >( oneWayObservableUplinkSettingsWithCorrections,
+                std::make_shared< TwoWayDopplerObservationModelSettings >( oneWayObservableUplinkSettingsWithCorrections,
                                                                       oneWayObservableDownlinkSettingsWithCorrections );
         std::shared_ptr< ObservationModelSettings > twoWayObservableSettingsWithoutCorrections =
-                std::make_shared< TwoWayDopplerObservationSettings >( oneWayObservableUplinkSettingsWithoutCorrections,
+                std::make_shared< TwoWayDopplerObservationModelSettings >( oneWayObservableUplinkSettingsWithoutCorrections,
                                                                       oneWayObservableDownlinkSettingsWithoutCorrections );
 
         // Create observation model.

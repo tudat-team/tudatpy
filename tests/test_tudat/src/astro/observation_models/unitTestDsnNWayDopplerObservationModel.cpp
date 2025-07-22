@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
                 if( it->first == observation_models::dsn_n_way_averaged_doppler )
                 {
                     observationModelSettingsList.push_back(
-                            std::make_shared< observation_models::DsnNWayAveragedDopplerObservationSettings >( it->second.at( i ) ) );
+                            std::make_shared< observation_models::DsnNWayAveragedDopplerObservationModelSettings >( it->second.at( i ) ) );
                 }
             }
         }

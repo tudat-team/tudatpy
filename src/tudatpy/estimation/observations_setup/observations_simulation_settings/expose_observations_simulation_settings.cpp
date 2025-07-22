@@ -76,7 +76,7 @@ void expose_observations_simulation_settings( py::module& m )
          Instances of this class are typically created via the :func:`~tudatpy.estimation.observations_setup.observations_simulation_settings.tabulated_simulation_settings`
          and :func:`~tudatpy.estimation.observations_setup.observations_simulation_settings.tabulated_simulation_settings_list` functions.
 
-         Associated base class: :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings`
+         Associated base class: :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
 
          Examples
          --------
@@ -382,7 +382,7 @@ void expose_observations_simulation_settings( py::module& m )
 
  Parameters
  ----------
- observation_settings : List[ ObservationSettings ]
+ observation_settings : List[ ObservationModelSettings ]
      List of settings objects, each object defining the observation model settings for one combination of observable and link geometry that is to be simulated.
 
  bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`

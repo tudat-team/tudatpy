@@ -472,12 +472,12 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                         if( currentObservableType == n_way_differenced_range )
                         {
                             observationSettingsList.push_back(
-                                    std::make_shared< NWayDifferencedRangeObservationSettings >( currentLinkEndsList.at( i ) ) );
+                                    std::make_shared< NWayDifferencedRangeObservationModelSettings >( currentLinkEndsList.at( i ) ) );
                         }
                         else if( currentObservableType == dsn_n_way_averaged_doppler )
                         {
                             observationSettingsList.push_back(
-                                    std::make_shared< DsnNWayAveragedDopplerObservationSettings >( currentLinkEndsList.at( i ) ) );
+                                    std::make_shared< DsnNWayAveragedDopplerObservationModelSettings >( currentLinkEndsList.at( i ) ) );
                         }
                         else
                         {
@@ -961,11 +961,11 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
     std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
 
     // 3-way range
-    observationSettingsList.push_back( std::make_shared< NWayDifferencedRangeObservationSettings >( threeWayLinkEnds ) );
+    observationSettingsList.push_back( std::make_shared< NWayDifferencedRangeObservationModelSettings >( threeWayLinkEnds ) );
 
     // 2-way DSN Doppler (for both ground stations)
-    observationSettingsList.push_back( std::make_shared< DsnNWayAveragedDopplerObservationSettings >( station1TwoWayLinkEnds ) );
-    observationSettingsList.push_back( std::make_shared< DsnNWayAveragedDopplerObservationSettings >( station2TwoWayLinkEnds ) );
+    observationSettingsList.push_back( std::make_shared< DsnNWayAveragedDopplerObservationModelSettings >( station1TwoWayLinkEnds ) );
+    observationSettingsList.push_back( std::make_shared< DsnNWayAveragedDopplerObservationModelSettings >( station2TwoWayLinkEnds ) );
 
     // 1-way range (for both ground stations)
     observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( one_way_range, oneWayLinkEnds ) );
