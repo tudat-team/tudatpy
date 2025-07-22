@@ -184,7 +184,7 @@ void expose_parameters_setup( py::module& m )
  Parameters
  ----------
  parameter_settings : list( :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` )
-     List of objects that define the settings for the parameters that are to be created. Each entry in this list is typically created by a call to a function in the :ref:`parameter` module
+     List of objects that define the settings for the parameters that are to be created. Each entry in this list is typically created by a call to a function in the :ref:`parameters_setup` module
 
  bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
      Object consolidating all bodies and environment models, including ground station models, that constitute the physical environment.
@@ -678,7 +678,7 @@ void expose_parameters_setup( py::module& m )
  Function for creating parameter settings for quasi-impulsive shots.
 
  Function for creating parameter settings object for so-called 'quasi-impulsive shots', such as desaturation maneuvers.
- With this parameter, the total :math:`\Delta \mathbf{V}` vector of a set of such maneuvers can be estimated (see :func:`~tudatpy.dynamics.propagation_setup.acceleration.quasi_impulsive_shots_acceleration for mathematical details).
+ With this parameter, the total :math:`\Delta \mathbf{V}` vector of a set of such maneuvers can be estimated (see :func:`~tudatpy.dynamics.propagation_setup.acceleration.quasi_impulsive_shots_acceleration` for mathematical details).
  Using the quasi-impulsive shots as an estimatable parameter requires:
 
  * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.quasi_impulsive_shots_acceleration` acceleration
@@ -1543,7 +1543,7 @@ sine_indices_per_power : dict[int, list[int,int]]
     Dictionary of powers :math:`i` (as keys) with list of combinations of degrees :math:`l` and orders :math:`m` for which to estimate :math:`K_{i,\bar{S}_{lm}}` as values (see :func:`~tudatpy.dynamics.environment_setup.gravity_field_variation.polynomial` for mathematical definition)
 
 Returns
--------                                                                       -------
+-------
 :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
     Object for the specified body's polynomial gravity field variations
 
