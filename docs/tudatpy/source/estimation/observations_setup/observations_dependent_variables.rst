@@ -34,8 +34,6 @@ Functions
 
    add_dependent_variables_to_observable_for_link_ends
 
-.. autofunction:: tudatpy.estimation.observations_setup.observations_dependent_variables.point_mass_gravity
-
 .. autofunction:: tudatpy.estimation.observations_setup.observations_dependent_variables.elevation_angle_dependent_variable
 
 .. autofunction:: tudatpy.estimation.observations_setup.observations_dependent_variables.azimuth_angle_dependent_variable
