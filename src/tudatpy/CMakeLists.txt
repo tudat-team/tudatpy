@@ -16,7 +16,18 @@ set(TUDATPY_INSTALL_PATH "${YACMA_PYTHON_MODULES_INSTALL_PATH}/tudatpy")
 # set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TUDATPY_SOURCE_DIR})
 
 # Get sources for extension
-set(sources ${TUDATPY_SOURCE_DIR}/kernel.cpp)
+set(sources
+        ${TUDATPY_SOURCE_DIR}/kernel.cpp
+        ${TUDATPY_SOURCE_DIR}/add_math_to_kernel.cpp
+        ${TUDATPY_SOURCE_DIR}/add_astro_to_kernel.cpp
+        ${TUDATPY_SOURCE_DIR}/add_trajectory_design_to_kernel.cpp
+        ${TUDATPY_SOURCE_DIR}/add_constants_to_kernel.cpp
+        ${TUDATPY_SOURCE_DIR}/add_interface_to_kernel.cpp
+        ${TUDATPY_SOURCE_DIR}/add_data_to_kernel.cpp
+        ${TUDATPY_SOURCE_DIR}/add_dynamics_to_kernel.cpp
+        ${TUDATPY_SOURCE_DIR}/add_estimation_to_kernel.cpp
+        ${TUDATPY_SOURCE_DIR}/add_exceptions_to_kernel.cpp
+)
 update_sources(math sources)
 update_sources(astro sources)
 update_sources(trajectory_design sources)
@@ -24,6 +35,8 @@ update_sources(constants sources)
 update_sources(interface sources)
 update_sources(data sources)
 update_sources(numerical_simulation sources)
+update_sources(dynamics sources)
+update_sources(estimation sources)
 update_sources(exceptions sources)
 
 YACMA_PYTHON_MODULE(kernel ${sources})

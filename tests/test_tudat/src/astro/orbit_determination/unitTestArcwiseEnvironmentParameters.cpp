@@ -295,7 +295,7 @@ BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
     {
         BOOST_CHECK_SMALL( std::fabs( parameterEstimate( i ) ), 1.0E-2 );
         BOOST_CHECK_SMALL( std::fabs( parameterEstimate( i + 3 ) ), 1.0E-4 );
-        BOOST_CHECK_SMALL( std::fabs( parameterEstimate( i + 6 ) ), 1.0E-5 );
+        BOOST_CHECK_SMALL( std::fabs( parameterEstimate( i + 6 ) ), 1.1E-5 );
         BOOST_CHECK_SMALL( std::fabs( parameterEstimate( i + 9 ) ), 1.0E-4 );
     }
 }

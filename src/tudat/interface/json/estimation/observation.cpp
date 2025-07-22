@@ -20,7 +20,7 @@ namespace observation_models
 {
 
 //! Create a `json` object from a shared pointer to a `SingleDependentVariableSaveSettings` object.
-void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ObservationSettings >& observationSettings )
+void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ObservationModelSettings >& observationSettings )
 {
     if( !observationSettings )
     {
@@ -45,8 +45,8 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ObservationSett
         case position_observable:
         case relative_position_observable:
         case one_way_doppler: {
-            std::shared_ptr< OneWayDopplerObservationSettings > oneWayDopplerObservationSettings =
-                    std::dynamic_pointer_cast< OneWayDopplerObservationSettings >( observationSettings );
+            std::shared_ptr< OneWayDopplerObservationModelSettings > oneWayDopplerObservationSettings =
+                    std::dynamic_pointer_cast< OneWayDopplerObservationModelSettings >( observationSettings );
             if( !( oneWayDopplerObservationSettings == nullptr ) )
             {
                 if( oneWayDopplerObservationSettings->transmitterProperTimeRateSettings_ != nullptr )
@@ -74,8 +74,8 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ObservationSett
             return;
         }
         case n_way_range: {
-            std::shared_ptr< NWayRangeObservationSettings > nWayRangeObservationSettings =
-                    std::dynamic_pointer_cast< NWayRangeObservationSettings >( observationSettings );
+            std::shared_ptr< NWayRangeObservationModelSettings > nWayRangeObservationSettings =
+                    std::dynamic_pointer_cast< NWayRangeObservationModelSettings >( observationSettings );
             if( !( nWayRangeObservationSettings == nullptr ) )
             {
                 jsonObject[ K::oneWayRangeObservationSettings ] = nWayRangeObservationSettings->oneWayRangeObservationSettings_;
@@ -92,8 +92,8 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ObservationSett
             return;
         }
         case two_way_doppler: {
-            std::shared_ptr< TwoWayDopplerObservationSettings > twoWayDopplerObservationSettings =
-                    std::dynamic_pointer_cast< TwoWayDopplerObservationSettings >( observationSettings );
+            std::shared_ptr< TwoWayDopplerObservationModelSettings > twoWayDopplerObservationSettings =
+                    std::dynamic_pointer_cast< TwoWayDopplerObservationModelSettings >( observationSettings );
             if( !( twoWayDopplerObservationSettings == nullptr ) )
             {
                 jsonObject[ K::uplinkOneWayDopplerSettings ] = twoWayDopplerObservationSettings->uplinkOneWayDopplerSettings_;
@@ -107,7 +107,7 @@ void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ObservationSett
     }
 }
 
-void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ObservationSettings >& observationSettings )
+void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ObservationModelSettings >& observationSettings )
 {
     using namespace json_interface;
     using K = Keys::Observation;
@@ -129,7 +129,7 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ObservationSe
             std::shared_ptr< DopplerProperTimeRateSettings > receiverProperTimeRateSettings =
                     getValue< std::shared_ptr< DopplerProperTimeRateSettings > >( jsonObject, K::receiverProperTimeRateSettings, nullptr );
 
-            observationSettings = std::make_shared< OneWayDopplerObservationSettings >(
+            observationSettings = std::make_shared< OneWayDopplerObservationModelSettings >(
                     lightTimeCorrectionsList, transmitterProperTimeRateSettings, receiverProperTimeRateSettings, biasSettings );
             return;
         }
@@ -141,43 +141,43 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ObservationSe
             return;
         }
         case n_way_range: {
-            std::vector< std::shared_ptr< ObservationSettings > > oneWayRangeObservationSettings =
-                    getValue< std::vector< std::shared_ptr< ObservationSettings > > >(
-                            jsonObject, K::oneWayRangeObservationSettings, std::vector< std::shared_ptr< ObservationSettings > >( ) );
+            std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObservationSettings =
+                    getValue< std::vector< std::shared_ptr< ObservationModelSettings > > >(
+                            jsonObject, K::oneWayRangeObservationSettings, std::vector< std::shared_ptr< ObservationModelSettings > >( ) );
             if( oneWayRangeObservationSettings.size( ) == 0 )
             {
-                observationSettings = std::make_shared< ObservationSettings >( observableType, lightTimeCorrectionsList, biasSettings );
+                observationSettings = std::make_shared< ObservationModelSettings >( observableType, lightTimeCorrectionsList, biasSettings );
             }
             else
             {
                 std::vector< double > retransmissionTimes =
                         getValue< std::vector< double > >( jsonObject, K::retransmissionTimes, std::vector< double >( ) );
-                observationSettings = std::make_shared< NWayRangeObservationSettings >(
+                observationSettings = std::make_shared< NWayRangeObservationModelSettings >(
                         oneWayRangeObservationSettings, [ = ]( const double ) { return retransmissionTimes; }, biasSettings );
             }
             return;
         }
         case two_way_doppler: {
-            std::shared_ptr< ObservationSettings > uplinkOneWayDopplerSettings =
-                    getValue< std::shared_ptr< ObservationSettings > >( jsonObject, K::uplinkOneWayDopplerSettings, nullptr );
-            std::shared_ptr< ObservationSettings > downlinkOneWayDopplerSettings =
-                    getValue< std::shared_ptr< ObservationSettings > >( jsonObject, K::downlinkOneWayDopplerSettings, nullptr );
+            std::shared_ptr< ObservationModelSettings > uplinkOneWayDopplerSettings =
+                    getValue< std::shared_ptr< ObservationModelSettings > >( jsonObject, K::uplinkOneWayDopplerSettings, nullptr );
+            std::shared_ptr< ObservationModelSettings > downlinkOneWayDopplerSettings =
+                    getValue< std::shared_ptr< ObservationModelSettings > >( jsonObject, K::downlinkOneWayDopplerSettings, nullptr );
             if( ( uplinkOneWayDopplerSettings == nullptr ) && ( downlinkOneWayDopplerSettings == nullptr ) )
             {
-                observationSettings = std::make_shared< ObservationSettings >( observableType, lightTimeCorrectionsList, biasSettings );
+                observationSettings = std::make_shared< ObservationModelSettings >( observableType, lightTimeCorrectionsList, biasSettings );
             }
             else if( ( uplinkOneWayDopplerSettings != nullptr ) && ( downlinkOneWayDopplerSettings != nullptr ) )
             {
-                if( std::dynamic_pointer_cast< OneWayDopplerObservationSettings >( uplinkOneWayDopplerSettings ) == nullptr ||
-                    std::dynamic_pointer_cast< OneWayDopplerObservationSettings >( downlinkOneWayDopplerSettings ) == nullptr )
+                if( std::dynamic_pointer_cast< OneWayDopplerObservationModelSettings >( uplinkOneWayDopplerSettings ) == nullptr ||
+                    std::dynamic_pointer_cast< OneWayDopplerObservationModelSettings >( downlinkOneWayDopplerSettings ) == nullptr )
                 {
                     throw std::runtime_error(
                             "Error when reading 2-way Doppler dettings from JSON file, link "
                             "doppler settings are inconsistent" );
                 }
-                observationSettings = std::make_shared< TwoWayDopplerObservationSettings >(
-                        std::dynamic_pointer_cast< OneWayDopplerObservationSettings >( uplinkOneWayDopplerSettings ),
-                        std::dynamic_pointer_cast< OneWayDopplerObservationSettings >( downlinkOneWayDopplerSettings ),
+                observationSettings = std::make_shared< TwoWayDopplerObservationModelSettings >(
+                        std::dynamic_pointer_cast< OneWayDopplerObservationModelSettings >( uplinkOneWayDopplerSettings ),
+                        std::dynamic_pointer_cast< OneWayDopplerObservationModelSettings >( downlinkOneWayDopplerSettings ),
                         biasSettings );
             }
             else
@@ -189,13 +189,13 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ObservationSe
             return;
         }
         default: {
-            observationSettings = std::make_shared< ObservationSettings >( observableType, lightTimeCorrectionsList, biasSettings );
+            observationSettings = std::make_shared< ObservationModelSettings >( observableType, lightTimeCorrectionsList, biasSettings );
             return;
         }
     }
 }
 
-//! Create a `json` object from a shared pointer to a `ObservationSettings` object.
+//! Create a `json` object from a shared pointer to a `ObservationModelSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< ObservationBiasSettings >& biasSettings )
 {
     if( !biasSettings )
@@ -308,7 +308,7 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ObservationBi
     }
 }
 
-//! Create a `json` object from a shared pointer to a `ObservationSettings` object.
+//! Create a `json` object from a shared pointer to a `ObservationModelSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< DopplerProperTimeRateSettings >& properTimeRateSettings )
 {
     if( !properTimeRateSettings )
@@ -355,7 +355,7 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< DopplerProper
     }
 }
 
-//! Create a `json` object from a shared pointer to a `ObservationSettings` object.
+//! Create a `json` object from a shared pointer to a `ObservationModelSettings` object.
 void to_json( nlohmann::json& jsonObject, const std::shared_ptr< LightTimeCorrectionSettings >& lightTimeCorrectionSettings )
 {
     if( !lightTimeCorrectionSettings )
@@ -409,7 +409,7 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< LightTimeCorr
     { }
 }
 
-//! Create a `json` object from a shared pointer to a `ObservationSettings` object.
+//! Create a `json` object from a shared pointer to a `ObservationModelSettings` object.
 void to_json( nlohmann::json& jsonObject,
               const std::shared_ptr< ObservationSimulationTimeSettings< double > >& observationSimulationTimeSettings )
 {

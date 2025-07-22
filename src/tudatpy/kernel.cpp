@@ -1,70 +1,47 @@
 #define PYBIND11_DETAILED_ERROR_MESSAGES
+
 #include <pybind11/pybind11.h>
-
 #include <tudat/config.hpp>
-
-#include "astro/expose_astro.h"
-#include "constants/expose_constants.h"
-#include "data/expose_data.h"
-#include "exceptions/expose_exceptions.h"
-#include "interface/expose_interface.h"
-#include "math/expose_math.h"
-#include "numerical_simulation/expose_numerical_simulation.h"
-#include "trajectory_design/expose_trajectory_design.h"
 
 namespace py = pybind11;
 
-PYBIND11_MODULE( kernel, m )
+// Declarations from each binding .cpp file
+void add_math_to_kernel(py::module_& m);
+void add_astro_to_kernel(py::module_& m);
+void add_trajectory_design_to_kernel(py::module_& m);
+void add_constants_to_kernel(py::module_& m);
+void add_interface_to_kernel(py::module_& m);
+void add_data_to_kernel(py::module_& m);
+void add_dynamics_to_kernel(py::module_& m);
+void add_estimation_to_kernel(py::module_& m);
+void add_exceptions_to_kernel(py::module_& m);
+
+PYBIND11_MODULE(kernel, m)
 {
-    // Disable automatic function signatures in the docs.
-    // NOTE: the 'options' object needs to stay alive
-    // throughout the whole definition of the module.
-    // py::options options;
-    // options.enable_function_signatures( );
-    // options.enable_user_defined_docstrings( );
+    auto math = m.def_submodule("math");
+    add_math_to_kernel(math);
 
-    // // Export the tudat version.
-    // m.attr( "_tudat_version" ) = TUDAT_VERSION;
-    // m.attr( "_tudat_version_major" ) = TUDAT_VERSION_MAJOR;
-    // m.attr( "_tudat_version_minor" ) = TUDAT_VERSION_MINOR;
-    // m.attr( "_tudat_version_patch" ) = TUDAT_VERSION_PATCH;
+    auto astro = m.def_submodule("astro");
+    add_astro_to_kernel(astro);
 
-    // math module
-    auto math = m.def_submodule( "math" );
-    tudatpy::math::expose_math( math );
+    auto trajectory_design = m.def_submodule("trajectory_design");
+    add_trajectory_design_to_kernel(trajectory_design);
 
-    // astro module
-    auto astro = m.def_submodule( "astro" );
-    tudatpy::astro::expose_astro( astro );
+    auto constants = m.def_submodule("constants");
+    add_constants_to_kernel(constants);
 
-    // simulation module
-    auto trajectory_design = m.def_submodule( "trajectory_design" );
-    tudatpy::trajectory_design::expose_trajectory_design( trajectory_design );
+    auto interface = m.def_submodule("interface");
+    add_interface_to_kernel(interface);
 
-    // constants module
-    auto constants = m.def_submodule( "constants" );
-    tudatpy::constants::expose_constants( constants );
+    auto data = m.def_submodule("data");
+    add_data_to_kernel(data);
 
-    // interface module
-    auto interface = m.def_submodule( "interface" );
-    tudatpy::interface::expose_interface( interface );
+    auto dynamics = m.def_submodule("dynamics");
+    add_dynamics_to_kernel(dynamics);
 
-    // data module
-    auto data = m.def_submodule( "data" );
-    tudatpy::data::expose_data( data );
+    auto estimation = m.def_submodule("estimation");
+    add_estimation_to_kernel(estimation);
 
-    // simulation module
-    auto numerical_simulation = m.def_submodule( "numerical_simulation" );
-    tudatpy::numerical_simulation::expose_numerical_simulation( numerical_simulation );
-    tudatpy::numerical_simulation::expose_numerical_simulation_simulator( numerical_simulation );
-    tudatpy::numerical_simulation::expose_numerical_simulation_variational( numerical_simulation );
-    tudatpy::numerical_simulation::expose_numerical_simulation_estimator( numerical_simulation );
-
-    // exceptions module
-    auto exceptions = m.def_submodule( "exceptions" );
-    tudatpy::exceptions::expose_exceptions( exceptions );
-
-    //    // example module
-    //    auto example = m.def_submodule("example");
-    //    tudatpy::expose_example(example);
+    auto exceptions = m.def_submodule("exceptions");
+    add_exceptions_to_kernel(exceptions);
 }
