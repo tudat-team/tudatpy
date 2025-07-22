@@ -123,20 +123,20 @@ Classes
 
    ObservationModelSettings
 
-   OneWayDopplerModelObservationSettings
+   OneWayDopplerObservationModelSettings
 
-   NWayRangeModelObservationSettings
+   NWayRangeObservationModelSettings
 
 .. autoclass:: tudatpy.estimation.observable_models_setup.model_settings.DopplerProperTimeRateSettings
    :members:
 
-.. autoclass:: tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings
+.. autoclass:: tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings
    :members:
 
-.. autoclass:: tudatpy.estimation.observable_models_setup.model_settings.OneWayDopplerObservationSettings
+.. autoclass:: tudatpy.estimation.observable_models_setup.model_settings.OneWayDopplerObservationModelSettings
    :members:
 
-.. autoclass:: tudatpy.estimation.observable_models_setup.model_settings.NWayRangeObservationSettings
+.. autoclass:: tudatpy.estimation.observable_models_setup.model_settings.NWayRangeObservationModelSettings
 
    :members:
 
