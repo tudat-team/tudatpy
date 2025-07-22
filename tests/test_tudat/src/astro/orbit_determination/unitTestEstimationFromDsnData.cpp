@@ -300,14 +300,14 @@ void runSimulation( std::vector< std::string > odfFiles,
             //                            it->first, it->second.at( i ), lightTimeCorrectionSettings, nullptr, nullptr ) );
             if( it->first == observation_models::dsn_n_way_averaged_doppler )
             {
-                observationModelSettingsList.push_back( std::make_shared< observation_models::DsnNWayAveragedDopplerObservationSettings >(
+                observationModelSettingsList.push_back( std::make_shared< observation_models::DsnNWayAveragedDopplerObservationModelSettings >(
                         it->second.at( i ), lightTimeCorrectionSettings, nullptr, lightTimeConvergenceCriteria ) );
                 //                observationModelSettingsList.push_back(
-                //                    std::make_shared< observation_models::NWayDifferencedRangeObservationSettings >(
+                //                    std::make_shared< observation_models::NWayDifferencedRangeObservationModelSettings >(
                 //                            it->second.at( i ), lightTimeCorrectionSettings, nullptr,
                 //                            lightTimeConvergenceCriteria ) );
                 //                observationModelSettingsList.push_back(
-                //                    std::make_shared< observation_models::NWayRangeObservationSettings >(
+                //                    std::make_shared< observation_models::NWayRangeObservationModelSettings >(
                 //                            it->second.at( i ),
                 //                            nullptr, 3, nullptr,
                 //                            lightTimeConvergenceCriteria ) );
