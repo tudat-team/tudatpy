@@ -9,7 +9,7 @@ Specific exceptions that can be raised by the TudatPy library.
    :maxdepth: 2
    :caption: Modules
 
-   spice_exceptions
+   exceptions/spice_exceptions
 
 
 

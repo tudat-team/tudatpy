@@ -1115,6 +1115,21 @@ inline std::shared_ptr< EstimatableParameterSettings > constantDragCoefficient( 
     return std::make_shared< EstimatableParameterSettings >( bodyName, constant_drag_coefficient );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > dragComponentScaling( const std::string bodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, drag_component_scaling_factor );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > sideComponentScaling( const std::string bodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, side_component_scaling_factor );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > liftComponentScaling( const std::string bodyName )
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName,lift_component_scaling_factor );
+}
+
 inline std::shared_ptr< EstimatableParameterSettings > radiationPressureCoefficient( const std::string bodyName )
 {
     return std::make_shared< EstimatableParameterSettings >( bodyName, radiation_pressure_coefficient );

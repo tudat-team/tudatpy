@@ -8,9 +8,9 @@ name: Build and Test
 
 on:
   push:
-    branches: [ "master", "develop"]
+    branches: [ "master", "develop", "develop_10"]
   pull_request:
-    branches: [ "master", "develop"]
+    branches: [ "master", "develop", "develop_10"]
 
 jobs:
   build-and-test:
@@ -22,7 +22,7 @@ jobs:
 
     strategy:
       # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
-      fail-fast: true
+      fail-fast: false
 
       # Set up a matrix to run the following 3 configurations:
       # 1. <Windows, Release, latest MSVC compiler toolchain on the default runner image, default generator>

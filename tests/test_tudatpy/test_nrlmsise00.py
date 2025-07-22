@@ -4,10 +4,10 @@ import pickle
 import numpy as np
 
 # Load Tudatpy modules
-from tudatpy.kernel import numerical_simulation
+from tudatpy.dynamics import environment_setup
 from tudatpy.data import read_solar_activity_data, get_space_weather_path
-from tudatpy.kernel.astro.time_conversion import epoch_from_date_time_iso_string
-from tudatpy.kernel.astro.element_conversion import convert_geographic_to_geodetic_latitude
+from tudatpy.astro.time_representation import iso_string_to_epoch
+from tudatpy.astro.element_conversion import convert_geographic_to_geodetic_latitude
 
 
 def test_nrlmsise00():
@@ -21,13 +21,13 @@ def test_nrlmsise00():
 
     # Initialise Tudat NRLMSISE00 model
     solar_weather_data = read_solar_activity_data(get_space_weather_path() + '/sw19571001.txt')
-    NRLMSISE00 = numerical_simulation.environment_setup.atmosphere.NRLMSISE00Atmosphere(solar_weather_data,True,False,True)
+    NRLMSISE00 = environment_setup.atmosphere.NRLMSISE00Atmosphere(solar_weather_data,True,False,True)
 
     # Extract input data and expected densities from the list of dictionaries
     altitudes = np.array([data["altitude"] for data in validation_data])
     longitudes = np.array([data["longitude"] for data in validation_data])
     latitudes = np.array([data["latitude"] for data in validation_data])
-    epochs = np.array([epoch_from_date_time_iso_string(data["date"]) for data in validation_data])
+    epochs = np.array([iso_string_to_epoch(data["date"]) for data in validation_data])
     expected_densities = np.array([data["density"] for data in validation_data])
 
     # Convert geographic latitudes to geodetic latitudes as the validation data was obtained by passing geodetic latitudes to pymsis

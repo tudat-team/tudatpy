@@ -46,6 +46,7 @@
 #include "tudat/simulation/environment_setup/defaultBodies.h"
 #include "tudat/simulation/environment_setup/thrustSettings.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/aerodynamicScalingCoefficient.h"
 
 namespace tudat
 {
@@ -769,11 +770,19 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
                                                  std::make_pair( "Earth", bodies.at( "Earth" ) ),
                                                  bodies );
 
-    // Create gravitational parameter object.
+    // constant drag parameter
     std::shared_ptr< EstimatableParameter< double > > dragCoefficientParameter =
             std::make_shared< ConstantDragCoefficient >( std::dynamic_pointer_cast< aerodynamics::CustomAerodynamicCoefficientInterface >(
                                                                  bodies.at( "Vehicle" )->getAerodynamicCoefficientInterface( ) ),
                                                          "Vehicle" );
+    // drag/side/lift direction scaling parameters
+    auto aeroAccelerationModel = std::dynamic_pointer_cast< aerodynamics::AerodynamicAcceleration >( accelerationModel );
+    std::shared_ptr< EstimatableParameter< double > > dragDirectionScaling =
+            std::make_shared< AerodynamicScalingFactor >( aeroAccelerationModel, drag_component_scaling_factor, "Vehicle" );
+    std::shared_ptr< EstimatableParameter< double > > sideDirectionScaling =
+            std::make_shared< AerodynamicScalingFactor >( aeroAccelerationModel, side_component_scaling_factor, "Vehicle" );
+    std::shared_ptr< EstimatableParameter< double > > liftDirectionScaling =
+            std::make_shared< AerodynamicScalingFactor >( aeroAccelerationModel, lift_component_scaling_factor, "Vehicle" );
 
     // Calculate analytical partials.
     aerodynamicAccelerationPartial->update( 0.0 );
@@ -788,6 +797,10 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
 
     Eigen::Vector3d partialWrtDragCoefficient = aerodynamicAccelerationPartial->wrtParameter( dragCoefficientParameter );
 
+    Eigen::Vector3d partialWrtDragDirection = aerodynamicAccelerationPartial->wrtParameter( dragDirectionScaling );
+    Eigen::Vector3d partialWrtSideDirection = aerodynamicAccelerationPartial->wrtParameter( sideDirectionScaling );
+    Eigen::Vector3d partialWrtLiftDirection = aerodynamicAccelerationPartial->wrtParameter( liftDirectionScaling );
+    
     // Declare numerical partials.
     Eigen::Matrix3d testPartialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
     Eigen::Matrix3d testPartialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
@@ -840,6 +853,13 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
     Eigen::Vector3d testPartialWrtDragCoefficient =
             calculateAccelerationWrtParameterPartials( dragCoefficientParameter, accelerationModel, 1.0E-4, environmentUpdateFunction );
 
+    Eigen::Vector3d testPartialWrtDragDirectionScaling =
+            calculateAccelerationWrtParameterPartials( dragDirectionScaling, accelerationModel, 1.0E-4, environmentUpdateFunction );
+    Eigen::Vector3d testPartialWrtSideDirectionScaling =
+            calculateAccelerationWrtParameterPartials( sideDirectionScaling, accelerationModel, 1.0E-4, environmentUpdateFunction );
+    Eigen::Vector3d testPartialWrtLiftDirectionScalingt =
+            calculateAccelerationWrtParameterPartials( liftDirectionScaling, accelerationModel, 1.0E-4, environmentUpdateFunction );
+
     // Compare numerical and analytical results.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehiclePosition, partialWrtVehiclePosition, 1.0E-6 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehicleVelocity, partialWrtVehicleVelocity, 1.0E-6 );
@@ -847,6 +867,10 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthVelocity, partialWrtEarthVelocity, 1.0E-6 );
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtDragCoefficient, partialWrtDragCoefficient, 1.0E-10 );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtDragDirectionScaling, partialWrtDragDirection, 1.0E-10 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSideDirectionScaling, partialWrtSideDirection, 1.0E-10 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtLiftDirectionScalingt, partialWrtLiftDirection, 1.0E-10 );
 }
 
 BOOST_AUTO_TEST_CASE( testRelativisticAccelerationPartial )
