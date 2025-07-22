@@ -799,7 +799,7 @@ Enumeration of available integrated state types.
 
             Settings that determine how the propagation results are processed (e.g. if the results are used to update the body ephemeris, if
             data from each epoch is saved, etc.), and which data is printed to the console
-            See `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/propagation-setup/printing-processing-results.html#automatic-processing>`_ for more details.
+            See `our user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/propagation-setup/printing-processing-results.html#automatic-processing>`_ for more details.
 
             :type: SingleArcPropagatorProcessingSettings
 
@@ -810,7 +810,7 @@ Enumeration of available integrated state types.
             **read-only**
 
             Settings that determine which information is printed to the console during the propagation. NOTE: this object can also be retrieved from the ``processing_settings`` attribute
-            See `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/propagation-setup/printing-processing-results.html#console-output>`_ for more details.
+            See `the user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/propagation-setup/printing-processing-results.html#console-output>`_ for more details.
 
             :type: PropagationPrintSettings
 
