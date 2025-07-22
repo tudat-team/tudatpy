@@ -23,10 +23,11 @@ astrodynamics.
    astro
    constants
    data
+   dynamics
+   estimation
    exceptions
    interface
    math
-   numerical_simulation
    trajectory_design
    plotting
    util
