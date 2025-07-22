@@ -45,8 +45,12 @@ Classes
    MultiArcSimulator
 
    HybridArcSimulator
+
+   VariationalSimulator
    
    SingleArcVariationalSimulator
+
+   CombinedStateTransitionAndSensitivityMatrixInterface
 
 
 
@@ -62,11 +66,15 @@ Classes
 .. autoclass:: tudatpy.dynamics.simulator.HybridArcSimulator
    :members:
 
+.. autoclass:: tudatpy.dynamics.simulator.VariationalSimulator
+   :members:
 
 .. autoclass:: tudatpy.dynamics.simulator.SingleArcVariationalSimulator
    :members:
    :special-members: __init__
 
+.. autoclass:: tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface
+   :members:
 
 
 
