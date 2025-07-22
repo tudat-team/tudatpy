@@ -37,9 +37,6 @@ void expose_estimated_parameter_setup( py::module& m )
 
 
 
-
-
-
       )doc" )
             .value( "arc_wise_initial_body_state_type",
                     tep::EstimatebleParametersEnum::arc_wise_initial_body_state )
@@ -73,6 +70,9 @@ void expose_estimated_parameter_setup( py::module& m )
             .value( "ppn_parameter_gamma_type",
                     tep::EstimatebleParametersEnum::ppn_parameter_gamma )
             .value( "ppn_parameter_beta_type", tep::EstimatebleParametersEnum::ppn_parameter_beta )
+            .value("yarkovsky_parameter_type", tep::EstimatebleParametersEnum::yarkovsky_parameter )
+            .value("rtg_force_vector_type", tep::EstimatebleParametersEnum::rtg_force_vector )
+            .value("rtg_force_magnitude_type", tep::EstimatebleParametersEnum::rtg_force_vector_magnitude )
             .value( "ground_station_position_type",
                     tep::EstimatebleParametersEnum::ground_station_position )
             .value( "equivalence_principle_lpi_violation_parameter_"
@@ -1630,6 +1630,45 @@ Returns
            py::arg( "body_name" ),
            py::arg( "central_body_name" ) = "Sun",
            R"doc(No documentation found.)doc" );
+
+
+    m.def( "rtg_force_vector",
+           &tep::rtgForceVector,
+           py::arg( "body_name" ),
+           R"doc(
+
+Function for creating parameter settings for the reference force vector (:math: `\mathbf{F}_\text{0}`) of the RTG acceleration model.
+
+Parameters
+----------
+body_name : str
+    Name of the body that is undergoing RTG acceleration
+
+Returns
+-------
+:class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
+    Object for the specified body's RTG acceleration model
+
+    )doc" );
+
+    m.def( "rtg_force_magnitude",
+           &tep::rtgForceVectorMagnitude,
+           py::arg( "body_name" ),
+           R"doc(
+
+Function for creating parameter settings for the reference force magnitude (:math: `|| \mathbf{F}_\text{0} ||`) of the RTG acceleration model.
+
+Parameters
+----------
+body_name : str
+    Name of the body that is undergoing RTG acceleration
+
+Returns
+-------
+:class:`~tudatpy.numerical_simulation.estimation_setup.parameter.EstimatableParameterSettings`
+    Object for the specified body's RTG acceleration model
+
+    )doc" );
 
     m.def( "custom_parameter",
            &tep::customParameterSettings,
