@@ -16,7 +16,7 @@ Provides interfaces with external API.
    :maxdepth: 2
    :caption: Modules
 
-   spice
+   interface/spice
 
 
 
