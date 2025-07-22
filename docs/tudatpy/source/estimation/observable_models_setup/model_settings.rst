@@ -36,7 +36,7 @@ Functions
 
    one_way_doppler_instantaneous
 
-   two_doppler_instantaneous
+   two_way_doppler_instantaneous
 
    two_way_doppler_instantaneous_from_one_way_links
 
@@ -81,7 +81,7 @@ Functions
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.one_way_doppler_instantaneous
 
-.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.two_doppler_instantaneous
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.two_way_doppler_instantaneous
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.two_way_doppler_instantaneous_from_one_way_links
 
@@ -121,11 +121,11 @@ Classes
 
    DopplerProperTimeRateSettings
 
-   ObservationSettings
+   ObservationModelSettings
 
-   OneWayDopplerObservationSettings
+   OneWayDopplerModelObservationSettings
 
-   NWayRangeObservationSettings
+   NWayRangeModelObservationSettings
 
 .. autoclass:: tudatpy.estimation.observable_models_setup.model_settings.DopplerProperTimeRateSettings
    :members:
@@ -137,4 +137,6 @@ Classes
    :members:
 
 .. autoclass:: tudatpy.estimation.observable_models_setup.model_settings.NWayRangeObservationSettings
+
    :members:
+

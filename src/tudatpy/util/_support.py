@@ -1,6 +1,5 @@
 import numpy as np
 from tudatpy.math import interpolators
-from tudatpy.dynamics import propagation
 from tudatpy.dynamics.propagation_setup import propagator
 import os
 from typing import Union, TYPE_CHECKING, Callable
@@ -318,7 +317,7 @@ def split_history(
             n_bodies = len(body_list)
             body_names = [body_list[i][0] for i in range(n_bodies)]
         # Get the state size for the current state type.
-        state_size = propagation.get_single_integration_size(
+        state_size = propagator.get_single_integration_size(
             state_type
         )
         propagated_states_sizes.append(state_size)
