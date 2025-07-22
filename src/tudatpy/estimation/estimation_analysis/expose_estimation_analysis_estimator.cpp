@@ -88,7 +88,7 @@ void expose_estimation_analysis_estimator( py::module& m )
              Object defining a consolidated set of estimatable parameters,
              linked to the environment and acceleration settings of the simulation.
 
-         observation_settings : :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings`
+         observation_settings : :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`
              List of settings objects, each object defining the observation model settings for one
              combination of observable and link geometry that is to be simulated.
 
