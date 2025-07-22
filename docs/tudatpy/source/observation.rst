@@ -332,11 +332,11 @@ Classes
 
    DopplerProperTimeRateSettings
 
-   ObservationSettings
+   ObservationModelSettings
 
-   OneWayDopplerObservationSettings
+   OneWayDopplerObservationModelSettings
 
-   NWayRangeObservationSettings
+   NWayRangeObservationModelSettings
 
    LightTimeCorrectionSettings
 
@@ -369,13 +369,13 @@ Classes
 .. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.DopplerProperTimeRateSettings
    :members:
 
-.. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.ObservationSettings
+.. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.ObservationModelSettings
    :members:
 
-.. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.OneWayDopplerObservationSettings
+.. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.OneWayDopplerObservationModelSettings
    :members:
 
-.. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationSettings
+.. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.NWayRangeObservationModelSettings
    :members:
 
 .. autoclass:: tudatpy.numerical_simulation.estimation_setup.observation.LightTimeCorrectionSettings
