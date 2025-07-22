@@ -121,11 +121,11 @@ Classes
 
    DopplerProperTimeRateSettings
 
-   ObservationSettings
+   ObservationModelSettings
 
-   OneWayDopplerObservationSettings
+   OneWayDopplerModelObservationSettings
 
-   NWayRangeObservationSettings
+   NWayRangeModelObservationSettings
 
 .. autoclass:: tudatpy.estimation.observable_models_setup.model_settings.DopplerProperTimeRateSettings
    :members:
