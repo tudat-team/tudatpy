@@ -243,7 +243,7 @@ BOOST_AUTO_TEST_CASE( testFrequencyDopplerPartialsDirect )
     std::shared_ptr< TwoWayDopplerObservationModel< double, double > > twoWayDopplerObservationModel =
             std::dynamic_pointer_cast< TwoWayDopplerObservationModel< double, double > >(
                     ObservationModelCreator< 1, double, double >::createObservationModel(
-                            std::make_shared< TwoWayDopplerObservationSettings >( linkEnds, lightTimeCorrectionsList ), bodies ) );
+                            std::make_shared< TwoWayDopplerObservationModelSettings >( linkEnds, lightTimeCorrectionsList ), bodies ) );
 
     // Define link end
     LinkEndType referenceLinkEnd = receiver;
@@ -347,8 +347,8 @@ BOOST_AUTO_TEST_CASE( testFrequencyDopplerPartials )
         perturbingBodies.push_back( "Earth" );
 
         twoWayDopplerModel = observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                std::make_shared< TwoWayDopplerObservationSettings >(
-                        std::make_shared< observation_models::OneWayDopplerObservationSettings >(
+                std::make_shared< TwoWayDopplerObservationModelSettings >(
+                        std::make_shared< observation_models::OneWayDopplerObservationModelSettings >(
                                 getUplinkFromTwoWayLinkEnds( linkEnds ),
                                 std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ),
                                 std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
@@ -356,7 +356,7 @@ BOOST_AUTO_TEST_CASE( testFrequencyDopplerPartials )
                                 nullptr,
                                 std::make_shared< LightTimeConvergenceCriteria >( ),
                                 true ),
-                        std::make_shared< observation_models::OneWayDopplerObservationSettings >(
+                        std::make_shared< observation_models::OneWayDopplerObservationModelSettings >(
                                 getDownlinkFromTwoWayLinkEnds( linkEnds ),
                                 std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ),
                                 std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
@@ -413,8 +413,8 @@ BOOST_AUTO_TEST_CASE( testFrequencyDopplerPartials )
         perturbingBodies.push_back( "Earth" );
 
         twoWayDopplerModel = observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                std::make_shared< TwoWayDopplerObservationSettings >(
-                        std::make_shared< OneWayDopplerObservationSettings >(
+                std::make_shared< TwoWayDopplerObservationModelSettings >(
+                        std::make_shared< OneWayDopplerObservationModelSettings >(
                                 getUplinkFromTwoWayLinkEnds( linkEnds ),
                                 std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ),
                                 std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
@@ -422,7 +422,7 @@ BOOST_AUTO_TEST_CASE( testFrequencyDopplerPartials )
                                 nullptr,
                                 std::make_shared< LightTimeConvergenceCriteria >( ),
                                 true ),
-                        std::make_shared< OneWayDopplerObservationSettings >(
+                        std::make_shared< OneWayDopplerObservationModelSettings >(
                                 getDownlinkFromTwoWayLinkEnds( linkEnds ),
                                 std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ),
                                 std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),

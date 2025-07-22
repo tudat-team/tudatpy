@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             if( estimationCase == 0 )
             {
                 oneWayDopplerModel = observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                        std::make_shared< observation_models::OneWayDopplerObservationSettings >(
+                        std::make_shared< observation_models::OneWayDopplerObservationModelSettings >(
                                 linkEnds,
                                 std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ),
                                 nullptr,
@@ -244,7 +244,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             else
             {
                 oneWayDopplerModel = observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                        std::make_shared< OneWayDopplerObservationSettings >(
+                        std::make_shared< OneWayDopplerObservationModelSettings >(
                                 linkEnds,
                                 std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ),
                                 std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
@@ -304,7 +304,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                 if( estimationCase == 0 )
                 {
                     oneWayDopplerModel = observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                            std::make_shared< observation_models::OneWayDopplerObservationSettings >(
+                            std::make_shared< observation_models::OneWayDopplerObservationModelSettings >(
                                     linkEnds,
                                     std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ),
                                     nullptr,
@@ -317,7 +317,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
                 else
                 {
                     oneWayDopplerModel = observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                            std::make_shared< OneWayDopplerObservationSettings >(
+                            std::make_shared< OneWayDopplerObservationModelSettings >(
                                     linkEnds,
                                     std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ),
                                     std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
@@ -372,7 +372,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             std::shared_ptr< OneWayDopplerObservationModel<> > oneWayDopplerModel =
                     std::dynamic_pointer_cast< OneWayDopplerObservationModel<> >(
                             observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                                    std::make_shared< OneWayDopplerObservationSettings >(
+                                    std::make_shared< OneWayDopplerObservationModelSettings >(
                                             linkEnds,
                                             std::shared_ptr< LightTimeCorrectionSettings >( ),
                                             std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
@@ -505,7 +505,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
             std::shared_ptr< OneWayDopplerObservationModel<> > oneWayDopplerModelWithoutProperTime =
                     std::dynamic_pointer_cast< OneWayDopplerObservationModel<> >(
                             observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                                    std::make_shared< observation_models::OneWayDopplerObservationSettings >(
+                                    std::make_shared< observation_models::OneWayDopplerObservationModelSettings >(
                                             linkEnds,
                                             nullptr,
                                             nullptr,
