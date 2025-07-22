@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
     linkEnds[ receiver ] = std::make_pair( "Mars", "" );
 
     // Create observation settings
-    std::shared_ptr< ObservationSettings > observableSettings = std::make_shared< ObservationSettings >( one_way_doppler );
+    std::shared_ptr< ObservationModelSettings > observableSettings = std::make_shared< ObservationModelSettings >( one_way_doppler );
 
     // Create observation model.
     std::shared_ptr< ObservationModel< 1, double, double > > observationModel =
@@ -169,8 +169,8 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
         biasSettingsList.push_back( std::make_shared< ConstantRelativeObservationBiasSettings >( Eigen::Vector1d( 2.5E-4 ) ) );
         std::shared_ptr< ObservationBiasSettings > biasSettings = std::make_shared< MultipleObservationBiasSettings >( biasSettingsList );
 
-        std::shared_ptr< ObservationSettings > biasedObservableSettings =
-                std::make_shared< ObservationSettings >( one_way_doppler, std::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings );
+        std::shared_ptr< ObservationModelSettings > biasedObservableSettings =
+                std::make_shared< ObservationModelSettings >( one_way_doppler, std::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings );
 
         // Create observation model
         std::shared_ptr< ObservationModel< 1, double, double > > biasedObservationModel =
@@ -191,8 +191,8 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
         linkEndsStationSpacecraft[ receiver ] = std::make_pair( "Spacecraft", "" );
 
         // Create observation settings
-        std::shared_ptr< ObservationSettings > observableSettingsWithoutCorrections =
-                std::make_shared< ObservationSettings >( one_way_doppler );
+        std::shared_ptr< ObservationModelSettings > observableSettingsWithoutCorrections =
+                std::make_shared< ObservationModelSettings >( one_way_doppler );
 
         // Create observation model.
         std::shared_ptr< ObservationModel< 1, double, double > > observationModelWithoutCorrections =
@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
                         linkEndsStationSpacecraft, observableSettingsWithoutCorrections, bodies );
 
         // Create observation settings
-        std::shared_ptr< ObservationSettings > observableSettingsWithCorrections = std::make_shared< OneWayDopperObservationSettings >(
+        std::shared_ptr< ObservationModelSettings > observableSettingsWithCorrections = std::make_shared< OneWayDopperObservationSettings >(
                 std::shared_ptr< LightTimeCorrectionSettings >( ),
                 std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
                 std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ) );

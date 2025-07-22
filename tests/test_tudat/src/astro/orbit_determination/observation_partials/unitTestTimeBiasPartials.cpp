@@ -283,14 +283,14 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
                 std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
                 if( currentObservable == n_way_differenced_range )
                 {
-                    observationSettingsList.push_back( std::make_shared< NWayDifferencedRangeObservationSettings >(
+                    observationSettingsList.push_back( std::make_shared< NWayDifferencedRangeObservationModelSettings >(
                             LinkDefinition( testLinkEnds ),
                             std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
                             biasSettings ) );
                 }
                 else if( currentObservable == dsn_n_way_averaged_doppler )
                 {
-                    observationSettingsList.push_back( std::make_shared< DsnNWayAveragedDopplerObservationSettings >(
+                    observationSettingsList.push_back( std::make_shared< DsnNWayAveragedDopplerObservationModelSettings >(
                             LinkDefinition( testLinkEnds ),
                             std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
                             biasSettings ) );

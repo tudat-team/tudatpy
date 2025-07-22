@@ -150,8 +150,8 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             std::vector< std::shared_ptr< ObservationModelSettings > > twoWayLinkSettings;
             twoWayLinkSettings.push_back( uplinkObservableSettings );
             twoWayLinkSettings.push_back( downlinkObservableSettings );
-            std::shared_ptr< NWayRangeObservationSettings > twoWayObservableSettings =
-                    std::make_shared< NWayRangeObservationSettings >( twoWayLinkSettings, nullptr, lightTimeConvergenceCriteria );
+            std::shared_ptr< NWayRangeObservationModelSettings > twoWayObservableSettings =
+                    std::make_shared< NWayRangeObservationModelSettings >( twoWayLinkSettings, nullptr, lightTimeConvergenceCriteria );
 
             // Create observation models
             std::shared_ptr< ObservationModel< 1, double, double > > uplinkObservationModel =
@@ -340,8 +340,8 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
             fourWayLinkSettings.push_back( secondlinkObservableSettings );
             fourWayLinkSettings.push_back( thirdlinkObservableSettings );
             fourWayLinkSettings.push_back( fourthlinkObservableSettings );
-            std::shared_ptr< NWayRangeObservationSettings > fourWayObservableSettings =
-                    std::make_shared< NWayRangeObservationSettings >( fourWayLinkSettings, nullptr, lightTimeConvergenceCriteria );
+            std::shared_ptr< NWayRangeObservationModelSettings > fourWayObservableSettings =
+                    std::make_shared< NWayRangeObservationModelSettings >( fourWayLinkSettings, nullptr, lightTimeConvergenceCriteria );
 
             // Create observation models
             std::shared_ptr< ObservationModel< 1, double, double > > firstlinkObservationModel =
@@ -568,7 +568,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayRangeModelTimeScaleBias )
         twoWayLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation2" );
 
         // Create observation models
-        std::shared_ptr< NWayRangeObservationSettings > twoWayObservableSettings = std::make_shared< NWayRangeObservationSettings >(
+        std::shared_ptr< NWayRangeObservationModelSettings > twoWayObservableSettings = std::make_shared< NWayRangeObservationModelSettings >(
                 twoWayLinkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ) );
         std::shared_ptr< ObservationModel< 1, double, double > > twoWayObservationModel =
                 ObservationModelCreator< 1, double, double >::createObservationModel( twoWayObservableSettings, bodies );
@@ -579,7 +579,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayRangeModelTimeScaleBias )
                 observationTimes.at( observationTimeNumber ), receiver, linkEndTimes, linkEndStates )( 0 );
 
         std::shared_ptr< ObservationBiasSettings > biasSettings = twoWayTimeScaleRangeBias( );
-        std::shared_ptr< NWayRangeObservationSettings > twoWayObservableSettingsWithBias = std::make_shared< NWayRangeObservationSettings >(
+        std::shared_ptr< NWayRangeObservationModelSettings > twoWayObservableSettingsWithBias = std::make_shared< NWayRangeObservationModelSettings >(
                 twoWayLinkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings );
         std::shared_ptr< ObservationModel< 1, double, double > > twoWayObservationModelWithBias =
                 ObservationModelCreator< 1, double, double >::createObservationModel( twoWayObservableSettingsWithBias, bodies );

@@ -84,7 +84,7 @@ void expose_observables_simulation( py::module& m )
          Class hosting the functionality for simulating observations.
 
          Class hosting the functionality for simulating a given observable over a defined link geometry.
-         Instances of this class are automatically created from the given :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationSettings` objects upon instantiation of the :class:`~tudatpy.estimation.estimation_analysis.Estimator` class.
+         Instances of this class are automatically created from the given :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` objects upon instantiation of the :class:`~tudatpy.estimation.estimation_analysis.Estimator` class.
 
 
 
