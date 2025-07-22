@@ -2,120 +2,13 @@
 
 ``estimation``
 ==============
-This module contains the functionality for managing the inputs and outputs of an estimation.
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Modules
 
-
-
-
-
-
-
-
-
-
-
-Functions
----------
-.. currentmodule:: tudatpy.numerical_simulation.estimation
-
-.. autosummary::
-
-   simulate_observations
-
-   compute_target_angles_and_range
-
-   propagate_covariance
-
-   propagate_formal_errors
-
-   estimation_convergence_checker
-
-
-
-.. autofunction:: tudatpy.numerical_simulation.estimation.simulate_observations
-
-.. autofunction:: tudatpy.numerical_simulation.estimation.compute_target_angles_and_range
-
-.. autofunction:: tudatpy.numerical_simulation.estimation.propagate_covariance
-
-.. autofunction:: tudatpy.numerical_simulation.estimation.propagate_formal_errors
-
-.. autofunction:: tudatpy.numerical_simulation.estimation.estimation_convergence_checker
-
-
-
-
-
-
-Classes
--------
-.. currentmodule:: tudatpy.numerical_simulation.estimation
-
-.. autosummary::
-
-   EstimatableParameterSet
-
-   ObservationViabilityCalculator
-
-   ObservationSimulator
-
-   ObservationCollection
-
-   SingleObservationSet
-
-   CombinedStateTransitionAndSensitivityMatrixInterface
-
-   EstimationConvergenceChecker
-
-   CovarianceAnalysisInput
-
-   EstimationInput
-
-   CovarianceAnalysisOutput
-
-   EstimationOutput
-
-
-
-.. autoclass:: tudatpy.numerical_simulation.estimation.EstimatableParameterSet
-   :members:
-
-.. autoclass:: tudatpy.numerical_simulation.estimation.ObservationViabilityCalculator
-   :members:
-
-.. autoclass:: tudatpy.numerical_simulation.estimation.ObservationSimulator
-   :members:
-
-.. autoclass:: tudatpy.numerical_simulation.estimation.ObservationCollection
-   :members:
-
-.. autoclass:: tudatpy.numerical_simulation.estimation.SingleObservationSet
-   :members:
-
-.. autoclass:: tudatpy.numerical_simulation.estimation.CombinedStateTransitionAndSensitivityMatrixInterface
-   :members:
-
-.. autoclass:: tudatpy.numerical_simulation.estimation.EstimationConvergenceChecker
-   :members:
-
-.. autoclass:: tudatpy.numerical_simulation.estimation.CovarianceAnalysisInput
-   :members:
-   :special-members: __init__
-
-
-
-.. autoclass:: tudatpy.numerical_simulation.estimation.EstimationInput
-   :members:
-   :special-members: __init__
-
-
-
-.. autoclass:: tudatpy.numerical_simulation.estimation.CovarianceAnalysisOutput
-   :members:
-
-.. autoclass:: tudatpy.numerical_simulation.estimation.EstimationOutput
-   :members:
-
-
-
+   /estimation/estimation_analysis
+   /estimation/observable_models_setup
+   /estimation/observations_setup
+   /estimation/observable_models
+   /estimation/observations
