@@ -1,7 +1,7 @@
 
 # tests for data weights functionality
-from tudatpy.numerical_simulation import environment_setup
-from tudatpy.numerical_simulation import estimation
+from tudatpy.dynamics import environment_setup
+from tudatpy.estimation import estimation_analysis
 from tudatpy.data.mpc import BatchMPC
 from tudatpy.interface import spice
 
@@ -92,9 +92,9 @@ def test_MPC_weights_to_ObsCol(
 
     # test pod_input
     # provide the observation collection as input, and limit number of iterations for estimation.
-    pod_input = estimation.EstimationInput(
+    pod_input = estimation_analysis.EstimationInput(
         observations_and_times=observation_collection,
-        convergence_checker=estimation.estimation_convergence_checker(
+        convergence_checker=estimation_analysis.estimation_convergence_checker(
             maximum_iterations=1,
         ),
     )

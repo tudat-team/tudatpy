@@ -167,4 +167,9 @@ TUDAT_ADD_TEST_CASE(CovariancePropagation
 
 endif( )
 
+TUDAT_ADD_TEST_CASE(EstimationDragScaling
+         PRIVATE_LINKS
+         ${Tudat_ESTIMATION_LIBRARIES}
+         )
+
 

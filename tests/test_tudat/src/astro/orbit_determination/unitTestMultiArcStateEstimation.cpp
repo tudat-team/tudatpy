@@ -271,18 +271,20 @@ BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
         int numberOfEstimatedArcs = ( parameterError.rows( ) - 3 ) / 6;
 
         std::cout << "Estimation error: " << parameterError.transpose( ) << std::endl;
+        double errorScaling = std::numeric_limits< long double >::epsilon( ) / 1.0E-19;
+
         for( int i = 0; i < numberOfEstimatedArcs; i++ )
         {
             for( unsigned int j = 0; j < 3; j++ )
             {
-                BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j ) ), 2E-4 );
-                BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j + 3 ) ), 1.0E-10 );
+                BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j ) ), errorScaling * 2E-4 );
+                BOOST_CHECK_SMALL( std::fabs( parameterError( i * 6 + j + 3 ) ), errorScaling * 1.0E-10 );
             }
         }
 
-        BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 3 ) ), 1.0E-20 );
-        BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 2 ) ), 1.0E-12 );
-        BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 1 ) ), 1.0E-12 );
+        BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 3 ) ), errorScaling * 1.0E-20 );
+        BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 2 ) ), errorScaling * 1.0E-12 );
+        BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 1 ) ), errorScaling * 1.0E-12 );
 #else
         Eigen::VectorXd parameterError = executeParameterEstimation< double, double, double >( testCase );
         int numberOfEstimatedArcs = ( parameterError.rows( ) - 3 ) / 6;

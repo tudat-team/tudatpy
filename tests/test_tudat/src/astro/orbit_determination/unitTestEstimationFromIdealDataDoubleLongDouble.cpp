@@ -37,7 +37,8 @@ BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
         totalError = executePlanetaryParameterEstimation< double, long double >( simulationType ).second;
 
         // Adjust tolerance based on simulation settings
-        double toleranceMultiplier = 1.0E-3;
+        double errorScaling = std::numeric_limits< long double >::epsilon( ) / 1.0E-19;
+        double toleranceMultiplier = errorScaling * 1.0E-3;
 
         if( simulationType > 0 )
         {

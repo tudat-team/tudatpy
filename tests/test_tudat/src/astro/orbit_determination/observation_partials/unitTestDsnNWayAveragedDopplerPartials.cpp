@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
 
         std::shared_ptr< ObservationModel< 1, double, Time > > dsnNWayAveragedDopplerModel =
                 observation_models::ObservationModelCreator< 1, double, Time >::createObservationModel(
-                        std::make_shared< observation_models::DsnNWayAveragedDopplerObservationSettings >( linkEnds,
+                        std::make_shared< observation_models::DsnNWayAveragedDopplerObservationModelSettings >( linkEnds,
                                                                                                            lightTimeCorrectionsList ),
                         bodies );
 
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerPartials )
 
         std::shared_ptr< ObservationModel< 1, double, Time > > dsnNWayAveragedDopplerModel =
                 observation_models::ObservationModelCreator< 1, double, Time >::createObservationModel(
-                        std::make_shared< observation_models::DsnNWayAveragedDopplerObservationSettings >( linkEnds,
+                        std::make_shared< observation_models::DsnNWayAveragedDopplerObservationModelSettings >( linkEnds,
                                                                                                            lightTimeCorrectionsList ),
                         bodies );
 

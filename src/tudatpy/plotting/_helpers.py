@@ -184,7 +184,7 @@ def trajectory_3d(
 
     """
     # Import SPICE
-    from ..kernel.interface import spice
+    from tudatpy.interface import spice
 
     # Save color and linestyle index
     i_c, i_ls = 0, 0
