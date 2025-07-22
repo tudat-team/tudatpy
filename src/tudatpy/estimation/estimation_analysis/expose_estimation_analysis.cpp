@@ -84,8 +84,8 @@ std::map< double, Eigen::MatrixXd > propagateCovarianceRsw(
         }
     }
 
-    Eigen::Matrix3d currentInertialToRswPosition;
-    Eigen::Matrix6d currentInertialToRswState;
+    Eigen::Matrix3d currentInertialToRswPosition = Eigen::Matrix3d::Zero( );
+    Eigen::Matrix6d currentInertialToRswState = Eigen::Matrix6d::Zero( );
     Eigen::MatrixXd currentFullInertialToRswState = Eigen::MatrixXd::Zero( 6, 6 );
 
     std::map< double, Eigen::MatrixXd > propagatedRswCovariance;
