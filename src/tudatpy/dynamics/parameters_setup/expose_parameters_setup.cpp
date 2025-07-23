@@ -162,7 +162,20 @@ void expose_parameters_setup( py::module& m )
 
       )doc" )
             .def_readwrite( "custom_partial_settings",
-                            &tep::EstimatableParameterSettings::customPartialSettings_ );
+                            &tep::EstimatableParameterSettings::customPartialSettings_ )
+            .def_readwrite( "parameter_identifier",
+                            &tep::EstimatableParameterSettings::parameterType_, 
+                            R"doc(
+                            
+Type and associated body of the parameter.
+
+The identifier contains the type of the parameter, defined by the :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes` enumeration, the body and (if applicable) the reference point to which the parameter is associated.
+The identifier is represented by a tuple of the form ``(parameter_type, (body_name, reference_point_name))``.
+
+:type: tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, tuple[str, str] ]
+                            
+                            )doc");
+            
 
 
     // # EstimatableParameterSettings --> EstimatableParameterSet #
