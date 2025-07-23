@@ -160,7 +160,6 @@ std::pair< std::vector< double >, std::vector< Eigen::VectorXd > > propagateForm
 {
     std::map< double, Eigen::VectorXd > propagatedFormalErrors = propagateFormalErrorsRsw(
             estimationOutput, orbitDeterminationManager, evaluationTimes );
-    tp::propagateFormalErrorsRsw( estimationOutput, orbitDeterminationManager, evaluationTimes );
     return std::make_pair( utilities::createVectorFromMapKeys( propagatedFormalErrors ),
                            utilities::createVectorFromMapValues( propagatedFormalErrors ) );
 }
