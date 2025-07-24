@@ -16,6 +16,9 @@
 #include <boost/test/unit_test.hpp>
 
 #include <Eigen/Core>
+#include <Eigen/Geometry>
+#include <functional>
+#include <cmath> // for M_PI
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/celestialBodyConstants.h"
@@ -777,6 +780,89 @@ BOOST_AUTO_TEST_CASE( test_aerodynamicAccelerationModelSetupWithCoefficientIndep
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( automaticCoefficients, manualCoefficients, ( 5.0 * std::numeric_limits< double >::epsilon( ) ) );
     }
+}
+
+
+//! Test setup of rtg accelerations
+BOOST_AUTO_TEST_CASE( test_rtgAccelerationModelSetup )
+{
+    // untested: rtgAcceleration factory function that is exposed to python
+
+    using namespace tudat::simulation_setup;
+    using namespace tudat;
+
+    // Load Spice kernels
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Test creation (single case).
+
+    // Get settings for Earth.
+    BodyListSettings bodySettings;
+    bodySettings.addSettings( getDefaultSingleBodySettings( "Earth", 0.0, 86400.0 ), "Earth" );
+    bodySettings.addSettings( "Vehicle" );
+
+    // Create body objects.
+    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+
+    // Define function describing rotational ephemeris of vehicle
+    std::function<Eigen::Matrix3d(double)> timeDependentRotationFunction =
+    [](double epoch) {
+        double angleRad = 0.5 * epoch * M_PI / 180.0;
+        return Eigen::AngleAxisd(angleRad, Eigen::Vector3d::UnitZ()).toRotationMatrix();
+    };
+
+    bodies.at( "Vehicle" )
+            ->setRotationalEphemeris( createRotationModel( std::make_shared< CustomRotationModelSettings >(
+                                                                   "ECLIPJ2000", "VehicleFixed", timeDependentRotationFunction, 1.0 ),
+                                                           "Vehicle",
+                                                           bodies ) );
+
+    // Set vehicle mass
+    double referenceEpoch = 0.0;
+    double initialVehicleMass = 5000;
+
+    // Define function describing mass function of vehicle
+    std::function<double(double)> vehicleMassFunction =
+        [=](double epoch) {
+            double delta_epoch = epoch - referenceEpoch;
+
+            if (delta_epoch > 1000 && delta_epoch < 2000) {
+                return initialVehicleMass - (delta_epoch - 1000.);
+            } else if (delta_epoch <= 1000) {
+                return initialVehicleMass;
+            } else {
+                return initialVehicleMass - 1000.;
+            }
+    };
+
+
+    bodies.at( "Vehicle" )->setBodyMassFunction( vehicleMassFunction );
+    bodies.at( "Vehicle" )->updateMass( referenceEpoch );
+
+    // Define settings for accelerations
+    SelectedAccelerationMap accelerationSettingsMap;
+
+    Eigen::Vector3d rtgForceVector;
+    rtgForceVector << 1.0E-5, 1.0E-5, 1.0E-5;
+    double decayScaleFactor = 2.5E-10;
+
+    // Define origin of integration
+    std::vector< std::string > bodiesToPropagate;
+    std::vector< std::string > centralBodies;
+
+    bodiesToPropagate.push_back( "Vehicle" );
+    centralBodies.push_back( "Earth" );
+
+    //accelerationSettingsMap[ "Vehicle" ][ "Vehicle" ].push_back(
+    //                    std::make_shared< RTGAccelerationSettings >(rtgForceVector, decayScaleFactor, referenceEpoch));
+    accelerationSettingsMap[ "Vehicle" ][ "Vehicle" ].push_back(
+                        std::make_shared< RTGAccelerationSettings >(rtgForceVector, decayScaleFactor, referenceEpoch));
+
+    // Create accelerations
+    AccelerationMap accelerationsMap = createAccelerationModelsMap( bodies, accelerationSettingsMap, bodiesToPropagate, centralBodies );
+    std::shared_ptr< AccelerationModel3d > accelerationModel = accelerationsMap[ "Vehicle"] ["Vehicle"][ 0 ];
+    BOOST_CHECK_EQUAL( accelerationModel != nullptr, true );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

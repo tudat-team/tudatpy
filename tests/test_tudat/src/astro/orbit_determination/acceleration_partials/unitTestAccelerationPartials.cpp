@@ -26,6 +26,7 @@
 #include "tudat/astro/ephemerides/customRotationalEphemeris.h"
 #include "tudat/astro/gravitation/centralGravityModel.h"
 #include "tudat/astro/system_models/vehicleSystems.h"
+#include "tudat/astro/system_models/rtgAccelerationModel.h"
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantDragCoefficient.h"
@@ -36,6 +37,7 @@
 #include "tudat/astro/orbit_determination/estimatable_parameters/ppnParameters.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/directTidalTimeLag.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantThrust.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/rtgForceVector.h"
 #include "tudat/astro/relativity/metric.h"
 #include "tudat/astro/orbit_determination/acceleration_partials/numericalAccelerationPartial.h"
 #include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
@@ -800,7 +802,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
     Eigen::Vector3d partialWrtDragDirection = aerodynamicAccelerationPartial->wrtParameter( dragDirectionScaling );
     Eigen::Vector3d partialWrtSideDirection = aerodynamicAccelerationPartial->wrtParameter( sideDirectionScaling );
     Eigen::Vector3d partialWrtLiftDirection = aerodynamicAccelerationPartial->wrtParameter( liftDirectionScaling );
-    
+
     // Declare numerical partials.
     Eigen::Matrix3d testPartialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
     Eigen::Matrix3d testPartialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
@@ -1721,6 +1723,182 @@ BOOST_AUTO_TEST_CASE( testYarkovskyPartials )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunVelocity, partialWrtSunVelocity, 1.0E-8 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunYarkovskyParameter, partialWrtSunYarkovskyParameter, 1.0E-8 );
 }
+
+
+BOOST_AUTO_TEST_CASE( testRTGPartials )
+{
+    // untested: rtgForceVector factory function that is exposed to python
+
+    // Create empty bodies, earth and sun.
+    std::shared_ptr< Body > earth = std::make_shared< Body >( );
+    std::shared_ptr< Body > vehicle = std::make_shared< Body >( );
+
+    SystemOfBodies bodies;
+    bodies.addBody( earth, "Earth" );
+    bodies.addBody( vehicle, "Vehicle" );
+
+    // Load spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
+    // Define Relevant Epochs
+    double referenceEpoch = 0.0;
+    double testTime = 0.5*24*60*60;
+
+    // Define function describing rotational ephemeris of vehicle
+    std::function<Eigen::Matrix3d(double)> timeDependentRotationFunction =
+    [](double epoch) {
+        double angleRad = 1/7. * epoch * M_PI / 180.0;
+        return Eigen::AngleAxisd(angleRad, Eigen::Vector3d::UnitZ()).toRotationMatrix();
+    };
+
+    // Assign and update
+    bodies.at( "Vehicle" )
+            ->setRotationalEphemeris( createRotationModel( std::make_shared< CustomRotationModelSettings >(
+                                                                   "ECLIPJ2000",
+                                                                   "VehicleFixed",
+                                                                   timeDependentRotationFunction,
+                                                                   1.0 ),
+                                                           "Vehicle",
+                                                           bodies ) );
+    bodies.at( "Vehicle" )->setCurrentRotationalStateToLocalFrameFromEphemeris( referenceEpoch );
+
+    // Define function describing mass function of vehicle
+    double initialVehicleMass = 5000;
+
+    // Define vehicle mass function
+    std::function<double(double)> vehicleMassFunction =
+        [=](double epoch) {
+            //double delta_epoch = epoch - referenceEpoch;
+            double delta_test = epoch - testTime;
+            if (delta_test > -1000. && delta_test <= 1000.) {
+                return initialVehicleMass - (delta_test+1000.);
+            } else if (delta_test <= -1000.) {
+                return initialVehicleMass;
+            } else {
+                return initialVehicleMass - 2000.;
+            }
+    };
+
+    // Assign and Update
+    bodies.at( "Vehicle" )->setBodyMassFunction( vehicleMassFunction );
+    bodies.at( "Vehicle" )->updateMass( referenceEpoch );
+
+    // Define settings for accelerations
+    SelectedAccelerationMap accelerationSettingsMap;
+
+    Eigen::Vector3d rtgForceVectorValues;
+    rtgForceVectorValues << 0.5E-5, 0.5E-5, 0.5E-5;
+    double decayScaleFactor = 1.6045073624072808e-05;       // corresponding to a half-life of half a day
+
+    // Define origin of integration
+    std::vector< std::string > bodiesToPropagate;
+    std::vector< std::string > centralBodies;
+
+    bodiesToPropagate.push_back( "Vehicle" );
+    centralBodies.push_back( "Earth" );
+
+    accelerationSettingsMap[ "Vehicle" ][ "Vehicle" ].push_back(
+                        std::make_shared< RTGAccelerationSettings >(rtgForceVectorValues, decayScaleFactor, referenceEpoch));
+
+    // Create accelerations
+    basic_astrodynamics::AccelerationMap accelerationsMap = createAccelerationModelsMap( bodies, accelerationSettingsMap, bodiesToPropagate, centralBodies );
+    //std::shared_ptr< basic_astrodynamics::AccelerationModel3d > rtgAccelerationModel = accelerationsMap[ "Vehicle"] ["Vehicle"][ 0 ];
+    std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel = accelerationsMap[ "Vehicle"] ["Vehicle"][ 0 ];
+
+    // Dynamic cast acceleration settings to required type and check consistency.
+    std::shared_ptr< system_models::RTGAccelerationModel > rtgAccelerationModel =
+            std::dynamic_pointer_cast< system_models::RTGAccelerationModel >( accelerationModel );
+
+    // Test Successful Construction
+    BOOST_CHECK_EQUAL( rtgAccelerationModel != nullptr, true );
+
+    // Set current state of vehicle and earth.
+    earth->setState( Eigen::Vector6d::Zero( ) );
+    Eigen::Vector6d vehicleInitialState = Eigen::Vector6d::Zero( );
+    vehicleInitialState( 0 ) = 8.0E6;
+    vehicleInitialState( 4 ) = 7.5E3;
+    vehicle->setState( vehicleInitialState );
+
+    // Create central gravity partial.
+    std::shared_ptr< AccelerationPartial > rtgPartial = createAnalyticalAccelerationPartial(
+            rtgAccelerationModel, std::make_pair( "Vehicle", vehicle ), std::make_pair( "Vehicle", vehicle ), bodies );
+
+    // Create force vector parameter object.
+    std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > rtgForceVectorParameter =
+            std::make_shared< RTGForceVector >( rtgAccelerationModel, "Vehicle" );
+
+    // Create force magnitude parameter object.
+    std::shared_ptr< EstimatableParameter< double > > rtgForceMagnitudeParameter =
+            std::make_shared< RTGForceVectorMagnitude >( rtgAccelerationModel, "Vehicle" );
+
+    // Calculate analytical partials.
+    double evalTime = testTime;
+
+    // Reset environment dependencies
+    bodies.at( "Vehicle" )->setCurrentRotationalStateToLocalFrameFromEphemeris( evalTime );
+    bodies.at( "Vehicle" )->updateMass( evalTime );
+
+    rtgPartial->update( evalTime );
+    Eigen::MatrixXd partialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
+    rtgPartial->wrtPositionOfAcceleratedBody( partialWrtVehiclePosition.block( 0, 0, 3, 3 ) );
+    Eigen::MatrixXd partialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
+    rtgPartial->wrtVelocityOfAcceleratedBody( partialWrtVehicleVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
+
+    Eigen::MatrixXd partialWrtEarthPosition = Eigen::Matrix3d::Zero( );
+    rtgPartial->wrtPositionOfAcceleratingBody( partialWrtEarthPosition.block( 0, 0, 3, 3 ) );
+    Eigen::MatrixXd partialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
+    rtgPartial->wrtVelocityOfAcceleratingBody( partialWrtEarthVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
+
+    Eigen::MatrixXd partialWrtRTGForceVector = rtgPartial->wrtParameter( rtgForceVectorParameter );
+    Eigen::MatrixXd partialWrtRTGForceMagnitude = rtgPartial->wrtParameter( rtgForceMagnitudeParameter );
+
+
+    // Declare numerical partials.
+    Eigen::Matrix3d testPartialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
+    Eigen::Matrix3d testPartialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
+    Eigen::Matrix3d testPartialWrtEarthPosition = Eigen::Matrix3d::Zero( );
+    Eigen::Matrix3d testPartialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
+
+    // Declare perturbations in position for numerical partial/
+    Eigen::Vector3d positionPerturbation;
+    positionPerturbation << 10000.0, 10000.0, 10000.0;
+    Eigen::Vector3d velocityPerturbation;
+    velocityPerturbation << 1.0, 1.0, 1.0;
+
+    // Create state access/modification functions for bodies.
+    std::function< void( Eigen::Vector6d ) > vehicleStateSetFunction = std::bind( &Body::setState, vehicle, std::placeholders::_1 );
+    std::function< void( Eigen::Vector6d ) > earthStateSetFunction = std::bind( &Body::setState, earth, std::placeholders::_1 );
+    std::function< Eigen::Vector6d( ) > vehicleStateGetFunction = std::bind( &Body::getState, vehicle );
+    std::function< Eigen::Vector6d( ) > earthStateGetFunction = std::bind( &Body::getState, earth );
+
+    // Calculate numerical partials.
+    testPartialWrtVehiclePosition = calculateAccelerationWrtStatePartials(
+            vehicleStateSetFunction, rtgAccelerationModel, vehicle->getState( ), positionPerturbation, 0, emptyFunction, evalTime  );
+    testPartialWrtVehicleVelocity = calculateAccelerationWrtStatePartials(
+            vehicleStateSetFunction, rtgAccelerationModel, vehicle->getState( ), velocityPerturbation, 3, emptyFunction, evalTime );
+    testPartialWrtEarthPosition = calculateAccelerationWrtStatePartials(
+            earthStateSetFunction, rtgAccelerationModel, earth->getState( ), positionPerturbation, 0, emptyFunction, evalTime );
+    testPartialWrtEarthVelocity = calculateAccelerationWrtStatePartials(
+            earthStateSetFunction, rtgAccelerationModel, earth->getState( ), velocityPerturbation, 3, emptyFunction, evalTime );
+    Eigen::Matrix3d testPartialWrtRTGForceVector =
+            calculateAccelerationWrtParameterPartials( rtgForceVectorParameter, rtgAccelerationModel, Eigen::Vector3d::Constant(1.0e-7), emptyFunction, evalTime, emptyTimeFunction );
+    Eigen::Vector3d testPartialWrtRTGForceMagnitude =
+        calculateAccelerationWrtParameterPartials( rtgForceMagnitudeParameter, rtgAccelerationModel, 1.0E-7, emptyFunction, evalTime, emptyTimeFunction );
+
+    std::cout << "testPartialWrtRTGForceVector\n" << testPartialWrtRTGForceVector << std::endl;
+    std::cout << "partialWrtRTGForceVector\n" << partialWrtRTGForceVector << std::endl;
+    std::cout << "testPartialWrtRTGForceMagnitude\n" << testPartialWrtRTGForceMagnitude << std::endl;
+    std::cout << "partialWrtRTGForceMagnitude\n" << partialWrtRTGForceMagnitude << std::endl;
+
+    // Compare numerical and analytical results.
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthPosition, partialWrtEarthPosition, 1.0E-8 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthVelocity, partialWrtEarthVelocity, 1.0E-8 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehiclePosition, partialWrtVehiclePosition, 1.0E-8 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehicleVelocity, partialWrtVehicleVelocity, 1.0E-8 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtRTGForceVector, partialWrtRTGForceVector, 1.0E-8 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtRTGForceMagnitude, partialWrtRTGForceMagnitude, 1.0E-8 );
+}
+
 
 BOOST_AUTO_TEST_SUITE_END( )
 
