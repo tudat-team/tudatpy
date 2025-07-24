@@ -37,8 +37,7 @@ namespace propagators
 {
 
 std::map< double, Eigen::MatrixXd > propagateCovarianceRsw(
-        const std::shared_ptr< tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > >
-                estimationOutput,
+        const Eigen::MatrixXd initialCovariance,
         const std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > >
                 orbitDeterminationManager,
         const std::vector< double > evaluationTimes )
@@ -46,7 +45,7 @@ std::map< double, Eigen::MatrixXd > propagateCovarianceRsw(
     std::map< double, Eigen::MatrixXd > propagatedCovariance;
     tp::propagateCovariance(
             propagatedCovariance,
-            estimationOutput->getUnnormalizedCovarianceMatrix( ),
+            initialCovariance,
             orbitDeterminationManager->getStateTransitionAndSensitivityMatrixInterface( ),
             evaluationTimes );
 
@@ -120,22 +119,20 @@ std::map< double, Eigen::MatrixXd > propagateCovarianceRsw(
 }
 
 std::pair< std::vector< double >, std::vector< Eigen::MatrixXd > > propagateCovarianceVectorsRsw(
-        const std::shared_ptr< tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > >
-                estimationOutput,
+        const Eigen::MatrixXd initialCovariance,
         const std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > >
                 orbitDeterminationManager,
         const std::vector< double > evaluationTimes )
 {
     std::map< double, Eigen::MatrixXd > propagatedRswCovariance =
-            propagateCovarianceRsw( estimationOutput, orbitDeterminationManager, evaluationTimes );
+            propagateCovarianceRsw( initialCovariance, orbitDeterminationManager, evaluationTimes );
 
     return std::make_pair( utilities::createVectorFromMapKeys( propagatedRswCovariance ),
                            utilities::createVectorFromMapValues( propagatedRswCovariance ) );
 }
 
 std::map< double, Eigen::VectorXd > propagateFormalErrorsRsw(
-        const std::shared_ptr< tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > >
-                estimationOutput,
+        const Eigen::MatrixXd initialCovariance,
         const std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > >
                 orbitDeterminationManager,
         const std::vector< double > evaluationTimes )
@@ -144,7 +141,7 @@ std::map< double, Eigen::VectorXd > propagateFormalErrorsRsw(
     std::map< double, Eigen::VectorXd > propagatedFormalErrors;
 
     propagatedCovariance =
-            propagateCovarianceRsw( estimationOutput, orbitDeterminationManager, evaluationTimes );
+            propagateCovarianceRsw( initialCovariance, orbitDeterminationManager, evaluationTimes );
     tp::convertCovarianceHistoryToFormalErrorHistory( propagatedFormalErrors,
                                                       propagatedCovariance );
 
@@ -152,14 +149,13 @@ std::map< double, Eigen::VectorXd > propagateFormalErrorsRsw(
 }
 
 std::pair< std::vector< double >, std::vector< Eigen::VectorXd > > propagateFormalErrorVectorsRsw(
-        const std::shared_ptr< tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE > >
-                estimationOutput,
+        const Eigen::MatrixXd initialCovariance,
         const std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > >
                 orbitDeterminationManager,
         const std::vector< double > evaluationTimes )
 {
     std::map< double, Eigen::VectorXd > propagatedFormalErrors = propagateFormalErrorsRsw(
-            estimationOutput, orbitDeterminationManager, evaluationTimes );
+            initialCovariance, orbitDeterminationManager, evaluationTimes );
     return std::make_pair( utilities::createVectorFromMapKeys( propagatedFormalErrors ),
                            utilities::createVectorFromMapValues( propagatedFormalErrors ) );
 }
@@ -801,17 +797,84 @@ void expose_estimation_analysis( py::module& m )
 
     m.def( "propagate_covariance_rsw_split_output",
            &tp::propagateCovarianceVectorsRsw,
-           py::arg( "covariance_output" ),
+           py::arg( "initial_covariance" ),
            py::arg( "estimator" ),
            py::arg( "output_times" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+ Function to propagate system covariance through time and convert it to RSW frame.
+
+ The covariance of a given system is propagated through time and afterwards converted to RSW frame.
+ The system dynamics and numerical settings of the propagation are prescribed by the `state_transition_interface` parameter.
+
+
+ Parameters
+ ----------
+ initial_covariance : numpy.ndarray[numpy.float64[m, n]]
+     System covariance matrix (symmetric and positive semi-definite) at initial time.
+     Dimensions have to be consistent with estimatable parameters in the system (specified by `state_transition_interface`)
+
+ state_transition_interface : :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
+     Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time.
+
+ output_times : List[ float ]
+     Times at which the propagated covariance matrix shall be reported.
+     Note that this argument has no impact on the integration time-steps of the covariance propagation,
+     which always adheres to the integrator settings that the `state_transition_interface` links to.
+     Output times which do not coincide with integration time steps are calculated via interpolation.
+
+ Returns
+ -------
+ tuple[ list[float], list[numpy.ndarray[numpy.float64[m, n]]] ]
+     Tuple containing a list of output times, and a list of propagated covariances in RSW frame at each output time.
+
+
+
+
+
+
+     )doc" );
 
     m.def( "propagate_formal_errors_rsw_split_output",
            &tp::propagateFormalErrorVectorsRsw,
-           py::arg( "covariance_output" ),
+           py::arg( "initial_covariance" ),
            py::arg( "estimator" ),
            py::arg( "output_times" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+ Function to propagate system formal errors through time and convert to RSW frame.
+
+ Function to propagate the formal errors of a given system through time.
+ Note that in practice the entire covariance matrix is propagated and converted to RSW frame, but only the formal errors (variances) are reported at the output times.
+ The system dynamics and numerical settings of the propagation are prescribed by the `state_transition_interface` parameter.
+
+
+ Parameters
+ ----------
+ initial_covariance : numpy.ndarray[numpy.float64[m, n]]
+     System covariance matrix (symmetric and positive semi-definite) at initial time.
+     Dimensions have to be consistent with estimatable parameters in the system (specified by `state_transition_interface`)
+
+ state_transition_interface : :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
+     Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time.
+
+ output_times : List[ float ]
+     Times at which the propagated covariance matrix shall be reported.
+     Note that this argument has no impact on the integration time-steps of the covariance propagation,
+     which always adheres to the integrator settings that the `state_transition_interface` links to.
+     Output times which do not coincide with integration time steps are calculated via interpolation.
+
+ Returns
+ -------
+ tuple[ list[float], list[numpy.ndarray[numpy.float64[m, n]]] ]
+     Tuple containing a list of output times, and a list of propagated formal errors in RSW frame at each output time.
+
+
+
+
+
+
+     )doc" );
 
     m.def( "propagate_covariance_split_output",
            py::overload_cast< const Eigen::MatrixXd,
@@ -821,7 +884,41 @@ void expose_estimation_analysis( py::module& m )
            py::arg( "initial_covariance" ),
            py::arg( "state_transition_interface" ),
            py::arg( "output_times" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+ Function to propagate system covariance through time.
+
+ Function to propagate the covariance of a given system through time.
+ The system dynamics and numerical settings of the propagation are prescribed by the `state_transition_interface` parameter.
+ Compared to the `propagate_covariance` function, this function returns a tuple, which contains a list of output times and a list of the propagated covariance, corresponding to the output times.
+
+
+ Parameters
+ ----------
+ initial_covariance : numpy.ndarray[numpy.float64[m, n]]
+     System covariance matrix (symmetric and positive semi-definite) at initial time.
+     Dimensions have to be consistent with estimatable parameters in the system (specified by `state_transition_interface`)
+
+ state_transition_interface : :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
+     Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time.
+
+ output_times : List[ float ]
+     Times at which the propagated covariance matrix shall be reported.
+     Note that this argument has no impact on the integration time-steps of the covariance propagation,
+     which always adheres to the integrator settings that the `state_transition_interface` links to.
+     Output times which do not coincide with integration time steps are calculated via interpolation.
+
+ Returns
+ -------
+ tuple[ list[float], list[numpy.ndarray[numpy.float64[m, n]]] ]
+     Tuple containing a list of output times, and a list of propagated covariances at each output time.
+
+
+
+
+
+
+     )doc" );
 
     m.def( "propagate_covariance",
            py::overload_cast< const Eigen::MatrixXd,
@@ -900,8 +997,8 @@ void expose_estimation_analysis( py::module& m )
 
  Returns
  -------
- Dict[ float, numpy.ndarray[numpy.float64[m, 1]] ]
-     Dictionary reporting the propagated formal errors at each output time.
+ tuple[ list[float], list[numpy.ndarray[numpy.float64[m, n]]] ]
+     Tuple containing a list of output times, and a list of propagated formal errors at each output time.
 
 
 
