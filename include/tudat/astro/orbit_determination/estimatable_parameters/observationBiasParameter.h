@@ -48,7 +48,7 @@ public:
                                       const observation_models::ObservableType observableType,
                                       const bool biasIsAbsolute ):
         EstimatableParameter< Eigen::VectorXd >( biasIsAbsolute ? constant_additive_observation_bias : constant_relative_observation_bias,
-                                                 linkEnds.begin( )->second.bodyName_ ),
+                                                 linkEnds.begin( )->second.bodyName_, linkEnds.begin( )->second.stationName_ ),
         getCurrentBias_( getCurrentBias ), resetCurrentBias_( resetCurrentBias ), linkEnds_( linkEnds ), observableType_( observableType )
     { }
 
@@ -208,7 +208,7 @@ public:
                                      const bool biasIsAbsolute ):
         EstimatableParameter< Eigen::VectorXd >(
                 biasIsAbsolute ? arcwise_constant_additive_observation_bias : arcwise_constant_relative_observation_bias,
-                linkEnds.begin( )->second.bodyName_ ),
+                linkEnds.begin( )->second.bodyName_, linkEnds.begin( )->second.stationName_ ),
         arcStartTimes_( arcStartTimes ), getBiasList_( getBiasList ), resetBiasList_( resetBiasList ), linkEndIndex_( linkEndIndex ),
         linkEnds_( linkEnds ), observableType_( observableType )
     {
