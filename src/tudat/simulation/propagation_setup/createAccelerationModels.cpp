@@ -713,6 +713,59 @@ std::shared_ptr< gravitation::RingGravitationalAccelerationModel > createRingGra
     return accelerationModel;
 }
 
+
+std::shared_ptr< system_models::RTGAccelerationModel > createRTGAccelerationModel(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const std::shared_ptr< AccelerationSettings > accelerationSettings )
+
+{
+    // Declare pointer to return object
+    std::shared_ptr< system_models::RTGAccelerationModel > accelerationModel;
+
+    // Dynamic cast acceleration settings to required type and check consistency.
+    std::shared_ptr< RTGAccelerationSettings > rtgAccelerationSettings =
+            std::dynamic_pointer_cast< RTGAccelerationSettings >( accelerationSettings );
+    if( rtgAccelerationSettings == nullptr )
+    {
+        std::string errorMessage = "Error, expected RTG acceleration settings when making acceleration model on " +
+                nameOfBodyUndergoingAcceleration;
+        throw std::runtime_error( errorMessage );
+    }
+
+    // Check that given bodies are same (undergoing == exerting)
+    if (nameOfBodyUndergoingAcceleration != nameOfBodyExertingAcceleration){
+        throw std::runtime_error( std::string( "Error, nameOfBodyUndergoingAcceleration and nameOfBodyExertingAcceleration should be the same for RTG acceleration type. Values are" + nameOfBodyUndergoingAcceleration + " (undergoing) and ") + nameOfBodyExertingAcceleration + " (exerting). ");
+    } if (bodyUndergoingAcceleration != bodyExertingAcceleration){
+        throw std::runtime_error( std::string( "Error, bodyUndergoingAcceleration and bodyExertingAcceleration should point to same memory address, but do not. Bodies should be the same for RTG acceleration type"));
+    }
+
+    std::shared_ptr< RotationalEphemeris > rotationalEphemeris = bodyUndergoingAcceleration->getRotationalEphemeris( );
+
+    // Check that body (undergoing) has rotational ephemeris (i.e. body fixed is defined)
+    if( rotationalEphemeris == nullptr )
+    {
+        throw std::runtime_error( "Warning when making RTG acceleration on body " + nameOfBodyUndergoingAcceleration +
+                                  ", no rotation model found for " + nameOfBodyUndergoingAcceleration );
+    }
+
+    // Create acceleration object.
+    accelerationModel = std::make_shared< system_models::RTGAccelerationModel >(
+            rtgAccelerationSettings->bodyFixedForceVectorAtReferenceEpoch_,
+            rtgAccelerationSettings->decayScaleFactor_,
+            rtgAccelerationSettings->referenceEpoch_,
+            std::bind( &Body::getCurrentRotationToGlobalFrame, bodyUndergoingAcceleration ),
+            std::bind( &Body::getBodyMass, bodyUndergoingAcceleration )
+            );
+
+    return accelerationModel;
+
+}
+
+
+
 //! Function to create a third body central gravity acceleration model.
 std::shared_ptr< gravitation::ThirdBodyCentralGravityAcceleration > createThirdBodyCentralGravityAccelerationModel(
         const std::shared_ptr< Body > bodyUndergoingAcceleration,
@@ -998,10 +1051,7 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
         throw std::runtime_error( "Error when making aerodynamic acceleration, found flight conditions that are not atmospheric." );
     }
     // Create acceleration model.
-    return std::make_shared< AerodynamicAcceleration >(
-            bodyFlightConditions,
-            std::bind( &Body::getBodyMass, bodyUndergoingAcceleration ) );
-    
+    return std::make_shared< AerodynamicAcceleration >( bodyFlightConditions, std::bind( &Body::getBodyMass, bodyUndergoingAcceleration ) );
 }
 
 std::shared_ptr< RadiationPressureAcceleration > createRadiationPressureAccelerationModel(
@@ -1806,6 +1856,13 @@ std::shared_ptr< AccelerationModel< Eigen::Vector3d > > createAccelerationModel(
                                                                     nameOfBodyUndergoingAcceleration,
                                                                     nameOfBodyExertingAcceleration,
                                                                     accelerationSettings );
+            break;
+        case rtg_acceleration:
+            accelerationModelPointer = createRTGAccelerationModel( bodyUndergoingAcceleration,
+                                                                   bodyExertingAcceleration,
+                                                                   nameOfBodyUndergoingAcceleration,
+                                                                   nameOfBodyExertingAcceleration,
+                                                                   accelerationSettings );
             break;
         case custom_acceleration:
             accelerationModelPointer = createCustomAccelerationModel( accelerationSettings, nameOfBodyUndergoingAcceleration );
