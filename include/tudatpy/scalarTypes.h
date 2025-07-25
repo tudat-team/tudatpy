@@ -16,8 +16,8 @@
 using tudat::Time;
 
 #define STATE_SCALAR_TYPE double // long double
-#define TIME_TYPE tudat::Time
-#define INTERPOLATOR_TIME_TYPE tudat::Time
+#define TIME_TYPE Time
+#define INTERPOLATOR_TIME_TYPE Time
 
 #define TUDATPY_TYPE_ID_double 1
 #define TUDATPY_TYPE_ID_long_double 2
