@@ -146,17 +146,62 @@ void expose_parameters( py::module& m )
          Parameters
          ----------
          parameter_type : Tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, Tuple[str, str] ]
-             help
+             Parameter identifier for which the indices are retrieved. The first element of the tuple is the parameter type, the second element is a tuple containing the body name and, if applicable, a secondary identifier (e.g., station name), else this is an empty string.
          Returns
          -------
          List[ Tuple[int, int] ]
-             help
+             Indices of the parameters corresponding to the description. The first element of the tuple is the start index, the second element is the size of the parameter.
+
+     )doc" )
+        .def("indices_for_parameter_description",
+                 &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getIndicesForParameterDescription,
+                 py::arg("parameter_description"),
+                 R"doc(
+
+         Function to retrieve the indices of a given type of parameter.
+
+         Function to retrieve the index of all parameters of a given type from the parameter set.
+         This function can be very useful, since the order of parameters within the parameter set does not necessarily correspond to the order in which the elements were added to the set.
 
 
+         Parameters
+         ----------
+         parameter_description : str
+                Parameter description that is to be searched in full list of parameters.
+                Parameter descriptions can be retrieved from the :meth:`tudatpy.dynamics.parameters.EstimatableParameterSet.get_parameter_descriptions` method.
+
+         Returns
+         -------
+         List[ Tuple[int, int] ]
+             Indices of the parameters corresponding to the description. The first element of the tuple is the start index, the second element is the size of the parameter.
+
+     )doc")
+            .def( "get_parameter_descriptions",
+                  &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getParametersDescriptions,
+                  R"doc(
+
+         Function to retrieve the descriptions of all parameters in the set.
+
+         Returns
+         -------
+         List[ str ]
+             List of parameter descriptions formatted as strings.
 
 
+         )doc")
+            .def( "get_parameter_identifiers",
+                  &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getParametersIdentifiers,
+                  R"doc(
 
-     )doc" );
+         Function to retrieve the identifiers of all parameters in the set.
+
+         Returns
+         -------
+         Tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, Tuple[str, str] ]
+             List of parameter identifiers. The first element of the tuple is the parameter type, the second element is a tuple containing the body name and, if applicable, a secondary identifier (e.g., station name), else this is an empty string.
+
+
+         )doc");
 
 
      
