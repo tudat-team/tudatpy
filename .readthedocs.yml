@@ -12,7 +12,7 @@ sphinx:
   fail_on_warning: false
 
 build:
-  os: "ubuntu-20.04"
+  os: "ubuntu-24.04"
   tools:
     python: "miniconda-latest"
   jobs:
