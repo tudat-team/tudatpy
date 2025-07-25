@@ -252,11 +252,15 @@ Panel surface area
         )doc" );
 
     m.def( "body_panel_settings",
-           &tss::bodyPanelSettings,
+           py::overload_cast<
+                std::shared_ptr< tss::BodyPanelGeometrySettings >,
+                std::shared_ptr< tss::BodyPanelReflectionLawSettings >,
+                std::string,
+                std::shared_ptr< tss::MaterialProperties > >( &tss::bodyPanelSettings ),
            py::arg( "panel_geometry" ),
            py::arg( "panel_reflection_law" ),
            py::arg( "panel_type_id" ) = "",
-           py::arg( "material_properties" ) = std::map< std::string, tss::MaterialProperties >( ),
+           py::arg( "material_properties" ) = nullptr,
            R"doc(
 
  Function for creating settings for a full panel
