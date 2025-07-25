@@ -818,7 +818,6 @@ using the NRLMSISE-00 global reference model:
 
     m.def("mars_dtm",
           &tss::marsDtmAtmosphereSettings,
-          py::arg("mars_dtm_file" ),
           R"doc(No documentation found.)doc" );
 }
 
