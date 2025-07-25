@@ -25,18 +25,28 @@ class DiscosQuery:
         - dict: attributes of the queried object (e.g. mass, launch date, etc.)
         """
         response = requests.get(
-            f'{self.url}/api/objects/{norad_id}',
-            headers=self.headers
+            f'{self.url}/api/objects?filter=eq(satno,{norad_id})',
+            headers=self.headers,
         )
 
         if response.ok:
-            attributes = response.json()['data']['attributes']
+            attributes = response.json()['data'][0]['attributes']
             if verbose:
                 print(attributes)
-                print(attributes.get('mass', 'Mass not available'))
             return attributes
         else:
             errors = response.json().get('errors', 'Unknown error')
             if verbose:
                 print(errors)
             return None
+
+    def get_object_attribute(self, norad_id, attribute, verbose=True):
+        attributes = self.query_object(norad_id)
+        if attributes:
+            if attribute in attributes:
+                return attributes[attribute]
+            else:
+                print('Attribute not found. Exiting...\n')
+                exit()
+
+

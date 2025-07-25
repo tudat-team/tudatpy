@@ -1,17 +1,12 @@
-import requests
 import json
 import getpass
 import os
 from collections import defaultdict
-from datetime import datetime
 import numpy as np
-from tudatpy import numerical_simulation
-from tudatpy.numerical_simulation import environment, environment_setup, propagation_setup
-from tudatpy.interface import spice
+from tudatpy.dynamics import environment, environment_setup, propagation_setup
 from datetime import datetime, timedelta
-from tudatpy.astro import time_conversion
 import requests
-import pprint
+
 
 class SpaceTrackQuery:
     def __init__(self, username=None, password=None):
