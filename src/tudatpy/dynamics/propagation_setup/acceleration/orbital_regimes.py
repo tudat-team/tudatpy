@@ -1,9 +1,8 @@
-from tudatpy.numerical_simulation import propagation_setup
+from tudatpy.dynamics import propagation_setup
 
 class GetAccelerationSettingsPerRegime:
-    def __init__(self, SpaceTrackQuery, CreateEphemeris_Settings):
+    def __init__(self, CreateEphemeris_Settings):
 
-        self.SpaceTrackQuery = SpaceTrackQuery
         self.CreateEphemeris_Settings = CreateEphemeris_Settings
         pass
 
@@ -35,14 +34,13 @@ class GetAccelerationSettingsPerRegime:
         return MEO_acceleration_settings_dict
 
     def get_GEO_acceleration_settings(self):
-
         GEO_acceleration_settings_dict = dict(
-            Earth=[
-                propagation_setup.acceleration.point_mass_gravity(),
-            ],
-            Sun = [propagation_setup.acceleration.point_mass_gravity(),
-                   propagation_setup.acceleration.radiation_pressure()
-                   ],
+            Earth=[propagation_setup.acceleration.point_mass_gravity()],
+            Sun = [propagation_setup.acceleration.point_mass_gravity(), propagation_setup.acceleration.radiation_pressure()],
             Moon = [propagation_setup.acceleration.spherical_harmonic_gravity(5, 5)],
+            Jupiter = [propagation_setup.acceleration.point_mass_gravity()],
+            Mars = [propagation_setup.acceleration.point_mass_gravity()],
+            Venus = [propagation_setup.acceleration.point_mass_gravity()],
+            Saturn = [propagation_setup.acceleration.point_mass_gravity()]
         )
         return GEO_acceleration_settings_dict

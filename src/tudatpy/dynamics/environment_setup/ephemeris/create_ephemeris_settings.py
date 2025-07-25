@@ -1,6 +1,6 @@
-from tudatpy import numerical_simulation
-from tudatpy.numerical_simulation import environment_setup, propagation_setup
-from tudatpy.astro import time_conversion
+from tudatpy import dynamics
+from tudatpy.dynamics import environment_setup, propagation_setup
+from tudatpy.astro import time_representation
 from tudatpy.interface import spice
 from datetime import timedelta
 import numpy as np
@@ -38,8 +38,8 @@ class CreateEphemerisSettings:
             reference_epoch_utc = self.SpaceTrackQuery.TleUtils.get_tle_reference_epoch(self.SpaceTrackQuery.TleUtils, tle_line_1)  #exact module location TBD`
             end_epoch_utc = reference_epoch_utc + timedelta(hours=5)
 
-            simulation_start_epoch = time_conversion.datetime_to_tudat(reference_epoch_utc).epoch().to_float()
-            simulation_end_epoch = time_conversion.datetime_to_tudat(end_epoch_utc).epoch().to_float()
+            simulation_start_epoch = time_representation.datetime_to_tudat(reference_epoch_utc).epoch().to_float()
+            simulation_end_epoch = time_representation.datetime_to_tudat(end_epoch_utc).epoch().to_float()
             propagation_times = np.arange(simulation_start_epoch, simulation_end_epoch, 60)
             initial_state = self.SpaceTrackQuery.TleUtils.tle_to_TleEphemeris_object(self.SpaceTrackQuery.TleUtils, tle_line_1, tle_line_2).cartesian_state(simulation_start_epoch)
 
@@ -61,7 +61,7 @@ class CreateEphemerisSettings:
             # Create numerical integrator settings
             fixed_step_size = 10.0
             integrator_settings = propagation_setup.integrator.runge_kutta_fixed_step(
-                time_step = numerical_simulation.Time(fixed_step_size),
+                time_step = dynamics.Time(fixed_step_size),
                 coefficient_set = propagation_setup.integrator.rk_4)
 
             # Create propagation settings
@@ -70,13 +70,13 @@ class CreateEphemerisSettings:
                 acceleration_models,
                 bodies_to_propagate,
                 initial_state,
-                numerical_simulation.Time(simulation_start_epoch),
+                dynamics.Time(simulation_start_epoch),
                 integrator_settings,
                 termination_settings
             )
 
             # Create simulation object and propagate the dynamics
-            dynamics_simulator = numerical_simulation.create_dynamics_simulator(
+            dynamics_simulator = dynamics.create_dynamics_simulator(
                 bodies, propagator_settings
             )
 
