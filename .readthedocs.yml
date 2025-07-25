@@ -14,7 +14,7 @@ sphinx:
 build:
   os: "ubuntu-20.04"
   tools:
-    python: "mambaforge-4.10"
+    python: "miniconda-latest"
   jobs:
     pre_install:
       - LATEST_TAG=$(git describe --tags --abbrev=0) ; echo Downloading $LATEST_TAG ;
