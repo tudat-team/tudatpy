@@ -7,8 +7,6 @@ an interface between Tudat and popular machine learning frameworks and
 establishing a platform to provide quality education in the field of
 astrodynamics.
 
-WE ARE CURRENTLY EXPERIENCING ISSUES IN BUILDING THIS PAGE, PLEASE USE `https://tudat-team.github.io/tudatpy/ <https://tudat-team.github.io/tudatpy/>`_
-
 
 .. toctree::
    :maxdepth: 2
