@@ -1,4 +1,4 @@
-name: tudat-bundle
+name: tudatpy_10
 channels:
   - conda-forge
   - tudat-team
