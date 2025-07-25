@@ -120,6 +120,18 @@ void expose_parameters( py::module& m )
 
          :type: numpy.ndarray[numpy.float64[m, 1]]
       )doc" )
+            .def_property_readonly("consider_parameters",
+                                   &tep::EstimatableParameterSet<
+                                           STATE_SCALAR_TYPE >::getConsiderParameters,
+                                   R"doc(
+                                   
+        **read-only**
+
+        Set of consider parameters that are included in the parameter set.
+
+        :type: :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
+
+                                   )doc")
             .def( "indices_for_parameter_type",
                   &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getIndicesForParameterType,
                   py::arg( "parameter_type" ),
