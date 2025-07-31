@@ -863,8 +863,8 @@ void expose_ephemeris_setup( py::module& m )
            &tss::directTleEphemerisSettingsFromTleLines,
            py::arg( "tle_line_1" ),
            py::arg( "tle_line_2" ),
-           py::arg( "frame_origin" ) = "SSB",
-           py::arg( "frame_orientation" ) = "ECLIPJ2000",
+           py::arg( "frame_origin" ) = "Earth",
+           py::arg( "frame_orientation" ) = "J2000",
            R"doc(
 
  Function for creating ephemeris model settings for an SGP4-propagated TLE.
@@ -882,7 +882,7 @@ void expose_ephemeris_setup( py::module& m )
  tle_line_2 : str
      second line of the two-line element set
  frame_origin : str, default="Earth"
-     Origin of frame in which ephemeris data is defined.
+     Origin of frame in which ephemeris data is defined. At present, only "Earth" is supported.
  frame_orientation : str, default="J2000"
      Orientation of frame in which ephemeris data is defined.
  Returns
@@ -894,18 +894,15 @@ void expose_ephemeris_setup( py::module& m )
 
  Examples
  --------
- In this example, we create ephemeris settings for Jupiter, by scaling an existing :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` object with factors from a custom function:
+ In this example, we create ephemeris settings for Delfi-C3, using the two lines of the TLE formatted as strings:
 
  .. code-block:: python
 
    # Create ephemeris settings for Delfi C-3 spacecraft using launch TLE
-    body_settings.get( "DelfiC-3" ).ephemeris_settings =  environment_setup.ephemeris.sgp4(
+    body_settings.get( "Delfi-C3" ).ephemeris_settings =  environment_setup.ephemeris.sgp4(
          '1 32789U 07021G   08119.60740078 -.00000054  00000-0  00000+0 0  9999',
          '2 32789 098.0082 179.6267 0015321 307.2977 051.0656 14.81417433    68' )
   )
-
- In the above case, the given TLE will be used as input to an SGP4 propagation, with the output given from this ephemeris model in the (default) Earth-centered J2000 frame.
-
 
      )doc" );
 
