@@ -4,6 +4,9 @@ from tudatpy.astro import time_representation
 from tudatpy.interface import spice
 from datetime import timedelta
 import numpy as np
+from tudatpy.data.spacetrack import SpaceTrackQuery
+from tudatpy.data.discos import DiscosQuery
+
 
 class CreateEphemerisSettings:
     def __init__(self, SpaceTrackQuery, GetAccelerationSettingsPerRegime):
@@ -18,7 +21,7 @@ class CreateEphemerisSettings:
             bodies_to_create = ["Sun", "Earth", "Moon"],
             frame_origin = "Earth",
             frame_orientation = "J2000",
-            dynamical_model = 'SGP4'
+            dynamical_model = 'LEO-REGIME'
     ):
 
         spice.load_standard_kernels()
@@ -38,8 +41,8 @@ class CreateEphemerisSettings:
             reference_epoch_utc = self.SpaceTrackQuery.TleUtils.get_tle_reference_epoch(self.SpaceTrackQuery.TleUtils, tle_line_1)  #exact module location TBD`
             end_epoch_utc = reference_epoch_utc + timedelta(hours=5)
 
-            simulation_start_epoch = time_representation.datetime_to_tudat(reference_epoch_utc).epoch().to_float()
-            simulation_end_epoch = time_representation.datetime_to_tudat(end_epoch_utc).epoch().to_float()
+            simulation_start_epoch = time_representation.datetime_to_tudat(reference_epoch_utc).epoch()
+            simulation_end_epoch = time_representation.datetime_to_tudat(end_epoch_utc).epoch()
             propagation_times = np.arange(simulation_start_epoch, simulation_end_epoch, 60)
             initial_state = self.SpaceTrackQuery.TleUtils.tle_to_TleEphemeris_object(self.SpaceTrackQuery.TleUtils, tle_line_1, tle_line_2).cartesian_state(simulation_start_epoch)
 
@@ -50,12 +53,11 @@ class CreateEphemerisSettings:
 
             acceleration_settings = self.GetAccelerationSettingsPerRegime.get_LEO_acceleration_settings()
 
-            ### MAKE THIS INTO A FUNCTION BASED ON REGIME ###
+            print(acceleration_settings)
             acceleration_settings = {object_name: acceleration_settings}
             acceleration_models = propagation_setup.create_acceleration_models(
                 bodies, acceleration_settings, bodies_to_propagate, central_bodies
             )
-            ### MAKE THIS INTO A FUNCTION BASED ON REGIME ###
 
             termination_settings = propagation_setup.propagator.time_termination(simulation_end_epoch)
             # Create numerical integrator settings

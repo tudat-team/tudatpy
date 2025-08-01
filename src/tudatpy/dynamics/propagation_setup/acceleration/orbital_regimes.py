@@ -1,10 +1,9 @@
 from tudatpy.dynamics import propagation_setup
 
 class GetAccelerationSettingsPerRegime:
-    def __init__(self, CreateEphemeris_Settings):
-
-        self.CreateEphemeris_Settings = CreateEphemeris_Settings
+    def __init__(self):
         pass
+
 
     def get_LEO_acceleration_settings(self):
 
