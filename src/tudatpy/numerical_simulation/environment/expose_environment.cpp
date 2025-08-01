@@ -785,6 +785,21 @@ inside a `Body` instance and used in observation corrections or environmental qu
             .def( "set_default_transponder_turnaround_ratio_function",
                   &tsm::VehicleSystems::setDefaultTransponderTurnaroundRatio,
                   R"doc(No documentation found.)doc" )
+            .def( "set_transmitted_frequency_calculator",
+                    &tsm::VehicleSystems::setTransmittedFrequencyCalculator,
+                    py::arg("transmitted_frequency_calculator"),
+                    R"doc(
+                    Set the transmitted frequency calculator for the vehicle.
+
+                    This function assigns a frequency calculator to the vehicle, which can be used
+                    to determine the frequency transmitted by an onboard station or system.
+
+                    Parameters
+                    ----------
+                    transmitted_frequency_calculator : StationFrequencyInterpolator
+                        The frequency calculator object to be associated with the vehicle.
+                    )doc"
+                )
             .def( "get_control_surface_deflection",
                   &tsm::VehicleSystems::getCurrentControlSurfaceDeflection,
                   py::arg( "control_surface_id" ),
