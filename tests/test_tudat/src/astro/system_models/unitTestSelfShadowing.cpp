@@ -7,7 +7,7 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
- 
+
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MAIN
 
@@ -74,7 +74,8 @@ BOOST_AUTO_TEST_CASE( testFractionAnalytical )
             bodyPanelSettingsListFromDae( tudat::paths::getTudatTestDataPath( ) + "selfShadowingUnitTest.dae",
                                           Eigen::Vector3d::Zero( ),
                                           materialPropertiesMap,
-                                          instantaneousReradiation );
+                                          instantaneousReradiation,
+                                          "mm");
 
     std::shared_ptr< FullPanelledBodySettings > panelSettings = fullPanelledBodySettings( bodyPanelSettingList );
 
@@ -187,7 +188,8 @@ BOOST_AUTO_TEST_CASE( testComputationalEfficiency )
             bodyPanelSettingsListFromDae( tudat::paths::getTudatTestDataPath( ) + "selfShadowingUnitTest.dae",
                                           Eigen::Vector3d::Zero( ),
                                           materialPropertiesMap,
-                                          instantaneousReradiation );
+                                          instantaneousReradiation,
+                                          "mm");
 
     std::shared_ptr< FullPanelledBodySettings > panelSettings = fullPanelledBodySettings( bodyPanelSettingList );
     // Create spacecraft object.

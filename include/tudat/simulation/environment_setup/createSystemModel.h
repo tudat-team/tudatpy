@@ -28,17 +28,18 @@ namespace simulation_setup
 class MaterialProperties
 {
 public:
-    MaterialProperties( const double specularReflectivity, const double diffuseReflectivity,
-                        const double energyAccomodationCoefficient, const double normalAccomodationCoefficient, 
-                        const double tangentialAccomodationCoefficient, const double normalVelocityAtWallRatio ):
-                        specularReflectivity_( specularReflectivity ), diffuseReflectivity_( diffuseReflectivity ),
-                        energyAccomodationCoefficient_( energyAccomodationCoefficient ), 
-                        normalAccomodationCoefficient_( normalAccomodationCoefficient ),
-                        tangentialAccomodationCoefficient_( tangentialAccomodationCoefficient ),
-                        normalVelocityAtWallRatio_( normalVelocityAtWallRatio )
+    MaterialProperties( const double specularReflectivity,
+                        const double diffuseReflectivity,
+                        const double energyAccomodationCoefficient,
+                        const double normalAccomodationCoefficient,
+                        const double tangentialAccomodationCoefficient,
+                        const double normalVelocityAtWallRatio ):
+        specularReflectivity_( specularReflectivity ), diffuseReflectivity_( diffuseReflectivity ),
+        energyAccomodationCoefficient_( energyAccomodationCoefficient ), normalAccomodationCoefficient_( normalAccomodationCoefficient ),
+        tangentialAccomodationCoefficient_( tangentialAccomodationCoefficient ), normalVelocityAtWallRatio_( normalVelocityAtWallRatio )
     { }
 
-    double specularReflectivity_;    
+    double specularReflectivity_;
     double diffuseReflectivity_;
     double energyAccomodationCoefficient_;
     double normalAccomodationCoefficient_;
@@ -46,12 +47,19 @@ public:
     double normalVelocityAtWallRatio_;
 };
 
-inline std::shared_ptr< MaterialProperties > materialProperties( const double specularReflectivity, const double diffuseReflectivity,
-                    const double energyAccomodationCoefficient, const double normalAccomodationCoefficient, 
-                    const double tangentialAccomodationCoefficient, const double normalVelocityAtWallRatio )
+inline std::shared_ptr< MaterialProperties > materialProperties( const double specularReflectivity,
+                                                                 const double diffuseReflectivity,
+                                                                 const double energyAccomodationCoefficient,
+                                                                 const double normalAccomodationCoefficient,
+                                                                 const double tangentialAccomodationCoefficient,
+                                                                 const double normalVelocityAtWallRatio )
 {
-    return std::make_shared< MaterialProperties >( specularReflectivity, diffuseReflectivity, energyAccomodationCoefficient,
-                                                   normalAccomodationCoefficient, tangentialAccomodationCoefficient, normalVelocityAtWallRatio );
+    return std::make_shared< MaterialProperties >( specularReflectivity,
+                                                   diffuseReflectivity,
+                                                   energyAccomodationCoefficient,
+                                                   normalAccomodationCoefficient,
+                                                   tangentialAccomodationCoefficient,
+                                                   normalVelocityAtWallRatio );
 }
 
 class BodyPanelGeometrySettings
@@ -62,7 +70,6 @@ public:
     virtual ~BodyPanelGeometrySettings( ) { }
 
     std::string frameOrientation_;
-
 };
 
 class FrameFixedBodyPanelGeometrySettings : public BodyPanelGeometrySettings
@@ -80,21 +87,25 @@ public:
     FrameFixedBodyPanelGeometrySettings( const Eigen::Vector3d& surfaceNormal,
                                          const double area,
                                          const std::string& frameOrientation = "" ):
-        BodyPanelGeometrySettings( frameOrientation ), surfaceNormal_( surfaceNormal.normalized( ) ), area_( area ), geometry3dLoaded_( false )
+        BodyPanelGeometrySettings( frameOrientation ), surfaceNormal_( surfaceNormal.normalized( ) ), area_( area ),
+        geometry3dLoaded_( false )
     { }
 
     // added constructor for triangle
-    FrameFixedBodyPanelGeometrySettings( const Eigen::Vector3d vertexA, const Eigen::Vector3d vertexB, const Eigen::Vector3d vertexC,
-                                         const Eigen::Vector3d& surfaceNormal, const double area,
-                                         const Eigen::Vector3d frameOrigin = Eigen::Vector3d::Zero( ), const std::string& frameOrientation = "" ):
-        BodyPanelGeometrySettings( frameOrientation ), surfaceNormal_( surfaceNormal ), area_( area ), 
-        vertexA_( vertexA ), vertexB_( vertexB ), vertexC_( vertexC ), 
-        frameOrigin_( frameOrigin ), geometry3dLoaded_( true )
-    {   
+    FrameFixedBodyPanelGeometrySettings( const Eigen::Vector3d vertexA,
+                                         const Eigen::Vector3d vertexB,
+                                         const Eigen::Vector3d vertexC,
+                                         const Eigen::Vector3d& surfaceNormal,
+                                         const double area,
+                                         const Eigen::Vector3d frameOrigin = Eigen::Vector3d::Zero( ),
+                                         const std::string& frameOrientation = "" ):
+        BodyPanelGeometrySettings( frameOrientation ), surfaceNormal_( surfaceNormal ), area_( area ), vertexA_( vertexA ),
+        vertexB_( vertexB ), vertexC_( vertexC ), frameOrigin_( frameOrigin ), geometry3dLoaded_( true )
+    {
         Eigen::Vector3d positionVector;
-        positionVector(0) = (vertexA_(0)+vertexB_(0)+vertexC_(0))/3;
-        positionVector(1) = (vertexA_(1)+vertexB_(1)+vertexC_(1))/3;
-        positionVector(2) = (vertexA_(2)+vertexB_(2)+vertexC_(2))/3;
+        positionVector( 0 ) = ( vertexA_( 0 ) + vertexB_( 0 ) + vertexC_( 0 ) ) / 3;
+        positionVector( 1 ) = ( vertexA_( 1 ) + vertexB_( 1 ) + vertexC_( 1 ) ) / 3;
+        positionVector( 2 ) = ( vertexA_( 2 ) + vertexB_( 2 ) + vertexC_( 2 ) ) / 3;
 
         positionVector_ = positionVector;
     }
@@ -153,14 +164,10 @@ public:
     std::function< Eigen::Vector3d( ) > surfaceNormalFunction_;
     std::function< Eigen::Vector3d( ) > positionVectorFunction_;
 
-
-
     double area_;
     double panelTemperature_;
 
     std::pair< std::string, bool > bodyToTrack_;
-
-
 };
 
 inline std::shared_ptr< BodyPanelGeometrySettings > frameFixedPanelGeometry( const Eigen::Vector3d& surfaceNormal,
@@ -237,7 +244,6 @@ public:
     std::string panelTypeId_;
 
     std::shared_ptr< MaterialProperties > materialProperties_;
-
 };
 
 inline std::shared_ptr< BodyPanelSettings > bodyPanelSettings(
@@ -268,118 +274,137 @@ public:
     std::map< std::string, std::shared_ptr< RotationModelSettings > > partRotationModelSettings_;
 };
 
-inline std::vector< std::shared_ptr< BodyPanelSettings > > bodyPanelSettingsListFromDae( 
-    const std::string filePath,
-    const Eigen::Vector3d frameOrigin,
-    std::map< std::string, std::shared_ptr< MaterialProperties> > materialPropertiesMap, 
-    std::map< std::string, bool > instantaneousReradiation,
-    const std::string frameOrientation = "")
+inline std::vector< std::shared_ptr< BodyPanelSettings > > bodyPanelSettingsListFromDae(
+        const std::string filePath,
+        const Eigen::Vector3d frameOrigin,
+        std::map< std::string, std::shared_ptr< MaterialProperties > > materialPropertiesMap,
+        std::map< std::string, bool > instantaneousReradiation,
+        const std::string inputUnit,
+        const std::string frameOrientation = "" )
 {
     std::vector< std::shared_ptr< BodyPanelSettings > > bodyPanelSettingsList;
-    std::ifstream file(filePath);
-    if (!file) 
+    std::ifstream file( filePath );
+    if( !file )
     {
-        throw std::runtime_error("Error, wrong path to DAE file!");
+        throw std::runtime_error( "Error, wrong path to DAE file!" );
     }
     // collada parsing
     std::stringstream buffer;
-    buffer << file.rdbuf(); 
-    std::string collada = buffer.str();
+    buffer << file.rdbuf( );
+    std::string collada = buffer.str( );
     // library materials
     std::string tag = "<library_materials>";
-    size_t start_materials = collada.find(tag) + tag.size();
-    size_t end_materials = collada.find("</library_materials>", start_materials)-1;
+    size_t start_materials = collada.find( tag ) + tag.size( );
+    size_t end_materials = collada.find( "</library_materials>", start_materials ) - 1;
     size_t pos = start_materials;
-    std::vector<std::string> panelMaterialIdList;
+    std::vector< std::string > panelMaterialIdList;
     tag = "name=\"";
-    while (pos<end_materials) {
-        size_t start_mat = collada.find(tag, pos);
-        if (start_mat == std::string::npos || start_mat >= end_materials) {
+    while( pos < end_materials )
+    {
+        size_t start_mat = collada.find( tag, pos );
+        if( start_mat == std::string::npos || start_mat >= end_materials )
+        {
             break;
         }
-        start_mat += tag.size();
-        size_t end_mat = collada.find('"', start_mat);
-        if (end_mat == std::string::npos || end_mat > end_materials) {
+        start_mat += tag.size( );
+        size_t end_mat = collada.find( '"', start_mat );
+        if( end_mat == std::string::npos || end_mat > end_materials )
+        {
             break;
         }
-        panelMaterialIdList.push_back(collada.substr(start_mat, end_mat-start_mat));
+        panelMaterialIdList.push_back( collada.substr( start_mat, end_mat - start_mat ) );
         pos = end_mat + 1;
     }
     // error handling
-    for (const auto& materialId : panelMaterialIdList) 
+    for( const auto& materialId: panelMaterialIdList )
     {
-        if ( materialPropertiesMap.count( materialId ) == 0 )
+        if( materialPropertiesMap.count( materialId ) == 0 )
         {
-            throw std::runtime_error("Material ID " + materialId + " not found in material properties settings!");
+            throw std::runtime_error( "Material ID " + materialId + " not found in material properties settings!" );
         }
-        if ( materialPropertiesMap.at( materialId )->specularReflectivity_ == -1 ||
-             materialPropertiesMap.at( materialId )->diffuseReflectivity_ == -1 )
+        if( materialPropertiesMap.at( materialId )->specularReflectivity_ == -1 ||
+            materialPropertiesMap.at( materialId )->diffuseReflectivity_ == -1 )
         {
-             throw std::runtime_error("Material ID " + materialId + " has no specular or diffuse reflectivity coefficients!");
+            throw std::runtime_error( "Material ID " + materialId + " has no specular or diffuse reflectivity coefficients!" );
         }
-        auto reradIt = instantaneousReradiation.find(materialId);
-        if (reradIt == instantaneousReradiation.end())
+        auto reradIt = instantaneousReradiation.find( materialId );
+        if( reradIt == instantaneousReradiation.end( ) )
         {
-            throw std::runtime_error("Material ID " + materialId + " not found in re-radiation settings!");
+            throw std::runtime_error( "Material ID " + materialId + " not found in re-radiation settings!" );
         }
     }
     // library geometries
     tag = "<library_geometries>";
-    size_t start_geometries = collada.find(tag) + tag.size();
+    size_t start_geometries = collada.find( tag ) + tag.size( );
     tag = "<source";
-    size_t start_source = collada.find(tag, start_geometries) + tag.size();
+    size_t start_source = collada.find( tag, start_geometries ) + tag.size( );
     tag = "<float_array";
-    size_t start_float = collada.find(tag, start_source) + tag.size();
-    size_t start_array = collada.find(">", start_float) + 1;
-    size_t end_array = collada.find("<", start_array);
-    std::istringstream dummy1(collada.substr(start_array, end_array-start_array));
-    std::vector<Eigen::Vector3d> panelVerticesList;
+    size_t start_float = collada.find( tag, start_source ) + tag.size( );
+    size_t start_array = collada.find( ">", start_float ) + 1;
+    size_t end_array = collada.find( "<", start_array );
+    std::istringstream dummy1( collada.substr( start_array, end_array - start_array ) );
+    std::vector< Eigen::Vector3d > panelVerticesList;
+
+    float conversionFactor;
+
+    if (inputUnit=="mm"){conversionFactor=1/1000.;}
+    else if (inputUnit=="m"){conversionFactor=1;}
+    else if (inputUnit=="in"){conversionFactor=0.0254;}
+    else{ throw std::runtime_error("Input Unit " + inputUnit + " not recognized. Valid options are mm, m, in.");}
+
     double x1, y1, z1;
-    while (dummy1 >> x1 >> y1 >> z1) {
-        panelVerticesList.push_back(Eigen::Vector3d(x1, y1, z1)/1000);
+    while( dummy1 >> x1 >> y1 >> z1 )
+    {
+        panelVerticesList.push_back( Eigen::Vector3d( x1, y1, z1 ) * conversionFactor );
     }
     pos = end_array;
     // sub library: create settings
     tag = "<triangles";
-    for (size_t i = 0; i<panelMaterialIdList.size(); i++) {
-        size_t start_triangle = collada.find(tag, pos) + tag.size();
+    for( size_t i = 0; i < panelMaterialIdList.size( ); i++ )
+    {
+        size_t start_triangle = collada.find( tag, pos ) + tag.size( );
         std::string tag_triangle = "<p>";
-        size_t start_p = collada.find("<p>", start_triangle) + tag_triangle.size();
-        size_t end_p = collada.find("<", start_p);
-        std::istringstream dummy2(collada.substr(start_p, end_p-start_p));
+        size_t start_p = collada.find( "<p>", start_triangle ) + tag_triangle.size( );
+        size_t end_p = collada.find( "<", start_p );
+        std::istringstream dummy2( collada.substr( start_p, end_p - start_p ) );
         int a, b, c, n;
-        while (dummy2 >> a >> n >> b >> n >> c >> n) {
-            Eigen::Vector3d edgeAB = panelVerticesList[b] - panelVerticesList[a];
-            Eigen::Vector3d edgeAC = panelVerticesList[c] - panelVerticesList[a];
-            double area = 0.5*edgeAB.cross(edgeAC).norm();
-            Eigen::Vector3d surfaceNormal = edgeAB.cross(edgeAC).normalized();
-            std::shared_ptr< FrameFixedBodyPanelGeometrySettings > currentGeometrySettings = 
-                std::make_shared< FrameFixedBodyPanelGeometrySettings >(panelVerticesList[a],
-                     panelVerticesList[b], panelVerticesList[c], surfaceNormal, area, frameOrigin, frameOrientation);
-            bodyPanelSettingsList.push_back(bodyPanelSettings(currentGeometrySettings, 
-                specularDiffuseBodyPanelReflectionLawSettings(materialPropertiesMap[panelMaterialIdList[i]]->specularReflectivity_, 
-                                                              materialPropertiesMap[panelMaterialIdList[i]]->diffuseReflectivity_,
-                                                              instantaneousReradiation[panelMaterialIdList[i]]),
-                                                              panelMaterialIdList[i],
-                                                              materialPropertiesMap[ panelMaterialIdList[i] ]) );
-                                                            
+        while( dummy2 >> a >> n >> b >> n >> c >> n )
+        {
+            Eigen::Vector3d edgeAB = panelVerticesList[ b ] - panelVerticesList[ a ];
+            Eigen::Vector3d edgeAC = panelVerticesList[ c ] - panelVerticesList[ a ];
+            double area = 0.5 * edgeAB.cross( edgeAC ).norm( );
+            Eigen::Vector3d surfaceNormal = edgeAB.cross( edgeAC ).normalized( );
+            std::shared_ptr< FrameFixedBodyPanelGeometrySettings > currentGeometrySettings =
+                    std::make_shared< FrameFixedBodyPanelGeometrySettings >( panelVerticesList[ a ],
+                                                                             panelVerticesList[ b ],
+                                                                             panelVerticesList[ c ],
+                                                                             surfaceNormal,
+                                                                             area,
+                                                                             frameOrigin,
+                                                                             frameOrientation );
+            bodyPanelSettingsList.push_back( bodyPanelSettings(
+                    currentGeometrySettings,
+                    specularDiffuseBodyPanelReflectionLawSettings( materialPropertiesMap[ panelMaterialIdList[ i ] ]->specularReflectivity_,
+                                                                   materialPropertiesMap[ panelMaterialIdList[ i ] ]->diffuseReflectivity_,
+                                                                   instantaneousReradiation[ panelMaterialIdList[ i ] ] ),
+                    panelMaterialIdList[ i ],
+                    materialPropertiesMap[ panelMaterialIdList[ i ] ] ) );
         }
         pos = end_p;
     }
 
     return bodyPanelSettingsList;
-
 }
 
-inline std::vector< std::shared_ptr< BodyPanelSettings > > mergeBodyPanelSettingsLists( std::vector< std::vector< std::shared_ptr< BodyPanelSettings > > > listOfLists )
+inline std::vector< std::shared_ptr< BodyPanelSettings > > mergeBodyPanelSettingsLists(
+        std::vector< std::vector< std::shared_ptr< BodyPanelSettings > > > listOfLists )
 {
-    std::vector< std::shared_ptr<BodyPanelSettings > > mergedList;
-    for ( auto it : listOfLists ) 
-    {   
-        mergedList.insert(mergedList.end(), it.begin(), it.end());
+    std::vector< std::shared_ptr< BodyPanelSettings > > mergedList;
+    for( auto it: listOfLists )
+    {
+        mergedList.insert( mergedList.end( ), it.begin( ), it.end( ) );
     }
     return mergedList;
-    
 }
 
 inline std::shared_ptr< FullPanelledBodySettings > fullPanelledBodySettings(
