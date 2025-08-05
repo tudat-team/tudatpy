@@ -84,7 +84,20 @@ class SpaceTrackQuery:
                     json_data = queried_data
                     with open(json_name, "w") as json_file:
                         json.dump(json_data, json_file, indent=4)
+
+                    if N != 1:
+                        filtered_values = self.parent.OMMUtils.filter_tles_keep_latest_creation_from_json(self, json_name)
+                        parts_json_name = json_name.split('.')[0].split('_')
+                        parts_json_name[-1] = f'{len(filtered_values)}'
+                        new_name = '_'.join(parts_json_name) + '.json'
+                        os.system(f'mv temp_filtered_tles.json {new_name}')
+
+                        if new_name != json_name:
+                            os.system(f'rm {json_name}')
+                        print(f"Data downloaded to {new_name} file.")
+
                         print(f"Data downloaded to {json_name} file.")
+
                 else:
                     print("Failed to retrieve data from the API. Status code:", response.status_code)
 
@@ -122,9 +135,9 @@ class SpaceTrackQuery:
                     # among the duplicated ones (latest creation date)
 
                     if N != 1:
-                        filtered_dict = self.OMMUtils.filter_tles_keep_latest_creation_from_json(self, json_name)
+                        filtered_values = self.parent.OMMUtils.filter_tles_keep_latest_creation_from_json(self, json_name)
                         parts_json_name = json_name.split('.')[0].split('_')
-                        parts_json_name[-1] = f'{len(filtered_dict.values())}'
+                        parts_json_name[-1] = f'{len(filtered_values)}'
                         new_name = '_'.join(parts_json_name) + '.json'
                         os.system(f'mv temp_filtered_tles.json {new_name}')
 
@@ -257,8 +270,9 @@ class SpaceTrackQuery:
                 objects_list = json.load(f)
 
             filtered = {}
-            for i, object_ in enumerate(objects_list[0]):
+            for i, object_ in enumerate(objects_list):
                 epoch = object_['EPOCH']
+
                 creation_date = datetime.fromisoformat(object_['CREATION_DATE'])
 
                 if epoch not in filtered:
@@ -276,17 +290,17 @@ class SpaceTrackQuery:
 
             print(f'Number of Filtered TLEs in the JSON file for OBJECT {object_["NORAD_CAT_ID"]}: {len(filtered.values())}')
 
-            return filtered
+            return filtered.values()
 
         def get_tles(self, json_dict):
-
             tle_dict = defaultdict(list)
-            for i,object in enumerate(json_dict):
-                norad_cat_id = object['NORAD_CAT_ID']
-                tle_line_1 = object['TLE_LINE1']
-                tle_line_2 = object['TLE_LINE2']
 
-                tle_dict[norad_cat_id] = (tle_line_1, tle_line_2)
+            if type(json_dict) is list:
+                for json in json_dict:
+                    norad_cat_id = json['NORAD_CAT_ID']
+                    tle_line_1 = json['TLE_LINE1']
+                    tle_line_2 = json['TLE_LINE2']
+                    tle_dict[norad_cat_id] = (tle_line_1, tle_line_2)
 
             return tle_dict
 
