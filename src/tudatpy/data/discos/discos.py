@@ -42,6 +42,7 @@ class DiscosQuery:
 
     def get_object_attribute(self, norad_id, attribute, verbose=True):
         attributes = self.query_object(norad_id)
+        print(attributes)
         if attributes:
             if attribute in attributes:
                 return attributes[attribute]

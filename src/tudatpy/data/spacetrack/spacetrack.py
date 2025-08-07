@@ -19,6 +19,7 @@ class SpaceTrackQuery:
         self.password = password
         self.spacetrack_url = 'https://www.space-track.org'
         self.download_tle = self.DownloadTle(self)  # Pass parent to subclass
+        self.omm_utils = self.OMMUtils(self)
 
     class DownloadTle:
         def __init__(self, parent):

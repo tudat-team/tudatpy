@@ -21,7 +21,13 @@ class CreateEphemerisSettings:
             bodies_to_create = ["Sun", "Earth", "Moon"],
             frame_origin = "Earth",
             frame_orientation = "J2000",
-            dynamical_model = 'LEO-REGIME'
+            dynamical_model = 'LEO-REGIME',
+            aerodynamic = True,
+            srp = True,
+            mass = 260,
+            reference_area = 20,
+            drag_coefficient = 1.2,
+            radiation_coefficient = 1.2
     ):
 
         spice.load_standard_kernels()
@@ -31,6 +37,27 @@ class CreateEphemerisSettings:
             frame_orientation)
 
         body_settings.add_empty_settings(f'{object_name}')
+        body_settings.get(object_name).constant_mass = mass
+
+        if aerodynamic:
+            reference_area = 20  # Average projection area of a 3U CubeSat
+            drag_coefficient = 1.2
+            aero_coefficient_settings = environment_setup.aerodynamic_coefficients.constant(
+                reference_area, [drag_coefficient, 0.0, 0.0]
+            )
+            # Add the aerodynamic interface to the environment
+            body_settings.get(object_name).aerodynamic_coefficient_settings = aero_coefficient_settings
+
+        if srp:
+            # Create radiation pressure settings
+            reference_area_radiation = 20  # Average projection area of a 3U CubeSat
+            radiation_pressure_coefficient = 1.2
+            occulting_bodies = dict()
+            occulting_bodies["Sun"] = ["Earth"]
+            radiation_pressure_settings = environment_setup.radiation_pressure.cannonball_radiation_target(
+                reference_area_radiation, radiation_pressure_coefficient, occulting_bodies)
+            # Add the radiation pressure interface to the environment
+            body_settings.get(object_name).radiation_pressure_target_settings = radiation_pressure_settings
 
         if dynamical_model == 'SGP4':
             body_settings.get(f'{object_name}').ephemeris_settings = environment_setup.ephemeris.sgp4(tle_line_1, tle_line_2,frame_origin,frame_orientation)
@@ -38,32 +65,31 @@ class CreateEphemerisSettings:
 
         # depending for instance on the dynamical model, we can give different ephemeris types (custom, keplerian, etc...)
         elif dynamical_model == 'LEO-REGIME':
-            reference_epoch_utc = self.SpaceTrackQuery.TleUtils.get_tle_reference_epoch(self.SpaceTrackQuery.TleUtils, tle_line_1)  #exact module location TBD`
+            reference_epoch_utc = self.SpaceTrackQuery.OMMUtils.get_tle_reference_epoch(self.SpaceTrackQuery.OMMUtils, tle_line_1)  #exact module location TBD`
             end_epoch_utc = reference_epoch_utc + timedelta(hours=5)
 
             simulation_start_epoch = time_representation.datetime_to_tudat(reference_epoch_utc).epoch()
             simulation_end_epoch = time_representation.datetime_to_tudat(end_epoch_utc).epoch()
             propagation_times = np.arange(simulation_start_epoch, simulation_end_epoch, 60)
-            initial_state = self.SpaceTrackQuery.TleUtils.tle_to_TleEphemeris_object(self.SpaceTrackQuery.TleUtils, tle_line_1, tle_line_2).cartesian_state(simulation_start_epoch)
+            initial_state = self.SpaceTrackQuery.OMMUtils.tle_to_TleEphemeris_object(self.SpaceTrackQuery.OMMUtils, tle_line_1, tle_line_2).cartesian_state(simulation_start_epoch)
 
-            bodies = environment_setup.create_system_of_bodies(body_settings)
+            temp_bodies = environment_setup.create_system_of_bodies(body_settings)
 
             bodies_to_propagate = [object_name]
             central_bodies = ["Earth"]
 
             acceleration_settings = self.GetAccelerationSettingsPerRegime.get_LEO_acceleration_settings()
 
-            print(acceleration_settings)
             acceleration_settings = {object_name: acceleration_settings}
             acceleration_models = propagation_setup.create_acceleration_models(
-                bodies, acceleration_settings, bodies_to_propagate, central_bodies
+                temp_bodies, acceleration_settings, bodies_to_propagate, central_bodies
             )
 
             termination_settings = propagation_setup.propagator.time_termination(simulation_end_epoch)
             # Create numerical integrator settings
             fixed_step_size = 10.0
             integrator_settings = propagation_setup.integrator.runge_kutta_fixed_step(
-                time_step = dynamics.Time(fixed_step_size),
+                time_step = time_representation.DateTime.from_epoch(fixed_step_size).epoch(),
                 coefficient_set = propagation_setup.integrator.rk_4)
 
             # Create propagation settings
@@ -72,20 +98,18 @@ class CreateEphemerisSettings:
                 acceleration_models,
                 bodies_to_propagate,
                 initial_state,
-                dynamics.Time(simulation_start_epoch),
+                simulation_start_epoch,
                 integrator_settings,
                 termination_settings
             )
 
             # Create simulation object and propagate the dynamics
-            dynamics_simulator = dynamics.create_dynamics_simulator(
-                bodies, propagator_settings
+            dynamics_simulator = dynamics.simulator.create_dynamics_simulator(
+                temp_bodies, propagator_settings
             )
 
             # Extract the resulting state history and convert it to an ndarray
             state_history = dynamics_simulator.propagation_results.state_history_float
-
-            print(state_history)
 
             tabulated_ephemeris = environment_setup.ephemeris.tabulated(
                 body_state_history=state_history,
@@ -95,4 +119,6 @@ class CreateEphemerisSettings:
 
             body_settings.get(object_name).ephemeris_settings = tabulated_ephemeris
 
-            return tabulated_ephemeris
+            bodies = environment_setup.create_system_of_bodies(body_settings)
+
+            return tabulated_ephemeris, bodies
