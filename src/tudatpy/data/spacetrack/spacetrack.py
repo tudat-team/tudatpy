@@ -226,6 +226,7 @@ class SpaceTrackQuery:
             self.username = self.parent.username
             self.password = self.parent.password
             self.spacetrack_url = self.parent.spacetrack_url
+            self.supported_orbital_regimes = ['LEO_REGIME', 'MEO_REGIME', 'GEO_REGIME', 'GSO_REGIME', 'HEO_REGIME', 'OTHER']
 
         def get_norad_id_name_map(self, limit=None):
             """
@@ -397,3 +398,108 @@ class SpaceTrackQuery:
                 np.sqrt(1 - e) * np.cos(E / 2)
             )
             return ν
+
+        def get_orbital_regime(self, single_object_json_dict):
+            """
+            Classify the orbital regime of a space object based on its orbital elements.
+
+            This function evaluates the periapsis, apoapsis, eccentricity, and inclination of a space object
+            (assumed to orbit the Earth) and returns the corresponding orbital regime along with the regime's
+            threshold definitions.
+
+            The supported regimes are:
+                - LEO_REGIME: Low Earth Orbit (100–2000 km)
+                - MEO_REGIME: Medium Earth Orbit (2000–35786 km)
+                - GEO_REGIME: Geostationary Orbit (~35786 km with low eccentricity and inclination)
+                - GSO_REGIME: Geosynchronous Orbit (~35786 km but not meeting GEO constraints)
+                - HEO_REGIME: Highly Elliptical Orbit (e.g., Molniya-type)
+                - "Other": Any orbit that does not fall into the above categories
+
+            Parameters
+            ----------
+            single_object_json_dict : dict
+                A dictionary containing orbital elements for a single object.
+                Required keys:
+                    - 'CENTER_NAME': must be 'EARTH'
+                    - 'PERIAPSIS' (km above surface)
+                    - 'APOAPSIS' (km above surface)
+                    - 'ECCENTRICITY' (unitless)
+                    - 'INCLINATION' (degrees)
+
+            Returns
+            -------
+            orbital_regime : str
+                The name of the identified orbital regime (e.g., "LEO_REGIME", "MEO_REGIME", etc.)
+
+            regime_bounds : dict
+                The threshold values used to classify the orbit, including altitude and (if applicable)
+                eccentricity and inclination ranges.
+
+            Raises
+            ------
+            ValueError
+                If the object is not orbiting Earth or required keys are missing or invalid.
+            """
+
+            REGIME_THRESHOLDS = {
+                "LEO_REGIME": {
+                    "rp": (100, 2000),
+                    "ra": (100, 2000),
+                },
+                "MEO_REGIME": {
+                    "rp": (2000, 35786),
+                    "ra": (2000, 35786),
+                },
+                "GEO_REGIME": {
+                    "rp": (35586, 35986),  # 35786 ± 200 km
+                    "ra": (35586, 35986),
+                    "ecc": (0.0, 0.01),
+                    "inc": (0.0, 1.0),     # degrees
+                },
+                "GSO_REGIME": {
+                    "rp": (35586, 35986),  # Same altitude range as GEO
+                    "ra": (35586, 35986),
+                    # No constraints on ecc/inc — anything not satisfying GEO will fall here
+                },
+                "HEO_REGIME": {
+                    "rp": (100, 10000),
+                    "ra": (35000, 50000),
+                }
+            }
+
+            # Extract orbital elements from JSON
+            central_body_name = single_object_json_dict["CENTER_NAME"]
+            if central_body_name != 'EARTH':
+                raise ValueError(f'Central body name must be "EARTH" (Central body: {central_body_name} not supported).')
+
+            rp_object = float(single_object_json_dict.get('PERIAPSIS', None))  # km above surface
+            ra_object = float(single_object_json_dict.get('APOAPSIS', None))   # km above surface
+            ecc = float(single_object_json_dict.get('ECCENTRICITY', None))
+            inc = float(single_object_json_dict.get('INCLINATION', None))
+
+            # Initialize result
+            orbital_regime = "OTHER"
+
+            # Loop through defined regimes
+            for regime, thresholds in REGIME_THRESHOLDS.items():
+                rp_min, rp_max = thresholds["rp"]
+                ra_min, ra_max = thresholds["ra"]
+
+                if not (rp_min <= rp_object <= rp_max and ra_min <= ra_object <= ra_max):
+                    continue
+
+                # Check eccentricity and inclination if required
+                ecc_range = thresholds.get("ecc", None)
+                inc_range = thresholds.get("inc", None)
+
+                if ecc_range and (ecc is None or not ecc_range[0] <= ecc <= ecc_range[1]):
+                    continue
+
+                if inc_range and (inc is None or not inc_range[0] <= inc <= inc_range[1]):
+                    continue
+
+                # All checks passed
+                orbital_regime = regime
+                break
+
+            return orbital_regime, REGIME_THRESHOLDS[orbital_regime]

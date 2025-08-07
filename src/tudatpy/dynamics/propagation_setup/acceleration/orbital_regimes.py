@@ -4,12 +4,27 @@ class GetAccelerationSettingsPerRegime:
     def __init__(self):
         pass
 
+    def get_acceleration_settings(self, orbital_regime):
+        if orbital_regime == 'LEO_REGIME':
+            acceleration_settings = self.get_LEO_acceleration_settings()
+        elif orbital_regime == 'MEO_REGIME':
+            acceleration_settings = self.get_MEO_acceleration_settings()
+        elif orbital_regime == 'GEO_REGIME':
+            acceleration_settings = self.get_GEO_acceleration_settings()
+        elif orbital_regime == 'OTHER':
+            acceleration_settings = self.get_GEO_acceleration_settings()
+
+        return acceleration_settings
 
     def get_LEO_acceleration_settings(self):
 
+        # create_atmosphere
+
         LEO_acceleration_settings_dict = dict(
             Earth=[
-                propagation_setup.acceleration.spherical_harmonic_gravity(5, 5)]
+                propagation_setup.acceleration.spherical_harmonic_gravity(5, 5),
+                propagation_setup.acceleration.aerodynamic()
+            ]
             ,
             Sun = [propagation_setup.acceleration.point_mass_gravity(),
                    propagation_setup.acceleration.radiation_pressure()
