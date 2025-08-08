@@ -151,8 +151,8 @@ class SpaceTrackQuery:
 
             if filtered_dict:
                 return filtered_dict
-
-            return json_data
+            else:
+                return json_data
 
         def filtered_by_oe_dict(self, filter_oe_dict, limit=100, output_file='filtered_results.json'):
 
