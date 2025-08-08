@@ -342,13 +342,7 @@ class SpaceTrackQuery:
                 frame_origin = 'Earth',
                 frame_orientation = 'J2000')
 
-            tabulated_ephemeris =  environment_setup.ephemeris.tabulated_from_existing(
-                sgp4_ephemeris,
-                simulation_start_epoch,
-                simulation_end_epoch,
-                timestep_global)
-
-            return tabulated_ephemeris
+            return sgp4_ephemeris
 
         def plot_earth(self, ax, radius=6378, color='lightblue', alpha=0.5, resolution=50):
             """Plot Earth as a sphere in the 3D axes."""
