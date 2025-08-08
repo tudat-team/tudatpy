@@ -7,6 +7,8 @@ from tudatpy.dynamics import environment, environment_setup, propagation_setup
 from datetime import datetime, timedelta
 import requests
 import math
+from tudatpy.astro import time_representation
+import warnings
 
 class SpaceTrackQuery:
     def __init__(self, username=None, password=None):
@@ -281,7 +283,7 @@ class SpaceTrackQuery:
                     filtered[epoch] = object_
                 else:
                     print(f'Number of TLEs in the JSON file for OBJECT {object_["NORAD_CAT_ID"]}: {len(objects_list[0])}')
-                    print(f'Warning: Found Duplicate TLE for EPOCH {epoch} for OBJECT {object_["NORAD_CAT_ID"]}. Keeping only the latest one...')
+                    print(f'Found Duplicate TLE for EPOCH {epoch} for OBJECT {object_["NORAD_CAT_ID"]}. Keeping only the latest one...')
                     print(f'Updating JSON file accordingly...')
                     existing_creation_date = datetime.fromisoformat(filtered[epoch]['CREATION_DATE'])
                     if creation_date > existing_creation_date:
@@ -321,10 +323,32 @@ class SpaceTrackQuery:
             
             return a,e,i,omega,raan,true_anomaly
 
-        def tle_to_TleEphemeris_object(self, tle_line_1, tle_line_2):
-            object_tle = environment.Tle(tle_line_1, tle_line_2)
-            ephemeris_object = environment.TleEphemeris("Earth", "J2000", object_tle, False)
-            return ephemeris_object
+        def tle_to_sgp4_ephemeris_object(self, tle_line_1, tle_line_2, simulation_start_epoch = None, simulation_end_epoch = None, timestep_global = 5, frame_origin = 'Earth', frame_orientation = 'J2000'):
+            # Checking start and end of simulation
+            reference_epoch_tle = time_representation.datetime_to_tudat(self.get_tle_reference_epoch(tle_line_1)).epoch()
+            if not simulation_start_epoch and not simulation_end_epoch:
+                simulation_start_epoch = reference_epoch_tle
+                simulation_start_epoch_datetime = time_representation.DateTime.to_python_datetime(time_representation.DateTime.from_epoch(simulation_start_epoch))
+                simulation_end_epoch = time_representation.datetime_to_tudat(simulation_start_epoch_datetime + timedelta(hours=5)).epoch()
+                warnings.warn(
+                    "No simulation start nor end epoch provided.\n"
+                    "Starting simulation at TLE reference epoch.\n"
+                    "Ending simulation at TLE reference epoch + 5 hours.",
+                    UserWarning
+                )
+            sgp4_ephemeris =  environment_setup.ephemeris.sgp4(
+                tle_line_1,
+                tle_line_2,
+                frame_origin = 'Earth',
+                frame_orientation = 'J2000')
+
+            tabulated_ephemeris =  environment_setup.ephemeris.tabulated_from_existing(
+                sgp4_ephemeris,
+                simulation_start_epoch,
+                simulation_end_epoch,
+                timestep_global)
+
+            return tabulated_ephemeris
 
         def plot_earth(self, ax, radius=6378, color='lightblue', alpha=0.5, resolution=50):
             """Plot Earth as a sphere in the 3D axes."""
