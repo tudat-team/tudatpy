@@ -27,6 +27,7 @@ dependencies:
   - cartopy # for fancy ground tracks visualizations (kosmos example)
   - geopandas # for fancy ground track visualizations (kosmos example)
   - spiceypy # for automatic data downloader and kernel converter
+  - schedule # for automatic (scheduled) TLE downloader
   # Data downloader tabular output
   - tabulate
   - colorama

@@ -9,7 +9,8 @@ import requests
 import math
 from tudatpy.astro import time_representation
 import warnings
-
+import schedule
+import time
 class SpaceTrackQuery:
     def __init__(self, username=None, password=None):
         if not username:
@@ -24,6 +25,7 @@ class SpaceTrackQuery:
         self.omm_utils = self.OMMUtils(self)
 
     class DownloadTle:
+
         def __init__(self, parent):
             self.parent = parent  # Store reference to parent SpaceTrackQuery
 
@@ -37,15 +39,33 @@ class SpaceTrackQuery:
             self.password = self.parent.password
             self.spacetrack_url = self.parent.spacetrack_url
 
-        def latest_on_orbit(self):
+        def scheduled_download(self):
+            # Schedule the task to run every day at 2:00 AM
+            #schedule.every(10).seconds.do(lambda: self.latest_on_orbit(type='None')) #for testing
+            schedule.every(3).hours.do(lambda: self.latest_on_orbit(type='None')) # nominal use
+            # Keep the script running to check for pending tasks
+            while True:
+                schedule.run_pending()
+                time.sleep(60)  # Check every 10 seconds
+                print("Last modified:", time.ctime(os.path.getmtime("latest_on_orbit.json")))
+
+        def latest_on_orbit(self, type = 'None'):
 
             """
-            This function retrieves the newest propagable element set for all on-orbit objects (according to Space-Track.org)
+            This function retrieves the newest propagable element set for all on-orbit objects if type is None.
+            If type = PAYLOAD (or any other valid type), it will only retrieve that type of objects.
             :return: dictionary corresponding to the downloaded json file
             """
+
+            if type:
+                piece_of_string = f'OBJECT_TYPE/{type}/'
+
+            else:
+                piece_of_string = ''
+
             with requests.Session() as s:
                 s.post(self.spacetrack_url+"/ajaxauth/login", json={'identity':self.username, 'password':self.password})
-                response = s.get(os.path.join(self.spacetrack_url,'basicspacedata/query/class/gp/OBJECT_TYPE/PAYLOAD/decay_date/null-val/epoch/%3Enow-30/orderby/norad_cat_id/format/json'))
+                response = s.get(os.path.join(self.spacetrack_url,f'basicspacedata/query/class/gp/{piece_of_string}decay_date/null-val/epoch/%3Enow-30/orderby/norad_cat_id/format/json'))
                 json_name = "latest_on_orbit.json"
 
                 if response.status_code == 200:
