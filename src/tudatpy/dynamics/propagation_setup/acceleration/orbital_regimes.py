@@ -1,5 +1,5 @@
 from mypyc.crash import catch_errors
-from tudatpy.dynamics import propagation_setup
+from tudatpy.dynamics import propagation_setup, environment_setup
 from xxlimited import Error
 
 
@@ -9,12 +9,19 @@ class GetAccelerationSettingsPerRegime:
 
     def get_acceleration_settings(self,
                                   bodies,
+                                  body_settings,
                                   object_name,
                                   orbital_regime,
-                                  aerodynamics = True,
-                                  radiation_pressure = True
-                                  ):
+                                  aerodynamics=True,
+                                  radiation_pressure=True,
+                                  add_forces=None,
+                                  drop_forces=None):
+        """
+        add_forces: dict with format {"Body": [acceleration_settings,...]}
+        drop_forces: dict with format {"Body": ["force_type_keyword",...]}
+        """
 
+        # Default per regime
         if orbital_regime == 'LEO_REGIME':
             acceleration_settings = self.get_LEO_acceleration_settings(aerodynamics, radiation_pressure)
         elif orbital_regime == 'MEO_REGIME':
@@ -23,8 +30,32 @@ class GetAccelerationSettingsPerRegime:
             acceleration_settings = self.get_GEO_acceleration_settings(aerodynamics, radiation_pressure)
         elif orbital_regime == 'OTHER':
             acceleration_settings = self.get_GEO_acceleration_settings(aerodynamics, radiation_pressure)
+        else:
+            raise ValueError(f"Unknown orbital regime: {orbital_regime}")
 
-        return acceleration_settings
+        ## Apply additions
+        if add_forces:
+            for body, new_accels in add_forces.items():
+                if not bodies.does_body_exist(body):
+                    body_settings.add_empty_settings(body)
+                    body_settings.get(body).gravity_field_settings = environment_setup.gravity_field.central_spice(body)
+                    body_settings.get(body).ephemeris_settings = environment_setup.ephemeris.direct_spice(frame_origin = 'Earth', frame_orientation = 'J2000')
+                    bodies = environment_setup.create_system_of_bodies(body_settings)
+
+                if body not in acceleration_settings:
+                    acceleration_settings[body] = [] # this is not enough, since we also need to define settings in the first place
+                acceleration_settings[body].extend(new_accels)
+
+        # Apply removals
+        if drop_forces:
+            for body, drop_list in drop_forces.items():
+                if body in acceleration_settings:
+                    acceleration_settings[body] = [
+                        a for a in acceleration_settings[body]
+                        if not any(keyword in str(a) for keyword in drop_list)
+                    ]
+
+        return acceleration_settings, bodies
 
     def get_LEO_acceleration_settings(self, aerodynamics, radiation_pressure):
 
