@@ -431,8 +431,8 @@ void expose_ephemeris_setup( py::module& m )
  initial_state_in_keplerian_elements : numpy.ndarray[numpy.float64[6, 1]]
      Kepler elements at epoch given by ``initial_state_epoch``.
 
- initial_state_epoch : float
-     Epoch at which ``initial_state_epoch`` represents the Keplerian state.
+ initial_state_epoch : astro.time_representation.Time
+     Epoch at which ``initial_state_epoch`` represents the Keplerian state (Time object representing seconds since J2000 TDB).
 
  central_body_gravitational_parameter : float
      Effective gravitational parameter of the central body that is used in the computations. Note that when
@@ -468,7 +468,7 @@ void expose_ephemeris_setup( py::module& m )
 
    # Define the computation of the Kepler orbit ephemeris
    initial_state_in_keplerian_elements = [100e9, 0.7, 1.0, 2.0, 2.0, 2.0]
-   initial_state_epoch = 12345
+   initial_state_epoch = Time(12345)
    central_body_gravitational_parameter = 1.3284e20 # (sum of Sun and Jupiter)
    # Define the ephemeris frame
    frame_origin = "SSB"
@@ -506,8 +506,8 @@ void expose_ephemeris_setup( py::module& m )
  ----------
  body : str
      Name of body for which to create ephemeris settings and infer initial state from Spice.
- initial_state_epoch : float
-     Epoch at which ``initial_state_epoch`` represents the Keplerian state.
+ initial_state_epoch : astro.time_representation.Time
+     Epoch at which ``initial_state_epoch`` represents the Keplerian state (Time object representing seconds since J2000 TDB).
 
  central_body_gravitational_parameter : float
      Gravitational parameter of the central body that is used in the computations.
@@ -541,7 +541,7 @@ void expose_ephemeris_setup( py::module& m )
 
    # Define the parameters for retrieval of the initial Kepler orbit elements from spice
    body_name = "Jupiter"
-   initial_state_epoch = 12345
+   initial_state_epoch = Time(12345)
    central_body_gravitational_parameter = 1.3284e20 # (sum of Sun and Jupiter)
    # Define the ephemeris frame
    frame_origin = "SSB"
@@ -688,10 +688,10 @@ void expose_ephemeris_setup( py::module& m )
 
  Parameters
  ----------
- initial_time : float
-     Initial time from which interpolated data from Spice should be created.
- final_time : float
-     Final time from which interpolated data from Spice should be created.
+ initial_time : astro.time_representation.Time
+     Initial time from which interpolated data from Spice should be created (Time object representing seconds since J2000 TDB).
+ final_time : astro.time_representation.Time
+     Final time from which interpolated data from Spice should be created (Time object representing seconds since J2000 TDB).
  time_step : float
      Time step with which interpolated data from Spice should be created.
  frame_origin : str, default="SSB"
@@ -718,8 +718,8 @@ void expose_ephemeris_setup( py::module& m )
  .. code-block:: python
 
    # Define the interpolation settings
-   initial_time = 0.0
-   final_time = 1.0E8
+   initial_time = Time(0.0)
+   final_time = Time(1.0E8)
    time_step = 3600.0
    # Define the ephemeris frame
    frame_origin = "SSB"
@@ -823,10 +823,10 @@ void expose_ephemeris_setup( py::module& m )
  ----------
  ephemeris_settings : tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings
      Existing ephemeris settings that have to be tabulated.
- start_time : float
-     Initial time for which to create the tabulated ephemeris.
- end_time : float
-     Final time for which to create the tabulated ephemeris.
+ start_time : astro.time_representation.Time
+     Initial time for which to create the tabulated ephemeris (Time object representing seconds since J2000 TDB).
+ end_time : astro.time_representation.Time
+     Final time for which to create the tabulated ephemeris (Time object representing seconds since J2000 TDB).
  time_step : float
      Time step to use to tabulate the existing ephemeris.
  interpolator_settings : tudatpy.math.interpolators.InterpolatorSettings, default=tudatpy.math.interpolators.lagrange_interpolation(8)
@@ -1179,7 +1179,8 @@ void expose_ephemeris_setup( py::module& m )
            &tss::customEphemerisSettingsDeprecated,
            py::arg( "custom_state_function" ),
            py::arg( "frame_origin" ) = "SSB",
-           py::arg( "frame_orientation" ) = "ECLIPJ2000" );
+           py::arg( "frame_orientation" ) = "ECLIPJ2000",
+           R"doc(Deprecated function. Use custom_ephemeris instead.)doc" );
 }
 
 }  // namespace ephemeris

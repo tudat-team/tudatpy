@@ -200,7 +200,7 @@ void expose_mass_rate_setup( py::module &m )
 
  Parameters
  ----------
- mass_rate_function : callable[[float], float]
+ mass_rate_function : callable[[astro.time_representation.Time], float]
      Function of time defining the custom mass rate.
  Returns
  -------

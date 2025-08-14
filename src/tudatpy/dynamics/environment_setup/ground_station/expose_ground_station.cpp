@@ -293,8 +293,8 @@ void expose_ground_station_setup( py::module &m )
  ----------
  linear_velocity : numpy.ndarray([3,1])
      Linear velocity :math:`\dot{\mathbf{r}}` of the station (in m/s)
- reference_epoch : float, default = 0.0
-     Reference epoch :math:`t_{0}`, in seconds since J2000 epoch
+ reference_epoch : astro.time_representation.Time, default = 0.0
+     Reference epoch :math:`t_{0}` (Time object representing seconds since J2000 TDB)
  Returns
  -------
  GroundStationMotionSettings
@@ -318,8 +318,8 @@ void expose_ground_station_setup( py::module &m )
 
  Parameters
  ----------
- displacement_list : dict[float,numpy.ndarray([3,1])]
-     Dictionary with the epochs :math:`t_{i}` as values, and the associated displacement :math:`\Delta\mathbf{r}_{i}` as value
+ displacement_list : dict[astro.time_representation.Time,numpy.ndarray([3,1])]
+     Dictionary with the epochs :math:`t_{i}` as keys (as Time objects), and the associated displacement :math:`\Delta\mathbf{r}_{i}` as values
  Returns
  -------
  GroundStationMotionSettings
@@ -345,8 +345,8 @@ void expose_ground_station_setup( py::module &m )
 
  Parameters
  ----------
- custom_displacement_function : dict[float,numpy.ndarray([3,1])]
-     Function returning :math:`\Delta\mathbf{r}`, with the time :math:`t` as input.
+ custom_displacement_function : Callable[[astro.time_representation.Time],numpy.ndarray([3,1])]
+     Function returning :math:`\Delta\mathbf{r}`, with the time :math:`t` (as Time object) as input.
  Returns
  -------
  GroundStationMotionSettings
