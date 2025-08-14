@@ -817,7 +817,7 @@ void expose_estimation_analysis( py::module& m )
  state_transition_interface : :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
      Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time.
 
- output_times : List[ float ]
+ output_times : List[ astro.time_representation.Time ]
      Times at which the propagated covariance matrix shall be reported.
      Note that this argument has no impact on the integration time-steps of the covariance propagation,
      which always adheres to the integrator settings that the `state_transition_interface` links to.
@@ -858,7 +858,7 @@ void expose_estimation_analysis( py::module& m )
  state_transition_interface : :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
      Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time.
 
- output_times : List[ float ]
+ output_times : List[ astro.time_representation.Time ]
      Times at which the propagated covariance matrix shall be reported.
      Note that this argument has no impact on the integration time-steps of the covariance propagation,
      which always adheres to the integrator settings that the `state_transition_interface` links to.
@@ -866,7 +866,7 @@ void expose_estimation_analysis( py::module& m )
 
  Returns
  -------
- tuple[ list[float], list[numpy.ndarray[numpy.float64[m, n]]] ]
+ tuple[ list[astro.time_representation.Time], list[numpy.ndarray[numpy.float64[m, n]]] ]
      Tuple containing a list of output times, and a list of propagated formal errors in RSW frame at each output time.
 
 
@@ -902,7 +902,7 @@ void expose_estimation_analysis( py::module& m )
  state_transition_interface : :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
      Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time.
 
- output_times : List[ float ]
+ output_times : List[ astro.time_representation.Time ]
      Times at which the propagated covariance matrix shall be reported.
      Note that this argument has no impact on the integration time-steps of the covariance propagation,
      which always adheres to the integrator settings that the `state_transition_interface` links to.
@@ -910,7 +910,7 @@ void expose_estimation_analysis( py::module& m )
 
  Returns
  -------
- tuple[ list[float], list[numpy.ndarray[numpy.float64[m, n]]] ]
+ tuple[ list[astro.time_representation.Time], list[numpy.ndarray[numpy.float64[m, n]]] ]
      Tuple containing a list of output times, and a list of propagated covariances at each output time.
 
 
@@ -945,7 +945,7 @@ void expose_estimation_analysis( py::module& m )
  state_transition_interface : :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
      Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time.
 
- output_times : List[ float ]
+ output_times : List[ astro.time_representation.Time ]
      Times at which the propagated covariance matrix shall be reported.
      Note that this argument has no impact on the integration time-steps of the covariance propagation,
      which always adheres to the integrator settings that the `state_transition_interface` links to.
@@ -953,7 +953,7 @@ void expose_estimation_analysis( py::module& m )
 
  Returns
  -------
- Dict[ float, numpy.ndarray[numpy.float64[m, n]] ]
+ Dict[ astro.time_representation.Time, numpy.ndarray[numpy.float64[m, n]] ]
      Dictionary reporting the propagated covariances at each output time.
 
 
@@ -989,7 +989,7 @@ void expose_estimation_analysis( py::module& m )
  state_transition_interface : :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
      Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time.
 
- output_times : List[ float ]
+ output_times : List[ astro.time_representation.Time ]
      Times at which the propagated covariance matrix shall be reported.
      Note that this argument has no impact on the integration time-steps of the covariance propagation,
      which always adheres to the integrator settings that the `state_transition_interface` links to.
@@ -997,7 +997,7 @@ void expose_estimation_analysis( py::module& m )
 
  Returns
  -------
- tuple[ list[float], list[numpy.ndarray[numpy.float64[m, n]]] ]
+ tuple[ list[astro.time_representation.Time], list[numpy.ndarray[numpy.float64[m, n]]] ]
      Tuple containing a list of output times, and a list of propagated formal errors at each output time.
 
 
@@ -1033,7 +1033,7 @@ void expose_estimation_analysis( py::module& m )
  state_transition_interface : :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
      Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time.
 
- output_times : List[ float ]
+ output_times : List[ astro.time_representation.Time ]
      Times at which the propagated covariance matrix shall be reported.
      Note that this argument has no impact on the integration time-steps of the covariance propagation,
      which always adheres to the integrator settings that the `state_transition_interface` links to.
@@ -1041,7 +1041,7 @@ void expose_estimation_analysis( py::module& m )
 
  Returns
  -------
- Dict[ float, numpy.ndarray[numpy.float64[m, 1]] ]
+ Dict[ astro.time_representation.Time, numpy.ndarray[numpy.float64[m, 1]] ]
      Dictionary reporting the propagated formal errors at each output time.
 
 

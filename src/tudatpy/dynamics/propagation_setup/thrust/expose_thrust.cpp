@@ -194,9 +194,9 @@ void expose_thrust_setup( py::module &m )
 
  Parameters
  ----------
- thrust_magnitude_function : callable[[float], float]
+ thrust_magnitude_function : callable[[astro.time_representation.Time], float]
      Function of time returning the value of the thrust force magnitude.
- specific_impulse_function : callable[[float], float]
+ specific_impulse_function : callable[[astro.time_representation.Time], float]
      Function of time returning the value of the specific impulse, useful to link the mass propagation to the thrust model.
  Returns
  -------
@@ -240,7 +240,7 @@ void expose_thrust_setup( py::module &m )
 
  Parameters
  ----------
- thrust_magnitude_function : callable[[float], float]
+ thrust_magnitude_function : callable[[astro.time_representation.Time], float]
      Function of time returning the value of the thrust force magnitude.
  specific_impulse : float
      Constant value for specific impulse, useful to link the mass propagation to the thrust model.
@@ -271,9 +271,9 @@ void expose_thrust_setup( py::module &m )
 
  Parameters
  ----------
- thrust_acceleration_magnitude_function : callable[[float], float]
+ thrust_acceleration_magnitude_function : callable[[astro.time_representation.Time], float]
      Function of time returning the value of the thrust acceleration magnitude.
- specific_impulse_function : callable[[float], float]
+ specific_impulse_function : callable[[astro.time_representation.Time], float]
      Function of time returning the value of the specific impulse, useful to link the mass propagation to the thrust model.
  Returns
  -------
@@ -298,7 +298,7 @@ void expose_thrust_setup( py::module &m )
 
  Parameters
  ----------
- thrust_acceleration_magnitude_function : callable[[float], float]
+ thrust_acceleration_magnitude_function : callable[[astro.time_representation.Time], float]
      Function of time returning the value of the thrust acceleration magnitude.
  specific_impulse : float
      Constant value for specific impulse, useful to link the mass propagation to the thrust model.
