@@ -231,8 +231,7 @@ class SpaceTrackQuery:
             with open(output_file, 'w') as f_out:
                 json.dump([all_results], f_out, indent=4)
 
-            return all_results
-
+            return [all_results]
 
 
     class OMMUtils:

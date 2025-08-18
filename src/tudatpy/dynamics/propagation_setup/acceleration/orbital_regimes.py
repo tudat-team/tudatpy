@@ -33,7 +33,6 @@ class GetAccelerationSettingsPerRegime:
     def get_acceleration_settings(self,
                                   bodies,
                                   body_settings,
-                                  object_name,
                                   orbital_regime,
                                   aerodynamics=True,
                                   radiation_pressure=True,
