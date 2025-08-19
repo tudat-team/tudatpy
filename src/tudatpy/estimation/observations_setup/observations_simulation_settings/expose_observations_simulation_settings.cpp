@@ -144,14 +144,14 @@ void expose_observations_simulation_settings( py::module& m )
      Observable type of which observations are to be simulated.
  link_ends : LinkDefinition
      Link ends for which observations are to be simulated.
- simulation_times : List[float]
+ simulation_times : List[astro.time_representation.Time]
      List of times at which to perform the observation simulation.
  reference_link_end_type : :class:`LinkEndType`, default = :class:`LinkEndType.receiver`
      Defines the link end (via the :class:`LinkEndType`) which is used as a reference time for the observation.
  viability_settings : List[ :class:`ObservationViabilitySettings` ], default = [ ]
      Settings for the creation of the viability criteria calculators, which conduct viability checks on the simulated observations.
 
- noise_function : Callable[ [float], numpy.ndarray[numpy.float64[m, 1]] ], default = None
+ noise_function : Callable[ [astro.time_representation.Time], numpy.ndarray[numpy.float64[m, 1]] ], default = None
      Function providing the observation noise factors as a function of observation time.
  Returns
  -------
@@ -185,7 +185,7 @@ void expose_observations_simulation_settings( py::module& m )
  ----------
  link_ends_per_observable : Dict[:class:`ObservableType`, List[LinkDefinition]]]
      Link geometry per observable type of which observations are to be simulated.
- simulation_times : List[ float ]
+ simulation_times : List[ astro.time_representation.Time ]
      List of times at which to perform the observation simulation.
  reference_link_end_type : :class:`LinkEndType`, default = :class:`LinkEndType.receiver`
      Defines the link end (via the :class:`LinkEndType`) which is used as a reference for observation times.
@@ -249,9 +249,9 @@ void expose_observations_simulation_settings( py::module& m )
      Observable type of which observations are to be simulated.
  link_ends : LinkDefinition
      Link ends for which observations are to be simulated.
- start_time : float
+ start_time : astro.time_representation.Time
      First time at which an observation is to be simulated (and checked for viability).
- end_time : float
+ end_time : astro.time_representation.Time
      Maximum time at which an observation is to be simulated (and checked for viability).
  interval_between_observations : float
      Cadence (in seconds) of subsequent observations in an arc
@@ -269,7 +269,7 @@ void expose_observations_simulation_settings( py::module& m )
      Settings for the creation of the viability criteria calculators, which conduct viability checks on the simulated observations.
      These settings are *not* used to determine whether an arc is to be terminated, but are instead applied after the arcs have been computed.
 
- noise_function : Callable[ [float], numpy.ndarray[numpy.float64[m, 1]] ], default = None
+ noise_function : Callable[ [astro.time_representation.Time], numpy.ndarray[numpy.float64[m, 1]] ], default = None
      Function providing the observation noise factors as a function of observation time.
  Returns
  -------
@@ -309,9 +309,9 @@ void expose_observations_simulation_settings( py::module& m )
  ----------
  link_ends_per_observable : Dict[:class:`ObservableType`, List[LinkDefinition]]]
      Link geometry per observable type of which observations are to be simulated.
- start_time : float
+ start_time : astro.time_representation.Time
      First time at which an observation is to be simulated (and checked for viability).
- end_time : float
+ end_time : astro.time_representation.Time
      Maximum time at which an observation is to be simulated (and checked for viability).
  interval_between_observations : float
      Cadence (in seconds) of subsequent observations in an arc

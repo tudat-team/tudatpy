@@ -1,7 +1,10 @@
 from tudatpy.dynamics import environment_setup  # type:ignore
 from tudatpy.dynamics import environment  # type:ignore
 from tudatpy.estimation import observations
-from tudatpy.estimation.observable_models_setup import model_settings, links  # type:ignore
+from tudatpy.estimation.observable_models_setup import (
+    model_settings,
+    links,
+)  # type:ignore
 from tudatpy.dynamics.environment_setup import add_gravity_field_model
 from tudatpy.dynamics.environment_setup.gravity_field import central_sbdb
 
@@ -1218,7 +1221,7 @@ class BatchMPC:
 
         # Calculate observation weights and update table:
         if apply_weights_VFCC17 and not self._custom_weights_set:
-            temp_table:pd.DataFrame = get_weights_VFCC17(  # type:ignore
+            temp_table: pd.DataFrame = get_weights_VFCC17(  # type:ignore
                 mpc_table=self.table,
                 return_full_table=True,
             )
@@ -1327,23 +1330,17 @@ class BatchMPC:
             link_ends = dict()
 
             # observed body link
-            link_ends[links.transmitter] = links.body_origin_link_end_id(
-                MPC_number
-            )
+            link_ends[links.transmitter] = links.body_origin_link_end_id(MPC_number)
 
             if station_name in sat_obs_codes_included:
                 # link for a satellite
                 sat_name = included_satellites[station_name]
-                link_ends[links.receiver] = links.body_origin_link_end_id(
-                    sat_name
-                )
+                link_ends[links.receiver] = links.body_origin_link_end_id(sat_name)
                 link_definition = links.link_definition(link_ends)
             else:
                 # link for a ground station
-                link_ends[links.receiver] = (
-                    links.body_reference_point_link_end_id(
-                        station_body, station_name
-                    )
+                link_ends[links.receiver] = links.body_reference_point_link_end_id(
+                    station_body, station_name
                 )
                 link_definition = links.link_definition(link_ends)
 
@@ -1383,7 +1380,9 @@ class BatchMPC:
 
             observation_set_list.append(observation_set)
 
-        observation_collection = observations.ObservationCollection(observation_set_list)
+        observation_collection = observations.ObservationCollection(
+            observation_set_list
+        )
         return observation_collection
 
     def plot_observations_temporal(

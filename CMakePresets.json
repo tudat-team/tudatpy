@@ -1,0 +1,90 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 19,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "default",
+            "hidden": false,
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CMAKE_PREFIX_PATH": "/opt/homebrew/Caskroom/miniconda/base/envs/tudatpy-dev",
+                "CMAKE_INSTALL_PREFIX": "/opt/homebrew/Caskroom/miniconda/base/envs/tudatpy-dev",
+                "Boost_NO_BOOST_CMAKE": "ON",
+                "CMAKE_BUILD_TYPE": "Release",
+                "TUDAT_BUILD_TESTS": "ON"
+            }
+        },
+        {
+            "name": "default-no-tests",
+            "inherits": "default",
+            "description": "Build without tests",
+            "cacheVariables": {
+                "TUDAT_BUILD_TESTS": "OFF"
+            }
+        },
+        {
+            "name": "debug",
+            "inherits": "default",
+            "description": "Debug build configuration",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "debug-no-tests",
+            "inherits": "debug",
+            "description": "Debug build configuration without tests",
+            "cacheVariables": {
+                "TUDAT_BUILD_TESTS": "OFF"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "default-build",
+            "hidden": false,
+            "configurePreset": "default",
+            "jobs": 8,
+            "targets": [
+                "all"
+            ]
+        },
+        {
+            "name": "default-build-no-tests",
+            "configurePreset": "default-no-tests",
+            "jobs": 8,
+            "targets": [
+                "all"
+            ]
+        },
+        {
+            "name": "debug-build",
+            "configurePreset": "debug",
+            "jobs": 8,
+            "targets": [
+                "all"
+            ]
+        },
+        {
+            "name": "debug-build-no-tests",
+            "configurePreset": "debug-no-tests",
+            "jobs": 8,
+            "targets": [
+                "all"
+            ]
+        },
+        {
+            "name": "clean",
+            "configurePreset": "default",
+            "jobs": 8,
+            "targets": [
+                "clean"
+            ]
+        }
+    ]
+}

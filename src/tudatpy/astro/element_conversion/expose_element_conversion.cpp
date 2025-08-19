@@ -1340,8 +1340,8 @@ Enumeration describing different types of position element types (typically used
 
  Parameters
  ----------
- epoch : float
-     Time as TDB seconds since J2000
+ epoch : astro.time_representation.Time
+     Time object representing the epoch as seconds since J2000
  Returns
  -------
  numpy.ndarray
@@ -1359,8 +1359,8 @@ Enumeration describing different types of position element types (typically used
 
  Parameters
  ----------
- epoch : float
-     Time as TDB seconds since J2000
+ epoch : astro.time_representation.Time
+     Time object representing the epoch as seconds since J2000
  Returns
  -------
  numpy.ndarray
