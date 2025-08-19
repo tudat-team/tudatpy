@@ -90,9 +90,17 @@ public:
         currentTime_ = TUDAT_NAN;
         for( unsigned int i = 0; i < thrustSources_.size( ); i++ )
         {
-            thrustSources_.at( i )->resetCurrentTime( );
+            try
+            {
+                thrustSources_.at( i )->resetCurrentTime( );
+            }
+            catch( ... ){ }
         }
-        thrustDirectionCalculator_->resetCurrentTime( );
+        try
+        {
+            thrustDirectionCalculator_->resetCurrentTime( );
+        }
+        catch( ... ){ }
     }
 
     //! Update member variables used by the thrust acceleration model.
