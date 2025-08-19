@@ -187,7 +187,7 @@ void expose_time_representation( py::module& m )
      
      Returns
      -------
-     Time
+     astro.time_representation.Time
          Time object initialized to specified seconds since J2000
      
      Examples
@@ -214,7 +214,7 @@ void expose_time_representation( py::module& m )
      
      Returns
      -------
-     Time
+     astro.time_representation.Time
          Time object initialized to specified time
      
      Examples
@@ -248,9 +248,8 @@ void expose_time_representation( py::module& m )
         print(seconds)  # prints 3600.0
     )doc" )
             .def( "__float__", &tudat::Time::getSeconds< double > )
-            .def("__eq__", [](const tudat::Time& self, const tudat::Time& other) {
-                return self == other; })
-            .def("__hash__", [](const Time &self) { return self.hash(); } )
+            .def( "__eq__", []( const tudat::Time& self, const tudat::Time& other ) { return self == other; } )
+            .def( "__hash__", []( const Time& self ) { return self.hash( ); } )
             .def( py::self + py::self )
             .def( py::self + double( ) )
             .def( double( ) + py::self )
@@ -890,7 +889,7 @@ datetime.datetime
 
  Parameters
  ----------
- seconds_to_add : float
+ seconds_to_add : astro.time_representation.Time
      Number of seconds to add
  Returns
  -------
@@ -914,7 +913,7 @@ datetime.datetime
      # dt with seconds added: 2025-01-02 00:00:00.000000000000000   
 
             )doc" )
-            .def( "add_days", &tba::DateTime::addDaysToDateTime< TIME_TYPE >, py::arg( "days_to_add" ), R"doc(
+            .def( "add_days", &tba::DateTime::addDaysToDateTime< double >, py::arg( "days_to_add" ), R"doc(
             
  Function to create a new Tudat :class:`DateTime` object by adding a number of days (86400 seconds) to an existing Tudat :class:`DateTime` object
 
@@ -1314,12 +1313,12 @@ datetime.datetime
 
  Parameters
  ----------
- TCB_time : float
-     Time in seconds since J2000, in the TCB time scale.
+ TCB_time : astro.time_representation.Time
+     Time object representing the epoch as seconds since J2000, in the TCB time scale.
  Returns
  -------
- float
-     Time in seconds since J2000, in the TDB time scale.
+ epoch : astro.time_representation.Time
+     Time object representing the epoch as seconds since J2000, in the TDB time scale.
 
 
 
@@ -1360,12 +1359,12 @@ datetime.datetime
 
  Parameters
  ----------
- TDB_time : float
-     Time in seconds since J2000, in the TDB time scale.
+ TDB_time : astro.time_representation.Time
+     Time object representing the epoch as seconds since J2000, in the TDB time scale.
  Returns
  -------
- float
-     Time in seconds since J2000, in the TCB time scale.
+ epoch : astro.time_representation.Time
+     Time object representing the epoch as seconds since J2000, in the TCB time scale.
 
 
 
@@ -1385,12 +1384,12 @@ datetime.datetime
 
  Parameters
  ----------
- TCG_time : float
-     Time in seconds since J2000, in the TCG time scale.
+ TCG_time : astro.time_representation.Time
+     Time object representing the epoch as seconds since J2000, in the TCG time scale.
  Returns
  -------
- float
-     Time in seconds since J2000, in the TT time scale.
+ astro.time_representation.Time
+     Time object representing the epoch as seconds since J2000, in the TT time scale.
 
 
 
@@ -1413,12 +1412,12 @@ datetime.datetime
 
  Parameters
  ----------
- TT_time : float
-     Time in seconds since J2000, in the TT time scale.
+ TT_time : astro.time_representation.Time
+     Time object representing the epoch as seconds since J2000, in the TT time scale.
  Returns
  -------
- float
-     Time in seconds since J2000, in the TCG time scale.
+ astro.time_representation.Time
+    Time object representing the epoch as seconds since J2000, in the TCG time scale.
 
 
 
@@ -1438,12 +1437,12 @@ datetime.datetime
 
  Parameters
  ----------
- TAI_time : float
-     Time in seconds since J2000, in the TAI time scale.
+ TAI_time : astro.time_representation.Time
+    Time object representing the epoch as seconds since J2000, in the TAI time scale.
  Returns
  -------
- float
-     Time in seconds since J2000, in the TT time scale.
+ astro.time_representation.Time
+     Time object representing the epoch as seconds since J2000, in the TT time scale.
 
 
 
@@ -1466,12 +1465,12 @@ datetime.datetime
 
  Parameters
  ----------
- TT_time : float
-     Time in seconds since J2000, in the TT time scale.
+ TT_time : astro.time_representation.Time
+    Time object representing the epoch as seconds since J2000, in the TT time scale.
  Returns
  -------
- float
-     Time in seconds since J2000, in the TAI time scale.
+astro.time_representation.Time
+    Time object representing the epoch as seconds since J2000, in the TAI time scale.
 
 
 
@@ -1496,12 +1495,12 @@ datetime.datetime
 
  Parameters
  ----------
- TT_time : float
-     Time in seconds since J2000, in the TT time scale.
+ TT_time : astro.time_representation.Time
+    Time object representing the epoch as seconds since J2000, in the TT time scale.
  Returns
  -------
- float
-     Time in seconds since J2000, in the TDB time scale.
+ astro.time_representation.Time
+    Time object representing the epoch as seconds since J2000, in the TDB time scale.
 
 
 
@@ -1524,14 +1523,14 @@ datetime.datetime
 
  Parameters
  ----------
- TT_time : float
-     Time in seconds since J2000, in the TT time scale.
+ TT_time : astro.time_representation.Time
+    Time in seconds since J2000, in the TT time scale.
  earth_fixed_position : numpy.ndarray, default=numpy.array([0, 0, 0])
      Earth-fixed position (e.g. in ITRF) that is used for detailed conversion between TDB and TT (induces a signature at the microsecond level)
  Returns
  -------
- float
-     Time in seconds since J2000, in the TDB time scale.
+ astro.time_representation.Time
+    Time in seconds since J2000, in the TDB time scale.
 
 
 
@@ -1554,14 +1553,14 @@ datetime.datetime
 
  Parameters
  ----------
- TDB_time : float
-     Time in seconds since J2000, in the TDB time scale.
+ TDB_time : astro.time_representation.Time
+    Timne object representing the epoch as seconds since J2000, in the TDB time scale.
  earth_fixed_position : numpy.ndarray, default=numpy.array([0, 0, 0])
      Earth-fixed position (e.g. in ITRF) that is used for detailed conversion between TDB and TT (induces a signature at the microsecond level)
  Returns
  -------
- float
-     Time in seconds since J2000, in the TDB time scale.
+ astro.time_representation.Time
+    Time object representing the epoch as seconds since J2000, in the TT time scale.
 
 
 
@@ -1641,7 +1640,7 @@ datetime.datetime
      )doc" );
 
     m.def( "date_time_components_to_epoch_time_object",
-           &tba::timeFromDecomposedDateTime< Time >,
+           &tba::timeFromDecomposedDateTime< TIME_TYPE >,
            py::arg( "year" ),
            py::arg( "month" ),
            py::arg( "day" ),
@@ -1649,6 +1648,36 @@ datetime.datetime
            py::arg( "minute" ),
            py::arg( "seconds" ),
            R"doc(
+
+ Computes the epoch as a Time object representing seconds since J2000 from the entries of the current date and time.
+
+ Computes the epoch as a Time object representing seconds since J2000. This function is added for convenience, and is equivalent to ``DateTime(...).to_epoch_time_object()``.
+
+ Parameters
+ ----------
+ year : int
+     Calendar year
+
+ month : int
+     Calendar month (value must be 1-12)
+
+ day : int
+     Calendar day in current month, value must be larger than 0, and smaller or equal to the number of days in the month
+
+ hour : int
+     Full hours into the current day (value must be 0-23)
+
+ minute : int
+     Full minutes into the current hour (value must be 0-59)
+
+ seconds : float
+     Number of seconds into the current minute. Note that this value is stored as ``long double`` in Tudat, which may be 64-bit or 80-bit (16 or 19 digits) depending on the compiler used.
+
+ Returns
+ -------
+ astro.time_representation.Time
+     Time object representing the epoch as seconds since J2000.
+
      )doc" );
 
     m.def( "iso_string_to_epoch",
@@ -1678,9 +1707,23 @@ datetime.datetime
      )doc" );
 
     m.def( "iso_string_to_epoch_time_object",
-           &tba::timeFromIsoString< Time >,
+           &tba::timeFromIsoString< TIME_TYPE >,
            py::arg( "iso_datetime" ),
            R"doc(
+
+ Computes the epoch as a Time object representing seconds since J2000 from an ISO datetime string.
+
+ Computes the epoch as a Time object representing seconds since J2000. This function is added for convenience and is equivalent to ``DateTime.from_iso_string(...).to_epoch_time_object()``.
+
+ Parameters
+ ----------
+ iso_datetime : str
+     Date and time as ISO compatible string ("YYYY-MM-DDTHH:MM:SS.SSSSS..", where the T may be replaced with a space)
+
+ Returns
+ -------
+ astro.time_representation.Time
+     Time object representing the epoch as seconds since J2000.
 
      )doc" );
 

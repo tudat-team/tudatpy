@@ -162,8 +162,8 @@ inside a `Body` instance and used in observation corrections or environmental qu
              Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
          longitude : float
              Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-         time : float
-             Time (in seconds since J2000 TDB) at which the property is to be computed.
+         time : astro.time_representation.Time
+             Time object representing seconds since J2000 (TDB) at which the property is to be computed.
 
          Returns
          -------
@@ -190,8 +190,8 @@ inside a `Body` instance and used in observation corrections or environmental qu
              Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
          longitude : float
              Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-         time : float
-             Time (in seconds since J2000 TDB) at which the property is to be computed.
+         time : astro.time_representation.Time
+             Time object representing seconds since J2000 (TDB) at which the property is to be computed.
 
          Returns
          -------
@@ -218,8 +218,8 @@ inside a `Body` instance and used in observation corrections or environmental qu
              Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
          longitude : float
              Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-         time : float
-             Time (in seconds since J2000 TDB) at which the property is to be computed.
+         time : astro.time_representation.Time
+             Time object representing seconds since J2000 (TDB) at which the property is to be computed.
 
          Returns
          -------
@@ -246,8 +246,8 @@ inside a `Body` instance and used in observation corrections or environmental qu
              Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
          longitude : float
              Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-         time : float
-             Time (in seconds since J2000 TDB) at which the property is to be computed.
+         time : astro.time_representation.Time
+             Time object representing seconds since J2000 (TDB) at which the property is to be computed.
 
          Returns
          -------
@@ -277,8 +277,8 @@ inside a `Body` instance and used in observation corrections or environmental qu
              Geographic latitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
          longitude : float
              Geographic longitude (in the body-fixed frame of the body with the atmosphere) at which the property is to be computed
-         time : float
-             Time (in seconds since J2000 TDB) at which the property is to be computed.
+         time : astro.time_representation.Time
+             Time object representing seconds since J2000 (TDB) at which the property is to be computed.
 
          Returns
          -------
@@ -502,8 +502,8 @@ inside a `Body` instance and used in observation corrections or environmental qu
              List of inputs from which the aerodynamic coefficients are to be computed, with each entry corresponding to the
              value of the physical variable defined by the :attr:`independent_variable_names` attribute.
 
-         time : float
-             Current time (in seconds since J2000)
+         time : astro.time_representation.Time
+             Time object representing seconds since J2000 (TDB)
 
          Returns
          -------
@@ -546,8 +546,8 @@ inside a `Body` instance and used in observation corrections or environmental qu
              with each entry corresponding to the
              value of the physical variable defined by the :attr:`control_surface_independent_variable_names` attribute.
 
-         time : float
-             Current time (in seconds since J2000)
+         time : astro.time_representation.Time
+             Time object representing seconds since J2000 (TDB)
 
          check_force_contribution : bool, default = True
              Boolean that determines if the force contribution to the aerodynamic moments should be added. Note that this input is
@@ -871,8 +871,8 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
          Parameters
          ----------
-         current_time : float
-             Time (in seconds since J2000 TDB) to which this object is to be updated
+         current_time : astro.time_representation.Time
+             Time object representing seconds since J2000 (TDB) to which this object is to be updated
 
          Returns
          -------
@@ -1355,8 +1355,8 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
          Parameters
          ----------
-         current_time : float
-             Time (in seconds since J2000 in TDB time scale) at which the state is to be computed.
+         current_time : astro.time_representation.Time
+             Time object representing seconds since J2000 in TDB time scale at which the state is to be computed.
 
          Returns
          -------
@@ -1378,8 +1378,8 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
          Parameters
          ----------
-         current_time : float
-             Time (in seconds since J2000 in TDB time scale) at which the state is to be computed.
+         current_time : astro.time_representation.Time
+             Time object representing seconds since J2000 in TDB time scale at which the state is to be computed.
 
          Returns
          -------
@@ -1401,8 +1401,8 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
          Parameters
          ----------
-         current_time : float
-             Time (in seconds since J2000 in TDB time scale) at which the state is to be computed.
+         current_time : astro.time_representation.Time
+             Time object representing seconds since J2000 in TDB time scale at which the state is to be computed.
 
          Returns
          -------
@@ -1549,8 +1549,8 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
          Parameters
          ----------
-         current_time : float
-             The time (in seconds since epoch J2000, TDB time scale) at which the rotation matrix is evaluated
+         current_time : astro.time_representation.Time
+             Time object representing seconds since J2000 (TDB) at which the rotation matrix is evaluated
 
          Returns
          -------
@@ -1576,8 +1576,8 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
          Parameters
          ----------
-         current_time : float
-             The time (in seconds since epoch J2000, TDB time scale) at which the rotation matrix derivative is evaluated
+         current_time : astro.time_representation.Time
+             Time object representing seconds since J2000 (TDB) at which the rotation matrix derivative is evaluated
 
          Returns
          -------
@@ -1602,8 +1602,8 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
          Parameters
          ----------
-         current_time : float
-             The time (in seconds since epoch J2000, TDB time scale) at which the rotation matrix is evaluated
+         current_time : astro.time_representation.Time
+             Time object representing seconds since J2000 (TDB) at which the rotation matrix is evaluated
 
 
 
@@ -1624,8 +1624,8 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
          Parameters
          ----------
-         current_time : float
-             The time (in seconds since epoch J2000, TDB time scale) at which the rotation matrix derivative is evaluated
+         current_time : astro.time_representation.Time
+             Time object representing seconds since J2000 (TDB) at which the rotation matrix derivative is evaluated
 
          Returns
          -------
@@ -1655,8 +1655,8 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
          Parameters
          ----------
-         current_time : float
-             The time (in seconds since epoch J2000, TDB time scale) at which the angular velocity vector is evaluated
+         current_time : astro.time_representation.Time
+             Time object representing seconds since J2000 (TDB) at which the angular velocity vector is evaluated
 
          Returns
          -------
@@ -1683,8 +1683,8 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
          Parameters
          ----------
-         current_time : float
-             The time (in seconds since epoch J2000, TDB time scale) at which the angular velocity vector is evaluated
+         current_time : astro.time_representation.Time
+             Time object representing seconds since J2000 (TDB) at which the angular velocity vector is evaluated
 
          Returns
          -------
@@ -1740,8 +1740,8 @@ inside a `Body` instance and used in observation corrections or environmental qu
  state_in_body_fixed_frame : numpy.ndarray[numpy.float64[6, 1]]
      Cartesian state (position and velocity) in the body-fixed frame
 
- current_time : float
-     Time at which the transformation is to be computed
+ current_time : astro.time_representation.Time
+     Time object representing seconds since J2000 (TDB) at which the transformation is to be computed
 
  rotational_ephemeris : RotationalEphemeris
      Boy rotation model that is to be used to convert the body-fixed state to inertial state
@@ -1801,8 +1801,8 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
          Parameters
          ----------
-         epoch : float
-             Epoch at which the Earth orientation angles are to be compute
+         epoch : astro.time_representation.Time
+             Time object representing seconds since J2000 at which the Earth orientation angles are to be compute
          time_scale : TimeScales
              Time scale in which the input epoch is given
 
@@ -2101,8 +2101,8 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
          Parameters
          ----------
-         current_time : float
-             Time (in seconds since J2000 TDB) at which the position is to be computed.
+         current_time : astro.time_representation.Time
+             Time object representing seconds since J2000 (TDB) at which the position is to be computed.
 
          target_frame_origin: str, default = ""
              Identifier for the frame origin w.r.t. which the computed position is to be used.
@@ -2278,12 +2278,46 @@ inside a `Body` instance and used in observation corrections or environmental qu
                           &tgs::PointingAnglesCalculator::
                                   calculateElevationAngleFromInertialVector ),
                   py::arg( "inertial_vector_to_target" ),
-                  py::arg( "time" ) )
+                  py::arg( "time" ),
+                  R"doc(
+                  
+         Calculate the elevation angle of a target object.
+
+         Parameters
+         ----------
+         inertial_vector_to_target : numpy.ndarray
+             Vector from ground station to target in inertial frame
+         time : astro.time_representation.Time
+             Time object representing seconds since J2000 (TDB) at which to calculate the angle
+
+         Returns
+         -------
+         float
+             Elevation angle in radians
+                  
+         )doc" )
             .def( "calculate_azimuth_angle",
                   py::overload_cast< const Eigen::Vector3d &, const double >(
                           &tgs::PointingAnglesCalculator::calculateAzimuthAngleFromInertialVector ),
                   py::arg( "inertial_vector_to_target" ),
-                  py::arg( "time" ) )
+                  py::arg( "time" ),
+                  R"doc(
+                  
+         Calculate the azimuth angle of a target object.
+
+         Parameters
+         ----------
+         inertial_vector_to_target : numpy.ndarray
+             Vector from ground station to target in inertial frame
+         time : astro.time_representation.Time
+             Time object representing seconds since J2000 (TDB) at which to calculate the angle
+
+         Returns
+         -------
+         float
+             Azimuth angle in radians
+                  
+         )doc" )
             .def( "convert_inertial_vector_to_topocentric",
                   &tgs::PointingAnglesCalculator::convertVectorFromInertialToTopocentricFrame,
                   py::arg( "inertial_vector" ),
@@ -2521,8 +2555,8 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
          Parameters
          ----------
-         time : float
-             Time (in TDB seconds since J2000) at which the state is to be computed
+         time : astro.time_representation.Time
+             Time object representing seconds since J2000 (TDB) at which the state is to be computed
          Returns
          -------
          numpy.ndarray

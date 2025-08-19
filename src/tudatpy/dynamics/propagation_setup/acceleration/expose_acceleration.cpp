@@ -1032,7 +1032,7 @@ In this example, we define the relativistic correction acceleration for a Mars o
 
  Parameters
  ----------
- acceleration_function : callable[[float], list]
+ acceleration_function : callable[[astro.time_representation.Time], list]
      Custom acceleration function with time as an independent variable, returning the acceleration in an inertial frame (*e.g.* with global frame orientation) as a function of time.
  Returns
  -------
@@ -1235,10 +1235,10 @@ through the spherical harmonic gravity:
      Set of middle point in times :math:`t_{i}` in the maneuver denoting the epoch of each maneuver.
  delta_v_values : list[numpy.ndarray]
      Set of delta V values :math:`\Delta \mathbf{V}_{i}`, one for each maneuver.
- total_maneuver_time : float
+ total_maneuver_time : astro.time_representation.Time
      Total duration of every maneuver :math:`t_{M}`.
- maneuver_rise_time : float
-     Time  :math:`t_{R}` taken by the acceleration to go from zero to its maximum level.
+ maneuver_rise_time : astro.time_representation.Time
+     :math:`t_{R}` taken by the acceleration to go from zero to its maximum level.
  Returns
  -------
  MomentumWheelDesaturationAccelerationSettings

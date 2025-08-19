@@ -315,8 +315,8 @@ void expose_two_body_dynamics( py::module &m )
  ----------
  initial_kepler_elements : numpy.ndarray
      Keplerian elements that are to be propagated (see :ref:`element_conversion` for order)
- propagation_time : float
-     Time for which the elements are to be propagated w.r.t. the initial elements
+ propagation_time : astro.time_representation.Time
+     Time object for which the elements are to be propagated w.r.t. the initial elements
  gravitational_parameter : float
      Gravitational parameter of central body used for propagation
  root_finder : RootFinder, default = None
