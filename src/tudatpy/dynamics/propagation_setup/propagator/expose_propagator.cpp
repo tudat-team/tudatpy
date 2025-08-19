@@ -1034,7 +1034,7 @@ bodies_to_integrate : list[str]
     List of bodies to be numerically propagated, whose order reflects the order of the central bodies.
 initial_states : numpy.ndarray
     Initial states of the bodies to integrate (one initial state for each body, concatenated into a single array), provided in the same order as the bodies to integrate. The initial states must be expressed in Cartesian elements, w.r.t. the central body of each integrated body. The states must be defined with the same frame orientation as the global frame orientation of the environment (specified when creating a system of bodies, see for instance :func:`~tudatpy.dynamics.environment_setup.get_default_body_settings` and :func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies`). Consequently, for N integrated bodies, this input is a vector with size size 6N.
-initial_time : float
+initial_time : astro.time_representation.Time
     Initial epoch of the numerical propagation
 integrator_settings : IntegratorSettings
     Settings defining the numerical integrator that is to be used for the propagation
@@ -1113,7 +1113,7 @@ initial_states : numpy.ndarray
     Initial rotational states of the bodies to integrate (one initial state for each body), provided in the same order as the bodies to integrate.
     Regardless of the propagator that is selected, the initial rotational state is always defined as four quaternion entries, and the angular velocity of the body,
     as defined in more detail `here <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/frames_in_environment.html#definition-of-rotational-state>`__.
-initial_time : float
+initial_time : astro.time_representation.Time
     Initial epoch of the numerical propagation
 integrator_settings : IntegratorSettings
     Settings defining the numerical integrator that is to be used for the propagation
@@ -1188,7 +1188,7 @@ mass_rate_models : SelectedMassRateModelMap
     Mass rates associated to each body, provided as a mass rate settings object.
 initial_body_masses : numpy.ndarray
     Initial masses of the bodies to integrate (one initial mass for each body), provided in the same order as the bodies to integrate.
-initial_time : float
+initial_time : astro.time_representation.Time
     Initial epoch of the numerical propagation
 integrator_settings : IntegratorSettings
     Settings defining the numerical integrator that is to be used for the propagation
@@ -1238,11 +1238,11 @@ depend on any quantities of the user's choosing, for details on how to link the 
 
 Parameters
 ----------
-state_derivative_function : callable[[float, numpy.ndarray[numpy.float64[m, 1]]], numpy.ndarray[numpy.float64[m, 1]]])
+state_derivative_function : callable[[astro.time_representation.Time, numpy.ndarray[numpy.float64[m, 1]]], numpy.ndarray[numpy.float64[m, 1]]])
     Function :math:`\mathbf{f}` (ser above) to compute the derivative of the current custom state
 initial_state : numpy.ndarray
     Initial value of the propagated custom state
-initial_time : float
+initial_time : astro.time_representation.Time
     Initial epoch of the numerical propagation
 integrator_settings : IntegratorSettings
     Settings defining the numerical integrator that is to be used for the propagation
@@ -1583,7 +1583,7 @@ HybridArcPropagatorSettings
 
  Parameters
  ----------
- custom_condition : callable[[float], bool]
+ custom_condition : callable[[astro.time_representation.Time], bool]
      Function of time (independent variable) which is called during the propagation and returns a boolean value denoting whether the termination condition is verified.
  Returns
  -------
@@ -1600,7 +1600,7 @@ HybridArcPropagatorSettings
  .. code-block:: python
 
    # Create custom function returning a bool
-   def custom_termination_function(time: float):
+   def custom_termination_function(time):  # time is a Time object
        # Do something
        set_condition = ...
        # Return bool

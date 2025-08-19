@@ -189,7 +189,7 @@ Coefficients for the GRGM1200A Moon gravity field up to degree and order 1199, (
 )doc" )
             .value( "jgmro120d", tss::SphericalHarmonicsModel::jgmro120d, R"doc(
 
-Coefficients for the MRO120D Moon gravity field up to degree and order 120, (see `link <https://pds-geosciences.wustl.edu/mro/mro-m-rss-5-sdp-v1/mrors_1xxx/data/shadr/>`__ )
+Coefficients for the MRO120D Mars gravity field up to degree and order 120, (see `link <https://pds-geosciences.wustl.edu/mro/mro-m-rss-5-sdp-v1/mrors_1xxx/data/shadr/>`__ )
 
 )doc" )
             .value( "jgmess160a", tss::SphericalHarmonicsModel::jgmess160a, R"doc(
@@ -992,7 +992,31 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
            py::arg( "ring_radius" ),
            py::arg( "associated_reference_frame" ),
            py::arg( "elliptic_integral_s_from_d_and_b" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+ Function for creating a gravity field settings object representing a circular ring.
+
+ Function for settings object, defining a gravity field model of a circular ring. The input time to gravity field
+ calculation methods will be expected as an astro.time_representation.Time object.
+
+ Parameters
+ ----------
+ gravitational_parameter : float
+     Gravitational parameter of the ring.
+ ring_radius : float
+     Radius of the ring.
+ associated_reference_frame : str
+     Identifier for body-fixed reference frame with which the ring is associated.
+ elliptic_integral_s_from_d_and_b : bool, default = True
+     Flag indicating whether to compute S(m) from D(m) and B(m) (if true),
+     or from K(m) and E(m) (if false). The former has a lower loss of accuracy due to numerical cancellation.
+     
+ Returns
+ -------
+ GravityFieldSettings
+     Instance of the GravityFieldSettings class for a ring gravity model.
+
+)doc" );
 }
 
 }  // namespace gravity_field
