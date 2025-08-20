@@ -482,25 +482,30 @@ class SpaceTrackQuery:
                 "LEO_REGIME": {
                     "rp": (100, 2000),
                     "ra": (100, 2000),
+                    "default_bodies_to_create": ['Sun', 'Earth', 'Moon']
                 },
                 "MEO_REGIME": {
                     "rp": (2000, 35786),
                     "ra": (2000, 35786),
+                    "default_bodies_to_create": ['Sun', 'Earth', 'Moon']
                 },
                 "GEO_REGIME": {
                     "rp": (35586, 35986),  # 35786 ± 200 km
                     "ra": (35586, 35986),
                     "ecc": (0.0, 0.01),
                     "inc": (0.0, 1.0),     # degrees
+                    "default_bodies_to_create": ['Sun', 'Earth', 'Moon', 'Jupiter', 'Mars', 'Venus', 'Saturn']
                 },
                 "GSO_REGIME": {
                     "rp": (35586, 35986),  # Same altitude range as GEO
                     "ra": (35586, 35986),
+                    "default_bodies_to_create": ['Sun', 'Earth', 'Moon', 'Jupiter', 'Mars', 'Venus', 'Saturn']
                     # No constraints on ecc/inc — anything not satisfying GEO will fall here
                 },
                 "HEO_REGIME": {
                     "rp": (100, 10000),
                     "ra": (35000, 50000),
+                    "default_bodies_to_create": ['Sun', 'Earth', 'Moon', 'Jupiter', 'Mars', 'Venus', 'Saturn']
                 }
             }
 
@@ -516,11 +521,13 @@ class SpaceTrackQuery:
 
             # Initialize result
             orbital_regime = "OTHER"
+            default_bodies_to_create = ['Sun', 'Earth', 'Moon', 'Jupiter', 'Mars', 'Venus', 'Saturn']
 
             # Loop through defined regimes
             for regime, thresholds in REGIME_THRESHOLDS.items():
                 rp_min, rp_max = thresholds["rp"]
                 ra_min, ra_max = thresholds["ra"]
+                default_bodies_to_create = thresholds["default_bodies_to_create"]
 
                 if not (rp_min <= rp_object <= rp_max and ra_min <= ra_object <= ra_max):
                     continue
@@ -539,4 +546,4 @@ class SpaceTrackQuery:
                 orbital_regime = regime
                 break
 
-            return orbital_regime, REGIME_THRESHOLDS[orbital_regime]
+            return orbital_regime, REGIME_THRESHOLDS[orbital_regime], default_bodies_to_create

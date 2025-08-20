@@ -78,7 +78,7 @@ class GetAccelerationSettingsPerRegime:
             acceleration_settings = self.get_LEO_acceleration_settings(aerodynamics, radiation_pressure)
         elif orbital_regime == 'MEO_REGIME':
             acceleration_settings = self.get_MEO_acceleration_settings(aerodynamics, radiation_pressure)
-        elif orbital_regime == 'GEO_REGIME':
+        elif orbital_regime in ['GEO_REGIME', 'GSO_REGIME', 'HEO_REGIME']:
             acceleration_settings = self.get_GEO_acceleration_settings(aerodynamics, radiation_pressure)
         elif orbital_regime == 'OTHER':
             acceleration_settings = self.get_GEO_acceleration_settings(aerodynamics, radiation_pressure)
@@ -232,7 +232,7 @@ class GetAccelerationSettingsPerRegime:
             Mapping of body names to lists of acceleration settings.
         """
         GEO_acceleration_settings_dict = dict(
-            Earth=[propagation_setup.acceleration.point_mass_gravity()],
+            Earth=[propagation_setup.acceleration.spherical_harmonic_gravity(5, 5)],
             Sun=[propagation_setup.acceleration.point_mass_gravity()],
             Moon=[propagation_setup.acceleration.spherical_harmonic_gravity(5, 5)],
             Jupiter=[propagation_setup.acceleration.point_mass_gravity()],
@@ -240,6 +240,7 @@ class GetAccelerationSettingsPerRegime:
             Venus=[propagation_setup.acceleration.point_mass_gravity()],
             Saturn=[propagation_setup.acceleration.point_mass_gravity()]
         )
+
         if aerodynamics:
             GEO_acceleration_settings_dict['Earth'].append(propagation_setup.acceleration.aerodynamic())
         if radiation_pressure:
