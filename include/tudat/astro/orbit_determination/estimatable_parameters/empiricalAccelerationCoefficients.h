@@ -184,7 +184,8 @@ public:
 
     std::string getParameterDescription( )
     {
-        std::string parameterDescription = ", components in RSW frame, functional shapes; ";
+        std::string parameterDescription = getParameterTypeString( parameterName_.first ) + "acting on " + parameterName_.second.first + " w.r.t. "  + parameterName_.second.second +
+            + ", components in RSW frame, functional shapes; ";
 
         for( std::map< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes, std::vector< int > >::const_iterator indexIterator =
                      accelerationIndices_.begin( );
