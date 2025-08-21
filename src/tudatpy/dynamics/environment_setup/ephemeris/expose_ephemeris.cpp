@@ -66,13 +66,13 @@ namespace ephemeris
 
 void expose_ephemeris_setup( py::module& m )
 {
+    py::module_::import( "tudatpy.dynamics.environment" ).attr( "Ephemeris" );
     /////////////////////////////////////////////////////////////////////////////
     // createEphemeris.h (complete, unverified)
     /////////////////////////////////////////////////////////////////////////////
-    py::class_< tss::EphemerisSettings, std::shared_ptr< tss::EphemerisSettings > >(
-            m,
-            "EphemerisSettings",
-            R"doc(
+    py::class_< tss::EphemerisSettings, std::shared_ptr< tss::EphemerisSettings > >( m,
+                                                                                     "EphemerisSettings",
+                                                                                     R"doc(
 
          Base class for providing settings for ephemeris model.
 
@@ -129,11 +129,10 @@ void expose_ephemeris_setup( py::module& m )
          :type: EphemerisType
       )doc" );
 
-    py::class_< tss::DirectSpiceEphemerisSettings,
-                std::shared_ptr< tss::DirectSpiceEphemerisSettings >,
-                tss::EphemerisSettings >( m,
-                                          "DirectSpiceEphemerisSettings",
-                                          R"doc(
+    py::class_< tss::DirectSpiceEphemerisSettings, std::shared_ptr< tss::DirectSpiceEphemerisSettings >, tss::EphemerisSettings >(
+            m,
+            "DirectSpiceEphemerisSettings",
+            R"doc(
 
          Class for defining settings of an ephemeris linked directly to Spice.
 
@@ -157,10 +156,9 @@ void expose_ephemeris_setup( py::module& m )
             //                py::arg("converge_light_time_aberration")
             //                = false, py::arg("ephemeris_type") =
             //                tss::direct_spice_ephemeris)
-            .def_property_readonly(
-                    "correct_for_stellar_aberration",
-                    &tss::DirectSpiceEphemerisSettings::getCorrectForStellarAberration,
-                    R"doc(
+            .def_property_readonly( "correct_for_stellar_aberration",
+                                    &tss::DirectSpiceEphemerisSettings::getCorrectForStellarAberration,
+                                    R"doc(
 
          **read-only**
 
@@ -168,10 +166,9 @@ void expose_ephemeris_setup( py::module& m )
 
          :type: bool
       )doc" )
-            .def_property_readonly(
-                    "correct_for_light_time_aberration",
-                    &tss::DirectSpiceEphemerisSettings::getCorrectForLightTimeAberration,
-                    R"doc(
+            .def_property_readonly( "correct_for_light_time_aberration",
+                                    &tss::DirectSpiceEphemerisSettings::getCorrectForLightTimeAberration,
+                                    R"doc(
 
          **read-only**
 
@@ -179,12 +176,11 @@ void expose_ephemeris_setup( py::module& m )
 
          :type: bool
       )doc" )
-            .def_property_readonly(
-                    "converge_light_time_aberration",
-                    // TODO : Fix getConvergeLighTimeAberration typo in
-                    // Tudat.
-                    &tss::DirectSpiceEphemerisSettings::getConvergeLighTimeAberration,
-                    R"doc(
+            .def_property_readonly( "converge_light_time_aberration",
+                                    // TODO : Fix getConvergeLighTimeAberration typo in
+                                    // Tudat.
+                                    &tss::DirectSpiceEphemerisSettings::getConvergeLighTimeAberration,
+                                    R"doc(
 
          **read-only**
 
@@ -251,11 +247,10 @@ void expose_ephemeris_setup( py::module& m )
          :type: float
       )doc" );
 
-    py::class_< tss::ApproximateJplEphemerisSettings,
-                std::shared_ptr< tss::ApproximateJplEphemerisSettings >,
-                tss::EphemerisSettings >( m,
-                                          "ApproximateJplEphemerisSettings",
-                                          R"doc(
+    py::class_< tss::ApproximateJplEphemerisSettings, std::shared_ptr< tss::ApproximateJplEphemerisSettings >, tss::EphemerisSettings >(
+            m,
+            "ApproximateJplEphemerisSettings",
+            R"doc(
 
          Class for creating settings of approximate ephemeris for major planets.
 
@@ -265,15 +260,12 @@ void expose_ephemeris_setup( py::module& m )
 
 
       )doc" )
-            .def_property_readonly( "body_name",
-                                    &tss::ApproximateJplEphemerisSettings::getBodyName,
-                                    R"doc(No documentation found.)doc" );
+            .def_property_readonly( "body_name", &tss::ApproximateJplEphemerisSettings::getBodyName, R"doc(No documentation found.)doc" );
 
-    py::class_< tss::ScaledEphemerisSettings,
-                std::shared_ptr< tss::ScaledEphemerisSettings >,
-                tss::EphemerisSettings >( m,
-                                          "ScaledEphemerisSettings",
-                                          R"doc(
+    py::class_< tss::ScaledEphemerisSettings, std::shared_ptr< tss::ScaledEphemerisSettings >, tss::EphemerisSettings >(
+            m,
+            "ScaledEphemerisSettings",
+            R"doc(
 
          Class for defining settings from scaling existing ephemeris settings.
 
@@ -284,11 +276,10 @@ void expose_ephemeris_setup( py::module& m )
 
       )doc" );
 
-    py::class_< tss::ConstantEphemerisSettings,
-                std::shared_ptr< tss::ConstantEphemerisSettings >,
-                tss::EphemerisSettings >( m,
-                                          "ConstantEphemerisSettings",
-                                          R"doc(
+    py::class_< tss::ConstantEphemerisSettings, std::shared_ptr< tss::ConstantEphemerisSettings >, tss::EphemerisSettings >(
+            m,
+            "ConstantEphemerisSettings",
+            R"doc(
 
          Class for defining settings of constant ephemerides.
 
@@ -306,11 +297,10 @@ void expose_ephemeris_setup( py::module& m )
     //                 py::arg("frame_orientation") =
     //                 "ECLIPJ2000");
 
-    py::class_< tss::CustomEphemerisSettings,
-                std::shared_ptr< tss::CustomEphemerisSettings >,
-                tss::EphemerisSettings >( m,
-                                          "CustomEphemerisSettings",
-                                          R"doc(
+    py::class_< tss::CustomEphemerisSettings, std::shared_ptr< tss::CustomEphemerisSettings >, tss::EphemerisSettings >(
+            m,
+            "CustomEphemerisSettings",
+            R"doc(
 
          Class for defining settings of a custom ephemeris.
 
@@ -333,9 +323,7 @@ void expose_ephemeris_setup( py::module& m )
                                     &tss::CustomEphemerisSettings::getCustomStateFunction,
                                     R"doc(No documentation found.)doc" );
 
-    py::class_< tss::KeplerEphemerisSettings,
-                std::shared_ptr< tss::KeplerEphemerisSettings >,
-                tss::EphemerisSettings >(
+    py::class_< tss::KeplerEphemerisSettings, std::shared_ptr< tss::KeplerEphemerisSettings >, tss::EphemerisSettings >(
             m, "KeplerEphemerisSettings", R"doc(No documentation found.)doc" )
             //            .def(py::init<const Eigen::Vector6d &,
             //            const double, const double,
@@ -354,30 +342,25 @@ void expose_ephemeris_setup( py::module& m )
             //            std::numeric_limits<double>::epsilon(),
             //                 py::arg("root_finder_maximum_number_of_iterations")
             //                 = 1000.0)
-            .def_property_readonly(
-                    "initial_state_in_keplerian_elements",
-                    &tss::KeplerEphemerisSettings::getInitialStateInKeplerianElements,
-                    R"doc(No documentation found.)doc" )
-            .def_property_readonly( "epoch_of_initial_state",
-                                    &tss::KeplerEphemerisSettings::getEpochOfInitialState,
+            .def_property_readonly( "initial_state_in_keplerian_elements",
+                                    &tss::KeplerEphemerisSettings::getInitialStateInKeplerianElements,
                                     R"doc(No documentation found.)doc" )
             .def_property_readonly(
-                    "central_body_gravitational_parameter",
-                    &tss::KeplerEphemerisSettings::getCentralBodyGravitationalParameter,
-                    R"doc(No documentation found.)doc" )
+                    "epoch_of_initial_state", &tss::KeplerEphemerisSettings::getEpochOfInitialState, R"doc(No documentation found.)doc" )
+            .def_property_readonly( "central_body_gravitational_parameter",
+                                    &tss::KeplerEphemerisSettings::getCentralBodyGravitationalParameter,
+                                    R"doc(No documentation found.)doc" )
             .def_property_readonly( "root_finder_absolute_tolerance",
                                     &tss::KeplerEphemerisSettings::getRootFinderAbsoluteTolerance,
                                     R"doc(No documentation found.)doc" )
-            .def_property_readonly(
-                    "root_finder_maximum_number_of_iterations",
-                    &tss::KeplerEphemerisSettings::getRootFinderMaximumNumberOfIterations,
-                    R"doc(No documentation found.)doc" );
+            .def_property_readonly( "root_finder_maximum_number_of_iterations",
+                                    &tss::KeplerEphemerisSettings::getRootFinderMaximumNumberOfIterations,
+                                    R"doc(No documentation found.)doc" );
 
-    py::class_< tss::TabulatedEphemerisSettings,
-                std::shared_ptr< tss::TabulatedEphemerisSettings >,
-                tss::EphemerisSettings >( m,
-                                          "TabulatedEphemerisSettings",
-                                          R"doc(
+    py::class_< tss::TabulatedEphemerisSettings, std::shared_ptr< tss::TabulatedEphemerisSettings >, tss::EphemerisSettings >(
+            m,
+            "TabulatedEphemerisSettings",
+            R"doc(
 
          Class for defining settings of ephemeris to be created from tabulated data.
 
@@ -414,8 +397,7 @@ void expose_ephemeris_setup( py::module& m )
            py::arg( "central_body_gravitational_parameter" ),
            py::arg( "frame_origin" ) = "SSB",
            py::arg( "frame_orientation" ) = "ECLIPJ2000",
-           py::arg( "root_finder_absolute_tolerance" ) =
-                   200.0 * std::numeric_limits< double >::epsilon( ),
+           py::arg( "root_finder_absolute_tolerance" ) = 200.0 * std::numeric_limits< double >::epsilon( ),
            py::arg( "root_finder_maximum_iterations" ) = 1000.0,
            R"doc(
 
@@ -490,8 +472,7 @@ void expose_ephemeris_setup( py::module& m )
            py::arg( "central_body_gravitational_parameter" ),
            py::arg( "frame_origin" ) = "SSB",
            py::arg( "frame_orientation" ) = "ECLIPJ2000",
-           py::arg( "root_finder_absolute_tolerance" ) =
-                   200.0 * std::numeric_limits< double >::epsilon( ),
+           py::arg( "root_finder_absolute_tolerance" ) = 200.0 * std::numeric_limits< double >::epsilon( ),
            py::arg( "root_finder_maximum_iterations" ) = 1000.0,
            R"doc(
 
@@ -608,8 +589,7 @@ void expose_ephemeris_setup( py::module& m )
      )doc" );
 
     m.def( "direct_spice",
-           py::overload_cast< const std::string, const std::string, const std::string >(
-                   &tss::directSpiceEphemerisSettings ),
+           py::overload_cast< const std::string, const std::string, const std::string >( &tss::directSpiceEphemerisSettings ),
            py::arg( "frame_origin" ) = "SSB",
            py::arg( "frame_orientation" ) = "ECLIPJ2000",
            py::arg( "body_name_to_use" ) = "",
@@ -671,8 +651,7 @@ void expose_ephemeris_setup( py::module& m )
            py::arg( "time_step" ),
            py::arg( "frame_origin" ) = "SSB",
            py::arg( "frame_orientation" ) = "ECLIPJ2000",
-           py::arg( "interpolator_settings" ) =
-                   std::make_shared< ti::LagrangeInterpolatorSettings >( 6 ),
+           py::arg( "interpolator_settings" ) = std::make_shared< ti::LagrangeInterpolatorSettings >( 6 ),
            py::arg( "body_name_to_use" ) = "",
            R"doc(
 
@@ -737,9 +716,7 @@ void expose_ephemeris_setup( py::module& m )
      )doc" );
 
     m.def( "tabulated",
-           py::overload_cast< const std::map< double, Eigen::Vector6d >&,
-                              std::string,
-                              std::string >( &tss::tabulatedEphemerisSettings ),
+           py::overload_cast< const std::map< double, Eigen::Vector6d >&, std::string, std::string >( &tss::tabulatedEphemerisSettings ),
            py::arg( "body_state_history" ),
            py::arg( "frame_origin" ) = "SSB",
            py::arg( "frame_orientation" ) = "ECLIPJ2000",
@@ -799,14 +776,12 @@ void expose_ephemeris_setup( py::module& m )
                               const double,
                               const double,
                               const double,
-                              const std::shared_ptr< ti::InterpolatorSettings > >(
-                   &tss::tabulatedEphemerisSettings ),
+                              const std::shared_ptr< ti::InterpolatorSettings > >( &tss::tabulatedEphemerisSettings ),
            py::arg( "ephemeris_settings" ),
            py::arg( "start_time" ),
            py::arg( "end_time" ),
            py::arg( "time_step" ),
-           py::arg( "interpolator_settings" ) =
-                   std::make_shared< ti::LagrangeInterpolatorSettings >( 8 ),
+           py::arg( "interpolator_settings" ) = std::make_shared< ti::LagrangeInterpolatorSettings >( 8 ),
            R"doc(
 
  Function for creating tabulated ephemeris model settings from existing ephemeris.
@@ -955,9 +930,7 @@ void expose_ephemeris_setup( py::module& m )
      )doc" );
 
     m.def( "scaled_by_constant",
-           py::overload_cast< const std::shared_ptr< tss::EphemerisSettings >,
-                              const double,
-                              const bool >( &tss::scaledEphemerisSettings ),
+           py::overload_cast< const std::shared_ptr< tss::EphemerisSettings >, const double, const bool >( &tss::scaledEphemerisSettings ),
            py::arg( "unscaled_ephemeris_settings" ),
            py::arg( "scaling_constant" ),
            py::arg( "is_scaling_absolute" ) = false,
@@ -1006,9 +979,8 @@ void expose_ephemeris_setup( py::module& m )
      )doc" );
 
     m.def( "scaled_by_vector",
-           py::overload_cast< const std::shared_ptr< tss::EphemerisSettings >,
-                              const Eigen::Vector6d,
-                              const bool >( &tss::scaledEphemerisSettings ),
+           py::overload_cast< const std::shared_ptr< tss::EphemerisSettings >, const Eigen::Vector6d, const bool >(
+                   &tss::scaledEphemerisSettings ),
            py::arg( "unscaled_ephemeris_settings" ),
            py::arg( "scaling_vector" ),
            py::arg( "is_scaling_absolute" ) = false,
