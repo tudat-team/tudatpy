@@ -119,9 +119,187 @@ namespace environment
 
 void expose_environment( py::module& m )
 {
- py::class_< tudat::environment::IonosphereModel, std::shared_ptr< tudat::environment::IonosphereModel > >(
-    m, "IonosphereModel",
-    R"doc(
+    /*!
+     **************   EPHEMERIDES  ******************
+     */
+
+    py::class_< te::Ephemeris, std::shared_ptr< te::Ephemeris > >( m, "Ephemeris", R"doc(
+
+         Object that computes the state of a body as a function of time
+
+
+         Object (typically stored inside a :class:`~Body` object) that computes the state of a body as a function of time,
+         both outside of a propagation, and during a propagation if the given body's translational state is not propagated.
+         Note that this object computes the state w.r.t. its own origin (defined by ``frame_origin``), which need not be the same as the global frame origin
+         of the environment.
+
+
+
+
+
+      )doc" )
+            .def( "cartesian_state",
+                  &te::Ephemeris::getCartesianState,
+                  py::arg( "current_time" ),
+                  R"doc(
+
+         This function returns the Cartesian state (position and velocity) at the given time, w.r.t. the ``frame_origin``.
+
+
+         Parameters
+         ----------
+         current_time : float
+             Time (in seconds since J2000 in TDB time scale) at which the state is to be computed.
+
+         Returns
+         -------
+         numpy.ndarray
+             Requested Cartesian state
+
+
+
+
+
+     )doc" )
+            .def( "cartesian_position",
+                  &te::Ephemeris::getCartesianPosition,
+                  py::arg( "current_time" ),
+                  R"doc(
+
+         As ``cartesian_state``, but only the three position components
+
+
+         Parameters
+         ----------
+         current_time : float
+             Time (in seconds since J2000 in TDB time scale) at which the state is to be computed.
+
+         Returns
+         -------
+         numpy.ndarray
+             Requested Cartesian position
+
+
+
+
+
+     )doc" )
+            .def( "cartesian_velocity",
+                  &te::Ephemeris::getCartesianVelocity,
+                  py::arg( "current_time" ),
+                  R"doc(
+
+         As ``cartesian_state``, but only the three velocity components
+
+
+         Parameters
+         ----------
+         current_time : float
+             Time (in seconds since J2000 in TDB time scale) at which the state is to be computed.
+
+         Returns
+         -------
+         numpy.ndarray
+             Requested Cartesian velocity
+
+
+
+
+
+     )doc" )
+            .def_property_readonly( "frame_origin",
+                                    &te::Ephemeris::getReferenceFrameOrigin,
+                                    R"doc(
+
+         **read-only**
+
+         Name of the reference body/point w.r.t. which this object provides its states
+
+
+         :type: str
+      )doc" )
+            .def_property_readonly( "frame_orientation",
+                                    &te::Ephemeris::getReferenceFrameOrientation,
+                                    R"doc(
+
+         **read-only**
+
+         Name of the frame orientation w.r.t which this object provides its states
+
+
+
+         :type: str
+      )doc" );
+
+    py::class_< te::ConstantEphemeris, std::shared_ptr< te::ConstantEphemeris >, te::Ephemeris >( m,
+                                                                                                  "ConstantEphemeris",
+                                                                                                  R"doc(No documentation found.)doc" )
+            .def( py::init< const std::function< Eigen::Vector6d( ) >,  //<pybind11/functional.h>,<pybind11/eigen.h>
+                            const std::string &,
+                            const std::string & >( ),
+                  py::arg( "constant_state_function" ),
+                  py::arg( "reference_frame_origin" ) = "SSB",
+                  py::arg( "reference_frame_orientation" ) = "ECLIPJ2000" )
+            .def( py::init< const Eigen::Vector6d,  //<pybind11/eigen.h>
+                            const std::string &,
+                            const std::string & >( ),
+                  py::arg( "constant_state" ),
+                  py::arg( "reference_frame_origin" ) = "SSB",
+                  py::arg( "reference_frame_orientation" ) = "ECLIPJ2000" )
+            .def( "update_constant_state",
+                  &te::ConstantEphemeris::updateConstantState,
+                  py::arg( "new_state" ),
+                  R"doc(No documentation found.)doc" );
+
+    py::class_< te::KeplerEphemeris, std::shared_ptr< te::KeplerEphemeris >, te::Ephemeris >( m, "KeplerEphemeris" );
+
+    py::class_< te::MultiArcEphemeris, std::shared_ptr< te::MultiArcEphemeris >, te::Ephemeris >( m, "MultiArcEphemeris" )
+            .def( py::init< const std::map< double, std::shared_ptr< te::Ephemeris > > &, const std::string &, const std::string & >( ),
+                  py::arg( "single_arc_ephemerides" ),
+                  py::arg( "reference_frame_origin" ) = "SSB",
+                  py::arg( "reference_frame_orientation" ) = "ECLIPJ2000" );
+
+    py::class_< te::TabulatedCartesianEphemeris< double, double >,
+                std::shared_ptr< te::TabulatedCartesianEphemeris< double, double > >,
+                te::Ephemeris >( m, "TabulatedEphemeris" )
+            .def_property( "interpolator",
+                           &te::TabulatedCartesianEphemeris< double, double >::getDynamicVectorSizeInterpolator,
+                           py::overload_cast< const std::shared_ptr< ti::OneDimensionalInterpolator< double, Eigen::VectorXd > > >(
+                                   &te::TabulatedCartesianEphemeris< double, double >::resetInterpolator ) );
+
+    py::class_< te::Tle, std::shared_ptr< te::Tle > >( m, "Tle" )
+            .def( py::init<  // ctor 1
+                          const std::string & >( ),
+                  py::arg( "lines" ) )
+            .def( py::init<  // ctor 2
+                          const std::string &,
+                          const std::string & >( ),
+                  py::arg( "line_1" ),
+                  py::arg( "line_2" ) )
+            .def( "get_epoch", &te::Tle::getEpoch )
+            .def( "get_b_star", &te::Tle::getBStar )
+            .def( "get_epoch", &te::Tle::getEpoch )
+            .def( "get_inclination", &te::Tle::getInclination )
+            .def( "get_right_ascension", &te::Tle::getRightAscension )
+            .def( "get_eccentricity", &te::Tle::getEccentricity )
+            .def( "get_arg_of_perigee", &te::Tle::getArgOfPerigee )
+            .def( "get_mean_anomaly", &te::Tle::getMeanAnomaly )
+            .def( "get_mean_motion", &te::Tle::getMeanMotion );
+
+    py::class_< te::TleEphemeris, std::shared_ptr< te::TleEphemeris >, te::Ephemeris >( m, "TleEphemeris" )
+            .def( py::init< const std::string &, const std::string &, const std::shared_ptr< te::Tle >, const bool >( ),
+                  py::arg( "frame_origin" ) = "Earth",
+                  py::arg( "frame_orientation" ) = "J2000",
+                  py::arg( "tle" ) = nullptr,
+                  py::arg( "use_sdp" ) = false );
+
+    /*!
+     **************   END EPHEMERIDES  ******************
+     */
+
+    py::class_< tudat::environment::IonosphereModel, std::shared_ptr< tudat::environment::IonosphereModel > >( m,
+                                                                                                               "IonosphereModel",
+                                                                                                               R"doc(
 Base class for ionospheric models.
 
 Provides the vertical total electron content (VTEC) in TECU (1 TECU = 1e16 e-/m²) based on geodetic position (latitude, longitude) and time.
@@ -1327,200 +1505,10 @@ inside a `Body` instance and used in observation corrections or environmental qu
       )doc" );
 
     /*!
-     **************   EPHEMERIDES  ******************
-     */
-
-    py::class_< te::Ephemeris, std::shared_ptr< te::Ephemeris > >( m, "Ephemeris", R"doc(
-
-         Object that computes the state of a body as a function of time
-
-
-         Object (typically stored inside a :class:`~Body` object) that computes the state of a body as a function of time,
-         both outside of a propagation, and during a propagation if the given body's translational state is not propagated.
-         Note that this object computes the state w.r.t. its own origin (defined by ``frame_origin``), which need not be the same as the global frame origin
-         of the environment.
-
-
-
-
-
-      )doc" )
-            .def( "cartesian_state",
-                  &te::Ephemeris::getCartesianState,
-                  py::arg( "current_time" ),
-                  R"doc(
-
-         This function returns the Cartesian state (position and velocity) at the given time, w.r.t. the ``frame_origin``.
-
-
-         Parameters
-         ----------
-         current_time : float
-             Time (in seconds since J2000 in TDB time scale) at which the state is to be computed.
-
-         Returns
-         -------
-         numpy.ndarray
-             Requested Cartesian state
-
-
-
-
-
-     )doc" )
-            .def( "cartesian_position",
-                  &te::Ephemeris::getCartesianPosition,
-                  py::arg( "current_time" ),
-                  R"doc(
-
-         As ``cartesian_state``, but only the three position components
-
-
-         Parameters
-         ----------
-         current_time : float
-             Time (in seconds since J2000 in TDB time scale) at which the state is to be computed.
-
-         Returns
-         -------
-         numpy.ndarray
-             Requested Cartesian position
-
-
-
-
-
-     )doc" )
-            .def( "cartesian_velocity",
-                  &te::Ephemeris::getCartesianVelocity,
-                  py::arg( "current_time" ),
-                  R"doc(
-
-         As ``cartesian_state``, but only the three velocity components
-
-
-         Parameters
-         ----------
-         current_time : float
-             Time (in seconds since J2000 in TDB time scale) at which the state is to be computed.
-
-         Returns
-         -------
-         numpy.ndarray
-             Requested Cartesian velocity
-
-
-
-
-
-     )doc" )
-            .def_property_readonly( "frame_origin",
-                                    &te::Ephemeris::getReferenceFrameOrigin,
-                                    R"doc(
-
-         **read-only**
-
-         Name of the reference body/point w.r.t. which this object provides its states
-
-
-         :type: str
-      )doc" )
-            .def_property_readonly( "frame_orientation",
-                                    &te::Ephemeris::getReferenceFrameOrientation,
-                                    R"doc(
-
-         **read-only**
-
-         Name of the frame orientation w.r.t which this object provides its states
-
-
-
-         :type: str
-      )doc" );
-
-    py::class_< te::ConstantEphemeris, std::shared_ptr< te::ConstantEphemeris >, te::Ephemeris >(
-            m,
-            "ConstantEphemeris",
-            R"doc(No documentation found.)doc" )
-            .def( py::init<
-                          const std::function<
-                                  Eigen::Vector6d( ) >,  //<pybind11/functional.h>,<pybind11/eigen.h>
-                          const std::string &,
-                          const std::string & >( ),
-                  py::arg( "constant_state_function" ),
-                  py::arg( "reference_frame_origin" ) = "SSB",
-                  py::arg( "reference_frame_orientation" ) = "ECLIPJ2000" )
-            .def( py::init< const Eigen::Vector6d,  //<pybind11/eigen.h>
-                            const std::string &,
-                            const std::string & >( ),
-                  py::arg( "constant_state" ),
-                  py::arg( "reference_frame_origin" ) = "SSB",
-                  py::arg( "reference_frame_orientation" ) = "ECLIPJ2000" )
-            .def( "update_constant_state",
-                  &te::ConstantEphemeris::updateConstantState,
-                  py::arg( "new_state" ),
-                  R"doc(No documentation found.)doc" );
-
-    py::class_< te::KeplerEphemeris, std::shared_ptr< te::KeplerEphemeris >, te::Ephemeris >(
-            m, "KeplerEphemeris" );
-
-    py::class_< te::MultiArcEphemeris, std::shared_ptr< te::MultiArcEphemeris >, te::Ephemeris >(
-            m, "MultiArcEphemeris" )
-            .def( py::init< const std::map< double, std::shared_ptr< te::Ephemeris > > &,
-                            const std::string &,
-                            const std::string & >( ),
-                  py::arg( "single_arc_ephemerides" ),
-                  py::arg( "reference_frame_origin" ) = "SSB",
-                  py::arg( "reference_frame_orientation" ) = "ECLIPJ2000" );
-
-    py::class_< te::TabulatedCartesianEphemeris< double, double >,
-                std::shared_ptr< te::TabulatedCartesianEphemeris< double, double > >,
-                te::Ephemeris >( m, "TabulatedEphemeris" )
-            .def_property(
-                    "interpolator",
-                    &te::TabulatedCartesianEphemeris< double,
-                                                      double >::getDynamicVectorSizeInterpolator,
-                    py::overload_cast< const std::shared_ptr<
-                            ti::OneDimensionalInterpolator< double, Eigen::VectorXd > > >(
-                            &te::TabulatedCartesianEphemeris< double,
-                                                              double >::resetInterpolator ) );
-
-    py::class_< te::Tle, std::shared_ptr< te::Tle > >( m, "Tle" )
-            .def( py::init<  // ctor 1
-                          const std::string & >( ),
-                  py::arg( "lines" ) )
-            .def( py::init<  // ctor 2
-                          const std::string &,
-                          const std::string & >( ),
-                  py::arg( "line_1" ),
-                  py::arg( "line_2" ) )
-            .def( "get_epoch", &te::Tle::getEpoch )
-            .def( "get_b_star", &te::Tle::getBStar )
-            .def( "get_epoch", &te::Tle::getEpoch )
-            .def( "get_inclination", &te::Tle::getInclination )
-            .def( "get_right_ascension", &te::Tle::getRightAscension )
-            .def( "get_eccentricity", &te::Tle::getEccentricity )
-            .def( "get_arg_of_perigee", &te::Tle::getArgOfPerigee )
-            .def( "get_mean_anomaly", &te::Tle::getMeanAnomaly )
-            .def( "get_mean_motion", &te::Tle::getMeanMotion );
-
-    py::class_< te::TleEphemeris, std::shared_ptr< te::TleEphemeris >, te::Ephemeris >(
-            m, "TleEphemeris" )
-            .def( py::init< const std::string &,
-                            const std::string &,
-                            const std::shared_ptr< te::Tle >,
-                            const bool >( ),
-                  py::arg( "frame_origin" ) = "Earth",
-                  py::arg( "frame_orientation" ) = "J2000",
-                  py::arg( "tle" ) = nullptr,
-                  py::arg( "use_sdp" ) = false );
-
-    /*!
      **************   ROTATION MODELS  ******************
      */
 
-    py::class_< te::RotationalEphemeris, std::shared_ptr< te::RotationalEphemeris > >(
-            m, "RotationalEphemeris", R"doc(
+    py::class_< te::RotationalEphemeris, std::shared_ptr< te::RotationalEphemeris > >( m, "RotationalEphemeris", R"doc(
 
          Object that stores the rotational state of the bodies.
 
@@ -1758,18 +1746,16 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
      )doc" );
 
-    py::class_< te::LongitudeLibrationCalculator,
-                std::shared_ptr< te::LongitudeLibrationCalculator > >(
-            m, "LongitudeLibrationCalculator" );
+    py::class_< te::LongitudeLibrationCalculator, std::shared_ptr< te::LongitudeLibrationCalculator > >( m,
+                                                                                                         "LongitudeLibrationCalculator" );
 
     py::class_< te::DirectLongitudeLibrationCalculator,
                 std::shared_ptr< te::DirectLongitudeLibrationCalculator >,
                 te::LongitudeLibrationCalculator >( m, "DirectLongitudeLibrationCalculator" )
             .def( py::init< const double >( ), py::arg( "scaled_libration_amplitude" ) );
 
-    py::class_< te::SynchronousRotationalEphemeris,
-                std::shared_ptr< te::SynchronousRotationalEphemeris >,
-                te::RotationalEphemeris >( m, "SynchronousRotationalEphemeris" )
+    py::class_< te::SynchronousRotationalEphemeris, std::shared_ptr< te::SynchronousRotationalEphemeris >, te::RotationalEphemeris >(
+            m, "SynchronousRotationalEphemeris" )
             .def_property( "libration_calculator",
                            &te::SynchronousRotationalEphemeris::getLongitudeLibrationCalculator,
                            &te::SynchronousRotationalEphemeris::setLibrationCalculation );
@@ -1777,19 +1763,16 @@ inside a `Body` instance and used in observation corrections or environmental qu
     py::class_< te::AerodynamicAngleRotationalEphemeris,
                 std::shared_ptr< te::AerodynamicAngleRotationalEphemeris >,
                 te::RotationalEphemeris >( m, "AerodynamicAngleRotationalEphemeris" )
-            .def( "reset_aerodynamic_angle_function",
-                  &te::AerodynamicAngleRotationalEphemeris::setAerodynamicAngleFunction );
+            .def( "reset_aerodynamic_angle_function", &te::AerodynamicAngleRotationalEphemeris::setAerodynamicAngleFunction );
 
-    py::class_< teo::EarthOrientationAnglesCalculator,
-                std::shared_ptr< teo::EarthOrientationAnglesCalculator > >(
+    py::class_< teo::EarthOrientationAnglesCalculator, std::shared_ptr< teo::EarthOrientationAnglesCalculator > >(
             m, "EarthOrientationAnglesCalculator", R"doc(
 
          Object for computing high-accuracy Earth orientation angles
 
      )doc" )
             .def( "get_gcrs_to_itrs_rotation_angles",
-                  &teo::EarthOrientationAnglesCalculator::getRotationAnglesFromItrsToGcrs<
-                          TIME_TYPE >,
+                  &teo::EarthOrientationAnglesCalculator::getRotationAnglesFromItrsToGcrs< TIME_TYPE >,
                   py::arg( "epoch" ),
                   py::arg( "time_scale" ) = tba::tdb_scale,
                   R"doc(
@@ -1813,9 +1796,8 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
      )doc" );
 
-    py::class_< te::GcrsToItrsRotationModel,
-                std::shared_ptr< te::GcrsToItrsRotationModel >,
-                te::RotationalEphemeris >( m, "GcrsToItrsRotationModel", R"doc(
+    py::class_< te::GcrsToItrsRotationModel, std::shared_ptr< te::GcrsToItrsRotationModel >, te::RotationalEphemeris >(
+            m, "GcrsToItrsRotationModel", R"doc(
 
          Object for high-accuracy GCRS<->ITRS rotation.
 
@@ -1838,35 +1820,28 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
      )doc" );
 
-    py::class_< te::DirectionBasedRotationalEphemeris,
-                std::shared_ptr< te::DirectionBasedRotationalEphemeris >,
-                te::RotationalEphemeris >( m, "CustomInertialDirectionBasedRotationalEphemeris" )
+    py::class_< te::DirectionBasedRotationalEphemeris, std::shared_ptr< te::DirectionBasedRotationalEphemeris >, te::RotationalEphemeris >(
+            m, "CustomInertialDirectionBasedRotationalEphemeris" )
             .def_property_readonly( "inertial_body_axis_calculator",
-                                    &te::DirectionBasedRotationalEphemeris::
-                                            getInertialBodyAxisDirectionCalculator );
+                                    &te::DirectionBasedRotationalEphemeris::getInertialBodyAxisDirectionCalculator );
 
-    py::class_< te::InertialBodyFixedDirectionCalculator,
-                std::shared_ptr< te::InertialBodyFixedDirectionCalculator > >(
+    py::class_< te::InertialBodyFixedDirectionCalculator, std::shared_ptr< te::InertialBodyFixedDirectionCalculator > >(
             m, "InertialBodyFixedDirectionCalculator" );
 
     py::class_< te::CustomBodyFixedDirectionCalculator,
                 std::shared_ptr< te::CustomBodyFixedDirectionCalculator >,
-                te::InertialBodyFixedDirectionCalculator >( m,
-                                                            "CustomBodyFixedDirectionCalculator" )
-            .def_property(
-                    "inertial_body_axis_direction_function",
-                    &te::CustomBodyFixedDirectionCalculator::getInertialBodyAxisDirectionFunction,
-                    &te::CustomBodyFixedDirectionCalculator::
-                            resetInertialBodyAxisDirectionFunction );
+                te::InertialBodyFixedDirectionCalculator >( m, "CustomBodyFixedDirectionCalculator" )
+            .def_property( "inertial_body_axis_direction_function",
+                           &te::CustomBodyFixedDirectionCalculator::getInertialBodyAxisDirectionFunction,
+                           &te::CustomBodyFixedDirectionCalculator::resetInertialBodyAxisDirectionFunction );
 
     /*!
      **************   GRAVITY FIELD  ******************
      */
 
-    py::class_< tg::GravityFieldModel, std::shared_ptr< tg::GravityFieldModel > >(
-            m,
-            "GravityFieldModel",
-            R"doc(
+    py::class_< tg::GravityFieldModel, std::shared_ptr< tg::GravityFieldModel > >( m,
+                                                                                   "GravityFieldModel",
+                                                                                   R"doc(
 
          Object that provides the gravity field of a body
 
@@ -1881,8 +1856,7 @@ inside a `Body` instance and used in observation corrections or environmental qu
      )doc" )
             .def( py::init< const double, const std::function< void( ) > >( ),
                   py::arg( "gravitational_parameter" ),
-                  py::arg( "update_inertia_tensor" ) =
-                          std::function< void( ) >( )  // <pybind11/functional.h>
+                  py::arg( "update_inertia_tensor" ) = std::function< void( ) >( )  // <pybind11/functional.h>
                   )
             .def( "get_gravitational_parameter", &tg::GravityFieldModel::getGravitationalParameter )
             .def_property( "gravitational_parameter",
@@ -1901,9 +1875,8 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
       )doc" );
 
-    py::class_< tg::SphericalHarmonicsGravityField,
-                std::shared_ptr< tg::SphericalHarmonicsGravityField >,
-                tg::GravityFieldModel >( m, "SphericalHarmonicsGravityField", R"doc(
+    py::class_< tg::SphericalHarmonicsGravityField, std::shared_ptr< tg::SphericalHarmonicsGravityField >, tg::GravityFieldModel >(
+            m, "SphericalHarmonicsGravityField", R"doc(
 
          Object that provides a spherical harmonic gravity field of a body.
 
@@ -1963,8 +1936,7 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
     py::class_< tg::TimeDependentSphericalHarmonicsGravityField,
                 std::shared_ptr< tg::TimeDependentSphericalHarmonicsGravityField >,
-                tg::SphericalHarmonicsGravityField >(
-            m, "TimeDependentSphericalHarmonicsGravityField", R"doc(
+                tg::SphericalHarmonicsGravityField >( m, "TimeDependentSphericalHarmonicsGravityField", R"doc(
 
             Derived class of :class:`~SphericalHarmonicsGravityField` that is created when any gravity field variations are detected.
 
@@ -1973,32 +1945,31 @@ inside a `Body` instance and used in observation corrections or environmental qu
             This object computes the time-variability of spherical harmonic coefficients from a list of :class:`~GravityFieldVariationModel` objects.
             The ``cosine_coefficients`` and ``sine_coefficients`` attributes provide the instantaneous coefficients (including the time-variability)
             The ``nominal_cosine_coefficients`` and ``nominal_sine_coefficients`` provide the static (e.g. without time-variations) coefficients.
-            
+
             )doc" )
 
-        .def_property( "nominal_cosine_coefficients",
-                       &tg::TimeDependentSphericalHarmonicsGravityField::getNominalCosineCoefficients,
-                       &tg::TimeDependentSphericalHarmonicsGravityField::setNominalCosineCoefficients,
-                       R"doc(
+            .def_property( "nominal_cosine_coefficients",
+                           &tg::TimeDependentSphericalHarmonicsGravityField::getNominalCosineCoefficients,
+                           &tg::TimeDependentSphericalHarmonicsGravityField::setNominalCosineCoefficients,
+                           R"doc(
 
          Matrix with cosine spherical harmonic coefficients :math:`\bar{C}_{lm}` (geodesy normalized) *excluding* time-variations. Entry :math:`(i,j)` denotes coefficient at degree :math:`i` and order :math:`j`.
 
          :type: numpy.ndarray[numpy.float64[l, m]]
       )doc" )
-        .def_property( "nominal_sine_coefficients",
-                       &tg::TimeDependentSphericalHarmonicsGravityField::getNominalSineCoefficients,
-                       &tg::TimeDependentSphericalHarmonicsGravityField::setNominalSineCoefficients,
-                       R"doc(
+            .def_property( "nominal_sine_coefficients",
+                           &tg::TimeDependentSphericalHarmonicsGravityField::getNominalSineCoefficients,
+                           &tg::TimeDependentSphericalHarmonicsGravityField::setNominalSineCoefficients,
+                           R"doc(
 
          Matrix with sine spherical harmonic coefficients :math:`\bar{S}_{lm}` (geodesy normalized) *excluding* time-variations. Entry :math:`(i,j)` denotes coefficient at degree :math:`i` and order :math:`j`.
 
          :type: numpy.ndarray[numpy.float64[l, m]]
       )doc" )
 
-            .def_property_readonly(
-                    "gravity_field_variation_models",
-                    &tg::TimeDependentSphericalHarmonicsGravityField::getGravityFieldVariations,
-                    R"doc(
+            .def_property_readonly( "gravity_field_variation_models",
+                                    &tg::TimeDependentSphericalHarmonicsGravityField::getGravityFieldVariations,
+                                    R"doc(
 
          **read-only**
 
@@ -2296,11 +2267,11 @@ inside a `Body` instance and used in observation corrections or environmental qu
                   .value( "relative_humidity_meteo_data", tudat::ground_stations::relative_humidity_meteo_data )
                   .value( "dew_point_meteo_data", tudat::ground_stations::dew_point_meteo_data )
                   .export_values();
-    
+
     py::class_< tudat::ground_stations::StationMeteoData,
                 std::shared_ptr< tudat::ground_stations::StationMeteoData > >(
         m, "StationMeteoData" );
-    
+
     py::class_< tudat::ground_stations::ContinuousInterpolatedMeteoData,
                 std::shared_ptr< tudat::ground_stations::ContinuousInterpolatedMeteoData >,
                 tudat::ground_stations::StationMeteoData >(
@@ -2310,7 +2281,6 @@ inside a `Body` instance and used in observation corrections or environmental qu
                 std::map< tudat::ground_stations::MeteoDataEntries, int > >( ),
                 py::arg( "interpolator" ),
                 py::arg( "vector_entries" ) );
-          
 
     /*!
      **************   BODY OBJECTS AND ASSOCIATED FUNCTIONALITY
