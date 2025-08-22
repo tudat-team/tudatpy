@@ -1995,19 +1995,24 @@ public:
                             linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
                 }
 
+
+                std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator;
+                std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > > oneWayDopplerModel;
+
                 if( std::dynamic_pointer_cast< OneWayDopplerObservationModelSettings >( observationSettings ) == nullptr )
                 {
                     // Create observation model
-                    observationModel = std::make_shared< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                    lightTimeCalculator = createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds,
-                            createLightTimeCalculator< ObservationScalarType, TimeType >(
-                                    linkEnds,
-                                    transmitter,
-                                    receiver,
-                                    bodies,
-                                    topLevelObservableType,
-                                    observationSettings->lightTimeCorrectionsList_,
-                                    observationSettings->lightTimeConvergenceCriteria_ ),
+                            transmitter,
+                            receiver,
+                            bodies,
+                            topLevelObservableType,
+                            observationSettings->lightTimeCorrectionsList_,
+                            observationSettings->lightTimeConvergenceCriteria_ );
+                    oneWayDopplerModel = std::make_shared< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                            linkEnds,
+                            lightTimeCalculator,
                             observationBias,
                             std::function< ObservationScalarType( const TimeType ) >( ),
                             std::function< ObservationScalarType( const TimeType ) >( ),
@@ -2032,22 +2037,28 @@ public:
                     }
 
                     // Create observation model
-                    observationModel = std::make_shared< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                    lightTimeCalculator = createLightTimeCalculator< ObservationScalarType, TimeType >(
                             linkEnds,
-                            createLightTimeCalculator< ObservationScalarType, TimeType >(
-                                    linkEnds,
-                                    transmitter,
-                                    receiver,
-                                    bodies,
-                                    topLevelObservableType,
-                                    observationSettings->lightTimeCorrectionsList_,
-                                    observationSettings->lightTimeConvergenceCriteria_ ),
+                            transmitter,
+                            receiver,
+                            bodies,
+                            topLevelObservableType,
+                            observationSettings->lightTimeCorrectionsList_,
+                            observationSettings->lightTimeConvergenceCriteria_ );
+                    oneWayDopplerModel = std::make_shared< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                            linkEnds,
+                            lightTimeCalculator,
                             transmitterProperTimeRate,
                             receiverProperTimeRate,
                             observationBias,
                             oneWayDopplerSettings->normalizeWithSpeedOfLight_ );
                 }
 
+                if( lightTimeCalculator->doCorrectionsNeedFrequency( ) )
+                {
+                    oneWayDopplerModel->setFrequencyInterpolator( getTransmittingFrequencyInterpolator( bodies, linkEnds ) );
+                }
+                observationModel = oneWayDopplerModel;
                 break;
             }
 
@@ -2155,13 +2166,22 @@ public:
                 }
 
                 bool normalizeWithSpeedOfLight = false;
-                observationModel =
+                std::shared_ptr< TwoWayDopplerObservationModel< ObservationScalarType, TimeType > > twoWayDopplerModel =
                         std::make_shared< TwoWayDopplerObservationModel< ObservationScalarType, TimeType > >( linkEnds,
                                                                                                               multiLegLightTimeCalculator,
                                                                                                               uplinkDopplerCalculator,
                                                                                                               downlinkDopplerCalculator,
                                                                                                               observationBias,
                                                                                                               normalizeWithSpeedOfLight );
+                
+                if( multiLegLightTimeCalculator->doCorrectionsNeedFrequency( ) )
+                {
+                    twoWayDopplerModel->setFrequencyInterpolatorAndTurnaroundRatio(
+                            getTransmittingFrequencyInterpolator( bodies, linkEnds ),
+                            getTurnaroundFunction( bodies, linkEnds ) );
+                }
+                                
+                observationModel = twoWayDopplerModel;
 
                 break;
             }
@@ -2189,7 +2209,8 @@ public:
                 }
 
                 // Create observation model
-                observationModel = std::make_shared< OneWayDifferencedRangeObservationModel< ObservationScalarType, TimeType > >(
+                std::shared_ptr< OneWayDifferencedRangeObservationModel< ObservationScalarType, TimeType > > oneWayDifferencedRangeModel = 
+                        std::make_shared< OneWayDifferencedRangeObservationModel< ObservationScalarType, TimeType > >(
                         linkEnds,
                         createLightTimeCalculator< ObservationScalarType, TimeType >( linkEnds,
                                                                                       transmitter,
@@ -2207,6 +2228,12 @@ public:
                                                                                       observationSettings->lightTimeConvergenceCriteria_ ),
                         observationBias );
 
+                if( oneWayDifferencedRangeModel->getArcEndLightTimeCalculator( )->doCorrectionsNeedFrequency( ) ||
+                    oneWayDifferencedRangeModel->getArcStartLightTimeCalculator( )->doCorrectionsNeedFrequency( ) )
+                {
+                    oneWayDifferencedRangeModel->setFrequencyInterpolator( getTransmittingFrequencyInterpolator( bodies, linkEnds ) );
+                }
+                observationModel = oneWayDifferencedRangeModel;
                 break;
             }
             case n_way_range: {
@@ -2293,8 +2320,6 @@ public:
                         getTurnaroundFunction( bodies, linkEnds ) );
                 }
 
-                std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyInterpolator =
-                    getTransmittingFrequencyInterpolator( bodies, linkEnds );
                 observationModel = nWayRangeObservationModel;
                 break;
             }
@@ -2337,8 +2362,18 @@ public:
                             linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
                 }
 
-                observationModel = std::make_shared< NWayDifferencedRangeObservationModel< ObservationScalarType, TimeType > >(
+                std::shared_ptr< NWayDifferencedRangeObservationModel< ObservationScalarType, TimeType > > nWayDifferencedRangeObservationModel = 
+                        std::make_shared< NWayDifferencedRangeObservationModel< ObservationScalarType, TimeType > >(
                         linkEnds, arcStartObservationModel, arcEndObservationModel, observationBias );
+                
+                if( nWayDifferencedRangeObservationModel->getArcStartObservationModel( )->getMultiLegLightTimeCalculator( )->doCorrectionsNeedFrequency( ) ||
+                    nWayDifferencedRangeObservationModel->getArcEndObservationModel( )->getMultiLegLightTimeCalculator( )->doCorrectionsNeedFrequency( ))
+                {
+                    nWayDifferencedRangeObservationModel->setFrequencyInterpolatorAndTurnaroundRatio(
+                            getTransmittingFrequencyInterpolator( bodies, linkEnds ),
+                            getTurnaroundFunction( bodies, linkEnds ) );
+                }
+                observationModel = nWayDifferencedRangeObservationModel;
                 break;
             }
             case dsn_n_way_averaged_doppler: {

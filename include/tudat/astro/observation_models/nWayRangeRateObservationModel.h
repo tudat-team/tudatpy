@@ -139,6 +139,21 @@ public:
         return arcStartObservationModel_;
     }
 
+    void setFrequencyInterpolator( std::shared_ptr< ground_stations::StationFrequencyInterpolator > frequencyInterpolator )
+    {
+        arcStartObservationModel_->setFrequencyInterpolator( frequencyInterpolator );
+        arcEndObservationModel_->setFrequencyInterpolator( frequencyInterpolator );
+    }
+
+
+    void setFrequencyInterpolatorAndTurnaroundRatio(
+        std::shared_ptr< ground_stations::StationFrequencyInterpolator > frequencyInterpolator,
+        std::function< double( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > turnaroundRatio )
+    {
+        arcStartObservationModel_->setFrequencyInterpolatorAndTurnaroundRatio( frequencyInterpolator, turnaroundRatio );
+        arcEndObservationModel_->setFrequencyInterpolatorAndTurnaroundRatio( frequencyInterpolator, turnaroundRatio );
+    }
+
 private:
     std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > arcStartObservationModel_;
 
