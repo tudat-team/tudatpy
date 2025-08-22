@@ -93,7 +93,7 @@ public:
             const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
     {
         std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetingsToUse;
-        setFrequencyProperties( time, linkEndAssociatedWithTime, ancilliarySetings, ancilliarySetingsToUse );
+        this->setFrequencyProperties( time, linkEndAssociatedWithTime, multiLegLightTimeCalculator_, ancilliarySetings, ancilliarySetingsToUse );
 
         ObservationScalarType totalLightTime = multiLegLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
                 time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetingsToUse );
@@ -114,97 +114,15 @@ public:
         return multiLegLightTimeCalculator_;
     }
 
-    void setFrequencyInterpolatorAndTurnaroundRatio(
-        std::shared_ptr< ground_stations::StationFrequencyInterpolator > frequencyInterpolator,
-        std::function< double( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > turnaroundRatio )
-    {
-        frequencyInterpolator_ = frequencyInterpolator;
-        turnaroundRatio_ = turnaroundRatio;
-        timeScaleConverter_ = earth_orientation::createDefaultTimeConverter( );
-    }
+
 private:
 
-    bool setFrequencyProperties( const TimeType time,
-                                 const LinkEndType linkEndAssociatedWithTime,
-                                 const std::shared_ptr< ObservationAncilliarySimulationSettings > inputAncilliarySetings,
-                                 std::shared_ptr< ObservationAncilliarySimulationSettings >& ancilliarySetingsToUse )
-    {
-        if( frequencyInterpolator_ != nullptr )
-        {
-            if( linkEndAssociatedWithTime != receiver )
-            {
-                throw std::runtime_error(
-                    "Error when computing n-way range, frequency interpolator use is only compatible with transmitter reference "
-                    "frequency at present" );
-            }
-            else
-            {
-                if( inputAncilliarySetings == nullptr )
-                {
-                    ancilliarySetingsToUse = std::make_shared< ObservationAncilliarySimulationSettings >( );
-                }
-                else
-                {
-                    ancilliarySetingsToUse = inputAncilliarySetings;
-                }
 
-
-                setTransmissionReceptionFrequencies( multiLegLightTimeCalculator_,
-                                          timeScaleConverter_,
-                                          frequencyInterpolator_,
-                                          time,
-                                          linkEndAssociatedWithTime,
-                                          ancilliarySetingsToUse,
-                                          getTurnaroundRatio( ancilliarySetingsToUse ) );
-            }
-            return true;
-        }
-        else
-        {
-            ancilliarySetingsToUse = inputAncilliarySetings;
-            return false;
-        }
-    }
-
-    ObservationScalarType getTurnaroundRatio( const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings )
-    {
-        std::vector< FrequencyBands > frequencyBands;
-        FrequencyBands referenceUplinkBand;
-        try
-        {
-            frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
-        }
-        catch( std::runtime_error& caughtException )
-        {
-            throw std::runtime_error( "Error when retrieving ancillary settings for N-way range observable: " +
-                                      std::string( caughtException.what( ) ) );
-        }
-
-        if( frequencyBands.size( ) != linkEnds_.size( ) - 1 )
-        {
-            throw std::runtime_error(
-                "Error when retrieving frequency bands ancillary settings for N-way range observable: "
-                "size (" +
-                std::to_string( frequencyBands.size( ) ) + ") is inconsistent with number of links (" +
-                std::to_string( linkEnds_.size( ) - 1 ) + ")." );
-        }
-        FrequencyBands uplinkBand = frequencyBands.at( 0 );
-        FrequencyBands downlinkBand = frequencyBands.at( 1 );
-
-        // Set approximate up- and down-link frequencies.
-        return static_cast< ObservationScalarType >( turnaroundRatio_( uplinkBand, downlinkBand ) );
-    }
 
     LinkEnds linkEnds_;
 
     // Object that iteratively computes the light time of multiple legs
     std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > multiLegLightTimeCalculator_;
-
-    std::shared_ptr< ground_stations::StationFrequencyInterpolator > frequencyInterpolator_;
-
-    std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter_;
-
-    std::function< double( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > turnaroundRatio_;
 
 };
 
