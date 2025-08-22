@@ -48,7 +48,8 @@ public:
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
                     std::make_shared< LightTimeConvergenceCriteria >( ) ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( n_way_range, linkEnds, observationBiasCalculator )
+        ObservationModel< 1, ObservationScalarType, TimeType >( n_way_range, linkEnds, observationBiasCalculator ),
+        linkEnds_( linkEnds )
     {
         multiLegLightTimeCalculator_ =
                 std::make_shared< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >(
@@ -60,7 +61,7 @@ public:
                                        multiLegLightTimeCalculator,
                                const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
         ObservationModel< 1, ObservationScalarType, TimeType >( n_way_range, linkEnds, observationBiasCalculator ),
-        multiLegLightTimeCalculator_( multiLegLightTimeCalculator )
+        linkEnds_( linkEnds ), multiLegLightTimeCalculator_( multiLegLightTimeCalculator )
     { }
 
     //! Destructor
@@ -91,8 +92,11 @@ public:
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
             const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
     {
+        std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetingsToUse;
+        setFrequencyProperties( time, linkEndAssociatedWithTime, ancilliarySetings, ancilliarySetingsToUse );
+
         ObservationScalarType totalLightTime = multiLegLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetings );
+                time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetingsToUse );
 
         // Return total range observation.
         return ( Eigen::Matrix< ObservationScalarType, 1, 1 >( )
@@ -110,9 +114,98 @@ public:
         return multiLegLightTimeCalculator_;
     }
 
+    void setFrequencyInterpolatorAndTurnaroundRatio(
+        std::shared_ptr< ground_stations::StationFrequencyInterpolator > frequencyInterpolator,
+        std::function< double( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > turnaroundRatio )
+    {
+        frequencyInterpolator_ = frequencyInterpolator;
+        turnaroundRatio_ = turnaroundRatio;
+        timeScaleConverter_ = earth_orientation::createDefaultTimeConverter( );
+    }
 private:
+
+    bool setFrequencyProperties( const TimeType time,
+                                 const LinkEndType linkEndAssociatedWithTime,
+                                 const std::shared_ptr< ObservationAncilliarySimulationSettings > inputAncilliarySetings,
+                                 std::shared_ptr< ObservationAncilliarySimulationSettings >& ancilliarySetingsToUse )
+    {
+        if( frequencyInterpolator_ != nullptr )
+        {
+            if( linkEndAssociatedWithTime != receiver )
+            {
+                throw std::runtime_error(
+                    "Error when computing n-way range, frequency interpolator use is only compatible with transmitter reference "
+                    "frequency at present" );
+            }
+            else
+            {
+                if( inputAncilliarySetings == nullptr )
+                {
+                    ancilliarySetingsToUse = std::make_shared< ObservationAncilliarySimulationSettings >( );
+                }
+                else
+                {
+                    ancilliarySetingsToUse = inputAncilliarySetings;
+                }
+
+
+                setTransmissionReceptionFrequencies( multiLegLightTimeCalculator_,
+                                          timeScaleConverter_,
+                                          frequencyInterpolator_,
+                                          time,
+                                          linkEndAssociatedWithTime,
+                                          ancilliarySetingsToUse,
+                                          getTurnaroundRatio( ancilliarySetingsToUse ) );
+            }
+            return true;
+        }
+        else
+        {
+            ancilliarySetingsToUse = inputAncilliarySetings;
+            return false;
+        }
+    }
+
+    ObservationScalarType getTurnaroundRatio( const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings )
+    {
+        std::vector< FrequencyBands > frequencyBands;
+        FrequencyBands referenceUplinkBand;
+        try
+        {
+            frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
+        }
+        catch( std::runtime_error& caughtException )
+        {
+            throw std::runtime_error( "Error when retrieving ancillary settings for N-way range observable: " +
+                                      std::string( caughtException.what( ) ) );
+        }
+
+        if( frequencyBands.size( ) != linkEnds_.size( ) - 1 )
+        {
+            throw std::runtime_error(
+                "Error when retrieving frequency bands ancillary settings for N-way range observable: "
+                "size (" +
+                std::to_string( frequencyBands.size( ) ) + ") is inconsistent with number of links (" +
+                std::to_string( linkEnds_.size( ) - 1 ) + ")." );
+        }
+        FrequencyBands uplinkBand = frequencyBands.at( 0 );
+        FrequencyBands downlinkBand = frequencyBands.at( 1 );
+
+        // Set approximate up- and down-link frequencies.
+        return static_cast< ObservationScalarType >( turnaroundRatio_( uplinkBand, downlinkBand ) );
+    }
+
+    LinkEnds linkEnds_;
+
     // Object that iteratively computes the light time of multiple legs
     std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > multiLegLightTimeCalculator_;
+
+    std::shared_ptr< ground_stations::StationFrequencyInterpolator > frequencyInterpolator_;
+
+    std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter_;
+
+    std::function< double( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > turnaroundRatio_;
+
 };
 
 }  // namespace observation_models
