@@ -2282,8 +2282,20 @@ public:
                                 multiLegLightTimeConvergenceCriteria );
 
                 // Create observation model
-                observationModel = std::make_shared< NWayRangeObservationModel< ObservationScalarType, TimeType > >(
+                std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > nWayRangeObservationModel =
+                    std::make_shared< NWayRangeObservationModel< ObservationScalarType, TimeType > >(
                         linkEnds, multiLegLightTimeCalculator, observationBias );
+
+                if( multiLegLightTimeCalculator->doCorrectionsNeedFrequency( ) )
+                {
+                    nWayRangeObservationModel->setFrequencyInterpolatorAndTurnaroundRatio(
+                        getTransmittingFrequencyInterpolator( bodies, linkEnds ),
+                        getTurnaroundFunction( bodies, linkEnds ) );
+                }
+
+                std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyInterpolator =
+                    getTransmittingFrequencyInterpolator( bodies, linkEnds );
+                observationModel = nWayRangeObservationModel;
                 break;
             }
             case n_way_differenced_range: {
