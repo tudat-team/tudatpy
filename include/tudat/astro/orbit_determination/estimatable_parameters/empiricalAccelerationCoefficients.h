@@ -304,7 +304,7 @@ public:
             Eigen::Matrix3d comparisonAccelerations = Eigen::Matrix3d::Zero( );
             try
             {
-                empiricalAcceleration.at( i )->getAccelerationComponents( );
+                comparisonAccelerations = empiricalAcceleration.at( i )->getAccelerationComponents( );
             }
             catch( ... ){ }
             if( comparisonAccelerations != currentTimeInvariantEmpiricalAccelerations )
