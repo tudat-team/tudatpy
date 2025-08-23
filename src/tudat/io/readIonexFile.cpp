@@ -197,7 +197,7 @@ void readIonexFiles( const std::vector< std::string >& filePaths, IonexTecMap& d
     }
 
     std::set< double > uniqueHeights;
-    for( const auto& [ epoch, map ]: data.tecMaps )
+    for( const auto& it: data.tecMaps )
     {
         uniqueHeights.insert( data.referenceIonosphereHeight_ );
     }
