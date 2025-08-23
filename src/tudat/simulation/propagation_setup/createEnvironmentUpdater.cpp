@@ -376,11 +376,12 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                         std::shared_ptr< aerodynamics::AerodynamicAcceleration > aerodynamicAcceleration =
                                 std::dynamic_pointer_cast< aerodynamics::AerodynamicAcceleration >(
                                         accelerationModelIterator->second.at( i ) );
-                        auto panelledAerodynamicCoefficientInterface = std::dynamic_pointer_cast< aerodynamics::PanelledAerodynamicCoefficientInterface >( 
-                            aerodynamicAcceleration->getCoefficientInterface( ) );
-                        if ( panelledAerodynamicCoefficientInterface != nullptr )
+                        auto panelledAerodynamicCoefficientInterface =
+                                std::dynamic_pointer_cast< aerodynamics::PanelledAerodynamicCoefficientInterface >(
+                                        aerodynamicAcceleration->getCoefficientInterface( ) );
+                        if( panelledAerodynamicCoefficientInterface != nullptr )
                         {
-                            singleAccelerationUpdateNeeds[body_segment_orientation_update].push_back( acceleratedBodyIterator->first );
+                            singleAccelerationUpdateNeeds[ body_segment_orientation_update ].push_back( acceleratedBodyIterator->first );
                         }
                         break;
                     }
@@ -1066,6 +1067,9 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
             variablesToUpdate[ body_mass_distribution_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
             break;
         case body_inertia_tensor:
+            variablesToUpdate[ body_mass_distribution_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+            break;
+        case solar_longitude:
             variablesToUpdate[ body_mass_distribution_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
             break;
         case vehicle_panel_inertial_surface_normals:
