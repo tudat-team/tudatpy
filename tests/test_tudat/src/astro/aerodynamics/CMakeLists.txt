@@ -77,6 +77,16 @@ TUDAT_ADD_TEST_CASE(WindModel
         ${Tudat_PROPAGATION_LIBRARIES}
         )
 
+TUDAT_ADD_TEST_CASE(MarsDtmAtmosphereRho
+        PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
+)
+
+TUDAT_ADD_TEST_CASE(MarsDtmAtmosphere
+        PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
+)
+
 TUDAT_ADD_TEST_CASE(NRLMSISE00Atmosphere
         PRIVATE_LINKS
         ${Tudat_PROPAGATION_LIBRARIES}
