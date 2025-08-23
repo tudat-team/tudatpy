@@ -364,8 +364,9 @@
  endif ()
 
 if (MSVC)
-  message(STATUS "Setting /bigobj")
+  message(STATUS "Setting /bigobj and /std:c++17")
   add_compile_options(/bigobj)
+  add_compile_options(/std:c++17)  
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
     #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftemplate-backtrace-limit=0")
