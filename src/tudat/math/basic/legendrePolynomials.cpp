@@ -682,6 +682,38 @@ double computeLegendrePolynomialExplicit( const int degree, const int order, con
                 }
             }
             break;
+        case 5:
+            switch( order )
+            {
+                case 0:
+                    return ( 63.0 * polynomialParameter * polynomialParameter
+                        * polynomialParameter * polynomialParameter * polynomialParameter
+                        - 70.0 * polynomialParameter * polynomialParameter * polynomialParameter
+                        + 15.0 * polynomialParameter ) / 8.0;
+                default:
+                {
+                    std::string errorMessage = "Error, explicit legendre polynomial not possible for " +
+                            std::to_string( degree ) + ", " +
+                            std::to_string( order );
+                    throw std::runtime_error( errorMessage );
+                }
+            }
+        case 6:
+            switch( order )
+            {
+                case 0:
+                    return ( 231.0 * polynomialParameter * polynomialParameter
+                        * polynomialParameter * polynomialParameter * polynomialParameter * polynomialParameter
+                        - 315.0 * polynomialParameter * polynomialParameter * polynomialParameter * polynomialParameter
+                        + 105.0 * polynomialParameter * polynomialParameter - 5.0 ) / 16.0;
+                default:
+                {
+                    std::string errorMessage = "Error, explicit legendre polynomial not possible for " +
+                            std::to_string( degree ) + ", " +
+                            std::to_string( order );
+                    throw std::runtime_error( errorMessage );
+                }
+            }
         default: {
             std::string errorMessage =
                     "Error, explicit legendre polynomial not possible for " + std::to_string( degree ) + ", " + std::to_string( order );
