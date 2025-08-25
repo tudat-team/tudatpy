@@ -14,4 +14,6 @@
 #include "system_models/engineModel.h"
 #include "system_models/vehicleSystems.h"
 
+#include "system_models/rtgAccelerationModel.h"
+
 #endif  // TUDAT_SYSTEM_MODELS_H
