@@ -23,6 +23,7 @@
 #include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
 #include "tudat/astro/basic_astro/massRateModel.h"
 #include "tudat/astro/propulsion/thrustAccelerationModel.h"
+#include "tudat/astro/system_models/rtgAccelerationModel.h"
 #include "tudat/astro/propulsion/massRateFromThrust.h"
 #include "tudat/astro/relativity/relativisticAccelerationCorrection.h"
 #include "tudat/astro/relativity/einsteinInfeldHoffmannAcceleration.h"
@@ -67,7 +68,8 @@ enum AvailableAcceleration {
     momentum_wheel_desaturation_acceleration,
     custom_acceleration,
     einstein_infeld_hoffmann_acceleration,
-    yarkovsky_acceleration
+    yarkovsky_acceleration,
+    rtg_acceleration
 };
 
 // Function to get a string representing a 'named identification' of an acceleration type
