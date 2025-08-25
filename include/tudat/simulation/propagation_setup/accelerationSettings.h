@@ -337,6 +337,7 @@ inline std::shared_ptr< AccelerationSettings > empiricalAcceleration(
     return std::make_shared< EmpiricalAccelerationSettings >( constantAcceleration, sineAcceleration, cosineAcceleration );
 }
 
+
 // Class to define settings for yarkovsky accelerations
 //! @get_docstring(YarkovskyAccelerationSettings.__docstring__)
 class YarkovskyAccelerationSettings : public AccelerationSettings
@@ -614,6 +615,35 @@ inline std::shared_ptr< AccelerationSettings > customAccelerationSettings(
         return std::make_shared< CustomAccelerationSettings >( accelerationFunction, scalingFunction );
     }
 }
+
+
+//! @get_docstring(RTGAccelerationSettings.__docstring__)
+class RTGAccelerationSettings : public AccelerationSettings
+{
+public:
+    RTGAccelerationSettings( const Eigen::Vector3d& bodyFixedForceVectorAtReferenceEpoch,
+                             const double decayScaleFactor,
+                             const double referenceEpoch):
+        AccelerationSettings( basic_astrodynamics::rtg_acceleration ), bodyFixedForceVectorAtReferenceEpoch_( bodyFixedForceVectorAtReferenceEpoch ),
+        decayScaleFactor_( decayScaleFactor ), referenceEpoch_( referenceEpoch )
+    { }
+
+    const Eigen::Vector3d bodyFixedForceVectorAtReferenceEpoch_;
+    const double decayScaleFactor_;
+    const double referenceEpoch_;
+};
+
+
+//! @get_docstring(rtgAcceleration)
+inline std::shared_ptr< AccelerationSettings > rtgAcceleration(
+        const Eigen::Vector3d& bodyFixedForceVectorAtReferenceEpoch,
+        const double decayScaleFactor,
+        const double referenceEpoch )
+{
+    return std::make_shared< RTGAccelerationSettings >( bodyFixedForceVectorAtReferenceEpoch, decayScaleFactor, referenceEpoch );
+}
+
+
 
 // Class for providing settings for a direct tidal acceleration model, with approach of Lainey et al. (2007, 2009, ..)
 /*

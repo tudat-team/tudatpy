@@ -1127,7 +1127,7 @@ inline std::shared_ptr< EstimatableParameterSettings > sideComponentScaling( con
 
 inline std::shared_ptr< EstimatableParameterSettings > liftComponentScaling( const std::string bodyName )
 {
-    return std::make_shared< EstimatableParameterSettings >( bodyName,lift_component_scaling_factor );
+    return std::make_shared< EstimatableParameterSettings >( bodyName, lift_component_scaling_factor );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > radiationPressureCoefficient( const std::string bodyName )
@@ -1358,6 +1358,16 @@ inline std::shared_ptr< EstimatableParameterSettings > arcWiseEmpiricalAccelerat
 {
     return std::make_shared< ArcWiseEmpiricalAccelerationEstimatableParameterSettings >(
             associatedBody, centralBody, componentsToEstimate, arcStartTimes );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > rtgForceVector( const std::string& associatedBody )
+{
+    return std::make_shared< EstimatableParameterSettings >( associatedBody, rtg_force_vector );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > rtgForceVectorMagnitude( const std::string bodyName)
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyName, rtg_force_vector_magnitude);
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > ppnParameterGamma( )
