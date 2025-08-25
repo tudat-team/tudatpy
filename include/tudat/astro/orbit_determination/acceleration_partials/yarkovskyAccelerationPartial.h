@@ -34,7 +34,7 @@ public:
     YarkovskyAccelerationPartial( const std::shared_ptr< electromagnetism::YarkovskyAcceleration > yarkovskyAcceleration,
                                   const std::string acceleratedBody,
                                   const std::string acceleratingBody ):
-        AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::yarkovsky_acceleration ),
+        AccelerationPartial( acceleratedBody, acceleratingBody, yarkovskyAcceleration, basic_astrodynamics::yarkovsky_acceleration ),
         yarkovskyAcceleration_( yarkovskyAcceleration )
     { }
 

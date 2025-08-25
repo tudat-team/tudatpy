@@ -176,7 +176,7 @@ public:
      */
     EihAccelerationPartial( const std::shared_ptr< acceleration_partials::EihEquationsPartials > fulEihPartials,
                             const std::string acceleratedBody ):
-        AccelerationPartial( acceleratedBody, "", basic_astrodynamics::einstein_infeld_hoffmann_acceleration ),
+        AccelerationPartial( acceleratedBody, "", nullptr, basic_astrodynamics::einstein_infeld_hoffmann_acceleration ),
         fullEihPartials_( fulEihPartials )
     {
         std::vector< std::string > bodyList = fullEihPartials_->getEihEquations( )->getBodiesExertingAcceleration( );

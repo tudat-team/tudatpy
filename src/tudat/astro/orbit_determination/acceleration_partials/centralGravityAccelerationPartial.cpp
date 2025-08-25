@@ -65,7 +65,7 @@ CentralGravitationPartial::CentralGravitationPartial(
         const std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > gravitationalAcceleration,
         const std::string acceleratedBody,
         const std::string acceleratingBody ):
-    AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::point_mass_gravity )
+    AccelerationPartial( acceleratedBody, acceleratingBody, gravitationalAcceleration, basic_astrodynamics::point_mass_gravity )
 {
     accelerationUpdateFunction_ = std::bind(
             &basic_astrodynamics::AccelerationModel< Eigen::Vector3d >::updateMembers, gravitationalAcceleration, std::placeholders::_1 );
@@ -81,7 +81,8 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > CentralGravitationPa
         std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 
 {
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair;
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair =
+            std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
 
     // Check dependencies.
     if( parameter->getParameterName( ).first == estimatable_parameters::gravitational_parameter )
@@ -89,9 +90,15 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > CentralGravitationPa
         // If parameter is gravitational parameter, check and create dependency function .
         partialFunctionPair = getGravitationalParameterPartialFunction( parameter->getParameterName( ) );
     }
-    else
+
+    if( partialFunctionPair.second == 0 )
     {
-        partialFunctionPair = std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > basePartialFunctionPair =
+                this->getParameterPartialFunctionAccelerationBase( parameter );
+        if( basePartialFunctionPair.second != 0 )
+        {
+            partialFunctionPair = basePartialFunctionPair;
+        }
     }
 
     return partialFunctionPair;
