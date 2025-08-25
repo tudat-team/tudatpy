@@ -196,4 +196,4 @@ private:
 
 }  // namespace tudat
 
-#endif  // TUDAT_RINGGRAVITYMODEL_H
+#endif  // TUDAT_RTGACCELERATIONMODEL_H
