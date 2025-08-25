@@ -808,7 +808,7 @@ BOOST_AUTO_TEST_CASE( test_rtgAccelerationModelSetup )
     // Define function describing rotational ephemeris of vehicle
     std::function<Eigen::Matrix3d(double)> timeDependentRotationFunction =
     [](double epoch) {
-        double angleRad = 0.5 * epoch * M_PI / 180.0;
+        double angleRad = 0.5 * epoch * mathematical_constants::PI / 180.0;
         return Eigen::AngleAxisd(angleRad, Eigen::Vector3d::UnitZ()).toRotationMatrix();
     };
 

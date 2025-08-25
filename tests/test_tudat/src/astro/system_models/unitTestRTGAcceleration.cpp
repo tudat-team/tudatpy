@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( testRTGAcceleration )
     // Define function describing rotational ephemeris of vehicle
     std::function<Eigen::Matrix3d(double)> timeDependentRotationFunction =
     [](double epoch) {
-        double angleRad = 1/7. * epoch * M_PI / 180.0;
+        double angleRad = 1/7. * epoch * mathematical_constants::PI / 180.0;
         return Eigen::AngleAxisd(angleRad, Eigen::Vector3d::UnitZ()).toRotationMatrix();
     };
 
@@ -134,8 +134,12 @@ BOOST_AUTO_TEST_CASE( testRTGAcceleration )
     centralBodies.push_back( "Earth" );
 
 
-    accelerationSettingsMap[ "Vehicle" ][ "Vehicle" ].push_back(
-                        std::make_shared< RTGAccelerationSettings >(rtgForceVector, decayScaleFactor, referenceEpoch));
+    // Alternative: Create Settings object directly via class constructor
+    //accelerationSettingsMap[ "Vehicle" ][ "Vehicle" ].push_back(
+    //                    std::make_shared< RTGAccelerationSettings >(rtgForceVector, decayScaleFactor, referenceEpoch));
+
+    //  Create Settings object directly via factory function
+    accelerationSettingsMap[ "Vehicle" ][ "Vehicle" ].push_back( rtgAcceleration(rtgForceVector, decayScaleFactor, referenceEpoch) );
 
 
     // Create accelerations
