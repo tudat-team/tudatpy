@@ -628,7 +628,7 @@ public:
         decayScaleFactor_( decayScaleFactor ), referenceEpoch_( referenceEpoch )
     { }
 
-    const Eigen::Vector3d& bodyFixedForceVectorAtReferenceEpoch_;
+    const Eigen::Vector3d bodyFixedForceVectorAtReferenceEpoch_;
     const double decayScaleFactor_;
     const double referenceEpoch_;
 };

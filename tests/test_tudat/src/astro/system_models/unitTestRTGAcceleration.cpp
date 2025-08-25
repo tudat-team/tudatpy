@@ -134,8 +134,12 @@ BOOST_AUTO_TEST_CASE( testRTGAcceleration )
     centralBodies.push_back( "Earth" );
 
 
-    accelerationSettingsMap[ "Vehicle" ][ "Vehicle" ].push_back(
-                        std::make_shared< RTGAccelerationSettings >(rtgForceVector, decayScaleFactor, referenceEpoch));
+    // Alternative: Create Settings object directly via class constructor
+    //accelerationSettingsMap[ "Vehicle" ][ "Vehicle" ].push_back(
+    //                    std::make_shared< RTGAccelerationSettings >(rtgForceVector, decayScaleFactor, referenceEpoch));
+
+    //  Create Settings object directly via factory function
+    accelerationSettingsMap[ "Vehicle" ][ "Vehicle" ].push_back( rtgAcceleration(rtgForceVector, decayScaleFactor, referenceEpoch) );
 
 
     // Create accelerations
