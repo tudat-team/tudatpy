@@ -141,7 +141,8 @@ enum PropagationDependentVariables {
     cross_section_change = 74,
     full_body_paneled_geometry = 75,
     aerodynamic_coefficients = 76,
-    actual_cross_section = 77
+    actual_cross_section = 77,
+    solar_longitude = 78
 
 };
 
@@ -673,14 +674,12 @@ class CrossSectionDependentVariableSaveSettings : public SingleDependentVariable
 public:
     CrossSectionDependentVariableSaveSettings( const PropagationDependentVariables type,
                                                const std::string& bodyName,
-                                               const std::string& sourceName, 
+                                               const std::string& sourceName,
                                                const std::string& accelerationType ):
-        SingleDependentVariableSaveSettings( type, bodyName, sourceName ),
-        accelerationType_( accelerationType )
+        SingleDependentVariableSaveSettings( type, bodyName, sourceName ), accelerationType_( accelerationType )
     { }
 
     std::string accelerationType_;
-
 };
 
 // Function to get a string representing a 'named identification' of a variable type.
@@ -1381,15 +1380,18 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > fullBodyPaneledGeo
     return std::make_shared< SingleDependentVariableSaveSettings >( full_body_paneled_geometry, bodyName );
 }
 
-inline std::shared_ptr< SingleDependentVariableSaveSettings > aerodynamicCoefficientsDependentVariable( const std::string& bodyName, const std::string& centralBodyName )
+inline std::shared_ptr< SingleDependentVariableSaveSettings > aerodynamicCoefficientsDependentVariable( const std::string& bodyName,
+                                                                                                        const std::string& centralBodyName )
 {
     return std::make_shared< SingleDependentVariableSaveSettings >( aerodynamic_coefficients, bodyName, centralBodyName );
 }
 
-inline std::shared_ptr< SingleDependentVariableSaveSettings > actualCrossSectionDependentVariable( const std::string& bodyName, const std::string& centralBodyName, 
-    const std::string& accelerationType )
+inline std::shared_ptr< SingleDependentVariableSaveSettings > actualCrossSectionDependentVariable( const std::string& bodyName,
+                                                                                                   const std::string& centralBodyName,
+                                                                                                   const std::string& accelerationType )
 {
-    return std::make_shared< CrossSectionDependentVariableSaveSettings >( actual_cross_section, bodyName, centralBodyName, accelerationType );
+    return std::make_shared< CrossSectionDependentVariableSaveSettings >(
+            actual_cross_section, bodyName, centralBodyName, accelerationType );
 }
 
 }  // namespace propagators
