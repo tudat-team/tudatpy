@@ -279,7 +279,7 @@ inline std::vector< std::shared_ptr< BodyPanelSettings > > bodyPanelSettingsList
         const Eigen::Vector3d frameOrigin,
         std::map< std::string, std::shared_ptr< MaterialProperties > > materialPropertiesMap,
         std::map< std::string, bool > instantaneousReradiation,
-        const std::string inputUnit,
+        const std::string inputUnit = "m",
         const std::string frameOrientation = "" )
 {
     std::vector< std::shared_ptr< BodyPanelSettings > > bodyPanelSettingsList;

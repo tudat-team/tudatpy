@@ -422,6 +422,7 @@ Panel surface area
         py::arg( "frame_origin" ),
         py::arg( "material_properties" ),
         py::arg( "reradiation_settings" ),
+        py::arg( "input_unit" ) = "m",
         py::arg( "frame_orientation" ) = "",
         R"doc(
 Function for creating list of panel body settings
@@ -438,6 +439,8 @@ material_properties : dict[str, MaterialProperties]
     Dictionary of material properties, as they appear in the .dae file provided.
 reradiation_settings : dict[str, bool]
     Dictionary of re-radiation settings for materials, as they appear in the .dae file provided.
+frame_orientation : str, default = "m"
+   Informs length unit conversion between input model and tudat backend.
 frame_orientation : str, default = "
     Identifier of the frame to which the panel is fixed (if body-fixed frame, this can be left empty).
     
