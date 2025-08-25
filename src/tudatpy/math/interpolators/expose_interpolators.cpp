@@ -627,8 +627,6 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
          Object that performs interpolation for matrix dependent variables and TIME_TYPE independent variables (float for normal tudatpy compilation). This object is
          not created manually, but is set up using the :func:`create_one_dimensional_vector_interpolator` function.
 
-
-
       )doc" )
             .def( "interpolate",
                   py::overload_cast< const TIME_TYPE >(
@@ -792,6 +790,10 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
      Interpolator object
 
 
+
+
+
+
      )doc" );
 
 
@@ -817,7 +819,6 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
         Interpolator object
 
     )doc" );
-
 
     m.def( "create_one_dimensional_matrix_interpolator",
            &ti::createOneDimensionalInterpolatorBasic< TIME_TYPE, Eigen::MatrixXd >,
