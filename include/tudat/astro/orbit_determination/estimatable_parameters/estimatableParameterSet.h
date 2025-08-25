@@ -517,6 +517,32 @@ public:
         return parametersDescriptions;
     }
 
+    //! Function to retrieve the list of parameters identifiers
+    /*!
+     * Function to retrieve the list of parameters identifiers
+     * \return List of parameters identifiers (for all parameters)
+     */
+    std::vector< EstimatebleParameterIdentifier > getParametersIdentifiers( ) const
+    {
+        std::vector< EstimatebleParameterIdentifier > parametersIdentifiers;
+
+        for( auto itr: doubleParameters_ )
+        {
+            parametersIdentifiers.push_back( itr.second->getParameterName( ) );
+        }
+        for( auto itr: vectorParameters_ )
+        {
+            parametersIdentifiers.push_back( itr.second->getParameterName( ) );
+        }
+        for( auto itr: initialStateParameters_ )
+        {
+            parametersIdentifiers.push_back( itr.second->getParameterName( ) );
+        }
+
+        return parametersIdentifiers;
+    }
+
+
     //! Function to get list of initial dynamical states that are to be estimated.
     //!
     /*!
