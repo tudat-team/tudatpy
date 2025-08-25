@@ -205,8 +205,8 @@ void expose_rotation_model_setup( py::module &m )
      Name of the target frame of rotation model.
  initial_orientation : numpy.ndarray[numpy.float64[3, 3]]
      Orientation of target frame in base frame at initial time.
- initial_time : float
-     Initial time (reference epoch for rotation matrices).
+ initial_time : astro.time_representation.Time
+     Initial time (reference epoch for rotation matrices, as Time object representing seconds since J2000 TDB).
  rotation_rate : float
      Constant rotation rate [rad/s] about rotational axis.
  Returns
@@ -266,8 +266,8 @@ void expose_rotation_model_setup( py::module &m )
      Target frame of rotation model - name of frame that Tudat assigns to the body-fixed frame
  target_frame_spice : str
      Spice reference of target frame - name of the frame in Spice for which the initial orientation and rotation rate are extracted.
- initial_time : float
-     Initial time (reference epoch for rotation matrices).
+ initial_time : astro.time_representation.Time
+     Initial time (reference epoch for rotation matrices, as Time object representing seconds since J2000 TDB).
  Returns
  -------
  SimpleRotationModelSettings
@@ -514,8 +514,8 @@ void expose_rotation_model_setup( py::module &m )
      Name of the base frame of rotation model.
  target_frame : str
      Name of the target frame of rotation model.
- angle_function : Callable[[float], numpy.ndarray[numpy.float64[3, 1]]], default = None
-     Custom function provided by the user, which returns an array of three values as a function of time. The output of this function *must* be ordered as :math:`[\alpha,\beta,\sigma]`. If this input is left empty, these angles are both fixed to 0.
+ angle_function : Callable[[astro.time_representation.Time], numpy.ndarray[numpy.float64[3, 1]]], default = None
+     Custom function provided by the user, which returns an array of three values as a function of time (as Time object). The output of this function *must* be ordered as :math:`[\alpha,\beta,\sigma]`. If this input is left empty, these angles are both fixed to 0.
  Returns
  -------
  CustomRotationModelSettings
@@ -552,8 +552,8 @@ void expose_rotation_model_setup( py::module &m )
      Name of the base frame of rotation model.
  target_frame : str
      Name of the target frame of rotation model.
- angle_funcion : Callable[[float], numpy.ndarray[numpy.float64[2, 1]]], default = None
-     Custom function provided by the user, which returns an array of three values as a function of time. The output of this function *must* be ordered as :math:`[\beta,\sigma]`. If this input is left empty, these angles are both fixed to 0.
+ angle_funcion : Callable[[astro.time_representation.Time], numpy.ndarray[numpy.float64[2, 1]]], default = None
+     Custom function provided by the user, which returns an array of three values as a function of time (as Time object). The output of this function *must* be ordered as :math:`[\beta,\sigma]`. If this input is left empty, these angles are both fixed to 0.
  Returns
  -------
  CustomRotationModelSettings
@@ -590,13 +590,13 @@ void expose_rotation_model_setup( py::module &m )
 
  Parameters
  ----------
- inertial_body_axis_direction : Callable[[float], numpy.ndarray[numpy.float64[3, 1]]]
+ inertial_body_axis_direction : Callable[[astro.time_representation.Time], numpy.ndarray[numpy.float64[3, 1]]]
      Custom function defined by the user, which imposes the inertial orientation of the body-fixed x-axis, by providing :math:`\hat{\mathbf{T}}_{I}(t)`.
  base_frame : str
      Name of the base frame of rotation model.
  target_frame : str
      Name of the target frame of rotation model.
- free_rotation_angle_function : Callable[[float], float], default = None
+ free_rotation_angle_function : Callable[[astro.time_representation.Time], float], default = None
      Custom function provided by the user, which returns a value for the free rotation angle :math:`\phi` about the body-fixed x-axis as a function of time. If this input is left empty, this angle is fixed to 0.
  Returns
  -------
@@ -640,8 +640,8 @@ void expose_rotation_model_setup( py::module &m )
      Name of the base frame of rotation model.
  target_frame : str
      Name of the target frame of rotation model.
- free_rotation_angle_function : Callable[[float], float], default = None
-     Custom function provided by the user, which returns a value for the free rotation angle :math:`\phi` about the body-fixed x-axis as a function of time. If this input is left empty, this angle is fixed to 0.
+ free_rotation_angle_function : Callable[[astro.time_representation.Time], float], default = None
+     Custom function provided by the user, which returns a value for the free rotation angle :math:`\phi` about the body-fixed x-axis as a function of time (as Time object). If this input is left empty, this angle is fixed to 0.
  Returns
  -------
  BodyFixedDirectionBasedRotationSettings
@@ -727,8 +727,8 @@ void expose_rotation_model_setup( py::module &m )
      Name of the base frame of rotation model.
  target_frame : str
      Name of the target frame of rotation model.
- custom_rotation_matrix_function: Callable[[float], numpy.ndarray[numpy.float64[3, 3]]]
-     Function computing the body-fixed to inertial rotation matrix as a function of time
+ custom_rotation_matrix_function: Callable[[astro.time_representation.Time], numpy.ndarray[numpy.float64[3, 3]]]
+     Function computing the body-fixed to inertial rotation matrix as a function of time (Time object representing seconds since J2000 TDB)
  finite_difference_time_step: float
      Step size to use when computing the rotation matrix derivative numerically
  Returns
