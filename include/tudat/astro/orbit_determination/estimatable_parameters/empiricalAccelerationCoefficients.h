@@ -184,7 +184,8 @@ public:
 
     std::string getParameterDescription( )
     {
-        std::string parameterDescription = ", components in RSW frame, functional shapes; ";
+        std::string parameterDescription = getParameterTypeString( parameterName_.first ) + "acting on " + parameterName_.second.first + " w.r.t. "  + parameterName_.second.second +
+            + ", components in RSW frame, functional shapes; ";
 
         for( std::map< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes, std::vector< int > >::const_iterator indexIterator =
                      accelerationIndices_.begin( );
@@ -291,10 +292,21 @@ public:
         arcStartTimeList_.push_back( 1.0E300 );
 
         // Retrieve current empirical accelerations (set in each arc)
-        Eigen::Matrix3d currentTimeInvariantEmpiricalAccelerations = empiricalAcceleration.at( 0 )->getAccelerationComponents( );
+        Eigen::Matrix3d currentTimeInvariantEmpiricalAccelerations = Eigen::Matrix3d::Zero( );
+        try
+        {
+            currentTimeInvariantEmpiricalAccelerations = empiricalAcceleration.at( 0 )->getAccelerationComponents( );
+        }
+        catch( ... ){ }
+
         for( unsigned int i = 1; i < empiricalAcceleration.size( ); i++ )
         {
-            Eigen::Matrix3d comparisonAccelerations = empiricalAcceleration.at( i )->getAccelerationComponents( );
+            Eigen::Matrix3d comparisonAccelerations = Eigen::Matrix3d::Zero( );
+            try
+            {
+                comparisonAccelerations = empiricalAcceleration.at( i )->getAccelerationComponents( );
+            }
+            catch( ... ){ }
             if( comparisonAccelerations != currentTimeInvariantEmpiricalAccelerations )
             {
                 std::cerr << "Warning when initializing arc-wise empirical acceleration parameter, list of input acceleration models do "

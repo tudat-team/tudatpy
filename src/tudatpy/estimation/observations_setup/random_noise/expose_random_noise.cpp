@@ -118,7 +118,7 @@ void expose_random_noise( py::module& m )
  observation_simulation_settings_list : List[ :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` ]
      Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` objects.
 
- noise_function : Callable[ [float], numpy.ndarray[numpy.float64[m, 1]] ]
+ noise_function : Callable[ [astro.time_representation.Time], numpy.ndarray[numpy.float64[m, 1]] ]
      Function providing the observation noise factors as a function of observation time.
 
  Returns
@@ -154,7 +154,7 @@ void expose_random_noise( py::module& m )
  observation_simulation_settings_list : List[ :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` ]
      Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` objects.
 
- noise_function : Callable[ [float], numpy.ndarray[numpy.float64[m, 1]] ]
+ noise_function : Callable[ [astro.time_representation.Time], numpy.ndarray[numpy.float64[m, 1]] ]
      Function providing the observation noise factors as a function of observation time.
 
  observable_type : :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
@@ -195,7 +195,7 @@ void expose_random_noise( py::module& m )
  observation_simulation_settings : List[ :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` ]
      Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` objects.
 
- noise_function : Callable[ [float], numpy.ndarray[numpy.float64[m, 1]] ]
+ noise_function : Callable[ [astro.time_representation.Time], numpy.ndarray[numpy.float64[m, 1]] ]
      Function providing the observation noise factors as a function of observation time.
 
  observable_type : :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservableType`
