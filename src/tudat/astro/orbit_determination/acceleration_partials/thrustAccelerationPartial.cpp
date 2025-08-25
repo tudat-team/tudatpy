@@ -21,7 +21,7 @@ ThrustAccelerationPartial::ThrustAccelerationPartial(
         const std::string acceleratedBody,
         const std::map< std::pair< estimatable_parameters::EstimatebleParametersEnum, std::string >,
                         std::shared_ptr< observation_partials::RotationMatrixPartial > >& rotationMatrixPartials ):
-    AccelerationPartial( acceleratedBody, acceleratedBody, basic_astrodynamics::thrust_acceleration ),
+    AccelerationPartial( acceleratedBody, acceleratedBody, thrustAcceleration, basic_astrodynamics::thrust_acceleration ),
     thrustAcceleration_( thrustAcceleration ), rotationMatrixPartials_( rotationMatrixPartials ),
     isAccelerationDependentOnTranslationalState_( false )
 {
@@ -150,7 +150,7 @@ void ThrustAccelerationPartial::wrtNonTranslationalStateOfAdditionalBody( Eigen:
 MomentumWheelDesaturationPartial::MomentumWheelDesaturationPartial(
         const std::shared_ptr< propulsion::MomentumWheelDesaturationThrustAcceleration > thrustAcceleration,
         const std::string acceleratedBody ):
-    AccelerationPartial( acceleratedBody, acceleratedBody, basic_astrodynamics::momentum_wheel_desaturation_acceleration ),
+    AccelerationPartial( acceleratedBody, acceleratedBody, thrustAcceleration, basic_astrodynamics::momentum_wheel_desaturation_acceleration ),
     thrustAcceleration_( thrustAcceleration )
 { }
 

@@ -40,7 +40,7 @@ public:
             const std::shared_ptr< electromagnetism::IsotropicPointSourceRadiationPressureAcceleration > accelerationModel,
             const std::string& acceleratedBody,
             const std::string& acceleratingBody ):
-        AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::cannon_ball_radiation_pressure ),
+        AccelerationPartial( acceleratedBody, acceleratingBody, accelerationModel, basic_astrodynamics::cannon_ball_radiation_pressure ),
         sourceBodyState_( accelerationModel->getSourcePositionFunction( ) ),
         acceleratedBodyState_( accelerationModel->getTargetPositionFunction( ) ),
         areaFunction_( std::bind( &electromagnetism::CannonballRadiationPressureTargetModel::getArea, cannonballTargetModel ) ),

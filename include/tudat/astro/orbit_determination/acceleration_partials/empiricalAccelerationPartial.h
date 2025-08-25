@@ -47,7 +47,7 @@ public:
     EmpiricalAccelerationPartial( std::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > empiricalAcceleration,
                                   std::string acceleratedBody,
                                   std::string acceleratingBody ):
-        AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::empirical_acceleration ),
+        AccelerationPartial( acceleratedBody, acceleratingBody, empiricalAcceleration, basic_astrodynamics::empirical_acceleration ),
         empiricalAcceleration_( empiricalAcceleration )
     {
         cartesianStateElementPerturbations << 0.1, 0.1, 0.1, 0.001, 0.001, 0.001;
