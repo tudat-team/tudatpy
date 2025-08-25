@@ -56,10 +56,23 @@ public:
      */
     AccelerationPartial( const std::string& acceleratedBody,
                          const std::string& acceleratingBody,
+                         const std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel,
                          const basic_astrodynamics::AvailableAcceleration accelerationType ):
         StateDerivativePartial( propagators::translational_state, std::make_pair( acceleratedBody, "" ) ),
-        acceleratedBody_( acceleratedBody ), acceleratingBody_( acceleratingBody ), accelerationType_( accelerationType )
-    { }
+        acceleratedBody_( acceleratedBody ), acceleratingBody_( acceleratingBody ),
+        accelerationModel_( accelerationModel ),
+        accelerationType_( accelerationType )
+    {
+        if( accelerationModel_ != nullptr )
+        {
+            if( accelerationType_ != basic_astrodynamics::getAccelerationModelType( accelerationModel_ ) )
+            {
+                throw std::runtime_error( "Error when creating acceleration model partia, type is not consistent " +
+                                          std::to_string( accelerationType_ ) + ", " +
+                                          std::to_string( basic_astrodynamics::getAccelerationModelType( accelerationModel_ )  )  );
+            }
+        }
+    }
 
     //! Virtual destructor.
     virtual ~AccelerationPartial( ) { }
@@ -216,6 +229,34 @@ public:
                 break;
         }
         return isDependent;
+    }
+
+    virtual std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionAccelerationBase(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+    {
+        std::function< void( Eigen::MatrixXd& ) > partialFunction;
+        int numberOfColumns = 0;
+        if( parameter->getParameterName( ).second.first == acceleratedBody_ )
+        {
+            switch( parameter->getParameterName( ).first )
+            {
+                case estimatable_parameters::full_acceleration_scaling_factor:
+                {
+                    if( ( parameter->getParameterName( ).second.first == acceleratingBody_ ) ||
+                        ( parameter->getParameterName( ).second.second == "" ) )
+                    {
+                        partialFunction = std::bind(
+                                &AccelerationPartial::computeAccelerationPartialWrtAccelerationScalingFactor, this, std::placeholders::_1 );
+                        numberOfColumns = 1;
+                        break;
+                    }
+                }
+                default:
+                    break;
+            }
+        }
+
+        return std::make_pair( partialFunction, numberOfColumns );
     }
 
     //! Pure virtual function for calculating the partial of the acceleration w.r.t. the position of the accelerated body.
@@ -416,11 +457,19 @@ public:
     }
 
 protected:
+
+    void computeAccelerationPartialWrtAccelerationScalingFactor( Eigen::MatrixXd& accelerationPartial )
+    {
+        accelerationPartial = accelerationModel_->getUnscaledAccelerationReference( );
+    }
+
     //! Name of the body undergoing acceleration.
     std::string acceleratedBody_;
 
     //! Name of the body exerting acceleration.
     std::string acceleratingBody_;
+
+    const std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel_;
 
     //! Type of acceleration w.r.t. which partial is taken..
     basic_astrodynamics::AvailableAcceleration accelerationType_;

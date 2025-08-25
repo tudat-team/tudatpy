@@ -28,7 +28,7 @@ public:
             const std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > panelledTargetModel,
             const std::string& acceleratedBody,
             const std::string& acceleratingBody ):
-        AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::radiation_pressure ),
+        AccelerationPartial( acceleratedBody, acceleratingBody, radiationPressureAcceleration, basic_astrodynamics::radiation_pressure ),
         radiationPressureAcceleration_( radiationPressureAcceleration ), panelledTargetModel_( panelledTargetModel ),
         numberOfBodyFixedPanels_( panelledTargetModel_->getBodyFixedPanels( ).size( ) )
     {

@@ -29,7 +29,7 @@ SphericalHarmonicsGravityPartial::SphericalHarmonicsGravityPartial(
         const std::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > accelerationModel,
         const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials,
         const std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >& tidalLoveNumberPartialInterfaces ):
-    AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::spherical_harmonic_gravity ),
+    AccelerationPartial( acceleratedBody, acceleratingBody, accelerationModel, basic_astrodynamics::spherical_harmonic_gravity ),
     accelerationModel_( accelerationModel ), sphericalHarmonicCache_( accelerationModel->getSphericalHarmonicsCache( ) ),
     rotationMatrixPartials_( rotationMatrixPartials ), tidalLoveNumberPartialInterfaces_( tidalLoveNumberPartialInterfaces ),
     cosineSphericalHarmonicsBlock( accelerationModel->getCurrentCosineCoefficients( ) ),

@@ -30,7 +30,7 @@ public:
                                const std::shared_ptr< basic_astrodynamics::CustomAccelerationModel > customAcceleration,
                                const std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculatorSet >
                                        customAccelerationPartialSet = nullptr ):
-        AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::custom_acceleration ),
+        AccelerationPartial( acceleratedBody, acceleratingBody, customAcceleration, basic_astrodynamics::custom_acceleration ),
         customAcceleration_( customAcceleration ), customAccelerationPartialSet_( customAccelerationPartialSet )
     {
         currentPartialWrtUndergoingState_.setZero( );

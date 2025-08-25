@@ -49,7 +49,7 @@ public:
                                     const std::function< void( const Eigen::Vector6d& ) > vehicleStateSetFunction,
                                     const std::string acceleratedBody,
                                     const std::string acceleratingBody ):
-        AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::aerodynamic ),
+        AccelerationPartial( acceleratedBody, acceleratingBody, aerodynamicAcceleration, basic_astrodynamics::aerodynamic ),
         aerodynamicAcceleration_( aerodynamicAcceleration ), flightConditions_( flightConditions ),
         vehicleStateGetFunction_( vehicleStateGetFunction ), vehicleStateSetFunction_( vehicleStateSetFunction )
     {

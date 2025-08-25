@@ -99,9 +99,11 @@ public:
                              const std::shared_ptr< DirectGravityPartial > partialOfDirectGravityOnCentralBody,
                              const std::string& acceleratedBody,
                              const std::string& acceleratingBody,
+                             const std::shared_ptr< basic_astrodynamics::AccelerationModel3d > thirdBodyAccelerationModel,
                              const std::string& centralBodyName ):
         AccelerationPartial( acceleratedBody,
                              acceleratingBody,
+                             thirdBodyAccelerationModel,
                              getAccelerationTypeOfThirdBodyGravity( partialOfDirectGravityOnBodyUndergoingAcceleration ) ),
         partialOfDirectGravityOnBodyUndergoingAcceleration_( partialOfDirectGravityOnBodyUndergoingAcceleration ),
         partialOfDirectGravityOnCentralBody_( partialOfDirectGravityOnCentralBody ), centralBodyName_( centralBodyName )
