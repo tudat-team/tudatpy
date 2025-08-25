@@ -73,6 +73,9 @@ void expose_estimated_parameter_setup( py::module& m )
             .value("yarkovsky_parameter_type", tep::EstimatebleParametersEnum::yarkovsky_parameter )
             .value("rtg_force_vector_type", tep::EstimatebleParametersEnum::rtg_force_vector )
             .value("rtg_force_magnitude_type", tep::EstimatebleParametersEnum::rtg_force_vector_magnitude )
+            .value("drag_component_scaling_type", tep::EstimatebleParametersEnum::drag_component_scaling_factor )
+            .value("side_component_scaling_type", tep::EstimatebleParametersEnum::side_component_scaling_factor )
+            .value("lift_component_scaling_type", tep::EstimatebleParametersEnum::lift_component_scaling_factor )
             .value( "ground_station_position_type",
                     tep::EstimatebleParametersEnum::ground_station_position )
             .value( "equivalence_principle_lpi_violation_parameter_"
