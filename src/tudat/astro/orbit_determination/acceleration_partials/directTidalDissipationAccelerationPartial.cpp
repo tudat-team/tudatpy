@@ -103,7 +103,8 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > DirectTidalDissipati
         std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 
 {
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair;
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair =
+            std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
 
     // Check dependencies.
     if( parameter->getParameterName( ).first == estimatable_parameters::gravitational_parameter )
@@ -209,11 +210,15 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > DirectTidalDissipati
             }
         }
     }
-    else
+    if( partialFunctionPair.second == 0 )
     {
-        partialFunctionPair = std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
+        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > basePartialFunctionPair =
+            this->getParameterPartialFunctionAccelerationBase( parameter );
+        if( basePartialFunctionPair.second != 0 )
+        {
+            partialFunctionPair = basePartialFunctionPair;
+        }
     }
-
     return partialFunctionPair;
 }
 

@@ -21,7 +21,7 @@ RadiationPressureAccelerationPartial::RadiationPressureAccelerationPartial(
         const std::string acceleratingBody,
         const std::shared_ptr< electromagnetism::PaneledSourceRadiationPressureAcceleration > radiationPressureAcceleration,
         const std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculatorSet > customAccelerationPartialSet ):
-    AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::custom_acceleration ),
+    AccelerationPartial( acceleratedBody, acceleratingBody, radiationPressureAcceleration, basic_astrodynamics::custom_acceleration ),
     radiationPressureAcceleration_( radiationPressureAcceleration ), customAccelerationPartialSet_( customAccelerationPartialSet )
 {
     currentPartialWrtUndergoingState_.setZero( );

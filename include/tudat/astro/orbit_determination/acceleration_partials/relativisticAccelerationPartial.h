@@ -105,7 +105,7 @@ public:
     RelativisticAccelerationPartial( const std::shared_ptr< relativity::RelativisticAccelerationCorrection > accelerationModel,
                                      const std::string& acceleratedBody,
                                      const std::string& acceleratingBody ):
-        AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::relativistic_correction_acceleration )
+        AccelerationPartial( acceleratedBody, acceleratingBody, accelerationModel, basic_astrodynamics::relativistic_correction_acceleration )
     {
         // Only Schwarzschild correction is implemented so far.
         if( accelerationModel->getCalculateDeSitterCorrection( ) || accelerationModel->getCalculateLenseThirringCorrection( ) )
