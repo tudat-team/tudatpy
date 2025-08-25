@@ -8,14 +8,6 @@ establishing a platform to provide quality education in the field of
 astrodynamics.
 
 
-
-
-
-
-
-
-
-
 .. toctree::
    :maxdepth: 2
    :caption: Modules
