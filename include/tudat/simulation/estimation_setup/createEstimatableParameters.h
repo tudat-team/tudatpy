@@ -1053,6 +1053,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                 doubleParameterToEstimate = std::make_shared< AreaToMassScalingFactor >(
                         associatedAccelerationModels,
                         currentBodyName );
+                break;
             }
             case drag_component_scaling_factor:
             case side_component_scaling_factor:
