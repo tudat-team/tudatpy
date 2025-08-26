@@ -192,6 +192,12 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case lift_component_scaling_factor:
             parameterDescription = "lift component scaling factor ";
             break;
+        case rtg_force_vector:
+            parameterDescription = "force vector from anisotropic RTG radiation in body-fixed frame ";
+            break;
+        case rtg_force_vector_magnitude:
+            parameterDescription = "magnitude of force vector from anisotropic RTG radiation ";
+        break;
         default:
             std::string errorMessage =
                     "Error when getting parameter string, did not recognize parameter " + std::to_string( parameterType );
@@ -393,6 +399,12 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         case lift_component_scaling_factor:
             isDoubleParameter = true;
             break;
+        case rtg_force_vector:
+            isDoubleParameter = false;
+            break;
+        case rtg_force_vector_magnitude:
+            isDoubleParameter = true;
+        break;
         default:
             throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
                                       " not found when getting parameter type" );
