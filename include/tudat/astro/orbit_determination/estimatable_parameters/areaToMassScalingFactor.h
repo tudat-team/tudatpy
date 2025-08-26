@@ -52,6 +52,7 @@ public:
                         "Error when retrieving area to mass scaling factor value from parameters, scaling factors of constituent acceleration models is not consistent" );
             }
         }
+        return currentScalingFactor;
     }
 
     void setParameterValue( double parameterValue )
@@ -67,6 +68,10 @@ public:
         return 1;
     }
 
+    std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAccelerationModels( )
+    {
+        return accelerationModels_;
+    }
 protected:
     std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > accelerationModels_;
 };
