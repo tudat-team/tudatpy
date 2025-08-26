@@ -154,16 +154,6 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > AerodynamicAccelerat
         }
     }
 
-    if( numberOfColumns == 0 )
-    {
-        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > basePartialFunctionPair =
-                this->getParameterPartialFunctionAccelerationBase( parameter );
-        if( basePartialFunctionPair.second != 0 )
-        {
-            partialFunction = basePartialFunctionPair.first;
-            numberOfColumns = basePartialFunctionPair.second;
-        }
-    }
 
     return std::make_pair( partialFunction, numberOfColumns );
 }

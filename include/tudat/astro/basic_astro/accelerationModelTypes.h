@@ -64,9 +64,9 @@ enum AvailableAcceleration {
     empirical_acceleration,
     direct_tidal_dissipation_in_central_body_acceleration,
     direct_tidal_dissipation_in_orbiting_body_acceleration,
-    radiation_pressure,
+    radiation_pressure = 18,
     momentum_wheel_desaturation_acceleration,
-    custom_acceleration,
+    custom_acceleration = 20,
     einstein_infeld_hoffmann_acceleration,
     yarkovsky_acceleration,
     rtg_acceleration
