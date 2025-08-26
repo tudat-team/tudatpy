@@ -15,6 +15,7 @@
 #include "tudat/astro/basic_astro/accelerationModel.h"
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/areaToMassScalingFactor.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialRotationalState.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialMassState.h"
@@ -294,6 +295,40 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                             accelerationModelList.push_back( accelerationModelListToCheck[ i ] );
                         }
                     }
+                }
+            }
+            break;
+        }
+        case area_to_mass_scaling_factor: {
+            if( parameterSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected area to mass scaling factor parameter object." );
+            }
+            else
+            {
+                if( accelerationModelMap.count( parameterSettings->parameterType_.second.first ) != 0 )
+                {
+                    // Retrieve acceleration model.
+                    basic_astrodynamics::SingleBodyAccelerationMap accelerationModelListToCheck =
+                            accelerationModelMap.at( parameterSettings->parameterType_.second.first );
+
+                    for( const auto& it: accelerationModelListToCheck )
+                    {
+                        for( const auto& accelerationModel: it.second )
+                        {
+                            if( isAccelerationModelTypeAreaToMassRatioDependent(
+                                        basic_astrodynamics::getAccelerationModelType( accelerationModel ) ) )
+                            {
+                                accelerationModelList.push_back( accelerationModel );
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    throw std::runtime_error( "Error, trying to setup aerodynamic scaling coefficient for body " +
+                                              parameterSettings->parameterType_.second.first +
+                                              " but no aerodynamic acceleration is defined." );
                 }
             }
             break;
@@ -1010,6 +1045,15 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                 }
                 break;
             }
+            case area_to_mass_scaling_factor:
+            {
+                std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
+                        getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings,
+                                                                                                               doubleParameterName );
+                doubleParameterToEstimate = std::make_shared< AreaToMassScalingFactor >(
+                        associatedAccelerationModels,
+                        currentBodyName );
+            }
             case drag_component_scaling_factor:
             case side_component_scaling_factor:
             case lift_component_scaling_factor: {
@@ -1216,19 +1260,6 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
               throw std::runtime_error(
                       "Error when creating rtg_force_vector_magnitude parameter, no propagatorSettings provided." );
             }
-
-
-            /*// Check input consistency --> redundant, no dynamic casting to be done, since rtg force vector settings object is of base class EstimatableParameterSettings type
-            std::shared_ptr< EstimatableParameterSettings > rtgAccelerationSettings =
-                    std::dynamic_pointer_cast< EstimatableParameterSettings >( vectorParameterName );
-            if( empiricalAccelerationSettings == nullptr )
-            {
-                throw std::runtime_error(
-                        "Error when trying to make constant empirical acceleration coefficients parameter, settings type "
-                        "inconsistent" );
-            }
-            else
-            {*/
 
             std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
                     getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings,

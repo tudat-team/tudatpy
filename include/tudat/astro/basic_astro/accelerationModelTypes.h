@@ -98,6 +98,10 @@ enum AvailableMassRateModels { undefined_mass_rate_model, custom_mass_rate_model
 AvailableAcceleration getAccelerationModelType(
         const std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > accelerationModel );
 
+bool isAccelerationModelTypeAreaToMassRatioDependent( const AvailableAcceleration modelType );
+
+
+
 // Function to identify the type of a mass rate model.
 /*
  *  Function to identify the type of a mass rate model. The type must be defined

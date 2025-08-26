@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_AERODYNAMICSCALINGCOEFFICIENT_H
-#define TUDAT_AERODYNAMICSCALINGCOEFFICIENT_H
+#ifndef TUDAT_AREATOMASSSCALINGFACTOR_H
+#define TUDAT_AREATOMASSSCALINGFACTOR_H
 
 #include "tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h"
 
@@ -24,17 +24,18 @@ class AreaToMassScalingFactor : public EstimatableParameter< double >
 public:
     AreaToMassScalingFactor( const std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > accelerationModels,
                              const std::string& associatedBody ):
-        EstimatableParameter< double >( area_to_mass_scaling_factor, associatedBody ),
-        accelerationModels_( accelerationModels )
+        EstimatableParameter< double >( area_to_mass_scaling_factor, associatedBody ), accelerationModels_( accelerationModels )
     {
         double currentScalingFactor = accelerationModels_.at( 0 )->getAccelerationScalingFactor( );
         for( unsigned int i = 1; i < accelerationModels_.size( ); i++ )
         {
-           if( accelerationModels_.at( i )->getAccelerationScalingFactor( ) != currentScalingFactor )
-           {
-                std::cerr<<"Warning when creating area to mass scaling factor, scaling factors of constituent acceleration models are not initialized to the same value, setting all values to " + std::to_string( currentScalingFactor )<<std::endl;
+            if( accelerationModels_.at( i )->getAccelerationScalingFactor( ) != currentScalingFactor )
+            {
+                std::cerr << "Warning when creating area to mass scaling factor, scaling factors of constituent acceleration models are not initialized to the same value, setting all values to " +
+                                std::to_string( currentScalingFactor )
+                          << std::endl;
                 accelerationModels_.at( i )->setAccelerationScalingFactor( currentScalingFactor );
-           }
+            }
         }
     }
 
@@ -47,7 +48,8 @@ public:
         {
             if( accelerationModels_.at( i )->getAccelerationScalingFactor( ) != currentScalingFactor )
             {
-                throw std::runtime_error(  "Error when retrieving area to mass scaling factor value from parameters, scaling factors of constituent acceleration models is not consistent" );
+                throw std::runtime_error(
+                        "Error when retrieving area to mass scaling factor value from parameters, scaling factors of constituent acceleration models is not consistent" );
             }
         }
     }
@@ -67,10 +69,10 @@ public:
 
 protected:
     std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > accelerationModels_;
-
+};
 
 }  // namespace estimatable_parameters
 
 }  // namespace tudat
 
-#endif  // TUDAT_AERODYNAMICSCALINGCOEFFICIENT_H
+#endif  // TUDAT_AREATOMASSSCALINGFACTOR_H
