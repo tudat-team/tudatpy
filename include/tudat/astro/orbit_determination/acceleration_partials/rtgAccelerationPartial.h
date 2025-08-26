@@ -50,7 +50,7 @@ public:
     RTGAccelerationPartial( std::shared_ptr< system_models::RTGAccelerationModel > rtgAcceleration,
                                   std::string acceleratedBody,
                                   std::string acceleratingBody ):
-        AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::rtg_acceleration ),
+        AccelerationPartial( acceleratedBody, acceleratingBody, rtgAcceleration, basic_astrodynamics::rtg_acceleration ),
         rtgAcceleration_( rtgAcceleration )    // pos/vel partials declared to be const
     {
 
