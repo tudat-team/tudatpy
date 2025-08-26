@@ -131,7 +131,6 @@ public:
     {
         // Initialize partial
         Eigen::MatrixXd partial = Eigen::MatrixXd::Zero( accelerationSize_, parameter->getParameterSize( ) );
-
         // Get partial computation function.
         std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunction = getParameterPartialFunction( parameter );
 
