@@ -65,9 +65,11 @@ public:
     {
         if( accelerationModel_ != nullptr )
         {
-            if( accelerationType_ != basic_astrodynamics::getAccelerationModelType( accelerationModel_ ) )
+            if( accelerationType_ != basic_astrodynamics::getAccelerationModelType( accelerationModel_ ) &&
+                !( ( accelerationType_ == basic_astrodynamics::cannon_ball_radiation_pressure ) &&
+                   ( basic_astrodynamics::getAccelerationModelType( accelerationModel_ ) == basic_astrodynamics::radiation_pressure ) ) )
             {
-                throw std::runtime_error( "Error when creating acceleration model partia, type is not consistent " +
+                throw std::runtime_error( "Error when creating acceleration model partial, type is not consistent " +
                                           std::to_string( accelerationType_ ) + ", " +
                                           std::to_string( basic_astrodynamics::getAccelerationModelType( accelerationModel_ )  )  );
             }
@@ -231,33 +233,33 @@ public:
         return isDependent;
     }
 
-    virtual std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionAccelerationBase(
-            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
-    {
-        std::function< void( Eigen::MatrixXd& ) > partialFunction;
-        int numberOfColumns = 0;
-        if( parameter->getParameterName( ).second.first == acceleratedBody_ )
-        {
-            switch( parameter->getParameterName( ).first )
-            {
-                case estimatable_parameters::full_acceleration_scaling_factor:
-                {
-                    if( ( parameter->getParameterName( ).second.first == acceleratingBody_ ) ||
-                        ( parameter->getParameterName( ).second.second == "" ) )
-                    {
-                        partialFunction = std::bind(
-                                &AccelerationPartial::computeAccelerationPartialWrtAccelerationScalingFactor, this, std::placeholders::_1 );
-                        numberOfColumns = 1;
-                        break;
-                    }
-                }
-                default:
-                    break;
-            }
-        }
-
-        return std::make_pair( partialFunction, numberOfColumns );
-    }
+//    virtual std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionAccelerationBase(
+//            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+//    {
+//        std::function< void( Eigen::MatrixXd& ) > partialFunction;
+//        int numberOfColumns = 0;
+//        if( parameter->getParameterName( ).second.first == acceleratedBody_ )
+//        {
+//            switch( parameter->getParameterName( ).first )
+//            {
+//                case estimatable_parameters::full_acceleration_scaling_factor:
+//                {
+//                    if( ( parameter->getParameterName( ).second.first == acceleratingBody_ ) ||
+//                        ( parameter->getParameterName( ).second.second == "" ) )
+//                    {
+//                        partialFunction = std::bind(
+//                                &AccelerationPartial::computeAccelerationPartialWrtAccelerationScalingFactor, this, std::placeholders::_1 );
+//                        numberOfColumns = 1;
+//                        break;
+//                    }
+//                }
+//                default:
+//                    break;
+//            }
+//        }
+//
+//        return std::make_pair( partialFunction, numberOfColumns );
+//    }
 
     //! Pure virtual function for calculating the partial of the acceleration w.r.t. the position of the accelerated body.
     /*!
