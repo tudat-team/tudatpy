@@ -77,7 +77,7 @@ CentralGravitationPartial::CentralGravitationPartial(
 }
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
-std::pair< std::function< void( Eigen::MatrixXd& ) >, int > CentralGravitationPartial::getParameterPartialFunction(
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > CentralGravitationPartial::getParameterPartialFunctionDerivedAcceleration(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 
 {
