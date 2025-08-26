@@ -83,6 +83,9 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
         case yarkovsky_acceleration:
             accelerationName = "yarkovsky acceleration";
             break;
+        case rtg_acceleration:
+            accelerationName = "rtg anisotropic radiation acceleration";
+        break;
         case custom_acceleration:
             accelerationName = "custom acceleration";
             break;
@@ -194,6 +197,10 @@ AvailableAcceleration getAccelerationModelType(
     else if( std::dynamic_pointer_cast< relativity::EinsteinInfeldHoffmannAcceleration >( accelerationModel ) != nullptr )
     {
         accelerationType = einstein_infeld_hoffmann_acceleration;
+    }
+    else if( std::dynamic_pointer_cast< system_models::RTGAccelerationModel >( accelerationModel ) != nullptr )
+    {
+        accelerationType = rtg_acceleration;
     }
 
     else
