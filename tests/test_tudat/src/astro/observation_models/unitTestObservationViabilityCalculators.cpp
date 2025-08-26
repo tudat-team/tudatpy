@@ -1196,11 +1196,19 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
                         }
                     }
 
-                    BOOST_CHECK_EQUAL( currentObservationIsViable, currentObservationWasViable );
-
-                    if( currentObservationIsViable != currentObservationWasViable )
+                    // Define tolerance for ambiguous cases near zero
+                    double tol = 10.0 * std::numeric_limits<double>::epsilon() * rotatedSpacecraft.norm();
+                    // Skip ambiguous region near 0
+                    if( std::fabs( rotatedSpacecraft( 0 ) ) > tol )
                     {
-                        std::cout << currentObservable << " " << getLinkEndsString( currentLinkEnds ) << std::endl;
+                        BOOST_CHECK_EQUAL( currentObservationIsViable, currentObservationWasViable );
+
+                        if( currentObservationIsViable != currentObservationWasViable )
+                        {
+                            std::cout << currentObservable << " " << getLinkEndsString( currentLinkEnds ) << std::endl;
+                            // Just for debugging purposes, print the value in case it still gets boost-checked
+                            std::cout << "rotatedSpacecraft(0) value:" << rotatedSpacecraft( 0 ) << std::endl;
+                        }
                     }
                     if( currentObservationWasViable )
                     {
