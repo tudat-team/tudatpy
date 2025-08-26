@@ -23,9 +23,8 @@ class AreaToMassScalingFactor : public EstimatableParameter< double >
 {
 public:
     AreaToMassScalingFactor( const std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > accelerationModels,
-                             const EstimatebleParametersEnum parameterType,
                              const std::string& associatedBody ):
-        EstimatableParameter< double >( parameterType, associatedBody ),
+        EstimatableParameter< double >( area_to_mass_scaling_factor, associatedBody ),
         accelerationModels_( accelerationModels )
     {
         double currentScalingFactor = accelerationModels_.at( 0 )->getAccelerationScalingFactor( );

@@ -210,15 +210,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > DirectTidalDissipati
             }
         }
     }
-    if( partialFunctionPair.second == 0 )
-    {
-        std::pair< std::function< void( Eigen::MatrixXd& ) >, int > basePartialFunctionPair =
-            this->getParameterPartialFunctionAccelerationBase( parameter );
-        if( basePartialFunctionPair.second != 0 )
-        {
-            partialFunctionPair = basePartialFunctionPair;
-        }
-    }
+
     return partialFunctionPair;
 }
 
