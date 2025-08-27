@@ -47,9 +47,6 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > YarkovskyAcceleratio
 {
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair;
 
-    std::cout << parameter->getParameterName( ).first << std::endl;
-    std::cout << estimatable_parameters::yarkovsky_parameter << std::endl;
-
     // Check dependencies.
     if( parameter->getParameterName( ).first == estimatable_parameters::yarkovsky_parameter &&
         parameter->getParameterName( ).second.first == this->getAcceleratedBody( ) )

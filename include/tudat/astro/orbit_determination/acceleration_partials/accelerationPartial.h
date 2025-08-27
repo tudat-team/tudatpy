@@ -288,6 +288,7 @@ public:
     {
         std::function< void( Eigen::MatrixXd& ) > partialFunction;
         int numberOfColumns = 0;
+
         if( parameter->getParameterName( ).second.first == acceleratedBody_ )
         {
             switch( parameter->getParameterName( ).first )
@@ -317,6 +318,27 @@ public:
                         partialFunction = std::bind(
                                 &AccelerationPartial::computeAccelerationPartialWrtAccelerationScalingFactor, this, std::placeholders::_1 );
                         numberOfColumns = 1;
+                    }
+                    break;
+                }
+                case estimatable_parameters::full_acceleration_scaling_factor:
+                {
+                    if( parameter->getParameterName( ).second.second == acceleratingBody_  )
+                    {
+                        std::shared_ptr< estimatable_parameters::FullAccelerationScalingFactorParameter > accelerationScalingParameter =
+                                std::dynamic_pointer_cast< estimatable_parameters::FullAccelerationScalingFactorParameter >( parameter );
+                        if( accelerationScalingParameter == nullptr )
+                        {
+                            throw std::runtime_error( "Error when creating acceleration scaling partial, parameter is inconsistent" );
+                        }
+
+                        if( accelerationModel_ == accelerationScalingParameter->getAccelerationModel( ) )
+                        {
+
+                            partialFunction = std::bind(
+                                    &AccelerationPartial::computeAccelerationPartialWrtAccelerationScalingFactor, this, std::placeholders::_1 );
+                            numberOfColumns = 1;
+                        }
                     }
                     break;
                 }
@@ -529,7 +551,7 @@ protected:
 
     void computeAccelerationPartialWrtAccelerationScalingFactor( Eigen::MatrixXd& accelerationPartial )
     {
-        accelerationPartial = accelerationModel_->getUnscaledAccelerationReference( );
+        accelerationPartial = accelerationModel_->getUnscaledAcceleration( );
     }
 
     //! Name of the body undergoing acceleration.

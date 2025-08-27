@@ -1105,6 +1105,20 @@ public:
     std::vector< double > librationAngularFrequencies_;
 };
 
+class FullAccelerationScalingFactorParameterSettings : public EstimatableParameterSettings
+{
+public:
+    FullAccelerationScalingFactorParameterSettings( const std::string& bodyUndergoingAcceleration,
+                                                const std::string& bodyExertingAcceleration,
+                                                const basic_astrodynamics::AvailableAcceleration accelerationType ):
+        EstimatableParameterSettings( bodyUndergoingAcceleration, full_acceleration_scaling_factor,bodyExertingAcceleration  ),
+        accelerationType_( accelerationType )
+    { }
+
+    basic_astrodynamics::AvailableAcceleration accelerationType_;
+};
+
+
 inline std::shared_ptr< EstimatableParameterSettings > gravitationalParameter( const std::string bodyName )
 {
     return std::make_shared< EstimatableParameterSettings >( bodyName, gravitational_parameter );
