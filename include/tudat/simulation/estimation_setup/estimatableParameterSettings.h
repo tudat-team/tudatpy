@@ -1129,6 +1129,21 @@ inline std::shared_ptr< EstimatableParameterSettings > constantDragCoefficient( 
     return std::make_shared< EstimatableParameterSettings >( bodyName, constant_drag_coefficient );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > fullAccelerationScaling(
+        const std::string& bodyUndergoingAcceleration, const std::string& bodyExertingAcceleration,
+        const basic_astrodynamics::AvailableAcceleration accelerationType )
+{
+    return std::make_shared< FullAccelerationScalingFactorParameterSettings >(
+            bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > areaToMassScaling(
+        const std::string& bodyUndergoingAcceleration )
+{
+    return std::make_shared< EstimatableParameterSettings >(
+            bodyUndergoingAcceleration, area_to_mass_scaling_factor );
+}
+
 inline std::shared_ptr< EstimatableParameterSettings > dragComponentScaling( const std::string bodyName )
 {
     return std::make_shared< EstimatableParameterSettings >( bodyName, drag_component_scaling_factor );
