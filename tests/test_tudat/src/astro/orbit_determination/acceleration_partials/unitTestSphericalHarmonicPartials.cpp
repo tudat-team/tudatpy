@@ -843,6 +843,10 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
         BOOST_CHECK_EQUAL( isExceptionCaught, true );
     }
 
+    std::shared_ptr< EstimatableParameter< double > > accelerationScalingParameter =
+            std::make_shared< FullAccelerationScalingFactorParameter >( gravitationalAcceleration, "Vehicle", "Earth" );
+
+
     // Create acceleration partial object.
     std::shared_ptr< SphericalHarmonicsGravityPartial > accelerationPartial = std::dynamic_pointer_cast< SphericalHarmonicsGravityPartial >(
             createAnalyticalAccelerationPartial( gravitationalAcceleration,
@@ -851,9 +855,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
                                                  bodies,
                                                  parameterSet ) );
 
-    std::cout << "Pre-update" << std::endl;
     accelerationPartial->update( testTime );
-    std::cout << "post-update" << std::endl;
 
     Eigen::MatrixXd partialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
     accelerationPartial->wrtPositionOfAcceleratedBody( partialWrtVehiclePosition.block( 0, 0, 3, 3 ) );
@@ -998,6 +1000,10 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
             Eigen::VectorXd::Constant( vectorParametersIterator->second->getParameterSize( ), 1.0E-2 ),
             sphericalHarmonicFieldUpdate );
 
+    Eigen::Vector3d partialWrtAccelerationScaling = accelerationPartial->wrtParameter( accelerationScalingParameter );
+    Eigen::Vector3d testPartialWrtAccelerationScaling =
+            calculateAccelerationWrtParameterPartials( accelerationScalingParameter, gravitationalAcceleration, 10.0 );
+
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehiclePosition, partialWrtVehiclePosition, 1.0E-6 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehicleVelocity, partialWrtVehicleVelocity, 1.0E-6 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthPosition, partialWrtEarthPosition, 1.0E-6 );
@@ -1035,6 +1041,9 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtPolynomialVariations, testPartialWrtPolynomialVariations, 1.0E-12 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtPeriodicVariations, testPartialWrtPeriodicVariations, 1.0E-12 );
+
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtAccelerationScaling, testPartialWrtAccelerationScaling, 1.0E-8 );
+
 }
 
 //! Unit test to check working onf spherical harmonic state partial for synchronously rotating body (and rotation depending on state)

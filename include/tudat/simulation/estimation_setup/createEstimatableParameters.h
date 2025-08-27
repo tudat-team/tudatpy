@@ -299,7 +299,8 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
             }
             break;
         }
-        case area_to_mass_scaling_factor: {
+        case area_to_mass_scaling_factor:
+        {
             if( parameterSettings == nullptr )
             {
                 throw std::runtime_error( "Error, expected area to mass scaling factor parameter object." );
@@ -324,11 +325,63 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                         }
                     }
                 }
-                else
+
+                if( accelerationModelList.size( ) == 0 )
                 {
-                    throw std::runtime_error( "Error, trying to setup aerodynamic scaling coefficient for body " +
+                    throw std::runtime_error( "Error, trying to setup area to mass scaling coefficient for body " +
                                               parameterSettings->parameterType_.second.first +
-                                              " but no aerodynamic acceleration is defined." );
+                                              " but no compatible accelerations is defined." );
+                }
+            }
+            break;
+        }
+        case full_acceleration_scaling_factor:
+        {
+            std::shared_ptr< FullAccelerationScalingFactorParameterSettings > accelerationScalingParameterSettings =
+                    std::dynamic_pointer_cast< FullAccelerationScalingFactorParameterSettings >( parameterSettings );
+            if( accelerationScalingParameterSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected acceleration scaling parameter object." );
+            }
+            else
+            {
+                std::shared_ptr< basic_astrodynamics::AccelerationModel3d > compatibleAccelerationModel = nullptr;
+                if( accelerationModelMap.count( parameterSettings->parameterType_.second.first ) != 0 )
+                {
+                    // Retrieve acceleration model.
+                    basic_astrodynamics::SingleBodyAccelerationMap accelerationModelListToCheck =
+                            accelerationModelMap.at( parameterSettings->parameterType_.second.first );
+
+                    if( accelerationModelListToCheck.count(parameterSettings->parameterType_.second.second ) != 0 )
+                    {
+                        for( const auto& accelerationModel: accelerationModelListToCheck.at(parameterSettings->parameterType_.second.second ) )
+                        {
+                            if( basic_astrodynamics::getAccelerationModelType( accelerationModel ) ==
+                                accelerationScalingParameterSettings->accelerationType_ )
+                            {
+                                if( compatibleAccelerationModel != nullptr )
+                                {
+                                    throw std::runtime_error( "Error, trying to setup acceleration scaling coefficient for body exerting: " +
+                                                              accelerationScalingParameterSettings->parameterType_.second.first +
+                                                              ", body undergoing: " + accelerationScalingParameterSettings->parameterType_.second.first +
+                                                              ", type " + basic_astrodynamics::getAccelerationModelName(
+                                                                                  accelerationScalingParameterSettings->accelerationType_ ) +
+                                                              " but multiple compatible acceleration is defined." );
+                                }
+
+                                compatibleAccelerationModel = accelerationModel;
+                            }
+                        }
+                    }
+                }
+                if( compatibleAccelerationModel == nullptr )
+                {
+                    throw std::runtime_error( "Error, trying to setup acceleration scaling coefficient for body exerting: " +
+                                              accelerationScalingParameterSettings->parameterType_.second.first +
+                                              ", body undergoing: " + accelerationScalingParameterSettings->parameterType_.second.first +
+                                              ", type " + basic_astrodynamics::getAccelerationModelName(
+                                                                  accelerationScalingParameterSettings->accelerationType_ ) +
+                                              " but no compatible acceleration is defined." );
                 }
             }
             break;
@@ -1053,6 +1106,29 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                 doubleParameterToEstimate = std::make_shared< AreaToMassScalingFactor >(
                         associatedAccelerationModels,
                         currentBodyName );
+                break;
+            }
+            case full_acceleration_scaling_factor:
+            {
+                std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
+                        getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings,
+                                                                                                               doubleParameterName );
+                std::shared_ptr< FullAccelerationScalingFactorParameterSettings > accelerationScalingParameterSettings =
+                    std::dynamic_pointer_cast< FullAccelerationScalingFactorParameterSettings >( doubleParameterName );
+                if( accelerationScalingParameterSettings )
+                {
+                    throw std::runtime_error( "Error when creating acceleration scaling parameter, parameter settings type is not compatible" );
+                }
+
+                if( associatedAccelerationModels.size( ) != 1 )
+                {
+                    throw std::runtime_error( "Error when creating acceleration scaling parameter, compatible acceleration models is not 1, but " +
+                                              std::to_string( associatedAccelerationModels.size( ) ) );
+                }
+                doubleParameterToEstimate = std::make_shared< FullAccelerationScalingFactorParameter >(
+                        associatedAccelerationModels.at( 0 ),
+                        doubleParameterName->parameterType_.second.first,
+                        doubleParameterName->parameterType_.second.second );
                 break;
             }
             case drag_component_scaling_factor:

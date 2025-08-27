@@ -341,13 +341,13 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
     {
         std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromDirectGravity =
-                partialOfDirectGravityOnBodyUndergoingAcceleration_->getParameterPartialFunction( parameter );
+                partialOfDirectGravityOnBodyUndergoingAcceleration_->getParameterPartialFunctionDerivedAcceleration( parameter );
         std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromCentralGravity =
-                partialOfDirectGravityOnCentralBody_->getParameterPartialFunction( parameter );
+                partialOfDirectGravityOnCentralBody_->getParameterPartialFunctionDerivedAcceleration( parameter );
 
         return orbit_determination::createMergedParameterPartialFunction( partialFunctionFromDirectGravity,
                                                                           partialFunctionFromCentralGravity );
@@ -360,13 +360,13 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
      */
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
     {
         std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromDirectGravity =
-                partialOfDirectGravityOnBodyUndergoingAcceleration_->getParameterPartialFunction( parameter );
+                partialOfDirectGravityOnBodyUndergoingAcceleration_->getParameterPartialFunctionDerivedAcceleration( parameter );
         std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromCentralGravity =
-                partialOfDirectGravityOnCentralBody_->getParameterPartialFunction( parameter );
+                partialOfDirectGravityOnCentralBody_->getParameterPartialFunctionDerivedAcceleration( parameter );
 
         return orbit_determination::createMergedParameterPartialFunction( partialFunctionFromDirectGravity,
                                                                           partialFunctionFromCentralGravity );
@@ -462,6 +462,7 @@ public:
      */
     void update( const double currentTime )
     {
+        accelerationModel_->updateMembers( currentTime );
         partialOfDirectGravityOnBodyUndergoingAcceleration_->update( currentTime );
         partialOfDirectGravityOnCentralBody_->update( currentTime );
 
