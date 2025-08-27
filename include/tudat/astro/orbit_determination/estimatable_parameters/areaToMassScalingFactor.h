@@ -76,6 +76,47 @@ protected:
     std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > accelerationModels_;
 };
 
+class FullAccelerationScalingFactorParameter : public EstimatableParameter< double >
+{
+public:
+    FullAccelerationScalingFactorParameter(
+            const std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel,
+            const std::string& bodyUndergoingAcceleration,
+            const std::string& bodyExertingAcceleration ):
+        EstimatableParameter< double >( full_acceleration_scaling_factor, bodyUndergoingAcceleration, bodyExertingAcceleration ),
+        accelerationModel_( accelerationModel )
+    {
+
+    }
+
+    ~FullAccelerationScalingFactorParameter( ) { }
+
+    double getParameterValue( )
+    {
+        return accelerationModel_->getAccelerationScalingFactor(  );
+
+    }
+
+    void setParameterValue( double parameterValue )
+    {
+        accelerationModel_->setAccelerationScalingFactor( parameterValue );
+    }
+
+    int getParameterSize( )
+    {
+        return 1;
+    }
+
+    std::shared_ptr< basic_astrodynamics::AccelerationModel3d > getAccelerationModel( )
+    {
+        return accelerationModel_;
+    }
+protected:
+    const std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel_;
+
+};
+
+
 }  // namespace estimatable_parameters
 
 }  // namespace tudat
