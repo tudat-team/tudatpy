@@ -337,6 +337,7 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
         }
         case full_acceleration_scaling_factor:
         {
+            std::cout<<"Finding for full acceleration"<<std::endl;
             std::shared_ptr< FullAccelerationScalingFactorParameterSettings > accelerationScalingParameterSettings =
                     std::dynamic_pointer_cast< FullAccelerationScalingFactorParameterSettings >( parameterSettings );
             if( accelerationScalingParameterSettings == nullptr )
@@ -346,11 +347,15 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
             else
             {
                 std::shared_ptr< basic_astrodynamics::AccelerationModel3d > compatibleAccelerationModel = nullptr;
+                std::cout<<parameterSettings->parameterType_.second.first<<" "<<accelerationModelMap.count( parameterSettings->parameterType_.second.first ) <<std::endl;
+
                 if( accelerationModelMap.count( parameterSettings->parameterType_.second.first ) != 0 )
                 {
                     // Retrieve acceleration model.
                     basic_astrodynamics::SingleBodyAccelerationMap accelerationModelListToCheck =
                             accelerationModelMap.at( parameterSettings->parameterType_.second.first );
+
+                    std::cout<<parameterSettings->parameterType_.second.second<<" "<<accelerationModelListToCheck.count(parameterSettings->parameterType_.second.second ) <<std::endl;
 
                     if( accelerationModelListToCheck.count(parameterSettings->parameterType_.second.second ) != 0 )
                     {
@@ -383,6 +388,7 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                                                                   accelerationScalingParameterSettings->accelerationType_ ) +
                                               " but no compatible acceleration is defined." );
                 }
+                accelerationModelList.push_back( compatibleAccelerationModel );
             }
             break;
         }
@@ -1115,7 +1121,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                                                                                                                doubleParameterName );
                 std::shared_ptr< FullAccelerationScalingFactorParameterSettings > accelerationScalingParameterSettings =
                     std::dynamic_pointer_cast< FullAccelerationScalingFactorParameterSettings >( doubleParameterName );
-                if( accelerationScalingParameterSettings )
+                if( accelerationScalingParameterSettings == nullptr )
                 {
                     throw std::runtime_error( "Error when creating acceleration scaling parameter, parameter settings type is not compatible" );
                 }
