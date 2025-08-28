@@ -28,7 +28,7 @@ public:
             const std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > panelledTargetModel,
             const std::string& acceleratedBody,
             const std::string& acceleratingBody ):
-        AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::radiation_pressure ),
+        AccelerationPartial( acceleratedBody, acceleratingBody, radiationPressureAcceleration, basic_astrodynamics::radiation_pressure ),
         radiationPressureAcceleration_( radiationPressureAcceleration ), panelledTargetModel_( panelledTargetModel ),
         numberOfBodyFixedPanels_( panelledTargetModel_->getBodyFixedPanels( ).size( ) )
     {
@@ -158,7 +158,7 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
     {
         std::function< void( Eigen::MatrixXd& ) > partialFunction;
@@ -223,7 +223,7 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
      */
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
     {
         std::function< void( Eigen::MatrixXd& ) > partialFunction;
