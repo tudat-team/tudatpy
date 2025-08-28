@@ -42,12 +42,11 @@ Eigen::Matrix< double, 1, 6 > calculateNumericalPartialOfTrueAnomalyWrtState( co
 class EmpiricalAccelerationPartial : public AccelerationPartial
 {
 public:
-    using AccelerationPartial::getParameterPartialFunction;
 
     EmpiricalAccelerationPartial( std::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > empiricalAcceleration,
                                   std::string acceleratedBody,
                                   std::string acceleratingBody ):
-        AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::empirical_acceleration ),
+        AccelerationPartial( acceleratedBody, acceleratingBody, empiricalAcceleration, basic_astrodynamics::empirical_acceleration ),
         empiricalAcceleration_( empiricalAcceleration )
     {
         cartesianStateElementPerturbations << 0.1, 0.1, 0.1, 0.001, 0.001, 0.001;
@@ -157,6 +156,14 @@ public:
         }
     }
 
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+    {
+        std::function< void( Eigen::MatrixXd& ) > partialFunction;
+        return std::make_pair( partialFunction, 0 );
+    }
+
+
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
     /*!
      *  Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
@@ -164,7 +171,7 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial
      */
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
 
     //! Function for updating common blocks of partial to current state.

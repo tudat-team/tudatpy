@@ -176,7 +176,7 @@ public:
      */
     EihAccelerationPartial( const std::shared_ptr< acceleration_partials::EihEquationsPartials > fulEihPartials,
                             const std::string acceleratedBody ):
-        AccelerationPartial( acceleratedBody, "", basic_astrodynamics::einstein_infeld_hoffmann_acceleration ),
+        AccelerationPartial( acceleratedBody, "", nullptr, basic_astrodynamics::einstein_infeld_hoffmann_acceleration ),
         fullEihPartials_( fulEihPartials )
     {
         std::vector< std::string > bodyList = fullEihPartials_->getEihEquations( )->getBodiesExertingAcceleration( );
@@ -281,7 +281,7 @@ public:
         return 0;
     }
 
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
     {
         std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair;
@@ -324,7 +324,7 @@ public:
         return partialFunctionPair;
     }
 
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
     {
         std::function< void( Eigen::MatrixXd& ) > partialFunction;
