@@ -76,7 +76,7 @@ Eigen::Matrix< double, 1, 6 > calculateNumericalPartialOfTrueAnomalyWrtState( co
 }
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
-std::pair< std::function< void( Eigen::MatrixXd& ) >, int > EmpiricalAccelerationPartial::getParameterPartialFunction(
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > EmpiricalAccelerationPartial::getParameterPartialFunctionDerivedAcceleration(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
     using namespace tudat::estimatable_parameters;

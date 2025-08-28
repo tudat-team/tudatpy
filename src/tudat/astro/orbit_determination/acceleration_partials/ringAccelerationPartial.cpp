@@ -21,7 +21,7 @@ RingGravityPartial::RingGravityPartial( const std::string& acceleratedBody,
                                         const std::string& acceleratingBody,
                                         const std::shared_ptr< gravitation::RingGravitationalAccelerationModel > accelerationModel,
                                         const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials ):
-    AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::ring_gravity ),
+    AccelerationPartial( acceleratedBody, acceleratingBody, accelerationModel, basic_astrodynamics::ring_gravity ),
     gravitationalParameterFunction_( accelerationModel->getGravitationalParameterFunction( ) ),
     ringRadiusFunction_( accelerationModel->getRingRadiusFunction( ) ), ringCache_( accelerationModel->getRingCache( ) ),
     positionFunctionOfAcceleratedBody_(
