@@ -232,9 +232,8 @@ void expose_time_representation( py::module& m )
                     throw std::runtime_error("Invalid state!");
 
                 /* Create a new C++ instance */
-                Time p(t[0].cast< int >(), t[1].cast< long double >() );
+                return Time(t[0].cast<int>(), t[1].cast<long double>());
 
-                return p;
             }
         ))
             .def( "to_float",
