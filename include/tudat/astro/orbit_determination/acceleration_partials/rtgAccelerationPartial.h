@@ -8,12 +8,17 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_YARKOVSKYACCELERATIONPARTIALS_H
-#define TUDAT_YARKOVSKYACCELERATIONPARTIALS_H
+#ifndef TUDAT_RTGACCELERATIONPARTIAL_H
+#define TUDAT_RTGACCELERATIONPARTIAL_H
 
-#include "tudat/astro/electromagnetism/yarkovskyAcceleration.h"
+#include <functional>
+#include <boost/lambda/lambda.hpp>
+#include <memory>
 
 #include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/rtgForceVector.h"
+#include "tudat/math/basic/linearAlgebra.h"
+#include "tudat/astro/system_models/rtgAccelerationModel.h"
 
 namespace tudat
 {
@@ -21,22 +26,40 @@ namespace tudat
 namespace acceleration_partials
 {
 
-Eigen::Matrix3d calculatePartialOfYarkovskyAccelerationWrtPositionOfAcceleratedBody( const Eigen::Vector6d& relativeState,
-                                                                                     const double yarkovskyParameter );
+//! Function determine the numerical partial derivative of the true anomaly wrt the elements of the Cartesian state
+/*!
+ *  unction determine the numerical partial derivative of the true anomaly wrt the elements of the Cartesian state,
+ *  from the Cartesian state as input.
+ *  A first-order central difference with a user-defined Cartesian state perturbation vector is used.
+ *  \param cartesianElements Nominal Cartesian elements at which the partials are to be computed
+ *  \param gravitationalParameter Gravitational parameter of central body around which Keplerian orbit is given
+ *  \param cartesianStateElementPerturbations Numerical perturbations of Cartesian state that are to be used
+ *  \return Partial of Cartesian state wrt true anomaly of orbit.
+ */
+/*
+Eigen::Matrix< double, 1, 6 > calculateNumericalPartialOfTrueAnomalyWrtState( const Eigen::Vector6d& cartesianElements,
+                                                                              const double gravitationalParameter,
+                                                                              const Eigen::Vector6d& cartesianStateElementPerturbations );
+*/
 
-Eigen::Matrix3d calculatePartialOfYarkovskyAccelerationWrtVelocityOfAcceleratedBody( const Eigen::Vector6d& relativeState,
-                                                                                     const double yarkovskyParameter );
-
-//! Class to calculate the partials of the yarkovsky acceleration w.r.t. parameters and states.
-class YarkovskyAccelerationPartial : public AccelerationPartial
+class RTGAccelerationPartial : public AccelerationPartial
 {
 public:
-    YarkovskyAccelerationPartial( const std::shared_ptr< electromagnetism::YarkovskyAcceleration > yarkovskyAcceleration,
-                                  const std::string acceleratedBody,
-                                  const std::string acceleratingBody ):
-        AccelerationPartial( acceleratedBody, acceleratingBody, yarkovskyAcceleration, basic_astrodynamics::yarkovsky_acceleration ),
-        yarkovskyAcceleration_( yarkovskyAcceleration )
-    { }
+
+    RTGAccelerationPartial( std::shared_ptr< system_models::RTGAccelerationModel > rtgAcceleration,
+                                  std::string acceleratedBody,
+                                  std::string acceleratingBody ):
+        AccelerationPartial( acceleratedBody, acceleratingBody, rtgAcceleration, basic_astrodynamics::rtg_acceleration ),
+        rtgAcceleration_( rtgAcceleration )    // pos/vel partials declared to be const
+    {
+
+      if (acceleratedBody != acceleratingBody)
+      {
+        throw std::runtime_error(
+                "Error when setting up parameter partial of rtg acceleration - body undergoing and excerting are not the same (but are required to be the same for given acceleration model)" );
+      }
+
+    }
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!
@@ -54,14 +77,6 @@ public:
                                        const int startRow = 0,
                                        const int startColumn = 0 )
     {
-        if( addContribution )
-        {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPartialWrtPosition_;
-        }
-        else
-        {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPartialWrtPosition_;
-        }
     }
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
@@ -80,14 +95,7 @@ public:
                                         const int startRow = 0,
                                         const int startColumn = 0 )
     {
-        if( addContribution )
-        {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPartialWrtPosition_;
-        }
-        else
-        {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPartialWrtPosition_;
-        }
+
     }
 
     //! Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration..
@@ -95,7 +103,7 @@ public:
      *  Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration
      *  and adding it to the existing partial block
      *  Update( ) function must have been called during current time step before calling this function.
-     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian velocity of body
+     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian position of body
      *  undergoing acceleration where current partial is to be added.
      *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
@@ -106,14 +114,7 @@ public:
                                        const int startRow = 0,
                                        const int startColumn = 0 )
     {
-        if( addContribution )
-        {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPartialWrtVelocity_;
-        }
-        else
-        {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPartialWrtVelocity_;
-        }
+
     }
 
     //! Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration..
@@ -121,7 +122,7 @@ public:
      *  Function for calculating the partial of the acceleration w.r.t. the velocity of body undergoing acceleration and
      *  adding it to the existing partial block.
      *  The update( ) function must have been called during current time step before calling this function.
-     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian velocity of body
+     *  \param partialMatrix Block of partial derivatives of acceleration w.r.t. Cartesian position of body
      *  exerting acceleration where current partial is to be added.
      *  \param addContribution Variable denoting whether to return the partial itself (true) or the negative partial (false).
      *  \param startRow First row in partialMatrix block where the computed partial is to be added.
@@ -132,96 +133,77 @@ public:
                                         const int startRow = 0,
                                         const int startColumn = 0 )
     {
-        if( addContribution )
-        {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) -= currentPartialWrtVelocity_;
-        }
-        else
-        {
-            partialMatrix.block( startRow, startColumn, 3, 3 ) += currentPartialWrtVelocity_;
-        }
-    }
 
-    //! Function for determining if the acceleration is dependent on a non-translational integrated state.
-    /*!
-     *  Function for determining if the acceleration is dependent on a non-translational integrated state.
-     *  No dependency is implemented, but a warning is provided if partial w.r.t. mass of body exerting acceleration
-     *  (and undergoing acceleration if mutual attraction is used) is requested.
-     *  \param stateReferencePoint Reference point id of propagated state
-     *  \param integratedStateType Type of propagated state for which dependency is to be determined.
-     *  \return True if dependency exists (non-zero partial), false otherwise.
-     */
-    bool isStateDerivativeDependentOnIntegratedAdditionalStateTypes( const std::pair< std::string, std::string >& stateReferencePoint,
-                                                                     const propagators::IntegratedStateType integratedStateType )
-    {
-        return 0;
     }
-
-    //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
-    /*!
-     *  Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
-     *  Function returns empty function and zero size indicator for parameters with no dependency for current acceleration.
-     *  \param parameter Parameter w.r.t. which partial is to be taken.
-     *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
-     */
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
-            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
     /*!
      *  Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
      *  Function returns empty function and zero size indicator for parameters with no dependency for current acceleration.
      *  \param parameter Parameter w.r.t. which partial is to be taken.
-     *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
+     *  \return Pair of parameter partial function and number of columns in partial
      */
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
-            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
-    {
-        std::function< void( Eigen::MatrixXd& ) > partialFunction;
-        return std::make_pair( partialFunction, 0 );
-    }
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
 
-    //! Function for updating partial w.r.t. the bodies' positions
+    //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
     /*!
-     *  Function for updating common blocks of partial to current state. For the central gravitational acceleration,
-     *  position partial is computed and set.
+     *  Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
+     *  Function returns empty function and zero size indicator for parameters with no dependency for current acceleration.
+     *  \param parameter Parameter w.r.t. which partial is to be taken.
+     *  \return Pair of parameter partial function and number of columns in partial
+     */
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
+
+
+    //! Function to compute the partial w.r.t. time-independent empirical acceleration components
+    /*!
+     * Function to compute the partial w.r.t. time-independent empirical acceleration components from list of components and
+     * functional shapes.
+     * \param numberOfAccelerationComponents Total number of empirical acceleration components w.r.t. which partials are to
+     * be computed.
+     * \param accelerationIndices Map denoting list of components of accelerations that are to be computed. Key: functional
+     * shape of empirical accelerations. Value: list of acceleration vaector entries that are to be used (0: radial (R),
+     * 1: along-track (S), 2: cross-track (W)).
+     * \param partialDerivativeMatrix Matrix of partial derivatives of accelerations w.r.t. empirical accelerations (returned
+     * by reference)
+     */
+     //void wrtEmpiricalAccelerationCoefficientFromIndices(
+     //       const int numberOfAccelerationComponents,
+     //       const std::map< basic_astrodynamics::EmpiricalAccelerationFunctionalShapes, std::vector< int > >& accelerationIndices,
+     //       Eigen::MatrixXd& partialDerivativeMatrix );
+
+
+
+    //! Function for updating common blocks of partial to current state.
+    /*!
+     *  Function for updating common blocks of partial to current state. Position and velocity partials are computed and set.
      *  \param currentTime Time at which partials are to be calculated
      */
-    void update( const double currentTime = TUDAT_NAN )
-    {
-        yarkovskyAcceleration_->updateMembers( currentTime );
+    void update( const double currentTime = TUDAT_NAN );
 
-        if( !( currentTime_ == currentTime ) )
-        {
-            currentPartialWrtPosition_ = calculatePartialOfYarkovskyAccelerationWrtPositionOfAcceleratedBody(
-                    yarkovskyAcceleration_->getCurrentState( ), yarkovskyAcceleration_->getYarkovskyParameter( ) );
-
-            currentPartialWrtVelocity_ = calculatePartialOfYarkovskyAccelerationWrtVelocityOfAcceleratedBody(
-                    yarkovskyAcceleration_->getCurrentState( ), yarkovskyAcceleration_->getYarkovskyParameter( ) );
-
-            currentTime_ = currentTime;
-        }
-    }
-
-protected:
-    //! Function to calculate central gravity partial w.r.t. central body gravitational parameter.
-    void wrtYarkovskyParameter( Eigen::MatrixXd& yarkovskyPartial );
-
-    const std::shared_ptr< electromagnetism::YarkovskyAcceleration > yarkovskyAcceleration_;
-
-    //! Current partial of central gravity acceleration w.r.t. position of body undergoing acceleration
+    //! Function to compute the partial w.r.t. arcwise empirical acceleration components
     /*!
-     *  Current partial of central gravity acceleration w.r.t. position of body undergoing acceleration
-     * ( = -partial of central gravity acceleration w.r.t. position of body exerting acceleration),
-     *  calculated and set by update( ) function.
+     * Function to compute the partial w.r.t. arcwise empirical acceleration components
+     * \param parameter Object defining the properties of the arcwise components that are to be estimated.
+     * \param partialDerivativeMatrix Matrix of partial derivatives of accelerations w.r.t. empirical accelerations (returned
+     * by reference)
      */
-    Eigen::Matrix3d currentPartialWrtPosition_;
+    void wrtRTGForceVector(Eigen::MatrixXd& partialDerivativeMatrix );
 
-    Eigen::Matrix3d currentPartialWrtVelocity_;
+    void wrtRTGForceVectorMagnitude(Eigen::MatrixXd& partialDerivativeMatrix );
+
+private:
+
+    //! Acceleration w.r.t. which partials are to be computed.
+    std::shared_ptr< system_models::RTGAccelerationModel > rtgAcceleration_;
+
+    //! Perturbations to use on Cartesian state elements when computing partial of true anomaly w.r.t. state.
+    Eigen::Matrix< double, 1, 6 > cartesianStateElementPerturbations;
 };
 
 }  // namespace acceleration_partials
-
 }  // namespace tudat
 
-#endif  // TUDAT_YARKOVSKYACCELERATIONPARTIALS_H
+#endif  // TUDAT_RTGACCELERATIONPARTIAL_H
