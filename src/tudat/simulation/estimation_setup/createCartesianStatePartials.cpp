@@ -330,6 +330,10 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                         break;
                     case estimatable_parameters::custom_estimated_parameter:
                         break;
+                    case estimatable_parameters::area_to_mass_scaling_factor:
+                        break;
+                    case estimatable_parameters::full_acceleration_scaling_factor:
+                        break;
                     default:
                         std::string errorMessage = "Parameter " + std::to_string( parameterToEstimate->getParameterName( ).first ) +
                                 " not implemented when making position partial";
