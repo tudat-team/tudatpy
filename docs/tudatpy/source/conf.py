@@ -175,7 +175,8 @@ todo_include_todos = True
 html_theme = "furo"
 html_theme_options = {
     "navigation_with_keys": True,
-    "announcement": "Have questions or feedback? See the <a href='https://docs.tudat.space/en/latest/index_user_guide.html'>User Guide</a> or let us know in our <a href='https://github.com/orgs/tudat-team/discussions?discussions_q='>Github Discussion forum</a>!",
+    "announcement": "TudatPy version 1.0 has been released 🥳 For more information, see our <a href='https://docs.tudat.space/en/latest/user-guide/project-updates/migration-guide.html'>migration guide</a>!",
+    # "announcement": "Have questions or feedback? See the <a href='https://docs.tudat.space/en/latest/index_user_guide.html'>User Guide</a> or let us know in our <a href='https://github.com/orgs/tudat-team/discussions?discussions_q='>Github Discussion forum</a>!",
 }
 
 # Theme options are theme-specific and customize the look and feel of a theme
