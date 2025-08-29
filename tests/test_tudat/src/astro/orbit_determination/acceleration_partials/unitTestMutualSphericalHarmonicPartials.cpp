@@ -174,6 +174,8 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
                 std::dynamic_pointer_cast< SimpleRotationalEphemeris >( phobos->getRotationalEphemeris( ) ), "Phobos" );
         std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > phobosPolePosition = std::make_shared< ConstantRotationalOrientation >(
                 std::dynamic_pointer_cast< SimpleRotationalEphemeris >( phobos->getRotationalEphemeris( ) ), "Phobos" );
+        std::shared_ptr< EstimatableParameter< double > > accelerationScalingParameter =
+                std::make_shared< FullAccelerationScalingFactorParameter >( accelerationModel, "Phobos", "Mars" );
 
         // Create Mars gravity field coefficient estimation settings.
         std::function< Eigen::MatrixXd( ) > getSineCoefficientsFunction =
@@ -261,6 +263,7 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
         Eigen::MatrixXd partialWrtMarsSineCoefficients = accelerationPartial->wrtParameter( marsSineCoefficients );
         Eigen::MatrixXd partialWrtPhobosCosineCoefficients = accelerationPartial->wrtParameter( phobosCosineCoefficients );
         Eigen::MatrixXd partialWrtPhobosSineCoefficients = accelerationPartial->wrtParameter( phobosSineCoefficients );
+        Eigen::Vector3d partialWrtAccelerationScaling = accelerationPartial->wrtParameter( accelerationScalingParameter );
 
         // Set perturbations in position and velocity for numerical partial
         Eigen::Vector3d positionPerturbation;
@@ -329,6 +332,9 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
                 phobosSineCoefficients,
                 accelerationModel,
                 Eigen::VectorXd::Constant( phobosSineCoefficients->getParameterValue( ).size( ), 1, 1.0 ) );
+        Eigen::Vector3d testPartialWrtAccelerationScaling =
+                calculateAccelerationWrtParameterPartials( accelerationScalingParameter, accelerationModel, 10.0 );
+
 
         // Compare numerical and analytical partials of position and velocity partials.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMarsPosition, partialWrtMarsPosition, 1.0e-9 );
@@ -385,6 +391,9 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPhobosSineCoefficients, partialWrtPhobosSineCoefficients, 1.0E-8 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPhobosCosineCoefficients, partialWrtPhobosCosineCoefficients, 1.0E-10 );
+
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtAccelerationScaling, testPartialWrtAccelerationScaling, 1.0E-8 );
+
     }
 }
 
