@@ -50,11 +50,11 @@ public:
             const std::shared_ptr< SphericalHarmonicsGravityPartial > accelerationPartialOfShExpansionOfBodyUndergoingAcceleration,
             const std::string& acceleratedBody,
             const std::string& acceleratingBody,
-            const bool accelerationUsesMutualAttraction ):
-        AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::mutual_spherical_harmonic_gravity ),
+            const std::shared_ptr< gravitation::MutualSphericalHarmonicsGravitationalAccelerationModel > mutualSphericalHarmonicAcceleration ):
+        AccelerationPartial( acceleratedBody, acceleratingBody, mutualSphericalHarmonicAcceleration, basic_astrodynamics::mutual_spherical_harmonic_gravity ),
         accelerationPartialOfShExpansionOfBodyExertingAcceleration_( accelerationPartialOfShExpansionOfBodyExertingAcceleration ),
         accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_( accelerationPartialOfShExpansionOfBodyUndergoingAcceleration ),
-        accelerationUsesMutualAttraction_( accelerationUsesMutualAttraction )
+        accelerationUsesMutualAttraction_(  mutualSphericalHarmonicAcceleration->getUseCentralBodyFixedFrame( )  )
     { }
 
     //! Destructor
@@ -156,7 +156,7 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
@@ -166,7 +166,7 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
      */
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
 
     //! Function to calculate the partial wrt the gravitational parameter.
