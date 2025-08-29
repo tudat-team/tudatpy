@@ -26,6 +26,7 @@ dependencies:
   - astropy-healpix  # for tudatpy.data._biases
   - cartopy # for fancy ground tracks visualizations (kosmos example)
   - geopandas # for fancy ground track visualizations (kosmos example)
+  - requests
   - spiceypy # for automatic data downloader and kernel converter
   # Data downloader tabular output
   - tabulate
