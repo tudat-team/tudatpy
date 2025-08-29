@@ -29,7 +29,7 @@ SphericalHarmonicsGravityPartial::SphericalHarmonicsGravityPartial(
         const std::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > accelerationModel,
         const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials,
         const std::vector< std::shared_ptr< orbit_determination::TidalLoveNumberPartialInterface > >& tidalLoveNumberPartialInterfaces ):
-    AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::spherical_harmonic_gravity ),
+    AccelerationPartial( acceleratedBody, acceleratingBody, accelerationModel, basic_astrodynamics::spherical_harmonic_gravity ),
     accelerationModel_( accelerationModel ), sphericalHarmonicCache_( accelerationModel->getSphericalHarmonicsCache( ) ),
     rotationMatrixPartials_( rotationMatrixPartials ), tidalLoveNumberPartialInterfaces_( tidalLoveNumberPartialInterfaces ),
     cosineSphericalHarmonicsBlock( accelerationModel->getCurrentCosineCoefficients( ) ),
@@ -50,7 +50,7 @@ SphericalHarmonicsGravityPartial::SphericalHarmonicsGravityPartial(
 }
 
 //! Function to create a function returning a partial w.r.t. a double parameter.
-std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGravityPartial::getParameterPartialFunction(
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
     // Declare return variables, default number of rows = 0 (i.e. no dependency)
@@ -149,7 +149,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGr
 }
 
 //! Function to create a function returning a partial w.r.t. a vector parameter.
-std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGravityPartial::getParameterPartialFunction(
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > SphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
     using namespace tudat::estimatable_parameters;
