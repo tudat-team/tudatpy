@@ -890,6 +890,12 @@ public:
         return dynamicsSimulator_->getEquationsOfMotionNumericalSolution( );
     }
 
+    std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > getEquationsOfMotionSolutionDouble( )
+    {
+        return dynamicsSimulator_->getEquationsOfMotionNumericalSolutionDouble();
+    }
+
+
     //! Function to return object used for numerically propagating and managing the solution of the equations of motion.
     /*!
      * Function to return object used for numerically propagating and managing the solution of the equations of motion.

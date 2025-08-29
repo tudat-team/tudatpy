@@ -30,7 +30,7 @@ public:
                                const std::shared_ptr< basic_astrodynamics::CustomAccelerationModel > customAcceleration,
                                const std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculatorSet >
                                        customAccelerationPartialSet = nullptr ):
-        AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::custom_acceleration ),
+        AccelerationPartial( acceleratedBody, acceleratingBody, customAcceleration, basic_astrodynamics::custom_acceleration ),
         customAcceleration_( customAcceleration ), customAccelerationPartialSet_( customAccelerationPartialSet )
     {
         currentPartialWrtUndergoingState_.setZero( );
@@ -185,7 +185,7 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
     {
         std::function< void( Eigen::MatrixXd& ) > partialFunction;
@@ -209,7 +209,7 @@ public:
      *  \param parameter Parameter w.r.t. which partial is to be taken.
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
      */
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunction(
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
     {
         std::function< void( Eigen::MatrixXd& ) > partialFunction;
