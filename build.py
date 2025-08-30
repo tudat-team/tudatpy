@@ -953,6 +953,8 @@ class StubGenerator:
         # Missing: Fix __init__.pyi stubs to expand star imports
         self.__generate_init_stubs()
 
+        print("Stubs generated successfully")
+
         return None
 
 
