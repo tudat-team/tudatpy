@@ -903,8 +903,7 @@ inside a `Body` instance and used in observation corrections or environmental qu
            &ta::getVehicleMesh,
            py::arg( "local_inclination_analysis_object" ) );
 
-    py::class_< tsm::VehicleSystems, std::shared_ptr< tsm::VehicleSystems > >(
-            m, "VehicleSystems", R"doc(
+    py::class_< tsm::VehicleSystems, std::shared_ptr< tsm::VehicleSystems > >( m, "VehicleSystems", R"doc(
 
          Object used to store physical (hardware) properties of a vehicle.
 
@@ -945,15 +944,14 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
      )doc" )
             .def( "set_transponder_turnaround_ratio",
-                  py::overload_cast<
-                          std::map< std::pair< tom::FrequencyBands, tom::FrequencyBands >, double >
-                                  & >( &tsm::VehicleSystems::setTransponderTurnaroundRatio ),
+                  py::overload_cast< std::map< std::pair< tom::FrequencyBands, tom::FrequencyBands >, double > & >(
+                          &tsm::VehicleSystems::setTransponderTurnaroundRatio ),
                   py::arg( "transponder_ratio_per_uplink_and_downlink_"
                            "frequency_band" ),
                   R"doc(No documentation found.)doc" )
             .def( "set_default_transponder_turnaround_ratio_function",
                   &tsm::VehicleSystems::setDefaultTransponderTurnaroundRatio,
-                  R"doc(No documentation found.)doc" )
+                  R"doc(Retrieve standard, DSN turnaround ratios based on the frequency bands of the link)doc" )
             .def( "get_control_surface_deflection",
                   &tsm::VehicleSystems::getCurrentControlSurfaceDeflection,
                   py::arg( "control_surface_id" ),
@@ -984,10 +982,7 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
      )doc" )
             .def( "set_reference_point",
-                  py::overload_cast< const std::string,
-                                     const Eigen::Vector3d &,
-                                     const std::string,
-                                     const std::string >(
+                  py::overload_cast< const std::string, const Eigen::Vector3d &, const std::string, const std::string >(
                           &tsm::VehicleSystems::setReferencePointPosition ),
                   py::arg( "reference_point" ),
                   py::arg( "location" ),
@@ -1025,9 +1020,7 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
 
      )doc" )
-            .def( "set_timing_system",
-                  &tsm::VehicleSystems::setTimingSystem,
-                  py::arg( "timing_system" ) );
+            .def( "set_timing_system", &tsm::VehicleSystems::setTimingSystem, py::arg( "timing_system" ) );
 
     py::class_< tss::RigidBodyProperties, std::shared_ptr< tss::RigidBodyProperties > >(
             m, "RigidBodyProperties", R"doc(

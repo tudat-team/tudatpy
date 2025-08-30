@@ -36,7 +36,10 @@ namespace data
 
 void expose_data( py::module &m )
 {
-    // py::module_::import( "tudatpy.math.interpolators" );
+    py::module_::import( "tudatpy.math.interpolators" ).attr( "InterpolatorSettings" );
+    // py::module_::import( "tudatpy.math.interpolators" ).attr( "cubic_spline_interpolation" );
+    // py::object cubic_spline_interpolation =
+    //         (py::object)py::module_::import( "tudatpy.math.interpolators" ).attr( "cubic_spline_interpolation" );
 
     m.def( "get_resource_path",
            &tudat::paths::get_resource_path,
@@ -380,7 +383,7 @@ void expose_data( py::module &m )
 
         .def("get_solar_activity_data_map", &tio::solar_activity::SolarActivityContainer::getSolarActivityDataMap,
                 R"doc(Returns the full map of SolarActivityData.)doc");
-                        
+
     py::class_< tio::OdfRawFileContents, std::shared_ptr< tio::OdfRawFileContents > >(
             m, "OdfRawFileContents", R"doc(No documentation available.)doc" )
             .def( "write_to_text_file",
@@ -469,7 +472,6 @@ void expose_data( py::module &m )
            py::arg( "file_name" ),
            py::arg( "data_level" ) = "1b",
            R"doc(No documentation available.)doc" );
-
 };
 
 }  // namespace data
