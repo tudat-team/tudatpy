@@ -559,29 +559,34 @@ class StubGenerator:
 
         return None
 
-    def __retrieve_items_in_all(self, statement: ast.Assign) -> list[str]:
+    def __retrieve_items_in_all(
+        self, statement: ast.Assign | ast.AnnAssign
+    ) -> list[str]:
         """Retrieve items in __all__ = [item1, item2, ...] statement
 
         :param statement: __all__ statement
         :return: List of items in __all__
         """
 
-        # Fix for special __all__ statements
-        if not isinstance(statement.value, ast.List):
-            if ast.unparse(statement) == "__all__ = list()":
+        # If __all__ = list(), replace list() with []
+        if isinstance(statement.value, ast.Call):
+            if ast.unparse(statement.value.func) == "list":
                 statement.value = ast.List(elts=[], ctx=ast.Load())
-            else:
-                raise NotImplementedError(
-                    f"Unexpected __all__ statement {ast.unparse(statement)}."
-                )
-        assert isinstance(statement.value, ast.List)  # Sanity
+
+        if not isinstance(statement.value, ast.List):
+            raise NotImplementedError(
+                f"Failed to expand {ast.unparse(statement)}: "
+                f"Expected __all__ = [...]"
+            )
 
         # Update __all__ in the stub and generate expanded import statement
         all_contents: list[str] = []
         for _name in statement.value.elts:
 
             # All items in __all__ should be strings
-            if not isinstance(_name, ast.Constant):
+            if not (
+                isinstance(_name, ast.Constant) and isinstance(_name.value, str)
+            ):
                 raise NotImplementedError(
                     f"Failed to expand {ast.unparse(statement)}: "
                     f"Unexpected item in __all__."
@@ -592,7 +597,7 @@ class StubGenerator:
 
         return all_contents
 
-    def __find_all_statement(self, script: Path) -> ast.Assign:
+    def __find_all_statement(self, script: Path) -> ast.Assign | ast.AnnAssign:
         """Find __all__ statement in a script
 
         :param script: Path to the script
@@ -600,9 +605,11 @@ class StubGenerator:
         """
 
         module = self.__parse_script(script)
-        module_all: ast.Assign | None = None
+        module_all: ast.Assign | ast.AnnAssign | None = None
         for statement in module.body:
-            if isinstance(statement, ast.Assign):
+            if isinstance(statement, ast.Assign) or isinstance(
+                statement, ast.AnnAssign
+            ):
                 if "__all__" in ast.unparse(statement):
                     module_all = statement
                     break
@@ -814,7 +821,9 @@ class StubGenerator:
                 stub_body.append(statement)
 
             # Assign statements
-            if isinstance(statement, ast.Assign):
+            if isinstance(statement, ast.Assign) or isinstance(
+                statement, ast.AnnAssign
+            ):
 
                 # __all__ statement
                 if "__all__ =" in ast.unparse(statement):
