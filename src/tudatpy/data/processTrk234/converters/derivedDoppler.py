@@ -64,7 +64,7 @@ class DerivedDopplerConverter(RadioBase):
                             .tolist()
                         )
                         observation_set = single_observation_set(
-                            dsn_n_way_averaged_doppler,
+                            dsn_n_way_averaged_doppler_type,
                             link_def,
                             obs_values,
                             epoch_seconds,
