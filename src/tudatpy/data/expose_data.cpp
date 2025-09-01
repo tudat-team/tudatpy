@@ -472,6 +472,21 @@ void expose_data( py::module &m )
            py::arg( "file_name" ),
            py::arg( "data_level" ) = "1b",
            R"doc(No documentation available.)doc" );
+
+    m.def( "read_ifms_file",
+           &tio::readIfmsFile,
+           py::arg( "file_name" ),
+           py::arg( "apply_tropospheric_correction" ) = true,
+           R"doc(Load contents of IFMS file into dictionary
+
+           The keys of the dictionary represent the different columns of the IFMS file, and their values are lists with all the values in the associated column as strings.
+
+           Two of the columns of an IFMS file contain, respectively, the Doppler averaged frequency and a tropospheric correction for the station. When the `apply_tropospheric_correction` option is set to true, the content of the first column is modified by subtracting the values in the second.
+
+           :param file_name: String representing the path to the file to be loaded
+           :param apply_tropospheric_correction: Whether to modify the averaged Doppler frequency as described above (Default: True)
+           :return ifms_contents: Dictionary with contents of the IFMS file as lists of strings
+           )doc" );
 };
 
 }  // namespace data
