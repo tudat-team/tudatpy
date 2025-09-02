@@ -18,4 +18,4 @@ build:
    
 
 conda:
-  environment: docs/environment_readthedocs.yaml
+  environment: docs/tudatpy/environment_readthedocs.yaml
