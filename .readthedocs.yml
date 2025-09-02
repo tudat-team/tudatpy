@@ -15,7 +15,6 @@ build:
   os: "ubuntu-24.04"
   tools:
     python: "miniconda-latest"
-  jobs:
    
 
 conda:
