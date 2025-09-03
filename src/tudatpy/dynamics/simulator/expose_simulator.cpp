@@ -106,7 +106,7 @@ void expose_simulator( py::module& m )
          by the numerical integration routine. Typically, this function is NOT used directly by users.
 
 
-         :type: Callable[[float, numpy.ndarray], numpy.ndarray]
+         :type: Callable[[astro.time_representation.Time, numpy.ndarray], numpy.ndarray]
       )doc" )
             .def_property_readonly(
                     "environment_updater",
@@ -146,7 +146,7 @@ void expose_simulator( py::module& m )
 
          Shorthand for propagation_results.state_history_time_object
 
-         :type: dict[float, numpy.ndarray]
+         :type: dict[astro.time_representation.Time, numpy.ndarray]
       )doc" )
         .def_property_readonly(
             "state_history",
@@ -168,7 +168,7 @@ void expose_simulator( py::module& m )
 
          Shorthand for propagation_results.unprocessed_state_history_time_object
 
-         :type: dict[float, numpy.ndarray]
+         :type: dict[astro.time_representation.Time, numpy.ndarray]
       )doc" )
         .def_property_readonly(
             "unprocessed_state_history",
@@ -201,7 +201,7 @@ void expose_simulator( py::module& m )
 
          Shorthand for propagation_results.dependent_variable_history_time_object
 
-         :type: dict[float, numpy.ndarray]
+         :type: dict[astro.time_representation.Time, numpy.ndarray]
       )doc" )
         .def_property_readonly(
             "cumulative_computation_time_history",
@@ -648,7 +648,7 @@ void expose_simulator( py::module& m )
             .def_property_readonly(
                     "state_history",
                     &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::
-                            getEquationsOfMotionSolution,
+                            getEquationsOfMotionSolutionDouble,
                     R"doc(
 
          **read-only**
@@ -751,7 +751,7 @@ void expose_simulator( py::module& m )
 
          Parameters
          ----------
-         time : float
+         time : astro.time_representation.Time
              Time at which concatenated state transition and sensitivity matrix are to be retrieved.
          Returns
          -------
@@ -774,7 +774,7 @@ void expose_simulator( py::module& m )
 
          Parameters
          ----------
-         time : float
+         time : astro.time_representation.Time
              Time at which full concatenated state transition and sensitivity matrix are to be retrieved.
          Returns
          -------
