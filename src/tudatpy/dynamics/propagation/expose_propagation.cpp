@@ -66,7 +66,7 @@ void expose_propagation( py::module &m )
             .def( py::init<>( ) )
             .def( "updateGuidance",
                   &ta::AerodynamicGuidance::updateGuidance,
-                  py::arg( "current_time" ) )
+                  py::arg( "current_time" ) ) // The current_time parameter is now expected to be a Time object
             .def_readwrite( "angle_of_attack", &ta::PyAerodynamicGuidance::currentAngleOfAttack_ )
             .def_readwrite( "bank_angle", &ta::PyAerodynamicGuidance::currentBankAngle_ )
             .def_readwrite( "sideslip_angle", &ta::PyAerodynamicGuidance::currentAngleOfSideslip_ );
@@ -108,8 +108,8 @@ void expose_propagation( py::module &m )
      List of central bodies, w.r.t. which the states are to be computed (in the same order as ``bodies_to_propagate``)
  bodies_to_propagate : SystemOfBodies
      System of bodies that define the environment
- initial_time : float
-     Time at which the states are to be extracted from the environment
+ initial_time : astro.time_representation.Time
+     Time at which the states are to be extracted from the environment (Time object representing seconds since J2000 TDB)
  Returns
  -------
  numpy.ndarray
@@ -541,10 +541,10 @@ void expose_propagation( py::module &m )
 
          **read-only**
 
-         Same as :func:`~state_history`, but using the high-resolution :func:`~Time` type used as independent variable in the propagation as key
+         Same as :func:`~state_history`, but using the high-resolution :func:`~astro.time_representation.Time` object used as independent variable in the propagation as key
 
 
-         :type: dict[Time, numpy.ndarray]
+         :type: dict[astro.time_representation.Time, numpy.ndarray]
       )doc" )
             .def_property_readonly(
                     "state_history_float",
@@ -590,10 +590,10 @@ void expose_propagation( py::module &m )
 
          **read-only**
 
-         Same as :func:`~unprocessed_state_history`, but using the high-resolution :func:`~Time` type used as independent variable in the propagation as key
+         Same as :func:`~unprocessed_state_history`, but using the high-resolution :func:`~astro.time_representation.Time` object used as independent variable in the propagation as key
 
 
-         :type: dict[Time, numpy.ndarray]
+         :type: dict[astro.time_representation.Time, numpy.ndarray]
       )doc"  )
 
         .def_property_readonly(
@@ -620,9 +620,9 @@ void expose_propagation( py::module &m )
 
          **read-only**
 
-         Same as :func:`~dependent_variable_history`, but using the high-resolution :func:`~Time` type used as independent variable in the propagation as key
+         Same as :func:`~dependent_variable_history`, but using the high-resolution :func:`~astro.time_representation.Time` object used as independent variable in the propagation as key
 
-         :type: dict[Time, numpy.ndarray]
+         :type: dict[astro.time_representation.Time, numpy.ndarray]
       )doc"  )
 
 

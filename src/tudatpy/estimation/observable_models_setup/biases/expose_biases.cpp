@@ -177,7 +177,7 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- arc_start_times : List[ float ]
+ arc_start_times : List[ astro.time_representation.Time ]
      List containing starting times for each arc.
 
  bias_values : List[ numpy.ndarray ]
@@ -230,7 +230,7 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- bias_values_per_start_time : Dict[float, numpy.ndarray[numpy.float64[m, 1]]]
+ bias_values_per_start_time : Dict[astro.time_representation.Time, numpy.ndarray[numpy.float64[m, 1]]]
      Dictionary, in which the bias value vectors for each arc are directly mapped to the starting times of the respective arc.
      The vectors should be the same size as the observable to which it is applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
 
@@ -283,7 +283,7 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- arc_start_times : List[ float ]
+ arc_start_times : List[ astro.time_representation.Time ]
      List containing starting times for each arc.
 
  bias_values : List[ numpy.ndarray ]
@@ -336,7 +336,7 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- bias_values_per_start_time : Dict[float, numpy.ndarray[numpy.float64[m, 1]]]
+ bias_values_per_start_time : Dict[astro.time_representation.Time, numpy.ndarray[numpy.float64[m, 1]]]
      Dictionary, in which the bias value vectors for each arc are directly mapped to the starting times of the respective arc.
      The vectors should be the same size as the observable to which it is applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
 
@@ -396,7 +396,7 @@ void expose_biases( py::module& m )
  time_link_end : :class:`LinkEndType`
      Defines the link end (via the :class:`LinkEndType`) which is used the current time.
 
- ref_epoch : float
+ ref_epoch : astro.time_representation.Time
      Defines the reference epoch at which the effect of the time drift is initialised.
 
  Returns
@@ -452,13 +452,13 @@ void expose_biases( py::module& m )
      Constant time drift bias that is to be considered for the observation time. This vector should be the same size as the observable to which it is
      assigned (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
 
- arc_start_times : List[ float ]
+ arc_start_times : List[ astro.time_representation.Time ]
      List containing starting times for each arc.
 
  time_link_end : :class:`LinkEndType`
      Defines the link end (via the :class:`LinkEndType`) which is used the current time.
 
- ref_epochs : List[ float ]
+ ref_epochs : List[ astro.time_representation.Time ]
      List containing the arc-wise reference epochs at which the effect of the arc-wise time drift is initialised.
 
  Returns
@@ -506,14 +506,14 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- bias_value_per_start_time : Dict[float, numpy.ndarray[numpy.float64[m, 1]]]
+ bias_value_per_start_time : Dict[astro.time_representation.Time, numpy.ndarray[numpy.float64[m, 1]]]
      Dictionary, in which the time bias value vectors for each arc are directly mapped to the starting times of the respective arc.
      The vectors should be the same size as the observable to which it is applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
 
  time_link_end : :class:`LinkEndType`
      Defines the link end (via the :class:`LinkEndType`) which is used the current time.
 
- ref_epochs : List[ float ]
+ ref_epochs : List[ astro.time_representation.Time ]
      List containing the arc-wise reference epochs at which the effect of the arc-wise time drift is initialised.
 
  Returns
