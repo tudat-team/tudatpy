@@ -10,6 +10,8 @@ dependencies:
   - nrlmsise-00
   - cspice
   - fftw
+  - gcc
+  - gxx
   - python=3.11
   - pybind11
   - pybind11-abi
