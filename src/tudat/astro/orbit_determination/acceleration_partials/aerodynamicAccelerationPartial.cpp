@@ -109,7 +109,7 @@ void AerodynamicAccelerationPartial::update( const double currentTime )
     currentTime_ = currentTime;
 }
 
-std::pair< std::function< void( Eigen::MatrixXd& ) >, int > AerodynamicAccelerationPartial::getParameterPartialFunction(
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > AerodynamicAccelerationPartial::getParameterPartialFunctionDerivedAcceleration(
             std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
     std::function< void( Eigen::MatrixXd& ) > partialFunction;
@@ -153,6 +153,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > AerodynamicAccelerat
                 break;
         }
     }
+
 
     return std::make_pair( partialFunction, numberOfColumns );
 }

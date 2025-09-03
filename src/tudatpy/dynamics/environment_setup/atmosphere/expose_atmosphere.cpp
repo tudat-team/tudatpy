@@ -815,6 +815,10 @@ using the NRLMSISE-00 global reference model:
 
 
      )doc" );
+
+    m.def("mars_dtm",
+          &tss::marsDtmAtmosphereSettings,
+          R"doc(No documentation found.)doc" );
 }
 
 }  // namespace atmosphere
