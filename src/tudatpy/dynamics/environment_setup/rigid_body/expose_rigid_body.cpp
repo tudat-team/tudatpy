@@ -129,12 +129,12 @@ void expose_rigid_body_setup( py::module &m )
 
  Parameters
  ----------
- mass_function : Callable[[float], float]
-     Function returning the mass as a function of time (to be used during the propagation)
- center_of_mass_function : Callable[[float], numpy.ndarray[numpy.float64[3, 1]]] = None
-     Function returning the center of mass as a function of time (to be used during the propagation)
- inertia_tensor_function : Callable[[float], numpy.ndarray[numpy.float64[3, 3]]] = None
-     Function returning the inertia tensor as a function of time (to be used during the propagation)
+ mass_function : Callable[[astro.time_representation.Time], float]
+     Function returning the mass as a function of time (Time object representing seconds since J2000 TDB) to ne used during the propagation
+ center_of_mass_function : Callable[[astro.time_representation.Time], numpy.ndarray[numpy.float64[3, 1]]] = None
+     Function returning the center of mass as a function of time (Time object representing seconds since J2000 TDB) to be used during the propagation
+ inertia_tensor_function : Callable[[astro.time_representation.Time], numpy.ndarray[numpy.float64[3, 3]]] = None
+     Function returning the inertia tensor as a function of time (Time object representing seconds since J2000 TDB) to be used during the propagation
  Returns
  -------
  RigidBodyPropertiesSettings

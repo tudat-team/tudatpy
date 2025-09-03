@@ -99,11 +99,12 @@ Eigen::Matrix3d computeDirectTidalAccelerationDueToTideOnSatelliteWrtVelocity( c
 }
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
-std::pair< std::function< void( Eigen::MatrixXd& ) >, int > DirectTidalDissipationAccelerationPartial::getParameterPartialFunction(
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > DirectTidalDissipationAccelerationPartial::getParameterPartialFunctionDerivedAcceleration(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 
 {
-    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair;
+    std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair =
+            std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
 
     // Check dependencies.
     if( parameter->getParameterName( ).first == estimatable_parameters::gravitational_parameter )
@@ -208,10 +209,6 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > DirectTidalDissipati
                 }
             }
         }
-    }
-    else
-    {
-        partialFunctionPair = std::make_pair( std::function< void( Eigen::MatrixXd& ) >( ), 0 );
     }
 
     return partialFunctionPair;

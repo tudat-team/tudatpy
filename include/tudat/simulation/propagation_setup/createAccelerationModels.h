@@ -26,6 +26,7 @@
 #include "tudat/astro/basic_astro/empiricalAcceleration.h"
 #include "tudat/astro/ephemerides/frameManager.h"
 #include "tudat/astro/gravitation/directTidalDissipationAcceleration.h"
+#include "tudat/astro/system_models/rtgAccelerationModel.h"
 #include "tudat/astro/relativity/einsteinInfeldHoffmannEquations.h"
 #include "tudat/astro/relativity/einsteinInfeldHoffmannAcceleration.h"
 #include "tudat/astro/relativity/metric.h"
@@ -229,6 +230,26 @@ std::shared_ptr< gravitation::RingGravitationalAccelerationModel > createRingGra
         const std::string& nameOfBodyUndergoingAcceleration,
         const std::string& nameOfBodyExertingAcceleration,
         const bool useCentralBodyFixedFrame );
+
+
+//! Function to create ring gravity acceleration model.
+/*!
+ *  Function to create ring gravity acceleration model from bodies exerting and
+ *  undergoing acceleration.
+ *  \param bodyUndergoingAcceleration Pointer to object of body that is being accelerated.
+ *  \param bodyExertingAcceleration Pointer to object of body that is exerting the RTG acceleration (same as undergoing).
+ *  \param nameOfBodyUndergoingAcceleration Name of body that is being accelerated.
+ *  \param nameOfBodyExertingAcceleration Name of body that is exerting the RTG acceleration (same as undergoing).
+ *  \param accelerationSettings Settings for acceleration model that is to be created (should
+ *  be of derived type associated with RTG acceleration).
+ *  \return RTG acceleration model pointer.
+ */
+std::shared_ptr< system_models::RTGAccelerationModel > createRTGAccelerationModel(
+        const std::shared_ptr< Body > bodyUndergoingAcceleration,
+        const std::shared_ptr< Body > bodyExertingAcceleration,
+        const std::string& nameOfBodyUndergoingAcceleration,
+        const std::string& nameOfBodyExertingAcceleration,
+        const std::shared_ptr< AccelerationSettings > accelerationSettings );
 
 //! Function to create a third body central gravity acceleration model.
 /*!

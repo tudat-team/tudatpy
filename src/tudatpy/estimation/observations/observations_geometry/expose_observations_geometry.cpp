@@ -86,7 +86,7 @@ void expose_observations_geometry( py::module& m )
  target_body : str
      Name of body which is observed by ground station
 
- observation_times : list[float]
+ observation_times : list[astro.time_representation.Time]
      List of times at which the ground station observations are to be analyzed
 
  is_station_transmitting : bool
@@ -95,7 +95,7 @@ void expose_observations_geometry( py::module& m )
 
  Returns
  -------
- dict[float,numpy.ndarray[numpy.float64[3, 1]]]
+ dict[astro.time_representation.Time,numpy.ndarray[numpy.float64[3, 1]]]
      Dictionary with the required output. Key defines the observation time, the value is an array of size three containing entry 0 - elevation angle, entry 1 - azimuth angle, entry 2 - range
 
 
@@ -135,7 +135,7 @@ void expose_observations_geometry( py::module& m )
  target_body : str
      Name of body which is observed by ground station
 
- observation_times : list[float]
+ observation_times : list[astro.time_representation.Time]
      List of times at which the ground station observations are to be analyzed
 
  is_station_transmitting : bool

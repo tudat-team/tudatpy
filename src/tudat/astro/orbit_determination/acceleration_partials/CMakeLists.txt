@@ -24,6 +24,7 @@ set(acceleration_partials_SOURCES
   "thrustAccelerationPartial.cpp"
   "polyhedronAccelerationPartial.cpp"
   "ringAccelerationPartial.cpp"
+  "rtgAccelerationPartial.cpp"
   "einsteinInfeldHoffmannPartials.cpp"
   "yarkovskyAccelerationPartial.cpp"
   "fullRadiationPressureAccelerationPartial.cpp"

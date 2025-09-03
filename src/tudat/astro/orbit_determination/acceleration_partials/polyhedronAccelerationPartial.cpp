@@ -23,7 +23,7 @@ PolyhedronGravityPartial::PolyhedronGravityPartial(
         const std::string& acceleratingBody,
         const std::shared_ptr< gravitation::PolyhedronGravitationalAccelerationModel > accelerationModel,
         const observation_partials::RotationMatrixPartialNamedList& rotationMatrixPartials ):
-    AccelerationPartial( acceleratedBody, acceleratingBody, basic_astrodynamics::polyhedron_gravity ),
+    AccelerationPartial( acceleratedBody, acceleratingBody, accelerationModel, basic_astrodynamics::polyhedron_gravity ),
     gravitationalParameterFunction_( accelerationModel->getGravitationalParameterFunction( ) ),
     volumeFunction_( accelerationModel->getVolumeFunction( ) ), polyhedronCache_( accelerationModel->getPolyhedronCache( ) ),
     facetDyads_( accelerationModel->getFacetDyadsFunction( )( ) ), edgeDyads_( accelerationModel->getEdgeDyadsFunction( )( ) ),

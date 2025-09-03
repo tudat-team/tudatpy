@@ -84,9 +84,9 @@ This class is typically instantiated through the :func:`~tudatpy.dynamics.enviro
   .def_readwrite( "surface_normal_function",
                   &tss::FrameVariableBodyPanelGeometrySettings::surfaceNormalFunction_,
                   R"doc(
-Function which takes the current epoch as input and returns the panel outward surface normal vector (in specified frame).
+Function which takes the current epoch as input (as Time object) and returns the panel outward surface normal vector (in specified frame).
 
-:type: Callable[[float], np.ndarray]
+:type: Callable[[astro.time_representation.Time], np.ndarray]
 )doc" )
   .def_readwrite( "area",
                   &tss::FrameVariableBodyPanelGeometrySettings::area_,
@@ -197,8 +197,8 @@ Panel surface area
 
  Parameters
  ----------
- surface_normal_function : Callable[[], np.ndarray]
-    Function which takes the current epoch as input and returns the panel outward surface normal vector (in specified frame).
+ surface_normal_function : Callable[[astro.time_representation.Time], np.ndarray]
+    Function which takes the current epoch as input (as Time object) and returns the panel outward surface normal vector (in specified frame).
  area : float
      Panel surface area
  frame_orientation : str, default = ""
@@ -252,11 +252,15 @@ Panel surface area
         )doc" );
 
     m.def( "body_panel_settings",
-           &tss::bodyPanelSettings,
+           py::overload_cast<
+                std::shared_ptr< tss::BodyPanelGeometrySettings >,
+                std::shared_ptr< tss::BodyPanelReflectionLawSettings >,
+                std::string,
+                std::shared_ptr< tss::MaterialProperties > >( &tss::bodyPanelSettings ),
            py::arg( "panel_geometry" ),
            py::arg( "panel_reflection_law" ),
            py::arg( "panel_type_id" ) = "",
-           py::arg( "material_properties" ) = std::map< std::string, tss::MaterialProperties >( ),
+           py::arg( "material_properties" ) = nullptr,
            R"doc(
 
  Function for creating settings for a full panel
