@@ -71,24 +71,12 @@ jobs:
     - uses: actions/checkout@v4
 
 
-    - name: Setup conda environment ${{ matrix.os }}
-      if: matrix.os != 'macos-latest'
+    - name: Setup conda environment
       # This step creates an empty conda environment with the name 'tudat' and activates it. Use latest conda version.
       uses: conda-incubator/setup-miniconda@v3
       with:
            activate-environment: tudat
            auto-activate-base: false
-           environment-file: environment.yaml
-
-
-    - name: Setup conda environment ${{ matrix.os }}
-      if: matrix.os == 'macos-latest'
-      # This step creates an empty conda environment with the name 'tudat' and activates it. Use latest conda version.
-      uses: conda-incubator/setup-miniconda@v3
-      with:
-           activate-environment: tudat
-           auto-activate-base: false
-           environment-file: environment-osx.yaml
 
 
     - name: Get date
@@ -108,9 +96,14 @@ jobs:
     #   id: cache
 
 
-    - name: Create conda environment from environment.yml
+    - name: Create conda environment from environment.yml - ${{ matrix.os }}
       # Update the tudat conda environment created using the environment.yml file if the cache is not restored
-      run: conda env update -n tudat -f environment.yaml
+      run: |
+        if [[ ${{ matrix.os }} -eq 'macos-latest' ]]; then
+            conda env update -n tudat -f environment-osx.yaml
+        else
+            conda env update -n tudat -f environment.yaml
+        fi
       # if: steps.cache.outputs.cache-hit != 'true'
 
     - name: Show full conda package list
