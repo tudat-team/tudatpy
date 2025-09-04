@@ -98,13 +98,14 @@ jobs:
 
     - name: Create conda environment from environment.yml - ${{ matrix.os }}
       # Update the tudat conda environment created using the environment.yml file if the cache is not restored
-      run: |
-        if [[ ${{ matrix.os }} -eq 'macos-latest' ]]; then
-            conda env update -n tudat -f environment-osx.yaml
-        else
-            conda env update -n tudat -f environment.yaml
-        fi
       # if: steps.cache.outputs.cache-hit != 'true'
+      if: matrix.os != 'macos-latest'
+      run: conda env update -n tudat -f environment.yaml
+
+
+    - name: Create conda environment from environment-osx.yml - ${{ matrix.os }}
+      if: matrix.os == 'macos-latest'
+      run: conda env update -n tudat -f environment-osx.yaml
 
     - name: Show full conda package list
       shell: bash -l {0}
