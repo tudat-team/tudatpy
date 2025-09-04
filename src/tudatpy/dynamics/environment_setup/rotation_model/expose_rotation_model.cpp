@@ -781,7 +781,8 @@ void expose_rotation_model_setup( py::module &m )
            py::arg( "rotation_rate" ),
            py::arg( "pole_precession" ),
            py::arg( "merdian_periodic_terms" ),
-           py::arg( "pole_periodic_terms" ) );
+           py::arg( "pole_periodic_terms" ),
+           py::arg( "reference_epoch_j2000") = 0.0);
 }
 }  // namespace rotation_model
 }  // namespace environment_setup
