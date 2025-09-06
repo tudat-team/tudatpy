@@ -1768,7 +1768,7 @@ The type of the acceleration that is to be saved.
 
     m.def( "total_spherical_harmonic_sine_coefficient_variations_"
            "from_indices",
-           &tp::totalSphericalHarmonicCosineCoefficientVariationFromIndices,
+           &tp::totalSphericalHarmonicSineCoefficientVariationFromIndices,
            py::arg( "body" ),
            py::arg( "component_indices" ),
            R"doc(No documentation found.)doc" );
