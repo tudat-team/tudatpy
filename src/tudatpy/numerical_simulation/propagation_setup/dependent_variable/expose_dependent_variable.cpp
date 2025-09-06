@@ -1741,7 +1741,7 @@ The type of the acceleration that is to be saved.
 
      )doc" );
 
-    m.def( "total_spherical_harmonic_cosine_coefficien_variations",
+    m.def( "total_spherical_harmonic_cosine_coefficient_variations",
            &tp::totalSphericalHarmonicCosineCoefficientVariation,
            py::arg( "body" ),
            py::arg( "minimum_degree" ),
@@ -1750,7 +1750,7 @@ The type of the acceleration that is to be saved.
            py::arg( "maximum_order" ),
            R"doc(No documentation found.)doc" );
 
-    m.def( "total_spherical_harmonic_sine_coefficien_variations",
+    m.def( "total_spherical_harmonic_sine_coefficient_variations",
            &tp::totalSphericalHarmonicSineCoefficientVariation,
            py::arg( "body" ),
            py::arg( "minimum_degree" ),
@@ -1759,16 +1759,16 @@ The type of the acceleration that is to be saved.
            py::arg( "maximum_order" ),
            R"doc(No documentation found.)doc" );
 
-    m.def( "total_spherical_harmonic_cosine_coefficien_variations_"
+    m.def( "total_spherical_harmonic_cosine_coefficient_variations_"
            "from_indices",
            &tp::totalSphericalHarmonicCosineCoefficientVariationFromIndices,
            py::arg( "body" ),
            py::arg( "component_indices" ),
            R"doc(No documentation found.)doc" );
 
-    m.def( "total_spherical_harmonic_sine_coefficien_variations_"
+    m.def( "total_spherical_harmonic_sine_coefficient_variations_"
            "from_indices",
-           &tp::totalSphericalHarmonicCosineCoefficientVariationFromIndices,
+           &tp::totalSphericalHarmonicSineCoefficientVariationFromIndices,
            py::arg( "body" ),
            py::arg( "component_indices" ),
            R"doc(No documentation found.)doc" );
