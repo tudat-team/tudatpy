@@ -166,6 +166,9 @@ void expose_rotation_model_setup( py::module &m )
                 tss::RotationModelSettings>(
             m, "IAURotationModelSettings", R"doc(No documentation found.)doc" );
 
+    py::class_< tss::GcrsToItrsRotationModelSettings, std::shared_ptr< tss::GcrsToItrsRotationModelSettings >, tss::RotationModelSettings >(
+            m, "GcrsToItrsRotationModelSettings", R"doc(No documentation found.)doc" )
+            .def_property_readonly( "eop_file", &tss::GcrsToItrsRotationModelSettings::getEopFile );
 
     m.def( "simple",
            py::overload_cast< const std::string &,
