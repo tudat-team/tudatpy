@@ -235,120 +235,90 @@ void expose_data( py::module &m )
 
      )doc" );
 
-    py::enum_< tudat::input_output::TrackingDataType >(
-        m, "TrackingDataType", R"doc(No documentation available.)doc" )
-        .value( "year",
-                tudat::input_output::TrackingDataType::year,
-                R"doc(No documentation available.)doc" )
-        .value( "month",
-                tudat::input_output::TrackingDataType::month,
-                R"doc(No documentation available.)doc" )
-        .value( "day",
-                tudat::input_output::TrackingDataType::day,
-                R"doc(No documentation available.)doc" )
-        .value( "hour",
-                tudat::input_output::TrackingDataType::hour,
-                R"doc(No documentation available.)doc" )
-        .value( "minute",
-                tudat::input_output::TrackingDataType::minute,
-                R"doc(No documentation available.)doc" )
-        .value( "second",
-                tudat::input_output::TrackingDataType::second,
-                R"doc(No documentation available.)doc" )
-        .value( "time_tag_delay",
-                tudat::input_output::TrackingDataType::time_tag_delay,
-                R"doc(No documentation available.)doc" )
-        .value( "observation_time_scale",
-                tudat::input_output::TrackingDataType::observation_time_scale,
-                R"doc(No documentation available.)doc" )
-        .value( "file_name",
-                tudat::input_output::TrackingDataType::file_name,
-                R"doc(No documentation available.)doc" )
-        .value( "n_way_light_time",
-                tudat::input_output::TrackingDataType::n_way_light_time,
-                R"doc(No documentation available.)doc" )
-        .value( "light_time_measurement_delay",
-                tudat::input_output::TrackingDataType::light_time_measurement_delay,
-                R"doc(No documentation available.)doc" )
-        .value( "light_time_measurement_accuracy",
-                tudat::input_output::TrackingDataType::light_time_measurement_accuracy,
-                R"doc(No documentation available.)doc" )
-        .value( "dsn_transmitting_station_nr",
-                tudat::input_output::TrackingDataType::dsn_transmitting_station_nr,
-                R"doc(No documentation available.)doc" )
-        .value( "dsn_receiving_station_nr",
-                tudat::input_output::TrackingDataType::dsn_receiving_station_nr,
-                R"doc(No documentation available.)doc" )
-        .value( "observation_body",
-                tudat::input_output::TrackingDataType::observation_body,
-                R"doc(No documentation available.)doc" )
-        .value( "observed_body",
-                tudat::input_output::TrackingDataType::observed_body,
-                R"doc(No documentation available.)doc" )
-        .value( "spacecraft_id",
-                tudat::input_output::TrackingDataType::spacecraft_id,
-                R"doc(No documentation available.)doc" )
-        .value( "planet_nr",
-                tudat::input_output::TrackingDataType::planet_nr,
-                R"doc(No documentation available.)doc" )
-        .value( "tdb_spacecraft_j2000",
-                tudat::input_output::TrackingDataType::tdb_spacecraft_j2000,
-                R"doc(No documentation available.)doc" )
-        .value( "x_planet_frame",
-                tudat::input_output::TrackingDataType::x_planet_frame,
-                R"doc(No documentation available.)doc" )
-        .value( "y_planet_frame",
-                tudat::input_output::TrackingDataType::y_planet_frame,
-                R"doc(No documentation available.)doc" )
-        .value( "z_planet_frame",
-                tudat::input_output::TrackingDataType::z_planet_frame,
-                R"doc(No documentation available.)doc" )
-        .value( "vx_planet_frame",
-                tudat::input_output::TrackingDataType::vx_planet_frame,
-                R"doc(No documentation available.)doc" )
-        .value( "vy_planet_frame",
-                tudat::input_output::TrackingDataType::vy_planet_frame,
-                R"doc(No documentation available.)doc" )
-        .value( "vz_planet_frame",
-                tudat::input_output::TrackingDataType::vz_planet_frame,
-                R"doc(No documentation available.)doc" )
-        .value( "residual_de405",
-                tudat::input_output::TrackingDataType::residual_de405,
-                R"doc(No documentation available.)doc" )
-        .value( "spacecraft_transponder_delay",
-                tudat::input_output::TrackingDataType::spacecraft_transponder_delay,
-                R"doc(No documentation available.)doc" )
-        .value( "uplink_frequency",
-                tudat::input_output::TrackingDataType::uplink_frequency,
-                R"doc(No documentation available.)doc" )
-        .value( "downlink_frequency",
-                tudat::input_output::TrackingDataType::downlink_frequency,
-                R"doc(No documentation available.)doc" )
-        .value( "signal_to_noise",
-                tudat::input_output::TrackingDataType::signal_to_noise,
-                R"doc(No documentation available.)doc" )
-        .value( "spectral_max",
-                tudat::input_output::TrackingDataType::spectral_max,
-                R"doc(No documentation available.)doc" )
-        .value( "doppler_measured_frequency",
-                tudat::input_output::TrackingDataType::doppler_measured_frequency,
-                R"doc(No documentation available.)doc" )
-        .value( "doppler_base_frequency",
-                tudat::input_output::TrackingDataType::doppler_base_frequency,
-                R"doc(No documentation available.)doc" )
-        .value( "doppler_noise",
-                tudat::input_output::TrackingDataType::doppler_noise,
-                R"doc(No documentation available.)doc" )
-        .value( "doppler_bandwidth",
-                tudat::input_output::TrackingDataType::doppler_bandwidth,
-                R"doc(No documentation available.)doc" )
-        .value( "receiving_station_name",
-                tudat::input_output::TrackingDataType::receiving_station_name,
-                R"doc(No documentation available.)doc" )
-        .value( "transmitting_station_name",
-                tudat::input_output::TrackingDataType::transmitting_station_name,
-                R"doc(No documentation available.)doc" )
-        .export_values( );
+    py::enum_< tudat::input_output::TrackingDataType >( m, "TrackingDataType", R"doc(No documentation available.)doc" )
+            .value( "year", tudat::input_output::TrackingDataType::year, R"doc(No documentation available.)doc" )
+            .value( "month", tudat::input_output::TrackingDataType::month, R"doc(No documentation available.)doc" )
+            .value( "day", tudat::input_output::TrackingDataType::day, R"doc(No documentation available.)doc" )
+            .value( "hour", tudat::input_output::TrackingDataType::hour, R"doc(No documentation available.)doc" )
+            .value( "minute", tudat::input_output::TrackingDataType::minute, R"doc(No documentation available.)doc" )
+            .value( "second", tudat::input_output::TrackingDataType::second, R"doc(No documentation available.)doc" )
+            .value( "observation_time_scale",
+                    tudat::input_output::TrackingDataType::observation_time_scale,
+                    R"doc(No documentation available.)doc" )
+            .value( "file_name", tudat::input_output::TrackingDataType::file_name, R"doc(No documentation available.)doc" )
+            .value( "n_way_light_time", tudat::input_output::TrackingDataType::n_way_light_time, R"doc(No documentation available.)doc" )
+            .value( "light_time_measurement_delay",
+                    tudat::input_output::TrackingDataType::light_time_measurement_delay,
+                    R"doc(No documentation available.)doc" )
+            .value( "light_time_measurement_accuracy",
+                    tudat::input_output::TrackingDataType::light_time_measurement_accuracy,
+                    R"doc(No documentation available.)doc" )
+            .value( "dsn_transmitting_station_nr",
+                    tudat::input_output::TrackingDataType::dsn_transmitting_station_nr,
+                    R"doc(No documentation available.)doc" )
+            .value( "dsn_receiving_station_nr",
+                    tudat::input_output::TrackingDataType::dsn_receiving_station_nr,
+                    R"doc(No documentation available.)doc" )
+            .value( "observation_body", tudat::input_output::TrackingDataType::observation_body, R"doc(No documentation available.)doc" )
+            .value( "observed_body", tudat::input_output::TrackingDataType::observed_body, R"doc(No documentation available.)doc" )
+            .value( "spacecraft_id", tudat::input_output::TrackingDataType::spacecraft_id, R"doc(No documentation available.)doc" )
+            .value( "spacecraft_name", tudat::input_output::TrackingDataType::spacecraft_name, R"doc(No documentation available.)doc" )
+            .value( "planet_nr", tudat::input_output::TrackingDataType::planet_nr, R"doc(No documentation available.)doc" )
+            .value( "tdb_reception_time_j2000",
+                    tudat::input_output::TrackingDataType::tdb_reception_time_j2000,
+                    R"doc(No documentation available.)doc" )
+            .value( "utc_reception_time_j2000",
+                    tudat::input_output::TrackingDataType::utc_reception_time_j2000,
+                    R"doc(No documentation available.)doc" )
+            .value( "utc_ramp_referencee_j2000",
+                    tudat::input_output::TrackingDataType::utc_ramp_referencee_j2000,
+                    R"doc(No documentation available.)doc" )
+            .value( "tdb_spacecraft_j2000",
+                    tudat::input_output::TrackingDataType::tdb_spacecraft_j2000,
+                    R"doc(No documentation available.)doc" )
+            .value( "x_planet_frame", tudat::input_output::TrackingDataType::x_planet_frame, R"doc(No documentation available.)doc" )
+            .value( "y_planet_frame", tudat::input_output::TrackingDataType::y_planet_frame, R"doc(No documentation available.)doc" )
+            .value( "z_planet_frame", tudat::input_output::TrackingDataType::z_planet_frame, R"doc(No documentation available.)doc" )
+            .value( "vx_planet_frame", tudat::input_output::TrackingDataType::vx_planet_frame, R"doc(No documentation available.)doc" )
+            .value( "vy_planet_frame", tudat::input_output::TrackingDataType::vy_planet_frame, R"doc(No documentation available.)doc" )
+            .value( "vz_planet_frame", tudat::input_output::TrackingDataType::vz_planet_frame, R"doc(No documentation available.)doc" )
+            .value( "residual_de405", tudat::input_output::TrackingDataType::residual_de405, R"doc(No documentation available.)doc" )
+            .value( "spacecraft_transponder_delay",
+                    tudat::input_output::TrackingDataType::spacecraft_transponder_delay,
+                    R"doc(No documentation available.)doc" )
+            .value( "uplink_frequency", tudat::input_output::TrackingDataType::uplink_frequency, R"doc(No documentation available.)doc" )
+            .value( "downlink_frequency",
+                    tudat::input_output::TrackingDataType::downlink_frequency,
+                    R"doc(No documentation available.)doc" )
+            .value( "signal_to_noise", tudat::input_output::TrackingDataType::signal_to_noise, R"doc(No documentation available.)doc" )
+            .value( "spectral_max", tudat::input_output::TrackingDataType::spectral_max, R"doc(No documentation available.)doc" )
+            .value( "doppler_measured_frequency",
+                    tudat::input_output::TrackingDataType::doppler_measured_frequency,
+                    R"doc(No documentation available.)doc" )
+            .value( "doppler_averaged_frequency",
+                    tudat::input_output::TrackingDataType::doppler_averaged_frequency,
+                    R"doc(No documentation available.)doc" )
+            .value( "doppler_base_frequency",
+                    tudat::input_output::TrackingDataType::doppler_base_frequency,
+                    R"doc(No documentation available.)doc" )
+            .value( "doppler_noise", tudat::input_output::TrackingDataType::doppler_noise, R"doc(No documentation available.)doc" )
+            .value( "doppler_bandwidth", tudat::input_output::TrackingDataType::doppler_bandwidth, R"doc(No documentation available.)doc" )
+            .value( "receiving_station_name",
+                    tudat::input_output::TrackingDataType::receiving_station_name,
+                    R"doc(No documentation available.)doc" )
+            .value( "transmitting_station_name",
+                    tudat::input_output::TrackingDataType::transmitting_station_name,
+                    R"doc(No documentation available.)doc" )
+            .value( "time_tag_delay", tudat::input_output::TrackingDataType::time_tag_delay )
+            .value( "sample_number", tudat::input_output::TrackingDataType::sample_number )
+            .value( "utc_day_of_year", tudat::input_output::TrackingDataType::utc_day_of_year )
+            .value( "reference_body_distance", tudat::input_output::TrackingDataType::reference_body_distance )
+            .value( "transmission_frequency_constant_term", tudat::input_output::TrackingDataType::transmission_frequency_constant_term )
+            .value( "transmission_frequency_linear_term", tudat::input_output::TrackingDataType::transmission_frequency_linear_term )
+            .value( "doppler_predicted_frequency_hz", tudat::input_output::TrackingDataType::doppler_predicted_frequency_hz )
+            .value( "doppler_troposphere_correction", tudat::input_output::TrackingDataType::doppler_troposphere_correction )
+            .value( "scan_nr", tudat::input_output::TrackingDataType::scan_nr )
+            .export_values( );
 
     py::class_< tio::solar_activity::SolarActivityData,
                 std::shared_ptr< tio::solar_activity::SolarActivityData > >(
@@ -410,21 +380,16 @@ void expose_data( py::module &m )
            py::arg( "body_with_ground_stations_name" ) = "Earth",
            R"doc(No documentation available.)doc" );
 
-    py::class_< tudat::input_output::TrackingTxtFileContents,
-                std::shared_ptr< tudat::input_output::TrackingTxtFileContents > >(
+    py::class_< tudat::input_output::TrackingTxtFileContents, std::shared_ptr< tudat::input_output::TrackingTxtFileContents > >(
             m, "TrackingTxtFileContents", R"doc(No documentation available.)doc" )
-            .def( py::init< const std::string,
-                            const std::vector< std::string >,
-                            const char,
-                            const std::string >( ),
+            .def( py::init< const std::string, const std::vector< std::string >, const char, const std::string >( ),
                   py::arg( "file_name" ),
                   py::arg( "column_types" ),
                   py::arg( "comment_symbol" ) = '#',
                   py::arg( "value_separators" ) = ",:\t ",
                   R"doc(No documentation available.)doc" )
             .def( "add_metadata_val",
-                  py::overload_cast< tio::TrackingDataType, double >(
-                          &tio::TrackingTxtFileContents::addMetaData ),
+                  py::overload_cast< tio::TrackingDataType, double >( &tio::TrackingTxtFileContents::addMetaData ),
                   py::arg( "tracking_data_type" ),
                   py::arg( "value" ),
                   R"doc(No documentation available.)doc" )
@@ -432,24 +397,16 @@ void expose_data( py::module &m )
                   &tio::TrackingTxtFileContents::getAllAvailableDataTypes,
                   R"doc(No documentation available.)doc" )
             .def( "add_metadata_str",
-                  py::overload_cast< tio::TrackingDataType, const std::string & >(
-                          &tio::TrackingTxtFileContents::addMetaData ),
+                  py::overload_cast< tio::TrackingDataType, const std::string& >( &tio::TrackingTxtFileContents::addMetaData ),
                   py::arg( "tracking_data_type" ),
                   py::arg( "str_value" ),
                   R"doc(No documentation available.)doc" )
-            .def_property_readonly( "column_field_types",
-                                    &tio::TrackingTxtFileContents::getRawColumnTypes,
-                                    R"doc(No documentation available.)doc" )
-            .def_property_readonly( "double_datamap",
-                                    &tio::TrackingTxtFileContents::getDoubleDataMap,
-                                    R"doc(No documentation available.)doc" )
-            .def_property_readonly( "raw_datamap",
-                                    &tio::TrackingTxtFileContents::getRawDataMap,
-                                    R"doc(No documentation available.)doc" )
-            .def_property_readonly( "num_rows",
-                                    &tio::TrackingTxtFileContents::getNumRows,
-                                    R"doc(No documentation available.)doc" );
-
+            .def_property_readonly(
+                    "column_field_types", &tio::TrackingTxtFileContents::getRawColumnTypes, R"doc(No documentation available.)doc" )
+            .def_property_readonly(
+                    "double_datamap", &tio::TrackingTxtFileContents::getDoubleDataMap, R"doc(No documentation available.)doc" )
+            .def_property_readonly( "raw_datamap", &tio::TrackingTxtFileContents::getRawDataMap, R"doc(No documentation available.)doc" )
+            .def_property_readonly( "num_rows", &tio::TrackingTxtFileContents::getNumRows, R"doc(No documentation available.)doc" );
 
     m.def( "read_tracking_txt_file",
            &tio::createTrackingTxtFileContents,
@@ -477,7 +434,7 @@ void expose_data( py::module &m )
            &tio::readIfmsFile,
            py::arg( "file_name" ),
            py::arg( "apply_tropospheric_correction" ) = true,
-           R"doc(Load contents of IFMS file into dictionary
+           R"doc(Load contents of IFMS file into object
 
            The keys of the dictionary represent the different columns of the IFMS file, and their values are lists with all the values in the associated column as strings.
 
