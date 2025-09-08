@@ -78,10 +78,9 @@ void expose_observations( py::module& m )
     // SINGLE OBSERVATION SET
 
     py::class_< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >,
-                std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > > >(
-            m,
-            "SingleObservationSet",
-            R"doc(
+                std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > > >( m,
+                                                                                                "SingleObservationSet",
+                                                                                                R"doc(
 
          Class collecting a single set of observations and associated data, of a given observable type, link ends, and ancilliary data.
 
@@ -90,48 +89,54 @@ void expose_observations( py::module& m )
 
 
       )doc" )
+            .def( py::init< const tom::ObservableType,
+                            const tom::LinkDefinition,
+                            const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >,
+                            const std::vector< TIME_TYPE >,
+                            const tom::LinkEndType,
+                            const std::vector< Eigen::VectorXd >,
+                            const std::shared_ptr< tss::ObservationDependentVariableCalculator >,
+                            const std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >( ),
+                  py::arg( "observable_type" ),
+                  py::arg( "link_ends" ),
+                  py::arg( "observations" ),
+                  py::arg( "observation_epochs" ),
+                  py::arg( "reference_link_end" ),
+                  py::arg( "observation_dependent_variables" ) = std::vector< Eigen::VectorXd >( ),
+                  py::arg( "dependent_variable_calculator" ) = nullptr,
+                  py::arg( "ancilliary_settings" ) = nullptr )
             .def( "set_observations",
-                  py::overload_cast< const std::vector<
-                          Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >& >(
-                          &tom::SingleObservationSet< STATE_SCALAR_TYPE,
-                                                      TIME_TYPE >::setObservations ),
+                  py::overload_cast< const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >& >(
+                          &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::setObservations ),
                   py::arg( "observations" ),
                   R"doc(No documentation found.)doc" )
             .def( "set_observations",
                   py::overload_cast< const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 >& >(
-                          &tom::SingleObservationSet< STATE_SCALAR_TYPE,
-                                                      TIME_TYPE >::setObservations ),
+                          &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::setObservations ),
                   py::arg( "observations" ),
                   R"doc(No documentation found.)doc" )
             .def( "set_residuals",
-                  py::overload_cast< const std::vector<
-                          Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >& >(
-                          &tom::SingleObservationSet< STATE_SCALAR_TYPE,
-                                                      TIME_TYPE >::setResiduals ),
+                  py::overload_cast< const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >& >(
+                          &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::setResiduals ),
                   py::arg( "residuals" ),
                   R"doc(No documentation found.)doc" )
             .def( "set_residuals",
                   py::overload_cast< const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 >& >(
-                          &tom::SingleObservationSet< STATE_SCALAR_TYPE,
-                                                      TIME_TYPE >::setResiduals ),
+                          &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::setResiduals ),
                   py::arg( "residuals" ),
                   R"doc(No documentation found.)doc" )
             .def( "set_constant_weight",
-                  py::overload_cast< const double >(
-                          &tom::SingleObservationSet< STATE_SCALAR_TYPE,
-                                                      TIME_TYPE >::setConstantWeight ),
+                  py::overload_cast< const double >( &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantWeight ),
                   py::arg( "weight" ),
                   R"doc(No documentation found.)doc" )
             .def( "set_constant_weight",
                   py::overload_cast< const Eigen::Matrix< double, Eigen::Dynamic, 1 >& >(
-                          &tom::SingleObservationSet< STATE_SCALAR_TYPE,
-                                                      TIME_TYPE >::setConstantWeight ),
+                          &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantWeight ),
                   py::arg( "weight" ),
                   R"doc(No documentation found.)doc" )
             .def( "set_tabulated_weights",
                   py::overload_cast< const Eigen::VectorXd& >(
-                          &tom::SingleObservationSet< STATE_SCALAR_TYPE,
-                                                      TIME_TYPE >::setTabulatedWeights ),
+                          &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::setTabulatedWeights ),
                   py::arg( "weights" ),
                   R"doc(No documentation found.)doc" )
             .def( "filter_observations",
@@ -139,10 +144,9 @@ void expose_observations( py::module& m )
                   py::arg( "filter" ),
                   py::arg( "save_filtered_obs" ) = true,
                   R"doc(No documentation found.)doc" )
-            .def_property_readonly(
-                    "observable_type",
-                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getObservableType,
-                    R"doc(
+            .def_property_readonly( "observable_type",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getObservableType,
+                                    R"doc(
 
          **read-only**
 
@@ -161,10 +165,9 @@ void expose_observations( py::module& m )
 
          :type: LinkDefinition
       )doc" )
-            .def_property_readonly(
-                    "reference_link_end",
-                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getReferenceLinkEnd,
-                    R"doc(
+            .def_property_readonly( "reference_link_end",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getReferenceLinkEnd,
+                                    R"doc(
 
          **read-only**
 
@@ -173,27 +176,20 @@ void expose_observations( py::module& m )
          :type: LinkEndType
       )doc" )
             .def_property_readonly( "number_of_observables",
-                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
-                                                                TIME_TYPE >::getNumberOfObservables,
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getNumberOfObservables,
                                     R"doc(No documentation found.)doc" )
-            .def_property_readonly(
-                    "single_observable_size",
-                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
-                                                TIME_TYPE >::getSingleObservableSize,
-                    R"doc(No documentation found.)doc" )
-            .def_property_readonly(
-                    "total_observation_set_size",
-                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
-                                                TIME_TYPE >::getTotalObservationSetSize,
-                    R"doc(No documentation found.)doc" )
-            .def_property_readonly(
-                    "time_bounds",
-                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeBounds,
-                    R"doc(No documentation found.)doc" )
-            .def_property_readonly(
-                    "list_of_observations",
-                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getObservations,
-                    R"doc(
+            .def_property_readonly( "single_observable_size",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getSingleObservableSize,
+                                    R"doc(No documentation found.)doc" )
+            .def_property_readonly( "total_observation_set_size",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getTotalObservationSetSize,
+                                    R"doc(No documentation found.)doc" )
+            .def_property_readonly( "time_bounds",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getTimeBounds,
+                                    R"doc(No documentation found.)doc" )
+            .def_property_readonly( "list_of_observations",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getObservations,
+                                    R"doc(
 
          **read-only**
 
@@ -201,10 +197,9 @@ void expose_observations( py::module& m )
 
          :type: list[ numpy.ndarray[numpy.float64[m, 1]] ]
       )doc" )
-            .def_property_readonly(
-                    "observation_times",
-                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationTimes,
-                    R"doc(
+            .def_property_readonly( "observation_times",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationTimes,
+                                    R"doc(
 
          **read-only**
 
@@ -213,8 +208,7 @@ void expose_observations( py::module& m )
          :type: list[ float]
       )doc" )
             .def_property_readonly( "concatenated_observations",
-                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
-                                                                TIME_TYPE >::getObservationsVector,
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationsVector,
                                     R"doc(
 
          **read-only**
@@ -223,55 +217,38 @@ void expose_observations( py::module& m )
 
          :type: numpy.ndarray[numpy.float64[m, 1]]
       )doc" )
+            .def_property_readonly( "computed_observations",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getComputedObservations,
+                                    R"doc(No documentation found.)doc" )
+            .def_property_readonly( "concatenated_computed_observations",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getComputedObservationsVector,
+                                    R"doc(No documentation found.)doc" )
+            .def_property_readonly( "residuals",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getResiduals,
+                                    R"doc(No documentation found.)doc" )
+            .def_property_readonly( "concatenated_residuals",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getResidualsVector,
+                                    R"doc(No documentation found.)doc" )
+            .def_property_readonly( "rms_residuals",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getRmsResiduals,
+                                    R"doc(No documentation found.)doc" )
+            .def_property_readonly( "mean_residuals",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getMeanResiduals,
+                                    R"doc(No documentation found.)doc" )
             .def_property_readonly(
-                    "computed_observations",
-                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
-                                                TIME_TYPE >::getComputedObservations,
-                    R"doc(No documentation found.)doc" )
-            .def_property_readonly(
-                    "concatenated_computed_observations",
-                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
-                                                TIME_TYPE >::getComputedObservationsVector,
-                    R"doc(No documentation found.)doc" )
-            .def_property_readonly(
-                    "residuals",
-                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getResiduals,
-                    R"doc(No documentation found.)doc" )
-            .def_property_readonly(
-                    "concatenated_residuals",
-                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getResidualsVector,
-                    R"doc(No documentation found.)doc" )
-            .def_property_readonly(
-                    "rms_residuals",
-                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getRmsResiduals,
-                    R"doc(No documentation found.)doc" )
-            .def_property_readonly(
-                    "mean_residuals",
-                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getMeanResiduals,
-                    R"doc(No documentation found.)doc" )
-            .def_property_readonly(
-                    "weights",
-                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getWeights,
-                    R"doc(No documentation found.)doc" )
-            .def_property_readonly(
-                    "concatenad_weights",
-                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightsVector,
-                    R"doc(No documentation found.)doc" )
-            .def_property(
-                    "dependent_variables",
-                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
-                                                TIME_TYPE >::getObservationsDependentVariables,
-                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
-                                                TIME_TYPE >::setObservationsDependentVariables,
-                    R"doc(No documentation found.)doc" )
-            .def_property_readonly(
-                    "dependent_variables_history",
-                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
-                                                TIME_TYPE >::getDependentVariableHistory,
-                    R"doc(No documentation found.)doc" )
+                    "weights", &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getWeights, R"doc(No documentation found.)doc" )
+            .def_property_readonly( "concatenad_weights",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightsVector,
+                                    R"doc(No documentation found.)doc" )
+            .def_property( "dependent_variables",
+                           &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationsDependentVariables,
+                           &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::setObservationsDependentVariables,
+                           R"doc(No documentation found.)doc" )
+            .def_property_readonly( "dependent_variables_history",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getDependentVariableHistory,
+                                    R"doc(No documentation found.)doc" )
             .def_property_readonly( "observations_history",
-                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
-                                                                TIME_TYPE >::getObservationsHistory,
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationsHistory,
                                     R"doc(
 
          **read-only**
@@ -281,8 +258,7 @@ void expose_observations( py::module& m )
          :type: dict[ float, numpy.ndarray[numpy.float64[m, 1]] ]
       )doc" )
             .def_property_readonly( "ancilliary_settings",
-                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
-                                                                TIME_TYPE >::getAncilliarySettings,
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getAncilliarySettings,
                                     R"doc(
 
          **read-only**
@@ -291,44 +267,33 @@ void expose_observations( py::module& m )
 
          :type: ObservationAncilliarySimulationSettings
       )doc" )
-            .def_property(
-                    "weights_vector",
-                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightsVector,
-                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::setTabulatedWeights,
-                    R"doc(No documentation found.)doc" )
-            .def_property_readonly(
-                    "filtered_observation_set",
-                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
-                                                TIME_TYPE >::getFilteredObservationSet,
-                    R"doc(No documentation found.)doc" )
-            .def_property_readonly(
-                    "number_filtered_observations",
-                    &tom::SingleObservationSet< STATE_SCALAR_TYPE,
-                                                TIME_TYPE >::getNumberOfFilteredObservations,
-                    R"doc(No documentation found.)doc" )
+            .def_property( "weights_vector",
+                           &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightsVector,
+                           &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::setTabulatedWeights,
+                           R"doc(No documentation found.)doc" )
+            .def_property_readonly( "filtered_observation_set",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getFilteredObservationSet,
+                                    R"doc(No documentation found.)doc" )
+            .def_property_readonly( "number_filtered_observations",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getNumberOfFilteredObservations,
+                                    R"doc(No documentation found.)doc" )
             .def( "single_dependent_variable",
-                  py::overload_cast< std::shared_ptr< tss::ObservationDependentVariableSettings >,
-                                     const bool >(
-                          &tom::SingleObservationSet< STATE_SCALAR_TYPE,
-                                                      TIME_TYPE >::getSingleDependentVariable ),
+                  py::overload_cast< std::shared_ptr< tss::ObservationDependentVariableSettings >, const bool >(
+                          &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getSingleDependentVariable ),
                   py::arg( "dependent_variable_settings" ),
                   py::arg( "return_first_compatible_settings" ) = false,
                   R"doc(No documentation found.)doc" )
             .def( "compatible_dependent_variable_settings",
-                  &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::
-                          getCompatibleDependentVariablesSettingsList,
+                  &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getCompatibleDependentVariablesSettingsList,
                   R"doc(No documentation found.)doc" )
             .def( "compatible_dependent_variables_list",
-                  &tom::SingleObservationSet< STATE_SCALAR_TYPE,
-                                              TIME_TYPE >::getAllCompatibleDependentVariables,
+                  &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getAllCompatibleDependentVariables,
                   R"doc(No documentation found.)doc" )
             .def( "single_dependent_variable_history",
-                  &tom::SingleObservationSet< STATE_SCALAR_TYPE,
-                                              TIME_TYPE >::getSingleDependentVariableHistory,
+                  &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getSingleDependentVariableHistory,
                   R"doc(No documentation found.)doc" )
             .def_property_readonly( "dependent_variables_matrix",
-                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::
-                                            getObservationsDependentVariablesMatrix,
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationsDependentVariablesMatrix,
                                     R"doc(No documentation found.)doc" );
 
     m.def( "single_observation_set",
@@ -892,8 +857,7 @@ observation_parser : ObservationCollectionParser
            &tss::mergeObservationCollections< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "observation_collection_list" ) );
 
-
-    // The following functions create a new ObservationCollection object from an existing one 
+    // The following functions create a new ObservationCollection object from an existing one
 
     m.def( "create_filtered_observation_collection",
            py::overload_cast<
