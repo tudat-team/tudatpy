@@ -2226,14 +2226,17 @@ inside a `Body` instance and used in observation corrections or environmental qu
     py::class_< tgs::PiecewiseLinearFrequencyInterpolator,
                 std::shared_ptr< tgs::PiecewiseLinearFrequencyInterpolator >,
                 tgs::StationFrequencyInterpolator >( m, "PiecewiseLinearFrequencyInterpolator" )
-            .def( py::init< const std::vector< tudat::Time > &,
-                            const std::vector< tudat::Time > &,
-                            const std::vector< double > &,
-                            const std::vector< double > & >( ),
+            .def( py::init< const std::vector< tudat::Time >&,
+                            const std::vector< tudat::Time >&,
+                            const std::vector< double >&,
+                            const std::vector< double >& >( ),
                   py::arg( "start_times" ),
                   py::arg( "end_times" ),
                   py::arg( "ramp_rates" ),
-                  py::arg( "start_frequency" ) );
+                  py::arg( "start_frequency" ) )
+            .def( "compute_current_frequency",
+                  &tgs::PiecewiseLinearFrequencyInterpolator::computeCurrentFrequency< double, tudat::Time >,
+                  py::arg( "lookup_time_original" ) );
 
     py::class_< tgs::PointingAnglesCalculator, std::shared_ptr< tgs::PointingAnglesCalculator > >(
             m, "PointingAnglesCalculator" )
