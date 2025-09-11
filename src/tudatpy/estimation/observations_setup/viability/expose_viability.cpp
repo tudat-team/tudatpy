@@ -97,7 +97,11 @@ void expose_viability( py::module& m )
 
       )doc" );
 
-      py::enum_< tom::ObservationViabilityType >( m, "ObservationViabilityType", R"doc(
+    py::class_< tom::CustomObservationViabilitySettings,
+                std::shared_ptr< tom::CustomObservationViabilitySettings >,
+                tom::ObservationViabilitySettings >( m, "CustomObservationViabilitySettings", R"doc()doc" );
+
+    py::enum_< tom::ObservationViabilityType >( m, "ObservationViabilityType", R"doc(
 
 Enumeration of observation viability criterion types.
 
@@ -122,6 +126,7 @@ Examples
             .value( "minimum_elevation_angle", tom::ObservationViabilityType::minimum_elevation_angle )
             .value( "body_avoidance_angle", tom::ObservationViabilityType::body_avoidance_angle )
             .value( "body_occultation", tom::ObservationViabilityType::body_occultation )
+            .value( "custom_viability", tom::ObservationViabilityType::custom_viability )
             .export_values( );
 
 
@@ -240,6 +245,14 @@ Examples
 
 
      )doc" );
+
+    m.def( "custom_observation_viability",
+           py::overload_cast< const std::pair< std::string, std::string >,
+                              const std::function< bool( const std::vector< Eigen::Vector6d >, const std::vector< double > ) > >(
+                   &tom::customObservationViabilitySettings ),
+           py::arg( "link_end_id" ),
+           py::arg( "custom_viability_function" ),
+           R"doc(No documentation found.)doc" );
 
     m.def( "elevation_angle_viability_list",
            py::overload_cast< const std::vector< std::pair< std::string, std::string > >, const double >(
@@ -364,7 +377,15 @@ Examples
 
      )doc" );
 
-     m.def( "add_viability_check_to_all",
+    m.def( "custom_observation_viability_list",
+           py::overload_cast< const std::vector< std::pair< std::string, std::string > >,
+                              const std::function< bool( const std::vector< Eigen::Vector6d >, const std::vector< double > ) > >(
+                   &tom::customObservationViabilitySettings ),
+           py::arg( "link_end_id" ),
+           py::arg( "custom_viability_function" ),
+           R"doc(No documentation found.)doc" );
+
+    m.def( "add_viability_check_to_all",
            py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
                               const std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >& >(
                    &tss::addViabilityToObservationSimulationSettingsPy ),

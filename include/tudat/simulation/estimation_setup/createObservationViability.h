@@ -86,6 +86,30 @@ protected:
     double doubleParameter_;
 };
 
+class CustomObservationViabilitySettings : public ObservationViabilitySettings
+{
+public:
+    //! Constructor
+    /*!
+     * Constructor
+     * \param associatedLinkEnd Link end at which viability is to be checked
+     * \param customViabilityFunction Custom function that returns whether the observation is viable or not
+     */
+    CustomObservationViabilitySettings(
+            const std::pair< std::string, std::string > associatedLinkEnd,
+            const std::function< bool( const std::vector< Eigen::Vector6d >, const std::vector< double > ) > customViabilityFunction ):
+        ObservationViabilitySettings( custom_viability, associatedLinkEnd ), customViabilityFunction_( customViabilityFunction )
+    { }
+
+    const std::function< bool( const std::vector< Eigen::Vector6d >, const std::vector< double > ) > getCustomViabilityFunction( )
+    {
+        return customViabilityFunction_;
+    }
+
+protected:
+    std::function< bool( const std::vector< Eigen::Vector6d >, const std::vector< double > ) > customViabilityFunction_;
+};
+
 inline std::vector< std::shared_ptr< ObservationViabilitySettings > > elevationAngleViabilitySettings(
         const std::vector< std::pair< std::string, std::string > > associatedLinkEnds,
         const double elevationAngle )
@@ -146,6 +170,26 @@ inline std::shared_ptr< ObservationViabilitySettings > bodyOccultationViabilityS
         const std::string occultingBody )
 {
     return std::make_shared< ObservationViabilitySettings >( body_occultation, associatedLinkEnd, occultingBody );
+}
+
+inline std::vector< std::shared_ptr< CustomObservationViabilitySettings > > customObservationViabilitySettings(
+        const std::vector< std::pair< std::string, std::string > > associatedLinkEnds,
+        const std::function< bool( const std::vector< Eigen::Vector6d >, const std::vector< double > ) > customViabilityFunction )
+{
+    std::vector< std::shared_ptr< CustomObservationViabilitySettings > > viabilitySettingsList;
+    for( unsigned int i = 0; i < associatedLinkEnds.size( ); i++ )
+    {
+        viabilitySettingsList.push_back(
+                std::make_shared< CustomObservationViabilitySettings >( associatedLinkEnds.at( i ), customViabilityFunction ) );
+    }
+    return viabilitySettingsList;
+}
+
+inline std::shared_ptr< CustomObservationViabilitySettings > customObservationViabilitySettings(
+        const std::pair< std::string, std::string > associatedLinkEnd,
+        const std::function< bool( const std::vector< Eigen::Vector6d >, const std::vector< double > ) > customViabilityFunction )
+{
+    return std::make_shared< CustomObservationViabilitySettings >( associatedLinkEnd, customViabilityFunction );
 }
 
 //! Typedef for vector of ObservationViabilitySettings pointers
