@@ -248,8 +248,6 @@ std::vector< std::shared_ptr< ObservationViabilityCalculator > > createObservati
                 break;
             case custom_viability:
 
-                std::cout << "creating custom viability calculator" << std::endl;
-
                 linkViabilityCalculators.push_back( createCustomViabilityCalculator(
                         bodies,
                         linkEnds,

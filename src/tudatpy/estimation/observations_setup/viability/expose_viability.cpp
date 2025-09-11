@@ -381,7 +381,7 @@ Examples
            py::overload_cast< const std::vector< std::pair< std::string, std::string > >,
                               const std::function< bool( const std::vector< Eigen::Vector6d >, const std::vector< double > ) > >(
                    &tom::customObservationViabilitySettings ),
-           py::arg( "link_end_id" ),
+           py::arg( "link_end_ids" ),
            py::arg( "custom_viability_function" ),
            R"doc(No documentation found.)doc" );
 
