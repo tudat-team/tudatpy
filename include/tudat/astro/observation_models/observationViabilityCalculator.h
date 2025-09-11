@@ -307,9 +307,7 @@ public:
             const std::vector< std::pair< int, int > > linkEndIndices,
             const std::function< bool( const std::vector< Eigen::Vector6d >, std::vector< double > ) > customViabilityFunction ):
         linkEndIndices_( linkEndIndices ), customViabilityFunction_( customViabilityFunction )
-    {
-        std::cout << "Custom viability calculator created." << std::endl;
-    }
+    { }
 
     bool isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates, const std::vector< double >& linkEndTimes );
 
