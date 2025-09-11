@@ -12,17 +12,19 @@
 
 #include <algorithm>
 
+namespace tio = tudat::input_output;
+
 namespace tudat
 {
 
 namespace observation_models
 {
 
-observation_models::ObservableType getObservableTypeForOdfId( const int odfId )
+observation_models::ObservableType getObservableTypeForOdfId( const input_output::OdfDataType observable_type_id )
 {
     observation_models::ObservableType observableType;
 
-    switch( odfId )
+    switch( observable_type_id )
     {
             // TODO: don't forget to remove
             // ProcessedOdfFileContentsPrivateFunctionTest class after implementing
@@ -30,18 +32,16 @@ observation_models::ObservableType getObservableTypeForOdfId( const int odfId )
             //    case 11:
             //        observableType =
             //        observation_models::dsn_one_way_averaged_doppler; break;
-        case 12:
+        case tio::OdfDataType::two_way_doppler:
+        case tio::OdfDataType::three_way_doppler:
             observableType = observation_models::dsn_n_way_averaged_doppler;
             break;
-        case 13:
-            observableType = observation_models::dsn_n_way_averaged_doppler;
-            break;
-        case 37:
+        case tio::OdfDataType::sra_planetary_operational_discrete_spectrum_range:
             observableType = observation_models::dsn_n_way_range;
             break;
         default:
-            throw std::runtime_error( "Error when getting observable type for ODF ID, ID: " + std::to_string( odfId ) +
-                                      " not recognized." );
+            throw std::runtime_error( "Error when getting observable type from ODF ID: ID " +
+                                      std::to_string( static_cast< int >( observable_type_id ) ) + " not recognized" );
     }
 
     return observableType;
@@ -96,51 +96,32 @@ std::string getStationNameFromStationId( const int networkId, const int stationI
 observation_models::LinkEnds getLinkEndsFromOdfBlock( const std::shared_ptr< input_output::OdfDataBlock > dataBlock,
                                                       std::string spacecraftName )
 {
-    int currentObservableId = dataBlock->getObservableSpecificDataBlock( )->dataType_;
+    std::shared_ptr< input_output::OdfCommonDataBlock > commonDataBlock = dataBlock->getCommonDataBlock( );
 
     observation_models::LinkEnds linkEnds;
 
-    if( currentObservableId == 11 )
+    switch( commonDataBlock->dataType_ )
     {
-        linkEnds[ observation_models::transmitter ] = observation_models::LinkEndId( spacecraftName );
-        linkEnds[ observation_models::receiver ] = observation_models::LinkEndId(
-                "Earth", getStationNameFromStationId( 0, dataBlock->getCommonDataBlock( )->receivingStationId_ ) );
-    }
-    else if( currentObservableId == 12 )
-    {
-        linkEnds[ observation_models::transmitter ] =
-                observation_models::LinkEndId( "Earth",
-                                               getStationNameFromStationId( dataBlock->getCommonDataBlock( )->transmittingStationNetworkId_,
-                                                                            dataBlock->getCommonDataBlock( )->transmittingStationId_ ) );
-        linkEnds[ observation_models::reflector1 ] = observation_models::LinkEndId( spacecraftName );
-        linkEnds[ observation_models::receiver ] = observation_models::LinkEndId(
-                "Earth", getStationNameFromStationId( 0, dataBlock->getCommonDataBlock( )->receivingStationId_ ) );
-    }
-    else if( currentObservableId == 13 )
-    {
-        linkEnds[ observation_models::transmitter ] =
-                observation_models::LinkEndId( "Earth",
-                                               getStationNameFromStationId( dataBlock->getCommonDataBlock( )->transmittingStationNetworkId_,
-                                                                            dataBlock->getCommonDataBlock( )->transmittingStationId_ ) );
-        linkEnds[ observation_models::reflector1 ] = observation_models::LinkEndId( spacecraftName );
-        linkEnds[ observation_models::receiver ] = observation_models::LinkEndId(
-                "Earth", getStationNameFromStationId( 0, dataBlock->getCommonDataBlock( )->receivingStationId_ ) );
-    }
-    else if( currentObservableId == 37 )
-    {
-        linkEnds[ observation_models::transmitter ] =
-                observation_models::LinkEndId( "Earth",
-                                               getStationNameFromStationId( dataBlock->getCommonDataBlock( )->transmittingStationNetworkId_,
-                                                                            dataBlock->getCommonDataBlock( )->transmittingStationId_ ) );
-
-        linkEnds[ observation_models::reflector1 ] = observation_models::LinkEndId( spacecraftName );
-        linkEnds[ observation_models::receiver ] = observation_models::LinkEndId(
-                "Earth", getStationNameFromStationId( 0, dataBlock->getCommonDataBlock( )->receivingStationId_ ) );
-    }
-    else
-    {
-        throw std::runtime_error( "Error when getting link ends from ODF data blocks, data type " + std::to_string( currentObservableId ) +
-                                  " not recognized." );
+        case input_output::OdfDataType::one_way_doppler:
+            linkEnds[ observation_models::LinkEndType::transmitter ] = observation_models::LinkEndId( spacecraftName );
+            linkEnds[ observation_models::LinkEndType::receiver ] =
+                    observation_models::LinkEndId( "Earth", getStationNameFromStationId( 0, commonDataBlock->receivingStationId_ ) );
+            break;
+        case input_output::OdfDataType::two_way_doppler:
+        case input_output::OdfDataType::three_way_doppler:
+        case input_output::OdfDataType::sra_planetary_operational_discrete_spectrum_range:
+            linkEnds[ observation_models::LinkEndType::transmitter ] =
+                    observation_models::LinkEndId( "Earth",
+                                                   getStationNameFromStationId( commonDataBlock->transmittingStationNetworkId_,
+                                                                                commonDataBlock->transmittingStationId_ ) );
+            linkEnds[ observation_models::LinkEndType::reflector1 ] = observation_models::LinkEndId( spacecraftName );
+            linkEnds[ observation_models::LinkEndType::receiver ] =
+                    observation_models::LinkEndId( "Earth", getStationNameFromStationId( 0, commonDataBlock->receivingStationId_ ) );
+            break;
+        default:
+            throw std::runtime_error( "Error when getting link ends from ODF data blocks: Data type " +
+                                      std::to_string( static_cast< int >( commonDataBlock->dataType_ ) ) + " not recognized." );
+            break;
     }
 
     return linkEnds;
