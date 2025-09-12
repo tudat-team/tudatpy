@@ -140,10 +140,10 @@ class Trk234Processor:
         ramp_df = self.ramp_converter.process(all_ramps)
 
         ramp_df["start_time_seconds"] = ramp_df["start_time"].apply(
-            lambda x: time_representation.datetime_to_tudat(x).epoch()
+            lambda x: time_representation.DateTime.from_python_datetime(x).to_epoch()
         )
         ramp_df["end_time_seconds"] = ramp_df["end_time"].apply(
-            lambda x: time_representation.datetime_to_tudat(x).epoch()
+            lambda x: time_representation.DateTime.from_python_datetime(x).to_epoch()
         )
         earth = bodies.get("Earth")
         for station in ramp_df["station"].unique():
