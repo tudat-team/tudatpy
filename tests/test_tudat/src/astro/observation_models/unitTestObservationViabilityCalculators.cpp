@@ -1191,26 +1191,26 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
                         BOOST_CHECK_SMALL( std::fabs( rotatedJupiter( 1 ) ), 1.0E-3 );
                         BOOST_CHECK_SMALL( std::fabs( rotatedJupiter( 2 ) ), 1.0E-3 );
 
-                        if( rotatedSpacecraft( 0 ) < 0 )
+                        // Define tolerance for ambiguous cases near zero
+                        double tolerance = 10.0 * std::numeric_limits<double>::epsilon() * rotatedSpacecraft.norm();
+
+                        // Skip ambiguous region near 0 (test on tolerance, not 0)
+                        if( rotatedSpacecraft( 0 ) < tolerance )
                         {
                             currentObservationIsViable = false;
                         }
                     }
 
-                    // Define tolerance for ambiguous cases near zero
-                    double tol = 10.0 * std::numeric_limits<double>::epsilon() * rotatedSpacecraft.norm();
-                    // Skip ambiguous region near 0
-                    if( std::fabs( rotatedSpacecraft( 0 ) ) > tol )
-                    {
-                        BOOST_CHECK_EQUAL( currentObservationIsViable, currentObservationWasViable );
 
-                        if( currentObservationIsViable != currentObservationWasViable )
-                        {
-                            std::cout << currentObservable << " " << getLinkEndsString( currentLinkEnds ) << std::endl;
-                            // Just for debugging purposes, print the value in case it still gets boost-checked
-                            std::cout << "rotatedSpacecraft(0) value:" << rotatedSpacecraft( 0 ) << std::endl;
-                        }
+                    BOOST_CHECK_EQUAL( currentObservationIsViable, currentObservationWasViable );
+
+                    if( currentObservationIsViable != currentObservationWasViable )
+                    {
+                        std::cout << currentObservable << " " << getLinkEndsString( currentLinkEnds ) << std::endl;
+                        // Just for debugging purposes, print the value in case it still gets boost-checked
+                        std::cout << "rotatedSpacecraft(0) value:" << rotatedSpacecraft( 0 ) << std::endl;
                     }
+
                     if( currentObservationWasViable )
                     {
                         constrainedIndex++;
