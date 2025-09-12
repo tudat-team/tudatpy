@@ -323,6 +323,7 @@ Examples
     py::enum_< tom::TroposphericMappingModel >( m, "TroposphericMappingModel", R"doc(No documentation found.)doc" )
             .value( "simplified_chao", tom::TroposphericMappingModel::simplified_chao )
             .value( "niell", tom::TroposphericMappingModel::niell )
+            .value( "vmf3", tom::TroposphericMappingModel::vmf3 )
             .export_values( );
 
     py::enum_< tom::WaterVaporPartialPressureModel >( m, "WaterVaporPartialPressureModel", R"doc(No documentation found.)doc" )
@@ -363,7 +364,7 @@ Examples
            py::arg( "use_utc_for_local_time_computation" ) = false,
            py::arg( "body_with_atmosphere_name" ) = "Earth",
            R"doc(No documentation found.)doc" );
-    
+
     // IONEX-based VTEC correction
     m.def( "ionex_ionospheric_light_time_correction",
         &tom::ionexIonosphericCorrectionSettings,
