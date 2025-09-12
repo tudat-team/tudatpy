@@ -51,11 +51,10 @@ void expose_shape_setup( py::module &m )
 
       )doc" );
 
-    py::class_< tss::SphericalBodyShapeSettings,
-                std::shared_ptr< tss::SphericalBodyShapeSettings >,
-                tss::BodyShapeSettings >( m,
-                                          "SphericalBodyShapeSettings",
-                                          R"doc(
+    py::class_< tss::SphericalBodyShapeSettings, std::shared_ptr< tss::SphericalBodyShapeSettings >, tss::BodyShapeSettings >(
+            m,
+            "SphericalBodyShapeSettings",
+            R"doc(
 
          Class for defining model settings of a strictly spherical body shape.
 
