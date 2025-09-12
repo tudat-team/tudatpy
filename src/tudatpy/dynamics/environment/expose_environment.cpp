@@ -78,7 +78,6 @@ std::pair< std::vector< Eigen::Vector3d >, std::vector< Eigen::Vector3d > > getV
     //            localInclinationAnalysis->getPressureCoefficientList(
     //            independentVariables );
 
-    int counter = 0;
     std::vector< Eigen::Vector3d > meshPointsList;
     std::vector< Eigen::Vector3d > surfaceNormalsList;
     //    std::map< int, Eigen::Vector1d > pressureCoefficientsList;
