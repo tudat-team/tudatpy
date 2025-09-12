@@ -19,7 +19,7 @@ namespace acceleration_partials
 
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
-std::pair< std::function< void( Eigen::MatrixXd& ) >, int > RTGAccelerationPartial::getParameterPartialFunction(
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > RTGAccelerationPartial::getParameterPartialFunctionDerivedAcceleration(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
     using namespace tudat::estimatable_parameters;
@@ -49,7 +49,7 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > RTGAccelerationParti
 
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
-std::pair< std::function< void( Eigen::MatrixXd& ) >, int > RTGAccelerationPartial::getParameterPartialFunction(
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > RTGAccelerationPartial::getParameterPartialFunctionDerivedAcceleration(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
     using namespace tudat::estimatable_parameters;

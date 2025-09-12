@@ -424,6 +424,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
                         accelerationPartialForCentralBody,
                         acceleratedBody.first,
                         acceleratingBody.first,
+                        thirdBodyAccelerationModel,
                         thirdBodyAccelerationModel->getCentralBodyName( ) );
             }
             break;
@@ -497,6 +498,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
                         accelerationPartialForCentralBody,
                         acceleratedBody.first,
                         acceleratingBody.first,
+                        thirdBodyAccelerationModel,
                         thirdBodyAccelerationModel->getCentralBodyName( ) );
             }
             break;
@@ -531,7 +533,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
                         accelerationPartialOfShExpansionOfBodyUndergoingAcceleration,
                         acceleratedBody.first,
                         acceleratingBody.first,
-                        mutualSphericalHarmonicAcceleration->getUseCentralBodyFixedFrame( ) );
+                        mutualSphericalHarmonicAcceleration );
             }
             break;
         }
@@ -569,6 +571,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
                         accelerationPartialForCentralBody,
                         acceleratedBody.first,
                         acceleratingBody.first,
+                        thirdBodyAccelerationModel,
                         thirdBodyAccelerationModel->getCentralBodyName( ) );
             }
             break;
@@ -632,6 +635,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
                         accelerationPartialForCentralBody,
                         acceleratedBody.first,
                         acceleratingBody.first,
+                        thirdBodyAccelerationModel,
                         thirdBodyAccelerationModel->getCentralBodyName( ) );
             }
             break;
@@ -695,6 +699,7 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
                         accelerationPartialForCentralBody,
                         acceleratedBody.first,
                         acceleratingBody.first,
+                        thirdBodyAccelerationModel,
                         thirdBodyAccelerationModel->getCentralBodyName( ) );
             }
             break;
