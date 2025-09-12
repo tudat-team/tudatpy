@@ -4,7 +4,7 @@ channels:
   - tudat-team
 dependencies:
   - eigen
-  - boost-cpp=1.85.0
+  - boost-cpp=1.84.0
   - tudat-resources
   - sofa-cmake
   - nrlmsise-00
