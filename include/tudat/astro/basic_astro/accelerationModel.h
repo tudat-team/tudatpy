@@ -73,24 +73,40 @@ public:
      */
     virtual void updateMembers( const double currentTime = TUDAT_NAN ) = 0;
 
-    AccelerationDataType& getAccelerationReference( )
+    AccelerationDataType& getUnscaledAccelerationReference( )
     {
         return currentAcceleration_;
+    }
+
+    double getAccelerationScalingFactor( )
+    {
+        return accelerationScalingFactor_;
+    }
+
+    void setAccelerationScalingFactor( const double accelerationScalingFactor )
+    {
+        accelerationScalingFactor_ = accelerationScalingFactor;
     }
 
     AccelerationDataType getAcceleration( )
     {
+        return currentAcceleration_ * accelerationScalingFactor_;
+    }
+
+    AccelerationDataType getUnscaledAcceleration( )
+    {
         return currentAcceleration_;
     }
 
+
     void getAccelerationByReference( AccelerationDataType& acceleration ) const
     {
-        acceleration = currentAcceleration_;
+        acceleration = currentAcceleration_ * accelerationScalingFactor_;
     }
 
     void addCurrentAcceleration( AccelerationDataType& acceleration ) const
     {
-        acceleration += currentAcceleration_;
+        acceleration += currentAcceleration_ * accelerationScalingFactor_;
     }
 
     //! Function to reset the current time
@@ -108,6 +124,8 @@ protected:
     double currentTime_;
 
     AccelerationDataType currentAcceleration_;
+
+    double accelerationScalingFactor_ = 1.0;
 
 protected:
 private:

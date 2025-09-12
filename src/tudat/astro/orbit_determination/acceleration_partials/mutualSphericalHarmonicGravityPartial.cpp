@@ -17,7 +17,7 @@ namespace acceleration_partials
 {
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
-std::pair< std::function< void( Eigen::MatrixXd& ) >, int > MutualSphericalHarmonicsGravityPartial::getParameterPartialFunction(
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > MutualSphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > parameterPartial;
@@ -41,9 +41,9 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > MutualSphericalHarmo
     {
         // Get partial functions for constituent partial objects
         std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromBodyExertingAcceleration =
-                accelerationPartialOfShExpansionOfBodyExertingAcceleration_->getParameterPartialFunction( parameter );
+                accelerationPartialOfShExpansionOfBodyExertingAcceleration_->getParameterPartialFunctionDerivedAcceleration( parameter );
         std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromBodyUndergoingAcceleration =
-                accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->getParameterPartialFunction( parameter );
+                accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->getParameterPartialFunctionDerivedAcceleration( parameter );
 
         // Combine partial functions
         parameterPartial = orbit_determination::createMergedParameterPartialFunction( partialFunctionFromBodyExertingAcceleration,
@@ -53,13 +53,13 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > MutualSphericalHarmo
 }
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
-std::pair< std::function< void( Eigen::MatrixXd& ) >, int > MutualSphericalHarmonicsGravityPartial::getParameterPartialFunction(
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > MutualSphericalHarmonicsGravityPartial::getParameterPartialFunctionDerivedAcceleration(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromBodyExertingAcceleration =
-            accelerationPartialOfShExpansionOfBodyExertingAcceleration_->getParameterPartialFunction( parameter );
+            accelerationPartialOfShExpansionOfBodyExertingAcceleration_->getParameterPartialFunctionDerivedAcceleration( parameter );
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionFromBodyUndergoingAcceleration =
-            accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->getParameterPartialFunction( parameter );
+            accelerationPartialOfShExpansionOfBodyUndergoingAcceleration_->getParameterPartialFunctionDerivedAcceleration( parameter );
 
     return orbit_determination::createMergedParameterPartialFunction( partialFunctionFromBodyExertingAcceleration,
                                                                       partialFunctionFromBodyUndergoingAcceleration );

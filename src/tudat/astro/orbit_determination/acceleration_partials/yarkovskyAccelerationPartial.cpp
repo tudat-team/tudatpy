@@ -41,14 +41,11 @@ Eigen::Matrix3d calculatePartialOfYarkovskyAccelerationWrtVelocityOfAcceleratedB
 }
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
-std::pair< std::function< void( Eigen::MatrixXd& ) >, int > YarkovskyAccelerationPartial::getParameterPartialFunction(
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > YarkovskyAccelerationPartial::getParameterPartialFunctionDerivedAcceleration(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 
 {
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > partialFunctionPair;
-
-    std::cout << parameter->getParameterName( ).first << std::endl;
-    std::cout << estimatable_parameters::yarkovsky_parameter << std::endl;
 
     // Check dependencies.
     if( parameter->getParameterName( ).first == estimatable_parameters::yarkovsky_parameter &&
