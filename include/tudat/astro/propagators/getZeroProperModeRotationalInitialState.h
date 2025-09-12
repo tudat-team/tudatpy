@@ -280,14 +280,14 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getZeroProperModeRotationalS
     return currentInitialState;
 }
 
-template< typename TimeType = double, typename StateScalarType = double >
+template< typename StateScalarType = double >
 struct DampedInitialRotationalStateResults {
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialState_;
-    std::vector< std::pair< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >,
-                            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >
+    std::vector< std::pair< std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >,
+                            std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >
             forwardBackwardPropagatedStates_;
-    std::vector< std::pair< std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > >,
-                            std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > > >
+    std::vector< std::pair< std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >,
+                            std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > > >
             forwardBackwardDependentVariables_;
 };
 
@@ -323,7 +323,7 @@ getZeroProperModeRotationalState( const simulation_setup::SystemOfBodies& bodies
 }
 
 template< typename TimeType = double, typename StateScalarType = double >
-std::shared_ptr< DampedInitialRotationalStateResults< TimeType, StateScalarType > > getZeroProperModeRotationalStateWithStruct(
+std::shared_ptr< DampedInitialRotationalStateResults< StateScalarType > > getZeroProperModeRotationalStateWithStruct(
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
         const double bodyMeanRotationRate,
@@ -345,8 +345,8 @@ std::shared_ptr< DampedInitialRotationalStateResults< TimeType, StateScalarType 
                                                                                                          dependentVariables,
                                                                                                          propagateNominal,
                                                                                                          false );
-    std::shared_ptr< DampedInitialRotationalStateResults< TimeType, StateScalarType > > resultsStruct =
-            std::make_shared< DampedInitialRotationalStateResults< TimeType, StateScalarType > >( );
+    std::shared_ptr< DampedInitialRotationalStateResults< StateScalarType > > resultsStruct =
+            std::make_shared< DampedInitialRotationalStateResults< StateScalarType > >( );
     resultsStruct->initialState_ = initialState;
     resultsStruct->forwardBackwardPropagatedStates_ = propagatedStates;
     resultsStruct->forwardBackwardDependentVariables_ = dependentVariables;
