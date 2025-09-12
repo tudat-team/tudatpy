@@ -75,7 +75,6 @@ public:
 
     Eigen::Vector3d updateAndGetRotationAngles( const double ephemerisTime )
     {
-        // if( std::fabs( currentEphemerisTime_ - ephemerisTime ) > 1.0E-8 )
         {
             updateCorrections( ephemerisTime );
         }
@@ -279,8 +278,22 @@ public:
         planetaryOrientationAnglesCalculator_( planetaryOrientationAnglesCalculator )
 
     {
-        rotationFromMeanOrbitToIcrf_ = spice_interface::computeRotationQuaternionBetweenFrames( "J2000", "ECLIPJ2000", 0.0 ) *
+        Eigen::Quaterniond rotationFromMeanOrbitToJ2000 =
                 Eigen::AngleAxisd( angleN, Eigen::Vector3d::UnitZ( ) ) * Eigen::AngleAxisd( angleJ, Eigen::Vector3d::UnitX( ) );
+
+        if( baseFrameOrientation == "J2000" )
+        {
+            rotationFromMeanOrbitToIcrf_ = rotationFromMeanOrbitToJ2000;
+        }
+        else if( baseFrameOrientation == "ECLIPJ2000" )
+        {
+            rotationFromMeanOrbitToIcrf_ =
+                    spice_interface::computeRotationQuaternionBetweenFrames( "J2000", "ECLIPJ2000", 0.0 ) * rotationFromMeanOrbitToJ2000;
+        }
+        else
+        {
+            throw std::runtime_error( "Error in PlanetaryRotationModel, base frame " + baseFrameOrientation + " not recognized." );
+        }
     }
 
     Eigen::Quaterniond getPolarMotionRotation( const double ephemerisTime );

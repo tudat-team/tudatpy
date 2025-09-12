@@ -648,7 +648,7 @@ void expose_simulator( py::module& m )
             .def_property_readonly(
                     "state_history",
                     &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::
-                            getEquationsOfMotionSolution,
+                            getEquationsOfMotionSolutionDouble,
                     R"doc(
 
          **read-only**
