@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE( testSingleOdfFileReader )
 
     std::shared_ptr< input_output::OdfDopplerDataBlock > dopplerDataBlock = std::dynamic_pointer_cast< input_output::OdfDopplerDataBlock >(
             rawOdfContents->getDataBlocks( ).at( 0 )->getObservableSpecificDataBlock( ) );
-    BOOST_CHECK_EQUAL( dopplerDataBlock->dataType_, 11 );
+    BOOST_CHECK_EQUAL( dopplerDataBlock->dataType_, input_output::OdfDataType::one_way_doppler );
     BOOST_CHECK_EQUAL( dopplerDataBlock->getReceiverChannel( ), 1 );
     BOOST_CHECK_EQUAL( dopplerDataBlock->getSpacecraftId( ), 236 );
     BOOST_CHECK_EQUAL( dopplerDataBlock->getReceiverExciterFlag( ), 1 );
@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE( testSingleOdfFileReader )
 
     dopplerDataBlock = std::dynamic_pointer_cast< input_output::OdfDopplerDataBlock >(
             rawOdfContents->getDataBlocks( ).at( 19 )->getObservableSpecificDataBlock( ) );
-    BOOST_CHECK_EQUAL( dopplerDataBlock->dataType_, 12 );
+    BOOST_CHECK_EQUAL( dopplerDataBlock->dataType_, input_output::OdfDataType::two_way_doppler );
     BOOST_CHECK_EQUAL( dopplerDataBlock->getReceiverChannel( ), 1 );
     BOOST_CHECK_EQUAL( dopplerDataBlock->getSpacecraftId( ), 236 );
     BOOST_CHECK_EQUAL( dopplerDataBlock->getReceiverExciterFlag( ), 1 );
@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE( testSingleOdfFileReader )
     std::shared_ptr< input_output::OdfSequentialRangeDataBlock > rangeDataBlock =
             std::dynamic_pointer_cast< input_output::OdfSequentialRangeDataBlock >(
                     rawOdfContents->getDataBlocks( ).at( 23 )->getObservableSpecificDataBlock( ) );
-    BOOST_CHECK_EQUAL( rangeDataBlock->dataType_, 37 );
+    BOOST_CHECK_EQUAL( rangeDataBlock->dataType_, input_output::OdfDataType::sra_planetary_operational_discrete_spectrum_range );
     BOOST_CHECK_EQUAL( rangeDataBlock->getLowestRangingComponent( ), 14 );
     BOOST_CHECK_EQUAL( rangeDataBlock->getSpacecraftId( ), 236 );
     // BOOST_CHECK_EQUAL ( rangeDataBlock->reservedBlock_, 1 );
