@@ -348,8 +348,12 @@ std::shared_ptr< DampedInitialRotationalStateResults< StateScalarType > > getZer
     std::shared_ptr< DampedInitialRotationalStateResults< StateScalarType > > resultsStruct =
             std::make_shared< DampedInitialRotationalStateResults< StateScalarType > >( );
     resultsStruct->initialState_ = initialState;
-    resultsStruct->forwardBackwardPropagatedStates_ = propagatedStates;
-    resultsStruct->forwardBackwardDependentVariables_ = dependentVariables;
+    resultsStruct->forwardBackwardPropagatedStates_ = std::make_pair(
+            utilities::staticCastMapKeys< double, TimeType, StateScalarType > ( propagatedStates.first ),
+                                utilities::staticCastMapKeys< double, TimeType, StateScalarType > ( propagatedStates.second ) );
+    resultsStruct->forwardBackwardDependentVariables_ = std::make_pair(
+            utilities::staticCastMapKeys< double, TimeType, StateScalarType > ( dependentVariables.first ),
+                    utilities::staticCastMapKeys< double, TimeType, StateScalarType > ( dependentVariables.second ) );
 
     return resultsStruct;
 }
