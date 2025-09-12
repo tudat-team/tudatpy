@@ -140,7 +140,7 @@ Enumeration of predefined spherical harmonics models.
 Enumeration of predefined spherical harmonics models supported by tudat, for which thee coefficient files are automatically available (downloaded from
 `here <https://github.com/tudat-team/tudat-resources/tree/master/resource/gravity_models>`_). The directory where these files are stored can be
 extracted using the :func:`~tudatpy.data.get_gravity_models_path` function.
-                 
+
         )doc" )
             .value( "egm96",
                     tss::SphericalHarmonicsModel::egm96,
@@ -270,10 +270,6 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
          Derived class of `GravityFieldSettings` for gravity fields, which are defined by a spherical harmonic gravity field representation.
 
-
-
-
-
       )doc" )
             //            .def(py::init<const double, const double,
             //            const Eigen::MatrixXd, const
@@ -283,11 +279,10 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
             //                 py::arg("cosine_coefficients"),
             //                 py::arg("sine_coefficients"),
             //                 py::arg("associated_reference_frame"))
-            .def_property(
-                    "gravitational_parameter",
-                    &tss::SphericalHarmonicsGravityFieldSettings::getGravitationalParameter,
-                    &tss::SphericalHarmonicsGravityFieldSettings::resetGravitationalParameter,
-                    R"doc(
+            .def_property( "gravitational_parameter",
+                           &tss::SphericalHarmonicsGravityFieldSettings::getGravitationalParameter,
+                           &tss::SphericalHarmonicsGravityFieldSettings::resetGravitationalParameter,
+                           R"doc(
 
          Gravitational parameter of gravity field.
 
@@ -311,31 +306,28 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
          :type: numpy.ndarray
       )doc" )
-            .def_property(
-                    "associated_reference_frame",
-                    &tss::SphericalHarmonicsGravityFieldSettings::getAssociatedReferenceFrame,
-                    &tss::SphericalHarmonicsGravityFieldSettings::resetAssociatedReferenceFrame,
-                    R"doc(
+            .def_property( "associated_reference_frame",
+                           &tss::SphericalHarmonicsGravityFieldSettings::getAssociatedReferenceFrame,
+                           &tss::SphericalHarmonicsGravityFieldSettings::resetAssociatedReferenceFrame,
+                           R"doc(
 
          Identifier for body-fixed reference frame with which the coefficients are associated.
 
          :type: str
       )doc" )
-            .def_property(
-                    "create_time_dependent_field",
-                    &tss::SphericalHarmonicsGravityFieldSettings::getCreateTimeDependentField,
-                    &tss::SphericalHarmonicsGravityFieldSettings::setCreateTimeDependentField,
-                    R"doc(
+            .def_property( "create_time_dependent_field",
+                           &tss::SphericalHarmonicsGravityFieldSettings::getCreateTimeDependentField,
+                           &tss::SphericalHarmonicsGravityFieldSettings::setCreateTimeDependentField,
+                           R"doc(
 
          Boolean that denotes whether the field should be created as time-dependent (even if no variations are imposed initially).
 
          :type: bool
       )doc" )
-            .def_property(
-                    "scaled_mean_moment_of_inertia",
-                    &tss::SphericalHarmonicsGravityFieldSettings::getScaledMeanMomentOfInertia,
-                    &tss::SphericalHarmonicsGravityFieldSettings::setScaledMeanMomentOfInertia,
-                    R"doc(
+            .def_property( "scaled_mean_moment_of_inertia",
+                           &tss::SphericalHarmonicsGravityFieldSettings::getScaledMeanMomentOfInertia,
+                           &tss::SphericalHarmonicsGravityFieldSettings::setScaledMeanMomentOfInertia,
+                           R"doc(
 
          Value of the scaled mean moment of inertia :math:`I_{xx}+I_{yy}+I_{zz}/(MR^{2})`. This value does not influence the gravity field itself,
          but together with the degree 2 gravity field coefficients defines the body's inertia tensor.
@@ -343,10 +335,9 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
          :type: float
       )doc" )
-            .def_property_readonly(
-                    "reference_radius",
-                    &tss::SphericalHarmonicsGravityFieldSettings::getReferenceRadius,
-                    R"doc(
+            .def_property_readonly( "reference_radius",
+                                    &tss::SphericalHarmonicsGravityFieldSettings::getReferenceRadius,
+                                    R"doc(
 
          **read-only**
 
@@ -626,8 +617,8 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
  - Each subsequent line should contain a set of spherical harmonic coefficients (first ordered in ascending order by degree, then in ascending order by order), where the first, second, third and fourth value of the line should be: degree :math:`l`, order :math:`m`, normalized cosine coefficient :math:`\bar{C}_{lm}`, normalized sine coefficient :math:`\bar{S}_{lm}`. Additional entries (for instance with coefficient uncertainties) are ignored.
 
  .. warning::
-    
-    The function expects exponents to be indicated by either "e" or "E". If the exponent is indicated by "d" or "D", the exponent will not be parsed and the function will read wrong coefficients! 
+
+    The function expects exponents to be indicated by either "e" or "E". If the exponent is indicated by "d" or "D", the exponent will not be parsed and the function will read wrong coefficients!
 
  The following example shows the first lines of a file with correct format:
 
@@ -641,7 +632,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
     2    1 -2.189810040712E-10  1.467451636117E-09  7.75160E-12  7.81670E-12
     2    2  2.439349093502E-06 -1.400284857733E-06  7.80670E-12  7.80760E-12
     ...
- 
+
 
  Parameters
  ----------
