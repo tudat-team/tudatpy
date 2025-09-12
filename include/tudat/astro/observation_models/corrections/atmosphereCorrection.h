@@ -304,7 +304,7 @@ private:
 };
 
 // Enum listing the available tropospheric mapping models.
-enum TroposphericMappingModel { simplified_chao, niell, vmf3 };
+enum class TroposphericMappingModel { simplified_chao, niell, vmf3 };
 
 // Base class defining a tropospheric elevation mapping function (used to map a zenith tropospheric correction
 // to the desired elevation)
