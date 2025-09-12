@@ -1295,12 +1295,6 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
      Instance of the :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` derived :class:`~tudatpy.dynamics.parameters_setup.ArcWiseConstantObservationBiasEstimatableParameterSettings`
      for the specified observation's arc-wise relative bias.
 
-
-
-
-
-
-
      )doc" );
 
     m.def( "time_drift_observation_bias",
@@ -1675,6 +1669,68 @@ Returns
            py::arg( "body_name" ),
            py::arg( "central_body_name" ) = "Sun",
            R"doc(No documentation found.)doc" );
+
+    m.def( "area_to_mass_ratio_scaling_parameter",
+           &tep::areaToMassScaling,
+           py::arg( "body_name" ),
+           R"doc(
+
+ Function for creating parameter settings for a scaling factor for a body's area to mass ratio(s)
+
+ Using these parameter settings, a scaling factor for the all acceleration models that contain an area-to-mass scaling factor :math:`A/m`, specifically radiation pressure or aerodynamics.
+ Upon initialization, the value of this parameter :math:`p` is equal to 1. When using it, it effectively scales the acceleration formulation such that
+ :math:`A/m\rightarrow p(A/m)`. Estimating an area-to-mass ratio is typical in, for instance, orbit estimation of near-Earth space debris.
+
+ However, since the mass of a body is not (necesarilly) a constant, and the reference area of a body is not (necesarilly) related to a physical surface area, so
+ we have opted to implement an :math:`A/m` scaling factor as parameter instead. This scaling factor applies to both aerodynamics and radiation pressure, regardless of
+ whether their reference areas are identical. It is also by definition comaptible with an object of varying mass.
+
+ Using this settings as estimatable parameter requires:
+
+ * The acceleration models of body ``body_name`` to include one or more accelerations that contains an area to mass ratio :math:`A/m` in its formulation, either :func:`~tudatpy.dynamics.propagation_setup.acceleration.aerodynamic` or :func:`~tudatpy.dynamics.propagation_setup.acceleration.radiation_pressure`. Each such acceleration will be scaled (multiplied) by the value of the parameter during the propagation
+
+ Parameters
+ ----------
+ body_undergoing_acceleration : str
+     Name of the body for which the area-to-mass scaling factor is applied
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of the :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class for the specified scaling factor
+)doc" );
+
+    m.def( "full_acceleration_scaling_parameter",
+           &tep::fullAccelerationScaling,
+           py::arg( "body_name_undergoing_acceleration" ),
+           py::arg( "body_name_exerting_acceleration" ),
+           py::arg( "acceleration_type" ),
+           R"doc(
+
+ Function for creating parameter settings for a scaling factor for a single acceleration acting on a body
+
+ Using these parameter settings, a scaling factor :math:`p` is applied to a single acceleration :math:`\mathbf{a}`, increasing or decreasing it according
+ to the value of the parameter :math:`p` as :math:`\mathbf{a}\rightarrow p\mathbf{a}`. This parameter is typically used in an estimation
+ to absorb a (constant scaling) mismodelling in a single acceleration. The value of :math:`p` is initialized to 1 upon parameter creation
+
+ Using this settings as estimatable parameter requires:
+
+ * The body ``body_undergoing_acceleration`` undergoing an acceleration of exerted by ``body_exerting_acceleration`` of type ``acceleration_type``
+
+ Parameters
+ ----------
+ body_undergoing_acceleration : str
+     Name of the body undergoing the acceleration
+ body_exerting_acceleration : str
+     Name of the body exerting the acceleration
+ acceleration_type : AvailableAcceleration
+    Type of exerted acceleration
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of the :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class for the specified scaling factor
+)doc" );
 
     m.def( "custom_parameter",
            &tep::customParameterSettings,
