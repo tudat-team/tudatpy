@@ -82,6 +82,7 @@ std::pair< std::vector< Eigen::Vector3d >, std::vector< Eigen::Vector3d > > getV
     std::vector< Eigen::Vector3d > surfaceNormalsList;
     //    std::map< int, Eigen::Vector1d > pressureCoefficientsList;
 
+    // int counter = 0;
     for( unsigned int i = 0; i < meshPoints.size( ); i++ )
     {
         for( unsigned int j = 0; j < meshPoints.at( i ).shape( )[ 0 ] - 1; j++ )
@@ -94,7 +95,7 @@ std::pair< std::vector< Eigen::Vector3d >, std::vector< Eigen::Vector3d > > getV
                 //                ( Eigen::Vector1d( ) <<
                 //                pressureCoefficients[ i ][ j ][ k ]
                 //                ).finished( );
-                counter++;
+                // counter++;
             }
         }
     }
