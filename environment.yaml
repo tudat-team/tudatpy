@@ -4,7 +4,7 @@ channels:
   - tudat-team
 dependencies:
   - eigen
-  - boost-cpp=1.85.0
+  - boost-cpp=1.84.0
   - tudat-resources
   - sofa-cmake
   - nrlmsise-00
@@ -24,6 +24,9 @@ dependencies:
   - astropy    # for tudatpy.data.mpc
   - astroquery>0.4.8 # for tudatpy.data.mpc
   - astropy-healpix  # for tudatpy.data._biases
+  - cartopy # for fancy ground tracks visualizations (kosmos example)
+  - geopandas # for fancy ground track visualizations (kosmos example)
+  - requests
   - spiceypy # for automatic data downloader and kernel converter
   # Data downloader tabular output
   - tabulate
