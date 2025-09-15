@@ -48,7 +48,7 @@ using namespace tudat::observation_models;
 using namespace tudat;
 
 //! Unit test to check if periodic spin variation, polar motion, and free-core factor/ampliture
-//! (for a full planetary rotational model) are estimated correctly. Translatuonal state estimation is included for interface
+//! (for a full planetary rotational model) are estimated correctly. Translational state estimation is included for interface
 //! consistency only
 BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
 {
@@ -72,8 +72,9 @@ BOOST_AUTO_TEST_CASE( test_FullPlanetaryRotationalParameters )
     for( int testCase = 0; testCase < 3; testCase++ )
     {
         // Create body objects; Mars with high-accuracy rotation model
-        BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer );
-        bodySettings.at( "Mars" )->rotationModelSettings = getHighAccuracyMarsRotationModel( );
+        BodyListSettings bodySettings =
+                getDefaultBodySettings( bodyNames, initialEphemerisTime - buffer, finalEphemerisTime + buffer, "SSB", "J2000", 300.0 );
+        bodySettings.at( "Mars" )->rotationModelSettings = getHighAccuracyMarsRotationModel( "J2000", "Mars_Fixed" );
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
         // Create ground stations
