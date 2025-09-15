@@ -131,6 +131,40 @@ class BuildParser(argparse.ArgumentParser):
         return None
 
 
+def is_star_import(statement: ast.stmt) -> bool:
+    """Check if a statement is a star import
+
+    :param statement: The statement to be checked
+    :return: Whether the statement is a star import or not
+    """
+
+    # All star imports are of type: from X import *
+    if not isinstance(statement, ast.ImportFrom):
+        return False
+
+    # The number of imported elements must be equal to 1 (the star)
+    if len(statement.names) != 1:
+        return False
+
+    # The imported item must be *
+    if statement.names[0].name != "*":
+        return False
+
+    return True
+
+
+def module_has_init_stub(module_stubs_path: Path) -> bool:
+    """Checks if an __init__.pyi stub exists for a module
+
+    :param module_stubs_path: Path to the module directory in the stubs tree
+    :return: Whether __init__.pyi exists in the directory of the module in the stubs tree
+    """
+
+    # Path to __init__.pyi
+    init_stub_path = module_stubs_path / "__init__.pyi"
+    return init_stub_path.exists()
+
+
 class StubGenerator:
 
     # Default indentation length in pybind11-stubgen
@@ -559,29 +593,34 @@ class StubGenerator:
 
         return None
 
-    def __retrieve_items_in_all(self, statement: ast.Assign) -> list[str]:
+    def __retrieve_items_in_all(
+        self, statement: ast.Assign | ast.AnnAssign
+    ) -> list[str]:
         """Retrieve items in __all__ = [item1, item2, ...] statement
 
         :param statement: __all__ statement
         :return: List of items in __all__
         """
 
-        # Fix for special __all__ statements
-        if not isinstance(statement.value, ast.List):
-            if ast.unparse(statement) == "__all__ = list()":
+        # If __all__ = list(), replace list() with []
+        if isinstance(statement.value, ast.Call):
+            if ast.unparse(statement.value.func) == "list":
                 statement.value = ast.List(elts=[], ctx=ast.Load())
-            else:
-                raise NotImplementedError(
-                    f"Unexpected __all__ statement {ast.unparse(statement)}."
-                )
-        assert isinstance(statement.value, ast.List)  # Sanity
+
+        if not isinstance(statement.value, ast.List):
+            raise NotImplementedError(
+                f"Failed to expand {ast.unparse(statement)}: "
+                f"Expected __all__ = [...]"
+            )
 
         # Update __all__ in the stub and generate expanded import statement
         all_contents: list[str] = []
         for _name in statement.value.elts:
 
             # All items in __all__ should be strings
-            if not isinstance(_name, ast.Constant):
+            if not (
+                isinstance(_name, ast.Constant) and isinstance(_name.value, str)
+            ):
                 raise NotImplementedError(
                     f"Failed to expand {ast.unparse(statement)}: "
                     f"Unexpected item in __all__."
@@ -592,7 +631,7 @@ class StubGenerator:
 
         return all_contents
 
-    def __find_all_statement(self, script: Path) -> ast.Assign:
+    def __find_all_statement(self, script: Path) -> ast.Assign | ast.AnnAssign:
         """Find __all__ statement in a script
 
         :param script: Path to the script
@@ -600,9 +639,11 @@ class StubGenerator:
         """
 
         module = self.__parse_script(script)
-        module_all: ast.Assign | None = None
+        module_all: ast.Assign | ast.AnnAssign | None = None
         for statement in module.body:
-            if isinstance(statement, ast.Assign):
+            if isinstance(statement, ast.Assign) or isinstance(
+                statement, ast.AnnAssign
+            ):
                 if "__all__" in ast.unparse(statement):
                     module_all = statement
                     break
@@ -697,34 +738,40 @@ class StubGenerator:
         )
         init = self.__parse_script(init_path)
 
+        # Initialize containers for the contents of the stub
         stub_body = []
         stub_all: list[str] = []
+
+        # Fill containers based on content of __init__.py
         for statement in init.body:
 
             # Regular import statements
+            # e.g. "import numpy as np" or "import subprocess"
             if isinstance(statement, ast.Import):
 
                 # Multiple items can be imported in a single statement
                 for alias in statement.names:
 
-                    # Star imports must be of ImportFrom type. Regular imports
-                    # from kernel are not allowed
+                    # Regular imports from kernel are not supported
                     if "kernel" in alias.name:
                         raise ValueError(
                             f"Failed to generate {stub_path}: "
-                            f"Only star imports from kernel are supported. "
+                            f"Regular imports from kernel are not supported. "
                             f"Requested: {ast.unparse(statement)}"
                         )
 
                     # External import
                     # TODO: Regular submodule imports should not be accepted
+                    # TODO: How to check if an import is external?
                     stub_body.append(statement)
                     continue
 
             # ImportFrom statements
+            # e.g. "from matplotlib import pyplot as plt", "from . import X"
             if isinstance(statement, ast.ImportFrom):
 
-                # Submodule import
+                # Submodule import from .
+                # e.g. "from . import <submodule>"
                 if statement.module is None:
 
                     # Check that statement follows rules
@@ -754,9 +801,10 @@ class StubGenerator:
                     continue
 
                 # Relative import
+                # e.g. "from .<submodule> import X"
                 if statement.level > 0:
 
-                    # Relative kernel imports are not allowed
+                    # Relative kernel imports are not supported
                     if "kernel" in statement.module:
                         raise ValueError(
                             f"Failed to generate {stub_path}: "
@@ -764,16 +812,37 @@ class StubGenerator:
                             f"Requested: {ast.unparse(statement)}"
                         )
 
-                    # Star imports from Python scripts are not allowed
-                    if (
-                        len(statement.names) == 1
-                        and statement.names[0].name == "*"
-                    ):
-                        raise ValueError(
-                            f"Failed to generate {stub_path}: "
-                            f"Star imports from Python scripts are not allowed."
-                            f"Requested: {ast.unparse(statement)}"
+                    # Check for star import from submodule
+                    if is_star_import(statement):
+
+                        # Get submodule stubs path from statement
+                        submodule_stubs_path = (
+                            module_path / statement.module.replace(".", "/")
                         )
+
+                        # Generate __init__.pyi if it does not exist
+                        if not module_has_init_stub(submodule_stubs_path):
+                            self.__generate_single_init_stub(
+                                submodule_stubs_path
+                            )
+
+                        # Get contents in __all__ statement from __init__.pyi
+                        submodule_all_statement = self.__find_all_statement(
+                            submodule_stubs_path / "__init__.pyi"
+                        )
+                        submodule_contents = self.__retrieve_items_in_all(
+                            submodule_all_statement
+                        )
+
+                        # If there is nothing to import, skip statement
+                        if len(submodule_contents) == 0:
+                            continue
+
+                        # Replace star with imported items
+                        __aliases = [
+                            ast.alias(item) for item in submodule_contents
+                        ]
+                        statement.names = __aliases
 
                     # Add all imported items, or their aliases, to __all__
                     for alias in statement.names:
@@ -814,7 +883,9 @@ class StubGenerator:
                 stub_body.append(statement)
 
             # Assign statements
-            if isinstance(statement, ast.Assign):
+            if isinstance(statement, ast.Assign) or isinstance(
+                statement, ast.AnnAssign
+            ):
 
                 # __all__ statement
                 if "__all__ =" in ast.unparse(statement):
@@ -838,7 +909,7 @@ class StubGenerator:
                     f"{ast.unparse(statement)}"
                 )
 
-            # Other statements
+            # Other statements (We add them without modification)
             stub_body.append(statement)
 
         # Add __all__ to the stub

@@ -30,4 +30,5 @@ build:
       # directory with the docs/ directory of the latest tag.
 
 conda:
-  environment: docs/environment_readthedocs.yaml
+  environment: docs/tudatpy/environment_readthedocs.yaml
+
