@@ -157,9 +157,9 @@ void expose_propagation( py::module &m )
            py::arg( "bodies" ),
            py::arg( "initial_time" ) );
 
-    py::class_< tp::DampedInitialRotationalStateResults< TIME_TYPE, STATE_SCALAR_TYPE >,
+    py::class_< tp::DampedInitialRotationalStateResults< STATE_SCALAR_TYPE >,
                 std::shared_ptr<
-                        tp::DampedInitialRotationalStateResults< TIME_TYPE, STATE_SCALAR_TYPE > > >(
+                        tp::DampedInitialRotationalStateResults< STATE_SCALAR_TYPE > > >(
             m,
             "RotationalProperModeDampingResults",
             R"doc(
@@ -175,8 +175,7 @@ void expose_propagation( py::module &m )
       )doc" )
             .def_readwrite(
                     "damped_initial_state",
-                    &tp::DampedInitialRotationalStateResults< TIME_TYPE,
-                                                              STATE_SCALAR_TYPE >::initialState_,
+                    &tp::DampedInitialRotationalStateResults< STATE_SCALAR_TYPE >::initialState_,
                     R"doc(
 
          Initial state produced by the damping algorithm, for which the signature of the proper mode should be
@@ -189,7 +188,7 @@ void expose_propagation( py::module &m )
       )doc" )
             .def_readwrite(
                     "forward_backward_states",
-                    &tp::DampedInitialRotationalStateResults< TIME_TYPE, STATE_SCALAR_TYPE >::
+                    &tp::DampedInitialRotationalStateResults< STATE_SCALAR_TYPE >::
                             forwardBackwardPropagatedStates_,
                     R"doc(
 
@@ -203,7 +202,7 @@ void expose_propagation( py::module &m )
       )doc" )
             .def_readwrite(
                     "forward_backward_dependent_variables",
-                    &tp::DampedInitialRotationalStateResults< TIME_TYPE, STATE_SCALAR_TYPE >::
+                    &tp::DampedInitialRotationalStateResults< STATE_SCALAR_TYPE >::
                             forwardBackwardDependentVariables_,
                     R"doc(
 
