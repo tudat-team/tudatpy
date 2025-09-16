@@ -15,7 +15,7 @@ import subprocess
 from tabulate import tabulate
 from colorama import Fore
 from collections import defaultdict
-from tudatpy.astro.time_conversion import calendar_date_to_julian_day, date_time_from_iso_string, datetime_to_python
+from tudatpy.astro.time_representation import calendar_date_to_julian_day, date_time_from_iso_string, datetime_to_python
 import shutil
 
 ### Class for Loading PDS files
