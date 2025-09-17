@@ -593,7 +593,7 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         (Unnormalized) estimation covariance matrix :math:`\mathbf{P}`.
+         (Unnormalized) estimation covariance matrix :math:`\mathbf{P}`. Note: if the :class:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisInput` includes consider parameters, this matrix does not include their contribution.
 
          :type: numpy.ndarray[numpy.float64[m, m]]
       )doc" )
@@ -695,24 +695,71 @@ void expose_estimation_analysis( py::module& m )
                     "consider_covariance_contribution",
                     &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE,
                                                     TIME_TYPE >::getConsiderCovarianceContribution,
-                    R"doc(No documentation found.)doc" )
+                    R"doc(
+
+         **read-only**
+
+         Contribution of the consider parameters to the consider covariance matrix, equal to :math:`(\mathbf{P} \mathbf{H}^{T} \mathbf{W}) (\mathbf{H}_c \mathbf{C} \mathbf{H}^{T}_c) (\mathbf{P} \mathbf{H}^{T} \mathbf{W})^{T}`
+
+         :type: numpy.ndarray[numpy.float64[m, n]]
+      )doc" )
             .def_property_readonly( "normalized_covariance_with_consider_parameters",
                                     &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::
                                             getNormalizedCovarianceWithConsiderParameters,
-                                    R"doc(No documentation found.)doc" )
+                                    R"doc(
+
+         **read-only**
+
+         Normalized consider covariance matrix :math:`\tilde{\mathbf{P}}_c`, with entries :math:`\tilde{P}_{c,ij}=P_{c,ij}\nu_{i}\nu_{j}`, where :math:`\nu_{i},\nu_{j}` are the normalization terms as given by the :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.normalization_terms` attribute.
+
+         :type: numpy.ndarray[numpy.float64[m, n]]
+      )doc" )
             .def_property_readonly( "unnormalized_covariance_with_consider_parameters",
                                     &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::
                                             getUnnormalizedCovarianceWithConsiderParameters,
-                                    R"doc(No documentation found.)doc" )
+                                    R"doc(
+
+         **read-only**
+
+         Consider covariance matrix :math:`\mathbf{P}_c`, equal to the sum of the :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.covariance` matrix and the :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.consider_covariance_contribution` matrix.
+
+
+         :type: numpy.ndarray[numpy.float64[m, n]]
+      )doc" )
+            .def_property_readonly( "unnormalized_design_matrix_consider_parameters",
+                            &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::
+                                    getUnnormalizedDesignMatrixConsiderParameters,
+                            R"doc(
+
+         **read-only**
+
+         Matrix of unnormalized partial derivatives for consider parameters :math:`\mathbf{H}_c=\frac{\partial\mathbf{h}}{\partial\mathbf{c}}`.
+
+         :type: numpy.ndarray[numpy.float64[m, n]]
+      )doc" )
             .def_property_readonly( "normalized_design_matrix_consider_parameters",
                                     &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::
                                             getNormalizedDesignMatrixConsiderParameters,
-                                    R"doc(No documentation found.)doc" )
+                                    R"doc(
+
+         **read-only**
+
+         Matrix of normalized partial derivatives for consider parameters :math:`\tilde{\mathbf{H}_c}`.
+
+         :type: numpy.ndarray[numpy.float64[m, n]]
+      )doc" )
             .def_property_readonly(
                     "consider_normalization_factors",
                     &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE,
                                                     TIME_TYPE >::getConsiderNormalizationFactors,
-                    R"doc(No documentation found.)doc" )
+                    R"doc(
+
+         **read-only**
+
+         Vector of normalization terms used for consider covariance and consider design matrix
+
+         :type: numpy.ndarray[numpy.float64[m, 1]]
+      )doc" )
             .def_readonly( "normalization_terms",
                            &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::
                                    designMatrixTransformationDiagonal_,
