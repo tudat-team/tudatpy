@@ -7,8 +7,8 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  *
- *    References: 820-013, TRK-2-18 Tracking System Interfaces Orbit Data File Interface, Revision
- * E, 2008, JPL/DSN
+ *    References: 820-013, TRK-2-18 Tracking System Interfaces Orbit Data File
+ * Interface, Revision E, 2008, JPL/DSN
  *
  */
 
@@ -33,27 +33,57 @@ namespace tudat
 namespace input_output
 {
 
+// Enumeration of data types in ODF files
+// From LBL file of an ODF
+// (http://archives.esac.esa.int/psa/repo/ftp-public/MARS-EXPRESS/MRS/MEX-X-MRS-1-2-3-EXT4-3649-V1.0/DATA/LEVEL1A/CLOSED_LOOP/DSN/ODF/M00ODF0L1A_ODF_133631130_00.LBL)
+enum class OdfDataType {
+    narrowband_spacecraft_vlbi_doppler_mode = 1,
+    narrowband_spacecraft_vlbi_phase_mode = 2,
+    narrowband_quasar_vlbi_doppler_mode = 3,
+    narrowband_quasar_vlbi_phase_mode = 4,
+    wideband_spacecraft_vlbi = 5,
+    wideband_quasar_vlbi = 6,
+    one_way_doppler = 11,
+    two_way_doppler = 12,
+    three_way_doppler = 13,
+    one_way_total_count_phase = 21,
+    two_way_total_count_phase = 22,
+    three_way_total_count_phase = 23,
+    pra_planetary_operational_discrete_spectrum_range = 36,
+    sra_planetary_operational_discrete_spectrum_range = 37,
+    re_range = 41,
+    azimuth_angle = 51,
+    elevation_angle = 52,
+    hour_angle = 53,
+    declination_angle = 54,
+    x_angle_east = 55,
+    y_angle_east = 56,
+    x_angle_south = 57,
+    y_angle_south = 58,
+};
+
 // TODO: test
 //! ODF file clock offset block
 class OdfClockOffsetBlock
 {
 public:
     /*!
-     * Constructor. Parses an ODF clock offset block, according to table 3-6 of TRK-2-18 (2018).
+     * Constructor. Parses an ODF clock offset block, according to table
+     * 3-6 of TRK-2-18 (2018).
      *
      * @param dataBits Data block of ODF file.
      */
     OdfClockOffsetBlock( const std::bitset< 288 > dataBits );
 
-    // Returns the start time of the clock offset validity in UTC seconds since the reference time
-    // specified in the header.
+    // Returns the start time of the clock offset validity in UTC
+    // seconds since the reference time specified in the header.
     double getStartTime( )
     {
         return static_cast< double >( integerStartTime_ ) + static_cast< double >( fractionalStartTime_ ) * 1.0E-9;
     }
 
-    // Returns the end time of the clock offset validity in UTC seconds since the reference time
-    // specified in the header.
+    // Returns the end time of the clock offset validity in UTC seconds
+    // since the reference time specified in the header.
     double getEndTime( )
     {
         return static_cast< double >( integerEndTime_ ) + static_cast< double >( fractionalEndTime_ ) * 1.0E-9;
@@ -98,7 +128,8 @@ class OdfRampBlock
 {
 public:
     /*!
-     * Constructor. Parses an ODF ramp block, according to table 3-5 of TRK-2-18 (2018).
+     * Constructor. Parses an ODF ramp block, according to table 3-5 of
+     * TRK-2-18 (2018).
      *
      * @param dataBits Data block of ODF file.
      */
@@ -117,20 +148,22 @@ public:
         return static_cast< double >( integerRampRate_ ) + static_cast< double >( fractionalRampRate_ ) * 1.0E-9;
     }
 
-    // Returns the ramp start time in UTC seconds since the reference time specified in the header.
+    // Returns the ramp start time in UTC seconds since the reference
+    // time specified in the header.
     Time getRampStartTime( )
     {
         return Time( static_cast< double >( integerRampStartTime_ ) ) + Time( static_cast< double >( fractionalRampStartTime_ ) * 1.0E-9 );
     }
 
-    // Returns the ramp end time in UTC seconds since the reference time specified in the header.
+    // Returns the ramp end time in UTC seconds since the reference time
+    // specified in the header.
     Time getRampEndTime( )
     {
         return Time( static_cast< double >( integerRampEndTime_ ) ) + Time( static_cast< double >( fractionalRampEndTime_ ) * 1.0E-9 );
     }
 
-    // ID of the DSN station to which the ramp block applies, specified according to TRK-2-18
-    // (2018).
+    // ID of the DSN station to which the ramp block applies, specified
+    // according to TRK-2-18 (2018).
     int getTransmittingStationId( )
     {
         return transmittingStationId_;
@@ -141,7 +174,7 @@ public:
      *
      * @param outFile File name on which to write data.
      */
-    void printDataBlock( std::ofstream &outFile );
+    void printDataBlock( std::ofstream& outFile );
 
 private:
     unsigned int integerRampStartTime_;     // sec
@@ -162,47 +195,55 @@ private:
     unsigned int fractionalRampEndTime_;  // nsec
 };
 
-// Base class defining the observable specific portion of an ODF data block.
+// Base class defining the observable specific portion of an ODF data
+// block.
 class OdfDataSpecificBlock
 {
 public:
     /*!
      * Constructor.
-     * @param dataType_ Data type, specified according to section 3.2.4 of TRK-2-18 (2018).
+     * @param dataType_ Data type, specified according to section 3.2.4
+     * of TRK-2-18 (2018).
      */
-    OdfDataSpecificBlock( int dataType_ ): dataType_( dataType_ ) { }
+    OdfDataSpecificBlock( OdfDataType dataType ): dataType_( dataType ) { }
 
     // Destructor
     virtual ~OdfDataSpecificBlock( ) { }
 
     /*!
-     * Virtual function printing the observable specific data block to the specified output file.
-     * Should be implemented in the derived classes.
+     * Virtual function printing the observable specific data block to
+     * the specified output file. Should be implemented in the derived
+     * classes.
      *
      * @param outFile File name on which to write data.
      */
-    virtual void printDataBlock( std::ofstream &outFile )
+    virtual void printDataBlock( std::ofstream& outFile )
     {
         outFile << "Printing not implemented for current type";
     }
 
-    // Observable type, according to table 3-4a, item 10, of TRK-2-18 (2018).
-    int dataType_;
+    // Observable type, according to table 3-4a, item 10, of TRK-2-18
+    // (2018).
+    OdfDataType dataType_;
 };
 
 // TODO: test
-// Derived class defining a Delta differential one-way Doppler data block
+// Derived class defining a Delta differential one-way Doppler data
+// block
 class OdfDDodDataBlock : public OdfDataSpecificBlock
 {
 public:
     /*!
-     * Constructor. Parses a the observable specific portion of a Delta differential one-way Doppler
-     * block, according to table 3-4b of TRK-2-18 (2018).
+     * Constructor. Parses a the observable specific portion of a Delta
+     * differential one-way Doppler block, according to table 3-4b of
+     * TRK-2-18 (2018).
      *
-     * @param specificDataBits Observable specific portion of the data block.
-     * @param dDodDataType Data type, specified according to section 3.2.4 of TRK-2-18 (2018). Can take values 1, 2, 3, 4.
+     * @param specificDataBits Observable specific portion of the data
+     * block.
+     * @param dDodDataType Data type, specified according to
+     * section 3.2.4 of TRK-2-18 (2018). Can take values 1, 2, 3, 4.
      */
-    OdfDDodDataBlock( const std::bitset< 128 > specificDataBits, const int dDodDataType );
+    OdfDDodDataBlock( const std::bitset< 128 > specificDataBits, const OdfDataType dDodDataType );
 
     // Destructor
     ~OdfDDodDataBlock( ) { }
@@ -239,7 +280,8 @@ public:
         return compressionTime_ * 1.0e-2;
     }
 
-    // Returns the downlink delay at the second receiving station in seconds.
+    // Returns the downlink delay at the second receiving station in
+    // seconds.
     double getSecondReceivingStationDownlinkDelay( )
     {
         return secondReceivingStationDownlinkDelay_ * 1.0e-9;
@@ -257,18 +299,22 @@ private:
 };
 
 // TODO: test
-// Derived class defining a Delta differential one-way ranging data block
+// Derived class defining a Delta differential one-way ranging data
+// block
 class OdfDDorDataBlock : public OdfDataSpecificBlock
 {
 public:
     /*!
-     * Constructor. Parses a the observable specific portion of a Delta differential one-way ranging
-     * block, according to table 3-4c of TRK-2-18 (2018).
+     * Constructor. Parses a the observable specific portion of a Delta
+     * differential one-way ranging block, according to table 3-4c of
+     * TRK-2-18 (2018).
      *
-     * @param specificDataBits Observable specific portion of the data block.
-     * @param dDorDataType Data type, specified according to section 3.2.4 of TRK-2-18 (2018). Can take values 5, 6.
+     * @param specificDataBits Observable specific portion of the data
+     * block.
+     * @param dDorDataType Data type, specified according to
+     * section 3.2.4 of TRK-2-18 (2018). Can take values 5, 6.
      */
-    OdfDDorDataBlock( const std::bitset< 128 > specificDataBits, const int dDorDataType );
+    OdfDDorDataBlock( const std::bitset< 128 > specificDataBits, const OdfDataType dDorDataType );
 
     // Destructor
     ~OdfDDorDataBlock( ) { }
@@ -299,7 +345,8 @@ public:
         return composite1_;
     }
 
-    // Returns the downlink delay at the second receiving station in seconds.
+    // Returns the downlink delay at the second receiving station in
+    // seconds.
     double getSecondReceivingStationDownlinkDelay( )
     {
         return secondReceivingStationDownlinkDelay_ * 1.0e-9;
@@ -321,14 +368,16 @@ class OdfDopplerDataBlock : public OdfDataSpecificBlock
 {
 public:
     /*!
-     * Constructor. Parses a the observable specific portion of an n-way Doppler block, according to
-     * table 3-4d of TRK-2-18 (2018).
+     * Constructor. Parses a the observable specific portion of an n-way
+     * Doppler block, according to table 3-4d of TRK-2-18 (2018).
      *
-     * @param specificDataBits Observable specific portion of the data block.
-     * @param dopplerDataType Data type, specified according to section 3.2.4 of TRK-2-18 (2018). Can take values 11 (1-way),
-     *      12 (2-way), 13 (3-way).
+     * @param specificDataBits Observable specific portion of the data
+     * block.
+     * @param dopplerDataType Data type, specified according to
+     * section 3.2.4 of TRK-2-18 (2018). Can take values 11 (1-way), 12
+     * (2-way), 13 (3-way).
      */
-    OdfDopplerDataBlock( const std::bitset< 128 > specificDataBits, const int dopplerDataType );
+    OdfDopplerDataBlock( const std::bitset< 128 > specificDataBits, const OdfDataType dopplerDataType );
 
     // Destructor
     ~OdfDopplerDataBlock( ) { }
@@ -371,7 +420,7 @@ public:
      *
      * @param outFile File name on which to write data.
      */
-    void printDataBlock( std::ofstream &outFile );
+    void printDataBlock( std::ofstream& outFile );
 
 private:
     int receiverChannel_;
@@ -391,8 +440,9 @@ class OdfSequentialRangeDataBlock : public OdfDataSpecificBlock
 {
 public:
     /*!
-     * Constructor. Parses a the observable specific portion of an sequential range data block,
-     * according to table 3-4e of TRK-2-18 (2018).
+     * Constructor. Parses a the observable specific portion of an
+     * sequential range data block, according to table 3-4e of TRK-2-18
+     * (2018).
      *
      * @param dataBits Observable specific portion of the data block.
      */
@@ -457,10 +507,11 @@ class OdfToneRangeDataBlock : public OdfDataSpecificBlock
 {
 public:
     /*!
-     * Constructor. Parses a the observable specific portion of a tone range data block, according
-     * to table 3-4f of TRK-2-18 (2018).
+     * Constructor. Parses a the observable specific portion of a tone
+     * range data block, according to table 3-4f of TRK-2-18 (2018).
      *
-     * @param specificDataBits Observable specific portion of the data block.
+     * @param specificDataBits Observable specific portion of the data
+     * block.
      */
     OdfToneRangeDataBlock( const std::bitset< 128 > specificDataBits );
 
@@ -504,13 +555,15 @@ class OdfAngleDataBlock : public OdfDataSpecificBlock
 {
 public:
     /*!
-     * Constructor. Parses the observable specific portion of a angular data block, according to
-     * table 3-4g of TRK-2-18 (2018).
+     * Constructor. Parses the observable specific portion of a angular
+     * data block, according to table 3-4g of TRK-2-18 (2018).
      *
-     * @param specificDataBits Observable specific portion of the data block.
-     * @param angleDataType Data type, specified according to section 3.2.4 of TRK-2-18 (2018). Can take values in [51, 58].
+     * @param specificDataBits Observable specific portion of the data
+     * block.
+     * @param angleDataType Data type, specified according to
+     * section 3.2.4 of TRK-2-18 (2018). Can take values in [51, 58].
      */
-    OdfAngleDataBlock( const std::bitset< 128 > specificDataBits, const int angleDataType );
+    OdfAngleDataBlock( const std::bitset< 128 > specificDataBits, const OdfDataType angleDataType );
 
     // Destructor
     ~OdfAngleDataBlock( ) { }
@@ -531,20 +584,21 @@ private:
     int reservedBlock7_;
 };
 
-// Class defining the common data data block of an ODF file, according to table 3-4a of TRK-2-18
-// (2018).
+// Class defining the common data data block of an ODF file, according
+// to table 3-4a of TRK-2-18 (2018).
 class OdfCommonDataBlock
 {
 public:
     /*!
-     * Constructor. Parses the common portion of an ODF data block, according to table 3-4a of
-     * TRK-2-18 (2018).
+     * Constructor. Parses the common portion of an ODF data block,
+     * according to table 3-4a of TRK-2-18 (2018).
      *
      * @param commonDataBits Common portion of the data block.
      */
     OdfCommonDataBlock( const std::bitset< 160 > commonDataBits );
 
-    // Returns the observable time in UTC seconds since the reference time specified in the header.
+    // Returns the observable time in UTC seconds since the reference
+    // time specified in the header.
     Time getObservableTime( )
     {
         return Time( static_cast< double >( integerTimeTag_ ) ) + Time( static_cast< double >( fractionalTimeTag_ ) / 1000.0 );
@@ -566,7 +620,7 @@ public:
     int receivingStationId_;
     int transmittingStationId_;
     int transmittingStationNetworkId_;
-    int dataType_;
+    OdfDataType dataType_;
     int downlinkBandId_;
     int uplinkBandId_;
     int referenceBandId_;
@@ -577,7 +631,7 @@ public:
      *
      * @param outFile File name on which to write data.
      */
-    void printDataBlock( std::ofstream &outFile );
+    void printDataBlock( std::ofstream& outFile );
 
 private:
     uint32_t integerTimeTag_;            // sec
@@ -593,8 +647,9 @@ class OdfDataBlock
 {
 public:
     /*!
-     * Constructor. Parses an ODF data block, dividing the data into a common data block and an
-     * observable specific data block. According to section 3.2.4 of TRK-2-18 (2018).
+     * Constructor. Parses an ODF data block, dividing the data into a
+     * common data block and an observable specific data block.
+     * According to section 3.2.4 of TRK-2-18 (2018).
      *
      * @param dataBits Data block of ODF file.
      */
@@ -617,7 +672,7 @@ public:
      *
      * @param outFile File name on which to write data.
      */
-    void printDataBlock( std::ofstream &outFile )
+    void printDataBlock( std::ofstream& outFile )
     {
         commonDataBlock_->printDataBlock( outFile );
         observableSpecificDataBlock_->printDataBlock( outFile );
@@ -632,7 +687,8 @@ private:
     std::shared_ptr< OdfCommonDataBlock > commonDataBlock_;
 };
 
-// Class containing the raw data from an ODF file, according to TRK-2-18 (2018).
+// Class containing the raw data from an ODF file, according to TRK-2-18
+// (2018).
 class OdfRawFileContents
 {
 public:
@@ -641,14 +697,15 @@ public:
      *
      * @param odfFile File name/location of ODF file that is to be read
      */
-    OdfRawFileContents( const std::string &odfFile );
+    OdfRawFileContents( const std::string& odfFile );
 
     // File label group, table 3.2 of TRK-2-18 (2018)
     std::string systemId_;
     std::string programId_;
     uint32_t spacecraftId_;
 
-    uint32_t fileCreationDate_;  // year, month, day (YYYMMDD): year from 1900
+    uint32_t fileCreationDate_;  // year, month, day (YYYMMDD): year
+                                 // from 1900
     uint32_t fileCreationTime_;  // hour, minute, second (HHMMSS)
 
     uint32_t fileReferenceDate_;  // year, month, day (YYYYMMDD)
@@ -662,8 +719,8 @@ public:
     std::string identifierGroupStringB_;
     std::string identifierGroupStringC_;
 
-    // Boolean indicating whether the EOF header was found (header should be present in all ODF
-    // files)
+    // Boolean indicating whether the EOF header was found (header
+    // should be present in all ODF files)
     bool eofHeaderFound_;
 
     //! Function to retrieve the orbit data blocsk
@@ -689,7 +746,7 @@ public:
      *
      * @param odfTextFile Name of the output file.
      */
-    void writeOdfToTextFile( const std::string &odfTextFile );
+    void writeOdfToTextFile( const std::string& odfTextFile );
 
 private:
     //! Vector of data blocks
@@ -698,34 +755,41 @@ private:
     //! Vector of ramp blocks indexed by transmitting station ID
     std::map< int, std::vector< std::shared_ptr< OdfRampBlock > > > rampBlocks_;
 
-    //! Clock offset blocks indexed by pair of (primary station ID, secondary station ID)
+    //! Clock offset blocks indexed by pair of (primary station ID,
+    //! secondary station ID)
     std::map< std::pair< int, int >, std::shared_ptr< OdfClockOffsetBlock > > clockOffsetBlocks_;
 
     /*!
-     * Function to parse the contents of an ODF file label block, according to table 3.2 of TRK-2-18
-     * (2018). The data contained in the block is returned by  reference.
+     * Function to parse the contents of an ODF file label block,
+     * according to table 3.2 of TRK-2-18 (2018). The data contained in
+     * the block is returned by  reference.
      *
      * @param dataBits Data block (input).
      * @param systemId System ID (output).
      * @param programId Program ID (output)
      * @param spacecraftId Spacecraft ID (output)
-     * @param fileCreationDate File creation date (output). Format: year, month, day (YYYMMDD): year from 1900
-     * @param fileCreationTime File creation time (output). Format: hour, minute, second (HHMMSS)
-     * @param fileReferenceDate File reference date (output). Format: year, month, day (YYYYMMDD)
-     * @param fileReferenceTime File reference time (output). Format: hour, minute, second (HHMMSS)
+     * @param fileCreationDate File creation date (output). Format:
+     * year, month, day (YYYMMDD): year from 1900
+     * @param fileCreationTime File creation time (output). Format:
+     * hour, minute, second (HHMMSS)
+     * @param fileReferenceDate File reference date (output). Format:
+     * year, month, day (YYYYMMDD)
+     * @param fileReferenceTime File reference time (output). Format:
+     * hour, minute, second (HHMMSS)
      */
     void parseFileLabelData( std::bitset< 288 > dataBits,
-                             std::string &systemId,
-                             std::string &programId,
-                             uint32_t &spacecraftId,
-                             uint32_t &fileCreationDate,
-                             uint32_t &fileCreationTime,
-                             uint32_t &fileReferenceDate,
-                             uint32_t &fileReferenceTime );
+                             std::string& systemId,
+                             std::string& programId,
+                             uint32_t& spacecraftId,
+                             uint32_t& fileCreationDate,
+                             uint32_t& fileCreationTime,
+                             uint32_t& fileReferenceDate,
+                             uint32_t& fileReferenceTime );
 
     /*!
-     * Function to parse the contents of an ODF identifier block, according to table 3.3 of TRK-2-18
-     * (2018). The data contained in the block is returned by  reference.
+     * Function to parse the contents of an ODF identifier block,
+     * according to table 3.3 of TRK-2-18 (2018). The data contained in
+     * the block is returned by  reference.
      *
      * @param dataBits Data block (input).
      * @param identifierGroupStringA identifierGroupStringA (output)
@@ -733,14 +797,16 @@ private:
      * @param identifierGroupStringC identifierGroupStringC (output)
      */
     void parseIdentifierData( std::bitset< 288 > dataBits,
-                              std::string &identifierGroupStringA,
-                              std::string &identifierGroupStringB,
-                              std::string &identifierGroupStringC );
+                              std::string& identifierGroupStringA,
+                              std::string& identifierGroupStringB,
+                              std::string& identifierGroupStringC );
 
     /*!
-     * Function to parse the contents of an ODF file header block, according to table 3.1 of
-     * TRK-2-18 (2018). The data contained in the header is returned by  reference. If the provided
-     * dataBits block is not consistent with the format of a header, an error is thrown.
+     * Function to parse the contents of an ODF file header block,
+     * according to table 3.1 of TRK-2-18 (2018). The data contained in
+     * the header is returned by  reference. If the provided dataBits
+     * block is not consistent with the format of a header, an error is
+     * thrown.
      *
      * @param dataBits Single header block of ODF file (input).
      * @param primaryKey Header primary key (output)
@@ -749,15 +815,16 @@ private:
      * @param groupStartPacketNumber Group start packet number (output)
      */
     void parseHeader( std::bitset< 288 > dataBits,
-                      int32_t &primaryKey,
-                      uint32_t &secondaryKey,
-                      uint32_t &logicalRecordLength,
-                      uint32_t &groupStartPacketNumber );
+                      int32_t& primaryKey,
+                      uint32_t& secondaryKey,
+                      uint32_t& logicalRecordLength,
+                      uint32_t& groupStartPacketNumber );
 
     /*!
-     * Function to check if the current ODF data block is a header. Returns the primary key,
-     * secondary key, logical record length, and group start packet number by reference if the group
-     * IS a header.
+     * Function to check if the current ODF data block is a header.
+     * Returns the primary key, secondary key, logical record length,
+     * and group start packet number by reference if the group IS a
+     * header.
      *
      * @param dataBits Single block of ODF file (input).
      * @param primaryKey Header primary key (output)
@@ -767,18 +834,19 @@ private:
      * @return Boolean indicating whether group is header or not.
      */
     bool currentBlockIsHeader( std::bitset< 288 > dataBits,
-                               int &primaryKey,
-                               unsigned int &secondaryKey,
-                               unsigned int &logicalRecordLength,
-                               unsigned int &groupStartPacketNumber );
+                               int& primaryKey,
+                               unsigned int& secondaryKey,
+                               unsigned int& logicalRecordLength,
+                               unsigned int& groupStartPacketNumber );
 
     /*!
-     * Function reads a single 36 byte block from ODF file. The block is returned by reference.
+     * Function reads a single 36 byte block from ODF file. The block is
+     * returned by reference.
      *
      * @param file ODF file (input)
      * @param dataBits Read byte block (output).
      */
-    void readOdfFileBlock( std::istream &file, std::bitset< 36 * 8 > &dataBits );
+    void readOdfFileBlock( std::istream& file, std::bitset< 36 * 8 >& dataBits );
 };
 
 inline std::shared_ptr< OdfRawFileContents > readOdfFile( std::string fileName )

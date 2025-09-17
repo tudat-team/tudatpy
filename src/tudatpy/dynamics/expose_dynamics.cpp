@@ -25,12 +25,11 @@ namespace dynamics
 
 void expose_dynamics( py::module &m )
 {
-    
-    auto environment_setup_submodule = m.def_submodule( "environment_setup" );
-    environment_setup::expose_environment_setup( environment_setup_submodule );
-
     auto environment_submodule = m.def_submodule( "environment" );
     environment::expose_environment( environment_submodule );
+
+    auto environment_setup_submodule = m.def_submodule( "environment_setup" );
+    environment_setup::expose_environment_setup( environment_setup_submodule );
 
     auto propagation_setup_submodule = m.def_submodule( "propagation_setup" );
     propagation_setup::expose_propagation_setup( propagation_setup_submodule );

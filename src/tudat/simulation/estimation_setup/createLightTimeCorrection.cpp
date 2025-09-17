@@ -705,7 +705,7 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
 
     switch( troposphericMappingModelType )
     {
-        case simplified_chao: {
+        case TroposphericMappingModel::simplified_chao: {
             std::function< double( Eigen::Vector3d, double ) > elevationFunction =
                     std::bind( &ground_stations::PointingAnglesCalculator::calculateElevationAngleFromInertialVector,
                                bodies.getBody( groundStation.bodyName_ )
@@ -718,7 +718,7 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
 
             break;
         }
-        case niell: {
+        case TroposphericMappingModel::niell: {
             std::function< double( Eigen::Vector3d, double ) > elevationFunction =
                     std::bind( &ground_stations::PointingAnglesCalculator::calculateElevationAngleFromInertialVector,
                                bodies.getBody( groundStation.bodyName_ )
@@ -737,7 +737,7 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
 
             break;
         }
-        case vmf3: {
+        case TroposphericMappingModel::vmf3: {
             std::function< double( Eigen::Vector3d, double ) > elevationFunction =
                     std::bind( &ground_stations::PointingAnglesCalculator::calculateElevationAngleFromInertialVector,
                                bodies.getBody( groundStation.bodyName_ )
@@ -765,7 +765,7 @@ std::shared_ptr< TroposhericElevationMapping > createTroposphericElevationMappin
         }
         default:
             throw std::runtime_error( "Error when creating tropospheric elevation mapping model: model type " +
-                                      std::to_string( troposphericMappingModelType ) + " not recognized." );
+                                      std::to_string( static_cast< int >( troposphericMappingModelType ) ) + " not recognized." );
 
             break;
     }

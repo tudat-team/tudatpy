@@ -191,9 +191,13 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
                 std::shared_ptr< ti::InterpolatorGenerationSettings< tudat::Time > > >(
             m, "InterpolatorGenerationSettingsTimeObject", R"doc(No documentation found.)doc" );
 
-    py::class_< ti::InterpolatorGenerationSettings< double >,
-                std::shared_ptr< ti::InterpolatorGenerationSettings< double > > >(
-            m, "InterpolatorGenerationSettings", R"doc(No documentation found.)doc" );
+    py::class_< ti::InterpolatorGenerationSettings< double >, std::shared_ptr< ti::InterpolatorGenerationSettings< double > > >(
+            m, "InterpolatorGenerationSettings", R"doc(No documentation found.)doc" )
+            .def( py::init< const std::shared_ptr< ti::InterpolatorSettings >, const double, const double, const double >( ),
+                  py::arg( "interpolator_settings" ),
+                  py::arg( "initial_time" ),
+                  py::arg( "final_time" ),
+                  py::arg( "time_step" ) );
 
     py::class_< ti::LagrangeInterpolatorSettings,
                 std::shared_ptr< ti::LagrangeInterpolatorSettings >,
@@ -493,11 +497,12 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
          list[float]
              Dependent variable values used by the interpolator
          )doc" );
-    
+
     py::class_< ti::OneDimensionalInterpolator< Time, STATE_SCALAR_TYPE >,
-                std::shared_ptr< ti::OneDimensionalInterpolator< Time, STATE_SCALAR_TYPE > > >( m,
-                                                                                                     "OneDimensionalInterpolatorScalarTimeObject",
-                                                                                                     R"doc(
+                std::shared_ptr< ti::OneDimensionalInterpolator< Time, STATE_SCALAR_TYPE > > >(
+            m,
+            "OneDimensionalInterpolatorScalarTimeObject",
+            R"doc(
         Same as :func:`~OneDimensionalInterpolatorScalar`, but using the high-resolution :func:`~Time` type used as independent variable for interpolation; created using :func:`~create_one_dimensional_scalar_interpolator_time_object`
 
      )doc" )
@@ -517,7 +522,6 @@ The program will terminate and throw a :class:`~tudatpy.exceptions.LagrangeInter
         float
             Interpolated dependent variable value, using implemented algorithm at requested independent variable value
     )doc" );
-    
 
     py::class_< ti::OneDimensionalInterpolator< double, Eigen::VectorXd >,
                 std::shared_ptr< ti::OneDimensionalInterpolator< double, Eigen::VectorXd > > >(
