@@ -91,6 +91,8 @@ public:
         updateRadiusPowers( referenceRadius / radius );
     }
 
+
+
     //! Function to retrieve the current sine of m times the longitude.
     /*!
      * Function to retrieve the current sine of order times the longitude.
