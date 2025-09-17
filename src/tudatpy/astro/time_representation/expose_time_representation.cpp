@@ -161,7 +161,7 @@ void expose_time_representation( py::module& m )
         
     Class for defining time with a resolution that is sub-femtosecond for very long periods of time.
     
-    Using double or long double precision as a representation of time, the issue of reduced precision will 
+    Using double or long double precision as a representation of time, the issue of reduced precision will
     occur over long time periods. For instance, over a period of 10^8 seconds (about 3 years), double and 
     long double representations have resolution of about 10^-8 and 10^-11 s respectively, which is 
     insufficient for various applications. 
@@ -195,6 +195,9 @@ void expose_time_representation( py::module& m )
      >>> from tudatpy.kernel import Time
      >>> t = Time(3600.0)  # 1 hour after J2000
      )doc" )
+
+            .def( py::init< const int >( ),
+                  py::arg( "seconds_since_j2000" ) )
 
             // Add docstring for the second constructor
             .def( py::init< const int, const long double >( ),
@@ -300,6 +303,8 @@ void expose_time_representation( py::module& m )
 
     // Register implicit conversion from float/double -> Time
     py::implicitly_convertible< double, tudat::Time >( );
+    py::implicitly_convertible< int, tudat::Time >( );
+
     py::enum_< tba::TimeScales >( m,
                                   "TimeScales",
                                   R"doc(
