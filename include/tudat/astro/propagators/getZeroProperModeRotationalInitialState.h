@@ -51,10 +51,10 @@ template< typename StateScalarType = double, typename TimeType = double >
 void integrateForwardWithDissipationAndBackwardsWithout(
         const std::shared_ptr< SingleArcDynamicsSimulator< StateScalarType, TimeType > > dynamicsSimulator,
         const std::shared_ptr< basic_astrodynamics::DissipativeTorqueModel > dissipativeTorque,
-        std::pair< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >,
-                   std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >& propagatedStates,
-        std::pair< std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > >,
-                   std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > >& dependentVariables )
+        std::pair< std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >,
+                   std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > >& propagatedStates,
+        std::pair< std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >,
+                   std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > >& dependentVariables )
 {
     using namespace tudat::numerical_integrators;
 
@@ -100,8 +100,12 @@ void integrateForwardWithDissipationAndBackwardsWithout(
     integratorSettings->initialTimeStep_ = originalTimeStep;
 
     // Save states and dependent variables for both forward and backward integration
-    propagatedStates = std::make_pair( forwardIntegrated, backwardIntegrated );
-    dependentVariables = std::make_pair( forwardIntegratedDependent, backwardIntegratedDependent );
+    propagatedStates = std::make_pair(
+            utilities::staticCastMapKeys< double, TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( forwardIntegrated ),
+                    utilities::staticCastMapKeys< double, TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >( backwardIntegrated ) );
+    dependentVariables = std::make_pair(
+            utilities::staticCastMapKeys< double, TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > >( forwardIntegratedDependent ),
+                    utilities::staticCastMapKeys< double, TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > >( backwardIntegratedDependent ) );
 }
 
 //! Function to determine the initial rotational state for which the free mode is fully damped
@@ -132,10 +136,10 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getZeroProperModeRotationalS
         const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
         const double bodyMeanRotationRate,
         const std::vector< double > dissipationTimes,
-        std::vector< std::pair< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >,
-                                std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >& propagatedStates,
-        std::vector< std::pair< std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > >,
-                                std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > > >& dependentVariables,
+        std::vector< std::pair< std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >,
+                                std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >& propagatedStates,
+        std::vector< std::pair< std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >,
+                                std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > > >& dependentVariables,
         const bool propagateNominal = true,
         const bool writeToFileInLoop = false,
         const std::string baseFileName = "",
@@ -280,34 +284,34 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getZeroProperModeRotationalS
     return currentInitialState;
 }
 
-template< typename TimeType = double, typename StateScalarType = double >
+template< typename StateScalarType = double >
 struct DampedInitialRotationalStateResults {
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialState_;
-    std::vector< std::pair< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >,
-                            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >
+    std::vector< std::pair< std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >,
+                            std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >
             forwardBackwardPropagatedStates_;
-    std::vector< std::pair< std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > >,
-                            std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > > >
+    std::vector< std::pair< std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >,
+                            std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > > >
             forwardBackwardDependentVariables_;
 };
 
 template< typename TimeType = double, typename StateScalarType = double >
 std::tuple< Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >,
-            std::vector< std::pair< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >,
-                                    std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >,
-            std::vector< std::pair< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >,
-                                    std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > > >
+            std::vector< std::pair< std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >,
+                                    std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >,
+            std::vector< std::pair< std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >,
+                                    std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > > >
 getZeroProperModeRotationalState( const simulation_setup::SystemOfBodies& bodies,
                                   const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
                                   const double bodyMeanRotationRate,
                                   const std::vector< double > dissipationTimes,
                                   const bool propagateNominal = true )
 {
-    std::vector< std::pair< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >,
-                            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >
+    std::vector< std::pair< std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >,
+                            std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >
             propagatedStates;
-    std::vector< std::pair< std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > >,
-                            std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > > >
+    std::vector< std::pair< std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >,
+                            std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > > >
             dependentVariables;
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialState = getZeroProperModeRotationalState( bodies,
@@ -323,18 +327,18 @@ getZeroProperModeRotationalState( const simulation_setup::SystemOfBodies& bodies
 }
 
 template< typename TimeType = double, typename StateScalarType = double >
-std::shared_ptr< DampedInitialRotationalStateResults< TimeType, StateScalarType > > getZeroProperModeRotationalStateWithStruct(
+std::shared_ptr< DampedInitialRotationalStateResults< StateScalarType > > getZeroProperModeRotationalStateWithStruct(
         const simulation_setup::SystemOfBodies& bodies,
         const std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings,
         const double bodyMeanRotationRate,
         const std::vector< double > dissipationTimes,
         const bool propagateNominal = true )
 {
-    std::vector< std::pair< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >,
-                            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >
+    std::vector< std::pair< std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >,
+                            std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >
             propagatedStates;
-    std::vector< std::pair< std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > >,
-                            std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > > >
+    std::vector< std::pair< std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >,
+                            std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > > >
             dependentVariables;
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialState = getZeroProperModeRotationalState( bodies,
@@ -345,8 +349,8 @@ std::shared_ptr< DampedInitialRotationalStateResults< TimeType, StateScalarType 
                                                                                                          dependentVariables,
                                                                                                          propagateNominal,
                                                                                                          false );
-    std::shared_ptr< DampedInitialRotationalStateResults< TimeType, StateScalarType > > resultsStruct =
-            std::make_shared< DampedInitialRotationalStateResults< TimeType, StateScalarType > >( );
+    std::shared_ptr< DampedInitialRotationalStateResults< StateScalarType > > resultsStruct =
+            std::make_shared< DampedInitialRotationalStateResults< StateScalarType > >( );
     resultsStruct->initialState_ = initialState;
     resultsStruct->forwardBackwardPropagatedStates_ = propagatedStates;
     resultsStruct->forwardBackwardDependentVariables_ = dependentVariables;
@@ -375,11 +379,11 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getZeroProperModeRotationalS
         const std::vector< double > dissipationTimes )
 // const bool propagateNominal = true )
 {
-    std::vector< std::pair< std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >,
-                            std::map< TimeType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >
+    std::vector< std::pair< std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >,
+                            std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > > >
             propagatedStates;
-    std::vector< std::pair< std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > >,
-                            std::map< TimeType, Eigen::Matrix< double, Eigen::Dynamic, 1 > > > >
+    std::vector< std::pair< std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > >,
+                            std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > > >
             dependentVariables;
     return getZeroProperModeRotationalState( bodies,
                                              propagatorSettings,

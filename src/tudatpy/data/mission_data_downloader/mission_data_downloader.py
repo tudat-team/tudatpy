@@ -1259,6 +1259,9 @@ class LoadPDS:
             - `Exception`: If the `filename_format` contains more than one folder.
 
         """
+
+        os.makedirs(local_path, exist_ok=True)
+
         # Retrieve all dates contained within the time interval defined by the start and end dates provided as inputs
         all_dates = [
             start_date + timedelta(days=x)
