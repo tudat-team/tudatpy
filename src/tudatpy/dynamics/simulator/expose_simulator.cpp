@@ -440,13 +440,26 @@ void expose_simulator( py::module& m )
 
          Base class for variational equations propagation.
          Derived classes :class:`~SingleArcVariationalSimulator`, :class:`~MultiArcVariationalSimulator` and
-         :class:`~HybridArcVariationalSimulator` implement single-, multi- and hybrid-arc functionality, respectively."
+         :class:`~HybridArcVariationalSimulator` implement single-, multi- and hybrid-arc functionality, respectively.
 
+      )doc" )
+      .def_property_readonly(
+                    "state_transition_interface",
+                    &tp::VariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::
+                            getStateTransitionMatrixInterface,
+                    R"doc(
+
+         **read-only**
+
+         State transition interface that includes the state transition and sensitivity matrices, which can be used for instance to propagate a covariance, see :func:`~tudatpy.estimation.estimation_analysis.propagate_covariance`.
+
+
+         :type: CombinedStateTransitionAndSensitivityMatrixInterface
       )doc" );
 
     py::class_< tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr<
-                        tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE > > >(
+                        tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE > >, tp::VariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE > >(
             m,
             "SingleArcVariationalSimulator",
             R"doc(
