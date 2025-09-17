@@ -15,7 +15,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
-#include <pybind11/native_enum.h>
+// #include <pybind11/native_enum.h>
 #include <tudat/io/basicInputOutput.h>
 
 #include "tudat/io/missileDatcomData.h"
@@ -356,7 +356,7 @@ void expose_data( py::module& m )
                   &tio::solar_activity::SolarActivityContainer::getSolarActivityDataMap,
                   R"doc(Returns the full map of SolarActivityData.)doc" );
 
-    py::native_enum< tio::OdfDataType >( m, "OdfDataType", "enum.IntEnum", R"doc(Possible data types in orbit section of ODF file)doc" )
+    py::enum_< tio::OdfDataType >( m, "OdfDataType", R"doc(Possible data types in orbit section of ODF file)doc" )
             .value( "narrowband_spacecraft_vlbi_doppler_mode", tio::OdfDataType::narrowband_spacecraft_vlbi_doppler_mode )
             .value( "narrowband_spacecraft_vlbi_phase_mode", tio::OdfDataType::narrowband_spacecraft_vlbi_phase_mode )
             .value( "narrowband_quasar_vlbi_doppler_mode", tio::OdfDataType::narrowband_quasar_vlbi_doppler_mode )
@@ -381,8 +381,7 @@ void expose_data( py::module& m )
             .value( "x_angle_east", tio::OdfDataType::x_angle_east )
             .value( "y_angle_east", tio::OdfDataType::y_angle_east )
             .value( "x_angle_south", tio::OdfDataType::x_angle_south )
-            .value( "y_angle_south", tio::OdfDataType::y_angle_south )
-            .finalize( );
+            .value( "y_angle_south", tio::OdfDataType::y_angle_south );
 
     py::class_< tio::OdfCommonDataBlock, std::shared_ptr< tio::OdfCommonDataBlock > >(
             m, "OdfCommonDataBlock", R"doc(Base class observable-independent ODF data containers
