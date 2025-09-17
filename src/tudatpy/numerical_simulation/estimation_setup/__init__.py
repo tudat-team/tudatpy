@@ -1,6 +1,6 @@
 import warnings
 warnings.warn(
-    "tudatpy.numerical_simulation.estimation_setup is deprecated.\nFeatures got distributed over:\n"
+    "tudatpy.numerical_simulation.estimation_setup is deprecated as of v1.0 (see https://docs.tudat.space/en/latest/user-guide/project-updates/migration-guide.html).\nFeatures got distributed over:\n"
     " tudatpy.estimation.observable_models_setup, \n" +
     " tudatpy.estimation.observable_models, \n" +
     " tudatpy.estimation.observations_setup, \n" +
