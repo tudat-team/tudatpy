@@ -34,7 +34,7 @@ namespace environment_setup
 namespace rotation_model
 {
 
-void expose_rotation_model_setup( py::module &m )
+void expose_rotation_model_setup( py::module& m )
 {
     /////////////////////////////////////////////////////////////////////////////
     // createRotationalModel.h
@@ -157,8 +157,12 @@ void expose_rotation_model_setup( py::module &m )
     py::class_< tss::IauRotationModelSettings, std::shared_ptr< tss::IauRotationModelSettings >, tss::RotationModelSettings >(
             m, "IAURotationModelSettings", R"doc(No documentation found.)doc" );
 
+    py::class_< tss::GcrsToItrsRotationModelSettings, std::shared_ptr< tss::GcrsToItrsRotationModelSettings >, tss::RotationModelSettings >(
+            m, "GcrsToItrsRotationModelSettings", R"doc(No documentation found.)doc" )
+            .def_property_readonly( "eop_file", &tss::GcrsToItrsRotationModelSettings::getEopFile );
+
     m.def( "simple",
-           py::overload_cast< const std::string &, const std::string &, const Eigen::Matrix3d &, const double, const double >(
+           py::overload_cast< const std::string&, const std::string&, const Eigen::Matrix3d&, const double, const double >(
                    &tss::simpleRotationModelSettings ),
            py::arg( "base_frame" ),
            py::arg( "target_frame" ),
@@ -642,7 +646,7 @@ void expose_rotation_model_setup( py::module &m )
      )doc" );
 
     m.def( "constant_rotation_model",
-           py::overload_cast< const std::string &, const std::string &, const Eigen::Matrix3d & >( &tss::constantRotationModelSettings ),
+           py::overload_cast< const std::string&, const std::string&, const Eigen::Matrix3d& >( &tss::constantRotationModelSettings ),
            py::arg( "base_frame" ),
            py::arg( "target_frame" ),
            py::arg( "initial_orientation" ),
@@ -728,7 +732,7 @@ void expose_rotation_model_setup( py::module &m )
 
     // Add after the other model binding functions (like before the end of expose_rotation_model_setup function)
     m.def( "mars_high_accuracy",
-           py::overload_cast< const std::string &, const std::string & >( &tss::getHighAccuracyMarsRotationModel ),
+           py::overload_cast< const std::string&, const std::string& >( &tss::getHighAccuracyMarsRotationModel ),
            py::arg( "base_frame" ) = "J2000",
            py::arg( "target_frame" ) = "Mars_Fixed",
            R"doc(
@@ -763,7 +767,7 @@ void expose_rotation_model_setup( py::module &m )
     # define parameters describing the rotation between frames
     base_frame = "J2000"
     target_frame = "Mars_Fixed"
-    
+
     # create rotation model settings
     mars_rotation_settings = environment_setup.rotation_model.mars_high_accuracy(
         base_frame, target_frame)
@@ -772,7 +776,7 @@ void expose_rotation_model_setup( py::module &m )
      )doc" );
 
     m.def( "mars_high_accuracy_custom_angles",
-           py::overload_cast< const std::string &, const std::string &, const double, const double, const double, const double >(
+           py::overload_cast< const std::string&, const std::string&, const double, const double, const double, const double >(
                    &tss::getHighAccuracyMarsRotationModel ),
            py::arg( "base_frame" ),
            py::arg( "target_frame" ),
@@ -818,7 +822,7 @@ void expose_rotation_model_setup( py::module &m )
  .. code-block:: python
 
     import numpy as np
-    
+
     # define parameters
     base_frame = "J2000"
     target_frame = "Mars_Fixed_Custom"
@@ -826,7 +830,7 @@ void expose_rotation_model_setup( py::module &m )
     angle_j = np.radians(24.67682669)  # Declination in radians
     angle_psi_at_epoch = np.radians(81.9683988)  # Initial prime meridian angle
     angle_psi_rate_at_epoch = -7608.3 * np.pi/(180.0*1000.0*3600.0) / 31557600.0  # Rotation rate
-    
+
     # create rotation model settings with custom angles
     mars_rotation_settings = environment_setup.rotation_model.mars_high_accuracy_custom_angles(
         base_frame, target_frame, angle_n, angle_j, angle_psi_at_epoch, angle_psi_rate_at_epoch)
@@ -835,17 +839,17 @@ void expose_rotation_model_setup( py::module &m )
      )doc" );
 
     m.def( "mars_high_accuracy_full_custom",
-           py::overload_cast< const std::string &,
-                              const std::string &,
+           py::overload_cast< const std::string&,
+                              const std::string&,
                               const double,
                               const double,
                               const double,
                               const double,
-                              const std::map< double, std::pair< double, double > > &,
-                              const std::vector< std::map< double, std::pair< double, double > > > &,
-                              const std::map< double, std::pair< double, double > > &,
-                              const std::map< double, std::pair< double, double > > &,
-                              const std::map< double, std::pair< double, double > > & >( &tss::getHighAccuracyMarsRotationModel ),
+                              const std::map< double, std::pair< double, double > >&,
+                              const std::vector< std::map< double, std::pair< double, double > > >&,
+                              const std::map< double, std::pair< double, double > >&,
+                              const std::map< double, std::pair< double, double > >&,
+                              const std::map< double, std::pair< double, double > >& >( &tss::getHighAccuracyMarsRotationModel ),
            py::arg( "base_frame" ),
            py::arg( "target_frame" ),
            py::arg( "angle_n" ),
@@ -906,7 +910,7 @@ void expose_rotation_model_setup( py::module &m )
 
     import numpy as np
     from collections import defaultdict
-    
+
     # Define basic parameters
     base_frame = "J2000"
     target_frame = "Mars_Fixed_Custom"
@@ -914,10 +918,10 @@ void expose_rotation_model_setup( py::module &m )
     angle_j = np.radians(24.67682669)
     angle_psi_at_epoch = np.radians(81.9683988)
     angle_psi_rate_at_epoch = -7608.3 * np.pi/(180.0*1000.0*3600.0) / 31557600.0
-    
+
     # Define correction coefficients
     milliarcsec_to_rad = np.pi / (180.0 * 1000.0 * 3600.0)
-    
+
     # Create nutation correction settings
     nutation_corrections = {
         0.0: (-1.4 * milliarcsec_to_rad, 0.0),
@@ -925,7 +929,7 @@ void expose_rotation_model_setup( py::module &m )
         2.0: (0.0, -44.2 * milliarcsec_to_rad),
         3.0: (0.0, -4.0 * milliarcsec_to_rad)
     }
-    
+
     # Create mean motion time-dependent phase nutation corrections
     mean_motion_corrections = [{
         1.0: (-49.1 * milliarcsec_to_rad, -104.5 * milliarcsec_to_rad),
@@ -935,7 +939,7 @@ void expose_rotation_model_setup( py::module &m )
         5.0: (3.0 * milliarcsec_to_rad, 6.5 * milliarcsec_to_rad),
         6.0: (0.4 * milliarcsec_to_rad, 1.0 * milliarcsec_to_rad)
     }]
-    
+
     # Create rotation rate corrections
     rotation_rate_corrections = {
         1.0: (481.0 * milliarcsec_to_rad, -331.0 * milliarcsec_to_rad),
@@ -943,32 +947,32 @@ void expose_rotation_model_setup( py::module &m )
         3.0: (-35.0 * milliarcsec_to_rad, -4.0 * milliarcsec_to_rad),
         4.0: (-10.0 * milliarcsec_to_rad, -8.0 * milliarcsec_to_rad)
     }
-    
+
     # Create polar motion coefficients
     x_polar_motion = {
-        1.0: (2.8 * milliarcsec_to_rad * np.sin(np.radians(46.5)), 
+        1.0: (2.8 * milliarcsec_to_rad * np.sin(np.radians(46.5)),
               2.8 * milliarcsec_to_rad * np.cos(np.radians(46.5))),
-        2.0: (8.9 * milliarcsec_to_rad * np.sin(np.radians(-150.1)), 
+        2.0: (8.9 * milliarcsec_to_rad * np.sin(np.radians(-150.1)),
               8.9 * milliarcsec_to_rad * np.cos(np.radians(-150.1))),
         3.0: (0.0, 0.0),
         4.0: (0.0, 0.0),
         3.34: (0.0, 50.0 * milliarcsec_to_rad)
     }
-    
+
     y_polar_motion = {
-        1.0: (11.7 * milliarcsec_to_rad * np.sin(np.radians(118.7)), 
+        1.0: (11.7 * milliarcsec_to_rad * np.sin(np.radians(118.7)),
               11.7 * milliarcsec_to_rad * np.cos(np.radians(118.7))),
-        2.0: (3.9 * milliarcsec_to_rad * np.sin(np.radians(172.5)), 
+        2.0: (3.9 * milliarcsec_to_rad * np.sin(np.radians(172.5)),
               3.9 * milliarcsec_to_rad * np.cos(np.radians(118.7))),
         3.0: (0.0, 0.0),
         4.0: (0.0, 0.0),
         3.34: (0.0, 50.0 * milliarcsec_to_rad)
     }
-    
+
     # Create fully customized rotation model settings
     mars_rotation_settings = environment_setup.rotation_model.mars_high_accuracy_full_custom(
         base_frame, target_frame, angle_n, angle_j, angle_psi_at_epoch, angle_psi_rate_at_epoch,
-        nutation_corrections, mean_motion_corrections, rotation_rate_corrections, 
+        nutation_corrections, mean_motion_corrections, rotation_rate_corrections,
         x_polar_motion, y_polar_motion)
 
 

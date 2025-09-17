@@ -31,6 +31,8 @@ namespace observations_wrapper
 
 void expose_observations_wrapper( py::module& m )
 {
+    py::module_::import( "tudatpy.estimation.observations" ).attr( "ObservationCollection" );
+
     // Create wrapper function
     py::cpp_function getDsnDefaultTurnaroundRatios_wrapper = []( tudat::observation_models::FrequencyBands band1,
                                                                  tudat::observation_models::FrequencyBands band2 ) {
