@@ -7,7 +7,11 @@ aerodynamic coefficient models of (artificial and natural) bodies in an environm
 
 The main interfaces with Tudat is the :attr:`~tudatpy.dynamics.environment_setup.BodySettings.aerodynamic_coefficient_settings`
 attribute of the body settings, which defines settings for the aerodynamic coefficients of a body.
-The functions in this submodule are used to create this settings objects.
+The functions in this submodule are used to create this settings objects. When creating a body (typically using the
+:func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies` function), an object of type
+:class:`~tudatpy.dynamics.environment.AerodynamicCoefficientInterface` (or a derived class) is created
+and added to the associated :class:`~tudatpy.dynamics.environment.Body` object based on the settings object, which can
+be retrieved using the :attr:`~tudatpy.dynamics.environment.Body.aerodynamic_coefficient_interface` attribute.
 
 The coefficient models create from the settings defined by these settings are used by the
 :func:`~tudatpy.dynamics.propagation_setup.acceleration.aerodynamic` acceleration model and
@@ -21,8 +25,8 @@ the coefficients are to be provided can be defined by the user through the appro
 
 
 In the definition of moment coefficients, a reference point w.r.t. which aerodynamic moment coefficients are defined must be provided.
-This ``moment_reference_point`1 variable is used to calculate the contribution of the aerodynamic force coefficients to the effective moment coefficients
-See the ``add_force_contribution_to_moments`` attribute of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` for more details. If the present input is set to NaN (as is the default), the reference point is left undefined, and the aerodynamic moments are computed without computing any force coefficient contribution to the moment coefficients.
+This ``moment_reference_point`` variable is used to calculate the contribution of the aerodynamic force coefficients to the effective moment coefficients
+See the :attr:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings.add_force_contribution_to_moments` attribute of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` for more details. If the present input is set to NaN (as is the default), the reference point is left undefined, and the aerodynamic moments are computed without computing any force coefficient contribution to the moment coefficients.
 
 Within the aerodynamic coefficient settings that are created, the user may also add settings for control surface aerodynamic
 coefficient settings. These settings must use the same reference area, reference length and reference point as the vehicle

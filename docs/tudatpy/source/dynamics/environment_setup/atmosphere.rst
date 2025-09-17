@@ -5,8 +5,19 @@
 This module contains a set of factory functions for setting up the
 atmosphere models of celestial bodies in an environment.
 
+The main interfaces with Tudat is the :attr:`~tudatpy.dynamics.environment_setup.BodySettings.atmosphere_settings`
+attribute of the body settings, which defines settings for the atmosphere of a body.
+The functions in this submodule are used to create this settings objects. When creating a body (typically using the
+:func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies` function), an object of type
+:class:`~tudatpy.dynamics.environment.AtmosphereModel` (or a derived class) is created
+and added to the associated :class:`~tudatpy.dynamics.environment.Body` object based on the settings object, which can
+be retrieved using the :attr:`~tudatpy.dynamics.environment.Body.atmosphere_model` attribute.
 
 
+The atmospheric properties of a body are used in a number of Tudat models, but the primary impact on a numerical
+propagation/estimation is through the impact of atmospheric density :math:`\rho`, which is used by the
+:func:`~tudatpy.dynamics.propagation_setup.acceleration.aerodynamic` acceleration model and
+:func:`~tudatpy.dynamics.propagation_setup.torque.aerodynamic` torque model.
 
 
 
