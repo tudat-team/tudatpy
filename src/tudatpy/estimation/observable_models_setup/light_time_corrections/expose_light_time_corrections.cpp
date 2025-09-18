@@ -12,7 +12,7 @@
 #include <pybind11/functional.h>
 #include "scalarTypes.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
-#include <pybind11/native_enum.h>
+// #include <pybind11/native_enum.h>
 
 namespace tom = tudat::observation_models;
 namespace tuc = tudat::unit_conversions;
@@ -321,17 +321,15 @@ Examples
 
      )doc" );
 
-    py::native_enum< tom::TroposphericMappingModel >( m, "TroposphericMappingModel", "enum.IntEnum", R"doc(No documentation found.)doc" )
+    py::enum_< tom::TroposphericMappingModel >( m, "TroposphericMappingModel", R"doc(No documentation found.)doc" )
             .value( "simplified_chao", tom::TroposphericMappingModel::simplified_chao )
             .value( "niell", tom::TroposphericMappingModel::niell )
-            .value( "vmf3", tom::TroposphericMappingModel::vmf3 )
-            .finalize( );
+            .value( "vmf3", tom::TroposphericMappingModel::vmf3 );
 
-    py::native_enum< tom::WaterVaporPartialPressureModel >(
+    py::enum_< tom::WaterVaporPartialPressureModel >(
             m, "WaterVaporPartialPressureModel", "enum.IntEnum", R"doc(No documentation found.)doc" )
             .value( "tabulated", tom::WaterVaporPartialPressureModel::tabulated )
-            .value( "bean_and_dutton", tom::WaterVaporPartialPressureModel::bean_and_dutton )
-            .finalize( );
+            .value( "bean_and_dutton", tom::WaterVaporPartialPressureModel::bean_and_dutton );
 
     m.def( "dsn_tabulated_tropospheric_light_time_correction",
            &tom::tabulatedTroposphericCorrectionSettings,
