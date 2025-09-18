@@ -15,7 +15,7 @@
 #include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <pybind11/native_enum.h>
+// #include <pybind11/native_enum.h>
 #include <tudat/simulation/environment_setup/createGroundStations.h>
 #include <tudat/simulation/environment_setup/defaultBodies.h>
 
@@ -33,18 +33,16 @@ namespace environment_setup
 namespace ground_station
 {
 
-void expose_ground_station_setup( py::module &m )
+void expose_ground_station_setup( py::module& m )
 {
-
     // Ground station motion settings
-    py::native_enum< tss::StationMotionModelTypes >( m, "StationMotionModelTypes", "enum.Enum" )
+    py::enum_< tss::StationMotionModelTypes >( m, "StationMotionModelTypes" )
             .value( "linear", tss::StationMotionModelTypes::linear_station_motion )
             .value( "piecewise_constant", tss::StationMotionModelTypes::piecewise_constant_station_motion )
             .value( "custom", tss::StationMotionModelTypes::custom_station_motion )
             .value( "body_deformation", tss::StationMotionModelTypes::body_deformation_station_motion )
             .value( "bodycentric_to_barycentric_station_position_motion",
-                    tss::StationMotionModelTypes::bodycentric_to_barycentric_station_position_motion )
-            .finalize( );
+                    tss::StationMotionModelTypes::bodycentric_to_barycentric_station_position_motion );
 
     py::class_< tss::GroundStationMotionSettings, std::shared_ptr< tss::GroundStationMotionSettings > >( m,
                                                                                                          "GroundStationMotionSettings",
@@ -209,7 +207,7 @@ void expose_ground_station_setup( py::module &m )
 
                 // Convert the std::map to a Python dict
                 py::dict pythonDict;
-                for( const auto &entry: stationPositions )
+                for( const auto& entry: stationPositions )
                 {
                     // entry.first is the station name, entry.second is the Eigen::Vector3d
                     pythonDict[ entry.first.c_str( ) ] = entry.second;
