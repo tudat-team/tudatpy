@@ -19,7 +19,7 @@
 // #include <pybind11/chrono.h>
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
-#include <pybind11/native_enum.h>
+// #include <pybind11/native_enum.h>
 // #include <pybind11/numpy.h>
 #include <pybind11/complex.h>
 #include <pybind11/pybind11.h>
@@ -70,7 +70,7 @@ void expose_ephemeris_setup( py::module& m )
     py::module_::import( "tudatpy.dynamics.environment" ).attr( "Ephemeris" );
 
     // Types of ephemerides
-    py::native_enum< tss::EphemerisType >( m, "EphemerisType", "enum.Enum", R"doc(
+    py::enum_< tss::EphemerisType >( m, "EphemerisType", R"doc(
         List of ephemeris objects available in simulations.
 
         An ephemeris model not defined by this enumeration cannot be used for automatic model setup
@@ -85,8 +85,7 @@ void expose_ephemeris_setup( py::module& m )
             .value( "custom_ephemeris", tss::EphemerisType::custom_ephemeris )
             .value( "direct_tle_ephemeris", tss::EphemerisType::direct_tle_ephemeris )
             .value( "interpolated_tle_ephemeris", tss::EphemerisType::interpolated_tle_ephemeris )
-            .value( "scaled_ephemeris", tss::EphemerisType::scaled_ephemeris )
-            .finalize( );
+            .value( "scaled_ephemeris", tss::EphemerisType::scaled_ephemeris );
 
     /////////////////////////////////////////////////////////////////////////////
     // createEphemeris.h (complete, unverified)
