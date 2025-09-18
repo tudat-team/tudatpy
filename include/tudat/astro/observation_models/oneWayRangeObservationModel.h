@@ -55,7 +55,7 @@ public:
             const std::shared_ptr< observation_models::LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
         ObservationModel< 1, ObservationScalarType, TimeType >( one_way_range, linkEnds, observationBiasCalculator ),
-        lightTimeCalculator_( lightTimeCalculator ), frequencyInterpolator_( nullptr )
+        lightTimeCalculator_( lightTimeCalculator )
     { }
 
     //! Destructor
@@ -87,7 +87,7 @@ public:
         linkEndStates.clear( );
 
         std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetingsToUse;
-        setFrequencyProperties( time, linkEndAssociatedWithTime, ancilliarySetings, ancilliarySetingsToUse );
+        this->setFrequencyProperties( time, linkEndAssociatedWithTime, lightTimeCalculator_, ancilliarySetings, ancilliarySetingsToUse );
 
         ObservationScalarType observation = TUDAT_NAN;
         TimeType transmissionTime = TUDAT_NAN, receptionTime = TUDAT_NAN;
@@ -137,51 +137,8 @@ public:
         return lightTimeCalculator_;
     }
 
-    void setFrequencyInterpolator( std::shared_ptr< ground_stations::StationFrequencyInterpolator > frequencyInterpolator )
-    {
-        frequencyInterpolator_ = frequencyInterpolator;
-        timeScaleConverter_ = earth_orientation::createDefaultTimeConverter( );
-    }
-
 private:
-    bool setFrequencyProperties( const TimeType time,
-                                 const LinkEndType linkEndAssociatedWithTime,
-                                 const std::shared_ptr< ObservationAncilliarySimulationSettings > inputAncilliarySetings,
-                                 std::shared_ptr< ObservationAncilliarySimulationSettings >& ancilliarySetingsToUse )
-    {
-        if( frequencyInterpolator_ != nullptr )
-        {
-            if( linkEndAssociatedWithTime != receiver )
-            {
-                throw std::runtime_error(
-                        "Error when computing one-way range, frequency interpolator use is only compatible with transmitter reference "
-                        "frrquency at present" );
-            }
-            else
-            {
-                if( inputAncilliarySetings == nullptr )
-                {
-                    ancilliarySetingsToUse = std::make_shared< ObservationAncilliarySimulationSettings >( );
-                }
-                else
-                {
-                    ancilliarySetingsToUse = inputAncilliarySetings;
-                }
-                setTransmissionFrequency( lightTimeCalculator_,
-                                          timeScaleConverter_,
-                                          frequencyInterpolator_,
-                                          time,
-                                          linkEndAssociatedWithTime,
-                                          ancilliarySetingsToUse );
-            }
-            return true;
-        }
-        else
-        {
-            ancilliarySetingsToUse = inputAncilliarySetings;
-            return false;
-        }
-    }
+
     //! Object to calculate light time.
     /*!
      *  Object to calculate light time, including possible corrections from troposphere, relativistic corrections, etc.
@@ -193,10 +150,6 @@ private:
 
     //! Pre-declared transmitter state, to prevent many (de-)allocations
     StateType transmitterState;
-
-    std::shared_ptr< ground_stations::StationFrequencyInterpolator > frequencyInterpolator_;
-
-    std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > timeScaleConverter_;
 };
 
 }  // namespace observation_models
