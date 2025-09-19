@@ -165,6 +165,186 @@ def module_has_init_stub(module_stubs_path: Path) -> bool:
     return init_stub_path.exists()
 
 
+class StatementProcessor:
+
+    @staticmethod
+    def process_statement(statement: ast.stmt) -> ast.stmt:
+
+        if isinstance(statement, ast.Expr):
+            return StatementProcessor.process_expression_statement(statement)
+        elif isinstance(statement, ast.Import):
+            return StatementProcessor.process_import(statement)
+        elif isinstance(statement, ast.ImportFrom):
+            return StatementProcessor.process_import_from(statement)
+        elif isinstance(statement, ast.ClassDef):
+            return StatementProcessor.process_classdef(statement)
+        elif isinstance(statement, ast.FunctionDef):
+            return StatementProcessor.process_functiondef(statement)
+        elif isinstance(statement, ast.AsyncFunctionDef):
+            return StatementProcessor.process_asyncfunctiondef(statement)
+        elif isinstance(statement, ast.Assign):
+            return StatementProcessor.process_assign(statement)
+        # elif isinstance(statement, ast.AnnAssign):
+        #     return StatementProcessor.process_annassign(statement)
+
+        return statement
+
+    @staticmethod
+    def process_docstring(statement: ast.stmt) -> ast.Expr:
+
+        # Fail if statement is not an expression
+        if not isinstance(statement, ast.Expr):
+            raise ValueError(
+                f"Attempted to process {type(statement)} as docstring"
+            )
+
+        # Fail if value is not Constant
+        if not isinstance(statement.value, ast.Constant):
+            raise ValueError(
+                f"Attempted to process {type(statement.value)} as docstring"
+            )
+
+        # Process docstring
+        statement.value = ExpressionProcessor.process_constant(
+            statement.value, docstring=True
+        )
+
+        return statement
+
+    @staticmethod
+    def process_expression_statement(expr: ast.Expr) -> ast.Expr:
+        expr.value = ExpressionProcessor.process_expression(expr.value)
+        return expr
+
+    @staticmethod
+    def process_import(statement: ast.Import) -> ast.Import:
+        return statement
+
+    @staticmethod
+    def process_import_from(statement: ast.ImportFrom) -> ast.ImportFrom:
+        return statement
+
+    @staticmethod
+    def process_classdef(statement: ast.ClassDef) -> ast.ClassDef:
+
+        # Get class docstring
+        docstring = ast.get_docstring(statement)
+
+        # If docstring present, process it first
+        if docstring is not None:
+            statement.body[0] = StatementProcessor.process_docstring(
+                statement.body[0]
+            )
+
+        # Process the rest of the class normally
+        for idx, stmt in enumerate(statement.body):
+            statement.body[idx] = StatementProcessor.process_statement(stmt)
+
+        return statement
+
+    @staticmethod
+    def process_functiondef(statement: ast.FunctionDef) -> ast.FunctionDef:
+
+        # Get function docstring
+        docstring = ast.get_docstring(statement)
+
+        # Remove body and process docstring if present
+        if docstring is None:
+            statement.body = [ast.Expr(ast.Constant("Missing docstring"))]
+        else:
+            # Fail if first statement in body is not docstring
+            stmt = statement.body[0]
+            if not isinstance(stmt, ast.Expr):
+                raise ValueError(
+                    f"Attempted to process {type(stmt)} as docstring"
+                )
+
+            statement.body = [StatementProcessor.process_docstring(stmt)]
+
+        return statement
+
+    @staticmethod
+    def process_asyncfunctiondef(
+        statement: ast.AsyncFunctionDef,
+    ) -> ast.AsyncFunctionDef:
+
+        # Get function docstring
+        docstring = ast.get_docstring(statement)
+
+        # Remove body and process docstring if present
+        if docstring is None:
+            statement.body = []
+        else:
+            statement.body = [
+                StatementProcessor.process_docstring(statement.body[0])
+            ]
+
+        return statement
+
+    @staticmethod
+    def process_assign(statement: ast.Assign) -> ast.Assign:
+
+        print(
+            f"WARNING: Add type annotation to assignment statement in line {statement.lineno}"
+        )
+
+        return statement
+
+    @staticmethod
+    def process_annassign(statement: ast.AnnAssign) -> ast.AnnAssign:
+
+        # Remove value from statement
+        statement.value = None
+
+        return statement
+
+
+class ExpressionProcessor:
+
+    @staticmethod
+    def process_expression(expr: ast.expr) -> ast.expr:
+
+        if isinstance(expr, ast.Constant):
+            return ExpressionProcessor.process_constant(expr)
+
+        return expr
+
+    @staticmethod
+    def process_constant(
+        const: ast.Constant, docstring: bool = False
+    ) -> ast.Constant:
+
+        # Skip processing if not a docstring
+        if not docstring:
+            return const
+
+        # Fail if not a string (should not happen)
+        if not isinstance(const.value, str):
+            raise NotImplementedError(
+                f"Attempted to process non-string constant: {const.lineno}"
+            )
+
+        # Extract components of docstring
+        components = [x.strip() for x in const.value.splitlines()]
+
+        # Remove empty lines in the beginning
+        first_line = components[0]
+        while first_line == "":
+            components.pop(0)
+            first_line = components[0]
+
+        # Remove empty lines in the end
+        last_line = components[-1]
+        while last_line == "":
+            components.pop(-1)
+            last_line = components[-1]
+
+        # Fix indentation
+        const.value = ("\n" + (" " * const.col_offset)).join(components)
+
+        return const
+
+
 class StubGenerator:
 
     # Default indentation length in pybind11-stubgen
@@ -423,52 +603,63 @@ class StubGenerator:
         From https://docs.python.org/3/library/ast.html#ast.get_docstring, the types that can have a docstring are: ast.Module, ast.ClassDef, ast.FunctionDef, and ast.AsyncFunctionDef.
         """
 
-        # Define container for updated body
-        updated_body: list[ast.stmt] = []
+        # Process module-level docstring if present
+        module_docstring = ast.get_docstring(module)
+        if module_docstring is not None:
+            module.body[0] = StatementProcessor.process_docstring(
+                module.body[0]
+            )
 
-        # Process all statements in the module
-        for statement in module.body:
+        # Process the whole module with normal rules
+        for idx, statement in enumerate(module.body):
+            module.body[idx] = StatementProcessor.process_statement(statement)
 
-            # Skip if statement cannot have a docstring
-            # if not self.__can_have_docstring(statement):
-            if not isinstance(
-                statement,
-                (
-                    ast.ClassDef,
-                    ast.FunctionDef,
-                    ast.AsyncFunctionDef,
-                    ast.Module,
-                ),
-            ):
-                updated_body.append(statement)
-                continue
+        # # Define container for updated body
+        # updated_body: list[ast.stmt] = []
 
-            # Get docstring and skip if not present
-            docstring = ast.get_docstring(statement)
-            if docstring is None:
-                updated_body.append(statement)
-                continue
+        # # Process all statements in the module
+        # for statement in module.body:
 
-            # Get size of docstring indentation
-            if isinstance(statement, ast.Module):
-                indentation_level = 0
-            else:
-                indentation_level = statement.col_offset
-            docstring_indentation = (indentation_level + 1) * self.indentation
+        #     # Skip if statement cannot have a docstring
+        #     # if not self.__can_have_docstring(statement):
+        #     if not isinstance(
+        #         statement,
+        #         (
+        #             ast.ClassDef,
+        #             ast.FunctionDef,
+        #             ast.AsyncFunctionDef,
+        #             ast.Module,
+        #         ),
+        #     ):
+        #         updated_body.append(statement)
+        #         continue
 
-            # Adjust indentation
-            indented_lines: list[str] = [
-                docstring_indentation + line for line in docstring.split("\n")
-            ]
-            indented_lines[0] = indented_lines[0].lstrip()
-            docstring = "\n".join(indented_lines)
+        #     # Get docstring and skip if not present
+        #     docstring = ast.get_docstring(statement)
+        #     if docstring is None:
+        #         updated_body.append(statement)
+        #         continue
 
-            # Update docstring
-            statement.body[0] = ast.Expr(ast.Constant(docstring))
-            updated_body.append(statement)
+        #     # Get size of docstring indentation
+        #     if isinstance(statement, ast.Module):
+        #         indentation_level = 0
+        #     else:
+        #         indentation_level = statement.col_offset
+        #     docstring_indentation = (indentation_level + 1) * self.indentation
 
-        # Update body of module
-        module.body = updated_body
+        #     # Adjust indentation
+        #     indented_lines: list[str] = [
+        #         docstring_indentation + line for line in docstring.split("\n")
+        #     ]
+        #     indented_lines[0] = indented_lines[0].lstrip()
+        #     docstring = "\n".join(indented_lines)
+
+        #     # Update docstring
+        #     statement.body[0] = ast.Expr(ast.Constant(docstring))
+        #     updated_body.append(statement)
+
+        # # Update body of module
+        # module.body = updated_body
         return module
 
     def __create_stubs_directory_structure(self) -> None:
