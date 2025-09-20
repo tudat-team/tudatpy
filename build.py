@@ -8,6 +8,40 @@ import ast
 import tempfile
 from dataclasses import dataclass
 from typing import Generator
+import logging
+
+
+class CustomFormatter(logging.Formatter):
+
+    grey = "\x1b[38;20m"
+    blue = "\x1b[34;20m"
+    green = "\x1b[32;20m"
+    yellow = "\x1b[33;20m"
+    red = "\x1b[31;20m"
+    bold_red = "\x1b[31;1m"
+    reset = "\x1b[0m"
+    _format = "%(levelname)-8s :: %(asctime)s :: %(message)s"
+
+    FORMATS = {
+        logging.DEBUG: green + _format + reset,
+        logging.INFO: blue + _format + reset,
+        logging.WARNING: yellow + _format + reset,
+        logging.ERROR: red + _format + reset,
+        logging.CRITICAL: bold_red + _format + reset,
+    }
+
+    def format(self, record) -> str:
+        log_fmt = self.FORMATS.get(record.levelno)
+        formatter = logging.Formatter(log_fmt, datefmt="%Y-%m-%d %H:%M:%S")
+        return formatter.format(record)
+
+
+log = logging.getLogger(__package__)
+log.setLevel(logging.INFO)
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+ch.setFormatter(CustomFormatter())
+log.addHandler(ch)
 
 
 @dataclass
@@ -117,6 +151,9 @@ class BuildParser(argparse.ArgumentParser):
             "--verbose",
             action="store_true",
             help="Verbose output during build",
+        )
+        misc_group.add_argument(
+            "--debug", action="store_true", help="Display debug information"
         )
 
         # CI options
@@ -284,8 +321,8 @@ class StatementProcessor:
     @staticmethod
     def process_assign(statement: ast.Assign) -> ast.Assign:
 
-        print(
-            f"WARNING: Add type annotation to assignment statement in line {statement.lineno}"
+        log.warning(
+            f"Missing type annotation in assignment statement: {statement.lineno}"
         )
 
         return statement
@@ -340,7 +377,8 @@ class ExpressionProcessor:
             last_line = components[-1]
 
         # Fix indentation
-        const.value = ("\n" + (" " * const.col_offset)).join(components)
+        indentation = " " * const.col_offset
+        const.value = (f"\n{indentation}").join(components) + f"\n{indentation}"
 
         return const
 
@@ -681,7 +719,7 @@ class StubGenerator:
 
     def __generate_default_kernel_stubs(self) -> None:
 
-        print("Generating stubs for tudatpy.kernel...")
+        log.info("Generating stubs for C++ extensions")
 
         # Generate stubs for tudatpy.kernel
         outcome = subprocess.run(
@@ -693,9 +731,22 @@ class StubGenerator:
                 "--numpy-array-wrap-with-annotated",
             ],
             env=self.mock_env.variables,
+            capture_output=True,
         )
+
+        # Interrupt if stub-generation failed
         if outcome.returncode:
-            raise RuntimeError("Failed to generate stub for tudatpy.kernel")
+
+            # Show stderr as error
+            for stderr_line in str(outcome.stderr)[2:-1].split(r"\n"):
+                log.error(stderr_line)
+
+            log.error("Failed to generate stubs for tudatpy kernel")
+            exit(1)
+
+        # Show stub generation stderr as debug
+        for stderr_line in str(outcome.stderr)[2:-1].split(r"\n"):
+            log.debug(stderr_line)
 
         # Relocate stubs in the build directory
         tmp_stubs_dir: Path = self.mock_env.tmp / "tudatpy/kernel"
@@ -726,47 +777,83 @@ class StubGenerator:
 
     def __generate_default_python_stubs(self) -> None:
 
-        print("Generating stubs for Python source code...")
+        log.info("Generating stubs for Python source code")
 
-        # Create directory for python stubs in tmp
-        python_stubs = self.mock_env.tmp / "python_stubs"
-        python_stubs.mkdir(exist_ok=False, parents=False)
+        # Process all the python scripts in the library
+        mock_installation_dir = self.mock_env.prefix / "tudatpy"
+        for script in mock_installation_dir.rglob("*.py"):
 
-        # Generate stubs for Python source code
-        for item in (self.mock_env.prefix / "tudatpy").rglob("*.py"):
-
-            # Skip if __init__.py or if it is in __pycache__
-            if item.name == "__init__.py" or "__pycache__" in str(item):
+            # Skip if __init__.py or part of __pycache__
+            if (script.name == "__init__.py") or ("__pycache__" in str(script)):
                 continue
 
-            # Skip if it belongs to an ignored module
+            # Skip if part of ignored module
             if (
-                item.relative_to(self.mock_env.prefix / "tudatpy").parts[0]
+                script.relative_to(mock_installation_dir).parts[0]
                 in self.ignored_modules
             ):
                 continue
 
-            # Generate stub with stubgen
-            outcome = subprocess.run(
-                [
-                    "stubgen",
-                    item,
-                    "-o",
-                    str(python_stubs),
-                    "--include-docstrings",
-                    "--parse-only",
-                    "--quiet",
-                ]
-            )
-            if outcome.returncode:
-                raise RuntimeError(f"Failed to generate stub for {item}")
+            # Generate syntax tree from script contents
+            script_content = self.__parse_script(script)
 
-        # Move stubs to build directory
-        for stub in (python_stubs / "tudatpy").rglob("*.pyi"):
-            shutil.copy(
-                stub,
-                self.stubs_dir / stub.relative_to(python_stubs / "tudatpy"),
-            )
+            # Initialize syntax tree for stub
+            stub_content = ast.Module(body=[], type_ignores=[])
+
+            # Process module-level docstring if present
+            module_docstring = ast.get_docstring(script_content)
+            if module_docstring is not None:
+                script_content.body[0] = StatementProcessor.process_docstring(
+                    script_content.body[0]
+                )
+
+            # Fill stub body with script contents
+            for statement in script_content.body:
+                stub_content.body.append(
+                    StatementProcessor.process_statement(statement)
+                )
+
+            # Define path to stub and generate parent directory if missing
+            stub_path = self.stubs_dir / script.relative_to(
+                mock_installation_dir
+            ).with_suffix(".pyi")
+            # stub_path.parent.mkdir(exist_ok=True, parents=True)
+
+            # Generate stub file from syntax tree
+            with stub_path.open("w") as buffer:
+                buffer.write(self.__unparse_script(stub_content))
+
+        #     # Generate stub with stubgen
+        #     outcome = subprocess.run(
+        #         [
+        #             "stubgen",
+        #             script,
+        #             "-o",
+        #             str(python_stubs_dir),
+        #             "--include-docstrings",
+        #             "--parse-only",
+        #             "--quiet",
+        #         ]
+        #     )
+        #     if outcome.returncode:
+        #         raise RuntimeError(f"Failed to generate stub for {script}")
+
+        # # Move stubs to build directory
+        # for stub in (python_stubs_dir / "tudatpy").rglob("*.pyi"):
+        #     shutil.copy(
+        #         stub,
+        #         self.stubs_dir / stub.relative_to(python_stubs_dir / "tudatpy"),
+        #     )
+
+        # # Move stubs to build directory
+        # print("The normal ones")
+        # for stub in (python_stubs_dir / "tudatpy").rglob("*.pyi"):
+
+        #     print(stub)
+        #     shutil.copy(
+        #         stub,
+        #         self.stubs_dir / stub.relative_to(python_stubs_dir / "tudatpy"),
+        #     )
 
         return None
 
@@ -1197,16 +1284,17 @@ class StubGenerator:
         # Generate default stubs for tudatpy.kernel
         self.__generate_default_kernel_stubs()
 
-        # Generate default stubs for Python source code
-        self.__generate_default_python_stubs()
-
         # Fix autogenerated stubs
         self.__fix_autogenerated_stubs()
+
+        # Generate default stubs for Python source code
+        self.__generate_default_python_stubs()
 
         # Missing: Fix __init__.pyi stubs to expand star imports
         self.__generate_init_stubs()
 
-        print("Stubs generated successfully")
+        # Display success message
+        log.info("Stubs generated successfully")
 
         return None
 
@@ -1436,7 +1524,13 @@ class Builder:
 
 if __name__ == "__main__":
 
+    # Parse command-line arguments
     args = BuildParser().parse_args()
+
+    # Set logging level
+    if args.debug:
+        log.setLevel(logging.DEBUG)
+
     builder = Builder(args)
 
     # Build libraries
