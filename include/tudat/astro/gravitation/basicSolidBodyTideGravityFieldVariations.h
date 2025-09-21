@@ -56,7 +56,21 @@ std::complex< double > calculateSolidBodyTideSingleCoefficientSetCorrectionFromA
                                                                                           const double amplitude,
                                                                                           const std::complex< double > tideArgument,
                                                                                           const int degree,
-                                                                                          const int order );
+                                                                                          const int order,
+                                                                                          const double meanCosineForcing = 0.0,
+                                                                                          const double meanSineForcing = 0.0 );
+
+
+
+// Handle default values of mean tidal forcing terms when calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude function is called with love numbers as map
+    // this call is only happening in unit tests (as far as I can tell) and the aux function below is thus also only called in unit test application
+void massageMeanTermsIfDefault( std::map< int, std::vector< double > >& input,
+                                const std::map< int, std::vector< std::complex< double > > >& loveNumbersReference);
+
+
+// This function takes the map of kind key=degree, vector = values at degree, order and maps it onto a nxn matrix
+Eigen::MatrixXd convertSHMapToMatrix(const std::map<int, std::vector<double>>& inputMap, int n);
+
 
 //! Function to calculate solid body tide gravity field variations due to single body at single degree and order directly
 //! from perturbing body's Cartesian state.
@@ -80,7 +94,9 @@ std::complex< double > calculateSolidBodyTideSingleCoefficientSetCorrectionFromA
                                                                                           const double referenceRadius,
                                                                                           const Eigen::Vector3d& relativeBodyFixedPosition,
                                                                                           const int degree,
-                                                                                          const int order );
+                                                                                          const int order,
+                                                                                          const double meanCosineForcing = 0.0,
+                                                                                          const double meanSineForcing = 0.0 );
 
 //! Function to calculate solid body tide gravity field variations due to single body at a set of degrees and orders
 //! from perturbing body's Cartesian state.
@@ -107,7 +123,9 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSolidBodyTideSingleCoeffi
         const double referenceRadius,
         const Eigen::Vector3d& relativeBodyFixedPosition,
         const int maximumDegree,
-        const int maximumOrder );
+        const int maximumOrder,
+        std::map< int, std::vector< double > > meanCosineForcing = { {0, {0.0}} },
+        std::map< int, std::vector< double > > meanSineForcing = { {0, {0.0}} });
 
 class SolidBodyTideGravityFieldVariations : public GravityFieldVariations
 {
@@ -473,7 +491,9 @@ public:
             const std::function< double( ) > deformedBodyMass,
             const std::vector< std::function< double( ) > > deformingBodyMasses,
             const std::map< int, std::vector< std::complex< double > > > loveNumbers,
-            const std::vector< std::string > deformingBodies ):
+            const std::vector< std::string > deformingBodies,
+            std::map<int, std::vector<double>> meanForcingCosineTerms = { },
+            std::map<int, std::vector<double>> meanForcingSineTerms = { } ):
         // LOVE NUMBERS TODO: FIX MIN/MAX STUFF
         SolidBodyTideGravityFieldVariations( deformedBodyStateFunction,
                                              deformedBodyOrientationFunction,
@@ -484,13 +504,30 @@ public:
                                              deformingBodies,
                                              loveNumbers.rbegin( )->first,
                                              loveNumbers.rbegin( )->first ),
-        loveNumbers_( loveNumbers )
+        loveNumbers_( loveNumbers ), meanForcingCosineTerms_( meanForcingCosineTerms ), meanForcingSineTerms_( meanForcingSineTerms )
     {
         // Set basic deformation functon as function to be evaluated when requesting variations.
         correctionFunctions.push_back( std::bind( &BasicSolidBodyTideGravityFieldVariations::addBasicSolidBodyTideCorrections,
                                                   this,
                                                   std::placeholders::_1,
                                                   std::placeholders::_2 ) );
+
+        // if cosine mean forcing terms are empty map (default), set map values to zero
+        if (meanForcingCosineTerms.empty()){
+            for (const auto& [key, vec] : loveNumbers_) {
+                // Create a vector<double> of the same size, all zero-initialized
+                meanForcingCosineTerms_[key] = std::vector<double>(vec.size(), 0.0);
+            }
+        }
+
+        // if sine mean forcing terms are empty map (default), set map values to zero
+        if (meanForcingSineTerms.empty()){
+            for (const auto& [key, vec] : loveNumbers_) {
+                // Create a vector<double> of the same size, all zero-initialized
+                meanForcingSineTerms_[key] = std::vector<double>(vec.size(), 0.0);
+            }
+        }
+
     }
 
     //! Destructor
@@ -553,6 +590,16 @@ public:
         }
     }
 
+    // getter function for the mean tidal forcing cosine terms
+    std::map<int, std::vector<double>> getMeanForcingCosineTerms( ){
+        return meanForcingCosineTerms_;
+    }
+
+    // getter function for the mean tidal forcing sine terms
+    std::map<int, std::vector<double>> getMeanForcingSineTerms( ){
+        return meanForcingSineTerms_;
+    }
+
 protected:
     //! Calculates basic solid body gravity field corrections due to single body.
     /*!
@@ -577,6 +624,13 @@ protected:
      *  maximum degree == maximum order.
      */
     std::map< int, std::vector< std::complex< double > > > loveNumbers_;
+
+    //! Map with mean cosine forcing terms per degree [key] and order [vector position]
+    std::map<int, std::vector<double>> meanForcingCosineTerms_;
+
+    //! Map with mean sine forcing terms per degree [key] and order [vector position]
+    std::map<int, std::vector<double>> meanForcingSineTerms_;
+
 };
 
 int getModeCoupledMaximumResponseDegree( const std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > >& loveNumbers );

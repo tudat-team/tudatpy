@@ -437,36 +437,81 @@ std::vector< Eigen::Vector2d > TidalLoveNumberPartialInterface::calculateCoeffic
         realCoefficientPartials[ i ] = Eigen::Vector2d::Zero( );
     }
 
-    // Check if any dependency exists
-    if( degree <= maximumDegree )
-    {
-        std::complex< double > unitLoveNumberCoefficientVariations;
+    // Check if tidal model is BasicSolidBodyTideGravityFieldVariations
+    if (gravityFieldVariationsCast_ != nullptr){
 
-        // Iterate over all bodies causing deformation and calculate and add associated corrections
-        for( unsigned int i = 0; i < deformingBodyIndices.size( ); i++ )
+        // CASE 1, we have information on mean tidal forcing, use calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude with tidal mean terms
         {
-            for( unsigned int m = 0; m < orders.size( ); m++ )
+            if( degree <= maximumDegree )
             {
-                if( orders.at( m ) <= maximumOrder )
-                {
-                    // Update member variables to current body, degree and order
-                    setCurrentTidalBodyStates( degree, orders.at( m ), deformingBodyIndices.at( i ) );
+                std::complex< double > unitLoveNumberCoefficientVariations;
 
-                    // Calculate and add coefficients.
-                    unitLoveNumberCoefficientVariations = gravitation::calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
-                            std::complex< double >( 1.0, 0.0 ),
-                            massRatio_,
-                            basic_mathematics::raiseToIntegerPower( radiusRatio_, degree + 1 ),
-                            basic_mathematics::computeLegendrePolynomialExplicit( degree, orders.at( m ), sineOfLatitude_ ),
-                            static_cast< double >( orders.at( m ) ) * iLongitude_,
-                            degree,
-                            orders.at( m ) );
-                    realCoefficientPartials[ m ].x( ) += unitLoveNumberCoefficientVariations.real( );
-                    realCoefficientPartials[ m ].y( ) -= unitLoveNumberCoefficientVariations.imag( );
+                // Iterate over all bodies causing deformation and calculate and add associated corrections
+                for( unsigned int i = 0; i < deformingBodyIndices.size( ); i++ )
+                {
+                    for( unsigned int m = 0; m < orders.size( ); m++ )
+                    {
+                        if( orders.at( m ) <= maximumOrder )
+                        {
+                            // Update member variables to current body, degree and order
+                            setCurrentTidalBodyStates( degree, orders.at( m ), deformingBodyIndices.at( i ) );
+
+                            // Calculate and add coefficients.
+                            unitLoveNumberCoefficientVariations = gravitation::calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
+                                    std::complex< double >( 1.0, 0.0 ),
+                                    massRatio_,
+                                    basic_mathematics::raiseToIntegerPower( radiusRatio_, degree + 1 ),
+                                    basic_mathematics::computeLegendrePolynomialExplicit( degree, orders.at( m ), sineOfLatitude_ ),
+                                    static_cast< double >( orders.at( m ) ) * iLongitude_,
+                                    degree,
+                                    orders.at( m ),
+                                    gravityFieldVariationsCast_->getMeanForcingCosineTerms().at( degree ).at( m ),
+                                    gravityFieldVariationsCast_->getMeanForcingSineTerms().at( degree ).at( m )
+                                    );
+                            realCoefficientPartials[ m ].x( ) += unitLoveNumberCoefficientVariations.real( );
+                            realCoefficientPartials[ m ].y( ) -= unitLoveNumberCoefficientVariations.imag( );
+                        }
+                    }
                 }
             }
         }
+
+    } else {
+
+        // CASE 2, we have no information on mean tidal forcing, use calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude signature without tidal mean terms (defaults to zero)
+        if( degree <= maximumDegree )
+        {
+            std::complex< double > unitLoveNumberCoefficientVariations;
+
+            // Iterate over all bodies causing deformation and calculate and add associated corrections
+            for( unsigned int i = 0; i < deformingBodyIndices.size( ); i++ )
+            {
+                for( unsigned int m = 0; m < orders.size( ); m++ )
+                {
+                    if( orders.at( m ) <= maximumOrder )
+                    {
+                        // Update member variables to current body, degree and order
+                        setCurrentTidalBodyStates( degree, orders.at( m ), deformingBodyIndices.at( i ) );
+
+                        // Calculate and add coefficients.
+                        unitLoveNumberCoefficientVariations = gravitation::calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
+                                std::complex< double >( 1.0, 0.0 ),
+                                massRatio_,
+                                basic_mathematics::raiseToIntegerPower( radiusRatio_, degree + 1 ),
+                                basic_mathematics::computeLegendrePolynomialExplicit( degree, orders.at( m ), sineOfLatitude_ ),
+                                static_cast< double >( orders.at( m ) ) * iLongitude_,
+                                degree,
+                                orders.at( m )
+                                );
+                        realCoefficientPartials[ m ].x( ) += unitLoveNumberCoefficientVariations.real( );
+                        realCoefficientPartials[ m ].y( ) -= unitLoveNumberCoefficientVariations.imag( );
+                    }
+                }
+            }
+        }
+
     }
+
     return realCoefficientPartials;
 }
 
