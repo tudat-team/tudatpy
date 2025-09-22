@@ -1359,7 +1359,8 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
  *  \return Atmosphere model created according to settings in atmosphereSettings.
  */
 std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const std::shared_ptr< AtmosphereSettings > atmosphereSettings,
-                                                                        const std::string& body );
+                                                                        const std::string& body,
+                                                                        const SystemOfBodies& bodies);
 
 }  // namespace simulation_setup
 
