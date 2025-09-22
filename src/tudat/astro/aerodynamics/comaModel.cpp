@@ -1,4 +1,4 @@
-#include "tudat/astro/aerodynamics/ComaModel.h"
+#include "tudat/astro/aerodynamics/comaModel.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/basics/utilityMacros.h"
 #include <stdexcept>
@@ -24,10 +24,10 @@ ComaModel::ComaModel( const std::vector< Eigen::MatrixXd >& polyCoefficients,
     SHDegreeAndOrder_( SHDegreeAndOrder ),
     referenceRadius_( referenceRadius ),
     powersInvRadius_( powersInvRadius ),
-    TimePeriods_( TimePeriods ),
-    constantTemperature_( 300.0 ), // TODO: Placeholder
-    specificGasConstant_( 5 ), //TODO: Placeholder
-    ratioOfSpecificHeats_( 1.4 ) // TODO: Placeholder
+    TimePeriods_( TimePeriods )//,
+    // constantTemperature_( 300.0 ), // TODO: Placeholder
+    // specificGasConstant_( 5 ), //TODO: Placeholder
+    // ratioOfSpecificHeats_( 1.4 ) // TODO: Placeholder
 {
 }
 
@@ -247,8 +247,8 @@ double ComaModel::radialSquaredAndTemporalIFFT( const double nucleusToSpacecraft
 SphericalHarmonicsDensity::SphericalHarmonicsDensity( Eigen::MatrixXd sineCoefficients,
                                                       Eigen::MatrixXd cosineCoefficients,
                                                       std::string fixedReferenceFrame ) :
-    sineCoefficients_( std::move( sineCoefficients ) ),
     cosineCoefficients_( std::move( cosineCoefficients ) ),
+    sineCoefficients_( std::move( sineCoefficients ) ),
     fixedReferenceFrame_( std::move( fixedReferenceFrame ) ),
     maximumDegree_( static_cast< int >(cosineCoefficients_.rows( )) ),
     maximumOrder_( static_cast< int >(cosineCoefficients_.cols( )) ),

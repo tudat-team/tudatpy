@@ -46,7 +46,8 @@ foreach(_TUDAT_BOOST_COMPONENT ${_TUDAT_REQUIRED_BOOST_LIBS})
         else()
             add_library(Boost::${_TUDAT_BOOST_COMPONENT} UNKNOWN IMPORTED ../tests/src/simulation/unitTestPolyhedron.cpp
                     ../../include/tudat/astro/aerodynamics/comaModel.h
-                    ../../src/tudat/astro/aerodynamics/comaModel.cpp)
+                    ../../src/tudat/astro/aerodynamics/comaModel.cpp
+                    ../../tests/test_tudat/src/astro/aerodynamics/unitTestComaModel.cpp)
         endif()
         set_target_properties(Boost::${_TUDAT_BOOST_COMPONENT} PROPERTIES
                 INTERFACE_INCLUDE_DIRECTORIES "${Boost_INCLUDE_DIRS}")

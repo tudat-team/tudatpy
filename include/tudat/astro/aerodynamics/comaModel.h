@@ -148,14 +148,14 @@ private:
     //! Time periods where input tables are valid
     std::vector< std::vector< double > > TimePeriods_;
 
-    //TODO: figure out Temperature dependency
-    double constantTemperature_;
-
-    // TODO: figure out specific gas constant dependency
-    double specificGasConstant_;
-
-    // TODO: figure out about ratio of specific heat
-    double ratioOfSpecificHeats_;
+    // //TODO: figure out Temperature dependency
+    // double constantTemperature_;
+    //
+    // // TODO: figure out specific gas constant dependency
+    // double specificGasConstant_;
+    //
+    // // TODO: figure out about ratio of specific heat
+    // double ratioOfSpecificHeats_;
 
     /*!
      * @brief Find the index of the time interval that contains a given time.

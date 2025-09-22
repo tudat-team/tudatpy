@@ -976,9 +976,10 @@ class ComaSettings final : public AtmosphereSettings
 {
 public:
     // Default constructor.
-    explicit ComaSettings():
-        AtmosphereSettings( coma_model )
+    ComaSettings(std::vector<std::string> fileList, int requestedDegree, int requestedOrder):
+        AtmosphereSettings( coma_model ), requestedDegree_( requestedOrder ), requestedOrder_( requestedOrder )
     {
+        readInputFiles( fileList );
     }
 
 
@@ -1316,9 +1317,12 @@ inline std::shared_ptr< AtmosphereSettings > tabulatedAtmosphereSettings(
 }
 
 
-inline std::shared_ptr<AtmosphereSettings> comaSettings()
+inline std::shared_ptr<AtmosphereSettings> comaSettings(
+    std::vector<std::string> polyList,
+    const int requestedDegree,
+    const int requestedOrder)
 {
-    return std::make_shared< ComaSettings >();
+    return std::make_shared< ComaSettings >(polyList, requestedDegree, requestedOrder);
 }
 
 
