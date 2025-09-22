@@ -11,6 +11,7 @@
 #include "tudat/astro/aerodynamics/exponentialAtmosphere.h"
 #include "tudat/astro/aerodynamics/tabulatedAtmosphere.h"
 #include "tudat/astro/aerodynamics/marsDtmAtmosphereModel.h"
+#include "tudat/astro/aerodynamics/comaModel.h"
 #if TUDAT_BUILD_WITH_NRLMSISE
 #include "tudat/astro/aerodynamics/nrlmsise00Atmosphere.h"
 #include "tudat/astro/aerodynamics/nrlmsise00InputFunctions.h"
@@ -18,6 +19,7 @@
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/io/solarActivityData.h"
 #include "tudat/simulation/environment_setup/createAtmosphereModel.h"
+#include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
 {
@@ -27,7 +29,8 @@ namespace simulation_setup
 
 //! Function to create a wind model.
 std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_ptr< WindModelSettings > windSettings,
-                                                            const std::string& body )
+                                                            const std::string& body,
+                                                            const std::shared_ptr< AtmosphereModel > atmosphereModel )
 {
     std::shared_ptr< aerodynamics::WindModel > windModel;
 
@@ -52,7 +55,7 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
             std::shared_ptr< CustomWindModelSettings > customWindModelSettings =
                     std::dynamic_pointer_cast< CustomWindModelSettings >( windSettings );
 
-            if( customWindModelSettings == nullptr )
+            if(customWindModelSettings == nullptr)
             {
                 throw std::runtime_error( "Error when making custom wind model for body " + body + ", input is incompatible" );
             }
@@ -61,6 +64,16 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
 
             break;
         }
+        case coma_wind_model: {
+            std::shared_ptr< ComaModel > comaModel =
+                    std::dynamic_pointer_cast< ComaModel >( atmosphereModel );
+            if(comaModel == nullptr)
+            {
+            }
+
+            break;
+        }
+
         default:
             throw std::runtime_error( "Error when making wind model for body " + body + ", input type not recognized" );
     }
@@ -70,7 +83,8 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
 
 //! Function to create an atmosphere model.
 std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const std::shared_ptr< AtmosphereSettings > atmosphereSettings,
-                                                                        const std::string& body )
+                                                                        const std::string& body,
+                                                                        const SystemOfBodies& bodies)
 {
     using namespace tudat::aerodynamics;
 
@@ -253,12 +267,43 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
             else
             {
                 std::shared_ptr< AtmosphereModel > baseAtmosphere =
-                        createAtmosphereModel( scaledAtmosphereSettings->getBaseSettings( ), body );
+                        createAtmosphereModel( scaledAtmosphereSettings->getBaseSettings( ), body , bodies );
                 atmosphereModel = std::make_shared< ScaledAtmosphereModel >(
                         baseAtmosphere, scaledAtmosphereSettings->getScaling( ), scaledAtmosphereSettings->getIsScalingAbsolute( ) );
             }
             break;
         }
+
+        case coma_model: {
+            const std::shared_ptr< ComaSettings > comaSettings =
+                    std::dynamic_pointer_cast< ComaSettings >( atmosphereSettings );
+
+            if(comaSettings == nullptr)
+            {
+                throw std::runtime_error( "Error, expected ComaSettings for body " + body );
+            }
+            else
+            {
+                std::function< Eigen::Vector6d( ) > sunStateFunction =
+                        std::bind( &simulation_setup::Body::getState, bodies.at( "Sun" ) );
+                std::function< Eigen::Vector6d( ) > bodyStateFunction =
+                        std::bind( &simulation_setup::Body::getState, bodies.at( body ) );
+                std::function< Eigen::Matrix3d( ) > bodyOrientationFunction =
+                                        std::bind( &simulation_setup::Body::getCurrentRotationMatrixToLocalFrame, bodies.at( body ) );
+                const auto comaModel =
+                        std::make_shared< ComaModel >( comaSettings->getPolyCoefficients( ),
+                                                       comaSettings->getSHDegreeAndOrder( ),
+                                                       comaSettings->getPowersInvRadius( ),
+                                                       comaSettings->getReferenceRadius( ),
+                                                       comaSettings->getTimePeriods( ),
+                                                       comaSettings->getRequestedDegree(  ),
+                                                       comaSettings->getRequestedOrder(  ) );
+
+                atmosphereModel = comaModel;
+            }
+            break;
+        }
+
         default:
             throw std::runtime_error( "Error, did not recognize atmosphere model settings type " +
                                       std::to_string( atmosphereSettings->getAtmosphereType( ) ) );
@@ -266,7 +311,7 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
 
     if( atmosphereSettings->getWindSettings( ) != nullptr )
     {
-        atmosphereModel->setWindModel( createWindModel( atmosphereSettings->getWindSettings( ), body ) );
+        atmosphereModel->setWindModel( createWindModel( atmosphereSettings->getWindSettings( ), body, atmosphereModel ) );
     }
 
     return atmosphereModel;

@@ -15,7 +15,9 @@
 #include <map>
 
 #include <memory>
+#include <boost/date_time/posix_time/time_period.hpp>
 
+#include "body.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/astro/aerodynamics/atmosphereModel.h"
 #include "tudat/astro/aerodynamics/exponentialAtmosphere.h"
@@ -29,7 +31,6 @@ namespace tudat
 
 namespace simulation_setup
 {
-
 using namespace aerodynamics;
 
 //  List of wind models available in simulations
@@ -37,7 +38,7 @@ using namespace aerodynamics;
  *  List of wind models available in simulations. Wind models not defined by this
  *  given enum cannot be used for automatic model setup.
  */
-enum WindModelTypes { constant_wind_model, custom_wind_model };
+enum WindModelTypes { constant_wind_model, custom_wind_model, coma_wind_model };
 
 //  Class for providing settings for wind model.
 /*
@@ -156,7 +157,8 @@ enum AtmosphereTypes {
     tabulated_atmosphere,
     nrlmsise00,
     mars_dtm_atmosphere,
-    scaled_atmosphere
+    scaled_atmosphere,
+    coma_model
 };
 
 //  Class for providing settings for atmosphere model.
@@ -960,6 +962,246 @@ protected:
     bool isScalingAbsolute_;
 };
 
+
+
+
+
+
+
+
+
+
+
+class ComaSettings final : public AtmosphereSettings
+{
+public:
+    // Default constructor.
+    explicit ComaSettings():
+        AtmosphereSettings( coma_model )
+    {
+    }
+
+
+    //! Get the list of polynomial coefficient matrices, one per input file.
+    /*!
+     * Each matrix has dimensions (number of radial terms × number of SH coefficients) for one file.
+     */
+    const std::vector<Eigen::MatrixXd>& getPolyCoefficients() const
+    {
+        return polyCoefficients_;
+    }
+
+    //! Get the list of spherical harmonics degree and order indices for each input file.
+    /*!
+     * Each inner vector holds a flattened (2 × N) list of degree and order pairs, where N is the number of coefficients.
+     * Index `2*k` contains degree, `2*k+1` contains order.
+     */
+    const std::vector<Eigen::ArrayXXi>& getSHDegreeAndOrder() const
+    {
+        return SHDegreeAndOrderIndices_;
+    }
+
+    //! Get the list of reference radii used in each input file.
+    /*!
+     * Each inner vector corresponds to one input file. Typically contains one element per file.
+     */
+    const std::vector<double>& getReferenceRadius() const
+    {
+        return referenceRadius_;
+    }
+
+    //! Get the list of inverse-radius powers used in each input file.
+    /*!
+     * These powers define the radial dependency of the polynomial basis. Each inner vector corresponds to one file.
+     */
+    const std::vector<Eigen::VectorXd>& getPowersInvRadius() const
+    {
+        return powersInvRadius_;
+    }
+
+    const std::vector<std::vector<double>> & getTimePeriods() const
+    {
+        return TimePeriods_;
+    }
+
+    // Get requested Degree
+    const int& getRequestedDegree() const
+    {
+        return requestedDegree_;
+    }
+
+    // Get requested Order
+    const int& getRequestedOrder() const
+    {
+        return requestedOrder_;
+    }
+
+
+
+
+private:
+    // Spherical harmonics model.
+    // SphericalHarmonicsModel sphericalHarmonicsModel_ = customModel;
+
+    // Path of loaded coma input files.
+    std::vector<std::string> filePathList_;
+
+    // Maximum degree used for computation
+    int requestedDegree_;
+
+    // requested order used for computation
+    int requestedOrder_;
+
+    // number of Poly Coefficient input files used
+    int numPolyCoefFiles_;
+
+    // PolyCoefficients of input files
+    std::vector<Eigen::MatrixXd> polyCoefficients_;
+
+    // Spherical Harmonics Degree and Order indices of input tables
+    std::vector<Eigen::ArrayXXi> SHDegreeAndOrderIndices_;
+
+    // Reference radius of input table
+    std::vector<double> referenceRadius_;
+
+    // Power Inverse Radius of input tables
+    std::vector<Eigen::VectorXd> powersInvRadius_;
+
+    // Time periods where input tables are valid
+    std::vector<std::vector<double>> TimePeriods_;
+
+
+
+    //  A function reading PolyCoefficient files
+    /*
+     * A function reading and processing a PolyCoefficient file list. Extracts:
+     * - polyCoefficients, used to compute stokes coefficients
+     * - SH degree and order indices
+     * - reference radius, designating the radius from which a 1/r^2 law will be used to compute the density
+     * - power inverse radius, used to compute stokes coefficients
+     * - time periods, for which each file is valid
+     * */
+    void readInputFiles(const std::vector<std::string>& filePathList_)
+    {
+        const std::size_t n = filePathList_.size();
+
+        // Pre-allocate
+        numPolyCoefFiles_ = n;
+        polyCoefficients_.resize(n);
+        SHDegreeAndOrderIndices_.resize(n);
+        referenceRadius_.resize(n);
+        powersInvRadius_.resize(n);
+        TimePeriods_.resize(n);
+
+        for (std::size_t fileIdx = 0; fileIdx < n; ++fileIdx)
+        {
+            const std::string& currentFile = filePathList_[fileIdx];
+            Eigen::MatrixXd& currentPolyCoefficients = polyCoefficients_[fileIdx];
+            Eigen::ArrayXXi& currentShDegreeAndOrder = SHDegreeAndOrderIndices_[fileIdx];
+            double& currentReferenceRadius = referenceRadius_[fileIdx];
+            Eigen::VectorXd& currentPowersInvRadius = powersInvRadius_[fileIdx];
+            std::vector<double>& currentTimePeriod = TimePeriods_[fileIdx];  // TODO: read current time period
+
+            std::ifstream file(currentFile);
+            if (!file.is_open()) {
+                std::cerr << "[ERROR] Could not open file '" << currentFile << "'." << std::endl;
+                std::exit(EXIT_FAILURE);
+            }
+
+            std::string line;
+            std::vector<std::string> tokens;
+            int maxDegreeSH = 0;
+            Eigen::Index numTerms = 0, numCoefs = 0, numRadialTerms = 0, numIntervals = 0;
+
+            // Parse header
+            while (std::getline(file, line)) {
+                if (line.empty()) continue;
+                if (line[0] != '#') break;
+
+                std::string headerLine = line.substr(1);
+                boost::trim(headerLine);
+                boost::split(tokens, headerLine, boost::is_any_of(", \t"), boost::token_compress_on);
+
+                if (tokens.empty()) continue;
+
+                const std::string& key = tokens[0];
+                if (boost::iequals(key, "N(SH)")) {
+                    maxDegreeSH = std::stoi(line.substr(line.find_last_of(" \t") + 1));
+                    numCoefs = (maxDegreeSH + 1) * (maxDegreeSH + 1);
+                }
+                else if (boost::icontains(key, "PWRS")) {
+                    std::string tail = line.substr(line.find("PWRS"));
+                    boost::trim(tail);
+                    boost::split(tokens, tail, boost::is_any_of(", \t"), boost::token_compress_on);
+                    std::size_t start = (!tokens.empty() && !std::all_of(tokens[0].begin(), tokens[0].end(), ::isdigit)) ? 1 : 0;
+                    auto count = static_cast<Eigen::Index>(tokens.size() - start);
+                    currentPowersInvRadius.resize(count);
+                    for (Eigen::Index j = 0; j < count; ++j)
+                        currentPowersInvRadius[j] = std::stod(tokens[start + j]);
+                }
+                else if (boost::iequals(key, "R")) {
+                    double R = std::stod(line.substr(line.find_last_of(" \t") + 1));
+                    currentReferenceRadius = R;
+                }
+                else if (line.find("N(r)") != std::string::npos && line.find("N(T)") != std::string::npos) {
+                    std::string content = line.substr(1); // strip '#'
+                    boost::trim(content);
+                    boost::split(tokens, content, boost::is_any_of(", \t"), boost::token_compress_on);
+
+                    // Find last two tokens (assumed to be the numbers)
+                    if (tokens.size() >= 2) {
+                        int a = std::stoi(tokens[tokens.size() - 2]);
+                        int b = std::stoi(tokens[tokens.size() - 1]);
+
+                        if (line.find("N(r)") < line.find("N(T)")) {
+                            numRadialTerms = a;
+                            numIntervals = b;
+                        } else {
+                            numIntervals = a;
+                            numRadialTerms = b;
+                        }
+
+                        numTerms = numRadialTerms * numIntervals;
+                    } else {
+                        std::cerr << "[ERROR] Failed to parse N(T)/N(r) line: " << line << std::endl;
+                        std::exit(EXIT_FAILURE);
+                    }
+                }
+            }
+
+            // Validation
+            if (numTerms <= 0 || numCoefs <= 0 || currentPowersInvRadius.size() == 0) {
+                std::cerr << "[ERROR] Header parsing failed in file: " << currentFile << std::endl;
+                std::cerr << "  numTerms = " << numTerms << "\n  numCoefs = " << numCoefs
+            << "\n  powersInvRadius.size() = " << currentPowersInvRadius.size() << std::endl;
+                std::exit(EXIT_FAILURE);
+            }
+
+            currentPolyCoefficients.resize(numTerms, numCoefs);
+            currentShDegreeAndOrder.resize(2, numCoefs);
+
+            // Read data block
+            Eigen::Index coefIndex = -1;
+            do {
+                boost::trim(line);
+                if (line.empty() || line[0] == '#') continue;
+
+                boost::split(tokens, line, boost::is_any_of(", \t"), boost::token_compress_on);
+                if (static_cast<Eigen::Index>(tokens.size()) == numTerms + 2) {
+                    ++coefIndex;
+                    currentShDegreeAndOrder( 0, coefIndex ) = std::stoi( tokens[ 0 ] );
+                    currentShDegreeAndOrder( 1, coefIndex ) = std::stoi( tokens[ 1 ] );
+                    for(Eigen::Index j = 0; j < numTerms; ++j)
+                        currentPolyCoefficients(j, coefIndex) = std::stod(tokens[j + 2]);
+                }
+            } while (std::getline(file, line));
+
+            file.close();
+        }
+    }
+};
+
+
 //! @get_docstring(exponentialAtmosphereSettings,2)
 inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings(
         const double densityScaleHeight,
@@ -1072,6 +1314,14 @@ inline std::shared_ptr< AtmosphereSettings > tabulatedAtmosphereSettings(
                                                             ratioOfSpecificHeats,
                                                             interpolators::throw_exception_at_boundary );
 }
+
+
+inline std::shared_ptr<AtmosphereSettings> comaSettings()
+{
+    return std::make_shared< ComaSettings >();
+}
+
+
 
 //! @get_docstring(customWindModelSettings)
 inline std::shared_ptr< WindModelSettings > customWindModelSettings(
