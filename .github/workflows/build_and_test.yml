@@ -31,7 +31,7 @@ jobs:
       #
       # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       matrix:
-        os: [ubuntu-latest, windows-2022, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         build_type: [Release]
         c_compiler: [gcc, clang, cl]
         include:
@@ -117,11 +117,11 @@ jobs:
     #   run: cmd /c "curl -fsSL https://raw.githubusercontent.com/tudat-team/tudat-resources-feedstock/master/recipe/post-link.bat | cmd"
 
 
-    - name: Restore cached compilation results
-      # This third party action will setup ccache on the runner and restore any previously saved cache. Caches are saved automatically by the action after a build.
-      uses: hendrikmuhs/ccache-action@v1.2.12
-      with:
-        key: ${{ matrix.os }}-${{ matrix.build_type }}
+    #- name: Restore cached compilation results
+    #  # This third party action will setup ccache on the runner and restore any previously saved cache. Caches are saved automatically by the action after a build.
+    #  uses: hendrikmuhs/ccache-action@v1.2.12
+    #  with:
+    #    key: ${{ matrix.os }}-${{ matrix.build_type }}
 
 
     - name: Configure CMake
