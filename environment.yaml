@@ -3,6 +3,7 @@ channels:
   - conda-forge
   - tudat-team
 dependencies:
+  - cmake
   - eigen
   - boost-cpp=1.84.0
   - tudat-resources
