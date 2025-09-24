@@ -28,10 +28,691 @@
 
 namespace tudat
 {
-
 namespace simulation_setup
 {
 using namespace aerodynamics;
+
+
+// ---- coefficient storage: rows = coeffs, cols = {C,S} ----
+using StokesBlock = Eigen::Matrix< double, Eigen::Dynamic, 2, Eigen::RowMajor >;
+
+struct FileMeta
+{
+    // Epochs in seconds since J2000 (or your preferred convention)
+    double start_epoch{};
+    double end_epoch{};
+    std::string source_tag; // filename / description
+};
+
+// Degree-major mapping (n = 0..nmax, m = 0..n)
+inline std::size_t nm_to_index_deg_major( int n, int m )
+{
+    // index(n,m) = n(n+1)/2 + m
+    if(n < 0 || m < 0 || m > n) throw std::out_of_range( "nm_to_index: invalid (n,m)" );
+    return static_cast< std::size_t >(n * ( n + 1 ) / 2 + m);
+}
+
+inline int index_to_n_deg_major( std::size_t k )
+{
+    // invert k = n(n+1)/2 + m  => n = floor((sqrt(8k+1)-1)/2)
+    const double nd = ( std::sqrt( 8.0 * static_cast< double >(k) + 1.0 ) - 1.0 ) * 0.5;
+    return static_cast< int >(std::floor( nd + 1e-12 ));
+}
+
+inline std::pair< int, int > index_to_nm_deg_major( std::size_t k )
+{
+    const int n = index_to_n_deg_major( k );
+    const std::size_t base = static_cast< std::size_t >(n * ( n + 1 ) / 2);
+    const int m = static_cast< int >(k - base);
+    return { n, m };
+}
+
+
+/**
+ * \class ComaStokesDataset
+ * \brief Data handler for storing and managing sets of Stokes coefficients for the coma model.
+ *
+ * This class provides a structured container for spherical harmonic Stokes coefficients
+ * (Cnm, Snm) evaluated across multiple input files, radii, and solar longitudes. It
+ * maintains contiguous Eigen-based storage for efficiency while exposing convenient
+ * accessors for individual blocks and coefficients.
+ *
+ * Key features:
+ *  - Metadata storage for each file (validity epochs, descriptive tag).
+ *  - Vectors of all radii and solar longitudes at which coefficients are evaluated.
+ *  - Degree-major ordering of coefficients with closed-form (n,m) <-> index mapping.
+ *  - Access to whole blocks of coefficients for (file, radius, longitude) combinations.
+ *  - Access to individual coefficients by (n,m).
+ *  - CSV export functionality: each file can be written to a human-readable CSV with
+ *    metadata, radii, longitudes, and coefficient blocks.
+ *
+ * Planned extensions:
+ *  - CSV reader: reconstruct a StokesDataset from one or more previously written CSVs.
+ *  - Optional support for HDF5 or other binary formats for large expansions.
+ *
+ * Example usage:
+ * \code{.cpp}
+ * std::vector<FileMeta> files = {
+ *     { 2.015e9, 2.0150864e9, "simulation_run_1" }
+ * };
+ * std::vector<double> radii = { 1000.0, 2000.0 };
+ * std::vector<double> longitudes = { 0.0, 180.0 };
+ *
+ * auto dataset = StokesDataset::create(files, radii, longitudes, 4);
+ * dataset.setCoeff(0, 0, 0, 2, 0, -0.484e-03, 0.0); // C20 term
+ * dataset.writeCsvAll("output_dir/");
+ * \endcode
+ *
+ * \see FileMeta
+ */
+class ComaStokesDataset
+{
+public:
+    // -------- Construction --------
+    static ComaStokesDataset create( std::vector< FileMeta > files,
+                                 std::vector< double > radii,
+                                 std::vector< double > lons,
+                                 int nmax )
+    {
+        if(files.empty( ) || radii.empty( ) || lons.empty( ) || nmax < 0)
+            throw std::runtime_error( "StokesDataset: invalid metadata." );
+
+        ComaStokesDataset g;
+        g.files_ = std::move( files );
+        g.radii_ = std::move( radii );
+        g.lons_ = std::move( lons );
+        g.nmax_ = nmax;
+
+        g.n_files_ = g.files_.size( );
+        g.n_radii_ = g.radii_.size( );
+        g.n_lons_ = g.lons_.size( );
+        g.n_coeffs_ = static_cast< std::size_t >(( nmax + 1 ) * ( nmax + 2 ) / 2);
+
+        const std::size_t totalRows = g.n_files_ * g.n_radii_ * g.n_lons_ * g.n_coeffs_;
+        g.data_.setZero( static_cast< Eigen::Index >(totalRows), 2 );
+        return g;
+    }
+
+    // -------- Sizes / metadata --------
+    std::size_t nFiles( ) const
+    {
+        return n_files_;
+    }
+
+    std::size_t nRadii( ) const
+    {
+        return n_radii_;
+    }
+
+    std::size_t nLongitudes( ) const
+    {
+        return n_lons_;
+    }
+
+    std::size_t nCoeffs( ) const
+    {
+        return n_coeffs_;
+    }
+
+    int nmax( ) const
+    {
+        return nmax_;
+    }
+
+    const std::vector< double >& radii( ) const
+    {
+        return radii_;
+    }
+
+    const std::vector< double >& lons( ) const
+    {
+        return lons_;
+    }
+
+    const std::vector< FileMeta >& files( ) const
+    {
+        return files_;
+    }
+
+    // -------- Block access (nCoeffs x 2 view) --------
+    auto block( std::size_t f, std::size_t r, std::size_t l )
+    {
+        const std::size_t start = startRow_( f, r, l );
+        return data_.block( static_cast< Eigen::Index >(start),
+                            0,
+                            static_cast< Eigen::Index >(n_coeffs_),
+                            2 );
+    }
+
+    auto block( std::size_t f, std::size_t r, std::size_t l ) const
+    {
+        const std::size_t start = startRow_( f, r, l );
+        return data_.block( static_cast< Eigen::Index >(start),
+                            0,
+                            static_cast< Eigen::Index >(n_coeffs_),
+                            2 );
+    }
+
+    // -------- Single coefficient access via (n,m) --------
+    void setCoeff( std::size_t f,
+                   std::size_t r,
+                   std::size_t l,
+                   int n,
+                   int m,
+                   double C,
+                   double S )
+    {
+        const std::size_t k = nm_to_index_deg_major( n, m );
+        if(k >= n_coeffs_) throw std::out_of_range( "setCoeff: (n,m) exceeds nmax" );
+        const std::size_t row = startRow_( f, r, l ) + k;
+        data_( static_cast< Eigen::Index >(row), 0 ) = C;
+        data_( static_cast< Eigen::Index >(row), 1 ) = S;
+    }
+
+    std::pair< double, double > getCoeff( std::size_t f,
+                                          std::size_t r,
+                                          std::size_t l,
+                                          int n,
+                                          int m ) const
+    {
+        const std::size_t k = nm_to_index_deg_major( n, m );
+        if(k >= n_coeffs_) throw std::out_of_range( "getCoeff: (n,m) exceeds nmax" );
+        const std::size_t row = startRow_( f, r, l ) + k;
+        return { data_( static_cast< Eigen::Index >(row), 0 ),
+                 data_( static_cast< Eigen::Index >(row), 1 ) };
+    }
+
+    // -------- CSV writing (one CSV per file) --------
+    void writeCsvForFile( std::size_t f, const std::string& out_path ) const
+    {
+        if(f >= n_files_) throw std::out_of_range( "writeCsvForFile: file index OOR" );
+
+        boost::filesystem::path p( out_path );
+        if(p.has_parent_path( )) boost::filesystem::create_directories( p.parent_path( ) );
+
+        std::ofstream os( out_path, std::ios::binary );
+        if(!os) throw std::runtime_error( "writeCsvForFile: cannot open " + out_path );
+        os.imbue( std::locale::classic( ) );
+
+        const auto& fm = files_[ f ];
+
+        // Row 1: metadata (key=value pairs)
+        os << "meta";
+        os << ",start_epoch=" << std::setprecision( 17 ) << std::scientific << fm.start_epoch;
+        os << ",end_epoch=" << std::setprecision( 17 ) << std::scientific << fm.end_epoch;
+        os << ",max_degree=" << nmax_;
+        os << ",max_order=" << nmax_;
+        os << ",n_radii=" << n_radii_;
+        os << ",n_lons=" << n_lons_;
+        os << ",n_coeffs=" << n_coeffs_;
+        os << ",source=";
+        csvEscape_( os, fm.source_tag );
+        os << '\n';
+
+        // Row 2: radii
+        os << "radii";
+        for(double r: radii_) os << ',' << std::setprecision( 17 ) << std::scientific << r;
+        os << '\n';
+
+        // Row 3: longitudes
+        os << "longitudes";
+        for(double L: lons_) os << ',' << std::setprecision( 17 ) << std::scientific << L;
+        os << '\n';
+
+        // Blocks: for each (ri, li)
+        for(std::size_t ri = 0; ri < n_radii_; ++ri)
+        {
+            for(std::size_t li = 0; li < n_lons_; ++li)
+            {
+                const std::size_t block_id = ri * n_lons_ + li;
+
+                // Block header
+                os << "ID," << block_id << ','
+                        << std::setprecision( 17 ) << std::scientific << radii_[ ri ] << ','
+                        << std::setprecision( 17 ) << std::scientific << lons_[ li ] << '\n';
+
+                // Column header
+                os << "n,m,C,S\n";
+
+                const auto blk = block( f, ri, li ); // n_coeffs_ x 2
+                for(std::size_t k = 0; k < n_coeffs_; ++k)
+                {
+                    const auto nm = index_to_nm_deg_major( k );
+                    const double C = blk( static_cast< Eigen::Index >(k), 0 );
+                    const double S = blk( static_cast< Eigen::Index >(k), 1 );
+                    os << nm.first << ',' << nm.second << ','
+                            << std::setprecision( 17 ) << std::scientific << C << ','
+                            << std::setprecision( 17 ) << std::scientific << S << '\n';
+                }
+            }
+        }
+
+        os.flush( );
+        if(!os) throw std::runtime_error( "writeCsvForFile: write failed" );
+    }
+
+    void writeCsvAll( const std::string& out_dir, const std::string& prefix = "stokes" ) const
+    {
+        boost::filesystem::create_directories( out_dir );
+        for(std::size_t f = 0; f < n_files_; ++f)
+        {
+            boost::filesystem::path path = boost::filesystem::path( out_dir )
+                    / ( prefix + "_file" + std::to_string( f ) + ".csv" );
+            writeCsvForFile( f, path.string( ) );
+        }
+    }
+
+    // -------- (Optional) raw data access --------
+    const StokesBlock& data( ) const
+    {
+        return data_;
+    }
+
+    StokesBlock& data( )
+    {
+        return data_;
+    }
+
+    // -------- Reader hooks (to implement later) --------
+    // static StokesDataset readCsvFiles(const std::vector<std::string>& paths);
+    // static StokesDataset readCsvFolder(const std::string& dir, const std::string& prefix);
+
+private:
+    // Layout: ((((f * n_radii_) + r) * n_lons_) + l) * n_coeffs_ + k
+    std::size_t startRow_( std::size_t f, std::size_t r, std::size_t l ) const
+    {
+        if(f >= n_files_ || r >= n_radii_ || l >= n_lons_)
+            throw std::out_of_range( "StokesDataset: index out of range." );
+        const std::size_t cell = ( ( f * n_radii_ ) + r ) * n_lons_ + l;
+        return cell * n_coeffs_;
+    }
+
+    static void csvEscape_( std::ofstream& os, const std::string& s )
+    {
+        bool needs = false;
+        for(char c: s) if(c == ',' || c == '"' || c == '\n' || c == '\r')
+        {
+            needs = true;
+            break;
+        }
+        if(!needs)
+        {
+            os << s;
+            return;
+        }
+        os << '"';
+        for(char c: s) os << ( c == '"' ? "\"\"" : std::string( 1, c ) );
+        os << '"';
+    }
+
+    // ---- Metadata
+    std::vector< FileMeta > files_;
+    std::vector< double > radii_;
+    std::vector< double > lons_;
+    int nmax_{};
+
+    // ---- Dimensions
+    std::size_t n_files_{}, n_radii_{}, n_lons_{}, n_coeffs_{};
+
+    // ---- Storage
+    StokesBlock data_;
+};
+
+
+/**
+ * \class ComaPolyDataset
+ * \brief Data handler for polynomial coefficients used to build Stokes coefficients.
+ *
+ * Reads a list of "PolyCoefficient" files and stores, per file:
+ *  - polyCoefficients  : (numTerms x numCoefs) matrix
+ *  - SHDegreeAndOrder  : (2 x numCoefs) array; row 0 = degree n, row 1 = order m
+ *  - referenceRadius   : scalar
+ *  - powersInvRadius   : vector<double> of inverse-radius powers (from "PWRS" header)
+ *  - timePeriods       : vector of (start_epoch, end_epoch) pairs [placeholder]
+ *
+ * Convenience:
+ *  - Fast lookup from (n,m) -> column index via a cached map per file.
+ *  - Accessors to get a full coefficient *column* (all terms for one (n,m)),
+ *    or a specific entry (termIndex, (n,m)).
+ */
+class ComaPolyDataset
+{
+public:
+    // Construct empty
+    ComaPolyDataset( ) = default;
+
+    // Construct directly from a list of file paths
+    explicit ComaPolyDataset( const std::vector< std::string >& filePathList )
+    {
+        readInputFiles( filePathList );
+    }
+
+    struct FileMeta
+    {
+        double referenceRadius{}; //!< From header "R"
+        Eigen::VectorXd powersInvRadius; //!< From "PWRS"
+        std::vector< std::pair< double, double > > timePeriods; //!< TODO: parsed if available
+        int maxDegreeSH{}; //!< From "N(SH)"
+        Eigen::Index numRadialTerms{}; //!< From "N(r)"
+        Eigen::Index numIntervals{}; //!< From "N(T)"
+        std::string sourcePath; //!< File path
+    };
+
+    // -------- Reading API --------
+    void readInputFiles( const std::vector< std::string >& filePathList )
+    {
+        clear( );
+
+        const std::size_t n = filePathList.size( );
+        numPolyCoefFiles_ = n;
+
+        polyCoefficients_.resize( n );
+        SHDegreeAndOrderIndices_.resize( n );
+        fileMeta_.resize( n );
+
+        // internal maps sized; built lazily
+        nmToColCache_.clear( );
+        nmToColCache_.resize( n );
+
+        for(std::size_t fileIdx = 0; fileIdx < n; ++fileIdx)
+        {
+            const std::string& currentFile = filePathList[ fileIdx ];
+            fileMeta_[ fileIdx ].sourcePath = currentFile;
+
+            std::ifstream file( currentFile );
+            if(!file.is_open( ))
+            {
+                std::cerr << "[ERROR] Could not open file '" << currentFile << "'.\n";
+                std::exit( EXIT_FAILURE );
+            }
+
+            std::string line;
+            std::vector< std::string > tokens;
+
+            int maxDegreeSH = 0;
+            Eigen::Index numTerms = 0, numCoefs = 0, numRadialTerms = 0, numIntervals = 0;
+
+            Eigen::VectorXd powers; // temp; moved to meta
+
+            // ----- Parse header -----
+            while(std::getline( file, line ))
+            {
+                if(line.empty( )) continue;
+                if(line[ 0 ] != '#') break;
+
+                std::string headerLine = line.substr( 1 );
+                boost::trim( headerLine );
+                boost::split( tokens, headerLine, boost::is_any_of( ", \t" ), boost::token_compress_on );
+                if(tokens.empty( )) continue;
+
+                const std::string& key = tokens[ 0 ];
+
+                if(boost::iequals( key, "N(SH)" ))
+                {
+                    maxDegreeSH = std::stoi( line.substr( line.find_last_of( " \t" ) + 1 ) );
+                    numCoefs = ( maxDegreeSH + 1 ) * ( maxDegreeSH + 1 );
+                }
+                else if(boost::icontains( key, "PWRS" ))
+                {
+                    std::string tail = line.substr( line.find( "PWRS" ) );
+                    boost::trim( tail );
+                    std::vector< std::string > pwrtok;
+                    boost::split( pwrtok, tail, boost::is_any_of( ", \t" ), boost::token_compress_on );
+                    std::size_t start = ( !pwrtok.empty( ) &&
+                                !std::all_of( pwrtok[ 0 ].begin( ), pwrtok[ 0 ].end( ), ::isdigit ) )
+                            ? 1
+                            : 0;
+                    auto count = static_cast< Eigen::Index >(pwrtok.size( ) - start);
+                    powers.resize( count );
+                    for(Eigen::Index j = 0; j < count; ++j)
+                        powers[ j ] = std::stod( pwrtok[ start + j ] );
+                }
+                else if(boost::iequals( key, "R" ))
+                {
+                    double R = std::stod( line.substr( line.find_last_of( " \t" ) + 1 ) );
+                    fileMeta_[ fileIdx ].referenceRadius = R;
+                }
+                else if(line.find( "N(r)" ) != std::string::npos && line.find( "N(T)" ) != std::string::npos)
+                {
+                    std::string content = line.substr( 1 ); // strip '#'
+                    boost::trim( content );
+                    boost::split( tokens, content, boost::is_any_of( ", \t" ), boost::token_compress_on );
+
+                    if(tokens.size( ) >= 2)
+                    {
+                        int a = std::stoi( tokens[ tokens.size( ) - 2 ] );
+                        int b = std::stoi( tokens[ tokens.size( ) - 1 ] );
+
+                        if(line.find( "N(r)" ) < line.find( "N(T)" ))
+                        {
+                            numRadialTerms = a;
+                            numIntervals = b;
+                        }
+                        else
+                        {
+                            numIntervals = a;
+                            numRadialTerms = b;
+                        }
+                        numTerms = numRadialTerms * numIntervals;
+                    }
+                    else
+                    {
+                        std::cerr << "[ERROR] Failed to parse N(T)/N(r) line: " << line << std::endl;
+                        std::exit( EXIT_FAILURE );
+                    }
+                }
+                // OPTIONAL: parse time period lines here if present in your format;
+                // set fileMeta_[fileIdx].timePeriods accordingly.
+            }
+
+            // ----- Validation -----
+            if(numTerms <= 0 || numCoefs <= 0 || powers.size( ) == 0)
+            {
+                std::cerr << "[ERROR] Header parsing failed in file: " << currentFile << std::endl;
+                std::cerr << "  numTerms = " << numTerms
+                        << "\n  numCoefs = " << numCoefs
+                        << "\n  powersInvRadius.size() = " << powers.size( ) << std::endl;
+                std::exit( EXIT_FAILURE );
+            }
+
+            fileMeta_[ fileIdx ].maxDegreeSH = maxDegreeSH;
+            fileMeta_[ fileIdx ].numRadialTerms = numRadialTerms;
+            fileMeta_[ fileIdx ].numIntervals = numIntervals;
+            fileMeta_[ fileIdx ].powersInvRadius = powers;
+
+            // --- Allocate containers ---
+            Eigen::MatrixXd& currentPolyCoefficients = polyCoefficients_[ fileIdx ];
+            Eigen::ArrayXXi& currentShDegreeAndOrder = SHDegreeAndOrderIndices_[ fileIdx ];
+
+            currentPolyCoefficients.resize( numTerms, numCoefs );
+            currentShDegreeAndOrder.resize( 2, numCoefs );
+
+            // ----- Read poly coefficients data block -----
+            Eigen::Index coefIndex = -1;
+            do
+            {
+                boost::trim( line );
+                if(line.empty( ) || line[ 0 ] == '#') continue;
+
+                boost::split( tokens, line, boost::is_any_of( ", \t" ), boost::token_compress_on );
+                if(static_cast< Eigen::Index >(tokens.size( )) == numTerms + 2)
+                {
+                    ++coefIndex;
+                    currentShDegreeAndOrder( 0, coefIndex ) = std::stoi( tokens[ 0 ] ); // n
+                    currentShDegreeAndOrder( 1, coefIndex ) = std::stoi( tokens[ 1 ] ); // m
+                    for(Eigen::Index j = 0; j < numTerms; ++j)
+                        currentPolyCoefficients( j, coefIndex ) = std::stod( tokens[ j + 2 ] );
+                }
+            } while(std::getline( file, line ));
+
+            file.close( );
+
+            // Build (n,m)->col map for this file
+            buildNmMap_( fileIdx );
+        }
+    }
+
+    // -------- Accessors --------
+    std::size_t getNumFiles( ) const
+    {
+        return numPolyCoefFiles_;
+    }
+
+    const FileMeta& getFileMeta( std::size_t f ) const
+    {
+        boundsFile_( f );
+        return fileMeta_[ f ];
+    }
+
+    //! Get the polynomial coefficient matrix of a specific input file.
+    /*!
+     * Matrix has dimensions (number of radial terms × number of SH coefficients).
+     */
+    const Eigen::MatrixXd& getPolyCoefficients( std::size_t f ) const
+    {
+        boundsFile_( f );
+        return polyCoefficients_[ f ];
+    }
+
+    //! Get the spherical harmonics degree and order indices of a specified input file.
+    /*!
+     * Each inner vector holds a flattened (2 × N) list of degree and order pairs, where N is the number of coefficients.
+     * Index `2*k` contains degree, `2*k+1` contains order.
+     */
+    const Eigen::ArrayXXi& getSHDegreeAndOrderIndices( std::size_t f ) const
+    {
+        boundsFile_( f );
+        return SHDegreeAndOrderIndices_[ f ];
+    }
+
+    //! Get the reference radius for a specific input file.
+    /*!
+     * Reference radius specifies the radius until which DSMC model is valid.
+     */
+    double getReferenceRadius( std::size_t f ) const
+    {
+        boundsFile_( f );
+        return fileMeta_[ f ].referenceRadius;
+    }
+
+    //! Get the inverse-radius powers.
+    /*!
+     * These powers define the radial dependency of the polynomial basis.
+     */
+    const Eigen::VectorXd& getPowersInvRadius( std::size_t f ) const
+    {
+        boundsFile_( f );
+        return fileMeta_[ f ].powersInvRadius;
+    }
+
+    //! Get maximum degree and order of SH expansion for which poly coefficients are valid
+    int getMaxDegreeSH( std::size_t f ) const
+    {
+        boundsFile_( f );
+        return fileMeta_[ f ].maxDegreeSH;
+    }
+
+    Eigen::Index getNumRadialTerms( std::size_t f ) const
+    {
+        boundsFile_( f );
+        return fileMeta_[ f ].numRadialTerms;
+    }
+
+    Eigen::Index getNumIntervals( std::size_t f ) const
+    {
+        boundsFile_( f );
+        return fileMeta_[ f ].numIntervals;
+    }
+
+
+    /// Get the (numTerms x 1) column vector for a given (n,m).
+    Eigen::VectorXd columnForNM( std::size_t f, int n, int m ) const
+    {
+        auto [ ok, col ] = findColumn_( f, n, m );
+        if(!ok) throw std::out_of_range( "columnForNM: (n,m) not found in file" );
+        return polyCoefficients_[ f ].col( col );
+    }
+
+    /// Get a single value: termIndex in [0, N(r)*N(T)), for given (n,m).
+    double value( std::size_t f, Eigen::Index termIndex, int n, int m ) const
+    {
+        auto [ ok, col ] = findColumn_( f, n, m );
+        if(!ok) throw std::out_of_range( "value: (n,m) not found in file" );
+        if(termIndex < 0 || termIndex >= polyCoefficients_[ f ].rows( ))
+            throw std::out_of_range( "value: termIndex out of range" );
+        return polyCoefficients_[ f ]( termIndex, col );
+    }
+
+    /// Convenience: (radialIdx, intervalIdx) -> termIndex
+    static inline Eigen::Index termIndex( Eigen::Index radialIdx,
+                                          Eigen::Index intervalIdx,
+                                          Eigen::Index numIntervals )
+    {
+        return radialIdx * numIntervals + intervalIdx;
+    }
+
+    void clear( )
+    {
+        numPolyCoefFiles_ = 0;
+        polyCoefficients_.clear( );
+        SHDegreeAndOrderIndices_.clear( );
+        fileMeta_.clear( );
+        nmToColCache_.clear( );
+    }
+
+private:
+    // Map key for (n,m)
+    struct PairHash
+    {
+        std::size_t operator()( const std::pair< int, int >& p ) const noexcept
+        {
+            // Simple hash combine for (n,m)
+            return ( static_cast< std::size_t >(p.first) << 32 ) ^ static_cast< std::size_t >(p.second);
+        }
+    };
+
+    void boundsFile_( std::size_t f ) const
+    {
+        if(f >= numPolyCoefFiles_) throw std::out_of_range( "file index out of range" );
+    }
+
+    void buildNmMap_( std::size_t f )
+    {
+        boundsFile_( f );
+        nmToColCache_[ f ].clear( );
+        const auto& sh = SHDegreeAndOrderIndices_[ f ];
+        for(Eigen::Index c = 0; c < sh.cols( ); ++c)
+        {
+            int n = sh( 0, c );
+            int m = sh( 1, c );
+            nmToColCache_[ f ][ { n, m } ] = static_cast< int >(c);
+        }
+    }
+
+    std::pair< bool, int > findColumn_( std::size_t f, int n, int m ) const
+    {
+        boundsFile_( f );
+        const auto& map = nmToColCache_[ f ];
+        auto it = map.find( { n, m } );
+        if(it == map.end( )) return { false, -1 };
+        return { true, it->second };
+    }
+
+    // -------- Data --------
+    std::size_t numPolyCoefFiles_{ 0 };
+
+    // Per-file containers
+    std::vector< Eigen::MatrixXd > polyCoefficients_; // (numTerms x numCoefs)
+    std::vector< Eigen::ArrayXXi > SHDegreeAndOrderIndices_; // 2 x numCoefs
+    std::vector< FileMeta > fileMeta_;
+
+    // Per-file (n,m)->column cache
+    std::vector< std::unordered_map< std::pair< int, int >, int, PairHash > > nmToColCache_;
+};
+
+
+
+
 
 //  List of wind models available in simulations
 /*
@@ -59,10 +740,13 @@ public:
     WindModelSettings( const WindModelTypes windModelType,
                        const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame ):
         windModelType_( windModelType ), associatedFrame_( associatedFrame )
-    { }
+    {
+    }
 
     //  Destructor
-    virtual ~WindModelSettings( ) { }
+    virtual ~WindModelSettings( )
+    {
+    }
 
     //  Function to retrieve type of wind model that is to be created
     /*
@@ -92,7 +776,8 @@ public:
     ConstantWindModelSettings( const Eigen::Vector3d constantWindVelocity,
                                const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame ):
         WindModelSettings( constant_wind_model, associatedFrame ), constantWindVelocity_( constantWindVelocity )
-    { }
+    {
+    }
 
     Eigen::Vector3d getConstantWindVelocity( )
     {
@@ -116,10 +801,13 @@ public:
     CustomWindModelSettings( const std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction,
                              const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame ):
         WindModelSettings( custom_wind_model, associatedFrame ), windFunction_( windFunction )
-    { }
+    {
+    }
 
     //  Destructor
-    ~CustomWindModelSettings( ) { }
+    ~CustomWindModelSettings( )
+    {
+    }
 
     //  Function to retrieve function that returns wind vector as a function of altitude, longitude, latitude and time
     /*
@@ -151,7 +839,8 @@ protected:
  *  List of atmosphere models available in simulations. Atmosphere models not defined by this
  *  given enum cannot be used for automatic model setup.
  */
-enum AtmosphereTypes {
+enum AtmosphereTypes
+{
     exponential_atmosphere,
     custom_constant_temperature_atmosphere,
     tabulated_atmosphere,
@@ -178,10 +867,15 @@ public:
      *  additional information should be defined in a derived class.
      *  \param atmosphereType Type of atmosphere model that is to be created.
      */
-    AtmosphereSettings( const AtmosphereTypes atmosphereType ): atmosphereType_( atmosphereType ) { }
+    AtmosphereSettings( const AtmosphereTypes atmosphereType ):
+        atmosphereType_( atmosphereType )
+    {
+    }
 
     //  Destructor
-    virtual ~AtmosphereSettings( ) { }
+    virtual ~AtmosphereSettings( )
+    {
+    }
 
     //  Function to return type of atmosphere model that is to be created.
     /*
@@ -246,7 +940,8 @@ public:
         constantTemperature_( constantTemperature ), densityAtZeroAltitude_( densityAtZeroAltitude ),
         specificGasConstant_( specificGasConstant ), ratioOfSpecificHeats_( ratioOfSpecificHeats ),
         bodyWithPredefinedExponentialAtmosphere_( undefined_body )
-    { }
+    {
+    }
 
     //  Default constructor.
     /*
@@ -259,7 +954,7 @@ public:
         AtmosphereSettings( exponential_atmosphere ), bodyWithPredefinedExponentialAtmosphere_( bodyWithPredefinedExponentialAtmosphere )
     {
         // Check that the body name inserted is available
-        switch( bodyWithPredefinedExponentialAtmosphere )
+        switch(bodyWithPredefinedExponentialAtmosphere)
         {
             case earth:
             case mars:
@@ -374,7 +1069,8 @@ public:
         AtmosphereSettings( custom_constant_temperature_atmosphere ), densityFunction_( densityFunction ),
         constantTemperature_( constantTemperature ), specificGasConstant_( specificGasConstant ),
         ratioOfSpecificHeats_( ratioOfSpecificHeats )
-    { }
+    {
+    }
 
     //  Constructor.
     /*
@@ -394,7 +1090,8 @@ public:
         AtmosphereSettings( custom_constant_temperature_atmosphere ), densityFunctionType_( densityFunctionType ),
         constantTemperature_( constantTemperature ), specificGasConstant_( specificGasConstant ),
         ratioOfSpecificHeats_( ratioOfSpecificHeats ), modelSpecificParameters_( modelSpecificParameters )
-    { }
+    {
+    }
 
     //  Get the function to compute the density at the current conditions.
     /*
@@ -515,7 +1212,8 @@ public:
                                   const bool useAnomalousOxygen = true ):
         AtmosphereSettings( nrlmsise00 ), spaceWeatherFile_( spaceWeatherFile ), useStormConditions_( useStormConditions ),
         useAnomalousOxygen_( useAnomalousOxygen )
-    { }
+    {
+    }
 
     //  Function to return file containing space weather data.
     /*
@@ -560,14 +1258,18 @@ private:
     bool useAnomalousOxygen_;
 };
 
-class MarsDtmAtmosphereSettings: public AtmosphereSettings
+class MarsDtmAtmosphereSettings : public AtmosphereSettings
 {
 public:
-
     MarsDtmAtmosphereSettings( const std::string& spaceWeatherFile = "" ):
-        AtmosphereSettings( mars_dtm_atmosphere ), spaceWeatherFile_( spaceWeatherFile ){ }
+        AtmosphereSettings( mars_dtm_atmosphere ), spaceWeatherFile_( spaceWeatherFile )
+    {
+    }
 
-    std::string getSpaceWeatherFile( ){ return spaceWeatherFile_; }
+    std::string getSpaceWeatherFile( )
+    {
+        return spaceWeatherFile_;
+    }
 
 private:
     //  File containing space weather data.
@@ -575,8 +1277,6 @@ private:
      *  File containing space weather data, as in https://celestrak.com/SpaceData/sw19571001.txt
      */
     std::string spaceWeatherFile_;
-
-
 };
 
 
@@ -608,13 +1308,14 @@ public:
                                                                                            temperature_dependent_atmosphere },
             const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
             const double ratioOfSpecificHeats = 1.4,
-            const std::vector< interpolators::BoundaryInterpolationType >& boundaryHandling = { },
-            const std::vector< std::vector< std::pair< double, double > > >& defaultExtrapolationValue = { } ):
+            const std::vector< interpolators::BoundaryInterpolationType >& boundaryHandling = {},
+            const std::vector< std::vector< std::pair< double, double > > >& defaultExtrapolationValue = {} ):
         AtmosphereSettings( tabulated_atmosphere ), atmosphereFile_( atmosphereTableFile ),
         independentVariables_( independentVariablesNames ), dependentVariables_( dependentVariablesNames ),
         specificGasConstant_( specificGasConstant ), ratioOfSpecificHeats_( ratioOfSpecificHeats ), boundaryHandling_( boundaryHandling ),
         defaultExtrapolationValue_( defaultExtrapolationValue )
-    { }
+    {
+    }
 
     //  Constructor with single boundary handling parameters.
     /*
@@ -651,7 +1352,8 @@ public:
                         std::vector< std::pair< double, double > >(
                                 independentVariablesNames.size( ),
                                 std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) ) ) )
-    { }
+    {
+    }
 
     //  Constructor compatible with old version.
     /*
@@ -686,7 +1388,8 @@ public:
                                              std::vector< std::pair< double, double > >(
                                                      1,
                                                      std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) ) ) )
-    { }
+    {
+    }
 
     //  Constructor with no specific gas constant nor ratio of specific heats.
     /*
@@ -705,12 +1408,13 @@ public:
                                  const std::vector< AtmosphereIndependentVariables >& independentVariablesNames,
                                  const std::vector< AtmosphereDependentVariables >& dependentVariablesNames,
                                  const std::vector< interpolators::BoundaryInterpolationType >& boundaryHandling,
-                                 const std::vector< std::vector< std::pair< double, double > > >& defaultExtrapolationValue = { } ):
+                                 const std::vector< std::vector< std::pair< double, double > > >& defaultExtrapolationValue = {} ):
         AtmosphereSettings( tabulated_atmosphere ), atmosphereFile_( atmosphereTableFile ),
         independentVariables_( independentVariablesNames ), dependentVariables_( dependentVariablesNames ),
         specificGasConstant_( physical_constants::SPECIFIC_GAS_CONSTANT_AIR ), ratioOfSpecificHeats_( 1.4 ),
         boundaryHandling_( boundaryHandling ), defaultExtrapolationValue_( defaultExtrapolationValue )
-    { }
+    {
+    }
 
     //  Constructor with no specific gas constant nor ratio of specific heats.
     /*
@@ -739,12 +1443,12 @@ public:
     {
         // Assign default values
         defaultExtrapolationValue_.resize( dependentVariablesNames.size( ) );
-        for( unsigned int i = 0; i < dependentVariablesNames.size( ); i++ )
+        for(unsigned int i = 0; i < dependentVariablesNames.size( ); i++)
         {
-            for( unsigned int j = 0; j < independentVariablesNames.size( ); j++ )
+            for(unsigned int j = 0; j < independentVariablesNames.size( ); j++)
             {
-                if( boundaryHandling_.at( j ) == interpolators::use_default_value ||
-                    boundaryHandling_.at( j ) == interpolators::use_default_value_with_warning )
+                if(boundaryHandling_.at( j ) == interpolators::use_default_value ||
+                    boundaryHandling_.at( j ) == interpolators::use_default_value_with_warning)
                 {
                     defaultExtrapolationValue_.at( i ).push_back(
                             std::make_pair( defaultExtrapolationValue.at( i ), defaultExtrapolationValue.at( i ) ) );
@@ -792,7 +1496,8 @@ public:
                         std::vector< std::pair< double, double > >(
                                 independentVariablesNames.size( ),
                                 std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) ) ) )
-    { }
+    {
+    }
 
     //  Function to return file containing atmospheric properties.
     /*
@@ -929,15 +1634,19 @@ public:
     ScaledAtmosphereSettings( const std::shared_ptr< AtmosphereSettings > baseSettings,
                               const double scaling,
                               const bool isScalingAbsolute ):
-        AtmosphereSettings( scaled_atmosphere ), baseSettings_( baseSettings ), scaling_( [ = ]( const double ) { return scaling; } ),
+        AtmosphereSettings( scaled_atmosphere ), baseSettings_( baseSettings ), scaling_( [ = ]( const double ) {
+            return scaling;
+        } ),
         isScalingAbsolute_( isScalingAbsolute )
-    { }
+    {
+    }
 
     ScaledAtmosphereSettings( const std::shared_ptr< AtmosphereSettings > baseSettings,
                               const std::function< double( const double ) > scaling,
                               const bool isScalingAbsolute ):
         AtmosphereSettings( scaled_atmosphere ), baseSettings_( baseSettings ), scaling_( scaling ), isScalingAbsolute_( isScalingAbsolute )
-    { }
+    {
+    }
 
     std::shared_ptr< AtmosphereSettings > getBaseSettings( )
     {
@@ -963,23 +1672,22 @@ protected:
 };
 
 
-
-
-
-
-
-
-
-
-
 class ComaSettings final : public AtmosphereSettings
 {
 public:
-    // Default constructor.
-    ComaSettings(std::vector<std::string> fileList, int requestedDegree, int requestedOrder):
-        AtmosphereSettings( coma_model ), requestedDegree_( requestedOrder ), requestedOrder_( requestedOrder )
+    // Constructor taking PolyCoefficient file list as input.
+    ComaSettings( std::vector< std::string > polyCoefFileList, int requestedDegree, int requestedOrder ):
+        AtmosphereSettings( coma_model ),
+        polyCoefData_( std::move( polyCoefFileList ) ),
+        requestedDegree_( requestedDegree ),
+        requestedOrder_( requestedOrder )
     {
-        readInputFiles( fileList );
+    }
+
+    //! Get the poly coefficient data handler object
+    ComaPolyDataset getPolyDataset( ) const
+    {
+        return polyCoefData_;
     }
 
 
@@ -987,7 +1695,7 @@ public:
     /*!
      * Each matrix has dimensions (number of radial terms × number of SH coefficients) for one file.
      */
-    const std::vector<Eigen::MatrixXd>& getPolyCoefficients() const
+    const std::vector< Eigen::MatrixXd >& getPolyCoefficients( ) const
     {
         return polyCoefficients_;
     }
@@ -997,7 +1705,7 @@ public:
      * Each inner vector holds a flattened (2 × N) list of degree and order pairs, where N is the number of coefficients.
      * Index `2*k` contains degree, `2*k+1` contains order.
      */
-    const std::vector<Eigen::ArrayXXi>& getSHDegreeAndOrder() const
+    const std::vector< Eigen::ArrayXXi >& getSHDegreeAndOrder( ) const
     {
         return SHDegreeAndOrderIndices_;
     }
@@ -1006,7 +1714,7 @@ public:
     /*!
      * Each inner vector corresponds to one input file. Typically contains one element per file.
      */
-    const std::vector<double>& getReferenceRadius() const
+    const std::vector< double >& getReferenceRadius( ) const
     {
         return referenceRadius_;
     }
@@ -1015,37 +1723,37 @@ public:
     /*!
      * These powers define the radial dependency of the polynomial basis. Each inner vector corresponds to one file.
      */
-    const std::vector<Eigen::VectorXd>& getPowersInvRadius() const
+    const std::vector< Eigen::VectorXd >& getPowersInvRadius( ) const
     {
         return powersInvRadius_;
     }
 
-    const std::vector<std::vector<double>> & getTimePeriods() const
+    const std::vector< std::vector< double > >& getTimePeriods( ) const
     {
         return TimePeriods_;
     }
 
     // Get requested Degree
-    const int& getRequestedDegree() const
+    const int& getRequestedDegree( ) const
     {
         return requestedDegree_;
     }
 
     // Get requested Order
-    const int& getRequestedOrder() const
+    const int& getRequestedOrder( ) const
     {
         return requestedOrder_;
     }
-
-
-
 
 private:
     // Spherical harmonics model.
     // SphericalHarmonicsModel sphericalHarmonicsModel_ = customModel;
 
+    // poly coefficient data handler
+    ComaPolyDataset polyCoefData_;
+
     // Path of loaded coma input files.
-    std::vector<std::string> filePathList_;
+    std::vector< std::string > polyCoefFileList_;
 
     // Maximum degree used for computation
     int requestedDegree_;
@@ -1057,20 +1765,19 @@ private:
     int numPolyCoefFiles_;
 
     // PolyCoefficients of input files
-    std::vector<Eigen::MatrixXd> polyCoefficients_;
+    std::vector< Eigen::MatrixXd > polyCoefficients_;
 
     // Spherical Harmonics Degree and Order indices of input tables
-    std::vector<Eigen::ArrayXXi> SHDegreeAndOrderIndices_;
+    std::vector< Eigen::ArrayXXi > SHDegreeAndOrderIndices_;
 
     // Reference radius of input table
-    std::vector<double> referenceRadius_;
+    std::vector< double > referenceRadius_;
 
     // Power Inverse Radius of input tables
-    std::vector<Eigen::VectorXd> powersInvRadius_;
+    std::vector< Eigen::VectorXd > powersInvRadius_;
 
     // Time periods where input tables are valid
-    std::vector<std::vector<double>> TimePeriods_;
-
+    std::vector< std::vector< double > > TimePeriods_;
 
 
     //  A function reading PolyCoefficient files
@@ -1082,122 +1789,137 @@ private:
      * - power inverse radius, used to compute stokes coefficients
      * - time periods, for which each file is valid
      * */
-    void readInputFiles(const std::vector<std::string>& filePathList_)
+    void readInputFiles( const std::vector< std::string >& filePathList_ )
     {
-        const std::size_t n = filePathList_.size();
+        const std::size_t n = filePathList_.size( );
 
         // Pre-allocate
         numPolyCoefFiles_ = n;
-        polyCoefficients_.resize(n);
-        SHDegreeAndOrderIndices_.resize(n);
-        referenceRadius_.resize(n);
-        powersInvRadius_.resize(n);
-        TimePeriods_.resize(n);
+        polyCoefficients_.resize( n );
+        SHDegreeAndOrderIndices_.resize( n );
+        referenceRadius_.resize( n );
+        powersInvRadius_.resize( n );
+        TimePeriods_.resize( n );
 
-        for (std::size_t fileIdx = 0; fileIdx < n; ++fileIdx)
+        for(std::size_t fileIdx = 0; fileIdx < n; ++fileIdx)
         {
-            const std::string& currentFile = filePathList_[fileIdx];
-            Eigen::MatrixXd& currentPolyCoefficients = polyCoefficients_[fileIdx];
-            Eigen::ArrayXXi& currentShDegreeAndOrder = SHDegreeAndOrderIndices_[fileIdx];
-            double& currentReferenceRadius = referenceRadius_[fileIdx];
-            Eigen::VectorXd& currentPowersInvRadius = powersInvRadius_[fileIdx];
-            std::vector<double>& currentTimePeriod = TimePeriods_[fileIdx];  // TODO: read current time period
+            const std::string& currentFile = filePathList_[ fileIdx ];
+            Eigen::MatrixXd& currentPolyCoefficients = polyCoefficients_[ fileIdx ];
+            Eigen::ArrayXXi& currentShDegreeAndOrder = SHDegreeAndOrderIndices_[ fileIdx ];
+            double& currentReferenceRadius = referenceRadius_[ fileIdx ];
+            Eigen::VectorXd& currentPowersInvRadius = powersInvRadius_[ fileIdx ];
+            std::vector< double >& currentTimePeriod = TimePeriods_[ fileIdx ]; // TODO: read current time period
 
-            std::ifstream file(currentFile);
-            if (!file.is_open()) {
+            std::ifstream file( currentFile );
+            if(!file.is_open( ))
+            {
                 std::cerr << "[ERROR] Could not open file '" << currentFile << "'." << std::endl;
-                std::exit(EXIT_FAILURE);
+                std::exit( EXIT_FAILURE );
             }
 
             std::string line;
-            std::vector<std::string> tokens;
+            std::vector< std::string > tokens;
             int maxDegreeSH = 0;
             Eigen::Index numTerms = 0, numCoefs = 0, numRadialTerms = 0, numIntervals = 0;
 
             // Parse header
-            while (std::getline(file, line)) {
-                if (line.empty()) continue;
-                if (line[0] != '#') break;
+            while(std::getline( file, line ))
+            {
+                if(line.empty( )) continue;
+                if(line[ 0 ] != '#') break;
 
-                std::string headerLine = line.substr(1);
-                boost::trim(headerLine);
-                boost::split(tokens, headerLine, boost::is_any_of(", \t"), boost::token_compress_on);
+                std::string headerLine = line.substr( 1 );
+                boost::trim( headerLine );
+                boost::split( tokens, headerLine, boost::is_any_of( ", \t" ), boost::token_compress_on );
 
-                if (tokens.empty()) continue;
+                if(tokens.empty( )) continue;
 
-                const std::string& key = tokens[0];
-                if (boost::iequals(key, "N(SH)")) {
-                    maxDegreeSH = std::stoi(line.substr(line.find_last_of(" \t") + 1));
-                    numCoefs = (maxDegreeSH + 1) * (maxDegreeSH + 1);
+                const std::string& key = tokens[ 0 ];
+                if(boost::iequals( key, "N(SH)" ))
+                {
+                    maxDegreeSH = std::stoi( line.substr( line.find_last_of( " \t" ) + 1 ) );
+                    numCoefs = ( maxDegreeSH + 1 ) * ( maxDegreeSH + 1 );
                 }
-                else if (boost::icontains(key, "PWRS")) {
-                    std::string tail = line.substr(line.find("PWRS"));
-                    boost::trim(tail);
-                    boost::split(tokens, tail, boost::is_any_of(", \t"), boost::token_compress_on);
-                    std::size_t start = (!tokens.empty() && !std::all_of(tokens[0].begin(), tokens[0].end(), ::isdigit)) ? 1 : 0;
-                    auto count = static_cast<Eigen::Index>(tokens.size() - start);
-                    currentPowersInvRadius.resize(count);
-                    for (Eigen::Index j = 0; j < count; ++j)
-                        currentPowersInvRadius[j] = std::stod(tokens[start + j]);
+                else if(boost::icontains( key, "PWRS" ))
+                {
+                    std::string tail = line.substr( line.find( "PWRS" ) );
+                    boost::trim( tail );
+                    boost::split( tokens, tail, boost::is_any_of( ", \t" ), boost::token_compress_on );
+                    std::size_t start = ( !tokens.empty( ) && !std::all_of( tokens[ 0 ].begin( ), tokens[ 0 ].end( ), ::isdigit ) ) ? 1 : 0;
+                    auto count = static_cast< Eigen::Index >(tokens.size( ) - start);
+                    currentPowersInvRadius.resize( count );
+                    for(Eigen::Index j = 0; j < count; ++j)
+                        currentPowersInvRadius[ j ] = std::stod( tokens[ start + j ] );
                 }
-                else if (boost::iequals(key, "R")) {
-                    double R = std::stod(line.substr(line.find_last_of(" \t") + 1));
+                else if(boost::iequals( key, "R" ))
+                {
+                    double R = std::stod( line.substr( line.find_last_of( " \t" ) + 1 ) );
                     currentReferenceRadius = R;
                 }
-                else if (line.find("N(r)") != std::string::npos && line.find("N(T)") != std::string::npos) {
-                    std::string content = line.substr(1); // strip '#'
-                    boost::trim(content);
-                    boost::split(tokens, content, boost::is_any_of(", \t"), boost::token_compress_on);
+                else if(line.find( "N(r)" ) != std::string::npos && line.find( "N(T)" ) != std::string::npos)
+                {
+                    std::string content = line.substr( 1 ); // strip '#'
+                    boost::trim( content );
+                    boost::split( tokens, content, boost::is_any_of( ", \t" ), boost::token_compress_on );
 
                     // Find last two tokens (assumed to be the numbers)
-                    if (tokens.size() >= 2) {
-                        int a = std::stoi(tokens[tokens.size() - 2]);
-                        int b = std::stoi(tokens[tokens.size() - 1]);
+                    if(tokens.size( ) >= 2)
+                    {
+                        int a = std::stoi( tokens[ tokens.size( ) - 2 ] );
+                        int b = std::stoi( tokens[ tokens.size( ) - 1 ] );
 
-                        if (line.find("N(r)") < line.find("N(T)")) {
+                        if(line.find( "N(r)" ) < line.find( "N(T)" ))
+                        {
                             numRadialTerms = a;
                             numIntervals = b;
-                        } else {
+                        }
+                        else
+                        {
                             numIntervals = a;
                             numRadialTerms = b;
                         }
 
                         numTerms = numRadialTerms * numIntervals;
-                    } else {
+                    }
+                    else
+                    {
                         std::cerr << "[ERROR] Failed to parse N(T)/N(r) line: " << line << std::endl;
-                        std::exit(EXIT_FAILURE);
+                        std::exit( EXIT_FAILURE );
                     }
                 }
             }
 
             // Validation
-            if (numTerms <= 0 || numCoefs <= 0 || currentPowersInvRadius.size() == 0) {
+            if(numTerms <= 0 || numCoefs <= 0 || currentPowersInvRadius.size( ) == 0)
+            {
                 std::cerr << "[ERROR] Header parsing failed in file: " << currentFile << std::endl;
                 std::cerr << "  numTerms = " << numTerms << "\n  numCoefs = " << numCoefs
-            << "\n  powersInvRadius.size() = " << currentPowersInvRadius.size() << std::endl;
-                std::exit(EXIT_FAILURE);
+                        << "\n  powersInvRadius.size() = " << currentPowersInvRadius.size( ) << std::endl;
+                std::exit( EXIT_FAILURE );
             }
 
-            currentPolyCoefficients.resize(numTerms, numCoefs);
-            currentShDegreeAndOrder.resize(2, numCoefs);
+            currentPolyCoefficients.resize( numTerms, numCoefs );
+            currentShDegreeAndOrder.resize( 2, numCoefs );
 
             // Read data block
             Eigen::Index coefIndex = -1;
-            do {
-                boost::trim(line);
-                if (line.empty() || line[0] == '#') continue;
+            do
+            {
+                boost::trim( line );
+                if(line.empty( ) || line[ 0 ] == '#') continue;
 
-                boost::split(tokens, line, boost::is_any_of(", \t"), boost::token_compress_on);
-                if (static_cast<Eigen::Index>(tokens.size()) == numTerms + 2) {
+                boost::split( tokens, line, boost::is_any_of( ", \t" ), boost::token_compress_on );
+                if(static_cast< Eigen::Index >(tokens.size( )) == numTerms + 2)
+                {
                     ++coefIndex;
                     currentShDegreeAndOrder( 0, coefIndex ) = std::stoi( tokens[ 0 ] );
                     currentShDegreeAndOrder( 1, coefIndex ) = std::stoi( tokens[ 1 ] );
                     for(Eigen::Index j = 0; j < numTerms; ++j)
-                        currentPolyCoefficients(j, coefIndex) = std::stod(tokens[j + 2]);
+                        currentPolyCoefficients( j, coefIndex ) = std::stod( tokens[ j + 2 ] );
                 }
-            } while (std::getline(file, line));
+            } while(std::getline( file, line ));
 
-            file.close();
+            file.close( );
         }
     }
 };
@@ -1212,7 +1934,11 @@ inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings(
         const double ratioOfSpecificHeats = 1.4 )
 {
     return std::make_shared< ExponentialAtmosphereSettings >(
-            densityScaleHeight, constantTemperature, densityAtZeroAltitude, specificGasConstant, ratioOfSpecificHeats );
+            densityScaleHeight,
+            constantTemperature,
+            densityAtZeroAltitude,
+            specificGasConstant,
+            ratioOfSpecificHeats );
 }
 
 //! @get_docstring(exponentialAtmosphereSettings,1)
@@ -1226,11 +1952,11 @@ inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings( cons
 inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings( const std::string& bodyName )
 {
     BodiesWithPredefinedExponentialAtmospheres bodyId;
-    if( bodyName == "Earth" )
+    if(bodyName == "Earth")
     {
         bodyId = BodiesWithPredefinedExponentialAtmospheres::earth;
     }
-    else if( bodyName == "Mars" )
+    else if(bodyName == "Mars")
     {
         bodyId = BodiesWithPredefinedExponentialAtmospheres::mars;
     }
@@ -1271,7 +1997,10 @@ inline std::shared_ptr< AtmosphereSettings > customConstantTemperatureAtmosphere
         return densityFunction( altitude );
     };
     return std::make_shared< CustomConstantTemperatureAtmosphereSettings >(
-            fullDensityFunction, constantTemperature, specificGasConstant, ratioOfSpecificHeats );
+            fullDensityFunction,
+            constantTemperature,
+            specificGasConstant,
+            ratioOfSpecificHeats );
 }
 
 //! @get_docstring(customConstantTemperatureAtmosphereSettings,1)
@@ -1282,7 +2011,10 @@ inline std::shared_ptr< AtmosphereSettings > customConstantTemperatureAtmosphere
         const double ratioOfSpecificHeats = 1.4 )
 {
     return std::make_shared< CustomConstantTemperatureAtmosphereSettings >(
-            densityFunction, constantTemperature, specificGasConstant, ratioOfSpecificHeats );
+            densityFunction,
+            constantTemperature,
+            specificGasConstant,
+            ratioOfSpecificHeats );
 }
 
 //! @get_docstring(scaledAtmosphereSettings,0)
@@ -1317,14 +2049,13 @@ inline std::shared_ptr< AtmosphereSettings > tabulatedAtmosphereSettings(
 }
 
 
-inline std::shared_ptr<AtmosphereSettings> comaSettings(
-    std::vector<std::string> polyList,
-    const int requestedDegree,
-    const int requestedOrder)
+inline std::shared_ptr< AtmosphereSettings > comaSettings(
+        std::vector< std::string > polyList,
+        const int requestedDegree,
+        const int requestedOrder )
 {
-    return std::make_shared< ComaSettings >(polyList, requestedDegree, requestedOrder);
+    return std::make_shared< ComaSettings >( polyList, requestedDegree, requestedOrder );
 }
-
 
 
 //! @get_docstring(customWindModelSettings)
@@ -1364,10 +2095,8 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
  */
 std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const std::shared_ptr< AtmosphereSettings > atmosphereSettings,
                                                                         const std::string& body,
-                                                                        const SystemOfBodies& bodies);
-
-}  // namespace simulation_setup
-
-}  // namespace tudat
+                                                                        const SystemOfBodies& bodies );
+} // namespace simulation_setup
+} // namespace tudat
 
 #endif  // TUDAT_CREATEATMOSPHEREMODEL_H
