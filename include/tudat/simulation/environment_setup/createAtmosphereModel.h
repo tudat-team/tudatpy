@@ -260,10 +260,20 @@ public:
 
         const auto& fm = files_[ f ];
 
+        auto set_sci = [&] {
+            os.setf( std::ios::scientific, std::ios::floatfield );
+            os << std::setprecision( 17 );
+        };
+        auto set_def = [&] {
+            os.setf( std::ios::fmtflags( 0 ), std::ios::floatfield ); // defaultfloat
+            os << std::setprecision( 17 ); // keep many digits, but default formatting
+        };
+
         // Row 1: metadata (key=value pairs)
         os << "meta";
-        os << ",start_epoch=" << std::setprecision( 17 ) << std::scientific << fm.start_epoch;
-        os << ",end_epoch=" << std::setprecision( 17 ) << std::scientific << fm.end_epoch;
+        set_sci( );
+        os << ",start_epoch=" << fm.start_epoch;
+        os << ",end_epoch=" << fm.end_epoch;
         os << ",max_degree=" << nmax_;
         os << ",max_order=" << nmax_;
         os << ",n_radii=" << n_radii_;
@@ -273,14 +283,22 @@ public:
         csvEscape_( os, fm.source_tag );
         os << '\n';
 
-        // Row 2: radii
-        os << "radii";
-        for(double r: radii_) os << ',' << std::setprecision( 17 ) << std::scientific << r;
+        // Row 2: radii with units
+        os << "radii [meter]";
+        for(double r: radii_)
+        {
+            set_def( );
+            os << ',' << r;
+        }
         os << '\n';
 
-        // Row 3: longitudes
-        os << "longitudes";
-        for(double L: lons_) os << ',' << std::setprecision( 17 ) << std::scientific << L;
+        // Row 3: longitudes with units
+        os << "longitudes [degree]";
+        for(double L: lons_)
+        {
+            set_def( );
+            os << ',' << L;
+        }
         os << '\n';
 
         // Blocks: for each (ri, li)
@@ -290,23 +308,25 @@ public:
             {
                 const std::size_t block_id = ri * n_lons_ + li;
 
-                // Block header
-                os << "ID," << block_id << ','
-                        << std::setprecision( 17 ) << std::scientific << radii_[ ri ] << ','
-                        << std::setprecision( 17 ) << std::scientific << lons_[ li ] << '\n';
+                // Block header: non-scientific, labeled r_0=..., l_0=...
+                os << "ID," << block_id << ',';
+                set_def( );
+                os << "r_0=" << radii_[ ri ] << ','
+                        << "l_0=" << lons_[ li ] << '\n';
 
                 // Column header
                 os << "n,m,C,S\n";
 
+                // Coefficients (scientific)
                 const auto blk = block( f, ri, li ); // n_coeffs_ x 2
                 for(std::size_t k = 0; k < n_coeffs_; ++k)
                 {
                     const auto nm = index_to_nm_deg_major( k );
                     const double C = blk( static_cast< Eigen::Index >(k), 0 );
                     const double S = blk( static_cast< Eigen::Index >(k), 1 );
-                    os << nm.first << ',' << nm.second << ','
-                            << std::setprecision( 17 ) << std::scientific << C << ','
-                            << std::setprecision( 17 ) << std::scientific << S << '\n';
+                    os << nm.first << ',' << nm.second << ',';
+                    set_sci( );
+                    os << C << ',' << S << '\n';
                 }
             }
         }
@@ -314,6 +334,7 @@ public:
         os.flush( );
         if(!os) throw std::runtime_error( "writeCsvForFile: write failed" );
     }
+
 
     void writeCsvAll( const std::string& out_dir, const std::string& prefix = "stokes" ) const
     {
@@ -864,13 +885,24 @@ public:
      *
      * TODO: Implement using ComaPolyDataset → ComaStokesDataset pipeline + CSV writer.
      */
-    void createSHFiles(int /*nmax*/,
-                       int /*mmax*/,
-                       const std::vector<double>& /*radii*/,
-                       const std::vector<double>& /*solLongitudes*/,
-                       const std::string& /*outputDir*/) const
+        void createSHFiles( const std::string& outputDir,
+                            const std::vector<double>& radii_m,
+                            const std::vector<double>& solLongitudes_deg,
+                            int requestedMaxDegree = -1,
+                            int requestedMaxOrder = -1 ) const
     {
-        throw std::logic_error("PolycoefFileProcessing::createSHFiles: not implemented yet.");
+        // Basic guards
+        if (radii_m.empty() || solLongitudes_deg.empty())
+            throw std::invalid_argument("createSHFiles: radii and longitudes must be non-empty.");
+
+        // Build the SH dataset (auto-selects maxima when nmax/mmax == -1 and validates requests)
+        ComaStokesDataset sh = createSHDataset(radii_m, solLongitudes_deg, requestedMaxDegree, requestedMaxOrder);
+
+        // Ensure output directory exists
+        boost::filesystem::create_directories(outputDir);
+
+        // Write one CSV per input file (default prefix: "stokes")
+        sh.writeCsvAll(outputDir /*, "stokes"*/);
     }
 
     /**

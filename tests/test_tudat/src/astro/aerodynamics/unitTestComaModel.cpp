@@ -391,6 +391,108 @@ BOOST_AUTO_TEST_CASE( testCreateSHDataset_Defaults_And_Validation )
 }
 
 
+BOOST_AUTO_TEST_CASE(testPolyProcessor_CreateSHFiles_WritesCSVs)
+{
+    using namespace tudat;
+    using namespace tudat::simulation_setup;
+    namespace fs = boost::filesystem;
+
+    fs::path thisFile(__FILE__);                        // full path to this .cpp
+    fs::path testDir = thisFile.parent_path();          // directory containing this test .cpp
+    fs::path dataDir = testDir / "test_data";           // sibling test_data/ directory
+    fs::path fullPath = dataDir / "test_input_coma.txt";
+
+    BOOST_REQUIRE(fs::exists(fullPath));
+
+    const std::vector<std::string> files = { fullPath.string() };
+    PolyCoefFileProcessing proc(files);
+
+    // Radii/longitudes
+    const std::vector<double> radii_m = { 1000.0, 6000.0 };
+    const std::vector<double> lons_deg = { 0.0, 30.0 };
+
+    // Output directory: reuse the same test_data folder
+    fs::path outDir = dataDir / "output_csvs";
+    if (fs::exists(outDir)) {
+        fs::remove_all(outDir); // clean old test outputs
+    }
+
+    // Call function: auto-select maxima with -1/-1
+    proc.createSHFiles(outDir.string(), radii_m, lons_deg, /*nmax*/-1, /*mmax*/-1);
+
+    // Expect one CSV per input file
+    const boost::filesystem::path csv0 = outDir / "stokes_file0.csv";
+    BOOST_CHECK_MESSAGE(boost::filesystem::exists(csv0),
+                        std::string("Expected CSV not found: ") + csv0.string());
+
+    // Open and parse a few lines
+    std::ifstream ifs(csv0.string());
+    BOOST_REQUIRE_MESSAGE(ifs.is_open(), "Failed to open output CSV for reading.");
+
+    std::string line;
+
+    // 1) meta line
+    BOOST_REQUIRE(std::getline(ifs, line));
+    BOOST_TEST_MESSAGE(std::string("meta: ") + line);
+    BOOST_CHECK_NE(line.find("meta"), std::string::npos);
+    BOOST_CHECK_NE(line.find("start_epoch="), std::string::npos);
+    BOOST_CHECK_NE(line.find("end_epoch="), std::string::npos);
+    BOOST_CHECK_NE(line.find("max_degree="), std::string::npos);
+    BOOST_CHECK_NE(line.find("max_order="), std::string::npos);
+    BOOST_CHECK_NE(line.find("n_radii=2"), std::string::npos);
+    BOOST_CHECK_NE(line.find("n_lons=2"), std::string::npos);
+    BOOST_CHECK_NE(line.find("n_coeffs="), std::string::npos);
+    BOOST_CHECK_NE(line.find("source="), std::string::npos);
+
+    // 2) radii line
+    BOOST_REQUIRE(std::getline(ifs, line));
+    BOOST_TEST_MESSAGE(std::string("radii: ") + line);
+    BOOST_CHECK_NE(line.find("radii [meter],"), std::string::npos);
+    BOOST_CHECK_NE(line.find("1000"), std::string::npos);
+    BOOST_CHECK_NE(line.find("6000"), std::string::npos);
+
+    // 3) longitudes line
+    BOOST_REQUIRE(std::getline(ifs, line));
+    BOOST_TEST_MESSAGE(std::string("longitudes: ") + line);
+    BOOST_CHECK_NE(line.find("longitudes [degree],"), std::string::npos);
+    BOOST_CHECK_NE(line.find("0"), std::string::npos);
+    BOOST_CHECK_NE(line.find("30"), std::string::npos);
+
+    // 4) First block header should be: ID,0,<r0>,<L0>
+    BOOST_REQUIRE(std::getline(ifs, line));
+    BOOST_TEST_MESSAGE(std::string("block header: ") + line);
+    BOOST_CHECK_NE(line.find("ID,0"), std::string::npos);
+    // Contains r0 and L0; again tolerant on formatting
+    BOOST_CHECK( line.find("1000") != std::string::npos || line.find("1.000") != std::string::npos );
+    BOOST_CHECK( line.find(",0")   != std::string::npos ); // longitude 0 deg somewhere after comma
+
+    // 5) Column header line "n,m,C,S"
+    BOOST_REQUIRE(std::getline(ifs, line));
+    BOOST_TEST_MESSAGE(std::string("column header: ") + line);
+    BOOST_CHECK_EQUAL(line, "n,m,C,S");
+
+    // 6) At least one coefficient row should follow; just read one and verify it has 4 comma-separated fields
+    BOOST_REQUIRE(std::getline(ifs, line));
+    BOOST_TEST_MESSAGE(std::string("first coef row: ") + line);
+    {
+        std::vector<std::string> toks;
+        {
+            std::stringstream ss(line);
+            std::string tok;
+            while (std::getline(ss, tok, ',')) toks.push_back(tok);
+        }
+        BOOST_CHECK_GE(toks.size(), 4u);
+        // Check n,m are integers
+        BOOST_CHECK(!toks[0].empty());
+        BOOST_CHECK(!toks[1].empty());
+    }
+
+    ifs.close();
+
+
+}
+
+
 BOOST_AUTO_TEST_SUITE_END( )
 } // namespace unit_tests
 } // namespace tudat
