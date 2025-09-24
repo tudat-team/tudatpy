@@ -4,6 +4,7 @@ channels:
   - tudat-team
 dependencies:
   - cmake
+  - make
   - eigen
   - boost-cpp=1.84.0
   - tudat-resources
