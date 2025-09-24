@@ -5,6 +5,7 @@ channels:
 dependencies:
   - clang
   - clangxx
+  - cmake
   - eigen
   - boost-cpp=1.85.0
   - tudat-resources
