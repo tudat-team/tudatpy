@@ -711,6 +711,18 @@ private:
 };
 
 
+// --- Free function prototype (your implementation lives elsewhere)
+void evaluateStokesCoefficients2D( double r_km,
+                                   double lon_rad,
+                                   const Eigen::MatrixXd& polyCoeffs,    // (numTerms x numCoefs)
+                                   const Eigen::ArrayXXi& degOrd,        // (2 x numCoefs) [row0=n, row1=m]
+                                   const Eigen::VectorXd& powersInvR,    // PWRS
+                                   double referenceRadius,               // R
+                                   Eigen::MatrixXd& C,                   // (nmax+1 x mmax+1) output
+                                   Eigen::MatrixXd& S,                   // (nmax+1 x mmax+1) output
+                                   int nmax,
+                                   int mmax );
+
 
 class PolyCoefFileProcessing
 {
@@ -764,15 +776,131 @@ public:
      *
      * TODO: Implement by transforming ComaPolyDataset → ComaStokesDataset and filling coefficients.
      */
-    ComaStokesDataset createSHDataset(int /*nmax*/,
-                                      int /*mmax*/,
-                                      const std::vector<double>& /*radii*/,
-                                      const std::vector<double>& /*solLongitudes*/) const
+    ComaStokesDataset createSHDataset(int nmax,
+                                      int mmax,
+                                      const std::vector<double>& radii_m,          // meters
+                                      const std::vector<double>& solLongitudes_deg // degrees
+                                      ) const
     {
-        throw std::logic_error("PolycoefFileProcessing::createSHDataset: not implemented yet.");
+        if (nmax < 0 || mmax < 0)
+            throw std::invalid_argument("createSHDataset: nmax/mmax must be >= 0.");
+        if (radii_m.empty() || solLongitudes_deg.empty())
+            throw std::invalid_argument("createSHDataset: radii/solLongitudes must be non-empty.");
+
+        // 1) Load poly data
+        ComaPolyDataset poly = createPolyCoefDataset();
+
+        // 2) Build file metadata (epochs unknown yet -> try to pick first timePeriod, else 0)
+        std::vector<FileMeta> files;
+        files.reserve(poly.getNumFiles());
+        for (std::size_t f = 0; f < poly.getNumFiles(); ++f)
+        {
+            FileMeta fm{};
+            fm.source_tag = poly.getFileMeta(f).sourcePath;
+            // try to use first time interval if present
+            if (!poly.getFileMeta(f).timePeriods.empty()) {
+                fm.start_epoch = poly.getFileMeta(f).timePeriods.front().first;
+                fm.end_epoch   = poly.getFileMeta(f).timePeriods.front().second;
+            } else {
+                fm.start_epoch = 0.0;
+                fm.end_epoch   = 0.0;
+            }
+            files.push_back(std::move(fm));
+        }
+
+        // 3) Create empty Stokes dataset (zero-initialized)
+        ComaStokesDataset sh = ComaStokesDataset::create(
+            std::move(files), radii_m, solLongitudes_deg, nmax);
+
+        // 4) Pre-allocate workspaces for the evaluator
+        Eigen::MatrixXd C(nmax + 1, mmax + 1);
+        Eigen::MatrixXd S(nmax + 1, mmax + 1);
+
+        // 5) Main fill loop
+        for (std::size_t f = 0; f < sh.nFiles(); ++f)
+        {
+            // Availability guard: ensure request does not exceed what this file contains
+            const int maxDegreeAvail = poly.getMaxDegreeSH(f);               // from header N(SH)
+            const int maxOrderAvail  = poly.getSHDegreeAndOrderIndices(f).row(1).abs().maxCoeff();
+            if (nmax > maxDegreeAvail || mmax > maxOrderAvail)
+            {
+                std::ostringstream oss;
+                oss << "createSHDataset: requested (nmax=" << nmax << ", mmax=" << mmax
+                    << ") exceeds available (nmax=" << maxDegreeAvail
+                    << ", mmax=" << maxOrderAvail << ") in file #" << f
+                    << " [" << poly.getFileMeta(f).sourcePath << "].";
+                throw std::invalid_argument(oss.str());
+            }
+
+            const auto& P   = poly.getPolyCoefficients(f);
+            const auto& nm  = poly.getSHDegreeAndOrderIndices(f);
+            const auto& pw  = poly.getPowersInvRadius(f);
+            const double R0 = poly.getReferenceRadius(f);
+
+            for (std::size_t ri = 0; ri < sh.nRadii(); ++ri)
+            {
+                const double r_km = sh.radii()[ri] * 1.0e-3; // m -> km
+
+                for (std::size_t li = 0; li < sh.nLongitudes(); ++li)
+                {
+                    const double Lrad = sh.lons()[li] * M_PI / 180.0; // deg -> rad
+
+                    computeAndFillSingleCell_(P, nm, pw, R0,
+                                              r_km, Lrad,
+                                              nmax, mmax,
+                                              C, S,
+                                              f, ri, li, sh);
+                }
+            }
+        }
+
+        return sh;
     }
 
 private:
+
+
+    // Compute (C,S) for a single (file f, radius r_km, longitude Lrad) and write into sh
+    static void computeAndFillSingleCell_( const Eigen::MatrixXd& polyCoeffs,
+                                           const Eigen::ArrayXXi& degOrd,
+                                           const Eigen::VectorXd& powersInvR,
+                                           double referenceRadius,
+                                           double r_km,
+                                           double Lrad,
+                                           int nmax,
+                                           int mmax,
+                                           Eigen::MatrixXd& C,   // workspace (nmax+1 x mmax+1)
+                                           Eigen::MatrixXd& S,   // workspace (nmax+1 x mmax+1)
+                                           std::size_t f, std::size_t ri, std::size_t li,
+                                           ComaStokesDataset& sh )
+    {
+        // Zero or reuse workspaces (your evaluator will fully write them anyway)
+        C.setZero();
+        S.setZero();
+
+        // Call main processing function
+        evaluateStokesCoefficients2D( r_km, Lrad,
+                                      polyCoeffs, degOrd, powersInvR, referenceRadius,
+                                      C, S, nmax, mmax );
+
+        // Write results into the dataset (degree-major layout via setCoeff)
+        for (int n = 0; n <= nmax; ++n)
+        {
+            const int m_hi = std::min(n, mmax);
+            for (int m = 0; m <= m_hi; ++m)
+            {
+                // Safety checks against evaluator output size
+                if (n >= C.rows() || m >= C.cols())
+                    throw std::runtime_error("Evaluator returned C/S smaller than requested (nmax,mmax).");
+
+                sh.setCoeff(f, ri, li, n, m, C(n, m), S(n, m));
+            }
+        }
+        // Terms with m>mmax remain zero (dataset was zero-initialized).
+    }
+
+
+
     std::vector<std::string> filePaths_;
 };
 
