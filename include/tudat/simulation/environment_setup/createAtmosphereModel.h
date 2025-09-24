@@ -712,6 +712,70 @@ private:
 
 
 
+class PolyCoefFileProcessing
+{
+public:
+    /// Construct from a list of PolyCoefficient file paths.
+    explicit PolyCoefFileProcessing(std::vector<std::string> filePaths)
+        : filePaths_(std::move(filePaths))
+    {
+        if (filePaths_.empty()) {
+            throw std::invalid_argument("PolycoefFileProcessing: file path list is empty.");
+        }
+    }
+
+    /// Access the raw file list used to build datasets.
+    const std::vector<std::string>& getFilePaths() const { return filePaths_; }
+
+    /**
+     * \brief Read all PolyCoefficient files and return a populated ComaPolyDataset.
+     * \details This simply forwards the stored file list to ComaPolyDataset’s reader/ctor.
+     */
+    ComaPolyDataset createPolyCoefDataset() const
+    {
+        return ComaPolyDataset(filePaths_);
+    }
+
+    /**
+     * \brief (Stub) Create SH/Stokes CSV files for given settings.
+     * \param nmax           Maximum requested SH degree
+     * \param mmax           Maximum requested SH order
+     * \param radii          Vector of radii where SH will be evaluated
+     * \param solLongitudes  Vector of solar longitudes where SH will be evaluated
+     * \param outputDir      Directory to write output files
+     *
+     * TODO: Implement using ComaPolyDataset → ComaStokesDataset pipeline + CSV writer.
+     */
+    void createSHFiles(int /*nmax*/,
+                       int /*mmax*/,
+                       const std::vector<double>& /*radii*/,
+                       const std::vector<double>& /*solLongitudes*/,
+                       const std::string& /*outputDir*/) const
+    {
+        throw std::logic_error("PolycoefFileProcessing::createSHFiles: not implemented yet.");
+    }
+
+    /**
+     * \brief (Stub) Compute and return a populated ComaStokesDataset.
+     * \param nmax           Maximum requested SH degree
+     * \param mmax           Maximum requested SH order
+     * \param radii          Vector of radii where SH will be evaluated
+     * \param solLongitudes  Vector of solar longitudes where SH will be evaluated
+     *
+     * TODO: Implement by transforming ComaPolyDataset → ComaStokesDataset and filling coefficients.
+     */
+    ComaStokesDataset createSHDataset(int /*nmax*/,
+                                      int /*mmax*/,
+                                      const std::vector<double>& /*radii*/,
+                                      const std::vector<double>& /*solLongitudes*/) const
+    {
+        throw std::logic_error("PolycoefFileProcessing::createSHDataset: not implemented yet.");
+    }
+
+private:
+    std::vector<std::string> filePaths_;
+};
+
 
 
 //  List of wind models available in simulations
