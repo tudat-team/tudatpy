@@ -193,6 +193,30 @@ public:
                             2 );
     }
 
+    //! Get full cosine and sine coefficient matrices for a given (file, radius, longitude).
+    /*!
+     * Returns two Eigen::MatrixXd objects of size (nmax+1) x (nmax+1),
+     * where entries with m>n are left zero.
+     */
+    std::pair<Eigen::MatrixXd, Eigen::MatrixXd>
+    getCoefficientMatrices(std::size_t f, std::size_t r, std::size_t l) const
+    {
+        Eigen::MatrixXd cosine  = Eigen::MatrixXd::Zero(nmax_+1, nmax_+1);
+        Eigen::MatrixXd sine    = Eigen::MatrixXd::Zero(nmax_+1, nmax_+1);
+
+        const auto blk = block(f, r, l); // n_coeffs_ x 2 view
+
+        for (std::size_t k = 0; k < n_coeffs_; ++k)
+        {
+            auto nm = index_to_nm_deg_major(k);
+            int n = nm.first;
+            int m = nm.second;
+            cosine(n, m) = blk(static_cast<Eigen::Index>(k), 0);
+            sine(n, m)   = blk(static_cast<Eigen::Index>(k), 1);
+        }
+        return {cosine, sine};
+    }
+
     // -------- Single coefficient access via (n,m) --------
     void setCoeff( std::size_t f,
                    std::size_t r,
@@ -711,17 +735,99 @@ private:
 };
 
 
-// --- Free function prototype (your implementation lives elsewhere)
-void evaluateStokesCoefficients2D( double r_km,
-                                   double lon_rad,
-                                   const Eigen::MatrixXd& polyCoeffs,    // (numTerms x numCoefs)
-                                   const Eigen::ArrayXXi& degOrd,        // (2 x numCoefs) [row0=n, row1=m]
-                                   const Eigen::VectorXd& powersInvR,    // PWRS
-                                   double referenceRadius,               // R
-                                   Eigen::MatrixXd& C,                   // (nmax+1 x mmax+1) output
-                                   Eigen::MatrixXd& S,                   // (nmax+1 x mmax+1) output
-                                   int nmax,
-                                   int mmax );
+//! Function to compute Stokes coefficients from poly coefficients at specific distance and solar longitude
+    void evaluateStokesCoefficients2D(
+            const double distanceToCometCentre,
+            const double solarLongitude,
+            const Eigen::ArrayXXd& polyCoefficients,
+            const Eigen::ArrayXXi& atDegreeAndOrder,
+            const Eigen::VectorXd& atPowersInvRadius,
+            const double refRadius,
+            Eigen::MatrixXd& cosineCoefficients,
+            Eigen::MatrixXd& sineCoefficients,
+            int maxDegree,
+            int maxOrder )
+    {
+        const int maxDegAvailable = atDegreeAndOrder.row( 0 ).maxCoeff( );
+        const int maxOrdAvailable = atDegreeAndOrder.row( 1 ).abs( ).maxCoeff( );
+
+        if(maxDegree < 0) maxDegree = maxDegAvailable;
+        if(maxOrder < 0) maxOrder = maxOrdAvailable;
+
+        if(maxDegree > maxDegAvailable || maxOrder > maxOrdAvailable)
+        {
+            std::ostringstream err;
+            err << "[FATAL] Requested maxDegree=" << maxDegree
+                    << ", maxOrder=" << maxOrder
+                    << " exceeds available (degree=" << maxDegAvailable
+                    << ", order=" << maxOrdAvailable << ")";
+            throw std::runtime_error( err.str( ) );
+        }
+
+        const Eigen::Index numRadialTerms = atPowersInvRadius.size( );
+        const Eigen::Index numIntervals = polyCoefficients.rows( ) / numRadialTerms;
+
+        cosineCoefficients = Eigen::MatrixXd::Zero( maxDegree + 1, maxOrder + 1 );
+        sineCoefficients = Eigen::MatrixXd::Zero( maxDegree + 1, maxOrder + 1 );
+
+        const bool usePolyvalForm = ( distanceToCometCentre <= refRadius || refRadius < 1.0e-10 );
+        const double scaling = usePolyvalForm
+                ? ( ( refRadius < 1.0e-10 ) ? 1.0 / distanceToCometCentre : 1.0 / distanceToCometCentre - 1.0 / refRadius )
+                : ( ( refRadius < 1.0e-10 ) ? 1.0 / distanceToCometCentre : refRadius / distanceToCometCentre );
+
+        for(int i = 0; i < polyCoefficients.cols( ); ++i)
+        {
+            const int l = atDegreeAndOrder( 0, i );
+            const int m = atDegreeAndOrder( 1, i );
+            const int absM = std::abs( m );
+
+            if(l > maxDegree || absM > maxOrder)
+                continue;
+
+            double value = 0.0;
+
+            if(usePolyvalForm)
+            {
+                const Eigen::MatrixXd polyCoefs =
+                        polyCoefficients.col( i ).reshaped( numIntervals, numRadialTerms ).matrix( );
+                const Eigen::Index N = polyCoefs.rows( );
+
+                auto alphaPart = ( Eigen::ArrayXd( N ) <<
+                    cos( Eigen::ArrayXd::LinSpaced( N / 2 + 1, 0.0, static_cast< double >(N) / 2.0 ) * solarLongitude ),
+                    sin( Eigen::ArrayXd::LinSpaced( N % 2 == 0 ? N / 2 - 1 : N / 2,
+                                                    1.0,
+                                                    static_cast< double >(N) / 2 - ( N % 2 == 0 ? 1 : 0 ) ) *
+                            solarLongitude )
+                ).finished( );
+
+                value = ( alphaPart.matrix( ).transpose( )
+                            * polyCoefs
+                            * pow( scaling, atPowersInvRadius.array( ) ).matrix( ) ).value( )
+                        / static_cast< double >(N);
+            }
+            else
+            {
+                const Eigen::VectorXd polyCoefs =
+                        polyCoefficients.block( 0, i, numIntervals, 1 ).matrix( );
+                const Eigen::Index N = polyCoefs.rows( );
+
+                auto alphaPart = ( Eigen::ArrayXd( N ) <<
+                    cos( Eigen::ArrayXd::LinSpaced( N / 2 + 1, 0.0, static_cast< double >(N) / 2.0 ) * solarLongitude ),
+                    sin( Eigen::ArrayXd::LinSpaced( N % 2 == 0 ? N / 2 - 1 : N / 2,
+                                                    1.0,
+                                                    static_cast< double >(N) / 2 - ( N % 2 == 0 ? 1 : 0 ) ) *
+                            solarLongitude )
+                ).finished( );
+
+                value = ( alphaPart.matrix( ).transpose( )
+                            * polyCoefs
+                            * ( scaling * scaling ) ).value( )
+                        / static_cast< double >(N);
+            }
+
+            ( m >= 0 ? cosineCoefficients : sineCoefficients )( l, absM ) = value;
+        }
+    }
 
 
 class PolyCoefFileProcessing
@@ -776,13 +882,13 @@ public:
      *
      * TODO: Implement by transforming ComaPolyDataset → ComaStokesDataset and filling coefficients.
      */
-    ComaStokesDataset createSHDataset(int nmax,
-                                      int mmax,
-                                      const std::vector<double>& radii_m,          // meters
-                                      const std::vector<double>& solLongitudes_deg // degrees
+    ComaStokesDataset createSHDataset(const std::vector<double>& radii_m,          // meters
+                                      const std::vector<double>& solLongitudes_deg, // degrees
+                                      int requestedMaxDegree = -1,
+                                      int requestedMaxOrder = -1
                                       ) const
     {
-        if (nmax < 0 || mmax < 0)
+        if (requestedMaxDegree < -1 || requestedMaxOrder < -1)
             throw std::invalid_argument("createSHDataset: nmax/mmax must be >= 0.");
         if (radii_m.empty() || solLongitudes_deg.empty())
             throw std::invalid_argument("createSHDataset: radii/solLongitudes must be non-empty.");
@@ -790,7 +896,49 @@ public:
         // 1) Load poly data
         ComaPolyDataset poly = createPolyCoefDataset();
 
-        // 2) Build file metadata (epochs unknown yet -> try to pick first timePeriod, else 0)
+        // 2) Determine available maxima across files
+        int globalMaxDeg = 0;
+        int globalMaxOrd = 0;
+        const std::size_t F = poly.getNumFiles();
+
+        std::vector<int> perFileMaxDeg(F, 0);
+        std::vector<int> perFileMaxOrd(F, 0);
+
+        for (std::size_t f = 0; f < F; ++f)
+        {
+            const int fMaxDeg = poly.getMaxDegreeSH(f);
+            const int fMaxOrd = poly.getSHDegreeAndOrderIndices(f).row(1).abs().maxCoeff();
+
+            perFileMaxDeg[f] = fMaxDeg;
+            perFileMaxOrd[f] = fMaxOrd;
+
+            globalMaxDeg = std::max(globalMaxDeg, fMaxDeg);
+            globalMaxOrd = std::max(globalMaxOrd, fMaxOrd);
+        }
+
+        // 3) Resolve effective target maxima
+        const int effNmax = (requestedMaxDegree < 0 ? globalMaxDeg : requestedMaxDegree);
+        const int effMmax = (requestedMaxOrder < 0 ? globalMaxOrd : requestedMaxOrder);
+
+        if (effNmax < 0 || effMmax < 0)
+            throw std::invalid_argument("createSHDataset: effective nmax/mmax resolved negative.");
+
+        // 4) Validate against each file’s availability
+        for (std::size_t f = 0; f < F; ++f)
+        {
+            if (effNmax > perFileMaxDeg[f] || effMmax > perFileMaxOrd[f])
+            {
+                std::ostringstream oss;
+                oss << "createSHDataset: requested (nmax=" << effNmax
+                    << ", mmax=" << effMmax << ") exceeds availability in file #" << f
+                    << " [" << poly.getFileMeta(f).sourcePath << "]: "
+                    << "(maxDegree=" << perFileMaxDeg[f]
+                    << ", maxOrder=" << perFileMaxOrd[f] << ").";
+                throw std::invalid_argument(oss.str());
+            }
+        }
+
+        // 3) Build file metadata (epochs unknown yet -> try to pick first timePeriod, else 0)
         std::vector<FileMeta> files;
         files.reserve(poly.getNumFiles());
         for (std::size_t f = 0; f < poly.getNumFiles(); ++f)
@@ -808,24 +956,24 @@ public:
             files.push_back(std::move(fm));
         }
 
-        // 3) Create empty Stokes dataset (zero-initialized)
+        // 4) Create empty Stokes dataset (zero-initialized)
         ComaStokesDataset sh = ComaStokesDataset::create(
-            std::move(files), radii_m, solLongitudes_deg, nmax);
+            std::move(files), radii_m, solLongitudes_deg, effNmax);
 
-        // 4) Pre-allocate workspaces for the evaluator
-        Eigen::MatrixXd C(nmax + 1, mmax + 1);
-        Eigen::MatrixXd S(nmax + 1, mmax + 1);
+        // 5) Pre-allocate workspaces for the evaluator
+        Eigen::MatrixXd C(effNmax + 1, effMmax + 1);
+        Eigen::MatrixXd S(effNmax + 1, effMmax + 1);
 
-        // 5) Main fill loop
+        // 6) Main fill loop
         for (std::size_t f = 0; f < sh.nFiles(); ++f)
         {
             // Availability guard: ensure request does not exceed what this file contains
             const int maxDegreeAvail = poly.getMaxDegreeSH(f);               // from header N(SH)
             const int maxOrderAvail  = poly.getSHDegreeAndOrderIndices(f).row(1).abs().maxCoeff();
-            if (nmax > maxDegreeAvail || mmax > maxOrderAvail)
+            if (effNmax > maxDegreeAvail || effMmax > maxOrderAvail)
             {
                 std::ostringstream oss;
-                oss << "createSHDataset: requested (nmax=" << nmax << ", mmax=" << mmax
+                oss << "createSHDataset: requested (nmax=" << effNmax << ", mmax=" << effMmax
                     << ") exceeds available (nmax=" << maxDegreeAvail
                     << ", mmax=" << maxOrderAvail << ") in file #" << f
                     << " [" << poly.getFileMeta(f).sourcePath << "].";
@@ -847,7 +995,7 @@ public:
 
                     computeAndFillSingleCell_(P, nm, pw, R0,
                                               r_km, Lrad,
-                                              nmax, mmax,
+                                              effNmax, effMmax,
                                               C, S,
                                               f, ri, li, sh);
                 }
@@ -874,7 +1022,7 @@ private:
                                            std::size_t f, std::size_t ri, std::size_t li,
                                            ComaStokesDataset& sh )
     {
-        // Zero or reuse workspaces (your evaluator will fully write them anyway)
+        // Zero or reuse workspaces
         C.setZero();
         S.setZero();
 
