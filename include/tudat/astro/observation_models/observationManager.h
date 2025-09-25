@@ -268,7 +268,7 @@ public:
             {
                 std::throw_with_nested( std::runtime_error( "Error computing observation of type " +
                     observation_models::getObservableName( observationSimulator_->getObservableType( ) ) +
-                    " with link ends " + getLinkEndsString( linkEnds ) + " at epoch " + std::to_string( times[ i ] ) ) );
+                    " with link ends " + getLinkEndsString( linkEnds ) + " at epoch " + std::to_string( static_cast< double >( times[ i ] ) ) ) );
             }
 
             TimeType saveTime = times[ i ];
@@ -302,7 +302,7 @@ public:
                 {
                     std::throw_with_nested( std::runtime_error( "Error computing partials for observation of type " +
                         observation_models::getObservableName( observationSimulator_->getObservableType( ) ) +
-                        " with link ends " + getLinkEndsString( linkEnds ) + " at epoch " + std::to_string( times[ i ] ) ) );
+                        " with link ends " + getLinkEndsString( linkEnds ) + " at epoch " + std::to_string( static_cast< double >( times[ i ] ) ) ) );
                 }
             }
         }
