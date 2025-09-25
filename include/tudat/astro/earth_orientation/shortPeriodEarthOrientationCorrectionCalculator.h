@@ -111,10 +111,11 @@ public:
             {
                 return correctionInterpolator_->interpolate( ephemerisTime );
             }
-            catch (...)
+            catch( std::runtime_error& caughtException )
             {
-                std::throw_with_nested( std::runtime_error( "Error in short period EOP calculator: " ) );
+                throw std::runtime_error( "Error in short period EOP calculator.\nOriginal error: " + std::string( caughtException.what( ) ) );
             }
+
         }
     }
 

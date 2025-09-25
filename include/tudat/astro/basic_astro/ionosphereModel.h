@@ -67,10 +67,11 @@ public:
         {
             return tecInterpolator_->interpolate( query );
         }
-        catch (...)
+        catch( std::runtime_error& caughtException )
         {
-            std::throw_with_nested( std::runtime_error( "Error in TEC interpolator: " ) );
+            throw std::runtime_error( "Error in TEC interpolator.\nOriginal error: " + std::string( caughtException.what( ) ) );
         }
+
     }
 
     //! For debugging — return last query

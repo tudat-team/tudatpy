@@ -162,10 +162,11 @@ public:
             {
                 dependentVariables_ = dependentVariablesInterpolator_->interpolate( evaluationTime );
             }
-            catch (...)
+            catch( std::runtime_error& caughtException )
             {
-                std::throw_with_nested( std::runtime_error( "Error in dependent variable interpolation: " ) );
+                throw std::runtime_error( "Error in dependent variable interpolation.\nOriginal error: " + std::string( caughtException.what( ) ) );
             }
+
 
         }
         return dependentVariables_;

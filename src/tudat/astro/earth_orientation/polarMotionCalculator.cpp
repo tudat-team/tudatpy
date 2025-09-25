@@ -36,10 +36,11 @@ Eigen::Vector2d PolarMotionCalculator::getPositionOfCipInItrs( const double ttSi
     {
         poleOffsetsInItrs += dailyIersValueInterpolator_->interpolate( utcSinceEpoch );
     }
-    catch (...)
+    catch( std::runtime_error& caughtException )
     {
-        std::throw_with_nested( std::runtime_error( "Error in pole offset interpolation: " ) );
+        throw std::runtime_error( "Error in pole offset interpolation.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
+
 
 
     // Add short period motion
@@ -59,10 +60,11 @@ Eigen::Vector2d PolarMotionCalculator::getPositionOfCipInItrs( Eigen::Vector6d f
     {
         poleOffsetsInItrs += dailyIersValueInterpolator_->interpolate( utcSinceEpoch );
     }
-    catch (...)
+    catch( std::runtime_error& caughtException )
     {
-        std::throw_with_nested( std::runtime_error( "Error in pole offset interpolation: " ) );
+        throw std::runtime_error( "Error in pole offset interpolation.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
+
 
 
     // Add short period motion

@@ -467,10 +467,11 @@ public:
                 combinedStateTransitionMatrix.block( 0, stateTransitionMatrixSize, stateTransitionMatrixSize, sensitivityMatrixSize ) =
                         sensitivityMatrixInterpolators_.at( currentArc )->interpolate( evaluationTime );
             }
-            catch (...)
+            catch( std::runtime_error& caughtException )
             {
-                std::throw_with_nested( std::runtime_error( "Error in variational equation solution interpolation: " ) );
+                throw std::runtime_error( "Error in variational equation solution interpolation.\nOriginal error: " + std::string( caughtException.what( ) ) );
             }
+
 
 
             if( addCentralBodyDependency )
