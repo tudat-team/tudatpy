@@ -98,6 +98,14 @@ jobs:
       run: conda env update -n tudat -f environment.yaml
       # if: steps.cache.outputs.cache-hit != 'true'
 
+    - name: Show full conda package list
+      shell: bash -l {0}
+      run: |
+        echo "=== Conda environment information ==="
+        conda info
+        echo ""
+        echo "=== Installed packages in tudat environment ==="
+        conda list
 
     # - name: Download tudat resources data files for Linux and MacOS
     #   # The data files in tudat-resources are downloaded upon the installation of
