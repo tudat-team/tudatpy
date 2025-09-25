@@ -177,9 +177,6 @@ void calculateDesignMatrixAndResiduals(
                 std::pair< int, int > observationIndices =
                         observationsCollection->getObservationSetStartAndSize( ).at( currentObservableType ).at( currentLinkEnds ).at( i );
 
-                //                std::cout<<"Current size "<<currentObservations->getObservationTimes( ).size( )<<
-                //                " "<<currentObservations->getObservations( ).size( )<<" "<<observationIndices.first<<"
-                //                "<<observationIndices.second<<std::endl;
                 if( observationIndices.second > 0 )
                 {
                     // Compute estimated ranges and range partials from current parameter estimate.
@@ -197,11 +194,6 @@ void calculateDesignMatrixAndResiduals(
 
                     if( calculatePartials )
                     {
-                        //                        std::cout<<designMatrix.rows( )<<" "<<designMatrix.cols( )<<std::endl;
-                        //                        std::cout<<observationIndices.first<<" "<<0<<" "<<observationIndices.second<<"
-                        //                        "<<totalNumberParameters<<std::endl; std::cout<<partialsMatrix.rows( )<<"
-                        //                        "<<partialsMatrix.cols( )<<std::endl<<std::endl;
-
                         // Set current observation partials in matrix of all partials
                         designMatrix.block( observationIndices.first, 0, observationIndices.second, totalNumberParameters ) =
                                 partialsMatrix;
