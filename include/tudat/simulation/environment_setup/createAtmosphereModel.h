@@ -1888,7 +1888,7 @@ public:
     {
     }
 
-    ScaledAtmosphereSettings( const std::shared_ptr< AtmosphereSettings > baseSettings,
+    ScaledAtmosphereSettings( const std::shared_ptr< AtmosphereSettings >& baseSettings,
                               const std::function< double( const double ) > scaling,
                               const bool isScalingAbsolute ):
         AtmosphereSettings( scaled_atmosphere ), baseSettings_( baseSettings ), scaling_( scaling ), isScalingAbsolute_( isScalingAbsolute )
@@ -1905,7 +1905,7 @@ public:
         return scaling_;
     }
 
-    bool getIsScalingAbsolute( )
+    bool getIsScalingAbsolute( ) const
     {
         return isScalingAbsolute_;
     }
@@ -1939,9 +1939,9 @@ public:
      * \param requestedDegree Maximum spherical harmonic degree (-1 for auto)
      * \param requestedOrder Maximum spherical harmonic order (-1 for auto)
      */
-    ComaSettings(const ComaPolyDataset& polyData,
-                 int requestedDegree = -1,
-                 int requestedOrder = -1)
+    explicit ComaSettings(const ComaPolyDataset& polyData,
+                const int requestedDegree = -1,
+                const int requestedOrder = -1)
         : AtmosphereSettings(coma_model),
           data_(polyData),
           requestedDegree_(requestedDegree),
@@ -1956,9 +1956,9 @@ public:
      * \param requestedDegree Maximum spherical harmonic degree (-1 for auto)
      * \param requestedOrder Maximum spherical harmonic order (-1 for auto)
      */
-    ComaSettings(const ComaStokesDataset& stokesData,
-                 int requestedDegree = -1,
-                 int requestedOrder = -1)
+    explicit ComaSettings(const ComaStokesDataset& stokesData,
+                          const int requestedDegree = -1,
+                          const int requestedOrder = -1)
         : AtmosphereSettings(coma_model),
           data_(stokesData),
           requestedDegree_(requestedDegree),
@@ -2251,14 +2251,24 @@ inline std::shared_ptr< AtmosphereSettings > tabulatedAtmosphereSettings(
 }
 
 
-// TODO:
-// inline std::shared_ptr< AtmosphereSettings > comaSettings(
-//         std::vector< std::string > polyList,
-//         const int requestedDegree,
-//         const int requestedOrder )
-// {
-//     return std::make_shared< ComaSettings >( polyList, requestedDegree, requestedOrder );
-// }
+//@get_docstring(ComaSettings,0)
+inline std::shared_ptr< AtmosphereSettings > comaSettings(
+        const ComaPolyDataset& polyData,
+        const int requestedDegree = -1,
+        const int requestedOrder = -1 )
+{
+    return std::make_shared< ComaSettings >( polyData, requestedDegree, requestedOrder );
+}
+
+//@get_docstring(ComaSettings,1)
+inline std::shared_ptr< AtmosphereSettings > comaSettings(
+        const ComaStokesDataset& stokesData,
+        const int requestedDegree = -1,
+        const int requestedOrder = -1 )
+{
+    return std::make_shared< ComaSettings >( stokesData, requestedDegree, requestedOrder );
+}
+
 
 
 //! @get_docstring(customWindModelSettings)

@@ -816,6 +816,35 @@ using the NRLMSISE-00 global reference model:
 
      )doc" );
 
+    m.def(
+            "coma_model",
+            py::overload_cast<
+                const tss::ComaPolyDataset&, int, int >( &tss::comaSettings ),
+            py::arg( "poly_data" ),
+            py::arg( "max_degree" ) = -1,
+            py::arg( "max_order" ) = -1,
+            R"doc(
+Create a coma atmosphere from polynomial coefficients.
+)doc"
+            );
+
+    m.def(
+            "coma_model",
+            py::overload_cast<
+                const tss::ComaStokesDataset&, int, int >( &tss::comaSettings ),
+            py::arg( "stokes_data" ),
+            py::arg( "max_degree" ) = -1,
+            py::arg( "max_order" ) = -1,
+            R"doc(
+Create a coma atmosphere from precomputed Stokes coefficients.
+)doc"
+            );
+
+
+
+
+
+
     m.def("mars_dtm",
           &tss::marsDtmAtmosphereSettings,
           R"doc(No documentation found.)doc" );
