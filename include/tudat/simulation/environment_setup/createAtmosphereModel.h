@@ -648,7 +648,7 @@ class StokesCoefficientsEvaluator
 {
 public:
     static void evaluate2D(
-        double distanceToCometCentre,
+        double radius,
         double solarLongitude,
         const Eigen::ArrayXXd& polyCoefficients,
         const Eigen::ArrayXXi& atDegreeAndOrder,
@@ -682,10 +682,10 @@ public:
         cosineCoefficients = Eigen::MatrixXd::Zero(maxDegree + 1, maxOrder + 1);
         sineCoefficients   = Eigen::MatrixXd::Zero(maxDegree + 1, maxOrder + 1);
 
-        const bool usePolyvalForm = (distanceToCometCentre <= refRadius || refRadius < 1.0e-10);
+        const bool usePolyvalForm = (radius <= refRadius || refRadius < 1.0e-10);
         const double scaling = usePolyvalForm
-            ? ((refRadius < 1.0e-10) ? 1.0 / distanceToCometCentre : 1.0 / distanceToCometCentre - 1.0 / refRadius)
-            : ((refRadius < 1.0e-10) ? 1.0 / distanceToCometCentre : refRadius / distanceToCometCentre);
+            ? ((refRadius < 1.0e-10) ? 1.0 / radius : 1.0 / radius - 1.0 / refRadius)
+            : ((refRadius < 1.0e-10) ? 1.0 / radius : refRadius / radius);
 
         for (int i = 0; i < polyCoefficients.cols(); ++i)
         {

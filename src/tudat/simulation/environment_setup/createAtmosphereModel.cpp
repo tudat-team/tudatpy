@@ -289,17 +289,39 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
                 std::function< Eigen::Vector6d( ) > bodyStateFunction =
                         std::bind( &simulation_setup::Body::getState, bodies.at( body ) );
                 std::function< Eigen::Matrix3d( ) > bodyOrientationFunction =
-                                        std::bind( &simulation_setup::Body::getCurrentRotationMatrixToLocalFrame, bodies.at( body ) );
-                // const auto comaModel =
-                //         std::make_shared< ComaModel >( comaSettings->getPolyCoefficients( ),
-                //                                        comaSettings->getSHDegreeAndOrder( ),
-                //                                        comaSettings->getPowersInvRadius( ),
-                //                                        comaSettings->getReferenceRadius( ),
-                //                                        comaSettings->getTimePeriods( ),
-                //                                        comaSettings->getRequestedDegree(  ),
-                //                                        comaSettings->getRequestedOrder(  ) );
-                //
-                // atmosphereModel = comaModel;
+                        std::bind( &simulation_setup::Body::getCurrentRotationMatrixToLocalFrame, bodies.at( body ) );
+
+                // Get degree and order parameters
+                const int maximumDegree = comaSettings->getRequestedDegree( );
+                const int maximumOrder = comaSettings->getRequestedOrder( );
+
+                // Create ComaModel based on data type
+                if( comaSettings->hasPolyData( ) )
+                {
+                    const auto& polyDataset = comaSettings->getPolyDataset( );
+                    atmosphereModel = std::make_shared< aerodynamics::ComaModel >(
+                            polyDataset,
+                            sunStateFunction,
+                            bodyStateFunction,
+                            bodyOrientationFunction,
+                            maximumDegree,
+                            maximumOrder );
+                }
+                else if( comaSettings->hasStokesData( ) )
+                {
+                    const auto& stokesDataset = comaSettings->getStokesDataset( );
+                    atmosphereModel = std::make_shared< aerodynamics::ComaModel >(
+                            stokesDataset,
+                            sunStateFunction,
+                            bodyStateFunction,
+                            bodyOrientationFunction,
+                            maximumDegree,
+                            maximumOrder );
+                }
+                else
+                {
+                    throw std::runtime_error( "Error, ComaSettings for body " + body + " contains no valid dataset" );
+                }
             }
             break;
         }
