@@ -23,7 +23,14 @@ Eigen::Vector6d TabulatedCartesianEphemeris< double, double >::getCartesianState
     {
         throw std::runtime_error( "Error when calling TabulatedCartesianEphemeris, no state interpolator defined" );
     }
-    return interpolator_->interpolate( ephemerisTime );
+    try
+    {
+        return interpolator_->interpolate( ephemerisTime );
+    }
+    catch (...)
+    {
+        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+    }
 }
 
 //! Get cartesian state from ephemeris (in long double precision), for double StateScalarType
@@ -34,7 +41,14 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, double >
     {
         throw std::runtime_error( "Error when calling TabulatedCartesianEphemeris, no state interpolator defined" );
     }
-    return interpolator_->interpolate( secondsSinceEpoch ).cast< long double >( );
+    try
+    {
+        return interpolator_->interpolate( secondsSinceEpoch ).cast< long double >( );
+    }
+    catch (...)
+    {
+        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+    }
 }
 
 //! Get cartesian state from ephemeris (in double precision from Time input), for double StateScalarType
@@ -45,7 +59,14 @@ Eigen::Vector6d TabulatedCartesianEphemeris< double, double >::getCartesianState
     {
         throw std::runtime_error( "Error when calling TabulatedCartesianEphemeris, no state interpolator defined" );
     }
-    return interpolator_->interpolate( time.getSeconds< double >( ) );
+    try
+    {
+        return interpolator_->interpolate( time.getSeconds< double >( ) );
+    }
+    catch (...)
+    {
+        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+    }
 }
 
 //! Get cartesian state from ephemeris (in long double precision from Time input), for double StateScalarType
@@ -56,7 +77,14 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, double >
     {
         throw std::runtime_error( "Error when calling TabulatedCartesianEphemeris, no state interpolator defined" );
     }
-    return interpolator_->interpolate( time.getSeconds< double >( ) ).cast< long double >( );
+    try
+    {
+        return interpolator_->interpolate( time.getSeconds< double >( ) ).cast< long double >( );
+    }
+    catch (...)
+    {
+        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+    }
 }
 
 //! Get cartesian state from ephemeris (in double precision), for long double StateScalarType
@@ -67,7 +95,14 @@ Eigen::Vector6d TabulatedCartesianEphemeris< long double, double >::getCartesian
     {
         throw std::runtime_error( "Error when calling TabulatedCartesianEphemeris, no state interpolator defined" );
     }
-    return interpolator_->interpolate( ephemerisTime ).cast< double >( );
+    try
+    {
+        return interpolator_->interpolate( ephemerisTime ).cast< double >( );
+    }
+    catch (...)
+    {
+        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+    }
 }
 
 //! Get cartesian state from ephemeris (in long double precision), for long double StateScalarType
@@ -79,7 +114,14 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, dou
     {
         throw std::runtime_error( "Error when calling TabulatedCartesianEphemeris, no state interpolator defined" );
     }
-    return interpolator_->interpolate( secondsSinceEpoch );
+    try
+    {
+        return interpolator_->interpolate( secondsSinceEpoch );
+    }
+    catch (...)
+    {
+        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+    }
 }
 
 //! Get cartesian state from ephemeris (in double precision from Time input), for double StateScalarType
@@ -90,7 +132,14 @@ Eigen::Vector6d TabulatedCartesianEphemeris< long double, double >::getCartesian
     {
         throw std::runtime_error( "Error when calling TabulatedCartesianEphemeris, no state interpolator defined" );
     }
-    return interpolator_->interpolate( time.getSeconds< double >( ) ).cast< double >( );
+    try
+    {
+        return interpolator_->interpolate( time.getSeconds< double >( ) ).cast< double >( );
+    }
+    catch (...)
+    {
+        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+    }
 }
 
 //! Get cartesian state from ephemeris (in long double precision from Time input), for double StateScalarType
@@ -102,7 +151,14 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, dou
     {
         throw std::runtime_error( "Error when calling TabulatedCartesianEphemeris, no state interpolator defined" );
     }
-    return interpolator_->interpolate( time.getSeconds< double >( ) );
+    try
+    {
+        return interpolator_->interpolate( time.getSeconds< double >( ) );
+    }
+    catch (...)
+    {
+        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+    }
 }
 
 //! Get cartesian state from ephemeris (in double precision), double StateScalarType
@@ -113,7 +169,15 @@ Eigen::Vector6d TabulatedCartesianEphemeris< double, Time >::getCartesianState( 
     {
         throw std::runtime_error( "Error when calling TabulatedCartesianEphemeris, no state interpolator defined" );
     }
-    return interpolator_->interpolate( Time( ephemerisTime ) );
+    try
+    {
+        return interpolator_->interpolate( Time( ephemerisTime ) );
+    }
+    catch (...)
+    {
+        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+    }
+
 }
 
 //! Get cartesian state from ephemeris (in long double precision), for double StateScalarType
@@ -124,7 +188,15 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, Time >::
     {
         throw std::runtime_error( "Error when calling TabulatedCartesianEphemeris, no state interpolator defined" );
     }
-    return interpolator_->interpolate( Time( secondsSinceEpoch ) ).cast< long double >( );
+    try
+    {
+        return interpolator_->interpolate( Time( secondsSinceEpoch ) ).cast< long double >( );
+    }
+    catch (...)
+    {
+        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+    }
+
 }
 
 //! Get cartesian state from ephemeris (in double precision from Time input).
@@ -135,7 +207,15 @@ Eigen::Vector6d TabulatedCartesianEphemeris< double, Time >::getCartesianStateFr
     {
         throw std::runtime_error( "Error when calling TabulatedCartesianEphemeris, no state interpolator defined" );
     }
-    return interpolator_->interpolate( time );
+    try
+    {
+        return interpolator_->interpolate( time );
+    }
+    catch (...)
+    {
+        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+    }
+
 }
 
 //! Get cartesian state from ephemeris (in long double precision from Time input).
@@ -146,7 +226,15 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, Time >::
     {
         throw std::runtime_error( "Error when calling TabulatedCartesianEphemeris, no state interpolator defined" );
     }
-    return interpolator_->interpolate( time ).cast< long double >( );
+    try
+    {
+        return interpolator_->interpolate( time ).cast< long double >( );
+    }
+    catch (...)
+    {
+        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+    }
+
 }
 
 //! Get cartesian state from ephemeris (in double precision), for long double StateScalarType
@@ -157,7 +245,15 @@ Eigen::Vector6d TabulatedCartesianEphemeris< long double, Time >::getCartesianSt
     {
         throw std::runtime_error( "Error when calling TabulatedCartesianEphemeris, no state interpolator defined" );
     }
-    return interpolator_->interpolate( Time( ephemerisTime ) ).cast< double >( );
+    try
+    {
+        return interpolator_->interpolate( Time( ephemerisTime ) ).cast< double >( );
+    }
+    catch (...)
+    {
+        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+    }
+
 }
 
 //! Get cartesian state from ephemeris (in long double precision), for long double StateScalarType
@@ -168,7 +264,15 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, Tim
     {
         throw std::runtime_error( "Error when calling TabulatedCartesianEphemeris, no state interpolator defined" );
     }
-    return interpolator_->interpolate( Time( secondsSinceEpoch ) );
+    try
+    {
+        return interpolator_->interpolate( Time( secondsSinceEpoch ) );
+    }
+    catch (...)
+    {
+        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+    }
+
 }
 
 //! Get cartesian state from ephemeris (in double precision from Time input).
@@ -179,7 +283,15 @@ Eigen::Vector6d TabulatedCartesianEphemeris< long double, Time >::getCartesianSt
     {
         throw std::runtime_error( "Error when calling TabulatedCartesianEphemeris, no state interpolator defined" );
     }
-    return interpolator_->interpolate( time ).cast< double >( );
+    try
+    {
+        return interpolator_->interpolate( time ).cast< double >( );
+    }
+    catch (...)
+    {
+        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+    }
+
 }
 
 //! Get cartesian state from ephemeris (in long double precision from Time input).
@@ -191,7 +303,15 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, Tim
     {
         throw std::runtime_error( "Error when calling TabulatedCartesianEphemeris, no state interpolator defined" );
     }
-    return interpolator_->interpolate( time );
+    try
+    {
+        return interpolator_->interpolate( time );
+    }
+    catch (...)
+    {
+        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+    }
+
 }
 
 //! Function to check whether an ephemeris is a (type of) tabulated ephemeris

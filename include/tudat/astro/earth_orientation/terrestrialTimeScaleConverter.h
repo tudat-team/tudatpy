@@ -468,8 +468,16 @@ private:
         if( getCurrentTimeList< TimeType >( ).tai < utcIntroductionEpochInTai_ )
         {
             double approximateYear = getCurrentTimeList< TimeType >( ).tt / physical_constants::JULIAN_YEAR + 2000.0;
-            getCurrentTimeList< TimeType >( ).ut1 =
+            try
+            {
+                getCurrentTimeList< TimeType >( ).ut1 =
                     getCurrentTimeList< TimeType >( ).tt - historicalDeltaTInterpolator_->interpolate( approximateYear );
+            }
+            catch (...)
+            {
+                std::throw_with_nested( std::runtime_error( "Error in historical UT calculation: " ) );
+            }
+
             getCurrentTimeList< TimeType >( ).utc = getCurrentTimeList< TimeType >( ).ut1;
         }
         else
@@ -478,9 +486,15 @@ private:
 
             if( dailyUtcUt1CorrectionInterpolator_ != nullptr )
             {
-                getCurrentTimeList< TimeType >( ).ut1 = static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate(
-                                                                getCurrentTimeList< TimeType >( ).utc ) ) +
-                        getCurrentTimeList< TimeType >( ).utc;
+                try
+                {
+                    getCurrentTimeList< TimeType >( ).ut1 = static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate(
+                                                                    getCurrentTimeList< TimeType >( ).utc ) ) + getCurrentTimeList< TimeType >( ).utc;
+                }
+                catch (...)
+                {
+                    std::throw_with_nested( std::runtime_error( "Error in UT1 calculation: " ) );
+                }
 
                 getCurrentTimeList< TimeType >( ).ut1 += static_cast< TimeType >(
                         shortPeriodUt1CorrectionCalculator_->getCorrections( getCurrentTimeList< TimeType >( ).tt ) );

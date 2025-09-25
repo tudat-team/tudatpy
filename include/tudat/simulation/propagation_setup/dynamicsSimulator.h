@@ -1495,11 +1495,17 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getArcInitialStateFromPrevio
             }
 
             // Interpolate to obtain initial state of current arc
-            currentArcInitialState =
+            try
+            {
+                currentArcInitialState =
                     std::make_shared< interpolators::LagrangeInterpolator< TimeType,
                                                                            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >,
-                                                                           long double > >( initialStateInterpolationMap, 8 )
-                            ->interpolate( currentArcInitialTime );
+                                                                           long double > >( initialStateInterpolationMap, 8 )->interpolate( currentArcInitialTime );
+            }
+            catch (...)
+            {
+                std::throw_with_nested( std::runtime_error( "Error in arc initial state interpolation: " ) );
+            }
         }
     }
     return currentArcInitialState;
