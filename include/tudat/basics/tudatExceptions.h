@@ -174,8 +174,8 @@ class BodyDuringPropagationError : public TudatError {
 public:
     BodyDuringPropagationError( const std::string bodyName, const std::string variableType )
         : TudatError( "Error when attempting to retrieve " + variableType + " from " + bodyName +
-        ", the function you are using presumes the body's state is precomputed and is only valid during a propagation. "
-        " It cannot be used outside of a propagation. To retrieve a body translational/rotational state, extract it from the relevant "
+        ", the function you are using is only valid during a propagation. "
+        " It cannot be used outside of a propagation. To retrieve a body translational/rotational state outside of a propagation, extract it from the relevant "
         " environment model (Body.ephemeris, Body.rotation_model, etc.) " ) { }
 
 private:
