@@ -384,11 +384,20 @@ public:
 
     ObservationScalarType calculateFirstIterationLightTime( const TimeType time, const bool isTimeAtReception = 1 )
     {
-        return ( ephemerisOfReceivingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( time ) -
+        try
+        {
+            return ( ephemerisOfReceivingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( time ) -
                  ephemerisOfTransmittingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( time ) )
                        .segment( 0, 3 )
                        .norm( ) /
                 physical_constants::SPEED_OF_LIGHT;
+        }
+        catch (...)
+        {
+            std::throw_with_nested( exceptions::LightTimeSolutionError< TimeType >( time, isTimeAtReception ) );
+        }
+
+
     }
 
     //! Function to calculate the light time and link-ends states, given an initial guess for all legs.
@@ -413,148 +422,155 @@ public:
             const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
             const bool computeLightTimeCorrections = true )
     {
-        const unsigned int currentMultiLegReceiverIndex = currentMultiLegTransmitterIndex + 1;
-
-        if( linkEndsStates.size( ) != linkEndsTimes.size( ) || currentMultiLegReceiverIndex > linkEndsTimes.size( ) - 1 )
+        try
         {
-            throw std::runtime_error(
-                    "Error when calculating light time with multi-leg information: size of provided"
-                    "state and time vectors is inconsistent." );
-        }
+            const unsigned int currentMultiLegReceiverIndex = currentMultiLegTransmitterIndex + 1;
 
-        // Initialize reception and transmission times
-        TimeType receptionTime = time, transmissionTime = time;
-        StateType receiverState, transmitterState;
-        ObservationScalarType previousLightTimeCalculation = 0.0;
+            if( linkEndsStates.size( ) != linkEndsTimes.size( ) || currentMultiLegReceiverIndex > linkEndsTimes.size( ) - 1 )
+            {
+                throw std::runtime_error(
+                        "Error when calculating light time with multi-leg information: size of provided"
+                        "state and time vectors is inconsistent." );
+            }
 
-        // If link end times are provided as input, use that as initial guess
-        if( !std::isnan( static_cast< double >( linkEndsTimes.at( currentMultiLegTransmitterIndex ) ) ) &&
-            !std::isnan( static_cast< double >( linkEndsTimes.at( currentMultiLegReceiverIndex ) ) ) )
-        {
-            previousLightTimeCalculation = currentCorrection_ + currentIdealLightTime_;
-        }
-        // If no link end times are provided, compute an initial guess for the light time without corrections
-        else
-        {
+            // Initialize reception and transmission times
+            TimeType receptionTime = time, transmissionTime = time;
+            StateType receiverState, transmitterState;
+            ObservationScalarType previousLightTimeCalculation = 0.0;
+
+            // If link end times are provided as input, use that as initial guess
+            if( !std::isnan( static_cast< double >( linkEndsTimes.at( currentMultiLegTransmitterIndex ) ) ) &&
+                !std::isnan( static_cast< double >( linkEndsTimes.at( currentMultiLegReceiverIndex ) ) ) )
+            {
+                previousLightTimeCalculation = currentCorrection_ + currentIdealLightTime_;
+            }
+            // If no link end times are provided, compute an initial guess for the light time without corrections
+            else
+            {
+                receiverState = ephemerisOfReceivingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( receptionTime );
+                transmitterState =
+                        ephemerisOfTransmittingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( transmissionTime );
+
+                currentCorrection_ = 0.0;
+
+                previousLightTimeCalculation = calculateNewLightTimeEstimate( receiverState, transmitterState );
+            }
+
+            // Set value of transmission and reception times based on initial guess for light time
+            if( isTimeAtReception )  // reference time is at reception
+            {
+                transmissionTime = receptionTime - previousLightTimeCalculation;
+            }
+            else  // reference time is at transmission
+            {
+                receptionTime = transmissionTime + previousLightTimeCalculation;
+            }
+            // Set receiver and transmitter states to initial guess
             receiverState = ephemerisOfReceivingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( receptionTime );
             transmitterState =
                     ephemerisOfTransmittingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( transmissionTime );
 
-            currentCorrection_ = 0.0;
+            // Set variables for iteration of light time
+            iterationCounter_ = 0;
 
-            previousLightTimeCalculation = calculateNewLightTimeEstimate( receiverState, transmitterState );
-        }
-
-        // Set value of transmission and reception times based on initial guess for light time
-        if( isTimeAtReception )  // reference time is at reception
-        {
-            transmissionTime = receptionTime - previousLightTimeCalculation;
-        }
-        else  // reference time is at transmission
-        {
-            receptionTime = transmissionTime + previousLightTimeCalculation;
-        }
-        // Set receiver and transmitter states to initial guess
-        receiverState = ephemerisOfReceivingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( receptionTime );
-        transmitterState =
-                ephemerisOfTransmittingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( transmissionTime );
-
-        // Set variables for iteration of light time
-        iterationCounter_ = 0;
-
-        // Set variable determining whether to update the light time each iteration.
-        bool updateLightTimeCorrections = false;
-        if( lightTimeConvergenceCriteria_->iterateCorrections_ )
-        {
-            updateLightTimeCorrections = true;
-        }
-
-        // Set initial light-time correction.
-        updateCurrentLinkEndStatesAndTimes( linkEndsTimes,
-                                            linkEndsStates,
-                                            currentMultiLegTransmitterIndex,
-                                            receptionTime,
-                                            transmissionTime,
-                                            receiverState,
-                                            transmitterState );
-        if( computeLightTimeCorrections )
-        {
-            setTotalLightTimeCorrection( linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex, ancillarySettings );
-        }
-        else
-        {
-            currentCorrection_ = 0.0;
-        }
-
-        // Compute new light time estimate
-        ObservationScalarType newLightTimeCalculation = calculateNewLightTimeEstimate( receiverState, transmitterState );
-
-        // Check whether estimate is already within tolerance
-        bool trueBool = true;
-        bool isToleranceReached = isSingleLegLightTimeSolutionConverged( lightTimeConvergenceCriteria_,
-                                                                         previousLightTimeCalculation,
-                                                                         newLightTimeCalculation,
-                                                                         iterationCounter_,
-                                                                         currentCorrection_,
-                                                                         time,
-                                                                         trueBool );
-        previousLightTimeCalculation = newLightTimeCalculation;
-
-        // Iterate until tolerance reached.
-        while( !isToleranceReached )
-        {
-            // Update light-time corrections, if necessary.
-            if( updateLightTimeCorrections && computeLightTimeCorrections )
+            // Set variable determining whether to update the light time each iteration.
+            bool updateLightTimeCorrections = false;
+            if( lightTimeConvergenceCriteria_->iterateCorrections_ )
             {
-                updateCurrentLinkEndStatesAndTimes( linkEndsTimes,
-                                                    linkEndsStates,
-                                                    currentMultiLegTransmitterIndex,
-                                                    receptionTime,
-                                                    transmissionTime,
-                                                    receiverState,
-                                                    transmitterState );
-                setTotalLightTimeCorrection( linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex, ancillarySettings );
+                updateLightTimeCorrections = true;
             }
 
-            // Update light-time estimate for this iteration.
-            if( isTimeAtReception )
+            // Set initial light-time correction.
+            updateCurrentLinkEndStatesAndTimes( linkEndsTimes,
+                                                linkEndsStates,
+                                                currentMultiLegTransmitterIndex,
+                                                receptionTime,
+                                                transmissionTime,
+                                                receiverState,
+                                                transmitterState );
+            if( computeLightTimeCorrections )
             {
-                receptionTime = time;
-                transmissionTime = time - previousLightTimeCalculation;
-                transmitterState =
-                        ephemerisOfTransmittingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( transmissionTime );
+                setTotalLightTimeCorrection( linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex, ancillarySettings );
             }
             else
             {
-                receptionTime = time + previousLightTimeCalculation;
-                transmissionTime = time;
-                receiverState =
-                        ephemerisOfReceivingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( receptionTime );
+                currentCorrection_ = 0.0;
             }
-            newLightTimeCalculation = calculateNewLightTimeEstimate( receiverState, transmitterState );
-            isToleranceReached = isSingleLegLightTimeSolutionConverged( lightTimeConvergenceCriteria_,
-                                                                        previousLightTimeCalculation,
-                                                                        newLightTimeCalculation,
-                                                                        iterationCounter_,
-                                                                        currentCorrection_,
-                                                                        time,
-                                                                        updateLightTimeCorrections );
 
-            // Update light time for new iteration.
+            // Compute new light time estimate
+            ObservationScalarType newLightTimeCalculation = calculateNewLightTimeEstimate( receiverState, transmitterState );
+
+            // Check whether estimate is already within tolerance
+            bool trueBool = true;
+            bool isToleranceReached = isSingleLegLightTimeSolutionConverged( lightTimeConvergenceCriteria_,
+                                                                             previousLightTimeCalculation,
+                                                                             newLightTimeCalculation,
+                                                                             iterationCounter_,
+                                                                             currentCorrection_,
+                                                                             time,
+                                                                             trueBool );
             previousLightTimeCalculation = newLightTimeCalculation;
-            iterationCounter_++;
+
+            // Iterate until tolerance reached.
+            while( !isToleranceReached )
+            {
+                // Update light-time corrections, if necessary.
+                if( updateLightTimeCorrections && computeLightTimeCorrections )
+                {
+                    updateCurrentLinkEndStatesAndTimes( linkEndsTimes,
+                                                        linkEndsStates,
+                                                        currentMultiLegTransmitterIndex,
+                                                        receptionTime,
+                                                        transmissionTime,
+                                                        receiverState,
+                                                        transmitterState );
+                    setTotalLightTimeCorrection( linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex, ancillarySettings );
+                }
+
+                // Update light-time estimate for this iteration.
+                if( isTimeAtReception )
+                {
+                    receptionTime = time;
+                    transmissionTime = time - previousLightTimeCalculation;
+                    transmitterState =
+                            ephemerisOfTransmittingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( transmissionTime );
+                }
+                else
+                {
+                    receptionTime = time + previousLightTimeCalculation;
+                    transmissionTime = time;
+                    receiverState =
+                            ephemerisOfReceivingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( receptionTime );
+                }
+                newLightTimeCalculation = calculateNewLightTimeEstimate( receiverState, transmitterState );
+                isToleranceReached = isSingleLegLightTimeSolutionConverged( lightTimeConvergenceCriteria_,
+                                                                            previousLightTimeCalculation,
+                                                                            newLightTimeCalculation,
+                                                                            iterationCounter_,
+                                                                            currentCorrection_,
+                                                                            time,
+                                                                            updateLightTimeCorrections );
+
+                // Update light time for new iteration.
+                previousLightTimeCalculation = newLightTimeCalculation;
+                iterationCounter_++;
+            }
+
+            // Set output variables and return the light time.
+            updateCurrentLinkEndStatesAndTimes( linkEndsTimes,
+                                                linkEndsStates,
+                                                currentMultiLegTransmitterIndex,
+                                                receptionTime,
+                                                transmissionTime,
+                                                receiverState,
+                                                transmitterState );
+
+            return newLightTimeCalculation;
         }
-
-        // Set output variables and return the light time.
-        updateCurrentLinkEndStatesAndTimes( linkEndsTimes,
-                                            linkEndsStates,
-                                            currentMultiLegTransmitterIndex,
-                                            receptionTime,
-                                            transmissionTime,
-                                            receiverState,
-                                            transmitterState );
-
-        return newLightTimeCalculation;
+        catch (...)
+        {
+            std::throw_with_nested( exceptions::LightTimeSolutionError< TimeType >( time, isTimeAtReception ) );
+        }
     }
 
     //! Function to get the part wrt linkend position
