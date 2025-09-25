@@ -71,10 +71,10 @@ BOOST_AUTO_TEST_CASE( test_EphemerisInterpolationException )
       {
           bodies.at("Earth")->getState( );
       }
-      catch( std::runtime_error& caughtException )
+      catch( std::runtime_error& exception )
       {
           caughtStateException = true;
-          std::cout<<caughtException.what( )<<std::endl;
+          std::cout<<exception.what( )<<std::endl;
       }
       BOOST_CHECK_EQUAL( caughtStateException, true );
     }
@@ -130,8 +130,8 @@ BOOST_AUTO_TEST_CASE( test_EphemerisInterpolationException )
         // Compute list of observation times.
         std::vector< double > baseTimeList;
 
-        double buffer = ( i == 0 ) ? -300.0 : 3600.0;
-        double observationTime = initialEphemerisTime + buffer
+        double buffer = ( test == 0 ) ? -300.0 : 3600.0;
+        double observationTime = initialEphemerisTime + buffer;
         double observationInterval = 60.0;
         while( observationTime < finalEphemerisTime - buffer )
         {
@@ -164,10 +164,10 @@ BOOST_AUTO_TEST_CASE( test_EphemerisInterpolationException )
             std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< double, double >(
                 measurementSimulationInput, observationSimulators, bodies );
         }
-        catch( std::runtime_error& caughtException )
+        catch( std::runtime_error& exception )
         {
             caughtException = true;
-            std::cout<<caughtException.what( )<<std::endl;
+            std::cout<<exception.what( )<<std::endl;
         }
         if( test == 0 )
         {
