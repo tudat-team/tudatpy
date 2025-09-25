@@ -158,7 +158,15 @@ public:
         // Set dependent variable.
         if( dependentVariablesInterpolator_ != nullptr )
         {
-            dependentVariables_ = dependentVariablesInterpolator_->interpolate( evaluationTime );
+            try
+            {
+                dependentVariables_ = dependentVariablesInterpolator_->interpolate( evaluationTime );
+            }
+            catch (...)
+            {
+                std::throw_with_nested( std::runtime_error( "Error in dependent variable interpolation: " ) );
+            }
+
         }
         return dependentVariables_;
     }

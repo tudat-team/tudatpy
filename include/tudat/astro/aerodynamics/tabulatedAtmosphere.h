@@ -251,7 +251,6 @@ public:
         }
 
         // Give output
-
         try
         {
             return interpolatorForDensity_->interpolate( independentVariableData_ );

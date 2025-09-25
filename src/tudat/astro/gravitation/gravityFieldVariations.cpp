@@ -25,13 +25,22 @@ void PairInterpolationInterface::getCosineSinePair( const double time,
                                                     Eigen::MatrixXd& cosineCoefficients )
 {
     // Interpolate corrections
-    Eigen::MatrixXd cosineSinePair = cosineSineInterpolator_->interpolate( time );
+    try
+    {
+        Eigen::MatrixXd cosineSinePair = cosineSineInterpolator_->interpolate( time );
+        // Split combined interpolated cosine/sine correction block and add to existing values
+        cosineCoefficients.block( startDegree_, startOrder_, numberOfDegrees_, numberOfOrders_ ) +=
+                cosineSinePair.block( 0, 0, cosineSinePair.rows( ), cosineSinePair.cols( ) / 2 );
+        sineCoefficients.block( startDegree_, startOrder_, numberOfDegrees_, numberOfOrders_ ) +=
+                cosineSinePair.block( 0, cosineSinePair.cols( ) / 2, cosineSinePair.rows( ), cosineSinePair.cols( ) / 2 );
+    }
+    catch (...)
+    {
+        std::throw_with_nested( std::runtime_error( "Error when interpoalting spherical harmonic coefficient pair: " ) );
+    }
 
-    // Split combined interpolated cosine/sine correction block and add to existing values
-    cosineCoefficients.block( startDegree_, startOrder_, numberOfDegrees_, numberOfOrders_ ) +=
-            cosineSinePair.block( 0, 0, cosineSinePair.rows( ), cosineSinePair.cols( ) / 2 );
-    sineCoefficients.block( startDegree_, startOrder_, numberOfDegrees_, numberOfOrders_ ) +=
-            cosineSinePair.block( 0, cosineSinePair.cols( ) / 2, cosineSinePair.rows( ), cosineSinePair.cols( ) / 2 );
+
+
 }
 
 //! Function to add sine and cosine corrections at given time to coefficient matrices.
