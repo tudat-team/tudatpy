@@ -334,7 +334,7 @@ BOOST_AUTO_TEST_SUITE(test_high_level_interface)
 BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_poly_dataset, TestDataPaths)
 {
     std::vector<std::string> files = {testFile.string()};
-    PolyCoefFileProcessor processor(files);
+    ComaModelFileProcessor processor(files);
 
     ComaPolyDataset polyDataset = processor.createPolyCoefDataset();
 
@@ -347,7 +347,7 @@ BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_poly_dataset, TestDataPa
 BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_sh_dataset, TestDataPaths)
 {
     std::vector<std::string> files = {testFile.string()};
-    PolyCoefFileProcessor processor(files);
+    ComaModelFileProcessor processor(files);
 
     std::vector<double> radii_m = {6000.0, 10000.0};
     std::vector<double> lons_deg = {0.0, 30.0};
@@ -371,7 +371,7 @@ BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_sh_dataset, TestDataPath
 BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_sh_files, TestDataPaths)
 {
     std::vector<std::string> files = {testFile.string()};
-    PolyCoefFileProcessor processor(files);
+    ComaModelFileProcessor processor(files);
 
     std::vector<double> radii_m = {6000.0, 10000.0};
     std::vector<double> lons_deg = {0.0, 30.0};
@@ -417,7 +417,7 @@ BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_sh_files, TestDataPaths)
 BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_validation, TestDataPaths)
 {
     std::vector<std::string> files = {testFile.string()};
-    PolyCoefFileProcessor processor(files);
+    ComaModelFileProcessor processor(files);
 
     std::vector<double> radii_m = {6000.0};
     std::vector<double> lons_deg = {30.0};
@@ -447,7 +447,7 @@ BOOST_AUTO_TEST_CASE(test_poly_coef_processor_constructor_validation)
     // Test with empty file list
     std::vector<std::string> emptyFiles;
     BOOST_CHECK_THROW(
-        PolyCoefFileProcessor processor(emptyFiles),
+        ComaModelFileProcessor processor(emptyFiles),
         std::invalid_argument);
 }
 
@@ -461,7 +461,7 @@ BOOST_FIXTURE_TEST_CASE(test_full_pipeline, TestDataPaths)
 {
     // Test the complete pipeline from files to CSV output
     std::vector<std::string> files = {testFile.string()};
-    PolyCoefFileProcessor processor(files);
+    ComaModelFileProcessor processor(files);
 
     // Step 1: Create poly dataset
     ComaPolyDataset polyDataset = processor.createPolyCoefDataset();

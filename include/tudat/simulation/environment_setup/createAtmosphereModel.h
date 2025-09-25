@@ -906,14 +906,14 @@ private:
 
 // ============= High-Level Processing Interface =============
 
-class PolyCoefFileProcessor
+class ComaModelFileProcessor
 {
 public:
-    explicit PolyCoefFileProcessor(std::vector<std::string> filePaths)
+    explicit ComaModelFileProcessor(std::vector<std::string> filePaths)
         : filePaths_(std::move(filePaths))
     {
         if (filePaths_.empty())
-            throw std::invalid_argument("PolyCoefFileProcessor: empty file list");
+            throw std::invalid_argument("ComaModelFileProcessor: empty file list");
     }
 
     // Create poly dataset from files
