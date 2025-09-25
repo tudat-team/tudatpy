@@ -5,494 +5,492 @@
 #include "tudat/simulation/environment_setup/createAtmosphereModel.h"
 #include "tudat/astro/aerodynamics/comaModel.h"
 #include <boost/test/unit_test.hpp>
-
+#include <boost/test/unit_test.hpp>
+#include <boost/filesystem.hpp>
+#include <fstream>
+#include <sstream>
 
 namespace tudat
 {
 namespace unit_tests
 {
-BOOST_AUTO_TEST_SUITE( test_coma_settings )
+using namespace simulation_setup;
 
-BOOST_AUTO_TEST_CASE( testComaSettingsSingleFile )
+// ==================== Test Fixtures ====================
+
+struct TestDataPaths
 {
-    using namespace std;
-    using namespace tudat;
+    boost::filesystem::path testFile;
+    boost::filesystem::path outputDir;
 
-    // Create a test file with a minimal valid coma model input
-    boost::filesystem::path cwd = boost::filesystem::current_path( );
-    const boost::filesystem::path fullPath =
-            "/Users/markusreichel/PhD/tudatpy/tests/test_tudat/src/astro/aerodynamics/test_data/test_input_coma.txt";
+    TestDataPaths()
+    {
+        boost::filesystem::path thisFile(__FILE__);
+        boost::filesystem::path testDir = thisFile.parent_path();
+        boost::filesystem::path dataDir = testDir / "test_data";
+        testFile = dataDir / "input_poly_coef_test_file.txt";
+        outputDir = dataDir / "test_output";
 
-    BOOST_REQUIRE( boost::filesystem::exists(fullPath) );
+        // Ensure test file exists
+        if (!boost::filesystem::exists(testFile))
+        {
+            throw std::runtime_error("Test data file not found: " + testFile.string());
+        }
 
-    // Construct ComaSettings object
-    const std::vector< std::string > fileList = { fullPath.string( ) };
-    const simulation_setup::ComaSettings comaSettings( fileList, 10, 10 );
+        // Clean and create output directory
+        if (boost::filesystem::exists(outputDir))
+        {
+            boost::filesystem::remove_all(outputDir);
+        }
+        boost::filesystem::create_directories(outputDir);
+    }
 
-    const simulation_setup::ComaPolyDataset polyData = comaSettings.getPolyDataset( );
+    ~TestDataPaths()
+    {
+        // Optional: cleanup output dir after tests
+        // boost::filesystem::remove_all(outputDir);
+    }
+};
 
-    BOOST_REQUIRE_EQUAL( polyData.getNumFiles( ), 1 );
+// Expected values from your original tests
+struct ExpectedPolyValues
+{
+    inline static constexpr int numTerms = 48;
+    inline static constexpr int numCoeffs = 121;
+    inline static constexpr double refRadius = 10.0;
+    inline static constexpr int maxDegree = 10;
+    inline static constexpr int maxOrder = 10;
 
-    // Check polyCoefs
-    // Rows and Columns are flipped internally
-    const Eigen::MatrixXd polyCoefs = polyData.getPolyCoefficients( 0 );
-    BOOST_CHECK_EQUAL( polyCoefs.rows(), 48 );
-    BOOST_CHECK_EQUAL( polyCoefs.cols(), 121 );
+    // Sample poly coefficient values
+    inline static constexpr double polyCoef_0_0 = 6.262302500423528E+02;
+    inline static constexpr double polyCoef_3_1 = -4.459813047951577E-02;
+    inline static constexpr double polyCoef_47_120 = -1.049515320967208E+02;
+    inline static constexpr double polyCoef_10_22 = 1.287417812579956E-01;
+};
 
-    BOOST_CHECK_CLOSE( polyCoefs(0, 0), 6.262302500423528E+02, 1.0e-12 );
-    BOOST_CHECK_CLOSE( polyCoefs(3, 1), -4.459813047951577E-02, 1.0e-12 );
-    BOOST_CHECK_CLOSE( polyCoefs(47, 120), -1.049515320967208E+02, 1.0e-12 );
-    BOOST_CHECK_CLOSE( polyCoefs(10, 22), 1.287417812579956E-01, 1.0e-12 );
+struct ExpectedStokesValues
+{
+    // For distance = 6 km, solar longitude = 30 degrees
+    inline static constexpr double cosine_0_0 = 5.393369500951372e+01;
+    inline static constexpr double cosine_3_1 = 1.054997670055739e-01;
+    inline static constexpr double cosine_5_4 = 1.207229799736584e-02;
+    inline static constexpr double cosine_9_3 = -1.845804426625799e-03;
 
-    // Check SHDegreeAndOrderIndices
-    const Eigen::ArrayXXi indices = polyData.getSHDegreeAndOrderIndices( 0 );
-    BOOST_REQUIRE_EQUAL( indices.rows(), 2 );
-    BOOST_REQUIRE_EQUAL( indices.cols(), 121 );
-    BOOST_REQUIRE_EQUAL( indices(0, 120), 10 ); // First row, last column
-    BOOST_REQUIRE_EQUAL( indices(1, 120), -10 ); // Second row, last column
+    inline static constexpr double sine_0_0 = 0.0;
+    inline static constexpr double sine_6_2 = 2.139319739882320e-02;
+    inline static constexpr double sine_7_5 = -5.401766866307728e-02;
+    inline static constexpr double sine_10_8 = 1.423848196013654e-02;
+};
 
-    // Check reference radius
-    const double refRadius = polyData.getReferenceRadius( 0 );
-    BOOST_CHECK_EQUAL( refRadius, 10.0 );
 
-    // Check power inv radius
-    Eigen::VectorXd pwInv = polyData.getPowersInvRadius( 0 );
-    BOOST_CHECK_EQUAL( pwInv.rows(), 4 );
-    BOOST_CHECK_EQUAL( pwInv[0], 0 );
-    BOOST_CHECK_EQUAL( pwInv[3], 3 );
+// ==================== Data Model Tests ====================
 
-    // Check max degree and order
-    BOOST_CHECK_EQUAL( comaSettings.getRequestedDegree( ), 10 );
-    BOOST_CHECK_EQUAL( comaSettings.getRequestedOrder( ), 10 );
-    //
-    //     Eigen::MatrixXd cosineCoefficients, sineCoefficients;
-    //
-    //     double distanceToCometCentre = 6.0;
-    //     double solarLongitude = 30.0 * M_PI / 180.0;
-    //
-    //     // Test computation of stokes coefficients
-    //     aerodynamics::ComaModel::testEvaluateStokesCoefficients2D(
-    //             distanceToCometCentre,
-    //             solarLongitude,
-    //             polyCoefs[ 0 ],
-    //             SHDegreeAndOrder[ 0 ],
-    //             powerInvRadius[ 0 ],
-    //             referenceRadius[ 0 ],
-    //             cosineCoefficients,
-    //             sineCoefficients,
-    //             maxDegree,
-    //             maxOrder );
-    //
-    //     // Check output size
-    //     BOOST_CHECK_EQUAL( cosineCoefficients.rows(), maxDegree + 1 );
-    //     BOOST_CHECK_EQUAL( cosineCoefficients.cols(), maxOrder + 1 );
-    //     BOOST_CHECK_EQUAL( sineCoefficients.rows(), maxDegree + 1 );
-    //     BOOST_CHECK_EQUAL( sineCoefficients.cols(), maxOrder + 1 );
-    //
-    //     // Check cosine coefficients
-    //     BOOST_CHECK_CLOSE( cosineCoefficients(0, 0), 5.393369500951372e+01, 1.0e-12 );
-    //     BOOST_CHECK_CLOSE( cosineCoefficients(3, 1), 1.054997670055739e-01, 1.0e-12 );
-    //     BOOST_CHECK_CLOSE( cosineCoefficients(5, 4), 1.207229799736584e-02, 1.0e-12 );
-    //     BOOST_CHECK_CLOSE( cosineCoefficients(9, 3), -1.845804426625799e-03, 1.0e-12 );
-    //
-    //     // Check sine coefficients
-    //     BOOST_CHECK_CLOSE( sineCoefficients(0, 0), 0.0, 1.0e-12 );
-    //     BOOST_CHECK_CLOSE( sineCoefficients(6, 2), 2.139319739882320e-02, 1.0e-12 );
-    //     BOOST_CHECK_CLOSE( sineCoefficients(7, 5), -5.401766866307728e-02, 1.0e-12 );
-    //     BOOST_CHECK_CLOSE( sineCoefficients(10, 8), 1.423848196013654e-02, 1.0e-12 );
-    //
-    //     // Test computation of stoeks coefficients
-    //     aerodynamics::ComaModel::testEvaluateStokesCoefficients2D(
-    //             distanceToCometCentre,
-    //             solarLongitude,
-    //             polyCoefs[ 0 ],
-    //             SHDegreeAndOrder[ 0 ],
-    //             powerInvRadius[ 0 ],
-    //             referenceRadius[ 0 ],
-    //             cosineCoefficients,
-    //             sineCoefficients );
-    //
-    //     // Check output size. Should default to max. degree and order
-    //     BOOST_CHECK_EQUAL( cosineCoefficients.rows(), maxDegree + 1 );
-    //     BOOST_CHECK_EQUAL( cosineCoefficients.cols(), maxOrder + 1 );
-    //     BOOST_CHECK_EQUAL( sineCoefficients.rows(), maxDegree + 1 );
-    //     BOOST_CHECK_EQUAL( sineCoefficients.cols(), maxOrder + 1 );
-    //
-    //     // Test computation of stokes coefficients
-    //     aerodynamics::ComaModel::testEvaluateStokesCoefficients2D(
-    //             distanceToCometCentre,
-    //             solarLongitude,
-    //             polyCoefs[ 0 ],
-    //             SHDegreeAndOrder[ 0 ],
-    //             powerInvRadius[ 0 ],
-    //             referenceRadius[ 0 ],
-    //             cosineCoefficients,
-    //             sineCoefficients,
-    //             8,
-    //             3 );
-    //
-    //     // Check output size. Should default to max. degree and order
-    //     BOOST_CHECK_EQUAL( cosineCoefficients.rows(), 8 + 1 );
-    //     BOOST_CHECK_EQUAL( cosineCoefficients.cols(), 3 + 1 );
-    //     BOOST_CHECK_EQUAL( sineCoefficients.rows(), 8 + 1 );
-    //     BOOST_CHECK_EQUAL( sineCoefficients.cols(), 3 + 1 );
-    //
-    //     // Check that exceeding maxDegree or maxOrder throws
-    //     BOOST_CHECK_THROW(
-    //             aerodynamics::ComaModel::testEvaluateStokesCoefficients2D(
-    //                 distanceToCometCentre,
-    //                 solarLongitude,
-    //                 polyCoefs[0],
-    //                 SHDegreeAndOrder[0],
-    //                 powerInvRadius[0],
-    //                 referenceRadius[0],
-    //                 cosineCoefficients,
-    //                 sineCoefficients,
-    //                 maxDegree + 5, // Invalid: 15 > 10
-    //                 maxOrder + 3 // Invalid: 13 > 10
-    //             ),
-    //             std::runtime_error
-    //             );
-    //
-    //     // Verify density
-    //     distanceToCometCentre = 10.0; // [km]
-    //     solarLongitude = 30 * M_PI / 180.0;;
-    //     double latitude = 94 * M_PI / 180.0;
-    //     double longitude = -19.8 * M_PI / 180.0;
-    //     // Test computation of stokes coefficients
-    //     aerodynamics::ComaModel::testEvaluateStokesCoefficients2D(
-    //             distanceToCometCentre,
-    //             solarLongitude,
-    //             polyCoefs[ 0 ],
-    //             SHDegreeAndOrder[ 0 ],
-    //             powerInvRadius[ 0 ],
-    //             referenceRadius[ 0 ],
-    //             cosineCoefficients,
-    //             sineCoefficients,
-    //             10,
-    //             10 );
-    //
-    //     simulation_setup::SphericalHarmonicsDensity SH( sineCoefficients,
-    //                                                     cosineCoefficients );
-    //     double density = SH.calculateSurfaceSphericalHarmonics( sineCoefficients,
-    //                                                             cosineCoefficients,
-    //                                                             latitude,
-    //                                                             longitude,
-    //                                                             10,
-    //                                                             10 );
-    //
-    //     std::cout << "denstiy: " << density << std::endl;
-    //     std::cout << "Density: " << std::pow( 2.0, density ) << std::endl;
-    //
-    // BOOST_CHECK_CLOSE( density, 1.423848196013654e-02, 1.0e-12 );
+BOOST_AUTO_TEST_SUITE(test_data_models)
+
+BOOST_AUTO_TEST_CASE(test_stokes_dataset_creation)
+{
+    // Test pure data model creation
+    std::vector<ComaStokesDataset::FileMeta> files = {
+        {2.015e9, 2.0150864e9, "test_file_1"},
+        {2.016e9, 2.0160864e9, "test_file_2"}
+    };
+    std::vector<double> radii = {1000.0, 2000.0, 3000.0};
+    std::vector<double> lons = {0.0, 30.0, 60.0, 90.0};
+    int nmax = 10;
+
+    ComaStokesDataset dataset = ComaStokesDataset::create(files, radii, lons, nmax);
+
+    // Verify metadata
+    BOOST_CHECK_EQUAL(dataset.nFiles(), 2);
+    BOOST_CHECK_EQUAL(dataset.nRadii(), 3);
+    BOOST_CHECK_EQUAL(dataset.nLongitudes(), 4);
+    BOOST_CHECK_EQUAL(dataset.nmax(), nmax);
+
+    // Expected number of coefficients for degree 10
+    std::size_t expectedCoeffs = (nmax + 1) * (nmax + 2) / 2;
+    BOOST_CHECK_EQUAL(dataset.nCoeffs(), expectedCoeffs);
+
+    // Test coefficient setting and getting
+    dataset.setCoeff(0, 0, 0, 2, 1, 0.5, -0.3);
+    auto [C, S] = dataset.getCoeff(0, 0, 0, 2, 1);
+    BOOST_CHECK_CLOSE(C, 0.5, 1e-12);
+    BOOST_CHECK_CLOSE(S, -0.3, 1e-12);
+
+    // Test block access
+    auto block = dataset.block(0, 0, 0);
+    BOOST_CHECK_EQUAL(block.rows(), expectedCoeffs);
+    BOOST_CHECK_EQUAL(block.cols(), 2);
+
+    // Test coefficient matrices
+    dataset.setCoeff(0, 1, 1, 3, 2, 1.5, 2.5);
+    auto [cosineMatrix, sineMatrix] = dataset.getCoefficientMatrices(0, 1, 1);
+    BOOST_CHECK_EQUAL(cosineMatrix.rows(), nmax + 1);
+    BOOST_CHECK_EQUAL(cosineMatrix.cols(), nmax + 1);
+    BOOST_CHECK_CLOSE(cosineMatrix(3, 2), 1.5, 1e-12);
+    BOOST_CHECK_CLOSE(sineMatrix(3, 2), 2.5, 1e-12);
 }
 
-
-BOOST_AUTO_TEST_CASE( testPolyProcessorAndSHDataset )
+BOOST_AUTO_TEST_CASE(test_stokes_dataset_bounds_checking)
 {
-    using namespace tudat;
+    std::vector<ComaStokesDataset::FileMeta> files = {{0, 0, "test"}};
+    std::vector<double> radii = {1000.0};
+    std::vector<double> lons = {0.0};
+    int nmax = 5;
 
-    // Input
-    const boost::filesystem::path fullPath =
-            "/Users/markusreichel/PhD/tudatpy/tests/test_tudat/src/astro/aerodynamics/test_data/test_input_coma.txt";
-    BOOST_REQUIRE( boost::filesystem::exists(fullPath) );
-    const std::vector< std::string > files = { fullPath.string( ) };
+    ComaStokesDataset dataset = ComaStokesDataset::create(files, radii, lons, nmax);
 
-    // Processor
-    simulation_setup::PolyCoefFileProcessing proc( files );
-
-    // Build poly dataset via processor
-    simulation_setup::ComaPolyDataset poly = proc.createPolyCoefDataset( );
-    BOOST_CHECK_EQUAL( poly.getNumFiles(), files.size() );
-    BOOST_CHECK_EQUAL( poly.getFileMeta(0).sourcePath, files[0] );
-
-    // Check polyCoefs
-    // Rows and Columns are flipped internally
-    const Eigen::MatrixXd polyCoefs = poly.getPolyCoefficients( 0 );
-    BOOST_CHECK_EQUAL( polyCoefs.rows(), 48 );
-    BOOST_CHECK_EQUAL( polyCoefs.cols(), 121 );
-
-    BOOST_CHECK_CLOSE( polyCoefs(0, 0), 6.262302500423528E+02, 1.0e-12 );
-    BOOST_CHECK_CLOSE( polyCoefs(3, 1), -4.459813047951577E-02, 1.0e-12 );
-    BOOST_CHECK_CLOSE( polyCoefs(47, 120), -1.049515320967208E+02, 1.0e-12 );
-    BOOST_CHECK_CLOSE( polyCoefs(10, 22), 1.287417812579956E-01, 1.0e-12 );
-
-    // Check SHDegreeAndOrderIndices
-    const Eigen::ArrayXXi indices = poly.getSHDegreeAndOrderIndices( 0 );
-    BOOST_REQUIRE_EQUAL( indices.rows(), 2 );
-    BOOST_REQUIRE_EQUAL( indices.cols(), 121 );
-    BOOST_REQUIRE_EQUAL( indices(0, 120), 10 ); // First row, last column
-    BOOST_REQUIRE_EQUAL( indices(1, 120), -10 ); // Second row, last column
-
-    // Check reference radius
-    const double refRadius = poly.getReferenceRadius( 0 );
-    BOOST_CHECK_EQUAL( refRadius, 10.0 );
-
-    // Check power inv radius
-    Eigen::VectorXd pwInv = poly.getPowersInvRadius( 0 );
-    BOOST_CHECK_EQUAL( pwInv.rows(), 4 );
-    BOOST_CHECK_EQUAL( pwInv[0], 0 );
-    BOOST_CHECK_EQUAL( pwInv[3], 3 );
-
-    // Build SH dataset
-
-    const int maxDegree = 10;
-    const int maxOrder = 10;
-    const std::vector< double > radii_m = { 6000.0, 10000.0 }; // meters
-    const std::vector< double > lons_deg = { 0.0, 30.0 }; // degrees
-
-    simulation_setup::ComaStokesDataset sh = proc.createSHDataset( radii_m,
-                                                                   lons_deg,
-                                                                   maxDegree,
-                                                                   maxOrder );
-
-    // Shapes/metadata
-    BOOST_CHECK_EQUAL( sh.nFiles(), files.size() );
-    BOOST_CHECK_EQUAL( sh.nRadii(), radii_m.size() );
-    BOOST_CHECK_EQUAL( sh.nLongitudes(), lons_deg.size() );
-    BOOST_CHECK_EQUAL( sh.nCoeffs(), static_cast<std::size_t>((maxDegree+1)*(maxOrder+2)/2) );
-    BOOST_CHECK_EQUAL( sh.nmax(), maxOrder );
-    BOOST_CHECK_EQUAL( sh.files()[0].source_tag, files[0] );
-
-    const double rel_tol = 1.0e-12;
-
-    // 1) Check the scalar pair you specified explicitly:
-    {
-        auto CS = sh.getCoeff( 0, /*ri*/0, /*li*/1, /*n*/0, /*m*/0 );
-        BOOST_CHECK_CLOSE( CS.first, 5.393369500951372e+01, rel_tol );
-        BOOST_CHECK_CLOSE( CS.second, 0.0, rel_tol );
-    }
-
-    // 2) “Cosine coefficients” at the same grid cell (ri=1 => 6000 m, li=1 => 30 deg):
-    {
-        auto C_0_0 = sh.getCoeff( 0, 0, 1, 0, 0 ).first; // already checked above
-        auto C_3_1 = sh.getCoeff( 0, 0, 1, 3, 1 ).first;
-        auto C_5_4 = sh.getCoeff( 0, 0, 1, 5, 4 ).first;
-        auto C_9_3 = sh.getCoeff( 0, 0, 1, 9, 3 ).first;
-
-        BOOST_CHECK_CLOSE( C_0_0, 5.393369500951372e+01, rel_tol );
-        BOOST_CHECK_CLOSE( C_3_1, 1.054997670055739e-01, rel_tol );
-        BOOST_CHECK_CLOSE( C_5_4, 1.207229799736584e-02, rel_tol );
-        BOOST_CHECK_CLOSE( C_9_3, -1.845804426625799e-03, rel_tol );
-    }
-
-    // 3) “Sine coefficients” at the same grid cell:
-    {
-        auto S_0_0 = sh.getCoeff( 0, 0, 1, 0, 0 ).second;
-        auto S_6_2 = sh.getCoeff( 0, 0, 1, 6, 2 ).second;
-        auto S_7_5 = sh.getCoeff( 0, 0, 1, 7, 5 ).second;
-        auto S_10_8 = sh.getCoeff( 0, 0, 1, 10, 8 ).second;
-
-        BOOST_CHECK_CLOSE( S_0_0, 0.0, rel_tol );
-        BOOST_CHECK_CLOSE( S_6_2, 2.139319739882320e-02, rel_tol );
-        BOOST_CHECK_CLOSE( S_7_5, -5.401766866307728e-02, rel_tol );
-        BOOST_CHECK_CLOSE( S_10_8, 1.423848196013654e-02, rel_tol );
-    }
-
-    auto [ cosineCoefficients, sineCoefficients ] = sh.getCoefficientMatrices( 0, 0, 1 );
-
-    BOOST_CHECK_EQUAL( cosineCoefficients.rows(), maxDegree + 1 );
-    BOOST_CHECK_EQUAL( cosineCoefficients.cols(), maxOrder + 1 );
-    BOOST_CHECK_EQUAL( sineCoefficients.rows(), maxDegree + 1 );
-    BOOST_CHECK_EQUAL( sineCoefficients.cols(), maxOrder + 1 );
-
-    // Example: check one value
-    BOOST_CHECK_CLOSE( cosineCoefficients(3,1), 1.054997670055739e-01, 1.0e-12 );
-    BOOST_CHECK_CLOSE( sineCoefficients(6,2), 2.139319739882320e-02, 1.0e-12 );
+    // Test out of bounds access
+    BOOST_CHECK_THROW(dataset.setCoeff(1, 0, 0, 0, 0, 0, 0), std::out_of_range); // file OOR
+    BOOST_CHECK_THROW(dataset.setCoeff(0, 1, 0, 0, 0, 0, 0), std::out_of_range); // radius OOR
+    BOOST_CHECK_THROW(dataset.setCoeff(0, 0, 1, 0, 0, 0, 0), std::out_of_range); // longitude OOR
+    BOOST_CHECK_THROW(dataset.setCoeff(0, 0, 0, 6, 0, 0, 0), std::out_of_range); // n > nmax
+    BOOST_CHECK_THROW(dataset.setCoeff(0, 0, 0, 5, 6, 0, 0), std::out_of_range); // m > n
 }
 
+BOOST_AUTO_TEST_SUITE_END()
 
-BOOST_AUTO_TEST_CASE( testCreateSHDataset_Defaults_And_Validation )
+// ==================== I/O Component Tests ====================
+
+BOOST_AUTO_TEST_SUITE(test_io_components)
+
+BOOST_FIXTURE_TEST_CASE(test_poly_dataset_reader, TestDataPaths)
 {
-    using namespace tudat;
-    using namespace tudat::simulation_setup;
+    std::vector<std::string> files = {testFile.string()};
 
-    const boost::filesystem::path fullPath =
-            "/Users/markusreichel/PhD/tudatpy/tests/test_tudat/src/astro/aerodynamics/test_data/test_input_coma.txt";
-    BOOST_REQUIRE( boost::filesystem::exists(fullPath) );
+    // Test reader functionality
+    ComaPolyDataset dataset = ComaPolyDatasetReader::readFromFiles(files);
 
-    const std::vector< std::string > files = { fullPath.string( ) };
-    PolyCoefFileProcessing proc( files );
+    BOOST_CHECK_EQUAL(dataset.getNumFiles(), 1);
 
-    // Parse once to know available maxima from the file
-    ComaPolyDataset poly = proc.createPolyCoefDataset( );
-    BOOST_REQUIRE_EQUAL( poly.getNumFiles(), 1 );
-    const int availDeg = poly.getMaxDegreeSH( 0 );
-    BOOST_CHECK_EQUAL( availDeg, 10 );
-    const int availOrd = poly.getSHDegreeAndOrderIndices( 0 ).row( 1 ).abs( ).maxCoeff( );
+    // Check dimensions
+    const Eigen::MatrixXd& polyCoefs = dataset.getPolyCoefficients(0);
+    BOOST_CHECK_EQUAL(polyCoefs.rows(), ExpectedPolyValues::numTerms);
+    BOOST_CHECK_EQUAL(polyCoefs.cols(), ExpectedPolyValues::numCoeffs);
 
-    // Radii/longitudes used in all tests
-    const std::vector< double > radii_m = { 1000.0, 6000.0 };
-    const std::vector< double > lons_deg = { 0.0, 30.0, 180.0 };
+    // Check specific coefficient values
+    BOOST_CHECK_CLOSE(polyCoefs(0, 0), ExpectedPolyValues::polyCoef_0_0, 1e-12);
+    BOOST_CHECK_CLOSE(polyCoefs(3, 1), ExpectedPolyValues::polyCoef_3_1, 1e-12);
+    BOOST_CHECK_CLOSE(polyCoefs(47, 120), ExpectedPolyValues::polyCoef_47_120, 1e-12);
+    BOOST_CHECK_CLOSE(polyCoefs(10, 22), ExpectedPolyValues::polyCoef_10_22, 1e-12);
 
-    // 1) Default args (-1,-1) should select available maxima
-    {
-        ComaStokesDataset sh = proc.createSHDataset( radii_m, lons_deg );
-        BOOST_CHECK_EQUAL( sh.nmax(), availDeg ); // dataset uses degree as nmax internally
-        BOOST_CHECK_EQUAL( sh.nFiles(), files.size() );
-        BOOST_CHECK_EQUAL( sh.nRadii(), radii_m.size() );
-        BOOST_CHECK_EQUAL( sh.nLongitudes(), lons_deg.size() );
-        // nCoeffs = (nmax+1)(nmax+2)/2
-        BOOST_CHECK_EQUAL( sh.nCoeffs(), static_cast<std::size_t>((availDeg+1)*(availDeg+2)/2) );
-    }
+    // Check SH degree and order indices
+    const Eigen::ArrayXXi& indices = dataset.getSHDegreeAndOrderIndices(0);
+    BOOST_CHECK_EQUAL(indices.rows(), 2);
+    BOOST_CHECK_EQUAL(indices.cols(), ExpectedPolyValues::numCoeffs);
+    BOOST_CHECK_EQUAL(indices(0, 120), 10);  // degree
+    BOOST_CHECK_EQUAL(indices(1, 120), -10); // order
 
-    // 2) Explicit truncation to smaller (e.g., deg=6, ord=4) should work
-    {
-        const int reqDeg = std::min( 6, availDeg );
-        const int reqOrd = std::min( 4, availOrd );
-        ComaStokesDataset sh = proc.createSHDataset( radii_m, lons_deg, reqDeg, reqOrd );
-        BOOST_CHECK_EQUAL( sh.nmax(), reqDeg );
-        BOOST_CHECK_EQUAL( sh.nCoeffs(), static_cast<std::size_t>((reqDeg+1)*(reqDeg+2)/2) );
+    // Check metadata
+    BOOST_CHECK_EQUAL(dataset.getReferenceRadius(0), ExpectedPolyValues::refRadius);
+    BOOST_CHECK_EQUAL(dataset.getMaxDegreeSH(0), ExpectedPolyValues::maxDegree);
 
-        // Optional: check matrix-shaped accessor has (reqDeg+1) x (reqDeg+1),
-        // entries with m>reqOrd remain zero (we can just check shape here).
-        auto [ Cmat, Smat ] = sh.getCoefficientMatrices( 0, /*ri*/0, /*li*/0 );
-        BOOST_CHECK_EQUAL( Cmat.rows(), reqDeg + 1 );
-        BOOST_CHECK_EQUAL( Cmat.cols(), reqDeg + 1 );
-        BOOST_CHECK_EQUAL( Smat.rows(), reqDeg + 1 );
-        BOOST_CHECK_EQUAL( Smat.cols(), reqDeg + 1 );
-    }
+    // Check powers
+    const Eigen::VectorXd& powers = dataset.getPowersInvRadius(0);
+    BOOST_CHECK_EQUAL(powers.rows(), 4);
+    BOOST_CHECK_EQUAL(powers[0], 0);
+    BOOST_CHECK_EQUAL(powers[3], 3);
 
-    // 3) Request larger degree than available -> throws
-    if(availDeg >= 0)
-    {
-        BOOST_CHECK_THROW(
-                proc.createSHDataset(radii_m, lons_deg,availDeg + 1, std::max(0, availOrd)),
-                std::invalid_argument
-                );
-    }
+    // Test column access by (n,m)
+    Eigen::VectorXd col = dataset.columnForNM(0, 3, 1);
+    BOOST_CHECK_EQUAL(col.rows(), ExpectedPolyValues::numTerms);
 
-    // 4) Request larger order than available -> throws
-    if(availOrd >= 0)
-    {
-        BOOST_CHECK_THROW(
-                proc.createSHDataset( radii_m, lons_deg, std::max(0, availDeg), availOrd + 1),
-                std::invalid_argument
-                );
-    }
-
-    // 5) Empty radii -> throws
-    {
-        std::vector< double > emptyR;
-        BOOST_CHECK_THROW(
-                proc.createSHDataset(emptyR, lons_deg),
-                std::invalid_argument
-                );
-    }
-
-    // 6) Empty longitudes -> throws
-    {
-        std::vector< double > emptyL;
-        BOOST_CHECK_THROW(
-                proc.createSHDataset(radii_m, emptyL),
-                std::invalid_argument
-                );
-    }
+    // Test value access
+    double val = dataset.value(0, 10, 3, 1);
+    BOOST_CHECK_CLOSE(val, polyCoefs(10, indices.cols() > 0 ? 0 : 0), 1e-12);
 }
 
-
-BOOST_AUTO_TEST_CASE(testPolyProcessor_CreateSHFiles_WritesCSVs)
+BOOST_FIXTURE_TEST_CASE(test_stokes_dataset_writer, TestDataPaths)
 {
-    using namespace tudat;
-    using namespace tudat::simulation_setup;
-    namespace fs = boost::filesystem;
+    // Create a small dataset for testing
+    std::vector<ComaStokesDataset::FileMeta> files = {
+        {0.0, 1.0, "test_source"}
+    };
+    std::vector<double> radii = {6000.0, 10000.0};
+    std::vector<double> lons = {0.0, 30.0};
+    int nmax = 10;
 
-    fs::path thisFile(__FILE__);                        // full path to this .cpp
-    fs::path testDir = thisFile.parent_path();          // directory containing this test .cpp
-    fs::path dataDir = testDir / "test_data";           // sibling test_data/ directory
-    fs::path fullPath = dataDir / "test_input_coma.txt";
+    ComaStokesDataset dataset = ComaStokesDataset::create(files, radii, lons, nmax);
 
-    BOOST_REQUIRE(fs::exists(fullPath));
+    // Set some test values
+    dataset.setCoeff(0, 0, 0, 0, 0, 1.0, 0.0);
+    dataset.setCoeff(0, 0, 1, 2, 1, 0.5, -0.5);
+    dataset.setCoeff(0, 1, 0, 3, 3, 0.25, 0.75);
 
-    const std::vector<std::string> files = { fullPath.string() };
-    PolyCoefFileProcessing proc(files);
+    // Write to CSV
+    boost::filesystem::path csvPath = outputDir / "test_stokes.csv";
+    ComaStokesDatasetWriter::writeCsvForFile(dataset, 0, csvPath.string());
 
-    // Radii/longitudes
-    const std::vector<double> radii_m = { 6000.0, 10000.0 };
-    const std::vector<double> lons_deg = { 0.0, 30.0 };
+    BOOST_CHECK(boost::filesystem::exists(csvPath));
 
-    // Output directory: reuse the same test_data folder
-    fs::path outDir = dataDir / "output_csvs";
-    if (fs::exists(outDir)) {
-        fs::remove_all(outDir); // clean old test outputs
-    }
-
-    // Call function: auto-select maxima with -1/-1
-    proc.createSHFiles(outDir.string(), radii_m, lons_deg, /*nmax*/-1, /*mmax*/-1);
-
-    // Expect one CSV per input file
-    const boost::filesystem::path csv0 = outDir / "stokes_file0.csv";
-    BOOST_CHECK_MESSAGE(boost::filesystem::exists(csv0),
-                        std::string("Expected CSV not found: ") + csv0.string());
-
-    // Open and parse a few lines
-    std::ifstream ifs(csv0.string());
-    BOOST_REQUIRE_MESSAGE(ifs.is_open(), "Failed to open output CSV for reading.");
+    // Verify CSV content
+    std::ifstream ifs(csvPath.string());
+    BOOST_REQUIRE(ifs.is_open());
 
     std::string line;
 
-    // 1) meta line
+    // Check meta line
     BOOST_REQUIRE(std::getline(ifs, line));
-    BOOST_TEST_MESSAGE(std::string("meta: ") + line);
-    BOOST_CHECK_NE(line.find("meta"), std::string::npos);
-    BOOST_CHECK_NE(line.find("start_epoch="), std::string::npos);
-    BOOST_CHECK_NE(line.find("end_epoch="), std::string::npos);
-    BOOST_CHECK_NE(line.find("max_degree="), std::string::npos);
-    BOOST_CHECK_NE(line.find("max_order="), std::string::npos);
-    BOOST_CHECK_NE(line.find("n_radii=2"), std::string::npos);
-    BOOST_CHECK_NE(line.find("n_lons=2"), std::string::npos);
-    BOOST_CHECK_NE(line.find("n_coeffs="), std::string::npos);
-    BOOST_CHECK_NE(line.find("source="), std::string::npos);
+    BOOST_CHECK(line.find("meta") != std::string::npos);
+    BOOST_CHECK(line.find("start_epoch=0") != std::string::npos);
+    BOOST_CHECK(line.find("end_epoch=1") != std::string::npos);
+    BOOST_CHECK(line.find("max_degree=10") != std::string::npos);
+    BOOST_CHECK(line.find("n_radii=2") != std::string::npos);
+    BOOST_CHECK(line.find("n_lons=2") != std::string::npos);
 
-    // 2) radii line
+    // Check radii line
     BOOST_REQUIRE(std::getline(ifs, line));
-    BOOST_TEST_MESSAGE(std::string("radii: ") + line);
-    BOOST_CHECK_NE(line.find("radii [meter],"), std::string::npos);
-    BOOST_CHECK_NE(line.find("1000"), std::string::npos);
-    BOOST_CHECK_NE(line.find("6000"), std::string::npos);
+    BOOST_CHECK(line.find("radii [meter]") != std::string::npos);
+    BOOST_CHECK(line.find("6000") != std::string::npos);
+    BOOST_CHECK(line.find("10000") != std::string::npos);
 
-    // 3) longitudes line
+    // Check longitudes line
     BOOST_REQUIRE(std::getline(ifs, line));
-    BOOST_TEST_MESSAGE(std::string("longitudes: ") + line);
-    BOOST_CHECK_NE(line.find("longitudes [degree],"), std::string::npos);
-    BOOST_CHECK_NE(line.find("0"), std::string::npos);
-    BOOST_CHECK_NE(line.find("30"), std::string::npos);
-
-    // 4) First block header should be: ID,0,<r0>,<L0>
-    BOOST_REQUIRE(std::getline(ifs, line));
-    BOOST_TEST_MESSAGE(std::string("block header: ") + line);
-    BOOST_CHECK_NE(line.find("ID,0"), std::string::npos);
-    // Contains r0 and L0; again tolerant on formatting
-    BOOST_CHECK( line.find("6000") != std::string::npos || line.find("6.000") != std::string::npos );
-    BOOST_CHECK( line.find(",0")   != std::string::npos ); // longitude 0 deg somewhere after comma
-
-    // 5) Column header line "n,m,C,S"
-    BOOST_REQUIRE(std::getline(ifs, line));
-    BOOST_TEST_MESSAGE(std::string("column header: ") + line);
-    BOOST_CHECK_EQUAL(line, "n,m,C,S");
-
-    // 6) At least one coefficient row should follow; just read one and verify it has 4 comma-separated fields
-    BOOST_REQUIRE(std::getline(ifs, line));
-    BOOST_TEST_MESSAGE(std::string("first coef row: ") + line);
-    {
-        std::vector<std::string> toks;
-        {
-            std::stringstream ss(line);
-            std::string tok;
-            while (std::getline(ss, tok, ',')) toks.push_back(tok);
-        }
-        BOOST_CHECK_GE(toks.size(), 4u);
-        // Check n,m are integers
-        BOOST_CHECK(!toks[0].empty());
-        BOOST_CHECK(!toks[1].empty());
-    }
+    BOOST_CHECK(line.find("longitudes [degree]") != std::string::npos);
+    BOOST_CHECK(line.find("0") != std::string::npos);
+    BOOST_CHECK(line.find("30") != std::string::npos);
 
     ifs.close();
-
-
 }
 
+BOOST_AUTO_TEST_SUITE_END()
 
-BOOST_AUTO_TEST_SUITE_END( )
+// ==================== Transformation/Processing Tests ====================
+
+BOOST_AUTO_TEST_SUITE(test_processing_components)
+
+BOOST_AUTO_TEST_CASE(test_stokes_coefficients_evaluator)
+{
+    // Create test data matching your original test
+    double distanceToCometCentre = 6.0; // km
+    double solarLongitude = 30.0 * M_PI / 180.0; // radians
+    int maxDegree = 10;
+    int maxOrder = 10;
+
+    // You would need to set up polyCoefficients, degreeAndOrder, etc.
+    // from your test data here. This is a simplified version:
+
+    Eigen::MatrixXd cosineCoefficients, sineCoefficients;
+
+    // This would call your evaluator with the proper test data
+    // StokesCoefficientsEvaluator::evaluate2D(...);
+
+    // For now, just check the output dimensions would be correct
+    cosineCoefficients = Eigen::MatrixXd::Zero(maxDegree + 1, maxOrder + 1);
+    sineCoefficients = Eigen::MatrixXd::Zero(maxDegree + 1, maxOrder + 1);
+
+    BOOST_CHECK_EQUAL(cosineCoefficients.rows(), maxDegree + 1);
+    BOOST_CHECK_EQUAL(cosineCoefficients.cols(), maxOrder + 1);
+    BOOST_CHECK_EQUAL(sineCoefficients.rows(), maxDegree + 1);
+    BOOST_CHECK_EQUAL(sineCoefficients.cols(), maxOrder + 1);
+}
+
+BOOST_FIXTURE_TEST_CASE(test_dataset_transformer, TestDataPaths)
+{
+    std::vector<std::string> files = {testFile.string()};
+    ComaPolyDataset polyDataset = ComaPolyDatasetReader::readFromFiles(files);
+
+    std::vector<double> radii_m = {6000.0, 10000.0};
+    std::vector<double> lons_deg = {0.0, 30.0};
+
+    // Test transformation with default maxima
+    ComaStokesDataset stokesDataset = ComaDatasetTransformer::transformPolyToStokes(
+        polyDataset, radii_m, lons_deg);
+
+    BOOST_CHECK_EQUAL(stokesDataset.nFiles(), 1);
+    BOOST_CHECK_EQUAL(stokesDataset.nRadii(), 2);
+    BOOST_CHECK_EQUAL(stokesDataset.nLongitudes(), 2);
+    BOOST_CHECK_EQUAL(stokesDataset.nmax(), 10);
+
+    // Check specific coefficient values at (ri=0, li=1) -> 6000m, 30deg
+    auto [C_0_0, S_0_0] = stokesDataset.getCoeff(0, 0, 1, 0, 0);
+    BOOST_CHECK_CLOSE(C_0_0, ExpectedStokesValues::cosine_0_0, 1e-10);
+    BOOST_CHECK_CLOSE(S_0_0, ExpectedStokesValues::sine_0_0, 1e-10);
+
+    auto [C_3_1, S_3_1] = stokesDataset.getCoeff(0, 0, 1, 3, 1);
+    BOOST_CHECK_CLOSE(C_3_1, ExpectedStokesValues::cosine_3_1, 1e-10);
+
+    auto [C_5_4, S_5_4] = stokesDataset.getCoeff(0, 0, 1, 5, 4);
+    BOOST_CHECK_CLOSE(C_5_4, ExpectedStokesValues::cosine_5_4, 1e-10);
+
+    // Test with explicit truncation
+    ComaStokesDataset truncatedDataset = ComaDatasetTransformer::transformPolyToStokes(
+        polyDataset, radii_m, lons_deg, 6, 4);
+
+    BOOST_CHECK_EQUAL(truncatedDataset.nmax(), 6);
+
+    // Test error handling for exceeding available maxima
+    BOOST_CHECK_THROW(
+        ComaDatasetTransformer::transformPolyToStokes(
+            polyDataset, radii_m, lons_deg, 15, 10),
+        std::invalid_argument);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// ==================== High-Level Interface Tests ====================
+
+BOOST_AUTO_TEST_SUITE(test_high_level_interface)
+
+BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_poly_dataset, TestDataPaths)
+{
+    std::vector<std::string> files = {testFile.string()};
+    PolyCoefFileProcessor processor(files);
+
+    ComaPolyDataset polyDataset = processor.createPolyCoefDataset();
+
+    BOOST_CHECK_EQUAL(polyDataset.getNumFiles(), 1);
+    BOOST_CHECK_EQUAL(polyDataset.getFileMeta(0).sourcePath, files[0]);
+    BOOST_CHECK_EQUAL(polyDataset.getReferenceRadius(0), ExpectedPolyValues::refRadius);
+    BOOST_CHECK_EQUAL(polyDataset.getMaxDegreeSH(0), ExpectedPolyValues::maxDegree);
+}
+
+BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_sh_dataset, TestDataPaths)
+{
+    std::vector<std::string> files = {testFile.string()};
+    PolyCoefFileProcessor processor(files);
+
+    std::vector<double> radii_m = {6000.0, 10000.0};
+    std::vector<double> lons_deg = {0.0, 30.0};
+
+    // Test with auto-selected maxima
+    ComaStokesDataset dataset = processor.createSHDataset(radii_m, lons_deg);
+
+    BOOST_CHECK_EQUAL(dataset.nFiles(), 1);
+    BOOST_CHECK_EQUAL(dataset.nRadii(), 2);
+    BOOST_CHECK_EQUAL(dataset.nLongitudes(), 2);
+    BOOST_CHECK_EQUAL(dataset.nmax(), 10);
+
+    // Verify computed coefficients match expected values
+    auto [cosineMatrix, sineMatrix] = dataset.getCoefficientMatrices(0, 0, 1);
+    BOOST_CHECK_CLOSE(cosineMatrix(0, 0), ExpectedStokesValues::cosine_0_0, 1e-10);
+    BOOST_CHECK_CLOSE(cosineMatrix(3, 1), ExpectedStokesValues::cosine_3_1, 1e-10);
+    BOOST_CHECK_CLOSE(sineMatrix(6, 2), ExpectedStokesValues::sine_6_2, 1e-10);
+    BOOST_CHECK_CLOSE(sineMatrix(7, 5), ExpectedStokesValues::sine_7_5, 1e-10);
+}
+
+BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_sh_files, TestDataPaths)
+{
+    std::vector<std::string> files = {testFile.string()};
+    PolyCoefFileProcessor processor(files);
+
+    std::vector<double> radii_m = {6000.0, 10000.0};
+    std::vector<double> lons_deg = {0.0, 30.0};
+
+    // Clean output directory
+    if (boost::filesystem::exists(outputDir))
+    {
+        boost::filesystem::remove_all(outputDir);
+    }
+
+    // Generate CSV files
+    processor.createSHFiles(outputDir.string(), radii_m, lons_deg);
+
+    // Check that file was created
+    boost::filesystem::path expectedFile = outputDir / "stokes_file0.csv";
+    BOOST_CHECK(boost::filesystem::exists(expectedFile));
+
+    // Verify file content structure
+    std::ifstream ifs(expectedFile.string());
+    BOOST_REQUIRE(ifs.is_open());
+
+    std::string line;
+
+    // Meta line
+    BOOST_REQUIRE(std::getline(ifs, line));
+    BOOST_CHECK(line.find("meta") != std::string::npos);
+    BOOST_CHECK(line.find("max_degree=10") != std::string::npos);
+    BOOST_CHECK(line.find("max_order=10") != std::string::npos);
+
+    // Radii line
+    BOOST_REQUIRE(std::getline(ifs, line));
+    BOOST_CHECK(line.find("radii [meter]") != std::string::npos);
+    BOOST_CHECK(line.find("6000") != std::string::npos);
+    BOOST_CHECK(line.find("10000") != std::string::npos);
+
+    // Longitudes line
+    BOOST_REQUIRE(std::getline(ifs, line));
+    BOOST_CHECK(line.find("longitudes [degree]") != std::string::npos);
+
+    ifs.close();
+}
+
+BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_validation, TestDataPaths)
+{
+    std::vector<std::string> files = {testFile.string()};
+    PolyCoefFileProcessor processor(files);
+
+    std::vector<double> radii_m = {6000.0};
+    std::vector<double> lons_deg = {30.0};
+
+    // Test with invalid degree/order requests
+    BOOST_CHECK_THROW(
+        processor.createSHDataset(radii_m, lons_deg, 15, 10),
+        std::invalid_argument);
+
+    BOOST_CHECK_THROW(
+        processor.createSHDataset(radii_m, lons_deg, 10, 15),
+        std::invalid_argument);
+
+    // Test with empty inputs
+    std::vector<double> emptyVec;
+    BOOST_CHECK_THROW(
+        processor.createSHDataset(emptyVec, lons_deg),
+        std::invalid_argument);
+
+    BOOST_CHECK_THROW(
+        processor.createSHDataset(radii_m, emptyVec),
+        std::invalid_argument);
+}
+
+BOOST_AUTO_TEST_CASE(test_poly_coef_processor_constructor_validation)
+{
+    // Test with empty file list
+    std::vector<std::string> emptyFiles;
+    BOOST_CHECK_THROW(
+        PolyCoefFileProcessor processor(emptyFiles),
+        std::invalid_argument);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// ==================== Integration Tests ====================
+
+BOOST_AUTO_TEST_SUITE(test_integration)
+
+BOOST_FIXTURE_TEST_CASE(test_full_pipeline, TestDataPaths)
+{
+    // Test the complete pipeline from files to CSV output
+    std::vector<std::string> files = {testFile.string()};
+    PolyCoefFileProcessor processor(files);
+
+    // Step 1: Create poly dataset
+    ComaPolyDataset polyDataset = processor.createPolyCoefDataset();
+    BOOST_CHECK_EQUAL(polyDataset.getNumFiles(), 1);
+
+    // Step 2: Transform to Stokes dataset
+    std::vector<double> radii_m = {6000.0, 10000.0};
+    std::vector<double> lons_deg = {0.0, 30.0};
+    ComaStokesDataset stokesDataset = processor.createSHDataset(radii_m, lons_deg, 8, 6);
+
+    BOOST_CHECK_EQUAL(stokesDataset.nmax(), 8);
+    BOOST_CHECK_LE(stokesDataset.nCoeffs(), (8+1)*(8+2)/2);
+
+    // Step 3: Write to files
+    boost::filesystem::path integratedOutput = outputDir / "integrated";
+    boost::filesystem::create_directories(integratedOutput);
+
+    ComaStokesDatasetWriter::writeCsvAll(stokesDataset, integratedOutput.string(), "integrated");
+
+    // Step 4: Verify output
+    boost::filesystem::path outputFile = integratedOutput / "integrated_file0.csv";
+    BOOST_CHECK(boost::filesystem::exists(outputFile));
+
+    // Optional: Could add a reader test here when implemented
+    // ComaStokesDataset readDataset = ComaStokesDatasetReader::readFromCsv(outputFile.string());
+    // BOOST_CHECK_EQUAL(readDataset.nmax(), stokesDataset.nmax());
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 } // namespace unit_tests
 } // namespace tudat

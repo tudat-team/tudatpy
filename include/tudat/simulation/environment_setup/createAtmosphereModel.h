@@ -32,7 +32,6 @@ namespace simulation_setup
 {
 using namespace aerodynamics;
 
-
 // ---- coefficient storage: rows = coeffs, cols = {C,S} ----
 using StokesBlock = Eigen::Matrix< double, Eigen::Dynamic, 2, Eigen::RowMajor >;
 
@@ -67,879 +66,743 @@ inline std::pair< int, int > index_to_nm_deg_major( std::size_t k )
     return { n, m };
 }
 
+// ============= Core Data Models (Pure data storage) =============
 
-/**
- * \class ComaStokesDataset
- * \brief Data handler for storing and managing sets of Stokes coefficients for the coma model.
- *
- * This class provides a structured container for spherical harmonic Stokes coefficients
- * (Cnm, Snm) evaluated across multiple input files, radii, and solar longitudes. It
- * maintains contiguous Eigen-based storage for efficiency while exposing convenient
- * accessors for individual blocks and coefficients.
- *
- * Key features:
- *  - Metadata storage for each file (validity epochs, descriptive tag).
- *  - Vectors of all radii and solar longitudes at which coefficients are evaluated.
- *  - Degree-major ordering of coefficients with closed-form (n,m) <-> index mapping.
- *  - Access to whole blocks of coefficients for (file, radius, longitude) combinations.
- *  - Access to individual coefficients by (n,m).
- *  - CSV export functionality: each file can be written to a human-readable CSV with
- *    metadata, radii, longitudes, and coefficient blocks.
- *
- * Planned extensions:
- *  - CSV reader: reconstruct a StokesDataset from one or more previously written CSVs.
- *  - Optional support for HDF5 or other binary formats for large expansions.
- *
- * Example usage:
- * \code{.cpp}
- * std::vector<FileMeta> files = {
- *     { 2.015e9, 2.0150864e9, "simulation_run_1" }
- * };
- * std::vector<double> radii = { 1000.0, 2000.0 };
- * std::vector<double> longitudes = { 0.0, 180.0 };
- *
- * auto dataset = StokesDataset::create(files, radii, longitudes, 4);
- * dataset.setCoeff(0, 0, 0, 2, 0, -0.484e-03, 0.0); // C20 term
- * dataset.writeCsvAll("output_dir/");
- * \endcode
- *
- * \see FileMeta
- */
+// ---- Stokes Dataset ----
 class ComaStokesDataset
 {
 public:
-    // -------- Construction --------
-    static ComaStokesDataset create( std::vector< FileMeta > files,
-                                 std::vector< double > radii,
-                                 std::vector< double > lons,
-                                 int nmax )
+    struct FileMeta
     {
-        if(files.empty( ) || radii.empty( ) || lons.empty( ) || nmax < 0)
-            throw std::runtime_error( "StokesDataset: invalid metadata." );
+        double start_epoch{};
+        double end_epoch{};
+        std::string source_tag;
+    };
+
+    // Factory method
+    static ComaStokesDataset create(
+        std::vector<FileMeta> files,
+        std::vector<double> radii,
+        std::vector<double> lons,
+        int nmax)
+    {
+        if (files.empty() || radii.empty() || lons.empty() || nmax < 0)
+            throw std::runtime_error("StokesDataset: invalid metadata.");
 
         ComaStokesDataset g;
-        g.files_ = std::move( files );
-        g.radii_ = std::move( radii );
-        g.lons_ = std::move( lons );
+        g.files_ = std::move(files);
+        g.radii_ = std::move(radii);
+        g.lons_ = std::move(lons);
         g.nmax_ = nmax;
 
-        g.n_files_ = g.files_.size( );
-        g.n_radii_ = g.radii_.size( );
-        g.n_lons_ = g.lons_.size( );
-        g.n_coeffs_ = static_cast< std::size_t >(( nmax + 1 ) * ( nmax + 2 ) / 2);
+        g.n_files_ = g.files_.size();
+        g.n_radii_ = g.radii_.size();
+        g.n_lons_ = g.lons_.size();
+        g.n_coeffs_ = static_cast<std::size_t>((nmax + 1) * (nmax + 2) / 2);
 
         const std::size_t totalRows = g.n_files_ * g.n_radii_ * g.n_lons_ * g.n_coeffs_;
-        g.data_.setZero( static_cast< Eigen::Index >(totalRows), 2 );
+        g.data_.setZero(static_cast<Eigen::Index>(totalRows), 2);
         return g;
     }
 
-    // -------- Sizes / metadata --------
-    std::size_t nFiles( ) const
+    // Pure data accessors
+    std::size_t nFiles() const { return n_files_; }
+    std::size_t nRadii() const { return n_radii_; }
+    std::size_t nLongitudes() const { return n_lons_; }
+    std::size_t nCoeffs() const { return n_coeffs_; }
+    int nmax() const { return nmax_; }
+    const std::vector<double>& radii() const { return radii_; }
+    const std::vector<double>& lons() const { return lons_; }
+    const std::vector<FileMeta>& files() const { return files_; }
+
+    // Block access
+    auto block(std::size_t f, std::size_t r, std::size_t l)
     {
-        return n_files_;
+        const std::size_t start = startRow_(f, r, l);
+        return data_.block(static_cast<Eigen::Index>(start), 0,
+                          static_cast<Eigen::Index>(n_coeffs_), 2);
     }
 
-    std::size_t nRadii( ) const
+    auto block(std::size_t f, std::size_t r, std::size_t l) const
     {
-        return n_radii_;
+        const std::size_t start = startRow_(f, r, l);
+        return data_.block(static_cast<Eigen::Index>(start), 0,
+                          static_cast<Eigen::Index>(n_coeffs_), 2);
     }
 
-    std::size_t nLongitudes( ) const
-    {
-        return n_lons_;
-    }
-
-    std::size_t nCoeffs( ) const
-    {
-        return n_coeffs_;
-    }
-
-    int nmax( ) const
-    {
-        return nmax_;
-    }
-
-    const std::vector< double >& radii( ) const
-    {
-        return radii_;
-    }
-
-    const std::vector< double >& lons( ) const
-    {
-        return lons_;
-    }
-
-    const std::vector< FileMeta >& files( ) const
-    {
-        return files_;
-    }
-
-    // -------- Block access (nCoeffs x 2 view) --------
-    auto block( std::size_t f, std::size_t r, std::size_t l )
-    {
-        const std::size_t start = startRow_( f, r, l );
-        return data_.block( static_cast< Eigen::Index >(start),
-                            0,
-                            static_cast< Eigen::Index >(n_coeffs_),
-                            2 );
-    }
-
-    auto block( std::size_t f, std::size_t r, std::size_t l ) const
-    {
-        const std::size_t start = startRow_( f, r, l );
-        return data_.block( static_cast< Eigen::Index >(start),
-                            0,
-                            static_cast< Eigen::Index >(n_coeffs_),
-                            2 );
-    }
-
-    //! Get full cosine and sine coefficient matrices for a given (file, radius, longitude).
-    /*!
-     * Returns two Eigen::MatrixXd objects of size (nmax+1) x (nmax+1),
-     * where entries with m>n are left zero.
-     */
+    // Coefficient matrices
     std::pair<Eigen::MatrixXd, Eigen::MatrixXd>
     getCoefficientMatrices(std::size_t f, std::size_t r, std::size_t l) const
     {
-        Eigen::MatrixXd cosine  = Eigen::MatrixXd::Zero(nmax_+1, nmax_+1);
-        Eigen::MatrixXd sine    = Eigen::MatrixXd::Zero(nmax_+1, nmax_+1);
+        Eigen::MatrixXd cosine = Eigen::MatrixXd::Zero(nmax_ + 1, nmax_ + 1);
+        Eigen::MatrixXd sine = Eigen::MatrixXd::Zero(nmax_ + 1, nmax_ + 1);
 
-        const auto blk = block(f, r, l); // n_coeffs_ x 2 view
-
+        const auto blk = block(f, r, l);
         for (std::size_t k = 0; k < n_coeffs_; ++k)
         {
             auto nm = index_to_nm_deg_major(k);
             int n = nm.first;
             int m = nm.second;
             cosine(n, m) = blk(static_cast<Eigen::Index>(k), 0);
-            sine(n, m)   = blk(static_cast<Eigen::Index>(k), 1);
+            sine(n, m) = blk(static_cast<Eigen::Index>(k), 1);
         }
         return {cosine, sine};
     }
 
-    // -------- Single coefficient access via (n,m) --------
-    void setCoeff( std::size_t f,
-                   std::size_t r,
-                   std::size_t l,
-                   int n,
-                   int m,
-                   double C,
-                   double S )
+    // Single coefficient access
+    void setCoeff(std::size_t f, std::size_t r, std::size_t l,
+                  int n, int m, double C, double S)
     {
-        const std::size_t k = nm_to_index_deg_major( n, m );
-        if(k >= n_coeffs_) throw std::out_of_range( "setCoeff: (n,m) exceeds nmax" );
-        const std::size_t row = startRow_( f, r, l ) + k;
-        data_( static_cast< Eigen::Index >(row), 0 ) = C;
-        data_( static_cast< Eigen::Index >(row), 1 ) = S;
+        const std::size_t k = nm_to_index_deg_major(n, m);
+        if (k >= n_coeffs_) throw std::out_of_range("setCoeff: (n,m) exceeds nmax");
+        const std::size_t row = startRow_(f, r, l) + k;
+        data_(static_cast<Eigen::Index>(row), 0) = C;
+        data_(static_cast<Eigen::Index>(row), 1) = S;
     }
 
-    std::pair< double, double > getCoeff( std::size_t f,
-                                          std::size_t r,
-                                          std::size_t l,
-                                          int n,
-                                          int m ) const
+    std::pair<double, double> getCoeff(std::size_t f, std::size_t r, std::size_t l,
+                                       int n, int m) const
     {
-        const std::size_t k = nm_to_index_deg_major( n, m );
-        if(k >= n_coeffs_) throw std::out_of_range( "getCoeff: (n,m) exceeds nmax" );
-        const std::size_t row = startRow_( f, r, l ) + k;
-        return { data_( static_cast< Eigen::Index >(row), 0 ),
-                 data_( static_cast< Eigen::Index >(row), 1 ) };
+        const std::size_t k = nm_to_index_deg_major(n, m);
+        if (k >= n_coeffs_) throw std::out_of_range("getCoeff: (n,m) exceeds nmax");
+        const std::size_t row = startRow_(f, r, l) + k;
+        return {data_(static_cast<Eigen::Index>(row), 0),
+                data_(static_cast<Eigen::Index>(row), 1)};
     }
 
-    // -------- CSV writing (one CSV per file) --------
-    void writeCsvForFile( std::size_t f, const std::string& out_path ) const
+    const StokesBlock& data() const { return data_; }
+    StokesBlock& data() { return data_; }
+
+private:
+    std::size_t startRow_(std::size_t f, std::size_t r, std::size_t l) const
     {
-        if(f >= n_files_) throw std::out_of_range( "writeCsvForFile: file index OOR" );
+        if (f >= n_files_ || r >= n_radii_ || l >= n_lons_)
+            throw std::out_of_range("StokesDataset: index out of range.");
+        const std::size_t cell = ((f * n_radii_) + r) * n_lons_ + l;
+        return cell * n_coeffs_;
+    }
 
-        boost::filesystem::path p( out_path );
-        if(p.has_parent_path( )) boost::filesystem::create_directories( p.parent_path( ) );
+    std::vector<FileMeta> files_;
+    std::vector<double> radii_;
+    std::vector<double> lons_;
+    int nmax_{};
+    std::size_t n_files_{}, n_radii_{}, n_lons_{}, n_coeffs_{};
+    StokesBlock data_;
+};
 
-        std::ofstream os( out_path, std::ios::binary );
-        if(!os) throw std::runtime_error( "writeCsvForFile: cannot open " + out_path );
-        os.imbue( std::locale::classic( ) );
+// ---- Poly Dataset ----
+class ComaPolyDataset
+{
+public:
+    struct FileMeta
+    {
+        double referenceRadius{};
+        Eigen::VectorXd powersInvRadius;
+        std::vector<std::pair<double, double>> timePeriods;
+        int maxDegreeSH{};
+        Eigen::Index numRadialTerms{};
+        Eigen::Index numIntervals{};
+        std::string sourcePath;
+    };
 
-        const auto& fm = files_[ f ];
+    // Simple accessors
+    std::size_t getNumFiles() const { return numPolyCoefFiles_; }
+    const FileMeta& getFileMeta(std::size_t f) const
+    {
+        boundsCheck_(f);
+        return fileMeta_[f];
+    }
+
+    const Eigen::MatrixXd& getPolyCoefficients(std::size_t f) const
+    {
+        boundsCheck_(f);
+        return polyCoefficients_[f];
+    }
+
+    const Eigen::ArrayXXi& getSHDegreeAndOrderIndices(std::size_t f) const
+    {
+        boundsCheck_(f);
+        return SHDegreeAndOrderIndices_[f];
+    }
+
+    // Convenience accessors
+    double getReferenceRadius(std::size_t f) const
+    {
+        boundsCheck_(f);
+        return fileMeta_[f].referenceRadius;
+    }
+
+    const Eigen::VectorXd& getPowersInvRadius(std::size_t f) const
+    {
+        boundsCheck_(f);
+        return fileMeta_[f].powersInvRadius;
+    }
+
+    int getMaxDegreeSH(std::size_t f) const
+    {
+        boundsCheck_(f);
+        return fileMeta_[f].maxDegreeSH;
+    }
+
+    // Column access methods
+    Eigen::VectorXd columnForNM(std::size_t f, int n, int m) const
+    {
+        auto [ok, col] = findColumn_(f, n, m);
+        if (!ok) throw std::out_of_range("columnForNM: (n,m) not found");
+        return polyCoefficients_[f].col(col);
+    }
+
+    double value(std::size_t f, Eigen::Index termIndex, int n, int m) const
+    {
+        auto [ok, col] = findColumn_(f, n, m);
+        if (!ok) throw std::out_of_range("value: (n,m) not found");
+        if (termIndex < 0 || termIndex >= polyCoefficients_[f].rows())
+            throw std::out_of_range("value: termIndex out of range");
+        return polyCoefficients_[f](termIndex, col);
+    }
+
+    void clear()
+    {
+        numPolyCoefFiles_ = 0;
+        polyCoefficients_.clear();
+        SHDegreeAndOrderIndices_.clear();
+        fileMeta_.clear();
+        nmToColCache_.clear();
+    }
+
+protected:
+    // Allow friend classes to populate data
+    friend class ComaPolyDatasetReader;
+
+    void setData(std::size_t numFiles,
+                 std::vector<Eigen::MatrixXd> polyCoeffs,
+                 std::vector<Eigen::ArrayXXi> shIndices,
+                 std::vector<FileMeta> meta)
+    {
+        numPolyCoefFiles_ = numFiles;
+        polyCoefficients_ = std::move(polyCoeffs);
+        SHDegreeAndOrderIndices_ = std::move(shIndices);
+        fileMeta_ = std::move(meta);
+
+        // Build caches
+        nmToColCache_.resize(numFiles);
+        for (std::size_t f = 0; f < numFiles; ++f)
+            buildNmMap_(f);
+    }
+
+private:
+    struct PairHash
+    {
+        std::size_t operator()(const std::pair<int, int>& p) const noexcept
+        {
+            return (static_cast<std::size_t>(p.first) << 32) ^
+                   static_cast<std::size_t>(p.second);
+        }
+    };
+
+    void boundsCheck_(std::size_t f) const
+    {
+        if (f >= numPolyCoefFiles_)
+            throw std::out_of_range("file index out of range");
+    }
+
+    void buildNmMap_(std::size_t f)
+    {
+        nmToColCache_[f].clear();
+        const auto& sh = SHDegreeAndOrderIndices_[f];
+        for (Eigen::Index c = 0; c < sh.cols(); ++c)
+        {
+            int n = sh(0, c);
+            int m = sh(1, c);
+            nmToColCache_[f][{n, m}] = static_cast<int>(c);
+        }
+    }
+
+    std::pair<bool, int> findColumn_(std::size_t f, int n, int m) const
+    {
+        boundsCheck_(f);
+        const auto& map = nmToColCache_[f];
+        auto it = map.find({n, m});
+        if (it == map.end()) return {false, -1};
+        return {true, it->second};
+    }
+
+    std::size_t numPolyCoefFiles_{0};
+    std::vector<Eigen::MatrixXd> polyCoefficients_;
+    std::vector<Eigen::ArrayXXi> SHDegreeAndOrderIndices_;
+    std::vector<FileMeta> fileMeta_;
+    std::vector<std::unordered_map<std::pair<int, int>, int, PairHash>> nmToColCache_;
+};
+
+// ============= I/O Components (Separate from data) =============
+
+// ---- Reader for Poly Coefficients ----
+class ComaPolyDatasetReader
+{
+public:
+    static ComaPolyDataset readFromFiles(const std::vector<std::string>& filePaths)
+    {
+        if (filePaths.empty())
+            throw std::invalid_argument("ComaPolyDatasetReader: empty file list");
+
+        const std::size_t n = filePaths.size();
+        std::vector<Eigen::MatrixXd> polyCoefficients(n);
+        std::vector<Eigen::ArrayXXi> SHDegreeAndOrderIndices(n);
+        std::vector<ComaPolyDataset::FileMeta> fileMeta(n);
+
+        for (std::size_t fileIdx = 0; fileIdx < n; ++fileIdx)
+        {
+            readSingleFile(filePaths[fileIdx], fileIdx,
+                          polyCoefficients, SHDegreeAndOrderIndices, fileMeta);
+        }
+
+        ComaPolyDataset dataset;
+        dataset.setData(n, std::move(polyCoefficients),
+                       std::move(SHDegreeAndOrderIndices),
+                       std::move(fileMeta));
+        return dataset;
+    }
+
+private:
+    static void readSingleFile(const std::string& filePath,
+                               std::size_t fileIdx,
+                               std::vector<Eigen::MatrixXd>& polyCoefficients,
+                               std::vector<Eigen::ArrayXXi>& SHDegreeAndOrderIndices,
+                               std::vector<ComaPolyDataset::FileMeta>& fileMeta)
+    {
+        // ===== Implementation adapted from old ComaPolyDataset::readInputFiles =====
+        fileMeta[fileIdx].sourcePath = filePath;
+
+        std::ifstream file(filePath);
+        if (!file.is_open())
+        {
+            std::cerr << "[ERROR] Could not open file '" << filePath << "'.\n";
+            std::exit(EXIT_FAILURE);
+        }
+
+        std::string line;
+        std::vector<std::string> tokens;
+
+        int maxDegreeSH = 0;
+        Eigen::Index numTerms = 0, numCoefs = 0, numRadialTerms = 0, numIntervals = 0;
+        Eigen::VectorXd powers;
+
+        // ----- Parse header -----
+        while (std::getline(file, line))
+        {
+            if (line.empty()) continue;
+            if (line[0] != '#') break;
+
+            std::string headerLine = line.substr(1);
+            boost::trim(headerLine);
+            boost::split(tokens, headerLine, boost::is_any_of(", \t"), boost::token_compress_on);
+            if (tokens.empty()) continue;
+
+            const std::string& key = tokens[0];
+
+            if (boost::iequals(key, "N(SH)"))
+            {
+                maxDegreeSH = std::stoi(line.substr(line.find_last_of(" \t") + 1));
+                numCoefs = (maxDegreeSH + 1) * (maxDegreeSH + 1);
+            }
+            else if (boost::icontains(key, "PWRS"))
+            {
+                std::string tail = line.substr(line.find("PWRS"));
+                boost::trim(tail);
+                std::vector<std::string> pwrtok;
+                boost::split(pwrtok, tail, boost::is_any_of(", \t"), boost::token_compress_on);
+                std::size_t start = (!pwrtok.empty() &&
+                                     !std::all_of(pwrtok[0].begin(), pwrtok[0].end(), ::isdigit))
+                                    ? 1
+                                    : 0;
+                auto count = static_cast<Eigen::Index>(pwrtok.size() - start);
+                powers.resize(count);
+                for (Eigen::Index j = 0; j < count; ++j)
+                    powers[j] = std::stod(pwrtok[start + j]);
+            }
+            else if (boost::iequals(key, "R"))
+            {
+                double R = std::stod(line.substr(line.find_last_of(" \t") + 1));
+                fileMeta[fileIdx].referenceRadius = R;
+            }
+            else if (line.find("N(r)") != std::string::npos && line.find("N(T)") != std::string::npos)
+            {
+                std::string content = line.substr(1); // strip '#'
+                boost::trim(content);
+                boost::split(tokens, content, boost::is_any_of(", \t"), boost::token_compress_on);
+
+                if (tokens.size() >= 2)
+                {
+                    int a = std::stoi(tokens[tokens.size() - 2]);
+                    int b = std::stoi(tokens[tokens.size() - 1]);
+
+                    if (line.find("N(r)") < line.find("N(T)"))
+                    {
+                        numRadialTerms = a;
+                        numIntervals = b;
+                    }
+                    else
+                    {
+                        numIntervals = a;
+                        numRadialTerms = b;
+                    }
+                    numTerms = numRadialTerms * numIntervals;
+                }
+                else
+                {
+                    std::cerr << "[ERROR] Failed to parse N(T)/N(r) line: " << line << std::endl;
+                    std::exit(EXIT_FAILURE);
+                }
+            }
+            // OPTIONAL: parse time period lines and fill fileMeta[fileIdx].timePeriods
+        }
+
+        // ----- Validation -----
+        if (numTerms <= 0 || numCoefs <= 0 || powers.size() == 0)
+        {
+            std::cerr << "[ERROR] Header parsing failed in file: " << filePath << std::endl;
+            std::cerr << "  numTerms = " << numTerms
+                      << "\n  numCoefs = " << numCoefs
+                      << "\n  powersInvRadius.size() = " << powers.size() << std::endl;
+            std::exit(EXIT_FAILURE);
+        }
+
+        fileMeta[fileIdx].maxDegreeSH = maxDegreeSH;
+        fileMeta[fileIdx].numRadialTerms = numRadialTerms;
+        fileMeta[fileIdx].numIntervals = numIntervals;
+        fileMeta[fileIdx].powersInvRadius = powers;
+
+        // --- Allocate containers ---
+        Eigen::MatrixXd& currentPolyCoefficients = polyCoefficients[fileIdx];
+        Eigen::ArrayXXi& currentShDegreeAndOrder = SHDegreeAndOrderIndices[fileIdx];
+
+        currentPolyCoefficients.resize(numTerms, numCoefs);
+        currentShDegreeAndOrder.resize(2, numCoefs);
+
+        // ----- Read poly coefficients data block -----
+        Eigen::Index coefIndex = -1;
+        do
+        {
+            boost::trim(line);
+            if (line.empty() || line[0] == '#') continue;
+
+            boost::split(tokens, line, boost::is_any_of(", \t"), boost::token_compress_on);
+            if (static_cast<Eigen::Index>(tokens.size()) == numTerms + 2)
+            {
+                ++coefIndex;
+                currentShDegreeAndOrder(0, coefIndex) = std::stoi(tokens[0]); // n
+                currentShDegreeAndOrder(1, coefIndex) = std::stoi(tokens[1]); // m
+                for (Eigen::Index j = 0; j < numTerms; ++j)
+                    currentPolyCoefficients(j, coefIndex) = std::stod(tokens[j + 2]);
+            }
+        } while (std::getline(file, line));
+
+        file.close();
+        // The (n,m)->col map is built by ComaPolyDataset::setData()
+    }
+};
+
+// ---- Writer for Stokes Coefficients ----
+class ComaStokesDatasetWriter
+{
+public:
+    static void writeCsvForFile(const ComaStokesDataset& dataset,
+                                std::size_t f,
+                                const std::string& outputPath)
+    {
+        if (f >= dataset.nFiles())
+            throw std::out_of_range("writeCsvForFile: file index out of range");
+
+        auto csvEscape = [](std::ostream& os, const std::string& s)
+        {
+            bool needs = false;
+            for (char c : s)
+            {
+                if (c == ',' || c == '"' || c == '\n' || c == '\r')
+                { needs = true; break; }
+            }
+            if (!needs) { os << s; return; }
+            os << '"';
+            for (char c : s) os << (c == '"' ? "\"\"" : std::string(1, c));
+            os << '"';
+        };
+
+        boost::filesystem::path p(outputPath);
+        if (p.has_parent_path())
+            boost::filesystem::create_directories(p.parent_path());
+
+        std::ofstream os(outputPath, std::ios::binary);
+        if (!os)
+            throw std::runtime_error("writeCsvForFile: cannot open " + outputPath);
+        os.imbue(std::locale::classic());
+
+        const auto& fm = dataset.files()[f];
 
         auto set_sci = [&] {
-            os.setf( std::ios::scientific, std::ios::floatfield );
-            os << std::setprecision( 17 );
+            os.setf(std::ios::scientific, std::ios::floatfield);
+            os << std::setprecision(17);
         };
         auto set_def = [&] {
-            os.setf( std::ios::fmtflags( 0 ), std::ios::floatfield ); // defaultfloat
-            os << std::setprecision( 17 ); // keep many digits, but default formatting
+            os.setf(std::ios::fmtflags(0), std::ios::floatfield);
+            os << std::setprecision(17);
         };
 
-        // Row 1: metadata (key=value pairs)
+        // Row 1: metadata
         os << "meta";
-        set_def( );
+        set_sci();
         os << ",start_epoch=" << fm.start_epoch;
         os << ",end_epoch=" << fm.end_epoch;
-        os << ",max_degree=" << nmax_;
-        os << ",max_order=" << nmax_;
-        os << ",n_radii=" << n_radii_;
-        os << ",n_lons=" << n_lons_;
-        os << ",n_coeffs=" << n_coeffs_;
+        os << ",max_degree=" << dataset.nmax();
+        os << ",max_order=" << dataset.nmax();
+        os << ",n_radii=" << dataset.nRadii();
+        os << ",n_lons=" << dataset.nLongitudes();
+        os << ",n_coeffs=" << dataset.nCoeffs();
         os << ",source=";
-        csvEscape_( os, fm.source_tag );
+        csvEscape(os, fm.source_tag);
         os << '\n';
 
-        // Row 2: radii with units
+        // Row 2: radii
         os << "radii [meter]";
-        for(double r: radii_)
+        for (double r : dataset.radii())
         {
-            set_def( );
-            os << ',' << r;
+            set_def(); os << ',' << r;
         }
         os << '\n';
 
-        // Row 3: longitudes with units
+        // Row 3: longitudes
         os << "longitudes [degree]";
-        for(double L: lons_)
+        for (double L : dataset.lons())
         {
-            set_def( );
-            os << ',' << L;
+            set_def(); os << ',' << L;
         }
         os << '\n';
 
-        // Blocks: for each (ri, li)
-        for(std::size_t ri = 0; ri < n_radii_; ++ri)
+        // Blocks
+        for (std::size_t ri = 0; ri < dataset.nRadii(); ++ri)
         {
-            for(std::size_t li = 0; li < n_lons_; ++li)
+            for (std::size_t li = 0; li < dataset.nLongitudes(); ++li)
             {
-                const std::size_t block_id = ri * n_lons_ + li;
+                const std::size_t block_id = ri * dataset.nLongitudes() + li;
 
-                // Block header: non-scientific, labeled r_0=..., l_0=...
                 os << "ID," << block_id << ',';
-                set_def( );
-                os << "r_0=" << radii_[ ri ] << ','
-                        << "l_0=" << lons_[ li ] << '\n';
+                set_def();
+                os << "r_0=" << dataset.radii()[ri] << ','
+                   << "l_0=" << dataset.lons()[li] << '\n';
 
-                // Column header
                 os << "n,m,C,S\n";
 
-                // Coefficients (scientific)
-                const auto blk = block( f, ri, li ); // n_coeffs_ x 2
-                for(std::size_t k = 0; k < n_coeffs_; ++k)
+                const auto blk = dataset.block(f, ri, li);
+                for (std::size_t k = 0; k < dataset.nCoeffs(); ++k)
                 {
-                    const auto nm = index_to_nm_deg_major( k );
-                    const double C = blk( static_cast< Eigen::Index >(k), 0 );
-                    const double S = blk( static_cast< Eigen::Index >(k), 1 );
+                    const auto nm = index_to_nm_deg_major(k);
+                    const double C = blk(static_cast<Eigen::Index>(k), 0);
+                    const double S = blk(static_cast<Eigen::Index>(k), 1);
                     os << nm.first << ',' << nm.second << ',';
-                    set_sci( );
+                    set_sci();
                     os << C << ',' << S << '\n';
                 }
             }
         }
 
-        os.flush( );
-        if(!os) throw std::runtime_error( "writeCsvForFile: write failed" );
+        os.flush();
+        if (!os) throw std::runtime_error("writeCsvForFile: write failed");
     }
 
-
-    void writeCsvAll( const std::string& out_dir, const std::string& prefix = "stokes" ) const
+    static void writeCsvAll(const ComaStokesDataset& dataset,
+                           const std::string& outputDir,
+                           const std::string& prefix = "stokes")
     {
-        boost::filesystem::create_directories( out_dir );
-        for(std::size_t f = 0; f < n_files_; ++f)
+        boost::filesystem::create_directories(outputDir);
+        for (std::size_t f = 0; f < dataset.nFiles(); ++f)
         {
-            boost::filesystem::path path = boost::filesystem::path( out_dir )
-                    / ( prefix + "_file" + std::to_string( f ) + ".csv" );
-            writeCsvForFile( f, path.string( ) );
+            boost::filesystem::path path = boost::filesystem::path(outputDir) /
+                (prefix + "_file" + std::to_string(f) + ".csv");
+            writeCsvForFile(dataset, f, path.string());
         }
     }
-
-    // -------- (Optional) raw data access --------
-    const StokesBlock& data( ) const
-    {
-        return data_;
-    }
-
-    StokesBlock& data( )
-    {
-        return data_;
-    }
-
-    // -------- Reader hooks (to implement later) --------
-    // static StokesDataset readCsvFiles(const std::vector<std::string>& paths);
-    // static StokesDataset readCsvFolder(const std::string& dir, const std::string& prefix);
-
-private:
-    // Layout: ((((f * n_radii_) + r) * n_lons_) + l) * n_coeffs_ + k
-    std::size_t startRow_( std::size_t f, std::size_t r, std::size_t l ) const
-    {
-        if(f >= n_files_ || r >= n_radii_ || l >= n_lons_)
-            throw std::out_of_range( "StokesDataset: index out of range." );
-        const std::size_t cell = ( ( f * n_radii_ ) + r ) * n_lons_ + l;
-        return cell * n_coeffs_;
-    }
-
-    static void csvEscape_( std::ofstream& os, const std::string& s )
-    {
-        bool needs = false;
-        for(char c: s) if(c == ',' || c == '"' || c == '\n' || c == '\r')
-        {
-            needs = true;
-            break;
-        }
-        if(!needs)
-        {
-            os << s;
-            return;
-        }
-        os << '"';
-        for(char c: s) os << ( c == '"' ? "\"\"" : std::string( 1, c ) );
-        os << '"';
-    }
-
-    // ---- Metadata
-    std::vector< FileMeta > files_;
-    std::vector< double > radii_;
-    std::vector< double > lons_;
-    int nmax_{};
-
-    // ---- Dimensions
-    std::size_t n_files_{}, n_radii_{}, n_lons_{}, n_coeffs_{};
-
-    // ---- Storage
-    StokesBlock data_;
 };
 
-
-/**
- * \class ComaPolyDataset
- * \brief Data handler for polynomial coefficients used to build Stokes coefficients.
- *
- * Reads a list of "PolyCoefficient" files and stores, per file:
- *  - polyCoefficients  : (numTerms x numCoefs) matrix
- *  - SHDegreeAndOrder  : (2 x numCoefs) array; row 0 = degree n, row 1 = order m
- *  - referenceRadius   : scalar
- *  - powersInvRadius   : vector<double> of inverse-radius powers (from "PWRS" header)
- *  - timePeriods       : vector of (start_epoch, end_epoch) pairs [placeholder]
- *
- * Convenience:
- *  - Fast lookup from (n,m) -> column index via a cached map per file.
- *  - Accessors to get a full coefficient *column* (all terms for one (n,m)),
- *    or a specific entry (termIndex, (n,m)).
- */
-class ComaPolyDataset
+// ---- Reader for Stokes Coefficients (future) ----
+class ComaStokesDatasetReader
 {
 public:
-    // Construct empty
-    ComaPolyDataset( ) = default;
-
-    // Construct directly from a list of file paths
-    explicit ComaPolyDataset( const std::vector< std::string >& filePathList )
+    static ComaStokesDataset readFromCsv(const std::string& csvPath)
     {
-        readInputFiles( filePathList );
+        // TODO: Implement CSV reading
+        throw std::runtime_error("Not yet implemented");
     }
 
-    struct FileMeta
+    static ComaStokesDataset readFromCsvFolder(const std::string& dir,
+                                               const std::string& prefix = "stokes")
     {
-        double referenceRadius{}; //!< From header "R"
-        Eigen::VectorXd powersInvRadius; //!< From "PWRS"
-        std::vector< std::pair< double, double > > timePeriods; //!< TODO: parsed if available
-        int maxDegreeSH{}; //!< From "N(SH)"
-        Eigen::Index numRadialTerms{}; //!< From "N(r)"
-        Eigen::Index numIntervals{}; //!< From "N(T)"
-        std::string sourcePath; //!< File path
-    };
-
-    // -------- Reading API --------
-    void readInputFiles( const std::vector< std::string >& filePathList )
-    {
-        clear( );
-
-        const std::size_t n = filePathList.size( );
-        numPolyCoefFiles_ = n;
-
-        polyCoefficients_.resize( n );
-        SHDegreeAndOrderIndices_.resize( n );
-        fileMeta_.resize( n );
-
-        // internal maps sized; built lazily
-        nmToColCache_.clear( );
-        nmToColCache_.resize( n );
-
-        for(std::size_t fileIdx = 0; fileIdx < n; ++fileIdx)
-        {
-            const std::string& currentFile = filePathList[ fileIdx ];
-            fileMeta_[ fileIdx ].sourcePath = currentFile;
-
-            std::ifstream file( currentFile );
-            if(!file.is_open( ))
-            {
-                std::cerr << "[ERROR] Could not open file '" << currentFile << "'.\n";
-                std::exit( EXIT_FAILURE );
-            }
-
-            std::string line;
-            std::vector< std::string > tokens;
-
-            int maxDegreeSH = 0;
-            Eigen::Index numTerms = 0, numCoefs = 0, numRadialTerms = 0, numIntervals = 0;
-
-            Eigen::VectorXd powers; // temp; moved to meta
-
-            // ----- Parse header -----
-            while(std::getline( file, line ))
-            {
-                if(line.empty( )) continue;
-                if(line[ 0 ] != '#') break;
-
-                std::string headerLine = line.substr( 1 );
-                boost::trim( headerLine );
-                boost::split( tokens, headerLine, boost::is_any_of( ", \t" ), boost::token_compress_on );
-                if(tokens.empty( )) continue;
-
-                const std::string& key = tokens[ 0 ];
-
-                if(boost::iequals( key, "N(SH)" ))
-                {
-                    maxDegreeSH = std::stoi( line.substr( line.find_last_of( " \t" ) + 1 ) );
-                    numCoefs = ( maxDegreeSH + 1 ) * ( maxDegreeSH + 1 );
-                }
-                else if(boost::icontains( key, "PWRS" ))
-                {
-                    std::string tail = line.substr( line.find( "PWRS" ) );
-                    boost::trim( tail );
-                    std::vector< std::string > pwrtok;
-                    boost::split( pwrtok, tail, boost::is_any_of( ", \t" ), boost::token_compress_on );
-                    std::size_t start = ( !pwrtok.empty( ) &&
-                                !std::all_of( pwrtok[ 0 ].begin( ), pwrtok[ 0 ].end( ), ::isdigit ) )
-                            ? 1
-                            : 0;
-                    auto count = static_cast< Eigen::Index >(pwrtok.size( ) - start);
-                    powers.resize( count );
-                    for(Eigen::Index j = 0; j < count; ++j)
-                        powers[ j ] = std::stod( pwrtok[ start + j ] );
-                }
-                else if(boost::iequals( key, "R" ))
-                {
-                    double R = std::stod( line.substr( line.find_last_of( " \t" ) + 1 ) );
-                    fileMeta_[ fileIdx ].referenceRadius = R;
-                }
-                else if(line.find( "N(r)" ) != std::string::npos && line.find( "N(T)" ) != std::string::npos)
-                {
-                    std::string content = line.substr( 1 ); // strip '#'
-                    boost::trim( content );
-                    boost::split( tokens, content, boost::is_any_of( ", \t" ), boost::token_compress_on );
-
-                    if(tokens.size( ) >= 2)
-                    {
-                        int a = std::stoi( tokens[ tokens.size( ) - 2 ] );
-                        int b = std::stoi( tokens[ tokens.size( ) - 1 ] );
-
-                        if(line.find( "N(r)" ) < line.find( "N(T)" ))
-                        {
-                            numRadialTerms = a;
-                            numIntervals = b;
-                        }
-                        else
-                        {
-                            numIntervals = a;
-                            numRadialTerms = b;
-                        }
-                        numTerms = numRadialTerms * numIntervals;
-                    }
-                    else
-                    {
-                        std::cerr << "[ERROR] Failed to parse N(T)/N(r) line: " << line << std::endl;
-                        std::exit( EXIT_FAILURE );
-                    }
-                }
-                // OPTIONAL: parse time period lines here if present in your format;
-                // set fileMeta_[fileIdx].timePeriods accordingly.
-            }
-
-            // ----- Validation -----
-            if(numTerms <= 0 || numCoefs <= 0 || powers.size( ) == 0)
-            {
-                std::cerr << "[ERROR] Header parsing failed in file: " << currentFile << std::endl;
-                std::cerr << "  numTerms = " << numTerms
-                        << "\n  numCoefs = " << numCoefs
-                        << "\n  powersInvRadius.size() = " << powers.size( ) << std::endl;
-                std::exit( EXIT_FAILURE );
-            }
-
-            fileMeta_[ fileIdx ].maxDegreeSH = maxDegreeSH;
-            fileMeta_[ fileIdx ].numRadialTerms = numRadialTerms;
-            fileMeta_[ fileIdx ].numIntervals = numIntervals;
-            fileMeta_[ fileIdx ].powersInvRadius = powers;
-
-            // --- Allocate containers ---
-            Eigen::MatrixXd& currentPolyCoefficients = polyCoefficients_[ fileIdx ];
-            Eigen::ArrayXXi& currentShDegreeAndOrder = SHDegreeAndOrderIndices_[ fileIdx ];
-
-            currentPolyCoefficients.resize( numTerms, numCoefs );
-            currentShDegreeAndOrder.resize( 2, numCoefs );
-
-            // ----- Read poly coefficients data block -----
-            Eigen::Index coefIndex = -1;
-            do
-            {
-                boost::trim( line );
-                if(line.empty( ) || line[ 0 ] == '#') continue;
-
-                boost::split( tokens, line, boost::is_any_of( ", \t" ), boost::token_compress_on );
-                if(static_cast< Eigen::Index >(tokens.size( )) == numTerms + 2)
-                {
-                    ++coefIndex;
-                    currentShDegreeAndOrder( 0, coefIndex ) = std::stoi( tokens[ 0 ] ); // n
-                    currentShDegreeAndOrder( 1, coefIndex ) = std::stoi( tokens[ 1 ] ); // m
-                    for(Eigen::Index j = 0; j < numTerms; ++j)
-                        currentPolyCoefficients( j, coefIndex ) = std::stod( tokens[ j + 2 ] );
-                }
-            } while(std::getline( file, line ));
-
-            file.close( );
-
-            // Build (n,m)->col map for this file
-            buildNmMap_( fileIdx );
-        }
+        // TODO: Implement folder reading
+        throw std::runtime_error("Not yet implemented");
     }
-
-    // -------- Accessors --------
-    std::size_t getNumFiles( ) const
-    {
-        return numPolyCoefFiles_;
-    }
-
-    const FileMeta& getFileMeta( std::size_t f ) const
-    {
-        boundsFile_( f );
-        return fileMeta_[ f ];
-    }
-
-    //! Get the polynomial coefficient matrix of a specific input file.
-    /*!
-     * Matrix has dimensions (number of radial terms × number of SH coefficients).
-     */
-    const Eigen::MatrixXd& getPolyCoefficients( std::size_t f ) const
-    {
-        boundsFile_( f );
-        return polyCoefficients_[ f ];
-    }
-
-    //! Get the spherical harmonics degree and order indices of a specified input file.
-    /*!
-     * Each inner vector holds a flattened (2 × N) list of degree and order pairs, where N is the number of coefficients.
-     * Index `2*k` contains degree, `2*k+1` contains order.
-     */
-    const Eigen::ArrayXXi& getSHDegreeAndOrderIndices( std::size_t f ) const
-    {
-        boundsFile_( f );
-        return SHDegreeAndOrderIndices_[ f ];
-    }
-
-    //! Get the reference radius for a specific input file.
-    /*!
-     * Reference radius specifies the radius until which DSMC model is valid.
-     */
-    double getReferenceRadius( std::size_t f ) const
-    {
-        boundsFile_( f );
-        return fileMeta_[ f ].referenceRadius;
-    }
-
-    //! Get the inverse-radius powers.
-    /*!
-     * These powers define the radial dependency of the polynomial basis.
-     */
-    const Eigen::VectorXd& getPowersInvRadius( std::size_t f ) const
-    {
-        boundsFile_( f );
-        return fileMeta_[ f ].powersInvRadius;
-    }
-
-    //! Get maximum degree and order of SH expansion for which poly coefficients are valid
-    int getMaxDegreeSH( std::size_t f ) const
-    {
-        boundsFile_( f );
-        return fileMeta_[ f ].maxDegreeSH;
-    }
-
-    Eigen::Index getNumRadialTerms( std::size_t f ) const
-    {
-        boundsFile_( f );
-        return fileMeta_[ f ].numRadialTerms;
-    }
-
-    Eigen::Index getNumIntervals( std::size_t f ) const
-    {
-        boundsFile_( f );
-        return fileMeta_[ f ].numIntervals;
-    }
-
-
-    /// Get the (numTerms x 1) column vector for a given (n,m).
-    Eigen::VectorXd columnForNM( std::size_t f, int n, int m ) const
-    {
-        auto [ ok, col ] = findColumn_( f, n, m );
-        if(!ok) throw std::out_of_range( "columnForNM: (n,m) not found in file" );
-        return polyCoefficients_[ f ].col( col );
-    }
-
-    /// Get a single value: termIndex in [0, N(r)*N(T)), for given (n,m).
-    double value( std::size_t f, Eigen::Index termIndex, int n, int m ) const
-    {
-        auto [ ok, col ] = findColumn_( f, n, m );
-        if(!ok) throw std::out_of_range( "value: (n,m) not found in file" );
-        if(termIndex < 0 || termIndex >= polyCoefficients_[ f ].rows( ))
-            throw std::out_of_range( "value: termIndex out of range" );
-        return polyCoefficients_[ f ]( termIndex, col );
-    }
-
-    /// Convenience: (radialIdx, intervalIdx) -> termIndex
-    static inline Eigen::Index termIndex( Eigen::Index radialIdx,
-                                          Eigen::Index intervalIdx,
-                                          Eigen::Index numIntervals )
-    {
-        return radialIdx * numIntervals + intervalIdx;
-    }
-
-    void clear( )
-    {
-        numPolyCoefFiles_ = 0;
-        polyCoefficients_.clear( );
-        SHDegreeAndOrderIndices_.clear( );
-        fileMeta_.clear( );
-        nmToColCache_.clear( );
-    }
-
-private:
-    // Map key for (n,m)
-    struct PairHash
-    {
-        std::size_t operator()( const std::pair< int, int >& p ) const noexcept
-        {
-            // Simple hash combine for (n,m)
-            return ( static_cast< std::size_t >(p.first) << 32 ) ^ static_cast< std::size_t >(p.second);
-        }
-    };
-
-    void boundsFile_( std::size_t f ) const
-    {
-        if(f >= numPolyCoefFiles_) throw std::out_of_range( "file index out of range" );
-    }
-
-    void buildNmMap_( std::size_t f )
-    {
-        boundsFile_( f );
-        nmToColCache_[ f ].clear( );
-        const auto& sh = SHDegreeAndOrderIndices_[ f ];
-        for(Eigen::Index c = 0; c < sh.cols( ); ++c)
-        {
-            int n = sh( 0, c );
-            int m = sh( 1, c );
-            nmToColCache_[ f ][ { n, m } ] = static_cast< int >(c);
-        }
-    }
-
-    std::pair< bool, int > findColumn_( std::size_t f, int n, int m ) const
-    {
-        boundsFile_( f );
-        const auto& map = nmToColCache_[ f ];
-        auto it = map.find( { n, m } );
-        if(it == map.end( )) return { false, -1 };
-        return { true, it->second };
-    }
-
-    // -------- Data --------
-    std::size_t numPolyCoefFiles_{ 0 };
-
-    // Per-file containers
-    std::vector< Eigen::MatrixXd > polyCoefficients_; // (numTerms x numCoefs)
-    std::vector< Eigen::ArrayXXi > SHDegreeAndOrderIndices_; // 2 x numCoefs
-    std::vector< FileMeta > fileMeta_;
-
-    // Per-file (n,m)->column cache
-    std::vector< std::unordered_map< std::pair< int, int >, int, PairHash > > nmToColCache_;
 };
 
+// ============= Processing/Transformation Components =============
 
-//! Function to compute Stokes coefficients from poly coefficients at specific distance and solar longitude
-    void evaluateStokesCoefficients2D(
-            const double distanceToCometCentre,
-            const double solarLongitude,
-            const Eigen::ArrayXXd& polyCoefficients,
-            const Eigen::ArrayXXi& atDegreeAndOrder,
-            const Eigen::VectorXd& atPowersInvRadius,
-            const double refRadius,
-            Eigen::MatrixXd& cosineCoefficients,
-            Eigen::MatrixXd& sineCoefficients,
-            int maxDegree,
-            int maxOrder )
+class StokesCoefficientsEvaluator
+{
+public:
+    static void evaluate2D(
+        double distanceToCometCentre,
+        double solarLongitude,
+        const Eigen::ArrayXXd& polyCoefficients,
+        const Eigen::ArrayXXi& atDegreeAndOrder,
+        const Eigen::VectorXd& atPowersInvRadius,
+        double refRadius,
+        Eigen::MatrixXd& cosineCoefficients,
+        Eigen::MatrixXd& sineCoefficients,
+        int maxDegree,
+        int maxOrder)
     {
-        const int maxDegAvailable = atDegreeAndOrder.row( 0 ).maxCoeff( );
-        const int maxOrdAvailable = atDegreeAndOrder.row( 1 ).abs( ).maxCoeff( );
+        // ===== Implementation from old evaluateStokesCoefficients2D =====
+        const int maxDegAvailable = atDegreeAndOrder.row(0).maxCoeff();
+        const int maxOrdAvailable = atDegreeAndOrder.row(1).abs().maxCoeff();
 
-        if(maxDegree < 0) maxDegree = maxDegAvailable;
-        if(maxOrder < 0) maxOrder = maxOrdAvailable;
+        if (maxDegree < 0) maxDegree = maxDegAvailable;
+        if (maxOrder < 0) maxOrder = maxOrdAvailable;
 
-        if(maxDegree > maxDegAvailable || maxOrder > maxOrdAvailable)
+        if (maxDegree > maxDegAvailable || maxOrder > maxOrdAvailable)
         {
             std::ostringstream err;
             err << "[FATAL] Requested maxDegree=" << maxDegree
-                    << ", maxOrder=" << maxOrder
-                    << " exceeds available (degree=" << maxDegAvailable
-                    << ", order=" << maxOrdAvailable << ")";
-            throw std::runtime_error( err.str( ) );
+                << ", maxOrder=" << maxOrder
+                << " exceeds available (degree=" << maxDegAvailable
+                << ", order=" << maxOrdAvailable << ")";
+            throw std::runtime_error(err.str());
         }
 
-        const Eigen::Index numRadialTerms = atPowersInvRadius.size( );
-        const Eigen::Index numIntervals = polyCoefficients.rows( ) / numRadialTerms;
+        const Eigen::Index numRadialTerms = atPowersInvRadius.size();
+        const Eigen::Index numIntervals = polyCoefficients.rows() / numRadialTerms;
 
-        cosineCoefficients = Eigen::MatrixXd::Zero( maxDegree + 1, maxOrder + 1 );
-        sineCoefficients = Eigen::MatrixXd::Zero( maxDegree + 1, maxOrder + 1 );
+        cosineCoefficients = Eigen::MatrixXd::Zero(maxDegree + 1, maxOrder + 1);
+        sineCoefficients   = Eigen::MatrixXd::Zero(maxDegree + 1, maxOrder + 1);
 
-        const bool usePolyvalForm = ( distanceToCometCentre <= refRadius || refRadius < 1.0e-10 );
+        const bool usePolyvalForm = (distanceToCometCentre <= refRadius || refRadius < 1.0e-10);
         const double scaling = usePolyvalForm
-                ? ( ( refRadius < 1.0e-10 ) ? 1.0 / distanceToCometCentre : 1.0 / distanceToCometCentre - 1.0 / refRadius )
-                : ( ( refRadius < 1.0e-10 ) ? 1.0 / distanceToCometCentre : refRadius / distanceToCometCentre );
+            ? ((refRadius < 1.0e-10) ? 1.0 / distanceToCometCentre : 1.0 / distanceToCometCentre - 1.0 / refRadius)
+            : ((refRadius < 1.0e-10) ? 1.0 / distanceToCometCentre : refRadius / distanceToCometCentre);
 
-        for(int i = 0; i < polyCoefficients.cols( ); ++i)
+        for (int i = 0; i < polyCoefficients.cols(); ++i)
         {
-            const int l = atDegreeAndOrder( 0, i );
-            const int m = atDegreeAndOrder( 1, i );
-            const int absM = std::abs( m );
+            const int l = atDegreeAndOrder(0, i);
+            const int m = atDegreeAndOrder(1, i);
+            const int absM = std::abs(m);
 
-            if(l > maxDegree || absM > maxOrder)
+            if (l > maxDegree || absM > maxOrder)
                 continue;
 
             double value = 0.0;
 
-            if(usePolyvalForm)
+            if (usePolyvalForm)
             {
                 const Eigen::MatrixXd polyCoefs =
-                        polyCoefficients.col( i ).reshaped( numIntervals, numRadialTerms ).matrix( );
-                const Eigen::Index N = polyCoefs.rows( );
+                    polyCoefficients.col(i).reshaped(numIntervals, numRadialTerms).matrix();
+                const Eigen::Index N = polyCoefs.rows();
 
-                auto alphaPart = ( Eigen::ArrayXd( N ) <<
-                    cos( Eigen::ArrayXd::LinSpaced( N / 2 + 1, 0.0, static_cast< double >(N) / 2.0 ) * solarLongitude ),
-                    sin( Eigen::ArrayXd::LinSpaced( N % 2 == 0 ? N / 2 - 1 : N / 2,
-                                                    1.0,
-                                                    static_cast< double >(N) / 2 - ( N % 2 == 0 ? 1 : 0 ) ) *
-                            solarLongitude )
-                ).finished( );
+                auto alphaPart = (Eigen::ArrayXd(N) <<
+                    cos(Eigen::ArrayXd::LinSpaced(N / 2 + 1, 0.0, static_cast<double>(N) / 2.0) * solarLongitude),
+                    sin(Eigen::ArrayXd::LinSpaced(N % 2 == 0 ? N / 2 - 1 : N / 2,
+                                                  1.0,
+                                                  static_cast<double>(N) / 2 - (N % 2 == 0 ? 1 : 0)) *
+                        solarLongitude)
+                    ).finished();
 
-                value = ( alphaPart.matrix( ).transpose( )
-                            * polyCoefs
-                            * pow( scaling, atPowersInvRadius.array( ) ).matrix( ) ).value( )
-                        / static_cast< double >(N);
+                value = (alphaPart.matrix().transpose()
+                         * polyCoefs
+                         * pow(scaling, atPowersInvRadius.array()).matrix()).value()
+                        / static_cast<double>(N);
             }
             else
             {
                 const Eigen::VectorXd polyCoefs =
-                        polyCoefficients.block( 0, i, numIntervals, 1 ).matrix( );
-                const Eigen::Index N = polyCoefs.rows( );
+                    polyCoefficients.block(0, i, numIntervals, 1).matrix();
+                const Eigen::Index N = polyCoefs.rows();
 
-                auto alphaPart = ( Eigen::ArrayXd( N ) <<
-                    cos( Eigen::ArrayXd::LinSpaced( N / 2 + 1, 0.0, static_cast< double >(N) / 2.0 ) * solarLongitude ),
-                    sin( Eigen::ArrayXd::LinSpaced( N % 2 == 0 ? N / 2 - 1 : N / 2,
-                                                    1.0,
-                                                    static_cast< double >(N) / 2 - ( N % 2 == 0 ? 1 : 0 ) ) *
-                            solarLongitude )
-                ).finished( );
+                auto alphaPart = (Eigen::ArrayXd(N) <<
+                    cos(Eigen::ArrayXd::LinSpaced(N / 2 + 1, 0.0, static_cast<double>(N) / 2.0) * solarLongitude),
+                    sin(Eigen::ArrayXd::LinSpaced(N % 2 == 0 ? N / 2 - 1 : N / 2,
+                                                  1.0,
+                                                  static_cast<double>(N) / 2 - (N % 2 == 0 ? 1 : 0)) *
+                        solarLongitude)
+                    ).finished();
 
-                value = ( alphaPart.matrix( ).transpose( )
-                            * polyCoefs
-                            * ( scaling * scaling ) ).value( )
-                        / static_cast< double >(N);
+                value = (alphaPart.matrix().transpose()
+                         * polyCoefs
+                         * (scaling * scaling)).value()
+                        / static_cast<double>(N);
             }
 
-            ( m >= 0 ? cosineCoefficients : sineCoefficients )( l, absM ) = value;
+            (m >= 0 ? cosineCoefficients : sineCoefficients)(l, absM) = value;
         }
     }
+};
 
-
-class PolyCoefFileProcessing
+class ComaDatasetTransformer
 {
 public:
-    /// Construct from a list of PolyCoefficient file paths.
-    explicit PolyCoefFileProcessing(std::vector<std::string> filePaths)
-        : filePaths_(std::move(filePaths))
+    static ComaStokesDataset transformPolyToStokes(
+        const ComaPolyDataset& polyDataset,
+        const std::vector<double>& radii_m,
+        const std::vector<double>& solLongitudes_deg,
+        int requestedMaxDegree = -1,
+        int requestedMaxOrder = -1)
     {
-        if (filePaths_.empty()) {
-            throw std::invalid_argument("PolycoefFileProcessing: file path list is empty.");
-        }
+        // Validate inputs
+        validateTransformInputs(polyDataset, radii_m, solLongitudes_deg,
+                               requestedMaxDegree, requestedMaxOrder);
+
+        // Determine effective maxima
+        auto [effNmax, effMmax] = determineEffectiveMaxima(
+            polyDataset, requestedMaxDegree, requestedMaxOrder);
+
+        // Build file metadata
+        auto files = buildFileMeta(polyDataset);
+
+        // Create empty Stokes dataset
+        ComaStokesDataset stokesDataset = ComaStokesDataset::create(
+            std::move(files), radii_m, solLongitudes_deg, effNmax);
+
+        // Fill dataset with computed coefficients
+        fillStokesDataset(polyDataset, stokesDataset, effNmax, effMmax);
+
+        return stokesDataset;
     }
 
-    /// Access the raw file list used to build datasets.
-    const std::vector<std::string>& getFilePaths() const { return filePaths_; }
-
-    /**
-     * \brief Read all PolyCoefficient files and return a populated ComaPolyDataset.
-     * \details This simply forwards the stored file list to ComaPolyDataset’s reader/ctor.
-     */
-    ComaPolyDataset createPolyCoefDataset() const
+private:
+    static void validateTransformInputs(
+        const ComaPolyDataset& polyDataset,
+        const std::vector<double>& radii_m,
+        const std::vector<double>& solLongitudes_deg,
+        int requestedMaxDegree,
+        int requestedMaxOrder)
     {
-        return ComaPolyDataset(filePaths_);
-    }
-
-    /**
-     * \brief (Stub) Create SH/Stokes CSV files for given settings.
-     * \param nmax           Maximum requested SH degree
-     * \param mmax           Maximum requested SH order
-     * \param radii          Vector of radii where SH will be evaluated
-     * \param solLongitudes  Vector of solar longitudes where SH will be evaluated
-     * \param outputDir      Directory to write output files
-     *
-     * TODO: Implement using ComaPolyDataset → ComaStokesDataset pipeline + CSV writer.
-     */
-        void createSHFiles( const std::string& outputDir,
-                            const std::vector<double>& radii_m,
-                            const std::vector<double>& solLongitudes_deg,
-                            int requestedMaxDegree = -1,
-                            int requestedMaxOrder = -1 ) const
-    {
-        // Basic guards
         if (radii_m.empty() || solLongitudes_deg.empty())
-            throw std::invalid_argument("createSHFiles: radii and longitudes must be non-empty.");
-
-        // Build the SH dataset (auto-selects maxima when nmax/mmax == -1 and validates requests)
-        ComaStokesDataset sh = createSHDataset(radii_m, solLongitudes_deg, requestedMaxDegree, requestedMaxOrder);
-
-        // Ensure output directory exists
-        boost::filesystem::create_directories(outputDir);
-
-        // Write one CSV per input file (default prefix: "stokes")
-        sh.writeCsvAll(outputDir /*, "stokes"*/);
-    }
-
-    /**
-     * \brief (Stub) Compute and return a populated ComaStokesDataset.
-     * \param nmax           Maximum requested SH degree
-     * \param mmax           Maximum requested SH order
-     * \param radii          Vector of radii where SH will be evaluated
-     * \param solLongitudes  Vector of solar longitudes where SH will be evaluated
-     *
-     * TODO: Implement by transforming ComaPolyDataset → ComaStokesDataset and filling coefficients.
-     */
-    ComaStokesDataset createSHDataset(const std::vector<double>& radii_m,          // meters
-                                      const std::vector<double>& solLongitudes_deg, // degrees
-                                      int requestedMaxDegree = -1,
-                                      int requestedMaxOrder = -1
-                                      ) const
-    {
+            throw std::invalid_argument("transformPolyToStokes: radii and longitudes must be non-empty.");
         if (requestedMaxDegree < -1 || requestedMaxOrder < -1)
-            throw std::invalid_argument("createSHDataset: nmax/mmax must be >= 0.");
-        if (radii_m.empty() || solLongitudes_deg.empty())
-            throw std::invalid_argument("createSHDataset: radii/solLongitudes must be non-empty.");
+            throw std::invalid_argument("transformPolyToStokes: requested maxima must be >= -1.");
+        if (polyDataset.getNumFiles() == 0)
+            throw std::invalid_argument("transformPolyToStokes: polyDataset has no files.");
+    }
 
-        // 1) Load poly data
-        ComaPolyDataset poly = createPolyCoefDataset();
-
-        // 2) Determine available maxima across files
+    static std::pair<int, int> determineEffectiveMaxima(
+        const ComaPolyDataset& polyDataset,
+        int requestedMaxDegree,
+        int requestedMaxOrder)
+    {
         int globalMaxDeg = 0;
         int globalMaxOrd = 0;
-        const std::size_t F = poly.getNumFiles();
 
+        const std::size_t F = polyDataset.getNumFiles();
         std::vector<int> perFileMaxDeg(F, 0);
         std::vector<int> perFileMaxOrd(F, 0);
 
         for (std::size_t f = 0; f < F; ++f)
         {
-            const int fMaxDeg = poly.getMaxDegreeSH(f);
-            const int fMaxOrd = poly.getSHDegreeAndOrderIndices(f).row(1).abs().maxCoeff();
+            const int fMaxDeg = polyDataset.getMaxDegreeSH(f);
+            const int fMaxOrd = polyDataset.getSHDegreeAndOrderIndices(f).row(1).abs().maxCoeff();
 
             perFileMaxDeg[f] = fMaxDeg;
             perFileMaxOrd[f] = fMaxOrd;
@@ -948,141 +811,151 @@ public:
             globalMaxOrd = std::max(globalMaxOrd, fMaxOrd);
         }
 
-        // 3) Resolve effective target maxima
         const int effNmax = (requestedMaxDegree < 0 ? globalMaxDeg : requestedMaxDegree);
         const int effMmax = (requestedMaxOrder < 0 ? globalMaxOrd : requestedMaxOrder);
 
         if (effNmax < 0 || effMmax < 0)
-            throw std::invalid_argument("createSHDataset: effective nmax/mmax resolved negative.");
-
-        // 4) Validate against each file’s availability
+            throw std::invalid_argument("determineEffectiveMaxima: resolved negative maxima.");
+        // Ensure every file can support requested maxima
         for (std::size_t f = 0; f < F; ++f)
         {
             if (effNmax > perFileMaxDeg[f] || effMmax > perFileMaxOrd[f])
             {
                 std::ostringstream oss;
-                oss << "createSHDataset: requested (nmax=" << effNmax
-                    << ", mmax=" << effMmax << ") exceeds availability in file #" << f
-                    << " [" << poly.getFileMeta(f).sourcePath << "]: "
+                oss << "Requested (nmax=" << effNmax << ", mmax=" << effMmax
+                    << ") exceeds availability in file #" << f
+                    << " [" << polyDataset.getFileMeta(f).sourcePath << "]: "
                     << "(maxDegree=" << perFileMaxDeg[f]
                     << ", maxOrder=" << perFileMaxOrd[f] << ").";
                 throw std::invalid_argument(oss.str());
             }
         }
 
-        // 3) Build file metadata (epochs unknown yet -> try to pick first timePeriod, else 0)
-        std::vector<FileMeta> files;
-        files.reserve(poly.getNumFiles());
-        for (std::size_t f = 0; f < poly.getNumFiles(); ++f)
+        return {effNmax, effMmax};
+    }
+
+    static std::vector<ComaStokesDataset::FileMeta> buildFileMeta(
+        const ComaPolyDataset& polyDataset)
+    {
+        std::vector<ComaStokesDataset::FileMeta> files;
+        files.reserve(polyDataset.getNumFiles());
+        for (std::size_t f = 0; f < polyDataset.getNumFiles(); ++f)
         {
-            FileMeta fm{};
-            fm.source_tag = poly.getFileMeta(f).sourcePath;
-            // try to use first time interval if present
-            if (!poly.getFileMeta(f).timePeriods.empty()) {
-                fm.start_epoch = poly.getFileMeta(f).timePeriods.front().first;
-                fm.end_epoch   = poly.getFileMeta(f).timePeriods.front().second;
-            } else {
+            ComaStokesDataset::FileMeta fm{};
+            fm.source_tag = polyDataset.getFileMeta(f).sourcePath;
+            if (!polyDataset.getFileMeta(f).timePeriods.empty())
+            {
+                fm.start_epoch = polyDataset.getFileMeta(f).timePeriods.front().first;
+                fm.end_epoch   = polyDataset.getFileMeta(f).timePeriods.front().second;
+            }
+            else
+            {
                 fm.start_epoch = 0.0;
                 fm.end_epoch   = 0.0;
             }
             files.push_back(std::move(fm));
         }
+        return files;
+    }
 
-        // 4) Create empty Stokes dataset (zero-initialized)
-        ComaStokesDataset sh = ComaStokesDataset::create(
-            std::move(files), radii_m, solLongitudes_deg, effNmax);
-
-        // 5) Pre-allocate workspaces for the evaluator
+    static void fillStokesDataset(
+        const ComaPolyDataset& polyDataset,
+        ComaStokesDataset& stokesDataset,
+        int effNmax,
+        int effMmax)
+    {
         Eigen::MatrixXd C(effNmax + 1, effMmax + 1);
         Eigen::MatrixXd S(effNmax + 1, effMmax + 1);
 
-        // 6) Main fill loop
-        for (std::size_t f = 0; f < sh.nFiles(); ++f)
+        for (std::size_t f = 0; f < stokesDataset.nFiles(); ++f)
         {
-            // Availability guard: ensure request does not exceed what this file contains
-            const int maxDegreeAvail = poly.getMaxDegreeSH(f);               // from header N(SH)
-            const int maxOrderAvail  = poly.getSHDegreeAndOrderIndices(f).row(1).abs().maxCoeff();
-            if (effNmax > maxDegreeAvail || effMmax > maxOrderAvail)
+            const auto& P   = polyDataset.getPolyCoefficients(f);
+            const auto& nm  = polyDataset.getSHDegreeAndOrderIndices(f);
+            const auto& pw  = polyDataset.getPowersInvRadius(f);
+            const double R0 = polyDataset.getReferenceRadius(f); // (unit as in files; matches old code)
+
+            for (std::size_t ri = 0; ri < stokesDataset.nRadii(); ++ri)
             {
-                std::ostringstream oss;
-                oss << "createSHDataset: requested (nmax=" << effNmax << ", mmax=" << effMmax
-                    << ") exceeds available (nmax=" << maxDegreeAvail
-                    << ", mmax=" << maxOrderAvail << ") in file #" << f
-                    << " [" << poly.getFileMeta(f).sourcePath << "].";
-                throw std::invalid_argument(oss.str());
-            }
+                // convert meters -> km here to keep consistency.
+                const double r_km = stokesDataset.radii()[ri] * 1.0e-3;
 
-            const auto& P   = poly.getPolyCoefficients(f);
-            const auto& nm  = poly.getSHDegreeAndOrderIndices(f);
-            const auto& pw  = poly.getPowersInvRadius(f);
-            const double R0 = poly.getReferenceRadius(f);
-
-            for (std::size_t ri = 0; ri < sh.nRadii(); ++ri)
-            {
-                const double r_km = sh.radii()[ri] * 1.0e-3; // m -> km
-
-                for (std::size_t li = 0; li < sh.nLongitudes(); ++li)
+                for (std::size_t li = 0; li < stokesDataset.nLongitudes(); ++li)
                 {
-                    const double Lrad = sh.lons()[li] * M_PI / 180.0; // deg -> rad
+                    const double Lrad = stokesDataset.lons()[li] * M_PI / 180.0;
 
-                    computeAndFillSingleCell_(P, nm, pw, R0,
-                                              r_km, Lrad,
-                                              effNmax, effMmax,
-                                              C, S,
-                                              f, ri, li, sh);
+                    // Evaluate
+                    StokesCoefficientsEvaluator::evaluate2D(
+                        r_km, Lrad, P.array(), nm, pw, R0, C, S, effNmax, effMmax);
+
+                    // Store back
+                    for (int n = 0; n <= effNmax; ++n)
+                    {
+                        const int m_hi = std::min(n, effMmax);
+                        for (int m = 0; m <= m_hi; ++m)
+                        {
+                            if (n >= C.rows() || m >= C.cols())
+                                throw std::runtime_error("Evaluator returned C/S smaller than requested (nmax,mmax).");
+                            stokesDataset.setCoeff(f, ri, li, n, m, C(n, m), S(n, m));
+                        }
+                    }
                 }
             }
         }
+    }
+};
 
-        return sh;
+// ============= High-Level Processing Interface =============
+
+class PolyCoefFileProcessor
+{
+public:
+    explicit PolyCoefFileProcessor(std::vector<std::string> filePaths)
+        : filePaths_(std::move(filePaths))
+    {
+        if (filePaths_.empty())
+            throw std::invalid_argument("PolyCoefFileProcessor: empty file list");
+    }
+
+    // Create poly dataset from files
+    ComaPolyDataset createPolyCoefDataset() const
+    {
+        return ComaPolyDatasetReader::readFromFiles(filePaths_);
+    }
+
+    // Create Stokes dataset
+    ComaStokesDataset createSHDataset(
+        const std::vector<double>& radii_m,
+        const std::vector<double>& solLongitudes_deg,
+        int requestedMaxDegree = -1,
+        int requestedMaxOrder = -1) const
+    {
+        ComaPolyDataset polyDataset = createPolyCoefDataset();
+        return ComaDatasetTransformer::transformPolyToStokes(
+            polyDataset, radii_m, solLongitudes_deg,
+            requestedMaxDegree, requestedMaxOrder);
+    }
+
+    // Create SH files (combines dataset creation and writing)
+    void createSHFiles(
+        const std::string& outputDir,
+        const std::vector<double>& radii_m,
+        const std::vector<double>& solLongitudes_deg,
+        int requestedMaxDegree = -1,
+        int requestedMaxOrder = -1) const
+    {
+        ComaStokesDataset stokesDataset = createSHDataset(
+            radii_m, solLongitudes_deg,
+            requestedMaxDegree, requestedMaxOrder);
+
+        ComaStokesDatasetWriter::writeCsvAll(stokesDataset, outputDir);
     }
 
 private:
-
-
-    // Compute (C,S) for a single (file f, radius r_km, longitude Lrad) and write into sh
-    static void computeAndFillSingleCell_( const Eigen::MatrixXd& polyCoeffs,
-                                           const Eigen::ArrayXXi& degOrd,
-                                           const Eigen::VectorXd& powersInvR,
-                                           double referenceRadius,
-                                           double r_km,
-                                           double Lrad,
-                                           int nmax,
-                                           int mmax,
-                                           Eigen::MatrixXd& C,   // workspace (nmax+1 x mmax+1)
-                                           Eigen::MatrixXd& S,   // workspace (nmax+1 x mmax+1)
-                                           std::size_t f, std::size_t ri, std::size_t li,
-                                           ComaStokesDataset& sh )
-    {
-        // Zero or reuse workspaces
-        C.setZero();
-        S.setZero();
-
-        // Call main processing function
-        evaluateStokesCoefficients2D( r_km, Lrad,
-                                      polyCoeffs, degOrd, powersInvR, referenceRadius,
-                                      C, S, nmax, mmax );
-
-        // Write results into the dataset (degree-major layout via setCoeff)
-        for (int n = 0; n <= nmax; ++n)
-        {
-            const int m_hi = std::min(n, mmax);
-            for (int m = 0; m <= m_hi; ++m)
-            {
-                // Safety checks against evaluator output size
-                if (n >= C.rows() || m >= C.cols())
-                    throw std::runtime_error("Evaluator returned C/S smaller than requested (nmax,mmax).");
-
-                sh.setCoeff(f, ri, li, n, m, C(n, m), S(n, m));
-            }
-        }
-        // Terms with m>mmax remain zero (dataset was zero-initialized).
-    }
-
-
-
     std::vector<std::string> filePaths_;
 };
+
+
+
 
 
 
@@ -2047,14 +1920,14 @@ protected:
 class ComaSettings final : public AtmosphereSettings
 {
 public:
-    // Constructor taking PolyCoefficient file list as input.
-    ComaSettings( std::vector< std::string > polyCoefFileList, int requestedDegree, int requestedOrder ):
-        AtmosphereSettings( coma_model ),
-        polyCoefData_( std::move( polyCoefFileList ) ),
-        requestedDegree_( requestedDegree ),
-        requestedOrder_( requestedOrder )
-    {
-    }
+    // // Constructor taking PolyCoefficient file list as input.
+    // ComaSettings( std::vector< std::string > polyCoefFileList, int requestedDegree, int requestedOrder ):
+    //     AtmosphereSettings( coma_model ),
+    //     polyCoefData_() ),
+    //     requestedDegree_( requestedDegree ),
+    //     requestedOrder_( requestedOrder )
+    // {
+    // }
 
     //! Get the poly coefficient data handler object
     ComaPolyDataset getPolyDataset( ) const
@@ -2421,13 +2294,14 @@ inline std::shared_ptr< AtmosphereSettings > tabulatedAtmosphereSettings(
 }
 
 
-inline std::shared_ptr< AtmosphereSettings > comaSettings(
-        std::vector< std::string > polyList,
-        const int requestedDegree,
-        const int requestedOrder )
-{
-    return std::make_shared< ComaSettings >( polyList, requestedDegree, requestedOrder );
-}
+// TODO:
+// inline std::shared_ptr< AtmosphereSettings > comaSettings(
+//         std::vector< std::string > polyList,
+//         const int requestedDegree,
+//         const int requestedOrder )
+// {
+//     return std::make_shared< ComaSettings >( polyList, requestedDegree, requestedOrder );
+// }
 
 
 //! @get_docstring(customWindModelSettings)
