@@ -408,7 +408,7 @@ BOOST_AUTO_TEST_CASE(testPolyProcessor_CreateSHFiles_WritesCSVs)
     PolyCoefFileProcessing proc(files);
 
     // Radii/longitudes
-    const std::vector<double> radii_m = { 1000.0, 6000.0 };
+    const std::vector<double> radii_m = { 6000.0, 10000.0 };
     const std::vector<double> lons_deg = { 0.0, 30.0 };
 
     // Output directory: reuse the same test_data folder
@@ -463,7 +463,7 @@ BOOST_AUTO_TEST_CASE(testPolyProcessor_CreateSHFiles_WritesCSVs)
     BOOST_TEST_MESSAGE(std::string("block header: ") + line);
     BOOST_CHECK_NE(line.find("ID,0"), std::string::npos);
     // Contains r0 and L0; again tolerant on formatting
-    BOOST_CHECK( line.find("1000") != std::string::npos || line.find("1.000") != std::string::npos );
+    BOOST_CHECK( line.find("6000") != std::string::npos || line.find("6.000") != std::string::npos );
     BOOST_CHECK( line.find(",0")   != std::string::npos ); // longitude 0 deg somewhere after comma
 
     // 5) Column header line "n,m,C,S"

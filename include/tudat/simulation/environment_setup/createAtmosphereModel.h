@@ -271,7 +271,7 @@ public:
 
         // Row 1: metadata (key=value pairs)
         os << "meta";
-        set_sci( );
+        set_def( );
         os << ",start_epoch=" << fm.start_epoch;
         os << ",end_epoch=" << fm.end_epoch;
         os << ",max_degree=" << nmax_;
