@@ -258,9 +258,19 @@ public:
             vectorOfTimes.clear( );
             vectorOfStates.clear( );
 
-            // Compute observation
-            currentObservation = selectedObservationModel->computeObservationsWithLinkEndData(
-                    times[ i ], linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates, ancilliarySettings );
+            try
+            {
+                // Compute observation
+                currentObservation = selectedObservationModel->computeObservationsWithLinkEndData(
+                        times[ i ], linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates, ancilliarySettings );
+            }
+            catch (...)
+            {
+                std::throw_with_nested( std::runtime_error( "Error computing observation of type " +
+                    observation_models::getObservableName( observationSimulator_->getObservableType( ) ) +
+                    " with link ends " + getLinkEndsString( linkEnds ) + " at epoch " + std::to_string( times[ i ] ) ) );
+            }
+
             TimeType saveTime = times[ i ];
             while( observations.count( saveTime ) != 0 )
             {
@@ -277,13 +287,23 @@ public:
 
             if( calculatePartials )
             {
-                partialsMatrices[ saveTime ] = determineObservationPartialMatrix( currentObservationSize,
+
+                try
+                {
+                    partialsMatrices[ saveTime ] = determineObservationPartialMatrix( currentObservationSize,
                                                                                   vectorOfStates,
                                                                                   vectorOfTimes,
                                                                                   linkEnds,
                                                                                   currentObservation,
                                                                                   linkEndAssociatedWithTime,
                                                                                   ancilliarySettings );
+                }
+                catch (...)
+                {
+                    std::throw_with_nested( std::runtime_error( "Error computing partials for observation of type " +
+                        observation_models::getObservableName( observationSimulator_->getObservableType( ) ) +
+                        " with link ends " + getLinkEndsString( linkEnds ) + " at epoch " + std::to_string( times[ i ] ) ) );
+                }
             }
         }
 
