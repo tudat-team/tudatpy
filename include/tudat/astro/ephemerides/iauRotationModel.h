@@ -38,10 +38,12 @@ public:
                       const double rotationRate,
                       const Eigen::Vector2d& polePrecession,
                       const std::map< double, std::pair< double, double > >& meridianPeriodicTerms,
-                      const std::map< double, std::pair< Eigen::Vector2d, double > >& polePeriodicTerms ):
+                      const std::map< double, std::pair< Eigen::Vector2d, double > >& polePeriodicTerms,
+                      const double referenceEpochJ2000 = 0.0):
         RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ), nominalMeridian_( nominalMeridian ),
         nominalPole_( nominalPole ), rotationRate_( rotationRate ), polePrecession_( polePrecession ),
-        meridianPeriodicTerms_( meridianPeriodicTerms ), polePeriodicTerms_( polePeriodicTerms )
+        meridianPeriodicTerms_( meridianPeriodicTerms ), polePeriodicTerms_( polePeriodicTerms ),
+        referenceEpochJ2000_ ( referenceEpochJ2000 )
 
     { }
 
@@ -148,12 +150,13 @@ private:
     {
         if( currentTime == currentTime )
         {
-            currentMeridian_ = nominalMeridian_ + rotationRate_ * currentTime;
-            currentPolePosition_ = nominalPole_ + polePrecession_ * currentTime;
+            epochsSinceReference_ = currentTime - referenceEpochJ2000_;
+            currentMeridian_ = nominalMeridian_ + rotationRate_ * epochsSinceReference_;
+            currentPolePosition_ = nominalPole_ + polePrecession_ * epochsSinceReference_;
 
             for( auto it: meridianPeriodicTerms_ )
             {
-                currentMeridian_ += it.second.first * std::sin( it.first * currentTime + it.second.second );
+                currentMeridian_ += it.second.first * std::sin( it.first * epochsSinceReference_ + it.second.second );
             }
 
             for( auto it: polePeriodicTerms_ )
@@ -170,17 +173,20 @@ private:
     {
         if( currentTime == currentTime )
         {
+
+            epochsSinceReference_ = currentTime - referenceEpochJ2000_;
+
             currentMeridianDerivative_ = rotationRate_;
             currentPoleDerivative_ = polePrecession_;
 
             for( auto it: meridianPeriodicTerms_ )
             {
-                currentMeridianDerivative_ += it.second.first * it.first * std::cos( it.first * currentTime + it.second.second );
+                currentMeridianDerivative_ += it.second.first * it.first * std::cos( it.first * epochsSinceReference_ + it.second.second );
             }
 
             for( auto it: polePeriodicTerms_ )
             {
-                double currentAngle = it.first * currentTime + it.second.second;
+                double currentAngle = it.first * epochsSinceReference_ + it.second.second;
 
                 currentPoleDerivative_( 0 ) += it.first * it.second.first( 0 ) * std::cos( currentAngle );
                 currentPoleDerivative_( 1 ) -= it.first * it.second.first( 1 ) * std::sin( currentAngle );
@@ -199,6 +205,10 @@ private:
     std::map< double, std::pair< double, double > > meridianPeriodicTerms_;
 
     std::map< double, std::pair< Eigen::Vector2d, double > > polePeriodicTerms_;
+
+    double referenceEpochJ2000_;
+
+    double epochsSinceReference_;
 
     double currentMeridian_;
 
