@@ -67,7 +67,7 @@ namespace ephemeris
 
 void expose_ephemeris_setup( py::module& m )
 {
-    py::module_::import( "tudatpy.dynamics.environment" ).attr( "Ephemeris" );
+    py::module_::import( "tudatpy.kernel.dynamics.environment" ).attr( "Ephemeris" );
 
     // Types of ephemerides
     py::enum_< tss::EphemerisType >( m, "EphemerisType", R"doc(
