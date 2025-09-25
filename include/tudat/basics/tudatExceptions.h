@@ -147,7 +147,7 @@ class EphemerisError : public TudatError, public std::nested_exception {
 public:
     EphemerisError( const T evaluationTime )
         : TudatError( "Error in tabulated ephemeris, requesting state at epoch " +
-                                std::to_string( static_cast< double >( evaluationTime ) ) ) { }
+                                std::to_string( static_cast< double >( evaluationTime ) ) ), std::nested_exception() { }
 
 private:
 
@@ -160,7 +160,19 @@ public:
         : TudatError( "Error in light-time solution, computing light time with reference epoch " +
                                 std::to_string( static_cast< double >( evaluationTime ) ) + " (DateTime: " +
                                 basic_astrodynamics::DateTime::fromTime< T >( evaluationTime ).isoString( ) + ") at " +
-                                ( timeAtReception ? "receiver" : "transmitter" ) ) { }
+                                ( timeAtReception ? "receiver" : "transmitter" ) ), std::nested_exception() { }
+
+private:
+
+};
+
+class BodyDuringPropagationError : public TudatError {
+public:
+    BodyDuringPropagationError( const std::string bodyName, const std::string variableType )
+        : TudatError( "Error when attempting to retrieve " + variableType + " from " + bodyName +
+        ", the function you are using presumes the body's state is precomputed and is only valid during a propagation. "
+        " It cannot be used outside of a propagation. To retrieve a body translational/rotational state, extract it from the relevant "
+        " environment model (Body.ephemeris, Body.rotation_model, etc.) " ) { }
 
 private:
 

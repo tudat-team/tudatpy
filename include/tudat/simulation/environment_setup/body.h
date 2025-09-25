@@ -42,9 +42,9 @@
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/astro/ground_stations/bodyDeformationModel.h"
 #include "tudat/astro/propulsion/thrustGuidance.h"
-// #include "tudat/astro/reference_frames/dependentOrientationCalculator.h"
 #include "tudat/astro/system_models/vehicleSystems.h"
 #include "tudat/basics/basicTypedefs.h"
+#include "tudat/basics/tudatExceptions.h"
 #include "tudat/math/basic/numericalDerivative.h"
 
 namespace tudat
@@ -571,7 +571,7 @@ public:
     {
         if( !isStateSet_ )
         {
-            throw std::runtime_error( "Error when retrieving state from body " + bodyName_ + ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "translational state" );
         }
         else
         {
@@ -770,7 +770,7 @@ public:
     {
         if( !isStateSet_ )
         {
-            throw std::runtime_error( "Error when retrieving position from body " + bodyName_ + ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "translational state (position only)" );
         }
         else
         {
@@ -789,7 +789,7 @@ public:
     {
         if( !isStateSet_ )
         {
-            throw std::runtime_error( "Error when retrieving velociy from body " + bodyName_ + ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "translational state (velocity only)" );
         }
         else
         {
@@ -806,7 +806,7 @@ public:
     {
         if( !isStateSet_ )
         {
-            throw std::runtime_error( "Error when retrieving long state from body " + bodyName_ + ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "translational state" );
         }
         else
         {
@@ -823,7 +823,7 @@ public:
     {
         if( !isStateSet_ )
         {
-            throw std::runtime_error( "Error when retrieving long position from body " + bodyName_ + ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "translational state (position only)" );
         }
         else
         {
@@ -840,7 +840,7 @@ public:
     {
         if( !isStateSet_ )
         {
-            throw std::runtime_error( "Error when retrieving long velocity from body " + bodyName_ + ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "translational state (velocity only)" );
         }
         else
         {
@@ -954,8 +954,7 @@ public:
     {
         if( !isRotationSet_ )
         {
-            throw std::runtime_error( "Error when retrieving rotation to global frame from body " + bodyName_ +
-                                      ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation body-fixed to global frame)" );
         }
         else
         {
@@ -967,8 +966,7 @@ public:
     {
         if( !isRotationSet_ )
         {
-            throw std::runtime_error( "Error when retrieving rotation to global frame from body " + bodyName_ +
-                                      ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation body-fixed to global frame)" );
         }
         else
         {
@@ -988,8 +986,7 @@ public:
     {
         if( !isRotationSet_ )
         {
-            throw std::runtime_error( "Error when retrieving rotation to local frame from body " + bodyName_ +
-                                      ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation global to body-fixed frame)" );
         }
         else
         {
@@ -1001,8 +998,8 @@ public:
     {
         if( !isRotationSet_ )
         {
-            throw std::runtime_error( "Error when retrieving rotation to global frame from body " + bodyName_ +
-                                      ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation body-fixed to global frame)" );
+
         }
         else
         {
@@ -1014,8 +1011,7 @@ public:
     {
         if( !isRotationSet_ )
         {
-            throw std::runtime_error( "Error when retrieving rotation to local frame from body " + bodyName_ +
-                                      ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation global to body-fixed frame)" );
         }
         else
         {
@@ -1033,7 +1029,7 @@ public:
     {
         if( !isRotationSet_ )
         {
-            throw std::runtime_error( "Error when retrieving rotation from body " + bodyName_ + ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation quaternion and angular velocity)" );
         }
         else
         {
@@ -1055,8 +1051,7 @@ public:
     {
         if( !isRotationSet_ )
         {
-            throw std::runtime_error( "Error when retrieving derivative of rotation to global frame from body " + bodyName_ +
-                                      ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation derivative body-fixed to global frame)" );
         }
         else if( currentRotationToLocalFrameDerivative_.hasNaN( ) )
         {
@@ -1081,8 +1076,7 @@ public:
     {
         if( !isRotationSet_ )
         {
-            throw std::runtime_error( "Error when retrieving derivative of rotation to local frame from body " + bodyName_ +
-                                      ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation derivative global to body-fixed  frame)" );
         }
         else if( currentRotationToLocalFrameDerivative_.hasNaN( ) )
         {
@@ -1104,8 +1098,7 @@ public:
     {
         if( !isRotationSet_ )
         {
-            throw std::runtime_error( "Error when retrieving angular velocioty of body " + bodyName_ +
-                                      ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (angular velocity vector in global frame)" );
         }
         else
         {
@@ -1124,8 +1117,7 @@ public:
     {
         if( !isRotationSet_ )
         {
-            throw std::runtime_error( "Error when retrieving angular velocioty of body " + bodyName_ +
-                                      ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (angular velocity vector in body-fixed frame)" );
         }
         else
         {
