@@ -196,7 +196,7 @@ BOOST_FIXTURE_TEST_CASE(test_poly_dataset_reader, TestDataPaths)
 
     // Test value access
     const double val = dataset.value(0, 10, 3, 1);
-    BOOST_CHECK_CLOSE(val, polyCoefs(10, indices.cols() > 0 ? 0 : 0), 1e-12);
+    BOOST_CHECK_CLOSE(val, col[10], 1e-12);
 }
 
 BOOST_FIXTURE_TEST_CASE(test_stokes_dataset_writer, TestDataPaths)
