@@ -42,14 +42,22 @@ Eigen::MatrixXd SingleArcCombinedStateTransitionAndSensitivityMatrixInterface::g
     combinedStateTransitionMatrix_.setZero( );
 
     // Set Phi and S matrices.
-    combinedStateTransitionMatrix_.block( 0, 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_ ) =
+    try
+    {
+        combinedStateTransitionMatrix_.block( 0, 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_ ) =
             stateTransitionMatrixInterpolator_->interpolate( evaluationTime );
 
-    if( sensitivityMatrixSize_ > 0 )
-    {
-        combinedStateTransitionMatrix_.block( 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_, sensitivityMatrixSize_ ) =
-                sensitivityMatrixInterpolator_->interpolate( evaluationTime );
+        if( sensitivityMatrixSize_ > 0 )
+        {
+            combinedStateTransitionMatrix_.block( 0, stateTransitionMatrixSize_, stateTransitionMatrixSize_, sensitivityMatrixSize_ ) =
+                    sensitivityMatrixInterpolator_->interpolate( evaluationTime );
+        }
     }
+    catch (...)
+    {
+        std::throw_with_nested( std::runtime_error( "Error variational equation solution interpolation " ) );
+    }
+
 
     if( addCentralBodyDependency )
     {
