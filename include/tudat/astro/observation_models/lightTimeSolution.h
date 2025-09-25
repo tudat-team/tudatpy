@@ -392,9 +392,9 @@ public:
                        .norm( ) /
                 physical_constants::SPEED_OF_LIGHT;
         }
-        catch (...)
+        catch ( std::runtime_error& caughtException )
         {
-            std::throw_with_nested( exceptions::LightTimeSolutionError< TimeType >( time, isTimeAtReception ) );
+            throw exceptions::LightTimeSolutionError< TimeType >( time, isTimeAtReception, caughtException.what( ) );
         }
 
 
@@ -567,9 +567,9 @@ public:
 
             return newLightTimeCalculation;
         }
-        catch (...)
+        catch ( std::runtime_error& caughtException )
         {
-            std::throw_with_nested( exceptions::LightTimeSolutionError< TimeType >( time, isTimeAtReception ) );
+            throw exceptions::LightTimeSolutionError< TimeType >( time, isTimeAtReception, caughtException.what( ) );
         }
     }
 

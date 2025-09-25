@@ -53,10 +53,11 @@ Eigen::MatrixXd SingleArcCombinedStateTransitionAndSensitivityMatrixInterface::g
                     sensitivityMatrixInterpolator_->interpolate( evaluationTime );
         }
     }
-    catch (...)
+    catch( std::runtime_error& caughtException )
     {
-        std::throw_with_nested( std::runtime_error( "Error variational equation solution interpolation " ) );
+        throw std::runtime_error( "Error variational equation solution interpolation.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
+
 
 
 

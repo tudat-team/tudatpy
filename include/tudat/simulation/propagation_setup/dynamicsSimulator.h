@@ -1502,10 +1502,11 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getArcInitialStateFromPrevio
                                                                            Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >,
                                                                            long double > >( initialStateInterpolationMap, 8 )->interpolate( currentArcInitialTime );
             }
-            catch (...)
+            catch( std::runtime_error& caughtException )
             {
-                std::throw_with_nested( std::runtime_error( "Error in arc initial state interpolation: " ) );
+                throw std::runtime_error( "Error in arc initial state interpolation.\nOriginal error: " + std::string( caughtException.what( ) ) );
             }
+
         }
     }
     return currentArcInitialState;

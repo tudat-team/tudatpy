@@ -143,24 +143,28 @@ public:
 };
 
 template< typename T >
-class EphemerisError : public TudatError, public std::nested_exception {
+class EphemerisError : public TudatError
+{
 public:
-    EphemerisError( const T evaluationTime )
-        : TudatError( "Error in tabulated ephemeris, requesting state at epoch " +
-                                std::to_string( static_cast< double >( evaluationTime ) ) ), std::nested_exception() { }
+    EphemerisError( const T evaluationTime, const std::string& originalError )
+        : TudatError( "Error in ephemeris, requesting state at epoch " +
+                                std::to_string( static_cast< double >( evaluationTime ) ) +
+                                ".\nOriginal error: " + originalError ) { }
 
 private:
 
 };
 
 template< typename T >
-class LightTimeSolutionError : public TudatError, public std::nested_exception {
+class LightTimeSolutionError : public TudatError
+{
 public:
-    LightTimeSolutionError( const T evaluationTime, const bool timeAtReception )
+    LightTimeSolutionError( const T evaluationTime, const bool timeAtReception, const std::string& originalError )
         : TudatError( "Error in light-time solution, computing light time with reference epoch " +
                                 std::to_string( static_cast< double >( evaluationTime ) ) + " (DateTime: " +
                                 basic_astrodynamics::DateTime::fromTime< T >( evaluationTime ).isoString( ) + ") at " +
-                                ( timeAtReception ? "receiver" : "transmitter" ) ), std::nested_exception() { }
+                                ( timeAtReception ? "receiver" : "transmitter" ) +
+                                ".\nOriginal error: " + originalError ) { }
 
 private:
 

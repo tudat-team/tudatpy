@@ -172,10 +172,11 @@ public:
         {
             currentCoefficients_ = coefficientInterpolator_->interpolate( time );
         }
-        catch (...)
+        catch( std::runtime_error& caughtException )
         {
-            std::throw_with_nested( std::runtime_error( "Error in arc-wise drag coefficient: " ) );
+            throw std::runtime_error( "Error in arc-wise drag coefficient.\nOriginal error: " + std::string( caughtException.what( ) ) );
         }
+
 
     }
 

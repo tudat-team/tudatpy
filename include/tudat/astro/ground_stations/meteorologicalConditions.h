@@ -298,10 +298,11 @@ private:
             {
                 currentData_ = troposphereInterpolator_->interpolate( currentUtc_ );
             }
-            catch (...)
+            catch( std::runtime_error& caughtException )
             {
-                std::throw_with_nested( std::runtime_error( "Error in station meteo data: " ) );
+                throw std::runtime_error( "Error in station meteo data.\nOriginal error: " + std::string( caughtException.what( ) ) );
             }
+
 
         }
     }
