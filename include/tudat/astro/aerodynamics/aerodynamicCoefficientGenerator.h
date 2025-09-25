@@ -240,10 +240,11 @@ public:
             currentForceCoefficients_ = currentCoefficients.segment( 0, 3 );
             currentMomentCoefficients_ = currentCoefficients.segment( 3, 3 );
         }
-        catch (...)
+        catch( std::runtime_error& caughtException )
         {
-            std::throw_with_nested( std::runtime_error( "Error in tabulated aerodynamic coefficients: " ) );
+            throw std::runtime_error( "Error in tabulated aerodynamic coefficients.\nOriginal error: " + std::string( caughtException.what( ) ) );
         }
+
     }
 
     void clearBaseData( )

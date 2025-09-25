@@ -264,10 +264,11 @@ double NiellTroposphericMapping::computeWetTroposphericMapping( const Eigen::Vec
 
         return computeMFunction( aWetInterpolated, bWetInterpolated, cWetInterpolated, elevation );
     }
-    catch (...)
+    catch( std::runtime_error& caughtException )
     {
-        std::throw_with_nested( std::runtime_error( "Error in Niell troposphere wet model." ) );
+        throw std::runtime_error( "Error in Niell troposphere wet model.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
+
 
 }
 
@@ -347,10 +348,11 @@ double NiellTroposphericMapping::computeDryCoefficient(
 
         return dryCoefficient;
     }
-    catch (...)
+    catch( std::runtime_error& caughtException )
     {
-        std::throw_with_nested( std::runtime_error( "Error in Niell troposphere dry model." ) );
+        throw std::runtime_error( "Error in Niell troposphere dry model.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
+
 
 }
 

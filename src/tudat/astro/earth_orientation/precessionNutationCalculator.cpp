@@ -73,10 +73,11 @@ Eigen::Vector3d PrecessionNutationCalculator::getPositionOfCipInGcrs( const doub
     {
         nominalCipPosition.segment( 0, 2 ) += dailyCorrectionInterpolator_->interpolate( utc );
     }
-    catch (...)
+    catch( std::runtime_error& caughtException )
     {
-        std::throw_with_nested( std::runtime_error( "Error in precession-nutation interpolation: " ) );
+        throw std::runtime_error( "Error in precession-nutation interpolation.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
+
 
     // Add nominal values and corrections and return.
     return nominalCipPosition;

@@ -679,9 +679,11 @@ public:
             }
             isStateSet_ = true;
         }
-        catch (...)
+
+        catch ( std::runtime_error& caughtException )
         {
-            std::throw_with_nested( std::runtime_error( "Error when setting global state of " + bodyName_ + " from ephemeris" ) );
+            throw std::runtime_error( "Error when setting global state of " + bodyName_ + " from ephemeris" +
+                    ".\nOriginal error: " + std::string( caughtException.what( ) ) );
         }
     }
 

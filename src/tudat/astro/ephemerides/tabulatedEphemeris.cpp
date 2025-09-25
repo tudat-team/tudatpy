@@ -27,10 +27,11 @@ Eigen::Vector6d TabulatedCartesianEphemeris< double, double >::getCartesianState
     {
         return interpolator_->interpolate( ephemerisTime );
     }
-    catch (...)
+    catch( std::runtime_error& caughtException )
     {
-        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+        throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
+
 }
 
 //! Get cartesian state from ephemeris (in long double precision), for double StateScalarType
@@ -45,10 +46,11 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, double >
     {
         return interpolator_->interpolate( secondsSinceEpoch ).cast< long double >( );
     }
-    catch (...)
+    catch( std::runtime_error& caughtException )
     {
-        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+        throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
+
 }
 
 //! Get cartesian state from ephemeris (in double precision from Time input), for double StateScalarType
@@ -63,10 +65,11 @@ Eigen::Vector6d TabulatedCartesianEphemeris< double, double >::getCartesianState
     {
         return interpolator_->interpolate( time.getSeconds< double >( ) );
     }
-    catch (...)
+    catch( std::runtime_error& caughtException )
     {
-        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+        throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
+
 }
 
 //! Get cartesian state from ephemeris (in long double precision from Time input), for double StateScalarType
@@ -81,10 +84,11 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, double >
     {
         return interpolator_->interpolate( time.getSeconds< double >( ) ).cast< long double >( );
     }
-    catch (...)
+    catch( std::runtime_error& caughtException )
     {
-        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+        throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
+
 }
 
 //! Get cartesian state from ephemeris (in double precision), for long double StateScalarType
@@ -99,10 +103,11 @@ Eigen::Vector6d TabulatedCartesianEphemeris< long double, double >::getCartesian
     {
         return interpolator_->interpolate( ephemerisTime ).cast< double >( );
     }
-    catch (...)
+    catch( std::runtime_error& caughtException )
     {
-        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+        throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
+
 }
 
 //! Get cartesian state from ephemeris (in long double precision), for long double StateScalarType
@@ -118,10 +123,11 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, dou
     {
         return interpolator_->interpolate( secondsSinceEpoch );
     }
-    catch (...)
+    catch( std::runtime_error& caughtException )
     {
-        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+        throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
+
 }
 
 //! Get cartesian state from ephemeris (in double precision from Time input), for double StateScalarType
@@ -136,10 +142,11 @@ Eigen::Vector6d TabulatedCartesianEphemeris< long double, double >::getCartesian
     {
         return interpolator_->interpolate( time.getSeconds< double >( ) ).cast< double >( );
     }
-    catch (...)
+    catch( std::runtime_error& caughtException )
     {
-        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+        throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
+
 }
 
 //! Get cartesian state from ephemeris (in long double precision from Time input), for double StateScalarType
@@ -155,10 +162,11 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, dou
     {
         return interpolator_->interpolate( time.getSeconds< double >( ) );
     }
-    catch (...)
+    catch( std::runtime_error& caughtException )
     {
-        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+        throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
+
 }
 
 //! Get cartesian state from ephemeris (in double precision), double StateScalarType
@@ -173,10 +181,11 @@ Eigen::Vector6d TabulatedCartesianEphemeris< double, Time >::getCartesianState( 
     {
         return interpolator_->interpolate( Time( ephemerisTime ) );
     }
-    catch (...)
+    catch( std::runtime_error& caughtException )
     {
-        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+        throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
+
 
 }
 
@@ -192,10 +201,11 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, Time >::
     {
         return interpolator_->interpolate( Time( secondsSinceEpoch ) ).cast< long double >( );
     }
-    catch (...)
+    catch( std::runtime_error& caughtException )
     {
-        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+        throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
+
 
 }
 
@@ -211,10 +221,11 @@ Eigen::Vector6d TabulatedCartesianEphemeris< double, Time >::getCartesianStateFr
     {
         return interpolator_->interpolate( time );
     }
-    catch (...)
+    catch( std::runtime_error& caughtException )
     {
-        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+        throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
+
 
 }
 
@@ -230,10 +241,11 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, Time >::
     {
         return interpolator_->interpolate( time ).cast< long double >( );
     }
-    catch (...)
+    catch( std::runtime_error& caughtException )
     {
-        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+        throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
+
 
 }
 
@@ -249,10 +261,11 @@ Eigen::Vector6d TabulatedCartesianEphemeris< long double, Time >::getCartesianSt
     {
         return interpolator_->interpolate( Time( ephemerisTime ) ).cast< double >( );
     }
-    catch (...)
+    catch( std::runtime_error& caughtException )
     {
-        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+        throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
+
 
 }
 
@@ -268,10 +281,11 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, Tim
     {
         return interpolator_->interpolate( Time( secondsSinceEpoch ) );
     }
-    catch (...)
+    catch( std::runtime_error& caughtException )
     {
-        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+        throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
+
 
 }
 
@@ -287,10 +301,11 @@ Eigen::Vector6d TabulatedCartesianEphemeris< long double, Time >::getCartesianSt
     {
         return interpolator_->interpolate( time ).cast< double >( );
     }
-    catch (...)
+    catch( std::runtime_error& caughtException )
     {
-        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+        throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
+
 
 }
 
@@ -307,10 +322,11 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, Tim
     {
         return interpolator_->interpolate( time );
     }
-    catch (...)
+    catch( std::runtime_error& caughtException )
     {
-        std::throw_with_nested( std::runtime_error( "Error in tabulated ephemeris: " ) );
+        throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
+
 
 }
 

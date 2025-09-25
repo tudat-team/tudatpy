@@ -199,10 +199,11 @@ double SphericalShapingLeg::convertTimeToAzimuth( const double timeSinceDepartur
     {
         return interpolator_->interpolate( timeSinceDeparture );
     }
-    catch (...)
+    catch( std::runtime_error& caughtException )
     {
-        std::throw_with_nested( std::runtime_error( "Error spherical shaping leg " ) );
+        throw std::runtime_error( "Error spherical shaping leg.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
+
 
 }
 
