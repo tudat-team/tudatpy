@@ -858,21 +858,17 @@ class StubGenerator:
                 # Absolute import from kernel
                 if "tudatpy.kernel" in statement.module:
 
-                    # Non-star imports from kernel are not allowed
-                    if not (
-                        len(statement.names) == 1
-                        and statement.names[0].name == "*"
-                    ):
-                        raise ValueError(
-                            f"Failed to generate {stub_path}: "
-                            f"Only star imports from kernel are supported. "
-                            f"Requested: {ast.unparse(statement)}"
-                        )
+                    if is_star_import(statement):
 
-                    # Process star import
-                    statement, stub_all = self.__expand_kernel_star_import(
-                        statement, stub_all
-                    )
+                        # Process star import
+                        statement, stub_all = self.__expand_kernel_star_import(
+                            statement, stub_all
+                        )
+                    else:
+
+                        # Add imported items to stub all
+                        for item in statement.names:
+                            stub_all.append(item.name)
 
                     # If the import statement is not empty, update stub body
                     if statement is not None:
