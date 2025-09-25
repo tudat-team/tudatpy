@@ -25,9 +25,9 @@ struct TestDataPaths
 
     TestDataPaths()
     {
-        boost::filesystem::path thisFile(__FILE__);
-        boost::filesystem::path testDir = thisFile.parent_path();
-        boost::filesystem::path dataDir = testDir / "test_data";
+        const boost::filesystem::path thisFile(__FILE__);
+        const boost::filesystem::path testDir = thisFile.parent_path();
+        const boost::filesystem::path dataDir = testDir / "test_data";
         testFile = dataDir / "input_poly_coef_test_file.txt";
         outputDir = dataDir / "test_output";
 
@@ -90,13 +90,13 @@ BOOST_AUTO_TEST_SUITE(test_data_models)
 BOOST_AUTO_TEST_CASE(test_stokes_dataset_creation)
 {
     // Test pure data model creation
-    std::vector<ComaStokesDataset::FileMeta> files = {
+    const std::vector<ComaStokesDataset::FileMeta> files = {
         {2.015e9, 2.0150864e9, "test_file_1"},
         {2.016e9, 2.0160864e9, "test_file_2"}
     };
-    std::vector<double> radii = {1000.0, 2000.0, 3000.0};
-    std::vector<double> lons = {0.0, 30.0, 60.0, 90.0};
-    int nmax = 10;
+    const std::vector<double> radii = {1000.0, 2000.0, 3000.0};
+    const std::vector<double> lons = {0.0, 30.0, 60.0, 90.0};
+    constexpr int nmax = 10;
 
     ComaStokesDataset dataset = ComaStokesDataset::create(files, radii, lons, nmax);
 
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(test_stokes_dataset_creation)
     BOOST_CHECK_EQUAL(dataset.nmax(), nmax);
 
     // Expected number of coefficients for degree 10
-    std::size_t expectedCoeffs = (nmax + 1) * (nmax + 2) / 2;
+    constexpr std::size_t expectedCoeffs = (nmax + 1) * (nmax + 2) / 2;
     BOOST_CHECK_EQUAL(dataset.nCoeffs(), expectedCoeffs);
 
     // Test coefficient setting and getting
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE(test_stokes_dataset_creation)
     BOOST_CHECK_CLOSE(S, -0.3, 1e-12);
 
     // Test block access
-    auto block = dataset.block(0, 0, 0);
+    const auto block = dataset.block(0, 0, 0);
     BOOST_CHECK_EQUAL(block.rows(), expectedCoeffs);
     BOOST_CHECK_EQUAL(block.cols(), 2);
 
@@ -132,10 +132,10 @@ BOOST_AUTO_TEST_CASE(test_stokes_dataset_creation)
 
 BOOST_AUTO_TEST_CASE(test_stokes_dataset_bounds_checking)
 {
-    std::vector<ComaStokesDataset::FileMeta> files = {{0, 0, "test"}};
-    std::vector<double> radii = {1000.0};
-    std::vector<double> lons = {0.0};
-    int nmax = 5;
+    const std::vector<ComaStokesDataset::FileMeta> files = {{0, 0, "test"}};
+    const std::vector<double> radii = {1000.0};
+    const std::vector<double> lons = {0.0};
+    constexpr int nmax = 5;
 
     ComaStokesDataset dataset = ComaStokesDataset::create(files, radii, lons, nmax);
 
@@ -155,10 +155,10 @@ BOOST_AUTO_TEST_SUITE(test_io_components)
 
 BOOST_FIXTURE_TEST_CASE(test_poly_dataset_reader, TestDataPaths)
 {
-    std::vector<std::string> files = {testFile.string()};
+    const std::vector<std::string> files = {testFile.string()};
 
     // Test reader functionality
-    ComaPolyDataset dataset = ComaPolyDatasetReader::readFromFiles(files);
+    const ComaPolyDataset dataset = ComaPolyDatasetReader::readFromFiles(files);
 
     BOOST_CHECK_EQUAL(dataset.getNumFiles(), 1);
 
@@ -191,11 +191,11 @@ BOOST_FIXTURE_TEST_CASE(test_poly_dataset_reader, TestDataPaths)
     BOOST_CHECK_EQUAL(powers[3], 3);
 
     // Test column access by (n,m)
-    Eigen::VectorXd col = dataset.columnForNM(0, 3, 1);
+    const Eigen::VectorXd col = dataset.columnForNM(0, 3, 1);
     BOOST_CHECK_EQUAL(col.rows(), ExpectedPolyValues::numTerms);
 
     // Test value access
-    double val = dataset.value(0, 10, 3, 1);
+    const double val = dataset.value(0, 10, 3, 1);
     BOOST_CHECK_CLOSE(val, polyCoefs(10, indices.cols() > 0 ? 0 : 0), 1e-12);
 }
 
@@ -263,20 +263,18 @@ BOOST_AUTO_TEST_CASE(test_stokes_coefficients_evaluator)
     // Create test data matching your original test
     double distanceToCometCentre = 6.0; // km
     double solarLongitude = 30.0 * M_PI / 180.0; // radians
-    int maxDegree = 10;
-    int maxOrder = 10;
+    constexpr int maxDegree = 10;
+    constexpr int maxOrder = 10;
 
     // You would need to set up polyCoefficients, degreeAndOrder, etc.
     // from your test data here. This is a simplified version:
-
-    Eigen::MatrixXd cosineCoefficients, sineCoefficients;
 
     // This would call your evaluator with the proper test data
     // StokesCoefficientsEvaluator::evaluate2D(...);
 
     // For now, just check the output dimensions would be correct
-    cosineCoefficients = Eigen::MatrixXd::Zero(maxDegree + 1, maxOrder + 1);
-    sineCoefficients = Eigen::MatrixXd::Zero(maxDegree + 1, maxOrder + 1);
+    const Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero(maxDegree + 1, maxOrder + 1);
+    const Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero(maxDegree + 1, maxOrder + 1);
 
     BOOST_CHECK_EQUAL(cosineCoefficients.rows(), maxDegree + 1);
     BOOST_CHECK_EQUAL(cosineCoefficients.cols(), maxOrder + 1);
@@ -333,10 +331,10 @@ BOOST_AUTO_TEST_SUITE(test_high_level_interface)
 
 BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_poly_dataset, TestDataPaths)
 {
-    std::vector<std::string> files = {testFile.string()};
-    ComaModelFileProcessor processor(files);
+    const std::vector<std::string> files = {testFile.string()};
+    const ComaModelFileProcessor processor(files);
 
-    ComaPolyDataset polyDataset = processor.createPolyCoefDataset();
+    const ComaPolyDataset polyDataset = processor.createPolyCoefDataset();
 
     BOOST_CHECK_EQUAL(polyDataset.getNumFiles(), 1);
     BOOST_CHECK_EQUAL(polyDataset.getFileMeta(0).sourcePath, files[0]);
@@ -346,14 +344,14 @@ BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_poly_dataset, TestDataPa
 
 BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_sh_dataset, TestDataPaths)
 {
-    std::vector<std::string> files = {testFile.string()};
-    ComaModelFileProcessor processor(files);
+    const std::vector<std::string> files = {testFile.string()};
+    const ComaModelFileProcessor processor(files);
 
-    std::vector<double> radii_m = {6000.0, 10000.0};
-    std::vector<double> lons_deg = {0.0, 30.0};
+    const std::vector<double> radii_m = {6000.0, 10000.0};
+    const std::vector<double> lons_deg = {0.0, 30.0};
 
     // Test with auto-selected maxima
-    ComaStokesDataset dataset = processor.createSHDataset(radii_m, lons_deg);
+    const ComaStokesDataset dataset = processor.createSHDataset(radii_m, lons_deg);
 
     BOOST_CHECK_EQUAL(dataset.nFiles(), 1);
     BOOST_CHECK_EQUAL(dataset.nRadii(), 2);
@@ -416,11 +414,11 @@ BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_sh_files, TestDataPaths)
 
 BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_validation, TestDataPaths)
 {
-    std::vector<std::string> files = {testFile.string()};
-    ComaModelFileProcessor processor(files);
+    const std::vector<std::string> files = {testFile.string()};
+    const ComaModelFileProcessor processor(files);
 
-    std::vector<double> radii_m = {6000.0};
-    std::vector<double> lons_deg = {30.0};
+    const std::vector<double> radii_m = {6000.0};
+    const std::vector<double> lons_deg = {30.0};
 
     // Test with invalid degree/order requests
     BOOST_CHECK_THROW(
@@ -432,7 +430,7 @@ BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_validation, TestDataPaths)
         std::invalid_argument);
 
     // Test with empty inputs
-    std::vector<double> emptyVec;
+    const std::vector<double> emptyVec;
     BOOST_CHECK_THROW(
         processor.createSHDataset(emptyVec, lons_deg),
         std::invalid_argument);
@@ -445,7 +443,7 @@ BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_validation, TestDataPaths)
 BOOST_AUTO_TEST_CASE(test_poly_coef_processor_constructor_validation)
 {
     // Test with empty file list
-    std::vector<std::string> emptyFiles;
+    const std::vector<std::string> emptyFiles;
     BOOST_CHECK_THROW(
         ComaModelFileProcessor processor(emptyFiles),
         std::invalid_argument);
@@ -470,10 +468,10 @@ BOOST_FIXTURE_TEST_CASE(test_full_pipeline, TestDataPaths)
     // Step 2: Transform to Stokes dataset
     std::vector<double> radii_m = {6000.0, 10000.0};
     std::vector<double> lons_deg = {0.0, 30.0};
-    ComaStokesDataset stokesDataset = processor.createSHDataset(radii_m, lons_deg, 8, 6);
+    ComaStokesDataset stokesDataset = processor.createSHDataset(radii_m, lons_deg, 10, 10);
 
-    BOOST_CHECK_EQUAL(stokesDataset.nmax(), 8);
-    BOOST_CHECK_LE(stokesDataset.nCoeffs(), (8+1)*(8+2)/2);
+    BOOST_CHECK_EQUAL(stokesDataset.nmax(), 10);
+    BOOST_CHECK_LE(stokesDataset.nCoeffs(), (10+1)*(10+2)/2);
 
     // Step 3: Write to files
     boost::filesystem::path integratedOutput = outputDir / "integrated";

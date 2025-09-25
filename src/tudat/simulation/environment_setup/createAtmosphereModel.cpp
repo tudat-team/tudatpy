@@ -290,16 +290,16 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
                         std::bind( &simulation_setup::Body::getState, bodies.at( body ) );
                 std::function< Eigen::Matrix3d( ) > bodyOrientationFunction =
                                         std::bind( &simulation_setup::Body::getCurrentRotationMatrixToLocalFrame, bodies.at( body ) );
-                const auto comaModel =
-                        std::make_shared< ComaModel >( comaSettings->getPolyCoefficients( ),
-                                                       comaSettings->getSHDegreeAndOrder( ),
-                                                       comaSettings->getPowersInvRadius( ),
-                                                       comaSettings->getReferenceRadius( ),
-                                                       comaSettings->getTimePeriods( ),
-                                                       comaSettings->getRequestedDegree(  ),
-                                                       comaSettings->getRequestedOrder(  ) );
-
-                atmosphereModel = comaModel;
+                // const auto comaModel =
+                //         std::make_shared< ComaModel >( comaSettings->getPolyCoefficients( ),
+                //                                        comaSettings->getSHDegreeAndOrder( ),
+                //                                        comaSettings->getPowersInvRadius( ),
+                //                                        comaSettings->getReferenceRadius( ),
+                //                                        comaSettings->getTimePeriods( ),
+                //                                        comaSettings->getRequestedDegree(  ),
+                //                                        comaSettings->getRequestedOrder(  ) );
+                //
+                // atmosphereModel = comaModel;
             }
             break;
         }
