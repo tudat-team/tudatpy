@@ -824,9 +824,9 @@ using the NRLMSISE-00 global reference model:
             py::arg( "max_degree" ) = -1,
             py::arg( "max_order" ) = -1,
             R"doc(
-Create a coma atmosphere from polynomial coefficients.
-)doc"
-            );
+    Create a coma atmosphere from polynomial coefficients.
+    )doc"
+                );
 
     m.def(
             "coma_model",
@@ -836,12 +836,96 @@ Create a coma atmosphere from polynomial coefficients.
             py::arg( "max_degree" ) = -1,
             py::arg( "max_order" ) = -1,
             R"doc(
-Create a coma atmosphere from precomputed Stokes coefficients.
-)doc"
+    Create a coma atmosphere from precomputed Stokes coefficients.
+    )doc"
             );
 
+    // === Coma processing: datasets (minimal shells so Python can hold them) ===
+    py::class_< tss::ComaPolyDataset >( m,
+                                        "ComaPolyDataset",
+                                        R"doc(Polynomial-coefficient dataset for the coma model.)doc" );
 
+    py::class_< tss::ComaStokesDataset >( m,
+                                          "ComaStokesDataset",
+                                          R"doc(Stokes spherical-harmonics dataset for the coma model.)doc" );
 
+    // === Coma processing: file processor ===
+    m.def(
+            "coma_model_file_processor",
+            &tss::comaModelFileProcessor,
+            py::arg( "file_paths" ),
+            R"doc(Create a ComaModelFileProcessor from a list of polynomial coefficient files.)doc"
+            );
+
+    m.def(
+            "coma_create_poly_dataset_from_files",
+            &tss::comaCreatePolyDatasetFromFiles,
+            py::arg( "file_paths" ),
+            py::call_guard< py::gil_scoped_release >( ),
+            R"doc(
+                Read and parse polynomial coefficient files into a ComaPolyDataset.
+
+                Parameters
+                ----------
+                file_paths : list[str]
+                    Paths to polynomial coefficient files.
+
+                Returns
+                -------
+                ComaPolyDataset
+                    Parsed dataset.
+                )doc"
+            );
+
+    m.def(
+            "coma_create_sh_dataset_from_files",
+            &tss::comaCreateSHDatasetFromFiles,
+            py::arg( "file_paths" ),
+            py::arg( "radii_m" ),
+            py::arg( "solLongitudes_deg" ),
+            py::arg( "requestedMaxDegree" ) = -1,
+            py::arg( "requestedMaxOrder" ) = -1,
+            py::call_guard< py::gil_scoped_release >( ),
+            R"doc(
+                Transform the polynomial dataset (from files) into a Stokes dataset.
+
+                Parameters
+                ----------
+                file_paths : list[str]
+                radii_m : list[float]
+                solLongitudes_deg : list[float]
+                requestedMaxDegree : int, optional
+                requestedMaxOrder  : int, optional
+
+                Returns
+                -------
+                ComaStokesDataset
+                )doc"
+            );
+
+    m.def(
+            "coma_write_sh_csv_from_files",
+            &tss::comaWriteSHCsvFromFiles,
+            py::arg( "file_paths" ),
+            py::arg( "outputDir" ),
+            py::arg( "radii_m" ),
+            py::arg( "solLongitudes_deg" ),
+            py::arg( "requestedMaxDegree" ) = -1,
+            py::arg( "requestedMaxOrder" ) = -1,
+            py::call_guard< py::gil_scoped_release >( ),
+            R"doc(
+                Create a Stokes dataset and write all CSV files to `outputDir`.
+
+                Parameters
+                ----------
+                file_paths : list[str]
+                outputDir : str
+                radii_m : list[float]
+                solLongitudes_deg : list[float]
+                requestedMaxDegree : int, optional
+                requestedMaxOrder  : int, optional
+                )doc"
+            );
 
 
 

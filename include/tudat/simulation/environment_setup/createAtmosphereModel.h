@@ -2271,6 +2271,47 @@ inline std::shared_ptr< AtmosphereSettings > comaSettings(
 
 
 
+// === Coma processing: factory-style helpers (header-inline) ===
+inline std::shared_ptr<ComaModelFileProcessor > comaModelFileProcessor(
+    std::vector<std::string> filePaths)
+{
+    return std::make_shared<ComaModelFileProcessor>( filePaths );
+}
+
+inline ComaPolyDataset comaCreatePolyDatasetFromFiles(
+    const std::vector<std::string>& filePaths)
+{
+    ComaModelFileProcessor proc(filePaths);
+    return proc.createPolyCoefDataset();
+}
+
+inline ComaStokesDataset comaCreateSHDatasetFromFiles(
+    const std::vector<std::string>& filePaths,
+    const std::vector<double>& radii_m,
+    const std::vector<double>& solLongitudes_deg,
+    const int requestedMaxDegree = -1,
+    const int requestedMaxOrder  = -1)
+{
+    ComaModelFileProcessor proc(filePaths);
+    return proc.createSHDataset(
+        radii_m, solLongitudes_deg, requestedMaxDegree, requestedMaxOrder);
+}
+
+inline void comaWriteSHCsvFromFiles(
+    const std::vector<std::string>& filePaths,
+    const std::string& outputDir,
+    const std::vector<double>& radii_m,
+    const std::vector<double>& solLongitudes_deg,
+    const int requestedMaxDegree = -1,
+    const int requestedMaxOrder  = -1)
+{
+    ComaModelFileProcessor proc(filePaths);
+    proc.createSHFiles(
+        outputDir, radii_m, solLongitudes_deg, requestedMaxDegree, requestedMaxOrder);
+}
+
+
+
 //! @get_docstring(customWindModelSettings)
 inline std::shared_ptr< WindModelSettings > customWindModelSettings(
         const std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction,
