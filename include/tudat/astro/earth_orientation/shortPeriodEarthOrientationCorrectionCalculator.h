@@ -107,7 +107,14 @@ public:
         }
         else
         {
-            return correctionInterpolator_->interpolate( ephemerisTime );
+            try
+            {
+                return correctionInterpolator_->interpolate( ephemerisTime );
+            }
+            catch (...)
+            {
+                std::throw_with_nested( std::runtime_error( "Error in short period EOP calculator: " ) );
+            }
         }
     }
 
