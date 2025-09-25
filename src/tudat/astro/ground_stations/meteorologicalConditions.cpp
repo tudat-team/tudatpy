@@ -64,10 +64,11 @@ void ContinuousInterpolatedMeteoData::updateData( const double currentUtc )
         {
             currentData_ = meteoDataInterpolator_->interpolate( currentUtc_ );
         }
-        catch (...)
+        catch( std::runtime_error& caughtException )
         {
-            std::throw_with_nested( std::runtime_error( "Error in continuous meteo data interpolator " ) );
+            throw std::runtime_error( "Error in continuous meteo data interpolator.\nOriginal error: " + std::string( caughtException.what( ) ) );
         }
+
 
     }
 }
@@ -82,10 +83,11 @@ void PiecewiseInterpolatedMeteoData::updateData( const double currentUtc )
         {
             currentData_ = meteoDataInterpolators_.at( currentInterpolator_ )->interpolate( currentUtc_ );
         }
-        catch (...)
+        catch( std::runtime_error& caughtException )
         {
-            std::throw_with_nested( std::runtime_error( "Error in piecewise constant meteo data interpolator " ) );
+            throw std::runtime_error( "Error in piecewise constant meteo data interpolator.\nOriginal error: " + std::string( caughtException.what( ) ) );
         }
+
 
     }
 }

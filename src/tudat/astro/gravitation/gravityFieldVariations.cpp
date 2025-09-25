@@ -34,10 +34,11 @@ void PairInterpolationInterface::getCosineSinePair( const double time,
         sineCoefficients.block( startDegree_, startOrder_, numberOfDegrees_, numberOfOrders_ ) +=
                 cosineSinePair.block( 0, cosineSinePair.cols( ) / 2, cosineSinePair.rows( ), cosineSinePair.cols( ) / 2 );
     }
-    catch (...)
+    catch( std::runtime_error& caughtException )
     {
-        std::throw_with_nested( std::runtime_error( "Error when interpoalting spherical harmonic coefficient pair: " ) );
+        throw std::runtime_error( "Error when interpoalting spherical harmonic coefficient pair.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
+
 
 
 

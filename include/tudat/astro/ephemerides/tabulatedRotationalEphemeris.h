@@ -183,10 +183,11 @@ private:
             {
                 currentRotationalState_ = interpolator_->interpolate( time );
             }
-            catch (...)
+            catch( std::runtime_error& caughtException )
             {
-                std::throw_with_nested( std::runtime_error( "Error in tabulated rotational state: " ) );
+                throw std::runtime_error( "Error in tabulated rotational state.\nOriginal error: " + std::string( caughtException.what( ) ) );
             }
+
 
             // Normalize quaternion and set current rotation quaternion
             double quaternionNorm = ( currentRotationalState_.block( 0, 0, 4, 1 ) ).norm( );

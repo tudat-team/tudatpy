@@ -106,10 +106,11 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > TabulatedGravityFieldVariations::c
         return std::make_pair( cosineSinePair.block( 0, 0, numberOfDegrees_, numberOfOrders_ ),
                                cosineSinePair.block( 0, numberOfOrders_, numberOfDegrees_, numberOfOrders_ ) );
     }
-    catch (...)
+    catch( std::runtime_error& caughtException )
     {
-        std::throw_with_nested( std::runtime_error( "Error when interpoalting spherical harmonic coefficient pair: " ) );
+        throw std::runtime_error( "Error when interpoalting spherical harmonic coefficient pair.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
+
 }
 
 }  // namespace gravitation
