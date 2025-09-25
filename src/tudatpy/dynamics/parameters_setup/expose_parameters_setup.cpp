@@ -1082,14 +1082,23 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  -------
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's polar motion amplitudes.
-
-
-
-
-
-
-
      )doc" );
+
+        m.def( "iau_rotation_model_pole",
+           &tep::iauRotationModelNominalPoleParameterSettings,
+           py::arg( "body" ) );
+
+        m.def( "iau_rotation_model_pole_rate",
+           &tep::iauRotationModelPoleRateParameterSettings,
+           py::arg( "body" ) );
+
+        m.def( "iau_rotation_model_longitudinal_librations",
+           &tep::iauRotationModelLongitudinalLibrationParameterSettings,
+           py::arg( "body" ),
+           py::arg( "libration_anngular_frequencies" )
+           );
+
+
 
     // ###############   Observation Model Parameters
     // ################################
