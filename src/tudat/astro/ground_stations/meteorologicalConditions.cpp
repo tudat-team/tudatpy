@@ -60,7 +60,15 @@ void ContinuousInterpolatedMeteoData::updateData( const double currentUtc )
     if( !( currentUtc == currentUtc_ ) )
     {
         currentUtc_ = currentUtc;
-        currentData_ = meteoDataInterpolator_->interpolate( currentUtc_ );
+        try
+        {
+            currentData_ = meteoDataInterpolator_->interpolate( currentUtc_ );
+        }
+        catch (...)
+        {
+            std::throw_with_nested( std::runtime_error( "Error in continuous meteo data interpolator " ) );
+        }
+
     }
 }
 
@@ -70,7 +78,15 @@ void PiecewiseInterpolatedMeteoData::updateData( const double currentUtc )
     {
         currentUtc_ = currentUtc;
         currentInterpolator_ = lookUpScheme_->findNearestLowerNeighbour( currentUtc_ );
-        currentData_ = meteoDataInterpolators_.at( currentInterpolator_ )->interpolate( currentUtc_ );
+        try
+        {
+            currentData_ = meteoDataInterpolators_.at( currentInterpolator_ )->interpolate( currentUtc_ );
+        }
+        catch (...)
+        {
+            std::throw_with_nested( std::runtime_error( "Error in piecewise constant meteo data interpolator " ) );
+        }
+
     }
 }
 }  // namespace ground_stations

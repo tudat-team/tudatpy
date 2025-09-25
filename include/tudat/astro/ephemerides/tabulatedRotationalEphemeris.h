@@ -177,7 +177,16 @@ private:
         if( !( time == currentTime_ ) )
         {
             // Retrieve data from interpolator
-            currentRotationalState_ = interpolator_->interpolate( time );
+
+
+            try
+            {
+                currentRotationalState_ = interpolator_->interpolate( time );
+            }
+            catch (...)
+            {
+                std::throw_with_nested( std::runtime_error( "Error in tabulated rotational state: " ) );
+            }
 
             // Normalize quaternion and set current rotation quaternion
             double quaternionNorm = ( currentRotationalState_.block( 0, 0, 4, 1 ) ).norm( );
