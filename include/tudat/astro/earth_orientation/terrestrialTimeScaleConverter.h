@@ -328,8 +328,16 @@ public:
 
                 if( dailyUtcUt1CorrectionInterpolator_ != nullptr )
                 {
-                    timesToUpdate.ut1 = static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.utc ) ) +
-                            timesToUpdate.utc;
+                    try
+                    {
+                        timesToUpdate.ut1 = static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.utc ) ) +
+                                timesToUpdate.utc;
+                    }
+                    catch (...)
+                    {
+                        std::throw_with_nested( std::runtime_error( "Error in UTC-UT1 correction: " ) );
+                    }
+
                     timesToUpdate.ut1 +=
                             static_cast< TimeType >( shortPeriodUt1CorrectionCalculator_->getCorrections( timesToUpdate.tdb ) );
                 }
@@ -338,8 +346,14 @@ public:
             case basic_astrodynamics::ut1_scale:
 
                 timesToUpdate.ut1 = inputTimeValue;
-                timesToUpdate.utc =
-                        timesToUpdate.ut1 - static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.ut1 ) );
+                try
+                {
+                    timesToUpdate.utc = timesToUpdate.ut1 - static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.ut1 ) );
+                }
+                catch (...)
+                {
+                    std::throw_with_nested( std::runtime_error( "Error in UTC-UT1 correction: " ) );
+                }
                 timesToUpdate.utc -= static_cast< TimeType >( shortPeriodUt1CorrectionCalculator_->getCorrections( timesToUpdate.utc ) );
                 timesToUpdate.tai = sofa_interface::convertUTCtoTAI< TimeType >( timesToUpdate.utc );
                 timesToUpdate.tt = basic_astrodynamics::convertTAItoTT< TimeType >( timesToUpdate.tai );
@@ -347,8 +361,15 @@ public:
                 timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
 
                 // Iterate conversion.
-                timesToUpdate.utc =
+                try
+                {
+                    timesToUpdate.utc =
                         timesToUpdate.ut1 - static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.utc ) );
+                }
+                catch (...)
+                {
+                    std::throw_with_nested( std::runtime_error( "Error in UTC-UT1 correction: " ) );
+                }
                 timesToUpdate.utc -= static_cast< TimeType >( shortPeriodUt1CorrectionCalculator_->getCorrections( timesToUpdate.tt ) );
                 timesToUpdate.tai = sofa_interface::convertUTCtoTAI< TimeType >( timesToUpdate.utc );
                 timesToUpdate.tt = basic_astrodynamics::convertTAItoTT< TimeType >( timesToUpdate.tai );
@@ -376,8 +397,16 @@ public:
             throw std::runtime_error( "Error when getting UT1 correction: UTC to UT1 interpolator was not provided." );
         }
 
-        return dailyUtcUt1CorrectionInterpolator_->interpolate( currentUtc ) +
+        try
+        {
+            return dailyUtcUt1CorrectionInterpolator_->interpolate( currentUtc ) +
                 shortPeriodUt1CorrectionCalculator_->getCorrections( currentTt );
+        }
+        catch (...)
+        {
+            std::throw_with_nested( std::runtime_error( "Error in UT1 correction: " ) );
+        }
+
     }
 
     //! Interpolator for UT1 corrections, values published daily by IERS
@@ -392,7 +421,15 @@ private:
         auto tupleToCheck = std::make_tuple( earthFixedPosition[ 0 ], earthFixedPosition[ 1 ], earthFixedPosition[ 2 ] );
         if( tdbToTtInterpolators_.count( tupleToCheck ) != 0 )
         {
-            return tdbToTtInterpolators_.at( tupleToCheck )->interpolate( ttOrTdbSinceJ2000 );
+            try
+            {
+                return tdbToTtInterpolators_.at( tupleToCheck )->interpolate( ttOrTdbSinceJ2000 );
+            }
+            catch (...)
+            {
+                std::throw_with_nested( std::runtime_error( "Error in TDB-TT interpolation: " ) );
+            }
+
         }
         else
         {

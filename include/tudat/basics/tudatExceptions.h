@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <string>
+#include <tudat/astro/basic_astro/dateTime.h>
 
 namespace tudat
 {
@@ -140,6 +141,31 @@ public:
     const TimeStepType minimumStepSize;
     const TimeStepType recommendedStepSize;
 };
+
+template< typename T >
+class EphemerisError : public TudatError, public std::nested_exception {
+public:
+    EphemerisError( const T evaluationTime )
+        : TudatError( "Error in tabulated ephemeris, requesting state at epoch " +
+                                std::to_string( static_cast< double >( evaluationTime ) ) ) { }
+
+private:
+
+};
+
+template< typename T >
+class LightTimeSolutionError : public TudatError, public std::nested_exception {
+public:
+    LightTimeSolutionError( const T evaluationTime, const bool timeAtReception )
+        : TudatError( "Error in light-time solution, computing light time with reference epoch " +
+                                std::to_string( static_cast< double >( evaluationTime ) ) + " (DateTime: " +
+                                basic_astrodynamics::DateTime::fromTime< T >( evaluationTime ).isoString( ) + ") at " +
+                                ( timeAtReception ? "receiver" : "transmitter" ) ) { }
+
+private:
+
+};
+
 
 }  // namespace exceptions
 
