@@ -1165,6 +1165,20 @@ private:
     ComaStokesDataset preloadedSHDataset_;
 };
 
+// Stream operator for FileType enum (needed for Boost Test)
+inline std::ostream& operator<<(std::ostream& os, const ComaModelFileProcessor::FileType& type)
+{
+    switch (type)
+    {
+        case ComaModelFileProcessor::FileType::PolyCoefficients:
+            return os << "PolyCoefficients";
+        case ComaModelFileProcessor::FileType::StokesCoefficients:
+            return os << "StokesCoefficients";
+        default:
+            return os << "Unknown";
+    }
+}
+
 
 
 

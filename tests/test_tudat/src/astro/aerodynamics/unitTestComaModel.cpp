@@ -626,7 +626,7 @@ BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_sh_files, TestDataPaths)
     ifs.close();
 }
 
-BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_sh_dataset_from_sh_files, TestDataPaths)
+BOOST_FIXTURE_TEST_CASE(test_sh_processor_from_existing_files, TestDataPaths)
 {
     std::vector<std::string> files = {testFile.string()};
     ComaModelFileProcessor processor(files);
@@ -755,6 +755,56 @@ BOOST_AUTO_TEST_CASE(test_poly_coef_processor_constructor_validation)
     BOOST_CHECK_THROW(
         ComaModelFileProcessor processor(emptyFiles),
         std::invalid_argument);
+}
+
+BOOST_FIXTURE_TEST_CASE(test_sh_processor_constructor_validation, TestDataPaths)
+{
+    // Test with non-existent directory
+    const std::string nonExistentDir = "/path/that/does/not/exist";
+    BOOST_CHECK_THROW(
+        ComaModelFileProcessor processor(nonExistentDir),
+        std::runtime_error);
+
+    // Test with empty directory (no SH files)
+    boost::filesystem::path emptyDir = outputDir / "empty_dir";
+    boost::filesystem::create_directories(emptyDir);
+    BOOST_CHECK_THROW(
+        ComaModelFileProcessor processor(emptyDir.string()),
+        std::runtime_error);
+}
+
+BOOST_FIXTURE_TEST_CASE(test_processor_file_type_behavior, TestDataPaths)
+{
+    // Create test SH files first
+    const std::vector<std::string> files = {testFile.string()};
+    ComaModelFileProcessor polyProcessor(files);
+    std::vector<double> radii_m = {6000.0};
+    std::vector<double> lons_deg = {0.0};
+
+    boost::filesystem::path shTestDir = outputDir / "file_type_test";
+    boost::filesystem::create_directories(shTestDir);
+    polyProcessor.createSHFiles(shTestDir.string(), radii_m, lons_deg, 5, 5);
+
+    // Test poly processor behavior
+    ComaModelFileProcessor polyProc(files);
+    BOOST_CHECK_EQUAL(polyProc.getFileType(), ComaModelFileProcessor::FileType::PolyCoefficients);
+    BOOST_CHECK_NO_THROW(polyProc.createPolyCoefDataset());
+    BOOST_CHECK_NO_THROW(polyProc.createSHDataset(radii_m, lons_deg));
+
+    // Test SH processor behavior
+    ComaModelFileProcessor shProc(shTestDir.string());
+    BOOST_CHECK_EQUAL(shProc.getFileType(), ComaModelFileProcessor::FileType::StokesCoefficients);
+    BOOST_CHECK_THROW(shProc.createPolyCoefDataset(), std::runtime_error);
+    BOOST_CHECK_NO_THROW(shProc.createSHDataset({}, {})); // Parameters ignored
+
+    // Verify that SH processor ignores createSHDataset parameters
+    ComaStokesDataset shDataset1 = shProc.createSHDataset({1000.0}, {45.0});
+    ComaStokesDataset shDataset2 = shProc.createSHDataset({2000.0, 3000.0}, {90.0, 180.0});
+
+    // Both should return the same preloaded dataset
+    BOOST_CHECK_EQUAL(shDataset1.nRadii(), shDataset2.nRadii());
+    BOOST_CHECK_EQUAL(shDataset1.nLongitudes(), shDataset2.nLongitudes());
+    BOOST_CHECK_EQUAL(shDataset1.nmax(), shDataset2.nmax());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
