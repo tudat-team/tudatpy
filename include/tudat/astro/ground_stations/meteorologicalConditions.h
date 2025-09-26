@@ -294,7 +294,16 @@ private:
         if( !( currentUtc == currentUtc_ ) )
         {
             currentUtc_ = currentUtc;
-            currentData_ = troposphereInterpolator_->interpolate( currentUtc_ );
+            try
+            {
+                currentData_ = troposphereInterpolator_->interpolate( currentUtc_ );
+            }
+            catch( std::runtime_error& caughtException )
+            {
+                throw std::runtime_error( "Error in station meteo data.\nOriginal error: " + std::string( caughtException.what( ) ) );
+            }
+
+
         }
     }
 
