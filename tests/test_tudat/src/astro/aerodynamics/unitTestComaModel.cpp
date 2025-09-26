@@ -258,28 +258,106 @@ BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(test_processing_components)
 
-BOOST_AUTO_TEST_CASE(test_stokes_coefficients_evaluator)
+BOOST_FIXTURE_TEST_CASE(test_stokes_coefficients_evaluator, TestDataPaths)
 {
-    // Create test data matching your original test
-    double distanceToCometCentre = 6.0; // km
-    double solarLongitude = 30.0 * M_PI / 180.0; // radians
-    constexpr int maxDegree = 10;
-    constexpr int maxOrder = 10;
+    // Load test data to get the polynomial coefficients and metadata
+    const std::vector<std::string> files = {testFile.string()};
+    const ComaPolyDataset dataset = ComaPolyDatasetReader::readFromFiles(files);
 
-    // You would need to set up polyCoefficients, degreeAndOrder, etc.
-    // from your test data here. This is a simplified version:
+    // Test parameters matching ExpectedStokesValues
+    const double radius = 6.0; // km (distance to comet center)
+    const double solarLongitude = 30.0 * M_PI / 180.0; // 30 degrees in radians
+    const int maxDegree = 10;
+    const int maxOrder = 10;
 
-    // This would call your evaluator with the proper test data
-    // StokesCoefficientsEvaluator::evaluate2D(...);
+    // Get the polynomial data from the dataset
+    const Eigen::MatrixXd& polyCoefs = dataset.getPolyCoefficients(0);
+    const Eigen::ArrayXXi& shIndices = dataset.getSHDegreeAndOrderIndices(0);
+    const Eigen::VectorXd& powers = dataset.getPowersInvRadius(0);
+    const double refRadius = dataset.getReferenceRadius(0);
 
-    // For now, just check the output dimensions would be correct
-    const Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero(maxDegree + 1, maxOrder + 1);
-    const Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero(maxDegree + 1, maxOrder + 1);
+    // Convert to ArrayXXd as required by the evaluator
+    const Eigen::ArrayXXd polyCoefficients = polyCoefs.array();
 
+    // Output matrices
+    Eigen::MatrixXd cosineCoefficients, sineCoefficients;
+
+    // Call the evaluator
+    simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
+        radius,
+        solarLongitude,
+        polyCoefficients,
+        shIndices,
+        powers,
+        refRadius,
+        cosineCoefficients,
+        sineCoefficients,
+        maxDegree,
+        maxOrder
+    );
+
+    // Check output dimensions
     BOOST_CHECK_EQUAL(cosineCoefficients.rows(), maxDegree + 1);
     BOOST_CHECK_EQUAL(cosineCoefficients.cols(), maxOrder + 1);
     BOOST_CHECK_EQUAL(sineCoefficients.rows(), maxDegree + 1);
     BOOST_CHECK_EQUAL(sineCoefficients.cols(), maxOrder + 1);
+
+    // Verify specific coefficient values against expected values
+    BOOST_CHECK_CLOSE(cosineCoefficients(0, 0), ExpectedStokesValues::cosine_0_0, 1e-10);
+    BOOST_CHECK_CLOSE(cosineCoefficients(3, 1), ExpectedStokesValues::cosine_3_1, 1e-10);
+    BOOST_CHECK_CLOSE(cosineCoefficients(5, 4), ExpectedStokesValues::cosine_5_4, 1e-10);
+    BOOST_CHECK_CLOSE(cosineCoefficients(9, 3), ExpectedStokesValues::cosine_9_3, 1e-10);
+
+    // Check sine coefficients
+    BOOST_CHECK_CLOSE(sineCoefficients(0, 0), ExpectedStokesValues::sine_0_0, 1e-10);
+    BOOST_CHECK_CLOSE(sineCoefficients(6, 2), ExpectedStokesValues::sine_6_2, 1e-10);
+    BOOST_CHECK_CLOSE(sineCoefficients(7, 5), ExpectedStokesValues::sine_7_5, 1e-10);
+    BOOST_CHECK_CLOSE(sineCoefficients(10, 8), ExpectedStokesValues::sine_10_8, 1e-10);
+
+    // Test with truncated degree/order
+    Eigen::MatrixXd truncatedCosine, truncatedSine;
+    const int truncatedMaxDegree = 5;
+    const int truncatedMaxOrder = 3;
+
+    simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
+        radius,
+        solarLongitude,
+        polyCoefficients,
+        shIndices,
+        powers,
+        refRadius,
+        truncatedCosine,
+        truncatedSine,
+        truncatedMaxDegree,
+        truncatedMaxOrder
+    );
+
+    // Check truncated dimensions
+    BOOST_CHECK_EQUAL(truncatedCosine.rows(), truncatedMaxDegree + 1);
+    BOOST_CHECK_EQUAL(truncatedCosine.cols(), truncatedMaxOrder + 1);
+    BOOST_CHECK_EQUAL(truncatedSine.rows(), truncatedMaxDegree + 1);
+    BOOST_CHECK_EQUAL(truncatedSine.cols(), truncatedMaxOrder + 1);
+
+    // Verify that truncated results match the corresponding elements from full evaluation
+    BOOST_CHECK_CLOSE(truncatedCosine(0, 0), cosineCoefficients(0, 0), 1e-12);
+    BOOST_CHECK_CLOSE(truncatedCosine(3, 1), cosineCoefficients(3, 1), 1e-12);
+    BOOST_CHECK_CLOSE(truncatedSine(0, 0), sineCoefficients(0, 0), 1e-12);
+
+    // Test error handling for excessive degree/order requests
+    Eigen::MatrixXd dummyCosine, dummySine;
+    BOOST_CHECK_THROW(
+        simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
+            radius, solarLongitude, polyCoefficients, shIndices, powers, refRadius,
+            dummyCosine, dummySine, 15, 10), // Exceeds available maxDegree (10)
+        std::runtime_error
+    );
+
+    BOOST_CHECK_THROW(
+        simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
+            radius, solarLongitude, polyCoefficients, shIndices, powers, refRadius,
+            dummyCosine, dummySine, 10, 15), // Exceeds available maxOrder (10)
+        std::runtime_error
+    );
 }
 
 BOOST_FIXTURE_TEST_CASE(test_dataset_transformer, TestDataPaths)
