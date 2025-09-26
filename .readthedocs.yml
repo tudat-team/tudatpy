@@ -7,14 +7,14 @@ version: 2
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
-  configuration: docs/source/conf.py
+  configuration: docs/tudatpy/source/conf.py
   builder: html
   fail_on_warning: false
 
 build:
-  os: "ubuntu-20.04"
+  os: "ubuntu-24.04"
   tools:
-    python: "mambaforge-4.10"
+    python: "miniconda-latest"
   jobs:
     pre_install:
       - LATEST_TAG=$(git describe --tags --abbrev=0) ; echo Downloading $LATEST_TAG ;
@@ -30,6 +30,5 @@ build:
       # directory with the docs/ directory of the latest tag.
 
 conda:
-  environment: docs/environment_readthedocs.yaml
-
+  environment: docs/tudatpy/environment_readthedocs.yaml
 
