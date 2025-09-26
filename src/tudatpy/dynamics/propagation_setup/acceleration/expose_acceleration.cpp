@@ -175,6 +175,10 @@ void expose_acceleration_setup( py::module &m )
                     tba::AvailableAcceleration::empirical_acceleration,
                     R"doc(
       )doc" )
+            .value( "rtg_acceleration_type",
+                    tba::AvailableAcceleration::rtg_acceleration,
+                    R"doc(
+      )doc" )
             .value( "direct_tidal_dissipation_in_central_body_"
                     "acceleration_type",
                     tba::AvailableAcceleration::
@@ -293,6 +297,20 @@ void expose_acceleration_setup( py::module &m )
 
 
 
+
+      )doc" );
+
+    py::class_< tss::RTGAccelerationSettings,
+            std::shared_ptr< tss::RTGAccelerationSettings >,
+            tss::AccelerationSettings >( m,
+                                         "RTGAccelerationSettings",
+                                         R"doc(
+
+         `AccelerationSettings`-derived class to define settings for acceleration from anisotropic RTG radiation.
+
+         Class to provide settings for acceleration from anisotropic RTG radiation. The acceleration is introduced via a
+         force vector in the body-fixed frame. The force vector is user-defined for a reference epoch. The force magnitude decays according
+         to the user-defined decay scale factor, but its direction remains fixed in the body-fixed frame.
 
       )doc" );
 
@@ -978,6 +996,47 @@ In this example, we define the relativistic correction acceleration for a Mars o
         sine_acceleration,
         cosine_acceleration)]
 
+
+     )doc" );
+
+
+
+        m.def( "rtg",
+           &tss::rtgAcceleration,
+           py::arg( "reference_thrust_vector" ),
+           py::arg( "decay_scale_factor" ),
+           py::arg( "reference_epoch" ),
+           R"doc(
+
+ Creates settings for acceleration from anisotropic RTG radiation.
+
+ Creates settings for acceleration from anisotropic RTG radiation. The acceleration is introduced via a
+ force vector in the body-fixed frame. The force vector is user-defined for a reference epoch. The force magnitude decays according
+ to the user-defined decay scale factor, but its direction remains fixed in the body-fixed frame.
+
+The force enacted by the rtg emission is calculated as:
+
+ .. math::
+
+     \mathbf{F}=R^{I/BF}\left(\mathbf{F}_{\text{0}} \cdot e^{\left(-\beta \left(t-t_{\text{0}}\right) \right)} \right)
+
+ Here, :math:`R^{I/BF}` is the rotation matrix from the body-fixed frame (of the body undergoing the acceleration),
+ :math: `\mathbf{F}_{\text{0}}` is the body-fixed force vector at the reference epoch :math: `t_{\text{0}}` and
+ :math:`beta` is the decay scale factor (:math: `= ln(2)/t_(1/2))`.
+
+
+ Parameters
+ ----------
+ reference_thrust_vector : numpy.ndarray
+     Force vector at the reference epoch, defined in the body-fixed frame.
+ decay_scale_factor : float
+     Scale factor of the exponential decay model.
+ cosine_acceleration : float
+     Reference epoch for exponential decay model.
+ Returns
+ -------
+ RTGAccelerationSettings
+     RTG acceleration settings object.
 
      )doc" );
 
