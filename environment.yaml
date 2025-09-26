@@ -1,4 +1,4 @@
-name: tudatpy-dev
+name: tudatpy-dev-test
 channels:
   - conda-forge
   - tudat-team
@@ -12,8 +12,8 @@ dependencies:
   - nrlmsise-00
   - cspice
   - fftw
-  - gcc
-  - gxx
+  - c-compiler
+  - cxx-compiler
   - python=3.11
   - pybind11
   - pybind11-abi
