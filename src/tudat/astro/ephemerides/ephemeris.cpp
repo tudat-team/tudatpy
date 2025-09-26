@@ -9,6 +9,7 @@
  */
 
 #include "tudat/astro/ephemerides/ephemeris.h"
+#include "tudat/basics/tudatExceptions.h"
 
 namespace tudat
 {
@@ -28,28 +29,61 @@ Eigen::Vector6d getDifferenceBetweenStates( const std::function< Eigen::Vector6d
 template<>
 Eigen::Matrix< double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const double& time )
 {
-    return getCartesianState( time );
+    try
+    {
+        return getCartesianState( time );
+    }
+    catch( std::runtime_error& caughtException )
+    {
+        throw exceptions::EphemerisError< double >( time, caughtException.what() );
+    }
+
 }
 
 //! Get state from ephemeris, with state scalar as template type (long double specialization).
 template<>
 Eigen::Matrix< long double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const double& time )
 {
-    return getCartesianLongState( time );
+    try
+    {
+        return getCartesianLongState( time );
+    }
+    catch( std::runtime_error& caughtException )
+    {
+        throw exceptions::EphemerisError< double >( time, caughtException.what() );
+    }
+
 }
 
 //! Get state from ephemeris, with state scalar as template type (double specialization with Time input).
 template<>
 Eigen::Matrix< double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const Time& time )
 {
-    return getCartesianStateFromExtendedTime( time );
+    try
+    {
+        return getCartesianStateFromExtendedTime( time );
+    }
+    catch( std::runtime_error& caughtException )
+    {
+        throw exceptions::EphemerisError< Time >( time, caughtException.what() );
+    }
+
 }
 
 //! Get state from ephemeris, with state scalar as template type (long double specialization with Time input).
 template<>
 Eigen::Matrix< long double, 6, 1 > Ephemeris::getTemplatedStateFromEphemeris( const Time& time )
 {
-    return getCartesianLongStateFromExtendedTime( time );
+    try
+    {
+            return getCartesianLongStateFromExtendedTime( time );
+    }
+    catch( std::runtime_error& caughtException )
+    {
+        throw exceptions::EphemerisError< Time >( time, caughtException.what() );
+    }
+
+
 }
 
 //! Function to compute the relative state from two state functions.
