@@ -12,16 +12,18 @@ http://tudat.tudelft.nl/LICENSE.
 # General imports
 import numpy as np
 from inspect import getmro
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 # Tudat imports
 from tudatpy.util import result2array
-from tudatpy.dynamics.simulator import SingleArcSimulator
 from tudatpy.dynamics.propagation_setup.dependent_variable import (
     VariableSettings,
     get_dependent_variable_id,
     get_dependent_variable_shape,
 )
+
+if TYPE_CHECKING:
+    from tudatpy.dynamics.simulator import SingleArcSimulator
 
 
 class DependentVariableDictionary(dict):
@@ -248,7 +250,7 @@ class DependentVariableDictionary(dict):
 
 
 def create_dependent_variable_dictionary(
-    dynamics_simulator: SingleArcSimulator,
+    dynamics_simulator: "SingleArcSimulator",
 ) -> DependentVariableDictionary:
     """
     Construct a dictionary-like object (`DependentVariableDictionary`) which maps which maps dependent variables
