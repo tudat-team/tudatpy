@@ -630,15 +630,181 @@ class ComaStokesDatasetReader
 public:
     static ComaStokesDataset readFromCsv(const std::string& csvPath)
     {
-        // TODO: Implement CSV reading
-        throw std::runtime_error("Not yet implemented");
+        std::ifstream ifs(csvPath);
+        if (!ifs)
+            throw std::runtime_error("readFromCsv: cannot open " + csvPath);
+
+        // Parse metadata line
+        std::string line;
+        std::getline(ifs, line);
+        if (line.empty() || line.substr(0, 4) != "meta")
+            throw std::runtime_error("readFromCsv: invalid metadata line");
+
+        auto parseMeta = [](const std::string& metaLine) -> std::tuple<double, double, int, int, int, int, int, std::string>
+        {
+            std::istringstream ss(metaLine);
+            std::string token;
+            double start_epoch = 0, end_epoch = 0;
+            int max_degree = 0, max_order = 0, n_radii = 0, n_lons = 0, n_coeffs = 0;
+            std::string source;
+
+            while (std::getline(ss, token, ','))
+            {
+                if (token.find("start_epoch=") == 0)
+                    start_epoch = std::stod(token.substr(12));
+                else if (token.find("end_epoch=") == 0)
+                    end_epoch = std::stod(token.substr(10));
+                else if (token.find("max_degree=") == 0)
+                    max_degree = std::stoi(token.substr(11));
+                else if (token.find("max_order=") == 0)
+                    max_order = std::stoi(token.substr(10));
+                else if (token.find("n_radii=") == 0)
+                    n_radii = std::stoi(token.substr(8));
+                else if (token.find("n_lons=") == 0)
+                    n_lons = std::stoi(token.substr(7));
+                else if (token.find("n_coeffs=") == 0)
+                    n_coeffs = std::stoi(token.substr(9));
+                else if (token.find("source=") == 0)
+                    source = token.substr(7);
+            }
+            return {start_epoch, end_epoch, max_degree, max_order, n_radii, n_lons, n_coeffs, source};
+        };
+
+        auto [start_epoch, end_epoch, max_degree, max_order, n_radii, n_lons, n_coeffs, source] = parseMeta(line);
+
+        // Parse radii line
+        std::getline(ifs, line);
+        std::istringstream radiiStream(line);
+        std::string token;
+        std::getline(radiiStream, token, ','); // skip "radii [meter]"
+        std::vector<double> radii;
+        while (std::getline(radiiStream, token, ','))
+            radii.push_back(std::stod(token));
+
+        // Parse longitudes line
+        std::getline(ifs, line);
+        std::istringstream lonsStream(line);
+        std::getline(lonsStream, token, ','); // skip "longitudes [degree]"
+        std::vector<double> lons;
+        while (std::getline(lonsStream, token, ','))
+            lons.push_back(std::stod(token));
+
+        // Create dataset with single file
+        std::vector<ComaStokesDataset::FileMeta> files(1);
+        files[0].start_epoch = start_epoch;
+        files[0].end_epoch = end_epoch;
+        files[0].source_tag = source;
+
+        ComaStokesDataset dataset = ComaStokesDataset::create(std::move(files), radii, lons, max_degree);
+
+        // Parse coefficient blocks
+        while (std::getline(ifs, line))
+        {
+            if (line.find("ID,") == 0)
+            {
+                // Parse block ID line: "ID,block_id,r_0=...,l_0=..."
+                std::istringstream idStream(line);
+                std::string idToken;
+                std::getline(idStream, idToken, ','); // skip "ID"
+                std::getline(idStream, idToken, ','); // block_id
+                int block_id = std::stoi(idToken);
+
+                std::size_t ri = block_id / n_lons;
+                std::size_t li = block_id % n_lons;
+
+                // Skip header line "n,m,C,S"
+                std::getline(ifs, line);
+
+                // Read coefficients
+                for (int k = 0; k < n_coeffs; ++k)
+                {
+                    std::getline(ifs, line);
+                    std::istringstream coeffStream(line);
+                    std::string nStr, mStr, cStr, sStr;
+                    std::getline(coeffStream, nStr, ',');
+                    std::getline(coeffStream, mStr, ',');
+                    std::getline(coeffStream, cStr, ',');
+                    std::getline(coeffStream, sStr, ',');
+
+                    int n = std::stoi(nStr);
+                    int m = std::stoi(mStr);
+                    double C = std::stod(cStr);
+                    double S = std::stod(sStr);
+
+                    dataset.setCoeff(0, ri, li, n, m, C, S);
+                }
+            }
+        }
+
+        return dataset;
     }
 
     static ComaStokesDataset readFromCsvFolder(const std::string& dir,
                                                const std::string& prefix = "stokes")
     {
-        // TODO: Implement folder reading
-        throw std::runtime_error("Not yet implemented");
+        namespace bf = boost::filesystem;
+
+        if (!bf::exists(dir) || !bf::is_directory(dir))
+            throw std::runtime_error("readFromCsvFolder: directory does not exist: " + dir);
+
+        // Find all CSV files with the given prefix
+        std::vector<std::string> csvFiles;
+        for (bf::directory_iterator it(dir); it != bf::directory_iterator(); ++it)
+        {
+            const std::string filename = it->path().filename().string();
+            if (filename.find(prefix + "_file") == 0 && filename.substr(filename.length() - 4) == ".csv")
+                csvFiles.push_back(it->path().string());
+        }
+
+        if (csvFiles.empty())
+            throw std::runtime_error("readFromCsvFolder: no CSV files found with prefix " + prefix);
+
+        // Sort files by number
+        std::sort(csvFiles.begin(), csvFiles.end(), [&prefix](const std::string& a, const std::string& b)
+        {
+            auto extractNum = [&prefix](const std::string& path) -> int
+            {
+                bf::path p(path);
+                std::string name = p.stem().string();
+                std::string numStr = name.substr(prefix.length() + 5); // +5 for "_file"
+                return std::stoi(numStr);
+            };
+            return extractNum(a) < extractNum(b);
+        });
+
+        // Read first file to get structure
+        ComaStokesDataset firstDataset = readFromCsv(csvFiles[0]);
+
+        if (csvFiles.size() == 1)
+            return firstDataset;
+
+        // Create multi-file dataset
+        std::vector<ComaStokesDataset::FileMeta> allFiles;
+        for (const auto& csvFile : csvFiles)
+        {
+            ComaStokesDataset singleDataset = readFromCsv(csvFile);
+            allFiles.push_back(singleDataset.files()[0]);
+        }
+
+        ComaStokesDataset multiDataset = ComaStokesDataset::create(
+            std::move(allFiles), firstDataset.radii(), firstDataset.lons(), firstDataset.nmax());
+
+        // Copy data from all files
+        for (std::size_t f = 0; f < csvFiles.size(); ++f)
+        {
+            ComaStokesDataset singleDataset = readFromCsv(csvFiles[f]);
+            for (std::size_t ri = 0; ri < multiDataset.nRadii(); ++ri)
+            {
+                for (std::size_t li = 0; li < multiDataset.nLongitudes(); ++li)
+                {
+                    auto srcBlock = singleDataset.block(0, ri, li);
+                    auto destBlock = multiDataset.block(f, ri, li);
+                    destBlock = srcBlock;
+                }
+            }
+        }
+
+        return multiDataset;
     }
 };
 
@@ -950,6 +1116,14 @@ public:
             requestedMaxDegree, requestedMaxOrder);
 
         ComaStokesDatasetWriter::writeCsvAll(stokesDataset, outputDir);
+    }
+
+    // Create SH dataset from existing SH files
+    ComaStokesDataset createSHDatasetFromSHFiles(
+        const std::string& inputDir,
+        const std::string& prefix = "stokes") const
+    {
+        return ComaStokesDatasetReader::readFromCsvFolder(inputDir, prefix);
     }
 
 private:

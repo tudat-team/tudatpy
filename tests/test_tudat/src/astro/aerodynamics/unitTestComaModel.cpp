@@ -252,6 +252,142 @@ BOOST_FIXTURE_TEST_CASE(test_stokes_dataset_writer, TestDataPaths)
     ifs.close();
 }
 
+BOOST_FIXTURE_TEST_CASE(test_stokes_dataset_reader_from_csv, TestDataPaths)
+{
+    // First, create and write a test dataset
+    std::vector<ComaStokesDataset::FileMeta> files = {
+        {2.015e9, 2.0150864e9, "test_source"}
+    };
+    std::vector<double> radii = {6000.0, 10000.0};
+    std::vector<double> lons = {0.0, 30.0};
+    int nmax = 8;
+
+    ComaStokesDataset originalDataset = ComaStokesDataset::create(files, radii, lons, nmax);
+
+    // Set some known test values
+    originalDataset.setCoeff(0, 0, 0, 0, 0, 54.0, 0.0);
+    originalDataset.setCoeff(0, 0, 0, 2, 1, -0.232, 0.138);
+    originalDataset.setCoeff(0, 0, 1, 0, 0, 53.93, 0.0);
+    originalDataset.setCoeff(0, 1, 0, 1, 1, -1.75, 0.407);
+    originalDataset.setCoeff(0, 1, 1, 3, 2, -0.084, -0.026);
+
+    // Write to CSV
+    boost::filesystem::path csvPath = outputDir / "test_reader.csv";
+    ComaStokesDatasetWriter::writeCsvForFile(originalDataset, 0, csvPath.string());
+
+    // Now test reading it back
+    ComaStokesDataset readDataset = ComaStokesDatasetReader::readFromCsv(csvPath.string());
+
+    // Verify structure
+    BOOST_CHECK_EQUAL(readDataset.nFiles(), 1);
+    BOOST_CHECK_EQUAL(readDataset.nRadii(), 2);
+    BOOST_CHECK_EQUAL(readDataset.nLongitudes(), 2);
+    BOOST_CHECK_EQUAL(readDataset.nmax(), nmax);
+
+    // Verify metadata
+    const auto& filesMeta = readDataset.files();
+    BOOST_CHECK_CLOSE(filesMeta[0].start_epoch, 2.015e9, 1e-6);
+    BOOST_CHECK_CLOSE(filesMeta[0].end_epoch, 2.0150864e9, 1e-6);
+    BOOST_CHECK_EQUAL(filesMeta[0].source_tag, "test_source");
+
+    // Verify radii and longitudes
+    const auto& readRadii = readDataset.radii();
+    const auto& readLons = readDataset.lons();
+    BOOST_CHECK_CLOSE(readRadii[0], 6000.0, 1e-10);
+    BOOST_CHECK_CLOSE(readRadii[1], 10000.0, 1e-10);
+    BOOST_CHECK_CLOSE(readLons[0], 0.0, 1e-10);
+    BOOST_CHECK_CLOSE(readLons[1], 30.0, 1e-10);
+
+    // Verify coefficient values
+    auto [C_0_0_r0_l0, S_0_0_r0_l0] = readDataset.getCoeff(0, 0, 0, 0, 0);
+    BOOST_CHECK_CLOSE(C_0_0_r0_l0, 54.0, 1e-10);
+    BOOST_CHECK_CLOSE(S_0_0_r0_l0, 0.0, 1e-10);
+
+    auto [C_2_1_r0_l0, S_2_1_r0_l0] = readDataset.getCoeff(0, 0, 0, 2, 1);
+    BOOST_CHECK_CLOSE(C_2_1_r0_l0, -0.232, 1e-10);
+    BOOST_CHECK_CLOSE(S_2_1_r0_l0, 0.138, 1e-10);
+
+    auto [C_0_0_r0_l1, S_0_0_r0_l1] = readDataset.getCoeff(0, 0, 1, 0, 0);
+    BOOST_CHECK_CLOSE(C_0_0_r0_l1, 53.93, 1e-10);
+
+    auto [C_1_1_r1_l0, S_1_1_r1_l0] = readDataset.getCoeff(0, 1, 0, 1, 1);
+    BOOST_CHECK_CLOSE(C_1_1_r1_l0, -1.75, 1e-10);
+    BOOST_CHECK_CLOSE(S_1_1_r1_l0, 0.407, 1e-10);
+
+    auto [C_3_2_r1_l1, S_3_2_r1_l1] = readDataset.getCoeff(0, 1, 1, 3, 2);
+    BOOST_CHECK_CLOSE(C_3_2_r1_l1, -0.084, 1e-10);
+    BOOST_CHECK_CLOSE(S_3_2_r1_l1, -0.026, 1e-10);
+}
+
+BOOST_FIXTURE_TEST_CASE(test_stokes_dataset_reader_from_csv_folder, TestDataPaths)
+{
+    // Create multiple test datasets (simulating multiple time epochs)
+    std::vector<ComaStokesDataset::FileMeta> files1 = {
+        {0.0, 1.0, "test_file_1"}
+    };
+    std::vector<ComaStokesDataset::FileMeta> files2 = {
+        {1.0, 2.0, "test_file_2"}
+    };
+
+    std::vector<double> radii = {6000.0, 8000.0};
+    std::vector<double> lons = {0.0, 45.0};
+    int nmax = 5;
+
+    ComaStokesDataset dataset1 = ComaStokesDataset::create(files1, radii, lons, nmax);
+    ComaStokesDataset dataset2 = ComaStokesDataset::create(files2, radii, lons, nmax);
+
+    // Set different coefficients for each dataset
+    dataset1.setCoeff(0, 0, 0, 0, 0, 10.0, 0.0);
+    dataset1.setCoeff(0, 0, 1, 1, 1, 1.5, -0.5);
+    dataset1.setCoeff(0, 1, 0, 2, 0, 0.25, 0.0);
+
+    dataset2.setCoeff(0, 0, 0, 0, 0, 20.0, 0.0);
+    dataset2.setCoeff(0, 0, 1, 1, 1, 2.5, -1.0);
+    dataset2.setCoeff(0, 1, 0, 2, 0, 0.5, 0.0);
+
+    // Create folder for multi-file test
+    boost::filesystem::path folderPath = outputDir / "multi_file_test";
+    boost::filesystem::create_directories(folderPath);
+
+    // Write both datasets to separate CSV files
+    ComaStokesDatasetWriter::writeCsvForFile(dataset1, 0, (folderPath / "test_file0.csv").string());
+    ComaStokesDatasetWriter::writeCsvForFile(dataset2, 0, (folderPath / "test_file1.csv").string());
+
+    // Test reading from folder
+    ComaStokesDataset multiDataset = ComaStokesDatasetReader::readFromCsvFolder(folderPath.string(), "test");
+
+    // Verify structure
+    BOOST_CHECK_EQUAL(multiDataset.nFiles(), 2);
+    BOOST_CHECK_EQUAL(multiDataset.nRadii(), 2);
+    BOOST_CHECK_EQUAL(multiDataset.nLongitudes(), 2);
+    BOOST_CHECK_EQUAL(multiDataset.nmax(), nmax);
+
+    // Verify file metadata
+    const auto& filesMeta = multiDataset.files();
+    BOOST_CHECK_CLOSE(filesMeta[0].start_epoch, 0.0, 1e-10);
+    BOOST_CHECK_CLOSE(filesMeta[0].end_epoch, 1.0, 1e-10);
+    BOOST_CHECK_EQUAL(filesMeta[0].source_tag, "test_file_1");
+    BOOST_CHECK_CLOSE(filesMeta[1].start_epoch, 1.0, 1e-10);
+    BOOST_CHECK_CLOSE(filesMeta[1].end_epoch, 2.0, 1e-10);
+    BOOST_CHECK_EQUAL(filesMeta[1].source_tag, "test_file_2");
+
+    // Verify coefficient values from first file
+    auto [C1_0_0, S1_0_0] = multiDataset.getCoeff(0, 0, 0, 0, 0);
+    BOOST_CHECK_CLOSE(C1_0_0, 10.0, 1e-10);
+
+    auto [C1_1_1, S1_1_1] = multiDataset.getCoeff(0, 0, 1, 1, 1);
+    BOOST_CHECK_CLOSE(C1_1_1, 1.5, 1e-10);
+    BOOST_CHECK_CLOSE(S1_1_1, -0.5, 1e-10);
+
+    // Verify coefficient values from second file
+    auto [C2_0_0, S2_0_0] = multiDataset.getCoeff(1, 0, 0, 0, 0);
+    BOOST_CHECK_CLOSE(C2_0_0, 20.0, 1e-10);
+
+    auto [C2_1_1, S2_1_1] = multiDataset.getCoeff(1, 0, 1, 1, 1);
+    BOOST_CHECK_CLOSE(C2_1_1, 2.5, 1e-10);
+    BOOST_CHECK_CLOSE(S2_1_1, -1.0, 1e-10);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 // ==================== Transformation/Processing Tests ====================
@@ -490,6 +626,93 @@ BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_sh_files, TestDataPaths)
     ifs.close();
 }
 
+BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_sh_dataset_from_sh_files, TestDataPaths)
+{
+    std::vector<std::string> files = {testFile.string()};
+    ComaModelFileProcessor processor(files);
+
+    std::vector<double> radii_m = {6000.0, 10000.0};
+    std::vector<double> lons_deg = {0.0, 30.0};
+
+    // First, create the original SH dataset for comparison
+    ComaStokesDataset originalDataset = processor.createSHDataset(radii_m, lons_deg, 8, 6);
+
+    // Create SH files directory
+    boost::filesystem::path shFilesDir = outputDir / "sh_files_test";
+    boost::filesystem::create_directories(shFilesDir);
+
+    // Generate CSV files using createSHFiles
+    processor.createSHFiles(shFilesDir.string(), radii_m, lons_deg, 8, 6);
+
+    // Verify files were created
+    boost::filesystem::path expectedFile = shFilesDir / "stokes_file0.csv";
+    BOOST_CHECK(boost::filesystem::exists(expectedFile));
+
+    // Now test createSHDatasetFromSHFiles
+    ComaStokesDataset readDataset = processor.createSHDatasetFromSHFiles(shFilesDir.string());
+
+    // Verify structure matches original
+    BOOST_CHECK_EQUAL(readDataset.nFiles(), originalDataset.nFiles());
+    BOOST_CHECK_EQUAL(readDataset.nRadii(), originalDataset.nRadii());
+    BOOST_CHECK_EQUAL(readDataset.nLongitudes(), originalDataset.nLongitudes());
+    BOOST_CHECK_EQUAL(readDataset.nmax(), originalDataset.nmax());
+
+    // Verify radii and longitudes match
+    const auto& readRadii = readDataset.radii();
+    const auto& readLons = readDataset.lons();
+    const auto& origRadii = originalDataset.radii();
+    const auto& origLons = originalDataset.lons();
+
+    for (std::size_t i = 0; i < readRadii.size(); ++i)
+    {
+        BOOST_CHECK_CLOSE(readRadii[i], origRadii[i], 1e-10);
+    }
+    for (std::size_t i = 0; i < readLons.size(); ++i)
+    {
+        BOOST_CHECK_CLOSE(readLons[i], origLons[i], 1e-10);
+    }
+
+    // Verify selected coefficient values match between original and read datasets
+    // Test a few specific coefficients across different radii and longitudes
+    auto [orig_C_0_0_r0_l0, orig_S_0_0_r0_l0] = originalDataset.getCoeff(0, 0, 0, 0, 0);
+    auto [read_C_0_0_r0_l0, read_S_0_0_r0_l0] = readDataset.getCoeff(0, 0, 0, 0, 0);
+    BOOST_CHECK_CLOSE(read_C_0_0_r0_l0, orig_C_0_0_r0_l0, 1e-10);
+    BOOST_CHECK_CLOSE(read_S_0_0_r0_l0, orig_S_0_0_r0_l0, 1e-10);
+
+    auto [orig_C_2_1_r0_l1, orig_S_2_1_r0_l1] = originalDataset.getCoeff(0, 0, 1, 2, 1);
+    auto [read_C_2_1_r0_l1, read_S_2_1_r0_l1] = readDataset.getCoeff(0, 0, 1, 2, 1);
+    BOOST_CHECK_CLOSE(read_C_2_1_r0_l1, orig_C_2_1_r0_l1, 1e-10);
+    BOOST_CHECK_CLOSE(read_S_2_1_r0_l1, orig_S_2_1_r0_l1, 1e-10);
+
+    auto [orig_C_3_2_r1_l0, orig_S_3_2_r1_l0] = originalDataset.getCoeff(0, 1, 0, 3, 2);
+    auto [read_C_3_2_r1_l0, read_S_3_2_r1_l0] = readDataset.getCoeff(0, 1, 0, 3, 2);
+    BOOST_CHECK_CLOSE(read_C_3_2_r1_l0, orig_C_3_2_r1_l0, 1e-10);
+    BOOST_CHECK_CLOSE(read_S_3_2_r1_l0, orig_S_3_2_r1_l0, 1e-10);
+
+    auto [orig_C_5_4_r1_l1, orig_S_5_4_r1_l1] = originalDataset.getCoeff(0, 1, 1, 5, 4);
+    auto [read_C_5_4_r1_l1, read_S_5_4_r1_l1] = readDataset.getCoeff(0, 1, 1, 5, 4);
+    BOOST_CHECK_CLOSE(read_C_5_4_r1_l1, orig_C_5_4_r1_l1, 1e-10);
+    BOOST_CHECK_CLOSE(read_S_5_4_r1_l1, orig_S_5_4_r1_l1, 1e-10);
+
+    // Test with custom prefix
+    boost::filesystem::path customPrefixDir = outputDir / "custom_prefix_test";
+    boost::filesystem::create_directories(customPrefixDir);
+
+    // Write CSV files with custom prefix
+    ComaStokesDatasetWriter::writeCsvAll(originalDataset, customPrefixDir.string(), "custom");
+
+    // Read back with custom prefix
+    ComaStokesDataset customReadDataset = processor.createSHDatasetFromSHFiles(customPrefixDir.string(), "custom");
+
+    // Verify it matches the original
+    BOOST_CHECK_EQUAL(customReadDataset.nFiles(), originalDataset.nFiles());
+    BOOST_CHECK_EQUAL(customReadDataset.nmax(), originalDataset.nmax());
+
+    // Verify one coefficient value
+    auto [custom_C_0_0, custom_S_0_0] = customReadDataset.getCoeff(0, 0, 0, 0, 0);
+    BOOST_CHECK_CLOSE(custom_C_0_0, orig_C_0_0_r0_l0, 1e-10);
+}
+
 BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_validation, TestDataPaths)
 {
     const std::vector<std::string> files = {testFile.string()};
@@ -546,10 +769,10 @@ BOOST_FIXTURE_TEST_CASE(test_full_pipeline, TestDataPaths)
     // Step 2: Transform to Stokes dataset
     std::vector<double> radii_m = {6000.0, 10000.0};
     std::vector<double> lons_deg = {0.0, 30.0};
-    ComaStokesDataset stokesDataset = processor.createSHDataset(radii_m, lons_deg, 10, 10);
+    ComaStokesDataset stokesDataset = processor.createSHDataset(radii_m, lons_deg, 8, 6);
 
-    BOOST_CHECK_EQUAL(stokesDataset.nmax(), 10);
-    BOOST_CHECK_LE(stokesDataset.nCoeffs(), (10+1)*(10+2)/2);
+    BOOST_CHECK_EQUAL(stokesDataset.nmax(), 8);
+    BOOST_CHECK_LE(stokesDataset.nCoeffs(), (8+1)*(8+2)/2);
 
     // Step 3: Write to files
     boost::filesystem::path integratedOutput = outputDir / "integrated";
@@ -561,9 +784,27 @@ BOOST_FIXTURE_TEST_CASE(test_full_pipeline, TestDataPaths)
     boost::filesystem::path outputFile = integratedOutput / "integrated_file0.csv";
     BOOST_CHECK(boost::filesystem::exists(outputFile));
 
-    // Optional: Could add a reader test here when implemented
-    // ComaStokesDataset readDataset = ComaStokesDatasetReader::readFromCsv(outputFile.string());
-    // BOOST_CHECK_EQUAL(readDataset.nmax(), stokesDataset.nmax());
+    // Step 5: Test reading back the written data
+    ComaStokesDataset readDataset = ComaStokesDatasetReader::readFromCsv(outputFile.string());
+    BOOST_CHECK_EQUAL(readDataset.nmax(), stokesDataset.nmax());
+    BOOST_CHECK_EQUAL(readDataset.nFiles(), stokesDataset.nFiles());
+    BOOST_CHECK_EQUAL(readDataset.nRadii(), stokesDataset.nRadii());
+    BOOST_CHECK_EQUAL(readDataset.nLongitudes(), stokesDataset.nLongitudes());
+
+    // Verify some coefficient values match
+    auto [orig_coeff, orig_sine] = stokesDataset.getCoeff(0, 0, 0, 0, 0);
+    auto [read_coeff, read_sine] = readDataset.getCoeff(0, 0, 0, 0, 0);
+    BOOST_CHECK_CLOSE(read_coeff, orig_coeff, 1e-10);
+    BOOST_CHECK_CLOSE(read_sine, orig_sine, 1e-10);
+
+    // Step 6: Test reading from folder using ComaModelFileProcessor
+    ComaStokesDataset folderReadDataset = processor.createSHDatasetFromSHFiles(integratedOutput.string(), "integrated");
+    BOOST_CHECK_EQUAL(folderReadDataset.nmax(), stokesDataset.nmax());
+
+    // Verify coefficient values from folder read match original
+    auto [folder_coeff, folder_sine] = folderReadDataset.getCoeff(0, 0, 0, 0, 0);
+    BOOST_CHECK_CLOSE(folder_coeff, orig_coeff, 1e-10);
+    BOOST_CHECK_CLOSE(folder_sine, orig_sine, 1e-10);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
