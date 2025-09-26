@@ -426,6 +426,7 @@ Panel surface area
         py::arg( "frame_origin" ),
         py::arg( "material_properties" ),
         py::arg( "reradiation_settings" ),
+        py::arg( "input_unit" ) = "m",
         py::arg( "frame_orientation" ) = "",
         R"doc(
 Function for creating list of panel body settings
