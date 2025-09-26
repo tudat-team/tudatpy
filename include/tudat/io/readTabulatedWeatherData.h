@@ -128,19 +128,6 @@ bool compareDsnWeatherFileStartDate( std::shared_ptr< DsnWeatherData > file1, st
  */
 std::map< int, std::shared_ptr< DsnWeatherData > > readDsnWeatherDataFiles( const std::vector< std::string >& weatherFileNames );
 
-/*!
- * Creates interpolation function with the specified settings, keys and values. The only difference with respect to a manual
- * creation of the interpolator is that this function first removes all NAN values and respective keys from the provided
- * vectors.
- *
- * @param interpolatorSettings Interpolator settings.
- * @param keys Vector with interpolation keys (time).
- * @param values Vector with interpolation values (e.g. temperature, pressure, etc.)
- * @return Value as a function of the key.
- */
-std::function< double( double ) > createInterpolatingFunction( std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings,
-                                                               const std::vector< double >& keys,
-                                                               const std::vector< double >& values );
 
 /*!
  * Sets the functions to compute the weather data variables (pressure, temperature, etc.) as a function of time in the
