@@ -1,0 +1,5 @@
+{
+  "type": "piecewiseConstant",
+  "lookupScheme": "binarySearch",
+  "useLongDoubleTimeStep": true
+}

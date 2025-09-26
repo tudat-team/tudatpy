@@ -1,0 +1,8 @@
+{
+  "preloadEphemeris": true,
+  "interpolationOffsets": [
+    10,
+    400
+  ],
+  "useStandardKernels": true
+}

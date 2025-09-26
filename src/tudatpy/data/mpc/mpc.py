@@ -1,8 +1,12 @@
-from tudatpy.numerical_simulation import environment_setup  # type:ignore
-from tudatpy.numerical_simulation import estimation, environment  # type:ignore
-from tudatpy.numerical_simulation.estimation_setup import observation  # type:ignore
-from tudatpy.numerical_simulation.environment_setup import add_gravity_field_model
-from tudatpy.numerical_simulation.environment_setup.gravity_field import central_sbdb
+from tudatpy.dynamics import environment_setup  # type:ignore
+from tudatpy.dynamics import environment  # type:ignore
+from tudatpy.estimation import observations
+from tudatpy.estimation.observable_models_setup import (
+    model_settings,
+    links,
+)  # type:ignore
+from tudatpy.dynamics.environment_setup import add_gravity_field_model
+from tudatpy.dynamics.environment_setup.gravity_field import central_sbdb
 
 import pandas as pd
 import numpy as np
@@ -1135,7 +1139,7 @@ class BatchMPC:
         apply_weights_VFCC17: bool = True,
         apply_star_catalog_debias: bool = True,
         debias_kwargs: dict = dict(),
-    ) -> estimation.ObservationCollection:
+    ) -> observations.ObservationCollection:
         """Converts the observations in the batch into a Tudat compatible format and
           sets up the relevant Tudat infrastructure to support estimation.
         This method does the following:\\
@@ -1176,7 +1180,7 @@ class BatchMPC:
         station_body : bool, optional
             Adds a central_sbdb gravity model to the object, generated using JPL's small body database. 
             This option is only available for a limited number of bodies and raises an error if unavailable. 
-            See tudatpy.numerical_simulation.environment_setup.gravity_field.central_sbdb for more info.
+            See tudatpy.dynamics.environment_setup.gravity_field.central_sbdb for more info.
             Enabled if True, by default False
         apply_weights_VFCC17 : bool, optional
             Applies the weighting scheme as described in: "Statistical analysis of astrometric errors
@@ -1192,7 +1196,7 @@ class BatchMPC:
 
         Returns
         -------
-        estimation.ObservationCollection
+        observations.ObservationCollection
             ObservationCollection with the observations found in the batch
 
         Examples
@@ -1217,7 +1221,7 @@ class BatchMPC:
 
         # Calculate observation weights and update table:
         if apply_weights_VFCC17 and not self._custom_weights_set:
-            temp_table:pd.DataFrame = get_weights_VFCC17(  # type:ignore
+            temp_table: pd.DataFrame = get_weights_VFCC17(  # type:ignore
                 mpc_table=self.table,
                 return_full_table=True,
             )
@@ -1326,25 +1330,19 @@ class BatchMPC:
             link_ends = dict()
 
             # observed body link
-            link_ends[observation.transmitter] = observation.body_origin_link_end_id(
-                MPC_number
-            )
+            link_ends[links.transmitter] = links.body_origin_link_end_id(MPC_number)
 
             if station_name in sat_obs_codes_included:
                 # link for a satellite
                 sat_name = included_satellites[station_name]
-                link_ends[observation.receiver] = observation.body_origin_link_end_id(
-                    sat_name
-                )
-                link_definition = observation.link_definition(link_ends)
+                link_ends[links.receiver] = links.body_origin_link_end_id(sat_name)
+                link_definition = links.link_definition(link_ends)
             else:
                 # link for a ground station
-                link_ends[observation.receiver] = (
-                    observation.body_reference_point_link_end_id(
-                        station_body, station_name
-                    )
+                link_ends[links.receiver] = links.body_reference_point_link_end_id(
+                    station_body, station_name
                 )
-                link_definition = observation.link_definition(link_ends)
+                link_definition = links.link_definition(link_ends)
 
             # get observations, angles and times for this specific link
             observations_for_this_link = observations_table.query(
@@ -1360,12 +1358,12 @@ class BatchMPC:
             ].to_numpy()[:, 0]
 
             # create a set of obs for this link
-            observation_set = estimation.single_observation_set(
-                observation.angular_position_type,
+            observation_set = observations.single_observation_set(
+                model_settings.angular_position_type,
                 link_definition,
                 observation_angles,
                 observation_times,
-                observation.receiver,
+                links.receiver,
             )
 
             # apply weights if apply_weights is True or set_weights() has been used.
@@ -1382,7 +1380,9 @@ class BatchMPC:
 
             observation_set_list.append(observation_set)
 
-        observation_collection = estimation.ObservationCollection(observation_set_list)
+        observation_collection = observations.ObservationCollection(
+            observation_set_list
+        )
         return observation_collection
 
     def plot_observations_temporal(
