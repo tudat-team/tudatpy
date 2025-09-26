@@ -55,31 +55,6 @@ class PyLambertTargeter : public tms::LambertTargeter
                                                            /* Argument(s) */
         );
     }
-
-    /* Trampoline (need one for each virtual function) */
-    //  Eigen::Vector3d getInertialVelocityAtArrival() {
-    //    PYBIND11_OVERLOAD(
-    //        Eigen::Vector3d,              /* Return type */
-    //        tms::LambertTargeter,         /* Parent class */
-    //        getInertialVelocityAtArrival, /* Name of function in C++
-    //        (must match Python name) */
-    //                                      /* Argument(s) */
-    //    );
-    //  }
-
-    //  /* Trampoline (need one for each virtual function) */
-    //  std::pair<Eigen::Vector3d, Eigen::Vector3d>
-    //  getInertialVelocityVectors() {
-    //    PYBIND11_OVERLOAD(
-    //        std::pair<Eigen::Vector3d, Eigen::Vector3d>, /* Return
-    //        type */ tms::LambertTargeter,                        /*
-    //        Parent class */ getInertialVelocityVectors, /* Name of
-    //        function in C++ (must match Python name) */
-    //                                                     /*
-    //                                                     Argument(s)
-    //                                                     */
-    //    );
-    //  }
 };
 
 }  // namespace trampoline

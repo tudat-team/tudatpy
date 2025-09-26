@@ -274,13 +274,6 @@ std::shared_ptr< IntegratorStepSizeController< TimeStepType, StateType > > creat
             }
             else if( perBlockMatrixSettings != nullptr )
             {
-                auto A = perBlockMatrixSettings->relativeErrorTolerance_.template cast< typename StateType::Scalar >( );
-                auto B = perBlockMatrixSettings->absoluteErrorTolerance_.template cast< typename StateType::Scalar >( );
-                auto C = perBlockMatrixSettings->safetyFactorForNextStepSize_;
-                auto D = perBlockMatrixSettings->minimumFactorDecreaseForNextStepSize_;
-                auto E = perBlockMatrixSettings->maximumFactorDecreaseForNextStepSize_;
-
-
                 stepSizeController = std::make_shared< PerBlockIntegratorStepSizeController< TimeStepType, StateType > >(
                         perBlockSettings->blocksToCheckFunction_,
                         perBlockMatrixSettings->relativeErrorTolerance_.template cast< typename StateType::Scalar >( ),
