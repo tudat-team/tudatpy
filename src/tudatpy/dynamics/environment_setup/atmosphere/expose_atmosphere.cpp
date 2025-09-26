@@ -816,6 +816,8 @@ using the NRLMSISE-00 global reference model:
 
      )doc" );
 
+    // --- Coma Model ---
+
     m.def(
             "coma_model",
             py::overload_cast<
@@ -858,7 +860,7 @@ using the NRLMSISE-00 global reference model:
             );
 
     m.def(
-            "coma_create_poly_dataset_from_files",
+            "create_poly_dataset_from_files",
             &tss::comaCreatePolyDatasetFromFiles,
             py::arg( "file_paths" ),
             py::call_guard< py::gil_scoped_release >( ),
@@ -878,7 +880,7 @@ using the NRLMSISE-00 global reference model:
             );
 
     m.def(
-            "coma_create_sh_dataset_from_files",
+            "create_sh_dataset_from_files",
             &tss::comaCreateSHDatasetFromFiles,
             py::arg( "file_paths" ),
             py::arg( "radii_m" ),
@@ -892,8 +894,8 @@ using the NRLMSISE-00 global reference model:
                 Parameters
                 ----------
                 file_paths : list[str]
-                radii_m : list[float]
-                solLongitudes_deg : list[float]
+                radii_m : list[float] [meter]
+                solLongitudes_deg : list[float] [degree]
                 requestedMaxDegree : int, optional
                 requestedMaxOrder  : int, optional
 
@@ -920,8 +922,8 @@ using the NRLMSISE-00 global reference model:
                 ----------
                 file_paths : list[str]
                 outputDir : str
-                radii_m : list[float]
-                solLongitudes_deg : list[float]
+                radii_m : list[float] [meter]
+                solLongitudes_deg : list[float] [degree]
                 requestedMaxDegree : int, optional
                 requestedMaxOrder  : int, optional
                 )doc"

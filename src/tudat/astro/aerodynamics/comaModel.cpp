@@ -6,6 +6,7 @@
 #include <utility>
 
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
+#include "tudat/math/interpolators/multiLinearInterpolator.h"
 
 namespace tudat
 {
@@ -159,17 +160,32 @@ double ComaModel::getSpeedOfSound( const double radius,
 
 int ComaModel::findTimeIntervalIndex( const double time ) const
 {
-    for ( std::size_t f = 0; f < polyDataset_->getNumFiles(); ++f )
+    if ( dataType_ == ComaDataType::POLYNOMIAL_COEFFICIENTS )
     {
-        const auto& fileMeta = polyDataset_->getFileMeta( f );
-        for ( const auto& period : fileMeta.timePeriods )
+        for ( std::size_t f = 0; f < polyDataset_->getNumFiles(); ++f )
         {
-            if ( time >= period.first && time <= period.second )
+            const auto& fileMeta = polyDataset_->getFileMeta( f );
+            for ( const auto& period : fileMeta.timePeriods )
+            {
+                if ( time >= period.first && time <= period.second )
+                {
+                    return static_cast<int>( f );
+                }
+            }
+        }
+    }
+    else if ( dataType_ == ComaDataType::STOKES_COEFFICIENTS )
+    {
+        for ( std::size_t f = 0; f < stokesDataset_->nFiles(); ++f )
+        {
+            const auto& fileMeta = stokesDataset_->files()[f];
+            if ( time >= fileMeta.start_epoch && time <= fileMeta.end_epoch )
             {
                 return static_cast<int>( f );
             }
         }
     }
+
     throw std::runtime_error( "Time " + std::to_string( time ) + " does not fall into any defined time period" );
 }
 
@@ -300,18 +316,83 @@ double ComaModel::computeDensityFromStokesCoefficients( double radius, double lo
         throw std::runtime_error( "ComaModel: stokesDataset_ is null" );
     }
 
-    // TODO: Implement Stokes coefficient based density calculation
-    // This would involve:
-    // 1. Find appropriate Stokes coefficients for the given time/position
-    // 2. Interpolate if necessary
-    // 3. Calculate density using spherical harmonics
+    // Step 1: Find time interval index
+    const int fileIndex = findTimeIntervalIndex( time );
 
-    TUDAT_UNUSED_PARAMETER( radius );
-    TUDAT_UNUSED_PARAMETER( longitude );
-    TUDAT_UNUSED_PARAMETER( latitude );
-    TUDAT_UNUSED_PARAMETER( time );
+    // Step 2: Calculate solar longitude
+    const double solarLongitude = calculateSolarLongitude();
 
-    throw std::runtime_error( "ComaModel: Stokes coefficient algorithm not yet implemented" );
+    // Step 3: Get dataset properties
+    const auto& radiiGrid = stokesDataset_->radii();
+    const auto& longitudeGrid = stokesDataset_->lons();
+    const int nmax = stokesDataset_->nmax();
+
+    // Determine effective maximum degree and order
+    const int effectiveMaxDegree = maximumDegree_ > 0 ? maximumDegree_ : nmax;
+    const int effectiveMaxOrder = maximumOrder_ > 0 ? maximumOrder_ : nmax;
+
+    // Step 4: Set up interpolation grids
+    std::vector<std::vector<double>> independentGrids(2);
+    independentGrids[0] = radiiGrid;     // Radius grid
+    independentGrids[1] = longitudeGrid; // Solar longitude grid
+
+    // Initialize coefficient matrices
+    Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero(effectiveMaxDegree + 1, effectiveMaxOrder + 1);
+    Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero(effectiveMaxDegree + 1, effectiveMaxOrder + 1);
+
+    // Step 5: For each spherical harmonic coefficient (n,m), interpolate
+    for ( int n = 0; n <= effectiveMaxDegree; ++n )
+    {
+        for ( int m = 0; m <= std::min(n, effectiveMaxOrder); ++m )
+        {
+            // Create 2D grid for this coefficient
+            const std::size_t nRadii = radiiGrid.size();
+            const std::size_t nLons = longitudeGrid.size();
+
+            boost::multi_array<double, 2> cosineGrid(boost::extents[nRadii][nLons]);
+            boost::multi_array<double, 2> sineGrid(boost::extents[nRadii][nLons]);
+
+            // Fill grids with coefficient values
+            for ( std::size_t r = 0; r < nRadii; ++r )
+            {
+                for ( std::size_t l = 0; l < nLons; ++l )
+                {
+                    auto coeffs = stokesDataset_->getCoeff(fileIndex, r, l, n, m);
+                    cosineGrid[r][l] = coeffs.first;  // Cosine coefficient
+                    sineGrid[r][l] = coeffs.second;   // Sine coefficient
+                }
+            }
+
+            // Create interpolators for this coefficient
+            interpolators::MultiLinearInterpolator<double, double, 2> cosineInterpolator(
+                independentGrids, cosineGrid,
+                interpolators::huntingAlgorithm,
+                interpolators::extrapolate_at_boundary
+            );
+
+            interpolators::MultiLinearInterpolator<double, double, 2> sineInterpolator(
+                independentGrids, sineGrid,
+                interpolators::huntingAlgorithm,
+                interpolators::extrapolate_at_boundary
+            );
+
+            // Interpolate at current position
+            std::vector<double> interpolationPoint = {radius, solarLongitude};
+            cosineCoefficients(n, m) = cosineInterpolator.interpolate(interpolationPoint);
+
+            if ( m > 0 )  // Sine coefficients only exist for m > 0
+            {
+                sineCoefficients(n, m) = sineInterpolator.interpolate(interpolationPoint);
+            }
+        }
+    }
+
+    // Step 6: Calculate density using spherical harmonics
+    return sphericalHarmonicsCalculator_->calculateSurfaceSphericalHarmonics(
+        sineCoefficients, cosineCoefficients,
+        latitude, longitude,
+        effectiveMaxDegree, effectiveMaxOrder
+    );
 }
 
 
