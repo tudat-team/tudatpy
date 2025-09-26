@@ -915,8 +915,8 @@ public:
         const ComaPolyDataset& polyDataset,
         const std::vector<double>& radii_m,
         const std::vector<double>& solLongitudes_deg,
-        int requestedMaxDegree = -1,
-        int requestedMaxOrder = -1)
+        const int requestedMaxDegree = -1,
+        const int requestedMaxOrder = -1)
     {
         // Validate inputs
         validateTransformInputs(polyDataset, radii_m, solLongitudes_deg,
@@ -944,8 +944,8 @@ private:
         const ComaPolyDataset& polyDataset,
         const std::vector<double>& radii_m,
         const std::vector<double>& solLongitudes_deg,
-        int requestedMaxDegree,
-        int requestedMaxOrder)
+        const int requestedMaxDegree,
+        const int requestedMaxOrder)
     {
         if (radii_m.empty() || solLongitudes_deg.empty())
             throw std::invalid_argument("transformPolyToStokes: radii and longitudes must be non-empty.");
@@ -957,8 +957,8 @@ private:
 
     static std::pair<int, int> determineEffectiveMaxima(
         const ComaPolyDataset& polyDataset,
-        int requestedMaxDegree,
-        int requestedMaxOrder)
+        const int requestedMaxDegree,
+        const int requestedMaxOrder)
     {
         int globalMaxDeg = 0;
         int globalMaxOrd = 0;
@@ -979,8 +979,8 @@ private:
             globalMaxOrd = std::max(globalMaxOrd, fMaxOrd);
         }
 
-        const int effNmax = (requestedMaxDegree < 0 ? globalMaxDeg : requestedMaxDegree);
-        const int effMmax = (requestedMaxOrder < 0 ? globalMaxOrd : requestedMaxOrder);
+        const int effNmax = requestedMaxDegree < 0 ? globalMaxDeg : requestedMaxDegree;
+        const int effMmax = requestedMaxOrder < 0 ? globalMaxOrd : requestedMaxOrder;
 
         if (effNmax < 0 || effMmax < 0)
             throw std::invalid_argument("determineEffectiveMaxima: resolved negative maxima.");
@@ -1029,8 +1029,8 @@ private:
     static void fillStokesDataset(
         const ComaPolyDataset& polyDataset,
         ComaStokesDataset& stokesDataset,
-        int effNmax,
-        int effMmax)
+        const int effNmax,
+        const int effMmax)
     {
         Eigen::MatrixXd C(effNmax + 1, effMmax + 1);
         Eigen::MatrixXd S(effNmax + 1, effMmax + 1);
@@ -1077,16 +1077,36 @@ private:
 class ComaModelFileProcessor
 {
 public:
+    enum class FileType
+    {
+        PolyCoefficients,
+        StokesCoefficients
+    };
+
+    // Constructor for polynomial coefficient files
     explicit ComaModelFileProcessor(std::vector<std::string> filePaths)
-        : filePaths_(std::move(filePaths))
+        : filePaths_(std::move(filePaths)), fileType_(FileType::PolyCoefficients)
     {
         if (filePaths_.empty())
             throw std::invalid_argument("ComaModelFileProcessor: empty file list");
     }
 
-    // Create poly dataset from files
+    // Constructor for Stokes coefficient files (SH files)
+    explicit ComaModelFileProcessor(const std::string& inputDir, const std::string& prefix = "stokes")
+        : fileType_(FileType::StokesCoefficients), shInputDir_(inputDir), shPrefix_(prefix)
+    {
+        // Load the SH dataset immediately
+        preloadedSHDataset_ = ComaStokesDatasetReader::readFromCsvFolder(inputDir, prefix);
+    }
+
+    // Create poly dataset from files (only available for poly coefficient files)
     ComaPolyDataset createPolyCoefDataset() const
     {
+        if (fileType_ != FileType::PolyCoefficients)
+        {
+            throw std::runtime_error("createPolyCoefDataset: not available when processor is constructed from SH files. "
+                                   "Use a processor constructed from polynomial coefficient files instead.");
+        }
         return ComaPolyDatasetReader::readFromFiles(filePaths_);
     }
 
@@ -1094,13 +1114,24 @@ public:
     ComaStokesDataset createSHDataset(
         const std::vector<double>& radii_m,
         const std::vector<double>& solLongitudes_deg,
-        int requestedMaxDegree = -1,
-        int requestedMaxOrder = -1) const
+        const int requestedMaxDegree = -1,
+        const int requestedMaxOrder = -1) const
     {
-        ComaPolyDataset polyDataset = createPolyCoefDataset();
-        return ComaDatasetTransformer::transformPolyToStokes(
-            polyDataset, radii_m, solLongitudes_deg,
-            requestedMaxDegree, requestedMaxOrder);
+        if (fileType_ == FileType::StokesCoefficients)
+        {
+            // When constructed from SH files, return the preloaded dataset
+            // Note: radii_m, solLongitudes_deg, and degree/order parameters are ignored
+            // as they are already determined by the loaded SH files
+            return preloadedSHDataset_;
+        }
+        else
+        {
+            // When constructed from poly files, transform as before
+            const ComaPolyDataset polyDataset = createPolyCoefDataset();
+            return ComaDatasetTransformer::transformPolyToStokes(
+                polyDataset, radii_m, solLongitudes_deg,
+                requestedMaxDegree, requestedMaxOrder);
+        }
     }
 
     // Create SH files (combines dataset creation and writing)
@@ -1108,26 +1139,30 @@ public:
         const std::string& outputDir,
         const std::vector<double>& radii_m,
         const std::vector<double>& solLongitudes_deg,
-        int requestedMaxDegree = -1,
-        int requestedMaxOrder = -1) const
+        const int requestedMaxDegree = -1,
+        const int requestedMaxOrder = -1) const
     {
-        ComaStokesDataset stokesDataset = createSHDataset(
+        const ComaStokesDataset stokesDataset = createSHDataset(
             radii_m, solLongitudes_deg,
             requestedMaxDegree, requestedMaxOrder);
 
         ComaStokesDatasetWriter::writeCsvAll(stokesDataset, outputDir);
     }
 
-    // Create SH dataset from existing SH files
-    ComaStokesDataset createSHDatasetFromSHFiles(
-        const std::string& inputDir,
-        const std::string& prefix = "stokes") const
+    // Get the file type of this processor
+    FileType getFileType() const
     {
-        return ComaStokesDatasetReader::readFromCsvFolder(inputDir, prefix);
+        return fileType_;
     }
 
 private:
     std::vector<std::string> filePaths_;
+    FileType fileType_;
+
+    // For SH file processor
+    std::string shInputDir_;
+    std::string shPrefix_;
+    ComaStokesDataset preloadedSHDataset_;
 };
 
 
@@ -2446,43 +2481,20 @@ inline std::shared_ptr< AtmosphereSettings > comaSettings(
 
 
 // === Coma processing: factory-style helpers (header-inline) ===
-inline std::shared_ptr<ComaModelFileProcessor > comaModelFileProcessor(
-    std::vector<std::string> filePaths)
-{
-    return std::make_shared<ComaModelFileProcessor>( filePaths );
-}
-
-inline ComaPolyDataset comaCreatePolyDatasetFromFiles(
+inline std::shared_ptr<ComaModelFileProcessor> comaModelFileProcessorFromPolyFiles(
     const std::vector<std::string>& filePaths)
 {
-    ComaModelFileProcessor proc(filePaths);
-    return proc.createPolyCoefDataset();
+    return std::make_shared<ComaModelFileProcessor>(filePaths);
 }
 
-inline ComaStokesDataset comaCreateSHDatasetFromFiles(
-    const std::vector<std::string>& filePaths,
-    const std::vector<double>& radii_m,
-    const std::vector<double>& solLongitudes_deg,
-    const int requestedMaxDegree = -1,
-    const int requestedMaxOrder  = -1)
+inline std::shared_ptr<ComaModelFileProcessor> comaModelFileProcessorFromSHFiles(
+    const std::string& inputDir,
+    const std::string& prefix = "stokes")
 {
-    ComaModelFileProcessor proc(filePaths);
-    return proc.createSHDataset(
-        radii_m, solLongitudes_deg, requestedMaxDegree, requestedMaxOrder);
+    return std::make_shared<ComaModelFileProcessor>(inputDir, prefix);
 }
 
-inline void comaWriteSHCsvFromFiles(
-    const std::vector<std::string>& filePaths,
-    const std::string& outputDir,
-    const std::vector<double>& radii_m,
-    const std::vector<double>& solLongitudes_deg,
-    const int requestedMaxDegree = -1,
-    const int requestedMaxOrder  = -1)
-{
-    ComaModelFileProcessor proc(filePaths);
-    proc.createSHFiles(
-        outputDir, radii_m, solLongitudes_deg, requestedMaxDegree, requestedMaxOrder);
-}
+
 
 
 

@@ -851,83 +851,56 @@ using the NRLMSISE-00 global reference model:
                                           "ComaStokesDataset",
                                           R"doc(Stokes spherical-harmonics dataset for the coma model.)doc" );
 
+
+
     // === Coma processing: file processor ===
+    py::class_< tss::ComaModelFileProcessor >( m,
+                                               "ComaModelFileProcessor",
+                                               R"doc(Processor for coma model files (polynomial or spherical harmonics coefficients).)doc" )
+        .def("create_poly_coef_dataset",
+             &tss::ComaModelFileProcessor::createPolyCoefDataset,
+             R"doc(Create polynomial coefficient dataset. Only available when processor was constructed from polynomial files.)doc")
+        .def("create_sh_dataset",
+             &tss::ComaModelFileProcessor::createSHDataset,
+             py::arg("radii_m"),
+             py::arg("sol_longitudes_deg"),
+             py::arg("requested_max_degree") = -1,
+             py::arg("requested_max_order") = -1,
+             R"doc(Create spherical harmonics dataset. When constructed from SH files, input parameters are ignored.)doc")
+        .def("create_sh_files",
+             &tss::ComaModelFileProcessor::createSHFiles,
+             py::arg("output_dir"),
+             py::arg("radii_m"),
+             py::arg("sol_longitudes_deg"),
+             py::arg("requested_max_degree") = -1,
+             py::arg("requested_max_order") = -1,
+             R"doc(Create spherical harmonics CSV files.)doc");
+
     m.def(
             "coma_model_file_processor",
-            &tss::comaModelFileProcessor,
+            py::overload_cast<const std::vector<std::string>&>(&tss::comaModelFileProcessorFromPolyFiles),
             py::arg( "file_paths" ),
             R"doc(Create a ComaModelFileProcessor from a list of polynomial coefficient files.)doc"
             );
 
     m.def(
-            "create_poly_dataset_from_files",
-            &tss::comaCreatePolyDatasetFromFiles,
-            py::arg( "file_paths" ),
-            py::call_guard< py::gil_scoped_release >( ),
+            "coma_model_file_processor",
+            py::overload_cast<const std::string&, const std::string&>(&tss::comaModelFileProcessorFromSHFiles),
+            py::arg( "input_dir" ),
+            py::arg( "prefix" ) = "stokes",
             R"doc(
-                Read and parse polynomial coefficient files into a ComaPolyDataset.
+                Create a ComaModelFileProcessor from existing SH CSV files.
 
                 Parameters
                 ----------
-                file_paths : list[str]
-                    Paths to polynomial coefficient files.
-
-                Returns
-                -------
-                ComaPolyDataset
-                    Parsed dataset.
+                input_dir : str
+                    Directory containing the SH CSV files to read from
+                prefix : str, optional
+                    File prefix for the CSV files (default: "stokes")
                 )doc"
             );
 
-    m.def(
-            "create_sh_dataset_from_files",
-            &tss::comaCreateSHDatasetFromFiles,
-            py::arg( "file_paths" ),
-            py::arg( "radii_m" ),
-            py::arg( "solLongitudes_deg" ),
-            py::arg( "requestedMaxDegree" ) = -1,
-            py::arg( "requestedMaxOrder" ) = -1,
-            py::call_guard< py::gil_scoped_release >( ),
-            R"doc(
-                Transform the polynomial dataset (from files) into a Stokes dataset.
 
-                Parameters
-                ----------
-                file_paths : list[str]
-                radii_m : list[float] [meter]
-                solLongitudes_deg : list[float] [degree]
-                requestedMaxDegree : int, optional
-                requestedMaxOrder  : int, optional
-
-                Returns
-                -------
-                ComaStokesDataset
-                )doc"
-            );
-
-    m.def(
-            "coma_write_sh_csv_from_files",
-            &tss::comaWriteSHCsvFromFiles,
-            py::arg( "file_paths" ),
-            py::arg( "outputDir" ),
-            py::arg( "radii_m" ),
-            py::arg( "solLongitudes_deg" ),
-            py::arg( "requestedMaxDegree" ) = -1,
-            py::arg( "requestedMaxOrder" ) = -1,
-            py::call_guard< py::gil_scoped_release >( ),
-            R"doc(
-                Create a Stokes dataset and write all CSV files to `outputDir`.
-
-                Parameters
-                ----------
-                file_paths : list[str]
-                outputDir : str
-                radii_m : list[float] [meter]
-                solLongitudes_deg : list[float] [degree]
-                requestedMaxDegree : int, optional
-                requestedMaxOrder  : int, optional
-                )doc"
-            );
 
 
 

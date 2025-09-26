@@ -648,8 +648,9 @@ BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_sh_dataset_from_sh_files
     boost::filesystem::path expectedFile = shFilesDir / "stokes_file0.csv";
     BOOST_CHECK(boost::filesystem::exists(expectedFile));
 
-    // Now test createSHDatasetFromSHFiles
-    ComaStokesDataset readDataset = processor.createSHDatasetFromSHFiles(shFilesDir.string());
+    // Now test creating a new processor from SH files and reading the dataset
+    ComaModelFileProcessor shProcessor(shFilesDir.string());
+    ComaStokesDataset readDataset = shProcessor.createSHDataset({}, {});
 
     // Verify structure matches original
     BOOST_CHECK_EQUAL(readDataset.nFiles(), originalDataset.nFiles());
@@ -701,8 +702,9 @@ BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_sh_dataset_from_sh_files
     // Write CSV files with custom prefix
     ComaStokesDatasetWriter::writeCsvAll(originalDataset, customPrefixDir.string(), "custom");
 
-    // Read back with custom prefix
-    ComaStokesDataset customReadDataset = processor.createSHDatasetFromSHFiles(customPrefixDir.string(), "custom");
+    // Read back with custom prefix using new processor
+    ComaModelFileProcessor customShProcessor(customPrefixDir.string(), "custom");
+    ComaStokesDataset customReadDataset = customShProcessor.createSHDataset({}, {});
 
     // Verify it matches the original
     BOOST_CHECK_EQUAL(customReadDataset.nFiles(), originalDataset.nFiles());
@@ -711,6 +713,11 @@ BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_sh_dataset_from_sh_files
     // Verify one coefficient value
     auto [custom_C_0_0, custom_S_0_0] = customReadDataset.getCoeff(0, 0, 0, 0, 0);
     BOOST_CHECK_CLOSE(custom_C_0_0, orig_C_0_0_r0_l0, 1e-10);
+
+    // Test error handling: calling createPolyCoefDataset on SH processor should throw
+    BOOST_CHECK_THROW(
+        shProcessor.createPolyCoefDataset(),
+        std::runtime_error);
 }
 
 BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_validation, TestDataPaths)
@@ -797,8 +804,9 @@ BOOST_FIXTURE_TEST_CASE(test_full_pipeline, TestDataPaths)
     BOOST_CHECK_CLOSE(read_coeff, orig_coeff, 1e-10);
     BOOST_CHECK_CLOSE(read_sine, orig_sine, 1e-10);
 
-    // Step 6: Test reading from folder using ComaModelFileProcessor
-    ComaStokesDataset folderReadDataset = processor.createSHDatasetFromSHFiles(integratedOutput.string(), "integrated");
+    // Step 6: Test reading from folder using new SH processor
+    ComaModelFileProcessor integratedShProcessor(integratedOutput.string(), "integrated");
+    ComaStokesDataset folderReadDataset = integratedShProcessor.createSHDataset({}, {});
     BOOST_CHECK_EQUAL(folderReadDataset.nmax(), stokesDataset.nmax());
 
     // Verify coefficient values from folder read match original
