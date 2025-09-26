@@ -37,7 +37,7 @@ namespace data
 
 void expose_data( py::module& m )
 {
-    py::module_::import( "tudatpy.math.interpolators" ).attr( "InterpolatorSettings" );
+    py::module_::import( "tudatpy.kernel.math.interpolators" ).attr( "InterpolatorSettings" );
     // py::module_::import( "tudatpy.math.interpolators" ).attr( "cubic_spline_interpolation" );
     // py::object cubic_spline_interpolation =
     //         (py::object)py::module_::import( "tudatpy.math.interpolators" ).attr( "cubic_spline_interpolation" );
