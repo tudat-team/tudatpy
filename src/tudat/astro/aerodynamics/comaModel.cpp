@@ -74,6 +74,9 @@ ComaModel::ComaModel( const simulation_setup::ComaStokesDataset& stokesDataset,
     {
         throw std::invalid_argument( "ComaModel: Maximum degree and order must be >= -1" );
     }
+
+    // Initialize interpolators for Stokes coefficients
+    initializeStokesInterpolators();
 }
 
 
@@ -323,6 +326,98 @@ double ComaModel::computeDensityFromStokesCoefficients( double radius, double lo
     const double solarLongitude = calculateSolarLongitude();
 
     // Step 3: Get dataset properties
+    const int nmax = stokesDataset_->nmax();
+
+    // Determine effective maximum degree and order
+    const int effectiveMaxDegree = maximumDegree_ > 0 ? maximumDegree_ : nmax;
+    const int effectiveMaxOrder = maximumOrder_ > 0 ? maximumOrder_ : nmax;
+
+    // Initialize coefficient matrices
+    Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero(effectiveMaxDegree + 1, effectiveMaxOrder + 1);
+    Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero(effectiveMaxDegree + 1, effectiveMaxOrder + 1);
+
+    // Step 4: Interpolation point
+    std::vector<double> interpolationPoint = {radius, solarLongitude};
+
+    // Step 5: For each spherical harmonic coefficient (n,m), use pre-initialized interpolators
+    for ( int n = 0; n <= effectiveMaxDegree; ++n )
+    {
+        for ( int m = 0; m <= std::min(n, effectiveMaxOrder); ++m )
+        {
+            std::pair<int,int> nmPair = {n, m};
+
+            // Find the pre-initialized interpolators for this (n,m) pair
+            auto it = stokesInterpolators_.find(nmPair);
+            if ( it != stokesInterpolators_.end() )
+            {
+                // Use pre-initialized interpolators
+                cosineCoefficients(n, m) = it->second.first->interpolate(interpolationPoint);
+
+                if ( m > 0 )  // Sine coefficients only exist for m > 0
+                {
+                    sineCoefficients(n, m) = it->second.second->interpolate(interpolationPoint);
+                }
+            }
+            else
+            {
+                // Fallback: create interpolator on-the-fly (should not happen if initialization was correct)
+                const auto& radiiGrid = stokesDataset_->radii();
+                const auto& longitudeGrid = stokesDataset_->lons();
+                const std::size_t nRadii = radiiGrid.size();
+                const std::size_t nLons = longitudeGrid.size();
+
+                std::vector<std::vector<double>> independentGrids(2);
+                independentGrids[0] = radiiGrid;
+                independentGrids[1] = longitudeGrid;
+
+                boost::multi_array<double, 2> cosineGrid(boost::extents[nRadii][nLons]);
+                boost::multi_array<double, 2> sineGrid(boost::extents[nRadii][nLons]);
+
+                for ( std::size_t r = 0; r < nRadii; ++r )
+                {
+                    for ( std::size_t l = 0; l < nLons; ++l )
+                    {
+                        auto coeffs = stokesDataset_->getCoeff(fileIndex, r, l, n, m);
+                        cosineGrid[r][l] = coeffs.first;
+                        sineGrid[r][l] = coeffs.second;
+                    }
+                }
+
+                interpolators::MultiLinearInterpolator<double, double, 2> cosineInterpolator(
+                    independentGrids, cosineGrid,
+                    interpolators::huntingAlgorithm,
+                    interpolators::extrapolate_at_boundary
+                );
+
+                interpolators::MultiLinearInterpolator<double, double, 2> sineInterpolator(
+                    independentGrids, sineGrid,
+                    interpolators::huntingAlgorithm,
+                    interpolators::extrapolate_at_boundary
+                );
+
+                cosineCoefficients(n, m) = cosineInterpolator.interpolate(interpolationPoint);
+                if ( m > 0 )
+                {
+                    sineCoefficients(n, m) = sineInterpolator.interpolate(interpolationPoint);
+                }
+            }
+        }
+    }
+
+    // Step 6: Calculate density using spherical harmonics
+    return sphericalHarmonicsCalculator_->calculateSurfaceSphericalHarmonics(
+        sineCoefficients, cosineCoefficients,
+        latitude, longitude,
+        effectiveMaxDegree, effectiveMaxOrder
+    );
+}
+
+void ComaModel::initializeStokesInterpolators()
+{
+    // This function is only called from the Stokes coefficients constructor,
+    // so dataType_ is guaranteed to be STOKES_COEFFICIENTS and stokesDataset_ is guaranteed to be non-null
+
+    // Get dataset properties (assume same for all files)
     const auto& radiiGrid = stokesDataset_->radii();
     const auto& longitudeGrid = stokesDataset_->lons();
     const int nmax = stokesDataset_->nmax();
@@ -331,23 +426,20 @@ double ComaModel::computeDensityFromStokesCoefficients( double radius, double lo
     const int effectiveMaxDegree = maximumDegree_ > 0 ? maximumDegree_ : nmax;
     const int effectiveMaxOrder = maximumOrder_ > 0 ? maximumOrder_ : nmax;
 
-    // Step 4: Set up interpolation grids
+    // Set up interpolation grids (shared for all interpolators)
     std::vector<std::vector<double>> independentGrids(2);
     independentGrids[0] = radiiGrid;     // Radius grid
     independentGrids[1] = longitudeGrid; // Solar longitude grid
 
-    // Initialize coefficient matrices
-    Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero(effectiveMaxDegree + 1, effectiveMaxOrder + 1);
-    Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero(effectiveMaxDegree + 1, effectiveMaxOrder + 1);
-
-    // Step 5: For each spherical harmonic coefficient (n,m), interpolate
+    // Initialize interpolators for each (n,m) pair
     for ( int n = 0; n <= effectiveMaxDegree; ++n )
     {
         for ( int m = 0; m <= std::min(n, effectiveMaxOrder); ++m )
         {
-            // Create 2D grid for this coefficient
+            // Create 2D grids for this coefficient (across all files for now - using first file)
             const std::size_t nRadii = radiiGrid.size();
             const std::size_t nLons = longitudeGrid.size();
+            const int fileIndex = 0; // For now, use first file - this could be extended
 
             boost::multi_array<double, 2> cosineGrid(boost::extents[nRadii][nLons]);
             boost::multi_array<double, 2> sineGrid(boost::extents[nRadii][nLons]);
@@ -364,35 +456,23 @@ double ComaModel::computeDensityFromStokesCoefficients( double radius, double lo
             }
 
             // Create interpolators for this coefficient
-            interpolators::MultiLinearInterpolator<double, double, 2> cosineInterpolator(
+            auto cosineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 2>>(
                 independentGrids, cosineGrid,
                 interpolators::huntingAlgorithm,
                 interpolators::extrapolate_at_boundary
             );
 
-            interpolators::MultiLinearInterpolator<double, double, 2> sineInterpolator(
+            auto sineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 2>>(
                 independentGrids, sineGrid,
                 interpolators::huntingAlgorithm,
                 interpolators::extrapolate_at_boundary
             );
 
-            // Interpolate at current position
-            std::vector<double> interpolationPoint = {radius, solarLongitude};
-            cosineCoefficients(n, m) = cosineInterpolator.interpolate(interpolationPoint);
-
-            if ( m > 0 )  // Sine coefficients only exist for m > 0
-            {
-                sineCoefficients(n, m) = sineInterpolator.interpolate(interpolationPoint);
-            }
+            // Store interpolators in map
+            std::pair<int,int> nmPair = {n, m};
+            stokesInterpolators_[nmPair] = {std::move(cosineInterpolator), std::move(sineInterpolator)};
         }
     }
-
-    // Step 6: Calculate density using spherical harmonics
-    return sphericalHarmonicsCalculator_->calculateSurfaceSphericalHarmonics(
-        sineCoefficients, cosineCoefficients,
-        latitude, longitude,
-        effectiveMaxDegree, effectiveMaxOrder
-    );
 }
 
 

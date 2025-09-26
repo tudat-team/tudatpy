@@ -9,9 +9,10 @@
 #include "tudat/astro/aerodynamics/aerodynamics.h"
 #include "tudat/math/basic/sphericalHarmonics.h"
 #include "tudat/simulation/environment_setup/createAtmosphereModel.h"
-
+#include "tudat/math/interpolators/multiLinearInterpolator.h"
 
 #include <functional>
+#include <map>
 
 
 namespace tudat
@@ -148,6 +149,11 @@ private:
     //! Spherical harmonics calculator with shared cache
     std::unique_ptr<SphericalHarmonicsCalculator> sphericalHarmonicsCalculator_;
 
+    //! Pre-initialized interpolators for Stokes coefficients (only for STOKES_COEFFICIENTS data type)
+    //! Map from (n,m) pair to (cosineInterpolator, sineInterpolator) pair
+    std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
+                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>> stokesInterpolators_;
+
     /*!
      * @brief Find the index of the time interval that contains a given time.
      *
@@ -169,6 +175,11 @@ private:
      * @return Solar longitude [rad]
      */
     double calculateSolarLongitude() const;
+
+    /*!
+     * @brief Initialize interpolators for Stokes coefficients (called only for STOKES_COEFFICIENTS data type)
+     */
+    void initializeStokesInterpolators();
 
 };
 
