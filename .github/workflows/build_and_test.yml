@@ -4,7 +4,7 @@
 # The workflow is built on top of the GitHub starter workflow for CMake on multiple platforms https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
 
 
-name: Build and Test
+name: Build and Test w/ Conda
 
 on:
   push:
@@ -24,48 +24,38 @@ jobs:
       # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
       fail-fast: false
 
-      # Set up a matrix to run the following 3 configurations:
-      # 1. <Windows, Release, latest MSVC compiler toolchain on the default runner image, default generator>
-      # 2. <Linux, Release, latest GCC compiler toolchain on the default runner image, default generator>
-      # 3. <Linux, Release, latest Clang compiler toolchain on the default runner image, default generator>
+      # NOTE: Do not mix system compilers with conda compilers when
+      # building under conda.  This invites version clashes with
+      # dependencies that are also installed system-wide.
+      #
+      # - Linux: gcc
+      # - Windows: gcc (?)
+      # - OSX: clang
       #
       # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        build_type: [Release]
-        c_compiler: [gcc, clang, cl]
-        include:
-          - os: windows-latest
-            c_compiler: cl
-            cpp_compiler: cl
-            label: win-64
-            path_conda_env: C:\Miniconda\envs\tudat
-            build_jobs: 3
+        platform:
           - os: ubuntu-latest
-            c_compiler: gcc
-            cpp_compiler: g++
             label: linux-64
             path_conda_env: /usr/share/miniconda/envs/tudat
             build_jobs: 3
+          - os: windows-latest
+            label: win-64
+            path_conda_env: C:\Miniconda\envs\tudat
+            build_jobs: 3
           - os: macos-latest
-            c_compiler: clang
-            cpp_compiler: clang++
             label: osx-64
             path_conda_env: /Users/runner/miniconda3/envs/tudat
             build_jobs: 2
+        build_type: [Release]
+        compilers: [{c: gcc, cxx: g++}, {c: clang, cxx: clang++}]
         exclude:
           - os: windows-latest
-            c_compiler: gcc
-          - os: windows-latest
-            c_compiler: clang
+            compilers: {c: clang, cxx: clang++}
           - os: ubuntu-latest
-            c_compiler: cl
+            compilers: {c: clang, cxx: clang++}
           - os: macos-latest
-            c_compiler: gcc
-          - os: macos-latest
-            c_compiler: cl
-          - os: ubuntu-latest
-            c_compiler: clang
+            compilers: {c: gcc, cxx: g++}
 
     steps:
     - uses: actions/checkout@v4
@@ -91,19 +81,19 @@ jobs:
     #   # Cache the conda environment to avoid re-installing the same packages every time the workflow runs. The cache key is based on the environment.yml file, the operating system, and the date. The cache is restored if the cache key matches the cache key of the previous run.
     #   uses: actions/cache@v4
     #   with:
-    #       path: ${{ matrix.path_conda_env }}
+    #       path: ${{ matrix.platform.path_conda_env }}
     #       key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('environment.yml') }}-${{steps.get-date.outputs.today}}
     #   id: cache
 
 
-    - name: Create conda environment from environment.yml - ${{ matrix.os }}
+    - name: Create conda environment from environment.yml - ${{ matrix.platform.os }}
       # Update the tudat conda environment created using the environment.yml file if the cache is not restored
       # if: steps.cache.outputs.cache-hit != 'true'
       run: conda env update -n tudat -f environment.yaml
 
 
-    - name: Create conda environment from environment-osx.yml - ${{ matrix.os }}
-      if: matrix.os == 'macos-latest'
+    - name: Create conda environment from environment-osx.yml - ${{ matrix.platform.os }}
+      if: matrix.platform.os == 'macos-latest'
       run: conda env update -n tudat -f environment-osx.yaml
 
     - name: Show full conda package list
@@ -137,7 +127,7 @@ jobs:
     #  # This third party action will setup ccache on the runner and restore any previously saved cache. Caches are saved automatically by the action after a build.
     #  uses: hendrikmuhs/ccache-action@v1.2.12
     #  with:
-    #    key: ${{ matrix.os }}-${{ matrix.build_type }}
+    #    key: ${{ matrix.platform.os }}-${{ matrix.build_type }}
 
 
     - name: Configure CMake
@@ -148,9 +138,9 @@ jobs:
         cmake -B "${{ github.workspace }}/build"
         -S "${{ github.workspace }}"
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+        -DCMAKE_CXX_COMPILER=${{ matrix.compilers.cxx }}
         #-DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+        -DCMAKE_C_COMPILER=${{ matrix.compilers.c }}
         #-DCMAKE_C_COMPILER_LAUNCHER=ccache
         -DTUDAT_BUILD_GITHUB_ACTIONS=ON
 
@@ -158,7 +148,7 @@ jobs:
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator). Use multiple cpu cores available in the runner.
       shell: bash -l {0}
-      run: cmake --build "${{ github.workspace }}/build" --config "${{ matrix.build_type }}" -j${{ matrix.build_jobs }}
+      run: cmake --build "${{ github.workspace }}/build" --config "${{ matrix.build_type }}" -j${{ matrix.platform.build_jobs }}
 
 
     - name: Test
