@@ -50,11 +50,11 @@ jobs:
         build_type: [Release]
         compilers: [{c: gcc, cxx: g++}, {c: clang, cxx: clang++}]
         exclude:
-          - os: windows-latest
+          - platform: {os: windows-latest}
             compilers: {c: clang, cxx: clang++}
-          - os: ubuntu-latest
+          - platform: {os: ubuntu-latest}
             compilers: {c: clang, cxx: clang++}
-          - os: macos-latest
+          - platform: {os: macos-latest}
             compilers: {c: gcc, cxx: g++}
 
     steps:
