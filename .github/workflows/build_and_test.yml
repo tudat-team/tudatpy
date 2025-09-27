@@ -144,6 +144,8 @@ jobs:
         #-DCMAKE_C_COMPILER_LAUNCHER=ccache
         -DTUDAT_BUILD_GITHUB_ACTIONS=ON
 
+    - name: Debug
+      run: conda list
 
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator). Use multiple cpu cores available in the runner.
