@@ -8,7 +8,7 @@ dependencies:
   - tudat-resources
   - sofa-cmake
   - nrlmsise-00
-  - cspice-cmake
+  - cspice
   - fftw
   - python=3.11
   - pybind11
