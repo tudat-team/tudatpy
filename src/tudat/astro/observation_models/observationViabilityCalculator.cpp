@@ -252,6 +252,12 @@ bool OccultationCalculator::isObservationViable( const std::vector< Eigen::Vecto
     return isObservationPossible;
 }
 
+bool CustomViabilityCalculator::isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates,
+                                                     const std::vector< double >& linkEndTimes )
+{
+    return customViabilityFunction_( linkEndStates, linkEndTimes );
+}
+
 }  // namespace observation_models
 
 }  // namespace tudat
