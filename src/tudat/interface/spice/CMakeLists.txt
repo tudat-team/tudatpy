@@ -28,5 +28,5 @@ set(spice_interface_HEADERS
 TUDAT_ADD_LIBRARY("spice_interface"
         "${spice_interface_SOURCES}"
         "${spice_interface_HEADERS}"
-        PRIVATE_LINKS "${CSpice::cspice}"
+        PRIVATE_LINKS "CSpice::cspice"
         )
