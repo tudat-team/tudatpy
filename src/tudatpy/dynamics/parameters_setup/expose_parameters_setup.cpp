@@ -1086,17 +1086,92 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
         m.def( "iau_rotation_model_pole",
            &tep::iauRotationModelNominalPoleParameterSettings,
-           py::arg( "body" ) );
+           py::arg( "body" ),
+           R"doc(
+
+ Function for creating parameter settings for a body's nominal pole position in an IAU rotation model
+
+ Function for creating parameter settings for a body's nominal pole position in an IAU rotation model
+ Using this requires:
+
+ * A :func:`~tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model` rotation model specified by the ``body`` parameter
+ * Any dynamical or observational model to depend on the rotation model of the body specified by the ``body`` parameter
+
+ This parameter estimates the :math:`[\alpha_{0},\delta_{0}]` variables of the :func:`~tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model` rotation model
+
+ Parameters
+ ----------
+ body : str
+     Name of the body, with whose rotation model the estimatable parameter is associated.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's property
+
+     )doc" );
+
 
         m.def( "iau_rotation_model_pole_rate",
            &tep::iauRotationModelPoleRateParameterSettings,
-           py::arg( "body" ) );
+           py::arg( "body" ),
+           R"doc(
+
+ Function for creating parameter settings for a body's pole precession rate in an IAU rotation model
+
+ Function for creating parameter settings for a body's pole precession rate in an IAU rotation model
+ Using this requires:
+
+ * A :func:`~tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model` rotation model specified by the ``body`` parameter
+ * Any dynamical or observational model to depend on the rotation model of the body specified by the ``body`` parameter
+
+ This parameter estimates the :math:`[\dot{\alpha},\dot{\delta}]` variables of the :func:`~tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model` rotation model
+
+ Parameters
+ ----------
+ body : str
+     Name of the body, with whose rotation model the estimatable parameter is associated.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's property
+
+     )doc" );
 
         m.def( "iau_rotation_model_longitudinal_librations",
            &tep::iauRotationModelLongitudinalLibrationParameterSettings,
            py::arg( "body" ),
-           py::arg( "libration_anngular_frequencies" )
-           );
+           py::arg( "libration_angular_frequencies" ),
+           R"doc(
+
+ Function for creating parameter settings for a body's longitudinal libration amplitudes in an IAU rotation model
+
+ Function for creating parameter settings for a body's longitudinal libration amplitudes in an IAU rotation model
+ Using this requires:
+
+ * A :func:`~tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model` rotation model specified by the ``body`` parameter
+ * Any dynamical or observational model to depend on the rotation model of the body specified by the ``body`` parameter
+
+ This parameter estimates a list of :math:`W_{i}` variables of the :func:`~tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model` rotation model.
+ The values of :math:`i` for which :math:`W_{i}` is estimated is defined by the ``libration_angular_frequencies`` input, which defines the
+ corresponding :math:`\omega_{W_i}` values for which the librations are to be estimated. Note that the parameters are ordered as in
+ the ``libration_angular_frequencies`` vector.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body, with whose rotation model the estimatable parameter is associated.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's property
+
+     )doc" );
 
 
 
