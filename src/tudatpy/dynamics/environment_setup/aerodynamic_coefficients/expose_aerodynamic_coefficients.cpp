@@ -428,10 +428,7 @@ The body-fixed frame of the body itself.
 
          Class for defining model settings from constant aerodynamic coefficients.
 
-         `AerodynamicCoefficientSettings` derived class for aerodynamic interface model settings using only constant aerodynamic coefficients.
-
-
-
+         :class:`~AerodynamicCoefficientSettings`` derived class for aerodynamic interface model settings using only constant aerodynamic coefficients.
 
       )doc" );
 
@@ -439,13 +436,6 @@ The body-fixed frame of the body itself.
                 std::shared_ptr< tss::CustomAerodynamicCoefficientSettings >,
                 tss::AerodynamicCoefficientSettings >(
             m, "CustomAerodynamicCoefficientSettings", R"doc(No documentation found.)doc" );
-    //
-    //        py::class_<tss::TabulatedAerodynamicCoefficientSettings,
-    //                std::shared_ptr<tss::TabulatedAerodynamicCoefficientSettings>,
-    //                tss::AerodynamicCoefficientSettings>(
-    //                        m,
-    //                        "TabulatedAerodynamicCoefficientSettings",
-    //                        get_docstring("TabulatedAerodynamicCoefficientSettings").c_str());
 
     py::class_< tss::ScaledAerodynamicCoefficientInterfaceSettings,
                 std::shared_ptr< tss::ScaledAerodynamicCoefficientInterfaceSettings >,
@@ -468,9 +458,27 @@ The body-fixed frame of the body itself.
             "tings",
             R"doc(No documentation found.)doc" );
 
-    py::enum_< ta::GasSurfaceInteractionModelType >(m, "gas_surface_interaction_model" )
-        .value( "newton", ta::newton )
-        .value( "storch", ta::storch )
+    py::enum_< ta::GasSurfaceInteractionModelType >(m, "GasSurfaceInteractionModelType",
+            R"doc(
+        Enum defining Gas-Surface Interaction Model (GSIM) for panelled aerodynamic force
+.)doc" )
+        .value( "newton", ta::newton,
+            R"doc(
+        Newtonian GSIM, for which
+
+         .. math::
+             C_{p} &= 2 \cos^{2} \delta \\
+             C_{\tau} &= 0 .
+)doc" )
+        .value( "storch", ta::storch,
+            R"doc(
+        Storch GSIM, for which
+
+         .. math::
+             C_{p}   &= 2 \cos \delta \left( \sigma_{N} \frac{v_{W}}{v} + (2 - \sigma_{N}) \cos \delta \right) \\
+             C_{\tau} &= 2 \sigma_{T} \sin \delta \cos \delta
+)doc" )
+
         .value( "sentman", ta::sentman )
         .value( "cook", ta::cook );
 
@@ -484,7 +492,45 @@ The body-fixed frame of the body itself.
            py::arg( "reference_area" ),
            py::arg( "maximum_number_of_pixels" ) = 0,
            py::arg( "only_drag_component" ) = false,
-            R"doc(No documentation found.)doc" );
+            R"doc(
+ Function for creating settings for a paneled aerodynamic coefficient interface model
+
+ Function for creating settings for a aerodynamic coefficient interface model.
+ This model requires the :attr:`~tudatpy.dynamics.environment_setup.BodySettings.vehicle_shape_settings` of type :
+ class:`~tudatpy.dynamics.environment_setup.vehicle_systems.FullPanelledBodySettings` to be defined.
+ The functions to define the panelled body settings are available in the :ref:`vehicle_systems` module.
+
+ Using the panel geometry and the gas surface interaction model (defined as input to this function), the force coefficient vector is computed as:
+
+ .. math::
+    \mathbf{C} = \sum_{k=1}^{N}\frac{A_k f_k}{ A} \left( -C_{p,k} \hat{\mathbf{N}}_k + C_{\tau,k} \left( \left( \hat{\mathbf{v}} \times \hat{\mathbf{N}}_k \right) \times \hat{\mathbf{N}}_k \right) \right)
+
+ with :math:`C_{p,k}` and :math:`C_{\tau,k}` the pressure coefficient and shear stress coefficient on panel :math:`k`,
+ :math:`\hat{\mathbf{N}}_k` the panel surface outward unit normal and :math:`\hat{\mathbf{v}}` the freestream velocity normal vector.
+ The quantities :math:`A_{k}` and :math:`f_{k}` represent the surface area of panel :math:`k` and its fraction that is shadowed from the freestream velocity by other
+ panels of the body, :math:`A` is the reference area.
+
+ The above force coefficient is, when using this function, automatically defined in the
+ :attr:`~AerodynamicCoefficientFrames.positive_body_frame_coefficients` frame. The self-shadowing algorithm is described by
+ :cite:t:`maistri2025`. Setting ``maximum_number_of_pixels`` to 0 turns the self-shadowing off.
+
+ Parameters
+ ----------
+ gas_surface_interaction_model : GasSurfaceInteractionModelType
+     Type of has-surface interaction model (GSIM) used for aerodynamic force coefficient
+ reference_area : float
+     Reference area for aerodynamic coefficients
+ maximum_number_of_pixels : int, default = 0
+     The number of pixels used to compute the self-shadowing (if 0: no self-shadowing is applied)
+ only_drag_component : bool, default = false
+     Boolean that allows (if set to ``true``) to only retain the aerodynamic force in the drag direction (e.g. along the relative wind vector)
+
+ Returns
+ -------
+ AerodynamicCoefficientSettings
+    Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` class
+
+ )doc" );
     
     m.def( "constant_variable_cross_section",
             py::overload_cast< const Eigen::Vector3d &,
@@ -494,7 +540,34 @@ The body-fixed frame of the body itself.
            py::arg( "constant_force_coefficient" ),
            py::arg( "maximum_number_of_pixels" ) = 0,
            py::arg( "force_coefficients_frame" ) = ta::negative_aerodynamic_frame_coefficients,
-            R"doc(No documentation found.)doc" );
+            R"doc(
+ Function for creating settings for a aerodynamic coefficient computations based on the body's projected area to the flow.
+
+ Function for creating settings for a aerodynamic coefficient computations based on the body's projected area to the flow,
+ computed using the spacecraft's panelled geometry. This model requires the :attr:`~tudatpy.dynamics.environment_setup.BodySettings.vehicle_shape_settings` of type
+ :class:`~tudatpy.dynamics.environment_setup.vehicle_systems.FullPanelledBodySettings` to be defined.
+ The functions to define the panelled body settings are available in the :ref:`vehicle_systems` module.
+
+ Using this model the aerodynamic coefficients are fixed and (in contradiction of typical convections) the reference
+ area is varied for time step to be equal to the projected area to the flow (e.g. the spacecraft area when projecting the macromodel onto
+ a plane perpendicular to the relative wind vector). The projected area computation takes into account self-shadowing, the algorithm for which is described by
+ :cite:t:`maistri2025`. Setting ``maximum_number_of_pixels`` to 0 turns the self-shadowing off.
+
+ Parameters
+ ----------
+ constant_force_coefficient : numpy.ndarray[3, 1]
+     Constant aerodynamic force coefficients
+ maximum_number_of_pixels : int, default = 0
+     The number of pixels used to compute the self-shadowing (if 0: no self-shadowing is applied)
+ force_coefficients_frame : AerodynamicCoefficientFrames, default = negative_aerodynamic_frame_coefficients
+     Variable defining the frame in which the force coefficients are defined. By default, this is the negative aerodynamic
+     frame, so that the coefficients are for drag, side force and lift (:math:`C_{D}, C_{S}, C_{L}`)
+ Returns
+ -------
+ AerodynamicCoefficientSettings
+    Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` class
+
+ )doc" );
             
     m.def( "constant",
            py::overload_cast< const double,
