@@ -126,6 +126,8 @@ Enumerations
 
    SphericalHarmonicsSurfacePropertyDistributionModel
 
+   RadiationPressureType
+
 
 
 .. autoclass:: tudatpy.dynamics.environment_setup.radiation_pressure.KnockeTypeSurfacePropertyDistributionModel
@@ -134,7 +136,8 @@ Enumerations
 .. autoclass:: tudatpy.dynamics.environment_setup.radiation_pressure.SphericalHarmonicsSurfacePropertyDistributionModel
    :members:
 
-
+.. autoclass:: tudatpy.dynamics.environment_setup.radiation_pressure.RadiationPressureType
+   :members:
 
 
 Classes
