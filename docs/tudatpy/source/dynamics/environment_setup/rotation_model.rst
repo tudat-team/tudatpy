@@ -80,6 +80,11 @@ Functions
 
    mars_high_accuracy
 
+   mars_high_accuracy_custom_angles
+
+   mars_high_accuracy_full_custom
+
+   iau_rotation_model
 
 
 .. autofunction:: tudatpy.dynamics.environment_setup.rotation_model.simple
@@ -106,7 +111,11 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.environment_setup.rotation_model.mars_high_accuracy
 
+.. autofunction:: tudatpy.dynamics.environment_setup.rotation_model.mars_high_accuracy_custom_angles
 
+.. autofunction:: tudatpy.dynamics.environment_setup.rotation_model.mars_high_accuracy_full_custom
+
+.. autofunction:: tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model
 
 
 Enumerations
