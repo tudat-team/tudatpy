@@ -5,7 +5,7 @@ warnings.warn(
     stacklevel=1
 )
 
-from tudatpy.kernel.dynamics.parameter import *
+from tudatpy.kernel.dynamics.parameters import *
 from tudatpy.kernel.dynamics.simulator import *
 
 from tudatpy.kernel.estimation.observations import *
