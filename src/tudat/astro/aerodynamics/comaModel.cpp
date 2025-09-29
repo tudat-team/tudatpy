@@ -214,12 +214,14 @@ double SphericalHarmonicsCalculator::calculateSurfaceSphericalHarmonics(
         throw std::runtime_error( "Spherical harmonics coefficient sizes are incompatible." );
     }
 
+    const double co_latitude = (90 * M_PI / 180.0 ) - latitude;
+
     const int maxDegree = static_cast< int >(cosineCoefficients.rows( ));
     const int maxOrder = static_cast< int >(cosineCoefficients.cols( ));
 
     sphericalHarmonicsCache_.resetMaximumDegreeAndOrder( maxDegree, maxOrder );
 
-    const double sineOfAngle = std::sin( latitude );
+    const double sineOfAngle = std::sin( co_latitude );
     sphericalHarmonicsCache_.updateAnglesOnly( sineOfAngle,
                                      longitude );
 
