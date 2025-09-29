@@ -814,8 +814,8 @@ class StokesCoefficientsEvaluator
 {
 public:
     static void evaluate2D(
-        double radius,
-        double solarLongitude,
+        const double radius_m,            // meter
+        const double solarLongitude,    // radians
         const Eigen::ArrayXXd& polyCoefficients,
         const Eigen::ArrayXXi& atDegreeAndOrder,
         const Eigen::VectorXd& atPowersInvRadius,
@@ -825,7 +825,10 @@ public:
         int maxDegree,
         int maxOrder)
     {
-        // ===== Implementation from old evaluateStokesCoefficients2D =====
+
+        // --- Unit conversion ---
+        const double radius_km = radius_m / 1000.0; // Conversion from m to km
+
         const int maxDegAvailable = atDegreeAndOrder.row(0).maxCoeff();
         const int maxOrdAvailable = atDegreeAndOrder.row(1).abs().maxCoeff();
 
@@ -848,10 +851,10 @@ public:
         cosineCoefficients = Eigen::MatrixXd::Zero(maxDegree + 1, maxOrder + 1);
         sineCoefficients   = Eigen::MatrixXd::Zero(maxDegree + 1, maxOrder + 1);
 
-        const bool usePolyvalForm = (radius <= refRadius || refRadius < 1.0e-10);
+        const bool usePolyvalForm = (radius_km <= refRadius || refRadius < 1.0e-10);
         const double scaling = usePolyvalForm
-            ? ((refRadius < 1.0e-10) ? 1.0 / radius : 1.0 / radius - 1.0 / refRadius)
-            : ((refRadius < 1.0e-10) ? 1.0 / radius : refRadius / radius);
+            ? ((refRadius < 1.0e-10) ? 1.0 / radius_km : 1.0 / radius_km - 1.0 / refRadius)
+            : ((refRadius < 1.0e-10) ? 1.0 / radius_km : refRadius / radius_km);
 
         for (int i = 0; i < polyCoefficients.cols(); ++i)
         {

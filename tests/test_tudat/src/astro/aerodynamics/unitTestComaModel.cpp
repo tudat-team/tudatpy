@@ -401,7 +401,7 @@ BOOST_FIXTURE_TEST_CASE(test_stokes_coefficients_evaluator, TestDataPaths)
     const ComaPolyDataset dataset = ComaPolyDatasetReader::readFromFiles(files);
 
     // Test parameters matching ExpectedStokesValues
-    const double radius = 6.0; // km (distance to comet center)
+    const double radius = 6000.0; // km (distance to comet center)
     const double solarLongitude = 30.0 * M_PI / 180.0; // 30 degrees in radians
     const int maxDegree = 10;
     const int maxOrder = 10;
@@ -863,6 +863,87 @@ BOOST_FIXTURE_TEST_CASE(test_full_pipeline, TestDataPaths)
     auto [folder_coeff, folder_sine] = folderReadDataset.getCoeff(0, 0, 0, 0, 0);
     BOOST_CHECK_CLOSE(folder_coeff, orig_coeff, 1e-10);
     BOOST_CHECK_CLOSE(folder_sine, orig_sine, 1e-10);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// ==================== SphericalHarmonicsCalculator Tests ====================
+
+BOOST_AUTO_TEST_SUITE(test_spherical_harmonics_calculator)
+
+BOOST_FIXTURE_TEST_CASE(test_calculate_surface_spherical_harmonics, TestDataPaths)
+{
+    // Step 1: Get polynomial coefficients from test data file
+    const std::vector<std::string> files = {testFile.string()};
+    const ComaPolyDataset dataset = ComaPolyDatasetReader::readFromFiles(files);
+
+    // Step 2: Set up test parameters
+    const double testRadius = 4000.0; //
+    const double testSolarLongitude = 0.0 * M_PI / 180.0; // radians
+    const int maxDegree = 10;
+    const int maxOrder = 10;
+
+    const double testLatitude = (90-11.5) * M_PI / 180.0; // radians
+    const double testLongitude = -179.2 * M_PI / 180.0; // radians
+    const double expectedResult = 1.54525E+16;
+
+    const double testLatitude2 = (90-78.3) * M_PI / 180.0; // radians
+    const double testLongitude2 = 110.9 * M_PI / 180.0; // radians
+    const double expectedResult2 = 2.57521E+17;
+
+    // Step 3: Get polynomial data from dataset
+    const Eigen::MatrixXd& polyCoefs = dataset.getPolyCoefficients(0);
+    const Eigen::ArrayXXi& shIndices = dataset.getSHDegreeAndOrderIndices(0);
+    const Eigen::VectorXd& powers = dataset.getPowersInvRadius(0);
+    const double refRadius = dataset.getReferenceRadius(0);
+
+    // Step 4: Use evaluate2D to calculate Stokes coefficients from polynomial data
+    const Eigen::ArrayXXd polyCoefficients = polyCoefs.array();
+    Eigen::MatrixXd cosineCoefficients, sineCoefficients;
+
+    simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
+        testRadius,
+        testSolarLongitude,
+        polyCoefficients,
+        shIndices,
+        powers,
+        refRadius,
+        cosineCoefficients,
+        sineCoefficients,
+        maxDegree,
+        maxOrder
+    );
+
+    // Step 5: Create SphericalHarmonicsCalculator instance
+    SphericalHarmonicsCalculator calculator;
+
+    // Step 6: Test calculateSurfaceSphericalHarmonics
+    const double actualResult = calculator.calculateSurfaceSphericalHarmonics(
+        sineCoefficients,
+        cosineCoefficients,
+        testLatitude,
+        testLongitude,
+        maxDegree,
+        maxOrder
+    );
+
+    // Step 7: Validate result against expected value
+    BOOST_CHECK_CLOSE( actualResult, std::log2(expectedResult), 1 );
+    BOOST_CHECK_CLOSE( pow(2, actualResult), expectedResult, 10 );
+
+
+    const double actualResult2 = calculator.calculateSurfaceSphericalHarmonics(
+        sineCoefficients,
+        cosineCoefficients,
+        testLatitude2,
+        testLongitude2,
+        maxDegree,
+        maxOrder
+    );
+
+    BOOST_CHECK_CLOSE( actualResult2, std::log2(expectedResult2), 1 );
+    BOOST_CHECK_CLOSE( pow(2, actualResult2), expectedResult2, 10 );
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()
