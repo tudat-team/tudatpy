@@ -79,6 +79,7 @@ public:
         double start_epoch{};
         double end_epoch{};
         std::string source_tag;
+        double referenceRadius{};
     };
 
     // Factory method
@@ -90,6 +91,21 @@ public:
     {
         if (files.empty() || radii.empty() || lons.empty() || nmax < 0)
             throw std::runtime_error("StokesDataset: invalid metadata.");
+
+        // Check that no radius exceeds the reference radius from any file
+        for (const auto& file : files)
+        {
+            for (const auto& radius : radii)
+            {
+                if (radius > file.referenceRadius)
+                {
+                    throw std::runtime_error("StokesDataset: The max radius in the vector (" +
+                                           std::to_string(radius) +
+                                           ") should not be larger than the reference radius (" +
+                                           std::to_string(file.referenceRadius) + ").");
+                }
+            }
+        }
 
         ComaStokesDataset g;
         g.files_ = std::move(files);
@@ -116,6 +132,13 @@ public:
     const std::vector<double>& radii() const { return radii_; }
     const std::vector<double>& lons() const { return lons_; }
     const std::vector<FileMeta>& files() const { return files_; }
+
+    // Convenience accessor for reference radius
+    double getReferenceRadius(std::size_t f = 0) const
+    {
+        if (f >= n_files_) throw std::out_of_range("File index out of range");
+        return files_[f].referenceRadius;
+    }
 
     // Block access
     auto block(std::size_t f, std::size_t r, std::size_t l)
@@ -424,8 +447,8 @@ private:
             }
             else if (boost::iequals(key, "R"))
             {
-                double R = std::stod(line.substr(line.find_last_of(" \t") + 1));
-                fileMeta[fileIdx].referenceRadius = R;
+                double R_km = std::stod(line.substr(line.find_last_of(" \t") + 1));
+                fileMeta[fileIdx].referenceRadius = R_km * 1000.0; // Convert km to meters
             }
             else if (line.find("N(r)") != std::string::npos && line.find("N(T)") != std::string::npos)
             {
@@ -868,7 +891,7 @@ public:
         const Eigen::ArrayXXd& polyCoefficients,
         const Eigen::ArrayXXi& atDegreeAndOrder,
         const Eigen::VectorXd& atPowersInvRadius,
-        double refRadius,
+        double refRadius_m,               // meter
         Eigen::MatrixXd& cosineCoefficients,
         Eigen::MatrixXd& sineCoefficients,
         int maxDegree,
@@ -876,6 +899,7 @@ public:
     {
         // --- Unit conversion ---
         const double radius_km = radius_m / 1000.0; // Conversion from m to km
+        const double refRadius = refRadius_m / 1000.0; // Conversion from m to km
 
         const int maxDegAvailable = atDegreeAndOrder.row(0).maxCoeff();
         const int maxOrdAvailable = atDegreeAndOrder.row(1).abs().maxCoeff();
@@ -947,8 +971,22 @@ public:
             }
 
             // Add logarithmic term for 1/r² decay
-            cosineCoefficients(0, 0) += 2.0 * std::log2((refRadius < 1.0e-10) ? 1.0/radius_km : refRadius/radius_km);
+            applyDecayTerm(cosineCoefficients, radius_m, refRadius_m);
         }
+    }
+
+    /// Apply logarithmic decay term for 1/r² behavior when radius exceeds reference radius
+    /// @param cosineCoefficients Matrix of cosine coefficients to modify
+    /// @param radius_m Current radius in meters
+    /// @param referenceRadius_m Reference radius in meters
+    static void applyDecayTerm(Eigen::MatrixXd& cosineCoefficients, double radius_m, double referenceRadius_m)
+    {
+        // Convert to km for the logarithmic calculation (consistent with existing formula)
+        const double radius_km = radius_m / 1000.0;
+        const double referenceRadius_km = referenceRadius_m / 1000.0;
+
+        // Apply logarithmic decay term to C(0,0) coefficient
+        cosineCoefficients(0, 0) += 2.0 * std::log2((referenceRadius_km < 1.0e-10) ? 1.0/radius_km : referenceRadius_km/radius_km);
     }
 };
 
@@ -1055,6 +1093,7 @@ private:
         {
             ComaStokesDataset::FileMeta fm{};
             fm.source_tag = polyDataset.getFileMeta(f).sourcePath;
+            fm.referenceRadius = polyDataset.getFileMeta(f).referenceRadius;
             if (!polyDataset.getFileMeta(f).timePeriods.empty())
             {
                 fm.start_epoch = polyDataset.getFileMeta(f).timePeriods.front().first;

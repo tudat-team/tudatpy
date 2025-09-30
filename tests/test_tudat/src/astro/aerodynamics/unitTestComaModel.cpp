@@ -57,7 +57,7 @@ struct ExpectedPolyValues
 {
     inline static constexpr int numTerms = 48;
     inline static constexpr int numCoeffs = 121;
-    inline static constexpr double refRadius = 10.0;
+    inline static constexpr double refRadius = 10000.0;
     inline static constexpr int maxDegree = 10;
     inline static constexpr int maxOrder = 10;
 

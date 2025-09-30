@@ -327,6 +327,8 @@ double ComaModel::computeDensityFromStokesCoefficients( double radius, double lo
 
     // Step 3: Get dataset properties
     const int nmax = stokesDataset_->nmax();
+    const double referenceRadius = stokesDataset_->getReferenceRadius(fileIndex); // Now in meters
+    const auto& radiiGrid = stokesDataset_->radii();
 
     // Determine effective maximum degree and order
     const int effectiveMaxDegree = maximumDegree_ > 0 ? maximumDegree_ : nmax;
@@ -336,8 +338,18 @@ double ComaModel::computeDensityFromStokesCoefficients( double radius, double lo
     Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero(effectiveMaxDegree + 1, effectiveMaxOrder + 1);
     Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero(effectiveMaxDegree + 1, effectiveMaxOrder + 1);
 
-    // Step 4: Interpolation point
-    std::vector<double> interpolationPoint = {radius, solarLongitude};
+    // Step 4: Handle radius beyond reference radius (apply 1/r² decay)
+    bool applyDecay = false;
+    double interpolationRadius = radius;
+
+    if (radius > referenceRadius)
+    {
+        applyDecay = true;
+        // Use maximum radius in grid for interpolation (clamp to boundary)
+        interpolationRadius = radiiGrid.back();
+    }
+
+    std::vector<double> interpolationPoint = {interpolationRadius, solarLongitude};
 
     // Step 5: For each spherical harmonic coefficient (n,m), use pre-initialized interpolators
     for ( int n = 0; n <= effectiveMaxDegree; ++n )
@@ -404,7 +416,13 @@ double ComaModel::computeDensityFromStokesCoefficients( double radius, double lo
         }
     }
 
-    // Step 6: Calculate density using spherical harmonics
+    // Step 6: Apply logarithmic decay term for 1/r² behavior if radius > reference radius
+    if (applyDecay)
+    {
+        simulation_setup::StokesCoefficientsEvaluator::applyDecayTerm(cosineCoefficients, radius, referenceRadius);
+    }
+
+    // Step 7: Calculate density using spherical harmonics
     return sphericalHarmonicsCalculator_->calculateSurfaceSphericalHarmonics(
         sineCoefficients, cosineCoefficients,
         latitude, longitude,
