@@ -6,7 +6,7 @@ This module contains the factory functions for setting up the
 aerodynamic coefficient models of (artificial and natural) bodies in an environment.
 
 The main interfaces with Tudat is the :attr:`~tudatpy.dynamics.environment_setup.BodySettings.aerodynamic_coefficient_settings`
-attribute of the body settings, which defines settings for the aerodynamic coefficients of a body.
+attribute  (of type :class:`~AerodynamicCoefficientSettings`) of the body settings, which defines settings for the aerodynamic coefficients of a body.
 The functions in this submodule are used to create this settings objects. When creating a body (typically using the
 :func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies` function), an object of type
 :class:`~tudatpy.dynamics.environment.AerodynamicCoefficientInterface` (or a derived class) is created
@@ -59,6 +59,10 @@ Functions
 
    custom_aerodynamic_force_and_moment_coefficients
 
+   panelled
+
+   constant_variable_cross_section
+
    tabulated
 
    tabulated_force_only
@@ -86,6 +90,10 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.aerodynamic_coefficients.custom_aerodynamic_force_coefficients
 
 .. autofunction:: tudatpy.dynamics.environment_setup.aerodynamic_coefficients.custom_aerodynamic_force_and_moment_coefficients
+
+.. autofunction:: tudatpy.dynamics.environment_setup.aerodynamic_coefficients.panelled
+
+.. autofunction:: tudatpy.dynamics.environment_setup.aerodynamic_coefficients.constant_variable_cross_section
 
 .. autofunction:: tudatpy.dynamics.environment_setup.aerodynamic_coefficients.tabulated
 
@@ -124,6 +132,8 @@ Enumerations
    
    AtmosphericCompositionSpecies
 
+   GasSurfaceInteractionModelType
+
 
 .. autoclass:: tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicsReferenceFrameAngles
    :members:
@@ -140,6 +150,8 @@ Enumerations
 .. autoclass:: tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AtmosphericCompositionSpecies
    :members:
 
+.. autoclass:: tudatpy.dynamics.environment_setup.aerodynamic_coefficients.GasSurfaceInteractionModelType
+   :members:
 
 
 Classes
