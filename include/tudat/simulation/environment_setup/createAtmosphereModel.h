@@ -813,6 +813,55 @@ public:
 class StokesCoefficientsEvaluator
 {
 public:
+private:
+    static double radialPolyvalAndTemporalIFFT(const double r, const double alf,
+                                               const Eigen::MatrixXd& P, const Eigen::ArrayXd& pw)
+    {
+        using namespace Eigen;
+
+        int N = P.rows();
+
+        if (N % 2 == 0)
+        {
+            return
+            ((ArrayXd(N) << cos(ArrayXd::LinSpaced(N/2+1, 0.0, double(N/2)) * alf),
+                           sin(ArrayXd::LinSpaced(N/2-1, 1.0, double(N/2-1)) * alf)).finished().matrix().transpose() *
+             P * pow(r, pw).matrix()
+            ).value() / double(N);
+        }
+        else
+        {
+            return
+            ((ArrayXd(N) << cos(ArrayXd::LinSpaced(N/2+1, 0.0, double(N/2)) * alf),
+                           sin(ArrayXd::LinSpaced(N/2, 1.0, double(N/2)) * alf)).finished().matrix().transpose() *
+             P * pow(r, pw).matrix()
+            ).value() / double(N);
+        }
+    }
+
+    static double reducedToTemporalIFFT(const double alf, const Eigen::VectorXd& P)
+    {
+        using namespace Eigen;
+
+        int N = P.rows();
+
+        if (N % 2 == 0)
+        {
+            return
+            ((ArrayXd(N) << cos(ArrayXd::LinSpaced(N/2+1, 0.0, double(N/2)) * alf),
+                           sin(ArrayXd::LinSpaced(N/2-1, 1.0, double(N/2-1)) * alf)).finished().matrix().transpose() * P
+            ).value() / double(N);
+        }
+        else
+        {
+            return
+            ((ArrayXd(N) << cos(ArrayXd::LinSpaced(N/2+1, 0.0, double(N/2)) * alf),
+                           sin(ArrayXd::LinSpaced(N/2, 1.0, double(N/2)) * alf)).finished().matrix().transpose() * P
+            ).value() / double(N);
+        }
+    }
+
+public:
     static void evaluate2D(
         const double radius_m,            // meter
         const double solarLongitude,    // radians
@@ -825,7 +874,6 @@ public:
         int maxDegree,
         int maxOrder)
     {
-
         // --- Unit conversion ---
         const double radius_km = radius_m / 1000.0; // Conversion from m to km
 
@@ -845,68 +893,61 @@ public:
             throw std::runtime_error(err.str());
         }
 
-        const Eigen::Index numRadialTerms = atPowersInvRadius.size();
-        const Eigen::Index numIntervals = polyCoefficients.rows() / numRadialTerms;
+        const int numRadialTerms = atPowersInvRadius.size();
+        const int numIntervals = polyCoefficients.rows() / numRadialTerms;
 
         cosineCoefficients = Eigen::MatrixXd::Zero(maxDegree + 1, maxOrder + 1);
         sineCoefficients   = Eigen::MatrixXd::Zero(maxDegree + 1, maxOrder + 1);
 
-        const bool usePolyvalForm = (radius_km <= refRadius || refRadius < 1.0e-10);
-        const double scaling = usePolyvalForm
-            ? ((refRadius < 1.0e-10) ? 1.0 / radius_km : 1.0 / radius_km - 1.0 / refRadius)
-            : ((refRadius < 1.0e-10) ? 1.0 / radius_km : refRadius / radius_km);
+        double VR = (refRadius < 1.0e-10) ? 0.0 : 1.0 / refRadius;
 
-        for (int i = 0; i < polyCoefficients.cols(); ++i)
+        if (radius_km <= refRadius || refRadius < 1.0e-10)
         {
-            const int l = atDegreeAndOrder(0, i);
-            const int m = atDegreeAndOrder(1, i);
-            const int absM = std::abs(m);
-
-            if (l > maxDegree || absM > maxOrder)
-                continue;
-
-            double value = 0.0;
-
-            if (usePolyvalForm)
+            for (int i = 0; i < polyCoefficients.cols(); ++i)
             {
+                const int l = atDegreeAndOrder(0, i);
+                const int m = atDegreeAndOrder(1, i);
+                const int absM = std::abs(m);
+
+                if (l > maxDegree || absM > maxOrder)
+                    continue;
+
                 const Eigen::MatrixXd polyCoefs =
                     polyCoefficients.col(i).reshaped(numIntervals, numRadialTerms).matrix();
-                const Eigen::Index N = polyCoefs.rows();
 
-                auto alphaPart = (Eigen::ArrayXd(N) <<
-                    cos(Eigen::ArrayXd::LinSpaced(N / 2 + 1, 0.0, static_cast<double>(N) / 2.0) * solarLongitude),
-                    sin(Eigen::ArrayXd::LinSpaced(N % 2 == 0 ? N / 2 - 1 : N / 2,
-                                                  1.0,
-                                                  static_cast<double>(N) / 2 - (N % 2 == 0 ? 1 : 0)) *
-                        solarLongitude)
-                    ).finished();
+                double value = radialPolyvalAndTemporalIFFT(1.0/radius_km - VR, solarLongitude,
+                                                          polyCoefs, atPowersInvRadius.array());
 
-                value = (alphaPart.matrix().transpose()
-                         * polyCoefs
-                         * pow(scaling, atPowersInvRadius.array()).matrix()).value()
-                        / static_cast<double>(N);
+                if (m >= 0)
+                    cosineCoefficients(l, absM) = value;
+                else
+                    sineCoefficients(l, absM) = value;
             }
-            else
+        }
+        else
+        {
+            for (int i = 0; i < polyCoefficients.cols(); ++i)
             {
+                const int l = atDegreeAndOrder(0, i);
+                const int m = atDegreeAndOrder(1, i);
+                const int absM = std::abs(m);
+
+                if (l > maxDegree || absM > maxOrder)
+                    continue;
+
                 const Eigen::VectorXd polyCoefs =
                     polyCoefficients.block(0, i, numIntervals, 1).matrix();
-                const Eigen::Index N = polyCoefs.rows();
 
-                auto alphaPart = (Eigen::ArrayXd(N) <<
-                    cos(Eigen::ArrayXd::LinSpaced(N / 2 + 1, 0.0, static_cast<double>(N) / 2.0) * solarLongitude),
-                    sin(Eigen::ArrayXd::LinSpaced(N % 2 == 0 ? N / 2 - 1 : N / 2,
-                                                  1.0,
-                                                  static_cast<double>(N) / 2 - (N % 2 == 0 ? 1 : 0)) *
-                        solarLongitude)
-                    ).finished();
+                double value = reducedToTemporalIFFT(solarLongitude, polyCoefs);
 
-                value = (alphaPart.matrix().transpose()
-                         * polyCoefs
-                         * (scaling * scaling)).value()
-                        / static_cast<double>(N);
+                if (m >= 0)
+                    cosineCoefficients(l, absM) = value;
+                else
+                    sineCoefficients(l, absM) = value;
             }
 
-            (m >= 0 ? cosineCoefficients : sineCoefficients)(l, absM) = value;
+            // Add logarithmic term for 1/r² decay
+            cosineCoefficients(0, 0) += 2.0 * std::log2((refRadius < 1.0e-10) ? 1.0/radius_km : refRadius/radius_km);
         }
     }
 };
@@ -1047,8 +1088,7 @@ private:
 
             for (std::size_t ri = 0; ri < stokesDataset.nRadii(); ++ri)
             {
-                // convert meters -> km here to keep consistency.
-                const double r_km = stokesDataset.radii()[ri] * 1.0e-3;
+                const double r_m = stokesDataset.radii()[ri]; // radius in meters
 
                 for (std::size_t li = 0; li < stokesDataset.nLongitudes(); ++li)
                 {
@@ -1056,7 +1096,7 @@ private:
 
                     // Evaluate
                     StokesCoefficientsEvaluator::evaluate2D(
-                        r_km, Lrad, P.array(), nm, pw, R0, C, S, effNmax, effMmax);
+                        r_m, Lrad, P.array(), nm, pw, R0, C, S, effNmax, effMmax);
 
                     // Store back
                     for (int n = 0; n <= effNmax; ++n)

@@ -401,7 +401,7 @@ BOOST_FIXTURE_TEST_CASE(test_stokes_coefficients_evaluator, TestDataPaths)
     const ComaPolyDataset dataset = ComaPolyDatasetReader::readFromFiles(files);
 
     // Test parameters matching ExpectedStokesValues
-    const double radius = 6000.0; // km (distance to comet center)
+    const double radius = 6000.0; // m (distance to comet center)
     const double solarLongitude = 30.0 * M_PI / 180.0; // 30 degrees in radians
     const int maxDegree = 10;
     const int maxOrder = 10;
