@@ -94,6 +94,9 @@ void expose_parameters_setup( py::module& m )
             .value( "drag_component_scaling_factor_type", tep::EstimatebleParametersEnum::drag_component_scaling_factor )
             .value( "side_component_scaling_factor_type", tep::EstimatebleParametersEnum::side_component_scaling_factor )
             .value( "lift_component_scaling_factor_type", tep::EstimatebleParametersEnum::lift_component_scaling_factor )
+            .value( "rtg_force_vector_type", tep::EstimatebleParametersEnum::rtg_force_vector )
+            .value( "rtg_force_vector_magnitude_type", tep::EstimatebleParametersEnum::rtg_force_vector_magnitude )
+
             .export_values( );
 
     py::enum_< tba::EmpiricalAccelerationComponents >(
@@ -1758,6 +1761,16 @@ Returns
 
 
      )doc" );
+
+    m.def( "rtg_force_vector",
+           &tep::rtgForceVector,
+           py::arg( "body_name" ),
+           R"doc(Force model parameter associated with the RTG radiation acceleration. This parameter allows for estimation of RTG force direction (in body-fixed frame) and magnitude at the acceleration model reference epoch.)doc" );
+
+    m.def( "rtg_force_vector_magnitude",
+           &tep::rtgForceVectorMagnitude,
+           py::arg( "body_name" ),
+           R"doc(Force model parameter associated with the RTG radiation acceleration. This parameter allows for estimation of RTG force magnitude at the acceleration model reference epoch.)doc" );
 
     m.def( "area_to_mass_ratio_scaling_parameter",
            &tep::areaToMassScaling,
