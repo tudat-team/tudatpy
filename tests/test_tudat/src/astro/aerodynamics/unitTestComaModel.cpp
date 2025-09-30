@@ -883,11 +883,11 @@ BOOST_FIXTURE_TEST_CASE(test_calculate_surface_spherical_harmonics, TestDataPath
     const int maxDegree = 10;
     const int maxOrder = 10;
 
-    const double testLatitude = 11.5 * M_PI / 180.0; // radians
+    const double testLatitude = (90.0 - 11.5) * M_PI / 180.0; // converted from co-latitude to latitude
     const double testLongitude = -179.2 * M_PI / 180.0; // radians
     const double expectedResult = 1.54525E+16;
 
-    const double testLatitude2 = 78.3 * M_PI / 180.0; // radians
+    const double testLatitude2 = (90.0 - 78.3) * M_PI / 180.0; // converted from co-latitude to latitude
     const double testLongitude2 = 110.9 * M_PI / 180.0; // radians
     const double expectedResult2 = 2.57521E+17;
 
