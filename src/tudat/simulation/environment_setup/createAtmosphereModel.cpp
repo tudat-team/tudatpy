@@ -30,7 +30,7 @@ namespace simulation_setup
 //! Function to create a wind model.
 std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_ptr< WindModelSettings > windSettings,
                                                             const std::string& body,
-                                                            const std::shared_ptr< AtmosphereModel > atmosphereModel )
+                                                            const std::shared_ptr< AtmosphereModel >& atmosphereModel )
 {
     std::shared_ptr< aerodynamics::WindModel > windModel;
 

@@ -1386,6 +1386,287 @@ protected:
     std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction_;
 };
 
+/**
+ * \class ComaWindModelSettings
+ * \brief Configuration settings for coma wind models
+ *
+ * This class handles three separate datasets for the x, y, and z wind components.
+ * Each dataset can contain either polynomial coefficients or pre-computed Stokes coefficients.
+ */
+class ComaWindModelSettings : public WindModelSettings
+{
+public:
+    // Type alias for cleaner code
+    using DataVariant = boost::variant<ComaPolyDataset, ComaStokesDataset>;
+
+    /**
+     * \brief Constructor with three datasets (x, y, z components)
+     * \param xData Dataset for x-component wind
+     * \param yData Dataset for y-component wind
+     * \param zData Dataset for z-component wind
+     * \param requestedDegree Maximum spherical harmonic degree (-1 for auto)
+     * \param requestedOrder Maximum spherical harmonic order (-1 for auto)
+     * \param associatedFrame Reference frame for the wind model
+     */
+    explicit ComaWindModelSettings(const DataVariant& xData,
+                                   const DataVariant& yData,
+                                   const DataVariant& zData,
+                                   const int requestedDegree = -1,
+                                   const int requestedOrder = -1,
+                                   const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame)
+        : WindModelSettings(coma_wind_model, associatedFrame),
+          xData_(xData),
+          yData_(yData),
+          zData_(zData),
+          requestedDegree_(requestedDegree),
+          requestedOrder_(requestedOrder)
+    {
+        validateAndSetDefaults();
+    }
+
+    /**
+     * \brief Get the x-component dataset
+     */
+    const DataVariant& getXData() const
+    {
+        return xData_;
+    }
+
+    /**
+     * \brief Get the y-component dataset
+     */
+    const DataVariant& getYData() const
+    {
+        return yData_;
+    }
+
+    /**
+     * \brief Get the z-component dataset
+     */
+    const DataVariant& getZData() const
+    {
+        return zData_;
+    }
+
+    /**
+     * \brief Get requested maximum degree
+     */
+    int getRequestedDegree() const
+    {
+        return requestedDegree_;
+    }
+
+    /**
+     * \brief Get requested maximum order
+     */
+    int getRequestedOrder() const
+    {
+        return requestedOrder_;
+    }
+
+    /**
+     * \brief Get the effective maximum degree available in the data
+     */
+    int getAvailableMaxDegree() const
+    {
+        return availableMaxDegree_;
+    }
+
+    /**
+     * \brief Get the effective maximum order available in the data
+     */
+    int getAvailableMaxOrder() const
+    {
+        return availableMaxOrder_;
+    }
+
+    /**
+     * \brief Check if x-component data contains polynomial coefficients
+     */
+    bool xHasPolyData() const
+    {
+        return xData_.type() == typeid(ComaPolyDataset);
+    }
+
+    /**
+     * \brief Check if y-component data contains polynomial coefficients
+     */
+    bool yHasPolyData() const
+    {
+        return yData_.type() == typeid(ComaPolyDataset);
+    }
+
+    /**
+     * \brief Check if z-component data contains polynomial coefficients
+     */
+    bool zHasPolyData() const
+    {
+        return zData_.type() == typeid(ComaPolyDataset);
+    }
+
+    /**
+     * \brief Get x-component polynomial dataset if available
+     * \throws std::runtime_error if data is not polynomial type
+     */
+    const ComaPolyDataset& getXPolyDataset() const
+    {
+        if (auto* p = boost::get<ComaPolyDataset>(&xData_)) return *p;
+        throw std::runtime_error("X-component data does not contain polynomial data");
+    }
+
+    /**
+     * \brief Get y-component polynomial dataset if available
+     * \throws std::runtime_error if data is not polynomial type
+     */
+    const ComaPolyDataset& getYPolyDataset() const
+    {
+        if (auto* p = boost::get<ComaPolyDataset>(&yData_)) return *p;
+        throw std::runtime_error("Y-component data does not contain polynomial data");
+    }
+
+    /**
+     * \brief Get z-component polynomial dataset if available
+     * \throws std::runtime_error if data is not polynomial type
+     */
+    const ComaPolyDataset& getZPolyDataset() const
+    {
+        if (auto* p = boost::get<ComaPolyDataset>(&zData_)) return *p;
+        throw std::runtime_error("Z-component data does not contain polynomial data");
+    }
+
+    /**
+     * \brief Get x-component Stokes dataset if available
+     * \throws std::runtime_error if data is not Stokes type
+     */
+    const ComaStokesDataset& getXStokesDataset() const
+    {
+        if (auto* p = boost::get<ComaStokesDataset>(&xData_)) return *p;
+        throw std::runtime_error("X-component data does not contain Stokes data");
+    }
+
+    /**
+     * \brief Get y-component Stokes dataset if available
+     * \throws std::runtime_error if data is not Stokes type
+     */
+    const ComaStokesDataset& getYStokesDataset() const
+    {
+        if (auto* p = boost::get<ComaStokesDataset>(&yData_)) return *p;
+        throw std::runtime_error("Y-component data does not contain Stokes data");
+    }
+
+    /**
+     * \brief Get z-component Stokes dataset if available
+     * \throws std::runtime_error if data is not Stokes type
+     */
+    const ComaStokesDataset& getZStokesDataset() const
+    {
+        if (auto* p = boost::get<ComaStokesDataset>(&zData_)) return *p;
+        throw std::runtime_error("Z-component data does not contain Stokes data");
+    }
+
+private:
+    /**
+     * \brief Validate settings and set defaults for degree/order
+     */
+    void validateAndSetDefaults()
+    {
+        // Determine available maxima from all three datasets
+        availableMaxDegree_ = std::min({
+            getMaxDegreeFromData(xData_),
+            getMaxDegreeFromData(yData_),
+            getMaxDegreeFromData(zData_)
+        });
+
+        availableMaxOrder_ = std::min({
+            getMaxOrderFromData(xData_),
+            getMaxOrderFromData(yData_),
+            getMaxOrderFromData(zData_)
+        });
+
+        // Set defaults if -1
+        if (requestedDegree_ < 0)
+        {
+            requestedDegree_ = availableMaxDegree_;
+        }
+        if (requestedOrder_ < 0)
+        {
+            requestedOrder_ = availableMaxOrder_;
+        }
+
+        // Validate requested values don't exceed available
+        if (requestedDegree_ > availableMaxDegree_)
+        {
+            throw std::invalid_argument(
+                "Requested degree " + std::to_string(requestedDegree_) +
+                " exceeds available maximum " + std::to_string(availableMaxDegree_));
+        }
+        if (requestedOrder_ > availableMaxOrder_)
+        {
+            throw std::invalid_argument(
+                "Requested order " + std::to_string(requestedOrder_) +
+                " exceeds available maximum " + std::to_string(availableMaxOrder_));
+        }
+    }
+
+    /**
+     * \brief Get maximum degree from a data variant
+     */
+    static int getMaxDegreeFromData(const DataVariant& data)
+    {
+        if (data.type() == typeid(ComaPolyDataset))
+        {
+            const auto& poly = boost::get<ComaPolyDataset>(data);
+            int maxDeg = 0;
+            for (std::size_t f = 0; f < poly.getNumFiles(); ++f)
+            {
+                maxDeg = std::max(maxDeg, poly.getMaxDegreeSH(f));
+            }
+            return maxDeg;
+        }
+        else if (data.type() == typeid(ComaStokesDataset))
+        {
+            const auto& stokes = boost::get<ComaStokesDataset>(data);
+            return stokes.nmax();
+        }
+        return 0;
+    }
+
+    /**
+     * \brief Get maximum order from a data variant
+     */
+    static int getMaxOrderFromData(const DataVariant& data)
+    {
+        if (data.type() == typeid(ComaPolyDataset))
+        {
+            const auto& poly = boost::get<ComaPolyDataset>(data);
+            int maxOrd = 0;
+            for (std::size_t f = 0; f < poly.getNumFiles(); ++f)
+            {
+                const auto& indices = poly.getSHDegreeAndOrderIndices(f);
+                int fileMaxOrd = indices.row(1).abs().maxCoeff();
+                maxOrd = std::max(maxOrd, fileMaxOrd);
+            }
+            return maxOrd;
+        }
+        else if (data.type() == typeid(ComaStokesDataset))
+        {
+            const auto& stokes = boost::get<ComaStokesDataset>(data);
+            // For Stokes data, order equals degree in the triangular storage
+            return stokes.nmax();
+        }
+        return 0;
+    }
+
+    // Data members
+    DataVariant xData_;                   // Dataset for x-component wind
+    DataVariant yData_;                   // Dataset for y-component wind
+    DataVariant zData_;                   // Dataset for z-component wind
+    int requestedDegree_;                 // User-requested max degree
+    int requestedOrder_;                  // User-requested max order
+    int availableMaxDegree_{0};          // Maximum available in data
+    int availableMaxOrder_{0};           // Maximum available in data
+};
+
 //  List of atmosphere models available in simulations
 /*
  *  List of atmosphere models available in simulations. Atmosphere models not defined by this
