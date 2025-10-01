@@ -866,6 +866,11 @@ class StubGenerator:
                         )
                     else:
 
+                        # Import from extension instead of kernel
+                        if statement.module.split(".")[-1] == module_path.name:
+                            statement.module = "extension"
+                            statement.level = 1
+
                         # Add imported items to stub all
                         for item in statement.names:
                             stub_all.append(item.name)
