@@ -121,6 +121,12 @@ public:
      */
     ComaDataType getDataType() const { return dataType_; }
 
+    /*!
+     * \brief Get a pointer to the spherical harmonics calculator for sharing.
+     * \return Pointer to the spherical harmonics calculator (non-owning)
+     */
+    SphericalHarmonicsCalculator* getSphericalHarmonicsCalculator() const { return sphericalHarmonicsCalculator_.get(); }
+
 private:
     //! Type of data used (polynomial or Stokes coefficients)
     ComaDataType dataType_;

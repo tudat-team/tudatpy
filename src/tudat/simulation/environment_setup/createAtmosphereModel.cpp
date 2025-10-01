@@ -31,7 +31,8 @@ namespace simulation_setup
 //! Function to create a wind model.
 std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_ptr< WindModelSettings > windSettings,
                                                             const std::string& body,
-                                                            const std::shared_ptr< AtmosphereModel >& atmosphereModel )
+                                                            const std::shared_ptr< AtmosphereModel >& atmosphereModel ,
+                                                            const SystemOfBodies& bodies)
 {
     std::shared_ptr< aerodynamics::WindModel > windModel;
 
@@ -82,6 +83,12 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
             {
                 throw std::runtime_error( "Error when making coma wind model for body " + body + ", atmosphere model must be a ComaModel" );
             }
+            std::function< Eigen::Vector6d( ) > sunStateFunction =
+                        std::bind( &simulation_setup::Body::getState, bodies.at( "Sun" ) );
+            std::function< Eigen::Vector6d( ) > bodyStateFunction =
+                    std::bind( &simulation_setup::Body::getState, bodies.at( body ) );
+            std::function< Eigen::Matrix3d( ) > bodyOrientationFunction =
+                    std::bind( &simulation_setup::Body::getCurrentRotationMatrixToLocalFrame, bodies.at( body ) );
 
             // Get degree and order parameters
             const int maximumDegree = comaWindModelSettings->getRequestedDegree( );
@@ -99,6 +106,9 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
                         yPolyDataset,
                         zPolyDataset,
                         comaModel,
+                        sunStateFunction,
+                        bodyStateFunction,
+                        bodyOrientationFunction,
                         maximumDegree,
                         maximumOrder,
                         comaWindModelSettings->getAssociatedFrame( ) );
@@ -114,6 +124,9 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
                         yStokesDataset,
                         zStokesDataset,
                         comaModel,
+                        sunStateFunction,
+                        bodyStateFunction,
+                        bodyOrientationFunction,
                         maximumDegree,
                         maximumOrder,
                         comaWindModelSettings->getAssociatedFrame( ) );
@@ -385,7 +398,7 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
 
     if( atmosphereSettings->getWindSettings( ) != nullptr )
     {
-        atmosphereModel->setWindModel( createWindModel( atmosphereSettings->getWindSettings( ), body, atmosphereModel ) );
+        atmosphereModel->setWindModel( createWindModel( atmosphereSettings->getWindSettings( ), body, atmosphereModel, bodies ) );
     }
 
     return atmosphereModel;

@@ -18,6 +18,9 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaPolyDataset& xPolyData
                    const simulation_setup::ComaPolyDataset& yPolyDataset,
                    const simulation_setup::ComaPolyDataset& zPolyDataset,
                    std::shared_ptr<ComaModel> comaModel,
+                   std::function<Eigen::Vector6d()> sunStateFunction,
+                   std::function<Eigen::Vector6d()> cometStateFunction,
+                   std::function<Eigen::Matrix3d()> cometRotationFunction,
                    const int& maximumDegree,
                    const int& maximumOrder,
                    const reference_frames::AerodynamicsReferenceFrames associatedFrame ) :
@@ -32,11 +35,20 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaPolyDataset& xPolyData
         yStokesDataset_( nullptr ),
         zStokesDataset_( nullptr ),
         comaModel_( comaModel ),
-        sphericalHarmonicsCalculator_( std::make_unique<SphericalHarmonicsCalculator>() )
+        sunStateFunction_( std::move( sunStateFunction ) ),
+        cometStateFunction_( std::move( cometStateFunction ) ),
+        cometRotationFunction_( std::move( cometRotationFunction ) ),
+        sphericalHarmonicsCalculator_( nullptr ),
+        sharedSphericalHarmonicsCalculator_( nullptr )
     {
         if ( !comaModel_ )
         {
             throw std::invalid_argument( "ComaWindModel: ComaModel must be provided" );
+        }
+
+        if ( !sunStateFunction_ || !cometStateFunction_ || !cometRotationFunction_ )
+        {
+            throw std::invalid_argument( "ComaWindModel: All state functions must be provided" );
         }
 
         if ( xPolyDataset_->getNumFiles() == 0 || yPolyDataset_->getNumFiles() == 0 || zPolyDataset_->getNumFiles() == 0 )
@@ -48,12 +60,27 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaPolyDataset& xPolyData
         {
             throw std::invalid_argument( "ComaWindModel: Maximum degree and order must be >= -1" );
         }
+
+        // Try to share the spherical harmonics calculator with the ComaModel
+        if ( comaModel_ && comaModel_->getSphericalHarmonicsCalculator() != nullptr )
+        {
+            // Share the calculator from ComaModel (non-owning pointer)
+            sharedSphericalHarmonicsCalculator_ = comaModel_->getSphericalHarmonicsCalculator();
+        }
+        else
+        {
+            // Create our own calculator
+            sphericalHarmonicsCalculator_ = std::make_unique<SphericalHarmonicsCalculator>();
+        }
     }
 
 ComaWindModel::ComaWindModel( const simulation_setup::ComaStokesDataset& xStokesDataset,
                    const simulation_setup::ComaStokesDataset& yStokesDataset,
                    const simulation_setup::ComaStokesDataset& zStokesDataset,
                    std::shared_ptr<ComaModel> comaModel,
+                   std::function<Eigen::Vector6d()> sunStateFunction,
+                   std::function<Eigen::Vector6d()> cometStateFunction,
+                   std::function<Eigen::Matrix3d()> cometRotationFunction,
                    const int& maximumDegree,
                    const int& maximumOrder,
                    const reference_frames::AerodynamicsReferenceFrames associatedFrame ) :
@@ -68,11 +95,20 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaStokesDataset& xStokes
         yStokesDataset_( std::make_shared<simulation_setup::ComaStokesDataset>( yStokesDataset ) ),
         zStokesDataset_( std::make_shared<simulation_setup::ComaStokesDataset>( zStokesDataset ) ),
         comaModel_( comaModel ),
-        sphericalHarmonicsCalculator_( std::make_unique<SphericalHarmonicsCalculator>() )
+        sunStateFunction_( std::move( sunStateFunction ) ),
+        cometStateFunction_( std::move( cometStateFunction ) ),
+        cometRotationFunction_( std::move( cometRotationFunction ) ),
+        sphericalHarmonicsCalculator_( nullptr ),
+        sharedSphericalHarmonicsCalculator_( nullptr )
     {
         if ( !comaModel_ )
         {
             throw std::invalid_argument( "ComaWindModel: ComaModel must be provided" );
+        }
+
+        if ( !sunStateFunction_ || !cometStateFunction_ || !cometRotationFunction_ )
+        {
+            throw std::invalid_argument( "ComaWindModel: All state functions must be provided" );
         }
 
         if ( xStokesDataset_->nFiles() == 0 || yStokesDataset_->nFiles() == 0 || zStokesDataset_->nFiles() == 0 )
@@ -83,6 +119,18 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaStokesDataset& xStokes
         if ( maximumDegree_ < -1 || maximumOrder_ < -1 )
         {
             throw std::invalid_argument( "ComaWindModel: Maximum degree and order must be >= -1" );
+        }
+
+        // Try to share the spherical harmonics calculator with the ComaModel
+        if ( comaModel_ && comaModel_->getSphericalHarmonicsCalculator() != nullptr )
+        {
+            // Share the calculator from ComaModel (non-owning pointer)
+            sharedSphericalHarmonicsCalculator_ = comaModel_->getSphericalHarmonicsCalculator();
+        }
+        else
+        {
+            // Create our own calculator
+            sphericalHarmonicsCalculator_ = std::make_unique<SphericalHarmonicsCalculator>();
         }
 
         // Initialize interpolators for Stokes coefficients
@@ -120,6 +168,220 @@ Eigen::Vector3d ComaWindModel::getCurrentBodyFixedCartesianWindVelocity( const d
 
         return Eigen::Vector3d( windX, windY, windZ );
     }
+
+int ComaWindModel::findTimeIntervalIndex( double time, std::shared_ptr<simulation_setup::ComaPolyDataset> dataset ) const
+{
+    for ( std::size_t f = 0; f < dataset->getNumFiles(); ++f )
+    {
+        const auto& fileMeta = dataset->getFileMeta( f );
+        for ( const auto& period : fileMeta.timePeriods )
+        {
+            if ( time >= period.first && time <= period.second )
+            {
+                return static_cast<int>( f );
+            }
+        }
+    }
+    throw std::runtime_error( "Time " + std::to_string( time ) + " does not fall into any defined time period" );
+}
+
+int ComaWindModel::findTimeIntervalIndex( double time, std::shared_ptr<simulation_setup::ComaStokesDataset> dataset ) const
+{
+    for ( std::size_t f = 0; f < dataset->nFiles(); ++f )
+    {
+        const auto& fileMeta = dataset->files()[f];
+        if ( time >= fileMeta.start_epoch && time <= fileMeta.end_epoch )
+        {
+            return static_cast<int>( f );
+        }
+    }
+    throw std::runtime_error( "Time " + std::to_string( time ) + " does not fall into any defined time period" );
+}
+
+double ComaWindModel::computeWindComponentFromPolyCoefficients(
+    std::shared_ptr<simulation_setup::ComaPolyDataset> dataset,
+    double radius, double longitude, double latitude, double time ) const
+{
+    if ( !dataset )
+    {
+        throw std::runtime_error( "ComaWindModel: dataset is null" );
+    }
+
+    const int fileIndex = findTimeIntervalIndex( time, dataset );
+    const auto& fileMeta = dataset->getFileMeta( fileIndex );
+    const auto& polyCoefficients = dataset->getPolyCoefficients( fileIndex );
+    const auto& shIndices = dataset->getSHDegreeAndOrderIndices( fileIndex );
+
+    const double solarLongitude = calculateSolarLongitude();
+
+    Eigen::MatrixXd cosineCoefficients, sineCoefficients;
+
+    simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
+        radius,
+        solarLongitude,
+        polyCoefficients,
+        shIndices,
+        fileMeta.powersInvRadius,
+        fileMeta.referenceRadius,
+        cosineCoefficients,
+        sineCoefficients,
+        maximumDegree_,
+        maximumOrder_ );
+
+    return getActiveSphericalHarmonicsCalculator()->calculateSurfaceSphericalHarmonics(
+        sineCoefficients, cosineCoefficients,
+        latitude, longitude,
+        maximumDegree_ > 0 ? maximumDegree_ : cosineCoefficients.rows() - 1,
+        maximumOrder_ > 0 ? maximumOrder_ : cosineCoefficients.cols() - 1 );
+}
+
+double ComaWindModel::computeWindComponentFromStokesCoefficients(
+    std::shared_ptr<simulation_setup::ComaStokesDataset> dataset,
+    const std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
+                                                 std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>& interpolators,
+    double radius, double longitude, double latitude, double time ) const
+{
+    if ( !dataset )
+    {
+        throw std::runtime_error( "ComaWindModel: dataset is null" );
+    }
+
+    // Step 1: Find time interval index
+    const int fileIndex = findTimeIntervalIndex( time, dataset );
+
+    // Step 2: Calculate solar longitude
+    const double solarLongitude = calculateSolarLongitude();
+
+    // Step 3: Get dataset properties
+    const int nmax = dataset->nmax();
+    const double referenceRadius = dataset->getReferenceRadius(fileIndex);
+    const auto& radiiGrid = dataset->radii();
+
+    // Determine effective maximum degree and order
+    const int effectiveMaxDegree = maximumDegree_ > 0 ? maximumDegree_ : nmax;
+    const int effectiveMaxOrder = maximumOrder_ > 0 ? maximumOrder_ : nmax;
+
+    // Initialize coefficient matrices
+    Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero(effectiveMaxDegree + 1, effectiveMaxOrder + 1);
+    Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero(effectiveMaxDegree + 1, effectiveMaxOrder + 1);
+
+    // Step 4: Handle radius beyond reference radius (apply 1/r² decay)
+    bool applyDecay = false;
+    double interpolationRadius = radius;
+
+    if (radius > referenceRadius)
+    {
+        applyDecay = true;
+        interpolationRadius = radiiGrid.back();
+    }
+
+    std::vector<double> interpolationPoint = {interpolationRadius, solarLongitude};
+
+    // Step 5: For each spherical harmonic coefficient (n,m), use pre-initialized interpolators
+    for ( int n = 0; n <= effectiveMaxDegree; ++n )
+    {
+        for ( int m = 0; m <= std::min(n, effectiveMaxOrder); ++m )
+        {
+            std::pair<int,int> nmPair = {n, m};
+
+            // Find the pre-initialized interpolators for this (n,m) pair
+            auto it = interpolators.find(nmPair);
+            if ( it != interpolators.end() )
+            {
+                // Use pre-initialized interpolators
+                cosineCoefficients(n, m) = it->second.first->interpolate(interpolationPoint);
+
+                if ( m > 0 )  // Sine coefficients only exist for m > 0
+                {
+                    sineCoefficients(n, m) = it->second.second->interpolate(interpolationPoint);
+                }
+            }
+            else
+            {
+                // Fallback: create interpolator on-the-fly (should not happen if initialization was correct)
+                const auto& radiiGrid = dataset->radii();
+                const auto& longitudeGrid = dataset->lons();
+                const std::size_t nRadii = radiiGrid.size();
+                const std::size_t nLons = longitudeGrid.size();
+
+                std::vector<std::vector<double>> independentGrids(2);
+                independentGrids[0] = radiiGrid;
+                independentGrids[1] = longitudeGrid;
+
+                boost::multi_array<double, 2> cosineGrid(boost::extents[nRadii][nLons]);
+                boost::multi_array<double, 2> sineGrid(boost::extents[nRadii][nLons]);
+
+                for ( std::size_t r = 0; r < nRadii; ++r )
+                {
+                    for ( std::size_t l = 0; l < nLons; ++l )
+                    {
+                        auto coeffs = dataset->getCoeff(fileIndex, r, l, n, m);
+                        cosineGrid[r][l] = coeffs.first;
+                        sineGrid[r][l] = coeffs.second;
+                    }
+                }
+
+                interpolators::MultiLinearInterpolator<double, double, 2> cosineInterpolator(
+                    independentGrids, cosineGrid,
+                    interpolators::huntingAlgorithm,
+                    interpolators::extrapolate_at_boundary
+                );
+
+                interpolators::MultiLinearInterpolator<double, double, 2> sineInterpolator(
+                    independentGrids, sineGrid,
+                    interpolators::huntingAlgorithm,
+                    interpolators::extrapolate_at_boundary
+                );
+
+                cosineCoefficients(n, m) = cosineInterpolator.interpolate(interpolationPoint);
+                if ( m > 0 )
+                {
+                    sineCoefficients(n, m) = sineInterpolator.interpolate(interpolationPoint);
+                }
+            }
+        }
+    }
+
+    // Step 6: Apply logarithmic decay term for 1/r² behavior if radius > reference radius
+    if (applyDecay)
+    {
+        simulation_setup::StokesCoefficientsEvaluator::applyDecayTerm(cosineCoefficients, radius, referenceRadius);
+    }
+
+    // Step 7: Calculate wind component using spherical harmonics
+    return getActiveSphericalHarmonicsCalculator()->calculateSurfaceSphericalHarmonics(
+        sineCoefficients, cosineCoefficients,
+        latitude, longitude,
+        effectiveMaxDegree, effectiveMaxOrder
+    );
+}
+
+double ComaWindModel::calculateSolarLongitude() const
+{
+    if ( !sunStateFunction_ || !cometStateFunction_ || !cometRotationFunction_ )
+    {
+        throw std::runtime_error( "ComaModel: State functions must be initialized" );
+    }
+
+    const Eigen::Vector6d sunState = sunStateFunction_();
+    const Eigen::Vector6d cometState = cometStateFunction_();
+    const Eigen::Matrix3d rotationMatrix = cometRotationFunction_();
+
+    // Calculate Sun direction in inertial frame
+    const Eigen::Vector3d sunDirection = ( sunState.head<3>() - cometState.head<3>() ).normalized();
+
+    // Transform to comet body-fixed frame
+    const Eigen::Vector3d sunDirectionBodyFixed = rotationMatrix.transpose() * sunDirection;
+
+    // Calculate solar longitude (angle from X-axis in XY plane)
+    return std::atan2( sunDirectionBodyFixed.y(), sunDirectionBodyFixed.x() );
+}
+
+SphericalHarmonicsCalculator* ComaWindModel::getActiveSphericalHarmonicsCalculator() const
+{
+    // Return shared calculator if available, otherwise use our own
+    return sharedSphericalHarmonicsCalculator_ != nullptr ? sharedSphericalHarmonicsCalculator_ : sphericalHarmonicsCalculator_.get();
+}
 
 void ComaWindModel::initializeStokesInterpolators()
 {

@@ -158,6 +158,9 @@ public:
      * \param yPolyDataset Dataset for y-component wind (polynomial coefficients)
      * \param zPolyDataset Dataset for z-component wind (polynomial coefficients)
      * \param comaModel Shared pointer to the ComaModel for accessing state functions
+     * \param sunStateFunction Function returning Sun state vector (position, velocity) [m, m/s]
+     * \param cometStateFunction Function returning Comet state vector (position, velocity) [m, m/s]
+     * \param cometRotationFunction Function returning comet body-fixed rotation matrix
      * \param maximumDegree Maximum degree used for computation (-1 for auto)
      * \param maximumOrder Maximum order used for computation (-1 for auto)
      * \param associatedFrame Reference frame for the wind model
@@ -166,6 +169,9 @@ public:
                    const simulation_setup::ComaPolyDataset& yPolyDataset,
                    const simulation_setup::ComaPolyDataset& zPolyDataset,
                    std::shared_ptr<ComaModel> comaModel,
+                   std::function<Eigen::Vector6d()> sunStateFunction,
+                   std::function<Eigen::Vector6d()> cometStateFunction,
+                   std::function<Eigen::Matrix3d()> cometRotationFunction,
                    const int& maximumDegree = -1,
                    const int& maximumOrder = -1,
                    const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame );
@@ -177,6 +183,9 @@ public:
      * \param yStokesDataset Dataset for y-component wind (Stokes coefficients)
      * \param zStokesDataset Dataset for z-component wind (Stokes coefficients)
      * \param comaModel Shared pointer to the ComaModel for accessing state functions
+     * \param sunStateFunction Function returning Sun state vector (position, velocity) [m, m/s]
+     * \param cometStateFunction Function returning Comet state vector (position, velocity) [m, m/s]
+     * \param cometRotationFunction Function returning comet body-fixed rotation matrix
      * \param maximumDegree Maximum degree used for computation (-1 for auto)
      * \param maximumOrder Maximum order used for computation (-1 for auto)
      * \param associatedFrame Reference frame for the wind model
@@ -185,6 +194,9 @@ public:
                    const simulation_setup::ComaStokesDataset& yStokesDataset,
                    const simulation_setup::ComaStokesDataset& zStokesDataset,
                    std::shared_ptr<ComaModel> comaModel,
+                   std::function<Eigen::Vector6d()> sunStateFunction,
+                   std::function<Eigen::Vector6d()> cometStateFunction,
+                   std::function<Eigen::Matrix3d()> cometRotationFunction,
                    const int& maximumDegree = -1,
                    const int& maximumOrder = -1,
                    const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame );
@@ -229,8 +241,20 @@ private:
     //! Reference to the ComaModel for accessing state functions
     std::shared_ptr<ComaModel> comaModel_;
 
+    //! Function to get Sun state [m, m/s]
+    std::function<Eigen::Vector6d()> sunStateFunction_;
+
+    //! Function to get Comet state [m, m/s]
+    std::function<Eigen::Vector6d()> cometStateFunction_;
+
+    //! Function to get comet body-fixed rotation matrix
+    std::function<Eigen::Matrix3d()> cometRotationFunction_;
+
     //! Spherical harmonics calculator with shared cache
     std::unique_ptr<SphericalHarmonicsCalculator> sphericalHarmonicsCalculator_;
+
+    //! Pointer to shared spherical harmonics calculator (non-owning, used when sharing with ComaModel)
+    SphericalHarmonicsCalculator* sharedSphericalHarmonicsCalculator_;
 
     //! Pre-initialized interpolators for Stokes coefficients (x, y, z components)
     std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
@@ -256,6 +280,9 @@ private:
 
     double calculateSolarLongitude() const;
     void initializeStokesInterpolators();
+
+    // Helper method to get the active spherical harmonics calculator
+    SphericalHarmonicsCalculator* getActiveSphericalHarmonicsCalculator() const;
 };
 
 }  // namespace aerodynamics

@@ -2916,7 +2916,7 @@ inline std::shared_ptr< WindModelSettings > constantWindModelSettings(
  *  \return Wind model created according to settings in windSettings.
  */
 std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_ptr< WindModelSettings > windSettings,
-                                                            const std::string& body );
+                                                            const std::string& body);
 
 //  Function to create an atmosphere model.
 /*
