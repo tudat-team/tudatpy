@@ -14,6 +14,22 @@ namespace tudat
 namespace aerodynamics
 {
 
+/*!
+ * \brief Constructor for ComaWindModel using polynomial coefficient datasets.
+ * Initializes the wind model with separate datasets for x, y, and z wind components
+ * using polynomial coefficients. The model can optionally share a spherical harmonics
+ * calculator with the provided ComaModel for efficiency.
+ * \param xPolyDataset Dataset for x-component wind (polynomial coefficients)
+ * \param yPolyDataset Dataset for y-component wind (polynomial coefficients)
+ * \param zPolyDataset Dataset for z-component wind (polynomial coefficients)
+ * \param comaModel Shared pointer to the ComaModel for accessing state functions
+ * \param sunStateFunction Function returning Sun state vector (position, velocity) [m, m/s]
+ * \param cometStateFunction Function returning Comet state vector (position, velocity) [m, m/s]
+ * \param cometRotationFunction Function returning comet body-fixed rotation matrix
+ * \param maximumDegree Maximum degree used for computation (-1 for auto)
+ * \param maximumOrder Maximum order used for computation (-1 for auto)
+ * \param associatedFrame Reference frame for the wind model
+ */
 ComaWindModel::ComaWindModel( const simulation_setup::ComaPolyDataset& xPolyDataset,
                    const simulation_setup::ComaPolyDataset& yPolyDataset,
                    const simulation_setup::ComaPolyDataset& zPolyDataset,
@@ -74,6 +90,22 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaPolyDataset& xPolyData
         }
     }
 
+/*!
+ * \brief Constructor for ComaWindModel using Stokes coefficient datasets.
+ * Initializes the wind model with separate datasets for x, y, and z wind components
+ * using Stokes coefficients. Pre-initializes interpolators for efficient evaluation
+ * and can share a spherical harmonics calculator with the provided ComaModel.
+ * \param xStokesDataset Dataset for x-component wind (Stokes coefficients)
+ * \param yStokesDataset Dataset for y-component wind (Stokes coefficients)
+ * \param zStokesDataset Dataset for z-component wind (Stokes coefficients)
+ * \param comaModel Shared pointer to the ComaModel for accessing state functions
+ * \param sunStateFunction Function returning Sun state vector (position, velocity) [m, m/s]
+ * \param cometStateFunction Function returning Comet state vector (position, velocity) [m, m/s]
+ * \param cometRotationFunction Function returning comet body-fixed rotation matrix
+ * \param maximumDegree Maximum degree used for computation (-1 for auto)
+ * \param maximumOrder Maximum order used for computation (-1 for auto)
+ * \param associatedFrame Reference frame for the wind model
+ */
 ComaWindModel::ComaWindModel( const simulation_setup::ComaStokesDataset& xStokesDataset,
                    const simulation_setup::ComaStokesDataset& yStokesDataset,
                    const simulation_setup::ComaStokesDataset& zStokesDataset,
@@ -137,6 +169,16 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaStokesDataset& xStokes
         initializeStokesInterpolators();
     }
 
+/*!
+ * \brief Compute the current wind velocity vector in body-fixed coordinates.
+ * This method evaluates the wind velocity at the specified location and time
+ * using either polynomial or Stokes coefficient data depending on the model type.
+ * \param currentAltitude Altitude at which wind vector is to be retrieved [m]
+ * \param currentLongitude Longitude at which wind vector is to be retrieved [rad]
+ * \param currentLatitude Latitude at which wind vector is to be retrieved [rad]
+ * \param currentTime Time at which wind vector is to be retrieved [s]
+ * \return Wind velocity vector in body-fixed, body-centered frame [m/s]
+ */
 Eigen::Vector3d ComaWindModel::getCurrentBodyFixedCartesianWindVelocity( const double currentAltitude,
                                                               const double currentLongitude,
                                                               const double currentLatitude,
@@ -169,6 +211,15 @@ Eigen::Vector3d ComaWindModel::getCurrentBodyFixedCartesianWindVelocity( const d
         return Eigen::Vector3d( windX, windY, windZ );
     }
 
+/*!
+ * \brief Find the time interval index for polynomial datasets.
+ * Searches through all time periods defined in the dataset files to find
+ * which interval contains the specified time.
+ * \param time The time for which to find the corresponding time interval [s]
+ * \param dataset Polynomial dataset to search through
+ * \return Index of the time interval containing the given time
+ * \throws std::runtime_error If no matching time interval is found
+ */
 int ComaWindModel::findTimeIntervalIndex( double time, std::shared_ptr<simulation_setup::ComaPolyDataset> dataset ) const
 {
     for ( std::size_t f = 0; f < dataset->getNumFiles(); ++f )
@@ -185,6 +236,15 @@ int ComaWindModel::findTimeIntervalIndex( double time, std::shared_ptr<simulatio
     throw std::runtime_error( "Time " + std::to_string( time ) + " does not fall into any defined time period" );
 }
 
+/*!
+ * \brief Find the time interval index for Stokes datasets.
+ * Searches through all files in the dataset to find which time interval
+ * contains the specified time.
+ * \param time The time for which to find the corresponding time interval [s]
+ * \param dataset Stokes dataset to search through
+ * \return Index of the time interval containing the given time
+ * \throws std::runtime_error If no matching time interval is found
+ */
 int ComaWindModel::findTimeIntervalIndex( double time, std::shared_ptr<simulation_setup::ComaStokesDataset> dataset ) const
 {
     for ( std::size_t f = 0; f < dataset->nFiles(); ++f )
@@ -198,6 +258,19 @@ int ComaWindModel::findTimeIntervalIndex( double time, std::shared_ptr<simulatio
     throw std::runtime_error( "Time " + std::to_string( time ) + " does not fall into any defined time period" );
 }
 
+/*!
+ * \brief Compute a single wind component from polynomial coefficients.
+ * Evaluates polynomial coefficients at the given radius and solar longitude,
+ * then uses spherical harmonics to compute the wind component at the specified
+ * surface location.
+ * \param dataset Polynomial dataset containing the coefficients
+ * \param radius Radial distance from comet center [m]
+ * \param longitude Longitude in comet body-fixed frame [rad]
+ * \param latitude Latitude in comet body-fixed frame [rad]
+ * \param time Time at which to compute the wind component [s]
+ * \return Wind velocity component [m/s]
+ * \throws std::runtime_error If dataset is null or time is out of range
+ */
 double ComaWindModel::computeWindComponentFromPolyCoefficients(
     std::shared_ptr<simulation_setup::ComaPolyDataset> dataset,
     double radius, double longitude, double latitude, double time ) const
@@ -235,6 +308,21 @@ double ComaWindModel::computeWindComponentFromPolyCoefficients(
         maximumOrder_ > 0 ? maximumOrder_ : cosineCoefficients.cols() - 1 );
 }
 
+/*!
+ * \brief Compute a single wind component from Stokes coefficients.
+ * Uses pre-initialized interpolators to efficiently evaluate Stokes coefficients
+ * at the given radius and solar longitude, then applies spherical harmonics
+ * to compute the wind component. Includes distance-dependent decay for radii
+ * beyond the reference radius.
+ * \param dataset Stokes dataset containing the coefficients
+ * \param interpolators Pre-initialized interpolators for efficient coefficient evaluation
+ * \param radius Radial distance from comet center [m]
+ * \param longitude Longitude in comet body-fixed frame [rad]
+ * \param latitude Latitude in comet body-fixed frame [rad]
+ * \param time Time at which to compute the wind component [s]
+ * \return Wind velocity component [m/s]
+ * \throws std::runtime_error If dataset is null or time is out of range
+ */
 double ComaWindModel::computeWindComponentFromStokesCoefficients(
     std::shared_ptr<simulation_setup::ComaStokesDataset> dataset,
     const std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
@@ -356,6 +444,14 @@ double ComaWindModel::computeWindComponentFromStokesCoefficients(
     );
 }
 
+/*!
+ * \brief Calculate the solar longitude in the comet body-fixed frame.
+ * Computes the angle between the Sun direction (projected onto the XY plane)
+ * and the X-axis in the comet body-fixed coordinate system. This angle is
+ * used to determine the solar heating pattern on the comet surface.
+ * \return Solar longitude angle from X-axis in XY plane [rad]
+ * \throws std::runtime_error If state functions are not initialized
+ */
 double ComaWindModel::calculateSolarLongitude() const
 {
     if ( !sunStateFunction_ || !cometStateFunction_ || !cometRotationFunction_ )
@@ -377,12 +473,25 @@ double ComaWindModel::calculateSolarLongitude() const
     return std::atan2( sunDirectionBodyFixed.y(), sunDirectionBodyFixed.x() );
 }
 
+/*!
+ * \brief Get the active spherical harmonics calculator.
+ * Returns the shared calculator from ComaModel if available, otherwise
+ * returns the owned calculator. This allows efficient sharing of computation
+ * resources when both wind and density models use spherical harmonics.
+ * \return Pointer to the active spherical harmonics calculator (non-owning)
+ */
 SphericalHarmonicsCalculator* ComaWindModel::getActiveSphericalHarmonicsCalculator() const
 {
     // Return shared calculator if available, otherwise use our own
     return sharedSphericalHarmonicsCalculator_ != nullptr ? sharedSphericalHarmonicsCalculator_ : sphericalHarmonicsCalculator_.get();
 }
 
+/*!
+ * \brief Initialize interpolators for Stokes coefficients.
+ * Pre-computes multilinear interpolators for all spherical harmonic coefficients
+ * up to the specified maximum degree and order. This optimization significantly
+ * improves performance during repeated wind velocity evaluations.
+ */
 void ComaWindModel::initializeStokesInterpolators()
 {
     // This function is only called from the Stokes coefficients constructor,

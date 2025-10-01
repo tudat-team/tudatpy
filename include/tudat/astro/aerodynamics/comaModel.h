@@ -21,23 +21,34 @@ namespace aerodynamics
 {
 class SphericalHarmonicsCalculator;
 
+/*!
+ * \brief Enumeration for the type of coefficient data used in coma models.
+ */
 enum class ComaDataType
 {
-    POLYNOMIAL_COEFFICIENTS,
-    STOKES_COEFFICIENTS
+    POLYNOMIAL_COEFFICIENTS,  //!< Use polynomial coefficients for density computation
+    STOKES_COEFFICIENTS      //!< Use Stokes coefficients for density computation
 };
 
+/*!
+ * \brief Model for computing coma density, pressure, temperature, and sound speed.
+ *
+ * This class implements an atmosphere model specifically designed for comet comas.
+ * It can use either polynomial coefficients or Stokes coefficients to represent
+ * the spatial and temporal variation of coma properties. The model uses spherical
+ * harmonics to efficiently compute atmospheric properties at any location.
+ */
 class ComaModel final : public AtmosphereModel
 {
 public:
     /*!
-     *  Constructor for polynomial coefficient data.
-     *  \param polyDataset Structured polynomial coefficient dataset
-     *  \param sunStateFunction Function returning Sun state vector (position, velocity) [m, m/s]
-     *  \param cometStateFunction Function returning Comet state vector (position, velocity) [m, m/s]
-     *  \param cometRotationFunction Function returning comet body-fixed rotation matrix
-     *  \param maximumDegree Maximum degree used to compute the coma density with SH
-     *  \param maximumOrder Maximum Order used to compute the coma density with SH
+     * \brief Constructor for polynomial coefficient data.
+     * \param polyDataset Structured polynomial coefficient dataset
+     * \param sunStateFunction Function returning Sun state vector (position, velocity) [m, m/s]
+     * \param cometStateFunction Function returning Comet state vector (position, velocity) [m, m/s]
+     * \param cometRotationFunction Function returning comet body-fixed rotation matrix
+     * \param maximumDegree Maximum degree used to compute the coma density with SH (-1 for auto)
+     * \param maximumOrder Maximum Order used to compute the coma density with SH (-1 for auto)
      */
     ComaModel( const simulation_setup::ComaPolyDataset& polyDataset,
                std::function<Eigen::Vector6d()> sunStateFunction,
@@ -47,13 +58,13 @@ public:
                const int& maximumOrder = -1 );
 
     /*!
-     *  Constructor for Stokes coefficient data.
-     *  \param stokesDataset Structured Stokes coefficient dataset
-     *  \param sunStateFunction Function returning Sun state vector (position, velocity) [m, m/s]
-     *  \param cometStateFunction Function returning Comet state vector (position, velocity) [m, m/s]
-     *  \param cometRotationFunction Function returning comet body-fixed rotation matrix
-     *  \param maximumDegree Maximum degree used to compute the coma density with SH
-     *  \param maximumOrder Maximum Order used to compute the coma density with SH
+     * \brief Constructor for Stokes coefficient data.
+     * \param stokesDataset Structured Stokes coefficient dataset
+     * \param sunStateFunction Function returning Sun state vector (position, velocity) [m, m/s]
+     * \param cometStateFunction Function returning Comet state vector (position, velocity) [m, m/s]
+     * \param cometRotationFunction Function returning comet body-fixed rotation matrix
+     * \param maximumDegree Maximum degree used to compute the coma density with SH (-1 for auto)
+     * \param maximumOrder Maximum Order used to compute the coma density with SH (-1 for auto)
      */
     ComaModel( const simulation_setup::ComaStokesDataset& stokesDataset,
                std::function<Eigen::Vector6d()> sunStateFunction,
@@ -64,12 +75,12 @@ public:
 
 
     /*!
-     * Returns the local density of the coma in kg per meter^3.
-     * \param radius Radius from comet center at which density is to be computed.
-     * \param longitude Longitude in comet body-fixed frame at which density is to be computed.
-     * \param latitude Latitude in comet body-fixed frame at which density is to be computed.
-     * \param time Time at which density is to be computed.
-     * \return Coma density at specified location and time.
+     * \brief Returns the local density of the coma in kg per meter^3.
+     * \param radius Radius from comet center at which density is to be computed [m]
+     * \param longitude Longitude in comet body-fixed frame at which density is to be computed [rad]
+     * \param latitude Latitude in comet body-fixed frame at which density is to be computed [rad]
+     * \param time Time at which density is to be computed [s]
+     * \return Coma density at specified location and time [kg/m³]
      */
     double getDensity( double radius,
                        double longitude,
@@ -77,12 +88,12 @@ public:
                        double time ) override;
 
     /*!
-     * Returns the local pressure of the coma in Newton per meter^2.
-     * \param radius Radius from comet center at which pressure is to be computed.
-     * \param longitude Longitude in comet body-fixed frame at which pressure is to be computed.
-     * \param latitude Latitude in comet body-fixed frame at which pressure is to be computed.
-     * \param time Time at which pressure is to be computed.
-     * \return Coma pressure at specified location and time.
+     * \brief Returns the local pressure of the coma in Newton per meter^2.
+     * \param radius Radius from comet center at which pressure is to be computed [m]
+     * \param longitude Longitude in comet body-fixed frame at which pressure is to be computed [rad]
+     * \param latitude Latitude in comet body-fixed frame at which pressure is to be computed [rad]
+     * \param time Time at which pressure is to be computed [s]
+     * \return Coma pressure at specified location and time [N/m²]
      */
     double getPressure( double radius,
                          double longitude,
@@ -90,12 +101,12 @@ public:
                         double time ) override;
 
     /*!
-     * Returns the local temperature of the coma in Kelvin.
-     * \param radius Radius from comet center at which temperature is to be computed.
-     * \param longitude Longitude in comet body-fixed frame at which temperature is to be computed.
-     * \param latitude Latitude in comet body-fixed frame at which temperature is to be computed.
-     * \param time Time at which temperature is to be computed.
-     * \return Coma temperature at specified location and time.
+     * \brief Returns the local temperature of the coma in Kelvin.
+     * \param radius Radius from comet center at which temperature is to be computed [m]
+     * \param longitude Longitude in comet body-fixed frame at which temperature is to be computed [rad]
+     * \param latitude Latitude in comet body-fixed frame at which temperature is to be computed [rad]
+     * \param time Time at which temperature is to be computed [s]
+     * \return Coma temperature at specified location and time [K]
      */
     double getTemperature( double radius,
                                double longitude,
@@ -103,12 +114,12 @@ public:
                            double time ) override;
 
     /*!
-     * Returns the speed of sound in the coma in m/s.
-     * @param radius Radius from comet center at which speed of sound is to be computed.
-     * @param longitude Longitude in comet body-fixed frame at which speed of sound is to be computed.
-     * @param latitude Latitude in comet body-fixed frame at which speed of sound is to be computed.
-     * @param time Time at which speed of sound is to be computed.
-     * @return Coma speed of sound at specified location and time.
+     * \brief Returns the speed of sound in the coma in m/s.
+     * \param radius Radius from comet center at which speed of sound is to be computed [m]
+     * \param longitude Longitude in comet body-fixed frame at which speed of sound is to be computed [rad]
+     * \param latitude Latitude in comet body-fixed frame at which speed of sound is to be computed [rad]
+     * \param time Time at which speed of sound is to be computed [s]
+     * \return Coma speed of sound at specified location and time [m/s]
      */
     double getSpeedOfSound( double radius,
                                  double longitude,
@@ -128,35 +139,35 @@ public:
     SphericalHarmonicsCalculator* getSphericalHarmonicsCalculator() const { return sphericalHarmonicsCalculator_.get(); }
 
 private:
-    //! Type of data used (polynomial or Stokes coefficients)
+    //! Type of data used to determine computation method (polynomial or Stokes coefficients)
     ComaDataType dataType_;
 
-    //! Maximum degree used for computation of density
+    //! Maximum spherical harmonic degree used for density computation (-1 for auto-detect)
     int maximumDegree_;
 
-    //! Maximum order used for computation of density
+    //! Maximum spherical harmonic order used for density computation (-1 for auto-detect)
     int maximumOrder_;
 
-    //! Polynomial coefficient dataset (used when dataType_ == POLYNOMIAL_COEFFICIENTS)
+    //! Polynomial coefficient dataset containing coma density data (used when dataType_ == POLYNOMIAL_COEFFICIENTS)
     std::shared_ptr<simulation_setup::ComaPolyDataset> polyDataset_;
 
-    //! Stokes coefficient dataset (used when dataType_ == STOKES_COEFFICIENTS)
+    //! Stokes coefficient dataset containing coma density data (used when dataType_ == STOKES_COEFFICIENTS)
     std::shared_ptr<simulation_setup::ComaStokesDataset> stokesDataset_;
 
-    //! Function to get Sun state [m, m/s]
+    //! Function returning Sun state vector (position [m], velocity [m/s]) in inertial frame
     std::function<Eigen::Vector6d()> sunStateFunction_;
 
-    //! Function to get Comet state [m, m/s]
+    //! Function returning Comet state vector (position [m], velocity [m/s]) in inertial frame
     std::function<Eigen::Vector6d()> cometStateFunction_;
 
-    //! Function to get comet body-fixed rotation matrix
+    //! Function returning comet body-fixed to inertial frame rotation matrix
     std::function<Eigen::Matrix3d()> cometRotationFunction_;
 
-    //! Spherical harmonics calculator with shared cache
+    //! Spherical harmonics calculator with cached computations for efficient evaluation
     std::unique_ptr<SphericalHarmonicsCalculator> sphericalHarmonicsCalculator_;
 
-    //! Pre-initialized interpolators for Stokes coefficients (only for STOKES_COEFFICIENTS data type)
-    //! Map from (n,m) pair to (cosineInterpolator, sineInterpolator) pair
+    //! Pre-initialized interpolators for Stokes coefficients (only used for STOKES_COEFFICIENTS data type)
+    //! Maps spherical harmonic degree/order pairs (n,m) to cosine and sine coefficient interpolators
     std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
                                            std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>> stokesInterpolators_;
 
@@ -172,8 +183,26 @@ private:
      */
     int findTimeIntervalIndex( double time ) const;
 
+    /*!
+     * \brief Compute density from polynomial coefficients.
+     * \param radius Radial distance from comet center [m]
+     * \param longitude Longitude in comet body-fixed frame [rad]
+     * \param latitude Latitude in comet body-fixed frame [rad]
+     * \param time Time at which to compute density [s]
+     * \return Coma density [kg/m³]
+     * \throws std::runtime_error If dataset is null or time is out of range
+     */
     double computeDensityFromPolyCoefficients( double radius, double longitude, double latitude, double time ) const;
 
+    /*!
+     * \brief Compute density from Stokes coefficients using pre-initialized interpolators.
+     * \param radius Radial distance from comet center [m]
+     * \param longitude Longitude in comet body-fixed frame [rad]
+     * \param latitude Latitude in comet body-fixed frame [rad]
+     * \param time Time at which to compute density [s]
+     * \return Coma density [kg/m³]
+     * \throws std::runtime_error If dataset is null or time is out of range
+     */
     double computeDensityFromStokesCoefficients( double radius, double longitude, double latitude, double time ) const;
 
     /*!
@@ -190,15 +219,24 @@ private:
 };
 
 
+/*!
+ * \brief Calculator for efficient spherical harmonics evaluation.
+ *
+ * This class provides optimized computation of spherical harmonic expansions
+ * with internal caching to improve performance for repeated evaluations.
+ * It is designed to be shared between multiple models (e.g., ComaModel and
+ * ComaWindModel) to avoid redundant computations.
+ */
 class SphericalHarmonicsCalculator
 {
 public:
     /*!
-     *  Default constructor.
-     *  \param fixedReferenceFrame Identifier for body-fixed reference frame to which the field is fixed (optional).
+     * \brief Constructor for spherical harmonics calculator.
+     * \param fixedReferenceFrame Identifier for body-fixed reference frame to which the field is fixed (optional)
      */
     explicit SphericalHarmonicsCalculator( std::string fixedReferenceFrame = "" );
 
+    //! Destructor
     ~SphericalHarmonicsCalculator( ) = default;
 
 
@@ -224,10 +262,10 @@ public:
                                                int highestOrder );
 
 private:
-    //! Identifier for body-fixed reference frame
+    //! Identifier for the body-fixed reference frame used for coordinate transformations
     std::string fixedReferenceFrame_;
 
-    //! Cache object for spherical harmonics calculations
+    //! Cache object for efficient spherical harmonics calculations (stores Legendre polynomials and trigonometric values)
     basic_mathematics::SphericalHarmonicsCache sphericalHarmonicsCache_;
 };
 } // end namespace aerodynamics

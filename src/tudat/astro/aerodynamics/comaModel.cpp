@@ -12,6 +12,26 @@ namespace tudat
 {
 namespace aerodynamics
 {
+
+//=============================================================================
+// ComaModel Class Implementation
+//=============================================================================
+
+//-----------------------------------------------------------------------------
+// Constructors
+//-----------------------------------------------------------------------------
+
+/*!
+ * \brief Constructor for ComaModel using polynomial coefficient data.
+ * Initializes the coma model with polynomial coefficients for computing density
+ * and other atmospheric properties using spherical harmonics expansion.
+ * \param polyDataset Structured polynomial coefficient dataset
+ * \param sunStateFunction Function returning Sun state vector (position, velocity) [m, m/s]
+ * \param cometStateFunction Function returning Comet state vector (position, velocity) [m, m/s]
+ * \param cometRotationFunction Function returning comet body-fixed rotation matrix
+ * \param maximumDegree Maximum degree used to compute the coma density with SH (-1 for auto)
+ * \param maximumOrder Maximum Order used to compute the coma density with SH (-1 for auto)
+ */
 ComaModel::ComaModel( const simulation_setup::ComaPolyDataset& polyDataset,
                       std::function<Eigen::Vector6d()> sunStateFunction,
                       std::function<Eigen::Vector6d()> cometStateFunction,
@@ -28,6 +48,7 @@ ComaModel::ComaModel( const simulation_setup::ComaPolyDataset& polyDataset,
     cometRotationFunction_( std::move( cometRotationFunction ) ),
     sphericalHarmonicsCalculator_( std::make_unique<SphericalHarmonicsCalculator>() )
 {
+    // Validate input parameters
     if ( !sunStateFunction_ || !cometStateFunction_ || !cometRotationFunction_ )
     {
         throw std::invalid_argument( "ComaModel: All state functions must be provided" );
@@ -44,6 +65,17 @@ ComaModel::ComaModel( const simulation_setup::ComaPolyDataset& polyDataset,
     }
 }
 
+/*!
+ * \brief Constructor for ComaModel using Stokes coefficient data.
+ * Initializes the coma model with Stokes coefficients and pre-computes
+ * interpolators for efficient density evaluation.
+ * \param stokesDataset Structured Stokes coefficient dataset
+ * \param sunStateFunction Function returning Sun state vector (position, velocity) [m, m/s]
+ * \param cometStateFunction Function returning Comet state vector (position, velocity) [m, m/s]
+ * \param cometRotationFunction Function returning comet body-fixed rotation matrix
+ * \param maximumDegree Maximum degree used to compute the coma density with SH (-1 for auto)
+ * \param maximumOrder Maximum Order used to compute the coma density with SH (-1 for auto)
+ */
 ComaModel::ComaModel( const simulation_setup::ComaStokesDataset& stokesDataset,
                       std::function<Eigen::Vector6d()> sunStateFunction,
                       std::function<Eigen::Vector6d()> cometStateFunction,
@@ -60,6 +92,7 @@ ComaModel::ComaModel( const simulation_setup::ComaStokesDataset& stokesDataset,
     cometRotationFunction_( std::move( cometRotationFunction ) ),
     sphericalHarmonicsCalculator_( std::make_unique<SphericalHarmonicsCalculator>() )
 {
+    // Validate input parameters
     if ( !sunStateFunction_ || !cometStateFunction_ || !cometRotationFunction_ )
     {
         throw std::invalid_argument( "ComaModel: All state functions must be provided" );
@@ -75,12 +108,24 @@ ComaModel::ComaModel( const simulation_setup::ComaStokesDataset& stokesDataset,
         throw std::invalid_argument( "ComaModel: Maximum degree and order must be >= -1" );
     }
 
-    // Initialize interpolators for Stokes coefficients
+    // Initialize interpolators for efficient Stokes coefficient evaluation
     initializeStokesInterpolators();
 }
 
+//-----------------------------------------------------------------------------
+// Public Interface Methods (AtmosphereModel implementation)
+//-----------------------------------------------------------------------------
 
-
+/*!
+ * \brief Compute coma density at specified location and time.
+ * Uses either polynomial or Stokes coefficients depending on the data type
+ * to evaluate the density field using spherical harmonics.
+ * \param radius Radius from comet center at which density is to be computed [m]
+ * \param longitude Longitude in comet body-fixed frame at which density is to be computed [rad]
+ * \param latitude Latitude in comet body-fixed frame at which density is to be computed [rad]
+ * \param time Time at which density is to be computed [s]
+ * \return Coma density at specified location and time [kg/m³]
+ */
 double ComaModel::getDensity( const double radius,
                               const double longitude,
                               const double latitude,
@@ -99,49 +144,75 @@ double ComaModel::getDensity( const double radius,
     }
 }
 
-
+/*!
+ * \brief Compute coma pressure at specified location and time.
+ * Estimates pressure using ideal gas law with typical coma temperature
+ * and composition (primarily water vapor).
+ * \param radius Radius from comet center at which pressure is to be computed [m]
+ * \param longitude Longitude in comet body-fixed frame at which pressure is to be computed [rad]
+ * \param latitude Latitude in comet body-fixed frame at which pressure is to be computed [rad]
+ * \param time Time at which pressure is to be computed [s]
+ * \return Coma pressure at specified location and time [N/m²]
+ */
 double ComaModel::getPressure( const double radius,
                                const double longitude,
                                const double latitude,
                                const double time )
 {
     // For a coma, pressure is typically negligible compared to planetary atmospheres
-    // Return a small value proportional to density
+    // Return a small value proportional to density using ideal gas law: P = ρRT/M
     const double density = getDensity( radius, longitude, latitude, time );
 
-    // Assume ideal gas law: P = ρRT/M
     // Use typical values for comet coma gas (mostly water vapor)
-    const double temperature = 200.0; // K, typical coma temperature
-    const double molarMass = 0.018; // kg/mol, water vapor
-    const double gasConstant = 8.314; // J/(mol·K)
+    const double temperature = 200.0;      // K, typical coma temperature
+    const double molarMass = 0.018;        // kg/mol, water vapor
+    const double gasConstant = 8.314;      // J/(mol·K)
 
     return density * gasConstant * temperature / molarMass;
 }
 
+/*!
+ * \brief Compute coma temperature at specified location and time.
+ * Uses a simple exponential decay model with distance from the comet surface.
+ * \param radius Radius from comet center at which temperature is to be computed [m]
+ * \param longitude Longitude in comet body-fixed frame at which temperature is to be computed [rad]
+ * \param latitude Latitude in comet body-fixed frame at which temperature is to be computed [rad]
+ * \param time Time at which temperature is to be computed [s]
+ * \return Coma temperature at specified location and time [K]
+ */
 double ComaModel::getTemperature( const double radius,
                                   const double longitude,
                                   const double latitude,
                                   const double time )
 {
     // For comet coma, temperature varies with distance from nucleus and solar irradiation
-    // Implement a simple model based on altitude and solar heating
+    // Implement a simple exponential decay model based on altitude
 
     TUDAT_UNUSED_PARAMETER( longitude );
     TUDAT_UNUSED_PARAMETER( latitude );
     TUDAT_UNUSED_PARAMETER( time );
 
-    const double cometRadius = 1000.0; // m, typical comet radius
-    const double surfaceTemperature = 200.0; // K, surface temperature
-    const double spaceTemperature = 2.7; // K, cosmic background temperature
+    const double cometRadius = 1000.0;         // m, typical comet radius
+    const double surfaceTemperature = 200.0;   // K, surface temperature
+    const double spaceTemperature = 2.7;       // K, cosmic background temperature
+    const double scaleHeight = 10000.0;        // m, characteristic scale for temperature decay
 
     // Simple exponential decay with altitude
     const double distanceFromSurface = radius - cometRadius;
-    const double scaleHeight = 10000.0; // m, characteristic scale for temperature decay
-
     return spaceTemperature + ( surfaceTemperature - spaceTemperature ) *
            std::exp( -distanceFromSurface / scaleHeight );
 }
 
+/*!
+ * \brief Compute speed of sound in coma at specified location and time.
+ * Calculates speed of sound using ideal gas formula with local temperature
+ * and typical water vapor properties.
+ * \param radius Radius from comet center at which speed of sound is to be computed [m]
+ * \param longitude Longitude in comet body-fixed frame at which speed of sound is to be computed [rad]
+ * \param latitude Latitude in comet body-fixed frame at which speed of sound is to be computed [rad]
+ * \param time Time at which speed of sound is to be computed [s]
+ * \return Coma speed of sound at specified location and time [m/s]
+ */
 double ComaModel::getSpeedOfSound( const double radius,
                                    const double longitude,
                                    const double latitude,
@@ -149,18 +220,28 @@ double ComaModel::getSpeedOfSound( const double radius,
 {
     // Speed of sound in ideal gas: c = √(γRT/M)
     // where γ is heat capacity ratio, R is gas constant, T is temperature, M is molar mass
-
     const double temperature = getTemperature( radius, longitude, latitude, time );
 
     // Typical values for water vapor (dominant component in comet coma)
-    const double heatCapacityRatio = 1.33; // For water vapor
-    const double molarMass = 0.018; // kg/mol
-    const double gasConstant = 8.314; // J/(mol·K)
+    const double heatCapacityRatio = 1.33;     // For water vapor
+    const double molarMass = 0.018;            // kg/mol
+    const double gasConstant = 8.314;          // J/(mol·K)
 
     return std::sqrt( heatCapacityRatio * gasConstant * temperature / molarMass );
 }
 
+//-----------------------------------------------------------------------------
+// Private Helper Methods - Coordinate and Time Utilities
+//-----------------------------------------------------------------------------
 
+/*!
+ * \brief Find the time interval index containing the specified time.
+ * Searches through dataset files to determine which time period contains
+ * the given time value.
+ * \param time The time for which the corresponding time interval index is to be found [s]
+ * \return The index of the time period in which the given time falls
+ * \throws std::runtime_error If no matching time interval is found
+ */
 int ComaModel::findTimeIntervalIndex( const double time ) const
 {
     if ( dataType_ == ComaDataType::POLYNOMIAL_COEFFICIENTS )
@@ -192,66 +273,13 @@ int ComaModel::findTimeIntervalIndex( const double time ) const
     throw std::runtime_error( "Time " + std::to_string( time ) + " does not fall into any defined time period" );
 }
 
-
-SphericalHarmonicsCalculator::SphericalHarmonicsCalculator( std::string fixedReferenceFrame ) :
-    fixedReferenceFrame_( std::move( fixedReferenceFrame ) ),
-    sphericalHarmonicsCache_( basic_mathematics::SphericalHarmonicsCache( true, true) )
-{
-}
-
-
-double SphericalHarmonicsCalculator::calculateSurfaceSphericalHarmonics(
-        const Eigen::MatrixXd& sineCoefficients,
-        const Eigen::MatrixXd& cosineCoefficients,
-        const double latitude,
-        const double longitude,
-        const int highestDegree,
-        const int highestOrder )
-{
-    if(cosineCoefficients.rows( ) != sineCoefficients.rows( ) ||
-        cosineCoefficients.cols( ) != sineCoefficients.cols( ))
-    {
-        throw std::runtime_error( "Spherical harmonics coefficient sizes are incompatible." );
-    }
-
-    const int maxDegree = static_cast< int >(cosineCoefficients.rows( ));
-    const int maxOrder = static_cast< int >(cosineCoefficients.cols( ));
-
-    sphericalHarmonicsCache_.resetMaximumDegreeAndOrder( maxDegree, maxOrder );
-
-    const double sineOfAngle = std::sin( latitude );
-    sphericalHarmonicsCache_.updateAnglesOnly( sineOfAngle,
-                                     longitude );
-
-    const basic_mathematics::LegendreCache& legendreCacheReference = sphericalHarmonicsCache_.getLegendreCache( );
-
-
-    double legendrePolynomial = TUDAT_NAN;
-    double cosineOfOrderLongitude = TUDAT_NAN;
-    double sineOfOrderLongitude = TUDAT_NAN;
-    double value = 0.0;
-
-    // Loop through all degrees.
-    for (int l = 0; l <= highestDegree; ++l) {
-        const int mmax = std::min(l, highestOrder);
-        for (int m = 0; m <= mmax; ++m) {
-            const double P = legendreCacheReference.getLegendrePolynomial(l, m); // normalized, correct argument
-            const double cos_mλ = sphericalHarmonicsCache_.getCosineOfMultipleLongitude(m);
-
-            if (m == 0) {
-                value += P * cosineCoefficients(l, 0);
-            } else {
-                const double sin_mλ = sphericalHarmonicsCache_.getSineOfMultipleLongitude(m);
-                value += P * (cosineCoefficients(l, m) * cos_mλ
-                            + sineCoefficients(l, m)    * sin_mλ);
-            }
-        }
-    }
-    return value;
-}
-
-
-
+/*!
+ * \brief Calculate solar longitude in comet body-fixed frame.
+ * Computes the angle from X-axis to Sun direction projected onto the XY plane,
+ * which is used to account for solar heating variations.
+ * \return Solar longitude angle from X-axis in XY plane [rad]
+ * \throws std::runtime_error If state functions are not initialized
+ */
 double ComaModel::calculateSolarLongitude() const
 {
     if ( !sunStateFunction_ || !cometStateFunction_ || !cometRotationFunction_ )
@@ -273,6 +301,21 @@ double ComaModel::calculateSolarLongitude() const
     return std::atan2( sunDirectionBodyFixed.y(), sunDirectionBodyFixed.x() );
 }
 
+//-----------------------------------------------------------------------------
+// Private Helper Methods - Density Computation
+//-----------------------------------------------------------------------------
+
+/*!
+ * \brief Compute density from polynomial coefficients.
+ * Evaluates polynomial coefficients at the given radius and solar longitude,
+ * then uses spherical harmonics to compute density at the surface location.
+ * \param radius Radial distance from comet center [m]
+ * \param longitude Longitude in comet body-fixed frame [rad]
+ * \param latitude Latitude in comet body-fixed frame [rad]
+ * \param time Time at which to compute density [s]
+ * \return Coma density [kg/m³]
+ * \throws std::runtime_error If dataset is null or time is out of range
+ */
 double ComaModel::computeDensityFromPolyCoefficients( double radius, double longitude, double latitude, double time ) const
 {
     if ( !polyDataset_ )
@@ -280,15 +323,17 @@ double ComaModel::computeDensityFromPolyCoefficients( double radius, double long
         throw std::runtime_error( "ComaModel: polyDataset_ is null" );
     }
 
+    // Get time-dependent data
     const int fileIndex = findTimeIntervalIndex( time );
     const auto& fileMeta = polyDataset_->getFileMeta( fileIndex );
     const auto& polyCoefficients = polyDataset_->getPolyCoefficients( fileIndex );
     const auto& shIndices = polyDataset_->getSHDegreeAndOrderIndices( fileIndex );
 
+    // Calculate current solar longitude for heliocentric dependence
     const double solarLongitude = calculateSolarLongitude();
 
+    // Evaluate polynomial coefficients to get spherical harmonic coefficients
     Eigen::MatrixXd cosineCoefficients, sineCoefficients;
-
     simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
         radius,
         solarLongitude,
@@ -301,6 +346,7 @@ double ComaModel::computeDensityFromPolyCoefficients( double radius, double long
         maximumDegree_,
         maximumOrder_ );
 
+    // Compute density using spherical harmonics expansion
     return sphericalHarmonicsCalculator_->calculateSurfaceSphericalHarmonics(
         sineCoefficients, cosineCoefficients,
         latitude, longitude,
@@ -308,6 +354,17 @@ double ComaModel::computeDensityFromPolyCoefficients( double radius, double long
         maximumOrder_ > 0 ? maximumOrder_ : cosineCoefficients.cols() - 1 );
 }
 
+/*!
+ * \brief Compute density from Stokes coefficients using interpolators.
+ * Uses pre-initialized interpolators to efficiently evaluate Stokes coefficients
+ * and applies distance-dependent decay for radii beyond the reference radius.
+ * \param radius Radial distance from comet center [m]
+ * \param longitude Longitude in comet body-fixed frame [rad]
+ * \param latitude Latitude in comet body-fixed frame [rad]
+ * \param time Time at which to compute density [s]
+ * \return Coma density [kg/m³]
+ * \throws std::runtime_error If dataset is null or time is out of range
+ */
 double ComaModel::computeDensityFromStokesCoefficients( double radius, double longitude, double latitude, double time ) const
 {
     if ( !stokesDataset_ )
@@ -315,52 +372,46 @@ double ComaModel::computeDensityFromStokesCoefficients( double radius, double lo
         throw std::runtime_error( "ComaModel: stokesDataset_ is null" );
     }
 
-    // Step 1: Find time interval index
+    // Step 1: Get time-dependent properties
     const int fileIndex = findTimeIntervalIndex( time );
-
-    // Step 2: Calculate solar longitude
     const double solarLongitude = calculateSolarLongitude();
 
-    // Step 3: Get dataset properties
+    // Step 2: Get dataset properties
     const int nmax = stokesDataset_->nmax();
-    const double referenceRadius = stokesDataset_->getReferenceRadius(fileIndex); // Now in meters
+    const double referenceRadius = stokesDataset_->getReferenceRadius(fileIndex);
     const auto& radiiGrid = stokesDataset_->radii();
 
     // Determine effective maximum degree and order
     const int effectiveMaxDegree = maximumDegree_ > 0 ? maximumDegree_ : nmax;
     const int effectiveMaxOrder = maximumOrder_ > 0 ? maximumOrder_ : nmax;
 
-    // Initialize coefficient matrices
+    // Step 3: Initialize coefficient matrices
     Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero(effectiveMaxDegree + 1, effectiveMaxOrder + 1);
     Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero(effectiveMaxDegree + 1, effectiveMaxOrder + 1);
 
     // Step 4: Handle radius beyond reference radius (apply 1/r² decay)
     bool applyDecay = false;
     double interpolationRadius = radius;
-
     if (radius > referenceRadius)
     {
         applyDecay = true;
-        // Use maximum radius in grid for interpolation (clamp to boundary)
-        interpolationRadius = radiiGrid.back();
+        interpolationRadius = radiiGrid.back(); // Clamp to boundary for interpolation
     }
 
     std::vector<double> interpolationPoint = {interpolationRadius, solarLongitude};
 
-    // Step 5: For each spherical harmonic coefficient (n,m), use pre-initialized interpolators
+    // Step 5: Interpolate spherical harmonic coefficients using pre-initialized interpolators
     for ( int n = 0; n <= effectiveMaxDegree; ++n )
     {
         for ( int m = 0; m <= std::min(n, effectiveMaxOrder); ++m )
         {
             std::pair<int,int> nmPair = {n, m};
-
-            // Find the pre-initialized interpolators for this (n,m) pair
             auto it = stokesInterpolators_.find(nmPair);
+
             if ( it != stokesInterpolators_.end() )
             {
-                // Use pre-initialized interpolators
+                // Use pre-initialized interpolators for efficiency
                 cosineCoefficients(n, m) = it->second.first->interpolate(interpolationPoint);
-
                 if ( m > 0 )  // Sine coefficients only exist for m > 0
                 {
                     sineCoefficients(n, m) = it->second.second->interpolate(interpolationPoint);
@@ -369,7 +420,6 @@ double ComaModel::computeDensityFromStokesCoefficients( double radius, double lo
             else
             {
                 // Fallback: create interpolator on-the-fly (should not happen if initialization was correct)
-                const auto& radiiGrid = stokesDataset_->radii();
                 const auto& longitudeGrid = stokesDataset_->lons();
                 const std::size_t nRadii = radiiGrid.size();
                 const std::size_t nLons = longitudeGrid.size();
@@ -412,13 +462,13 @@ double ComaModel::computeDensityFromStokesCoefficients( double radius, double lo
         }
     }
 
-    // Step 6: Apply logarithmic decay term for 1/r² behavior if radius > reference radius
+    // Step 6: Apply distance-dependent decay if needed
     if (applyDecay)
     {
         simulation_setup::StokesCoefficientsEvaluator::applyDecayTerm(cosineCoefficients, radius, referenceRadius);
     }
 
-    // Step 7: Calculate density using spherical harmonics
+    // Step 7: Compute density using spherical harmonics expansion
     return sphericalHarmonicsCalculator_->calculateSurfaceSphericalHarmonics(
         sineCoefficients, cosineCoefficients,
         latitude, longitude,
@@ -426,12 +476,21 @@ double ComaModel::computeDensityFromStokesCoefficients( double radius, double lo
     );
 }
 
+//-----------------------------------------------------------------------------
+// Private Helper Methods - Initialization
+//-----------------------------------------------------------------------------
+
+/*!
+ * \brief Initialize interpolators for Stokes coefficients.
+ * Pre-computes multilinear interpolators for all spherical harmonic coefficient
+ * pairs to significantly improve performance during density evaluations.
+ */
 void ComaModel::initializeStokesInterpolators()
 {
     // This function is only called from the Stokes coefficients constructor,
     // so dataType_ is guaranteed to be STOKES_COEFFICIENTS and stokesDataset_ is guaranteed to be non-null
 
-    // Get dataset properties (assume same for all files)
+    // Get dataset properties
     const auto& radiiGrid = stokesDataset_->radii();
     const auto& longitudeGrid = stokesDataset_->lons();
     const int nmax = stokesDataset_->nmax();
@@ -450,10 +509,10 @@ void ComaModel::initializeStokesInterpolators()
     {
         for ( int m = 0; m <= std::min(n, effectiveMaxOrder); ++m )
         {
-            // Create 2D grids for this coefficient (across all files for now - using first file)
+            // Create 2D grids for this coefficient (using first file for now)
             const std::size_t nRadii = radiiGrid.size();
             const std::size_t nLons = longitudeGrid.size();
-            const int fileIndex = 0; // For now, use first file - this could be extended
+            const int fileIndex = 0; // TODO: Could be extended for multi-file support
 
             boost::multi_array<double, 2> cosineGrid(boost::extents[nRadii][nLons]);
             boost::multi_array<double, 2> sineGrid(boost::extents[nRadii][nLons]);
@@ -469,7 +528,7 @@ void ComaModel::initializeStokesInterpolators()
                 }
             }
 
-            // Create interpolators for this coefficient
+            // Create and store interpolators for this coefficient
             auto cosineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 2>>(
                 independentGrids, cosineGrid,
                 interpolators::huntingAlgorithm,
@@ -482,13 +541,90 @@ void ComaModel::initializeStokesInterpolators()
                 interpolators::extrapolate_at_boundary
             );
 
-            // Store interpolators in map
             std::pair<int,int> nmPair = {n, m};
             stokesInterpolators_[nmPair] = {std::move(cosineInterpolator), std::move(sineInterpolator)};
         }
     }
 }
 
+//=============================================================================
+// SphericalHarmonicsCalculator Class Implementation
+//=============================================================================
 
+/*!
+ * \brief Constructor for spherical harmonics calculator.
+ * Initializes the calculator with caching enabled for both Legendre polynomials
+ * and trigonometric functions to optimize repeated evaluations.
+ * \param fixedReferenceFrame Identifier for body-fixed reference frame to which the field is fixed (optional)
+ */
+SphericalHarmonicsCalculator::SphericalHarmonicsCalculator( std::string fixedReferenceFrame ) :
+    fixedReferenceFrame_( std::move( fixedReferenceFrame ) ),
+    sphericalHarmonicsCache_( basic_mathematics::SphericalHarmonicsCache( true, true) )
+{
 }
+
+/*!
+ * \brief Calculate spherical harmonics field value at surface location.
+ * Evaluates the spherical harmonics expansion using provided coefficients
+ * and cached Legendre polynomials for efficient computation.
+ * \param sineCoefficients Sine coefficients matrix
+ * \param cosineCoefficients Cosine coefficients matrix
+ * \param latitude Geocentric latitude [rad]
+ * \param longitude Longitude [rad]
+ * \param highestDegree Highest spherical harmonic degree to include in the evaluation
+ * \param highestOrder Highest spherical harmonic order to include in the evaluation
+ * \return Evaluated surface field value at the given latitude and longitude
+ * \throws std::runtime_error If coefficient matrices have incompatible sizes
+ */
+double SphericalHarmonicsCalculator::calculateSurfaceSphericalHarmonics(
+        const Eigen::MatrixXd& sineCoefficients,
+        const Eigen::MatrixXd& cosineCoefficients,
+        const double latitude,
+        const double longitude,
+        const int highestDegree,
+        const int highestOrder )
+{
+    // Validate input coefficient matrices
+    if(cosineCoefficients.rows( ) != sineCoefficients.rows( ) ||
+        cosineCoefficients.cols( ) != sineCoefficients.cols( ))
+    {
+        throw std::runtime_error( "Spherical harmonics coefficient sizes are incompatible." );
+    }
+
+    // Set up cache for spherical harmonics computation
+    const int maxDegree = static_cast< int >(cosineCoefficients.rows( ));
+    const int maxOrder = static_cast< int >(cosineCoefficients.cols( ));
+    sphericalHarmonicsCache_.resetMaximumDegreeAndOrder( maxDegree, maxOrder );
+
+    // Update cache with current position
+    const double sineOfAngle = std::sin( latitude );
+    sphericalHarmonicsCache_.updateAnglesOnly( sineOfAngle, longitude );
+    const basic_mathematics::LegendreCache& legendreCacheReference = sphericalHarmonicsCache_.getLegendreCache( );
+
+    // Compute spherical harmonics expansion
+    double value = 0.0;
+    for (int l = 0; l <= highestDegree; ++l)
+    {
+        const int mmax = std::min(l, highestOrder);
+        for (int m = 0; m <= mmax; ++m)
+        {
+            const double P = legendreCacheReference.getLegendrePolynomial(l, m);
+            const double cos_mλ = sphericalHarmonicsCache_.getCosineOfMultipleLongitude(m);
+
+            if (m == 0)
+            {
+                value += P * cosineCoefficients(l, 0);
+            }
+            else
+            {
+                const double sin_mλ = sphericalHarmonicsCache_.getSineOfMultipleLongitude(m);
+                value += P * (cosineCoefficients(l, m) * cos_mλ + sineCoefficients(l, m) * sin_mλ);
+            }
+        }
+    }
+
+    return value;
 }
+
+} // namespace aerodynamics
+} // namespace tudat
