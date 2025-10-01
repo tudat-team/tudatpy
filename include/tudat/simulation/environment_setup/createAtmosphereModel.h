@@ -1564,6 +1564,22 @@ public:
         throw std::runtime_error("Z-component data does not contain Stokes data");
     }
 
+    /**
+     * \brief Check if all components contain polynomial data
+     */
+    bool hasPolyData() const
+    {
+        return xHasPolyData() && yHasPolyData() && zHasPolyData();
+    }
+
+    /**
+     * \brief Check if all components contain Stokes data
+     */
+    bool hasStokesData() const
+    {
+        return !xHasPolyData() && !yHasPolyData() && !zHasPolyData();
+    }
+
 private:
     /**
      * \brief Validate settings and set defaults for degree/order

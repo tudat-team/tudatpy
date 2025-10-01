@@ -252,10 +252,6 @@ double SphericalHarmonicsCalculator::calculateSurfaceSphericalHarmonics(
 
 
 
-
-
-
-
 double ComaModel::calculateSolarLongitude() const
 {
     if ( !sunStateFunction_ || !cometStateFunction_ || !cometRotationFunction_ )

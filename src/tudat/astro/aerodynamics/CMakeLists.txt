@@ -26,6 +26,7 @@ set(aerodynamics_SOURCES
         "gasSurfaceInteractionModel.cpp"
         "marsDtmAtmosphereModel.cpp"
         "comaModel.cpp"
+        "windModel.cpp"
 )
 
 # Set the header files.

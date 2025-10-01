@@ -12,6 +12,7 @@
 #include "tudat/astro/aerodynamics/tabulatedAtmosphere.h"
 #include "tudat/astro/aerodynamics/marsDtmAtmosphereModel.h"
 #include "tudat/astro/aerodynamics/comaModel.h"
+#include "tudat/astro/aerodynamics/windModel.h"
 #if TUDAT_BUILD_WITH_NRLMSISE
 #include "tudat/astro/aerodynamics/nrlmsise00Atmosphere.h"
 #include "tudat/astro/aerodynamics/nrlmsise00InputFunctions.h"
@@ -65,10 +66,61 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
             break;
         }
         case coma_wind_model: {
-            std::shared_ptr< ComaModel > comaModel =
-                    std::dynamic_pointer_cast< ComaModel >( atmosphereModel );
-            if(comaModel == nullptr)
+            // Check input consistency
+            std::shared_ptr< ComaWindModelSettings > comaWindModelSettings =
+                    std::dynamic_pointer_cast< ComaWindModelSettings >( windSettings );
+
+            if( comaWindModelSettings == nullptr )
             {
+                throw std::runtime_error( "Error when making coma wind model for body " + body + ", input is incompatible" );
+            }
+
+            // Ensure we have a ComaModel as the atmosphere model
+            std::shared_ptr< aerodynamics::ComaModel > comaModel =
+                    std::dynamic_pointer_cast< aerodynamics::ComaModel >( atmosphereModel );
+            if( comaModel == nullptr )
+            {
+                throw std::runtime_error( "Error when making coma wind model for body " + body + ", atmosphere model must be a ComaModel" );
+            }
+
+            // Get degree and order parameters
+            const int maximumDegree = comaWindModelSettings->getRequestedDegree( );
+            const int maximumOrder = comaWindModelSettings->getRequestedOrder( );
+
+            // Create ComaWindModel based on data type
+            if( comaWindModelSettings->hasPolyData( ) )
+            {
+                const auto& xPolyDataset = comaWindModelSettings->getXPolyDataset( );
+                const auto& yPolyDataset = comaWindModelSettings->getYPolyDataset( );
+                const auto& zPolyDataset = comaWindModelSettings->getZPolyDataset( );
+
+                windModel = std::make_shared< aerodynamics::ComaWindModel >(
+                        xPolyDataset,
+                        yPolyDataset,
+                        zPolyDataset,
+                        comaModel,
+                        maximumDegree,
+                        maximumOrder,
+                        comaWindModelSettings->getAssociatedFrame( ) );
+            }
+            else if( comaWindModelSettings->hasStokesData( ) )
+            {
+                const auto& xStokesDataset = comaWindModelSettings->getXStokesDataset( );
+                const auto& yStokesDataset = comaWindModelSettings->getYStokesDataset( );
+                const auto& zStokesDataset = comaWindModelSettings->getZStokesDataset( );
+
+                windModel = std::make_shared< aerodynamics::ComaWindModel >(
+                        xStokesDataset,
+                        yStokesDataset,
+                        zStokesDataset,
+                        comaModel,
+                        maximumDegree,
+                        maximumOrder,
+                        comaWindModelSettings->getAssociatedFrame( ) );
+            }
+            else
+            {
+                throw std::runtime_error( "Error, ComaWindModelSettings for body " + body + " contains no valid datasets" );
             }
 
             break;

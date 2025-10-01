@@ -16,13 +16,27 @@
 
 #include <memory>
 #include <functional>
+#include <map>
 
 #include <tudat/astro/reference_frames/referenceFrameTransformations.h>
+#include "tudat/math/interpolators/multiLinearInterpolator.h"
 
 namespace tudat
 {
+
+namespace simulation_setup
+{
+    class ComaPolyDataset;
+    class ComaStokesDataset;
+}
+
+
 namespace aerodynamics
 {
+
+// Forward declarations
+class ComaModel;
+class SphericalHarmonicsCalculator;
 
 //! Base class for a wind model.
 /*!
@@ -127,6 +141,121 @@ public:
 private:
     //! Function that returns wind vector as a function of altitude, longitude, latitude and time (in that order).
     std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction_;
+};
+
+//! Class for computing the wind velocity vector from coma models
+/*!
+ * Class for computing the wind velocity vector from coma models. This class uses three separate datasets
+ * for the x, y, and z wind components, each of which can be either polynomial or Stokes coefficients.
+ */
+class ComaWindModel : public WindModel
+{
+public:
+    //! Constructor for polynomial coefficient datasets
+    /*!
+     * Constructor for polynomial coefficient datasets
+     * \param xPolyDataset Dataset for x-component wind (polynomial coefficients)
+     * \param yPolyDataset Dataset for y-component wind (polynomial coefficients)
+     * \param zPolyDataset Dataset for z-component wind (polynomial coefficients)
+     * \param comaModel Shared pointer to the ComaModel for accessing state functions
+     * \param maximumDegree Maximum degree used for computation (-1 for auto)
+     * \param maximumOrder Maximum order used for computation (-1 for auto)
+     * \param associatedFrame Reference frame for the wind model
+     */
+    ComaWindModel( const simulation_setup::ComaPolyDataset& xPolyDataset,
+                   const simulation_setup::ComaPolyDataset& yPolyDataset,
+                   const simulation_setup::ComaPolyDataset& zPolyDataset,
+                   std::shared_ptr<ComaModel> comaModel,
+                   const int& maximumDegree = -1,
+                   const int& maximumOrder = -1,
+                   const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame );
+
+    //! Constructor for Stokes coefficient datasets
+    /*!
+     * Constructor for Stokes coefficient datasets
+     * \param xStokesDataset Dataset for x-component wind (Stokes coefficients)
+     * \param yStokesDataset Dataset for y-component wind (Stokes coefficients)
+     * \param zStokesDataset Dataset for z-component wind (Stokes coefficients)
+     * \param comaModel Shared pointer to the ComaModel for accessing state functions
+     * \param maximumDegree Maximum degree used for computation (-1 for auto)
+     * \param maximumOrder Maximum order used for computation (-1 for auto)
+     * \param associatedFrame Reference frame for the wind model
+     */
+    ComaWindModel( const simulation_setup::ComaStokesDataset& xStokesDataset,
+                   const simulation_setup::ComaStokesDataset& yStokesDataset,
+                   const simulation_setup::ComaStokesDataset& zStokesDataset,
+                   std::shared_ptr<ComaModel> comaModel,
+                   const int& maximumDegree = -1,
+                   const int& maximumOrder = -1,
+                   const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame );
+
+    //! Destructor
+    ~ComaWindModel( ) = default;
+
+    //! Function to retrieve wind velocity vector in body-fixed, body-centered frame of body with atmosphere
+    /*!
+     * Function to retrieve wind velocity vector in body-fixed, body-centered frame of body with atmosphere
+     * \param currentAltitude Altitude at which wind vector is to be retrieved.
+     * \param currentLongitude Longitude at which wind vector is to be retrieved.
+     * \param currentLatitude Latitude at which wind vector is to be retrieved.
+     * \param currentTime Time at which wind vector is to be retrieved.
+     * \return Wind velocity vector in body-fixed, body-centered frame of body with atmosphere
+     */
+    Eigen::Vector3d getCurrentBodyFixedCartesianWindVelocity( const double currentAltitude,
+                                                              const double currentLongitude,
+                                                              const double currentLatitude,
+                                                              const double currentTime ) override;
+
+private:
+    //! Type of data used (polynomial or Stokes coefficients)
+    int dataType_;
+
+    //! Maximum degree used for computation
+    int maximumDegree_;
+
+    //! Maximum order used for computation
+    int maximumOrder_;
+
+    //! Polynomial coefficient datasets for x, y, z components
+    std::shared_ptr<simulation_setup::ComaPolyDataset> xPolyDataset_;
+    std::shared_ptr<simulation_setup::ComaPolyDataset> yPolyDataset_;
+    std::shared_ptr<simulation_setup::ComaPolyDataset> zPolyDataset_;
+
+    //! Stokes coefficient datasets for x, y, z components
+    std::shared_ptr<simulation_setup::ComaStokesDataset> xStokesDataset_;
+    std::shared_ptr<simulation_setup::ComaStokesDataset> yStokesDataset_;
+    std::shared_ptr<simulation_setup::ComaStokesDataset> zStokesDataset_;
+
+    //! Reference to the ComaModel for accessing state functions
+    std::shared_ptr<ComaModel> comaModel_;
+
+    //! Spherical harmonics calculator with shared cache
+    std::unique_ptr<SphericalHarmonicsCalculator> sphericalHarmonicsCalculator_;
+
+    //! Pre-initialized interpolators for Stokes coefficients (x, y, z components)
+    std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
+                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>> xStokesInterpolators_;
+    std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
+                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>> yStokesInterpolators_;
+    std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
+                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>> zStokesInterpolators_;
+
+    // Helper methods
+    int findTimeIntervalIndex( double time, std::shared_ptr<simulation_setup::ComaPolyDataset> dataset ) const;
+    int findTimeIntervalIndex( double time, std::shared_ptr<simulation_setup::ComaStokesDataset> dataset ) const;
+
+    double computeWindComponentFromPolyCoefficients(
+        std::shared_ptr<simulation_setup::ComaPolyDataset> dataset,
+        double radius, double longitude, double latitude, double time ) const;
+
+    double computeWindComponentFromStokesCoefficients(
+        std::shared_ptr<simulation_setup::ComaStokesDataset> dataset,
+        const std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
+                                                     std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>& interpolators,
+        double radius, double longitude, double latitude, double time ) const;
+
+    double calculateSolarLongitude() const;
+    void initializeStokesInterpolators();
 };
 
 }  // namespace aerodynamics
