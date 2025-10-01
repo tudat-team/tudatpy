@@ -1,11 +1,11 @@
 import numpy as np
 from tudatpy.math import interpolators
-from tudatpy.dynamics.propagation_setup import propagator
+# from tudatpy.dynamics.propagation_setup import propagator
 import os
 from typing import Union, TYPE_CHECKING, Callable
 
-if TYPE_CHECKING:
-    from ..dynamics.propagation_setup import propagator
+# if TYPE_CHECKING:
+#     from ..dynamics.propagation_setup import propagator
 
 
 def result2array(result: dict[float, np.ndarray]):
@@ -272,7 +272,6 @@ def pareto_optimums(
                 points[pareto_optimal] <= c, axis=1
             )
     return pareto_optimal
-
 
 # def split_history(
 #     state_history: dict[float, np.ndarray],
