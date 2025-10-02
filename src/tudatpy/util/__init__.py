@@ -8,7 +8,6 @@ from ._support import (
     compare_results,
     redirect_std,
     pareto_optimums,
-    split_history,
     vector2matrix,
 )
 
@@ -17,7 +16,6 @@ __all__ = [
     "compare_results",
     "redirect_std",
     "pareto_optimums",
-    "split_history",
     "vector2matrix",
     "get_orthogonal_array",
     "get_yates_array",

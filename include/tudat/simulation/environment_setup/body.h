@@ -42,9 +42,9 @@
 #include "tudat/astro/ground_stations/groundStation.h"
 #include "tudat/astro/ground_stations/bodyDeformationModel.h"
 #include "tudat/astro/propulsion/thrustGuidance.h"
-// #include "tudat/astro/reference_frames/dependentOrientationCalculator.h"
 #include "tudat/astro/system_models/vehicleSystems.h"
 #include "tudat/basics/basicTypedefs.h"
+#include "tudat/basics/tudatExceptions.h"
 #include "tudat/math/basic/numericalDerivative.h"
 
 namespace tudat
@@ -571,7 +571,7 @@ public:
     {
         if( !isStateSet_ )
         {
-            throw std::runtime_error( "Error when retrieving state from body " + bodyName_ + ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "translational state" );
         }
         else
         {
@@ -625,57 +625,66 @@ public:
     template< typename StateScalarType = double, typename TimeType = double >
     void setStateFromEphemeris( const TimeType& time )
     {
-        if( !( static_cast< Time >( time ) == timeOfCurrentState_ ) )
+        try
         {
-            if( bodyEphemeris_ == nullptr )
+            if( !( static_cast< Time >( time ) == timeOfCurrentState_ ) )
             {
-                throw std::runtime_error( "Error when requesting state from ephemeris of body " + bodyName_ + ", body has no ephemeris" );
-            }
-            // If body is not global frame origin, set state.
-            if( bodyIsGlobalFrameOrigin_ == 0 )
-            {
-                if( sizeof( StateScalarType ) == 8 )
+                if( bodyEphemeris_ == nullptr )
                 {
-                    currentState_ = ( bodyEphemeris_->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( time ) +
-                                      ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time ) )
-                                            .template cast< double >( );
-                    currentLongState_ = currentState_.template cast< long double >( );
+                    throw std::runtime_error( "Error when requesting state from ephemeris of body " + bodyName_ + ", body has no ephemeris" );
                 }
-                else
+                // If body is not global frame origin, set state.
+                if( bodyIsGlobalFrameOrigin_ == 0 )
                 {
-                    currentLongState_ = ( bodyEphemeris_->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( time ) +
+                    if( sizeof( StateScalarType ) == 8 )
+                    {
+                        currentState_ = ( bodyEphemeris_->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( time ) +
                                           ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time ) )
-                                                .template cast< long double >( );
-                    currentState_ = currentLongState_.template cast< double >( );
+                                                .template cast< double >( );
+                        currentLongState_ = currentState_.template cast< long double >( );
+                    }
+                    else
+                    {
+                        currentLongState_ = ( bodyEphemeris_->getTemplatedStateFromEphemeris< StateScalarType, TimeType >( time ) +
+                                              ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time ) )
+                                                    .template cast< long double >( );
+                        currentState_ = currentLongState_.template cast< double >( );
+                    }
                 }
-            }
-            // If body is global frame origin, set state to zeroes, and barycentric state value.
-            else if( bodyIsGlobalFrameOrigin_ == 1 )
-            {
-                currentState_.setZero( );
-                currentLongState_.setZero( );
-
-                if( sizeof( StateScalarType ) == 8 )
+                // If body is global frame origin, set state to zeroes, and barycentric state value.
+                else if( bodyIsGlobalFrameOrigin_ == 1 )
                 {
-                    currentBarycentricState_ =
-                            ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time ).template cast< double >( );
-                    currentBarycentricLongState_ = currentBarycentricState_.template cast< long double >( );
+                    currentState_.setZero( );
+                    currentLongState_.setZero( );
+
+                    if( sizeof( StateScalarType ) == 8 )
+                    {
+                        currentBarycentricState_ =
+                                ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time ).template cast< double >( );
+                        currentBarycentricLongState_ = currentBarycentricState_.template cast< long double >( );
+                    }
+                    else
+                    {
+                        currentBarycentricLongState_ = ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time )
+                                                               .template cast< long double >( );
+                        currentBarycentricState_ = currentBarycentricLongState_.template cast< double >( );
+                    }
                 }
                 else
                 {
-                    currentBarycentricLongState_ = ephemerisFrameToBaseFrame_->getBaseFrameState< TimeType, StateScalarType >( time )
-                                                           .template cast< long double >( );
-                    currentBarycentricState_ = currentBarycentricLongState_.template cast< double >( );
+                    throw std::runtime_error( "Error when setting body state, global origin not yet defined." );
                 }
-            }
-            else
-            {
-                throw std::runtime_error( "Error when setting body state, global origin not yet defined." );
-            }
 
-            timeOfCurrentState_ = static_cast< TimeType >( time );
+                timeOfCurrentState_ = static_cast< TimeType >( time );
+            }
+            isStateSet_ = true;
         }
-        isStateSet_ = true;
+
+        catch ( std::runtime_error& caughtException )
+        {
+            throw std::runtime_error( "Error when setting global state of " + bodyName_ + " from ephemeris" +
+                    ".\nOriginal error: " + std::string( caughtException.what( ) ) );
+        }
     }
 
     //    extern template void setStateFromEphemeris< double, double >( const double& time );
@@ -763,7 +772,7 @@ public:
     {
         if( !isStateSet_ )
         {
-            throw std::runtime_error( "Error when retrieving position from body " + bodyName_ + ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "translational state (position only)" );
         }
         else
         {
@@ -782,7 +791,7 @@ public:
     {
         if( !isStateSet_ )
         {
-            throw std::runtime_error( "Error when retrieving velociy from body " + bodyName_ + ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "translational state (velocity only)" );
         }
         else
         {
@@ -799,7 +808,7 @@ public:
     {
         if( !isStateSet_ )
         {
-            throw std::runtime_error( "Error when retrieving long state from body " + bodyName_ + ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "translational state" );
         }
         else
         {
@@ -816,7 +825,7 @@ public:
     {
         if( !isStateSet_ )
         {
-            throw std::runtime_error( "Error when retrieving long position from body " + bodyName_ + ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "translational state (position only)" );
         }
         else
         {
@@ -833,7 +842,7 @@ public:
     {
         if( !isStateSet_ )
         {
-            throw std::runtime_error( "Error when retrieving long velocity from body " + bodyName_ + ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "translational state (velocity only)" );
         }
         else
         {
@@ -947,8 +956,7 @@ public:
     {
         if( !isRotationSet_ )
         {
-            throw std::runtime_error( "Error when retrieving rotation to global frame from body " + bodyName_ +
-                                      ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation body-fixed to global frame)" );
         }
         else
         {
@@ -960,8 +968,7 @@ public:
     {
         if( !isRotationSet_ )
         {
-            throw std::runtime_error( "Error when retrieving rotation to global frame from body " + bodyName_ +
-                                      ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation body-fixed to global frame)" );
         }
         else
         {
@@ -981,8 +988,7 @@ public:
     {
         if( !isRotationSet_ )
         {
-            throw std::runtime_error( "Error when retrieving rotation to local frame from body " + bodyName_ +
-                                      ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation global to body-fixed frame)" );
         }
         else
         {
@@ -994,8 +1000,8 @@ public:
     {
         if( !isRotationSet_ )
         {
-            throw std::runtime_error( "Error when retrieving rotation to global frame from body " + bodyName_ +
-                                      ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation body-fixed to global frame)" );
+
         }
         else
         {
@@ -1007,8 +1013,7 @@ public:
     {
         if( !isRotationSet_ )
         {
-            throw std::runtime_error( "Error when retrieving rotation to local frame from body " + bodyName_ +
-                                      ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation global to body-fixed frame)" );
         }
         else
         {
@@ -1026,7 +1031,7 @@ public:
     {
         if( !isRotationSet_ )
         {
-            throw std::runtime_error( "Error when retrieving rotation from body " + bodyName_ + ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation quaternion and angular velocity)" );
         }
         else
         {
@@ -1048,8 +1053,7 @@ public:
     {
         if( !isRotationSet_ )
         {
-            throw std::runtime_error( "Error when retrieving derivative of rotation to global frame from body " + bodyName_ +
-                                      ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation derivative body-fixed to global frame)" );
         }
         else if( currentRotationToLocalFrameDerivative_.hasNaN( ) )
         {
@@ -1074,8 +1078,7 @@ public:
     {
         if( !isRotationSet_ )
         {
-            throw std::runtime_error( "Error when retrieving derivative of rotation to local frame from body " + bodyName_ +
-                                      ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (rotation derivative global to body-fixed  frame)" );
         }
         else if( currentRotationToLocalFrameDerivative_.hasNaN( ) )
         {
@@ -1097,8 +1100,7 @@ public:
     {
         if( !isRotationSet_ )
         {
-            throw std::runtime_error( "Error when retrieving angular velocioty of body " + bodyName_ +
-                                      ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (angular velocity vector in global frame)" );
         }
         else
         {
@@ -1117,8 +1119,7 @@ public:
     {
         if( !isRotationSet_ )
         {
-            throw std::runtime_error( "Error when retrieving angular velocioty of body " + bodyName_ +
-                                      ", state of body is not yet defined" );
+            throw exceptions::BodyDuringPropagationError( bodyName_, "rotational state (angular velocity vector in body-fixed frame)" );
         }
         else
         {

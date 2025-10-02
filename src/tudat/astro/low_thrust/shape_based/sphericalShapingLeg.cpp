@@ -195,7 +195,16 @@ double SphericalShapingLeg::convertTimeToAzimuth( const double timeSinceDepartur
         throw std::runtime_error( "Error when converting time to azimuth, requested time is outside bounds" );
     }
 
-    return interpolator_->interpolate( timeSinceDeparture );
+    try
+    {
+        return interpolator_->interpolate( timeSinceDeparture );
+    }
+    catch( std::runtime_error& caughtException )
+    {
+        throw std::runtime_error( "Error spherical shaping leg.\nOriginal error: " + std::string( caughtException.what( ) ) );
+    }
+
+
 }
 
 double SphericalShapingLeg::convertAzimuthToTime( const double currentAzimuthAngle )

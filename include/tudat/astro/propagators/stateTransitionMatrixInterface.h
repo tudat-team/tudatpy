@@ -460,10 +460,19 @@ public:
         // Set Phi and S matrices.
         if( currentArc >= 0 )
         {
-            combinedStateTransitionMatrix.block( 0, 0, stateTransitionMatrixSize, stateTransitionMatrixSize ) =
-                    stateTransitionMatrixInterpolators_.at( currentArc )->interpolate( evaluationTime );
-            combinedStateTransitionMatrix.block( 0, stateTransitionMatrixSize, stateTransitionMatrixSize, sensitivityMatrixSize ) =
-                    sensitivityMatrixInterpolators_.at( currentArc )->interpolate( evaluationTime );
+            try
+            {
+                combinedStateTransitionMatrix.block( 0, 0, stateTransitionMatrixSize, stateTransitionMatrixSize ) =
+                        stateTransitionMatrixInterpolators_.at( currentArc )->interpolate( evaluationTime );
+                combinedStateTransitionMatrix.block( 0, stateTransitionMatrixSize, stateTransitionMatrixSize, sensitivityMatrixSize ) =
+                        sensitivityMatrixInterpolators_.at( currentArc )->interpolate( evaluationTime );
+            }
+            catch( std::runtime_error& caughtException )
+            {
+                throw std::runtime_error( "Error in variational equation solution interpolation.\nOriginal error: " + std::string( caughtException.what( ) ) );
+            }
+
+
 
             if( addCentralBodyDependency )
             {
