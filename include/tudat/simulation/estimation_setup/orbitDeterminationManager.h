@@ -710,10 +710,6 @@ public:
                 constraintRightHandSide,
                 estimationInput->getLimitConditionNumberForWarning( ) );
 
-        if( considerParametersIncluded_ != estimationInput->areConsiderParametersIncluded( ) )
-        {
-            throw std::runtime_error( "Error")
-        }
 
         // Compute contribution consider parameters
         Eigen::MatrixXd covarianceContributionConsiderParameters;
