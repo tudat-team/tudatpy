@@ -725,7 +725,7 @@ Enumeration of available integrated state types.
 )doc" )
 
         .def_property_readonly( "single_arc_settings",
-                                &tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getInitialStateList,
+                                &tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getSingleArcSettings,
                                 R"doc(
             **read-only**
 
