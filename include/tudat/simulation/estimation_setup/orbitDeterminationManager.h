@@ -623,9 +623,31 @@ public:
     //        }
     //    }
 
+    void getNormalizedConsiderCovariance(
+            const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
+            const Eigen::VectorXd& considerNormalizationTerms,
+            Eigen::MatrixXd& normalizedConsiderCovariance )
+    {
+        Eigen::MatrixXd unnormalizedConsiderCovariance = estimationInput->getConsiderCovariance( );
+        if( unnormalizedConsiderCovariance.rows( ) == 0 && unnormalizedConsiderCovariance.cols( ) == 0 )
+        {
+            unnormalizedConsiderCovariance =  Eigen::MatrixXd::Zero( numberConsiderParameters_, numberConsiderParameters_ );
+        }
+        else if( unnormalizedConsiderCovariance.rows( ) != numberConsiderParameters_ &&
+            unnormalizedConsiderCovariance.cols( ) == numberConsiderParameters_ )
+        {
+            throw std::runtime_error( "Error, consider covariance size: [" +
+            std::to_string( unnormalizedConsiderCovariance.rows( )) + ", " +
+            std::to_string( unnormalizedConsiderCovariance.cols( ) ) + "] does not match number of consider parameters: " +
+            std::to_string( numberConsiderParameters_ ) );
+        }
+        normalizedConsiderCovariance = normalizeCovariance( unnormalizedConsiderCovariance, considerNormalizationTerms );
+    }
+
     std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > > computeCovariance(
             const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput )
     {
+
         // Get total number of observations
         int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
 
@@ -667,7 +689,7 @@ public:
         if( considerParametersIncluded_ )
         {
             considerNormalizationTerms = normalizeDesignMatrix( designMatrixConsiderParameters );
-            normalizedConsiderCovariance = normalizeCovariance( estimationInput->getConsiderCovariance( ), considerNormalizationTerms );
+            getNormalizedConsiderCovariance( estimationInput, considerNormalizationTerms, normalizedConsiderCovariance );
         }
         else
         {
@@ -688,6 +710,7 @@ public:
                 constraintStateMultiplier,
                 constraintRightHandSide,
                 estimationInput->getLimitConditionNumberForWarning( ) );
+
 
         // Compute contribution consider parameters
         Eigen::MatrixXd covarianceContributionConsiderParameters;
@@ -840,9 +863,17 @@ public:
             if( considerParametersIncluded_ )
             {
                 normalizationTermsConsider = normalizeDesignMatrix( designMatrixConsiderParameters );
-                normalizedConsiderCovariance = normalizeCovariance( estimationInput->getConsiderCovariance( ), normalizationTermsConsider );
-                normalizedConsiderParametersDeviation =
-                        estimationInput->considerParametersDeviations_.cwiseProduct( normalizationTermsConsider );
+                getNormalizedConsiderCovariance( estimationInput, normalizationTermsConsider, normalizedConsiderCovariance );
+                if( estimationInput->considerParametersDeviations_.rows( ) == 0 )
+                {
+                    normalizedConsiderParametersDeviation = Eigen::VectorXd( normalizationTermsConsider.rows( ) );
+                }
+                else
+                {
+                    normalizedConsiderParametersDeviation =
+                            estimationInput->considerParametersDeviations_.cwiseProduct( normalizationTermsConsider );
+                }
+
             }
             else
             {
@@ -850,7 +881,7 @@ public:
                 normalizedConsiderCovariance = Eigen::MatrixXd::Zero( 0, 0 );
                 normalizedConsiderParametersDeviation = Eigen::VectorXd::Zero( 0 );
             }
-
+            
             // Perform least squares calculation for correction to parameter vector.
             std::pair< Eigen::VectorXd, Eigen::MatrixXd > leastSquaresOutput;
             try
