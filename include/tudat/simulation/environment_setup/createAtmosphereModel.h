@@ -230,6 +230,8 @@ public:
         Eigen::Index numRadialTerms{};
         Eigen::Index numIntervals{};
         std::string sourcePath;
+        std::string startDateString;  // Store start date string for reference
+        std::string endDateString;    // Store end date string for reference
     };
 
     // Simple accessors
@@ -481,7 +483,78 @@ private:
                     std::exit(EXIT_FAILURE);
                 }
             }
-            // OPTIONAL: parse time period lines and fill fileMeta[fileIdx].timePeriods
+            else if (line.find("Start Date:") != std::string::npos && line.find("End Date:") != std::string::npos)
+            {
+                // Parse start and end dates from line like: "# Start Date: 2015/07/21    End Date: 2015/08/21"
+                std::string content = line.substr(1); // strip '#'
+                boost::trim(content);
+
+                std::size_t startDatePos = content.find("Start Date:");
+                std::size_t endDatePos = content.find("End Date:");
+
+                if (startDatePos != std::string::npos && endDatePos != std::string::npos)
+                {
+                    // Extract start date
+                    std::string startDateStr = content.substr(startDatePos + 11); // Skip "Start Date:"
+                    std::size_t endPosStart = startDateStr.find("End Date:");
+                    if (endPosStart != std::string::npos)
+                    {
+                        startDateStr = startDateStr.substr(0, endPosStart);
+                    }
+                    boost::trim(startDateStr);
+
+                    // Extract end date
+                    std::string endDateStr = content.substr(endDatePos + 9); // Skip "End Date:"
+                    boost::trim(endDateStr);
+
+                    // Store the date strings in metadata for reference
+                    fileMeta[fileIdx].startDateString = startDateStr;
+                    fileMeta[fileIdx].endDateString = endDateStr;
+                }
+            }
+            else if (line.find("Start J2000:") != std::string::npos && line.find("End J2000:") != std::string::npos)
+            {
+                // Parse start and end J2000 times from line like: "# Start J2000: 5679.5      End J2000: 5710.5"
+                std::string content = line.substr(1); // strip '#'
+                boost::trim(content);
+
+                std::size_t startJ2000Pos = content.find("Start J2000:");
+                std::size_t endJ2000Pos = content.find("End J2000:");
+
+                if (startJ2000Pos != std::string::npos && endJ2000Pos != std::string::npos)
+                {
+                    // Extract start J2000
+                    std::string startJ2000Str = content.substr(startJ2000Pos + 12); // Skip "Start J2000:"
+                    std::size_t endPosStart = startJ2000Str.find("End J2000:");
+                    if (endPosStart != std::string::npos)
+                    {
+                        startJ2000Str = startJ2000Str.substr(0, endPosStart);
+                    }
+                    boost::trim(startJ2000Str);
+
+                    // Extract end J2000
+                    std::string endJ2000Str = content.substr(endJ2000Pos + 10); // Skip "End J2000:"
+                    boost::trim(endJ2000Str);
+
+                    try
+                    {
+                        double startJ2000 = std::stod(startJ2000Str);
+                        double endJ2000 = std::stod(endJ2000Str);
+
+                        // Convert J2000 days to seconds since J2000 epoch
+                        double startTimeSeconds = startJ2000 * physical_constants::JULIAN_DAY;
+                        double endTimeSeconds = endJ2000 * physical_constants::JULIAN_DAY;
+
+                        // Add time period to metadata
+                        fileMeta[fileIdx].timePeriods.emplace_back(startTimeSeconds, endTimeSeconds);
+                    }
+                    catch (const std::exception& e)
+                    {
+                        std::cerr << "[WARNING] Failed to parse J2000 times in file: " << filePath
+                                  << " Error: " << e.what() << std::endl;
+                    }
+                }
+            }
         }
 
         // ----- Validation -----
