@@ -688,6 +688,7 @@ public:
         Eigen::MatrixXd normalizedConsiderCovariance;
         if( considerParametersIncluded_ )
         {
+            considerNormalizationTerms = normalizeDesignMatrix( designMatrixConsiderParameters );
             getNormalizedConsiderCovariance( estimationInput, considerNormalizationTerms, normalizedConsiderCovariance );
         }
         else
@@ -880,7 +881,7 @@ public:
                 normalizedConsiderCovariance = Eigen::MatrixXd::Zero( 0, 0 );
                 normalizedConsiderParametersDeviation = Eigen::VectorXd::Zero( 0 );
             }
-
+            
             // Perform least squares calculation for correction to parameter vector.
             std::pair< Eigen::VectorXd, Eigen::MatrixXd > leastSquaresOutput;
             try
