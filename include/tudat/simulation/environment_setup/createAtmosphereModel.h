@@ -541,12 +541,8 @@ private:
                         double startJ2000 = std::stod(startJ2000Str);
                         double endJ2000 = std::stod(endJ2000Str);
 
-                        // Convert J2000 days to seconds since J2000 epoch
-                        double startTimeSeconds = startJ2000 * physical_constants::JULIAN_DAY;
-                        double endTimeSeconds = endJ2000 * physical_constants::JULIAN_DAY;
-
                         // Add time period to metadata
-                        fileMeta[fileIdx].timePeriods.emplace_back(startTimeSeconds, endTimeSeconds);
+                        fileMeta[fileIdx].timePeriods.emplace_back(startJ2000, endJ2000);
                     }
                     catch (const std::exception& e)
                     {
