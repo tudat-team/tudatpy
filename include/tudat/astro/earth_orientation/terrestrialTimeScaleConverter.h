@@ -328,8 +328,17 @@ public:
 
                 if( dailyUtcUt1CorrectionInterpolator_ != nullptr )
                 {
-                    timesToUpdate.ut1 = static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.utc ) ) +
-                            timesToUpdate.utc;
+                    try
+                    {
+                        timesToUpdate.ut1 = static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.utc ) ) +
+                                timesToUpdate.utc;
+                    }
+                    catch( std::runtime_error& caughtException )
+                    {
+                        throw std::runtime_error( "Error in UTC-UT1 correction.\nOriginal error: " + std::string( caughtException.what( ) ) );
+                    }
+
+
                     timesToUpdate.ut1 +=
                             static_cast< TimeType >( shortPeriodUt1CorrectionCalculator_->getCorrections( timesToUpdate.tdb ) );
                 }
@@ -338,8 +347,15 @@ public:
             case basic_astrodynamics::ut1_scale:
 
                 timesToUpdate.ut1 = inputTimeValue;
-                timesToUpdate.utc =
-                        timesToUpdate.ut1 - static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.ut1 ) );
+                try
+                {
+                    timesToUpdate.utc = timesToUpdate.ut1 - static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.ut1 ) );
+                }
+                catch( std::runtime_error& caughtException )
+                {
+                    throw std::runtime_error( "Error in UTC-UT1 correction.\nOriginal error: " + std::string( caughtException.what( ) ) );
+                }
+
                 timesToUpdate.utc -= static_cast< TimeType >( shortPeriodUt1CorrectionCalculator_->getCorrections( timesToUpdate.utc ) );
                 timesToUpdate.tai = sofa_interface::convertUTCtoTAI< TimeType >( timesToUpdate.utc );
                 timesToUpdate.tt = basic_astrodynamics::convertTAItoTT< TimeType >( timesToUpdate.tai );
@@ -347,8 +363,16 @@ public:
                 timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
 
                 // Iterate conversion.
-                timesToUpdate.utc =
+                try
+                {
+                    timesToUpdate.utc =
                         timesToUpdate.ut1 - static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.utc ) );
+                }
+                catch( std::runtime_error& caughtException )
+                {
+                    throw std::runtime_error( "Error in UTC-UT1 correction.\nOriginal error: " + std::string( caughtException.what( ) ) );
+                }
+
                 timesToUpdate.utc -= static_cast< TimeType >( shortPeriodUt1CorrectionCalculator_->getCorrections( timesToUpdate.tt ) );
                 timesToUpdate.tai = sofa_interface::convertUTCtoTAI< TimeType >( timesToUpdate.utc );
                 timesToUpdate.tt = basic_astrodynamics::convertTAItoTT< TimeType >( timesToUpdate.tai );
@@ -376,8 +400,17 @@ public:
             throw std::runtime_error( "Error when getting UT1 correction: UTC to UT1 interpolator was not provided." );
         }
 
-        return dailyUtcUt1CorrectionInterpolator_->interpolate( currentUtc ) +
+        try
+        {
+            return dailyUtcUt1CorrectionInterpolator_->interpolate( currentUtc ) +
                 shortPeriodUt1CorrectionCalculator_->getCorrections( currentTt );
+        }
+        catch( std::runtime_error& caughtException )
+        {
+            throw std::runtime_error( "Error in UT1 correction.\nOriginal error: " + std::string( caughtException.what( ) ) );
+        }
+
+
     }
 
     //! Interpolator for UT1 corrections, values published daily by IERS
@@ -392,7 +425,16 @@ private:
         auto tupleToCheck = std::make_tuple( earthFixedPosition[ 0 ], earthFixedPosition[ 1 ], earthFixedPosition[ 2 ] );
         if( tdbToTtInterpolators_.count( tupleToCheck ) != 0 )
         {
-            return tdbToTtInterpolators_.at( tupleToCheck )->interpolate( ttOrTdbSinceJ2000 );
+            try
+            {
+                return tdbToTtInterpolators_.at( tupleToCheck )->interpolate( ttOrTdbSinceJ2000 );
+            }
+            catch( std::runtime_error& caughtException )
+            {
+                throw std::runtime_error( "Error in TDB-TT interpolation.\nOriginal error: " + std::string( caughtException.what( ) ) );
+            }
+
+
         }
         else
         {
@@ -431,8 +473,17 @@ private:
         if( getCurrentTimeList< TimeType >( ).tai < utcIntroductionEpochInTai_ )
         {
             double approximateYear = getCurrentTimeList< TimeType >( ).tt / physical_constants::JULIAN_YEAR + 2000.0;
-            getCurrentTimeList< TimeType >( ).ut1 =
+            try
+            {
+                getCurrentTimeList< TimeType >( ).ut1 =
                     getCurrentTimeList< TimeType >( ).tt - historicalDeltaTInterpolator_->interpolate( approximateYear );
+            }
+            catch( std::runtime_error& caughtException )
+            {
+                throw std::runtime_error( "Error in historical UT calculation.\nOriginal error: " + std::string( caughtException.what( ) ) );
+            }
+
+
             getCurrentTimeList< TimeType >( ).utc = getCurrentTimeList< TimeType >( ).ut1;
         }
         else
@@ -441,9 +492,16 @@ private:
 
             if( dailyUtcUt1CorrectionInterpolator_ != nullptr )
             {
-                getCurrentTimeList< TimeType >( ).ut1 = static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate(
-                                                                getCurrentTimeList< TimeType >( ).utc ) ) +
-                        getCurrentTimeList< TimeType >( ).utc;
+                try
+                {
+                    getCurrentTimeList< TimeType >( ).ut1 = static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate(
+                                                                    getCurrentTimeList< TimeType >( ).utc ) ) + getCurrentTimeList< TimeType >( ).utc;
+                }
+                catch( std::runtime_error& caughtException )
+                {
+                    throw std::runtime_error( "Error in UT1 calculation.\nOriginal error: " + std::string( caughtException.what( ) ) );
+                }
+
 
                 getCurrentTimeList< TimeType >( ).ut1 += static_cast< TimeType >(
                         shortPeriodUt1CorrectionCalculator_->getCorrections( getCurrentTimeList< TimeType >( ).tt ) );

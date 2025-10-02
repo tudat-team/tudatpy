@@ -243,9 +243,19 @@ double marsTimeDependentPhaseAngleCorrectionFunction( const double secondsSinceJ
     return ( 142.0 + 1.3 * centuriesSinceJ2000 ) * mathematical_constants::PI / 180.0;
 }
 
-// Mars orientation parameter solution from the MRO120D gravity field (A.S. Konopliv et al. 2016)
-std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel( const std::string& baseFrameOrientation,
-                                                                           const std::string& targetFrameOrientation )
+// Mars orientatio// Implementation of the fully customizable version
+std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel(
+        const std::string& baseFrameOrientation,
+        const std::string& targetFrameOrientation,
+        const double angleN,
+        const double angleJ,
+        const double anglePsiAtEpoch,
+        const double anglePsiRateAtEpoch,
+        const std::map< double, std::pair< double, double > >& nutationCorrectionSettings,
+        const std::vector< std::map< double, std::pair< double, double > > >& meanMotionTimeDependentPhaseNutationCorrections,
+        const std::map< double, std::pair< double, double > >& rotationRateCorrections,
+        const std::map< double, std::pair< double, double > >& xPolarMotionCoefficients,
+        const std::map< double, std::pair< double, double > >& yPolarMotionCoefficients )
 {
     std::shared_ptr< RotationModelSettings > rotationModelSettings;
 
@@ -253,61 +263,17 @@ std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel( const
 
     double milliArcSecondToRadian = mathematical_constants::PI / ( 180.0 * 1000.0 * 3600.0 );
 
-    std::map< double, std::pair< double, double > > nutationCorrectionSettings;
-    nutationCorrectionSettings[ 0.0 ] = std::make_pair( -1.4 * milliArcSecondToRadian, 0.0 );
-    nutationCorrectionSettings[ 1.0 ] = std::make_pair( -0.4 * milliArcSecondToRadian, -632.6 * milliArcSecondToRadian );
-    nutationCorrectionSettings[ 2.0 ] = std::make_pair( 0.0, -44.2 * milliArcSecondToRadian );
-    nutationCorrectionSettings[ 3.0 ] = std::make_pair( 0.0, -4.0 * milliArcSecondToRadian );
-
-    std::vector< std::map< double, std::pair< double, double > > > meanMotionTimeDependentPhaseNutationCorrections;
-    std::map< double, std::pair< double, double > > meanMotionTimeDependentPhaseNutationCorrection;
-    meanMotionTimeDependentPhaseNutationCorrection[ 1.0 ] =
-            std::make_pair( -49.1 * milliArcSecondToRadian, -104.5 * milliArcSecondToRadian );
-    meanMotionTimeDependentPhaseNutationCorrection[ 2.0 ] =
-            std::make_pair( 515.7 * milliArcSecondToRadian, 1097.0 * milliArcSecondToRadian );
-    meanMotionTimeDependentPhaseNutationCorrection[ 3.0 ] =
-            std::make_pair( 112.8 * milliArcSecondToRadian, 240.1 * milliArcSecondToRadian );
-    meanMotionTimeDependentPhaseNutationCorrection[ 4.0 ] = std::make_pair( 19.2 * milliArcSecondToRadian, 40.9 * milliArcSecondToRadian );
-    meanMotionTimeDependentPhaseNutationCorrection[ 5.0 ] = std::make_pair( 3.0 * milliArcSecondToRadian, 6.5 * milliArcSecondToRadian );
-    meanMotionTimeDependentPhaseNutationCorrection[ 6.0 ] = std::make_pair( 0.4 * milliArcSecondToRadian, 1.0 * milliArcSecondToRadian );
-    meanMotionTimeDependentPhaseNutationCorrections.push_back( meanMotionTimeDependentPhaseNutationCorrection );
-
-    std::map< double, std::pair< double, double > > rotationRateCorrections;
-    rotationRateCorrections[ 1.0 ] =
-            std::make_pair( 481.0 * milliArcSecondToRadian, -155.0 * milliArcSecondToRadian - 176 * milliArcSecondToRadian );
-    rotationRateCorrections[ 2.0 ] =
-            std::make_pair( -103.0 * milliArcSecondToRadian, -93.0 * milliArcSecondToRadian - 8 * milliArcSecondToRadian );
-    rotationRateCorrections[ 3.0 ] =
-            std::make_pair( -35.0 * milliArcSecondToRadian, -3.0 * milliArcSecondToRadian - 1 * milliArcSecondToRadian );
-    rotationRateCorrections[ 4.0 ] = std::make_pair( -10.0 * milliArcSecondToRadian, -8.0 * milliArcSecondToRadian );
-
-    std::map< double, std::pair< double, double > > xPolarMotionCoefficients;
-    xPolarMotionCoefficients[ 1.0 ] = std::make_pair( 2.8 * milliArcSecondToRadian * std::sin( convertDegreesToRadians( 46.5 ) ),
-                                                      2.8 * milliArcSecondToRadian * std::cos( convertDegreesToRadians( 46.5 ) ) );
-    xPolarMotionCoefficients[ 2.0 ] = std::make_pair( 8.9 * milliArcSecondToRadian * std::sin( convertDegreesToRadians( -150.1 ) ),
-                                                      8.9 * milliArcSecondToRadian * std::cos( convertDegreesToRadians( -150.1 ) ) );
-    xPolarMotionCoefficients[ 3.0 ] = std::make_pair( 0.0, 0.0 );
-    xPolarMotionCoefficients[ 4.0 ] = std::make_pair( 0.0, 0.0 );
-    xPolarMotionCoefficients[ 3.34 ] = std::make_pair( 0.0, 50.0 * milliArcSecondToRadian );  // Mars’s Chandler wobble T=205 dd
-
-    std::map< double, std::pair< double, double > > yPolarMotionCoefficients;
-    yPolarMotionCoefficients[ 1.0 ] = std::make_pair( 11.7 * milliArcSecondToRadian * std::sin( convertDegreesToRadians( 118.7 ) ),
-                                                      11.7 * milliArcSecondToRadian * std::cos( convertDegreesToRadians( 118.7 ) ) );
-    yPolarMotionCoefficients[ 2.0 ] = std::make_pair( 3.9 * milliArcSecondToRadian * std::sin( convertDegreesToRadians( 172.5 ) ),
-                                                      3.9 * milliArcSecondToRadian * std::cos( convertDegreesToRadians( 118.7 ) ) );
-    yPolarMotionCoefficients[ 3.0 ] = std::make_pair( 0.0, 0.0 );
-    yPolarMotionCoefficients[ 4.0 ] = std::make_pair( 0.0, 0.0 );
-    yPolarMotionCoefficients[ 3.34 ] = std::make_pair( 0.0, 50.0 * milliArcSecondToRadian );  // Mars's Chandler wobble T=205 dd
-
+    // Set up phase correction functions (not customizable via parameters)
     std::vector< std::function< double( const double ) > > timeDependentPhaseCorrectionFunctions;
     timeDependentPhaseCorrectionFunctions.push_back(
             std::bind( &tudat::simulation_setup::marsTimeDependentPhaseAngleCorrectionFunction, std::placeholders::_1 ) );
 
+    // Create the rotation model settings with all provided parameters
     rotationModelSettings =
-            std::make_shared< PlanetaryRotationModelSettings >( convertDegreesToRadians( 3.37919183 ),
-                                                                convertDegreesToRadians( 24.67682669 ),
-                                                                convertDegreesToRadians( 81.9683988 ),
-                                                                ( -7608.3 * milliArcSecondToRadian ) / physical_constants::JULIAN_YEAR,
+            std::make_shared< PlanetaryRotationModelSettings >( angleN,
+                                                                angleJ,
+                                                                anglePsiAtEpoch,
+                                                                anglePsiRateAtEpoch,
                                                                 convertDegreesToRadians( 25.1893823 ),
                                                                 ( -2.0 * milliArcSecondToRadian ) / physical_constants::JULIAN_YEAR,
                                                                 convertDegreesToRadians( 133.386277 ),
@@ -325,6 +291,105 @@ std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel( const
                                                                 yPolarMotionCoefficients );
 
     return rotationModelSettings;
+}
+
+// Implementation of the version that allows customizing only the basic angles
+std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel( const std::string& baseFrameOrientation,
+                                                                           const std::string& targetFrameOrientation,
+                                                                           const double angleN,
+                                                                           const double angleJ,
+                                                                           const double anglePsiAtEpoch,
+                                                                           const double anglePsiRateAtEpoch )
+{
+    using namespace tudat::unit_conversions;
+
+    double milliArcSecondToRadian = mathematical_constants::PI / ( 180.0 * 1000.0 * 3600.0 );
+
+    // Create default nutation correction settings
+    std::map< double, std::pair< double, double > > nutationCorrectionSettings;
+    nutationCorrectionSettings[ 0.0 ] = std::make_pair( -1.4 * milliArcSecondToRadian, 0.0 );
+    nutationCorrectionSettings[ 1.0 ] = std::make_pair( -0.4 * milliArcSecondToRadian, -632.6 * milliArcSecondToRadian );
+    nutationCorrectionSettings[ 2.0 ] = std::make_pair( 0.0, -44.2 * milliArcSecondToRadian );
+    nutationCorrectionSettings[ 3.0 ] = std::make_pair( 0.0, -4.0 * milliArcSecondToRadian );
+
+    // Create default mean motion time dependent phase nutation corrections
+    std::vector< std::map< double, std::pair< double, double > > > meanMotionTimeDependentPhaseNutationCorrections;
+    std::map< double, std::pair< double, double > > meanMotionTimeDependentPhaseNutationCorrection;
+    meanMotionTimeDependentPhaseNutationCorrection[ 1.0 ] =
+            std::make_pair( -49.1 * milliArcSecondToRadian, -104.5 * milliArcSecondToRadian );
+    meanMotionTimeDependentPhaseNutationCorrection[ 2.0 ] =
+            std::make_pair( 515.7 * milliArcSecondToRadian, 1097.0 * milliArcSecondToRadian );
+    meanMotionTimeDependentPhaseNutationCorrection[ 3.0 ] =
+            std::make_pair( 112.8 * milliArcSecondToRadian, 240.1 * milliArcSecondToRadian );
+    meanMotionTimeDependentPhaseNutationCorrection[ 4.0 ] = std::make_pair( 19.2 * milliArcSecondToRadian, 40.9 * milliArcSecondToRadian );
+    meanMotionTimeDependentPhaseNutationCorrection[ 5.0 ] = std::make_pair( 3.0 * milliArcSecondToRadian, 6.5 * milliArcSecondToRadian );
+    meanMotionTimeDependentPhaseNutationCorrection[ 6.0 ] = std::make_pair( 0.4 * milliArcSecondToRadian, 1.0 * milliArcSecondToRadian );
+    meanMotionTimeDependentPhaseNutationCorrections.push_back( meanMotionTimeDependentPhaseNutationCorrection );
+
+    // Create default rotation rate corrections
+    std::map< double, std::pair< double, double > > rotationRateCorrections;
+    rotationRateCorrections[ 1.0 ] =
+            std::make_pair( 481.0 * milliArcSecondToRadian, -155.0 * milliArcSecondToRadian - 176 * milliArcSecondToRadian );
+    rotationRateCorrections[ 2.0 ] =
+            std::make_pair( -103.0 * milliArcSecondToRadian, -93.0 * milliArcSecondToRadian - 8 * milliArcSecondToRadian );
+    rotationRateCorrections[ 3.0 ] =
+            std::make_pair( -35.0 * milliArcSecondToRadian, -3.0 * milliArcSecondToRadian - 1 * milliArcSecondToRadian );
+    rotationRateCorrections[ 4.0 ] = std::make_pair( -10.0 * milliArcSecondToRadian, -8.0 * milliArcSecondToRadian );
+
+    // Create default polar motion coefficients
+    std::map< double, std::pair< double, double > > xPolarMotionCoefficients;
+    xPolarMotionCoefficients[ 1.0 ] = std::make_pair( 2.8 * milliArcSecondToRadian * std::sin( convertDegreesToRadians( 46.5 ) ),
+                                                      2.8 * milliArcSecondToRadian * std::cos( convertDegreesToRadians( 46.5 ) ) );
+    xPolarMotionCoefficients[ 2.0 ] = std::make_pair( 8.9 * milliArcSecondToRadian * std::sin( convertDegreesToRadians( -150.1 ) ),
+                                                      8.9 * milliArcSecondToRadian * std::cos( convertDegreesToRadians( -150.1 ) ) );
+    xPolarMotionCoefficients[ 3.0 ] = std::make_pair( 0.0, 0.0 );
+    xPolarMotionCoefficients[ 4.0 ] = std::make_pair( 0.0, 0.0 );
+    xPolarMotionCoefficients[ 3.34 ] = std::make_pair( 0.0, 50.0 * milliArcSecondToRadian );  // Mars's Chandler wobble T=205 dd
+
+    std::map< double, std::pair< double, double > > yPolarMotionCoefficients;
+    yPolarMotionCoefficients[ 1.0 ] = std::make_pair( 11.7 * milliArcSecondToRadian * std::sin( convertDegreesToRadians( 118.7 ) ),
+                                                      11.7 * milliArcSecondToRadian * std::cos( convertDegreesToRadians( 118.7 ) ) );
+    yPolarMotionCoefficients[ 2.0 ] = std::make_pair( 3.9 * milliArcSecondToRadian * std::sin( convertDegreesToRadians( 172.5 ) ),
+                                                      3.9 * milliArcSecondToRadian * std::cos( convertDegreesToRadians( 118.7 ) ) );
+    yPolarMotionCoefficients[ 3.0 ] = std::make_pair( 0.0, 0.0 );
+    yPolarMotionCoefficients[ 4.0 ] = std::make_pair( 0.0, 0.0 );
+    yPolarMotionCoefficients[ 3.34 ] = std::make_pair( 0.0, 50.0 * milliArcSecondToRadian );  // Mars's Chandler wobble T=205 dd
+
+    // Call the fully customizable version with the default correction parameters
+    return getHighAccuracyMarsRotationModel( baseFrameOrientation,
+                                             targetFrameOrientation,
+                                             angleN,
+                                             angleJ,
+                                             anglePsiAtEpoch,
+                                             anglePsiRateAtEpoch,
+                                             nutationCorrectionSettings,
+                                             meanMotionTimeDependentPhaseNutationCorrections,
+                                             rotationRateCorrections,
+                                             xPolarMotionCoefficients,
+                                             yPolarMotionCoefficients );
+}
+
+// Implementation of the original function - uses all default values
+std::shared_ptr< RotationModelSettings > getHighAccuracyMarsRotationModel( const std::string& baseFrameOrientation,
+                                                                           const std::string& targetFrameOrientation )
+{
+    using namespace tudat::unit_conversions;
+
+    double milliArcSecondToRadian = mathematical_constants::PI / ( 180.0 * 1000.0 * 3600.0 );
+
+    // Default values from Konopliv et al. 2016
+    const double defaultAngleN = convertDegreesToRadians( 3.37919183 );
+    const double defaultAngleJ = convertDegreesToRadians( 24.67682669 );
+    const double defaultAnglePsiAtEpoch = convertDegreesToRadians( 81.9683988 );
+    const double defaultAnglePsiRateAtEpoch = ( -7608.3 * milliArcSecondToRadian ) / physical_constants::JULIAN_YEAR;
+
+    // Call the overloaded function with default values
+    return getHighAccuracyMarsRotationModel( baseFrameOrientation,
+                                             targetFrameOrientation,
+                                             defaultAngleN,
+                                             defaultAngleJ,
+                                             defaultAnglePsiAtEpoch,
+                                             defaultAnglePsiRateAtEpoch );
 }
 
 //! Function to create default settings for a body's shape model.
