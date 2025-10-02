@@ -75,7 +75,7 @@ void OneWayDopplerDirectFirstOrderProperTimeComponentScaling::update( const std:
     Eigen::Vector6d computationPointState = properTimeRateModel_->getComputationPointState( times, linkEndStates );
 
     // Set evaluation time of proper time derivative
-    currentLinkEndTime_ == ( linkEndWithPartial_ == observation_models::transmitter ) ? ( times.at( 0 ) ) : ( times.at( 1 ) );
+    currentLinkEndTime_ = ( linkEndWithPartial_ == observation_models::transmitter ) ? ( times.at( 0 ) ) : ( times.at( 1 ) );
 
     currentScalarPotential_ = 0.0;
     // Compute partials w.r.t. position and velocity

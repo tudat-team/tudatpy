@@ -34,7 +34,7 @@ namespace environment_setup
 namespace rotation_model
 {
 
-void expose_rotation_model_setup( py::module &m )
+void expose_rotation_model_setup( py::module& m )
 {
     /////////////////////////////////////////////////////////////////////////////
     // createRotationalModel.h
@@ -52,9 +52,7 @@ void expose_rotation_model_setup( py::module &m )
 
 
       )doc" )
-            .value( "simple_rotational_model",
-                    tss::RotationModelType::simple_rotation_model,
-                    R"doc(No documentation found.)doc" )
+            .value( "simple_rotational_model", tss::RotationModelType::simple_rotation_model, R"doc(No documentation found.)doc" )
             .value( "spice_rotation_model",
                     tss::RotationModelType::spice_rotation_model,
                     R"doc(
@@ -100,8 +98,7 @@ void expose_rotation_model_setup( py::module &m )
       )doc" )
             .export_values( );
 
-    py::class_< tss::RotationModelSettings, std::shared_ptr< tss::RotationModelSettings > >(
-            m, "RotationModelSettings", R"doc(
+    py::class_< tss::RotationModelSettings, std::shared_ptr< tss::RotationModelSettings > >( m, "RotationModelSettings", R"doc(
 
          Base class for providing settings for automatic rotation model creation.
 
@@ -151,28 +148,22 @@ void expose_rotation_model_setup( py::module &m )
          :type: str
       )doc" );
 
-    py::class_< tss::SimpleRotationModelSettings,
-                std::shared_ptr< tss::SimpleRotationModelSettings >,
-                tss::RotationModelSettings >(
+    py::class_< tss::SimpleRotationModelSettings, std::shared_ptr< tss::SimpleRotationModelSettings >, tss::RotationModelSettings >(
             m, "SimpleRotationModelSettings", R"doc(No documentation found.)doc" );
 
-    py::class_< tss::PlanetaryRotationModelSettings,
-                std::shared_ptr< tss::PlanetaryRotationModelSettings >,
-                tss::RotationModelSettings >(
+    py::class_< tss::PlanetaryRotationModelSettings, std::shared_ptr< tss::PlanetaryRotationModelSettings >, tss::RotationModelSettings >(
             m, "PlanetaryRotationModelSettings", R"doc(No documentation found.)doc" );
 
-    py::class_<tss::IauRotationModelSettings,
-                std::shared_ptr<tss::IauRotationModelSettings>,
-                tss::RotationModelSettings>(
+    py::class_< tss::IauRotationModelSettings, std::shared_ptr< tss::IauRotationModelSettings >, tss::RotationModelSettings >(
             m, "IAURotationModelSettings", R"doc(No documentation found.)doc" );
 
+    py::class_< tss::GcrsToItrsRotationModelSettings, std::shared_ptr< tss::GcrsToItrsRotationModelSettings >, tss::RotationModelSettings >(
+            m, "GcrsToItrsRotationModelSettings", R"doc(No documentation found.)doc" )
+            .def_property_readonly( "eop_file", &tss::GcrsToItrsRotationModelSettings::getEopFile );
 
     m.def( "simple",
-           py::overload_cast< const std::string &,
-                              const std::string &,
-                              const Eigen::Matrix3d &,
-                              const double,
-                              const double >( &tss::simpleRotationModelSettings ),
+           py::overload_cast< const std::string&, const std::string&, const Eigen::Matrix3d&, const double, const double >(
+                   &tss::simpleRotationModelSettings ),
            py::arg( "base_frame" ),
            py::arg( "target_frame" ),
            py::arg( "initial_orientation" ),
@@ -655,8 +646,7 @@ void expose_rotation_model_setup( py::module &m )
      )doc" );
 
     m.def( "constant_rotation_model",
-           py::overload_cast< const std::string &, const std::string &, const Eigen::Matrix3d & >(
-                   &tss::constantRotationModelSettings ),
+           py::overload_cast< const std::string&, const std::string&, const Eigen::Matrix3d& >( &tss::constantRotationModelSettings ),
            py::arg( "base_frame" ),
            py::arg( "target_frame" ),
            py::arg( "initial_orientation" ),
@@ -740,34 +730,250 @@ void expose_rotation_model_setup( py::module &m )
 
      )doc" );
 
+    // Add after the other model binding functions (like before the end of expose_rotation_model_setup function)
     m.def( "mars_high_accuracy",
-           &tss::getHighAccuracyMarsRotationModel,
-           py::arg( "base_frame" ) = "ECLIPJ2000",
+           py::overload_cast< const std::string&, const std::string& >( &tss::getHighAccuracyMarsRotationModel ),
+           py::arg( "base_frame" ) = "J2000",
            py::arg( "target_frame" ) = "Mars_Fixed",
            R"doc(
 
- Function for creating a high-accuracy Mars rotation model.
+ Function for creating high-accuracy Mars rotation model settings.
 
- Function for creating a high-accuracy Mars rotation model, using the default parameters of `Konopliv et al. (2016) <https://www.sciencedirect.com/science/article/abs/pii/S0019103516001305>`_
- and the mathematical model of `Konopliv et al. (2006) <https://www.sciencedirect.com/science/article/pii/S0019103506000297>`_ . The rotation matrix formulation is given in Eq. (13)-(19) of that paper.
- Note that, at the moment, all parameters in this rotation model are hard coded, and cannot be adapted by the user (except by estimating a number of its constituent parameters, see :ref:`parameters_setup` module )
- As such, this model is at present applicable to Mars rotation only. If you require more fine-grained control of the parameters, please contact the Tudat support team
+ Function for settings object, defining a high-accuracy rotation model for Mars according to Konopliv et al. (2016).
+ This model includes corrections for nutation, polar motion, and libration with the latest parameters.
 
 
  Parameters
  ----------
- base_frame : str, default = "ECLIPJ2000"
-     Name of the base frame of rotation model.
- target_frame : str, default = "Mars_Fixed"
-     Name of the target frame of rotation model.
+ base_frame : str, default="J2000"
+     Name of the base frame of rotation model (typically "J2000" or "ECLIPJ2000").
+ target_frame : str, default="Mars_Fixed"
+     Name of the target (body-fixed) frame of rotation model.
  Returns
  -------
  RotationModelSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.PlanetaryRotationModelSettings` class, which defines the required settings for the rotation model.
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.PlanetaryRotationModelSettings` class.
 
 
 
 
+
+ Examples
+ --------
+ In this example, we create rotation model settings for Mars using the high-accuracy model:
+
+ .. code-block:: python
+
+    # define parameters describing the rotation between frames
+    base_frame = "J2000"
+    target_frame = "Mars_Fixed"
+
+    # create rotation model settings
+    mars_rotation_settings = environment_setup.rotation_model.mars_high_accuracy(
+        base_frame, target_frame)
+
+
+     )doc" );
+
+    m.def( "mars_high_accuracy_custom_angles",
+           py::overload_cast< const std::string&, const std::string&, const double, const double, const double, const double >(
+                   &tss::getHighAccuracyMarsRotationModel ),
+           py::arg( "base_frame" ),
+           py::arg( "target_frame" ),
+           py::arg( "angle_n" ),
+           py::arg( "angle_j" ),
+           py::arg( "angle_psi_at_epoch" ),
+           py::arg( "angle_psi_rate_at_epoch" ),
+           R"doc(
+
+ Function for creating high-accuracy Mars rotation model settings with custom angles.
+
+ Function for settings object, defining a high-accuracy rotation model for Mars with user-provided values
+ for the basic angles (right ascension of pole, declination of pole, prime meridian angle and rate).
+
+
+ Parameters
+ ----------
+ base_frame : str
+     Name of the base frame of rotation model (typically "J2000" or "ECLIPJ2000").
+ target_frame : str
+     Name of the target (body-fixed) frame of rotation model.
+ angle_n : float
+     Right ascension of Mars' rotation axis (radians).
+ angle_j : float
+     Declination of Mars' rotation axis (radians).
+ angle_psi_at_epoch : float
+     Prime meridian angle at epoch (radians).
+ angle_psi_rate_at_epoch : float
+     Prime meridian rotation rate (radians/s).
+ Returns
+ -------
+ RotationModelSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.PlanetaryRotationModelSettings` class.
+
+
+
+
+
+ Examples
+ --------
+ In this example, we create rotation model settings for Mars using the high-accuracy model with custom basic angles:
+
+ .. code-block:: python
+
+    import numpy as np
+
+    # define parameters
+    base_frame = "J2000"
+    target_frame = "Mars_Fixed_Custom"
+    angle_n = np.radians(3.37919183)  # Right ascension in radians
+    angle_j = np.radians(24.67682669)  # Declination in radians
+    angle_psi_at_epoch = np.radians(81.9683988)  # Initial prime meridian angle
+    angle_psi_rate_at_epoch = -7608.3 * np.pi/(180.0*1000.0*3600.0) / 31557600.0  # Rotation rate
+
+    # create rotation model settings with custom angles
+    mars_rotation_settings = environment_setup.rotation_model.mars_high_accuracy_custom_angles(
+        base_frame, target_frame, angle_n, angle_j, angle_psi_at_epoch, angle_psi_rate_at_epoch)
+
+
+     )doc" );
+
+    m.def( "mars_high_accuracy_full_custom",
+           py::overload_cast< const std::string&,
+                              const std::string&,
+                              const double,
+                              const double,
+                              const double,
+                              const double,
+                              const std::map< double, std::pair< double, double > >&,
+                              const std::vector< std::map< double, std::pair< double, double > > >&,
+                              const std::map< double, std::pair< double, double > >&,
+                              const std::map< double, std::pair< double, double > >&,
+                              const std::map< double, std::pair< double, double > >& >( &tss::getHighAccuracyMarsRotationModel ),
+           py::arg( "base_frame" ),
+           py::arg( "target_frame" ),
+           py::arg( "angle_n" ),
+           py::arg( "angle_j" ),
+           py::arg( "angle_psi_at_epoch" ),
+           py::arg( "angle_psi_rate_at_epoch" ),
+           py::arg( "nutation_correction_settings" ),
+           py::arg( "mean_motion_time_dependent_phase_nutation_corrections" ),
+           py::arg( "rotation_rate_corrections" ),
+           py::arg( "x_polar_motion_coefficients" ),
+           py::arg( "y_polar_motion_coefficients" ),
+           R"doc(
+
+ Function for creating fully customizable high-accuracy Mars rotation model settings.
+
+ Function for settings object, defining a high-accuracy rotation model for Mars with user-provided values
+ for all parameters, including basic angles and all correction coefficients for nutation, polar motion, and libration.
+
+
+ Parameters
+ ----------
+ base_frame : str
+     Name of the base frame of rotation model (typically "J2000" or "ECLIPJ2000").
+ target_frame : str
+     Name of the target (body-fixed) frame of rotation model.
+ angle_n : float
+     Right ascension of Mars' rotation axis (radians).
+ angle_j : float
+     Declination of Mars' rotation axis (radians).
+ angle_psi_at_epoch : float
+     Prime meridian angle at epoch (radians).
+ angle_psi_rate_at_epoch : float
+     Prime meridian rotation rate (radians/s).
+ nutation_correction_settings : dict[float, tuple[float, float]]
+     Nutation correction coefficients, mapping from harmonic number to (cos coefficient, sin coefficient) pairs.
+ mean_motion_time_dependent_phase_nutation_corrections : list[dict[float, tuple[float, float]]]
+     Mean motion time-dependent phase nutation corrections.
+ rotation_rate_corrections : dict[float, tuple[float, float]]
+     Rotation rate correction coefficients, mapping from harmonic number to (cos coefficient, sin coefficient) pairs.
+ x_polar_motion_coefficients : dict[float, tuple[float, float]]
+     X-polar motion coefficients, mapping from harmonic number to (cos coefficient, sin coefficient) pairs.
+ y_polar_motion_coefficients : dict[float, tuple[float, float]]
+     Y-polar motion coefficients, mapping from harmonic number to (cos coefficient, sin coefficient) pairs.
+ Returns
+ -------
+ RotationModelSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.rotation_model.PlanetaryRotationModelSettings` class.
+
+
+
+
+
+ Examples
+ --------
+ In this example, we create rotation model settings for Mars using the high-accuracy model with fully custom parameters:
+
+ .. code-block:: python
+
+    import numpy as np
+    from collections import defaultdict
+
+    # Define basic parameters
+    base_frame = "J2000"
+    target_frame = "Mars_Fixed_Custom"
+    angle_n = np.radians(3.37919183)
+    angle_j = np.radians(24.67682669)
+    angle_psi_at_epoch = np.radians(81.9683988)
+    angle_psi_rate_at_epoch = -7608.3 * np.pi/(180.0*1000.0*3600.0) / 31557600.0
+
+    # Define correction coefficients
+    milliarcsec_to_rad = np.pi / (180.0 * 1000.0 * 3600.0)
+
+    # Create nutation correction settings
+    nutation_corrections = {
+        0.0: (-1.4 * milliarcsec_to_rad, 0.0),
+        1.0: (-0.4 * milliarcsec_to_rad, -632.6 * milliarcsec_to_rad),
+        2.0: (0.0, -44.2 * milliarcsec_to_rad),
+        3.0: (0.0, -4.0 * milliarcsec_to_rad)
+    }
+
+    # Create mean motion time-dependent phase nutation corrections
+    mean_motion_corrections = [{
+        1.0: (-49.1 * milliarcsec_to_rad, -104.5 * milliarcsec_to_rad),
+        2.0: (515.7 * milliarcsec_to_rad, 1097.0 * milliarcsec_to_rad),
+        3.0: (112.8 * milliarcsec_to_rad, 240.1 * milliarcsec_to_rad),
+        4.0: (19.2 * milliarcsec_to_rad, 40.9 * milliarcsec_to_rad),
+        5.0: (3.0 * milliarcsec_to_rad, 6.5 * milliarcsec_to_rad),
+        6.0: (0.4 * milliarcsec_to_rad, 1.0 * milliarcsec_to_rad)
+    }]
+
+    # Create rotation rate corrections
+    rotation_rate_corrections = {
+        1.0: (481.0 * milliarcsec_to_rad, -331.0 * milliarcsec_to_rad),
+        2.0: (-103.0 * milliarcsec_to_rad, -101.0 * milliarcsec_to_rad),
+        3.0: (-35.0 * milliarcsec_to_rad, -4.0 * milliarcsec_to_rad),
+        4.0: (-10.0 * milliarcsec_to_rad, -8.0 * milliarcsec_to_rad)
+    }
+
+    # Create polar motion coefficients
+    x_polar_motion = {
+        1.0: (2.8 * milliarcsec_to_rad * np.sin(np.radians(46.5)),
+              2.8 * milliarcsec_to_rad * np.cos(np.radians(46.5))),
+        2.0: (8.9 * milliarcsec_to_rad * np.sin(np.radians(-150.1)),
+              8.9 * milliarcsec_to_rad * np.cos(np.radians(-150.1))),
+        3.0: (0.0, 0.0),
+        4.0: (0.0, 0.0),
+        3.34: (0.0, 50.0 * milliarcsec_to_rad)
+    }
+
+    y_polar_motion = {
+        1.0: (11.7 * milliarcsec_to_rad * np.sin(np.radians(118.7)),
+              11.7 * milliarcsec_to_rad * np.cos(np.radians(118.7))),
+        2.0: (3.9 * milliarcsec_to_rad * np.sin(np.radians(172.5)),
+              3.9 * milliarcsec_to_rad * np.cos(np.radians(118.7))),
+        3.0: (0.0, 0.0),
+        4.0: (0.0, 0.0),
+        3.34: (0.0, 50.0 * milliarcsec_to_rad)
+    }
+
+    # Create fully customized rotation model settings
+    mars_rotation_settings = environment_setup.rotation_model.mars_high_accuracy_full_custom(
+        base_frame, target_frame, angle_n, angle_j, angle_psi_at_epoch, angle_psi_rate_at_epoch,
+        nutation_corrections, mean_motion_corrections, rotation_rate_corrections,
+        x_polar_motion, y_polar_motion)
 
 
      )doc" );
@@ -782,7 +988,55 @@ void expose_rotation_model_setup( py::module &m )
            py::arg( "pole_precession" ),
            py::arg( "merdian_periodic_terms" ),
            py::arg( "pole_periodic_terms" ),
-           py::arg( "reference_epoch_j2000") = 0.0);
+           py::arg( "reference_epoch_j2000") = 0.0,
+           R"doc(
+
+ Function for creating a body rotation model using the typical formulation used by the IAU
+
+ Function for creating a body rotation model using the typical formulation used by the International
+ Astronomical Union (IAU), such as those in ::cite:p:`archinal2018`. It uses the following formulation
+ :math:`\mathbf{R}^{(B/I)}(t)` for the body-fixed to inertial rotation, defined by the rotation
+ pole right ascension and declination (:math:`\alpha` and :math:`\delta`), and the prime meridian angle :math:`W`:
+
+ .. math::
+    \mathbf{R}^{(B/I)}(t)=\mathbf{R}_{z}(W(t))\mathbf{R}_{x}(\pi/2-\delta(t))\mathbf{R}_{z}(\pi/2+\alpha(t))
+
+ Unlike the :func:`~simple` rotation model, which has a similar formulation, the rotation angles :math:`W`, :math:`\alpha` and :math:`\delta` are
+ functions of time:
+
+ .. math::
+    W(t)=W_{0}+\dot{W}(t-t_{0})+\sum_{i}W_{i}\sin(\omega_{W_i}(t-t_{0})+\phi_{W_i})\\
+    \alpha(t)=\alpha_{0}+\dot{\alpha}(t-t_{0})+\sum_{i}\alpha_{i}\sin(\omega_{N_i}t(t-t_{0})+\phi_{N_i})\\
+    \delta(t)=\delta_{0}+\dot{\delta}(t-t_{0})+\sum_{i}\delta_{i}\cos(\omega_{N_i}t(t-t_{0})+\phi_{N_i})\\
+
+ so that the angles are a combination of a linear term (rotation rate for :math:`W`; precession for :math:`\alpha` and :math:`\delta`)
+ and a series of periodic terms (typically termed librations for :math:`W` and nutation for :math:`\alpha` and :math:`\delta`).
+
+ Parameters
+ ----------
+ base_frame : str
+     Name of the base frame of rotation model (typically "J2000" or "ECLIPJ2000").
+ target_frame : str
+     Name of the target (body-fixed) frame of rotation model.
+ nominal_meridian : float
+     Value of :math:`W_{0}`
+ nominal_pole : numpy.ndarray[numpy.float64[2, 1]]
+     Values of :math:`[\alpha_{0},\delta_{0}]`
+ rotation_rate : float
+     Value of :math:`\dot{W}`
+ pole_precession : numpy.ndarray[numpy.float64[2, 1]]
+     Values of :math:`[\dot{\alpha},\dot{\delta}]`
+ merdian_periodic_terms : dict[float, tuple[float, float]]
+     Libration terms in :math:`W` that are to be used. Dictionary key is value of :math:`\omega_{W_i}`. Value is a pair consisting of [:math:`W_{i}`,:math:`\phi_{W_{i}}`]
+ pole_periodic_terms : list[dict[float, tuple[numpy.ndarray[numpy.float64[2, 1]], float]]]
+     Nutation terms for :math:`\alpha,\delta` that are to be used. Dictionary key is value of :math:`\omega_{N_{i}}`. Value is a pair consisting of [[:math:`\alpha_{i},\delta_{i}`],:math:`\phi_{N_{i}}`]
+
+ Returns
+ -------
+ RotationModelSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` class
+
+     )doc" );
 }
 }  // namespace rotation_model
 }  // namespace environment_setup
