@@ -262,12 +262,12 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
     rotationModel->updateRotationMatrices( ephemerisTime );
     std::vector< Eigen::Matrix3d > rotationMatrixPartials;
     rotationMatrixPartials.push_back(
-            ephemerisTime *
+            ( ephemerisTime - rotationModel->getEpochSinceReference( ) )*
             ( rotationModel->getCurrentMeridianRotationAboutZAxis( ) * rotationModel->getCurrentDeclinationRotationAboutXAxis( ) *
               reference_frames::getDerivativeOfZAxisRotationWrtAngle( rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) ) )
                     .transpose( ) );
     rotationMatrixPartials.push_back(
-            ephemerisTime *
+            ( ephemerisTime - rotationModel->getEpochSinceReference( ) )*
             ( -rotationModel->getCurrentMeridianRotationAboutZAxis( ) *
               reference_frames::getDerivativeOfXAxisRotationWrtAngle( rotationModel->getCurrentDeclinationRotationAboutXAxis( ) ) *
               rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) )
@@ -289,7 +289,8 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
     for( unsigned int librationIndex = 0; librationIndex < librationFrequencies.size( ); librationIndex++ )
     {
         std::pair< double, double > signature = librationTerms.at( librationFrequencies.at( librationIndex ) );
-        double currentLibrationTerm = std::sin( librationFrequencies.at( librationIndex ) * ephemerisTime + signature.second );
+        double currentLibrationTerm = std::sin( librationFrequencies.at( librationIndex ) * ( ephemerisTime - rotationModel->getEpochSinceReference( ) ) + signature.second );
+
 
         rotationMatrixPartials.push_back(
                 ( reference_frames::getDerivativeOfZAxisRotationWrtAngle( rotationModel->getCurrentMeridianRotationAboutZAxis( ) ) *
