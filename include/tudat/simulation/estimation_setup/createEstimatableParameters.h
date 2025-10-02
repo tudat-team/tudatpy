@@ -337,7 +337,6 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
         }
         case full_acceleration_scaling_factor:
         {
-            std::cout<<"Finding for full acceleration"<<std::endl;
             std::shared_ptr< FullAccelerationScalingFactorParameterSettings > accelerationScalingParameterSettings =
                     std::dynamic_pointer_cast< FullAccelerationScalingFactorParameterSettings >( parameterSettings );
             if( accelerationScalingParameterSettings == nullptr )
@@ -347,7 +346,6 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
             else
             {
                 std::shared_ptr< basic_astrodynamics::AccelerationModel3d > compatibleAccelerationModel = nullptr;
-                std::cout<<parameterSettings->parameterType_.second.first<<" "<<accelerationModelMap.count( parameterSettings->parameterType_.second.first ) <<std::endl;
 
                 if( accelerationModelMap.count( parameterSettings->parameterType_.second.first ) != 0 )
                 {
@@ -355,7 +353,6 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                     basic_astrodynamics::SingleBodyAccelerationMap accelerationModelListToCheck =
                             accelerationModelMap.at( parameterSettings->parameterType_.second.first );
 
-                    std::cout<<parameterSettings->parameterType_.second.second<<" "<<accelerationModelListToCheck.count(parameterSettings->parameterType_.second.second ) <<std::endl;
 
                     if( accelerationModelListToCheck.count(parameterSettings->parameterType_.second.second ) != 0 )
                     {
@@ -539,6 +536,10 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
         accelerationModelList = getAccelerationModelsListForParameters(
                 std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettings ),
                 parameterSettings );
+    }
+    else
+    {
+        throw std::runtime_error( "Error when finding acceleration model for parameter, propagator settings could not be identified as single, multi or hybrid arc" );
     }
 
     if( accelerationModelList.size( ) == 0 )
@@ -1624,6 +1625,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
     }
     else
     {
+
         // Check if body associated with parameter exists.
         std::string currentBodyName = vectorParameterName->parameterType_.second.first;
         std::shared_ptr< Body > currentBody;
@@ -1992,7 +1994,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             else
             {
               std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
-                      getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings,
+                        getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings,
                                                                                                              vectorParameterName );
               std::vector< std::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > > empiricalAccelerations;
               for( unsigned int i = 0; i < associatedAccelerationModels.size( ); i++ )
@@ -2793,7 +2795,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
     std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > considerParameters;
     if( !considerParameterNames.empty( ) )
     {
-        considerParameters = createParametersToEstimate( considerParameterNames, bodies, propagatorSettings );
+        considerParameters = createParametersToEstimate< InitialStateParameterType, TimeType >( considerParameterNames, bodies, propagatorSettings );
     }
 
     return std::make_shared< EstimatableParameterSet< InitialStateParameterType > >(
