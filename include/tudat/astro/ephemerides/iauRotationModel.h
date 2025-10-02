@@ -128,6 +128,12 @@ public:
         return rightAscensionRotationAboutZAxis_;
     }
 
+
+    double getEpochSinceReference( )
+    {
+        return epochsSinceReference_;
+    }
+
     void updateRotationMatrices( const double currentTime )
     {
         if( currentTime == currentTime )
@@ -161,7 +167,7 @@ private:
 
             for( auto it: polePeriodicTerms_ )
             {
-                double currentAngle = it.first * currentTime + it.second.second;
+                double currentAngle = it.first * epochsSinceReference_ + it.second.second;
 
                 currentPolePosition_( 0 ) += it.second.first( 0 ) * std::sin( currentAngle );
                 currentPolePosition_( 1 ) += it.second.first( 1 ) * std::cos( currentAngle );
