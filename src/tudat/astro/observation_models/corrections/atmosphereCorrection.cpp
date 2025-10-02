@@ -256,11 +256,20 @@ double NiellTroposphericMapping::computeWetTroposphericMapping( const Eigen::Vec
     Eigen::Vector3d groundStationGeodeticPosition = groundStationGeodeticPositionFunction_( groundStationTime );
     double geodeticLatitude = groundStationGeodeticPosition( 1 );
 
-    double aWetInterpolated = aWetInterpolator_->interpolate( std::abs( geodeticLatitude ) );
-    double bWetInterpolated = bWetInterpolator_->interpolate( std::abs( geodeticLatitude ) );
-    double cWetInterpolated = cWetInterpolator_->interpolate( std::abs( geodeticLatitude ) );
+    try
+    {
+        double aWetInterpolated = aWetInterpolator_->interpolate( std::abs( geodeticLatitude ) );
+        double bWetInterpolated = bWetInterpolator_->interpolate( std::abs( geodeticLatitude ) );
+        double cWetInterpolated = cWetInterpolator_->interpolate( std::abs( geodeticLatitude ) );
 
-    return computeMFunction( aWetInterpolated, bWetInterpolated, cWetInterpolated, elevation );
+        return computeMFunction( aWetInterpolated, bWetInterpolated, cWetInterpolated, elevation );
+    }
+    catch( std::runtime_error& caughtException )
+    {
+        throw std::runtime_error( "Error in Niell troposphere wet model.\nOriginal error: " + std::string( caughtException.what( ) ) );
+    }
+
+
 }
 
 double NiellTroposphericMapping::computeDryTroposphericMapping( const Eigen::Vector6d& transmitterState,
@@ -318,24 +327,33 @@ double NiellTroposphericMapping::computeDryCoefficient(
         const double time,
         const double geodeticLatitude )
 {
-    double coefficientAverage = averageInterpolator->interpolate( std::abs( geodeticLatitude ) );
-    double coefficientAmplitude = amplitudeInterpolator->interpolate( std::abs( geodeticLatitude ) );
-
-    double normalizedTime = ( sofa_interface::convertSecondsSinceEpochToSecondsOfYear( time ) - 28.0 * physical_constants::JULIAN_DAY ) /
-            ( 365.25 * physical_constants::JULIAN_DAY );
-
-    double dryCoefficient;
-    if( geodeticLatitude >= 0 )
+    try
     {
-        dryCoefficient = coefficientAverage - coefficientAmplitude * std::cos( 2.0 * mathematical_constants::PI * normalizedTime );
+        double coefficientAverage = averageInterpolator->interpolate( std::abs( geodeticLatitude ) );
+        double coefficientAmplitude = amplitudeInterpolator->interpolate( std::abs( geodeticLatitude ) );
+
+        double normalizedTime = ( sofa_interface::convertSecondsSinceEpochToSecondsOfYear( time ) - 28.0 * physical_constants::JULIAN_DAY ) /
+                ( 365.25 * physical_constants::JULIAN_DAY );
+
+        double dryCoefficient;
+        if( geodeticLatitude >= 0 )
+        {
+            dryCoefficient = coefficientAverage - coefficientAmplitude * std::cos( 2.0 * mathematical_constants::PI * normalizedTime );
+        }
+        else
+        {
+            dryCoefficient =
+                    coefficientAverage - coefficientAmplitude * std::cos( 2.0 * mathematical_constants::PI * ( normalizedTime + 0.5 ) );
+        }
+
+        return dryCoefficient;
     }
-    else
+    catch( std::runtime_error& caughtException )
     {
-        dryCoefficient =
-                coefficientAverage - coefficientAmplitude * std::cos( 2.0 * mathematical_constants::PI * ( normalizedTime + 0.5 ) );
+        throw std::runtime_error( "Error in Niell troposphere dry model.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
 
-    return dryCoefficient;
+
 }
 
 MappedTroposphericCorrection::MappedTroposphericCorrection( const LightTimeCorrectionType lightTimeCorrectionType,

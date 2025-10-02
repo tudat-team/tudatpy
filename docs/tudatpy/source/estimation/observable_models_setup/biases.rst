@@ -13,6 +13,10 @@ Functions
 
    relative_bias
 
+   time_drift_bias
+
+   time_bias
+
    combined_bias
 
    arcwise_absolute_bias
@@ -23,17 +27,13 @@ Functions
 
    arcwise_relative_bias_per_time
 
-   clock_induced_bias
-
-   time_bias
-
-   arcwise_time_bias
-
-   time_drift_bias
-
    arc_wise_time_drift_bias
 
    arc_wise_time_drift_bias_per_time
+
+   arcwise_time_bias
+
+   clock_induced_bias
 
    two_way_time_scale_range_bias
 

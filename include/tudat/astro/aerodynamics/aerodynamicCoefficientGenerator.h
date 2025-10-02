@@ -234,10 +234,17 @@ public:
         }
 
         // Update current coefficients.
-        Eigen::Vector6d currentCoefficients = coefficientInterpolator_->interpolate( independentVariables );
+        try
+        {
+            Eigen::Vector6d currentCoefficients = coefficientInterpolator_->interpolate( independentVariables );
+            currentForceCoefficients_ = currentCoefficients.segment( 0, 3 );
+            currentMomentCoefficients_ = currentCoefficients.segment( 3, 3 );
+        }
+        catch( std::runtime_error& caughtException )
+        {
+            throw std::runtime_error( "Error in tabulated aerodynamic coefficients.\nOriginal error: " + std::string( caughtException.what( ) ) );
+        }
 
-        currentForceCoefficients_ = currentCoefficients.segment( 0, 3 );
-        currentMomentCoefficients_ = currentCoefficients.segment( 3, 3 );
     }
 
     void clearBaseData( )

@@ -819,6 +819,35 @@ private:
     std::shared_ptr< ephemerides::Tle > tle_;
 };
 
+template< typename StateScalarType = double, typename TimeType = double >
+std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > > createStateInterpolatorFromSpice(
+        const std::string& body,
+        const TimeType initialTime,
+        const TimeType endTime,
+        const TimeType timeStep,
+        const std::string& observerName,
+        const std::string& referenceFrameName,
+        std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+                std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) )
+{
+    using namespace interpolators;
+
+    std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > timeHistoryOfState;
+
+    // Calculate state from spice at given time intervals and store in timeHistoryOfState.
+    TimeType currentTime = initialTime;
+    while( currentTime < endTime )
+    {
+        timeHistoryOfState[ currentTime ] = spice_interface::getBodyCartesianStateAtEpoch(
+                                                    body, observerName, referenceFrameName, "none", static_cast< double >( currentTime ) )
+                                                    .template cast< StateScalarType >( );
+        currentTime += timeStep;
+    }
+
+    // Create interpolator.
+    return interpolators::createOneDimensionalInterpolator( timeHistoryOfState, interpolatorSettings );
+}
+
 // Function to create a tabulated ephemeris using data from Spice.
 /*
  *  Function to create a tabulated ephemeris using data from Spice.
@@ -847,27 +876,12 @@ std::shared_ptr< ephemerides::Ephemeris > createTabulatedEphemerisFromSpice(
         std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
                 std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) )
 {
-    using namespace interpolators;
 
-    std::map< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > timeHistoryOfState;
-
-    // Calculate state from spice at given time intervals and store in timeHistoryOfState.
-    TimeType currentTime = initialTime;
-    while( currentTime < endTime )
-    {
-        timeHistoryOfState[ currentTime ] = spice_interface::getBodyCartesianStateAtEpoch(
-                                                    body, observerName, referenceFrameName, "none", static_cast< double >( currentTime ) )
-                                                    .template cast< StateScalarType >( );
-        currentTime += timeStep;
-    }
-
-    // Create interpolator.
-    std::shared_ptr< OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > > interpolator =
-            interpolators::createOneDimensionalInterpolator( timeHistoryOfState, interpolatorSettings );
 
     // Create ephemeris and return.
     return std::make_shared< ephemerides::TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
-            interpolator, observerName, referenceFrameName );
+            createStateInterpolatorFromSpice<StateScalarType, TimeType >(
+                    body, initialTime, endTime, timeStep, observerName, referenceFrameName, interpolatorSettings ), observerName, referenceFrameName );
 }
 
 template< typename StateScalarType = double, typename TimeType = double >

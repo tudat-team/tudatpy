@@ -1129,6 +1129,7 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
 
                     int numberOfLinksToCheck = currentLinkEnds.size( ) - 1;
                     bool currentObservationIsViable = true;
+                    Eigen::Vector3d rotatedSpacecraft;
                     for( int linksToCheck = 0; linksToCheck < numberOfLinksToCheck; linksToCheck++ )
                     {
                         int jupiterIndex, spacecraftIndex;
@@ -1183,25 +1184,33 @@ BOOST_AUTO_TEST_CASE( testOrbiterOccultationObservationViabilityCalculators )
                         Eigen::Matrix3d rotationMatrix = Eigen::Matrix3d( Eigen::AngleAxisd( -jupiterAngle, Eigen::Vector3d::UnitZ( ) ) );
 
                         Eigen::Vector3d rotatedJupiter = rotationMatrix * currentJupiterPosition;
-                        Eigen::Vector3d rotatedSpacecraft = rotationMatrix * currentSpacecraftPosition;
+                        rotatedSpacecraft = rotationMatrix * currentSpacecraftPosition;
 
                         BOOST_CHECK_CLOSE_FRACTION(
                                 rotatedJupiter( 0 ), currentJupiterPosition.norm( ), 100.0 * std::numeric_limits< double >::epsilon( ) );
                         BOOST_CHECK_SMALL( std::fabs( rotatedJupiter( 1 ) ), 1.0E-3 );
                         BOOST_CHECK_SMALL( std::fabs( rotatedJupiter( 2 ) ), 1.0E-3 );
 
-                        if( rotatedSpacecraft( 0 ) < 0 )
+                        // Define tolerance for ambiguous cases near zero
+                        double tolerance = 10.0 * std::numeric_limits<double>::epsilon() * rotatedSpacecraft.norm();
+
+                        // Skip ambiguous region near 0 (test on tolerance, not 0)
+                        if( rotatedSpacecraft( 0 ) < tolerance )
                         {
                             currentObservationIsViable = false;
                         }
                     }
+
 
                     BOOST_CHECK_EQUAL( currentObservationIsViable, currentObservationWasViable );
 
                     if( currentObservationIsViable != currentObservationWasViable )
                     {
                         std::cout << currentObservable << " " << getLinkEndsString( currentLinkEnds ) << std::endl;
+                        // Just for debugging purposes, print the value in case it still gets boost-checked
+                        std::cout << "rotatedSpacecraft(0) value:" << rotatedSpacecraft( 0 ) << std::endl;
                     }
+
                     if( currentObservationWasViable )
                     {
                         constrainedIndex++;
