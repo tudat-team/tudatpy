@@ -33,7 +33,7 @@ namespace aerodynamics
 ComaWindModel::ComaWindModel( const simulation_setup::ComaPolyDataset& xPolyDataset,
                    const simulation_setup::ComaPolyDataset& yPolyDataset,
                    const simulation_setup::ComaPolyDataset& zPolyDataset,
-                   std::shared_ptr<ComaModel> comaModel,
+                   const std::shared_ptr<ComaModel>& comaModel,
                    std::function<Eigen::Vector6d()> sunStateFunction,
                    std::function<Eigen::Vector6d()> cometStateFunction,
                    std::function<Eigen::Matrix3d()> cometRotationFunction,

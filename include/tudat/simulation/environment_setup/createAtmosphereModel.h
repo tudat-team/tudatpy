@@ -13,6 +13,7 @@
 
 #include <string>
 #include <map>
+#include <iostream>
 
 #include <memory>
 #include <boost/date_time/posix_time/time_period.hpp>
@@ -93,16 +94,17 @@ public:
             throw std::runtime_error("StokesDataset: invalid metadata.");
 
         // Check that no radius exceeds the reference radius from any file
+        bool warningIssued = false;
         for (const auto& file : files)
         {
             for (const auto& radius : radii)
             {
-                if (radius > file.referenceRadius)
+                if (radius > file.referenceRadius && !warningIssued)
                 {
-                    throw std::runtime_error("StokesDataset: The max radius in the vector (" +
-                                           std::to_string(radius) +
-                                           ") should not be larger than the reference radius (" +
-                                           std::to_string(file.referenceRadius) + ").");
+                    std::cerr << "Warning: One or more radii exceed the reference radius. "
+                              << "While the Stokes coefficients will be created, above the reference radius, "
+                              << "the 1/r^2 decay law will be used for the computation of the density." << std::endl;
+                    warningIssued = true;
                 }
             }
         }
