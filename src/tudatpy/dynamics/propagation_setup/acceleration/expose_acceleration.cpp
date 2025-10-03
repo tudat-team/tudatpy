@@ -1088,6 +1088,11 @@ The force enacted by the rtg emission is calculated as:
  Creates settings for a custom accelerations, this acceleration must be parameterized as a function of time,
  and expressed with an inertial orientation.
 
+ NOTE: the ``acceleration_function`` is called with a ``NaN`` input at the start of each function evaluation of the full state derivative.
+ This signals the start of a new evaluation and can be used to make custom models more efficient if multiple (related) custom functions are
+ implemented in a single class `custom model user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/custom-models.html>`_.
+ However, this does require that calling the ``acceleration_function`` with NaN input does not result in an exception.
+
 
  Parameters
  ----------

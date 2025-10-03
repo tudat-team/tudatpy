@@ -197,6 +197,12 @@ void expose_mass_rate_setup( py::module &m )
  Creates the settings for a custom mass rate model defined through a mass rate function. The function must have
  time as an independent variable.
 
+ NOTE: the ``mass_rate_function`` is called with a ``NaN`` input at the start of each function evaluation of the full state derivative.
+ This signals the start of a new evaluation and can be used to make custom models more efficient if multiple (related) custom functions are
+ implemented in a single class `custom model user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/custom-models.html>`_.
+ However, this does require that calling the ``mass_rate_function`` with NaN input does not result in an exception.
+
+
 
  Parameters
  ----------
