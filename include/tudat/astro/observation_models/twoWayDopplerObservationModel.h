@@ -82,8 +82,11 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetingsInput = nullptr )
     {
+        std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings;
+        this->setFrequencyProperties( time, linkEndAssociatedWithTime, multiLegLightTimeCalculator_, ancilliarySetingsInput, ancilliarySetings );
+
         linkEndTimes.clear( );
         linkEndStates.clear( );
         multiLegLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(

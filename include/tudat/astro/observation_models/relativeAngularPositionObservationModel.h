@@ -90,7 +90,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetingsInput = nullptr )
 
     {
         // Check link end associated with input time and compute observable.
@@ -105,8 +105,12 @@ public:
         Eigen::Matrix< ObservationScalarType, 6, 1 > secondTransmitterState;
 
         // Compute light-times and receiver/transmitters states.
+        std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings;
+        this->setFrequencyProperties( time, linkEndAssociatedWithTime, lightTimeCalculatorFirstTransmitter_, ancilliarySetingsInput, ancilliarySetings );
         ObservationScalarType lightTimeFirstTransmitter = lightTimeCalculatorFirstTransmitter_->calculateLightTimeWithLinkEndsStates(
                 receiverState, firstTransmitterState, time, true, ancilliarySetings );
+
+        this->setFrequencyProperties( time, linkEndAssociatedWithTime, lightTimeCalculatorSecondTransmitter_, ancilliarySetingsInput, ancilliarySetings );
         ObservationScalarType lightTimeSecondTransmitter = lightTimeCalculatorSecondTransmitter_->calculateLightTimeWithLinkEndsStates(
                 receiverState, secondTransmitterState, time, true, ancilliarySetings );
 
