@@ -192,7 +192,29 @@ void expose_two_body_dynamics( py::module &m )
                   py::arg( "gravitational_parameter" ),
                   py::arg( "is_retrograde" ) = false,
                   py::arg( "tolerance" ) = 1e-9,
-                  py::arg( "max_iter" ) = 50 )
+                  py::arg( "max_iter" ) = 50,
+                  R"doc(
+
+                  Compute the escape or capture delta-v budget for a spacecraft.
+
+                  This function calculates the required change in velocity (delta-v) for a spacecraft to escape from or be captured by the gravitational influence of a central body. The calculation is based on the pericenter of the orbit, the orbital parameters, and the excess velocity of the spacecraft. It is commonly used in mission design for estimating propulsion requirements in orbital transfers or interplanetary trajectories.
+
+                  Parameters
+                  ----------
+                  gravitational_parameter : float
+                      Gravitational parameter of the central body, defined as the product of the gravitational constant (G) and the mass of the body (M).
+                  semi_major_axis : float
+                      Semi-major axis of the spacecraft's orbit, representing the average distance from the central body.
+                  eccentricity : float
+                      Eccentricity of the spacecraft's orbit, which defines its shape. Must be valid for elliptical or hyperbolic orbits (e.g., 0 <= eccentricity < 1 for elliptical orbits).
+                  excess_velocity : float
+                      Excess velocity of the spacecraft, representing its velocity relative to the central body at infinity.
+
+                  Returns
+                  -------
+                  deltaV : float
+                      The delta-v required for the escape or capture maneuver. This is the difference between the velocity needed to achieve the specified excess velocity at infinity and the current orbital velocity at the pericenter.
+                      )doc" )
             .def( "get_radial_departure_velocity",
                   &tms::LambertTargeterIzzo::getRadialVelocityAtDeparture )
             .def( "get_radial_arrival_velocity",
