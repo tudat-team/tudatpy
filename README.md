@@ -68,10 +68,11 @@ It is possible that the creation of the environment will 'time out'. A likely re
 5. Build TudatPy
 
 ```
-python build.py -h                   # Show help and available flags
+python build.py -h                    # Show help and available flags
 python build.py -j <number-of-cores>  # Compile Tudatpy
+python build.py --tests               # [optional] To verify with ctest (see below)
 ```
-This script compiles Tudatpy. It will take some time to execute, but you can speed up the process by increasing the number of cores used with the `-j` flag.
+This script compiles Tudatpy. It will take some time to execute, but you can speed up the process by increasing the number of cores used with the `-j` flag. If you wish to verify your installation with `ctest` (see below), add the `--tests` flag.
 Once the project is built, all the build output is dumped by default in a directory called `build`, which is not tracked by Git.
 
 6. Install
@@ -122,3 +123,6 @@ Desired result:
 100% tests passed, 0 tests failed out of 224
 Total Test time (real) = 490.77 sec
 ````
+> **Note**\
+> To speed up the tests, you can optionally use multiple cores as follows:             
+> `ctest -j <number_of_cores>`
