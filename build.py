@@ -8,6 +8,40 @@ import ast
 import tempfile
 from dataclasses import dataclass
 from typing import Generator
+import logging
+
+
+class CustomFormatter(logging.Formatter):
+
+    grey = "\x1b[38;20m"
+    blue = "\x1b[34;20m"
+    green = "\x1b[32;20m"
+    yellow = "\x1b[33;20m"
+    red = "\x1b[31;20m"
+    bold_red = "\x1b[31;1m"
+    reset = "\x1b[0m"
+    _format = "%(levelname)-8s :: %(asctime)s :: %(message)s"
+
+    FORMATS = {
+        logging.DEBUG: green + _format + reset,
+        logging.INFO: blue + _format + reset,
+        logging.WARNING: yellow + _format + reset,
+        logging.ERROR: red + _format + reset,
+        logging.CRITICAL: bold_red + _format + reset,
+    }
+
+    def format(self, record) -> str:
+        log_fmt = self.FORMATS.get(record.levelno)
+        formatter = logging.Formatter(log_fmt, datefmt="%Y-%m-%d %H:%M:%S")
+        return formatter.format(record)
+
+
+log = logging.getLogger(__package__)
+log.setLevel(logging.INFO)
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+ch.setFormatter(CustomFormatter())
+log.addHandler(ch)
 
 
 @dataclass
@@ -118,6 +152,9 @@ class BuildParser(argparse.ArgumentParser):
             action="store_true",
             help="Verbose output during build",
         )
+        misc_group.add_argument(
+            "--debug", action="store_true", help="Display debug information"
+        )
 
         # CI options
         ci_group = self.add_argument_group("CI options")
@@ -163,6 +200,187 @@ def module_has_init_stub(module_stubs_path: Path) -> bool:
     # Path to __init__.pyi
     init_stub_path = module_stubs_path / "__init__.pyi"
     return init_stub_path.exists()
+
+
+class StatementProcessor:
+
+    @staticmethod
+    def process_statement(statement: ast.stmt) -> ast.stmt:
+
+        if isinstance(statement, ast.Expr):
+            return StatementProcessor.process_expression_statement(statement)
+        elif isinstance(statement, ast.Import):
+            return StatementProcessor.process_import(statement)
+        elif isinstance(statement, ast.ImportFrom):
+            return StatementProcessor.process_import_from(statement)
+        elif isinstance(statement, ast.ClassDef):
+            return StatementProcessor.process_classdef(statement)
+        elif isinstance(statement, ast.FunctionDef):
+            return StatementProcessor.process_functiondef(statement)
+        elif isinstance(statement, ast.AsyncFunctionDef):
+            return StatementProcessor.process_asyncfunctiondef(statement)
+        elif isinstance(statement, ast.Assign):
+            return StatementProcessor.process_assign(statement)
+        # elif isinstance(statement, ast.AnnAssign):
+        #     return StatementProcessor.process_annassign(statement)
+
+        return statement
+
+    @staticmethod
+    def process_docstring(statement: ast.stmt) -> ast.Expr:
+
+        # Fail if statement is not an expression
+        if not isinstance(statement, ast.Expr):
+            raise ValueError(
+                f"Attempted to process {type(statement)} as docstring"
+            )
+
+        # Fail if value is not Constant
+        if not isinstance(statement.value, ast.Constant):
+            raise ValueError(
+                f"Attempted to process {type(statement.value)} as docstring"
+            )
+
+        # Process docstring
+        statement.value = ExpressionProcessor.process_constant(
+            statement.value, docstring=True
+        )
+
+        return statement
+
+    @staticmethod
+    def process_expression_statement(expr: ast.Expr) -> ast.Expr:
+        expr.value = ExpressionProcessor.process_expression(expr.value)
+        return expr
+
+    @staticmethod
+    def process_import(statement: ast.Import) -> ast.Import:
+        return statement
+
+    @staticmethod
+    def process_import_from(statement: ast.ImportFrom) -> ast.ImportFrom:
+        return statement
+
+    @staticmethod
+    def process_classdef(statement: ast.ClassDef) -> ast.ClassDef:
+
+        # Get class docstring
+        docstring = ast.get_docstring(statement)
+
+        # If docstring present, process it first
+        if docstring is not None:
+            statement.body[0] = StatementProcessor.process_docstring(
+                statement.body[0]
+            )
+
+        # Process the rest of the class normally
+        for idx, stmt in enumerate(statement.body):
+            statement.body[idx] = StatementProcessor.process_statement(stmt)
+
+        return statement
+
+    @staticmethod
+    def process_functiondef(statement: ast.FunctionDef) -> ast.FunctionDef:
+
+        # Get function docstring
+        docstring = ast.get_docstring(statement)
+
+        # Remove body and process docstring if present
+        if docstring is None:
+            statement.body = [ast.Expr(ast.Constant("Missing docstring"))]
+        else:
+            # Fail if first statement in body is not docstring
+            stmt = statement.body[0]
+            if not isinstance(stmt, ast.Expr):
+                raise ValueError(
+                    f"Attempted to process {type(stmt)} as docstring"
+                )
+
+            statement.body = [StatementProcessor.process_docstring(stmt)]
+
+        return statement
+
+    @staticmethod
+    def process_asyncfunctiondef(
+        statement: ast.AsyncFunctionDef,
+    ) -> ast.AsyncFunctionDef:
+
+        # Get function docstring
+        docstring = ast.get_docstring(statement)
+
+        # Remove body and process docstring if present
+        if docstring is None:
+            statement.body = []
+        else:
+            statement.body = [
+                StatementProcessor.process_docstring(statement.body[0])
+            ]
+
+        return statement
+
+    @staticmethod
+    def process_assign(statement: ast.Assign) -> ast.Assign:
+
+        log.warning(
+            f"Missing type annotation in assignment statement: {statement.lineno}"
+        )
+
+        return statement
+
+    @staticmethod
+    def process_annassign(statement: ast.AnnAssign) -> ast.AnnAssign:
+
+        # Remove value from statement
+        statement.value = None
+
+        return statement
+
+
+class ExpressionProcessor:
+
+    @staticmethod
+    def process_expression(expr: ast.expr) -> ast.expr:
+
+        if isinstance(expr, ast.Constant):
+            return ExpressionProcessor.process_constant(expr)
+
+        return expr
+
+    @staticmethod
+    def process_constant(
+        const: ast.Constant, docstring: bool = False
+    ) -> ast.Constant:
+
+        # Skip processing if not a docstring
+        if not docstring:
+            return const
+
+        # Fail if not a string (should not happen)
+        if not isinstance(const.value, str):
+            raise NotImplementedError(
+                f"Attempted to process non-string constant: {const.lineno}"
+            )
+
+        # Extract components of docstring
+        components = [x.strip() for x in const.value.splitlines()]
+
+        # Remove empty lines in the beginning
+        first_line = components[0]
+        while first_line == "":
+            components.pop(0)
+            first_line = components[0]
+
+        # Remove empty lines in the end
+        last_line = components[-1]
+        while last_line == "":
+            components.pop(-1)
+            last_line = components[-1]
+
+        # Fix indentation
+        indentation = " " * const.col_offset
+        const.value = (f"\n{indentation}").join(components) + f"\n{indentation}"
+
+        return const
 
 
 class StubGenerator:
@@ -423,52 +641,63 @@ class StubGenerator:
         From https://docs.python.org/3/library/ast.html#ast.get_docstring, the types that can have a docstring are: ast.Module, ast.ClassDef, ast.FunctionDef, and ast.AsyncFunctionDef.
         """
 
-        # Define container for updated body
-        updated_body: list[ast.stmt] = []
+        # Process module-level docstring if present
+        module_docstring = ast.get_docstring(module)
+        if module_docstring is not None:
+            module.body[0] = StatementProcessor.process_docstring(
+                module.body[0]
+            )
 
-        # Process all statements in the module
-        for statement in module.body:
+        # Process the whole module with normal rules
+        for idx, statement in enumerate(module.body):
+            module.body[idx] = StatementProcessor.process_statement(statement)
 
-            # Skip if statement cannot have a docstring
-            # if not self.__can_have_docstring(statement):
-            if not isinstance(
-                statement,
-                (
-                    ast.ClassDef,
-                    ast.FunctionDef,
-                    ast.AsyncFunctionDef,
-                    ast.Module,
-                ),
-            ):
-                updated_body.append(statement)
-                continue
+        # # Define container for updated body
+        # updated_body: list[ast.stmt] = []
 
-            # Get docstring and skip if not present
-            docstring = ast.get_docstring(statement)
-            if docstring is None:
-                updated_body.append(statement)
-                continue
+        # # Process all statements in the module
+        # for statement in module.body:
 
-            # Get size of docstring indentation
-            if isinstance(statement, ast.Module):
-                indentation_level = 0
-            else:
-                indentation_level = statement.col_offset
-            docstring_indentation = (indentation_level + 1) * self.indentation
+        #     # Skip if statement cannot have a docstring
+        #     # if not self.__can_have_docstring(statement):
+        #     if not isinstance(
+        #         statement,
+        #         (
+        #             ast.ClassDef,
+        #             ast.FunctionDef,
+        #             ast.AsyncFunctionDef,
+        #             ast.Module,
+        #         ),
+        #     ):
+        #         updated_body.append(statement)
+        #         continue
 
-            # Adjust indentation
-            indented_lines: list[str] = [
-                docstring_indentation + line for line in docstring.split("\n")
-            ]
-            indented_lines[0] = indented_lines[0].lstrip()
-            docstring = "\n".join(indented_lines)
+        #     # Get docstring and skip if not present
+        #     docstring = ast.get_docstring(statement)
+        #     if docstring is None:
+        #         updated_body.append(statement)
+        #         continue
 
-            # Update docstring
-            statement.body[0] = ast.Expr(ast.Constant(docstring))
-            updated_body.append(statement)
+        #     # Get size of docstring indentation
+        #     if isinstance(statement, ast.Module):
+        #         indentation_level = 0
+        #     else:
+        #         indentation_level = statement.col_offset
+        #     docstring_indentation = (indentation_level + 1) * self.indentation
 
-        # Update body of module
-        module.body = updated_body
+        #     # Adjust indentation
+        #     indented_lines: list[str] = [
+        #         docstring_indentation + line for line in docstring.split("\n")
+        #     ]
+        #     indented_lines[0] = indented_lines[0].lstrip()
+        #     docstring = "\n".join(indented_lines)
+
+        #     # Update docstring
+        #     statement.body[0] = ast.Expr(ast.Constant(docstring))
+        #     updated_body.append(statement)
+
+        # # Update body of module
+        # module.body = updated_body
         return module
 
     def __create_stubs_directory_structure(self) -> None:
@@ -490,7 +719,7 @@ class StubGenerator:
 
     def __generate_default_kernel_stubs(self) -> None:
 
-        print("Generating stubs for tudatpy.kernel...")
+        log.info("Generating stubs for C++ extensions")
 
         # Generate stubs for tudatpy.kernel
         outcome = subprocess.run(
@@ -502,9 +731,22 @@ class StubGenerator:
                 "--numpy-array-wrap-with-annotated",
             ],
             env=self.mock_env.variables,
+            capture_output=True,
         )
+
+        # Interrupt if stub-generation failed
         if outcome.returncode:
-            raise RuntimeError("Failed to generate stub for tudatpy.kernel")
+
+            # Show stderr as error
+            for stderr_line in str(outcome.stderr)[2:-1].split(r"\n"):
+                log.error(stderr_line)
+
+            log.error("Failed to generate stubs for tudatpy kernel")
+            exit(1)
+
+        # Show stub generation stderr as debug
+        for stderr_line in str(outcome.stderr)[2:-1].split(r"\n"):
+            log.debug(stderr_line)
 
         # Relocate stubs in the build directory
         tmp_stubs_dir: Path = self.mock_env.tmp / "tudatpy/kernel"
@@ -535,47 +777,83 @@ class StubGenerator:
 
     def __generate_default_python_stubs(self) -> None:
 
-        print("Generating stubs for Python source code...")
+        log.info("Generating stubs for Python source code")
 
-        # Create directory for python stubs in tmp
-        python_stubs = self.mock_env.tmp / "python_stubs"
-        python_stubs.mkdir(exist_ok=False, parents=False)
+        # Process all the python scripts in the library
+        mock_installation_dir = self.mock_env.prefix / "tudatpy"
+        for script in mock_installation_dir.rglob("*.py"):
 
-        # Generate stubs for Python source code
-        for item in (self.mock_env.prefix / "tudatpy").rglob("*.py"):
-
-            # Skip if __init__.py or if it is in __pycache__
-            if item.name == "__init__.py" or "__pycache__" in str(item):
+            # Skip if __init__.py or part of __pycache__
+            if (script.name == "__init__.py") or ("__pycache__" in str(script)):
                 continue
 
-            # Skip if it belongs to an ignored module
+            # Skip if part of ignored module
             if (
-                item.relative_to(self.mock_env.prefix / "tudatpy").parts[0]
+                script.relative_to(mock_installation_dir).parts[0]
                 in self.ignored_modules
             ):
                 continue
 
-            # Generate stub with stubgen
-            outcome = subprocess.run(
-                [
-                    "stubgen",
-                    item,
-                    "-o",
-                    str(python_stubs),
-                    "--include-docstrings",
-                    "--parse-only",
-                    "--quiet",
-                ]
-            )
-            if outcome.returncode:
-                raise RuntimeError(f"Failed to generate stub for {item}")
+            # Generate syntax tree from script contents
+            script_content = self.__parse_script(script)
 
-        # Move stubs to build directory
-        for stub in (python_stubs / "tudatpy").rglob("*.pyi"):
-            shutil.copy(
-                stub,
-                self.stubs_dir / stub.relative_to(python_stubs / "tudatpy"),
-            )
+            # Initialize syntax tree for stub
+            stub_content = ast.Module(body=[], type_ignores=[])
+
+            # Process module-level docstring if present
+            module_docstring = ast.get_docstring(script_content)
+            if module_docstring is not None:
+                script_content.body[0] = StatementProcessor.process_docstring(
+                    script_content.body[0]
+                )
+
+            # Fill stub body with script contents
+            for statement in script_content.body:
+                stub_content.body.append(
+                    StatementProcessor.process_statement(statement)
+                )
+
+            # Define path to stub and generate parent directory if missing
+            stub_path = self.stubs_dir / script.relative_to(
+                mock_installation_dir
+            ).with_suffix(".pyi")
+            # stub_path.parent.mkdir(exist_ok=True, parents=True)
+
+            # Generate stub file from syntax tree
+            with stub_path.open("w") as buffer:
+                buffer.write(self.__unparse_script(stub_content))
+
+        #     # Generate stub with stubgen
+        #     outcome = subprocess.run(
+        #         [
+        #             "stubgen",
+        #             script,
+        #             "-o",
+        #             str(python_stubs_dir),
+        #             "--include-docstrings",
+        #             "--parse-only",
+        #             "--quiet",
+        #         ]
+        #     )
+        #     if outcome.returncode:
+        #         raise RuntimeError(f"Failed to generate stub for {script}")
+
+        # # Move stubs to build directory
+        # for stub in (python_stubs_dir / "tudatpy").rglob("*.pyi"):
+        #     shutil.copy(
+        #         stub,
+        #         self.stubs_dir / stub.relative_to(python_stubs_dir / "tudatpy"),
+        #     )
+
+        # # Move stubs to build directory
+        # print("The normal ones")
+        # for stub in (python_stubs_dir / "tudatpy").rglob("*.pyi"):
+
+        #     print(stub)
+        #     shutil.copy(
+        #         stub,
+        #         self.stubs_dir / stub.relative_to(python_stubs_dir / "tudatpy"),
+        #     )
 
         return None
 
@@ -1007,16 +1285,17 @@ class StubGenerator:
         # Generate default stubs for tudatpy.kernel
         self.__generate_default_kernel_stubs()
 
-        # Generate default stubs for Python source code
-        self.__generate_default_python_stubs()
-
         # Fix autogenerated stubs
         self.__fix_autogenerated_stubs()
+
+        # Generate default stubs for Python source code
+        self.__generate_default_python_stubs()
 
         # Missing: Fix __init__.pyi stubs to expand star imports
         self.__generate_init_stubs()
 
-        print("Stubs generated successfully")
+        # Display success message
+        log.info("Stubs generated successfully")
 
         return None
 
@@ -1246,7 +1525,13 @@ class Builder:
 
 if __name__ == "__main__":
 
+    # Parse command-line arguments
     args = BuildParser().parse_args()
+
+    # Set logging level
+    if args.debug:
+        log.setLevel(logging.DEBUG)
+
     builder = Builder(args)
 
     # Build libraries
