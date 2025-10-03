@@ -191,6 +191,11 @@ void expose_thrust_setup( py::module &m )
  The specific impulse can be used to apply a mass rate model in the propagation the vehicle dynamics, relating the thrust to the mass
  decrease of the vehicle.
 
+ NOTE: the ``thrust_magnitude_function`` is called with a ``NaN`` input at the start of each function evaluation of the full state derivative.
+ This signals the start of a new evaluation and can be used to make custom models more efficient if multiple (related) custom functions are
+ implemented in a single class `custom model user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/custom-models.html>`_.
+ However, this does require that calling the ``thrust_magnitude_function`` with NaN input does not result in an exception.
+
 
  Parameters
  ----------

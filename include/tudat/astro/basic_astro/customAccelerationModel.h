@@ -30,6 +30,7 @@ public:
         if( !( this->currentTime_ == currentTime ) )
         {
             currentAcceleration_ = accelerationFunction_( currentTime );
+            this->currentTime_ = currentTime;
         }
     }
 
