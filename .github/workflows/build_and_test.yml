@@ -98,6 +98,14 @@ jobs:
       run: conda env update -n tudat -f environment.yaml
       # if: steps.cache.outputs.cache-hit != 'true'
 
+    - name: Show full conda package list
+      shell: bash -l {0}
+      run: |
+        echo "=== Conda environment information ==="
+        conda info
+        echo ""
+        echo "=== Installed packages in tudat environment ==="
+        conda list
 
     # - name: Download tudat resources data files for Linux and MacOS
     #   # The data files in tudat-resources are downloaded upon the installation of
@@ -117,11 +125,11 @@ jobs:
     #   run: cmd /c "curl -fsSL https://raw.githubusercontent.com/tudat-team/tudat-resources-feedstock/master/recipe/post-link.bat | cmd"
 
 
-    - name: Restore cached compilation results
-      # This third party action will setup ccache on the runner and restore any previously saved cache. Caches are saved automatically by the action after a build.
-      uses: hendrikmuhs/ccache-action@v1.2.12
-      with:
-        key: ${{ matrix.os }}-${{ matrix.build_type }}
+    #- name: Restore cached compilation results
+    #  # This third party action will setup ccache on the runner and restore any previously saved cache. Caches are saved automatically by the action after a build.
+    #  uses: hendrikmuhs/ccache-action@v1.2.12
+    #  with:
+    #    key: ${{ matrix.os }}-${{ matrix.build_type }}
 
 
     - name: Configure CMake
@@ -133,9 +141,9 @@ jobs:
         -S "${{ github.workspace }}"
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-        -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+        #-DCMAKE_CXX_COMPILER_LAUNCHER=ccache
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-        -DCMAKE_C_COMPILER_LAUNCHER=ccache
+        #-DCMAKE_C_COMPILER_LAUNCHER=ccache
         -DTUDAT_BUILD_GITHUB_ACTIONS=ON
 
 
