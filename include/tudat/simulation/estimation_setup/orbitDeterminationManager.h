@@ -79,12 +79,12 @@ void calculateResiduals(
             observationsCollection->getObservationsSets( );
 
     // Iterate over all observable types in observationsAndTimes
-    for( auto observablesIterator: sortedObservations )
+    for( auto observablesIterator : sortedObservations )
     {
         observation_models::ObservableType currentObservableType = observablesIterator.first;
 
         // Iterate over all link ends for current observable type in observationsAndTimes
-        for( auto dataIterator: observablesIterator.second )
+        for( auto dataIterator : observablesIterator.second )
         {
             observation_models::LinkEnds currentLinkEnds = dataIterator.first;
             for( unsigned int i = 0; i < dataIterator.second.size( ); i++ )
@@ -162,12 +162,12 @@ void calculateDesignMatrixAndResiduals(
             observationsCollection->getObservationsSets( );
 
     // Iterate over all observable types in observationsAndTimes
-    for( auto observableIt: sortedObservations )
+    for( auto observableIt : sortedObservations )
     {
         observation_models::ObservableType currentObservableType = observableIt.first;
 
         // Iterate over all link ends for current observable type in observationsAndTimes
-        for( auto linkEndIt: observableIt.second )
+        for( auto linkEndIt : observableIt.second )
         {
             observation_models::LinkEnds currentLinkEnds = linkEndIt.first;
             for( unsigned int i = 0; i < linkEndIt.second.size( ); i++ )
@@ -631,15 +631,14 @@ public:
         Eigen::MatrixXd unnormalizedConsiderCovariance = estimationInput->getConsiderCovariance( );
         if( unnormalizedConsiderCovariance.rows( ) == 0 && unnormalizedConsiderCovariance.cols( ) == 0 )
         {
-            unnormalizedConsiderCovariance =  Eigen::MatrixXd::Zero( numberConsiderParameters_, numberConsiderParameters_ );
+            unnormalizedConsiderCovariance = Eigen::MatrixXd::Zero( numberConsiderParameters_, numberConsiderParameters_ );
         }
         else if( unnormalizedConsiderCovariance.rows( ) != numberConsiderParameters_ &&
-            unnormalizedConsiderCovariance.cols( ) == numberConsiderParameters_ )
+                 unnormalizedConsiderCovariance.cols( ) == numberConsiderParameters_ )
         {
-            throw std::runtime_error( "Error, consider covariance size: [" +
-            std::to_string( unnormalizedConsiderCovariance.rows( )) + ", " +
-            std::to_string( unnormalizedConsiderCovariance.cols( ) ) + "] does not match number of consider parameters: " +
-            std::to_string( numberConsiderParameters_ ) );
+            throw std::runtime_error( "Error, consider covariance size: [" + std::to_string( unnormalizedConsiderCovariance.rows( ) ) +
+                                      ", " + std::to_string( unnormalizedConsiderCovariance.cols( ) ) +
+                                      "] does not match number of consider parameters: " + std::to_string( numberConsiderParameters_ ) );
         }
         normalizedConsiderCovariance = normalizeCovariance( unnormalizedConsiderCovariance, considerNormalizationTerms );
     }
@@ -647,13 +646,13 @@ public:
     std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > > computeCovariance(
             const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput )
     {
-
         // Get total number of observations
         int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
 
         if( numberEstimatedParameters_ > totalNumberOfObservations )
         {
-            throw std::runtime_error( "Error when computing covariance, number of observations is smaller than number of estimated parameters." );
+            throw std::runtime_error(
+                    "Error when computing covariance, number of observations is smaller than number of estimated parameters." );
         }
         // Define full parameters values
         ParameterVectorType parameterValues = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
@@ -715,7 +714,6 @@ public:
                 constraintRightHandSide,
                 estimationInput->getLimitConditionNumberForWarning( ) );
 
-
         // Compute contribution consider parameters
         Eigen::MatrixXd covarianceContributionConsiderParameters;
         if( considerParametersIncluded_ )
@@ -768,7 +766,8 @@ public:
 
         if( numberEstimatedParameters_ > totalNumberOfObservations )
         {
-            throw std::runtime_error( "Error when estimating parameters, number of observations is smaller than number of estimated parameters." );
+            throw std::runtime_error(
+                    "Error when estimating parameters, number of observations is smaller than number of estimated parameters." );
         }
 
         if( estimationInput->getWeightsMatrixDiagonals( ).rows( ) != totalNumberOfObservations )
@@ -882,7 +881,6 @@ public:
                     normalizedConsiderParametersDeviation =
                             estimationInput->considerParametersDeviations_.cwiseProduct( normalizationTermsConsider );
                 }
-
             }
             else
             {
@@ -890,7 +888,7 @@ public:
                 normalizedConsiderCovariance = Eigen::MatrixXd::Zero( 0, 0 );
                 normalizedConsiderParametersDeviation = Eigen::VectorXd::Zero( 0 );
             }
-            
+
             // Perform least squares calculation for correction to parameter vector.
             std::pair< Eigen::VectorXd, Eigen::MatrixXd > leastSquaresOutput;
             try
