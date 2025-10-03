@@ -1,8 +1,10 @@
-name: tudatpy-dev
+name: tudatpy-dev-test
 channels:
   - conda-forge
   - tudat-team
 dependencies:
+  - cmake
+  - make
   - eigen
   - boost-cpp=1.84.0
   - tudat-resources
@@ -10,6 +12,8 @@ dependencies:
   - nrlmsise-00
   - cspice-cmake
   - fftw
+  - c-compiler
+  - cxx-compiler
   - python=3.11
   - pybind11
   - pybind11-abi
