@@ -395,7 +395,7 @@ double ComaModel::computeDensityFromStokesCoefficients( double radius, double lo
     if (radius > referenceRadius)
     {
         applyDecay = true;
-        interpolationRadius = radiiGrid.back(); // Clamp to boundary for interpolation
+        interpolationRadius = referenceRadius; // Clamp to boundary for interpolation
     }
 
     std::vector<double> interpolationPoint = {interpolationRadius, solarLongitude};
