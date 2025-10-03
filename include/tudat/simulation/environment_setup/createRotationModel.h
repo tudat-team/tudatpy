@@ -895,10 +895,12 @@ public:
                               const double rotationRate,
                               const Eigen::Vector2d& polePrecession,
                               const std::map< double, std::pair< double, double > >& meridianPeriodicTerms,
-                              const std::map< double, std::pair< Eigen::Vector2d, double > >& polePeriodicTerms ):
+                              const std::map< double, std::pair< Eigen::Vector2d, double > >& polePeriodicTerms,
+                              const double referenceEpochJ2000 = 0.0):
         RotationModelSettings( iau_rotation_model, baseFrameOrientation, targetFrameOrientation ), nominalMeridian_( nominalMeridian ),
         nominalPole_( nominalPole ), rotationRate_( rotationRate ), polePrecession_( polePrecession ),
-        meridianPeriodicTerms_( meridianPeriodicTerms ), polePeriodicTerms_( polePeriodicTerms )
+        meridianPeriodicTerms_( meridianPeriodicTerms ), polePeriodicTerms_( polePeriodicTerms ),
+        referenceEpochJ2000_( referenceEpochJ2000 )
     { }
 
     double nominalMeridian_;
@@ -912,6 +914,8 @@ public:
     std::map< double, std::pair< double, double > > meridianPeriodicTerms_;
 
     std::map< double, std::pair< Eigen::Vector2d, double > > polePeriodicTerms_;
+
+    double referenceEpochJ2000_;
 
     double currentMeridian_;
 
@@ -1145,7 +1149,8 @@ inline std::shared_ptr< IauRotationModelSettings > iauRotationModelSettings(
         const double rotationRate,
         const Eigen::Vector2d& polePrecession,
         const std::map< double, std::pair< double, double > >& meridianPeriodicTerms,
-        const std::map< double, std::pair< Eigen::Vector2d, double > >& polePeriodicTerms )
+        const std::map< double, std::pair< Eigen::Vector2d, double > >& polePeriodicTerms,
+        double referenceEpochJ2000 = 0.0)
 {
     return std::make_shared< IauRotationModelSettings >( baseFrameOrientation,
                                                          targetFrameOrientation,
@@ -1154,7 +1159,8 @@ inline std::shared_ptr< IauRotationModelSettings > iauRotationModelSettings(
                                                          rotationRate,
                                                          polePrecession,
                                                          meridianPeriodicTerms,
-                                                         polePeriodicTerms );
+                                                         polePeriodicTerms,
+                                                         referenceEpochJ2000 );
 }
 
 }  // namespace simulation_setup
