@@ -15,6 +15,7 @@
 #include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+// #include <pybind11/native_enum.h>
 #include <tudat/simulation/environment_setup/createGroundStations.h>
 #include <tudat/simulation/environment_setup/defaultBodies.h>
 
@@ -32,21 +33,16 @@ namespace environment_setup
 namespace ground_station
 {
 
-void expose_ground_station_setup( py::module &m )
+void expose_ground_station_setup( py::module& m )
 {
-    py::class_< tss::GroundStationSettings, std::shared_ptr< tss::GroundStationSettings > >( m,
-                                                                                             "GroundStationSettings",
-                                                                                             R"doc(
-
-         Base class for providing settings for the creation of a ground station.
-
-
-      )doc" )
-            .def_property( "station_position",
-                           &tss::GroundStationSettings::getGroundStationPosition,
-                           &tss::GroundStationSettings::resetGroundStationPosition )
-
-            .def_property_readonly( "station_name", &tss::GroundStationSettings::getStationName );
+    // Ground station motion settings
+    py::enum_< tss::StationMotionModelTypes >( m, "StationMotionModelTypes" )
+            .value( "linear", tss::StationMotionModelTypes::linear_station_motion )
+            .value( "piecewise_constant", tss::StationMotionModelTypes::piecewise_constant_station_motion )
+            .value( "custom", tss::StationMotionModelTypes::custom_station_motion )
+            .value( "body_deformation", tss::StationMotionModelTypes::body_deformation_station_motion )
+            .value( "bodycentric_to_barycentric_station_position_motion",
+                    tss::StationMotionModelTypes::bodycentric_to_barycentric_station_position_motion );
 
     py::class_< tss::GroundStationMotionSettings, std::shared_ptr< tss::GroundStationMotionSettings > >( m,
                                                                                                          "GroundStationMotionSettings",
@@ -61,7 +57,8 @@ void expose_ground_station_setup( py::module &m )
 
 
 
-      )doc" );
+      )doc" )
+            .def_property_readonly( "model_type", &tss::GroundStationMotionSettings::getModelType );
 
     py::class_< tss::LinearGroundStationMotionSettings,
                 std::shared_ptr< tss::LinearGroundStationMotionSettings >,
@@ -76,7 +73,15 @@ void expose_ground_station_setup( py::module &m )
 
 
 
-      )doc" );
+      )doc" )
+            .def( py::init< const Eigen::Vector3d, const double >( ),
+                  py::arg( "linear_velocity" ),
+                  py::arg( "reference_epoch" ) = 0.,
+                  R"doc(Define linear motion settings for ground station
+
+                  :param linear_velocity: Constant velocity of the station in body-fixed reference frame
+                  :param reference_epoch: Epoch at which the position of the station is known
+                  )doc" );
 
     py::class_< tss::PiecewiseConstantGroundStationMotionSettings,
                 std::shared_ptr< tss::PiecewiseConstantGroundStationMotionSettings >,
@@ -93,6 +98,15 @@ void expose_ground_station_setup( py::module &m )
 
       )doc" );
 
+    py::class_< tss::BodyDeformationStationMotionSettings,
+                std::shared_ptr< tss::BodyDeformationStationMotionSettings >,
+                tss::GroundStationMotionSettings >( m,
+                                                    "BodyDeformationStationMotionSettings",
+                                                    R"doc(
+                    Define station motion settings based on body deformation
+                    )doc" )
+            .def( py::init< const bool >( ), py::arg( "fail_if_not_available" ) = true );
+
     py::class_< tss::CustomGroundStationMotionSettings,
                 std::shared_ptr< tss::CustomGroundStationMotionSettings >,
                 tss::GroundStationMotionSettings >( m,
@@ -107,6 +121,22 @@ void expose_ground_station_setup( py::module &m )
 
 
       )doc" );
+
+    py::class_< tss::GroundStationSettings, std::shared_ptr< tss::GroundStationSettings > >( m,
+                                                                                             "GroundStationSettings",
+                                                                                             R"doc(
+
+         Base class for providing settings for the creation of a ground station.
+
+
+      )doc" )
+            .def_property( "station_position",
+                           &tss::GroundStationSettings::getGroundStationPosition,
+                           &tss::GroundStationSettings::resetGroundStationPosition )
+
+            .def_property_readonly( "station_name", &tss::GroundStationSettings::getStationName )
+            .def_property_readonly( "position_element_type", &tss::GroundStationSettings::getPositionElementType )
+            .def_property_readonly( "station_motion_settings", &tss::GroundStationSettings::getStationMotionSettings );
 
     m.def( "add_motion_model_to_each_groun_station",
            &tss::addStationMotionModelToEachGroundStation,
@@ -177,7 +207,7 @@ void expose_ground_station_setup( py::module &m )
 
                 // Convert the std::map to a Python dict
                 py::dict pythonDict;
-                for( const auto &entry: stationPositions )
+                for( const auto& entry: stationPositions )
                 {
                     // entry.first is the station name, entry.second is the Eigen::Vector3d
                     pythonDict[ entry.first.c_str( ) ] = entry.second;
@@ -360,6 +390,9 @@ void expose_ground_station_setup( py::module &m )
      )doc" );
 
     m.def( "approximate_ground_stations_position", &tss::getCombinedApproximateGroundStationPositions, R"doc(No documentation found.)doc" );
+
+    m.def( "get_vlbi_station_positions", &tss::getVlbiStationPositions );
+    m.def( "get_vlbi_station_velocities", &tss::getVlbiStationVelocities );
 }
 
 }  // namespace ground_station

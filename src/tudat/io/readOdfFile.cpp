@@ -55,7 +55,7 @@ void OdfRampBlock::printDataBlock( std::ofstream& outFile )
     outFile << std::endl;
 }
 
-OdfDDodDataBlock::OdfDDodDataBlock( const std::bitset< 128 > specificDataBits, const int dDodDataType ):
+OdfDDodDataBlock::OdfDDodDataBlock( const std::bitset< 128 > specificDataBits, const OdfDataType dDodDataType ):
     OdfDataSpecificBlock( dDodDataType )
 {
     // Items to read:
@@ -82,7 +82,7 @@ OdfDDodDataBlock::OdfDDodDataBlock( const std::bitset< 128 > specificDataBits, c
                                                                          secondReceivingStationDownlinkDelay_ );
 }
 
-OdfDDorDataBlock::OdfDDorDataBlock( const std::bitset< 128 > specificDataBits, const int dDorDataType ):
+OdfDDorDataBlock::OdfDDorDataBlock( const std::bitset< 128 > specificDataBits, const OdfDataType dDorDataType ):
     OdfDataSpecificBlock( dDorDataType )
 {
     // Items to read:
@@ -109,7 +109,7 @@ OdfDDorDataBlock::OdfDDorDataBlock( const std::bitset< 128 > specificDataBits, c
                                                                          secondReceivingStationDownlinkDelay_ );
 }
 
-OdfDopplerDataBlock::OdfDopplerDataBlock( const std::bitset< 128 > specificDataBits, const int dopplerDataType ):
+OdfDopplerDataBlock::OdfDopplerDataBlock( const std::bitset< 128 > specificDataBits, const OdfDataType dopplerDataType ):
     OdfDataSpecificBlock( dopplerDataType )
 {
     // Items to read:
@@ -147,7 +147,8 @@ void OdfDopplerDataBlock::printDataBlock( std::ofstream& outFile )
     outFile << std::setfill( ' ' ) << std::setw( 7 ) << std::setprecision( 3 ) << transmittingStationUplinkDelay_ << " ";
 }
 
-OdfSequentialRangeDataBlock::OdfSequentialRangeDataBlock( const std::bitset< 128 > dataBits ): OdfDataSpecificBlock( 37 )
+OdfSequentialRangeDataBlock::OdfSequentialRangeDataBlock( const std::bitset< 128 > dataBits ):
+    OdfDataSpecificBlock( OdfDataType::sra_planetary_operational_discrete_spectrum_range )
 {
     // Items to read:
     // lowestRangingComponent: uint7
@@ -173,7 +174,7 @@ OdfSequentialRangeDataBlock::OdfSequentialRangeDataBlock( const std::bitset< 128
                                                                          transmittingStationUplinkDelay_ );
 }
 
-OdfToneRangeDataBlock::OdfToneRangeDataBlock( const std::bitset< 128 > specificDataBits ): OdfDataSpecificBlock( 41 )
+OdfToneRangeDataBlock::OdfToneRangeDataBlock( const std::bitset< 128 > specificDataBits ): OdfDataSpecificBlock( OdfDataType::re_range )
 {
     // Items to read:
     // integerObservableTime_: uint7
@@ -199,7 +200,7 @@ OdfToneRangeDataBlock::OdfToneRangeDataBlock( const std::bitset< 128 > specificD
                                                                          transmittingStationUplinkDelay_ );
 }
 
-OdfAngleDataBlock::OdfAngleDataBlock( const std::bitset< 128 > specificDataBits, const int angleDataType ):
+OdfAngleDataBlock::OdfAngleDataBlock( const std::bitset< 128 > specificDataBits, const OdfDataType angleDataType ):
     OdfDataSpecificBlock( angleDataType )
 {
     // Items to read:
@@ -248,6 +249,9 @@ OdfCommonDataBlock::OdfCommonDataBlock( const std::bitset< 160 > commonDataBits 
     unsignedCommonItemFlag.at( 3 ) = false;
     unsignedCommonItemFlag.at( 4 ) = false;
 
+    // Integer values to be turned into enumerations
+    int dataTypeint;
+
     parseNumericalDataBlockWrapper< 160, 32, 10, 22, 32, 32, 3, 7, 7, 2, 6, 2, 2, 2, 1 >( commonDataBits,
                                                                                           unsignedCommonItemFlag,
                                                                                           integerTimeTag_,
@@ -259,11 +263,14 @@ OdfCommonDataBlock::OdfCommonDataBlock( const std::bitset< 160 > commonDataBits 
                                                                                           receivingStationId_,
                                                                                           transmittingStationId_,
                                                                                           transmittingStationNetworkId_,
-                                                                                          dataType_,
+                                                                                          dataTypeint,
                                                                                           downlinkBandId_,
                                                                                           uplinkBandId_,
                                                                                           referenceBandId_,
                                                                                           validity_ );
+
+    // Set data type enum option based on int value
+    dataType_ = static_cast< OdfDataType >( dataTypeint );
 
     if( formatId_ != 2 )
     {
@@ -281,7 +288,7 @@ void OdfCommonDataBlock::printDataBlock( std::ofstream& outFile )
     outFile << std::setfill( ' ' ) << std::setw( 4 ) << receivingStationId_ << " ";
     outFile << std::setfill( ' ' ) << std::setw( 4 ) << transmittingStationId_ << " ";
     outFile << std::setfill( ' ' ) << std::setw( 3 ) << transmittingStationNetworkId_ << " ";
-    outFile << std::setfill( ' ' ) << std::setw( 5 ) << dataType_ << " ";
+    outFile << std::setfill( ' ' ) << std::setw( 5 ) << static_cast< int >( dataType_ ) << " ";
     outFile << std::setfill( ' ' ) << std::setw( 3 ) << downlinkBandId_ << " ";
     outFile << std::setfill( ' ' ) << std::setw( 2 ) << uplinkBandId_ << " ";
     outFile << std::setfill( ' ' ) << std::setw( 2 ) << referenceBandId_ << " ";
@@ -297,36 +304,45 @@ OdfDataBlock::OdfDataBlock( std::bitset< 288 > dataBits )
 
     commonDataBlock_ = std::make_shared< OdfCommonDataBlock >( commonDataBits );
 
-    int dataType = commonDataBlock_->dataType_;
-    if( dataType == 1 || dataType == 2 || dataType == 3 || dataType == 4 )
+    // int dataType = commonDataBlock_->dataType_;
+    OdfDataType dataType = commonDataBlock_->dataType_;
+    switch( dataType )
     {
-        observableSpecificDataBlock_ = std::make_shared< OdfDDodDataBlock >( specificDataBits, dataType );
-    }
-    else if( dataType == 5 || dataType == 6 )
-    {
-        observableSpecificDataBlock_ = std::make_shared< OdfDDorDataBlock >( specificDataBits, dataType );
-    }
-    else if( dataType == 11 || dataType == 12 || dataType == 13 )
-    {
-        observableSpecificDataBlock_ = std::make_shared< OdfDopplerDataBlock >( specificDataBits, dataType );
-    }
-    else if( dataType == 37 )
-    {
-        observableSpecificDataBlock_ = std::make_shared< OdfSequentialRangeDataBlock >( specificDataBits );
-    }
-    else if( dataType == 41 )
-    {
-        observableSpecificDataBlock_ = std::make_shared< OdfToneRangeDataBlock >( specificDataBits );
-    }
-    else if( dataType == 51 || dataType == 52 || dataType == 53 || dataType == 54 || dataType == 55 || dataType == 56 || dataType == 57 ||
-             dataType == 58 )
-    {
-        observableSpecificDataBlock_ = std::make_shared< OdfAngleDataBlock >( specificDataBits, dataType );
-    }
-    else
-    {
-        throw std::runtime_error( "Error, ODF data type " + std::to_string( dataType ) + " not recognized." );
-    }
+        case OdfDataType::narrowband_spacecraft_vlbi_doppler_mode:
+        case OdfDataType::narrowband_spacecraft_vlbi_phase_mode:
+        case OdfDataType::narrowband_quasar_vlbi_doppler_mode:
+        case OdfDataType::narrowband_quasar_vlbi_phase_mode:
+            observableSpecificDataBlock_ = std::make_shared< OdfDDodDataBlock >( specificDataBits, dataType );
+            break;
+        case OdfDataType::wideband_spacecraft_vlbi:
+        case OdfDataType::wideband_quasar_vlbi:
+            observableSpecificDataBlock_ = std::make_shared< OdfDDorDataBlock >( specificDataBits, dataType );
+            break;
+        case OdfDataType::one_way_doppler:
+        case OdfDataType::two_way_doppler:
+        case OdfDataType::three_way_doppler:
+            observableSpecificDataBlock_ = std::make_shared< OdfDopplerDataBlock >( specificDataBits, dataType );
+            break;
+        case OdfDataType::sra_planetary_operational_discrete_spectrum_range:
+            observableSpecificDataBlock_ = std::make_shared< OdfSequentialRangeDataBlock >( specificDataBits );
+            break;
+        case OdfDataType::re_range:
+            observableSpecificDataBlock_ = std::make_shared< OdfToneRangeDataBlock >( specificDataBits );
+            break;
+        case OdfDataType::azimuth_angle:
+        case OdfDataType::elevation_angle:
+        case OdfDataType::hour_angle:
+        case OdfDataType::declination_angle:
+        case OdfDataType::x_angle_east:
+        case OdfDataType::y_angle_east:
+        case OdfDataType::x_angle_south:
+        case OdfDataType::y_angle_south:
+            observableSpecificDataBlock_ = std::make_shared< OdfAngleDataBlock >( specificDataBits, dataType );
+            break;
+        default:
+            throw std::runtime_error( "ODF data type " + std::to_string( static_cast< int >( dataType ) ) + " not supported" );
+            break;
+    };
 }
 
 OdfRampBlock::OdfRampBlock( const std::bitset< 288 > dataBits )

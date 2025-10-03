@@ -252,11 +252,15 @@ Panel surface area
         )doc" );
 
     m.def( "body_panel_settings",
-           &tss::bodyPanelSettings,
+           py::overload_cast<
+                std::shared_ptr< tss::BodyPanelGeometrySettings >,
+                std::shared_ptr< tss::BodyPanelReflectionLawSettings >,
+                std::string,
+                std::shared_ptr< tss::MaterialProperties > >( &tss::bodyPanelSettings ),
            py::arg( "panel_geometry" ),
            py::arg( "panel_reflection_law" ),
            py::arg( "panel_type_id" ) = "",
-           py::arg( "material_properties" ) = std::map< std::string, tss::MaterialProperties >( ),
+           py::arg( "material_properties" ) = nullptr,
            R"doc(
 
  Function for creating settings for a full panel
@@ -438,7 +442,9 @@ material_properties : dict[str, MaterialProperties]
     Dictionary of material properties, as they appear in the .dae file provided.
 reradiation_settings : dict[str, bool]
     Dictionary of re-radiation settings for materials, as they appear in the .dae file provided.
-frame_orientation : str, default = "
+input_unit : str
+    Identifier of unit of length used in input model.
+frame_orientation : str, default = " "
     Identifier of the frame to which the panel is fixed (if body-fixed frame, this can be left empty).
     
 Returns

@@ -448,7 +448,8 @@ protected:
                 {
                     // Calculate acceleration and add to state derivative.
                     stateDerivative.block( currentBodyIndex * 6 + 3, 0, 3, 1 ) +=
-                            ( innerAccelerationIterator->second[ j ]->getAccelerationReference( ) ).template cast< StateScalarType >( );
+                            ( innerAccelerationIterator->second[ j ]->getAccelerationScalingFactor( ) *
+                              innerAccelerationIterator->second[ j ]->getUnscaledAccelerationReference( ) ).template cast< StateScalarType >( );
                 }
             }
 

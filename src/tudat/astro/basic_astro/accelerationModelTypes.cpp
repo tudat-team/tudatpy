@@ -83,6 +83,9 @@ std::string getAccelerationModelName( const AvailableAcceleration accelerationTy
         case yarkovsky_acceleration:
             accelerationName = "yarkovsky acceleration";
             break;
+        case rtg_acceleration:
+            accelerationName = "rtg anisotropic radiation acceleration";
+        break;
         case custom_acceleration:
             accelerationName = "custom acceleration";
             break;
@@ -195,6 +198,10 @@ AvailableAcceleration getAccelerationModelType(
     {
         accelerationType = einstein_infeld_hoffmann_acceleration;
     }
+    else if( std::dynamic_pointer_cast< system_models::RTGAccelerationModel >( accelerationModel ) != nullptr )
+    {
+        accelerationType = rtg_acceleration;
+    }
 
     else
     {
@@ -203,6 +210,41 @@ AvailableAcceleration getAccelerationModelType(
 
     // Return identified type.
     return accelerationType;
+}
+
+bool isAccelerationModelTypeAreaToMassRatioDependent( const AvailableAcceleration modelType )
+{
+    switch( modelType )
+    {
+        case point_mass_gravity:
+        case spherical_harmonic_gravity:
+        case mutual_spherical_harmonic_gravity:
+        case polyhedron_gravity:
+        case ring_gravity:
+        case third_body_point_mass_gravity:
+        case third_body_spherical_harmonic_gravity:
+        case third_body_mutual_spherical_harmonic_gravity:
+        case third_body_polyhedron_gravity:
+        case third_body_ring_gravity:
+        case thrust_acceleration:
+        case relativistic_correction_acceleration:
+        case empirical_acceleration:
+        case direct_tidal_dissipation_in_central_body_acceleration:
+        case direct_tidal_dissipation_in_orbiting_body_acceleration:
+        case momentum_wheel_desaturation_acceleration:
+        case custom_acceleration:
+        case einstein_infeld_hoffmann_acceleration:
+        case yarkovsky_acceleration:
+        case rtg_acceleration:
+            return false;
+        case aerodynamic:
+        case cannon_ball_radiation_pressure:
+        case radiation_pressure:
+            return true;
+        default:
+            throw std::runtime_error( "Error when determining if parameter is area-to-mass dependent, acceleration " +
+                                      std::to_string( static_cast< int >( modelType ) ) + " nor recognized" );
+    }
 }
 
 //! Function to identify the type of a mass rate model.
