@@ -12,6 +12,7 @@
 #include <pybind11/functional.h>
 #include "scalarTypes.h"
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
+// #include <pybind11/native_enum.h>
 
 namespace tom = tudat::observation_models;
 namespace tuc = tudat::unit_conversions;
@@ -110,7 +111,7 @@ void expose_light_time_corrections( py::module& m )
 
       )doc" );
 
-      py::enum_< tom::LightTimeFailureHandling >( m, "LightTimeFailureHandling", R"doc(
+    py::enum_< tom::LightTimeFailureHandling >( m, "LightTimeFailureHandling", R"doc(
 
 Enumeration of behaviour when failing to converge light-time with required settings.
 
@@ -206,7 +207,7 @@ Examples
 
      )doc" );
 
-     m.def(
+    m.def(
             "first_order_relativistic_light_time_correction",
             []( const std::vector< std::string >& perturbingBodies ) {
                 // Force bending to always be false
@@ -323,12 +324,12 @@ Examples
     py::enum_< tom::TroposphericMappingModel >( m, "TroposphericMappingModel", R"doc(No documentation found.)doc" )
             .value( "simplified_chao", tom::TroposphericMappingModel::simplified_chao )
             .value( "niell", tom::TroposphericMappingModel::niell )
-            .export_values( );
+            .value( "vmf3", tom::TroposphericMappingModel::vmf3 );
 
-    py::enum_< tom::WaterVaporPartialPressureModel >( m, "WaterVaporPartialPressureModel", R"doc(No documentation found.)doc" )
+    py::enum_< tom::WaterVaporPartialPressureModel >(
+            m, "WaterVaporPartialPressureModel", "enum.IntEnum", R"doc(No documentation found.)doc" )
             .value( "tabulated", tom::WaterVaporPartialPressureModel::tabulated )
-            .value( "bean_and_dutton", tom::WaterVaporPartialPressureModel::bean_and_dutton )
-            .export_values( );
+            .value( "bean_and_dutton", tom::WaterVaporPartialPressureModel::bean_and_dutton );
 
     m.def( "dsn_tabulated_tropospheric_light_time_correction",
            &tom::tabulatedTroposphericCorrectionSettings,
@@ -363,22 +364,22 @@ Examples
            py::arg( "use_utc_for_local_time_computation" ) = false,
            py::arg( "body_with_atmosphere_name" ) = "Earth",
            R"doc(No documentation found.)doc" );
-    
+
     // IONEX-based VTEC correction
     m.def( "ionex_ionospheric_light_time_correction",
-        &tom::ionexIonosphericCorrectionSettings,
-        py::arg( "body_with_ionosphere_name" ),
-        py::arg( "ionosphere_height" ),
-        py::arg( "first_order_delay_coefficient" ) = 40.3,
-        R"doc(Create IONEX-based ionospheric light time correction settings.)doc" );
+           &tom::ionexIonosphericCorrectionSettings,
+           py::arg( "body_with_ionosphere_name" ),
+           py::arg( "ionosphere_height" ),
+           py::arg( "first_order_delay_coefficient" ) = 40.3,
+           R"doc(Create IONEX-based ionospheric light time correction settings.)doc" );
 
     // VMF3 Tropospheric correction
     m.def( "vmf3_tropospheric_light_time_correction",
-        &tom::vmf3TroposphericCorrectionSettings,
-        py::arg( "body_with_atmosphere_name" ) = "Earth",
-        py::arg( "use_gradient_correction" ) = true,
-        py::arg( "tropospheric_mapping_model" ) = tom::vmf3,
-        R"doc(Create VMF3 tropospheric light time correction settings.)doc" );
+           &tom::vmf3TroposphericCorrectionSettings,
+           py::arg( "body_with_atmosphere_name" ) = "Earth",
+           py::arg( "use_gradient_correction" ) = true,
+           py::arg( "tropospheric_mapping_model" ) = tom::TroposphericMappingModel::vmf3,
+           R"doc(Create VMF3 tropospheric light time correction settings.)doc" );
 
     m.def( "inverse_power_series_solar_corona_light_time_correction",
            &tom::inversePowerSeriesSolarCoronaCorrectionSettings,
@@ -388,32 +389,27 @@ Examples
            py::arg( "sun_body_name" ) = "Sun",
            R"doc(No documentation found.)doc" );
 
-    py::class_<tom::VtecCalculator, std::shared_ptr<tom::VtecCalculator>>(m, "VtecCalculator");
+    py::class_< tom::VtecCalculator, std::shared_ptr< tom::VtecCalculator > >( m, "VtecCalculator" );
 
-    py::class_<tom::JakowskiVtecCalculator, std::shared_ptr<tom::JakowskiVtecCalculator>, tom::VtecCalculator>(
-        m, "JakowskiVtecCalculator")
-        .def(py::init<
-            std::function<double(double)>,
-            std::function<double(double)>,
-            bool>(),
-            py::arg("sun_declination_function"),
-            py::arg("f10p7_function"),
-            py::arg("use_utc_time_for_local_time") = false)
-        .def( "calculate_vtec",
-            &tudat::observation_models::JakowskiVtecCalculator::calculateVtec,
-            py::arg( "time" ),
-            py::arg( "sub_ionospheric_point" ));
+    py::class_< tom::JakowskiVtecCalculator, std::shared_ptr< tom::JakowskiVtecCalculator >, tom::VtecCalculator >(
+            m, "JakowskiVtecCalculator" )
+            .def( py::init< std::function< double( double ) >, std::function< double( double ) >, bool >( ),
+                  py::arg( "sun_declination_function" ),
+                  py::arg( "f10p7_function" ),
+                  py::arg( "use_utc_time_for_local_time" ) = false )
+            .def( "calculate_vtec",
+                  &tudat::observation_models::JakowskiVtecCalculator::calculateVtec,
+                  py::arg( "time" ),
+                  py::arg( "sub_ionospheric_point" ) );
 
-    py::class_<tom::GlobalIonosphereModelVtecCalculator,
-            std::shared_ptr<tom::GlobalIonosphereModelVtecCalculator>,
-            tom::VtecCalculator>(
-        m, "GlobalIonosphereModelVtecCalculator")
-        .def(py::init< std::shared_ptr<tudat::environment::IonosphereModel> >(),
-            py::arg("ionosphere_model"))
-        .def( "calculate_vtec",
-          &tudat::observation_models::GlobalIonosphereModelVtecCalculator::calculateVtec,
-          py::arg( "time" ),
-          py::arg( "sub_ionospheric_point" ));
+    py::class_< tom::GlobalIonosphereModelVtecCalculator,
+                std::shared_ptr< tom::GlobalIonosphereModelVtecCalculator >,
+                tom::VtecCalculator >( m, "GlobalIonosphereModelVtecCalculator" )
+            .def( py::init< std::shared_ptr< tudat::environment::IonosphereModel > >( ), py::arg( "ionosphere_model" ) )
+            .def( "calculate_vtec",
+                  &tudat::observation_models::GlobalIonosphereModelVtecCalculator::calculateVtec,
+                  py::arg( "time" ),
+                  py::arg( "sub_ionospheric_point" ) );
 
     m.def( "set_vmf_troposphere_data",
            &tom::setVmfTroposphereCorrections,
@@ -426,13 +422,13 @@ Examples
            py::arg( "interpolator_settings" ) = ti::cubicSplineInterpolation( ) );
 
     m.def( "set_ionosphere_model_from_ionex",
-       &tom::setIonosphereModelFromIonex,
-       py::arg( "data_files" ),
-       py::arg( "bodies" ),
-       py::arg( "interpolator_settings" ) = std::shared_ptr< ti::InterpolatorSettings >( ) );
+           &tom::setIonosphereModelFromIonex,
+           py::arg( "data_files" ),
+           py::arg( "bodies" ),
+           py::arg( "interpolator_settings" ) = std::shared_ptr< ti::InterpolatorSettings >( ) );
 }
 
-}
-}
-}
-}
+}  // namespace light_time_corrections
+}  // namespace observable_models_setup
+}  // namespace estimation
+}  // namespace tudatpy

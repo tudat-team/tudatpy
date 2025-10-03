@@ -474,6 +474,9 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
         case visible_source_area:
             variableSize = 1;
             break;
+        case solar_longitude:
+            variableSize = 1;
+            break;
         case vehicle_panel_inertial_surface_normals:
         case vehicle_panel_body_fixed_surface_normals: {
             std::string bodyWithProperty = dependentVariableSettings->associatedBody_;

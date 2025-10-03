@@ -96,7 +96,7 @@ void computePartialOfSchwarzschildAccelerationCorrectionWrtPpnParameterBeta( con
 }
 
 //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
-std::pair< std::function< void( Eigen::MatrixXd& ) >, int > RelativisticAccelerationPartial::getParameterPartialFunction(
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > RelativisticAccelerationPartial::getParameterPartialFunctionDerivedAcceleration(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
     std::function< void( Eigen::MatrixXd& ) > partialFunction;

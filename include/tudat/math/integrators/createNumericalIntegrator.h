@@ -257,7 +257,6 @@ std::shared_ptr< IntegratorStepSizeController< TimeStepType, StateType > > creat
             break;
         }
         case per_block_step_size_control: {
-            std::cout << "CReate step size control" << std::endl;
             std::shared_ptr< PerBlockIntegratorStepSizeControlSettings< double > > perBlockSettings =
                     std::dynamic_pointer_cast< PerBlockIntegratorStepSizeControlSettings< double > >( stepSizeControlSettings );
             std::shared_ptr< PerBlockIntegratorStepSizeControlSettings< Eigen::MatrixXd > > perBlockMatrixSettings =
@@ -275,15 +274,6 @@ std::shared_ptr< IntegratorStepSizeController< TimeStepType, StateType > > creat
             }
             else if( perBlockMatrixSettings != nullptr )
             {
-                std::cout << "Create matrix control" << std::endl;
-                auto A = perBlockMatrixSettings->relativeErrorTolerance_.template cast< typename StateType::Scalar >( );
-                auto B = perBlockMatrixSettings->absoluteErrorTolerance_.template cast< typename StateType::Scalar >( );
-                auto C = perBlockMatrixSettings->safetyFactorForNextStepSize_;
-                auto D = perBlockMatrixSettings->minimumFactorDecreaseForNextStepSize_;
-                auto E = perBlockMatrixSettings->maximumFactorDecreaseForNextStepSize_;
-
-                std::cout << "Create matrix control" << std::endl;
-
                 stepSizeController = std::make_shared< PerBlockIntegratorStepSizeController< TimeStepType, StateType > >(
                         perBlockSettings->blocksToCheckFunction_,
                         perBlockMatrixSettings->relativeErrorTolerance_.template cast< typename StateType::Scalar >( ),
@@ -292,7 +282,6 @@ std::shared_ptr< IntegratorStepSizeController< TimeStepType, StateType > > creat
                         integratorOrder + 1,
                         perBlockMatrixSettings->minimumFactorDecreaseForNextStepSize_,
                         perBlockMatrixSettings->maximumFactorDecreaseForNextStepSize_ );
-                std::cout << "Created matrix control" << std::endl;
             }
             else
             {

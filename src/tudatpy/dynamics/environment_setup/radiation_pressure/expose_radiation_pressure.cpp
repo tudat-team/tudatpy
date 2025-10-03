@@ -38,59 +38,42 @@ void expose_radiation_pressure_setup( py::module& m )
     /////////////////////////////////////////////////////////////////////////////
     // createRadiationPressureInterface.h
     /////////////////////////////////////////////////////////////////////////////
+
+    // DEPRECATED //
     py::enum_< tss::RadiationPressureType >(
-            m, "RadiationPressureType", R"doc(No documentation found.)doc" )
+            m, "RadiationPressureType" )
             .value( "cannonball_radiation_pressure_interface",
-                    tss::RadiationPressureType::cannon_ball_radiation_pressure_interface,
-                    R"doc(No documentation found.)doc" )
-            //                .value("panelled_radiation_pressure_interface",
-            //                       tss::RadiationPressureType::panelled_radiation_pressure_interface,
-            //                       get_docstring("RadiationPressureType.panelled_radiation_pressure_interface").c_str())
-            //                .value("solar_sailing_radiation_pressure_interface",
-            //                       tss::RadiationPressureType::solar_sailing_radiation_pressure_interface,
-            //                       get_docstring("RadiationPressureType.solar_sailing_radiation_pressure_interface").c_str())
-            .export_values( );
-    py::enum_< tss::RadiationPressureTargetModelType >(
-            m, "RadiationPressureTargetModelType", R"doc(No documentation found.)doc" )
-            .value( "cannonball_target",
-                    tss::RadiationPressureTargetModelType::cannonball_target,
-                    R"doc(No documentation found.)doc" )
-            .value( "paneled_target",
-                    tss::RadiationPressureTargetModelType::paneled_target,
-                    R"doc(No documentation found.)doc" )
-            .value( "multi_type_target",
-                    tss::RadiationPressureTargetModelType::multi_type_target,
-                    R"doc(No documentation found.)doc" )
-            .value( "undefined_target",
-                    tss::RadiationPressureTargetModelType::undefined_target,
-                    R"doc(No documentation found.)doc" )
+                    tss::RadiationPressureType::cannon_ball_radiation_pressure_interface )
             .export_values( );
 
+    py::enum_< tss::RadiationPressureTargetModelType >(
+            m, "RadiationPressureTargetModelType", R"doc(
+                Enum defining the type of a radiation pressure target. This enum is not used when creating a target model, but is instead used
+                in other parts of the code to identify a specific type of target
+)doc" )
+            .value( "cannonball_target",
+                    tss::RadiationPressureTargetModelType::cannonball_target )
+            .value( "paneled_target",
+                    tss::RadiationPressureTargetModelType::paneled_target )
+            .value( "multi_type_target",
+                    tss::RadiationPressureTargetModelType::multi_type_target )
+            .value( "undefined_target",
+                    tss::RadiationPressureTargetModelType::undefined_target )
+            .export_values( );
+
+        // DEPRECATED //
     py::class_< tss::RadiationPressureInterfaceSettings,
                 std::shared_ptr< tss::RadiationPressureInterfaceSettings > >(
-            m, "RadiationPressureInterfaceSettings", R"doc(No documentation found.)doc" );
-    //            .def(py::init<const
-    //            tss::RadiationPressureType, const std::string
-    //            &,
-    //                 const std::vector<std::string>>(),
-    //                 py::arg("radiation_pressure_type"),
-    //                 py::arg("source_body"),
-    //                 py::arg("occulting_bodies") =
-    //                 std::vector<std::string>());
+            m, "RadiationPressureInterfaceSettings" );
 
+        // DEPRECATED //
     py::class_< tss::CannonBallRadiationPressureInterfaceSettings,
                 std::shared_ptr< tss::CannonBallRadiationPressureInterfaceSettings >,
                 tss::RadiationPressureInterfaceSettings >(
-            m, "CannonBallRadiationPressureInterfaceSettings", R"doc(No documentation found.)doc" );
+            m, "CannonBallRadiationPressureInterfaceSettings" );
 
-    //            .def(py::init<const std::string &, const
-    //            double, const double,
-    //                 const std::vector<std::string> &>(),
-    //                 py::arg("source_body"), py::arg("area"),
-    //                 py::arg("radiation_pressure_coefficient"),
-    //                 py::arg("occulting_bodies") =
-    //                 std::vector<std::string>())
 
+        // DEPRECATED //
     m.def( "cannonball",
            py::overload_cast< const std::string&,
                               const double,
@@ -100,20 +83,8 @@ void expose_radiation_pressure_setup( py::module& m )
            py::arg( "source_body" ),
            py::arg( "reference_area" ),
            py::arg( "radiation_pressure_coefficient" ),
-           py::arg( "occulting_bodies" ) = std::vector< std::string >( ),
-           R"doc(No documentation found.)doc" );
+           py::arg( "occulting_bodies" ) = std::vector< std::string >( ) );
 
-    //        m.def("panelled",
-    //              &tss::panelledRadiationPressureInterfaceSettings,
-    //              py::arg("source_body"),
-    //              py::arg("emissivities"),
-    //              py::arg("areas"),
-    //              py::arg("diffusion_coefficients"),
-    //              py::arg("surface_normals_in_body_fixed_frame"),
-    //              py::arg("occulting_bodies") =
-    //              std::vector<std::string>(),
-    //              get_docstring("panelled").c_str()
-    //              );
 
     ///////////////////////////////////////////////////////////
     ///////////   ENUMS
@@ -1000,7 +971,13 @@ void expose_radiation_pressure_setup( py::module& m )
                    std::map< std::string, std::vector< std::string > >( ),
            R"doc(
 
- Function for cannonball radiation target
+ Function for create settings for a cannonball radiation pressure target
+
+ Function for create settings for a cannonball radiation pressure target, which is fully defined by its reference area :math:`A` and
+ radiation pressure coefficient :math:`C_{r}`. The resulting force due to a single source with irradiance :math:`\Phi`, with vector from source to target :math:`\mathbf{r}` is computed from:
+
+ .. math::
+    \mathbf{F}=\frac{\Phi}{c}C_{r}A\hat{\mathbf{r}}
 
 
  Parameters
@@ -1034,7 +1011,17 @@ void expose_radiation_pressure_setup( py::module& m )
  Function for creating settings for a paneled radiation pressure target model. Each source can have
  its own set of occulting bodies.
  This model requires the :attr:`~tudatpy.dynamics.environment_setup.BodySettings.vehicle_shape_settings` of type :class:`~tudatpy.dynamics.environment_setup.vehicle_systems.FullPanelledBodySettings` to be defined.
- The functions to define the panelled body settings are available in the :ref:`vehicle_systems` module.
+ The functions to define the panelled body settings are available in the :ref:`vehicle_systems` module. The panels defined there can be provided
+ with an object of type :class:`~BodyPanelReflectionLawSettings`, factory functions for which can be found in this module.
+
+ By summing over all target panels
+ and applying each panel's reflection law and a give source's irradiance :math:`\Phi`, the full radiation pressure force on the target is computed from:
+
+ .. math::
+    \mathbf{F}=\sum_{j}\frac{\Phi}{c}\hat{\mathbf{f}}
+
+ summing over all target panels :math:`j`. Here, :math:`\hat{\mathbf{f}}` defines resulting force direction and modulation due to the reflection law
+ (for instance :func:`specular_diffuse_body_panel_reflection`).
 
  Parameters
  ----------

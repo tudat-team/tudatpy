@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <string>
+#include <tudat/astro/basic_astro/dateTime.h>
 
 namespace tudat
 {
@@ -140,6 +141,47 @@ public:
     const TimeStepType minimumStepSize;
     const TimeStepType recommendedStepSize;
 };
+
+template< typename T >
+class EphemerisError : public TudatError
+{
+public:
+    EphemerisError( const T evaluationTime, const std::string& originalError )
+        : TudatError( "Error in ephemeris, requesting state at epoch " +
+                                std::to_string( static_cast< double >( evaluationTime ) ) +
+                                ".\nOriginal error: " + originalError ) { }
+
+private:
+
+};
+
+template< typename T >
+class LightTimeSolutionError : public TudatError
+{
+public:
+    LightTimeSolutionError( const T evaluationTime, const bool timeAtReception, const std::string& originalError )
+        : TudatError( "Error in light-time solution, computing light time with reference epoch " +
+                                std::to_string( static_cast< double >( evaluationTime ) ) + " (DateTime: " +
+                                basic_astrodynamics::DateTime::fromTime< T >( evaluationTime ).isoString( ) + ") at " +
+                                ( timeAtReception ? "receiver" : "transmitter" ) +
+                                ".\nOriginal error: " + originalError ) { }
+
+private:
+
+};
+
+class BodyDuringPropagationError : public TudatError {
+public:
+    BodyDuringPropagationError( const std::string bodyName, const std::string variableType )
+        : TudatError( "Error when attempting to retrieve " + variableType + " from " + bodyName +
+        ", the function you are using is only valid during a propagation. "
+        " It cannot be used outside of a propagation. To retrieve a body translational/rotational state outside of a propagation, extract it from the relevant "
+        " environment model (Body.ephemeris, Body.rotation_model, etc.) " ) { }
+
+private:
+
+};
+
 
 }  // namespace exceptions
 
