@@ -129,9 +129,9 @@ public:
     }
 
 
-    double getEpochSinceReference( )
+    double getReferenceEpoch( )
     {
-        return epochsSinceReference_;
+        return referenceEpochJ2000_;
     }
 
     void updateRotationMatrices( const double currentTime )
