@@ -990,7 +990,7 @@ void expose_rotation_model_setup( py::module& m )
            py::arg( "pole_precession" ),
            py::arg( "merdian_periodic_terms" ),
            py::arg( "pole_periodic_terms" ),
-           py::arg( "reference_epoch_j2000") = 0.0,
+           py::arg( "reference_epoch_j2000" ) = 0.0,
            R"doc(
 
  Function for creating a body rotation model using the typical formulation used by the IAU
