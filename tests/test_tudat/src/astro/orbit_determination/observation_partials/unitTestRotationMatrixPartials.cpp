@@ -354,184 +354,126 @@ BOOST_AUTO_TEST_CASE( testIauRotationPartials )
     //            std::make_pair( degreeToRadian * ( Eigen::Vector2d( ) << 0.002150, 0.000926 ).finished( ), degreeToRadian * 49.511251 );
 
     // Create rotation model
-    std::shared_ptr< tudat::ephemerides::IauRotationModel > iauRotationModel =
-            std::make_shared< ephemerides::IauRotationModel >( baseFrameOrientation,
-                                                               targetFrameOrientation,
-                                                               nominalMeridian,
-                                                               nominalPole,
-                                                               rotationRate,
-                                                               polePrecession,
-                                                               meridianPeriodicTerms,
-                                                               polePeriodicTerms );
-
+    for( int test = 0; test < 2; test++ )
     {
-        // Create partial object.
-        std::shared_ptr< RotationMatrixPartialWrtNominalPolePosition > rotationMatrixPartialObject =
-                std::make_shared< RotationMatrixPartialWrtNominalPolePosition >( iauRotationModel );
+        double referenceEpoch = ( test == 0 ) ? 0.0 : 50 * physical_constants::JULIAN_YEAR;
+        std::shared_ptr< tudat::ephemerides::IauRotationModel > iauRotationModel =
+                std::make_shared< ephemerides::IauRotationModel >( baseFrameOrientation,
+                                                                   targetFrameOrientation,
+                                                                   nominalMeridian,
+                                                                   nominalPole,
+                                                                   rotationRate,
+                                                                   polePrecession,
+                                                                   meridianPeriodicTerms,
+                                                                   polePeriodicTerms,
+                                                                   referenceEpoch );
 
-        // Compute partial analytically
-        double testTime = 1.0E9;
-        std::vector< Eigen::Matrix3d > rotationMatrixPartials =
-                rotationMatrixPartialObject->calculatePartialOfRotationMatrixToBaseFrameWrParameter( testTime );
-
-        //        std::vector< Eigen::Matrix3d > rotationMatrixDerivativePartials =
-        //                rotationMatrixPartialObject->calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
-        //                    testTime );
-
-        Eigen::Vector2d unperturbedPole = iauRotationModel->getNominalPole( );
-        Eigen::Vector2d perturbedPole = unperturbedPole;
-
-        // Compute partial numerically.
-        double perturbation = 1.0E-6;
         {
-            for( int poleIndex = 0; poleIndex < 2; poleIndex++ )
+            // Create partial object.
+            std::shared_ptr< RotationMatrixPartialWrtNominalPolePosition > rotationMatrixPartialObject =
+                    std::make_shared< RotationMatrixPartialWrtNominalPolePosition >( iauRotationModel );
+
+            // Compute partial analytically
+            double testTime = 1.0E9;
+            std::vector< Eigen::Matrix3d > rotationMatrixPartials =
+                    rotationMatrixPartialObject->calculatePartialOfRotationMatrixToBaseFrameWrParameter( testTime );
+
+            //        std::vector< Eigen::Matrix3d > rotationMatrixDerivativePartials =
+            //                rotationMatrixPartialObject->calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter(
+            //                    testTime );
+
+            Eigen::Vector2d unperturbedPole = iauRotationModel->getNominalPole( );
+            Eigen::Vector2d perturbedPole = unperturbedPole;
+
+            // Compute partial numerically.
+            double perturbation = 1.0E-6;
             {
-                perturbedPole = unperturbedPole;
-                perturbedPole( poleIndex ) = unperturbedPole( poleIndex ) + perturbation;
-                iauRotationModel->setNominalPole( perturbedPole );
-                Eigen::Matrix3d upperturbedRotationMatrix = iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( );
-                Eigen::Matrix3d upperturbedRotationMatrixDerivative = iauRotationModel->getDerivativeOfRotationToBaseFrame( testTime );
-
-                perturbedPole( poleIndex ) = unperturbedPole( poleIndex ) - perturbation;
-                iauRotationModel->setNominalPole( perturbedPole );
-                Eigen::Matrix3d downperturbedRotationMatrix = iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( );
-                Eigen::Matrix3d downperturbedRotationMatrixDerivative = iauRotationModel->getDerivativeOfRotationToBaseFrame( testTime );
-
-                Eigen::Matrix3d numericalRotationMatrixPartial =
-                        ( upperturbedRotationMatrix - downperturbedRotationMatrix ) / ( 2.0 * perturbation );
-                Eigen::Matrix3d numericalRotationMatrixDerivativePartial =
-                        ( upperturbedRotationMatrixDerivative - downperturbedRotationMatrixDerivative ) / ( 2.0 * perturbation );
-
-                Eigen::Matrix3d matrixDifference = rotationMatrixPartials.at( poleIndex ) - numericalRotationMatrixPartial;
-
-                std::cout << "Matrices (pole position): " << std::endl
-                          << numericalRotationMatrixPartial << std::endl
-                          << std::endl
-                          << rotationMatrixPartials.at( poleIndex ) << std::endl
-                          << std::endl
-                          << matrixDifference << std::endl
-                          << std::endl;
-
-                iauRotationModel->setNominalPole( unperturbedPole );
-
-                // Compare analytical and numerical result.
-                for( unsigned int i = 0; i < 3; i++ )
+                for( int poleIndex = 0; poleIndex < 2; poleIndex++ )
                 {
-                    for( unsigned int j = 0; j < 3; j++ )
-                    {
-                        BOOST_CHECK_SMALL( std::fabs( matrixDifference( i, j ) ), 1.0E-8 );
-                    }
-                }
-            }
-        }
-    }
-
-    {
-        // Create partial object.
-        std::shared_ptr< RotationMatrixPartialWrtPolePositionRate > rotationMatrixPartialObject =
-                std::make_shared< RotationMatrixPartialWrtPolePositionRate >( iauRotationModel );
-
-        // Compute partial analytically
-        double testTime = 1.0E9;
-        std::vector< Eigen::Matrix3d > rotationMatrixPartials =
-                rotationMatrixPartialObject->calculatePartialOfRotationMatrixToBaseFrameWrParameter( testTime );
-
-        Eigen::Vector2d unperturbedPoleRate = iauRotationModel->getPolePrecession( );
-        Eigen::Vector2d perturbedPoleRate = unperturbedPoleRate;
-
-        std::cout << unperturbedPoleRate << std::endl;
-        // Compute partial numerically.
-        {
-            for( int poleIndex = 0; poleIndex < 2; poleIndex++ )
-            {
-                double perturbation = 1.0E-14;
-                perturbedPoleRate = unperturbedPoleRate;
-                perturbedPoleRate( poleIndex ) = unperturbedPoleRate( poleIndex ) + perturbation;
-                iauRotationModel->setPolePrecession( perturbedPoleRate );
-                Eigen::Matrix3d upperturbedRotationMatrix = iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( );
-                Eigen::Matrix3d upperturbedRotationMatrixDerivative = iauRotationModel->getDerivativeOfRotationToBaseFrame( testTime );
-
-                perturbedPoleRate( poleIndex ) = unperturbedPoleRate( poleIndex ) - perturbation;
-                iauRotationModel->setPolePrecession( perturbedPoleRate );
-                Eigen::Matrix3d downperturbedRotationMatrix = iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( );
-                Eigen::Matrix3d downperturbedRotationMatrixDerivative = iauRotationModel->getDerivativeOfRotationToBaseFrame( testTime );
-                iauRotationModel->setPolePrecession( unperturbedPoleRate );
-
-                Eigen::Matrix3d numericalRotationMatrixPartial =
-                        ( upperturbedRotationMatrix - downperturbedRotationMatrix ) / ( 2.0 * perturbation );
-                Eigen::Matrix3d numericalRotationMatrixDerivativePartial =
-                        ( upperturbedRotationMatrixDerivative - downperturbedRotationMatrixDerivative ) / ( 2.0 * perturbation );
-
-                Eigen::Matrix3d matrixDifference = rotationMatrixPartials.at( poleIndex ) - numericalRotationMatrixPartial;
-
-                std::cout << "Matrices (pole rate): " << " " << perturbation << std::endl
-                          << numericalRotationMatrixPartial << std::endl
-                          << std::endl
-                          << rotationMatrixPartials.at( poleIndex ) << std::endl
-                          << std::endl
-                          << matrixDifference << std::endl
-                          << std::endl;
-
-                // Compare analytical and numerical result.
-                for( unsigned int i = 0; i < 3; i++ )
-                {
-                    for( unsigned int j = 0; j < 3; j++ )
-                    {
-                        BOOST_CHECK_SMALL( std::fabs( matrixDifference( i, j ) ), 0.1 );
-                    }
-                }
-            }
-        }
-    }
-
-    {
-        std::vector< double > librationFrequencies = utilities::createVectorFromMapKeys( meridianPeriodicTerms );
-        // Create partial object.
-        std::shared_ptr< RotationMatrixPartialWrtLongitudunalLibrationTermAmplitudes > rotationMatrixPartialObject =
-                std::make_shared< RotationMatrixPartialWrtLongitudunalLibrationTermAmplitudes >(
-                        iauRotationModel, utilities::createVectorFromMapKeys( meridianPeriodicTerms ) );
-
-        // Compute partial analytically
-        double testTime = 1.0E9;
-        std::vector< Eigen::Matrix3d > rotationMatrixPartials =
-                rotationMatrixPartialObject->calculatePartialOfRotationMatrixToBaseFrameWrParameter( testTime );
-
-        // Compute partials numerically.
-        {
-            // Compute partial for libration numerically.
-            {
-                std::map< double, std::pair< double, double > > perturbedMeridianPeriodicTerms = meridianPeriodicTerms;
-                std::map< double, std::pair< double, double > > unperturbedMeridianPeriodicTerms = meridianPeriodicTerms;
-
-                for( unsigned int librationIndex = 0; librationIndex < librationFrequencies.size( ); librationIndex++ )
-                {
-                    perturbedMeridianPeriodicTerms = unperturbedMeridianPeriodicTerms;
-                    double perturbation = 1.0E-6;
-
-                    perturbedMeridianPeriodicTerms[ librationFrequencies.at( librationIndex ) ].first += perturbation;
-                    iauRotationModel->setMeridianPeriodicTerms( perturbedMeridianPeriodicTerms );
+                    perturbedPole = unperturbedPole;
+                    perturbedPole( poleIndex ) = unperturbedPole( poleIndex ) + perturbation;
+                    iauRotationModel->setNominalPole( perturbedPole );
                     Eigen::Matrix3d upperturbedRotationMatrix = iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( );
                     Eigen::Matrix3d upperturbedRotationMatrixDerivative = iauRotationModel->getDerivativeOfRotationToBaseFrame( testTime );
 
-                    perturbedMeridianPeriodicTerms = unperturbedMeridianPeriodicTerms;
-                    perturbedMeridianPeriodicTerms[ librationFrequencies.at( librationIndex ) ].first -= perturbation;
-                    iauRotationModel->setMeridianPeriodicTerms( perturbedMeridianPeriodicTerms );
+                    perturbedPole( poleIndex ) = unperturbedPole( poleIndex ) - perturbation;
+                    iauRotationModel->setNominalPole( perturbedPole );
                     Eigen::Matrix3d downperturbedRotationMatrix = iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( );
                     Eigen::Matrix3d downperturbedRotationMatrixDerivative =
                             iauRotationModel->getDerivativeOfRotationToBaseFrame( testTime );
-                    iauRotationModel->setMeridianPeriodicTerms( unperturbedMeridianPeriodicTerms );
 
                     Eigen::Matrix3d numericalRotationMatrixPartial =
                             ( upperturbedRotationMatrix - downperturbedRotationMatrix ) / ( 2.0 * perturbation );
                     Eigen::Matrix3d numericalRotationMatrixDerivativePartial =
                             ( upperturbedRotationMatrixDerivative - downperturbedRotationMatrixDerivative ) / ( 2.0 * perturbation );
 
-                    Eigen::Matrix3d matrixDifference = rotationMatrixPartials.at( librationIndex ) - numericalRotationMatrixPartial;
+                    Eigen::Matrix3d matrixDifference = rotationMatrixPartials.at( poleIndex ) - numericalRotationMatrixPartial;
 
-                    std::cout << "Matrices: " << std::endl
+                    std::cout << "Matrices (pole position): " << std::endl
                               << numericalRotationMatrixPartial << std::endl
                               << std::endl
-                              << rotationMatrixPartials.at( librationIndex ) << std::endl
+                              << rotationMatrixPartials.at( poleIndex ) << std::endl
+                              << std::endl
+                              << matrixDifference << std::endl
+                              << std::endl;
+
+                    iauRotationModel->setNominalPole( unperturbedPole );
+
+                    // Compare analytical and numerical result.
+                    for( unsigned int i = 0; i < 3; i++ )
+                    {
+                        for( unsigned int j = 0; j < 3; j++ )
+                        {
+                            BOOST_CHECK_SMALL( std::fabs( matrixDifference( i, j ) ), 1.0E-8 );
+                        }
+                    }
+                }
+            }
+        }
+
+        {
+            // Create partial object.
+            std::shared_ptr< RotationMatrixPartialWrtPolePositionRate > rotationMatrixPartialObject =
+                    std::make_shared< RotationMatrixPartialWrtPolePositionRate >( iauRotationModel );
+
+            // Compute partial analytically
+            double testTime = 1.0E9;
+            std::vector< Eigen::Matrix3d > rotationMatrixPartials =
+                    rotationMatrixPartialObject->calculatePartialOfRotationMatrixToBaseFrameWrParameter( testTime );
+
+            Eigen::Vector2d unperturbedPoleRate = iauRotationModel->getPolePrecession( );
+            Eigen::Vector2d perturbedPoleRate = unperturbedPoleRate;
+
+            std::cout << unperturbedPoleRate << std::endl;
+            // Compute partial numerically.
+            {
+                for( int poleIndex = 0; poleIndex < 2; poleIndex++ )
+                {
+                    double perturbation = 1.0E-14;
+                    perturbedPoleRate = unperturbedPoleRate;
+                    perturbedPoleRate( poleIndex ) = unperturbedPoleRate( poleIndex ) + perturbation;
+                    iauRotationModel->setPolePrecession( perturbedPoleRate );
+                    Eigen::Matrix3d upperturbedRotationMatrix = iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( );
+                    Eigen::Matrix3d upperturbedRotationMatrixDerivative = iauRotationModel->getDerivativeOfRotationToBaseFrame( testTime );
+
+                    perturbedPoleRate( poleIndex ) = unperturbedPoleRate( poleIndex ) - perturbation;
+                    iauRotationModel->setPolePrecession( perturbedPoleRate );
+                    Eigen::Matrix3d downperturbedRotationMatrix = iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( );
+                    Eigen::Matrix3d downperturbedRotationMatrixDerivative =
+                            iauRotationModel->getDerivativeOfRotationToBaseFrame( testTime );
+                    iauRotationModel->setPolePrecession( unperturbedPoleRate );
+
+                    Eigen::Matrix3d numericalRotationMatrixPartial =
+                            ( upperturbedRotationMatrix - downperturbedRotationMatrix ) / ( 2.0 * perturbation );
+                    Eigen::Matrix3d numericalRotationMatrixDerivativePartial =
+                            ( upperturbedRotationMatrixDerivative - downperturbedRotationMatrixDerivative ) / ( 2.0 * perturbation );
+
+                    Eigen::Matrix3d matrixDifference = rotationMatrixPartials.at( poleIndex ) - numericalRotationMatrixPartial;
+
+                    std::cout << "Matrices (pole rate): " << " " << perturbation << std::endl
+                              << numericalRotationMatrixPartial << std::endl
+                              << std::endl
+                              << rotationMatrixPartials.at( poleIndex ) << std::endl
                               << std::endl
                               << matrixDifference << std::endl
                               << std::endl;
@@ -541,7 +483,75 @@ BOOST_AUTO_TEST_CASE( testIauRotationPartials )
                     {
                         for( unsigned int j = 0; j < 3; j++ )
                         {
-                            BOOST_CHECK_SMALL( std::fabs( matrixDifference( i, j ) ), 1.0E-5 );
+                            BOOST_CHECK_SMALL( std::fabs( matrixDifference( i, j ) ), 0.1 );
+                        }
+                    }
+                }
+            }
+        }
+
+        {
+            std::vector< double > librationFrequencies = utilities::createVectorFromMapKeys( meridianPeriodicTerms );
+            // Create partial object.
+            std::shared_ptr< RotationMatrixPartialWrtLongitudunalLibrationTermAmplitudes > rotationMatrixPartialObject =
+                    std::make_shared< RotationMatrixPartialWrtLongitudunalLibrationTermAmplitudes >(
+                            iauRotationModel, utilities::createVectorFromMapKeys( meridianPeriodicTerms ) );
+
+            // Compute partial analytically
+            double testTime = 1.0E9;
+            std::vector< Eigen::Matrix3d > rotationMatrixPartials =
+                    rotationMatrixPartialObject->calculatePartialOfRotationMatrixToBaseFrameWrParameter( testTime );
+
+            // Compute partials numerically.
+            {
+                // Compute partial for libration numerically.
+                {
+                    std::map< double, std::pair< double, double > > perturbedMeridianPeriodicTerms = meridianPeriodicTerms;
+                    std::map< double, std::pair< double, double > > unperturbedMeridianPeriodicTerms = meridianPeriodicTerms;
+
+                    for( unsigned int librationIndex = 0; librationIndex < librationFrequencies.size( ); librationIndex++ )
+                    {
+                        perturbedMeridianPeriodicTerms = unperturbedMeridianPeriodicTerms;
+                        double perturbation = 1.0E-6;
+
+                        perturbedMeridianPeriodicTerms[ librationFrequencies.at( librationIndex ) ].first += perturbation;
+                        iauRotationModel->setMeridianPeriodicTerms( perturbedMeridianPeriodicTerms );
+                        Eigen::Matrix3d upperturbedRotationMatrix =
+                                iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( );
+                        Eigen::Matrix3d upperturbedRotationMatrixDerivative =
+                                iauRotationModel->getDerivativeOfRotationToBaseFrame( testTime );
+
+                        perturbedMeridianPeriodicTerms = unperturbedMeridianPeriodicTerms;
+                        perturbedMeridianPeriodicTerms[ librationFrequencies.at( librationIndex ) ].first -= perturbation;
+                        iauRotationModel->setMeridianPeriodicTerms( perturbedMeridianPeriodicTerms );
+                        Eigen::Matrix3d downperturbedRotationMatrix =
+                                iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( );
+                        Eigen::Matrix3d downperturbedRotationMatrixDerivative =
+                                iauRotationModel->getDerivativeOfRotationToBaseFrame( testTime );
+                        iauRotationModel->setMeridianPeriodicTerms( unperturbedMeridianPeriodicTerms );
+
+                        Eigen::Matrix3d numericalRotationMatrixPartial =
+                                ( upperturbedRotationMatrix - downperturbedRotationMatrix ) / ( 2.0 * perturbation );
+                        Eigen::Matrix3d numericalRotationMatrixDerivativePartial =
+                                ( upperturbedRotationMatrixDerivative - downperturbedRotationMatrixDerivative ) / ( 2.0 * perturbation );
+
+                        Eigen::Matrix3d matrixDifference = rotationMatrixPartials.at( librationIndex ) - numericalRotationMatrixPartial;
+
+                        std::cout << "Matrices: " << std::endl
+                                  << numericalRotationMatrixPartial << std::endl
+                                  << std::endl
+                                  << rotationMatrixPartials.at( librationIndex ) << std::endl
+                                  << std::endl
+                                  << matrixDifference << std::endl
+                                  << std::endl;
+
+                        // Compare analytical and numerical result.
+                        for( unsigned int i = 0; i < 3; i++ )
+                        {
+                            for( unsigned int j = 0; j < 3; j++ )
+                            {
+                                BOOST_CHECK_SMALL( std::fabs( matrixDifference( i, j ) ), 1.0E-5 );
+                            }
                         }
                     }
                 }
