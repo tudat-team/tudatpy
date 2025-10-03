@@ -111,6 +111,10 @@ BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
                 linkEndIndices, testAngle, [ = ]( const double ) { return testBodyState; }, "TestBody" );
         std::shared_ptr< ObservationViabilityCalculator > bodyOccultationCalculator = std::make_shared< OccultationCalculator >(
                 linkEndIndices, [ = ]( const double ) { return testBodyState; }, testBodyRadius );
+        std::shared_ptr< CustomViabilityCalculator > customCalculator = std::make_shared< CustomViabilityCalculator >(
+                linkEndIndices, []( const std::vector< Eigen::Vector6d >& linkEndStates, const std::vector< double >& linkEndTimes ) {
+                    return linkEndTimes.at( 0 ) < 2.0 * 3600.0 * 50 ? true : false;
+                } );
 
         std::vector< double > linkEndTimes;
         linkEndTimes.resize( 2 );
@@ -185,6 +189,20 @@ BOOST_AUTO_TEST_CASE( testSeparateObservationViabilityCalculators )
                 // Compute viability and check against manual calculation
                 bool isObservationViable = bodyOccultationCalculator->isObservationViable( linkEndStates, linkEndTimes );
                 BOOST_CHECK_EQUAL( isObservationViable, manualIsObservationViable );
+            }
+
+            // Test custom viability
+            {
+                // Compute viability
+                bool isObservationViable = customCalculator->isObservationViable( linkEndStates, linkEndTimes );
+                if( linkEndTimes.at( 0 ) < 2.0 * 3600.0 * 50 )
+                {
+                    BOOST_CHECK_EQUAL( isObservationViable, 1 );
+                }
+                else
+                {
+                    BOOST_CHECK_EQUAL( isObservationViable, 0 );
+                }
             }
         }
     }

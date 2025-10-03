@@ -38,7 +38,8 @@ namespace observation_models
 enum ObservationViabilityType {
     minimum_elevation_angle,  // properties: no string, double = elevation angle
     body_avoidance_angle,     // properties: string = body to avoid, double = avoidance angle
-    body_occultation          // properties: string = occulting body, no double
+    body_occultation,         // properties: string = occulting body, no double
+    custom_viability,
 };
 
 //! Base class for determining whether an observation is possible or not
@@ -297,6 +298,23 @@ private:
 
     //! Radius of body causing occultation.
     double radiusOfOccultingBody_;
+};
+
+class CustomViabilityCalculator : public ObservationViabilityCalculator
+{
+public:
+    CustomViabilityCalculator(
+            const std::vector< std::pair< int, int > > linkEndIndices,
+            const std::function< bool( const std::vector< Eigen::Vector6d >, std::vector< double > ) > customViabilityFunction ):
+        linkEndIndices_( linkEndIndices ), customViabilityFunction_( customViabilityFunction )
+    { }
+
+    bool isObservationViable( const std::vector< Eigen::Vector6d >& linkEndStates, const std::vector< double >& linkEndTimes );
+
+private:
+    std::vector< std::pair< int, int > > linkEndIndices_;
+
+    std::function< bool( const std::vector< Eigen::Vector6d >, std::vector< double > ) > customViabilityFunction_;
 };
 
 }  // namespace observation_models

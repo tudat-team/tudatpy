@@ -15,11 +15,15 @@ Functions
 
    body_occultation_viability
 
+   custom_observation_viability
+
    elevation_angle_viability_list
 
    body_avoidance_viability_list
 
    body_occultation_viability_list
+
+   custom_observation_viability_list
 
    add_viability_check_to_all
 
@@ -33,11 +37,15 @@ Functions
 
 .. autofunction:: tudatpy.estimation.observations_setup.viability.body_occultation_viability
 
+.. autofunction:: tudatpy.estimation.observations_setup.viability.custom_observation_viability
+
 .. autofunction:: tudatpy.estimation.observations_setup.viability.elevation_angle_viability_list
 
 .. autofunction:: tudatpy.estimation.observations_setup.viability.body_avoidance_viability_list
 
 .. autofunction:: tudatpy.estimation.observations_setup.viability.body_occultation_viability_list
+
+.. autofunction:: tudatpy.estimation.observations_setup.viability.custom_observation_viability_list
 
 .. autofunction:: tudatpy.estimation.observations_setup.viability.add_viability_check_to_all
 
