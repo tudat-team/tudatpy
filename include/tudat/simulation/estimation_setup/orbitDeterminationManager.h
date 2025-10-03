@@ -651,6 +651,10 @@ public:
         // Get total number of observations
         int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
 
+        if( numberEstimatedParameters_ > totalNumberOfObservations )
+        {
+            throw std::runtime_error( "Error when computing covariance, number of observations is smaller than number of estimated parameters." );
+        }
         // Define full parameters values
         ParameterVectorType parameterValues = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
         ParameterVectorType fullParameterEstimate;
@@ -761,6 +765,11 @@ public:
 
         // Get number of observations
         int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
+
+        if( numberEstimatedParameters_ > totalNumberOfObservations )
+        {
+            throw std::runtime_error( "Error when estimating parameters, number of observations is smaller than number of estimated parameters." );
+        }
 
         if( estimationInput->getWeightsMatrixDiagonals( ).rows( ) != totalNumberOfObservations )
         {
