@@ -12,7 +12,7 @@
 
 
 # Create lists of static libraries for ease of use
-list(APPEND TUDAT_EXTERNAL_LIBRARIES ${CSpice_LIBRARIES})
+list(APPEND TUDAT_EXTERNAL_LIBRARIES CSpice::cspice)
 list(APPEND TUDAT_EXTERNAL_INTERFACE_LIBRARIES Tudat::tudat_spice_interface)
 
 list(APPEND TUDAT_ITRS_LIBRARIES "")

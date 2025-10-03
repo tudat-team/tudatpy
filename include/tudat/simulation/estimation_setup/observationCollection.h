@@ -1082,7 +1082,7 @@ namespace tudat
                 {
                     if (observationSetList_.count(obs_it.first) == 0)
                     {
-                        observationSetList_[obs_it.first] == obs_it.second;
+                        observationSetList_[obs_it.first] = obs_it.second;
                     }
                     else
                     {
@@ -1090,7 +1090,7 @@ namespace tudat
                         {
                             if (observationSetList_.at(obs_it.first).count(link_end_it.first) == 0)
                             {
-                                observationSetList_[obs_it.first][link_end_it.first] == link_end_it.second;
+                                observationSetList_[obs_it.first][link_end_it.first] = link_end_it.second;
                             }
                             else
                             {
