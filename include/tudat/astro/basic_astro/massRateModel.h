@@ -108,9 +108,10 @@ public:
     void updateMembers( const double currentTime = TUDAT_NAN )
     {
         // Check if update is needed.
-        if( !( currentTime_ == currentTime ) )
+        if( !( this->currentTime_ == currentTime ) )
         {
             currentMassRate_ = massRateFunction_( currentTime );
+            this->currentTime_ = currentTime;
         }
     }
 
