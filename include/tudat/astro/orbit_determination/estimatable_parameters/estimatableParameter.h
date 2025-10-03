@@ -91,7 +91,10 @@ enum EstimatebleParametersEnum {
     drag_component_scaling_factor,
     side_component_scaling_factor,
     lift_component_scaling_factor,
-
+    rtg_force_vector,
+    rtg_force_vector_magnitude,
+    area_to_mass_scaling_factor,
+    full_acceleration_scaling_factor
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );

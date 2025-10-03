@@ -445,10 +445,6 @@ void expose_spice( py::module &m )
  Angular velocity of newFrame w.r.t. originalFrame, expressed in originalFrame.
 
 
-
-
-
-
      )doc" );
 
     m.def( "compute_rotation_quaternion_and_rotation_matrix_derivative_between_frames",
@@ -595,12 +591,24 @@ void expose_spice( py::module &m )
     m.def( "convert_naif_id_to_body_name",
            &tudat::spice_interface::convertNaifIdToBodyName,
            py::arg( "naif_id" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
 
-    //        // kernel pool related
-    //        m.def("get_standard_kernels",
-    //              &tudat::spice_interface::getStandardSpiceKernels,
-    //              get_docstring("get_standard_kernels").c_str());
+ Function that converts the NAIF ID (used internally in Spice) to the name of the body
+
+ Parameters
+ ----------
+ naif_id : int
+     Identification number of the body
+
+ Returns
+ -------
+ str
+     Name of body corresponding to provided ID
+
+     )doc" );
+
+
+
 
     m.def( "load_standard_kernels",
            &tudat::spice_interface::loadStandardSpiceKernels,

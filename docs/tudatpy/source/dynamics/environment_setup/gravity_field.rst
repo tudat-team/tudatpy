@@ -3,12 +3,25 @@
 ``gravity_field``
 =================
 This module contains a set of factory functions for setting up the
-gravitational potential models of celestial bodies in an environment. Below a short
+gravitational potential models of celestial bodies in an environment.
+
+The main interfaces with Tudat is the :attr:`~tudatpy.dynamics.environment_setup.BodySettings.gravity_field_settings`
+attribute of the body settings, which defines settings for the gravity field of a body.
+The functions in this submodule are used to create this settings objects. When creating a body (typically using the
+:func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies` function), an object of type
+:class:`~tudatpy.dynamics.environment.GravityFieldModel` (or a derived class) is created
+and added to the associated :class:`~tudatpy.dynamics.environment.Body` object based on the settings object, which can
+be retrieved using the :attr:`~tudatpy.dynamics.environment.Body.gravity_field_model` attribute.
+
+The gravity field model is used in numerous aspects of a propagation and estimation in Tudat. Most prominently, it
+is used to compute gravitational accelerations (see :mod:`~tudatpy.dynamics.propagation_setup.acceleration`) and torques (see :mod:`~tudatpy.dynamics.propagation_setup.torque`).
+
+Below a short
 overview of aspects of some of the gravity field models in order to aid in
 properly selecting an choosing a model.
 Unlike most other environment model options in Tudat, there are multiple options for creating either a spherical harmonic gravity field, and a point mass gravity field:
 
-* Point-mass gravity field: defining the gravitational parameter manually (:func:`~tudatpy.dynamics.environment_setup.gravity_field.central`) or requiring the gravitational parameter to be extracted from Spice (:func:`~tudatpy.dynamics.environment_setup.gravity_field.central_spice`).
+* Point-mass gravity field: defining the gravitational parameter manually (:func:`~tudatpy.dynamics.environment_setup.gravity_field.central`), extracting it from Spice (:func:`~tudatpy.dynamics.environment_setup.gravity_field.central_spice`) or from the Small-Body Database (SBDB; :func:`~tudatpy.dynamics.environment_setup.gravity_field.sbdb_wrapper.central_sbdb`)
 * Spherical harmonic gravity field: defining all the settings manually (:func:`~tudatpy.dynamics.environment_setup.gravity_field.spherical_harmonic`), loading a pre-defined model for a solar system body (:func:`~tudatpy.dynamics.environment_setup.gravity_field.from_file_spherical_harmonic`) or calculating the spherical harmonic coefficients (up to a given degree) based on an ellipsoidal homogeneous mass distribution (:func:`~tudatpy.dynamics.environment_setup.gravity_field.spherical_harmonic_triaxial_body`)
 
 Rigid body properties will always be created automatically when a body is endowed with a gravity field, as described below:
@@ -17,7 +30,6 @@ Rigid body properties will always be created automatically when a body is endowe
 * Spherical harmonic gravity field: mass computed from gravitational parameter, center of mass computed from degree 1 gravity field coefficients, inertia tensor as described in :func:`~tudatpy.dynamics.environment_setup.gravity_field.spherical_harmonic`
 * Polyhedron gravity field: mass computed from gravitational parameter, center of mass and inertia tensor computed from homogeneous mas distribution inside body
 
-* sbdb_wrapper (:func:`~tudatpy.dynamics.environment_setup.gravity_field.sbdb_wrapper.central_sbdb`)
 
 
 

@@ -58,7 +58,7 @@ git checkout develop
 
 ````
 conda env create -f environment.yaml
-conda activate tudat-bundle
+conda activate tudatpy-dev
 ````
 
 > **Note**\

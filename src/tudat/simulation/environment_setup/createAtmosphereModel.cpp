@@ -10,6 +10,7 @@
 
 #include "tudat/astro/aerodynamics/exponentialAtmosphere.h"
 #include "tudat/astro/aerodynamics/tabulatedAtmosphere.h"
+#include "tudat/astro/aerodynamics/marsDtmAtmosphereModel.h"
 #if TUDAT_BUILD_WITH_NRLMSISE
 #include "tudat/astro/aerodynamics/nrlmsise00Atmosphere.h"
 #include "tudat/astro/aerodynamics/nrlmsise00InputFunctions.h"
@@ -163,6 +164,42 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
             }
             break;
         }
+        case mars_dtm_atmosphere:
+        {
+            std::shared_ptr< MarsDtmAtmosphereSettings > marsDtmAtmosphereSettings =
+                std::dynamic_pointer_cast< MarsDtmAtmosphereSettings >( atmosphereSettings );
+
+            if( marsDtmAtmosphereSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when creating Mars DTM atmosphere model, model settings are incompatible." );
+            }
+
+            std::string spaceWeatherFilePath;
+
+            if( marsDtmAtmosphereSettings->getSpaceWeatherFile( ) == "" )
+            {
+                // Use default space weather file stored in tudatBundle.
+                spaceWeatherFilePath = paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt";
+            }
+            else
+            {
+                // Use space weather file specified by user.
+                spaceWeatherFilePath = marsDtmAtmosphereSettings->getSpaceWeatherFile( );
+            }
+
+            tudat::input_output::solar_activity::SolarActivityDataMap solarActivityData =
+                tudat::input_output::solar_activity::readSolarActivityData( spaceWeatherFilePath );
+            std::shared_ptr< input_output::solar_activity::SolarActivityContainer > solarActivityContainer =
+                std::make_shared< input_output::solar_activity::SolarActivityContainer >( solarActivityData );
+            std::function< double( const double ) > f107Function = [=](const double time)
+            {
+                return solarActivityContainer->getSolarActivityData( time )->solarRadioFlux107Observed / 2.25;
+            };
+
+            // Create atmosphere model using NRLMISE00 input function
+            atmosphereModel = std::make_shared< aerodynamics::MarsDtmAtmosphereModel >( f107Function );
+            break;
+    }
 #if TUDAT_BUILD_WITH_NRLMSISE
         case nrlmsise00: {
             std::string spaceWeatherFilePath;

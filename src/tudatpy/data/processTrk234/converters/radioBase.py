@@ -172,7 +172,7 @@ class RadioBase(Converter):
                 )
             )
 
-        epoch_utc = time_representation.datetime_to_tudat(epoch).epoch()
+        epoch_utc = time_representation.DateTime.from_python_datetime(epoch).to_epoch()
         epoch_tdb = self.time_scale_converter.convert_time(
             input_scale=time_representation.utc_scale,
             output_scale=time_representation.tdb_scale,
