@@ -191,7 +191,17 @@ void expose_environment_setup( py::module& m )
 
          :type: list[BodyDeformationSettings]
       )doc" )
-            .def_readwrite( "ground_station_settings", &tss::BodySettings::groundStationSettings, R"doc(No documentation found.)doc" )
+            .def_readwrite( "ground_station_settings",
+                            &tss::BodySettings::groundStationSettings,
+                            R"doc(
+
+         List of objects that define the settings of the ground stations on the body, which are used as link ends of observations
+         Entries in this list are  typically
+         assigned by using a function from the :ref:`ground_station` module.
+
+
+         :type: list[GroundStationSettings]
+      )doc" )
             .def_readwrite( "rigid_body_settings",
                             &tss::BodySettings::rigidBodyPropertiesSettings,
                             R"doc(

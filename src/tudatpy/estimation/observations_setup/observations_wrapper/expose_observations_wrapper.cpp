@@ -31,14 +31,13 @@ namespace observations_wrapper
 
 void expose_observations_wrapper( py::module& m )
 {
-    py::module_::import( "tudatpy.estimation.observations" ).attr( "ObservationCollection" );
+    py::module_::import( "tudatpy.kernel.estimation.observations" ).attr( "ObservationCollection" );
 
     // Create wrapper function
     py::cpp_function getDsnDefaultTurnaroundRatios_wrapper = []( tudat::observation_models::FrequencyBands band1,
                                                                  tudat::observation_models::FrequencyBands band2 ) {
         return tom::getDsnDefaultTurnaroundRatios( band1, band2 );
     };
-
 
     py::class_< tom::ProcessedOdfFileContents< TIME_TYPE >, std::shared_ptr< tom::ProcessedOdfFileContents< TIME_TYPE > > >(
             m, "ProcessedOdfFileContents", R"doc(No documentation found.)doc" )
@@ -85,7 +84,6 @@ void expose_observations_wrapper( py::module& m )
            py::arg( "verbose" ) = true,
            py::arg( "earth_fixed_ground_station_positions" ) = tss::getApproximateDsnGroundStationPositions( ),
            R"doc(No documentation found.)doc" );
-
 
     m.def( "set_odf_information_in_bodies",
            &tom::setOdfInformationInBodies< TIME_TYPE >,
@@ -155,7 +153,6 @@ void expose_observations_wrapper( py::module& m )
            py::arg( "minimum_number_of_observations" ) = 10,
            R"doc(No documentation found.)doc" );
 
-
     m.def( "create_tracking_txtfile_observation_collection",
            py::overload_cast< const std::shared_ptr< tudat::input_output::TrackingTxtFileContents >,
                               const std::string,
@@ -170,8 +167,7 @@ void expose_observations_wrapper( py::module& m )
            py::arg( "ancillary_settings" ) = tom::ObservationAncilliarySimulationSettings( ),
            R"doc(No documentation found.)doc" );
 
-
-       m.def( "create_pseudo_observations_and_models",
+    m.def( "create_pseudo_observations_and_models",
            &tss::simulatePseudoObservations< TIME_TYPE, STATE_SCALAR_TYPE >,
            py::arg( "bodies" ),
            py::arg( "observed_bodies" ),
@@ -224,15 +220,14 @@ void expose_observations_wrapper( py::module& m )
 
      )doc" );
 
-     m.def( "single_type_observation_collection",
-           py::overload_cast<
-               const tom::ObservableType,
-               const tom::LinkDefinition&,
-               const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >&,
-               const std::vector< TIME_TYPE >,
-               const tom::LinkEndType,
-               const std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >(
-               &tom::createManualObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > ),
+    m.def( "single_type_observation_collection",
+           py::overload_cast< const tom::ObservableType,
+                              const tom::LinkDefinition&,
+                              const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >&,
+                              const std::vector< TIME_TYPE >,
+                              const tom::LinkEndType,
+                              const std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >(
+                   &tom::createManualObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "observable_type" ),
            py::arg( "link_ends" ),
            py::arg( "observations_list" ),
@@ -240,10 +235,9 @@ void expose_observations_wrapper( py::module& m )
            py::arg( "reference_link_end" ),
            py::arg( "ancilliary_settings" ) = nullptr,
            R"doc(No documentation found.)doc" );
-
 }
 
-}
-}
-}
-}
+}  // namespace observations_wrapper
+}  // namespace observations_setup
+}  // namespace estimation
+}  // namespace tudatpy

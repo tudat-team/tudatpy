@@ -271,12 +271,13 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
  Function for creating parameter settings for constant drag coefficients.
 
- Function for creating parameter settings object for a constant drag coefficient parameter :math:`C_{D}`.
+ Function for creating parameter settings object for a constant drag coefficient parameter :math:`C_{D}` (see :func:`~tudatpy.dynamics.propagation_setup.acceleration.aerodynamic` ).
  Using the constant drag coefficient as an estimatable parameter requires:
 
- * A :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.constant` aerodynamic interface to be defined for the body specified by the ``body`` parameter
+ * A :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.constant` aerodynamic interface (with :func:`~negative_aerodynamic_frame_coefficients` as input to ``force_coefficients_frame`` ) to be defined for the body specified by the ``body`` parameter
  * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.aerodynamic` acceleration
 
+ The estimated parameter modifies the :func:`~tudatpy.dynamics.propagation_setup.acceleration.aerodynamic`
 
  Parameters
  ----------
@@ -311,7 +312,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  * A :func:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.constant` aerodynamic interface to be defined for the body specified by the ``body`` parameter
  * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.aerodynamic` acceleration
 
- When using this parameter, whenever :math:`C_{D}` is required at a time :math:`t`, the index math:`i` in the ``arc_initial_times`` ordered list is
+ When using this parameter, whenever :math:`C_{D}` is required at a time :math:`t`, the index :math:`i` in the ``arc_initial_times`` ordered list is
  found for which :math:`t_{i}\le t<t_{i+1}` (or, if :math:`t` is larger than the largest value in the list, :math:`i` is set to be last index of the list),
  and the parameter entry representing :math:`C_{D,i}` will be used.
 
@@ -332,18 +333,67 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
      for arc-wise treatment of the specified body's constant drag coefficient.
 
 
-
-
-
-
-
      )doc" );
 
-    m.def( "drag_component_scaling", &tep::dragComponentScaling, py::arg( "body" ), R"doc(No documentation.)doc" );
+    m.def( "drag_component_scaling", &tep::dragComponentScaling, py::arg( "body" ),
+           R"doc(
 
-    m.def( "side_component_scaling", &tep::sideComponentScaling, py::arg( "body" ), R"doc(No documentation.)doc" );
+ Function for creating parameter settings for aerodynamic drag scaling factor
 
-    m.def( "lift_component_scaling", &tep::liftComponentScaling, py::arg( "body" ), R"doc(No documentation.)doc" );
+ Function for creating parameter settings object for a scaling factor :math:`K` (initialized to 1.0) for the aerodynamic force along the drag direction
+ (effectively scaling the drag coefficient :math:`C_{D}` (see :func:`~tudatpy.dynamics.propagation_setup.acceleration.aerodynamic` )
+
+ Using the arc-wise constant drag coefficient as an estimatable parameter requires:
+
+ * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.aerodynamic` acceleration
+
+ Note that, unlike the :func:`constant_drag_coefficient` parameter, this parameter does not modify the drag coefficient itself, but works
+ regardless of the type of aerodynamic coefficients (in any frame, and with any dependencies). Using this parameter, the aerodynamic
+ force along the drag directon is scaled (multiplied) by the factor :math:`K` during each function evaluation.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body, with whose aerodynamic acceleration model the estimatable parameter is associated.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class that define the settings. )doc" );
+
+    m.def( "side_component_scaling", &tep::sideComponentScaling, py::arg( "body" ),
+           R"doc(
+
+ Function for creating parameter settings for aerodynamic side force scaling factor
+
+ As :func:`~drag_component_scaling`, but scales the force along the :math:`C_{S}` direction rather than the :math:`C_{D}` direction
+
+ Parameters
+ ----------
+ body : str
+     Name of the body, with whose aerodynamic acceleration model the estimatable parameter is associated.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class that define the settings. )doc" );
+
+    m.def( "lift_component_scaling", &tep::liftComponentScaling, py::arg( "body" ),
+           R"doc(
+
+ Function for creating parameter settings for aerodynamic lift force scaling factor
+
+ As :func:`~drag_component_scaling`, but scales the force along the :math:`C_{L}` direction rather than the :math:`C_{D}` direction
+
+ Parameters
+ ----------
+ body : str
+     Name of the body, with whose aerodynamic acceleration model the estimatable parameter is associated.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class that define the settings. )doc" );
 
     m.def( "radiation_pressure_coefficient",
            &tep::radiationPressureCoefficient,
@@ -355,8 +405,8 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  Function for creating parameter settings object for a radiation pressure coefficient  :math:`C_{r}`.
  Using the radiation pressure coefficient as an estimatable parameter requires:
 
- * A :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.cannonball` radiation pressure interface to be defined for the body specified by the ``body`` parameter
- * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.cannonball_radiation_pressure` acceleration
+ * A :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.cannonball_radiation_target` radiation pressure target model to be defined for the body specified by the ``body`` parameter
+ * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.radiation_pressure` acceleration (which, if the body has multiple target model defined, has the ``target_type`` input set to :attr:`~tudatpy.dynamics.environment_setup.radiation_pressure.RadiationPressureTargetModelType.cannonball_target`)
 
 
  Parameters
@@ -368,11 +418,6 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  -------
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's radiation pressure coefficient.
-
-
-
-
-
 
 
      )doc" );
@@ -388,9 +433,9 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  Function for creating parameter settings object for arc-wise radiation pressure coefficients :math:`C_{r}` (arc-wise version of :func:`~tudatpy.dynamics.parameters_setup.radiation_pressure_coefficient`).
  Using the radiation pressure coefficient as an estimatable parameter requires:
 
- * A :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.cannonball_radiation_target` target model to be defined for the body specified by the ``body`` parameter
- * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.radiation_pressure` acceleration
- 
+ * A :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.cannonball_radiation_target` radiation pressure target model to be defined for the body specified by the ``body`` parameter
+ * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.radiation_pressure` acceleration (which, if the body has multiple target model defined, has the ``target_type`` input set to :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.cannonball_target`)
+
  When using this parameter, whenever :math:`C_{r}` is required at a time :math:`t`, the index math:`i` in the ``arc_initial_times`` ordered list is
  found for which :math:`t_{i}\le t<t_{i+1}` (or, if :math:`t` is larger than the largest value in the list, :math:`i` is set to be last index of the list),
  and the parameter entry representing :math:`C_{r,i}` will be used.
@@ -1082,14 +1127,98 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  -------
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's polar motion amplitudes.
+     )doc" );
 
+        m.def( "iau_rotation_model_pole",
+           &tep::iauRotationModelNominalPoleParameterSettings,
+           py::arg( "body" ),
+           R"doc(
 
+ Function for creating parameter settings for a body's nominal pole position in an IAU rotation model
 
+ Function for creating parameter settings for a body's nominal pole position in an IAU rotation model
+ Using this requires:
 
+ * A :func:`~tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model` rotation model specified by the ``body`` parameter
+ * Any dynamical or observational model to depend on the rotation model of the body specified by the ``body`` parameter
 
+ This parameter estimates the :math:`[\alpha_{0},\delta_{0}]` variables of the :func:`~tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model` rotation model
 
+ Parameters
+ ----------
+ body : str
+     Name of the body, with whose rotation model the estimatable parameter is associated.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's property
 
      )doc" );
+
+
+        m.def( "iau_rotation_model_pole_rate",
+           &tep::iauRotationModelPoleRateParameterSettings,
+           py::arg( "body" ),
+           R"doc(
+
+ Function for creating parameter settings for a body's pole precession rate in an IAU rotation model
+
+ Function for creating parameter settings for a body's pole precession rate in an IAU rotation model
+ Using this requires:
+
+ * A :func:`~tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model` rotation model specified by the ``body`` parameter
+ * Any dynamical or observational model to depend on the rotation model of the body specified by the ``body`` parameter
+
+ This parameter estimates the :math:`[\dot{\alpha},\dot{\delta}]` variables of the :func:`~tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model` rotation model
+
+ Parameters
+ ----------
+ body : str
+     Name of the body, with whose rotation model the estimatable parameter is associated.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's property
+
+     )doc" );
+
+        m.def( "iau_rotation_model_longitudinal_librations",
+           &tep::iauRotationModelLongitudinalLibrationParameterSettings,
+           py::arg( "body" ),
+           py::arg( "libration_angular_frequencies" ),
+           R"doc(
+
+ Function for creating parameter settings for a body's longitudinal libration amplitudes in an IAU rotation model
+
+ Function for creating parameter settings for a body's longitudinal libration amplitudes in an IAU rotation model
+ Using this requires:
+
+ * A :func:`~tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model` rotation model specified by the ``body`` parameter
+ * Any dynamical or observational model to depend on the rotation model of the body specified by the ``body`` parameter
+
+ This parameter estimates a list of :math:`W_{i}` variables of the :func:`~tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model` rotation model.
+ The values of :math:`i` for which :math:`W_{i}` is estimated is defined by the ``libration_angular_frequencies`` input, which defines the
+ corresponding :math:`\omega_{W_i}` values for which the librations are to be estimated. Note that the parameters are ordered as in
+ the ``libration_angular_frequencies`` vector.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body, with whose rotation model the estimatable parameter is associated.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's property
+
+     )doc" );
+
+
 
     // ###############   Observation Model Parameters
     // ################################
@@ -1306,11 +1435,6 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  -------
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified ground station's position bias.
-
-
-
-
-
 
 
      )doc" );
@@ -1614,7 +1738,26 @@ Returns
            &tep::yarkovskyParameter,
            py::arg( "body_name" ),
            py::arg( "central_body_name" ) = "Sun",
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+ Function for creating parameter settings for Yarkovsky parameter.
+
+ Function for creating parameter settings for Yarkovsky acceleration parameter :math:`A_{2}` (see :func:`~tudatpy.dynamics.propagation_setup.acceleration.yarkovsky`).
+
+ * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.yarkovsky` acceleration with ``central_body_name`` as body exerting the acceleration
+
+ Parameters
+ ----------
+ body : str
+     Name of the body, with whose radiation pressure acceleration model the estimatable parameter is associated.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's radiation pressure coefficient.
+
+
+     )doc" );
 
     m.def( "area_to_mass_ratio_scaling_parameter",
            &tep::areaToMassScaling,

@@ -99,11 +99,18 @@ void TabulatedGravityFieldVariations::resetCoefficientInterpolator( const std::m
 std::pair< Eigen::MatrixXd, Eigen::MatrixXd > TabulatedGravityFieldVariations::calculateSphericalHarmonicsCorrections( const double time )
 {
     // Interpolate corrections
-    Eigen::MatrixXd cosineSinePair = variationInterpolator_->interpolate( time );
+    try
+    {
+        Eigen::MatrixXd cosineSinePair = variationInterpolator_->interpolate( time );
+        // Split interpolated concatenated matrix and return.
+        return std::make_pair( cosineSinePair.block( 0, 0, numberOfDegrees_, numberOfOrders_ ),
+                               cosineSinePair.block( 0, numberOfOrders_, numberOfDegrees_, numberOfOrders_ ) );
+    }
+    catch( std::runtime_error& caughtException )
+    {
+        throw std::runtime_error( "Error when interpoalting spherical harmonic coefficient pair.\nOriginal error: " + std::string( caughtException.what( ) ) );
+    }
 
-    // Split interpolated concatenated matrix and return.
-    return std::make_pair( cosineSinePair.block( 0, 0, numberOfDegrees_, numberOfOrders_ ),
-                           cosineSinePair.block( 0, numberOfOrders_, numberOfDegrees_, numberOfOrders_ ) );
 }
 
 }  // namespace gravitation
