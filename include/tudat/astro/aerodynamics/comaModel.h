@@ -171,6 +171,11 @@ private:
     std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
                                            std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>> stokesInterpolators_;
 
+    //! Pre-initialized interpolators for reduced Stokes coefficients (for radius > reference radius)
+    //! Maps spherical harmonic degree/order pairs (n,m) to cosine and sine coefficient interpolators (1D: solar longitude only)
+    std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
+                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>>> reducedStokesInterpolators_;
+
     /*!
      * @brief Find the index of the time interval that contains a given time.
      *

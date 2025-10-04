@@ -91,8 +91,8 @@ BOOST_AUTO_TEST_CASE(test_stokes_dataset_creation)
 {
     // Test pure data model creation
     const std::vector<ComaStokesDataset::FileMeta> files = {
-        {2.015e9, 2.0150864e9, "test_file_1"},
-        {2.016e9, 2.0160864e9, "test_file_2"}
+        {2.015e9, 2.0150864e9, "test_file_1", 10000.0},
+        {2.016e9, 2.0160864e9, "test_file_2", 10000.0}
     };
     const std::vector<double> radii = {1000.0, 2000.0, 3000.0};
     const std::vector<double> lons = {0.0, 30.0, 60.0, 90.0};
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(test_stokes_dataset_creation)
 
     // Verify metadata
     BOOST_CHECK_EQUAL(dataset.nFiles(), 2);
-    BOOST_CHECK_EQUAL(dataset.nRadii(), 3);
+    BOOST_CHECK_EQUAL(dataset.nRadii(), 4); // 3 from radii vector + added ref radius
     BOOST_CHECK_EQUAL(dataset.nLongitudes(), 4);
     BOOST_CHECK_EQUAL(dataset.nmax(), nmax);
 
@@ -132,8 +132,8 @@ BOOST_AUTO_TEST_CASE(test_stokes_dataset_creation)
 
 BOOST_AUTO_TEST_CASE(test_stokes_dataset_bounds_checking)
 {
-    const std::vector<ComaStokesDataset::FileMeta> files = {{0, 0, "test"}};
-    const std::vector<double> radii = {1000.0};
+    const std::vector<ComaStokesDataset::FileMeta> files = {{0, 0, "test", 10000.0}};
+    const std::vector<double> radii = {1000.0}; // + ref. Radius
     const std::vector<double> lons = {0.0};
     constexpr int nmax = 5;
 
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE(test_stokes_dataset_bounds_checking)
 
     // Test out of bounds access
     BOOST_CHECK_THROW(dataset.setCoeff(1, 0, 0, 0, 0, 0, 0), std::out_of_range); // file OOR
-    BOOST_CHECK_THROW(dataset.setCoeff(0, 1, 0, 0, 0, 0, 0), std::out_of_range); // radius OOR
+    BOOST_CHECK_THROW(dataset.setCoeff(0, 2, 0, 0, 0, 0, 0), std::out_of_range); // radius OOR
     BOOST_CHECK_THROW(dataset.setCoeff(0, 0, 1, 0, 0, 0, 0), std::out_of_range); // longitude OOR
     BOOST_CHECK_THROW(dataset.setCoeff(0, 0, 0, 6, 0, 0, 0), std::out_of_range); // n > nmax
     BOOST_CHECK_THROW(dataset.setCoeff(0, 0, 0, 5, 6, 0, 0), std::out_of_range); // m > n
@@ -203,7 +203,7 @@ BOOST_FIXTURE_TEST_CASE(test_stokes_dataset_writer, TestDataPaths)
 {
     // Create a small dataset for testing
     std::vector<ComaStokesDataset::FileMeta> files = {
-        {0.0, 1.0, "test_source"}
+        {0.0, 1.0, "test_source", 10000}
     };
     std::vector<double> radii = {6000.0, 10000.0};
     std::vector<double> lons = {0.0, 30.0};
@@ -256,7 +256,7 @@ BOOST_FIXTURE_TEST_CASE(test_stokes_dataset_reader_from_csv, TestDataPaths)
 {
     // First, create and write a test dataset
     std::vector<ComaStokesDataset::FileMeta> files = {
-        {2.015e9, 2.0150864e9, "test_source"}
+        {2.015e9, 2.0150864e9, "test_source", 10000.0}
     };
     std::vector<double> radii = {6000.0, 10000.0};
     std::vector<double> lons = {0.0, 30.0};
@@ -323,13 +323,13 @@ BOOST_FIXTURE_TEST_CASE(test_stokes_dataset_reader_from_csv_folder, TestDataPath
 {
     // Create multiple test datasets (simulating multiple time epochs)
     std::vector<ComaStokesDataset::FileMeta> files1 = {
-        {0.0, 1.0, "test_file_1"}
+        {0.0, 1.0, "test_file_1", 10000.0}
     };
     std::vector<ComaStokesDataset::FileMeta> files2 = {
-        {1.0, 2.0, "test_file_2"}
+        {1.0, 2.0, "test_file_2", 10000.0}
     };
 
-    std::vector<double> radii = {6000.0, 8000.0};
+    std::vector<double> radii = {6000.0, 10000.0};
     std::vector<double> lons = {0.0, 45.0};
     int nmax = 5;
 

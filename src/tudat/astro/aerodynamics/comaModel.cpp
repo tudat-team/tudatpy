@@ -379,7 +379,6 @@ double ComaModel::computeDensityFromStokesCoefficients( double radius, double lo
     // Step 2: Get dataset properties
     const int nmax = stokesDataset_->nmax();
     const double referenceRadius = stokesDataset_->getReferenceRadius(fileIndex);
-    const auto& radiiGrid = stokesDataset_->radii();
 
     // Determine effective maximum degree and order
     const int effectiveMaxDegree = maximumDegree_ > 0 ? maximumDegree_ : nmax;
@@ -389,86 +388,140 @@ double ComaModel::computeDensityFromStokesCoefficients( double radius, double lo
     Eigen::MatrixXd cosineCoefficients = Eigen::MatrixXd::Zero(effectiveMaxDegree + 1, effectiveMaxOrder + 1);
     Eigen::MatrixXd sineCoefficients = Eigen::MatrixXd::Zero(effectiveMaxDegree + 1, effectiveMaxOrder + 1);
 
-    // Step 4: Handle radius beyond reference radius (apply 1/r² decay)
-    bool applyDecay = false;
-    double interpolationRadius = radius;
-    if (radius > referenceRadius)
+    // Step 4: Choose interpolation strategy based on radius
+    if (radius <= referenceRadius)
     {
-        applyDecay = true;
-        interpolationRadius = referenceRadius; // Clamp to boundary for interpolation
-    }
+        // Use regular 2D interpolators (radius, solar longitude)
+        const auto& radiiGrid = stokesDataset_->radii();
+        std::vector<double> interpolationPoint = {radius, solarLongitude};
 
-    std::vector<double> interpolationPoint = {interpolationRadius, solarLongitude};
-
-    // Step 5: Interpolate spherical harmonic coefficients using pre-initialized interpolators
-    for ( int n = 0; n <= effectiveMaxDegree; ++n )
-    {
-        for ( int m = 0; m <= std::min(n, effectiveMaxOrder); ++m )
+        for ( int n = 0; n <= effectiveMaxDegree; ++n )
         {
-            std::pair<int,int> nmPair = {n, m};
-            auto it = stokesInterpolators_.find(nmPair);
-
-            if ( it != stokesInterpolators_.end() )
+            for ( int m = 0; m <= std::min(n, effectiveMaxOrder); ++m )
             {
-                // Use pre-initialized interpolators for efficiency
-                cosineCoefficients(n, m) = it->second.first->interpolate(interpolationPoint);
-                if ( m > 0 )  // Sine coefficients only exist for m > 0
+                std::pair<int,int> nmPair = {n, m};
+                auto it = stokesInterpolators_.find(nmPair);
+
+                if ( it != stokesInterpolators_.end() )
                 {
-                    sineCoefficients(n, m) = it->second.second->interpolate(interpolationPoint);
-                }
-            }
-            else
-            {
-                // Fallback: create interpolator on-the-fly (should not happen if initialization was correct)
-                const auto& longitudeGrid = stokesDataset_->lons();
-                const std::size_t nRadii = radiiGrid.size();
-                const std::size_t nLons = longitudeGrid.size();
-
-                std::vector<std::vector<double>> independentGrids(2);
-                independentGrids[0] = radiiGrid;
-                independentGrids[1] = longitudeGrid;
-
-                boost::multi_array<double, 2> cosineGrid(boost::extents[nRadii][nLons]);
-                boost::multi_array<double, 2> sineGrid(boost::extents[nRadii][nLons]);
-
-                for ( std::size_t r = 0; r < nRadii; ++r )
-                {
-                    for ( std::size_t l = 0; l < nLons; ++l )
+                    // Use pre-initialized 2D interpolators
+                    cosineCoefficients(n, m) = it->second.first->interpolate(interpolationPoint);
+                    if ( m > 0 )  // Sine coefficients only exist for m > 0
                     {
-                        auto coeffs = stokesDataset_->getCoeff(fileIndex, r, l, n, m);
-                        cosineGrid[r][l] = coeffs.first;
-                        sineGrid[r][l] = coeffs.second;
+                        sineCoefficients(n, m) = it->second.second->interpolate(interpolationPoint);
                     }
                 }
-
-                interpolators::MultiLinearInterpolator<double, double, 2> cosineInterpolator(
-                    independentGrids, cosineGrid,
-                    interpolators::huntingAlgorithm,
-                    interpolators::extrapolate_at_boundary
-                );
-
-                interpolators::MultiLinearInterpolator<double, double, 2> sineInterpolator(
-                    independentGrids, sineGrid,
-                    interpolators::huntingAlgorithm,
-                    interpolators::extrapolate_at_boundary
-                );
-
-                cosineCoefficients(n, m) = cosineInterpolator.interpolate(interpolationPoint);
-                if ( m > 0 )
+                else
                 {
-                    sineCoefficients(n, m) = sineInterpolator.interpolate(interpolationPoint);
+                    // Fallback: create 2D interpolator on-the-fly
+                    const auto& longitudeGrid = stokesDataset_->lons();
+                    const std::size_t nRadii = radiiGrid.size();
+                    const std::size_t nLons = longitudeGrid.size();
+
+                    std::vector<std::vector<double>> independentGrids(2);
+                    independentGrids[0] = radiiGrid;
+                    independentGrids[1] = longitudeGrid;
+
+                    boost::multi_array<double, 2> cosineGrid(boost::extents[nRadii][nLons]);
+                    boost::multi_array<double, 2> sineGrid(boost::extents[nRadii][nLons]);
+
+                    for ( std::size_t r = 0; r < nRadii; ++r )
+                    {
+                        for ( std::size_t l = 0; l < nLons; ++l )
+                        {
+                            auto coeffs = stokesDataset_->getCoeff(fileIndex, r, l, n, m);
+                            cosineGrid[r][l] = coeffs.first;
+                            sineGrid[r][l] = coeffs.second;
+                        }
+                    }
+
+                    interpolators::MultiLinearInterpolator<double, double, 2> cosineInterpolator(
+                        independentGrids, cosineGrid,
+                        interpolators::huntingAlgorithm,
+                        interpolators::extrapolate_at_boundary
+                    );
+
+                    interpolators::MultiLinearInterpolator<double, double, 2> sineInterpolator(
+                        independentGrids, sineGrid,
+                        interpolators::huntingAlgorithm,
+                        interpolators::extrapolate_at_boundary
+                    );
+
+                    cosineCoefficients(n, m) = cosineInterpolator.interpolate(interpolationPoint);
+                    if ( m > 0 )
+                    {
+                        sineCoefficients(n, m) = sineInterpolator.interpolate(interpolationPoint);
+                    }
                 }
             }
         }
     }
-
-    // Step 6: Apply distance-dependent decay if needed
-    if (applyDecay)
+    else
     {
+        // Use reduced 1D interpolators (solar longitude only) + apply decay term
+        std::vector<double> reducedInterpolationPoint = {solarLongitude};
+
+        for ( int n = 0; n <= effectiveMaxDegree; ++n )
+        {
+            for ( int m = 0; m <= std::min(n, effectiveMaxOrder); ++m )
+            {
+                std::pair<int,int> nmPair = {n, m};
+                auto it = reducedStokesInterpolators_.find(nmPair);
+
+                if ( it != reducedStokesInterpolators_.end() )
+                {
+                    // Use pre-initialized 1D reduced interpolators
+                    cosineCoefficients(n, m) = it->second.first->interpolate(reducedInterpolationPoint);
+                    if ( m > 0 )  // Sine coefficients only exist for m > 0
+                    {
+                        sineCoefficients(n, m) = it->second.second->interpolate(reducedInterpolationPoint);
+                    }
+                }
+                else
+                {
+                    // Fallback: create 1D reduced interpolator on-the-fly
+                    const auto& longitudeGrid = stokesDataset_->lons();
+                    const std::size_t nLons = longitudeGrid.size();
+
+                    std::vector<std::vector<double>> reducedIndependentGrids(1);
+                    reducedIndependentGrids[0] = longitudeGrid;
+
+                    boost::multi_array<double, 1> reducedCosineGrid(boost::extents[nLons]);
+                    boost::multi_array<double, 1> reducedSineGrid(boost::extents[nLons]);
+
+                    for ( std::size_t l = 0; l < nLons; ++l )
+                    {
+                        auto reducedCoeffs = stokesDataset_->getReducedCoeff(fileIndex, l, n, m);
+                        reducedCosineGrid[l] = reducedCoeffs.first;
+                        reducedSineGrid[l] = reducedCoeffs.second;
+                    }
+
+                    interpolators::MultiLinearInterpolator<double, double, 1> reducedCosineInterpolator(
+                        reducedIndependentGrids, reducedCosineGrid,
+                        interpolators::huntingAlgorithm,
+                        interpolators::extrapolate_at_boundary
+                    );
+
+                    interpolators::MultiLinearInterpolator<double, double, 1> reducedSineInterpolator(
+                        reducedIndependentGrids, reducedSineGrid,
+                        interpolators::huntingAlgorithm,
+                        interpolators::extrapolate_at_boundary
+                    );
+
+                    cosineCoefficients(n, m) = reducedCosineInterpolator.interpolate(reducedInterpolationPoint);
+                    if ( m > 0 )
+                    {
+                        sineCoefficients(n, m) = reducedSineInterpolator.interpolate(reducedInterpolationPoint);
+                    }
+                }
+            }
+        }
+
+        // Apply decay term to the reduced coefficients
         simulation_setup::StokesCoefficientsEvaluator::applyDecayTerm(cosineCoefficients, radius, referenceRadius);
     }
 
-    // Step 7: Compute density using spherical harmonics expansion
+    // Step 5: Compute density using spherical harmonics expansion
     return sphericalHarmonicsCalculator_->calculateSurfaceSphericalHarmonics(
         sineCoefficients, cosineCoefficients,
         latitude, longitude,
@@ -543,6 +596,47 @@ void ComaModel::initializeStokesInterpolators()
 
             std::pair<int,int> nmPair = {n, m};
             stokesInterpolators_[nmPair] = {std::move(cosineInterpolator), std::move(sineInterpolator)};
+        }
+    }
+
+    // Initialize reduced interpolators for coefficients beyond reference radius
+    // These are 1D interpolators (solar longitude only)
+    std::vector<std::vector<double>> reducedIndependentGrids(1);
+    reducedIndependentGrids[0] = longitudeGrid; // Solar longitude grid only
+
+    for ( int n = 0; n <= effectiveMaxDegree; ++n )
+    {
+        for ( int m = 0; m <= std::min(n, effectiveMaxOrder); ++m )
+        {
+            const std::size_t nLons = longitudeGrid.size();
+            const int fileIndex = 0; // TODO: Could be extended for multi-file support
+
+            boost::multi_array<double, 1> reducedCosineGrid(boost::extents[nLons]);
+            boost::multi_array<double, 1> reducedSineGrid(boost::extents[nLons]);
+
+            // Fill grids with reduced coefficient values
+            for ( std::size_t l = 0; l < nLons; ++l )
+            {
+                auto reducedCoeffs = stokesDataset_->getReducedCoeff(fileIndex, l, n, m);
+                reducedCosineGrid[l] = reducedCoeffs.first;  // Cosine coefficient
+                reducedSineGrid[l] = reducedCoeffs.second;   // Sine coefficient
+            }
+
+            // Create and store reduced interpolators for this coefficient
+            auto reducedCosineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 1>>(
+                reducedIndependentGrids, reducedCosineGrid,
+                interpolators::huntingAlgorithm,
+                interpolators::extrapolate_at_boundary
+            );
+
+            auto reducedSineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 1>>(
+                reducedIndependentGrids, reducedSineGrid,
+                interpolators::huntingAlgorithm,
+                interpolators::extrapolate_at_boundary
+            );
+
+            std::pair<int,int> nmPair = {n, m};
+            reducedStokesInterpolators_[nmPair] = {std::move(reducedCosineInterpolator), std::move(reducedSineInterpolator)};
         }
     }
 }
