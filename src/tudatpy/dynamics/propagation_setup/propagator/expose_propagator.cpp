@@ -45,7 +45,7 @@ std::shared_ptr< tudat::propagators::MultiArcPropagatorProcessingSettings > mult
     return std::make_shared< tudat::propagators::MultiArcPropagatorProcessingSettings >( );
 }
 
-void expose_propagator_setup( py::module &m )
+void expose_propagator_setup( py::module& m )
 {
     ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -713,9 +713,9 @@ Enumeration of available integrated state types.
             :type: MultiArcPropagatorProcessingSettings
 
 )doc" )
-        .def_property_readonly( "initial_state_list",
-                                &tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getInitialStateList,
-                                R"doc(
+            .def_property_readonly( "initial_state_list",
+                                    &tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getInitialStateList,
+                                    R"doc(
             **read-only**
 
             List of initial states per arc (e.g. entry j of this list is the initial state for arc j).
@@ -724,9 +724,9 @@ Enumeration of available integrated state types.
 
 )doc" )
 
-        .def_property_readonly( "single_arc_settings",
-                                &tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getSingleArcSettings,
-                                R"doc(
+            .def_property_readonly( "single_arc_settings",
+                                    &tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getSingleArcSettings,
+                                    R"doc(
             **read-only**
 
             List of single arc settings (e.g. entry j of this list is the single-arc propagator setting for arc j).
@@ -734,10 +734,6 @@ Enumeration of available integrated state types.
             :type: list[SingleArcPropagatorSettings]
 
 )doc" );
-
-
-
-
 
     py::class_< tp::HybridArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::HybridArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -825,7 +821,42 @@ Enumeration of available integrated state types.
          `SingleArcPropagatorSettings`-derived class to define settings for single-arc translational dynamics.
 
       )doc" )
+            .def( py::init< const std::vector< std::string >,
+                            const tba::AccelerationMap,
+                            const std::vector< std::string >,
+                            const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 >,
+                            const TIME_TYPE,
+                            const std::shared_ptr< tni::IntegratorSettings< TIME_TYPE > >,
+                            const std::shared_ptr< tp::PropagationTerminationSettings >,
+                            const tp::TranslationalPropagatorType,
+                            const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
+                            const std::shared_ptr< tp::SingleArcPropagatorProcessingSettings > >( ),
+                  py::arg( "central_bodies" ),
+                  py::arg( "acceleration_models" ),
+                  py::arg( "bodies_to_propagate" ),
+                  py::arg( "initial_body_states" ),
+                  py::arg( "initial_time" ),
+                  py::arg( "integrator_settings" ),
+                  py::arg( "termination_settings" ),
+                  py::arg( "propagator" ) = tp::TranslationalPropagatorType::cowell,
+                  py::arg( "dependent_variable_settings" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
+                  py::arg( "output_settings" ) = std::make_shared< tp::SingleArcPropagatorProcessingSettings >( ),
+                  R"doc(Settings for single-arc translational propagator
 
+                  In the description of the parameters, n represents the number of bodies that are propagated, and the brackets at the end of each line provide information about the expected shape of the input.
+
+                  :param central_bodies: List of central bodies [n,]
+                  :param acceleration_models: Acceleration models per body to propagate, generally obtained from the `create_acceleration_models` function.
+                  :param bodies_to_propagate: List of bodies to propagate [n,]
+                  :param initial_body_states: State of the bodies to propagate at the initial epoch [n, 6]
+                  :param initial_time: The initial epoch for the propagation
+                  :param integrator_settings: Settings for the numerical integrator, generally obtained from one of the functions in `propagation_setup.integrator`
+                  :param termination_settings: Settings for the termination condition, generally obtained from functions in `propagation_setup.propagator`
+                  :param propagator: The way in which the state of the bodies is represented during propagation (e.g. Cowell, Keplerian elements, USM)
+                  :param dependent_variable_settings: List of dependent variables to save
+                  :param output_settings: Settings for output processing and printing to stdout during propagation
+                  :return propagator_settings: Settings object to be used as input for `create_dynamics_simulator`
+                  )doc" )
             .def( "get_propagated_state_size",
                   &tp::TranslationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getPropagatedStateSize )
             .def( "reset_and_recreate_acceleration_models",
@@ -984,13 +1015,13 @@ Enumeration of available integrated state types.
     ///////////////////////////////////////////////////////////////////////////////////////
 
     m.def( "translational",
-           py::overload_cast< const std::vector< std::string > &,
-                              const tba::AccelerationMap &,
-                              const std::vector< std::string > &,
-                              const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > &,
+           py::overload_cast< const std::vector< std::string >&,
+                              const tba::AccelerationMap&,
+                              const std::vector< std::string >&,
+                              const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 >&,
                               const std::shared_ptr< tp::PropagationTerminationSettings >,
                               const tp::TranslationalPropagatorType,
-                              const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > > &,
+                              const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >&,
                               const double >( &tp::translationalStatePropagatorSettingsDeprecated< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "central_bodies" ),
            py::arg( "acceleration_models" ),
@@ -1064,9 +1095,9 @@ TranslationalStatePropagatorSettings
      )doc" );
 
     m.def( "rotational",
-           py::overload_cast< const tba::TorqueModelMap &,
-                              const std::vector< std::string > &,
-                              const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > &,
+           py::overload_cast< const tba::TorqueModelMap&,
+                              const std::vector< std::string >&,
+                              const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 >&,
                               const std::shared_ptr< tp::PropagationTerminationSettings >,
                               const tp::RotationalPropagatorType,
                               const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
@@ -1118,10 +1149,10 @@ initial_time : astro.time_representation.Time
 integrator_settings : IntegratorSettings
     Settings defining the numerical integrator that is to be used for the propagation
 
-    .. note:: 
-    
+    .. note::
+
         The sign of the initial time step in the integrator settings defines whether the propagation will be forward or backward in time
-    
+
 termination_settings : PropagationTerminationSettings
     Generic termination settings object to check whether the propagation should be ended.
 propagator : RotationalPropagatorType, default=quaternions
@@ -1146,8 +1177,8 @@ RotationalStatePropagatorSettings
 
     m.def( "mass",
            py::overload_cast< const std::vector< std::string >,
-                              const std::map< std::string, std::vector< std::shared_ptr< tba::MassRateModel > > > &,
-                              const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > &,
+                              const std::map< std::string, std::vector< std::shared_ptr< tba::MassRateModel > > >&,
+                              const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 >&,
                               const std::shared_ptr< tp::PropagationTerminationSettings >,
                               const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
                               const double >( &tp::massPropagatorSettingsDeprecated< STATE_SCALAR_TYPE, TIME_TYPE > ),
@@ -1776,7 +1807,7 @@ HybridArcPropagatorSettings
 
      )doc" );
 
-     m.def( "get_integrated_type_and_body_list",
+    m.def( "get_integrated_type_and_body_list",
            &tp::getIntegratedTypeAndBodyList< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "propagator_settings" ) );
 
