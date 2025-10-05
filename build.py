@@ -7,7 +7,719 @@ import os
 import ast
 import tempfile
 from dataclasses import dataclass
-from typing import Generator
+from typing import Generator, Callable
+import logging
+import enum
+import types
+import inspect
+import re
+import importlib
+import sys
+
+
+class CustomFormatter(logging.Formatter):
+
+    grey = "\x1b[38;20m"
+    blue = "\x1b[34;20m"
+    green = "\x1b[32;20m"
+    yellow = "\x1b[33;20m"
+    red = "\x1b[31;20m"
+    bold_red = "\x1b[31;1m"
+    reset = "\x1b[0m"
+    _format = "%(levelname)-8s :: %(asctime)s :: %(message)s"
+
+    FORMATS = {
+        logging.DEBUG: green + _format + reset,
+        logging.INFO: blue + _format + reset,
+        logging.WARNING: yellow + _format + reset,
+        logging.ERROR: red + _format + reset,
+        logging.CRITICAL: bold_red + _format + reset,
+    }
+
+    def format(self, record) -> str:
+        log_fmt = self.FORMATS.get(record.levelno)
+        formatter = logging.Formatter(log_fmt, datefmt="%Y-%m-%d %H:%M:%S")
+        return formatter.format(record)
+
+
+log = logging.getLogger(__package__)
+log.setLevel(logging.INFO)
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+ch.setFormatter(CustomFormatter())
+log.addHandler(ch)
+
+
+class MethodTypes(enum.IntEnum):
+
+    normal_method = enum.auto()
+    class_method = enum.auto()
+    static_method = enum.auto()
+
+
+class CppEnumProcessor:
+
+    def __init__(self, enum: type, module: "CppModuleProcessor") -> None:
+
+        self.enum = enum
+        self.name = enum.__name__
+        self.docstring = enum.__doc__
+        self.options = [
+            attr
+            for attr in dir(self.enum)
+            if (not attr.startswith("_")) and (attr not in ("name", "value"))
+        ]
+        self.module = module
+
+        # Set has_enum flag to true for module
+        self.module.required_imports.add("enum")
+
+        return None
+
+    def process(self) -> ast.ClassDef:
+
+        # Initialize empty body
+        enum_body: list[ast.stmt] = []
+
+        # Add docstring if present
+        if self.docstring is not None:
+            enum_body.append(ast.Expr(ast.Constant(self.docstring)))
+
+        # Generate body for ClassDef
+        for option in self.options:
+            enum_body.append(
+                ast.AnnAssign(
+                    target=ast.Name(id=option, ctx=ast.Store()),
+                    annotation=ast.Name(id=self.name, ctx=ast.Load()),
+                    simple=1,
+                )
+            )
+
+        return ast.ClassDef(
+            name=self.name,
+            bases=[ast.Name(id="enum.Enum", ctx=ast.Load())],
+            keywords=[],
+            body=enum_body,
+            decorator_list=[],
+        )
+
+
+class CppFunctionProcessor:
+
+    def __init__(
+        self,
+        name: str,
+        function: Callable,
+        module: "CppModuleProcessor",
+        custom_decorators: list[str] | None = None,
+    ) -> None:
+
+        # Function name
+        self.name = name
+        self.__function = function
+        self.processed_signature: str | None = None
+        self.decorators: str | None = None
+        self.docstring: str | None = None
+
+        # Traceback and invalid flag
+        self.invalid: bool = False
+        self.warn: bool = False
+        self.fatal: bool = False
+        self.skip: bool = False
+        self.traceback: str = ""
+
+        # The module to which the function belongs
+        self.module = module
+
+        # Retrieve documentation for function
+        is_python_function: bool = False
+        if function.__doc__ is None:
+
+            # Check if it is a Python function (e.g. expections)
+            if isinstance(function, types.FunctionType):
+                is_python_function = True
+            # Otherwise fail due to lack of information about function
+            else:
+                self.invalid = True
+                self.fatal = True
+                self.traceback = (
+                    self.module.cerror
+                    + f"Missing documentation for {name} function ({function})"
+                )
+                return None
+
+        # If python function, generate documentation
+        if is_python_function:
+
+            # Get signature from function object
+            signature = inspect.signature(function)
+            return_type = signature.return_annotation
+            documentation = f"def {name}{str(signature)}"
+
+            # Define return type if not specified
+            if isinstance(return_type, inspect._empty):
+
+                # If name is __init__, set return type to None
+                if name == "__init__":
+                    documentation += " -> None"
+                else:
+                    documentation += " -> typing.Any"
+        else:
+
+            # Sanity
+            assert function.__doc__ is not None
+
+            # Special case: constructor without signature
+            if (
+                self.name == "__init__"
+                and "See help(type(self))" in function.__doc__
+            ):
+                documentation = (
+                    "__init__(self) -> None\n\nCONSTRUCTOR NOT EXPOSED"
+                )
+                self.skip = True
+            else:
+                documentation = function.__doc__.strip()
+
+        # Separate components of documentation
+        self.__separate_documentation_components(
+            documentation=documentation,
+            custom_decorators=custom_decorators,
+        )
+
+        # Update import statements for module
+        if not self.invalid:
+            self.__update_required_imports()
+
+        return None
+
+    @property
+    def documentation(self) -> str:
+
+        common_traceback: str = (
+            f"Failed to generate documentation for {self.name}: "
+        )
+        if self.decorators is None:
+            log.fatal(common_traceback + "Missing decorators")
+            exit(1)
+        if self.signature is None:
+            log.fatal(common_traceback + "Missing signature")
+            exit(1)
+        if self.docstring is None:
+            log.fatal(common_traceback + "Missing docstring")
+            exit(1)
+
+        return f"{self.decorators}\n{self.signature}\n\t'''{self.docstring}'''".strip()
+
+    def __update_required_imports(self) -> None:
+
+        if self.signature is None:
+            return None
+
+        # Extract imported modules from signature with regex
+        used_modules = re.findall(
+            r"\s[a-zA-Z][a-zA-Z]*(?=\.)",
+            self.signature,
+        )
+        # Update list of imported statements
+        if len(used_modules) > 0:
+            for item in used_modules:
+                _item = str(item).strip()
+                self.module.required_imports.add(_item)
+
+        return None
+
+    def __separate_documentation_components(
+        self, documentation: str, custom_decorators: list[str] | None = None
+    ) -> None:
+
+        # Extract decorators if present
+        __decorator_match = re.match(
+            pattern=r"(@.*?\n?)*(?=def)",
+            string=documentation,
+        )
+        decorators: str = (
+            ""
+            if custom_decorators is None
+            else ("@" + "\n@".join(custom_decorators))
+        )
+        if __decorator_match is not None:
+            decorators += "\n" + __decorator_match.group(0)
+        self.decorators = decorators.strip()
+
+        # Extract signature
+        __signature_match = re.search(r"\(.+(?=\n|$)", documentation)
+        if __signature_match is None:
+            self.invalid = True
+            self.fatal = True
+            self.traceback = (
+                self.module.cerror
+                + f"Missing signature for {self.name} function"
+            )
+            return None
+        signature = f"def {self.name}{str(__signature_match[0]).strip()}:"
+        self.signature = self.__fix_signature(signature)
+
+        __docstring_match = re.search(r"(?<=\n)(.|\n)+", documentation)
+        self.docstring = "No documentation found"
+        if __docstring_match is not None:
+            self.docstring = __docstring_match.group(0).strip()
+
+    def __fix_signature(self, signature: str) -> str:
+
+        if self.invalid:
+            return signature
+
+        # Fail if C++ types in signature
+        invalid_types_match = re.search(
+            r"\w*(\:\:(\w+<.*[^-]>|\w+))+", signature
+        )
+        if invalid_types_match is not None:
+
+            invalid_types = invalid_types_match.group(0).rstrip(",")
+            self.invalid = True
+            self.traceback = (
+                self.module.cerror
+                + f"Invalid type {invalid_types} in function {self.name} "
+            )
+            return signature
+
+        # Detect invalid default values
+        invalid_defaults_match = re.search(r"(?<=\= )(\W)*<.*?>", signature)
+        if invalid_defaults_match is not None:
+            invalid_defaults = invalid_defaults_match.group(0)
+            self.invalid = True
+            self.traceback = (
+                self.module.cerror
+                + f"Invalid default argument {invalid_defaults} in function {self.name} "
+            )
+            return signature
+
+        # Replace long array typings
+        signature = re.sub(
+            r"typing\.Annotated\[numpy\.typing\.ArrayLike,.*?\[.*?\].*?\]",
+            "numpy.ndarray",
+            signature,
+        )
+        signature = re.sub(
+            r"typing\.Annotated\[numpy\.typing\.NDArray\[.*?\].*?\[.*?\].*?\]",
+            "numpy.ndarray",
+            signature,
+        )
+
+        # Fix: Replace array with numpy.array
+        signature = re.sub(r"(?<=[^.])array(?=\()", "numpy.array", signature)
+
+        # Replace collections.abc with typing
+        signature = re.sub(r"collections\.abc", "typing", signature)
+
+        # Replace tudatpy.kernel with tudatpy
+        signature = signature.replace("tudatpy.kernel", "tudatpy")
+
+        # Replace arg0 with self (properties and setters)
+        signature = signature.replace("(arg0", "(self")
+
+        # Remove type annotation for self
+        signature = re.sub(r"self:.*?(?=\)|,)", "self", signature)
+
+        return signature
+
+    def handle_errors(self, extra_traceback: str = "") -> None:
+
+        if not self.invalid and not self.warn:
+            return None
+
+        traceback = self.traceback + extra_traceback
+        if self.warn:
+            log.warning(traceback)
+            self.invalid = False
+            return None
+
+        if not self.fatal:
+            log.error(traceback)
+            return None
+
+        log.fatal(traceback)
+        exit(1)
+
+    def process(self) -> ast.FunctionDef:
+
+        try:
+            fun = ast.parse(self.documentation).body[0]
+        except SyntaxError as e:
+            print(self.__function)
+            print(f"Processed: {self.documentation}\n\n")
+            raise e
+        assert isinstance(fun, ast.FunctionDef)
+        return fun
+
+
+class CppClassProcessor:
+
+    def __init__(self, class_: type, module: "CppModuleProcessor") -> None:
+
+        self.class_ = class_
+
+        # Documentation
+        if self.class_.__doc__ is None:
+            self.docstring = "No documentation found"
+        else:
+            self.docstring = class_.__doc__
+
+        # Name and module
+        self.name = class_.__name__
+        self.module = module
+
+        # Body
+        self.body: list[ast.stmt] = [ast.Expr(ast.Constant(self.docstring))]
+
+        return None
+
+    def __get_type_of_method(
+        self, method: "CppFunctionProcessor"
+    ) -> MethodTypes:
+
+        # Get name of first argument from signature
+        first_argument_match = re.search(r"(?<=\()\w*", method.signature)
+
+        # If no arguments, static method
+        if first_argument_match is None:
+            return MethodTypes.static_method
+
+        match first_argument_match.group(0):
+            case "self":
+                return MethodTypes.normal_method
+            case "cls":
+                return MethodTypes.class_method
+            case _:
+                return MethodTypes.static_method
+
+    def process(self) -> ast.ClassDef:
+
+        # Get parents
+        parents: list[str] = []
+        for parent in self.class_.__bases__:
+            if "pybind11_object" in str(parent):
+                continue
+            if parent.__module__ != self.class_.__module__:
+                parents.append(parent.__module__ + parent.__name__)
+            else:
+                parents.append(parent.__name__)
+
+        # Process the attributes of the class
+        attributes: list[str] = ["__init__"]
+        for x in dir(self.class_):
+            if x.startswith("_") or x.endswith("_"):
+                continue
+            attributes.append(x)
+        for attribute_name in attributes:
+
+            # Get attribute
+            attribute = getattr(self.class_, attribute_name)
+
+            # Process methods
+            if inspect.isroutine(attribute):
+
+                # Initialize function processor
+                method = CppFunctionProcessor(
+                    name=attribute.__name__,
+                    function=attribute,
+                    module=self.module,
+                    custom_decorators=None,
+                )
+                method.handle_errors(f"{self.name} class")
+
+                # Adjust decorators based on type of method
+                assert isinstance(method.decorators, str)
+                match self.__get_type_of_method(method):
+
+                    case MethodTypes.normal_method:
+                        pass
+                    case MethodTypes.class_method:
+                        method.decorators += "@classmethod"
+                    case MethodTypes.static_method:
+                        method.decorators += "@staticmethod"
+
+                # Check if method is static and fix
+                if (not method.invalid) and (not method.skip):
+                    self.body.append(method.process())
+
+            # Process getters and setters
+            elif hasattr(attribute, "fget") or hasattr(attribute, "fset"):
+
+                # Process getter
+                if (
+                    hasattr(attribute, "fget")
+                    and getattr(attribute, "fget") is not None
+                ):
+
+                    getter = CppFunctionProcessor(
+                        name=attribute_name,
+                        function=getattr(attribute, "fget"),
+                        module=self.module,
+                        custom_decorators=["property"],
+                    )
+                    getter.handle_errors(f"{self.name} class")
+                    if not getter.invalid:
+                        self.body.append(getter.process())
+
+                # Process setter
+                if (
+                    hasattr(attribute, "fset")
+                    and getattr(attribute, "fset") is not None
+                ):
+
+                    setter = CppFunctionProcessor(
+                        name=attribute_name,
+                        function=getattr(attribute, "fset"),
+                        module=self.module,
+                        custom_decorators=[f"{attribute_name}.setter"],
+                    )
+                    setter.handle_errors(f"{self.name} class")
+                    if not setter.invalid:
+                        self.body.append(setter.process())
+
+            else:
+                print(type(attribute), attribute)
+
+        # Generate ClassDef object
+        return ast.ClassDef(
+            name=self.name,
+            bases=[ast.Name(id=item, ctx=ast.Load()) for item in parents],
+            keywords=[],
+            body=self.body,
+            decorator_list=[],
+        )
+
+
+class CppModuleProcessor:
+
+    def __init__(
+        self,
+        module: types.ModuleType,
+        output_directory: Path,
+        ignored_submodules: list[str] | None = None,
+    ) -> None:
+
+        self.module = module
+        self.name = module.__name__
+        self.required_imports = set()
+        self.syntax_tree = ast.Module(body=[], type_ignores=[])
+        self.submodules: dict[str, "CppModuleProcessor"] = {}
+        self.ignored_submodules = (
+            ignored_submodules if ignored_submodules is not None else []
+        )
+        self.outdir: Path = output_directory.resolve()
+        self.outdir.mkdir(exist_ok=True, parents=True)
+
+        # Initialize container for items in __all__
+        self.all_contents: list[str] = []
+
+        # Common part of error message
+        self.cerror = f"In {self.module.__name__}: "
+
+        return None
+
+    def __is_enum(self, item: type) -> bool:
+
+        # Get list of non-special attributes
+        non_special_attrs = [
+            attr
+            for attr in dir(item)
+            if (not attr.startswith("_")) and (not attr.endswith("_"))
+        ]
+
+        # If name and value not present, not an enum
+        if not (
+            ("name" in non_special_attrs) and ("value" in non_special_attrs)
+        ):
+            return False
+
+        # Get list of options
+        options = [
+            attr for attr in non_special_attrs if attr not in ("name", "value")
+        ]
+
+        # Ensure that all options are of the right type
+        if not all(
+            [isinstance(getattr(item, option), item) for option in options]
+        ):
+            return False
+
+        # Raise warning if the enumeration exports the options
+        if all([option in dir(self.module) for option in options]):
+            log.warning(f"Enumeration {item} exports values")
+
+        return True
+
+    def process(self) -> None:
+
+        log.info(f"Processing {self.name}")
+
+        # Load contents of module
+        components: list[str] = [
+            x
+            for x in dir(self.module)
+            if (not x.startswith("_"))
+            and (not x.endswith("_"))
+            and (x not in self.ignored_submodules)
+        ]
+
+        # Process components based on type
+        for component_name in components:
+
+            # Load component
+            component = getattr(self.module, component_name)
+
+            # Modules and submodules
+            if isinstance(component, types.ModuleType):
+                self.submodules[component_name] = CppModuleProcessor(
+                    module=component,
+                    output_directory=self.outdir / component_name,
+                )
+                self.submodules[component_name].process()
+
+            # Classes and enumerations
+            elif isinstance(component, type):
+                if self.__is_enum(component):
+
+                    # Add item to syntax tree
+                    self.syntax_tree.body.append(
+                        CppEnumProcessor(component, self).process()
+                    )
+
+                    # Add item to __all__
+                    self.all_contents.append(component_name)
+
+                else:
+                    class_ = CppClassProcessor(component, self).process()
+                    if class_ is not None:
+
+                        # Add item to syntax tree
+                        self.syntax_tree.body.append(class_)
+
+                        # Add item to __all__
+                        self.all_contents.append(component_name)
+
+            # Functions and methods from the kernel
+            elif isinstance(component, types.BuiltinFunctionType):
+
+                # Initialize function processor
+                function_ = CppFunctionProcessor(
+                    name=component.__name__,
+                    function=component,
+                    module=self,
+                    custom_decorators=None,
+                )
+                function_.handle_errors()
+                if not function_.invalid:
+
+                    # Add item to syntax tree
+                    self.syntax_tree.body.append(function_.process())
+
+                    # Add item to __all__
+                    self.all_contents.append(component_name)
+
+            # Variables
+            elif isinstance(
+                component, int | float | complex | str | dict | tuple | list
+            ):
+
+                node = ast.parse(
+                    f"{component_name}: {component.__class__.__name__}"
+                ).body[0]
+                assert isinstance(node, ast.AnnAssign)
+                self.syntax_tree.body.append(node)
+
+                # Add item to __all__
+                self.all_contents.append(component_name)
+
+            # Skip exported values of enumerations
+            elif hasattr(component, "name") and getattr(
+                component, "name"
+            ) in dir(type(component)):
+                pass
+
+            # Not implemented
+            else:
+                log.fatal(f"INVALID: {component} :: {type(component)}")
+                exit(1)
+
+        # Define import statements
+        import_statements: list[ast.stmt] = [
+            ast.Import(names=[ast.alias(name)])
+            for name in self.required_imports
+        ]
+
+        # Define __all__ statement
+        all_statement_str = (
+            '__all__ = ["' + '", "'.join(self.all_contents) + '"]'
+        )
+        all_statement = [ast.parse(all_statement_str).body[0]]
+
+        # Update syntax tree with new statements
+        updated_body: list[ast.stmt] = (
+            import_statements + all_statement + self.syntax_tree.body
+        )
+        self.syntax_tree.body = updated_body
+
+        # Add import statements to the body
+        with open(f"{self.outdir}/extension.pyi", "w") as buffer:
+            buffer.write(ast.unparse(self.syntax_tree))
+
+        return None
+
+    # def __parse_function_signature(self, signature: str) -> str:
+
+    #     # If something is in brackets, put surround it by ""
+    #     updated_sig = re.sub(r"<([^>]*)>", r'"<\1>"', signature)
+
+    #     updated_sig = updated_sig.replace(
+    #         "tudat::Time", "tudatpy.kernel.astro.time_representation.Time"
+    #     )
+
+    #     updated_sig = updated_sig.replace("tudatpy.kernel.", "")
+
+    #     return updated_sig
+
+    # def process_function(self, function: types.FunctionType) -> None:
+
+    #     # Get name of the function
+    #     name = function.__name__
+
+    #     # Ensure that the function has documentation
+    #     if function.__doc__ is None:
+    #         log.error(self.cerror + f"Missing documentation for {name}")
+    #         exit(1)
+    #     description = function.__doc__.split("\n")
+
+    #     # Ensure that signature is present in description
+    #     signature: str | None = None
+    #     docstring: str = ""
+    #     for idx, line in enumerate(description):
+    #         if line.split("(")[0] == name:
+    #             signature = (
+    #                 "\n".join(description[:idx]) + f"\ndef {line}:\n\t..."
+    #             )
+    #             docstring = "\n".join(description[idx + 1 :])
+    #             break
+
+    #     # Fail if signature is missing
+    #     if signature is None:
+    #         log.error(self.cerror + f"Signature missing for {name}")
+    #         exit(1)
+
+    #     x = ast.parse(signature).body[0]
+    #     assert isinstance(x, ast.FunctionDef)
+
+    #     x.body[0] = ast.Expr(ast.Constant(docstring))
+    #     self.syntax_tree.body.append(x)
+
+    #     # # Check if function signature is present in description
+    #     # if description.split("(")[0] != name:
+    #     #     log.error(self.cerror + f"Signature missing from doc for {name}")
+
+    #     return None
 
 
 @dataclass
@@ -118,6 +830,9 @@ class BuildParser(argparse.ArgumentParser):
             action="store_true",
             help="Verbose output during build",
         )
+        misc_group.add_argument(
+            "--debug", action="store_true", help="Display debug information"
+        )
 
         # CI options
         ci_group = self.add_argument_group("CI options")
@@ -165,13 +880,202 @@ def module_has_init_stub(module_stubs_path: Path) -> bool:
     return init_stub_path.exists()
 
 
+class PythonStatementProcessor:
+
+    @staticmethod
+    def process_statement(statement: ast.stmt) -> ast.stmt:
+
+        if isinstance(statement, ast.Expr):
+            return PythonStatementProcessor.process_expression_statement(
+                statement
+            )
+        elif isinstance(statement, ast.Import):
+            return PythonStatementProcessor.process_import(statement)
+        elif isinstance(statement, ast.ImportFrom):
+            return PythonStatementProcessor.process_import_from(statement)
+        elif isinstance(statement, ast.ClassDef):
+            return PythonStatementProcessor.process_classdef(statement)
+        elif isinstance(statement, ast.FunctionDef):
+            return PythonStatementProcessor.process_functiondef(statement)
+        elif isinstance(statement, ast.AsyncFunctionDef):
+            return PythonStatementProcessor.process_asyncfunctiondef(statement)
+        elif isinstance(statement, ast.Assign):
+            return PythonStatementProcessor.process_assign(statement)
+        # elif isinstance(statement, ast.AnnAssign):
+        #     return PythonStatementProcessor.process_annassign(statement)
+
+        return statement
+
+    @staticmethod
+    def process_docstring(statement: ast.stmt) -> ast.Expr:
+
+        # Fail if statement is not an expression
+        if not isinstance(statement, ast.Expr):
+            raise ValueError(
+                f"Attempted to process {type(statement)} as docstring"
+            )
+
+        # Fail if value is not Constant
+        if not isinstance(statement.value, ast.Constant):
+            raise ValueError(
+                f"Attempted to process {type(statement.value)} as docstring"
+            )
+
+        # Process docstring
+        statement.value = PythonExpressionProcessor.process_constant(
+            statement.value, docstring=True
+        )
+
+        return statement
+
+    @staticmethod
+    def process_expression_statement(expr: ast.Expr) -> ast.Expr:
+        expr.value = PythonExpressionProcessor.process_expression(expr.value)
+        return expr
+
+    @staticmethod
+    def process_import(statement: ast.Import) -> ast.Import:
+        return statement
+
+    @staticmethod
+    def process_import_from(statement: ast.ImportFrom) -> ast.ImportFrom:
+        return statement
+
+    @staticmethod
+    def process_classdef(statement: ast.ClassDef) -> ast.ClassDef:
+
+        # Get class docstring
+        docstring = ast.get_docstring(statement)
+
+        # If docstring present, process it first
+        if docstring is not None:
+            statement.body[0] = PythonStatementProcessor.process_docstring(
+                statement.body[0]
+            )
+
+        # Process the rest of the class normally
+        for idx, stmt in enumerate(statement.body):
+            statement.body[idx] = PythonStatementProcessor.process_statement(
+                stmt
+            )
+
+        return statement
+
+    @staticmethod
+    def process_functiondef(statement: ast.FunctionDef) -> ast.FunctionDef:
+
+        # Get function docstring
+        docstring = ast.get_docstring(statement)
+
+        # Remove body and process docstring if present
+        if docstring is None:
+            statement.body = [ast.Expr(ast.Constant("Missing docstring"))]
+        else:
+            # Fail if first statement in body is not docstring
+            stmt = statement.body[0]
+            if not isinstance(stmt, ast.Expr):
+                raise ValueError(
+                    f"Attempted to process {type(stmt)} as docstring"
+                )
+
+            statement.body = [PythonStatementProcessor.process_docstring(stmt)]
+
+        return statement
+
+    @staticmethod
+    def process_asyncfunctiondef(
+        statement: ast.AsyncFunctionDef,
+    ) -> ast.AsyncFunctionDef:
+
+        # Get function docstring
+        docstring = ast.get_docstring(statement)
+
+        # Remove body and process docstring if present
+        if docstring is None:
+            statement.body = []
+        else:
+            statement.body = [
+                PythonStatementProcessor.process_docstring(statement.body[0])
+            ]
+
+        return statement
+
+    @staticmethod
+    def process_assign(statement: ast.Assign) -> ast.Assign:
+
+        log.warning(
+            f"Missing type annotation in assignment statement: {statement.lineno}"
+        )
+
+        return statement
+
+    @staticmethod
+    def process_annassign(statement: ast.AnnAssign) -> ast.AnnAssign:
+
+        # Remove value from statement
+        statement.value = None
+
+        return statement
+
+
+class PythonExpressionProcessor:
+
+    @staticmethod
+    def process_expression(expr: ast.expr) -> ast.expr:
+
+        if isinstance(expr, ast.Constant):
+            return PythonExpressionProcessor.process_constant(expr)
+
+        return expr
+
+    @staticmethod
+    def process_constant(
+        const: ast.Constant, docstring: bool = False
+    ) -> ast.Constant:
+
+        # Skip processing if not a docstring
+        if not docstring:
+            return const
+
+        # Fail if not a string (should not happen)
+        if not isinstance(const.value, str):
+            raise NotImplementedError(
+                f"Attempted to process non-string constant: {const.lineno}"
+            )
+
+        # Extract components of docstring
+        components = [x.strip() for x in const.value.splitlines()]
+
+        # Remove empty lines in the beginning
+        first_line = components[0]
+        while first_line == "":
+            components.pop(0)
+            first_line = components[0]
+
+        # Remove empty lines in the end
+        last_line = components[-1]
+        while last_line == "":
+            components.pop(-1)
+            last_line = components[-1]
+
+        # Fix indentation
+        indentation = " " * const.col_offset
+        const.value = (f"\n{indentation}").join(components) + f"\n{indentation}"
+
+        return const
+
+
 class StubGenerator:
 
     # Default indentation length in pybind11-stubgen
     indentation: str = " " * 4
 
     # Ignored modules and methods
-    ignored_modules: list[str] = ["temp", "io", "numerical_simulation"]
+    ignored_modules: list[str] = [
+        "temp",
+        "io",
+        "numerical_simulation",
+    ]
     ignored_methods: list[str] = ["_pybind11_conduit_v1_"]
 
     def __init__(self, build_dir: Path, mock_env: "Environment") -> None:
@@ -423,52 +1327,19 @@ class StubGenerator:
         From https://docs.python.org/3/library/ast.html#ast.get_docstring, the types that can have a docstring are: ast.Module, ast.ClassDef, ast.FunctionDef, and ast.AsyncFunctionDef.
         """
 
-        # Define container for updated body
-        updated_body: list[ast.stmt] = []
+        # Process module-level docstring if present
+        module_docstring = ast.get_docstring(module)
+        if module_docstring is not None:
+            module.body[0] = PythonStatementProcessor.process_docstring(
+                module.body[0]
+            )
 
-        # Process all statements in the module
-        for statement in module.body:
+        # Process the whole module with normal rules
+        for idx, statement in enumerate(module.body):
+            module.body[idx] = PythonStatementProcessor.process_statement(
+                statement
+            )
 
-            # Skip if statement cannot have a docstring
-            # if not self.__can_have_docstring(statement):
-            if not isinstance(
-                statement,
-                (
-                    ast.ClassDef,
-                    ast.FunctionDef,
-                    ast.AsyncFunctionDef,
-                    ast.Module,
-                ),
-            ):
-                updated_body.append(statement)
-                continue
-
-            # Get docstring and skip if not present
-            docstring = ast.get_docstring(statement)
-            if docstring is None:
-                updated_body.append(statement)
-                continue
-
-            # Get size of docstring indentation
-            if isinstance(statement, ast.Module):
-                indentation_level = 0
-            else:
-                indentation_level = statement.col_offset
-            docstring_indentation = (indentation_level + 1) * self.indentation
-
-            # Adjust indentation
-            indented_lines: list[str] = [
-                docstring_indentation + line for line in docstring.split("\n")
-            ]
-            indented_lines[0] = indented_lines[0].lstrip()
-            docstring = "\n".join(indented_lines)
-
-            # Update docstring
-            statement.body[0] = ast.Expr(ast.Constant(docstring))
-            updated_body.append(statement)
-
-        # Update body of module
-        module.body = updated_body
         return module
 
     def __create_stubs_directory_structure(self) -> None:
@@ -488,9 +1359,20 @@ class StubGenerator:
 
         return None
 
-    def __generate_default_kernel_stubs(self) -> None:
+    def __generate_kernel_stubs(self) -> None:
 
-        print("Generating stubs for tudatpy.kernel...")
+        # Generate stubs for kernel
+        sys.path.append(str(self.mock_env.prefix))
+        CppModuleProcessor(
+            module=importlib.import_module("tudatpy.kernel"),
+            output_directory=self.stubs_dir,
+            ignored_submodules=self.ignored_modules,
+        ).process()
+        sys.path.pop(-1)
+
+        return None
+
+    def __generate_default_kernel_stubs(self) -> None:
 
         # Generate stubs for tudatpy.kernel
         outcome = subprocess.run(
@@ -502,9 +1384,22 @@ class StubGenerator:
                 "--numpy-array-wrap-with-annotated",
             ],
             env=self.mock_env.variables,
+            capture_output=True,
         )
+
+        # Interrupt if stub-generation failed
         if outcome.returncode:
-            raise RuntimeError("Failed to generate stub for tudatpy.kernel")
+
+            # Show stderr as error
+            for stderr_line in str(outcome.stderr)[2:-1].split(r"\n"):
+                log.error(stderr_line)
+
+            log.error("Failed to generate stubs for tudatpy kernel")
+            exit(1)
+
+        # Show stub generation stderr as debug
+        for stderr_line in str(outcome.stderr)[2:-1].split(r"\n"):
+            log.debug(stderr_line)
 
         # Relocate stubs in the build directory
         tmp_stubs_dir: Path = self.mock_env.tmp / "tudatpy/kernel"
@@ -535,47 +1430,85 @@ class StubGenerator:
 
     def __generate_default_python_stubs(self) -> None:
 
-        print("Generating stubs for Python source code...")
+        log.info("Generating stubs for Python source code")
 
-        # Create directory for python stubs in tmp
-        python_stubs = self.mock_env.tmp / "python_stubs"
-        python_stubs.mkdir(exist_ok=False, parents=False)
+        # Process all the python scripts in the library
+        mock_installation_dir = self.mock_env.prefix / "tudatpy"
+        for script in mock_installation_dir.rglob("*.py"):
 
-        # Generate stubs for Python source code
-        for item in (self.mock_env.prefix / "tudatpy").rglob("*.py"):
-
-            # Skip if __init__.py or if it is in __pycache__
-            if item.name == "__init__.py" or "__pycache__" in str(item):
+            # Skip if __init__.py or part of __pycache__
+            if (script.name == "__init__.py") or ("__pycache__" in str(script)):
                 continue
 
-            # Skip if it belongs to an ignored module
+            # Skip if part of ignored module
             if (
-                item.relative_to(self.mock_env.prefix / "tudatpy").parts[0]
+                script.relative_to(mock_installation_dir).parts[0]
                 in self.ignored_modules
             ):
                 continue
 
-            # Generate stub with stubgen
-            outcome = subprocess.run(
-                [
-                    "stubgen",
-                    item,
-                    "-o",
-                    str(python_stubs),
-                    "--include-docstrings",
-                    "--parse-only",
-                    "--quiet",
-                ]
-            )
-            if outcome.returncode:
-                raise RuntimeError(f"Failed to generate stub for {item}")
+            # Generate syntax tree from script contents
+            script_content = self.__parse_script(script)
 
-        # Move stubs to build directory
-        for stub in (python_stubs / "tudatpy").rglob("*.pyi"):
-            shutil.copy(
-                stub,
-                self.stubs_dir / stub.relative_to(python_stubs / "tudatpy"),
-            )
+            # Initialize syntax tree for stub
+            stub_content = ast.Module(body=[], type_ignores=[])
+
+            # Process module-level docstring if present
+            module_docstring = ast.get_docstring(script_content)
+            if module_docstring is not None:
+                script_content.body[0] = (
+                    PythonStatementProcessor.process_docstring(
+                        script_content.body[0]
+                    )
+                )
+
+            # Fill stub body with script contents
+            for statement in script_content.body:
+                stub_content.body.append(
+                    PythonStatementProcessor.process_statement(statement)
+                )
+
+            # Define path to stub and generate parent directory if missing
+            stub_path = self.stubs_dir / script.relative_to(
+                mock_installation_dir
+            ).with_suffix(".pyi")
+            # stub_path.parent.mkdir(exist_ok=True, parents=True)
+
+            # Generate stub file from syntax tree
+            with stub_path.open("w") as buffer:
+                buffer.write(self.__unparse_script(stub_content))
+
+        #     # Generate stub with stubgen
+        #     outcome = subprocess.run(
+        #         [
+        #             "stubgen",
+        #             script,
+        #             "-o",
+        #             str(python_stubs_dir),
+        #             "--include-docstrings",
+        #             "--parse-only",
+        #             "--quiet",
+        #         ]
+        #     )
+        #     if outcome.returncode:
+        #         raise RuntimeError(f"Failed to generate stub for {script}")
+
+        # # Move stubs to build directory
+        # for stub in (python_stubs_dir / "tudatpy").rglob("*.pyi"):
+        #     shutil.copy(
+        #         stub,
+        #         self.stubs_dir / stub.relative_to(python_stubs_dir / "tudatpy"),
+        #     )
+
+        # # Move stubs to build directory
+        # print("The normal ones")
+        # for stub in (python_stubs_dir / "tudatpy").rglob("*.pyi"):
+
+        #     print(stub)
+        #     shutil.copy(
+        #         stub,
+        #         self.stubs_dir / stub.relative_to(python_stubs_dir / "tudatpy"),
+        #     )
 
         return None
 
@@ -1006,17 +1939,19 @@ class StubGenerator:
 
         # Generate default stubs for tudatpy.kernel
         self.__generate_default_kernel_stubs()
-
-        # Generate default stubs for Python source code
-        self.__generate_default_python_stubs()
+        # self.__generate_kernel_stubs()
 
         # Fix autogenerated stubs
         self.__fix_autogenerated_stubs()
 
+        # Generate default stubs for Python source code
+        self.__generate_default_python_stubs()
+
         # Missing: Fix __init__.pyi stubs to expand star imports
         self.__generate_init_stubs()
 
-        print("Stubs generated successfully")
+        # Display success message
+        log.info("Stubs generated successfully")
 
         return None
 
@@ -1246,7 +2181,13 @@ class Builder:
 
 if __name__ == "__main__":
 
+    # Parse command-line arguments
     args = BuildParser().parse_args()
+
+    # Set logging level
+    if args.debug:
+        log.setLevel(logging.DEBUG)
+
     builder = Builder(args)
 
     # Build libraries
