@@ -1,3 +1,4 @@
+
 /*    Copyright (c) 2010-2018, Delft University of Technology
  *    All rights reserved
  *
@@ -26,8 +27,8 @@ void expose_astro( py::module &m )
     auto frame_conversion = m.def_submodule( "frame_conversion" );
     frame_conversion::expose_frame_conversion( frame_conversion );
 
-    auto time_conversion = m.def_submodule( "time_conversion" );
-    time_conversion::expose_time_conversion( time_conversion );
+    auto time_representation = m.def_submodule( "time_representation" );
+    time_representation::expose_time_representation( time_representation );
 
     auto two_body_dynamics = m.def_submodule( "two_body_dynamics" );
     two_body_dynamics::expose_two_body_dynamics( two_body_dynamics );

@@ -1,0 +1,116 @@
+/*    Copyright (c) 2010-2019, Delft University of Technology
+ *    All rigths reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MAIN
+
+#include <limits>
+
+#include <boost/test/unit_test.hpp>
+
+#include "tudat/simulation/estimation_setup/orbitDeterminationTestCases.h"
+
+namespace tudat
+{
+namespace unit_tests
+{
+
+BOOST_AUTO_TEST_SUITE( test_estimation_from_positions )
+
+//! This test checks whether observation biases are correctly estimated, using a variety of different settings
+//! for types of observables/biases.
+BOOST_AUTO_TEST_CASE( test_EstimationFromPosition )
+{
+    for( int estimateRangeBiases = 0; estimateRangeBiases < 2; estimateRangeBiases++ )
+    {
+        for( int estimateTwoWayBiases = 0; estimateTwoWayBiases < 2; estimateTwoWayBiases++ )
+        {
+            for( int useSingleBiasModel = 0; useSingleBiasModel < 2; useSingleBiasModel++ )
+            {
+                for( int estimateAbsoluteBiases = 0; estimateAbsoluteBiases < 2; estimateAbsoluteBiases++ )
+                {
+                    for( int estimateMultiArcBiases = 0; estimateMultiArcBiases < 2; estimateMultiArcBiases++ )
+                    {
+                        for( int estimateTimeBiases = 0; estimateTimeBiases < 2; estimateTimeBiases++ )
+                        {
+                            if( !( estimateTwoWayBiases == true && estimateRangeBiases == false ) )
+                            {
+                                std::cout << "=========== Running Case: " << estimateRangeBiases << " " << estimateTwoWayBiases << " "
+                                          << useSingleBiasModel << " " << estimateAbsoluteBiases << " " << estimateMultiArcBiases << " "
+                                          << estimateTimeBiases << std::endl;
+
+                                // Simulate estimated parameter error.
+                                Eigen::VectorXd totalError = executeEarthOrbiterBiasEstimation< double, double >( estimateRangeBiases,
+                                                                                                                  estimateTwoWayBiases,
+                                                                                                                  useSingleBiasModel,
+                                                                                                                  estimateAbsoluteBiases,
+                                                                                                                  false,
+                                                                                                                  estimateMultiArcBiases,
+                                                                                                                  estimateTimeBiases )
+                                                                     .first;
+
+                                for( unsigned int j = 0; j < 3; j++ )
+                                {
+                                    BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-5 );
+                                    BOOST_CHECK_SMALL( std::fabs( totalError( j + 3 ) ), 1.0E-8 );
+                                }
+
+                                for( unsigned int j = 6; j < totalError.rows( ); j++ )
+                                {
+                                    if( estimateTimeBiases )
+                                    {
+                                        if( estimateRangeBiases || estimateMultiArcBiases )
+                                        {
+                                            BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 2.0E-11 );
+                                        }
+                                        else
+                                        {
+                                            BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-14 );
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if( estimateAbsoluteBiases )
+                                        {
+                                            if( estimateRangeBiases )
+                                            {
+                                                BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 2.0E-7 );
+                                            }
+                                            else
+                                            {
+                                                BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-10 );
+                                            }
+                                        }
+                                        else if( !estimateMultiArcBiases )
+                                        {
+                                            BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-14 );
+                                        }
+                                        else
+                                        {
+                                            BOOST_CHECK_SMALL( std::fabs( totalError( j ) ), 1.0E-13 );
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    BOOST_CHECK_EQUAL( executeEarthOrbiterBiasEstimation( true, false, true, true, true, false ).second, true );
+}
+
+BOOST_AUTO_TEST_SUITE_END( )
+
+}  // namespace unit_tests
+
+}  // namespace tudat
