@@ -13,7 +13,7 @@
 
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/astro/observation_models/linkTypeDefs.h"
-#include "tudat/astro/observation_models/observationModel.h"
+#include "tudat/astro/observation_models/observationAncillarySettings.h"
 
 namespace tudat
 {
@@ -53,10 +53,10 @@ public:
      */
     LightTimeCorrection( const LightTimeCorrectionType lightTimeCorrectionType ):
         lightTimeCorrectionType_( lightTimeCorrectionType ), timePerturbation_( 15.0 ), positionRelativePerturbation_( 1.0E-4 )
-    { }
+    {}
 
     //! Destructor
-    virtual ~LightTimeCorrection( ) { }
+    virtual ~LightTimeCorrection( ) {}
 
     //! Pure virtual function to compute the light-time correction
     /*!
