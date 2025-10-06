@@ -267,7 +267,6 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
 
         while( functionEvaluationsIteratorIncremented != functionEvaluations1.end( ) )
         {
-
             BOOST_CHECK_SMALL( ( functionEvaluationsIteratorIncremented->first - functionEvaluationsIterator->first ) - 250.0,
                                1.0E3 * std::numeric_limits< double >::epsilon( ) );
             BOOST_CHECK_EQUAL( functionEvaluationsIteratorIncremented->second - functionEvaluationsIterator->second, 4.0 );
