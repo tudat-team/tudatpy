@@ -371,7 +371,7 @@ bool getFinalStateForExactTerminationCondition(
  * \param currentCpuTime Current run time of propagation.
  */
 template< typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType >
-void propagateToExactTerminationCondition(
+TimeType propagateToExactTerminationCondition(
         const std::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > > integrator,
         const std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
         const TimeStepType timeStep,
@@ -444,6 +444,8 @@ void propagateToExactTerminationCondition(
 
     // Turn step size control back on
     integrator->setStepSizeControl( true );
+
+    return endTime;
 }
 
 //! Function to numerically integrate a given first order differential equation
@@ -464,8 +466,11 @@ void integrateEquationsFromIntegrator(
         const std::function< Eigen::VectorXd( ) > dependentVariableFunction = std::function< Eigen::VectorXd( ) >( ),
         const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
         const std::shared_ptr< SingleArcPropagatorProcessingSettings > processingSettings =
-                std::make_shared< SingleArcPropagatorProcessingSettings >( ) )
+                std::make_shared< SingleArcPropagatorProcessingSettings >( ),
+        const std::shared_ptr< DynamicsStateDerivativeModel< TimeType, typename StateType::Scalar > > stateDerivativeModel =
+                nullptr )
 {
+    bool stateDerivativeModelIsNull = ( stateDerivativeModel == nullptr ) ? true : false;
     int saveFrequency = 1;
 
     // Define structures that will contain with numerical results
@@ -503,6 +508,11 @@ void integrateEquationsFromIntegrator(
             1.0e-9;
     cumulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
 
+    if( !stateDerivativeModelIsNull )
+    {
+        stateDerivativeModel->signalEndOfMajorStep( currentTime );
+    }
+
     // Set initial time step
     TimeStepType timeStep = integrator->getNextStepSize( );
     //    TimeType previousTime = currentTime;
@@ -539,6 +549,7 @@ void integrateEquationsFromIntegrator(
     {
         try
         {
+            bool environmentIsUpdated = false;
             if( ( newState.allFinite( ) == true ) && ( !newState.hasNaN( ) ) )
             {
                 // Print solutions
@@ -595,6 +606,7 @@ void integrateEquationsFromIntegrator(
                     if( !( dependentVariableFunction == nullptr ) )
                     {
                         integrator->getStateDerivativeFunction( )( currentTime, newState );
+                        environmentIsUpdated = true;
                         dependentVariableHistory[ currentTime ] = dependentVariableFunction( );
                     }
                     timeOfLastSave = currentTime;
@@ -613,10 +625,10 @@ void integrateEquationsFromIntegrator(
                 propagationTerminationReason = std::make_shared< PropagationTerminationDetails >( nan_or_inf_detected_in_state );
             }
 
-            currentCPUTime = std::chrono::duration_cast< std::chrono::nanoseconds >( std::chrono::steady_clock::now( ) - initialClockTime )
-                                     .count( ) *
-                    1.0e-9;
-            cumulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
+            if( !environmentIsUpdated && propagationTerminationCondition->requiresEnvironmentUpdate( ) )
+            {
+                integrator->getStateDerivativeFunction( )( currentTime, newState );
+            }
 
             if( propagationTerminationCondition->checkStopCondition(
                         static_cast< double >( currentTime ), currentCPUTime, newState.template cast< double >( ) ) )
@@ -624,7 +636,7 @@ void integrateEquationsFromIntegrator(
                 // Propagate to the exact termination conditions
                 if( propagationTerminationCondition->iterateToExactTermination( ) )
                 {
-                    propagateToExactTerminationCondition( integrator,
+                    currentTime = propagateToExactTerminationCondition( integrator,
                                                           propagationTerminationCondition,
                                                           timeStep,
                                                           dependentVariableFunction,
@@ -652,6 +664,15 @@ void integrateEquationsFromIntegrator(
 
                 breakPropagation = true;
             }
+
+            if( !stateDerivativeModelIsNull )
+            {
+                stateDerivativeModel->signalEndOfMajorStep( currentTime );
+            }
+
+            currentCPUTime = std::chrono::duration_cast< std::chrono::nanoseconds >( std::chrono::steady_clock::now( ) - initialClockTime )
+                                     .count( ) * 1.0e-9;
+            cumulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
         }
         catch( const std::exception& caughtException )
         {
@@ -719,7 +740,9 @@ void integrateEquations( std::function< StateType( const TimeType, const StateTy
                          const std::function< Eigen::VectorXd( ) > dependentVariableFunction = std::function< Eigen::VectorXd( ) >( ),
                          const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
                          const std::shared_ptr< SingleArcPropagatorProcessingSettings > processingSettings =
-                                 std::make_shared< SingleArcPropagatorProcessingSettings >( ) )
+                                 std::make_shared< SingleArcPropagatorProcessingSettings >( ),
+                         const std::shared_ptr< DynamicsStateDerivativeModel< TimeType, typename StateType::Scalar > > stateDerivativeModel =
+                                 nullptr )
 {
     std::function< bool( const double, const double, const Eigen::MatrixXd& ) > stopPropagationFunction =
             std::bind( &PropagationTerminationCondition::checkStopCondition,
@@ -745,7 +768,8 @@ void integrateEquations( std::function< StateType( const TimeType, const StateTy
             simulationResults,
             dependentVariableFunction,
             statePostProcessingFunction,
-            processingSettings );
+            processingSettings,
+            stateDerivativeModel );
 }
 
 }  // namespace propagators

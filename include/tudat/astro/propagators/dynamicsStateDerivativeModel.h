@@ -235,7 +235,6 @@ public:
 
         // Update counters
         functionEvaluationCounter_++;
-        cumulativeFunctionEvaluationCounter_[ time ] = functionEvaluationCounter_;
 
         return stateDerivative_;
     }
@@ -591,6 +590,11 @@ public:
     std::shared_ptr< VariationalEquations > getVariationalEquationsCalculator( )
     {
         return variationalEquations_;
+    }
+
+    void signalEndOfMajorStep( const double majorStepEndTime )
+    {
+        cumulativeFunctionEvaluationCounter_[ majorStepEndTime ] = functionEvaluationCounter_;
     }
 
 private:
