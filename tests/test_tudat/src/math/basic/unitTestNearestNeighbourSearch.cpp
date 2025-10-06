@@ -23,9 +23,15 @@
 #include <Eigen/Core>
 
 #include "tudat/math/basic/nearestNeighbourSearch.h"
+#include "tudat/math/basic/mathematicalConstants.h"
+#include "tudat/math/interpolators/lookupScheme.h"
 
 namespace tudat
 {
+
+using namespace basic_mathematics;
+using namespace interpolators;
+
 namespace unit_tests
 {
 
@@ -196,6 +202,73 @@ BOOST_AUTO_TEST_CASE( testNearestLeftNeighborUsingBinarySearch )
         {
             BOOST_CHECK_EQUAL( vectorOfExpectedIndices[ i ],
                                computeNearestNeighborUsingBinarySearch( vectorOfSortedData, vectorOfTargetValues[ i ] ) );
+        }
+    }
+}
+
+
+// Test implementation of cubic spline class.
+BOOST_AUTO_TEST_CASE( testNearestNeighbourAlgorithm )
+{
+    
+    // Declare and initialize independent variable values.
+    std::vector< double > independentVariables;
+    independentVariables.resize( 6 );
+    independentVariables[ 0 ] = 1.0;
+    independentVariables[ 1 ] = 3.0;
+    independentVariables[ 2 ] = 5.0;
+    independentVariables[ 3 ] = 7.0;
+    independentVariables[ 4 ] = 9.0;
+    independentVariables[ 5 ] = 11.0;
+
+    std::shared_ptr< LookUpScheme< double > > lookUpScheme;
+
+    for( int schemeType = 0; schemeType < 2; schemeType++ )
+    {
+        
+        if( schemeType == 0 )
+        {
+            lookUpScheme = std::make_shared< BinarySearchLookupScheme< double > >( independentVariables );
+        }
+        else if( schemeType == 1 )
+        {
+            lookUpScheme = std::make_shared< HuntingAlgorithmLookupScheme< double > >( independentVariables );
+        }
+
+        std::vector< int > correctNeighbours = { 0, 5, 2, 2, 1, 2};
+        for( int test = 0; test < 6; test++ )
+        {
+            double testValue = TUDAT_NAN;
+            if( test == 0 )
+            {
+                testValue = lookUpScheme->findNearestLowerNeighbour( -1.0 );
+            }
+
+            if( test == 1 )
+            {
+                testValue = lookUpScheme->findNearestLowerNeighbour( 20.0 );
+            }
+
+            if( test == 2 )
+            {
+                testValue = lookUpScheme->findNearestLowerNeighbour( 5.0 );
+            }
+
+            if( test == 3 )
+            {
+                testValue = lookUpScheme->findNearestLowerNeighbour( 5.5 );
+            }
+
+            if( test == 4 )
+            {
+                testValue = lookUpScheme->findNearestLowerNeighbour( 5.0 - 10.0 * std::numeric_limits< double >::epsilon( ) );
+            }
+
+            if( test == 5 )
+            {
+                testValue = lookUpScheme->findNearestLowerNeighbour( 5.0 + 10.0 * std::numeric_limits< double >::epsilon( ) );
+            }
+            BOOST_CHECK_EQUAL( correctNeighbours.at( test ), testValue );
         }
     }
 }
