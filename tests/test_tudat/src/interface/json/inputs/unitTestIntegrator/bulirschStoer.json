@@ -1,0 +1,10 @@
+{
+  "initialStepSize": 1.4,
+  "minimumStepSize": 0.4,
+  "maximumStepSize": 2.4,
+  "maximumNumberOfSteps": 8,
+  "relativeErrorTolerance": 0.0001,
+  "absoluteErrorTolerance": 0.01,
+  "type": "bulirschStoer",
+  "initialTime": -0.3
+}

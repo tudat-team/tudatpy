@@ -445,10 +445,6 @@ void expose_spice( py::module &m )
  Angular velocity of newFrame w.r.t. originalFrame, expressed in originalFrame.
 
 
-
-
-
-
      )doc" );
 
     m.def( "compute_rotation_quaternion_and_rotation_matrix_derivative_between_frames",
@@ -514,7 +510,7 @@ void expose_spice( py::module &m )
  .. note::
 
      The gravitational parameter returned is directly retrieved from the loaded SPICE kernels.
-     This value does *not* necessarily correspond to the gravitational parameter used in Tudat's default models, as retrieved from e.g. :func:`~tudatpy.numerical_simulation.environment_setup.get_default_body_settings`.
+     This value does *not* necessarily correspond to the gravitational parameter used in Tudat's default models, as retrieved from e.g. :func:`~tudatpy.dynamics.environment_setup.get_default_body_settings`.
      For more information on the default gravity models, see the `user guide <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/environment_setup/default_env_models.html#gravity-field>`_.
 
  .. _`bodvrd_c`: https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/cspice/bodvrd_c.html
@@ -595,12 +591,24 @@ void expose_spice( py::module &m )
     m.def( "convert_naif_id_to_body_name",
            &tudat::spice_interface::convertNaifIdToBodyName,
            py::arg( "naif_id" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
 
-    //        // kernel pool related
-    //        m.def("get_standard_kernels",
-    //              &tudat::spice_interface::getStandardSpiceKernels,
-    //              get_docstring("get_standard_kernels").c_str());
+ Function that converts the NAIF ID (used internally in Spice) to the name of the body
+
+ Parameters
+ ----------
+ naif_id : int
+     Identification number of the body
+
+ Returns
+ -------
+ str
+     Name of body corresponding to provided ID
+
+     )doc" );
+
+
+
 
     m.def( "load_standard_kernels",
            &tudat::spice_interface::loadStandardSpiceKernels,

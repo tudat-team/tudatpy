@@ -1,0 +1,41 @@
+/*    Copyright (c) 2010-2018, Delft University of Technology
+ *    All rights reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+#ifndef TUDATPY_EXPOSE_ESTIMATION_H
+#define TUDATPY_EXPOSE_ESTIMATION_H
+
+#include <pybind11/chrono.h>
+#include <pybind11/eigen.h>
+#include <pybind11/functional.h>
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
+#include "observable_models/expose_observable_models.h"
+#include "observable_models_setup/expose_observable_models_setup.h"
+#include "observations/expose_observations.h"
+#include "observations_setup/expose_observations_setup.h"
+#include "estimation_analysis/expose_estimation_analysis.h"
+#include "estimation_analysis/expose_estimation_analysis_estimator.h"
+#include "estimation_analysis/expose_estimation_analysis_ephemeris_fit.h"
+
+namespace py = pybind11;
+
+namespace tudatpy
+{
+namespace estimation
+{
+
+void expose_estimation( py::module &m );
+
+}  // namespace estimation
+}  // namespace tudatpy
+
+#endif  // TUDATPY_EXPOSE_ESTIMATION_H
