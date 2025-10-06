@@ -461,12 +461,7 @@ void expose_estimation_analysis( py::module& m )
                 tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE > >( m,
                                                                                 "EstimationInput",
                                                                                 R"doc(
-
-         Class for defining all inputs to the estimation.
-
-
-
-
+         Class for defining all inputs to the :class:`~Estimator` for performing a full estimation.
 
       )doc" )
             .def( py::init< const std::shared_ptr<

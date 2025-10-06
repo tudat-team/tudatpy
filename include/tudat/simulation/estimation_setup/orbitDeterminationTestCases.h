@@ -286,7 +286,7 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType, TimeType > >, Eig
             std::make_shared< EstimationInput< StateScalarType, TimeType > >( simulatedObservations, inverseAPrioriCovariance );
     estimationInput->defineEstimationSettings( true, true, false, true, true );
     covarianceInput->defineCovarianceSettings( true, true, true, false );
-    estimationInput->applyFinalParameterCorrection_ = false;
+    estimationInput->setApplyFinalParameterCorrection( false );
 
     // Perform estimation
     std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > estimationOutput =

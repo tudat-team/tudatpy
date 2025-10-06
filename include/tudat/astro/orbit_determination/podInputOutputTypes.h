@@ -553,11 +553,13 @@ public:
             const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker = std::make_shared< EstimationConvergenceChecker >( ),
             const Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
             const Eigen::VectorXd considerParametersDeviations = Eigen::VectorXd::Zero( 0 ),
-            const bool applyFinalParameterCorrection = true ):
+            const bool applyFinalParameterCorrection = true,
+            const bool resetEnvironmentAfterEstimation = false ):
         CovarianceAnalysisInput< ObservationScalarType, TimeType >( observationCollection, inverseOfAprioriCovariance, considerCovariance ),
         saveResidualsAndParametersFromEachIteration_( true ), saveStateHistoryForEachIteration_( false ),
         convergenceChecker_( convergenceChecker ), considerParametersDeviations_( considerParametersDeviations ),
-        conditionNumberWarningEachIteration_( true ), applyFinalParameterCorrection_( applyFinalParameterCorrection )
+        conditionNumberWarningEachIteration_( true ), applyFinalParameterCorrection_( applyFinalParameterCorrection ),
+        resetEnvironmentAfterEstimation_( false )
 
     {
         if( this->areConsiderParametersIncluded( ) )
@@ -619,15 +621,7 @@ public:
         this->conditionNumberWarningEachIteration_ = conditionNumberWarningEachIteration;
     }
 
-    //! Function to return the boolean denoting whether the residuals and parameters from the each iteration are to be saved
-    /*!
-     * Function to return the boolean denoting whether the residuals and parameters from the each iteration are to be saved
-     * \return Boolean denoting whether the residuals and parameters from the each iteration are to be saved
-     */
-    bool getSaveResidualsAndParametersFromEachIteration( )
-    {
-        return saveResidualsAndParametersFromEachIteration_;
-    }
+
 
     std::shared_ptr< EstimationConvergenceChecker > getConvergenceChecker( )
     {
@@ -637,6 +631,16 @@ public:
     void setConvergenceChecker( const std::shared_ptr< EstimationConvergenceChecker > convergenceChecker )
     {
         convergenceChecker_ = convergenceChecker;
+    }
+
+    //! Function to return the boolean denoting whether the residuals and parameters from the each iteration are to be saved
+    /*!
+     * Function to return the boolean denoting whether the residuals and parameters from the each iteration are to be saved
+     * \return Boolean denoting whether the residuals and parameters from the each iteration are to be saved
+     */
+    bool getSaveResidualsAndParametersFromEachIteration( )
+    {
+        return saveResidualsAndParametersFromEachIteration_;
     }
 
     //! Function to return the boolean denoting whether the state history is to be saved on each iteration.
@@ -649,20 +653,64 @@ public:
         return saveStateHistoryForEachIteration_;
     }
 
+    bool getApplyFinalParameterCorrection( )
+    {
+        return applyFinalParameterCorrection_;
+    }
+
+    bool getResetEnvironmentAfterEstimation( )
+    {
+        return resetEnvironmentAfterEstimation_;
+    }
+
+    bool getConditionNumberWarningEachIteration( )
+    {
+        return conditionNumberWarningEachIteration_;
+    }
+
+    void setSaveResidualsAndParametersFromEachIteration( const bool saveResidualsAndParametersFromEachIteration )
+    {
+        saveResidualsAndParametersFromEachIteration_ = saveResidualsAndParametersFromEachIteration;
+    }
+
+    void setSaveStateHistoryForEachIteration( const bool saveStateHistoryForEachIteration )
+    {
+        saveStateHistoryForEachIteration_ = saveStateHistoryForEachIteration;
+    }
+
+    void setApplyFinalParameterCorrection( const bool applyFinalParameterCorrection )
+    {
+        applyFinalParameterCorrection_ = applyFinalParameterCorrection;
+    }
+
+    void setResetEnvironmentAfterEstimation( const bool resetEnvironmentAfterEstimation )
+    {
+        resetEnvironmentAfterEstimation_ = resetEnvironmentAfterEstimation;
+    }
+
+    void setConditionNumberWarningEachIteration( const bool conditionNumberWarningEachIteration )
+    {
+        conditionNumberWarningEachIteration_ = conditionNumberWarningEachIteration;
+    }
+
+private:
+    std::shared_ptr< EstimationConvergenceChecker > convergenceChecker_;
+
+    //! Vector of consider parameters deviations
+    Eigen::VectorXd considerParametersDeviations_;
+
     //! Boolean denoting whether the residuals and parameters from the each iteration are to be saved
     bool saveResidualsAndParametersFromEachIteration_;
 
     //! Boolean denoting whether the state history is to be saved on each iteration.
     bool saveStateHistoryForEachIteration_;
 
-    std::shared_ptr< EstimationConvergenceChecker > convergenceChecker_;
-
-    //! Vector of consider parameters deviations
-    Eigen::VectorXd considerParametersDeviations_;
-
     bool conditionNumberWarningEachIteration_;
 
     bool applyFinalParameterCorrection_;
+
+    bool resetEnvironmentAfterEstimation_;
+
 };
 
 inline std::shared_ptr< EstimationConvergenceChecker > estimationConvergenceChecker( const unsigned int maximumNumberOfIterations = 5,

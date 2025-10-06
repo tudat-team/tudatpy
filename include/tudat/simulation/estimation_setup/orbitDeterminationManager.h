@@ -761,6 +761,12 @@ public:
     {
         currentParameterEstimate_ = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
+        Eigen::VectorXd originalParameterEstimate = Eigen::VectorXd::Zero( );
+        if( estimationInput->getResetEnvironmentAfterEstimation( ) )
+        {
+            originalParameterEstimate = currentParameterEstimate_;
+        }
+
         // Get number of observations
         int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
 
@@ -1056,6 +1062,11 @@ public:
         if( estimationInput->getSaveStateHistoryForEachIteration( ) )
         {
             estimationOutput->setSimulationResults( simulationResultsPerIteration );
+        }
+
+        if( estimationInput->applyFinalParameterCorrection_ )
+        {
+            resetParameterEstimate( currentParameterEstimate_, false );
         }
 
         return estimationOutput;
