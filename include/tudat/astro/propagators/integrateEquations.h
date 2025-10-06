@@ -464,8 +464,11 @@ void integrateEquationsFromIntegrator(
         const std::function< Eigen::VectorXd( ) > dependentVariableFunction = std::function< Eigen::VectorXd( ) >( ),
         const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
         const std::shared_ptr< SingleArcPropagatorProcessingSettings > processingSettings =
-                std::make_shared< SingleArcPropagatorProcessingSettings >( ) )
+                std::make_shared< SingleArcPropagatorProcessingSettings >( ),
+        const std::shared_ptr< DynamicsStateDerivativeModel< TimeType, typename StateType::Scalar > > stateDerivativeModel =
+                nullptr )
 {
+    bool stateDerivativeModelIsNull = ( stateDerivativeModel == nullptr ) ? true : false;
     int saveFrequency = 1;
 
     // Define structures that will contain with numerical results
@@ -539,6 +542,7 @@ void integrateEquationsFromIntegrator(
     {
         try
         {
+            bool environmentIsUpdated = false;
             if( ( newState.allFinite( ) == true ) && ( !newState.hasNaN( ) ) )
             {
                 // Print solutions
@@ -585,6 +589,12 @@ void integrateEquationsFromIntegrator(
                 // Update epoch and step-size
                 currentTime = integrator->getCurrentIndependentVariable( );
                 timeStep = integrator->getNextStepSize( );
+                if( !stateDerivativeModelIsNull )
+                {
+                    stateDerivativeModel->signalEndOfMajorStep( currentTime );
+                }
+
+
 
                 // Save integration result in map
                 if( processingSettings->saveCurrentStep( stepsSinceLastSave,
@@ -595,6 +605,7 @@ void integrateEquationsFromIntegrator(
                     if( !( dependentVariableFunction == nullptr ) )
                     {
                         integrator->getStateDerivativeFunction( )( currentTime, newState );
+                        environmentIsUpdated = true;
                         dependentVariableHistory[ currentTime ] = dependentVariableFunction( );
                     }
                     timeOfLastSave = currentTime;
@@ -617,6 +628,11 @@ void integrateEquationsFromIntegrator(
                                      .count( ) *
                     1.0e-9;
             cumulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
+
+            if( !environmentIsUpdated && propagationTerminationCondition->requiresEnvironmentUpdate( ) )
+            {
+                integrator->getStateDerivativeFunction( )( currentTime, newState );
+            }
 
             if( propagationTerminationCondition->checkStopCondition(
                         static_cast< double >( currentTime ), currentCPUTime, newState.template cast< double >( ) ) )
@@ -719,7 +735,9 @@ void integrateEquations( std::function< StateType( const TimeType, const StateTy
                          const std::function< Eigen::VectorXd( ) > dependentVariableFunction = std::function< Eigen::VectorXd( ) >( ),
                          const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
                          const std::shared_ptr< SingleArcPropagatorProcessingSettings > processingSettings =
-                                 std::make_shared< SingleArcPropagatorProcessingSettings >( ) )
+                                 std::make_shared< SingleArcPropagatorProcessingSettings >( ),
+                         const std::shared_ptr< DynamicsStateDerivativeModel< TimeType, typename StateType::Scalar > > stateDerivativeModel =
+                                 nullptr )
 {
     std::function< bool( const double, const double, const Eigen::MatrixXd& ) > stopPropagationFunction =
             std::bind( &PropagationTerminationCondition::checkStopCondition,
@@ -745,7 +763,8 @@ void integrateEquations( std::function< StateType( const TimeType, const StateTy
             simulationResults,
             dependentVariableFunction,
             statePostProcessingFunction,
-            processingSettings );
+            processingSettings,
+            stateDerivativeModel );
 }
 
 }  // namespace propagators
