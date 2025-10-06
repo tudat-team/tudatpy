@@ -802,7 +802,7 @@ inline std::shared_ptr< relativity::EinsteinInfeldHoffmannEquations > getEihEqua
         const basic_astrodynamics::AccelerationMap& accelerationModelList )
 {
     std::vector< std::shared_ptr< relativity::EinsteinInfeldHoffmannAcceleration > > eihAccelerations;
-    for( auto it: accelerationModelList )
+    for( auto it : accelerationModelList )
     {
         try
         {
@@ -826,7 +826,7 @@ inline std::shared_ptr< relativity::EinsteinInfeldHoffmannEquations > getEihEqua
             }
         }
         catch( ... )
-        { }
+        {}
     }
 
     if( eihAccelerations.size( ) == 0 )
@@ -1067,7 +1067,7 @@ std::shared_ptr< BodyMassStateDerivative< StateScalarType, TimeType > > getBodyM
     return modelForBody;
 }
 
-#if ( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
+#if( TUDAT_BUILD_WITH_ESTIMATION_TOOLS )
 //! Function to retrieve specific acceleration partial object from list of state derivative partials
 /*!
  * Function to retrieve specific acceleration partial object from list of state derivative partials

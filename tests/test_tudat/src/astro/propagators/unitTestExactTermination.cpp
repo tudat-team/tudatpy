@@ -337,7 +337,6 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                     }
                 }
 
-
                 std::shared_ptr< SingleArcSimulationResults< double, double > > simulatorResults =
                         dynamicsSimulator.getSingleArcPropagationResults( );
                 std::map< double, unsigned int > functionEvaluations1 = simulatorResults->getCumulativeNumberOfFunctionEvaluations( );
@@ -347,12 +346,12 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                 if( direction == 0 )
                 {
                     BOOST_CHECK_EQUAL( stateHistory.rbegin( )->first, functionEvaluations1.rbegin( )->first );
-                    BOOST_CHECK_EQUAL( ( stateHistory.rbegin( )++)->first, (functionEvaluations1.rbegin( )++)->first );
+                    BOOST_CHECK_EQUAL( ( stateHistory.rbegin( )++ )->first, ( functionEvaluations1.rbegin( )++ )->first );
                 }
                 else if( direction == 1 )
                 {
                     BOOST_CHECK_EQUAL( stateHistory.begin( )->first, functionEvaluations1.begin( )->first );
-                    BOOST_CHECK_EQUAL( ( stateHistory.begin( )++)->first, (functionEvaluations1.begin( )++)->first );
+                    BOOST_CHECK_EQUAL( ( stateHistory.begin( )++ )->first, ( functionEvaluations1.begin( )++ )->first );
                 }
             }
         }

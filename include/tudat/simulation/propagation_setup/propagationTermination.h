@@ -84,10 +84,10 @@ public:
     PropagationTerminationCondition( const PropagationTerminationTypes terminationType,
                                      const bool checkTerminationToExactCondition = false ):
         terminationType_( terminationType ), checkTerminationToExactCondition_( checkTerminationToExactCondition )
-    { }
+    {}
 
     //! Destructor
-    virtual ~PropagationTerminationCondition( ) { }
+    virtual ~PropagationTerminationCondition( ) {}
 
     //! (Pure virtual) function to check whether the propagation should be stopped
     /*!
@@ -158,7 +158,7 @@ public:
                                               const bool checkTerminationToExactCondition = false ):
         PropagationTerminationCondition( time_stopping_condition, checkTerminationToExactCondition ), stopTime_( stopTime ),
         propagationDirectionIsPositive_( propagationDirectionIsPositive )
-    { }
+    {}
 
     //! Function to check whether the propagation is to be be stopped
     /*!
@@ -199,7 +199,7 @@ public:
      */
     FixedCPUTimePropagationTerminationCondition( const double cpuStopTime ):
         PropagationTerminationCondition( cpu_time_stopping_condition, false ), cpuStopTime_( cpuStopTime )
-    { }
+    {}
 
     //! Function to check whether the propagation is to be be stopped
     /*!
@@ -258,7 +258,7 @@ public:
     }
 
     //! Destructor.
-    ~SingleVariableLimitPropagationTerminationCondition( ) { }
+    ~SingleVariableLimitPropagationTerminationCondition( ) {}
 
     //! Function to check whether the propagation is to be be stopped
     /*!
@@ -289,7 +289,6 @@ public:
     {
         return terminationRootFinderSettings_;
     }
-
 
     virtual bool requiresEnvironmentUpdate( )
     {
@@ -329,7 +328,7 @@ public:
                                 const bool checkTerminationToExactCondition = false ):
         PropagationTerminationCondition( custom_stopping_condition, checkTerminationToExactCondition ),
         checkStopCondition_( checkStopCondition )
-    { }
+    {}
 
     //! Function to check whether the propagation is to be be stopped
     /*!
@@ -348,7 +347,6 @@ public:
     {
         return true;
     }
-
 
 private:
     //! Custom temination function.
@@ -431,7 +429,6 @@ public:
         return requiresEnvironmentUpdate_;
     }
 
-
 private:
     //! List of termination conditions that are checked when calling checkStopCondition is called.
     std::vector< std::shared_ptr< PropagationTerminationCondition > > propagationTerminationCondition_;
@@ -466,7 +463,7 @@ public:
                                          forwardPropagationTerminationCondition->getcheckTerminationToExactCondition( ) ),
         forwardPropagationTerminationCondition_( forwardPropagationTerminationCondition ),
         backwardPropagationTerminationCondition_( backwardPropagationTerminationCondition )
-    { }
+    {}
 
     //! Function to check whether the propagation is to be be stopped
     /*!
@@ -650,10 +647,10 @@ public:
     PropagationTerminationDetails( const PropagationTerminationReason propagationTerminationReason,
                                    const bool terminationOnExactCondition = 0 ):
         propagationTerminationReason_( propagationTerminationReason ), terminationOnExactCondition_( terminationOnExactCondition )
-    { }
+    {}
 
     //! Destructor
-    virtual ~PropagationTerminationDetails( ) { }
+    virtual ~PropagationTerminationDetails( ) {}
 
     //! Function to retrieve reason for termination
     /*!
@@ -707,10 +704,10 @@ public:
                                                       const std::shared_ptr< HybridPropagationTerminationCondition > terminationCondition ):
         PropagationTerminationDetails( termination_condition_reached, terminationOnExactCondition ),
         isConditionMetWhenStopping_( terminationCondition->getIsConditionMetWhenStopping( ) )
-    { }
+    {}
 
     //! Destructor
-    ~PropagationTerminationDetailsFromHybridCondition( ) { }
+    ~PropagationTerminationDetailsFromHybridCondition( ) {}
 
     //! Function to retrieve list of booleans, denoting for each of the constituent stopping conditions whether or not is was met.
     /*!
