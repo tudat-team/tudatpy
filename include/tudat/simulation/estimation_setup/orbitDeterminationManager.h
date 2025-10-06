@@ -649,7 +649,7 @@ public:
         // Get total number of observations
         int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
 
-        if( numberEstimatedParameters_ > totalNumberOfObservations && estimationInput->getInverseOfAprioriCovariance( ).rows( ) == 0 )
+        if( numberEstimatedParameters_ > static_cast< unsigned int >( totalNumberOfObservations ) && estimationInput->getInverseOfAprioriCovariance( ).rows( ) == 0 )
         {
             throw std::runtime_error(
                     "Error when computing covariance, number of observations is smaller than number of estimated parameters, and no a priori information is provided." );
@@ -765,7 +765,7 @@ public:
         // Get number of observations
         int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
 
-        if( numberEstimatedParameters_ > totalNumberOfObservations && estimationInput->getInverseOfAprioriCovariance( ).rows( ) == 0 )
+        if( numberEstimatedParameters_ > static_cast< unsigned int >( totalNumberOfObservations ) && estimationInput->getInverseOfAprioriCovariance( ).rows( ) == 0 )
         {
             throw std::runtime_error(
                     "Error when estimating parameters, number of observations is smaller than number of estimated parameters, and no a priori information is provided." );
