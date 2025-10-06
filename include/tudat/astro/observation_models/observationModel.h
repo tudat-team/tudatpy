@@ -84,7 +84,7 @@ public:
     }
 
     //! Virtual destructor
-    virtual ~ObservationModel( ) { }
+    virtual ~ObservationModel( ) {}
 
     //! Function to return the type of observable.
     /*!
@@ -293,10 +293,9 @@ public:
         timeScaleConverter_ = earth_orientation::createDefaultTimeConverter( );
     }
 
-
     virtual void setFrequencyInterpolatorAndTurnaroundRatio(
-        std::shared_ptr< ground_stations::StationFrequencyInterpolator > frequencyInterpolator,
-        std::function< double( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > turnaroundRatio )
+            std::shared_ptr< ground_stations::StationFrequencyInterpolator > frequencyInterpolator,
+            std::function< double( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > turnaroundRatio )
     {
         frequencyInterpolator_ = frequencyInterpolator;
         turnaroundRatio_ = turnaroundRatio;
@@ -304,12 +303,11 @@ public:
     }
 
 protected:
-
     bool setFrequencyProperties( const TimeType time,
                                  const LinkEndType linkEndAssociatedWithTime,
                                  const std::shared_ptr< LightTimeCalculator< ObservationScalarType, TimeType > > lightTimeCalculator,
                                  const std::shared_ptr< ObservationAncilliarySimulationSettings > inputAncilliarySetings,
-                                 std::shared_ptr< ObservationAncilliarySimulationSettings >& ancilliarySetingsToUse )
+                                 std::shared_ptr< ObservationAncilliarySimulationSettings > &ancilliarySetingsToUse )
     {
         if( frequencyInterpolator_ != nullptr )
         {
@@ -345,19 +343,20 @@ protected:
         }
     }
 
-    bool setFrequencyProperties( const TimeType time,
-                                 const LinkEndType linkEndAssociatedWithTime,
-                                 const std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > multiLegLightTimeCalculator,
-                                 const std::shared_ptr< ObservationAncilliarySimulationSettings > inputAncilliarySetings,
-                                 std::shared_ptr< ObservationAncilliarySimulationSettings >& ancilliarySetingsToUse )
+    bool setFrequencyProperties(
+            const TimeType time,
+            const LinkEndType linkEndAssociatedWithTime,
+            const std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > multiLegLightTimeCalculator,
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > inputAncilliarySetings,
+            std::shared_ptr< ObservationAncilliarySimulationSettings > &ancilliarySetingsToUse )
     {
         if( frequencyInterpolator_ != nullptr )
         {
             if( linkEndAssociatedWithTime != receiver )
             {
                 throw std::runtime_error(
-                    "Error when computing n-way range, frequency interpolator use is only compatible with transmitter reference "
-                    "frequency at present" );
+                        "Error when computing n-way range, frequency interpolator use is only compatible with transmitter reference "
+                        "frequency at present" );
             }
             else
             {
@@ -370,14 +369,13 @@ protected:
                     ancilliarySetingsToUse = inputAncilliarySetings;
                 }
 
-
                 setTransmissionReceptionFrequencies( multiLegLightTimeCalculator,
-                                          timeScaleConverter_,
-                                          frequencyInterpolator_,
-                                          time,
-                                          linkEndAssociatedWithTime,
-                                          ancilliarySetingsToUse,
-                                          getTurnaroundRatio( ancilliarySetingsToUse ) );
+                                                     timeScaleConverter_,
+                                                     frequencyInterpolator_,
+                                                     time,
+                                                     linkEndAssociatedWithTime,
+                                                     ancilliarySetingsToUse,
+                                                     getTurnaroundRatio( ancilliarySetingsToUse ) );
             }
             return true;
         }
@@ -396,7 +394,7 @@ protected:
         {
             frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
         }
-        catch( std::runtime_error& caughtException )
+        catch( std::runtime_error &caughtException )
         {
             throw std::runtime_error( "Error when retrieving ancillary settings for N-way range observable: " +
                                       std::string( caughtException.what( ) ) );
@@ -405,10 +403,10 @@ protected:
         if( frequencyBands.size( ) != linkEnds_.size( ) - 1 )
         {
             throw std::runtime_error(
-                "Error when retrieving frequency bands ancillary settings for N-way range observable: "
-                "size (" +
-                std::to_string( frequencyBands.size( ) ) + ") is inconsistent with number of links (" +
-                std::to_string( linkEnds_.size( ) - 1 ) + ")." );
+                    "Error when retrieving frequency bands ancillary settings for N-way range observable: "
+                    "size (" +
+                    std::to_string( frequencyBands.size( ) ) + ") is inconsistent with number of links (" +
+                    std::to_string( linkEnds_.size( ) - 1 ) + ")." );
         }
         FrequencyBands uplinkBand = frequencyBands.at( 0 );
         FrequencyBands downlinkBand = frequencyBands.at( 1 );
@@ -437,7 +435,6 @@ protected:
 
     //! Pre-define list of states used when calling function returning link-end states/times from interface function.
     std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates_;
-
 
     std::shared_ptr< ground_stations::StationFrequencyInterpolator > frequencyInterpolator_ = nullptr;
 

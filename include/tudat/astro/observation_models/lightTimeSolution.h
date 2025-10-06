@@ -64,9 +64,9 @@ public:
                                   const LightTimeFailureHandling failureHandling = accept_without_warning ):
         iterateCorrections_( iterateCorrections ), maximumNumberOfIterations_( maximumNumberOfIterations ),
         failureHandling_( failureHandling ), fractionOfLightTimeTolerance_( fractionOfLightTimeTolerance )
-    { }
+    {}
 
-    virtual ~LightTimeConvergenceCriteria( ) { }
+    virtual ~LightTimeConvergenceCriteria( ) {}
 
     template< typename ScalarType = double >
     double getFractionOfLightTimeTolerance( )
@@ -214,7 +214,7 @@ public:
 
     LightTimeCorrectionFunctionWrapper( const LightTimeCorrectionFunctionMultiLeg lightTimeCorrectionFunction ):
         LightTimeCorrection( function_wrapper_light_time_correction ), lightTimeCorrectionFunction_( lightTimeCorrectionFunction )
-    { }
+    {}
 
     //! Function to compute the light-time correction
     /*!
@@ -270,7 +270,7 @@ public:
         ephemerisOfTransmittingBody_( ephemerisOfTransmittingBody ), ephemerisOfReceivingBody_( ephemerisOfReceivingBody ),
         correctionFunctions_( correctionFunctions ), lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ),
         currentCorrection_( 0.0 )
-    { }
+    {}
 
     //! Class constructor.
     /*!
@@ -387,17 +387,15 @@ public:
         try
         {
             return ( ephemerisOfReceivingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( time ) -
-                 ephemerisOfTransmittingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( time ) )
-                       .segment( 0, 3 )
-                       .norm( ) /
-                physical_constants::SPEED_OF_LIGHT;
+                     ephemerisOfTransmittingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( time ) )
+                           .segment( 0, 3 )
+                           .norm( ) /
+                    physical_constants::SPEED_OF_LIGHT;
         }
-        catch ( std::runtime_error& caughtException )
+        catch( std::runtime_error& caughtException )
         {
             throw exceptions::LightTimeSolutionError< TimeType >( time, isTimeAtReception, caughtException.what( ) );
         }
-
-
     }
 
     //! Function to calculate the light time and link-ends states, given an initial guess for all legs.
@@ -447,7 +445,8 @@ public:
             // If no link end times are provided, compute an initial guess for the light time without corrections
             else
             {
-                receiverState = ephemerisOfReceivingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( receptionTime );
+                receiverState =
+                        ephemerisOfReceivingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( receptionTime );
                 transmitterState =
                         ephemerisOfTransmittingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( transmissionTime );
 
@@ -532,8 +531,8 @@ public:
                 {
                     receptionTime = time;
                     transmissionTime = time - previousLightTimeCalculation;
-                    transmitterState =
-                            ephemerisOfTransmittingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >( transmissionTime );
+                    transmitterState = ephemerisOfTransmittingBody_->getTemplatedStateFromEphemeris< ObservationScalarType, TimeType >(
+                            transmissionTime );
                 }
                 else
                 {
@@ -567,7 +566,7 @@ public:
 
             return newLightTimeCalculation;
         }
-        catch ( std::runtime_error& caughtException )
+        catch( std::runtime_error& caughtException )
         {
             throw exceptions::LightTimeSolutionError< TimeType >( time, isTimeAtReception, caughtException.what( ) );
         }

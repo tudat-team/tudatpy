@@ -569,8 +569,9 @@ BOOST_AUTO_TEST_CASE( testTwoWayRangeModelTimeScaleBias )
         twoWayLinkEnds[ receiver ] = std::make_pair< std::string, std::string >( "Earth", "EarthStation2" );
 
         // Create observation models
-        std::shared_ptr< NWayRangeObservationModelSettings > twoWayObservableSettings = std::make_shared< NWayRangeObservationModelSettings >(
-                twoWayLinkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ) );
+        std::shared_ptr< NWayRangeObservationModelSettings > twoWayObservableSettings =
+                std::make_shared< NWayRangeObservationModelSettings >( twoWayLinkEnds,
+                                                                       std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ) );
         std::shared_ptr< ObservationModel< 1, double, double > > twoWayObservationModel =
                 ObservationModelCreator< 1, double, double >::createObservationModel( twoWayObservableSettings, bodies );
 
@@ -580,8 +581,9 @@ BOOST_AUTO_TEST_CASE( testTwoWayRangeModelTimeScaleBias )
                 observationTimes.at( observationTimeNumber ), receiver, linkEndTimes, linkEndStates )( 0 );
 
         std::shared_ptr< ObservationBiasSettings > biasSettings = twoWayTimeScaleRangeBias( );
-        std::shared_ptr< NWayRangeObservationModelSettings > twoWayObservableSettingsWithBias = std::make_shared< NWayRangeObservationModelSettings >(
-                twoWayLinkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings );
+        std::shared_ptr< NWayRangeObservationModelSettings > twoWayObservableSettingsWithBias =
+                std::make_shared< NWayRangeObservationModelSettings >(
+                        twoWayLinkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings );
         std::shared_ptr< ObservationModel< 1, double, double > > twoWayObservationModelWithBias =
                 ObservationModelCreator< 1, double, double >::createObservationModel( twoWayObservableSettingsWithBias, bodies );
 
@@ -680,10 +682,11 @@ BOOST_AUTO_TEST_CASE( testTwoWayRangeWithFrequencyCorrections )
         lightTimeCorrectionSettings.push_back( std::make_shared< JakowskiIonosphericCorrectionSettings >( ) );
 
         // Create observation settings
-        std::shared_ptr< NWayRangeObservationModelSettings > twoWayObservableSettingsCorrected = std::make_shared< NWayRangeObservationModelSettings >(
-                twoWayLinkEnds, lightTimeCorrectionSettings );
-        std::shared_ptr< NWayRangeObservationModelSettings > twoWayObservableSettingsUncorrected = std::make_shared< NWayRangeObservationModelSettings >(
-                twoWayLinkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ) );
+        std::shared_ptr< NWayRangeObservationModelSettings > twoWayObservableSettingsCorrected =
+                std::make_shared< NWayRangeObservationModelSettings >( twoWayLinkEnds, lightTimeCorrectionSettings );
+        std::shared_ptr< NWayRangeObservationModelSettings > twoWayObservableSettingsUncorrected =
+                std::make_shared< NWayRangeObservationModelSettings >( twoWayLinkEnds,
+                                                                       std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ) );
 
         // Create observation models.
         std::shared_ptr< ObservationModel< 1, double, double > > observationModelCorrected =
@@ -710,12 +713,20 @@ BOOST_AUTO_TEST_CASE( testTwoWayRangeWithFrequencyCorrections )
         ancillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, earthFrequency );
         ancillarySettings->setIntermediateDoubleData( received_frequency_intermediate, earthFrequency * 880.0 / 749.0 );
 
-
-        std::shared_ptr< LightTimeCorrection > uplinkIonosphereCorrectionModel = createLightTimeCorrections(
-                std::make_shared< JakowskiIonosphericCorrectionSettings >( ), bodies, twoWayLinkEnds, transmitter, retransmitter, n_way_range );
-        std::shared_ptr< LightTimeCorrection > downlinkIonosphereCorrectionModel = createLightTimeCorrections(
-                std::make_shared< JakowskiIonosphericCorrectionSettings >( ), bodies, twoWayLinkEnds, retransmitter, receiver, n_way_range );
-
+        std::shared_ptr< LightTimeCorrection > uplinkIonosphereCorrectionModel =
+                createLightTimeCorrections( std::make_shared< JakowskiIonosphericCorrectionSettings >( ),
+                                            bodies,
+                                            twoWayLinkEnds,
+                                            transmitter,
+                                            retransmitter,
+                                            n_way_range );
+        std::shared_ptr< LightTimeCorrection > downlinkIonosphereCorrectionModel =
+                createLightTimeCorrections( std::make_shared< JakowskiIonosphericCorrectionSettings >( ),
+                                            bodies,
+                                            twoWayLinkEnds,
+                                            retransmitter,
+                                            receiver,
+                                            n_way_range );
 
         double ionosphereCorrectionUplink = uplinkIonosphereCorrectionModel->calculateLightTimeCorrectionWithMultiLegLinkEndStates(
                 linkEndStates, linkEndTimes, 0, ancillarySettings );
@@ -723,10 +734,9 @@ BOOST_AUTO_TEST_CASE( testTwoWayRangeWithFrequencyCorrections )
                 linkEndStates, linkEndTimes, 2, ancillarySettings );
 
         // Compare observation difference with direct correction (limited by double precision over several AU)
-        BOOST_CHECK_CLOSE_FRACTION(
-                ( ionosphereCorrectionUplink +  ionosphereCorrectionDownlink ) * physical_constants::SPEED_OF_LIGHT,
-                ( correctedObservation - uncorrectedObservation ), 1.0E-4 );
-
+        BOOST_CHECK_CLOSE_FRACTION( ( ionosphereCorrectionUplink + ionosphereCorrectionDownlink ) * physical_constants::SPEED_OF_LIGHT,
+                                    ( correctedObservation - uncorrectedObservation ),
+                                    1.0E-4 );
     }
 }
 

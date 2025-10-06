@@ -51,10 +51,10 @@ public:
             const std::shared_ptr< ObservationBias< 2 > > observationBiasCalculator = nullptr ):
         ObservationModel< 2, ObservationScalarType, TimeType >( angular_position, linkEnds, observationBiasCalculator ),
         lightTimeCalculator_( lightTimeCalculator )
-    { }
+    {}
 
     //! Destructor
-    ~AngularPositionObservationModel( ) { }
+    ~AngularPositionObservationModel( ) {}
 
     //! Function to compute ideal angular position observation at given time.
     /*!
@@ -108,7 +108,6 @@ public:
         // Compute light-time and receiver/transmitter states.
         ObservationScalarType lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
                 receiverState, transmitterState, time, isTimeAtReception, ancilliarySetings );
-
 
         Eigen::Matrix< ObservationScalarType, 3, 1 > relativePosition = transmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 );
 
