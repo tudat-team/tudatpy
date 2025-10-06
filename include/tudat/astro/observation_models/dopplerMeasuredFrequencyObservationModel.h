@@ -60,7 +60,7 @@ class DopplerMeasuredFrequencyObservationModel : public ObservationModel< 1, Obs
 {
 public:
     typedef Eigen::Matrix< ObservationScalarType, 6, 1 > StateType;
-     
+
     using ObservationModel< 1, ObservationScalarType, TimeType >::turnaroundRatio_;
     using ObservationModel< 1, ObservationScalarType, TimeType >::timeScaleConverter_;
     using ObservationModel< 1, ObservationScalarType, TimeType >::frequencyInterpolator_;
@@ -84,12 +84,10 @@ public:
             const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
                     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ) ):
         ObservationModel< 1, ObservationScalarType, TimeType >( doppler_measured_frequency, linkEnds, observationBiasCalculator ),
-        twoWayDopplerModel_( twoWayDopplerModel ), numberOfLinkEnds_( linkEnds.size( ) ),
-        stationStates_( groundStationStates )
+        twoWayDopplerModel_( twoWayDopplerModel ), numberOfLinkEnds_( linkEnds.size( ) ), stationStates_( groundStationStates )
     {
-        this->setFrequencyInterpolatorAndTurnaroundRatio( 
-                transmittingFrequencyCalculator, turnaroundRatio );
-                
+        this->setFrequencyInterpolatorAndTurnaroundRatio( transmittingFrequencyCalculator, turnaroundRatio );
+
         if( numberOfLinkEnds_ != 3 )
         {
             throw std::runtime_error(
@@ -113,7 +111,7 @@ public:
     }
 
     //! Destructor
-    ~DopplerMeasuredFrequencyObservationModel( ) { }
+    ~DopplerMeasuredFrequencyObservationModel( ) {}
 
     /*!
      * Function to compute Measured Frequency for a doppler observation model
@@ -236,7 +234,7 @@ public:
 
     // Light time calculator
     std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > lighTimeCalculator_;
-    
+
     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates_;
 };
 

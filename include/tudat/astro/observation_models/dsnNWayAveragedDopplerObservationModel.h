@@ -141,8 +141,7 @@ public:
         arcStartObservationModel_( arcStartObservationModel ), arcEndObservationModel_( arcEndObservationModel ),
         numberOfLinkEnds_( linkEnds.size( ) ), stationStates_( groundStationStates ), subtractDopplerSignature_( subtractDopplerSignature )
     {
-        this->setFrequencyInterpolatorAndTurnaroundRatio( 
-                transmittingFrequencyCalculator, turnaroundRatio );
+        this->setFrequencyInterpolatorAndTurnaroundRatio( transmittingFrequencyCalculator, turnaroundRatio );
         if( !std::is_same< Time, TimeType >::value )
         {
             //            std::cerr<<
@@ -159,7 +158,7 @@ public:
     }
 
     //! Destructor
-    ~DsnNWayAveragedDopplerObservationModel( ) { }
+    ~DsnNWayAveragedDopplerObservationModel( ) {}
 
     /*! Function to compute DSN n-way Doppler observation at given time.
      *
@@ -295,8 +294,8 @@ public:
                 basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmissionTdbEndTime, nominalTransmittingStationState );
 
         ObservationScalarType transmitterFrequencyIntegral =
-                frequencyInterpolator_->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >(
-                        transmissionUtcStartTime, transmissionUtcEndTime );
+                frequencyInterpolator_->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >( transmissionUtcStartTime,
+                                                                                                                   transmissionUtcEndTime );
 
         // Moyer (2000), eq. 13-54
         Eigen::Matrix< ObservationScalarType, 1, 1 > observation =
