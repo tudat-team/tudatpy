@@ -245,7 +245,6 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
 
     std::shared_ptr< LagrangeInterpolator< double, Eigen::VectorXd > > currentInterpolator;
 
-
     while( currentTime < finalEphemerisTime - stepSize )
     {
         // Retrieve data from interpolators; transform to inertial frames and compare.
@@ -473,7 +472,7 @@ BOOST_AUTO_TEST_CASE( testCowellPropagatorKeplerCompare )
 {
     testCowellPropagationOfKeplerOrbit< double, double >( );
 
-#if ( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
     testCowellPropagationOfKeplerOrbit< double, long double >( );
     testCowellPropagationOfKeplerOrbit< Time, double >( );
     testCowellPropagationOfKeplerOrbit< Time, long double >( );

@@ -467,8 +467,7 @@ void integrateEquationsFromIntegrator(
         const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
         const std::shared_ptr< SingleArcPropagatorProcessingSettings > processingSettings =
                 std::make_shared< SingleArcPropagatorProcessingSettings >( ),
-        const std::shared_ptr< DynamicsStateDerivativeModel< TimeType, typename StateType::Scalar > > stateDerivativeModel =
-                nullptr )
+        const std::shared_ptr< DynamicsStateDerivativeModel< TimeType, typename StateType::Scalar > > stateDerivativeModel = nullptr )
 {
     bool stateDerivativeModelIsNull = ( stateDerivativeModel == nullptr ) ? true : false;
     int saveFrequency = 1;
@@ -637,12 +636,12 @@ void integrateEquationsFromIntegrator(
                 if( propagationTerminationCondition->iterateToExactTermination( ) )
                 {
                     currentTime = propagateToExactTerminationCondition( integrator,
-                                                          propagationTerminationCondition,
-                                                          timeStep,
-                                                          dependentVariableFunction,
-                                                          solutionHistory,
-                                                          dependentVariableHistory,
-                                                          currentCPUTime );
+                                                                        propagationTerminationCondition,
+                                                                        timeStep,
+                                                                        dependentVariableFunction,
+                                                                        solutionHistory,
+                                                                        dependentVariableHistory,
+                                                                        currentCPUTime );
                 }
 
                 // Set termination details
@@ -671,7 +670,8 @@ void integrateEquationsFromIntegrator(
             }
 
             currentCPUTime = std::chrono::duration_cast< std::chrono::nanoseconds >( std::chrono::steady_clock::now( ) - initialClockTime )
-                                     .count( ) * 1.0e-9;
+                                     .count( ) *
+                    1.0e-9;
             cumulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
         }
         catch( const std::exception& caughtException )
@@ -731,18 +731,18 @@ void integrateEquationsFromIntegrator(
  *  \return Event that triggered the termination of the propagation
  */
 template< typename SimulationResults, typename StateType, typename TimeType = double >
-void integrateEquations( std::function< StateType( const TimeType, const StateType& ) > stateDerivativeFunction,
-                         const StateType initialState,
-                         const TimeType initialTime,
-                         const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
-                         const std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
-                         std::shared_ptr< SimulationResults > simulationResults,
-                         const std::function< Eigen::VectorXd( ) > dependentVariableFunction = std::function< Eigen::VectorXd( ) >( ),
-                         const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
-                         const std::shared_ptr< SingleArcPropagatorProcessingSettings > processingSettings =
-                                 std::make_shared< SingleArcPropagatorProcessingSettings >( ),
-                         const std::shared_ptr< DynamicsStateDerivativeModel< TimeType, typename StateType::Scalar > > stateDerivativeModel =
-                                 nullptr )
+void integrateEquations(
+        std::function< StateType( const TimeType, const StateType& ) > stateDerivativeFunction,
+        const StateType initialState,
+        const TimeType initialTime,
+        const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
+        const std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
+        std::shared_ptr< SimulationResults > simulationResults,
+        const std::function< Eigen::VectorXd( ) > dependentVariableFunction = std::function< Eigen::VectorXd( ) >( ),
+        const std::function< void( StateType& ) > statePostProcessingFunction = std::function< void( StateType& ) >( ),
+        const std::shared_ptr< SingleArcPropagatorProcessingSettings > processingSettings =
+                std::make_shared< SingleArcPropagatorProcessingSettings >( ),
+        const std::shared_ptr< DynamicsStateDerivativeModel< TimeType, typename StateType::Scalar > > stateDerivativeModel = nullptr )
 {
     std::function< bool( const double, const double, const Eigen::MatrixXd& ) > stopPropagationFunction =
             std::bind( &PropagationTerminationCondition::checkStopCondition,
