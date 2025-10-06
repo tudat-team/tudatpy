@@ -22,8 +22,8 @@
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/ephemerides/ephemeris.h"
+#include "tudat/astro/observation_models/observationAncillarySettings.h"
 #include "tudat/astro/observation_models/corrections/lightTimeCorrection.h"
-#include "tudat/astro/observation_models/observationModel.h"
 
 namespace tudat
 {
