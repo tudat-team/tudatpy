@@ -48,7 +48,8 @@ public:
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
                     std::make_shared< LightTimeConvergenceCriteria >( ) ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( n_way_range, linkEnds, observationBiasCalculator )
+        ObservationModel< 1, ObservationScalarType, TimeType >( n_way_range, linkEnds, observationBiasCalculator ),
+        linkEnds_( linkEnds )
     {
         multiLegLightTimeCalculator_ =
                 std::make_shared< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >(
@@ -60,7 +61,7 @@ public:
                                        multiLegLightTimeCalculator,
                                const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
         ObservationModel< 1, ObservationScalarType, TimeType >( n_way_range, linkEnds, observationBiasCalculator ),
-        multiLegLightTimeCalculator_( multiLegLightTimeCalculator )
+        linkEnds_( linkEnds ), multiLegLightTimeCalculator_( multiLegLightTimeCalculator )
     { }
 
     //! Destructor
@@ -91,8 +92,11 @@ public:
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
             const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
     {
+        std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetingsToUse;
+        this->setFrequencyProperties( time, linkEndAssociatedWithTime, multiLegLightTimeCalculator_, ancilliarySetings, ancilliarySetingsToUse );
+
         ObservationScalarType totalLightTime = multiLegLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetings );
+                time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetingsToUse );
 
         // Return total range observation.
         return ( Eigen::Matrix< ObservationScalarType, 1, 1 >( )
@@ -110,9 +114,16 @@ public:
         return multiLegLightTimeCalculator_;
     }
 
+
 private:
+
+
+
+    LinkEnds linkEnds_;
+
     // Object that iteratively computes the light time of multiple legs
     std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > multiLegLightTimeCalculator_;
+
 };
 
 }  // namespace observation_models
