@@ -1,0 +1,5 @@
+{
+  "type": "gcrsToItrs",
+  "originalFrame": "J2000",
+  "precessionNutationTheory": "IAU2000b"
+}
