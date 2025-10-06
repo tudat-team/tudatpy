@@ -27,19 +27,34 @@ RadiationPressureAccelerationPartial::RadiationPressureAccelerationPartial(
     currentPartialWrtUndergoingState_.setZero( );
     currentPartialWrtExertingState_.setZero( );
 
-    estimatable_parameters::EstimatebleParameterIdentifier undergoingBodyIdentifier =
+    estimatable_parameters::EstimatebleParameterIdentifier singleArcUndergoingBodyIdentifier =
             std::make_pair( estimatable_parameters::initial_body_state, std::make_pair( acceleratedBody, "" ) );
-    if( customAccelerationPartialSet->customInitialStatePartials_.count( undergoingBodyIdentifier ) > 0 )
+    if( customAccelerationPartialSet->customInitialStatePartials_.count( singleArcUndergoingBodyIdentifier ) > 0 )
     {
-        bodyUndergoingPositionPartial_ = customAccelerationPartialSet->customInitialStatePartials_.at( undergoingBodyIdentifier );
+        bodyUndergoingPositionPartial_ = customAccelerationPartialSet->customInitialStatePartials_.at( singleArcUndergoingBodyIdentifier );
     }
 
-    estimatable_parameters::EstimatebleParameterIdentifier exertingBodyIdentifier =
-            std::make_pair( estimatable_parameters::initial_body_state, std::make_pair( acceleratingBody, "" ) );
-    if( customAccelerationPartialSet->customInitialStatePartials_.count( exertingBodyIdentifier ) > 0 &&
-        ( exertingBodyIdentifier != undergoingBodyIdentifier ) )
+    estimatable_parameters::EstimatebleParameterIdentifier multiArcUndergoingBodyIdentifier =
+            std::make_pair( estimatable_parameters::arc_wise_initial_body_state, std::make_pair( acceleratedBody, "" ) );
+    if( customAccelerationPartialSet->customInitialStatePartials_.count( multiArcUndergoingBodyIdentifier ) > 0 )
     {
-        bodyExertingPositionPartial_ = customAccelerationPartialSet->customInitialStatePartials_.at( exertingBodyIdentifier );
+        bodyUndergoingPositionPartial_ = customAccelerationPartialSet->customInitialStatePartials_.at( multiArcUndergoingBodyIdentifier );
+    }
+
+    estimatable_parameters::EstimatebleParameterIdentifier singleArcExertingBodyIdentifier =
+            std::make_pair( estimatable_parameters::initial_body_state, std::make_pair( acceleratingBody, "" ) );
+    if( customAccelerationPartialSet->customInitialStatePartials_.count( singleArcExertingBodyIdentifier ) > 0 &&
+        ( singleArcExertingBodyIdentifier != singleArcUndergoingBodyIdentifier ) )
+    {
+        bodyExertingPositionPartial_ = customAccelerationPartialSet->customInitialStatePartials_.at( singleArcExertingBodyIdentifier );
+    }
+
+    estimatable_parameters::EstimatebleParameterIdentifier multiArcExertingBodyIdentifier =
+            std::make_pair( estimatable_parameters::arc_wise_initial_body_state, std::make_pair( acceleratingBody, "" ) );
+    if( customAccelerationPartialSet->customInitialStatePartials_.count( multiArcExertingBodyIdentifier ) > 0 &&
+        ( multiArcExertingBodyIdentifier != multiArcUndergoingBodyIdentifier ) )
+    {
+        bodyExertingPositionPartial_ = customAccelerationPartialSet->customInitialStatePartials_.at( multiArcExertingBodyIdentifier );
     }
 }
 

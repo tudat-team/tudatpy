@@ -60,9 +60,10 @@ std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > c
 
     if( numericalCustomPartialSettings != nullptr )
     {
-        if( parameter->getParameterName( ).first != estimatable_parameters::initial_body_state )
+        if( parameter->getParameterName( ).first != estimatable_parameters::initial_body_state ||
+            parameter->getParameterName( ).first != estimatable_parameters::arc_wise_initial_body_state )
         {
-            throw std::runtime_error( "Error, only initial cartesian state supported for custom numerical acceleration partial" );
+            throw std::runtime_error( "Error, only (single-arc or arc-wise) initial cartesian state supported for custom numerical acceleration partial" );
         }
         std::string bodyName = parameter->getParameterName( ).second.first;
         if( bodies.count( bodyName ) == 0 )
@@ -90,10 +91,6 @@ std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > c
     }
     else if( analyticalCustomPartialSettings != nullptr )
     {
-        //        if( parameter->getParameterName( ).first != estimatable_parameters::initial_body_state )
-        //        {
-        //            throw std::runtime_error( "Error, only initial cartesian state supported for custom numerical acceleration partial" );
-        //        }
 
         customPartialCalculator = std::make_shared< estimatable_parameters::AnalyticalAccelerationPartialCalculator >(
                 analyticalCustomPartialSettings->accelerationPartialFunction_,
@@ -129,7 +126,9 @@ std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculat
             {
                 switch( parameterSet->getEstimatedInitialStateParameters( ).at( i )->getParameterName( ).first )
                 {
-                    case estimatable_parameters::initial_body_state: {
+                    case estimatable_parameters::initial_body_state:
+                    case estimatable_parameters::arc_wise_initial_body_state:
+                    {
                         partialCalculatorSet->customInitialStatePartials_
                                 [ parameterSet->getEstimatedInitialStateParameters( ).at( i )->getParameterName( ) ] =
                                 createCustomAccelerationPartial( customPartialSettings.at( j ),
@@ -168,7 +167,8 @@ std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculat
             {
                 switch( parameterSet->getEstimatedVectorParameters( ).at( i )->getParameterName( ).first )
                 {
-                    case estimatable_parameters::custom_estimated_parameter: {
+                    case estimatable_parameters::custom_estimated_parameter:
+                    {
                         partialCalculatorSet->customVectorParameterPartials_
                                 [ parameterSet->getEstimatedVectorParameters( ).at( i )->getParameterName( ) ] =
                                 createCustomAccelerationPartial(
