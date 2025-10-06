@@ -371,7 +371,7 @@ bool getFinalStateForExactTerminationCondition(
  * \param currentCpuTime Current run time of propagation.
  */
 template< typename StateType = Eigen::MatrixXd, typename TimeType = double, typename TimeStepType = TimeType >
-void propagateToExactTerminationCondition(
+TimeType propagateToExactTerminationCondition(
         const std::shared_ptr< numerical_integrators::NumericalIntegrator< TimeType, StateType, StateType, TimeStepType > > integrator,
         const std::shared_ptr< PropagationTerminationCondition > propagationTerminationCondition,
         const TimeStepType timeStep,
@@ -444,6 +444,8 @@ void propagateToExactTerminationCondition(
 
     // Turn step size control back on
     integrator->setStepSizeControl( true );
+
+    return endTime;
 }
 
 //! Function to numerically integrate a given first order differential equation
@@ -505,6 +507,11 @@ void integrateEquationsFromIntegrator(
             std::chrono::duration_cast< std::chrono::nanoseconds >( std::chrono::steady_clock::now( ) - initialClockTime ).count( ) *
             1.0e-9;
     cumulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
+
+    if( !stateDerivativeModelIsNull )
+    {
+        stateDerivativeModel->signalEndOfMajorStep( currentTime );
+    }
 
     // Set initial time step
     TimeStepType timeStep = integrator->getNextStepSize( );
@@ -589,12 +596,6 @@ void integrateEquationsFromIntegrator(
                 // Update epoch and step-size
                 currentTime = integrator->getCurrentIndependentVariable( );
                 timeStep = integrator->getNextStepSize( );
-                if( !stateDerivativeModelIsNull )
-                {
-                    stateDerivativeModel->signalEndOfMajorStep( currentTime );
-                }
-
-
 
                 // Save integration result in map
                 if( processingSettings->saveCurrentStep( stepsSinceLastSave,
@@ -624,11 +625,6 @@ void integrateEquationsFromIntegrator(
                 propagationTerminationReason = std::make_shared< PropagationTerminationDetails >( nan_or_inf_detected_in_state );
             }
 
-            currentCPUTime = std::chrono::duration_cast< std::chrono::nanoseconds >( std::chrono::steady_clock::now( ) - initialClockTime )
-                                     .count( ) *
-                    1.0e-9;
-            cumulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
-
             if( !environmentIsUpdated && propagationTerminationCondition->requiresEnvironmentUpdate( ) )
             {
                 integrator->getStateDerivativeFunction( )( currentTime, newState );
@@ -640,7 +636,7 @@ void integrateEquationsFromIntegrator(
                 // Propagate to the exact termination conditions
                 if( propagationTerminationCondition->iterateToExactTermination( ) )
                 {
-                    propagateToExactTerminationCondition( integrator,
+                    currentTime = propagateToExactTerminationCondition( integrator,
                                                           propagationTerminationCondition,
                                                           timeStep,
                                                           dependentVariableFunction,
@@ -668,6 +664,15 @@ void integrateEquationsFromIntegrator(
 
                 breakPropagation = true;
             }
+
+            if( !stateDerivativeModelIsNull )
+            {
+                stateDerivativeModel->signalEndOfMajorStep( currentTime );
+            }
+
+            currentCPUTime = std::chrono::duration_cast< std::chrono::nanoseconds >( std::chrono::steady_clock::now( ) - initialClockTime )
+                                     .count( ) * 1.0e-9;
+            cumulativeComputationTimeHistory[ currentTime ] = currentCPUTime;
         }
         catch( const std::exception& caughtException )
         {
