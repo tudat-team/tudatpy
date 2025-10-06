@@ -166,6 +166,7 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKFixedStepSize )
 
         double finalPropagatedEpoch = ( --dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).end( ) )->first;
         BOOST_CHECK( finalPropagatedEpoch == ( assessDuringSubsteps ? 1000.0 : 1050.0 ) );
+
     }
 }
 
@@ -359,6 +360,9 @@ BOOST_AUTO_TEST_CASE( testassessTerminationOnMinorStepsRKVariableStepSize )
 
         double finalAltitude = ( --dynamicsSimulator.getDependentVariableHistory( ).end( ) )->second( 0 );
         BOOST_CHECK( assessDuringSubsteps ? finalAltitude > 100.0E+3 : finalAltitude < 100.0E+3 );
+
+
+
     }
 }
 

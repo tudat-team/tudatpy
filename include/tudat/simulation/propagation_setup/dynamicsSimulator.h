@@ -1345,7 +1345,8 @@ private:
                                             propagationResults,
                                             dependentVariablesFunctions_,
                                             statePostProcessingFunction,
-                                            propagatorSettings_->getOutputSettings( ) );
+                                            propagatorSettings_->getOutputSettings( ),
+                                            dynamicsStateDerivative_ );
         }
         else
         {
@@ -1361,7 +1362,8 @@ private:
                                             propagationResults,
                                             dependentVariablesFunctions_,
                                             statePostProcessingFunction,
-                                            propagatorSettings_->getOutputSettings( ) );
+                                            propagatorSettings_->getOutputSettings( ),
+                                            dynamicsStateDerivative_ );
 
             integratorSettings_->initialTimeStep_ *= -1.0;
             integrateEquations< SimulationResults,
@@ -1374,7 +1376,8 @@ private:
                                             propagationResults,
                                             dependentVariablesFunctions_,
                                             statePostProcessingFunction,
-                                            propagatorSettings_->getOutputSettings( ) );
+                                            propagatorSettings_->getOutputSettings( ),
+                                            dynamicsStateDerivative_ );
             integratorSettings_->initialTimeStep_ *= -1.0;
         }
 
