@@ -1,9 +1,9 @@
 import trk234
 from . import converters as cnv
 from pandas import concat as pd_concat
-from tudatpy.numerical_simulation.estimation import ObservationCollection
-from tudatpy.astro import time_conversion
-from tudatpy.numerical_simulation.environment import (
+from tudatpy.estimation.observations import ObservationCollection
+from tudatpy.astro import time_representation
+from tudatpy.dynamics.environment import (
     PiecewiseLinearFrequencyInterpolator,
 )
 
@@ -35,7 +35,7 @@ class Trk234Processor:
     >>> # Process observations
     >>> observations = tnf_processor.process()
     >>>
-    >>> # Set frequency information in the bodies assuming you have a bodies object tudatpy.numerical_simulation.environment.SystemOfBodies
+    >>> # Set frequency information in the bodies assuming you have a bodies object tudatpy.dynamics.environment.SystemOfBodies
     >>> tnf_processor.set_tnf_information_in_bodies(bodies)
     """
 
@@ -140,10 +140,10 @@ class Trk234Processor:
         ramp_df = self.ramp_converter.process(all_ramps)
 
         ramp_df["start_time_seconds"] = ramp_df["start_time"].apply(
-            lambda x: time_conversion.datetime_to_tudat(x).epoch()
+            lambda x: time_representation.DateTime.from_python_datetime(x).to_epoch()
         )
         ramp_df["end_time_seconds"] = ramp_df["end_time"].apply(
-            lambda x: time_conversion.datetime_to_tudat(x).epoch()
+            lambda x: time_representation.DateTime.from_python_datetime(x).to_epoch()
         )
         earth = bodies.get("Earth")
         for station in ramp_df["station"].unique():

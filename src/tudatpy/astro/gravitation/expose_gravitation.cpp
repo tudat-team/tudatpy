@@ -100,7 +100,7 @@ void expose_gravitation( py::module& m )
 
  Function to normalize spherical harmonic coefficients
 
- Function to normalize spherical harmonic coefficients, using the equations provided in the :func:`~tudatpy.gravitation.astro.legendre_normalization_factor` function.
+ Function to normalize spherical harmonic coefficients, using the equations provided in the :func:`~tudatpy.astro.gravitation.legendre_normalization_factor` function.
 
  Parameters
  ----------

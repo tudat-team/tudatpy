@@ -7,7 +7,7 @@ version: 2
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
-  configuration: docs/source/conf.py
+  configuration: docs/tudatpy/source/conf.py
   builder: html
   fail_on_warning: false
 
@@ -30,6 +30,5 @@ build:
       # directory with the docs/ directory of the latest tag.
 
 conda:
-  environment: docs/environment_readthedocs.yaml
-
+  environment: docs/tudatpy/environment_readthedocs.yaml
 
