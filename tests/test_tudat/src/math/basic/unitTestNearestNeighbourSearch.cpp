@@ -206,11 +206,9 @@ BOOST_AUTO_TEST_CASE( testNearestLeftNeighborUsingBinarySearch )
     }
 }
 
-
 // Test implementation of cubic spline class.
 BOOST_AUTO_TEST_CASE( testNearestNeighbourAlgorithm )
 {
-    
     // Declare and initialize independent variable values.
     std::vector< double > independentVariables;
     independentVariables.resize( 6 );
@@ -225,7 +223,6 @@ BOOST_AUTO_TEST_CASE( testNearestNeighbourAlgorithm )
 
     for( int schemeType = 0; schemeType < 2; schemeType++ )
     {
-        
         if( schemeType == 0 )
         {
             lookUpScheme = std::make_shared< BinarySearchLookupScheme< double > >( independentVariables );
@@ -235,7 +232,7 @@ BOOST_AUTO_TEST_CASE( testNearestNeighbourAlgorithm )
             lookUpScheme = std::make_shared< HuntingAlgorithmLookupScheme< double > >( independentVariables );
         }
 
-        std::vector< int > correctNeighbours = { 0, 5, 2, 2, 1, 2};
+        std::vector< int > correctNeighbours = { 0, 5, 2, 2, 1, 2 };
         for( int test = 0; test < 6; test++ )
         {
             double testValue = TUDAT_NAN;
