@@ -245,6 +245,7 @@ BOOST_AUTO_TEST_CASE( testCowellPopagatorCentralBodies )
 
     std::shared_ptr< LagrangeInterpolator< double, Eigen::VectorXd > > currentInterpolator;
 
+
     while( currentTime < finalEphemerisTime - stepSize )
     {
         // Retrieve data from interpolators; transform to inertial frames and compare.

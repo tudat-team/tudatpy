@@ -126,6 +126,11 @@ public:
         return checkTerminationToExactCondition_;
     }
 
+    virtual bool requiresEnvironmentUpdate( )
+    {
+        return false;
+    }
+
 protected:
     //! Type of termination condition
     PropagationTerminationTypes terminationType_;
@@ -285,6 +290,12 @@ public:
         return terminationRootFinderSettings_;
     }
 
+
+    virtual bool requiresEnvironmentUpdate( )
+    {
+        return true;
+    }
+
 private:
     //! Settings for dependent variable that is to be checked
     std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings_;
@@ -333,6 +344,12 @@ public:
         return checkStopCondition_( time, currentState );
     }
 
+    virtual bool requiresEnvironmentUpdate( )
+    {
+        return true;
+    }
+
+
 private:
     //! Custom temination function.
     std::function< bool( const double, const Eigen::MatrixXd& ) > checkStopCondition_;
@@ -360,6 +377,15 @@ public:
         propagationTerminationCondition_( propagationTerminationCondition ), fulfillSingleCondition_( fulfillSingleCondition )
     {
         isConditionMetWhenStopping_.resize( propagationTerminationCondition.size( ) );
+
+        requiresEnvironmentUpdate_ = false;
+        for( unsigned int i = 0; i < propagationTerminationCondition_.size( ); i++ )
+        {
+            if( propagationTerminationCondition_.at( i )->requiresEnvironmentUpdate( ) )
+            {
+                requiresEnvironmentUpdate_ = true;
+            }
+        }
     }
 
     //! Function to check whether the propagation is to be be stopped
@@ -400,6 +426,12 @@ public:
         return isConditionMetWhenStopping_;
     }
 
+    virtual bool requiresEnvironmentUpdate( )
+    {
+        return requiresEnvironmentUpdate_;
+    }
+
+
 private:
     //! List of termination conditions that are checked when calling checkStopCondition is called.
     std::vector< std::shared_ptr< PropagationTerminationCondition > > propagationTerminationCondition_;
@@ -409,6 +441,8 @@ private:
     bool fulfillSingleCondition_;
 
     std::vector< bool > isConditionMetWhenStopping_;
+
+    bool requiresEnvironmentUpdate_;
 };
 
 //! Class for stopping the propagation when one or all of a given set of stopping conditions is reached.
