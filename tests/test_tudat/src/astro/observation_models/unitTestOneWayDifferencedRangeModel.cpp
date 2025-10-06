@@ -44,7 +44,7 @@ double integrationTimeFunction( const double currentObservationTime )
     return 60.0 + 30.0 * ( currentObservationTime - 3.0 * 86400.0 ) / ( 7.0 * 86400.0 );
 }
 //
-//BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
+// BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
 //{
 //    // Load Spice kernels
 //    spice_interface::loadStandardSpiceKernels( );
@@ -135,7 +135,8 @@ double integrationTimeFunction( const double currentObservationTime )
 //
 //                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
 //                        rangeEndLinkEndStates.at( linkCompare ), rangeRateLinkEndStates.at( linkCompare + 2 ), 1.0E-15 );
-//                BOOST_CHECK_CLOSE_FRACTION( rangeEndLinkEndTimes.at( linkCompare ), rangeRateLinkEndTimes.at( linkCompare + 2 ), 1.0E-15 );
+//                BOOST_CHECK_CLOSE_FRACTION( rangeEndLinkEndTimes.at( linkCompare ), rangeRateLinkEndTimes.at( linkCompare + 2 ), 1.0E-15
+//                );
 //            }
 //
 //            double manualDifferencedRange = ( arcEndRange - arcStartRange ) / dopplerCountInterval;
@@ -149,7 +150,7 @@ double integrationTimeFunction( const double currentObservationTime )
 BOOST_AUTO_TEST_CASE( testTwoWayRangeWithFrequencyCorrections )
 {
     spice_interface::loadStandardSpiceKernels( );
-    
+
     // Define bodies to use.
     std::vector< std::string > bodiesToCreate;
     bodiesToCreate.push_back( "Earth" );
@@ -180,12 +181,12 @@ BOOST_AUTO_TEST_CASE( testTwoWayRangeWithFrequencyCorrections )
     double transmittingFrequencyEarth = 8.0E6;
     bodies.at( "Earth" )
             ->getGroundStation( "EarthStation" )
-            ->setTransmittingFrequencyCalculator( std::make_shared< ground_stations::ConstantFrequencyInterpolator >( transmittingFrequencyEarth ) );
+            ->setTransmittingFrequencyCalculator(
+                    std::make_shared< ground_stations::ConstantFrequencyInterpolator >( transmittingFrequencyEarth ) );
 
     double transmittingFrequencyMars = 2.0E6;
-    bodies.at( "Mars" )
-            ->getVehicleSystems( )
-            ->setTransmittedFrequencyCalculator( std::make_shared< ground_stations::ConstantFrequencyInterpolator >( transmittingFrequencyMars ) );
+    bodies.at( "Mars" )->getVehicleSystems( )->setTransmittedFrequencyCalculator(
+            std::make_shared< ground_stations::ConstantFrequencyInterpolator >( transmittingFrequencyMars ) );
 
     // Define list of observation times for which to check model
     std::vector< double > observationTimes;
@@ -252,8 +253,13 @@ BOOST_AUTO_TEST_CASE( testTwoWayRangeWithFrequencyCorrections )
             {
                 ancillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, transmittingFrequencyMars );
             }
-            std::shared_ptr< LightTimeCorrection > ionosphereCorrectionModel = createLightTimeCorrections(
-                    std::make_shared< JakowskiIonosphericCorrectionSettings >( ), bodies, oneWayLinkEnds, transmitter, receiver, one_way_range );
+            std::shared_ptr< LightTimeCorrection > ionosphereCorrectionModel =
+                    createLightTimeCorrections( std::make_shared< JakowskiIonosphericCorrectionSettings >( ),
+                                                bodies,
+                                                oneWayLinkEnds,
+                                                transmitter,
+                                                receiver,
+                                                one_way_range );
 
             std::vector< double > subLinkEndTimes = { linkEndTimes.at( 0 ), linkEndTimes.at( 1 ) };
             std::vector< Eigen::Matrix< double, 6, 1 > > subLinkEndStates = { linkEndStates.at( 0 ), linkEndStates.at( 1 ) };
@@ -265,15 +271,15 @@ BOOST_AUTO_TEST_CASE( testTwoWayRangeWithFrequencyCorrections )
             double ionosphereCorrectionEnd = ionosphereCorrectionModel->calculateLightTimeCorrectionWithMultiLegLinkEndStates(
                     subLinkEndStates, subLinkEndTimes, 0, ancillarySettings );
 
-//            std::cout<<( ionosphereCorrectionStart - ionosphereCorrectionEnd ) * physical_constants::SPEED_OF_LIGHT / integrationTime<<std::endl;
-//            std::cout<<correctedObservation - uncorrectedObservation<<std::endl;
+            //            std::cout<<( ionosphereCorrectionStart - ionosphereCorrectionEnd ) * physical_constants::SPEED_OF_LIGHT /
+            //            integrationTime<<std::endl; std::cout<<correctedObservation - uncorrectedObservation<<std::endl;
 
             // Compare observation difference with direct correction (limited by double precision over several AU)
             BOOST_CHECK_CLOSE_FRACTION(
                     ( ionosphereCorrectionStart - ionosphereCorrectionEnd ) * physical_constants::SPEED_OF_LIGHT / integrationTime,
-                    ( correctedObservation - uncorrectedObservation ), 1.0E-4 );
+                    ( correctedObservation - uncorrectedObservation ),
+                    1.0E-4 );
         }
-
     }
 }
 BOOST_AUTO_TEST_SUITE_END( )

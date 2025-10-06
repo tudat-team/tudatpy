@@ -53,10 +53,10 @@ public:
      */
     LightTimeCorrection( const LightTimeCorrectionType lightTimeCorrectionType ):
         lightTimeCorrectionType_( lightTimeCorrectionType ), timePerturbation_( 15.0 ), positionRelativePerturbation_( 1.0E-4 )
-    { }
+    {}
 
     //! Destructor
-    virtual ~LightTimeCorrection( ) { }
+    virtual ~LightTimeCorrection( ) {}
 
     //! Pure virtual function to compute the light-time correction
     /*!

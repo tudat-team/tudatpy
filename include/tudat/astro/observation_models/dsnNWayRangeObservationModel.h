@@ -35,7 +35,7 @@ class DsnNWayRangeObservationModel : public ObservationModel< 1, ObservationScal
 {
 public:
     typedef Eigen::Matrix< ObservationScalarType, 6, 1 > StateType;
-    
+
     using ObservationModel< 1, ObservationScalarType, TimeType >::turnaroundRatio_;
     using ObservationModel< 1, ObservationScalarType, TimeType >::timeScaleConverter_;
     using ObservationModel< 1, ObservationScalarType, TimeType >::frequencyInterpolator_;
@@ -60,12 +60,10 @@ public:
             const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
                     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ) ):
         ObservationModel< 1, ObservationScalarType, TimeType >( dsn_n_way_range, linkEnds, observationBiasCalculator ),
-        lightTimeCalculator_( lightTimeCalculator ), numberOfLinkEnds_( linkEnds.size( ) ),
-        stationStates_( groundStationStates )
+        lightTimeCalculator_( lightTimeCalculator ), numberOfLinkEnds_( linkEnds.size( ) ), stationStates_( groundStationStates )
     {
-        this->setFrequencyInterpolatorAndTurnaroundRatio(
-                transmittingFrequencyCalculator, turnaroundRatio );
-                
+        this->setFrequencyInterpolatorAndTurnaroundRatio( transmittingFrequencyCalculator, turnaroundRatio );
+
         if( !std::is_same< Time, TimeType >::value )
         {
             //            std::cerr<<
@@ -84,7 +82,7 @@ public:
     }
 
     //! Destructor
-    ~DsnNWayRangeObservationModel( ) { }
+    ~DsnNWayRangeObservationModel( ) {}
 
     /*! Function to compute DSN n-way Doppler observation at given time.
      *
@@ -195,14 +193,13 @@ public:
                 basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, time - lightTime, nominalReceivingStationState );
 
         ObservationScalarType uplinkFrequency =
-                frequencyInterpolator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >(
-                        utcTransmissionTime );
+                frequencyInterpolator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >( utcTransmissionTime );
         ancillarySettings->setAncilliaryDoubleData( observation_models::range_conversion_factor,
                                                     physical_constants::SPEED_OF_LIGHT / ( uplinkFrequency * conversionFactor ) );
 
         ObservationScalarType transmitterFrequencyIntegral =
-                frequencyInterpolator_->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >(
-                        utcTransmissionTime, utcReceptionTime );
+                frequencyInterpolator_->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >( utcTransmissionTime,
+                                                                                                                   utcReceptionTime );
         ObservationScalarType rangeUnitIntegral = conversionFactor * transmitterFrequencyIntegral;
 
         // Moyer (2000), eq. 13-54
