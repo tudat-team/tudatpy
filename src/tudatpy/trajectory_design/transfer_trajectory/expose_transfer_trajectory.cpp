@@ -1050,7 +1050,7 @@ void expose_transfer_trajectory( py::module &m )
 
     m.def( "departure_node",
            &tms::escapeAndDepartureNode,
-           py::arg( "departure_semi_major_axi    s" ),
+           py::arg( "departure_semi_major_axis" ),
            py::arg( "departure_eccentricity" ),
            R"doc(
 
