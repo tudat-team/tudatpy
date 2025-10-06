@@ -45,9 +45,9 @@ enum ObservationIntermediateSimulationVariable { transmitter_frequency_intermedi
 
 struct ObservationAncilliarySimulationSettings {
 public:
-    ObservationAncilliarySimulationSettings( ) { }
+    ObservationAncilliarySimulationSettings( ) {}
 
-    virtual ~ObservationAncilliarySimulationSettings( ) { }
+    virtual ~ObservationAncilliarySimulationSettings( ) {}
 
     void setAncilliaryDoubleData( const ObservationAncilliarySimulationVariable &variableType, const double variable )
     {

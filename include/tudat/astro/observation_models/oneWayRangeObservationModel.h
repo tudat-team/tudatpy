@@ -56,10 +56,10 @@ public:
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
         ObservationModel< 1, ObservationScalarType, TimeType >( one_way_range, linkEnds, observationBiasCalculator ),
         lightTimeCalculator_( lightTimeCalculator )
-    { }
+    {}
 
     //! Destructor
-    ~OneWayRangeObservationModel( ) { }
+    ~OneWayRangeObservationModel( ) {}
 
     //! Function to compute one-way range observable without any corrections.
     /*!
@@ -138,7 +138,6 @@ public:
     }
 
 private:
-
     //! Object to calculate light time.
     /*!
      *  Object to calculate light time, including possible corrections from troposphere, relativistic corrections, etc.

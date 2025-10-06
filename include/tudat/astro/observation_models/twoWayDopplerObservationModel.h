@@ -61,7 +61,7 @@ public:
     }
 
     //! Destructor
-    ~TwoWayDopplerObservationModel( ) { }
+    ~TwoWayDopplerObservationModel( ) {}
 
     //! Function to compute one-way Doppler observable without any corrections.
     /*!
@@ -85,7 +85,8 @@ public:
             const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetingsInput = nullptr )
     {
         std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings;
-        this->setFrequencyProperties( time, linkEndAssociatedWithTime, multiLegLightTimeCalculator_, ancilliarySetingsInput, ancilliarySetings );
+        this->setFrequencyProperties(
+                time, linkEndAssociatedWithTime, multiLegLightTimeCalculator_, ancilliarySetingsInput, ancilliarySetings );
 
         linkEndTimes.clear( );
         linkEndStates.clear( );
