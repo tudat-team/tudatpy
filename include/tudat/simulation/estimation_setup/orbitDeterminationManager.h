@@ -651,8 +651,7 @@ public:
 
         if( numberEstimatedParameters_ > static_cast< unsigned int >( totalNumberOfObservations ) && estimationInput->getInverseOfAprioriCovariance( ).rows( ) == 0 )
         {
-            throw std::runtime_error(
-                    "Error when computing covariance, number of observations is smaller than number of estimated parameters, and no a priori information is provided." );
+            std::cerr<<"Warning when computing covariance, number of observations is smaller than number of estimated parameters, and no a priori information is provided."<<std::endl;
         }
 
         // Define full parameters values
@@ -767,8 +766,7 @@ public:
 
         if( numberEstimatedParameters_ > static_cast< unsigned int >( totalNumberOfObservations ) && estimationInput->getInverseOfAprioriCovariance( ).rows( ) == 0 )
         {
-            throw std::runtime_error(
-                    "Error when estimating parameters, number of observations is smaller than number of estimated parameters, and no a priori information is provided." );
+            std::cerr<<"Warning when estimating parameters, number of observations is smaller than number of estimated parameters, and no a priori information is provided."<<std::endl;
         }
 
         if( estimationInput->getWeightsMatrixDiagonals( ).rows( ) != totalNumberOfObservations )
