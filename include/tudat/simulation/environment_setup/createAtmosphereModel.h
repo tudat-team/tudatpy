@@ -90,10 +90,10 @@ public:
     static ComaStokesDataset create(
             std::vector< FileMeta > files,
             std::vector< double > radii,
-            std::vector< double > lons,
+            std::vector< double > solLongs,
             int nmax )
     {
-        if(files.empty( ) || radii.empty( ) || lons.empty( ) || nmax < 0)
+        if(files.empty( ) || radii.empty( ) || solLongs.empty( ) || nmax < 0)
             throw std::runtime_error( "StokesDataset: invalid metadata." );
 
         // Filter radii to only include those <= reference radius from all files
@@ -171,7 +171,7 @@ public:
         ComaStokesDataset g;
         g.files_ = std::move( files );
         g.radii_ = std::move( validRadii );
-        g.lons_ = std::move( lons );
+        g.lons_ = std::move( solLongs );
         g.nmax_ = nmax;
 
         g.n_files_ = g.files_.size( );
@@ -1426,6 +1426,10 @@ private:
     {
         if(radii_m.empty( ) || solLongitudes_deg.empty( ))
             throw std::invalid_argument( "transformPolyToStokes: radii and longitudes must be non-empty." );
+        if(radii_m.size( ) < 2)
+            throw std::invalid_argument( "transformPolyToStokes: at least two radii are necessary for proper interpolation." );
+        if(solLongitudes_deg.size( ) < 2)
+            throw std::invalid_argument( "transformPolyToStokes: at least two solar longitudes are necessary for proper interpolation." );
         if(requestedMaxDegree < -1 || requestedMaxOrder < -1)
             throw std::invalid_argument( "transformPolyToStokes: requested maxima must be >= -1." );
         if(polyDataset.getNumFiles( ) == 0)

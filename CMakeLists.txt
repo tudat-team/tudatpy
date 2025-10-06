@@ -534,8 +534,6 @@ file(
 include_directories(include/tudatpy)
 add_subdirectory(src/tudatpy)
 
-# Add performance test directory
-add_subdirectory(coma_performance_test)
 
 # +============================================================================
 # CLEAN UP (Project name independent)
