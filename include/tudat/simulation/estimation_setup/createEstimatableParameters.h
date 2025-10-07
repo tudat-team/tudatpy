@@ -561,7 +561,7 @@ template< typename InitialStateParameterType = double, typename TimeType = doubl
 std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getInitialMultiArcParameterSettings(
         const std::shared_ptr< propagators::MultiArcPropagatorSettings< InitialStateParameterType, TimeType > > propagatorSettings,
         const SystemOfBodies& bodies,
-        const std::vector< double > arcStartTimes )
+        const std::vector< double > arcStartTimes = std::vector< double >( ) )
 {
     using namespace estimatable_parameters;
     using namespace propagators;
@@ -575,11 +575,28 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
     std::vector< std::vector< std::string > > centralBodiesPerArc;
     std::vector< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > initialStates;
 
+    if( arcStartTimes.size( ) > 0 )
+    {
+        if( arcStartTimes.size( ) != singleArcSettings.size( ) )
+        {
+            throw std::runtime_error( "Error when making multi-arc initial state parameter, input arc times size does not match: do not provide times manually" );
+        }
+    }
+    std::vector< double > arcStartTimesToUse;
     for( unsigned int i = 0; i < singleArcSettings.size( ); i++ )
     {
         singleArcTranslationalSettings.push_back(
                 std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType > >(
                         singleArcSettings.at( i ) ) );
+        arcStartTimesToUse.push_back( singleArcSettings.at( i )->getInitialTime( ) );
+        if( arcStartTimes.size( ) != 0 )
+        {
+            if( std::fabs( arcStartTimes.at( i ) - arcStartTimesToUse.at( i ) ) >
+                10.0 * std::numeric_limits< double >::epsilon( ) * arcStartTimesToUse.at( i ) )
+            {
+                throw std::runtime_error( "Error when making multi-arc initial state parameter, times do not match: do not provide times manually" );
+            }
+        }
         if( singleArcTranslationalSettings.at( i ) == nullptr )
         {
             throw std::runtime_error( "Only translational state supported when auto-creating multi-arc initial state settings" );
@@ -630,7 +647,7 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
                 std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >(
                         propagatedBodies.at( i ),
                         multiArcInitialStateValue,
-                        arcStartTimes,
+                        arcStartTimesToUse,
                         centralBodiesPerBody.at( i ),
                         bodies.getFrameOrientation( ) ) );
     }
@@ -642,7 +659,7 @@ template< typename InitialStateParameterType = double, typename TimeType = doubl
 std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getInitialHybridArcParameterSettings(
         const std::shared_ptr< propagators::HybridArcPropagatorSettings< InitialStateParameterType, TimeType > > propagatorSettings,
         const SystemOfBodies& bodies,
-        const std::vector< double > arcStartTimes )
+        const std::vector< double > arcStartTimes  = std::vector< double >( ) )
 {
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > multiArcParameters =
             getInitialMultiArcParameterSettings< InitialStateParameterType, TimeType >(
@@ -769,12 +786,6 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
     {
         std::shared_ptr< MultiArcPropagatorSettings< InitialStateParameterType, TimeType > > multiArcSettings =
                 std::dynamic_pointer_cast< MultiArcPropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings );
-        if( arcStartTimes.size( ) == 0 )
-        {
-            throw std::runtime_error(
-                    "Error when parsing propagator settings for estimatable parameter settings; multi-arc settings found, but no arc "
-                    "times" );
-        }
         initialStateParameterSettings = getInitialMultiArcParameterSettings( multiArcSettings, bodies, arcStartTimes );
     }
     else if( std::dynamic_pointer_cast< HybridArcPropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings ) !=
@@ -782,12 +793,6 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
     {
         std::shared_ptr< HybridArcPropagatorSettings< InitialStateParameterType, TimeType > > hybridArcSettings =
                 std::dynamic_pointer_cast< HybridArcPropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings );
-        if( arcStartTimes.size( ) == 0 )
-        {
-            throw std::runtime_error(
-                    "Error when parsing propagator settings for estimatable parameter settings; hybric-arc settings found, but no arc "
-                    "times" );
-        }
         initialStateParameterSettings = getInitialHybridArcParameterSettings( hybridArcSettings, bodies, arcStartTimes );
     }
 
