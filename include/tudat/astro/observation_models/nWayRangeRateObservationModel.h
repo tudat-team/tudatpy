@@ -53,10 +53,10 @@ public:
         ObservationModel< 1, ObservationScalarType, TimeType >( n_way_differenced_range, linkEnds, observationBiasCalculator ),
         arcStartObservationModel_( arcStartObservationModel ), arcEndObservationModel_( arcEndObservationModel ),
         numberOfLinkEnds_( linkEnds.size( ) )
-    { }
+    {}
 
     //! Destructor
-    ~NWayDifferencedRangeObservationModel( ) { }
+    ~NWayDifferencedRangeObservationModel( ) {}
 
     //! Function to compute one-way range rate observation at given time.
     /*!
@@ -137,6 +137,20 @@ public:
     std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > getArcStartObservationModel( )
     {
         return arcStartObservationModel_;
+    }
+
+    void setFrequencyInterpolator( std::shared_ptr< ground_stations::StationFrequencyInterpolator > frequencyInterpolator )
+    {
+        arcStartObservationModel_->setFrequencyInterpolator( frequencyInterpolator );
+        arcEndObservationModel_->setFrequencyInterpolator( frequencyInterpolator );
+    }
+
+    void setFrequencyInterpolatorAndTurnaroundRatio(
+            std::shared_ptr< ground_stations::StationFrequencyInterpolator > frequencyInterpolator,
+            std::function< double( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > turnaroundRatio )
+    {
+        arcStartObservationModel_->setFrequencyInterpolatorAndTurnaroundRatio( frequencyInterpolator, turnaroundRatio );
+        arcEndObservationModel_->setFrequencyInterpolatorAndTurnaroundRatio( frequencyInterpolator, turnaroundRatio );
     }
 
 private:
