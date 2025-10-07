@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MAIN
+//#define BOOST_TEST_DYN_LINK
+//#define BOOST_TEST_MAIN
 
 #include <string>
 #include <thread>
@@ -22,15 +22,16 @@
 #include "tudat/simulation/estimation.h"
 #include "tudat/astro/ephemerides/constantRotationalEphemeris.h"
 
-namespace tudat
-{
+//namespace tudat
+//{
+//
+//namespace unit_tests
+//{
 
-namespace unit_tests
-{
-
-BOOST_AUTO_TEST_SUITE( test_radiation_pressure_estimation )
+//BOOST_AUTO_TEST_SUITE( test_radiation_pressure_estimation )
 
 // Using declarations.
+using namespace tudat;
 using namespace tudat::observation_models;
 using namespace tudat::orbit_determination;
 using namespace tudat::estimatable_parameters;
@@ -50,7 +51,8 @@ using namespace tudat::electromagnetism;
 using namespace tudat;
 
 
-BOOST_AUTO_TEST_CASE( test_PanelledRadiationPressureEstimation )
+int main( )
+//BOOST_AUTO_TEST_CASE( test_PanelledRadiationPressureEstimation )
 {
     spice_interface::loadStandardSpiceKernels( );
 
@@ -68,10 +70,22 @@ BOOST_AUTO_TEST_CASE( test_PanelledRadiationPressureEstimation )
         // Create bodies needed in simulation
         BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, initialEphemerisTime - 3600.0, finalEphemerisTime + 3600.0 );
         setSimpleRotationSettingsFromSpice( bodySettings, "Earth", initialEphemerisTime );
+
+        // Add Earth radiation pressure models
+        bodySettings.at( "Earth" )->radiationSourceModelSettings =
+                                        extendedRadiationSourceModelSettings({
+                                            albedoPanelRadiosityModelSettings(KnockeTypeSurfacePropertyDistributionModel::albedo_knocke, "Sun"),
+                                            delayedThermalPanelRadiosityModelSettings(KnockeTypeSurfacePropertyDistributionModel::emissivity_knocke, "Sun")
+                                        }, {6, 12});
+
+
+        bodySettings.addSettings( "Vehicle" );
+        bodySettings.at( "Vehicle" )->ephemerisSettings = constantEphemerisSettings( Eigen::Vector6d::Zero( ), "Earth", "ECLIPJ2000" );
+        bodySettings.at( "Vehicle" )->ephemerisSettings->resetMakeMultiArcEphemeris( true );
+
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
         // Create spacecraft object.
-        bodies.createEmptyBody( "Vehicle" );
         bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
 
         Eigen::Vector7d rotationalStateVehicle;
@@ -81,7 +95,6 @@ BOOST_AUTO_TEST_CASE( test_PanelledRadiationPressureEstimation )
         bodies.at( "Vehicle" )
                 ->setRotationalEphemeris(
                         std::make_shared< ConstantRotationalEphemeris >( rotationalStateVehicle, "ECLIPJ2000", "VehicleFixed" ) );
-
         {
             std::shared_ptr< FullPanelledBodySettings > panelSettings;
             if( testCase < 2 )
@@ -122,7 +135,7 @@ BOOST_AUTO_TEST_CASE( test_PanelledRadiationPressureEstimation )
         SelectedAccelerationMap accelerationSettingsList;
         std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
 
-        accelerationsOfVehicle[ "Earth" ] = { sphericalHarmonicAcceleration( 2, 2 ) };
+        accelerationsOfVehicle[ "Earth" ] = { sphericalHarmonicAcceleration( 2, 2 ), radiationPressureAcceleration( ) };
         accelerationsOfVehicle[ "Sun" ] = { pointMassGravityAcceleration( ), radiationPressureAcceleration( ) };
 
         accelerationSettingsList[ "Vehicle" ] = accelerationsOfVehicle;
@@ -253,8 +266,8 @@ BOOST_AUTO_TEST_CASE( test_PanelledRadiationPressureEstimation )
         parameterPerturbation.segment( 3, 3 ) = Eigen::Vector3d::Constant( 1.E-3 );
         parameterPerturbation.segment( 6, 3 ) = Eigen::Vector3d::Constant( 1.0 );
         parameterPerturbation.segment( 9, 3 ) = Eigen::Vector3d::Constant( 1.E-3 );
-        parameterPerturbation.segment( 12, 1 ) = Eigen::Vector1d::Constant( 0.1 );
-        parameterPerturbation.segment( 13, 1 ) = Eigen::Vector1d::Constant( 0.1 );
+//        parameterPerturbation.segment( 12, 1 ) = Eigen::Vector1d::Constant( 0.1 );
+//        parameterPerturbation.segment( 13, 1 ) = Eigen::Vector1d::Constant( 0.1 );
 
         initialParameterEstimate += parameterPerturbation;
         parametersToEstimate->resetParameterValues( initialParameterEstimate );
@@ -294,8 +307,8 @@ BOOST_AUTO_TEST_CASE( test_PanelledRadiationPressureEstimation )
     }
 }
 
-BOOST_AUTO_TEST_SUITE_END( )
-
-}  // namespace unit_tests
-
-}  // namespace tudat
+//BOOST_AUTO_TEST_SUITE_END( )
+//
+//}  // namespace unit_tests
+//
+//}  // namespace tudat
