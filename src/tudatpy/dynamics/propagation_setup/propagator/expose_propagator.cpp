@@ -600,6 +600,7 @@ Enumeration of available integrated state types.
          :type: list[SingleArcPropagatorProcessingSettings]
       )doc" );
 
+
     py::class_< tp::HybridArcPropagatorProcessingSettings,
                 std::shared_ptr< tp::HybridArcPropagatorProcessingSettings >,
                 tp::PropagatorProcessingSettings >( m,
@@ -724,6 +725,17 @@ Enumeration of available integrated state types.
 
 )doc" )
 
+        .def( "reset_initial_states_list",
+                &tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::resetInitialStatesList,
+                py::arg( "new_initial_states_list" ),
+                R"doc(
+
+                Manually set initial states per arc (e.g. entry j of this list is the initial state for arc j) - not recommended!.
+
+                :type: list[np.array]
+
+    )doc" )
+
         .def_property_readonly( "single_arc_settings",
                                 &tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getSingleArcSettings,
                                 R"doc(
@@ -832,6 +844,9 @@ Enumeration of available integrated state types.
                   &tp::TranslationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::resetAccelerationModelsMap,
                   py::arg( "new_acceleration_settings" ),
                   py::arg( "bodies" ) );
+            //.def( "reset_initial_states",
+            //      &tp::TranslationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::resetInitialStates,
+            //      py::arg( "initial_states" ) );
 
     //            .def_property_readonly("acceleration_settings",
     //                                   &tp::TranslationalStatePropagatorSettings<STATE_SCALAR_TYPE>::getAccelerationSettingsMap);
