@@ -271,10 +271,6 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation )
             {
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalValue, analyticalValue, ( toleranceParameter * 5.0 ) );
             }
-
-            //                    Eigen::VectorXd ratio = ( numericalValue - analyticalValue ).cwiseQuotient( analyticalValue );
-            //                    std::cout<<ratio.segment( 0, 3 ).maxCoeff( )<<" "<<ratio.segment( 3, 3 ).maxCoeff( )<<" "<<ratio( 6
-            //                    )<<std::endl;
         }
     }
 }
