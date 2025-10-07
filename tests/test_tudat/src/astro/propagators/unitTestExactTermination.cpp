@@ -336,6 +336,23 @@ BOOST_AUTO_TEST_CASE( testEnckePopagatorForSphericalHarmonicCentralBodies )
                         BOOST_CHECK_EQUAL( ( dependentVariableHistory.begin( )->second( 0 ) - 8.7E6 ) > 100.0, true );
                     }
                 }
+
+                std::shared_ptr< SingleArcSimulationResults< double, double > > simulatorResults =
+                        dynamicsSimulator.getSingleArcPropagationResults( );
+                std::map< double, unsigned int > functionEvaluations1 = simulatorResults->getCumulativeNumberOfFunctionEvaluations( );
+
+                BOOST_CHECK_EQUAL( stateHistory.size( ), functionEvaluations1.size( ) );
+
+                if( direction == 0 )
+                {
+                    BOOST_CHECK_EQUAL( stateHistory.rbegin( )->first, functionEvaluations1.rbegin( )->first );
+                    BOOST_CHECK_EQUAL( ( stateHistory.rbegin( )++ )->first, ( functionEvaluations1.rbegin( )++ )->first );
+                }
+                else if( direction == 1 )
+                {
+                    BOOST_CHECK_EQUAL( stateHistory.begin( )->first, functionEvaluations1.begin( )->first );
+                    BOOST_CHECK_EQUAL( ( stateHistory.begin( )++ )->first, ( functionEvaluations1.begin( )++ )->first );
+                }
             }
         }
     }
