@@ -166,111 +166,7 @@ public:
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency, 1 otherwise).
      */
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
-            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
-    {
-        std::function< void( Eigen::MatrixXd& ) > partialFunction;
-        int parameterSize = 0;
-        if( customAccelerationPartialSet_->customDoubleParameterPartials_.count( parameter->getParameterName( ) ) != 0 )
-        {
-            partialFunction =
-                    std::bind( &RadiationPressureAccelerationPartial::createCustomParameterPartialFunction,
-                               this,
-                               std::placeholders::_1,
-                               customAccelerationPartialSet_->customDoubleParameterPartials_.at( parameter->getParameterName( ) ) );
-            parameterSize = 1;
-        }
-        else if( parameter->getParameterName( ).first == estimatable_parameters::radiation_pressure_coefficient &&
-                 parameter->getParameterName( ).second.first == acceleratedBody_ )
-        {
-            if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >(
-                        radiationPressureAcceleration_->getTargetModel( ) ) != nullptr )
-            {
-                partialFunction = std::bind( &RadiationPressureAccelerationPartial::wrtRadiationPressureCoefficient,
-                                             this,
-                                             std::placeholders::_1,
-                                             std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >(
-                                                     radiationPressureAcceleration_->getTargetModel( ) ) );
-                parameterSize = 1;
-            }
-        }
-        else if( parameter->getParameterName( ).first == estimatable_parameters::specular_reflectivity &&
-                 parameter->getParameterName( ).second.first == acceleratedBody_ )
-        {
-            if( std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >(
-                        radiationPressureAcceleration_->getTargetModel( ) ) != nullptr )
-            {
-                throw std::runtime_error(
-                        "Error when creating specular reflectivity partial, PaneledRadiationPressureTargetModel not specified" );
-            }
-            if( parameter->getParameterName( ).second.second == "" )
-            {
-                throw std::runtime_error( "Error when creating specular reflectivity partial, panel group name not specified" );
-            }
-            else
-            {
-                partialFunction = std::bind( &RadiationPressureAccelerationPartial::wrtSpecularReflectivity,
-                                             this,
-                                             std::placeholders::_1,
-                                             std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >(
-                                                     radiationPressureAcceleration_->getTargetModel( ) ),
-                                             parameter->getParameterName( ).second.second );
-                parameterSize = 1;
-            };
-        }
-        else if( parameter->getParameterName( ).first == estimatable_parameters::diffuse_reflectivity &&
-                 parameter->getParameterName( ).second.first == acceleratedBody_ )
-        {
-            if( std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >(
-                        radiationPressureAcceleration_->getTargetModel( ) ) != nullptr )
-            {
-                throw std::runtime_error(
-                        "Error when creating diffuse reflectivity partial, PaneledRadiationPressureTargetModel not specified" );
-            }
-            if( parameter->getParameterName( ).second.second == "" )
-            {
-                throw std::runtime_error( "Error when creating diffuse reflectivity partial, panel group name not specified" );
-            }
-            else
-            {
-                partialFunction = std::bind( &RadiationPressureAccelerationPartial::wrtDiffuseReflectivity,
-                                             this,
-                                             std::placeholders::_1,
-                                             std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >(
-                                                     radiationPressureAcceleration_->getTargetModel( ) ),
-                                             parameter->getParameterName( ).second.second );
-                parameterSize = 1;
-            };
-        }
-        // Check if parameter dependency exists.
-        else if( parameter->getParameterName( ).second.first == acceleratedBody_ &&
-                 parameter->getParameterName( ).second.second == acceleratingBody_ )
-        {
-            switch( parameter->getParameterName( ).first )
-            {
-                case estimatable_parameters::source_direction_radiation_pressure_scaling_factor:
-
-                    partialFunction = std::bind( &computeRadiationPressureAccelerationWrtSourceDirectionScaling,
-                                                 radiationPressureAcceleration_,
-                                                 std::placeholders::_1 );
-                    parameterSize = 1;
-
-                    break;
-                case estimatable_parameters::source_perpendicular_direction_radiation_pressure_scaling_factor:
-
-                    partialFunction = std::bind( &computeRadiationPressureAccelerationWrtSourcePerpendicularDirectionScaling,
-                                                 radiationPressureAcceleration_,
-                                                 std::placeholders::_1 );
-                    parameterSize = 1;
-
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        return std::make_pair( partialFunction, parameterSize );
-    }
-
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter );
     //! Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
     /*!
      *  Function for setting up and retrieving a function returning a partial w.r.t. a vector parameter.
@@ -279,21 +175,7 @@ public:
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
      */
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
-            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
-    {
-        std::function< void( Eigen::MatrixXd& ) > partialFunction;
-        int parameterSize = 0;
-        if( customAccelerationPartialSet_->customVectorParameterPartials_.count( parameter->getParameterName( ) ) != 0 )
-        {
-            partialFunction =
-                    std::bind( &RadiationPressureAccelerationPartial::createCustomParameterPartialFunction,
-                               this,
-                               std::placeholders::_1,
-                               customAccelerationPartialSet_->customVectorParameterPartials_.at( parameter->getParameterName( ) ) );
-            parameterSize = parameter->getParameterSize( );
-        }
-        return std::make_pair( partialFunction, parameterSize );
-    }
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
 
     //! Function for updating partial w.r.t. the bodies' positions
     /*!
