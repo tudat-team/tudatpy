@@ -61,6 +61,10 @@ class DopplerMeasuredFrequencyObservationModel : public ObservationModel< 1, Obs
 public:
     typedef Eigen::Matrix< ObservationScalarType, 6, 1 > StateType;
 
+    using ObservationModel< 1, ObservationScalarType, TimeType >::turnaroundRatio_;
+    using ObservationModel< 1, ObservationScalarType, TimeType >::timeScaleConverter_;
+    using ObservationModel< 1, ObservationScalarType, TimeType >::frequencyInterpolator_;
+
     /*! Constructor
      * Constructor for Doppler observation model.
      * \param linkEnds Link ends for observation model.
@@ -80,10 +84,10 @@ public:
             const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
                     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ) ):
         ObservationModel< 1, ObservationScalarType, TimeType >( doppler_measured_frequency, linkEnds, observationBiasCalculator ),
-        twoWayDopplerModel_( twoWayDopplerModel ), numberOfLinkEnds_( linkEnds.size( ) ),
-        transmittingFrequencyCalculator_( transmittingFrequencyCalculator ), turnaroundRatio_( turnaroundRatio ),
-        stationStates_( groundStationStates )
+        twoWayDopplerModel_( twoWayDopplerModel ), numberOfLinkEnds_( linkEnds.size( ) ), stationStates_( groundStationStates )
     {
+        this->setFrequencyInterpolatorAndTurnaroundRatio( transmittingFrequencyCalculator, turnaroundRatio );
+
         if( numberOfLinkEnds_ != 3 )
         {
             throw std::runtime_error(
@@ -104,12 +108,10 @@ public:
                 lightTimeCalculators = { uplinkLightTimeCalculator, downlinkLightTimeCalculator };
         lighTimeCalculator_ = std::make_shared< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >(
                 lightTimeCalculators );
-
-        terrestrialTimeScaleConverter_ = earth_orientation::createDefaultTimeConverter( );
     }
 
     //! Destructor
-    ~DopplerMeasuredFrequencyObservationModel( ) { }
+    ~DopplerMeasuredFrequencyObservationModel( ) {}
 
     /*!
      * Function to compute Measured Frequency for a doppler observation model
@@ -174,8 +176,8 @@ public:
         if( lighTimeCalculator_->doCorrectionsNeedFrequency( ) )
         {
             setTransmissionReceptionFrequencies( lighTimeCalculator_,
-                                                 terrestrialTimeScaleConverter_,
-                                                 transmittingFrequencyCalculator_,
+                                                 timeScaleConverter_,
+                                                 frequencyInterpolator_,
                                                  time,
                                                  linkEndAssociatedWithTime,
                                                  ancillarySettings,
@@ -191,12 +193,12 @@ public:
                 : stationStates_.at( transmitter )->getNominalCartesianPosition( );
         TimeType transmitterTime = time - lightTime;
 
-        TimeType transmitterUtcTime = terrestrialTimeScaleConverter_->getCurrentTime< TimeType >(
+        TimeType transmitterUtcTime = timeScaleConverter_->template getCurrentTime< TimeType >(
                 basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, transmitterTime, nominalTransmittingStationState );
 
         // Get the frequency of the transmitter
         ObservationScalarType transmittedFrequency =
-                transmittingFrequencyCalculator_->getTemplatedCurrentFrequency< ObservationScalarType, TimeType >( transmitterUtcTime );
+                frequencyInterpolator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >( transmitterUtcTime );
 
         // Calculate the Doppler observable
         ObservationScalarType dopplerMultiplicationTerm = twoWayDopplerModel_->getMultiplicationTerm( );
@@ -225,12 +227,6 @@ public:
     // Number of link ends
     unsigned int numberOfLinkEnds_;
 
-    // Object returning the transmitted frequency as the transmitting link end
-    std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator_;
-
-    // Function returning the turnaround ratio for given uplink and downlink bands
-    std::function< double( FrequencyBands uplinkBand, FrequencyBands downlinkBand ) > turnaroundRatio_;
-
     // Individual doppler observation models
     std::shared_ptr< observation_models::OneWayDopplerObservationModel< ObservationScalarType, TimeType > > uplinkDopplerModel_;
 
@@ -238,8 +234,6 @@ public:
 
     // Light time calculator
     std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > lighTimeCalculator_;
-
-    std::shared_ptr< earth_orientation::TerrestrialTimeScaleConverter > terrestrialTimeScaleConverter_;
 
     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates_;
 };
