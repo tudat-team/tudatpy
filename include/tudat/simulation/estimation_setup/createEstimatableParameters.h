@@ -545,7 +545,9 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
     if( accelerationModelList.size( ) == 0 )
     {
         throw std::runtime_error( "Error when getting acceleration model for parameter " +
-                                  std::to_string( parameterSettings->parameterType_.first ) + ", no acceleration model found." );
+                                  estimatable_parameters::getParameterTypeString( parameterSettings->parameterType_.first ) + " of " +
+                                  parameterSettings->parameterType_.second.first + ", " +
+                                  parameterSettings->parameterType_.second.second + ", no acceleration model found." );
     }
     utilities::removeDuplicates( accelerationModelList );
 

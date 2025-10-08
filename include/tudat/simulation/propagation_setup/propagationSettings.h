@@ -525,7 +525,7 @@ public:
      */
     void resetInitialStates( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates )
     {
-        if( this->stateSize_ != this->initialStates_.rows( ) )
+        if( this->stateSize_ != initialBodyStates.rows( ) )
         {
             std::cerr << "Warning when resetting multi-arc initial states, size is incomparible with original size." << std::endl;
         }
