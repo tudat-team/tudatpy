@@ -256,6 +256,12 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressureMultiArcVariationalEquations )
             fullParameterNames.push_back( estimatable_parameters::diffuseReflectivity( "GRAIL-A", "Bus" ) );
             fullParameterNames.push_back( estimatable_parameters::diffuseReflectivity( "GRAIL-A", "SolarPanel" ) );
 
+            std::map< int, std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > > fullArcWiseParameterSettings;
+            fullArcWiseParameterSettings[ 0 ].push_back( estimatable_parameters::arcwiseRadiationPressureCoefficient(
+                    "GRAIL-A", shortArcParameterStartTimes ) );
+            fullArcWiseParameterSettings[ 0 ].push_back( estimatable_parameters::arcwiseRadiationPressureCoefficient(
+                    "GRAIL-A", longArcParameterStartTimes ) );
+
             // Create parameters for initial states
             std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
                     getInitialStateParameterSettings< long double, Time >( propagatorSettings, bodies );
@@ -266,165 +272,201 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressureMultiArcVariationalEquations )
                 parameterNames.push_back( fullParameterNames.at( parameterIndicesToUse.at( i ) ) );
             }
 
-            std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate =
-                    createParametersToEstimate< long double, Time >( parameterNames, bodies, propagatorSettings );
-
-            // Propagate variational equations
-            MultiArcVariationalEquationsSolver< long double, Time > variationalEquationsSolver(
-                    bodies, propagatorSettings, parametersToEstimate, true );
-            std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface =
-                    variationalEquationsSolver.getStateTransitionMatrixInterface( );
-            auto variationalPropagationResults = variationalEquationsSolver.getMultiArcVariationalPropagationResults( );
-            std::vector< std::shared_ptr< SingleArcVariationalSimulationResults< long double, Time > > > singleArcResults = variationalPropagationResults->getSingleArcResults( );
-
-            std::vector< std::map< double, Eigen::MatrixXd > > stateTransitionResults;
-            std::vector< std::map< double, Eigen::MatrixXd > > sensitivityResults;
-            for( unsigned int arc = 0; arc < numberOfArcs; arc++ )
+            // Add separate runs for arc-wise parameters (to avoid conflicts)
+            std::vector< std::vector< std::shared_ptr< EstimatableParameterSettings > > > parameterNamesList;
+            parameterNamesList.push_back( parameterNames );
+            for( unsigned int i = 0; i < parameterIndicesToUse.size( ); i++ )
             {
-                stateTransitionResults.push_back( singleArcResults.at( arc )->getStateTransitionSolution( ) );
-                sensitivityResults.push_back( singleArcResults.at( arc )->getSensitivitySolution( ) );
+                if( fullArcWiseParameterSettings.count( parameterIndicesToUse.at( i ) ) > 0 )
+                {
+                    for( unsigned int j = 0; j < fullArcWiseParameterSettings.at( parameterIndicesToUse.at( i ) ).size( ); j++ )
+                    {
+                        std::vector< std::shared_ptr< EstimatableParameterSettings > > arcWiseParameterNames =
+                                getInitialStateParameterSettings< long double, Time >( propagatorSettings, bodies );
+                        arcWiseParameterNames.push_back( fullArcWiseParameterSettings.at( parameterIndicesToUse.at( i ) ).at( j ) );
+                        parameterNamesList.push_back( arcWiseParameterNames );
+                    }
+                }
             }
 
-            // Iterate over all parameters
-            printEstimatableParameterEntries( parametersToEstimate );
-            auto nominalParameters = parametersToEstimate->getFullParameterValues< long double >( );
-            for( unsigned int parameterIndex = 0; parameterIndex < static_cast< unsigned int >( parametersToEstimate->getParameterSetSize( ) );
-                 parameterIndex++ )
+            for( unsigned int parameterListIndex = 0; parameterListIndex < parameterNamesList.size( ); parameterListIndex++ )
             {
-                // Parameter perturbations and tolerances determined empirically to be acceptable
-                // Non-linearity of effect, weakness of Moon radiation, and drift away from Moon, make test tolerance difficult to get more tight
-                double parameterPerturbation = TUDAT_NAN;
-                if( parameterIndex >= 6 * numberOfArcs )
+                // Reset cannonball model
+                std::vector< std::shared_ptr< electromagnetism::RadiationPressureTargetModel > > targetModels =
+                        bodies.at( "GRAIL-A" )->getRadiationPressureTargetModels( );
+                for( unsigned int modelIndex = 0; modelIndex < targetModels.size( ); modelIndex++ )
                 {
-                    parameterPerturbation = 0.001;
-                }
-                else
-                {
-                    if( ( parameterIndex % 6 ) < 3 )
+                    std::shared_ptr< electromagnetism::CannonballRadiationPressureTargetModel > cannonBallModel =
+                            std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( targetModels.at( modelIndex ) );
+                    if( cannonBallModel != nullptr )
                     {
-                        parameterPerturbation = 1.0;
-                    }
-                    else
-                    {
-                        parameterPerturbation = 1.0E-3;
+                        cannonBallModel->resetCoefficient( radiationPressureCoefficient );
+                        cannonBallModel->resetCoefficientFunction( nullptr );
                     }
                 }
-                int scalingIndex = 2;
-                if( test == 0 || test == 3 )
-                {
-                    scalingIndex = 4;
-                }
-                parameterPerturbation *= std::pow( 10.0, scalingIndex );
 
-                // Set test tolerance
-                double stateTolerance = 1.0E-2;
-                double parameterTolerance = 1.0E-4;
-                if( test == 2 || test == 7 )
-                {
-                    stateTolerance = 1.0E-3;
-                }
-                else if( test == 0 || test == 3 )
-                {
-                    stateTolerance = 1.0E-6;
-                    parameterTolerance = 1.0E-10;
-                }
 
-                // Propagate with up-perturbed parameters
-                auto perturbedParameters = nominalParameters;
-                perturbedParameters( parameterIndex ) += parameterPerturbation;
-                parametersToEstimate->resetParameterValues( perturbedParameters );
-                propagatorSettings->resetInitialStates( perturbedParameters.segment( 0, 6 * numberOfArcs ) );
-                MultiArcDynamicsSimulator< long double, Time > upperturbedDynamics( bodies, propagatorSettings );
-                std::vector< std::map< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 > > > upperturbedResults =
-                        upperturbedDynamics.getEquationsOfMotionNumericalSolution( );
+                std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate =
+                        createParametersToEstimate< long double, Time >( parameterNamesList.at( parameterListIndex ), bodies, propagatorSettings );
 
-                // Propagate with down-perturbed parameters
-                perturbedParameters = nominalParameters;
-                perturbedParameters( parameterIndex ) -= parameterPerturbation;
-                parametersToEstimate->resetParameterValues( perturbedParameters );
-                propagatorSettings->resetInitialStates( perturbedParameters.segment( 0, 6 * numberOfArcs ) );
-                MultiArcDynamicsSimulator< long double, Time > downperturbedDynamics( bodies, propagatorSettings );
-                std::vector< std::map< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 > > > downperturbedResults =
-                        downperturbedDynamics.getEquationsOfMotionNumericalSolution( );
+                // Propagate variational equations
+                MultiArcVariationalEquationsSolver< long double, Time > variationalEquationsSolver(
+                        bodies, propagatorSettings, parametersToEstimate, true );
+                std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface =
+                        variationalEquationsSolver.getStateTransitionMatrixInterface( );
+                auto variationalPropagationResults = variationalEquationsSolver.getMultiArcVariationalPropagationResults( );
+                std::vector< std::shared_ptr< SingleArcVariationalSimulationResults< long double, Time > > > singleArcResults = variationalPropagationResults->getSingleArcResults( );
 
-                // Reset
-                parametersToEstimate->resetParameterValues( nominalParameters );
-                propagatorSettings->resetInitialStates( nominalParameters.segment( 0, 6 * numberOfArcs ) );
-
-                // Iterate over all arcs
-                //            std::cout<<std::endl;
+                std::vector< std::map< double, Eigen::MatrixXd > > stateTransitionResults;
+                std::vector< std::map< double, Eigen::MatrixXd > > sensitivityResults;
                 for( unsigned int arc = 0; arc < numberOfArcs; arc++ )
                 {
-                    // Retrieve current arc variational equation results
-                    std::map< double, Eigen::MatrixXd > currentArcStateTransitionResults = stateTransitionResults.at( arc );
-                    std::map< double, Eigen::MatrixXd > currentArcSensitivityResults = sensitivityResults.at( arc );
+                    stateTransitionResults.push_back( singleArcResults.at( arc )->getStateTransitionSolution( ) );
+                    sensitivityResults.push_back( singleArcResults.at( arc )->getSensitivitySolution( ) );
+                }
 
-                    // Retrieve current arc up- and down-perturbed state results
-                    std::map< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 > > currentArcUpperturbedState = upperturbedResults.at( arc );
-                    std::map< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 > > currentArcDownperturbedState =
-                            downperturbedResults.at( arc );
-
-                    // Create iterator over state transition or sensitivity matrix AND RETRIEVE FINAL VALUE
-                    bool useStateTransition = parameterIndex < ( 6 * numberOfArcs );
-                    auto mapToIterate = useStateTransition ? currentArcStateTransitionResults : currentArcSensitivityResults;
-                    auto matrixIterator = mapToIterate.rbegin( );
-
-                    // Define column to test
-                    int matrixColumn = 0;
-                    if( parameterIndex > 6 * numberOfArcs )
+                // Iterate over all parameters
+                printEstimatableParameterEntries( parametersToEstimate );
+                auto nominalParameters = parametersToEstimate->getFullParameterValues< long double >( );
+                for( unsigned int parameterIndex = 0; parameterIndex < static_cast< unsigned int >( parametersToEstimate->getParameterSetSize( ) );
+                     parameterIndex++ )
+                {
+                    // Parameter perturbations and tolerances determined empirically to be acceptable
+                    // Non-linearity of effect, weakness of Moon radiation, and drift away from Moon, make test tolerance difficult to get more tight
+                    double parameterPerturbation = TUDAT_NAN;
+                    if( parameterIndex >= 6 * numberOfArcs )
                     {
-                        matrixColumn = parameterIndex - 6 * numberOfArcs;
+                        parameterPerturbation = 0.001;
                     }
                     else
                     {
-                        matrixColumn = parameterIndex % 6;
-                    }
-
-                    // Compare values
-                    //                std::cout<<std::setprecision( 12 );
-                    //                std::cout<<"INITIAL UP  :   "<<currentArcUpperturbedState.begin( )->second<<std::endl;
-                    //                std::cout<<"INITIAL DOWN:   "<<currentArcUpperturbedState.begin( )->second<<std::endl;
-                    //
-                    //                std::cout<<"UP:   "<<currentArcUpperturbedState.at( matrixIterator->first )<<std::endl;
-                    //                std::cout<<"DOWN: "<<currentArcDownperturbedState.at( matrixIterator->first )<<std::endl;
-                    //                std::cout<<std::setprecision( 6 );
-                    Eigen::VectorXd analyticalValue = matrixIterator->second.block( 0, matrixColumn, 6, 1 );
-                    Eigen::VectorXd numericalValue = ( ( currentArcUpperturbedState.at( matrixIterator->first ) -
-                                                         currentArcDownperturbedState.at( matrixIterator->first ) )
-                                                               .transpose( ) /
-                                                       ( 2.0 * parameterPerturbation ) )
-                                                             .cast< double >( );
-                    // Remove initial unity value for testing resolution
-                    if( ( ( arc == parameterIndex / 6 ) && useStateTransition ) || !useStateTransition )
-                    {
-                        if( parameterIndex < 6 * numberOfArcs )
+                        if( ( parameterIndex % 6 ) < 3 )
                         {
-                            analyticalValue( matrixColumn ) -= 1.0;
-                            numericalValue( matrixColumn ) -= 1.0;
-                        }
-                        Eigen::VectorXd errorLevels = ( ( numericalValue - analyticalValue ).cwiseQuotient( analyticalValue ) );
-
-                        if( parameterIndex < 6 * numberOfArcs )
-                        {
-                            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalValue, analyticalValue, stateTolerance );
+                            parameterPerturbation = 1.0;
                         }
                         else
                         {
-                            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalValue, analyticalValue, parameterTolerance );
+                            parameterPerturbation = 1.0E-3;
                         }
-                        std::cout << " CASE: " << test << " PARAMETER: " << parameterIndex << " ARC: " << arc
-                                  << " MATRIX COLUMN: " << matrixColumn <<" CREATE "<<createSeparateAccelerations
-                                  << " ERROR:                                     " << errorLevels.array( ).abs( ).maxCoeff( )
-                                  << std::endl;
-                        //                    {
-                        //                        std::cout << "ANALYTICAL: " << analyticalValue.transpose( ) << std::endl;
-                        //                        std::cout << "NUMERICAL : " << numericalValue.transpose( ) << std::endl;
-                        //                        std::cout << "RATIO     : "
-                        //                                  << ( ( numericalValue - analyticalValue ).cwiseQuotient( analyticalValue ) ).transpose( ) << std::endl
-                        //                                  << std::endl;
-                        //                        std::cout<<"Current matrix "<<matrixIterator->second<<std::endl<<std::endl;
+                    }
+                    int scalingIndex = 2;
+                    if( test == 0 || test == 3 )
+                    {
+                        scalingIndex = 4;
+                    }
+                    parameterPerturbation *= std::pow( 10.0, scalingIndex );
+
+                    // Set test tolerance
+                    double stateTolerance = 1.0E-2;
+                    double parameterTolerance = 1.0E-4;
+                    if( test == 2 || test == 7 )
+                    {
+                        stateTolerance = 1.0E-3;
+                    }
+                    else if( test == 0 || test == 3 )
+                    {
+                        stateTolerance = 1.0E-6;
+                        parameterTolerance = 1.0E-10;
+                    }
+
+                    // Propagate with up-perturbed parameters
+                    auto perturbedParameters = nominalParameters;
+                    perturbedParameters( parameterIndex ) += parameterPerturbation;
+                    parametersToEstimate->resetParameterValues( perturbedParameters );
+                    propagatorSettings->resetInitialStates( perturbedParameters.segment( 0, 6 * numberOfArcs ) );
+                    MultiArcDynamicsSimulator< long double, Time > upperturbedDynamics( bodies, propagatorSettings );
+                    std::vector< std::map< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 > > > upperturbedResults =
+                            upperturbedDynamics.getEquationsOfMotionNumericalSolution( );
+
+                    // Propagate with down-perturbed parameters
+                    perturbedParameters = nominalParameters;
+                    perturbedParameters( parameterIndex ) -= parameterPerturbation;
+                    parametersToEstimate->resetParameterValues( perturbedParameters );
+                    propagatorSettings->resetInitialStates( perturbedParameters.segment( 0, 6 * numberOfArcs ) );
+                    MultiArcDynamicsSimulator< long double, Time > downperturbedDynamics( bodies, propagatorSettings );
+                    std::vector< std::map< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 > > > downperturbedResults =
+                            downperturbedDynamics.getEquationsOfMotionNumericalSolution( );
+
+                    // Reset
+                    parametersToEstimate->resetParameterValues( nominalParameters );
+                    propagatorSettings->resetInitialStates( nominalParameters.segment( 0, 6 * numberOfArcs ) );
+
+                    // Iterate over all arcs
+                    //            std::cout<<std::endl;
+                    for( unsigned int arc = 0; arc < numberOfArcs; arc++ )
+                    {
+                        // Retrieve current arc variational equation results
+                        std::map< double, Eigen::MatrixXd > currentArcStateTransitionResults = stateTransitionResults.at( arc );
+                        std::map< double, Eigen::MatrixXd > currentArcSensitivityResults = sensitivityResults.at( arc );
+
+                        // Retrieve current arc up- and down-perturbed state results
+                        std::map< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 > > currentArcUpperturbedState =
+                                upperturbedResults.at( arc );
+                        std::map< Time, Eigen::Matrix< long double, Eigen::Dynamic, 1 > > currentArcDownperturbedState =
+                                downperturbedResults.at( arc );
+
+                        // Create iterator over state transition or sensitivity matrix AND RETRIEVE FINAL VALUE
+                        bool useStateTransition = parameterIndex < ( 6 * numberOfArcs );
+                        auto mapToIterate = useStateTransition ? currentArcStateTransitionResults : currentArcSensitivityResults;
+                        auto matrixIterator = mapToIterate.rbegin( );
+
+                        // Define column to test
+                        int matrixColumn = 0;
+                        if( parameterIndex > 6 * numberOfArcs )
+                        {
+                            matrixColumn = parameterIndex - 6 * numberOfArcs;
+                        }
+                        else
+                        {
+                            matrixColumn = parameterIndex % 6;
+                        }
+
+                        // Compare values
+                        //                std::cout<<std::setprecision( 12 );
+                        //                std::cout<<"INITIAL UP  :   "<<currentArcUpperturbedState.begin( )->second<<std::endl;
+                        //                std::cout<<"INITIAL DOWN:   "<<currentArcUpperturbedState.begin( )->second<<std::endl;
                         //
-                        //                    }
+                        //                std::cout<<"UP:   "<<currentArcUpperturbedState.at( matrixIterator->first )<<std::endl;
+                        //                std::cout<<"DOWN: "<<currentArcDownperturbedState.at( matrixIterator->first )<<std::endl;
+                        //                std::cout<<std::setprecision( 6 );
+                        Eigen::VectorXd analyticalValue = matrixIterator->second.block( 0, matrixColumn, 6, 1 );
+                        Eigen::VectorXd numericalValue = ( ( currentArcUpperturbedState.at( matrixIterator->first ) -
+                                                             currentArcDownperturbedState.at( matrixIterator->first ) )
+                                                                   .transpose( ) /
+                                                           ( 2.0 * parameterPerturbation ) )
+                                                                 .cast< double >( );
+                        // Remove initial unity value for testing resolution
+                        if( ( ( arc == parameterIndex / 6 ) && useStateTransition ) || !useStateTransition )
+                        {
+                            if( parameterIndex < 6 * numberOfArcs )
+                            {
+                                analyticalValue( matrixColumn ) -= 1.0;
+                                numericalValue( matrixColumn ) -= 1.0;
+                            }
+                            Eigen::VectorXd errorLevels = ( ( numericalValue - analyticalValue ).cwiseQuotient( analyticalValue ) );
+
+                            if( parameterIndex < 6 * numberOfArcs )
+                            {
+                                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalValue, analyticalValue, stateTolerance );
+                            }
+                            else
+                            {
+                                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalValue, analyticalValue, parameterTolerance );
+                            }
+                            std::cout << " CASE: " << test << " PARAMETER: " << parameterIndex << " ARC: " << arc
+                                      << " MATRIX COLUMN: " << matrixColumn << " ARC-WISE INDEX "<< parameterListIndex
+                                      << " CREATE " << createSeparateAccelerations
+                                      << " ERROR:                                     " << errorLevels.array( ).abs( ).maxCoeff( ) << std::endl;
+                            //                    {
+                            //                        std::cout << "ANALYTICAL: " << analyticalValue.transpose( ) << std::endl;
+                            //                        std::cout << "NUMERICAL : " << numericalValue.transpose( ) << std::endl;
+                            //                        std::cout << "RATIO     : "
+                            //                                  << ( ( numericalValue - analyticalValue ).cwiseQuotient( analyticalValue ) ).transpose( ) << std::endl
+                            //                                  << std::endl;
+                            //                        std::cout<<"Current matrix "<<matrixIterator->second<<std::endl<<std::endl;
+                            //
+                            //                    }
+                        }
                     }
                 }
             }

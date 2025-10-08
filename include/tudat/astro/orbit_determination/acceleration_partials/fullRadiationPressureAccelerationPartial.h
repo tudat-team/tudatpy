@@ -189,6 +189,11 @@ protected:
     void wrtRadiationPressureCoefficient( Eigen::MatrixXd& partial,
                                           std::shared_ptr< electromagnetism::CannonballRadiationPressureTargetModel > targetModel );
 
+    void wrtArcWiseRadiationPressureCoefficient(
+            Eigen::MatrixXd& partial,
+            const std::shared_ptr< estimatable_parameters::ArcWiseRadiationPressureCoefficient > parameter,
+            std::shared_ptr< electromagnetism::CannonballRadiationPressureTargetModel > targetModel );
+
     void wrtSpecularReflectivity( Eigen::MatrixXd& partial,
                                   std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > targetModel,
                                   const std::string& panelTypeId );
