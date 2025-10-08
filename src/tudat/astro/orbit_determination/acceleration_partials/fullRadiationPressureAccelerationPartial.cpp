@@ -24,6 +24,8 @@ RadiationPressureAccelerationPartial::RadiationPressureAccelerationPartial(
     AccelerationPartial( acceleratedBody, acceleratingBody, radiationPressureAcceleration, basic_astrodynamics::radiation_pressure ),
     radiationPressureAcceleration_( radiationPressureAcceleration ), customAccelerationPartialSet_( customAccelerationPartialSet )
 {
+    radiationPressureAcceleration->enableSaveForcingQuantities( );
+
     currentPartialWrtUndergoingState_.setZero( );
     currentPartialWrtExertingState_.setZero( );
 
@@ -90,57 +92,46 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > RadiationPressureAcc
     else if( parameter->getParameterName( ).first == estimatable_parameters::specular_reflectivity &&
              parameter->getParameterName( ).second.first == acceleratedBody_ )
     {
-
-        std::cout<<radiationPressureAcceleration_->getTargetModel( )<<std::endl;
-        std::cout<<std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >(
-                             radiationPressureAcceleration_->getTargetModel( ) )<<std::endl;
-        std::cout<<std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >(
-                             radiationPressureAcceleration_->getTargetModel( ) )<<std::endl;
-
         if( std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >(
-                    radiationPressureAcceleration_->getTargetModel( ) ) == nullptr )
+                    radiationPressureAcceleration_->getTargetModel( ) ) != nullptr )
         {
-            throw std::runtime_error(
-                    "Error when creating specular reflectivity partial, PaneledRadiationPressureTargetModel not specified" );
+            if( parameter->getParameterName( ).second.second == "" )
+            {
+                throw std::runtime_error( "Error when creating specular reflectivity partial, panel group name not specified" );
+            }
+            else
+            {
+                partialFunction = std::bind( &RadiationPressureAccelerationPartial::wrtSpecularReflectivity,
+                                             this,
+                                             std::placeholders::_1,
+                                             std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >(
+                                                     radiationPressureAcceleration_->getTargetModel( ) ),
+                                             parameter->getParameterName( ).second.second );
+                parameterSize = 1;
+            };
         }
-        if( parameter->getParameterName( ).second.second == "" )
-        {
-            throw std::runtime_error( "Error when creating specular reflectivity partial, panel group name not specified" );
-        }
-        else
-        {
-            partialFunction = std::bind( &RadiationPressureAccelerationPartial::wrtSpecularReflectivity,
-                                         this,
-                                         std::placeholders::_1,
-                                         std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >(
-                                                 radiationPressureAcceleration_->getTargetModel( ) ),
-                                         parameter->getParameterName( ).second.second );
-            parameterSize = 1;
-        };
     }
     else if( parameter->getParameterName( ).first == estimatable_parameters::diffuse_reflectivity &&
              parameter->getParameterName( ).second.first == acceleratedBody_ )
     {
         if( std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >(
-                    radiationPressureAcceleration_->getTargetModel( ) ) == nullptr )
+                    radiationPressureAcceleration_->getTargetModel( ) ) != nullptr )
         {
-            throw std::runtime_error(
-                    "Error when creating diffuse reflectivity partial, PaneledRadiationPressureTargetModel not specified" );
+            if( parameter->getParameterName( ).second.second == "" )
+            {
+                throw std::runtime_error( "Error when creating diffuse reflectivity partial, panel group name not specified" );
+            }
+            else
+            {
+                partialFunction = std::bind( &RadiationPressureAccelerationPartial::wrtDiffuseReflectivity,
+                                             this,
+                                             std::placeholders::_1,
+                                             std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >(
+                                                     radiationPressureAcceleration_->getTargetModel( ) ),
+                                             parameter->getParameterName( ).second.second );
+                parameterSize = 1;
+            };
         }
-        if( parameter->getParameterName( ).second.second == "" )
-        {
-            throw std::runtime_error( "Error when creating diffuse reflectivity partial, panel group name not specified" );
-        }
-        else
-        {
-            partialFunction = std::bind( &RadiationPressureAccelerationPartial::wrtDiffuseReflectivity,
-                                         this,
-                                         std::placeholders::_1,
-                                         std::dynamic_pointer_cast< electromagnetism::PaneledRadiationPressureTargetModel >(
-                                                 radiationPressureAcceleration_->getTargetModel( ) ),
-                                         parameter->getParameterName( ).second.second );
-            parameterSize = 1;
-        };
     }
     // Check if parameter dependency exists.
     else if( parameter->getParameterName( ).second.first == acceleratedBody_ &&
@@ -220,6 +211,25 @@ void RadiationPressureAccelerationPartial::wrtRadiationPressureCoefficient(
         throw std::runtime_error(
                 "Error in full radiation pressure partial w.r.t. Cr, partial is only implemented for non-zero coefficient" );
     }
+//
+//    {
+//        double radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
+//        this->currentRadiationPressureForce_[ sourceName ] += currentCoefficient_ * area_ * radiationPressure * sourceToTargetDirection
+//    }
+//
+//    std::vector< double >& savedPanelOccultedIrradiances = radiationPressureAcceleration_->getSavedPanelOccultedIrradiances( );
+//    std::vector< Eigen::Vector3d  >& savedPanelRelativePositions = radiationPressureAcceleration_->getSavedPanelRelativePositions( );
+//    for( unsigned int i = 0; i < savedPanelOccultedIrradiances.size( ); i++ )
+//    {
+//        if( savedPanelOccultedIrradiances.at( i ) >= 0 )
+//        {
+//            Eigen::Vector3d forcePartialWrtDiffuseReflectivity = targetRotationFromLocalToGlobalFrame *
+//                    targetModel->evaluateRadiationPressureForcePartialWrtSpecularReflectivity(
+//                            savedPanelOccultedIrradiances.at( i ), savedPanelRelativePositions.at( i ), panelTypeId );
+//            partial += forcePartialWrtDiffuseReflectivity / spacecraftMass;
+//        }
+//    }
+    
     partial = radiationPressureAcceleration_->getAcceleration( ) / targetModel->getCoefficient( );
 }
 
@@ -228,30 +238,26 @@ void RadiationPressureAccelerationPartial::wrtSpecularReflectivity(
         std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > targetModel,
         const std::string& panelTypeId )
 {
-    Eigen::Vector3d partial_temp = Eigen::Vector3d::Zero( );
-    partial = partial_temp;
+    partial.setZero( );
 
     std::function< double( ) > targetMassFunction = radiationPressureAcceleration_->getTargetMassFunction( );
     double spacecraftMass = targetMassFunction( );
 
-    std::function< Eigen::Quaterniond( ) > targetRotationFromLocalToGlobalFrameFunction =
-            radiationPressureAcceleration_->getTargetRotationFromLocalToGlobalFrameFunction( );
-    Eigen::Quaterniond targetRotationFromGlobalToLocalFrame = targetRotationFromLocalToGlobalFrameFunction( ).inverse( );
-    std::function< Eigen::Vector3d( ) > sourceCenterPositionInGlobalFrameFunction =
-            radiationPressureAcceleration_->getSourcePositionFunction( );
-    std::function< Eigen::Vector3d( ) > targetCenterPositionInGlobalFrameFunction =
-            radiationPressureAcceleration_->getTargetPositionFunction( );
-    Eigen::Vector3d targetCenterPositionInGlobalFrame =
-            targetCenterPositionInGlobalFrameFunction( ) - sourceCenterPositionInGlobalFrameFunction( );
-    Eigen::Vector3d sourceToTargetDirectionLocalFrame =
-            targetRotationFromGlobalToLocalFrame * targetCenterPositionInGlobalFrame.normalized( );
-    double receivedIrradiance = radiationPressureAcceleration_->getReceivedIrradiance( );
-    if( receivedIrradiance >= 0 )
+    std::vector< double >& savedPanelOccultedIrradiances = radiationPressureAcceleration_->getSavedPanelOccultedIrradiances( );
+    std::vector< Eigen::Vector3d  >& savedPanelRelativePositions = radiationPressureAcceleration_->getSavedPanelRelativePositions( );
+
+    Eigen::Quaterniond targetRotationFromLocalToGlobalFrame =
+            radiationPressureAcceleration_->getTargetRotationFromLocalToGlobalFrameFunction( )( );
+
+    for( unsigned int i = 0; i < savedPanelOccultedIrradiances.size( ); i++ )
     {
-        Eigen::Vector3d forcePartialWrtSpecularReflectivity = targetRotationFromLocalToGlobalFrameFunction( ) *
-                targetModel->evaluateRadiationPressureForcePartialWrtSpecularReflectivity( receivedIrradiance,
-                                                                                           sourceToTargetDirectionLocalFrame );
-        partial += forcePartialWrtSpecularReflectivity / spacecraftMass;
+        if( savedPanelOccultedIrradiances.at( i ) >= 0 )
+        {
+            Eigen::Vector3d forcePartialWrtDiffuseReflectivity = targetRotationFromLocalToGlobalFrame *
+                    targetModel->evaluateRadiationPressureForcePartialWrtSpecularReflectivity(
+                            savedPanelOccultedIrradiances.at( i ), savedPanelRelativePositions.at( i ), panelTypeId );
+            partial += forcePartialWrtDiffuseReflectivity / spacecraftMass;
+        }
     }
 }
 void RadiationPressureAccelerationPartial::wrtDiffuseReflectivity(
@@ -259,27 +265,26 @@ void RadiationPressureAccelerationPartial::wrtDiffuseReflectivity(
         std::shared_ptr< electromagnetism::PaneledRadiationPressureTargetModel > targetModel,
         const std::string& panelTypeId )
 {
+    partial.setZero( );
+
     std::function< double( ) > targetMassFunction = radiationPressureAcceleration_->getTargetMassFunction( );
     double spacecraftMass = targetMassFunction( );
-    std::function< Eigen::Quaterniond( ) > targetRotationFromLocalToGlobalFrameFunction =
-            radiationPressureAcceleration_->getTargetRotationFromLocalToGlobalFrameFunction( );
-    Eigen::Quaterniond targetRotationFromGlobalToLocalFrame = targetRotationFromLocalToGlobalFrameFunction( ).inverse( );
-    std::function< Eigen::Vector3d( ) > sourceCenterPositionInGlobalFrameFunction =
-            radiationPressureAcceleration_->getSourcePositionFunction( );
-    std::function< Eigen::Vector3d( ) > targetCenterPositionInGlobalFrameFunction =
-            radiationPressureAcceleration_->getTargetPositionFunction( );
-    Eigen::Vector3d targetCenterPositionInGlobalFrame =
-            targetCenterPositionInGlobalFrameFunction( ) - sourceCenterPositionInGlobalFrameFunction( );
-    Eigen::Vector3d sourceToTargetDirectionLocalFrame =
-            targetRotationFromGlobalToLocalFrame * targetCenterPositionInGlobalFrame.normalized( );
 
-    double receivedIrradiance = radiationPressureAcceleration_->getReceivedIrradiance( );
-    if( receivedIrradiance >= 0 )
+    std::vector< double >& savedPanelOccultedIrradiances = radiationPressureAcceleration_->getSavedPanelOccultedIrradiances( );
+    std::vector< Eigen::Vector3d  >& savedPanelRelativePositions = radiationPressureAcceleration_->getSavedPanelRelativePositions( );
+
+    Eigen::Quaterniond targetRotationFromLocalToGlobalFrame =
+            radiationPressureAcceleration_->getTargetRotationFromLocalToGlobalFrameFunction( )( );
+
+    for( unsigned int i = 0; i < savedPanelOccultedIrradiances.size( ); i++ )
     {
-        Eigen::Vector3d forcePartialWrtDiffuseReflectivity = targetRotationFromLocalToGlobalFrameFunction( ) *
-                targetModel->evaluateRadiationPressureForcePartialWrtDiffuseReflectivity( receivedIrradiance,
-                                                                                          sourceToTargetDirectionLocalFrame );
-        partial += forcePartialWrtDiffuseReflectivity / spacecraftMass;
+        if( savedPanelOccultedIrradiances.at( i ) >= 0 )
+        {
+            Eigen::Vector3d forcePartialWrtDiffuseReflectivity = targetRotationFromLocalToGlobalFrame *
+                    targetModel->evaluateRadiationPressureForcePartialWrtDiffuseReflectivity(
+                            savedPanelOccultedIrradiances.at( i ), savedPanelRelativePositions.at( i ), panelTypeId );
+            partial += forcePartialWrtDiffuseReflectivity / spacecraftMass;
+        }
     }
 }
 

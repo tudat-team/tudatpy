@@ -308,11 +308,13 @@ public:
                                          const std::string sourceName = "" ) override;
 
     Eigen::Vector3d evaluateRadiationPressureForcePartialWrtDiffuseReflectivity( double sourceIrradiance,
-                                                                                 const Eigen::Vector3d& sourceToTargetDirectionLocalFrame );
+                                                                                 const Eigen::Vector3d& sourceToTargetDirectionLocalFrame,
+                                                                                 const std::string& panelTypeId );
 
     Eigen::Vector3d evaluateRadiationPressureForcePartialWrtSpecularReflectivity(
             double sourceIrradiance,
-            const Eigen::Vector3d& sourceToTargetDirectionLocalFrame );
+            const Eigen::Vector3d& sourceToTargetDirectionLocalFrame,
+            const std::string& panelTypeId  );
 
     std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > >& getBodyFixedPanels( )
     {
