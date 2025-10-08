@@ -125,6 +125,20 @@ void PaneledSourceRadiationPressureAcceleration::computeAcceleration( )
 
             totalReceivedIrradiance += occultedSourceIrradiance;
             visibleAndEmittingSourcePanelCounter += 1;
+
+            if( saveForcingQuantities_ )
+            {
+                savedPanelOccultedIrradiances_[ counter ] = occultedSourceIrradiance;
+                savedPanelRelativePositions_[ counter ] = sourceToTargetDirectionInTargetFrame;
+            }
+        }
+        else
+        {
+            if( saveForcingQuantities_ )
+            {
+                savedPanelOccultedIrradiances_[ counter ] = 0.0;
+                savedPanelRelativePositions_[ counter ] = Eigen::Vector3d::Constant( std::numeric_limits< double >::infinity( ) );
+            }
         }
         if( savePanellingIrradiance_ )
         {

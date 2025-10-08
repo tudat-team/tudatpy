@@ -375,6 +375,23 @@ public:
         return savedPanelGeometries_;
     }
 
+    std::vector< double >& getSavedPanelOccultedIrradiances( )
+    {
+        return savedPanelOccultedIrradiances_;
+    }
+
+    std::vector< Eigen::Vector3d >& getSavedPanelRelativePositions( )
+    {
+        return savedPanelRelativePositions_;
+    }
+
+    void enableSaveForcingQuantities( )
+    {
+        saveForcingQuantities_ = true;
+        savedPanelOccultedIrradiances_.resize( sourceModel_->getNumberOfPanels( ) );
+        savedPanelRelativePositions_.resize( sourceModel_->getNumberOfPanels( ) );
+    }
+
 private:
     void computeAcceleration( ) override;
 
@@ -388,9 +405,15 @@ private:
 
     bool savePanellingIrradiance_ = false;
 
+    bool saveForcingQuantities_ = false;
+
     std::vector< double > savedPanelIrradiances_;
 
     std::vector< Eigen::Vector7d > savedPanelGeometries_;
+
+    std::vector< double > savedPanelOccultedIrradiances_;
+
+    std::vector< Eigen::Vector3d > savedPanelRelativePositions_;
 };
 
 }  // namespace electromagnetism
