@@ -195,9 +195,11 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
                 createAnalyticalAccelerationPartial( accelerationModel, { "Vehicle", vehicle }, { "Sun", sun }, bodies );
 
         std::shared_ptr< EstimatableParameter< double > > parallelScalingFactor = std::make_shared< RadiationPressureScalingFactor >(
-                accelerationModel, source_direction_radiation_pressure_scaling_factor, "Vehicle", "Sun" );
+                std::vector< std::shared_ptr< RadiationPressureAcceleration > >( { accelerationModel } ),
+                source_direction_radiation_pressure_scaling_factor, "Vehicle", "Sun" );
         std::shared_ptr< EstimatableParameter< double > > perpendicularScalingFactor = std::make_shared< RadiationPressureScalingFactor >(
-                accelerationModel, source_perpendicular_direction_radiation_pressure_scaling_factor, "Vehicle", "Sun" );
+                std::vector< std::shared_ptr< RadiationPressureAcceleration > >( { accelerationModel } ),
+                source_perpendicular_direction_radiation_pressure_scaling_factor, "Vehicle", "Sun" );
         std::shared_ptr< EstimatableParameter< double > > diffuseReflectivityParameter = createDoubleParameterToEstimate< double, double >(
                 std::make_shared< EstimatableParameterSettings >( "Vehicle", diffuse_reflectivity, "SolarPanel" ), bodies );
         std::shared_ptr< EstimatableParameter< double > > specularReflectivityParameter = createDoubleParameterToEstimate< double, double >(
@@ -460,7 +462,8 @@ BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureAccelerationPartials )
 
     std::shared_ptr< EstimatableParameter< double > > radiationPressureScalingSourceDirection =
             std::make_shared< RadiationPressureScalingFactor >(
-                    accelerationModel, source_direction_radiation_pressure_scaling_factor, vehicleName, "Sun" );
+                    std::vector< std::shared_ptr< RadiationPressureAcceleration > >( { accelerationModel } ),
+                    source_direction_radiation_pressure_scaling_factor, vehicleName, "Sun" );
     std::shared_ptr< EstimatableParameter< double > > accelerationScalingParameter =
                             std::make_shared< FullAccelerationScalingFactorParameter >( accelerationModel, "Vehicle", "Sun" );
     std::shared_ptr< EstimatableParameter< double > > areaToMassScalingFactor =
@@ -1529,9 +1532,11 @@ BOOST_AUTO_TEST_CASE( testPanelledSurfaceRadiationPressureAccelerationPartials )
     std::shared_ptr< EstimatableParameter< double > > radiationPressureCoefficient =
             std::make_shared< RadiationPressureCoefficient >( radiationPressureInterface, vehicleName );
     std::shared_ptr< EstimatableParameter< double > > parallelScalingFactor = std::make_shared< RadiationPressureScalingFactor >(
-            accelerationModel, source_direction_radiation_pressure_scaling_factor, "Vehicle", "Earth" );
+            std::vector< std::shared_ptr< RadiationPressureAcceleration > >( { accelerationModel } ),
+            source_direction_radiation_pressure_scaling_factor, "Vehicle", "Earth" );
     std::shared_ptr< EstimatableParameter< double > > perpendicularScalingFactor = std::make_shared< RadiationPressureScalingFactor >(
-            accelerationModel, source_perpendicular_direction_radiation_pressure_scaling_factor, "Vehicle", "Earth" );
+            std::vector< std::shared_ptr< RadiationPressureAcceleration > >( { accelerationModel } ),
+            source_perpendicular_direction_radiation_pressure_scaling_factor, "Vehicle", "Earth" );
     std::shared_ptr< EstimatableParameter< double > > accelerationScalingParameter =
             std::make_shared< FullAccelerationScalingFactorParameter >( accelerationModel, "Vehicle", "Earth" );
 
