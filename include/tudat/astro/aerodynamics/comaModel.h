@@ -44,6 +44,7 @@ public:
     /*!
      * \brief Constructor for polynomial coefficient data.
      * \param polyDataset Structured polynomial coefficient dataset
+     * \param molecularWeight Molecular weight of the gas species [kg/mol]
      * \param sunStateFunction Function returning Sun state vector (position, velocity) [m, m/s]
      * \param cometStateFunction Function returning Comet state vector (position, velocity) [m, m/s]
      * \param cometRotationFunction Function returning comet body-fixed rotation matrix
@@ -51,6 +52,7 @@ public:
      * \param maximumOrder Maximum Order used to compute the coma density with SH (-1 for auto)
      */
     ComaModel( const simulation_setup::ComaPolyDataset& polyDataset,
+               const double molecularWeight,
                std::function<Eigen::Vector6d()> sunStateFunction,
                std::function<Eigen::Vector6d()> cometStateFunction,
                std::function<Eigen::Matrix3d()> cometRotationFunction,
@@ -60,6 +62,7 @@ public:
     /*!
      * \brief Constructor for Stokes coefficient data.
      * \param stokesDataset Structured Stokes coefficient dataset
+     * \param molecularWeight Molecular weight of the gas species [kg/mol]
      * \param sunStateFunction Function returning Sun state vector (position, velocity) [m, m/s]
      * \param cometStateFunction Function returning Comet state vector (position, velocity) [m, m/s]
      * \param cometRotationFunction Function returning comet body-fixed rotation matrix
@@ -67,6 +70,7 @@ public:
      * \param maximumOrder Maximum Order used to compute the coma density with SH (-1 for auto)
      */
     ComaModel( const simulation_setup::ComaStokesDataset& stokesDataset,
+               const double molecularWeight,
                std::function<Eigen::Vector6d()> sunStateFunction,
                std::function<Eigen::Vector6d()> cometStateFunction,
                std::function<Eigen::Matrix3d()> cometRotationFunction,
@@ -78,7 +82,7 @@ public:
      * \brief Returns the local density of the coma in kg per meter^3.
      * \param radius Radius from comet center at which density is to be computed [m]
      * \param longitude Longitude in comet body-fixed frame at which density is to be computed [rad]
-     * \param latitude Latitude in comet body-fixed frame at which density is to be computed [rad]
+     * \param latitude Latitude in comet body-fixed frame at which latitude is to be computed [rad]
      * \param time Time at which density is to be computed [s]
      * \return Coma density at specified location and time [kg/m³]
      */
@@ -86,6 +90,19 @@ public:
                        double longitude,
                        double latitude,
                        double time ) override;
+
+    /*!
+     * \brief Returns the local number density of the coma in particles per meter^3.
+     * \param radius Radius from comet center at which number density is to be computed [m]
+     * \param longitude Longitude in comet body-fixed frame at which number density is to be computed [rad]
+     * \param latitude Latitude in comet body-fixed frame at which number density is to be computed [rad]
+     * \param time Time at which number density is to be computed [s]
+     * \return Coma number density at specified location and time [m^-3]
+     */
+    double getNumberDensity( double radius,
+                             double longitude,
+                             double latitude,
+                             double time );
 
     /*!
      * \brief Returns the local pressure of the coma in Newton per meter^2.
@@ -142,6 +159,9 @@ private:
     //! Type of data used to determine computation method (polynomial or Stokes coefficients)
     ComaDataType dataType_;
 
+    //! Molecular weight of gas species [kg/mol]
+    double molecularWeight_;
+
     //! Maximum spherical harmonic degree used for density computation (-1 for auto-detect)
     int maximumDegree_;
 
@@ -189,26 +209,26 @@ private:
     int findTimeIntervalIndex( double time ) const;
 
     /*!
-     * \brief Compute density from polynomial coefficients.
+     * \brief Compute number density from polynomial coefficients.
      * \param radius Radial distance from comet center [m]
      * \param longitude Longitude in comet body-fixed frame [rad]
      * \param latitude Latitude in comet body-fixed frame [rad]
-     * \param time Time at which to compute density [s]
-     * \return Coma density [kg/m³]
+     * \param time Time at which to compute number density [s]
+     * \return Coma number density [m^-3]
      * \throws std::runtime_error If dataset is null or time is out of range
      */
-    double computeDensityFromPolyCoefficients( double radius, double longitude, double latitude, double time ) const;
+    double computeNumberDensityFromPolyCoefficients( double radius, double longitude, double latitude, double time ) const;
 
     /*!
-     * \brief Compute density from Stokes coefficients using pre-initialized interpolators.
+     * \brief Compute number density from Stokes coefficients using pre-initialized interpolators.
      * \param radius Radial distance from comet center [m]
      * \param longitude Longitude in comet body-fixed frame [rad]
      * \param latitude Latitude in comet body-fixed frame [rad]
-     * \param time Time at which to compute density [s]
-     * \return Coma density [kg/m³]
+     * \param time Time at which to compute number density [s]
+     * \return Coma number density [m^-3]
      * \throws std::runtime_error If dataset is null or time is out of range
      */
-    double computeDensityFromStokesCoefficients( double radius, double longitude, double latitude, double time ) const;
+    double computeNumberDensityFromStokesCoefficients( double radius, double longitude, double latitude, double time ) const;
 
     /*!
      * @brief Calculate solar longitude in comet body-fixed frame.

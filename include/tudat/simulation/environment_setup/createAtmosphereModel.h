@@ -2983,14 +2983,17 @@ public:
     /**
      * \brief Constructor with polynomial coefficient data
      * \param polyData Pre-loaded polynomial coefficient dataset
+     * \param molecularWeight Molecular weight of the gas species
      * \param requestedDegree Maximum spherical harmonic degree (-1 for auto)
      * \param requestedOrder Maximum spherical harmonic order (-1 for auto)
      */
     explicit ComaSettings( const ComaPolyDataset& polyData,
+                           const double molecularWeight,
                            const int requestedDegree = -1,
                            const int requestedOrder = -1 ) :
         AtmosphereSettings( coma_model ),
         data_( polyData ),
+        molecularWeight_( molecularWeight ),
         requestedDegree_( requestedDegree ),
         requestedOrder_( requestedOrder )
     {
@@ -3000,14 +3003,17 @@ public:
     /**
      * \brief Constructor with Stokes coefficient data
      * \param stokesData Pre-computed Stokes coefficient dataset
+     * \param molecularWeight Molecular weight of the gas species
      * \param requestedDegree Maximum spherical harmonic degree (-1 for auto)
      * \param requestedOrder Maximum spherical harmonic order (-1 for auto)
      */
     explicit ComaSettings( const ComaStokesDataset& stokesData,
+                           const double molecularWeight,
                            const int requestedDegree = -1,
                            const int requestedOrder = -1 ) :
         AtmosphereSettings( coma_model ),
         data_( stokesData ),
+        molecularWeight_( molecularWeight ),
         requestedDegree_( requestedDegree ),
         requestedOrder_( requestedOrder )
     {
@@ -3073,6 +3079,14 @@ public:
     int getRequestedOrder( ) const
     {
         return requestedOrder_;
+    }
+
+    /**
+     * \brief Get molecular weight
+     */
+    double getMolecularWeight( ) const
+    {
+        return molecularWeight_;
     }
 
     /**
@@ -3167,6 +3181,7 @@ private:
 
     // Data members
     DataVariant data_; // Holds either poly or Stokes data
+    double molecularWeight_; // Molecular weight of gas species
     int requestedDegree_; // User-requested max degree
     int requestedOrder_; // User-requested max order
     int availableMaxDegree_{ 0 }; // Maximum available in data
@@ -3301,19 +3316,21 @@ inline std::shared_ptr< AtmosphereSettings > tabulatedAtmosphereSettings(
 //@get_docstring(ComaSettings,0)
 inline std::shared_ptr< AtmosphereSettings > comaSettings(
         const ComaPolyDataset& polyData,
+        const double molecularWeight,
         const int requestedDegree = -1,
         const int requestedOrder = -1 )
 {
-    return std::make_shared< ComaSettings >( polyData, requestedDegree, requestedOrder );
+    return std::make_shared< ComaSettings >( polyData, molecularWeight, requestedDegree, requestedOrder );
 }
 
 //@get_docstring(ComaSettings,1)
 inline std::shared_ptr< AtmosphereSettings > comaSettings(
         const ComaStokesDataset& stokesData,
+        const double molecularWeight,
         const int requestedDegree = -1,
         const int requestedOrder = -1 )
 {
-    return std::make_shared< ComaSettings >( stokesData, requestedDegree, requestedOrder );
+    return std::make_shared< ComaSettings >( stokesData, molecularWeight, requestedDegree, requestedOrder );
 }
 
 

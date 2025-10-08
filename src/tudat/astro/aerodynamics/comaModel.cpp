@@ -33,12 +33,14 @@ namespace aerodynamics
  * \param maximumOrder Maximum Order used to compute the coma density with SH (-1 for auto)
  */
 ComaModel::ComaModel( const simulation_setup::ComaPolyDataset& polyDataset,
+                      const double molecularWeight,
                       std::function<Eigen::Vector6d()> sunStateFunction,
                       std::function<Eigen::Vector6d()> cometStateFunction,
                       std::function<Eigen::Matrix3d()> cometRotationFunction,
                       const int& maximumDegree,
                       const int& maximumOrder ) :
     dataType_( ComaDataType::POLYNOMIAL_COEFFICIENTS ),
+    molecularWeight_( molecularWeight ),
     maximumDegree_( maximumDegree ),
     maximumOrder_( maximumOrder ),
     polyDataset_( std::make_shared<simulation_setup::ComaPolyDataset>( polyDataset ) ),
@@ -77,12 +79,14 @@ ComaModel::ComaModel( const simulation_setup::ComaPolyDataset& polyDataset,
  * \param maximumOrder Maximum Order used to compute the coma density with SH (-1 for auto)
  */
 ComaModel::ComaModel( const simulation_setup::ComaStokesDataset& stokesDataset,
+                      const double molecularWeight,
                       std::function<Eigen::Vector6d()> sunStateFunction,
                       std::function<Eigen::Vector6d()> cometStateFunction,
                       std::function<Eigen::Matrix3d()> cometRotationFunction,
                       const int& maximumDegree,
                       const int& maximumOrder ) :
     dataType_( ComaDataType::STOKES_COEFFICIENTS ),
+    molecularWeight_( molecularWeight ),
     maximumDegree_( maximumDegree ),
     maximumOrder_( maximumOrder ),
     polyDataset_( nullptr ),
@@ -131,13 +135,33 @@ double ComaModel::getDensity( const double radius,
                               const double latitude,
                               const double time )
 {
+    // Get number density and convert to mass density
+    const double numberDensityLog2 = getNumberDensity( radius, longitude, latitude, time );
+    return std::exp2(numberDensityLog2) * molecularWeight_;
+}
+
+/*!
+ * \brief Compute coma number density at specified location and time.
+ * Returns the number density (particles per cubic meter) by evaluating the
+ * spherical harmonics expansion.
+ * \param radius Radius from comet center at which number density is to be computed [m]
+ * \param longitude Longitude in comet body-fixed frame at which number density is to be computed [rad]
+ * \param latitude Latitude in comet body-fixed frame at which number density is to be computed [rad]
+ * \param time Time at which number density is to be computed [s]
+ * \return Coma number density at specified location and time [m^-3]
+ */
+double ComaModel::getNumberDensity( const double radius,
+                                    const double longitude,
+                                    const double latitude,
+                                    const double time )
+{
     switch ( dataType_ )
     {
         case ComaDataType::POLYNOMIAL_COEFFICIENTS:
-            return computeDensityFromPolyCoefficients( radius, longitude, latitude, time );
+            return computeNumberDensityFromPolyCoefficients( radius, longitude, latitude, time );
 
         case ComaDataType::STOKES_COEFFICIENTS:
-            return computeDensityFromStokesCoefficients( radius, longitude, latitude, time );
+            return computeNumberDensityFromStokesCoefficients( radius, longitude, latitude, time );
 
         default:
             throw std::runtime_error( "ComaModel: Unknown data type" );
@@ -316,7 +340,7 @@ double ComaModel::calculateSolarLongitude() const
  * \return Coma density [kg/m³]
  * \throws std::runtime_error If dataset is null or time is out of range
  */
-double ComaModel::computeDensityFromPolyCoefficients( double radius, double longitude, double latitude, double time ) const
+double ComaModel::computeNumberDensityFromPolyCoefficients( double radius, double longitude, double latitude, double time ) const
 {
     if ( !polyDataset_ )
     {
@@ -332,6 +356,8 @@ double ComaModel::computeDensityFromPolyCoefficients( double radius, double long
     // Calculate current solar longitude for heliocentric dependence
     const double solarLongitude = calculateSolarLongitude();
 
+
+
     // Evaluate polynomial coefficients to get spherical harmonic coefficients
     Eigen::MatrixXd cosineCoefficients, sineCoefficients;
     simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
@@ -346,7 +372,7 @@ double ComaModel::computeDensityFromPolyCoefficients( double radius, double long
         maximumDegree_,
         maximumOrder_ );
 
-    // Compute density using spherical harmonics expansion
+    // Compute number density using spherical harmonics expansion (returns log2 of number density)
     return sphericalHarmonicsCalculator_->calculateSurfaceSphericalHarmonics(
         sineCoefficients, cosineCoefficients,
         latitude, longitude,
@@ -365,7 +391,7 @@ double ComaModel::computeDensityFromPolyCoefficients( double radius, double long
  * \return Coma density [kg/m³]
  * \throws std::runtime_error If dataset is null or time is out of range
  */
-double ComaModel::computeDensityFromStokesCoefficients( double radius, double longitude, double latitude, double time ) const
+double ComaModel::computeNumberDensityFromStokesCoefficients( double radius, double longitude, double latitude, double time ) const
 {
     if ( !stokesDataset_ )
     {
@@ -521,7 +547,7 @@ double ComaModel::computeDensityFromStokesCoefficients( double radius, double lo
         simulation_setup::StokesCoefficientsEvaluator::applyDecayTerm(cosineCoefficients, radius, referenceRadius);
     }
 
-    // Step 5: Compute density using spherical harmonics expansion
+    // Step 5: Compute number density using spherical harmonics expansion
     return sphericalHarmonicsCalculator_->calculateSurfaceSphericalHarmonics(
         sineCoefficients, cosineCoefficients,
         latitude, longitude,

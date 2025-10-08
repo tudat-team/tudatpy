@@ -359,6 +359,7 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
                 // Get degree and order parameters
                 const int maximumDegree = comaSettings->getRequestedDegree( );
                 const int maximumOrder = comaSettings->getRequestedOrder( );
+                const double molecularWeight = comaSettings->getMolecularWeight( );
 
                 // Create ComaModel based on data type
                 if( comaSettings->hasPolyData( ) )
@@ -366,6 +367,7 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
                     const auto& polyDataset = comaSettings->getPolyDataset( );
                     atmosphereModel = std::make_shared< aerodynamics::ComaModel >(
                             polyDataset,
+                            molecularWeight,
                             sunStateFunction,
                             bodyStateFunction,
                             bodyOrientationFunction,
@@ -377,6 +379,7 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
                     const auto& stokesDataset = comaSettings->getStokesDataset( );
                     atmosphereModel = std::make_shared< aerodynamics::ComaModel >(
                             stokesDataset,
+                            molecularWeight,
                             sunStateFunction,
                             bodyStateFunction,
                             bodyOrientationFunction,

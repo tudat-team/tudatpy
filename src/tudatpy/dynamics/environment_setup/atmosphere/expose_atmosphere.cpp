@@ -821,8 +821,9 @@ using the NRLMSISE-00 global reference model:
     m.def(
             "coma_model",
             py::overload_cast<
-                const tss::ComaPolyDataset&, int, int >( &tss::comaSettings ),
+                const tss::ComaPolyDataset&, double, int, int >( &tss::comaSettings ),
             py::arg( "poly_data" ),
+            py::arg( "molecular_weight" ),
             py::arg( "max_degree" ) = -1,
             py::arg( "max_order" ) = -1,
             R"doc(
@@ -833,8 +834,9 @@ using the NRLMSISE-00 global reference model:
     m.def(
             "coma_model",
             py::overload_cast<
-                const tss::ComaStokesDataset&, int, int >( &tss::comaSettings ),
+                const tss::ComaStokesDataset&, double, int, int >( &tss::comaSettings ),
             py::arg( "stokes_data" ),
+            py::arg( "molecular_weight" ),
             py::arg( "max_degree" ) = -1,
             py::arg( "max_order" ) = -1,
             R"doc(
