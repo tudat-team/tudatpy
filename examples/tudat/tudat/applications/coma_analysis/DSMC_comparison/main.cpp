@@ -86,7 +86,7 @@ public:
             setSolarLongitude(dsmc_file.solarLongitude);
 
             // Create Stokes dataset using the same approach as performance_analysis
-            std::string polyFilePath = "/Users/markusreichel/PhD/tudatpy/tests/test_tudat/src/astro/aerodynamics/test_data/input_poly_coef_test_file.txt";
+            std::string polyFilePath = "/Users/markusreichel/PhD/tudatpy/examples/tudat/tudat/applications/coma_analysis/input/input_poly_coef_test_file.txt";
 
             if (!fileExists(polyFilePath)) {
                 std::cerr << "Error: Test data file not found at " << polyFilePath << std::endl;

@@ -175,3 +175,8 @@ Tudat/interface/spice/Kernels/
 
 # Test directories
 coma_performance_test/
+
+# Coma analysis output directories
+examples/tudat/tudat/applications/coma_analysis/DSMC_comparison/output/
+examples/tudat/tudat/applications/coma_analysis/performance_analysis/output/
+examples/tudat/tudat/applications/coma_analysis/grid_density_analysis/output/

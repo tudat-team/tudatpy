@@ -79,7 +79,7 @@ public:
         results.stokesDensityGrid.resize(numRadii_, std::vector<double>(numLongitudes_));
 
         // Test with the actual data file (relative to project root)
-        std::string polyFilePath = "/Users/markusreichel/PhD/tudatpy/tests/test_tudat/src/astro/aerodynamics/test_data/input_poly_coef_test_file.txt";
+        std::string polyFilePath = "/Users/markusreichel/PhD/tudatpy/examples/tudat/tudat/applications/coma_analysis/input/input_poly_coef_test_file.txt";
 
         if (!fileExists(polyFilePath)) {
             std::cout << "Error: Test data file not found at " << polyFilePath << std::endl;
