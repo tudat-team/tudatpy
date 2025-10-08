@@ -1169,9 +1169,26 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                                               std::to_string( associatedAccelerationModels.size( ) ) );
                 }
 
+                std::vector< std::shared_ptr< aerodynamics::AerodynamicAcceleration > > associateAerodynamicAccelerationModels;
+                for( unsigned int i = 0; i < associatedAccelerationModels.size( ); i++ )
+                {
+                    // Create parameter object
+                    if( std::dynamic_pointer_cast< aerodynamics::AerodynamicAcceleration >( associatedAccelerationModels.at( i ) ) !=
+                        nullptr )
+                    {
+                        associateAerodynamicAccelerationModels.push_back( std::dynamic_pointer_cast< aerodynamics::AerodynamicAcceleration >(
+                                associatedAccelerationModels.at( i ) ) );
+                    }
+                    else
+                    {
+                        throw std::runtime_error(
+                                "Error, expected AerodynamicAcceleration in list when creating aerodynamic scaling parameter" );
+                    }
+                }
+
 
                 doubleParameterToEstimate = std::make_shared< AerodynamicScalingFactor >(
-                        std::dynamic_pointer_cast< aerodynamics::AerodynamicAcceleration >( associatedAccelerationModels.at( 0 ) ),
+                        associateAerodynamicAccelerationModels,
                         doubleParameterName->parameterType_.first,
                         currentBodyName );
                 break;
@@ -1558,13 +1575,13 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                                 "parameter" );
                     }
                 }
-                if( associatedRadiationPressureAccelerationModels.size( ) != 1 )
+
+                if( associatedAccelerationModels.size( ) == 0 )
                 {
                     throw std::runtime_error(
-                            "Error, expected single RadiationPressureAcceleration in list when creating radiation pressure scaling "
-                            "parameter, found " +
-                            std::to_string( associatedRadiationPressureAccelerationModels.size( ) ) );
+                            "Error, no RadiationPressureAcceleration objects found when making radiation pressure scaling parameter" );
                 }
+
                 doubleParameterToEstimate =
                         std::make_shared< RadiationPressureScalingFactor >( associatedRadiationPressureAccelerationModels,
                                                                             doubleParameterName->parameterType_.first,
@@ -2040,6 +2057,12 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 }
               }
 
+              if( associatedAccelerationModels.size( ) == 0 )
+              {
+                  throw std::runtime_error(
+                          "Error, no EmpiricalAcceleration objects found when making empirical acceleration parameter" );
+              }
+
               // Create empirical acceleration parameter
               vectorParameterToEstimate = std::make_shared< EmpiricalAccelerationCoefficientsParameter >(
                       empiricalAccelerations,
@@ -2202,6 +2225,12 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                                     "Error, expected EmpiricalAcceleration in list when creating "
                                     "arc_wise_empirical_acceleration_coefficients parameter" );
                         }
+                    }
+
+                    if( associatedAccelerationModels.size( ) == 0 )
+                    {
+                        throw std::runtime_error(
+                                "Error, no EmpiricalAcceleration objects found when making arc-wise empirical acceleration parameter" );
                     }
                     // Create arcwise empirical acceleration parameter
                     vectorParameterToEstimate = std::make_shared< ArcWiseEmpiricalAccelerationCoefficientsParameter >(
