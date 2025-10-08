@@ -547,6 +547,7 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
         throw std::runtime_error( "Error when getting acceleration model for parameter " +
                                   std::to_string( parameterSettings->parameterType_.first ) + ", no acceleration model found." );
     }
+    utilities::removeDuplicates( accelerationModelList );
 
     return accelerationModelList;
 }
@@ -588,7 +589,19 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
         singleArcTranslationalSettings.push_back(
                 std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType > >(
                         singleArcSettings.at( i ) ) );
-        arcStartTimesToUse.push_back( singleArcSettings.at( i )->getInitialTime( ) );
+        if( singleArcSettings.at( i )->getInitialTime( ) == singleArcSettings.at( i )->getInitialTime( ) )
+        {
+            arcStartTimesToUse.push_back( singleArcSettings.at( i )->getInitialTime( ) );
+        }
+        else if( arcStartTimes.size( ) > 0 )
+        {
+            arcStartTimesToUse.push_back( arcStartTimes.at( i ) );
+        }
+        else
+        {
+            throw std::runtime_error( "Error when making multi-arc initial state parameter, could not extract arc initial times" );
+        }
+
         if( arcStartTimes.size( ) != 0 )
         {
             if( std::fabs( arcStartTimes.at( i ) - arcStartTimesToUse.at( i ) ) >
@@ -1132,13 +1145,13 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                     throw std::runtime_error( "Error when creating acceleration scaling parameter, parameter settings type is not compatible" );
                 }
 
-                if( associatedAccelerationModels.size( ) != 1 )
+                if( associatedAccelerationModels.size( ) == 0 )
                 {
-                    throw std::runtime_error( "Error when creating acceleration scaling parameter, compatible acceleration models is not 1, but " +
+                    throw std::runtime_error( "Error when creating acceleration scaling parameter, number of compatible acceleration models is not 1, but " +
                                               std::to_string( associatedAccelerationModels.size( ) ) );
                 }
                 doubleParameterToEstimate = std::make_shared< FullAccelerationScalingFactorParameter >(
-                        associatedAccelerationModels.at( 0 ),
+                        associatedAccelerationModels,
                         doubleParameterName->parameterType_.second.first,
                         doubleParameterName->parameterType_.second.second );
                 break;
@@ -1149,6 +1162,13 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                 std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
                         getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings,
                                                                                                                doubleParameterName );
+                
+                if( associatedAccelerationModels.size( ) == 0 )
+                {
+                    throw std::runtime_error( "Error when creating aerodynamic scaling parameter, number of compatible acceleration models is not 1, but " +
+                                              std::to_string( associatedAccelerationModels.size( ) ) );
+                }
+
 
                 doubleParameterToEstimate = std::make_shared< AerodynamicScalingFactor >(
                         std::dynamic_pointer_cast< aerodynamics::AerodynamicAcceleration >( associatedAccelerationModels.at( 0 ) ),
@@ -1520,6 +1540,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                                                                                                                doubleParameterName );
                 std::vector< std::shared_ptr< electromagnetism::RadiationPressureAcceleration > >
                         associatedRadiationPressureAccelerationModels;
+
                 for( unsigned int i = 0; i < associatedAccelerationModels.size( ); i++ )
                 {
                     // Create parameter object
@@ -1545,7 +1566,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                             std::to_string( associatedRadiationPressureAccelerationModels.size( ) ) );
                 }
                 doubleParameterToEstimate =
-                        std::make_shared< RadiationPressureScalingFactor >( associatedRadiationPressureAccelerationModels.at( 0 ),
+                        std::make_shared< RadiationPressureScalingFactor >( associatedRadiationPressureAccelerationModels,
                                                                             doubleParameterName->parameterType_.first,
                                                                             currentBodyName,
                                                                             doubleParameterName->parameterType_.second.second );
