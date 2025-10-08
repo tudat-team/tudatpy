@@ -211,25 +211,7 @@ void RadiationPressureAccelerationPartial::wrtRadiationPressureCoefficient(
         throw std::runtime_error(
                 "Error in full radiation pressure partial w.r.t. Cr, partial is only implemented for non-zero coefficient" );
     }
-//
-//    {
-//        double radiationPressure = sourceIrradiance / physical_constants::SPEED_OF_LIGHT;
-//        this->currentRadiationPressureForce_[ sourceName ] += currentCoefficient_ * area_ * radiationPressure * sourceToTargetDirection
-//    }
-//
-//    std::vector< double >& savedPanelOccultedIrradiances = radiationPressureAcceleration_->getSavedPanelOccultedIrradiances( );
-//    std::vector< Eigen::Vector3d  >& savedPanelRelativePositions = radiationPressureAcceleration_->getSavedPanelRelativePositions( );
-//    for( unsigned int i = 0; i < savedPanelOccultedIrradiances.size( ); i++ )
-//    {
-//        if( savedPanelOccultedIrradiances.at( i ) >= 0 )
-//        {
-//            Eigen::Vector3d forcePartialWrtDiffuseReflectivity = targetRotationFromLocalToGlobalFrame *
-//                    targetModel->evaluateRadiationPressureForcePartialWrtSpecularReflectivity(
-//                            savedPanelOccultedIrradiances.at( i ), savedPanelRelativePositions.at( i ), panelTypeId );
-//            partial += forcePartialWrtDiffuseReflectivity / spacecraftMass;
-//        }
-//    }
-    
+
     partial = radiationPressureAcceleration_->getAcceleration( ) / targetModel->getCoefficient( );
 }
 
