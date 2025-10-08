@@ -332,7 +332,7 @@ public:
                             throw std::runtime_error( "Error when creating acceleration scaling partial, parameter is inconsistent" );
                         }
 
-                        if( accelerationModel_ == accelerationScalingParameter->getAccelerationModel( ) )
+                        if( accelerationScalingParameter->hasAccelerationModel( accelerationModel_ ) )
                         {
 
                             partialFunction = std::bind(
