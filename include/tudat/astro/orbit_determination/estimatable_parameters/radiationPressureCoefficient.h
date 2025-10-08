@@ -118,6 +118,15 @@ public:
         }
     }
 
+    RadiationPressureScalingFactor(
+            const std::shared_ptr< electromagnetism::RadiationPressureAcceleration > radiationPressureAcceleration,
+            const EstimatebleParametersEnum parameterType,
+            const std::string& associatedBody,
+            const std::string& exertingBody ):
+        RadiationPressureScalingFactor(
+                std::vector< std::shared_ptr< electromagnetism::RadiationPressureAcceleration > >( { radiationPressureAcceleration }),
+                parameterType, associatedBody, exertingBody ){ }
+
     ~RadiationPressureScalingFactor( ) { }
 
     double getParameterValue( )
