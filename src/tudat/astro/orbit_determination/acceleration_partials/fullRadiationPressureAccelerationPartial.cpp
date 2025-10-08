@@ -177,6 +177,33 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > RadiationPressureAcc
                            customAccelerationPartialSet_->customVectorParameterPartials_.at( parameter->getParameterName( ) ) );
         parameterSize = parameter->getParameterSize( );
     }
+    else if( parameter->getParameterName( ).first == estimatable_parameters::arc_wise_radiation_pressure_coefficient &&
+             parameter->getParameterName( ).second.first == acceleratedBody_ )
+    {
+
+        if( std::dynamic_pointer_cast< estimatable_parameters::ArcWiseRadiationPressureCoefficient >( parameter ) != nullptr )
+        {
+            if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >(
+                        radiationPressureAcceleration_->getTargetModel( ) ) != nullptr )
+            {
+                partialFunction = std::bind( &RadiationPressureAccelerationPartial::wrtArcWiseRadiationPressureCoefficient,
+                                             this,
+                                             std::placeholders::_1,
+                                             std::dynamic_pointer_cast< estimatable_parameters::ArcWiseRadiationPressureCoefficient >(
+                                                     parameter ),
+                                             std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >(
+                                                     radiationPressureAcceleration_->getTargetModel( ) ) );
+                parameterSize = parameter->getParameterSize( );
+            }
+        }
+        else
+        {
+            throw std::runtime_error(
+                    "Error when making radiation pressure partial, arcwise radiation pressure parameter not consistent" );
+        }
+
+
+    }
     return std::make_pair( partialFunction, parameterSize );
 }
 
@@ -213,6 +240,32 @@ void RadiationPressureAccelerationPartial::wrtRadiationPressureCoefficient(
     }
 
     partial = radiationPressureAcceleration_->getAcceleration( ) / targetModel->getCoefficient( );
+}
+
+void RadiationPressureAccelerationPartial::wrtArcWiseRadiationPressureCoefficient(
+        Eigen::MatrixXd& partial,
+        const std::shared_ptr< estimatable_parameters::ArcWiseRadiationPressureCoefficient > parameter,
+        std::shared_ptr< electromagnetism::CannonballRadiationPressureTargetModel > targetModel )
+{
+    // Get partial w.r.t. radiation pressure coefficient
+    Eigen::MatrixXd partialWrtSingleParameter = Eigen::Vector3d::Zero( );
+    this->wrtRadiationPressureCoefficient( partialWrtSingleParameter, targetModel );
+
+    // Retrieve current arc
+    std::shared_ptr< interpolators::LookUpScheme< double > > currentArcIndexLookUp = parameter->getArcTimeLookupScheme( );
+    partial.setZero( );
+    if( currentArcIndexLookUp->getMinimumValue( ) <= currentTime_ )
+    {
+        int currentArc = currentArcIndexLookUp->findNearestLowerNeighbour( currentTime_ );
+
+        if( currentArc >= partial.cols( ) )
+        {
+            throw std::runtime_error( "Error when getting arc-wise radiation pressure coefficient partials, data not consistent" );
+        }
+
+        // Set partial
+        partial.block( 0, currentArc, 3, 1 ) = partialWrtSingleParameter;
+    }
 }
 
 void RadiationPressureAccelerationPartial::wrtSpecularReflectivity(
