@@ -39,6 +39,10 @@ public:
         }
     }
 
+    AreaToMassScalingFactor( const std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel,
+                             const std::string& associatedBody ):
+        AreaToMassScalingFactor( std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > >({accelerationModel}), associatedBody ){}
+
     ~AreaToMassScalingFactor( ) { }
 
     double getParameterValue( )
@@ -88,6 +92,13 @@ public:
     {
 
     }
+
+    FullAccelerationScalingFactorParameter(
+            const std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel,
+            const std::string& bodyUndergoingAcceleration,
+            const std::string& bodyExertingAcceleration ):
+        FullAccelerationScalingFactorParameter( std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > >({accelerationModel}),
+                                                bodyUndergoingAcceleration, bodyExertingAcceleration ){ }
 
     ~FullAccelerationScalingFactorParameter( ) { }
 
