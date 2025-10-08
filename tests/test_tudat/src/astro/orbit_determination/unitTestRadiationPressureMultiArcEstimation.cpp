@@ -454,7 +454,7 @@ int main( )
                         propagationTimeTerminationSettings( finalEphemerisTime ) );
 
         // Create propagator settings
-        double arcLength = 600.0;
+        double arcLength = 0.5 * 86400;
         std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettingsArc2 =
                 std::make_shared< TranslationalStatePropagatorSettings< double > >(
                         centralBodies,
@@ -480,11 +480,16 @@ int main( )
         // Define list of parameters to estimate.
         std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
         parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodies );
-        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", radiation_pressure_coefficient ) );
+//        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", radiation_pressure_coefficient ) );
+        parameterNames.push_back( radiationPressureTargetDirectionScaling( "Vehicle", "Earth" ) );
+        parameterNames.push_back( radiationPressureTargetDirectionScaling( "Vehicle", "Earth" ) );
+        parameterNames.push_back( radiationPressureTargetPerpendicularDirectionScaling( "Vehicle", "Sun" ) );
+        parameterNames.push_back( radiationPressureTargetPerpendicularDirectionScaling( "Vehicle", "Sun" ) );
+
 
         // Create parameters
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-                createParametersToEstimate( parameterNames, bodies );
+                createParametersToEstimate< double, double >( parameterNames, bodies, propagatorSettings );
 
         // Print identifiers and indices of parameters to terminal.
         printEstimatableParameterEntries( parametersToEstimate );
@@ -533,7 +538,10 @@ int main( )
         parameterPerturbation.segment( 3, 3 ) = Eigen::Vector3d::Constant( 1.E-3 );
         parameterPerturbation.segment( 6, 3 ) = Eigen::Vector3d::Constant( 1.0 );
         parameterPerturbation.segment( 9, 3 ) = Eigen::Vector3d::Constant( 1.E-3 );
-        parameterPerturbation.segment( 12, 1 ) = Eigen::Vector1d::Constant( 0.3 );
+        for( int i = 12; i < truthParameters.rows( ); i++ )
+        {
+            parameterPerturbation.segment( i, 1 ) = Eigen::Vector1d::Constant( 0.1 );
+        }
 //        parameterPerturbation.segment( 13, 1 ) = Eigen::Vector1d::Constant( 0.1 );
 
         initialParameterEstimate += parameterPerturbation;
