@@ -205,7 +205,8 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
         std::shared_ptr< EstimatableParameter< double > > accelerationScalingParameter =
                 std::make_shared< FullAccelerationScalingFactorParameter >( accelerationModel, "Vehicle", "Sun" );
         std::shared_ptr< EstimatableParameter< double > > areaToMassScalingFactor =
-                std::make_shared< AreaToMassScalingFactor >( accelerationModel, "Vehicle" );
+                std::make_shared< AreaToMassScalingFactor >(
+                        std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > >( { accelerationModel } ), "Vehicle" );
 
         // Calculate analytical partials.
         accelerationPartial->update( 0.0 );
@@ -266,8 +267,6 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
                 sunStateSetFunction, accelerationModel, sun->getState( ), velocityPerturbation, 3, updateFunction );
         testPartialWrtVehicleVelocity = calculateAccelerationWrtStatePartials(
                 vehicleStateSetFunction, accelerationModel, vehicle->getState( ), velocityPerturbation, 3, updateFunction );
-        //    testPartialWrtEmissivities = calculateAccelerationWrtParameterPartials(
-        //                panelEmissivitiesParameter, accelerationModel, emissivityPerturbations );
 
         testPartialWrtParallelScaling =
                 calculateAccelerationWrtParameterPartials( parallelScalingFactor, accelerationModel, 10.0, updateFunction );
