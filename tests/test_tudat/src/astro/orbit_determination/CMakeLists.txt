@@ -131,7 +131,7 @@ TUDAT_ADD_TEST_CASE(NonSequentialStateEstimation
          ${Tudat_ESTIMATION_LIBRARIES}
  )
 
- TUDAT_ADD_TEST_CASE(RadiationPressureMultiArcEstimation
+ TUDAT_ADD_TEST_CASE(RadiationPressureVariationalEquations
          PRIVATE_LINKS
          ${Tudat_ESTIMATION_LIBRARIES}
  )
