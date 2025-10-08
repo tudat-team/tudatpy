@@ -144,9 +144,9 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressureMultiArcVariationalEquations )
                                                                                                        false,
                                                                                                        false );
 
-            // Create dummy spacecraft rotation settings
+            // Create dummy spacecraft rotation settings (any non-constant, non-identity matrix will do
             bodySettings.get( spacecraftName )->rotationModelSettings =
-                    constantRotationModelSettings( "J2000", spacecraftName + "_Fixed", Eigen::Matrix3d::Identity( ) );
+                    spiceRotationModelSettings( "J2000", spacecraftName + "_Fixed", "IAU_Mars" );
 
             // Create bodies
             SystemOfBodies bodies = createSystemOfBodies< long double, Time >( bodySettings );
