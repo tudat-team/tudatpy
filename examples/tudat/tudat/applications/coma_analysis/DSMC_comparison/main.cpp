@@ -98,8 +98,8 @@ public:
             ComaModelFileProcessor processor(polyFiles);
 
             // Create grid for Stokes dataset - use a reasonable range around the DSMC data points
-            std::vector<double> stokesRadii = {dsmc_file.cometDistance * 1000.0,5000}; // Convert km to m
-            std::vector<double> stokesLongitudes = {dsmc_file.solarLongitude, 10};   // in degree
+            std::vector<double> stokesRadii = {5000, dsmc_file.cometDistance * 1000.0}; // Convert km to m
+            std::vector<double> stokesLongitudes = {6.0, dsmc_file.solarLongitude};   // in degree
 
             std::cout << "Creating Stokes dataset..." << std::endl;
             ComaStokesDataset stokesDataset = processor.createSHDataset(stokesRadii, stokesLongitudes);

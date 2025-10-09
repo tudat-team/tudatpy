@@ -694,6 +694,478 @@ BOOST_FIXTURE_TEST_CASE(test_dataset_transformer, TestDataPaths)
         std::invalid_argument);
 }
 
+BOOST_FIXTURE_TEST_CASE(test_stokes_dataset_creation_via_processor, TestDataPaths)
+{
+    // This test is similar to test_stokes_coefficients_evaluator, but instead of directly
+    // using the evaluate function, it uses the ComaModelFileProcessor class to create
+    // an SH dataset, then extracts and compares the Stokes coefficients.
+
+    const std::vector<std::string> files = {testFile.string()};
+    const ComaModelFileProcessor processor(files);
+
+    const int maxDegree = 10;
+    const int maxOrder = 10;
+
+    // Create radii and longitudes vectors - need at least 2 of each
+    // Include the test points: (0°, 4km) and (30°, 10km)
+    const std::vector<double> radii_m = {4000.0, 10000.0};  // 4 km, 10 km
+    const std::vector<double> lons_deg = {0.0, 30.0};       // 0°, 30°
+
+    // Create SH dataset using the processor
+    const ComaStokesDataset stokesDataset = processor.createSHDataset(radii_m, lons_deg, maxDegree, maxOrder);
+
+    // Verify dataset structure
+    BOOST_CHECK_EQUAL(stokesDataset.nFiles(), 1);
+    BOOST_CHECK_EQUAL(stokesDataset.nRadii(), 2);
+    BOOST_CHECK_EQUAL(stokesDataset.nLongitudes(), 2);
+    BOOST_CHECK_EQUAL(stokesDataset.nmax(), maxDegree);
+
+    // Construct paths to test data files
+    const boost::filesystem::path thisFile(__FILE__);
+    const boost::filesystem::path testDir = thisFile.parent_path();
+    const boost::filesystem::path dataDir = testDir / "test_data";
+    const boost::filesystem::path testFile1 = dataDir / "SH-d10-rp3-fft12__r_cometFixed_ep10-000_04km.txt";
+    const boost::filesystem::path testFile2 = dataDir / "SH-d10-rp3-fft12__r_cometFixed_ep10-030_10km.txt";
+
+    // Load expected values from both test files
+    StokesTestData expectedData1 = StokesTestData::readFromFile(testFile1.string(), maxDegree);
+    StokesTestData expectedData2 = StokesTestData::readFromFile(testFile2.string(), maxDegree);
+
+    // ========== Test Case 1: solar longitude = 0°, radius = 4 km ==========
+    // This corresponds to dataset indices: radius_index=0, longitude_index=0
+    {
+        // Get coefficient matrices from the dataset
+        auto [cosineCoefficients, sineCoefficients] = stokesDataset.getCoefficientMatrices(0, 0, 0);
+
+        // Check output dimensions
+        BOOST_CHECK_EQUAL(cosineCoefficients.rows(), maxDegree + 1);
+        BOOST_CHECK_EQUAL(cosineCoefficients.cols(), maxOrder + 1);
+        BOOST_CHECK_EQUAL(sineCoefficients.rows(), maxDegree + 1);
+        BOOST_CHECK_EQUAL(sineCoefficients.cols(), maxOrder + 1);
+
+        // Compare ALL coefficients against expected values from file
+        int numCoeffsChecked = 0;
+        for (int n = 0; n <= maxDegree; ++n)
+        {
+            for (int m = 0; m <= n; ++m)
+            {
+                // Check cosine coefficient
+                BOOST_CHECK_MESSAGE(
+                    std::abs(cosineCoefficients(n, m) - expectedData1.cosineCoeffs(n, m)) /
+                    std::max(std::abs(expectedData1.cosineCoeffs(n, m)), 1e-10) < 1e-10,
+                    "Cosine coefficient C(" << n << "," << m << ") mismatch: computed = "
+                    << cosineCoefficients(n, m) << ", expected = " << expectedData1.cosineCoeffs(n, m)
+                );
+
+                // Check sine coefficient
+                BOOST_CHECK_MESSAGE(
+                    std::abs(sineCoefficients(n, m) - expectedData1.sineCoeffs(n, m)) /
+                    std::max(std::abs(expectedData1.sineCoeffs(n, m)), 1e-10) < 1e-10,
+                    "Sine coefficient S(" << n << "," << m << ") mismatch: computed = "
+                    << sineCoefficients(n, m) << ", expected = " << expectedData1.sineCoeffs(n, m)
+                );
+
+                numCoeffsChecked++;
+            }
+        }
+        // Verify we checked the expected number of coefficients: sum from m=0 to n for n=0 to maxDegree
+        const int expectedNumCoeffs = (maxDegree + 1) * (maxDegree + 2) / 2;
+        BOOST_CHECK_EQUAL(numCoeffsChecked, expectedNumCoeffs);
+        BOOST_TEST_MESSAGE("Test Case 1 (via processor): Verified all " << numCoeffsChecked << " cosine and "
+                          << numCoeffsChecked << " sine coefficients (total: " << 2*numCoeffsChecked << ")");
+    }
+
+    // ========== Test Case 2: solar longitude = 30°, radius = 10 km ==========
+    // This corresponds to dataset indices: radius_index=1, longitude_index=1
+    {
+        // Get coefficient matrices from the dataset
+        auto [cosineCoefficients, sineCoefficients] = stokesDataset.getCoefficientMatrices(0, 1, 1);
+
+        // Check output dimensions
+        BOOST_CHECK_EQUAL(cosineCoefficients.rows(), maxDegree + 1);
+        BOOST_CHECK_EQUAL(cosineCoefficients.cols(), maxOrder + 1);
+        BOOST_CHECK_EQUAL(sineCoefficients.rows(), maxDegree + 1);
+        BOOST_CHECK_EQUAL(sineCoefficients.cols(), maxOrder + 1);
+
+        // Compare ALL coefficients against expected values from file
+        int numCoeffsChecked = 0;
+        for (int n = 0; n <= maxDegree; ++n)
+        {
+            for (int m = 0; m <= n; ++m)
+            {
+                // Check cosine coefficient
+                BOOST_CHECK_MESSAGE(
+                    std::abs(cosineCoefficients(n, m) - expectedData2.cosineCoeffs(n, m)) /
+                    std::max(std::abs(expectedData2.cosineCoeffs(n, m)), 1e-10) < 1e-10,
+                    "Cosine coefficient C(" << n << "," << m << ") mismatch: computed = "
+                    << cosineCoefficients(n, m) << ", expected = " << expectedData2.cosineCoeffs(n, m)
+                );
+
+                // Check sine coefficient
+                BOOST_CHECK_MESSAGE(
+                    std::abs(sineCoefficients(n, m) - expectedData2.sineCoeffs(n, m)) /
+                    std::max(std::abs(expectedData2.sineCoeffs(n, m)), 1e-10) < 1e-10,
+                    "Sine coefficient S(" << n << "," << m << ") mismatch: computed = "
+                    << sineCoefficients(n, m) << ", expected = " << expectedData2.sineCoeffs(n, m)
+                );
+
+                numCoeffsChecked++;
+            }
+        }
+        // Verify we checked the expected number of coefficients: sum from m=0 to n for n=0 to maxDegree
+        const int expectedNumCoeffs = (maxDegree + 1) * (maxDegree + 2) / 2;
+        BOOST_CHECK_EQUAL(numCoeffsChecked, expectedNumCoeffs);
+        BOOST_TEST_MESSAGE("Test Case 2 (via processor): Verified all " << numCoeffsChecked << " cosine and "
+                          << numCoeffsChecked << " sine coefficients (total: " << 2*numCoeffsChecked << ")");
+    }
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// ==================== ComaModel Tests ====================
+
+BOOST_AUTO_TEST_SUITE(test_coma_model)
+
+BOOST_FIXTURE_TEST_CASE(test_coma_model_number_density, TestDataPaths)
+{
+    // Load polynomial coefficients from test data file
+    const std::vector<std::string> files = {testFile.string()};
+    const ComaPolyDataset polyDataset = ComaPolyDatasetReader::readFromFiles(files);
+
+    const int maxDegree = 10;
+    const int maxOrder = 10;
+
+    // Molecular weight (arbitrary for number density test, but needed for constructor)
+    const double molecularWeight = 0.018;  // kg/mol (water vapor)
+
+    // Create Stokes dataset from polynomial dataset
+    // Use the test points from both test files as the grid
+    const std::vector<double> radii_m = {4000.0, 10000.0};  // 4 km, 10 km
+    const std::vector<double> lons_deg = {0.0, 30.0};       // 0°, 30°
+    const ComaModelFileProcessor processor(files);
+    const ComaStokesDataset stokesDataset = processor.createSHDataset(radii_m, lons_deg, maxDegree, maxOrder);
+
+    // Construct paths to residuals test data files
+    const boost::filesystem::path thisFile(__FILE__);
+    const boost::filesystem::path testDir = thisFile.parent_path();
+    const boost::filesystem::path dataDir = testDir / "test_data";
+
+    // Test with both polynomial and Stokes datasets
+    for (int datasetType = 0; datasetType < 2; ++datasetType)
+    {
+        const std::string datasetTypeName = (datasetType == 0) ? "Polynomial" : "Stokes";
+        BOOST_TEST_MESSAGE("========== Testing with " << datasetTypeName << " dataset ==========");
+
+        // ========== Test Case 1: solar longitude = 0°, radius = 4 km ==========
+        {
+            const boost::filesystem::path residualsFile1 = dataDir / "residual_r_cometFixed_ep10-000_04km.txt";
+            const double testRadius = 4000.0;  // 4 km in meters
+            const double testSolarLongitude = 0.0;  // 0 degrees in radians
+            const double testTime = 490708800;   // s since J2000
+
+            // Define state functions for solar longitude = 0°
+            // Solar longitude is calculated as atan2(y, x) of the Sun direction in body-fixed frame
+            // For solar longitude = 0°, we need Sun along the +X axis in body-fixed frame
+
+            // Sun state function - returns position of Sun along +X axis
+            auto sunStateFunction = []() -> Eigen::Vector6d {
+                Eigen::Vector6d state = Eigen::Vector6d::Zero();
+                state.segment(0, 3) = Eigen::Vector3d(1.0e11, 0.0, 0.0);  // Sun along +X axis
+                return state;
+            };
+
+            // Comet state function - returns position of comet at origin
+            auto cometStateFunction = []() -> Eigen::Vector6d {
+                return Eigen::Vector6d::Zero();
+            };
+
+            // Comet rotation function - returns identity matrix
+            auto cometRotationFunction = []() -> Eigen::Matrix3d {
+                return Eigen::Matrix3d::Identity();
+            };
+
+            // Create ComaModel based on dataset type
+            std::unique_ptr<ComaModel> comaModel;
+            if (datasetType == 0)
+            {
+                // Create with polynomial coefficients
+                comaModel = std::make_unique<ComaModel>(
+                    polyDataset,
+                    molecularWeight,
+                    sunStateFunction,
+                    cometStateFunction,
+                    cometRotationFunction,
+                    maxDegree,
+                    maxOrder
+                );
+            }
+            else
+            {
+                // Create with Stokes coefficients
+                comaModel = std::make_unique<ComaModel>(
+                    stokesDataset,
+                    molecularWeight,
+                    sunStateFunction,
+                    cometStateFunction,
+                    cometRotationFunction,
+                    maxDegree,
+                    maxOrder
+                );
+            }
+
+        // Read all data points from residuals file
+        std::ifstream file1(residualsFile1.string());
+        BOOST_REQUIRE_MESSAGE(file1.is_open(), "Cannot open residuals file: " + residualsFile1.string());
+
+        struct DataPoint {
+            double longitude_deg, latitude_deg, originalData, shEvaluation, difference;
+        };
+        std::vector<DataPoint> allPoints;
+
+        std::string line;
+        while (std::getline(file1, line))
+        {
+            std::istringstream iss(line);
+            DataPoint point;
+            if (iss >> point.longitude_deg >> point.latitude_deg >> point.originalData
+                    >> point.shEvaluation >> point.difference)
+            {
+                allPoints.push_back(point);
+            }
+        }
+        file1.close();
+
+        // Randomly select 100 points for testing
+        const int numTestPoints = 100;
+        std::vector<int> selectedIndices;
+        std::srand(12345);  // Fixed seed for reproducibility
+
+        if (allPoints.size() <= numTestPoints)
+        {
+            for (size_t i = 0; i < allPoints.size(); ++i)
+                selectedIndices.push_back(i);
+        }
+        else
+        {
+            std::vector<int> allIndices;
+            for (size_t i = 0; i < allPoints.size(); ++i)
+                allIndices.push_back(i);
+
+            for (int i = 0; i < numTestPoints; ++i)
+            {
+                int randomIndex = std::rand() % allIndices.size();
+                selectedIndices.push_back(allIndices[randomIndex]);
+                allIndices.erase(allIndices.begin() + randomIndex);
+            }
+        }
+
+        // Test the selected points
+        int failCount = 0;
+        for (int idx : selectedIndices)
+        {
+            const DataPoint& point = allPoints[idx];
+
+            // Convert to radians
+            const double longitude_rad = point.longitude_deg * M_PI / 180.0;
+            const double latitude_rad = point.latitude_deg * M_PI / 180.0;
+
+            // Call getNumberDensity from ComaModel
+            const double computedNumberDensity = comaModel->getNumberDensity(
+                testRadius,
+                longitude_rad,
+                latitude_rad,
+                testTime
+            );
+
+            // The expected value is in the 4th column (shEvaluation)
+            // Note: The test file contains log2(number_density), so we need to compare directly
+            const double expectedNumberDensity = point.shEvaluation;
+
+            const double tolerance = 1e-10;
+            const double diff = std::abs(computedNumberDensity - expectedNumberDensity);
+
+            if (diff > tolerance)
+            {
+                failCount++;
+                if (failCount <= 10)  // Only report first 10 failures
+                {
+                    BOOST_TEST_MESSAGE("Case 1 - Point " << idx << " mismatch: "
+                                      << "lon=" << point.longitude_deg << "°, lat=" << point.latitude_deg << "°, "
+                                      << "computed=" << computedNumberDensity << ", expected=" << expectedNumberDensity
+                                      << ", diff=" << diff);
+                }
+            }
+
+            BOOST_CHECK_MESSAGE(
+                diff <= tolerance,
+                "Number density mismatch at lon=" << point.longitude_deg << "°, lat=" << point.latitude_deg << "°"
+            );
+        }
+
+            BOOST_TEST_MESSAGE("Test Case 1 (" << datasetTypeName << ", 0°, 4km): Verified " << selectedIndices.size()
+                              << " randomly selected points out of " << allPoints.size()
+                              << " total, " << failCount << " failures");
+            BOOST_CHECK_EQUAL(failCount, 0);
+        }
+
+        // ========== Test Case 2: solar longitude = 30°, radius = 10 km ==========
+        {
+            const boost::filesystem::path residualsFile2 = dataDir / "residual_r_cometFixed_ep10-030_10km.txt";
+            const double testRadius = 10000.0;  // 10 km in meters
+            const double testSolarLongitude = 30.0 * M_PI / 180.0;  // 30 degrees in radians
+            const double testTime = 490708800;   // s since J2000
+
+            // Define state functions for solar longitude = 30°
+            // Solar longitude is calculated as atan2(y, x) of the Sun direction in body-fixed frame
+            // For solar longitude = 30°, we need Sun at angle 30° from +X axis in XY plane
+            // This means: x = cos(30°), y = sin(30°), z = 0
+
+            const double solarDistance = 1.0e11;  // Distance to Sun in meters
+            const double sunX = solarDistance * std::cos(testSolarLongitude);
+            const double sunY = solarDistance * std::sin(testSolarLongitude);
+
+            // Sun state function - returns position of Sun at 30° angle
+            auto sunStateFunction = [sunX, sunY]() -> Eigen::Vector6d {
+                Eigen::Vector6d state = Eigen::Vector6d::Zero();
+                state.segment(0, 3) = Eigen::Vector3d(sunX, sunY, 0.0);
+                return state;
+            };
+
+            // Comet state function - returns position of comet at origin
+            auto cometStateFunction = []() -> Eigen::Vector6d {
+                return Eigen::Vector6d::Zero();
+            };
+
+            // Comet rotation function - returns identity matrix
+            auto cometRotationFunction = []() -> Eigen::Matrix3d {
+                return Eigen::Matrix3d::Identity();
+            };
+
+            // Create ComaModel based on dataset type
+            std::unique_ptr<ComaModel> comaModel;
+            if (datasetType == 0)
+            {
+                // Create with polynomial coefficients
+                comaModel = std::make_unique<ComaModel>(
+                    polyDataset,
+                    molecularWeight,
+                    sunStateFunction,
+                    cometStateFunction,
+                    cometRotationFunction,
+                    maxDegree,
+                    maxOrder
+                );
+            }
+            else
+            {
+                // Create with Stokes coefficients
+                comaModel = std::make_unique<ComaModel>(
+                    stokesDataset,
+                    molecularWeight,
+                    sunStateFunction,
+                    cometStateFunction,
+                    cometRotationFunction,
+                    maxDegree,
+                    maxOrder
+                );
+            }
+
+        // Read all data points from residuals file
+        std::ifstream file2(residualsFile2.string());
+        BOOST_REQUIRE_MESSAGE(file2.is_open(), "Cannot open residuals file: " + residualsFile2.string());
+
+        struct DataPoint {
+            double longitude_deg, latitude_deg, originalData, shEvaluation, difference;
+        };
+        std::vector<DataPoint> allPoints;
+
+        std::string line;
+        while (std::getline(file2, line))
+        {
+            std::istringstream iss(line);
+            DataPoint point;
+            if (iss >> point.longitude_deg >> point.latitude_deg >> point.originalData
+                    >> point.shEvaluation >> point.difference)
+            {
+                allPoints.push_back(point);
+            }
+        }
+        file2.close();
+
+        // Randomly select 50 points for testing
+        const int numTestPoints = 50;
+        std::vector<int> selectedIndices;
+        std::srand(67890);  // Different seed from case 1
+
+        if (allPoints.size() <= numTestPoints)
+        {
+            for (size_t i = 0; i < allPoints.size(); ++i)
+                selectedIndices.push_back(i);
+        }
+        else
+        {
+            std::vector<int> allIndices;
+            for (size_t i = 0; i < allPoints.size(); ++i)
+                allIndices.push_back(i);
+
+            for (int i = 0; i < numTestPoints; ++i)
+            {
+                int randomIndex = std::rand() % allIndices.size();
+                selectedIndices.push_back(allIndices[randomIndex]);
+                allIndices.erase(allIndices.begin() + randomIndex);
+            }
+        }
+
+        // Test the selected points
+        int failCount = 0;
+        for (int idx : selectedIndices)
+        {
+            const DataPoint& point = allPoints[idx];
+
+            // Convert to radians
+            const double longitude_rad = point.longitude_deg * M_PI / 180.0;
+            const double latitude_rad = point.latitude_deg * M_PI / 180.0;
+
+            // Call getNumberDensity from ComaModel
+            const double computedNumberDensity = comaModel->getNumberDensity(
+                testRadius,
+                longitude_rad,
+                latitude_rad,
+                testTime
+            );
+
+            // The expected value is in the 4th column (shEvaluation)
+            const double expectedNumberDensity = point.shEvaluation;
+
+            const double tolerance = 1e-10;
+            const double diff = std::abs(computedNumberDensity - expectedNumberDensity);
+
+            if (diff > tolerance)
+            {
+                failCount++;
+                if (failCount <= 10)  // Only report first 10 failures
+                {
+                    BOOST_TEST_MESSAGE("Case 2 - Point " << idx << " mismatch: "
+                                      << "lon=" << point.longitude_deg << "°, lat=" << point.latitude_deg << "°, "
+                                      << "computed=" << computedNumberDensity << ", expected=" << expectedNumberDensity
+                                      << ", diff=" << diff);
+                }
+            }
+
+            BOOST_CHECK_MESSAGE(
+                diff <= tolerance,
+                "Number density mismatch at lon=" << point.longitude_deg << "°, lat=" << point.latitude_deg << "°"
+            );
+        }
+
+            BOOST_TEST_MESSAGE("Test Case 2 (" << datasetTypeName << ", 30°, 10km): Verified " << selectedIndices.size()
+                              << " randomly selected points out of " << allPoints.size()
+                              << " total, " << failCount << " failures");
+            BOOST_CHECK_EQUAL(failCount, 0);
+        }
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 // ==================== High-Level Interface Tests ====================
@@ -950,8 +1422,8 @@ BOOST_FIXTURE_TEST_CASE(test_processor_file_type_behavior, TestDataPaths)
     // Create test SH files first
     const std::vector<std::string> files = {testFile.string()};
     ComaModelFileProcessor polyProcessor(files);
-    std::vector<double> radii_m = {6000.0};
-    std::vector<double> lons_deg = {0.0};
+    std::vector<double> radii_m = {6000.0, 10000.0};  // Need at least 2 radii for interpolation
+    std::vector<double> lons_deg = {0.0, 30.0};       // Need at least 2 longitudes for interpolation
 
     boost::filesystem::path shTestDir = outputDir / "file_type_test";
     boost::filesystem::create_directories(shTestDir);

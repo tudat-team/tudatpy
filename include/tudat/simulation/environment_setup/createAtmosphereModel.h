@@ -1403,11 +1403,19 @@ public:
         // Build file metadata
         auto files = buildFileMeta( polyDataset );
 
-        // Create empty Stokes dataset
+        // Convert solar longitudes from degrees to radians
+        // The dataset will store radians internally for use with interpolators
+        std::vector<double> solLongitudes_rad(solLongitudes_deg.size());
+        for (std::size_t i = 0; i < solLongitudes_deg.size(); ++i)
+        {
+            solLongitudes_rad[i] = solLongitudes_deg[i] * M_PI / 180.0;
+        }
+
+        // Create empty Stokes dataset (with longitudes in radians)
         ComaStokesDataset stokesDataset = ComaStokesDataset::create(
                 std::move( files ),
                 radii_m,
-                solLongitudes_deg,
+                solLongitudes_rad,
                 effNmax );
 
         // Fill dataset with computed coefficients
@@ -1533,7 +1541,7 @@ private:
 
                 for(std::size_t li = 0; li < stokesDataset.nLongitudes( ); ++li)
                 {
-                    const double Lrad = stokesDataset.lons( )[ li ] * M_PI / 180.0;
+                    const double Lrad = stokesDataset.lons( )[ li ]; // already in radians
 
                     // Evaluate regular coefficients using existing method
                     StokesCoefficientsEvaluator::evaluate2D(
@@ -1565,7 +1573,7 @@ private:
             // Fill reduced coefficients (computed once per solar longitude, no radius dependency)
             for(std::size_t li = 0; li < stokesDataset.nLongitudes( ); ++li)
             {
-                const double Lrad = stokesDataset.lons( )[ li ] * M_PI / 180.0;
+                const double Lrad = stokesDataset.lons( )[ li ]; // already in radians
 
 
                 reducedC.setZero();
