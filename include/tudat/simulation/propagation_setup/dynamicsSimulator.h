@@ -223,7 +223,7 @@ void printStateVectorContent( const std::map< std::pair< int, int >, std::string
     std::cout << "[" << stateDescription << " entries], content description" << std::endl;
 
     // Loop trough propagated state types and body names
-    for( auto it: stateDescriptions )
+    for( auto it : stateDescriptions )
     {
         int startIndex = it.first.first;
         int variableSize = it.first.second;
@@ -250,7 +250,7 @@ void printPropagatedDependentVariableContent( std::map< std::pair< int, int >, s
     if( dependentVariableIds.size( ) > 0 )
     {
         std::cout << "[Vector entries], content description" << std::endl;
-        for( auto it: dependentVariableIds )
+        for( auto it : dependentVariableIds )
         {
             int startIndex = it.first.first;
             int variableSize = it.first.second;
@@ -452,10 +452,10 @@ public:
     DynamicsSimulator( const simulation_setup::SystemOfBodies& bodies,
                        const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings ):
         bodies_( bodies ), propagatorSettingsBase_( propagatorSettings )
-    { }
+    {}
 
     //! Virtual destructor
-    virtual ~DynamicsSimulator( ) { }
+    virtual ~DynamicsSimulator( ) {}
 
     //! This function numerically (re-)integrates the equations of motion.
     /*!
@@ -604,9 +604,9 @@ public:
             const std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > >& stateDerivativeModels,
             const std::map< propagators::IntegratedStateType, orbit_determination::StateDerivativePartialsMap >& stateDerivativePartials ):
         stateDerivativeModels_( stateDerivativeModels ), stateDerivativePartials_( stateDerivativePartials )
-    { }
+    {}
 
-    PredefinedSingleArcStateDerivativeModels( ) { }
+    PredefinedSingleArcStateDerivativeModels( ) {}
 
     std::vector< std::shared_ptr< SingleStateTypeDerivative< StateScalarType, TimeType > > > stateDerivativeModels_;
 
@@ -841,7 +841,7 @@ public:
                                                                          updateDependentVariableInterpolator ),
                                     areEquationsOfMotionToBeIntegrated,
                                     predefinedStateDerivativeModels )
-    { }
+    {}
 
     SingleArcDynamicsSimulator( const simulation_setup::SystemOfBodies& bodies,
                                 const std::shared_ptr< numerical_integrators::IntegratorSettings< TimeType > > integratorSettings,
@@ -865,10 +865,10 @@ public:
                                     printDependentVariableData,
                                     printStateData,
                                     updateDependentVariableInterpolator )
-    { }
+    {}
 
     //! Destructor
-    ~SingleArcDynamicsSimulator( ) { }
+    ~SingleArcDynamicsSimulator( ) {}
 
     //! This function numerically (re-)integrates the equations of motion.
     /*!
@@ -1088,7 +1088,7 @@ public:
                 propagationResults_->clearSolutionMaps( );
             }
 
-            for( auto bodyIterator: bodies_.getMap( ) )
+            for( auto bodyIterator : bodies_.getMap( ) )
             {
                 bodyIterator.second->updateConstantEphemerisDependentMemberQuantities( );
             }
@@ -1195,7 +1195,7 @@ public:
         return propagationResults_->getCumulativeComputationTimeHistory( );
     }
 
-        //! Function to return the map of number of cumulative function evaluations that was saved during numerical propagation.
+    //! Function to return the map of number of cumulative function evaluations that was saved during numerical propagation.
     /*!
      * Function to return the map of cumulative number of function evaluations that was saved during numerical propagation.
      * \return Map of cumulative number of function evaluations that was saved during numerical propagation.
@@ -1345,7 +1345,8 @@ private:
                                             propagationResults,
                                             dependentVariablesFunctions_,
                                             statePostProcessingFunction,
-                                            propagatorSettings_->getOutputSettings( ) );
+                                            propagatorSettings_->getOutputSettings( ),
+                                            dynamicsStateDerivative_ );
         }
         else
         {
@@ -1361,7 +1362,8 @@ private:
                                             propagationResults,
                                             dependentVariablesFunctions_,
                                             statePostProcessingFunction,
-                                            propagatorSettings_->getOutputSettings( ) );
+                                            propagatorSettings_->getOutputSettings( ),
+                                            dynamicsStateDerivative_ );
 
             integratorSettings_->initialTimeStep_ *= -1.0;
             integrateEquations< SimulationResults,
@@ -1374,7 +1376,8 @@ private:
                                             propagationResults,
                                             dependentVariablesFunctions_,
                                             statePostProcessingFunction,
-                                            propagatorSettings_->getOutputSettings( ) );
+                                            propagatorSettings_->getOutputSettings( ),
+                                            dynamicsStateDerivative_ );
             integratorSettings_->initialTimeStep_ *= -1.0;
         }
 
@@ -1495,11 +1498,19 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getArcInitialStateFromPrevio
             }
 
             // Interpolate to obtain initial state of current arc
-            currentArcInitialState =
-                    std::make_shared< interpolators::LagrangeInterpolator< TimeType,
-                                                                           Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >,
-                                                                           long double > >( initialStateInterpolationMap, 8 )
-                            ->interpolate( currentArcInitialTime );
+            try
+            {
+                currentArcInitialState =
+                        std::make_shared< interpolators::LagrangeInterpolator< TimeType,
+                                                                               Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >,
+                                                                               long double > >( initialStateInterpolationMap, 8 )
+                                ->interpolate( currentArcInitialTime );
+            }
+            catch( std::runtime_error& caughtException )
+            {
+                throw std::runtime_error( "Error in arc initial state interpolation.\nOriginal error: " +
+                                          std::string( caughtException.what( ) ) );
+            }
         }
     }
     return currentArcInitialState;
@@ -1670,7 +1681,7 @@ void checkPropagationResultsObjectConsistency(
         const std::shared_ptr< MultiArcSimulationResults< SingleArcSimulationResults, StateScalarType, TimeType > >
                 originalPropagationResults,
         const std::shared_ptr< SimulationResults > comparePropagationResults )
-{ }
+{}
 
 template< typename StateScalarType, typename TimeType >
 void checkPropagationResultsObjectConsistency(
@@ -1820,7 +1831,7 @@ public:
                                                                        setIntegratedResult,
                                                                        updateDependentVariableInterpolator ),
                                    areEquationsOfMotionToBeIntegrated )
-    { }
+    {}
 
     //! Constructor of multi-arc simulator for different integration settings per arc.
     /*!
@@ -1850,10 +1861,10 @@ public:
                                                                        setIntegratedResult,
                                                                        updateDependentVariableInterpolator ),
                                    areEquationsOfMotionToBeIntegrated )
-    { }
+    {}
 
     //! Destructor
-    ~MultiArcDynamicsSimulator( ) { }
+    ~MultiArcDynamicsSimulator( ) {}
 
     Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > getArcInitialState(
             const int arcIndex,
@@ -2018,7 +2029,7 @@ public:
                     {
                         throw std::runtime_error( "Error when resetting multi-arc states, no state processors found" );
                     }
-                    for( auto itr: currentArcStateProcessors )
+                    for( auto itr : currentArcStateProcessors )
                     {
                         singleArcIntegratedStatesProcessors[ itr.first ].push_back( itr.second );
                     }
@@ -2027,7 +2038,7 @@ public:
                 std::map< IntegratedStateType, std::shared_ptr< MultiArcIntegratedStateProcessor< TimeType, StateScalarType > > >
                         multiArcStateProcessors = createMultiArcIntegratedStateProcessors(
                                 bodies_, propagationResults_->getArcStartTimes( ), singleArcIntegratedStatesProcessors );
-                for( auto itr: multiArcStateProcessors )
+                for( auto itr : multiArcStateProcessors )
                 {
                     itr.second->processIntegratedMultiArcStates(
                             propagationResults_->getConcatenatedEquationsOfMotionResults(
@@ -2365,7 +2376,7 @@ public:
                                                                          updateDependentVariableInterpolator ),
                                     areEquationsOfMotionToBeIntegrated,
                                     addSingleArcBodiesToMultiArcDynamics )
-    { }
+    {}
 
     //    HybridArcDynamicsSimulator(
     //            const simulation_setup::SystemOfBodies& bodies,
@@ -2384,7 +2395,7 @@ public:
     //                                    areEquationsOfMotionToBeIntegrated, addSingleArcBodiesToMultiArcDynamics,
     //                                    updateDependentVariableInterpolator ){ }
     //! Destructor
-    ~HybridArcDynamicsSimulator( ) { }
+    ~HybridArcDynamicsSimulator( ) {}
 
     //! This function numerically (re-)integrates the equations of motion, using concatenated states for single and multi-arcs
     /*!

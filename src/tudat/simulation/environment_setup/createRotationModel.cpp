@@ -589,7 +589,8 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
                                                                             iauRotationModelSettings->rotationRate_,
                                                                             iauRotationModelSettings->polePrecession_,
                                                                             iauRotationModelSettings->meridianPeriodicTerms_,
-                                                                            iauRotationModelSettings->polePeriodicTerms_ );
+                                                                            iauRotationModelSettings->polePeriodicTerms_,
+                                                                            iauRotationModelSettings->referenceEpochJ2000_ );
             }
 
             break;

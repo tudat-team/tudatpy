@@ -51,10 +51,10 @@ public:
             const std::shared_ptr< ObservationBias< 2 > > observationBiasCalculator = nullptr ):
         ObservationModel< 2, ObservationScalarType, TimeType >( angular_position, linkEnds, observationBiasCalculator ),
         lightTimeCalculator_( lightTimeCalculator )
-    { }
+    {}
 
     //! Destructor
-    ~AngularPositionObservationModel( ) { }
+    ~AngularPositionObservationModel( ) {}
 
     //! Function to compute ideal angular position observation at given time.
     /*!
@@ -76,9 +76,11 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
-
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetingsInput = nullptr )
     {
+        std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings;
+        this->setFrequencyProperties( time, linkEndAssociatedWithTime, lightTimeCalculator_, ancilliarySetingsInput, ancilliarySetings );
+
         // Check link end associated with input time and compute observable
         bool isTimeAtReception;
         if( linkEndAssociatedWithTime == receiver )
@@ -106,12 +108,6 @@ public:
         // Compute light-time and receiver/transmitter states.
         ObservationScalarType lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
                 receiverState, transmitterState, time, isTimeAtReception, ancilliarySetings );
-
-        //        // Compute spherical relative position
-        //        Eigen::Matrix< ObservationScalarType, 3, 1 > sphericalRelativeCoordinates =
-        //                coordinate_conversions::convertCartesianToSpherical< ObservationScalarType >(
-        //                    transmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 ) ).
-        //                template cast< ObservationScalarType >( );
 
         Eigen::Matrix< ObservationScalarType, 3, 1 > relativePosition = transmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 );
 
