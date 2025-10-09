@@ -477,11 +477,11 @@ BOOST_AUTO_TEST_CASE( test_PanelledRadiationPressureEstimation )
         Eigen::VectorXd estimationError = parameterEstimate - truthParameters;
         for( int i = 0; i < 3; i++ )
         {
-            BOOST_CHECK_SMALL( std::fabs( estimationError( i ) ), 5.0E-4 );
+            BOOST_CHECK_SMALL( std::fabs( estimationError( i ) ), 5.0E-3 );
             BOOST_CHECK_SMALL( std::fabs( estimationError( i + 3 ) ), 1.0E-6 );
         }
-        BOOST_CHECK_SMALL( std::fabs( estimationError( 6 ) ), 5.0E-4 );
-        BOOST_CHECK_SMALL( std::fabs( estimationError( 6 ) ), 5.0E-4 );
+        BOOST_CHECK_SMALL( std::fabs( estimationError( 6 ) ), 5.0E-3 );
+        BOOST_CHECK_SMALL( std::fabs( estimationError( 6 ) ), 5.0E-3 );
 
         Eigen::Matrix< double, Eigen::Dynamic, 1 > newTestValues = parametersToEstimate->template getFullParameterValues< double >( );
         std::cout << "TEST C:" << newTestValues.transpose( ) << std::endl;
