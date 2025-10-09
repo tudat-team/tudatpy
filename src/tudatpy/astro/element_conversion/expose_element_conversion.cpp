@@ -40,7 +40,7 @@ namespace element_conversion
 
 void expose_element_conversion( py::module& m )
 {
-    py::module_::import( "tudatpy.math.root_finders" );
+    py::module_::import( "tudatpy.kernel.math.root_finders" );
     py::enum_< toec::KeplerianElementIndices >( m,
                                                 "KeplerianElementIndices",
                                                 R"doc(
@@ -188,18 +188,18 @@ Enumeration describing different types of position element types (typically used
      )doc" );
 
     m.def( "convert_geographic_to_geodetic_latitude",
-    &tcc::convertGeographicToGeodeticLatitude,
-    py::arg( "geographic_latitude" ),
-    py::arg( "equatorial_radius" ),
-    py::arg( "flattening" ),
-    py::arg( "altitude" ),
-    py::arg( "tolerance" ),
-    py::arg( "maximum_number_of_iterations" ),
-    R"doc(
+           &tcc::convertGeographicToGeodeticLatitude,
+           py::arg( "geographic_latitude" ),
+           py::arg( "equatorial_radius" ),
+           py::arg( "flattening" ),
+           py::arg( "altitude" ),
+           py::arg( "tolerance" ),
+           py::arg( "maximum_number_of_iterations" ),
+           R"doc(
 
  Convert geographic latitude to geodetic latitude.
 
- This function converts a geographic latitude to a geodetic latitude, given the equatorial radius, flattening, altitude, 
+ This function converts a geographic latitude to a geodetic latitude, given the equatorial radius, flattening, altitude,
  and a convergence tolerance. The conversion is performed iteratively, with a maximum number of iterations allowed.
 
  Parameters
@@ -300,8 +300,7 @@ Enumeration describing different types of position element types (typically used
      )doc" );
 
     m.def( "keplerian_to_cartesian",
-           py::overload_cast< const Eigen::Vector6d&, double >(
-                   &toec::convertKeplerianToCartesianElements< double > ),
+           py::overload_cast< const Eigen::Vector6d&, double >( &toec::convertKeplerianToCartesianElements< double > ),
            py::arg( "keplerian_elements" ),
            py::arg( "gravitational_parameter" ),
            R"doc(
@@ -857,8 +856,7 @@ Enumeration describing different types of position element types (typically used
      */
 
     m.def( "keplerian_to_mee_manual_singularity",
-           py::overload_cast< const Eigen::Vector6d&, const bool >(
-                   &toec::convertKeplerianToModifiedEquinoctialElements< double > ),
+           py::overload_cast< const Eigen::Vector6d&, const bool >( &toec::convertKeplerianToModifiedEquinoctialElements< double > ),
            py::arg( "keplerian_elements" ),
            py::arg( "singularity_at_zero_inclination" ),
            R"doc(
@@ -890,8 +888,7 @@ Enumeration describing different types of position element types (typically used
      )doc" );
 
     m.def( "keplerian_to_mee",
-           py::overload_cast< const Eigen::Vector6d& >(
-                   &toec::convertKeplerianToModifiedEquinoctialElements< double > ),
+           py::overload_cast< const Eigen::Vector6d& >( &toec::convertKeplerianToModifiedEquinoctialElements< double > ),
            py::arg( "keplerian_elements" ),
            R"doc(
 
@@ -978,8 +975,7 @@ Enumeration describing different types of position element types (typically used
      )doc" );
 
     m.def( "cartesian_to_mee",
-           py::overload_cast< const Eigen::Vector6d&, const double >(
-                   &toec::convertCartesianToModifiedEquinoctialElements< double > ),
+           py::overload_cast< const Eigen::Vector6d&, const double >( &toec::convertCartesianToModifiedEquinoctialElements< double > ),
            py::arg( "cartesian_elements" ),
            py::arg( "gravitational_parameter" ),
            R"doc(
@@ -1085,8 +1081,7 @@ Enumeration describing different types of position element types (typically used
      */
 
     m.def( "spherical_to_cartesian_elementwise",
-           py::overload_cast< double, double, double, double, double, double >(
-                   &toec::convertSphericalOrbitalToCartesianState< double > ),
+           py::overload_cast< double, double, double, double, double, double >( &toec::convertSphericalOrbitalToCartesianState< double > ),
            py::arg( "radial_distance" ),
            py::arg( "latitude" ),
            py::arg( "longitude" ),
@@ -1125,8 +1120,7 @@ Enumeration describing different types of position element types (typically used
      )doc" );
 
     m.def( "spherical_to_cartesian",
-           py::overload_cast< const Eigen::Vector6d& >(
-                   &toec::convertSphericalOrbitalToCartesianState< double > ),
+           py::overload_cast< const Eigen::Vector6d& >( &toec::convertSphericalOrbitalToCartesianState< double > ),
            py::arg( "spherical_elements" ),
            R"doc(
 

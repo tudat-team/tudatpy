@@ -251,7 +251,15 @@ public:
         }
 
         // Give output
-        return interpolatorForDensity_->interpolate( independentVariableData_ );
+        try
+        {
+            return interpolatorForDensity_->interpolate( independentVariableData_ );
+        }
+        catch( std::runtime_error& caughtException )
+        {
+            throw std::runtime_error( "Error in tabulated density.\nOriginal error: " + std::string( caughtException.what( ) ) );
+        }
+
     }
 
     //! Get local pressure.
@@ -287,7 +295,15 @@ public:
         }
 
         // Give output
-        return interpolatorForPressure_->interpolate( independentVariableData );
+        try
+        {
+            return interpolatorForPressure_->interpolate( independentVariableData );
+        }
+        catch( std::runtime_error& caughtException )
+        {
+            throw std::runtime_error( "Error in tabulated pressure.\nOriginal error: " + std::string( caughtException.what( ) ) );
+        }
+
     }
 
     //! Get local temperature.
@@ -323,7 +339,15 @@ public:
         }
 
         // Give output
-        return interpolatorForTemperature_->interpolate( independentVariableData );
+        try
+        {
+            return interpolatorForTemperature_->interpolate( independentVariableData );
+        }
+        catch( std::runtime_error& caughtException )
+        {
+            throw std::runtime_error( "Error in tabulated temperature.\nOriginal error: " + std::string( caughtException.what( ) ) );
+        }
+
     }
 
     //! Get specific gas constant.
@@ -364,7 +388,16 @@ public:
             }
 
             // Give output
-            return interpolatorForGasConstant_->interpolate( independentVariableData );
+
+            try
+            {
+                return interpolatorForGasConstant_->interpolate( independentVariableData );
+            }
+            catch( std::runtime_error& caughtException )
+            {
+                throw std::runtime_error( "Error in tabulated gas constant.\nOriginal error: " + std::string( caughtException.what( ) ) );
+            }
+
         }
         else
         {
@@ -410,7 +443,15 @@ public:
             }
 
             // Give output
-            return interpolatorForSpecificHeatRatio_->interpolate( independentVariableData );
+            try
+            {
+                return interpolatorForSpecificHeatRatio_->interpolate( independentVariableData );
+            }
+            catch( std::runtime_error& caughtException )
+            {
+                throw std::runtime_error( "Error in tabulated specific heat ratio.\nOriginal error: " + std::string( caughtException.what( ) ) );
+            }
+
         }
         else
         {
@@ -453,7 +494,15 @@ public:
             }
 
             // Give output
-            return interpolatorForMolarMass_->interpolate( independentVariableData );
+            try
+            {
+                return interpolatorForMolarMass_->interpolate( independentVariableData );
+            }
+            catch( std::runtime_error& caughtException )
+            {
+                throw std::runtime_error( "Error in tabulated molar mass.\nOriginal error: " + std::string( caughtException.what( ) ) );
+            }
+
         }
         else
         {
