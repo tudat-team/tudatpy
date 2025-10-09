@@ -83,6 +83,17 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
             {
                 throw std::runtime_error( "Error when making coma wind model for body " + body + ", atmosphere model must be a ComaModel" );
             }
+
+            // Check that required bodies exist in the system
+            if( bodies.count( "Sun" ) == 0 )
+            {
+                throw std::runtime_error( "Error when making coma wind model for body " + body + ", Sun body not found in system of bodies" );
+            }
+            if( bodies.count( body ) == 0 )
+            {
+                throw std::runtime_error( "Error when making coma wind model for body " + body + ", body " + body + " not found in system of bodies" );
+            }
+
             std::function< Eigen::Vector6d( ) > sunStateFunction =
                         std::bind( &simulation_setup::Body::getState, bodies.at( "Sun" ) );
             std::function< Eigen::Vector6d( ) > bodyStateFunction =
@@ -349,6 +360,16 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
             }
             else
             {
+                // Check that required bodies exist in the system
+                if( bodies.count( "Sun" ) == 0 )
+                {
+                    throw std::runtime_error( "Error when making coma model for body " + body + ", Sun body not found in system of bodies" );
+                }
+                if( bodies.count( body ) == 0 )
+                {
+                    throw std::runtime_error( "Error when making coma model for body " + body + ", body " + body + " not found in system of bodies" );
+                }
+
                 std::function< Eigen::Vector6d( ) > sunStateFunction =
                         std::bind( &simulation_setup::Body::getState, bodies.at( "Sun" ) );
                 std::function< Eigen::Vector6d( ) > bodyStateFunction =
