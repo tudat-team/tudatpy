@@ -1,5 +1,12 @@
 # Generated files
-examples
+examples/*
+!examples/tudat/
+examples/tudat/*
+!examples/tudat/tudat/
+examples/tudat/tudat/*
+!examples/tudat/tudat/applications/
+examples/tudat/tudat/applications/*
+!examples/tudat/tudat/applications/CMakeLists.txt
 !examples/tudat/tudat/applications/coma_analysis/
 lib/
 libs/
