@@ -63,7 +63,15 @@ public:
     {
         std::vector< double > query = { time, latitude, longitude };
         lastQuery_ = query;
-        return tecInterpolator_->interpolate( query );
+        try
+        {
+            return tecInterpolator_->interpolate( query );
+        }
+        catch( std::runtime_error& caughtException )
+        {
+            throw std::runtime_error( "Error in TEC interpolator.\nOriginal error: " + std::string( caughtException.what( ) ) );
+        }
+
     }
 
     //! For debugging — return last query

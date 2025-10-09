@@ -78,10 +78,10 @@ public:
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
         ObservationModel< 1, ObservationScalarType, TimeType >( one_way_differenced_range, linkEnds, observationBiasCalculator ),
         arcStartLightTimeCalculator_( arcStartLightTimeCalculator ), arcEndLightTimeCalculator_( arcEndLightTimeCalculator )
-    { }
+    {}
 
     //! Destructor
-    ~OneWayDifferencedRangeObservationModel( ) { }
+    ~OneWayDifferencedRangeObservationModel( ) {}
 
     //! Function to compute one-way differenced range observable without any corrections.
     /*!
@@ -102,11 +102,11 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
+            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetingsInput = nullptr )
     {
         ObservationScalarType lightTimeAtStartInterval;
         ObservationScalarType lightTimeAtEndInterval;
-        if( ancilliarySetings == nullptr )
+        if( ancilliarySetingsInput == nullptr )
         {
             throw std::runtime_error(
                     "Error when simulating one-way averaged Doppler observable; no ancilliary settings found. Ancilliary settings are "
@@ -115,7 +115,7 @@ public:
         TimeType currentIntegrationTime;
         try
         {
-            currentIntegrationTime = ancilliarySetings->getAncilliaryDoubleData( doppler_integration_time, true );
+            currentIntegrationTime = ancilliarySetingsInput->getAncilliaryDoubleData( doppler_integration_time, true );
         }
         catch( std::runtime_error& caughtException )
         {
@@ -134,10 +134,15 @@ public:
             linkEndTimes[ 3 ] = static_cast< double >( time ) + currentIntegrationTime / 2.0;
 
             // Calculate light times at the start of the reception interval
+            std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings;
+            this->setFrequencyProperties(
+                    linkEndTimes[ 1 ], linkEndAssociatedWithTime, arcStartLightTimeCalculator_, ancilliarySetingsInput, ancilliarySetings );
             lightTimeAtStartInterval = arcStartLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
                     receiverStateAtArcStart, transmitterStateAtArcStart, linkEndTimes[ 1 ], 1, ancilliarySetings );
 
             // Calculate light times at the end of the reception interval
+            this->setFrequencyProperties(
+                    linkEndTimes[ 3 ], linkEndAssociatedWithTime, arcEndLightTimeCalculator_, ancilliarySetingsInput, ancilliarySetings );
             lightTimeAtEndInterval = arcEndLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
                     receiverStateAtArcEnd, transmitterStateAtArcEnd, linkEndTimes[ 3 ], 1, ancilliarySetings );
 
@@ -151,12 +156,17 @@ public:
             linkEndTimes[ 2 ] = static_cast< double >( time ) + currentIntegrationTime / 2.0;
 
             // Calculate light times at the start of the reception interval
+            std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings;
+            this->setFrequencyProperties(
+                    linkEndTimes[ 2 ], linkEndAssociatedWithTime, arcEndLightTimeCalculator_, ancilliarySetingsInput, ancilliarySetings );
             lightTimeAtEndInterval = arcEndLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
                     receiverStateAtArcEnd, transmitterStateAtArcEnd, linkEndTimes[ 2 ], 0, ancilliarySetings );
 
             linkEndTimes[ 3 ] = linkEndTimes[ 2 ] + static_cast< double >( lightTimeAtEndInterval );
 
             // Calculate light times at the end of the reception interval
+            this->setFrequencyProperties(
+                    linkEndTimes[ 0 ], linkEndAssociatedWithTime, arcStartLightTimeCalculator_, ancilliarySetingsInput, ancilliarySetings );
             lightTimeAtStartInterval = arcStartLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
                     receiverStateAtArcStart, transmitterStateAtArcStart, linkEndTimes[ 0 ], 0, ancilliarySetings );
 

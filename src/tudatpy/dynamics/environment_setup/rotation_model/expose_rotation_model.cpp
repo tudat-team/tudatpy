@@ -576,8 +576,10 @@ void expose_rotation_model_setup( py::module& m )
  This function is typically used for simulating the (guided) dynamics of a spacecraft under thrust, where the thrust is provided in the x-direction of the body-fixed frame. By providing a suitable
  ``inertial_body_axis_direction``, this thrust can be defined to point in an arbitrary direction (typically defined by a guidance algorithm) in the inertial frame as a function of time.
 
- NOTE: this function may be extended in the future to allow an arbitrary body-fixed direction to align with an arbitrary inertial direction. At present, its functionality is limited to imposing the inertial direction of the body-fixed x-axis.
-
+ NOTE: the ``inertial_body_axis_direction`` is called with a ``NaN`` input at the start of each function evaluation of the full state derivative.
+ This signals the start of a new evaluation and can be used to make custom models more efficient if multiple (related) custom functions are
+ implemented in a single class `custom model user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/custom-models.html>`_.
+ However, this does require that calling the ``inertial_body_axis_direction`` with NaN input does not result in an exception.
 
  Parameters
  ----------
@@ -987,7 +989,56 @@ void expose_rotation_model_setup( py::module& m )
            py::arg( "rotation_rate" ),
            py::arg( "pole_precession" ),
            py::arg( "merdian_periodic_terms" ),
-           py::arg( "pole_periodic_terms" ) );
+           py::arg( "pole_periodic_terms" ),
+           py::arg( "reference_epoch_j2000" ) = 0.0,
+           R"doc(
+
+ Function for creating a body rotation model using the typical formulation used by the IAU
+
+ Function for creating a body rotation model using the typical formulation used by the International
+ Astronomical Union (IAU), such as those in ::cite:p:`archinal2018`. It uses the following formulation
+ :math:`\mathbf{R}^{(B/I)}(t)` for the body-fixed to inertial rotation, defined by the rotation
+ pole right ascension and declination (:math:`\alpha` and :math:`\delta`), and the prime meridian angle :math:`W`:
+
+ .. math::
+    \mathbf{R}^{(B/I)}(t)=\mathbf{R}_{z}(W(t))\mathbf{R}_{x}(\pi/2-\delta(t))\mathbf{R}_{z}(\pi/2+\alpha(t))
+
+ Unlike the :func:`~simple` rotation model, which has a similar formulation, the rotation angles :math:`W`, :math:`\alpha` and :math:`\delta` are
+ functions of time:
+
+ .. math::
+    W(t)=W_{0}+\dot{W}(t-t_{0})+\sum_{i}W_{i}\sin(\omega_{W_i}(t-t_{0})+\phi_{W_i})\\
+    \alpha(t)=\alpha_{0}+\dot{\alpha}(t-t_{0})+\sum_{i}\alpha_{i}\sin(\omega_{N_i}t(t-t_{0})+\phi_{N_i})\\
+    \delta(t)=\delta_{0}+\dot{\delta}(t-t_{0})+\sum_{i}\delta_{i}\cos(\omega_{N_i}t(t-t_{0})+\phi_{N_i})\\
+
+ so that the angles are a combination of a linear term (rotation rate for :math:`W`; precession for :math:`\alpha` and :math:`\delta`)
+ and a series of periodic terms (typically termed librations for :math:`W` and nutation for :math:`\alpha` and :math:`\delta`).
+
+ Parameters
+ ----------
+ base_frame : str
+     Name of the base frame of rotation model (typically "J2000" or "ECLIPJ2000").
+ target_frame : str
+     Name of the target (body-fixed) frame of rotation model.
+ nominal_meridian : float
+     Value of :math:`W_{0}`
+ nominal_pole : numpy.ndarray[numpy.float64[2, 1]]
+     Values of :math:`[\alpha_{0},\delta_{0}]`
+ rotation_rate : float
+     Value of :math:`\dot{W}`
+ pole_precession : numpy.ndarray[numpy.float64[2, 1]]
+     Values of :math:`[\dot{\alpha},\dot{\delta}]`
+ merdian_periodic_terms : dict[float, tuple[float, float]]
+     Libration terms in :math:`W` that are to be used. Dictionary key is value of :math:`\omega_{W_i}`. Value is a pair consisting of [:math:`W_{i}`,:math:`\phi_{W_{i}}`]
+ pole_periodic_terms : list[dict[float, tuple[numpy.ndarray[numpy.float64[2, 1]], float]]]
+     Nutation terms for :math:`\alpha,\delta` that are to be used. Dictionary key is value of :math:`\omega_{N_{i}}`. Value is a pair consisting of [[:math:`\alpha_{i},\delta_{i}`],:math:`\phi_{N_{i}}`]
+
+ Returns
+ -------
+ RotationModelSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings` class
+
+     )doc" );
 }
 }  // namespace rotation_model
 }  // namespace environment_setup
