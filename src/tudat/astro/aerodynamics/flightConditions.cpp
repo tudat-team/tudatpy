@@ -153,9 +153,19 @@ void AtmosphericFlightConditions::updateAtmosphereInput( )
         computeUtc( );
     }
 
-    if( isScalarFlightConditionComputed_.at( altitude_flight_condition ) == 0 )
+    if( atmosphereModel_->getUseRadius( ) )
     {
-        computeAltitude( );
+        if( isScalarFlightConditionComputed_.at( radius_flight_condition ) == 0 )
+        {
+            computeRadius( );
+        }
+    }
+    else
+    {
+        if( isScalarFlightConditionComputed_.at( altitude_flight_condition ) == 0 )
+        {
+            computeAltitude( );
+        }
     }
 }
 

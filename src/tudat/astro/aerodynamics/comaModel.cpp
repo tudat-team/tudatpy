@@ -39,6 +39,7 @@ ComaModel::ComaModel( const simulation_setup::ComaPolyDataset& polyDataset,
                       std::function<Eigen::Matrix3d()> cometRotationFunction,
                       const int& maximumDegree,
                       const int& maximumOrder ) :
+    AtmosphereModel( false, false, true ),  // Use radius instead of altitude
     dataType_( ComaDataType::POLYNOMIAL_COEFFICIENTS ),
     molecularWeight_( molecularWeight ),
     maximumDegree_( maximumDegree ),
@@ -85,6 +86,7 @@ ComaModel::ComaModel( const simulation_setup::ComaStokesDataset& stokesDataset,
                       std::function<Eigen::Matrix3d()> cometRotationFunction,
                       const int& maximumDegree,
                       const int& maximumOrder ) :
+    AtmosphereModel( false, false, true ),  // Use radius instead of altitude
     dataType_( ComaDataType::STOKES_COEFFICIENTS ),
     molecularWeight_( molecularWeight ),
     maximumDegree_( maximumDegree ),
