@@ -251,6 +251,34 @@ BOOST_AUTO_TEST_CASE( testGaussPopagatorForPointMassCentralBodies )
             gaussIterator++;
             cowellIterator++;
         }
+
+        std::shared_ptr< SingleArcSimulationResults< double, double > > simulatorResults =
+                dynamicsSimulator.getSingleArcPropagationResults( );
+        std::map< double, unsigned int > functionEvaluations1 = simulatorResults->getCumulativeNumberOfFunctionEvaluations( );
+        std::map< double, unsigned int > functionEvaluations2 = simulatorResults->getCumulativeNumberOfFunctionEvaluationsTimeType( );
+
+        std::map< double, unsigned int >::iterator functionEvaluationsIterator = functionEvaluations1.begin( );
+        std::map< double, unsigned int >::iterator functionEvaluationsIteratorIncremented = functionEvaluations1.begin( );
+        functionEvaluationsIteratorIncremented++;
+
+        std::map< double, unsigned int >::iterator functionEvaluations2Iterator = functionEvaluations2.begin( );
+        std::map< double, unsigned int >::iterator functionEvaluations2IteratorIncremented = functionEvaluations2.begin( );
+        functionEvaluations2IteratorIncremented++;
+
+        while( functionEvaluationsIteratorIncremented != functionEvaluations1.end( ) )
+        {
+            BOOST_CHECK_SMALL( ( functionEvaluationsIteratorIncremented->first - functionEvaluationsIterator->first ) - 250.0,
+                               1.0E3 * std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_EQUAL( functionEvaluationsIteratorIncremented->second - functionEvaluationsIterator->second, 4.0 );
+            functionEvaluationsIterator++;
+            functionEvaluationsIteratorIncremented++;
+
+            BOOST_CHECK_SMALL( ( functionEvaluations2IteratorIncremented->first - functionEvaluations2Iterator->first ) - 250.0,
+                               1.0E3 * std::numeric_limits< double >::epsilon( ) );
+            BOOST_CHECK_EQUAL( functionEvaluations2IteratorIncremented->second - functionEvaluations2Iterator->second, 4.0 );
+            functionEvaluations2Iterator++;
+            functionEvaluations2IteratorIncremented++;
+        }
     }
 }
 

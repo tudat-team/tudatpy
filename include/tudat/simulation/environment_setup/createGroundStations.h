@@ -374,6 +374,12 @@ std::shared_ptr< ephemerides::Ephemeris > createReferencePointEphemerisFromId(
                         bodyWithLinkEnd->getVehicleSystems( )->getReferencePointEphemerisInBodyFixedFrame( referencePointName );
                 std::shared_ptr< ephemerides::RotationalEphemeris > bodyRotationModel = bodyWithLinkEnd->getRotationalEphemeris( );
 
+                if( bodyRotationModel == nullptr )
+                {
+                    throw std::runtime_error( "Error when defining reference point ephemeris for body " + bodyWithLinkEnd->getBodyName( ) +
+                                              " body has not rotation model defined." );
+                }
+
                 if( ( referencePointEphemeris->getReferenceFrameOrientation( ) != "" ) &&
                     ( referencePointEphemeris->getReferenceFrameOrientation( ) != bodyRotationModel->getTargetFrameOrientation( ) ) )
                 {
