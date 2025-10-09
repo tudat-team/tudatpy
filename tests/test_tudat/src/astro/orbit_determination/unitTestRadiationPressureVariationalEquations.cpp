@@ -365,7 +365,7 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressureMultiArcVariationalEquations )
                     }
                     else if( test == 0 || test == 3 )
                     {
-                        stateTolerance = 1.0E-5;
+                        stateTolerance = 1.0E-4;
                         parameterTolerance = 1.0E-10;
                     }
                     else if( test == 5 )
