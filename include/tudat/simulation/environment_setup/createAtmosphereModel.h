@@ -3386,7 +3386,7 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
  */
 std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const std::shared_ptr< AtmosphereSettings > atmosphereSettings,
                                                                         const std::string& body,
-                                                                        const SystemOfBodies& bodies );
+                                                                        const SystemOfBodies& bodies = SystemOfBodies() );
 } // namespace simulation_setup
 } // namespace tudat
 

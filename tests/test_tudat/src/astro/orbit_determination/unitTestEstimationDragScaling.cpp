@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationDragScaling )
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );
         bodies.at( "Mars" )->setAtmosphereModel(
                 createAtmosphereModel( std::make_shared< ExponentialAtmosphereSettings >( aerodynamics::mars ),
-                                       "Mars", bodies ) );
+                                       "Mars" ) );
         bodies.at( "MGS" )->setConstantBodyMass( 2.0 );
 
         Eigen::Vector3d forceCoefficients( 1.0, 0.0, 0.0 );
