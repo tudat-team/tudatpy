@@ -168,7 +168,16 @@ public:
 
     void updateCurrentCoefficients( const double time )
     {
-        currentCoefficients_ = coefficientInterpolator_->interpolate( time );
+        try
+        {
+            currentCoefficients_ = coefficientInterpolator_->interpolate( time );
+        }
+        catch( std::runtime_error& caughtException )
+        {
+            throw std::runtime_error( "Error in arc-wise drag coefficient.\nOriginal error: " + std::string( caughtException.what( ) ) );
+        }
+
+
     }
 
     Eigen::Vector6d getCurrentCoefficients( )

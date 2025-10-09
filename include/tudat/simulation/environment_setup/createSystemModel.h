@@ -268,12 +268,13 @@ public:
     std::map< std::string, std::shared_ptr< RotationModelSettings > > partRotationModelSettings_;
 };
 
-inline std::vector< std::shared_ptr< BodyPanelSettings > > bodyPanelSettingsListFromDae( 
-    const std::string filePath,
-    const Eigen::Vector3d frameOrigin,
-    std::map< std::string, std::shared_ptr< MaterialProperties> > materialPropertiesMap, 
-    std::map< std::string, bool > instantaneousReradiation,
-    const std::string frameOrientation = "")
+inline std::vector< std::shared_ptr< BodyPanelSettings > > bodyPanelSettingsListFromDae(
+        const std::string filePath,
+        const Eigen::Vector3d frameOrigin,
+        std::map< std::string, std::shared_ptr< MaterialProperties > > materialPropertiesMap,
+        std::map< std::string, bool > instantaneousReradiation,
+        const std::string inputUnit = "m",
+        const std::string frameOrientation = "" )
 {
     std::vector< std::shared_ptr< BodyPanelSettings > > bodyPanelSettingsList;
     std::ifstream file(filePath);
@@ -334,9 +335,18 @@ inline std::vector< std::shared_ptr< BodyPanelSettings > > bodyPanelSettingsList
     size_t end_array = collada.find("<", start_array);
     std::istringstream dummy1(collada.substr(start_array, end_array-start_array));
     std::vector<Eigen::Vector3d> panelVerticesList;
+
+    float conversionFactor;
+
+    if (inputUnit=="mm"){conversionFactor=1/1000.;}
+    else if (inputUnit=="m"){conversionFactor=1;}
+    else if (inputUnit=="in"){conversionFactor=0.0254;}
+    else{ throw std::runtime_error("Input Unit " + inputUnit + " not recognized. Valid options are mm, m, in.");}
+
+
     double x1, y1, z1;
     while (dummy1 >> x1 >> y1 >> z1) {
-        panelVerticesList.push_back(Eigen::Vector3d(x1, y1, z1)/1000);
+        panelVerticesList.push_back(Eigen::Vector3d(x1, y1, z1)*conversionFactor);
     }
     pos = end_array;
     // sub library: create settings

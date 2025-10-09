@@ -79,12 +79,12 @@ void calculateResiduals(
             observationsCollection->getObservationsSets( );
 
     // Iterate over all observable types in observationsAndTimes
-    for( auto observablesIterator: sortedObservations )
+    for( auto observablesIterator : sortedObservations )
     {
         observation_models::ObservableType currentObservableType = observablesIterator.first;
 
         // Iterate over all link ends for current observable type in observationsAndTimes
-        for( auto dataIterator: observablesIterator.second )
+        for( auto dataIterator : observablesIterator.second )
         {
             observation_models::LinkEnds currentLinkEnds = dataIterator.first;
             for( unsigned int i = 0; i < dataIterator.second.size( ); i++ )
@@ -162,12 +162,12 @@ void calculateDesignMatrixAndResiduals(
             observationsCollection->getObservationsSets( );
 
     // Iterate over all observable types in observationsAndTimes
-    for( auto observableIt: sortedObservations )
+    for( auto observableIt : sortedObservations )
     {
         observation_models::ObservableType currentObservableType = observableIt.first;
 
         // Iterate over all link ends for current observable type in observationsAndTimes
-        for( auto linkEndIt: observableIt.second )
+        for( auto linkEndIt : observableIt.second )
         {
             observation_models::LinkEnds currentLinkEnds = linkEndIt.first;
             for( unsigned int i = 0; i < linkEndIt.second.size( ); i++ )
@@ -177,9 +177,6 @@ void calculateDesignMatrixAndResiduals(
                 std::pair< int, int > observationIndices =
                         observationsCollection->getObservationSetStartAndSize( ).at( currentObservableType ).at( currentLinkEnds ).at( i );
 
-                //                std::cout<<"Current size "<<currentObservations->getObservationTimes( ).size( )<<
-                //                " "<<currentObservations->getObservations( ).size( )<<" "<<observationIndices.first<<"
-                //                "<<observationIndices.second<<std::endl;
                 if( observationIndices.second > 0 )
                 {
                     // Compute estimated ranges and range partials from current parameter estimate.
@@ -197,11 +194,6 @@ void calculateDesignMatrixAndResiduals(
 
                     if( calculatePartials )
                     {
-                        //                        std::cout<<designMatrix.rows( )<<" "<<designMatrix.cols( )<<std::endl;
-                        //                        std::cout<<observationIndices.first<<" "<<0<<" "<<observationIndices.second<<"
-                        //                        "<<totalNumberParameters<<std::endl; std::cout<<partialsMatrix.rows( )<<"
-                        //                        "<<partialsMatrix.cols( )<<std::endl<<std::endl;
-
                         // Set current observation partials in matrix of all partials
                         designMatrix.block( observationIndices.first, 0, observationIndices.second, totalNumberParameters ) =
                                 partialsMatrix;
@@ -631,11 +623,39 @@ public:
     //        }
     //    }
 
+    void getNormalizedConsiderCovariance(
+            const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
+            const Eigen::VectorXd& considerNormalizationTerms,
+            Eigen::MatrixXd& normalizedConsiderCovariance )
+    {
+        Eigen::MatrixXd unnormalizedConsiderCovariance = estimationInput->getConsiderCovariance( );
+        if( unnormalizedConsiderCovariance.rows( ) == 0 && unnormalizedConsiderCovariance.cols( ) == 0 )
+        {
+            unnormalizedConsiderCovariance = Eigen::MatrixXd::Zero( numberConsiderParameters_, numberConsiderParameters_ );
+        }
+        else if( unnormalizedConsiderCovariance.rows( ) != numberConsiderParameters_ &&
+                 unnormalizedConsiderCovariance.cols( ) == numberConsiderParameters_ )
+        {
+            throw std::runtime_error( "Error, consider covariance size: [" + std::to_string( unnormalizedConsiderCovariance.rows( ) ) +
+                                      ", " + std::to_string( unnormalizedConsiderCovariance.cols( ) ) +
+                                      "] does not match number of consider parameters: " + std::to_string( numberConsiderParameters_ ) );
+        }
+        normalizedConsiderCovariance = normalizeCovariance( unnormalizedConsiderCovariance, considerNormalizationTerms );
+    }
+
     std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > > computeCovariance(
             const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput )
     {
         // Get total number of observations
         int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
+
+        if( numberEstimatedParameters_ > static_cast< unsigned int >( totalNumberOfObservations ) &&
+            estimationInput->getInverseOfAprioriCovariance( ).rows( ) == 0 )
+        {
+            std::cerr << "Warning when computing covariance, number of observations is smaller than number of estimated parameters, and no "
+                         "a priori information is provided."
+                      << std::endl;
+        }
 
         // Define full parameters values
         ParameterVectorType parameterValues = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
@@ -675,7 +695,7 @@ public:
         if( considerParametersIncluded_ )
         {
             considerNormalizationTerms = normalizeDesignMatrix( designMatrixConsiderParameters );
-            normalizedConsiderCovariance = normalizeCovariance( estimationInput->getConsiderCovariance( ), considerNormalizationTerms );
+            getNormalizedConsiderCovariance( estimationInput, considerNormalizationTerms, normalizedConsiderCovariance );
         }
         else
         {
@@ -746,6 +766,14 @@ public:
 
         // Get number of observations
         int totalNumberOfObservations = estimationInput->getObservationCollection( )->getTotalObservableSize( );
+
+        if( numberEstimatedParameters_ > static_cast< unsigned int >( totalNumberOfObservations ) &&
+            estimationInput->getInverseOfAprioriCovariance( ).rows( ) == 0 )
+        {
+            std::cerr << "Warning when estimating parameters, number of observations is smaller than number of estimated parameters, and "
+                         "no a priori information is provided."
+                      << std::endl;
+        }
 
         if( estimationInput->getWeightsMatrixDiagonals( ).rows( ) != totalNumberOfObservations )
         {
@@ -848,9 +876,16 @@ public:
             if( considerParametersIncluded_ )
             {
                 normalizationTermsConsider = normalizeDesignMatrix( designMatrixConsiderParameters );
-                normalizedConsiderCovariance = normalizeCovariance( estimationInput->getConsiderCovariance( ), normalizationTermsConsider );
-                normalizedConsiderParametersDeviation =
-                        estimationInput->considerParametersDeviations_.cwiseProduct( normalizationTermsConsider );
+                getNormalizedConsiderCovariance( estimationInput, normalizationTermsConsider, normalizedConsiderCovariance );
+                if( estimationInput->considerParametersDeviations_.rows( ) == 0 )
+                {
+                    normalizedConsiderParametersDeviation = Eigen::VectorXd( normalizationTermsConsider.rows( ) );
+                }
+                else
+                {
+                    normalizedConsiderParametersDeviation =
+                            estimationInput->considerParametersDeviations_.cwiseProduct( normalizationTermsConsider );
+                }
             }
             else
             {

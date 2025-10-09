@@ -32,7 +32,16 @@ Eigen::Vector2d PolarMotionCalculator::getPositionOfCipInItrs( const double ttSi
     Eigen::Vector2d poleOffsetsInItrs = Eigen::Vector2d::Zero( );
 
     // Add interpolated measured offsets.
-    poleOffsetsInItrs += dailyIersValueInterpolator_->interpolate( utcSinceEpoch );
+    try
+    {
+        poleOffsetsInItrs += dailyIersValueInterpolator_->interpolate( utcSinceEpoch );
+    }
+    catch( std::runtime_error& caughtException )
+    {
+        throw std::runtime_error( "Error in pole offset interpolation.\nOriginal error: " + std::string( caughtException.what( ) ) );
+    }
+
+
 
     // Add short period motion
     poleOffsetsInItrs += shortPeriodPolarMotionCalculator_->getCorrections( ttSinceEpoch );
@@ -47,7 +56,16 @@ Eigen::Vector2d PolarMotionCalculator::getPositionOfCipInItrs( Eigen::Vector6d f
     Eigen::Vector2d poleOffsetsInItrs = Eigen::Vector2d::Zero( );
 
     // Add interpolated measured offsets.
-    poleOffsetsInItrs += dailyIersValueInterpolator_->interpolate( utcSinceEpoch );
+    try
+    {
+        poleOffsetsInItrs += dailyIersValueInterpolator_->interpolate( utcSinceEpoch );
+    }
+    catch( std::runtime_error& caughtException )
+    {
+        throw std::runtime_error( "Error in pole offset interpolation.\nOriginal error: " + std::string( caughtException.what( ) ) );
+    }
+
+
 
     // Add short period motion
     poleOffsetsInItrs += shortPeriodPolarMotionCalculator_->getCorrectionsFromFundamentalArgument( fundamentalArguments );
