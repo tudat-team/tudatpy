@@ -22,15 +22,12 @@ namespace estimatable_parameters
 class AerodynamicScalingFactor : public EstimatableParameter< double >
 {
 public:
-
     AerodynamicScalingFactor( const std::vector< std::shared_ptr< aerodynamics::AerodynamicAcceleration > > aerodynamicAccelerations,
                               const EstimatebleParametersEnum parameterType,
                               const std::string& associatedBody ):
-        EstimatableParameter< double >( parameterType, associatedBody ),
-        aerodynamicAccelerations_( aerodynamicAccelerations )
+        EstimatableParameter< double >( parameterType, associatedBody ), aerodynamicAccelerations_( aerodynamicAccelerations )
     {
-        if( ( parameterType != drag_component_scaling_factor ) &&
-            ( parameterType != side_component_scaling_factor ) && 
+        if( ( parameterType != drag_component_scaling_factor ) && ( parameterType != side_component_scaling_factor ) &&
             ( parameterType != lift_component_scaling_factor ) )
         {
             throw std::runtime_error( "Error when creating aerodynamic scaling parameter, type is inconsistent: " +
@@ -51,7 +48,6 @@ public:
             default:
                 throw std::runtime_error( "Error when creating aerodynamic scaling parameter, type is inconsistent: " +
                                           std::to_string( parameterType ) );
-
         }
     }
 
@@ -59,9 +55,11 @@ public:
                               const EstimatebleParametersEnum parameterType,
                               const std::string& associatedBody ):
         AerodynamicScalingFactor( std::vector< std::shared_ptr< aerodynamics::AerodynamicAcceleration > >( { aerodynamicAcceleration } ),
-                                  parameterType, associatedBody ){ }
+                                  parameterType,
+                                  associatedBody )
+    {}
 
-    ~AerodynamicScalingFactor( ) { }
+    ~AerodynamicScalingFactor( ) {}
 
     double getParameterValue( )
     {
@@ -70,7 +68,9 @@ public:
         {
             if( aerodynamicAccelerations_.at( i )->getComponentScaling( parameterIndex_ ) != parameterValue )
             {
-                std::cerr<<"Warning when retrieving aerodynamic acceleration scaling factor from list. List entries are not equal, returning first entry"<<std::endl;
+                std::cerr << "Warning when retrieving aerodynamic acceleration scaling factor from list. List entries are not equal, "
+                             "returning first entry"
+                          << std::endl;
                 break;
             }
         }
@@ -89,7 +89,6 @@ public:
     {
         return 1;
     }
-
 
 protected:
     std::vector< std::shared_ptr< aerodynamics::AerodynamicAcceleration > > aerodynamicAccelerations_;

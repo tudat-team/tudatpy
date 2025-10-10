@@ -165,7 +165,7 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
             }
             break;
         }
-      // Desaturation Delta V needs to be linked to destauration acceleration
+            // Desaturation Delta V needs to be linked to destauration acceleration
         case desaturation_delta_v_values: {
             // Check if acceleration model with required bodies undergoing/exerting accelerations exist
 
@@ -192,9 +192,9 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
             break;
         }
 
-      // Desaturation Delta V needs to be linked to destauration acceleration
+            // Desaturation Delta V needs to be linked to destauration acceleration
         case rtg_force_vector:
-          case rtg_force_vector_magnitude: {
+        case rtg_force_vector_magnitude: {
             // Check if acceleration model with required bodies undergoing/exerting accelerations exist
 
             if( accelerationModelMap.count( parameterSettings->parameterType_.second.first ) != 0 )
@@ -219,7 +219,6 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
             }
             break;
         }
-
 
         // Inverse tidal quality factor to be linked to direct tidal acceleration
         case inverse_tidal_quality_factor: {
@@ -299,8 +298,7 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
             }
             break;
         }
-        case area_to_mass_scaling_factor:
-        {
+        case area_to_mass_scaling_factor: {
             if( parameterSettings == nullptr )
             {
                 throw std::runtime_error( "Error, expected area to mass scaling factor parameter object." );
@@ -313,9 +311,9 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                     basic_astrodynamics::SingleBodyAccelerationMap accelerationModelListToCheck =
                             accelerationModelMap.at( parameterSettings->parameterType_.second.first );
 
-                    for( const auto& it: accelerationModelListToCheck )
+                    for( const auto& it : accelerationModelListToCheck )
                     {
-                        for( const auto& accelerationModel: it.second )
+                        for( const auto& accelerationModel : it.second )
                         {
                             if( isAccelerationModelTypeAreaToMassRatioDependent(
                                         basic_astrodynamics::getAccelerationModelType( accelerationModel ) ) )
@@ -335,8 +333,7 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
             }
             break;
         }
-        case full_acceleration_scaling_factor:
-        {
+        case full_acceleration_scaling_factor: {
             std::shared_ptr< FullAccelerationScalingFactorParameterSettings > accelerationScalingParameterSettings =
                     std::dynamic_pointer_cast< FullAccelerationScalingFactorParameterSettings >( parameterSettings );
             if( accelerationScalingParameterSettings == nullptr )
@@ -353,22 +350,23 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                     basic_astrodynamics::SingleBodyAccelerationMap accelerationModelListToCheck =
                             accelerationModelMap.at( parameterSettings->parameterType_.second.first );
 
-
-                    if( accelerationModelListToCheck.count(parameterSettings->parameterType_.second.second ) != 0 )
+                    if( accelerationModelListToCheck.count( parameterSettings->parameterType_.second.second ) != 0 )
                     {
-                        for( const auto& accelerationModel: accelerationModelListToCheck.at(parameterSettings->parameterType_.second.second ) )
+                        for( const auto& accelerationModel :
+                             accelerationModelListToCheck.at( parameterSettings->parameterType_.second.second ) )
                         {
                             if( basic_astrodynamics::getAccelerationModelType( accelerationModel ) ==
                                 accelerationScalingParameterSettings->accelerationType_ )
                             {
                                 if( compatibleAccelerationModel != nullptr )
                                 {
-                                    throw std::runtime_error( "Error, trying to setup acceleration scaling coefficient for body exerting: " +
-                                                              accelerationScalingParameterSettings->parameterType_.second.first +
-                                                              ", body undergoing: " + accelerationScalingParameterSettings->parameterType_.second.first +
-                                                              ", type " + basic_astrodynamics::getAccelerationModelName(
-                                                                                  accelerationScalingParameterSettings->accelerationType_ ) +
-                                                              " but multiple compatible acceleration is defined." );
+                                    throw std::runtime_error(
+                                            "Error, trying to setup acceleration scaling coefficient for body exerting: " +
+                                            accelerationScalingParameterSettings->parameterType_.second.first + ", body undergoing: " +
+                                            accelerationScalingParameterSettings->parameterType_.second.first + ", type " +
+                                            basic_astrodynamics::getAccelerationModelName(
+                                                    accelerationScalingParameterSettings->accelerationType_ ) +
+                                            " but multiple compatible acceleration is defined." );
                                 }
 
                                 compatibleAccelerationModel = accelerationModel;
@@ -378,12 +376,12 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                 }
                 if( compatibleAccelerationModel == nullptr )
                 {
-                    throw std::runtime_error( "Error, trying to setup acceleration scaling coefficient for body exerting: " +
-                                              accelerationScalingParameterSettings->parameterType_.second.first +
-                                              ", body undergoing: " + accelerationScalingParameterSettings->parameterType_.second.first +
-                                              ", type " + basic_astrodynamics::getAccelerationModelName(
-                                                                  accelerationScalingParameterSettings->accelerationType_ ) +
-                                              " but no compatible acceleration is defined." );
+                    throw std::runtime_error(
+                            "Error, trying to setup acceleration scaling coefficient for body exerting: " +
+                            accelerationScalingParameterSettings->parameterType_.second.first +
+                            ", body undergoing: " + accelerationScalingParameterSettings->parameterType_.second.first + ", type " +
+                            basic_astrodynamics::getAccelerationModelName( accelerationScalingParameterSettings->accelerationType_ ) +
+                            " but no compatible acceleration is defined." );
                 }
                 accelerationModelList.push_back( compatibleAccelerationModel );
             }
@@ -404,9 +402,9 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                     basic_astrodynamics::SingleBodyAccelerationMap accelerationModelListToCheck =
                             accelerationModelMap.at( parameterSettings->parameterType_.second.first );
 
-                    for( const auto& it: accelerationModelListToCheck )
+                    for( const auto& it : accelerationModelListToCheck )
                     {
-                        for( const auto& accelerationModel: it.second )
+                        for( const auto& accelerationModel : it.second )
                         {
                             if( basic_astrodynamics::getAccelerationModelType( accelerationModel ) == basic_astrodynamics::aerodynamic )
                             {
@@ -539,15 +537,17 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
     }
     else
     {
-        throw std::runtime_error( "Error when finding acceleration model for parameter, propagator settings could not be identified as single, multi or hybrid arc" );
+        throw std::runtime_error(
+                "Error when finding acceleration model for parameter, propagator settings could not be identified as single, multi or "
+                "hybrid arc" );
     }
 
     if( accelerationModelList.size( ) == 0 )
     {
         throw std::runtime_error( "Error when getting acceleration model for parameter " +
                                   estimatable_parameters::getParameterTypeString( parameterSettings->parameterType_.first ) + " of " +
-                                  parameterSettings->parameterType_.second.first + ", " +
-                                  parameterSettings->parameterType_.second.second + ", no acceleration model found." );
+                                  parameterSettings->parameterType_.second.first + ", " + parameterSettings->parameterType_.second.second +
+                                  ", no acceleration model found." );
     }
     utilities::removeDuplicates( accelerationModelList );
 
@@ -582,7 +582,9 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
     {
         if( arcStartTimes.size( ) != singleArcSettings.size( ) )
         {
-            throw std::runtime_error( "Error when making multi-arc initial state parameter, input arc times size does not match: do not provide times manually" );
+            throw std::runtime_error(
+                    "Error when making multi-arc initial state parameter, input arc times size does not match: do not provide times "
+                    "manually" );
         }
     }
     std::vector< double > arcStartTimesToUse;
@@ -609,7 +611,8 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
             if( std::fabs( arcStartTimes.at( i ) - arcStartTimesToUse.at( i ) ) >
                 10.0 * std::numeric_limits< double >::epsilon( ) * arcStartTimesToUse.at( i ) )
             {
-                throw std::runtime_error( "Error when making multi-arc initial state parameter, times do not match: do not provide times manually" );
+                throw std::runtime_error(
+                        "Error when making multi-arc initial state parameter, times do not match: do not provide times manually" );
             }
         }
         if( singleArcTranslationalSettings.at( i ) == nullptr )
@@ -674,7 +677,7 @@ template< typename InitialStateParameterType = double, typename TimeType = doubl
 std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getInitialHybridArcParameterSettings(
         const std::shared_ptr< propagators::HybridArcPropagatorSettings< InitialStateParameterType, TimeType > > propagatorSettings,
         const SystemOfBodies& bodies,
-        const std::vector< double > arcStartTimes  = std::vector< double >( ) )
+        const std::vector< double > arcStartTimes = std::vector< double >( ) )
 {
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > multiArcParameters =
             getInitialMultiArcParameterSettings< InitialStateParameterType, TimeType >(
@@ -713,7 +716,7 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
                 std::map< IntegratedStateType,
                           std::vector< std::shared_ptr< SingleArcPropagatorSettings< InitialStateParameterType, TimeType > > > >
                         propagatorSettingsMap = multiTypePropagatorSettings->propagatorSettingsMap_;
-                for( auto propIterator: propagatorSettingsMap )
+                for( auto propIterator : propagatorSettingsMap )
                 {
                     for( unsigned int i = 0; i < propIterator.second.size( ); i++ )
                     {
@@ -1125,37 +1128,35 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                 }
                 break;
             }
-            case area_to_mass_scaling_factor:
-            {
+            case area_to_mass_scaling_factor: {
                 std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
                         getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings,
                                                                                                                doubleParameterName );
-                doubleParameterToEstimate = std::make_shared< AreaToMassScalingFactor >(
-                        associatedAccelerationModels,
-                        currentBodyName );
+                doubleParameterToEstimate = std::make_shared< AreaToMassScalingFactor >( associatedAccelerationModels, currentBodyName );
                 break;
             }
-            case full_acceleration_scaling_factor:
-            {
+            case full_acceleration_scaling_factor: {
                 std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
                         getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings,
                                                                                                                doubleParameterName );
                 std::shared_ptr< FullAccelerationScalingFactorParameterSettings > accelerationScalingParameterSettings =
-                    std::dynamic_pointer_cast< FullAccelerationScalingFactorParameterSettings >( doubleParameterName );
+                        std::dynamic_pointer_cast< FullAccelerationScalingFactorParameterSettings >( doubleParameterName );
                 if( accelerationScalingParameterSettings == nullptr )
                 {
-                    throw std::runtime_error( "Error when creating acceleration scaling parameter, parameter settings type is not compatible" );
+                    throw std::runtime_error(
+                            "Error when creating acceleration scaling parameter, parameter settings type is not compatible" );
                 }
 
                 if( associatedAccelerationModels.size( ) == 0 )
                 {
-                    throw std::runtime_error( "Error when creating acceleration scaling parameter, number of compatible acceleration models is not 1, but " +
-                                              std::to_string( associatedAccelerationModels.size( ) ) );
+                    throw std::runtime_error(
+                            "Error when creating acceleration scaling parameter, number of compatible acceleration models is not 1, but " +
+                            std::to_string( associatedAccelerationModels.size( ) ) );
                 }
-                doubleParameterToEstimate = std::make_shared< FullAccelerationScalingFactorParameter >(
-                        associatedAccelerationModels,
-                        doubleParameterName->parameterType_.second.first,
-                        doubleParameterName->parameterType_.second.second );
+                doubleParameterToEstimate =
+                        std::make_shared< FullAccelerationScalingFactorParameter >( associatedAccelerationModels,
+                                                                                    doubleParameterName->parameterType_.second.first,
+                                                                                    doubleParameterName->parameterType_.second.second );
                 break;
             }
             case drag_component_scaling_factor:
@@ -1164,11 +1165,12 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                 std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
                         getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings,
                                                                                                                doubleParameterName );
-                
+
                 if( associatedAccelerationModels.size( ) == 0 )
                 {
-                    throw std::runtime_error( "Error when creating aerodynamic scaling parameter, number of compatible acceleration models is not 1, but " +
-                                              std::to_string( associatedAccelerationModels.size( ) ) );
+                    throw std::runtime_error(
+                            "Error when creating aerodynamic scaling parameter, number of compatible acceleration models is not 1, but " +
+                            std::to_string( associatedAccelerationModels.size( ) ) );
                 }
 
                 std::vector< std::shared_ptr< aerodynamics::AerodynamicAcceleration > > associateAerodynamicAccelerationModels;
@@ -1178,8 +1180,9 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                     if( std::dynamic_pointer_cast< aerodynamics::AerodynamicAcceleration >( associatedAccelerationModels.at( i ) ) !=
                         nullptr )
                     {
-                        associateAerodynamicAccelerationModels.push_back( std::dynamic_pointer_cast< aerodynamics::AerodynamicAcceleration >(
-                                associatedAccelerationModels.at( i ) ) );
+                        associateAerodynamicAccelerationModels.push_back(
+                                std::dynamic_pointer_cast< aerodynamics::AerodynamicAcceleration >(
+                                        associatedAccelerationModels.at( i ) ) );
                     }
                     else
                     {
@@ -1188,11 +1191,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                     }
                 }
 
-
                 doubleParameterToEstimate = std::make_shared< AerodynamicScalingFactor >(
-                        associateAerodynamicAccelerationModels,
-                        doubleParameterName->parameterType_.first,
-                        currentBodyName );
+                        associateAerodynamicAccelerationModels, doubleParameterName->parameterType_.first, currentBodyName );
                 break;
             }
             case ppn_parameter_gamma: {
@@ -1382,41 +1382,39 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                 break;
             }
 
-          case rtg_force_vector_magnitude: {
-            if( propagatorSettings == nullptr )
-            {
-              throw std::runtime_error(
-                      "Error when creating rtg_force_vector_magnitude parameter, no propagatorSettings provided." );
+            case rtg_force_vector_magnitude: {
+                if( propagatorSettings == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating rtg_force_vector_magnitude parameter, no propagatorSettings provided." );
+                }
+
+                std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
+                        getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings,
+                                                                                                               doubleParameterName );
+                if( associatedAccelerationModels.size( ) == 0 )
+                {
+                    throw std::runtime_error( "Error when trying to make rtg force magnitude parameter, no acceleration model found. " );
+                }
+                else if( associatedAccelerationModels.size( ) > 1 )
+                {
+                    throw std::runtime_error(
+                            "Error when trying to make rtg force magnitude parameter, more than one acceleration model found. " );
+                }
+
+                std::shared_ptr< system_models::RTGAccelerationModel > rtgAccelerationModel =
+                        std::dynamic_pointer_cast< system_models::RTGAccelerationModel >( associatedAccelerationModels.at( 0 ) );
+
+                if( rtgAccelerationModel == nullptr )
+                {
+                    throw std::runtime_error( "Error, expected RTGAccelerationModel when creating rtg_force_vector_magnitude parameter" );
+                }
+
+                // Create rtg force vector magnitude parameter
+                doubleParameterToEstimate = std::make_shared< RTGForceVectorMagnitude >( rtgAccelerationModel,
+                                                                                         doubleParameterName->parameterType_.second.first );
+
+                break;
             }
-
-            std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
-                    getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings,
-                                                                                                           doubleParameterName );
-              if (associatedAccelerationModels.size( )==0)
-              {
-                throw std::runtime_error(
-                "Error when trying to make rtg force magnitude parameter, no acceleration model found. ");
-              } else if (associatedAccelerationModels.size( )>1)
-              {
-                throw std::runtime_error(
-                "Error when trying to make rtg force magnitude parameter, more than one acceleration model found. ");
-              }
-
-            std::shared_ptr< system_models::RTGAccelerationModel > rtgAccelerationModel =
-              std::dynamic_pointer_cast< system_models::RTGAccelerationModel > (associatedAccelerationModels.at(0));
-
-            if (rtgAccelerationModel == nullptr)
-            {
-              throw std::runtime_error(
-                      "Error, expected RTGAccelerationModel when creating rtg_force_vector_magnitude parameter" );
-            }
-
-            // Create rtg force vector magnitude parameter
-            doubleParameterToEstimate = std::make_shared< RTGForceVectorMagnitude >(
-                    rtgAccelerationModel,
-                    doubleParameterName->parameterType_.second.first);
-
-            break; }
 
             case constant_specific_impulse: {
                 if( currentBody->getVehicleSystems( ) == nullptr )
@@ -1604,7 +1602,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                     std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > panelsFromId;
                     std::map< std::string, std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > > fullPanels =
                             currentBody->getVehicleSystems( )->getVehicleExteriorPanels( );
-                    for( auto it: fullPanels )
+                    for( auto it : fullPanels )
                     {
                         for( unsigned int i = 0; i < it.second.size( ); i++ )
                         {
@@ -1670,7 +1668,6 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
     }
     else
     {
-
         // Check if body associated with parameter exists.
         std::string currentBodyName = vectorParameterName->parameterType_.second.first;
         std::shared_ptr< Body > currentBody;
@@ -1688,442 +1685,439 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
         // Identify parameter type.
         switch( vectorParameterName->parameterType_.first )
         {
-          case constant_additive_observation_bias: {
-            std::shared_ptr< ConstantObservationBiasEstimatableParameterSettings > biasSettings =
-                    std::dynamic_pointer_cast< ConstantObservationBiasEstimatableParameterSettings >( vectorParameterName );
-            if( biasSettings == nullptr )
-            {
-              throw std::runtime_error( "Error when creating constant observation bias, input is inconsistent" );
-            }
-            else
-            {
-              vectorParameterToEstimate =
-                      std::make_shared< ConstantObservationBiasParameter >( std::function< Eigen::VectorXd( ) >( ),
-                                                                            std::function< void( const Eigen::VectorXd& ) >( ),
-                                                                            biasSettings->linkEnds_.linkEnds_,
-                                                                            biasSettings->observableType_,
-                                                                            true );
-            }
-            break;
-          }
-          case constant_relative_observation_bias: {
-            std::shared_ptr< ConstantObservationBiasEstimatableParameterSettings > biasSettings =
-                    std::dynamic_pointer_cast< ConstantObservationBiasEstimatableParameterSettings >( vectorParameterName );
-            if( biasSettings == nullptr )
-            {
-              throw std::runtime_error( "Error when creating constant observation bias, input is inconsistent" );
-            }
-            else
-            {
-              vectorParameterToEstimate =
-                      std::make_shared< ConstantObservationBiasParameter >( std::function< Eigen::VectorXd( ) >( ),
-                                                                            std::function< void( const Eigen::VectorXd& ) >( ),
-                                                                            biasSettings->linkEnds_.linkEnds_,
-                                                                            biasSettings->observableType_,
-                                                                            false );
-            }
-            break;
-          }
-          case arcwise_constant_additive_observation_bias: {
-            std::shared_ptr< ArcWiseConstantObservationBiasEstimatableParameterSettings > biasSettings =
-                    std::dynamic_pointer_cast< ArcWiseConstantObservationBiasEstimatableParameterSettings >( vectorParameterName );
-            if( biasSettings == nullptr )
-            {
-              throw std::runtime_error( "Error when creating arcwise constant observation bias, input is inconsistent" );
-            }
-            else
-            {
-              vectorParameterToEstimate = std::make_shared< ArcWiseObservationBiasParameter >(
-                      biasSettings->arcStartTimes_,
-                      std::function< std::vector< Eigen::VectorXd >( ) >( ),
-                      std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
-                      observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
-                              biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) )
-                              .at( 0 ),
-                      biasSettings->linkEnds_.linkEnds_,
-                      biasSettings->observableType_,
-                      true );
-            }
-            break;
-          }
-          case arcwise_constant_relative_observation_bias: {
-            std::shared_ptr< ArcWiseConstantObservationBiasEstimatableParameterSettings > biasSettings =
-                    std::dynamic_pointer_cast< ArcWiseConstantObservationBiasEstimatableParameterSettings >( vectorParameterName );
-            if( biasSettings == nullptr )
-            {
-              throw std::runtime_error( "Error when creating arcwise constant relative observation bias, input is inconsistent" );
-            }
-            else
-            {
-              vectorParameterToEstimate = std::make_shared< ArcWiseObservationBiasParameter >(
-                      biasSettings->arcStartTimes_,
-                      std::function< std::vector< Eigen::VectorXd >( ) >( ),
-                      std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
-                      observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
-                              biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) )
-                              .at( 0 ),
-                      biasSettings->linkEnds_.linkEnds_,
-                      biasSettings->observableType_,
-                      false );
-            }
-            break;
-          }
-          case constant_time_drift_observation_bias: {
-            std::shared_ptr< ConstantTimeDriftBiasEstimatableParameterSettings > biasSettings =
-                    std::dynamic_pointer_cast< ConstantTimeDriftBiasEstimatableParameterSettings >( vectorParameterName );
-            if( biasSettings == nullptr )
-            {
-              throw std::runtime_error( "Error when creating constant time drift bias, input is inconsistent" );
-            }
-            else
-            {
-              vectorParameterToEstimate = std::make_shared< ConstantTimeDriftBiasParameter >(
-                      std::function< Eigen::VectorXd( ) >( ),
-                      std::function< void( const Eigen::VectorXd& ) >( ),
-                      observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
-                              biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) )
-                              .at( 0 ),
-                      biasSettings->linkEnds_,
-                      biasSettings->observableType_,
-                      biasSettings->referenceEpoch_ );
-            }
-            break;
-          }
-          case arc_wise_time_drift_observation_bias: {
-            std::shared_ptr< ArcWiseTimeDriftBiasEstimatableParameterSettings > timeBiasSettings =
-                    std::dynamic_pointer_cast< ArcWiseTimeDriftBiasEstimatableParameterSettings >( vectorParameterName );
-            if( timeBiasSettings == nullptr )
-            {
-              throw std::runtime_error( "Error when creating arcwise time drift bias, input is inconsistent" );
-            }
-            else
-            {
-              vectorParameterToEstimate = std::make_shared< ArcWiseTimeDriftBiasParameter >(
-                      timeBiasSettings->arcStartTimes_,
-                      std::function< std::vector< Eigen::VectorXd >( ) >( ),
-                      std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
-                      observation_models::getLinkEndIndicesForLinkEndTypeAtObservable( timeBiasSettings->observableType_,
-                                                                                       timeBiasSettings->linkEndForTime_,
-                                                                                       timeBiasSettings->linkEnds_.size( ) )
-                              .at( 0 ),
-                      timeBiasSettings->linkEnds_,
-                      timeBiasSettings->observableType_,
-                      timeBiasSettings->referenceEpochs_ );
-            }
-            break;
-          }
-          case constant_time_observation_bias: {
-            std::shared_ptr< ConstantTimeBiasEstimatableParameterSettings > biasSettings =
-                    std::dynamic_pointer_cast< ConstantTimeBiasEstimatableParameterSettings >( vectorParameterName );
-            if( biasSettings == nullptr )
-            {
-              throw std::runtime_error( "Error when creating constant time bias, input is inconsistent" );
-            }
-            else
-            {
-              vectorParameterToEstimate =
-                      std::make_shared< ConstantTimeBiasParameter >( std::function< Eigen::VectorXd( ) >( ),
-                                                                     std::function< void( const Eigen::VectorXd& ) >( ),
-                                                                     biasSettings->linkEndForTime_,
-                                                                     biasSettings->linkEnds_,
-                                                                     biasSettings->observableType_ );
-            }
-            break;
-          }
-          case arc_wise_time_observation_bias: {
-            std::shared_ptr< ArcWiseTimeBiasEstimatableParameterSettings > timeBiasSettings =
-                    std::dynamic_pointer_cast< ArcWiseTimeBiasEstimatableParameterSettings >( vectorParameterName );
-            if( timeBiasSettings == nullptr )
-            {
-              throw std::runtime_error( "Error when creating arcwise time bias, input is inconsistent" );
-            }
-            else
-            {
-              vectorParameterToEstimate =
-                      std::make_shared< ArcWiseTimeBiasParameter >( timeBiasSettings->arcStartTimes_,
-                                                                    std::function< std::vector< Eigen::VectorXd >( ) >( ),
-                                                                    std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
-                                                                    timeBiasSettings->linkEndForTime_,
-                                                                    timeBiasSettings->linkEnds_,
-                                                                    timeBiasSettings->observableType_ );
-            }
-            break;
-          }
-          case rotation_pole_position:
-            if( std::dynamic_pointer_cast< SimpleRotationalEphemeris >( currentBody->getRotationalEphemeris( ) ) == nullptr )
-            {
-              std::string errorMessage = "Warning, no simple rotational ephemeris present in body " + currentBodyName +
-                      " when making constant rotation orientation parameter";
-              throw std::runtime_error( errorMessage );
-            }
-            else
-            {
-              vectorParameterToEstimate = std::make_shared< ConstantRotationalOrientation >(
-                      std::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >( currentBody->getRotationalEphemeris( ) ),
-                      currentBodyName );
-            }
-          break;
-
-          case spherical_harmonics_cosine_coefficient_block: {
-            std::shared_ptr< GravityFieldModel > gravityField = currentBody->getGravityFieldModel( );
-            std::shared_ptr< SphericalHarmonicsGravityField > shGravityField =
-                    std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( gravityField );
-            if( shGravityField == nullptr )
-            {
-              std::string errorMessage = "Error, requested spherical harmonic cosine coefficient block parameter of " +
-                      std::string( vectorParameterName->parameterType_.second.first ) +
-                      ", but body does not have a spherical harmonic gravity field.";
-              throw std::runtime_error( errorMessage );
-            }
-            else
-            {
-              // Check if spherical harmonic gravity field is static or time-dependent; set associated
-              // functions accordingly
-              std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDependentShField =
-                      std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >( shGravityField );
-
-              std::function< Eigen::MatrixXd( ) > getCosineCoefficientsFunction;
-              std::function< void( Eigen::MatrixXd ) > setCosineCoefficientsFunction;
-
-              if( timeDependentShField == nullptr )
-              {
-                getCosineCoefficientsFunction = std::bind( &SphericalHarmonicsGravityField::getCosineCoefficients, shGravityField );
-                setCosineCoefficientsFunction =
-                        std::bind( &SphericalHarmonicsGravityField::setCosineCoefficients, shGravityField, std::placeholders::_1 );
-              }
-              else
-              {
-                getCosineCoefficientsFunction = std::bind(
-                        &TimeDependentSphericalHarmonicsGravityField::getNominalCosineCoefficients, timeDependentShField );
-                setCosineCoefficientsFunction =
-                        std::bind( &TimeDependentSphericalHarmonicsGravityField::setNominalCosineCoefficients,
-                                   timeDependentShField,
-                                   std::placeholders::_1 );
-              }
-
-              // Create cosine coefficients estimation object.
-              std::shared_ptr< SphericalHarmonicEstimatableParameterSettings > blockParameterSettings =
-                      std::dynamic_pointer_cast< SphericalHarmonicEstimatableParameterSettings >( vectorParameterName );
-              if( blockParameterSettings != nullptr )
-              {
-                vectorParameterToEstimate = std::make_shared< SphericalHarmonicsCosineCoefficients >(
-                        getCosineCoefficientsFunction,
-                        setCosineCoefficientsFunction,
-                        blockParameterSettings->blockIndices_,
-                        vectorParameterName->parameterType_.second.first );
-              }
-              else
-              {
-                throw std::runtime_error( "Error, expected SphericalHarmonicEstimatableParameterSettings for cosine coefficients" );
-              }
-            }
-            break;
-          }
-          case spherical_harmonics_sine_coefficient_block: {
-            std::shared_ptr< GravityFieldModel > gravityField = currentBody->getGravityFieldModel( );
-            std::shared_ptr< SphericalHarmonicsGravityField > shGravityField =
-                    std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( gravityField );
-            if( shGravityField == nullptr )
-            {
-              std::string errorMessage = "Error, requested spherical harmonic sine coefficient block parameter of " +
-                      std::string( vectorParameterName->parameterType_.second.first ) +
-                      ", but body does not have a spherical harmonic gravity field.";
-              throw std::runtime_error( errorMessage );
-            }
-            else
-            {
-              std::shared_ptr< SphericalHarmonicEstimatableParameterSettings > blockParameterSettings =
-                      std::dynamic_pointer_cast< SphericalHarmonicEstimatableParameterSettings >( vectorParameterName );
-
-              // Check if spherical harmonic gravity field is static or time-dependent; set associated
-              // functions accordingly
-              std::function< Eigen::MatrixXd( ) > getSineCoefficientsFunction;
-              std::function< void( Eigen::MatrixXd ) > setSineCoefficientsFunction;
-              std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDependentShField =
-                      std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >( shGravityField );
-
-              if( timeDependentShField == nullptr )
-              {
-                getSineCoefficientsFunction = std::bind( &SphericalHarmonicsGravityField::getSineCoefficients, shGravityField );
-                setSineCoefficientsFunction =
-                        std::bind( &SphericalHarmonicsGravityField::setSineCoefficients, shGravityField, std::placeholders::_1 );
-              }
-              else
-              {
-                getSineCoefficientsFunction =
-                        std::bind( &TimeDependentSphericalHarmonicsGravityField::getNominalSineCoefficients, timeDependentShField );
-                setSineCoefficientsFunction = std::bind( &TimeDependentSphericalHarmonicsGravityField::setNominalSineCoefficients,
-                                                         timeDependentShField,
-                                                         std::placeholders::_1 );
-              }
-
-              // Create sine coefficients estimation object.
-              if( blockParameterSettings != nullptr )
-              {
-                vectorParameterToEstimate =
-                        std::make_shared< SphericalHarmonicsSineCoefficients >( getSineCoefficientsFunction,
-                                                                                setSineCoefficientsFunction,
-                                                                                blockParameterSettings->blockIndices_,
-                                                                                vectorParameterName->parameterType_.second.first );
-              }
-              else
-              {
-                throw std::runtime_error( "Error, expected SphericalHarmonicEstimatableParameterSettings for sine coefficients" );
-              }
-            }
-
-            break;
-          }
-          case ground_station_position: {
-            if( currentBody->getGroundStationMap( ).count( vectorParameterName->parameterType_.second.second ) == 0 )
-            {
-              std::string errorMessage = "Error, requested ground station position parameter of " +
-                      vectorParameterName->parameterType_.second.first + " " + vectorParameterName->parameterType_.second.second +
-                      " , but ground station was not found";
-              throw std::runtime_error( errorMessage );
-            }
-            else
-            {
-              std::shared_ptr< ground_stations::GroundStationState > groundStationState =
-                      currentBody->getGroundStation( vectorParameterName->parameterType_.second.second )->getNominalStationState( );
-              if( groundStationState == nullptr )
-              {
-                std::string errorMessage = "Error, requested ground station position parameter of " +
-                        vectorParameterName->parameterType_.second.first + " " + vectorParameterName->parameterType_.second.second +
-                        "  but nominal ground station state is nullptr";
-                throw std::runtime_error( errorMessage );
-              }
-              else
-              {
-                vectorParameterToEstimate =
-                        std::make_shared< GroundStationPosition >( groundStationState,
-                                                                   vectorParameterName->parameterType_.second.first,
-                                                                   vectorParameterName->parameterType_.second.second );
-              }
-            }
-            break;
-          }
-          case reference_point_position: {
-            if( currentBody->getVehicleSystems( ) == nullptr )
-            {
-              std::string errorMessage = "Error, requested reference point position parameter of " +
-                      vectorParameterName->parameterType_.second.first + " " + vectorParameterName->parameterType_.second.second +
-                      " , but no system models found";
-              throw std::runtime_error( errorMessage );
-            }
-            else
-            {
-              vectorParameterToEstimate =
-                      std::make_shared< ReferencePointPosition >( currentBody->getVehicleSystems( ),
-                                                                  vectorParameterName->parameterType_.second.first,
-                                                                  vectorParameterName->parameterType_.second.second );
-            }
-            break;
-          }
-          case empirical_acceleration_coefficients: {
-            if( propagatorSettings == nullptr )
-            {
-              throw std::runtime_error(
-                      "Error when creating empirical_acceleration_coefficients parameter, no propagatorSettings provided." );
-            }
-
-            // Check input consistency
-            std::shared_ptr< EmpiricalAccelerationEstimatableParameterSettings > empiricalAccelerationSettings =
-                    std::dynamic_pointer_cast< EmpiricalAccelerationEstimatableParameterSettings >( vectorParameterName );
-            if( empiricalAccelerationSettings == nullptr )
-            {
-              throw std::runtime_error(
-                      "Error when trying to make constant empirical acceleration coefficients parameter, settings type "
-                      "inconsistent" );
-            }
-            else
-            {
-              std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
-                        getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings,
-                                                                                                             vectorParameterName );
-              std::vector< std::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > > empiricalAccelerations;
-              for( unsigned int i = 0; i < associatedAccelerationModels.size( ); i++ )
-              {
-                // Create parameter object
-                if( std::dynamic_pointer_cast< basic_astrodynamics::EmpiricalAcceleration >(
-                            associatedAccelerationModels.at( i ) ) != nullptr )
+            case constant_additive_observation_bias: {
+                std::shared_ptr< ConstantObservationBiasEstimatableParameterSettings > biasSettings =
+                        std::dynamic_pointer_cast< ConstantObservationBiasEstimatableParameterSettings >( vectorParameterName );
+                if( biasSettings == nullptr )
                 {
-                  empiricalAccelerations.push_back( std::dynamic_pointer_cast< basic_astrodynamics::EmpiricalAcceleration >(
-                          associatedAccelerationModels.at( i ) ) );
+                    throw std::runtime_error( "Error when creating constant observation bias, input is inconsistent" );
                 }
                 else
                 {
-                  throw std::runtime_error(
-                          "Error, expected EmpiricalAcceleration in list when creating empirical_acceleration_coefficients "
-                          "parameter" );
+                    vectorParameterToEstimate =
+                            std::make_shared< ConstantObservationBiasParameter >( std::function< Eigen::VectorXd( ) >( ),
+                                                                                  std::function< void( const Eigen::VectorXd& ) >( ),
+                                                                                  biasSettings->linkEnds_.linkEnds_,
+                                                                                  biasSettings->observableType_,
+                                                                                  true );
                 }
-              }
-
-              if( associatedAccelerationModels.size( ) == 0 )
-              {
-                  throw std::runtime_error(
-                          "Error, no EmpiricalAcceleration objects found when making empirical acceleration parameter" );
-              }
-
-              // Create empirical acceleration parameter
-              vectorParameterToEstimate = std::make_shared< EmpiricalAccelerationCoefficientsParameter >(
-                      empiricalAccelerations,
-                      empiricalAccelerationSettings->parameterType_.second.first,
-                      empiricalAccelerationSettings->parameterType_.second.second,
-                      empiricalAccelerationSettings->componentsToEstimate_ );
+                break;
             }
-            break;
-          }
-          case rtg_force_vector: {
-            if( propagatorSettings == nullptr )
-            {
-              throw std::runtime_error(
-                      "Error when creating rtg_force_vector parameter, no propagatorSettings provided." );
+            case constant_relative_observation_bias: {
+                std::shared_ptr< ConstantObservationBiasEstimatableParameterSettings > biasSettings =
+                        std::dynamic_pointer_cast< ConstantObservationBiasEstimatableParameterSettings >( vectorParameterName );
+                if( biasSettings == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating constant observation bias, input is inconsistent" );
+                }
+                else
+                {
+                    vectorParameterToEstimate =
+                            std::make_shared< ConstantObservationBiasParameter >( std::function< Eigen::VectorXd( ) >( ),
+                                                                                  std::function< void( const Eigen::VectorXd& ) >( ),
+                                                                                  biasSettings->linkEnds_.linkEnds_,
+                                                                                  biasSettings->observableType_,
+                                                                                  false );
+                }
+                break;
             }
-
-
-            /*// Check input consistency --> redundant, no dynamic casting to be done, since rtg force vector settings object is of base class EstimatableParameterSettings type
-            std::shared_ptr< EstimatableParameterSettings > rtgAccelerationSettings =
-                    std::dynamic_pointer_cast< EstimatableParameterSettings >( vectorParameterName );
-            if( empiricalAccelerationSettings == nullptr )
-            {
-                throw std::runtime_error(
-                        "Error when trying to make constant empirical acceleration coefficients parameter, settings type "
-                        "inconsistent" );
+            case arcwise_constant_additive_observation_bias: {
+                std::shared_ptr< ArcWiseConstantObservationBiasEstimatableParameterSettings > biasSettings =
+                        std::dynamic_pointer_cast< ArcWiseConstantObservationBiasEstimatableParameterSettings >( vectorParameterName );
+                if( biasSettings == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating arcwise constant observation bias, input is inconsistent" );
+                }
+                else
+                {
+                    vectorParameterToEstimate = std::make_shared< ArcWiseObservationBiasParameter >(
+                            biasSettings->arcStartTimes_,
+                            std::function< std::vector< Eigen::VectorXd >( ) >( ),
+                            std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
+                            observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                                    biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) )
+                                    .at( 0 ),
+                            biasSettings->linkEnds_.linkEnds_,
+                            biasSettings->observableType_,
+                            true );
+                }
+                break;
             }
-            else
-            {*/
-
-            std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
-                    getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings,
-                                                                                                           vectorParameterName );
-
-            if (associatedAccelerationModels.size( )==0)
-            {
-              throw std::runtime_error(
-              "Error when trying to make rtg force vector parameter, no acceleration model found. ");
-            } else if (associatedAccelerationModels.size( )>1)
-            {
-              throw std::runtime_error(
-              "Error when trying to make rtg force vector parameter, more than one acceleration model found. ");
+            case arcwise_constant_relative_observation_bias: {
+                std::shared_ptr< ArcWiseConstantObservationBiasEstimatableParameterSettings > biasSettings =
+                        std::dynamic_pointer_cast< ArcWiseConstantObservationBiasEstimatableParameterSettings >( vectorParameterName );
+                if( biasSettings == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating arcwise constant relative observation bias, input is inconsistent" );
+                }
+                else
+                {
+                    vectorParameterToEstimate = std::make_shared< ArcWiseObservationBiasParameter >(
+                            biasSettings->arcStartTimes_,
+                            std::function< std::vector< Eigen::VectorXd >( ) >( ),
+                            std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
+                            observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                                    biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) )
+                                    .at( 0 ),
+                            biasSettings->linkEnds_.linkEnds_,
+                            biasSettings->observableType_,
+                            false );
+                }
+                break;
             }
-
-            // Create parameter object
-            std::shared_ptr< system_models::RTGAccelerationModel > rtgAccelerationModel =
-              std::dynamic_pointer_cast< system_models::RTGAccelerationModel > (associatedAccelerationModels.at(0));
-
-            if (rtgAccelerationModel == nullptr)
-            {
-              throw std::runtime_error(
-                      "Error, expected RTGAccelerationModel when creating rtg_force_vector parameter" );
+            case constant_time_drift_observation_bias: {
+                std::shared_ptr< ConstantTimeDriftBiasEstimatableParameterSettings > biasSettings =
+                        std::dynamic_pointer_cast< ConstantTimeDriftBiasEstimatableParameterSettings >( vectorParameterName );
+                if( biasSettings == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating constant time drift bias, input is inconsistent" );
+                }
+                else
+                {
+                    vectorParameterToEstimate = std::make_shared< ConstantTimeDriftBiasParameter >(
+                            std::function< Eigen::VectorXd( ) >( ),
+                            std::function< void( const Eigen::VectorXd& ) >( ),
+                            observation_models::getLinkEndIndicesForLinkEndTypeAtObservable(
+                                    biasSettings->observableType_, biasSettings->linkEndForTime_, biasSettings->linkEnds_.size( ) )
+                                    .at( 0 ),
+                            biasSettings->linkEnds_,
+                            biasSettings->observableType_,
+                            biasSettings->referenceEpoch_ );
+                }
+                break;
             }
+            case arc_wise_time_drift_observation_bias: {
+                std::shared_ptr< ArcWiseTimeDriftBiasEstimatableParameterSettings > timeBiasSettings =
+                        std::dynamic_pointer_cast< ArcWiseTimeDriftBiasEstimatableParameterSettings >( vectorParameterName );
+                if( timeBiasSettings == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating arcwise time drift bias, input is inconsistent" );
+                }
+                else
+                {
+                    vectorParameterToEstimate = std::make_shared< ArcWiseTimeDriftBiasParameter >(
+                            timeBiasSettings->arcStartTimes_,
+                            std::function< std::vector< Eigen::VectorXd >( ) >( ),
+                            std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
+                            observation_models::getLinkEndIndicesForLinkEndTypeAtObservable( timeBiasSettings->observableType_,
+                                                                                             timeBiasSettings->linkEndForTime_,
+                                                                                             timeBiasSettings->linkEnds_.size( ) )
+                                    .at( 0 ),
+                            timeBiasSettings->linkEnds_,
+                            timeBiasSettings->observableType_,
+                            timeBiasSettings->referenceEpochs_ );
+                }
+                break;
+            }
+            case constant_time_observation_bias: {
+                std::shared_ptr< ConstantTimeBiasEstimatableParameterSettings > biasSettings =
+                        std::dynamic_pointer_cast< ConstantTimeBiasEstimatableParameterSettings >( vectorParameterName );
+                if( biasSettings == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating constant time bias, input is inconsistent" );
+                }
+                else
+                {
+                    vectorParameterToEstimate =
+                            std::make_shared< ConstantTimeBiasParameter >( std::function< Eigen::VectorXd( ) >( ),
+                                                                           std::function< void( const Eigen::VectorXd& ) >( ),
+                                                                           biasSettings->linkEndForTime_,
+                                                                           biasSettings->linkEnds_,
+                                                                           biasSettings->observableType_ );
+                }
+                break;
+            }
+            case arc_wise_time_observation_bias: {
+                std::shared_ptr< ArcWiseTimeBiasEstimatableParameterSettings > timeBiasSettings =
+                        std::dynamic_pointer_cast< ArcWiseTimeBiasEstimatableParameterSettings >( vectorParameterName );
+                if( timeBiasSettings == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating arcwise time bias, input is inconsistent" );
+                }
+                else
+                {
+                    vectorParameterToEstimate =
+                            std::make_shared< ArcWiseTimeBiasParameter >( timeBiasSettings->arcStartTimes_,
+                                                                          std::function< std::vector< Eigen::VectorXd >( ) >( ),
+                                                                          std::function< void( const std::vector< Eigen::VectorXd >& ) >( ),
+                                                                          timeBiasSettings->linkEndForTime_,
+                                                                          timeBiasSettings->linkEnds_,
+                                                                          timeBiasSettings->observableType_ );
+                }
+                break;
+            }
+            case rotation_pole_position:
+                if( std::dynamic_pointer_cast< SimpleRotationalEphemeris >( currentBody->getRotationalEphemeris( ) ) == nullptr )
+                {
+                    std::string errorMessage = "Warning, no simple rotational ephemeris present in body " + currentBodyName +
+                            " when making constant rotation orientation parameter";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    vectorParameterToEstimate = std::make_shared< ConstantRotationalOrientation >(
+                            std::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >( currentBody->getRotationalEphemeris( ) ),
+                            currentBodyName );
+                }
+                break;
 
-            // Create rtg force vector parameter
-            vectorParameterToEstimate = std::make_shared< RTGForceVector >(
-                    rtgAccelerationModel,
-                    vectorParameterName->parameterType_.second.first);
+            case spherical_harmonics_cosine_coefficient_block: {
+                std::shared_ptr< GravityFieldModel > gravityField = currentBody->getGravityFieldModel( );
+                std::shared_ptr< SphericalHarmonicsGravityField > shGravityField =
+                        std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( gravityField );
+                if( shGravityField == nullptr )
+                {
+                    std::string errorMessage = "Error, requested spherical harmonic cosine coefficient block parameter of " +
+                            std::string( vectorParameterName->parameterType_.second.first ) +
+                            ", but body does not have a spherical harmonic gravity field.";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    // Check if spherical harmonic gravity field is static or time-dependent; set associated
+                    // functions accordingly
+                    std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDependentShField =
+                            std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >( shGravityField );
 
-            break; }
+                    std::function< Eigen::MatrixXd( ) > getCosineCoefficientsFunction;
+                    std::function< void( Eigen::MatrixXd ) > setCosineCoefficientsFunction;
+
+                    if( timeDependentShField == nullptr )
+                    {
+                        getCosineCoefficientsFunction = std::bind( &SphericalHarmonicsGravityField::getCosineCoefficients, shGravityField );
+                        setCosineCoefficientsFunction =
+                                std::bind( &SphericalHarmonicsGravityField::setCosineCoefficients, shGravityField, std::placeholders::_1 );
+                    }
+                    else
+                    {
+                        getCosineCoefficientsFunction = std::bind(
+                                &TimeDependentSphericalHarmonicsGravityField::getNominalCosineCoefficients, timeDependentShField );
+                        setCosineCoefficientsFunction =
+                                std::bind( &TimeDependentSphericalHarmonicsGravityField::setNominalCosineCoefficients,
+                                           timeDependentShField,
+                                           std::placeholders::_1 );
+                    }
+
+                    // Create cosine coefficients estimation object.
+                    std::shared_ptr< SphericalHarmonicEstimatableParameterSettings > blockParameterSettings =
+                            std::dynamic_pointer_cast< SphericalHarmonicEstimatableParameterSettings >( vectorParameterName );
+                    if( blockParameterSettings != nullptr )
+                    {
+                        vectorParameterToEstimate = std::make_shared< SphericalHarmonicsCosineCoefficients >(
+                                getCosineCoefficientsFunction,
+                                setCosineCoefficientsFunction,
+                                blockParameterSettings->blockIndices_,
+                                vectorParameterName->parameterType_.second.first );
+                    }
+                    else
+                    {
+                        throw std::runtime_error( "Error, expected SphericalHarmonicEstimatableParameterSettings for cosine coefficients" );
+                    }
+                }
+                break;
+            }
+            case spherical_harmonics_sine_coefficient_block: {
+                std::shared_ptr< GravityFieldModel > gravityField = currentBody->getGravityFieldModel( );
+                std::shared_ptr< SphericalHarmonicsGravityField > shGravityField =
+                        std::dynamic_pointer_cast< SphericalHarmonicsGravityField >( gravityField );
+                if( shGravityField == nullptr )
+                {
+                    std::string errorMessage = "Error, requested spherical harmonic sine coefficient block parameter of " +
+                            std::string( vectorParameterName->parameterType_.second.first ) +
+                            ", but body does not have a spherical harmonic gravity field.";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    std::shared_ptr< SphericalHarmonicEstimatableParameterSettings > blockParameterSettings =
+                            std::dynamic_pointer_cast< SphericalHarmonicEstimatableParameterSettings >( vectorParameterName );
+
+                    // Check if spherical harmonic gravity field is static or time-dependent; set associated
+                    // functions accordingly
+                    std::function< Eigen::MatrixXd( ) > getSineCoefficientsFunction;
+                    std::function< void( Eigen::MatrixXd ) > setSineCoefficientsFunction;
+                    std::shared_ptr< TimeDependentSphericalHarmonicsGravityField > timeDependentShField =
+                            std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >( shGravityField );
+
+                    if( timeDependentShField == nullptr )
+                    {
+                        getSineCoefficientsFunction = std::bind( &SphericalHarmonicsGravityField::getSineCoefficients, shGravityField );
+                        setSineCoefficientsFunction =
+                                std::bind( &SphericalHarmonicsGravityField::setSineCoefficients, shGravityField, std::placeholders::_1 );
+                    }
+                    else
+                    {
+                        getSineCoefficientsFunction =
+                                std::bind( &TimeDependentSphericalHarmonicsGravityField::getNominalSineCoefficients, timeDependentShField );
+                        setSineCoefficientsFunction = std::bind( &TimeDependentSphericalHarmonicsGravityField::setNominalSineCoefficients,
+                                                                 timeDependentShField,
+                                                                 std::placeholders::_1 );
+                    }
+
+                    // Create sine coefficients estimation object.
+                    if( blockParameterSettings != nullptr )
+                    {
+                        vectorParameterToEstimate =
+                                std::make_shared< SphericalHarmonicsSineCoefficients >( getSineCoefficientsFunction,
+                                                                                        setSineCoefficientsFunction,
+                                                                                        blockParameterSettings->blockIndices_,
+                                                                                        vectorParameterName->parameterType_.second.first );
+                    }
+                    else
+                    {
+                        throw std::runtime_error( "Error, expected SphericalHarmonicEstimatableParameterSettings for sine coefficients" );
+                    }
+                }
+
+                break;
+            }
+            case ground_station_position: {
+                if( currentBody->getGroundStationMap( ).count( vectorParameterName->parameterType_.second.second ) == 0 )
+                {
+                    std::string errorMessage = "Error, requested ground station position parameter of " +
+                            vectorParameterName->parameterType_.second.first + " " + vectorParameterName->parameterType_.second.second +
+                            " , but ground station was not found";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    std::shared_ptr< ground_stations::GroundStationState > groundStationState =
+                            currentBody->getGroundStation( vectorParameterName->parameterType_.second.second )->getNominalStationState( );
+                    if( groundStationState == nullptr )
+                    {
+                        std::string errorMessage = "Error, requested ground station position parameter of " +
+                                vectorParameterName->parameterType_.second.first + " " + vectorParameterName->parameterType_.second.second +
+                                "  but nominal ground station state is nullptr";
+                        throw std::runtime_error( errorMessage );
+                    }
+                    else
+                    {
+                        vectorParameterToEstimate =
+                                std::make_shared< GroundStationPosition >( groundStationState,
+                                                                           vectorParameterName->parameterType_.second.first,
+                                                                           vectorParameterName->parameterType_.second.second );
+                    }
+                }
+                break;
+            }
+            case reference_point_position: {
+                if( currentBody->getVehicleSystems( ) == nullptr )
+                {
+                    std::string errorMessage = "Error, requested reference point position parameter of " +
+                            vectorParameterName->parameterType_.second.first + " " + vectorParameterName->parameterType_.second.second +
+                            " , but no system models found";
+                    throw std::runtime_error( errorMessage );
+                }
+                else
+                {
+                    vectorParameterToEstimate =
+                            std::make_shared< ReferencePointPosition >( currentBody->getVehicleSystems( ),
+                                                                        vectorParameterName->parameterType_.second.first,
+                                                                        vectorParameterName->parameterType_.second.second );
+                }
+                break;
+            }
+            case empirical_acceleration_coefficients: {
+                if( propagatorSettings == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when creating empirical_acceleration_coefficients parameter, no propagatorSettings provided." );
+                }
+
+                // Check input consistency
+                std::shared_ptr< EmpiricalAccelerationEstimatableParameterSettings > empiricalAccelerationSettings =
+                        std::dynamic_pointer_cast< EmpiricalAccelerationEstimatableParameterSettings >( vectorParameterName );
+                if( empiricalAccelerationSettings == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when trying to make constant empirical acceleration coefficients parameter, settings type "
+                            "inconsistent" );
+                }
+                else
+                {
+                    std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
+                            getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings,
+                                                                                                                   vectorParameterName );
+                    std::vector< std::shared_ptr< basic_astrodynamics::EmpiricalAcceleration > > empiricalAccelerations;
+                    for( unsigned int i = 0; i < associatedAccelerationModels.size( ); i++ )
+                    {
+                        // Create parameter object
+                        if( std::dynamic_pointer_cast< basic_astrodynamics::EmpiricalAcceleration >(
+                                    associatedAccelerationModels.at( i ) ) != nullptr )
+                        {
+                            empiricalAccelerations.push_back( std::dynamic_pointer_cast< basic_astrodynamics::EmpiricalAcceleration >(
+                                    associatedAccelerationModels.at( i ) ) );
+                        }
+                        else
+                        {
+                            throw std::runtime_error(
+                                    "Error, expected EmpiricalAcceleration in list when creating empirical_acceleration_coefficients "
+                                    "parameter" );
+                        }
+                    }
+
+                    if( associatedAccelerationModels.size( ) == 0 )
+                    {
+                        throw std::runtime_error(
+                                "Error, no EmpiricalAcceleration objects found when making empirical acceleration parameter" );
+                    }
+
+                    // Create empirical acceleration parameter
+                    vectorParameterToEstimate = std::make_shared< EmpiricalAccelerationCoefficientsParameter >(
+                            empiricalAccelerations,
+                            empiricalAccelerationSettings->parameterType_.second.first,
+                            empiricalAccelerationSettings->parameterType_.second.second,
+                            empiricalAccelerationSettings->componentsToEstimate_ );
+                }
+                break;
+            }
+            case rtg_force_vector: {
+                if( propagatorSettings == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating rtg_force_vector parameter, no propagatorSettings provided." );
+                }
+
+                /*// Check input consistency --> redundant, no dynamic casting to be done, since rtg force vector settings object is of base
+                class EstimatableParameterSettings type std::shared_ptr< EstimatableParameterSettings > rtgAccelerationSettings =
+                        std::dynamic_pointer_cast< EstimatableParameterSettings >( vectorParameterName );
+                if( empiricalAccelerationSettings == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when trying to make constant empirical acceleration coefficients parameter, settings type "
+                            "inconsistent" );
+                }
+                else
+                {*/
+
+                std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
+                        getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings,
+                                                                                                               vectorParameterName );
+
+                if( associatedAccelerationModels.size( ) == 0 )
+                {
+                    throw std::runtime_error( "Error when trying to make rtg force vector parameter, no acceleration model found. " );
+                }
+                else if( associatedAccelerationModels.size( ) > 1 )
+                {
+                    throw std::runtime_error(
+                            "Error when trying to make rtg force vector parameter, more than one acceleration model found. " );
+                }
+
+                // Create parameter object
+                std::shared_ptr< system_models::RTGAccelerationModel > rtgAccelerationModel =
+                        std::dynamic_pointer_cast< system_models::RTGAccelerationModel >( associatedAccelerationModels.at( 0 ) );
+
+                if( rtgAccelerationModel == nullptr )
+                {
+                    throw std::runtime_error( "Error, expected RTGAccelerationModel when creating rtg_force_vector parameter" );
+                }
+
+                // Create rtg force vector parameter
+                vectorParameterToEstimate =
+                        std::make_shared< RTGForceVector >( rtgAccelerationModel, vectorParameterName->parameterType_.second.first );
+
+                break;
+            }
 
             case arc_wise_radiation_pressure_coefficient: {
                 // Check input consistency
@@ -2852,7 +2846,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
     std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > considerParameters;
     if( !considerParameterNames.empty( ) )
     {
-        considerParameters = createParametersToEstimate< InitialStateParameterType, TimeType >( considerParameterNames, bodies, propagatorSettings );
+        considerParameters =
+                createParametersToEstimate< InitialStateParameterType, TimeType >( considerParameterNames, bodies, propagatorSettings );
     }
 
     return std::make_shared< EstimatableParameterSet< InitialStateParameterType > >(

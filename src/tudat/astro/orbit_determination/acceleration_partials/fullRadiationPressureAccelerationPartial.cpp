@@ -60,19 +60,18 @@ RadiationPressureAccelerationPartial::RadiationPressureAccelerationPartial(
     }
 }
 
-
-std::pair< std::function< void( Eigen::MatrixXd& ) >, int > RadiationPressureAccelerationPartial::getParameterPartialFunctionDerivedAcceleration(
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+RadiationPressureAccelerationPartial::getParameterPartialFunctionDerivedAcceleration(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
     std::function< void( Eigen::MatrixXd& ) > partialFunction;
     int parameterSize = 0;
     if( customAccelerationPartialSet_->customDoubleParameterPartials_.count( parameter->getParameterName( ) ) != 0 )
     {
-        partialFunction =
-                std::bind( &RadiationPressureAccelerationPartial::createCustomParameterPartialFunction,
-                           this,
-                           std::placeholders::_1,
-                           customAccelerationPartialSet_->customDoubleParameterPartials_.at( parameter->getParameterName( ) ) );
+        partialFunction = std::bind( &RadiationPressureAccelerationPartial::createCustomParameterPartialFunction,
+                                     this,
+                                     std::placeholders::_1,
+                                     customAccelerationPartialSet_->customDoubleParameterPartials_.at( parameter->getParameterName( ) ) );
         parameterSize = 1;
     }
     else if( parameter->getParameterName( ).first == estimatable_parameters::radiation_pressure_coefficient &&
@@ -163,46 +162,42 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > RadiationPressureAcc
     return std::make_pair( partialFunction, parameterSize );
 }
 
-std::pair< std::function< void( Eigen::MatrixXd& ) >, int > RadiationPressureAccelerationPartial::getParameterPartialFunctionDerivedAcceleration(
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int >
+RadiationPressureAccelerationPartial::getParameterPartialFunctionDerivedAcceleration(
         std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
 {
     std::function< void( Eigen::MatrixXd& ) > partialFunction;
     int parameterSize = 0;
     if( customAccelerationPartialSet_->customVectorParameterPartials_.count( parameter->getParameterName( ) ) != 0 )
     {
-        partialFunction =
-                std::bind( &RadiationPressureAccelerationPartial::createCustomParameterPartialFunction,
-                           this,
-                           std::placeholders::_1,
-                           customAccelerationPartialSet_->customVectorParameterPartials_.at( parameter->getParameterName( ) ) );
+        partialFunction = std::bind( &RadiationPressureAccelerationPartial::createCustomParameterPartialFunction,
+                                     this,
+                                     std::placeholders::_1,
+                                     customAccelerationPartialSet_->customVectorParameterPartials_.at( parameter->getParameterName( ) ) );
         parameterSize = parameter->getParameterSize( );
     }
     else if( parameter->getParameterName( ).first == estimatable_parameters::arc_wise_radiation_pressure_coefficient &&
              parameter->getParameterName( ).second.first == acceleratedBody_ )
     {
-
         if( std::dynamic_pointer_cast< estimatable_parameters::ArcWiseRadiationPressureCoefficient >( parameter ) != nullptr )
         {
             if( std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >(
                         radiationPressureAcceleration_->getTargetModel( ) ) != nullptr )
             {
-                partialFunction = std::bind( &RadiationPressureAccelerationPartial::wrtArcWiseRadiationPressureCoefficient,
-                                             this,
-                                             std::placeholders::_1,
-                                             std::dynamic_pointer_cast< estimatable_parameters::ArcWiseRadiationPressureCoefficient >(
-                                                     parameter ),
-                                             std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >(
-                                                     radiationPressureAcceleration_->getTargetModel( ) ) );
+                partialFunction =
+                        std::bind( &RadiationPressureAccelerationPartial::wrtArcWiseRadiationPressureCoefficient,
+                                   this,
+                                   std::placeholders::_1,
+                                   std::dynamic_pointer_cast< estimatable_parameters::ArcWiseRadiationPressureCoefficient >( parameter ),
+                                   std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >(
+                                           radiationPressureAcceleration_->getTargetModel( ) ) );
                 parameterSize = parameter->getParameterSize( );
             }
         }
         else
         {
-            throw std::runtime_error(
-                    "Error when making radiation pressure partial, arcwise radiation pressure parameter not consistent" );
+            throw std::runtime_error( "Error when making radiation pressure partial, arcwise radiation pressure parameter not consistent" );
         }
-
-
     }
     return std::make_pair( partialFunction, parameterSize );
 }
@@ -279,7 +274,7 @@ void RadiationPressureAccelerationPartial::wrtSpecularReflectivity(
     double spacecraftMass = targetMassFunction( );
 
     std::vector< double >& savedPanelOccultedIrradiances = radiationPressureAcceleration_->getSavedPanelOccultedIrradiances( );
-    std::vector< Eigen::Vector3d  >& savedPanelRelativePositions = radiationPressureAcceleration_->getSavedPanelRelativePositions( );
+    std::vector< Eigen::Vector3d >& savedPanelRelativePositions = radiationPressureAcceleration_->getSavedPanelRelativePositions( );
 
     Eigen::Quaterniond targetRotationFromLocalToGlobalFrame =
             radiationPressureAcceleration_->getTargetRotationFromLocalToGlobalFrameFunction( )( );
@@ -306,7 +301,7 @@ void RadiationPressureAccelerationPartial::wrtDiffuseReflectivity(
     double spacecraftMass = targetMassFunction( );
 
     std::vector< double >& savedPanelOccultedIrradiances = radiationPressureAcceleration_->getSavedPanelOccultedIrradiances( );
-    std::vector< Eigen::Vector3d  >& savedPanelRelativePositions = radiationPressureAcceleration_->getSavedPanelRelativePositions( );
+    std::vector< Eigen::Vector3d >& savedPanelRelativePositions = radiationPressureAcceleration_->getSavedPanelRelativePositions( );
 
     Eigen::Quaterniond targetRotationFromLocalToGlobalFrame =
             radiationPressureAcceleration_->getTargetRotationFromLocalToGlobalFrameFunction( )( );
