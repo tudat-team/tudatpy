@@ -63,7 +63,8 @@ std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > c
         if( !( ( parameter->getParameterName( ).first == estimatable_parameters::initial_body_state ) ||
                ( parameter->getParameterName( ).first == estimatable_parameters::arc_wise_initial_body_state ) ) )
         {
-            throw std::runtime_error( "Error, only (single-arc or arc-wise) initial cartesian state supported for custom numerical acceleration partial" );
+            throw std::runtime_error(
+                    "Error, only (single-arc or arc-wise) initial cartesian state supported for custom numerical acceleration partial" );
         }
         std::string bodyName = parameter->getParameterName( ).second.first;
         if( bodies.count( bodyName ) == 0 )
@@ -126,8 +127,7 @@ std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculat
                 switch( parameterSet->getEstimatedInitialStateParameters( ).at( i )->getParameterName( ).first )
                 {
                     case estimatable_parameters::initial_body_state:
-                    case estimatable_parameters::arc_wise_initial_body_state:
-                    {
+                    case estimatable_parameters::arc_wise_initial_body_state: {
                         partialCalculatorSet->customInitialStatePartials_
                                 [ parameterSet->getEstimatedInitialStateParameters( ).at( i )->getParameterName( ) ] =
                                 createCustomAccelerationPartial( customPartialSettings.at( j ),
@@ -166,8 +166,7 @@ std::shared_ptr< estimatable_parameters::CustomSingleAccelerationPartialCalculat
             {
                 switch( parameterSet->getEstimatedVectorParameters( ).at( i )->getParameterName( ).first )
                 {
-                    case estimatable_parameters::custom_estimated_parameter:
-                    {
+                    case estimatable_parameters::custom_estimated_parameter: {
                         partialCalculatorSet->customVectorParameterPartials_
                                 [ parameterSet->getEstimatedVectorParameters( ).at( i )->getParameterName( ) ] =
                                 createCustomAccelerationPartial(
@@ -851,23 +850,23 @@ std::shared_ptr< acceleration_partials::AccelerationPartial > createAnalyticalAc
             break;
         }
         case rtg_acceleration: {
-          // Check if identifier is consistent with type.
-          std::shared_ptr< system_models::RTGAccelerationModel > rtgAcceleration =
-                  std::dynamic_pointer_cast< system_models::RTGAccelerationModel >( accelerationModel );
-          if( rtgAcceleration == nullptr )
-          {
-            throw std::runtime_error(
-                    "Acceleration class type does not match acceleration type enum (yarkovsky_acceleration) set when making "
-                    "acceleration partial." );
-          }
-          else
-          {
-            // Create partial-calculating object.
-            accelerationPartial = std::make_shared< RTGAccelerationPartial >(
-                    rtgAcceleration, acceleratedBody.first , acceleratingBody.first);
-          }
-          break;
-      }
+            // Check if identifier is consistent with type.
+            std::shared_ptr< system_models::RTGAccelerationModel > rtgAcceleration =
+                    std::dynamic_pointer_cast< system_models::RTGAccelerationModel >( accelerationModel );
+            if( rtgAcceleration == nullptr )
+            {
+                throw std::runtime_error(
+                        "Acceleration class type does not match acceleration type enum (yarkovsky_acceleration) set when making "
+                        "acceleration partial." );
+            }
+            else
+            {
+                // Create partial-calculating object.
+                accelerationPartial =
+                        std::make_shared< RTGAccelerationPartial >( rtgAcceleration, acceleratedBody.first, acceleratingBody.first );
+            }
+            break;
+        }
         default:
             std::string errorMessage =
                     "Acceleration model " + std::to_string( accelerationType ) + " not found when making acceleration partial";
