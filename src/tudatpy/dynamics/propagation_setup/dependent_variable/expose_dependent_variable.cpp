@@ -290,6 +290,10 @@ void expose_dependent_variable_setup( py::module &m )
                     tp::PropagationDependentVariables::gravity_field_laplacian_of_potential_dependent_variable,
                     R"doc(
       )doc" )
+            .value( "vehicle_part_rotation_matrix_type",
+                    tp::PropagationDependentVariables::vehicle_part_rotation_matrix_dependent_variable,
+                    R"doc(
+      )doc" )
             .export_values( );
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -2575,6 +2579,36 @@ The type of the acceleration that is to be saved.
            py::arg( "central_body_name" ),
            py::arg( "acceleration_type" ) = "radiation_pressure",
            R"doc(No documentation found.)doc" );
+
+    m.def( "vehicle_part_rotation_matrix",
+           &tp::vehiclePartRotationMatrixVariable,
+           py::arg( "body" ),
+           py::arg( "part_name" ) = "",
+           R"doc(
+
+ Function to add the vehicle part rotation matrix to the dependent variables to save.
+
+ Function to add the rotation matrix of a vehicle part (relative to the body-fixed frame) to the dependent variables to save.
+ The rotation matrix is stored at each time step and represents the orientation of the specified vehicle part.
+
+ Parameters
+ ----------
+ body : str
+     Body (vehicle) whose part rotation should be saved.
+ part_name : str
+     Name of the vehicle part whose rotation is to be saved. Empty string for main body.
+ Returns
+ -------
+ SingleDependentVariableSaveSettings
+     Dependent variable settings object.
+ Variable Size
+ -------------
+ 9 (3x3 matrix stored as vector)
+
+
+
+
+     )doc" );
 }
 
 }  // namespace dependent_variable

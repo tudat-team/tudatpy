@@ -120,6 +120,9 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
         case inertial_to_body_fixed_rotation_matrix_variable:
             variableName = "Rotation matrix to body-fixed frame ";
             break;
+        case vehicle_part_rotation_matrix_dependent_variable:
+            variableName = "Vehicle part rotation matrix ";
+            break;
         case intermediate_aerodynamic_rotation_matrix_variable:
             variableName = "Rotation matrix from ";
             break;

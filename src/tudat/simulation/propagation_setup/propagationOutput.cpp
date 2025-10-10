@@ -258,6 +258,9 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
         case inertial_to_body_fixed_rotation_matrix_variable:
             variableSize = 9;
             break;
+        case vehicle_part_rotation_matrix_dependent_variable:
+            variableSize = 9;
+            break;
         case intermediate_aerodynamic_rotation_matrix_variable:
             variableSize = 9;
             break;
@@ -641,6 +644,9 @@ std::pair< int, int > getDependentVariableShape( const std::shared_ptr< SingleDe
         case inertial_to_body_fixed_rotation_matrix_variable:
             dependentVariableShape = { 3, 3 };
             break;
+        case vehicle_part_rotation_matrix_dependent_variable:
+            dependentVariableShape = { 3, 3 };
+            break;
         case intermediate_aerodynamic_rotation_matrix_variable:
             dependentVariableShape = { 3, 3 };
             break;
@@ -708,6 +714,9 @@ bool isMatrixDependentVariable( const std::shared_ptr< SingleDependentVariableSa
     switch( dependentVariableSettings->dependentVariableType_ )
     {
         case inertial_to_body_fixed_rotation_matrix_variable:
+            isMatrixVariable = true;
+            break;
+        case vehicle_part_rotation_matrix_dependent_variable:
             isMatrixVariable = true;
             break;
         case intermediate_aerodynamic_rotation_matrix_variable:

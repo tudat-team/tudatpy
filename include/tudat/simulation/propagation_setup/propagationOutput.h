@@ -1141,6 +1141,28 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
 
             break;
         }
+        case vehicle_part_rotation_matrix_dependent_variable: {
+            // Check if body has vehicle systems
+            if( bodies.at( bodyWithProperty )->getVehicleSystems( ) == nullptr )
+            {
+                throw std::runtime_error( "Error when getting vehicle part rotation matrix for body " + bodyWithProperty +
+                                          ", body does not have vehicle systems." );
+            }
+
+            // Get the part name from secondaryBody_ field
+            std::string partName = dependentVariableSettings->secondaryBody_;
+
+            // Create function to get rotation quaternion from vehicle systems
+            std::function< Eigen::Quaterniond( ) > rotationFunction = std::bind(
+                    &system_models::VehicleSystems::getPartRotationToBaseFrame,
+                    bodies.at( bodyWithProperty )->getVehicleSystems( ),
+                    partName );
+
+            variableFunction = std::bind( &getVectorRepresentationForRotationQuaternion, rotationFunction );
+            parameterSize = 9;
+
+            break;
+        }
         case total_torque_dependent_variable: {
             // Retrieve model responsible for computing accelerations of requested bodies.
             std::shared_ptr< RotationalMotionStateDerivative< StateScalarType, TimeType > > rotationalDynamicsModel =

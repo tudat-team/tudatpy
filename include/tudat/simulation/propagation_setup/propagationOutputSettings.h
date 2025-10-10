@@ -142,7 +142,8 @@ enum PropagationDependentVariables {
     full_body_paneled_geometry = 75,
     aerodynamic_coefficients = 76,
     actual_cross_section = 77,
-    solar_longitude = 78
+    solar_longitude = 78,
+    vehicle_part_rotation_matrix_dependent_variable = 79
 
 };
 
@@ -1392,6 +1393,12 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > actualCrossSection
 {
     return std::make_shared< CrossSectionDependentVariableSaveSettings >(
             actual_cross_section, bodyName, centralBodyName, accelerationType );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > vehiclePartRotationMatrixVariable( const std::string& bodyName,
+                                                                                                  const std::string& partName = "" )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >( vehicle_part_rotation_matrix_dependent_variable, bodyName, partName );
 }
 
 }  // namespace propagators
