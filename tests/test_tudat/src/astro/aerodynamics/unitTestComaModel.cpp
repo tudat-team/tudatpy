@@ -463,7 +463,7 @@ BOOST_FIXTURE_TEST_CASE(test_stokes_coefficients_evaluator, TestDataPaths)
     // ========== Test Case 1: solar longitude = 0°, radius = 4 km ==========
     {
         const double radius = expectedData1.radius; // 4000 m
-        const double solarLongitude = expectedData1.solarLongitude * M_PI / 180.0; // 0° in radians
+        const double solarLongitude = expectedData1.solarLongitude * mathematical_constants::PI / 180.0; // 0° in radians
 
         Eigen::MatrixXd cosineCoefficients, sineCoefficients;
 
@@ -522,7 +522,7 @@ BOOST_FIXTURE_TEST_CASE(test_stokes_coefficients_evaluator, TestDataPaths)
     // ========== Test Case 2: solar longitude = 30°, radius = 10 km ==========
     {
         const double radius = expectedData2.radius; // 10000 m
-        const double solarLongitude = expectedData2.solarLongitude * M_PI / 180.0; // 30° in radians
+        const double solarLongitude = expectedData2.solarLongitude * mathematical_constants::PI / 180.0; // 30° in radians
 
         Eigen::MatrixXd cosineCoefficients, sineCoefficients;
 
@@ -584,7 +584,7 @@ BOOST_FIXTURE_TEST_CASE(test_stokes_coefficients_evaluator, TestDataPaths)
         const int truncatedMaxDegree = 5;
         const int truncatedMaxOrder = 3;
         const double radius = expectedData1.radius;
-        const double solarLongitude = expectedData1.solarLongitude * M_PI / 180.0;
+        const double solarLongitude = expectedData1.solarLongitude * mathematical_constants::PI / 180.0;
 
         simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
             radius,
@@ -620,7 +620,7 @@ BOOST_FIXTURE_TEST_CASE(test_stokes_coefficients_evaluator, TestDataPaths)
     {
         Eigen::MatrixXd dummyCosine, dummySine;
         const double radius = expectedData1.radius;
-        const double solarLongitude = expectedData1.solarLongitude * M_PI / 180.0;
+        const double solarLongitude = expectedData1.solarLongitude * mathematical_constants::PI / 180.0;
 
         BOOST_CHECK_THROW(
             simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
@@ -966,8 +966,8 @@ BOOST_FIXTURE_TEST_CASE(test_coma_model_number_density, TestDataPaths)
             const DataPoint& point = allPoints[idx];
 
             // Convert to radians
-            const double longitude_rad = point.longitude_deg * M_PI / 180.0;
-            const double latitude_rad = point.latitude_deg * M_PI / 180.0;
+            const double longitude_rad = point.longitude_deg * mathematical_constants::PI / 180.0;
+            const double latitude_rad = point.latitude_deg * mathematical_constants::PI / 180.0;
 
             // Call getNumberDensity from ComaModel
             const double computedNumberDensity = comaModel->getNumberDensity(
@@ -1012,7 +1012,7 @@ BOOST_FIXTURE_TEST_CASE(test_coma_model_number_density, TestDataPaths)
         {
             const boost::filesystem::path residualsFile2 = dataDir / "residual_r_cometFixed_ep10-030_10km.txt";
             const double testRadius = 10000.0;  // 10 km in meters
-            const double testSolarLongitude = 30.0 * M_PI / 180.0;  // 30 degrees in radians
+            const double testSolarLongitude = 30.0 * mathematical_constants::PI / 180.0;  // 30 degrees in radians
             const double testTime = 490708800;   // s since J2000
 
             // Define state functions for solar longitude = 30°
@@ -1123,8 +1123,8 @@ BOOST_FIXTURE_TEST_CASE(test_coma_model_number_density, TestDataPaths)
             const DataPoint& point = allPoints[idx];
 
             // Convert to radians
-            const double longitude_rad = point.longitude_deg * M_PI / 180.0;
-            const double latitude_rad = point.latitude_deg * M_PI / 180.0;
+            const double longitude_rad = point.longitude_deg * mathematical_constants::PI / 180.0;
+            const double latitude_rad = point.latitude_deg * mathematical_constants::PI / 180.0;
 
             // Call getNumberDensity from ComaModel
             const double computedNumberDensity = comaModel->getNumberDensity(
@@ -1543,7 +1543,7 @@ BOOST_FIXTURE_TEST_CASE(test_calculate_surface_spherical_harmonics, TestDataPath
     {
         const boost::filesystem::path residualsFile1 = dataDir / "residual_r_cometFixed_ep10-000_04km.txt";
         const double testRadius = 4000.0;  // 4 km in meters
-        const double testSolarLongitude = 0.0 * M_PI / 180.0;  // 0 degrees in radians
+        const double testSolarLongitude = 0.0 * mathematical_constants::PI / 180.0;  // 0 degrees in radians
 
         // Calculate Stokes coefficients for this case
         Eigen::MatrixXd cosineCoefficients, sineCoefficients;
@@ -1615,8 +1615,8 @@ BOOST_FIXTURE_TEST_CASE(test_calculate_surface_spherical_harmonics, TestDataPath
             const DataPoint& point = allPoints[idx];
 
             // Convert to radians (latitude is already geodetic latitude in the file)
-            const double longitude_rad = point.longitude_deg * M_PI / 180.0;
-            const double latitude_rad = point.latitude_deg * M_PI / 180.0;
+            const double longitude_rad = point.longitude_deg * mathematical_constants::PI / 180.0;
+            const double latitude_rad = point.latitude_deg * mathematical_constants::PI / 180.0;
 
             // Calculate using our implementation
             const double computedResult = calculator.calculateSurfaceSphericalHarmonics(
@@ -1660,7 +1660,7 @@ BOOST_FIXTURE_TEST_CASE(test_calculate_surface_spherical_harmonics, TestDataPath
     {
         const boost::filesystem::path residualsFile2 = dataDir / "residual_r_cometFixed_ep10-030_10km.txt";
         const double testRadius = 10000.0;  // 10 km in meters
-        const double testSolarLongitude = 30.0 * M_PI / 180.0;  // 30 degrees in radians
+        const double testSolarLongitude = 30.0 * mathematical_constants::PI / 180.0;  // 30 degrees in radians
 
         // Calculate Stokes coefficients for this case
         Eigen::MatrixXd cosineCoefficients, sineCoefficients;
@@ -1732,8 +1732,8 @@ BOOST_FIXTURE_TEST_CASE(test_calculate_surface_spherical_harmonics, TestDataPath
             const DataPoint& point = allPoints[idx];
 
             // Convert to radians (latitude is already geodetic latitude in the file)
-            const double longitude_rad = point.longitude_deg * M_PI / 180.0;
-            const double latitude_rad = point.latitude_deg * M_PI / 180.0;
+            const double longitude_rad = point.longitude_deg * mathematical_constants::PI / 180.0;
+            const double latitude_rad = point.latitude_deg * mathematical_constants::PI / 180.0;
 
             // Calculate using our implementation
             const double computedResult = calculator.calculateSurfaceSphericalHarmonics(

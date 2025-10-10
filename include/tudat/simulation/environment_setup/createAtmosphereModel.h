@@ -543,9 +543,29 @@ class ComaPolyDatasetReader
 public:
     static ComaPolyDataset readFromFiles( const std::vector< std::string >& filePaths )
     {
-        if(filePaths.empty( ))
-            throw std::invalid_argument( "ComaPolyDatasetReader: empty file list" );
 
+
+        // Check that all files exist before attempting to read
+        std::vector< std::string > missingFiles;
+        for(const auto& path : filePaths)
+        {
+            std::ifstream testFile( path );
+            const bool canOpen = testFile.is_open( );
+            testFile.close( );
+            if(!canOpen)
+                missingFiles.push_back( path );
+        }
+
+        if(!missingFiles.empty( ))
+        {
+            std::string errorMsg = "ComaPolyDatasetReader: the following file(s) do not exist or cannot be opened:\n";
+            for(const auto& path : missingFiles)
+                errorMsg += "  - " + path + "\n";
+            throw std::runtime_error( errorMsg );
+        }
+
+        if(filePaths.empty( ))
+                    throw std::invalid_argument( "ComaPolyDatasetReader: empty file list" );
         const std::size_t n = filePaths.size( );
         std::vector< Eigen::MatrixXd > polyCoefficients( n );
         std::vector< Eigen::ArrayXXi > SHDegreeAndOrderIndices( n );
@@ -581,8 +601,7 @@ private:
         std::ifstream file( filePath );
         if(!file.is_open( ))
         {
-            std::cerr << "[ERROR] Could not open file '" << filePath << "'.\n";
-            std::exit( EXIT_FAILURE );
+            throw std::runtime_error( "ComaPolyDatasetReader: could not open file '" + filePath + "'" );
         }
 
         std::string line;
@@ -1408,7 +1427,7 @@ public:
         std::vector<double> solLongitudes_rad(solLongitudes_deg.size());
         for (std::size_t i = 0; i < solLongitudes_deg.size(); ++i)
         {
-            solLongitudes_rad[i] = solLongitudes_deg[i] * M_PI / 180.0;
+            solLongitudes_rad[i] = solLongitudes_deg[i] * mathematical_constants::PI / 180.0;
         }
 
         // Create empty Stokes dataset (with longitudes in radians)
@@ -1621,15 +1640,16 @@ public:
         filePaths_( std::move( filePaths ) ), fileType_( FileType::PolyCoefficients )
     {
         if(filePaths_.empty( ))
-            throw std::invalid_argument( "ComaModelFileProcessor: empty file list" );
+        {
+            throw std::invalid_argument( "ComaModelFileProcessor: empty file list provided to constructor" );
+        }
     }
 
     // Constructor for Stokes coefficient files (SH files)
     explicit ComaModelFileProcessor( const std::string& inputDir, const std::string& prefix = "stokes" ) :
-        fileType_( FileType::StokesCoefficients ), shInputDir_( inputDir ), shPrefix_( prefix )
+        fileType_( FileType::StokesCoefficients ), shInputDir_( inputDir ), shPrefix_( prefix ),
+        preloadedSHDataset_( ComaStokesDatasetReader::readFromCsvFolder( inputDir, prefix ) )
     {
-        // Load the SH dataset immediately
-        preloadedSHDataset_ = ComaStokesDatasetReader::readFromCsvFolder( inputDir, prefix );
     }
 
     // Create poly dataset from files (only available for poly coefficient files)
@@ -1639,6 +1659,11 @@ public:
         {
             throw std::runtime_error( "createPolyCoefDataset: not available when processor is constructed from SH files. "
                     "Use a processor constructed from polynomial coefficient files instead." );
+        }
+        if(filePaths_.empty( ))
+        {
+            throw std::invalid_argument( "ComaPolyDataset createPolyCoefDataset( ): empty file list. "
+                    "This should never happen as the constructor validates the file list." );
         }
         return ComaPolyDatasetReader::readFromFiles( filePaths_ );
     }
@@ -1660,7 +1685,7 @@ public:
         else
         {
             // When constructed from poly files, transform as before
-            const ComaPolyDataset polyDataset = createPolyCoefDataset( );
+            const ComaPolyDataset polyDataset = createPolyCoefDataset(  );
             return ComaDatasetTransformer::transformPolyToStokes(
                     polyDataset,
                     radii_m,

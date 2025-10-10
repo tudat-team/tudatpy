@@ -856,7 +856,7 @@ using the NRLMSISE-00 global reference model:
 
 
     // === Coma processing: file processor ===
-    py::class_< tss::ComaModelFileProcessor >( m,
+    py::class_< tss::ComaModelFileProcessor, std::shared_ptr< tss::ComaModelFileProcessor > >( m,
                                                "ComaModelFileProcessor",
                                                R"doc(Processor for coma model files (polynomial or spherical harmonics coefficients).)doc" )
         .def("create_poly_coef_dataset",
