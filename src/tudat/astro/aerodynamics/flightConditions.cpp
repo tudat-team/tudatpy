@@ -41,7 +41,7 @@ FlightConditions::FlightConditions( const std::shared_ptr< basic_astrodynamics::
                                                std::placeholders::_1,
                                                1.0E-4 );
     }
-    scalarFlightConditions_.resize( 13 );
+    scalarFlightConditions_.resize( 14 );
     isScalarFlightConditionComputed_ = allScalarFlightConditionsUncomputed;
 }
 

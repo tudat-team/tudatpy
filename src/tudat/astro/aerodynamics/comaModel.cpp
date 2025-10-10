@@ -137,6 +137,25 @@ double ComaModel::getDensity( const double radius,
                               const double latitude,
                               const double time )
 {
+    // Validate radius against reference radius
+    const int fileIndex = findTimeIntervalIndex( time );
+    double referenceRadius;
+
+    if ( dataType_ == ComaDataType::POLYNOMIAL_COEFFICIENTS )
+    {
+        referenceRadius = polyDataset_->getFileMeta( fileIndex ).referenceRadius;
+    }
+    else // ComaDataType::STOKES_COEFFICIENTS
+    {
+        referenceRadius = stokesDataset_->getReferenceRadius( fileIndex );
+    }
+
+    if ( radius < referenceRadius )
+    {
+        throw std::runtime_error( "ComaModel: Radius " + std::to_string( radius ) +
+                                  " is smaller than reference radius " + std::to_string( referenceRadius ) );
+    }
+
     // Get number density and convert to mass density
     const double numberDensityLog2 = getNumberDensity( radius, longitude, latitude, time );
     return std::exp2(numberDensityLog2) * molecularWeight_;

@@ -288,7 +288,7 @@ protected:
     void computeRadius( )
     {
         scalarFlightConditions_[ radius_flight_condition ] =
-                currentBodyCenteredState_.segment( 0, 3 ).norm( );
+                currentBodyCenteredAirspeedBasedBodyFixedState_.segment( 0, 3 ).norm( );
         if( currentTime_ == currentTime_ )
         {
             isScalarFlightConditionComputed_[ radius_flight_condition ] = true;
