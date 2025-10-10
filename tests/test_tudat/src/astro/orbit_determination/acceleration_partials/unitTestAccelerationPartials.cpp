@@ -267,8 +267,6 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
                 sunStateSetFunction, accelerationModel, sun->getState( ), velocityPerturbation, 3, updateFunction );
         testPartialWrtVehicleVelocity = calculateAccelerationWrtStatePartials(
                 vehicleStateSetFunction, accelerationModel, vehicle->getState( ), velocityPerturbation, 3, updateFunction );
-        //    testPartialWrtEmissivities = calculateAccelerationWrtParameterPartials(
-        //                panelEmissivitiesParameter, accelerationModel, emissivityPerturbations );
 
         testPartialWrtParallelScaling =
                 calculateAccelerationWrtParameterPartials( parallelScalingFactor, accelerationModel, 10.0, updateFunction );

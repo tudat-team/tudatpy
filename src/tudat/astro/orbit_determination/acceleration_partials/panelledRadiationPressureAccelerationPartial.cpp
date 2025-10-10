@@ -130,8 +130,8 @@ void PanelledRadiationPressurePartial::wrtDiffuseReflectivity( Eigen::MatrixXd& 
     if( receivedIrradiance >= 0 )
     {
         Eigen::Vector3d forcePartialWrtDiffuseReflectivity = targetRotationFromLocalToGlobalFrameFunction( ) *
-                panelledTargetModel_->evaluateRadiationPressureForcePartialWrtDiffuseReflectivity( receivedIrradiance,
-                                                                                                   sourceToTargetDirectionLocalFrame );
+                panelledTargetModel_->evaluateRadiationPressureForcePartialWrtDiffuseReflectivity(
+                        receivedIrradiance, sourceToTargetDirectionLocalFrame, panelTypeId );
         partial += forcePartialWrtDiffuseReflectivity / spacecraftMass;
     }
 }
@@ -160,7 +160,8 @@ void PanelledRadiationPressurePartial::wrtSpecularReflectivity( Eigen::MatrixXd&
     {
         Eigen::Vector3d forcePartialWrtSpecularReflectivity = targetRotationFromLocalToGlobalFrameFunction( ) *
                 panelledTargetModel_->evaluateRadiationPressureForcePartialWrtSpecularReflectivity( receivedIrradiance,
-                                                                                                    sourceToTargetDirectionLocalFrame );
+                                                                                                    sourceToTargetDirectionLocalFrame,
+                                                                                                    panelTypeId );
         partial += forcePartialWrtSpecularReflectivity / spacecraftMass;
     }
 }
