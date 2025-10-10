@@ -138,7 +138,8 @@ void PaneledRadiationPressureTargetModel::saveLocalComputations( const std::stri
 
 Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureForcePartialWrtDiffuseReflectivity(
         double sourceIrradiance,
-        const Eigen::Vector3d& sourceToTargetDirectionLocalFrame )
+        const Eigen::Vector3d& sourceToTargetDirectionLocalFrame,
+        const std::string& panelTypeId  )
 {
     Eigen::Vector3d forcePartialWrtDiffuseReflectivity = Eigen::Vector3d::Zero( );
 
@@ -162,12 +163,15 @@ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureFo
             surfaceNormals_[ counter ] = currentOrientation * currentPanels_.at( j )->getBodyFixedSurfaceNormal( )( );
             surfacePanelCosines_[ counter ] = ( -sourceToTargetDirectionLocalFrame ).dot( surfaceNormals_[ counter ] );
 
-            if( surfacePanelCosines_[ counter ] > 0 )
+            if( currentPanels_.at( j )->getPanelTypeId( ) == panelTypeId )
             {
-                Eigen::Vector3d panelForce = radiationPressure * currentPanels_.at( j )->getPanelArea( ) * surfacePanelCosines_[ counter ] *
-                        currentPanels_.at( j )->getReflectionLaw( )->evaluateReactionVectorPartialWrtDiffuseReflectivity(
-                                surfaceNormals_[ counter ], sourceToTargetDirectionLocalFrame );
-                forcePartialWrtDiffuseReflectivity += panelForce;
+                if( surfacePanelCosines_[ counter ] > 0 )
+                {
+                    Eigen::Vector3d panelForce = radiationPressure * currentPanels_.at( j )->getPanelArea( ) * surfacePanelCosines_[ counter ] *
+                            currentPanels_.at( j )->getReflectionLaw( )->evaluateReactionVectorPartialWrtDiffuseReflectivity(
+                                    surfaceNormals_[ counter ], sourceToTargetDirectionLocalFrame );
+                    forcePartialWrtDiffuseReflectivity += panelForce;
+                }
             }
 
             counter++;
@@ -182,7 +186,8 @@ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureFo
 
 Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureForcePartialWrtSpecularReflectivity(
         double sourceIrradiance,
-        const Eigen::Vector3d& sourceToTargetDirectionLocalFrame )
+        const Eigen::Vector3d& sourceToTargetDirectionLocalFrame,
+        const std::string& panelTypeId  )
 {
     Eigen::Vector3d forcePartialWrtSpecularReflectivity = Eigen::Vector3d::Zero( );
 
@@ -206,12 +211,15 @@ Eigen::Vector3d PaneledRadiationPressureTargetModel::evaluateRadiationPressureFo
             surfaceNormals_[ counter ] = currentOrientation * currentPanels_.at( j )->getBodyFixedSurfaceNormal( )( );
             surfacePanelCosines_[ counter ] = ( -sourceToTargetDirectionLocalFrame ).dot( surfaceNormals_[ counter ] );
 
-            if( surfacePanelCosines_[ counter ] > 0 )
+            if( currentPanels_.at( j )->getPanelTypeId( ) == panelTypeId )
             {
-                Eigen::Vector3d panelForce = radiationPressure * currentPanels_.at( j )->getPanelArea( ) * surfacePanelCosines_[ counter ] *
-                        currentPanels_.at( j )->getReflectionLaw( )->evaluateReactionVectorPartialWrtSpecularReflectivity(
-                                surfaceNormals_[ counter ], sourceToTargetDirectionLocalFrame );
-                forcePartialWrtSpecularReflectivity += panelForce;
+                if( surfacePanelCosines_[ counter ] > 0 )
+                {
+                    Eigen::Vector3d panelForce = radiationPressure * currentPanels_.at( j )->getPanelArea( ) * surfacePanelCosines_[ counter ] *
+                            currentPanels_.at( j )->getReflectionLaw( )->evaluateReactionVectorPartialWrtSpecularReflectivity(
+                                    surfaceNormals_[ counter ], sourceToTargetDirectionLocalFrame );
+                    forcePartialWrtSpecularReflectivity += panelForce;
+                }
             }
 
             counter++;

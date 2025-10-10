@@ -545,8 +545,11 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
     if( accelerationModelList.size( ) == 0 )
     {
         throw std::runtime_error( "Error when getting acceleration model for parameter " +
-                                  std::to_string( parameterSettings->parameterType_.first ) + ", no acceleration model found." );
+                                  estimatable_parameters::getParameterTypeString( parameterSettings->parameterType_.first ) + " of " +
+                                  parameterSettings->parameterType_.second.first + ", " +
+                                  parameterSettings->parameterType_.second.second + ", no acceleration model found." );
     }
+    utilities::removeDuplicates( accelerationModelList );
 
     return accelerationModelList;
 }
@@ -561,7 +564,7 @@ template< typename InitialStateParameterType = double, typename TimeType = doubl
 std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getInitialMultiArcParameterSettings(
         const std::shared_ptr< propagators::MultiArcPropagatorSettings< InitialStateParameterType, TimeType > > propagatorSettings,
         const SystemOfBodies& bodies,
-        const std::vector< double > arcStartTimes )
+        const std::vector< double > arcStartTimes = std::vector< double >( ) )
 {
     using namespace estimatable_parameters;
     using namespace propagators;
@@ -575,11 +578,40 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
     std::vector< std::vector< std::string > > centralBodiesPerArc;
     std::vector< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > initialStates;
 
+    if( arcStartTimes.size( ) > 0 )
+    {
+        if( arcStartTimes.size( ) != singleArcSettings.size( ) )
+        {
+            throw std::runtime_error( "Error when making multi-arc initial state parameter, input arc times size does not match: do not provide times manually" );
+        }
+    }
+    std::vector< double > arcStartTimesToUse;
     for( unsigned int i = 0; i < singleArcSettings.size( ); i++ )
     {
         singleArcTranslationalSettings.push_back(
                 std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType > >(
                         singleArcSettings.at( i ) ) );
+        if( singleArcSettings.at( i )->getInitialTime( ) == singleArcSettings.at( i )->getInitialTime( ) )
+        {
+            arcStartTimesToUse.push_back( singleArcSettings.at( i )->getInitialTime( ) );
+        }
+        else if( arcStartTimes.size( ) > 0 )
+        {
+            arcStartTimesToUse.push_back( arcStartTimes.at( i ) );
+        }
+        else
+        {
+            throw std::runtime_error( "Error when making multi-arc initial state parameter, could not extract arc initial times" );
+        }
+
+        if( arcStartTimes.size( ) != 0 )
+        {
+            if( std::fabs( arcStartTimes.at( i ) - arcStartTimesToUse.at( i ) ) >
+                10.0 * std::numeric_limits< double >::epsilon( ) * arcStartTimesToUse.at( i ) )
+            {
+                throw std::runtime_error( "Error when making multi-arc initial state parameter, times do not match: do not provide times manually" );
+            }
+        }
         if( singleArcTranslationalSettings.at( i ) == nullptr )
         {
             throw std::runtime_error( "Only translational state supported when auto-creating multi-arc initial state settings" );
@@ -630,7 +662,7 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
                 std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >(
                         propagatedBodies.at( i ),
                         multiArcInitialStateValue,
-                        arcStartTimes,
+                        arcStartTimesToUse,
                         centralBodiesPerBody.at( i ),
                         bodies.getFrameOrientation( ) ) );
     }
@@ -642,7 +674,7 @@ template< typename InitialStateParameterType = double, typename TimeType = doubl
 std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getInitialHybridArcParameterSettings(
         const std::shared_ptr< propagators::HybridArcPropagatorSettings< InitialStateParameterType, TimeType > > propagatorSettings,
         const SystemOfBodies& bodies,
-        const std::vector< double > arcStartTimes )
+        const std::vector< double > arcStartTimes  = std::vector< double >( ) )
 {
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > multiArcParameters =
             getInitialMultiArcParameterSettings< InitialStateParameterType, TimeType >(
@@ -769,12 +801,6 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
     {
         std::shared_ptr< MultiArcPropagatorSettings< InitialStateParameterType, TimeType > > multiArcSettings =
                 std::dynamic_pointer_cast< MultiArcPropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings );
-        if( arcStartTimes.size( ) == 0 )
-        {
-            throw std::runtime_error(
-                    "Error when parsing propagator settings for estimatable parameter settings; multi-arc settings found, but no arc "
-                    "times" );
-        }
         initialStateParameterSettings = getInitialMultiArcParameterSettings( multiArcSettings, bodies, arcStartTimes );
     }
     else if( std::dynamic_pointer_cast< HybridArcPropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings ) !=
@@ -782,12 +808,6 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
     {
         std::shared_ptr< HybridArcPropagatorSettings< InitialStateParameterType, TimeType > > hybridArcSettings =
                 std::dynamic_pointer_cast< HybridArcPropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings );
-        if( arcStartTimes.size( ) == 0 )
-        {
-            throw std::runtime_error(
-                    "Error when parsing propagator settings for estimatable parameter settings; hybric-arc settings found, but no arc "
-                    "times" );
-        }
         initialStateParameterSettings = getInitialHybridArcParameterSettings( hybridArcSettings, bodies, arcStartTimes );
     }
 
@@ -1127,13 +1147,13 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                     throw std::runtime_error( "Error when creating acceleration scaling parameter, parameter settings type is not compatible" );
                 }
 
-                if( associatedAccelerationModels.size( ) != 1 )
+                if( associatedAccelerationModels.size( ) == 0 )
                 {
-                    throw std::runtime_error( "Error when creating acceleration scaling parameter, compatible acceleration models is not 1, but " +
+                    throw std::runtime_error( "Error when creating acceleration scaling parameter, number of compatible acceleration models is not 1, but " +
                                               std::to_string( associatedAccelerationModels.size( ) ) );
                 }
                 doubleParameterToEstimate = std::make_shared< FullAccelerationScalingFactorParameter >(
-                        associatedAccelerationModels.at( 0 ),
+                        associatedAccelerationModels,
                         doubleParameterName->parameterType_.second.first,
                         doubleParameterName->parameterType_.second.second );
                 break;
@@ -1144,9 +1164,33 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                 std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
                         getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings,
                                                                                                                doubleParameterName );
+                
+                if( associatedAccelerationModels.size( ) == 0 )
+                {
+                    throw std::runtime_error( "Error when creating aerodynamic scaling parameter, number of compatible acceleration models is not 1, but " +
+                                              std::to_string( associatedAccelerationModels.size( ) ) );
+                }
+
+                std::vector< std::shared_ptr< aerodynamics::AerodynamicAcceleration > > associateAerodynamicAccelerationModels;
+                for( unsigned int i = 0; i < associatedAccelerationModels.size( ); i++ )
+                {
+                    // Create parameter object
+                    if( std::dynamic_pointer_cast< aerodynamics::AerodynamicAcceleration >( associatedAccelerationModels.at( i ) ) !=
+                        nullptr )
+                    {
+                        associateAerodynamicAccelerationModels.push_back( std::dynamic_pointer_cast< aerodynamics::AerodynamicAcceleration >(
+                                associatedAccelerationModels.at( i ) ) );
+                    }
+                    else
+                    {
+                        throw std::runtime_error(
+                                "Error, expected AerodynamicAcceleration in list when creating aerodynamic scaling parameter" );
+                    }
+                }
+
 
                 doubleParameterToEstimate = std::make_shared< AerodynamicScalingFactor >(
-                        std::dynamic_pointer_cast< aerodynamics::AerodynamicAcceleration >( associatedAccelerationModels.at( 0 ) ),
+                        associateAerodynamicAccelerationModels,
                         doubleParameterName->parameterType_.first,
                         currentBodyName );
                 break;
@@ -1515,6 +1559,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                                                                                                                doubleParameterName );
                 std::vector< std::shared_ptr< electromagnetism::RadiationPressureAcceleration > >
                         associatedRadiationPressureAccelerationModels;
+
                 for( unsigned int i = 0; i < associatedAccelerationModels.size( ); i++ )
                 {
                     // Create parameter object
@@ -1532,15 +1577,15 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                                 "parameter" );
                     }
                 }
-                if( associatedRadiationPressureAccelerationModels.size( ) != 1 )
+
+                if( associatedAccelerationModels.size( ) == 0 )
                 {
                     throw std::runtime_error(
-                            "Error, expected single RadiationPressureAcceleration in list when creating radiation pressure scaling "
-                            "parameter, found " +
-                            std::to_string( associatedRadiationPressureAccelerationModels.size( ) ) );
+                            "Error, no RadiationPressureAcceleration objects found when making radiation pressure scaling parameter" );
                 }
+
                 doubleParameterToEstimate =
-                        std::make_shared< RadiationPressureScalingFactor >( associatedRadiationPressureAccelerationModels.at( 0 ),
+                        std::make_shared< RadiationPressureScalingFactor >( associatedRadiationPressureAccelerationModels,
                                                                             doubleParameterName->parameterType_.first,
                                                                             currentBodyName,
                                                                             doubleParameterName->parameterType_.second.second );
@@ -2014,6 +2059,12 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 }
               }
 
+              if( associatedAccelerationModels.size( ) == 0 )
+              {
+                  throw std::runtime_error(
+                          "Error, no EmpiricalAcceleration objects found when making empirical acceleration parameter" );
+              }
+
               // Create empirical acceleration parameter
               vectorParameterToEstimate = std::make_shared< EmpiricalAccelerationCoefficientsParameter >(
                       empiricalAccelerations,
@@ -2176,6 +2227,12 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                                     "Error, expected EmpiricalAcceleration in list when creating "
                                     "arc_wise_empirical_acceleration_coefficients parameter" );
                         }
+                    }
+
+                    if( associatedAccelerationModels.size( ) == 0 )
+                    {
+                        throw std::runtime_error(
+                                "Error, no EmpiricalAcceleration objects found when making arc-wise empirical acceleration parameter" );
                     }
                     // Create arcwise empirical acceleration parameter
                     vectorParameterToEstimate = std::make_shared< ArcWiseEmpiricalAccelerationCoefficientsParameter >(
