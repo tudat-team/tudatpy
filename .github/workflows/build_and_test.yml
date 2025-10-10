@@ -89,19 +89,6 @@ jobs:
       run: conda env update -n tudat -f environment.yaml
 
 
-    - name: Create conda environment from environment-osx.yml - ${{ matrix.os }}
-      if: matrix.os == 'macos-latest'
-      run: conda env update -n tudat -f environment-osx.yaml
-
-    - name: Show full conda package list
-      shell: bash -l {0}
-      run: |
-        echo "=== Conda environment information ==="
-        conda info
-        echo ""
-        echo "=== Installed packages in tudat environment ==="
-        conda list
-
     # - name: Download tudat resources data files for Linux and MacOS
     #   # The data files in tudat-resources are downloaded upon the installation of
     #   # the tudat-resources conda package in the previous step, but the data files are
@@ -124,7 +111,7 @@ jobs:
     #  # This third party action will setup ccache on the runner and restore any previously saved cache. Caches are saved automatically by the action after a build.
     #  uses: hendrikmuhs/ccache-action@v1.2.12
     #  with:
-    #    key: ${{ matrix.os }}-${{ matrix.build_type }}
+    #    key: ${{ matrix.platform.os }}-${{ matrix.build_type }}
 
 
     - name: Configure CMake
