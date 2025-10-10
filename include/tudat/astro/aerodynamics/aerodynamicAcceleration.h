@@ -175,6 +175,24 @@ public:
         liftComponentScaling_ = liftComponentScaling;
     }
 
+    void setComponentScaling( const double scalingValue, const int index )
+    {
+        switch( index )
+        {
+            case 0:
+                setDragComponentScaling( scalingValue );
+                break;
+            case 1:
+                setSideComponentScaling( scalingValue );
+                break;
+            case 2:
+                setLiftComponentScaling( scalingValue );
+                break;
+            default:
+                throw std::runtime_error( "Error when setting aerodynamic component scaling factor, index not supported" + std::to_string( index ) );
+        }
+    }
+
     double getDragComponentScaling( )
     {
         return dragComponentScaling_;
@@ -188,6 +206,24 @@ public:
     double getLiftComponentScaling( )
     {
         return liftComponentScaling_;
+    }
+
+    double getComponentScaling( const int index )
+    {
+        switch( index )
+        {
+            case 0:
+                return getDragComponentScaling( );
+                break;
+            case 1:
+                return getSideComponentScaling( );
+                break;
+            case 2:
+                return getLiftComponentScaling( );
+                break;
+            default:
+                throw std::runtime_error( "Error when retrieving aerodynamic component scaling factor, index not supported" + std::to_string( index ) );
+        }
     }
 
     Eigen::Vector3d getCurrentUnscaledAcceleration( )
