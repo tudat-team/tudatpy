@@ -20,6 +20,7 @@
 #include <sstream>
 #include <fstream>
 #include <iomanip>
+#include <unordered_set>
 
 #include <functional>
 #include <boost/multi_array.hpp>
@@ -1167,6 +1168,13 @@ std::vector< std::map< S, T > > mergeMaps( const std::vector< std::map< S, T > >
 
         return mergedData;
     }
+}
+
+template< typename T >
+void removeDuplicates( std::vector<T>& input)
+{
+    std::sort(input.begin(), input.end());
+    input.erase(std::unique(input.begin(), input.end()), input.end());
 }
 
 }  // namespace utilities

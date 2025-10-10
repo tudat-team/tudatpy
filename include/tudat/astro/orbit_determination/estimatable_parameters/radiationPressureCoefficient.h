@@ -97,12 +97,13 @@ private:
 class RadiationPressureScalingFactor : public EstimatableParameter< double >
 {
 public:
-    RadiationPressureScalingFactor( const std::shared_ptr< electromagnetism::RadiationPressureAcceleration > radiationPressureAcceleration,
-                                    const EstimatebleParametersEnum parameterType,
-                                    const std::string& associatedBody,
-                                    const std::string& exertingBody ):
+    RadiationPressureScalingFactor(
+            const std::vector< std::shared_ptr< electromagnetism::RadiationPressureAcceleration > > radiationPressureAccelerations,
+            const EstimatebleParametersEnum parameterType,
+            const std::string& associatedBody,
+            const std::string& exertingBody ):
         EstimatableParameter< double >( parameterType, associatedBody, exertingBody ),
-        radiationPressureAcceleration_( radiationPressureAcceleration )
+        radiationPressureAccelerations_( radiationPressureAccelerations )
     {
         if( ( parameterType != source_direction_radiation_pressure_scaling_factor ) &&
             ( parameterType != source_perpendicular_direction_radiation_pressure_scaling_factor ) )
@@ -110,19 +111,52 @@ public:
             throw std::runtime_error( "Error when creating radiation pressure scaling parameter, type is inconsistent: " +
                                       std::to_string( parameterType ) );
         }
+
+        if( radiationPressureAccelerations_.size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when creating radiation pressure scaling parameter, no accelerations provided" );
+        }
     }
+
+    RadiationPressureScalingFactor(
+            const std::shared_ptr< electromagnetism::RadiationPressureAcceleration > radiationPressureAcceleration,
+            const EstimatebleParametersEnum parameterType,
+            const std::string& associatedBody,
+            const std::string& exertingBody ):
+        RadiationPressureScalingFactor(
+                std::vector< std::shared_ptr< electromagnetism::RadiationPressureAcceleration > >( { radiationPressureAcceleration }),
+                parameterType, associatedBody, exertingBody ){ }
 
     ~RadiationPressureScalingFactor( ) { }
 
     double getParameterValue( )
     {
+
         if( parameterName_.first == source_direction_radiation_pressure_scaling_factor )
         {
-            return radiationPressureAcceleration_->getSourceDirectionScaling( );
+            double parameterValue = radiationPressureAccelerations_.at( 0 )->getSourceDirectionScaling( );
+            for( unsigned int i = 1; i < radiationPressureAccelerations_.size( ); i++ )
+            {
+                if( radiationPressureAccelerations_.at( i )->getSourceDirectionScaling( ) != parameterValue )
+                {
+                    std::cerr<<"Warning when retrieving radiation pressure source direction scaling values from list. List entries are not equal, returning first entry"<<std::endl;
+                    break;
+                }
+            }
+            return parameterValue;
         }
         else if( parameterName_.first == source_perpendicular_direction_radiation_pressure_scaling_factor )
         {
-            return radiationPressureAcceleration_->getPerpendicularSourceDirectionScaling( );
+            double parameterValue = radiationPressureAccelerations_.at( 0 )->getPerpendicularSourceDirectionScaling( );
+            for( unsigned int i = 1; i < radiationPressureAccelerations_.size( ); i++ )
+            {
+                if( radiationPressureAccelerations_.at( i )->getPerpendicularSourceDirectionScaling( ) != parameterValue )
+                {
+                    std::cerr<<"Warning when retrieving radiation pressure perpendicular direction scaling values from list. List entries are not equal, returning first entry"<<std::endl;
+                    break;
+                }
+            }
+            return parameterValue;
         }
         else
         {
@@ -135,11 +169,17 @@ public:
     {
         if( parameterName_.first == source_direction_radiation_pressure_scaling_factor )
         {
-            radiationPressureAcceleration_->setSourceDirectionScaling( parameterValue );
+            for( unsigned int i = 0; i < radiationPressureAccelerations_.size( ); i++ )
+            {
+                radiationPressureAccelerations_.at( i )->setSourceDirectionScaling( parameterValue );
+            }
         }
         else if( parameterName_.first == source_perpendicular_direction_radiation_pressure_scaling_factor )
         {
-            radiationPressureAcceleration_->setPerpendicularSourceDirectionScaling( parameterValue );
+            for( unsigned int i = 0; i < radiationPressureAccelerations_.size( ); i++ )
+            {
+                radiationPressureAccelerations_.at( i )->setPerpendicularSourceDirectionScaling( parameterValue );
+            }
         }
         else
         {
@@ -155,7 +195,7 @@ public:
 
 protected:
 private:
-    std::shared_ptr< electromagnetism::RadiationPressureAcceleration > radiationPressureAcceleration_;
+    std::vector< std::shared_ptr< electromagnetism::RadiationPressureAcceleration > > radiationPressureAccelerations_;
 };
 
 //! Interface class for the estimation of an arc-wise (piecewise constant) radiation pressure coefficient
