@@ -157,13 +157,15 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressureMultiArcVariationalEquations )
             std::vector< int > parameterIndicesToUse;
             if( test == 0 || test == 2 || test == 6 )
             {
-                accelerationsOfSpacecraft[ "Sun" ].push_back( std::make_shared< RadiationPressureAccelerationSettings >( cannonball_target ) );
+                accelerationsOfSpacecraft[ "Sun" ].push_back(
+                        std::make_shared< RadiationPressureAccelerationSettings >( cannonball_target ) );
                 parameterIndicesToUse.push_back( 0 );
                 parameterIndicesToUse.push_back( 1 );
             }
             if( test == 1 || test == 2 || test == 7 )
             {
-                accelerationsOfSpacecraft[ "Moon" ].push_back( std::make_shared< RadiationPressureAccelerationSettings >( cannonball_target ) );
+                accelerationsOfSpacecraft[ "Moon" ].push_back(
+                        std::make_shared< RadiationPressureAccelerationSettings >( cannonball_target ) );
                 parameterIndicesToUse.push_back( 0 );
                 parameterIndicesToUse.push_back( 3 );
             }
@@ -179,7 +181,8 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressureMultiArcVariationalEquations )
             }
             if( test == 4 || test == 5 || test == 6 )
             {
-                accelerationsOfSpacecraft[ "Moon" ].push_back( std::make_shared< RadiationPressureAccelerationSettings >( paneled_target ) );
+                accelerationsOfSpacecraft[ "Moon" ].push_back(
+                        std::make_shared< RadiationPressureAccelerationSettings >( paneled_target ) );
                 parameterIndicesToUse.push_back( 3 );
                 parameterIndicesToUse.push_back( 4 );
                 parameterIndicesToUse.push_back( 5 );
@@ -200,7 +203,8 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressureMultiArcVariationalEquations )
             initialStates.push_back(
                     ( Eigen::VectorXd( 6 ) << -618712.81427, 557495.52023, 1597758.84330, 530.76325, -1397.57332, 687.35537 ).finished( ) );
             initialStates.push_back(
-                    ( Eigen::VectorXd( 6 ) << -270294.33519, 1160199.58017, -1335000.99409, -738.74766, 1046.55086, 1050.72524 ).finished( ) );
+                    ( Eigen::VectorXd( 6 ) << -270294.33519, 1160199.58017, -1335000.99409, -738.74766, 1046.55086, 1050.72524 )
+                            .finished( ) );
             initialStates.push_back(
                     ( Eigen::VectorXd( 6 ) << 836709.02648, -1521295.66730, -444616.38949, 94.55259, 515.43686, -1569.18467 ).finished( ) );
             initialStates.push_back(
@@ -212,7 +216,9 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressureMultiArcVariationalEquations )
                 std::shared_ptr< TranslationalStatePropagatorSettings< long double, Time > > propagatorSettingsArc =
                         std::make_shared< TranslationalStatePropagatorSettings< long double, Time > >(
                                 centralBodies,
-                                ( createSeparateAccelerations == 0 ) ? accelerationModelMap : createAccelerationModelsMap( bodies, accelerationMap, bodiesToEstimate, centralBodies ),
+                                ( createSeparateAccelerations == 0 )
+                                        ? accelerationModelMap
+                                        : createAccelerationModelsMap( bodies, accelerationMap, bodiesToEstimate, centralBodies ),
                                 bodiesToEstimate,
                                 initialStates.at( arcIndex % initialStates.size( ) ).template cast< long double >( ),
                                 Time( initialTime + arcIndex * arcLength ),
@@ -248,19 +254,22 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressureMultiArcVariationalEquations )
 
             fullParameterNames.push_back( estimatable_parameters::radiationPressureCoefficient( "GRAIL-A" ) );
             fullParameterNames.push_back( estimatable_parameters::radiationPressureTargetDirectionScaling( "GRAIL-A", "Sun" ) );
-            fullParameterNames.push_back( estimatable_parameters::radiationPressureTargetPerpendicularDirectionScaling( "GRAIL-A", "Sun" ) );
+            fullParameterNames.push_back(
+                    estimatable_parameters::radiationPressureTargetPerpendicularDirectionScaling( "GRAIL-A", "Sun" ) );
             fullParameterNames.push_back( estimatable_parameters::radiationPressureTargetDirectionScaling( "GRAIL-A", "Moon" ) );
-            fullParameterNames.push_back( estimatable_parameters::radiationPressureTargetPerpendicularDirectionScaling( "GRAIL-A", "Moon" ) );
+            fullParameterNames.push_back(
+                    estimatable_parameters::radiationPressureTargetPerpendicularDirectionScaling( "GRAIL-A", "Moon" ) );
             fullParameterNames.push_back( estimatable_parameters::specularReflectivity( "GRAIL-A", "Bus" ) );
             fullParameterNames.push_back( estimatable_parameters::specularReflectivity( "GRAIL-A", "SolarPanel" ) );
             fullParameterNames.push_back( estimatable_parameters::diffuseReflectivity( "GRAIL-A", "Bus" ) );
             fullParameterNames.push_back( estimatable_parameters::diffuseReflectivity( "GRAIL-A", "SolarPanel" ) );
 
-            std::map< int, std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > > fullArcWiseParameterSettings;
-            fullArcWiseParameterSettings[ 0 ].push_back( estimatable_parameters::arcwiseRadiationPressureCoefficient(
-                    "GRAIL-A", shortArcParameterStartTimes ) );
-            fullArcWiseParameterSettings[ 0 ].push_back( estimatable_parameters::arcwiseRadiationPressureCoefficient(
-                    "GRAIL-A", longArcParameterStartTimes ) );
+            std::map< int, std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > >
+                    fullArcWiseParameterSettings;
+            fullArcWiseParameterSettings[ 0 ].push_back(
+                    estimatable_parameters::arcwiseRadiationPressureCoefficient( "GRAIL-A", shortArcParameterStartTimes ) );
+            fullArcWiseParameterSettings[ 0 ].push_back(
+                    estimatable_parameters::arcwiseRadiationPressureCoefficient( "GRAIL-A", longArcParameterStartTimes ) );
 
             // Create parameters for initial states
             std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
@@ -297,7 +306,8 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressureMultiArcVariationalEquations )
                 for( unsigned int modelIndex = 0; modelIndex < targetModels.size( ); modelIndex++ )
                 {
                     std::shared_ptr< electromagnetism::CannonballRadiationPressureTargetModel > cannonBallModel =
-                            std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >( targetModels.at( modelIndex ) );
+                            std::dynamic_pointer_cast< electromagnetism::CannonballRadiationPressureTargetModel >(
+                                    targetModels.at( modelIndex ) );
                     if( cannonBallModel != nullptr )
                     {
                         cannonBallModel->resetCoefficient( radiationPressureCoefficient );
@@ -305,9 +315,9 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressureMultiArcVariationalEquations )
                     }
                 }
 
-
                 std::shared_ptr< estimatable_parameters::EstimatableParameterSet< long double > > parametersToEstimate =
-                        createParametersToEstimate< long double, Time >( parameterNamesList.at( parameterListIndex ), bodies, propagatorSettings );
+                        createParametersToEstimate< long double, Time >(
+                                parameterNamesList.at( parameterListIndex ), bodies, propagatorSettings );
 
                 // Propagate variational equations
                 MultiArcVariationalEquationsSolver< long double, Time > variationalEquationsSolver(
@@ -315,7 +325,8 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressureMultiArcVariationalEquations )
                 std::shared_ptr< CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionMatrixInterface =
                         variationalEquationsSolver.getStateTransitionMatrixInterface( );
                 auto variationalPropagationResults = variationalEquationsSolver.getMultiArcVariationalPropagationResults( );
-                std::vector< std::shared_ptr< SingleArcVariationalSimulationResults< long double, Time > > > singleArcResults = variationalPropagationResults->getSingleArcResults( );
+                std::vector< std::shared_ptr< SingleArcVariationalSimulationResults< long double, Time > > > singleArcResults =
+                        variationalPropagationResults->getSingleArcResults( );
 
                 std::vector< std::map< double, Eigen::MatrixXd > > stateTransitionResults;
                 std::vector< std::map< double, Eigen::MatrixXd > > sensitivityResults;
@@ -328,11 +339,13 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressureMultiArcVariationalEquations )
                 // Iterate over all parameters
                 printEstimatableParameterEntries( parametersToEstimate );
                 auto nominalParameters = parametersToEstimate->getFullParameterValues< long double >( );
-                for( unsigned int parameterIndex = 0; parameterIndex < static_cast< unsigned int >( parametersToEstimate->getParameterSetSize( ) );
+                for( unsigned int parameterIndex = 0;
+                     parameterIndex < static_cast< unsigned int >( parametersToEstimate->getParameterSetSize( ) );
                      parameterIndex++ )
                 {
                     // Parameter perturbations and tolerances determined empirically to be acceptable
-                    // Non-linearity of effect, weakness of Moon radiation, and drift away from Moon, make test tolerance difficult to get more tight
+                    // Non-linearity of effect, weakness of Moon radiation, and drift away from Moon, make test tolerance difficult to get
+                    // more tight
                     double parameterPerturbation = TUDAT_NAN;
                     if( parameterIndex >= 6 * numberOfArcs )
                     {
@@ -458,14 +471,16 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressureMultiArcVariationalEquations )
                                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalValue, analyticalValue, parameterTolerance );
                             }
                             std::cout << " CASE: " << test << " PARAMETER: " << parameterIndex << " ARC: " << arc
-                                      << " MATRIX COLUMN: " << matrixColumn << " ARC-WISE INDEX "<< parameterListIndex
-                                      << " CREATE " << createSeparateAccelerations
-                                      << " ERROR:                                     " << errorLevels.array( ).abs( ).maxCoeff( ) << std::endl;
+                                      << " MATRIX COLUMN: " << matrixColumn << " ARC-WISE INDEX " << parameterListIndex << " CREATE "
+                                      << createSeparateAccelerations
+                                      << " ERROR:                                     " << errorLevels.array( ).abs( ).maxCoeff( )
+                                      << std::endl;
                             //                    {
                             //                        std::cout << "ANALYTICAL: " << analyticalValue.transpose( ) << std::endl;
                             //                        std::cout << "NUMERICAL : " << numericalValue.transpose( ) << std::endl;
                             //                        std::cout << "RATIO     : "
-                            //                                  << ( ( numericalValue - analyticalValue ).cwiseQuotient( analyticalValue ) ).transpose( ) << std::endl
+                            //                                  << ( ( numericalValue - analyticalValue ).cwiseQuotient( analyticalValue )
+                            //                                  ).transpose( ) << std::endl
                             //                                  << std::endl;
                             //                        std::cout<<"Current matrix "<<matrixIterator->second<<std::endl<<std::endl;
                             //
@@ -477,7 +492,6 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressureMultiArcVariationalEquations )
         }
     }
 }
-
 
 BOOST_AUTO_TEST_SUITE_END( )
 

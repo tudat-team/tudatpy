@@ -56,7 +56,7 @@ public:
     }
 
     //! Destructor.
-    ~RadiationPressureCoefficient( ) { }
+    ~RadiationPressureCoefficient( ) {}
 
     //! Function to get the current value of the radiation pressure coefficient that is to be estimated.
     /*!
@@ -118,20 +118,21 @@ public:
         }
     }
 
-    RadiationPressureScalingFactor(
-            const std::shared_ptr< electromagnetism::RadiationPressureAcceleration > radiationPressureAcceleration,
-            const EstimatebleParametersEnum parameterType,
-            const std::string& associatedBody,
-            const std::string& exertingBody ):
+    RadiationPressureScalingFactor( const std::shared_ptr< electromagnetism::RadiationPressureAcceleration > radiationPressureAcceleration,
+                                    const EstimatebleParametersEnum parameterType,
+                                    const std::string& associatedBody,
+                                    const std::string& exertingBody ):
         RadiationPressureScalingFactor(
-                std::vector< std::shared_ptr< electromagnetism::RadiationPressureAcceleration > >( { radiationPressureAcceleration }),
-                parameterType, associatedBody, exertingBody ){ }
+                std::vector< std::shared_ptr< electromagnetism::RadiationPressureAcceleration > >( { radiationPressureAcceleration } ),
+                parameterType,
+                associatedBody,
+                exertingBody )
+    {}
 
-    ~RadiationPressureScalingFactor( ) { }
+    ~RadiationPressureScalingFactor( ) {}
 
     double getParameterValue( )
     {
-
         if( parameterName_.first == source_direction_radiation_pressure_scaling_factor )
         {
             double parameterValue = radiationPressureAccelerations_.at( 0 )->getSourceDirectionScaling( );
@@ -139,7 +140,9 @@ public:
             {
                 if( radiationPressureAccelerations_.at( i )->getSourceDirectionScaling( ) != parameterValue )
                 {
-                    std::cerr<<"Warning when retrieving radiation pressure source direction scaling values from list. List entries are not equal, returning first entry"<<std::endl;
+                    std::cerr << "Warning when retrieving radiation pressure source direction scaling values from list. List entries are "
+                                 "not equal, returning first entry"
+                              << std::endl;
                     break;
                 }
             }
@@ -152,7 +155,9 @@ public:
             {
                 if( radiationPressureAccelerations_.at( i )->getPerpendicularSourceDirectionScaling( ) != parameterValue )
                 {
-                    std::cerr<<"Warning when retrieving radiation pressure perpendicular direction scaling values from list. List entries are not equal, returning first entry"<<std::endl;
+                    std::cerr << "Warning when retrieving radiation pressure perpendicular direction scaling values from list. List "
+                                 "entries are not equal, returning first entry"
+                              << std::endl;
                     break;
                 }
             }
@@ -249,7 +254,7 @@ public:
     }
 
     //! Destructor.
-    ~ArcWiseRadiationPressureCoefficient( ) { }
+    ~ArcWiseRadiationPressureCoefficient( ) {}
 
     //! Function to get the current value of the radiation pressure coefficient that is to be estimated.
     /*!
