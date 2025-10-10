@@ -816,6 +816,96 @@ using the NRLMSISE-00 global reference model:
 
      )doc" );
 
+    // --- Coma Model ---
+
+    m.def(
+            "coma_model",
+            py::overload_cast<
+                const tss::ComaPolyDataset&, double, int, int >( &tss::comaSettings ),
+            py::arg( "poly_data" ),
+            py::arg( "molecular_weight" ),
+            py::arg( "max_degree" ) = -1,
+            py::arg( "max_order" ) = -1,
+            R"doc(
+    Create a coma atmosphere from polynomial coefficients.
+    )doc"
+                );
+
+    m.def(
+            "coma_model",
+            py::overload_cast<
+                const tss::ComaStokesDataset&, double, int, int >( &tss::comaSettings ),
+            py::arg( "stokes_data" ),
+            py::arg( "molecular_weight" ),
+            py::arg( "max_degree" ) = -1,
+            py::arg( "max_order" ) = -1,
+            R"doc(
+    Create a coma atmosphere from precomputed Stokes coefficients.
+    )doc"
+            );
+
+    // === Coma processing: datasets (minimal shells so Python can hold them) ===
+    py::class_< tss::ComaPolyDataset >( m,
+                                        "ComaPolyDataset",
+                                        R"doc(Polynomial-coefficient dataset for the coma model.)doc" );
+
+    py::class_< tss::ComaStokesDataset >( m,
+                                          "ComaStokesDataset",
+                                          R"doc(Stokes spherical-harmonics dataset for the coma model.)doc" );
+
+
+
+    // === Coma processing: file processor ===
+    py::class_< tss::ComaModelFileProcessor >( m,
+                                               "ComaModelFileProcessor",
+                                               R"doc(Processor for coma model files (polynomial or spherical harmonics coefficients).)doc" )
+        .def("create_poly_coef_dataset",
+             &tss::ComaModelFileProcessor::createPolyCoefDataset,
+             R"doc(Create polynomial coefficient dataset. Only available when processor was constructed from polynomial files.)doc")
+        .def("create_sh_dataset",
+             &tss::ComaModelFileProcessor::createSHDataset,
+             py::arg("radii_m"),
+             py::arg("sol_longitudes_deg"),
+             py::arg("requested_max_degree") = -1,
+             py::arg("requested_max_order") = -1,
+             R"doc(Create spherical harmonics dataset. When constructed from SH files, input parameters are ignored.)doc")
+        .def("create_sh_files",
+             &tss::ComaModelFileProcessor::createSHFiles,
+             py::arg("output_dir"),
+             py::arg("radii_m"),
+             py::arg("sol_longitudes_deg"),
+             py::arg("requested_max_degree") = -1,
+             py::arg("requested_max_order") = -1,
+             R"doc(Create spherical harmonics CSV files.)doc");
+
+    m.def(
+            "coma_model_file_processor",
+            py::overload_cast<const std::vector<std::string>&>(&tss::comaModelFileProcessorFromPolyFiles),
+            py::arg( "file_paths" ),
+            R"doc(Create a ComaModelFileProcessor from a list of polynomial coefficient files.)doc"
+            );
+
+    m.def(
+            "coma_model_file_processor",
+            py::overload_cast<const std::string&, const std::string&>(&tss::comaModelFileProcessorFromSHFiles),
+            py::arg( "input_dir" ),
+            py::arg( "prefix" ) = "stokes",
+            R"doc(
+                Create a ComaModelFileProcessor from existing SH CSV files.
+
+                Parameters
+                ----------
+                input_dir : str
+                    Directory containing the SH CSV files to read from
+                prefix : str, optional
+                    File prefix for the CSV files (default: "stokes")
+                )doc"
+            );
+
+
+
+
+
     m.def("mars_dtm",
           &tss::marsDtmAtmosphereSettings,
           R"doc(No documentation found.)doc" );

@@ -25,6 +25,8 @@ set(aerodynamics_SOURCES
         "equilibriumWallTemperature.cpp"
         "gasSurfaceInteractionModel.cpp"
         "marsDtmAtmosphereModel.cpp"
+        "comaModel.cpp"
+        "windModel.cpp"
 )
 
 # Set the header files.
@@ -51,6 +53,7 @@ set(aerodynamics_HEADERS
         "windModel.h"
         "gasSurfaceInteractionModel.h"
         "marsDtmAtmosphereModel.h"
+        "comaModel.h"
 )
 
     set(aerodynamics_SOURCES
