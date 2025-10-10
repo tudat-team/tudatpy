@@ -34,7 +34,7 @@ namespace electromagnetism
 class RadiationPressureAcceleration : public basic_astrodynamics::AccelerationModel3d
 {
 public:
-    virtual ~RadiationPressureAcceleration( ) { }
+    virtual ~RadiationPressureAcceleration( ) {}
 
     /*!
      * Update class members.
@@ -135,7 +135,7 @@ protected:
         targetMassFunction_( targetMassFunction ), sourceToTargetOccultationModel_( sourceToTargetOccultationModel ),
         currentUnscaledAcceleration_( Eigen::Vector3d::Constant( TUDAT_NAN ) ), receivedIrradiance( TUDAT_NAN ),
         isScalingModelSet_( false ), sourceDirectionScaling_( 1.0 ), perpendicularSourceDirectionScaling_( 1.0 ), sourceName_( sourceName )
-    { }
+    {}
 
     virtual void computeAcceleration( ) = 0;
 
@@ -219,9 +219,9 @@ public:
                                        sourceToTargetOccultationModel,
                                        sourceModel->getSourceName( ) ),
         sourceModel_( sourceModel ), sourceBodyShapeModel_( sourceBodyShapeModel ), sourceToTargetReceivedFraction( TUDAT_NAN )
-    { }
+    {}
 
-    ~IsotropicPointSourceRadiationPressureAcceleration( ) { }
+    ~IsotropicPointSourceRadiationPressureAcceleration( ) {}
 
     std::shared_ptr< RadiationSourceModel > getSourceModel( ) const override
     {
@@ -326,9 +326,9 @@ public:
                                        sourceModel->getSourceName( ) ),
         sourceModel_( sourceModel ), sourceRotationFromLocalToGlobalFrameFunction_( sourceRotationFromLocalToGlobalFrameFunction ),
         visibleAndEmittingSourcePanelCount( -1 )
-    { }
+    {}
 
-    ~PaneledSourceRadiationPressureAcceleration( ) { }
+    ~PaneledSourceRadiationPressureAcceleration( ) {}
 
     std::shared_ptr< RadiationSourceModel > getSourceModel( ) const override
     {

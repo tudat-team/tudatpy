@@ -159,9 +159,8 @@ void PanelledRadiationPressurePartial::wrtSpecularReflectivity( Eigen::MatrixXd&
     if( receivedIrradiance >= 0 )
     {
         Eigen::Vector3d forcePartialWrtSpecularReflectivity = targetRotationFromLocalToGlobalFrameFunction( ) *
-                panelledTargetModel_->evaluateRadiationPressureForcePartialWrtSpecularReflectivity( receivedIrradiance,
-                                                                                                    sourceToTargetDirectionLocalFrame,
-                                                                                                    panelTypeId );
+                panelledTargetModel_->evaluateRadiationPressureForcePartialWrtSpecularReflectivity(
+                        receivedIrradiance, sourceToTargetDirectionLocalFrame, panelTypeId );
         partial += forcePartialWrtSpecularReflectivity / spacecraftMass;
     }
 }
