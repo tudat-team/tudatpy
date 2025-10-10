@@ -3016,7 +3016,7 @@ public:
     /**
      * \brief Constructor with polynomial coefficient data
      * \param polyData Pre-loaded polynomial coefficient dataset
-     * \param molecularWeight Molecular weight of the gas species
+     * \param molecularWeight Molecular weight of the gas species [kg/mol]
      * \param requestedDegree Maximum spherical harmonic degree (-1 for auto)
      * \param requestedOrder Maximum spherical harmonic order (-1 for auto)
      */
@@ -3036,7 +3036,7 @@ public:
     /**
      * \brief Constructor with Stokes coefficient data
      * \param stokesData Pre-computed Stokes coefficient dataset
-     * \param molecularWeight Molecular weight of the gas species
+     * \param molecularWeight Molecular weight of the gas species [kg/mol]
      * \param requestedDegree Maximum spherical harmonic degree (-1 for auto)
      * \param requestedOrder Maximum spherical harmonic order (-1 for auto)
      */
@@ -3347,6 +3347,14 @@ inline std::shared_ptr< AtmosphereSettings > tabulatedAtmosphereSettings(
 
 
 //@get_docstring(ComaSettings,0)
+/*!
+ * \brief Create coma atmosphere settings from polynomial coefficient data
+ * \param polyData Pre-loaded polynomial coefficient dataset
+ * \param molecularWeight Molecular weight of the gas species [kg/mol]
+ * \param requestedDegree Maximum spherical harmonic degree (-1 for auto)
+ * \param requestedOrder Maximum spherical harmonic order (-1 for auto)
+ * \return Shared pointer to AtmosphereSettings configured for coma model
+ */
 inline std::shared_ptr< AtmosphereSettings > comaSettings(
         const ComaPolyDataset& polyData,
         const double molecularWeight,
@@ -3357,6 +3365,14 @@ inline std::shared_ptr< AtmosphereSettings > comaSettings(
 }
 
 //@get_docstring(ComaSettings,1)
+/*!
+ * \brief Create coma atmosphere settings from Stokes coefficient data
+ * \param stokesData Pre-computed Stokes coefficient dataset
+ * \param molecularWeight Molecular weight of the gas species [kg/mol]
+ * \param requestedDegree Maximum spherical harmonic degree (-1 for auto)
+ * \param requestedOrder Maximum spherical harmonic order (-1 for auto)
+ * \return Shared pointer to AtmosphereSettings configured for coma model
+ */
 inline std::shared_ptr< AtmosphereSettings > comaSettings(
         const ComaStokesDataset& stokesData,
         const double molecularWeight,

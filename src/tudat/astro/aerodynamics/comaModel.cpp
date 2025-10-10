@@ -157,8 +157,9 @@ double ComaModel::getDensity( const double radius,
     }
 
     // Get number density and convert to mass density
+    // Convert: number_density [1/m³] × molecular_weight [kg/mol] / N_A [1/mol] = mass_density [kg/m³]
     const double numberDensityLog2 = getNumberDensity( radius, longitude, latitude, time );
-    return std::exp2(numberDensityLog2) * molecularWeight_;
+    return std::exp2(numberDensityLog2) * molecularWeight_ / physical_constants::AVOGADRO_CONSTANT;
 }
 
 /*!

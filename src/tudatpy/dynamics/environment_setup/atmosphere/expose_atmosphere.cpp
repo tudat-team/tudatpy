@@ -828,6 +828,22 @@ using the NRLMSISE-00 global reference model:
             py::arg( "max_order" ) = -1,
             R"doc(
     Create a coma atmosphere from polynomial coefficients.
+
+    Parameters
+    ----------
+    poly_data : ComaPolyDataset
+        Polynomial coefficient dataset
+    molecular_weight : float
+        Molecular weight of the gas species [kg/mol]
+    max_degree : int, optional
+        Maximum spherical harmonic degree (-1 for auto)
+    max_order : int, optional
+        Maximum spherical harmonic order (-1 for auto)
+
+    Returns
+    -------
+    AtmosphereSettings
+        Atmosphere settings configured for coma model
     )doc"
                 );
 
@@ -841,6 +857,22 @@ using the NRLMSISE-00 global reference model:
             py::arg( "max_order" ) = -1,
             R"doc(
     Create a coma atmosphere from precomputed Stokes coefficients.
+
+    Parameters
+    ----------
+    stokes_data : ComaStokesDataset
+        Precomputed Stokes coefficient dataset
+    molecular_weight : float
+        Molecular weight of the gas species [kg/mol]
+    max_degree : int, optional
+        Maximum spherical harmonic degree (-1 for auto)
+    max_order : int, optional
+        Maximum spherical harmonic order (-1 for auto)
+
+    Returns
+    -------
+    AtmosphereSettings
+        Atmosphere settings configured for coma model
     )doc"
             );
 
