@@ -1085,7 +1085,8 @@ public:
         parametersToEstimate_->template resetParameterValues< ObservationScalarType >( newParameterEstimate );
         if( integrateAndEstimateOrbit_ )
         {
-            variationalEquationsSolver_->resetParameterEstimate( fullParameters_->template getFullParameterValues< ObservationScalarType >( ), reintegrateVariationalEquations );
+            variationalEquationsSolver_->resetParameterEstimate(
+                    fullParameters_->template getFullParameterValues< ObservationScalarType >( ), reintegrateVariationalEquations );
         }
 
         currentParameterEstimate_ = newParameterEstimate;
