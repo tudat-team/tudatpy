@@ -28,7 +28,6 @@ namespace biases
 
 void expose_biases( py::module& m )
 {
-    
     py::class_< tom::ObservationBiasSettings, std::shared_ptr< tom::ObservationBiasSettings > >( m, "ObservationBiasSettings", R"doc(
 
          Base class to defining observation bias settings.
@@ -61,7 +60,7 @@ void expose_biases( py::module& m )
              print(relative_bias_settings)
       )doc" );
 
-      m.def( "clock_induced_bias",
+    m.def( "clock_induced_bias",
            &tom::clockInducedBias,
            py::arg( "body_name" ),
            py::arg( "station_name" ),
@@ -569,7 +568,10 @@ void expose_biases( py::module& m )
 
      )doc" );
 
-    m.def( "time_bias", &tom::constantTimeBias, py::arg( "time_bias" ), py::arg( "associated_link_end" ),
+    m.def( "time_bias",
+           &tom::constantTimeBias,
+           py::arg( "time_bias" ),
+           py::arg( "associated_link_end" ),
 
            R"doc(
 
@@ -697,10 +699,9 @@ void expose_biases( py::module& m )
         tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings
             Instance of the ObservationBiasSettings class for a two-way range time scale bias.
         )doc" );
-
 }
 
-}
-}
-}
-}
+}  // namespace biases
+}  // namespace observable_models_setup
+}  // namespace estimation
+}  // namespace tudatpy
