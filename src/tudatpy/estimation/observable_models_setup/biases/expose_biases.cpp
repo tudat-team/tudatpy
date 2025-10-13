@@ -65,7 +65,23 @@ void expose_biases( py::module& m )
            &tom::clockInducedBias,
            py::arg( "body_name" ),
            py::arg( "station_name" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+        Function for creating settings for a clock-induced observation bias.
+
+        This function creates settings for a bias that is induced by the clock of a specific timing system associated with a body or ground station.
+
+        Parameters
+        ----------
+        body_name : str
+            Name of the body where the timing system is located.
+        station_name : str
+            Name of the station (if any) where the timing system is located.
+
+        Returns
+        -------
+        tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings
+            Instance of the ObservationBiasSettings class for a clock-induced bias.
+        )doc" );
 
     m.def( "absolute_bias",
            &tom::constantAbsoluteBias,
@@ -671,7 +687,16 @@ void expose_biases( py::module& m )
 
      )doc" );
 
-    m.def( "two_way_time_scale_range_bias", &tom::twoWayTimeScaleRangeBias, R"doc(No documentation found.)doc" );
+    m.def( "two_way_time_scale_range_bias", &tom::twoWayTimeScaleRangeBias, R"doc(
+        Function for creating settings for a two-way range time scale bias.
+
+        This bias accounts for the difference in time scales (e.g., TDB and TCB) in the computation of two-way range observables.
+
+        Returns
+        -------
+        tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings
+            Instance of the ObservationBiasSettings class for a two-way range time scale bias.
+        )doc" );
 
 }
 
