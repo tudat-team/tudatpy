@@ -35,38 +35,30 @@ namespace observations_processing
 
 void expose_observations_processing( py::module& m )
 {
-
-    py::enum_< tom::ObservationFilterType >(
-            m, "ObservationFilterType", R"doc(
+    py::enum_< tom::ObservationFilterType >( m, "ObservationFilterType", R"doc(
         Enum for types of observation filters.
 
         This enum defines the available types of observation filters that can be used to reject observations from a collection.
         )doc" )
             .value( "residual_filtering", tom::ObservationFilterType::residual_filtering )
-            .value( "absolute_value_filtering",
-                    tom::ObservationFilterType::absolute_value_filtering )
+            .value( "absolute_value_filtering", tom::ObservationFilterType::absolute_value_filtering )
             .value( "epochs_filtering", tom::ObservationFilterType::epochs_filtering )
             .value( "time_bounds_filtering", tom::ObservationFilterType::time_bounds_filtering )
-            .value( "dependent_variable_filtering",
-                    tom::ObservationFilterType::dependent_variable_filtering )
+            .value( "dependent_variable_filtering", tom::ObservationFilterType::dependent_variable_filtering )
             .export_values( );
 
-    py::enum_< tom::ObservationSetSplitterType >(
-            m, "ObservationSetSplitterType", R"doc(
+    py::enum_< tom::ObservationSetSplitterType >( m, "ObservationSetSplitterType", R"doc(
         Enum for types of observation set splitters.
 
         This enum defines the available types of observation set splitters that can be used to divide a collection of observations into multiple sets.
         )doc" )
             .value( "time_tags_splitter", tom::ObservationSetSplitterType::time_tags_splitter )
-            .value( "time_interval_splitter",
-                    tom::ObservationSetSplitterType::time_interval_splitter )
+            .value( "time_interval_splitter", tom::ObservationSetSplitterType::time_interval_splitter )
             .value( "time_span_splitter", tom::ObservationSetSplitterType::time_span_splitter )
-            .value( "nb_observations_splitter",
-                    tom::ObservationSetSplitterType::nb_observations_splitter )
+            .value( "nb_observations_splitter", tom::ObservationSetSplitterType::nb_observations_splitter )
             .export_values( );
 
-    py::enum_< tom::ObservationParserType >(
-            m, "ObservationParserType", R"doc(
+    py::enum_< tom::ObservationParserType >( m, "ObservationParserType", R"doc(
         Enum for types of observation parsers.
 
         This enum defines the available types of observation parsers that can be used to select observations from a collection based on various criteria.
@@ -79,29 +71,25 @@ void expose_observations_processing( py::module& m )
             .value( "link_end_type_parser", tom::ObservationParserType::link_end_type_parser )
             .value( "single_link_end_parser", tom::ObservationParserType::single_link_end_parser )
             .value( "time_bounds_parser", tom::ObservationParserType::time_bounds_parser )
-            .value( "ancillary_settings_parser",
-                    tom::ObservationParserType::ancillary_settings_parser )
+            .value( "ancillary_settings_parser", tom::ObservationParserType::ancillary_settings_parser )
             .value( "multi_type_parser", tom::ObservationParserType::multi_type_parser )
             .export_values( );
 
-    py::class_< tom::ObservationFilterBase, std::shared_ptr< tom::ObservationFilterBase > >(
-            m, "ObservationFilterBase", R"doc(
+    py::class_< tom::ObservationFilterBase, std::shared_ptr< tom::ObservationFilterBase > >( m, "ObservationFilterBase", R"doc(
         Base class for observation filters.
 
         This is the base class from which all observation filters are derived. It is not intended to be instantiated directly.
         )doc" );
 
-    py::class_< tom::ObservationCollectionParser,
-        std::shared_ptr< tom::ObservationCollectionParser > >(
-        m, "ObservationCollectionParser", R"doc(
+    py::class_< tom::ObservationCollectionParser, std::shared_ptr< tom::ObservationCollectionParser > >(
+            m, "ObservationCollectionParser", R"doc(
         Base class for observation collection parsers.
 
         This is the base class from which all observation collection parsers are derived. It is not intended to be instantiated directly.
         )doc" );
 
     m.def( "observation_filter",
-           py::overload_cast< tom::ObservationFilterType, const double, const bool, const bool >(
-                   &tom::observationFilter ),
+           py::overload_cast< tom::ObservationFilterType, const double, const bool, const bool >( &tom::observationFilter ),
            py::arg( "filter_type" ),
            py::arg( "filter_value" ),
            py::arg( "filter_out" ) = true,
@@ -127,10 +115,7 @@ void expose_observations_processing( py::module& m )
         )doc" );
 
     m.def( "observation_filter",
-           py::overload_cast< tom::ObservationFilterType,
-                              const std::vector< double >,
-                              const bool,
-                              const bool >( &tom::observationFilter ),
+           py::overload_cast< tom::ObservationFilterType, const std::vector< double >, const bool, const bool >( &tom::observationFilter ),
            py::arg( "filter_type" ),
            py::arg( "filter_value" ),
            py::arg( "filter_out" ) = true,
@@ -166,11 +151,7 @@ void expose_observations_processing( py::module& m )
     //          get_docstring("observation_filter").c_str() );
 
     m.def( "observation_filter",
-           py::overload_cast< tom::ObservationFilterType,
-                              const double,
-                              const double,
-                              const bool,
-                              const bool >( &tom::observationFilter ),
+           py::overload_cast< tom::ObservationFilterType, const double, const double, const bool, const bool >( &tom::observationFilter ),
            py::arg( "filter_type" ),
            py::arg( "first_filter_value" ),
            py::arg( "second_filter_value" ),
@@ -199,10 +180,7 @@ void expose_observations_processing( py::module& m )
         )doc" );
 
     m.def( "observation_filter",
-           py::overload_cast< tom::ObservationFilterType,
-                              const Eigen::VectorXd&,
-                              const bool,
-                              const bool >( &tom::observationFilter ),
+           py::overload_cast< tom::ObservationFilterType, const Eigen::VectorXd&, const bool, const bool >( &tom::observationFilter ),
            py::arg( "filter_type" ),
            py::arg( "filter_value" ),
            py::arg( "filter_out" ) = true,
@@ -256,8 +234,7 @@ void expose_observations_processing( py::module& m )
             An observation filter object.
         )doc" );
 
-    py::class_< tom::ObservationSetSplitterBase,
-                std::shared_ptr< tom::ObservationSetSplitterBase > >(
+    py::class_< tom::ObservationSetSplitterBase, std::shared_ptr< tom::ObservationSetSplitterBase > >(
             m, "ObservationSetSplitterBase", R"doc(
         Base class for observation set splitters.
 
@@ -265,9 +242,7 @@ void expose_observations_processing( py::module& m )
         )doc" );
 
     m.def( "observation_set_splitter",
-           py::overload_cast< tom::ObservationSetSplitterType,
-                              const std::vector< double >,
-                              const int >( &tom::observationSetSplitter ),
+           py::overload_cast< tom::ObservationSetSplitterType, const std::vector< double >, const int >( &tom::observationSetSplitter ),
            py::arg( "splitter_type" ),
            py::arg( "splitter_value" ),
            py::arg( "min_number_observations" ) = 0,
@@ -290,8 +265,7 @@ void expose_observations_processing( py::module& m )
         )doc" );
 
     m.def( "observation_set_splitter",
-           py::overload_cast< tom::ObservationSetSplitterType, const double, const int >(
-                   &tom::observationSetSplitter ),
+           py::overload_cast< tom::ObservationSetSplitterType, const double, const int >( &tom::observationSetSplitter ),
            py::arg( "splitter_type" ),
            py::arg( "splitter_value" ),
            py::arg( "min_number_observations" ) = 0,
@@ -314,8 +288,7 @@ void expose_observations_processing( py::module& m )
         )doc" );
 
     m.def( "observation_set_splitter",
-           py::overload_cast< tom::ObservationSetSplitterType, const int, const int >(
-                   &tom::observationSetSplitter ),
+           py::overload_cast< tom::ObservationSetSplitterType, const int, const int >( &tom::observationSetSplitter ),
            py::arg( "splitter_type" ),
            py::arg( "splitter_value" ),
            py::arg( "min_number_observations" ) = 0,
@@ -369,8 +342,7 @@ void expose_observations_processing( py::module& m )
         )doc" );
 
     m.def( "observation_parser",
-           py::overload_cast< const std::vector< tom::ObservableType >&, const bool >(
-                   &tom::observationParser ),
+           py::overload_cast< const std::vector< tom::ObservableType >&, const bool >( &tom::observationParser ),
            py::arg( "observable_type_vector" ),
            py::arg( "use_opposite_condition" ) = false,
            R"doc(
@@ -410,8 +382,7 @@ void expose_observations_processing( py::module& m )
         )doc" );
 
     m.def( "observation_parser",
-           py::overload_cast< const std::vector< tom::LinkEnds >&, const bool >(
-                   &tom::observationParser ),
+           py::overload_cast< const std::vector< tom::LinkEnds >&, const bool >( &tom::observationParser ),
            py::arg( "link_ends_vector" ),
            py::arg( "use_opposite_condition" ) = false,
            R"doc(
@@ -431,8 +402,7 @@ void expose_observations_processing( py::module& m )
         )doc" );
 
     m.def( "observation_parser",
-           py::overload_cast< const std::string, const bool, const bool >(
-                   &tom::observationParser ),
+           py::overload_cast< const std::string, const bool, const bool >( &tom::observationParser ),
            py::arg( "link_ends_str" ),
            py::arg( "is_reference_point" ) = false,
            py::arg( "use_opposite_condition" ) = false,
@@ -455,8 +425,7 @@ void expose_observations_processing( py::module& m )
         )doc" );
 
     m.def( "observation_parser",
-           py::overload_cast< const std::vector< std::string >&, const bool, const bool >(
-                   &tom::observationParser ),
+           py::overload_cast< const std::vector< std::string >&, const bool, const bool >( &tom::observationParser ),
            py::arg( "link_ends_str_vector" ),
            py::arg( "is_reference_point" ) = false,
            py::arg( "use_opposite_condition" ) = false,
@@ -479,8 +448,7 @@ void expose_observations_processing( py::module& m )
         )doc" );
 
     m.def( "observation_parser",
-           py::overload_cast< const std::pair< std::string, std::string >&, const bool >(
-                   &tom::observationParser ),
+           py::overload_cast< const std::pair< std::string, std::string >&, const bool >( &tom::observationParser ),
            py::arg( "link_end_id" ),
            py::arg( "use_opposite_condition" ) = false,
            R"doc(
@@ -500,8 +468,7 @@ void expose_observations_processing( py::module& m )
         )doc" );
 
     m.def( "observation_parser",
-           py::overload_cast< const std::vector< std::pair< std::string, std::string > >&,
-                              const bool >( &tom::observationParser ),
+           py::overload_cast< const std::vector< std::pair< std::string, std::string > >&, const bool >( &tom::observationParser ),
            py::arg( "link_end_ids_vector" ),
            py::arg( "use_opposite_condition" ) = false,
            R"doc(
@@ -541,8 +508,7 @@ void expose_observations_processing( py::module& m )
         )doc" );
 
     m.def( "observation_parser",
-           py::overload_cast< const std::vector< tom::LinkEndType >&, const bool >(
-                   &tom::observationParser ),
+           py::overload_cast< const std::vector< tom::LinkEndType >&, const bool >( &tom::observationParser ),
            py::arg( "link_end_types_vector" ),
            py::arg( "use_opposite_condition" ) = false,
            R"doc(
@@ -562,8 +528,7 @@ void expose_observations_processing( py::module& m )
         )doc" );
 
     m.def( "observation_parser",
-           py::overload_cast< const std::pair< tom::LinkEndType, tom::LinkEndId >&, const bool >(
-                   &tom::observationParser ),
+           py::overload_cast< const std::pair< tom::LinkEndType, tom::LinkEndId >&, const bool >( &tom::observationParser ),
            py::arg( "single_link_end" ),
            py::arg( "use_opposite_condition" ) = false,
            R"doc(
@@ -583,8 +548,7 @@ void expose_observations_processing( py::module& m )
         )doc" );
 
     m.def( "observation_parser",
-           py::overload_cast< const std::vector< std::pair< tom::LinkEndType, tom::LinkEndId > >&,
-                              const bool >( &tom::observationParser ),
+           py::overload_cast< const std::vector< std::pair< tom::LinkEndType, tom::LinkEndId > >&, const bool >( &tom::observationParser ),
            py::arg( "single_link_ends_vector" ),
            py::arg( "use_opposite_condition" ) = false,
            R"doc(
@@ -604,8 +568,7 @@ void expose_observations_processing( py::module& m )
         )doc" );
 
     m.def( "observation_parser",
-           py::overload_cast< const std::pair< double, double >&, const bool >(
-                   &tom::observationParser ),
+           py::overload_cast< const std::pair< double, double >&, const bool >( &tom::observationParser ),
            py::arg( "time_bounds" ),
            py::arg( "use_opposite_condition" ) = false,
            R"doc(
@@ -625,8 +588,7 @@ void expose_observations_processing( py::module& m )
         )doc" );
 
     m.def( "observation_parser",
-           py::overload_cast< const std::vector< std::pair< double, double > >&, const bool >(
-                   &tom::observationParser ),
+           py::overload_cast< const std::vector< std::pair< double, double > >&, const bool >( &tom::observationParser ),
            py::arg( "time_bounds_vector" ),
            py::arg( "use_opposite_condition" ) = false,
            R"doc(
@@ -646,8 +608,8 @@ void expose_observations_processing( py::module& m )
         )doc" );
 
     m.def( "observation_parser",
-           py::overload_cast< const std::shared_ptr< tom::ObservationAncilliarySimulationSettings >,
-                              const bool >( &tom::observationParser ),
+           py::overload_cast< const std::shared_ptr< tom::ObservationAncilliarySimulationSettings >, const bool >(
+                   &tom::observationParser ),
            py::arg( "ancillary_settings" ),
            py::arg( "use_opposite_condition" ) = false,
            R"doc(
@@ -667,9 +629,8 @@ void expose_observations_processing( py::module& m )
         )doc" );
 
     m.def( "observation_parser",
-           py::overload_cast< const std::vector< std::shared_ptr<
-                                      tom::ObservationAncilliarySimulationSettings > >&,
-                              const bool >( &tom::observationParser ),
+           py::overload_cast< const std::vector< std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >&, const bool >(
+                   &tom::observationParser ),
            py::arg( "ancillary_settings_vector" ),
            py::arg( "use_opposite_condition" ) = false,
            R"doc(
@@ -689,9 +650,8 @@ void expose_observations_processing( py::module& m )
         )doc" );
 
     m.def( "observation_parser",
-           py::overload_cast<
-                   const std::vector< std::shared_ptr< tom::ObservationCollectionParser > >&,
-                   const bool >( &tom::observationParser ),
+           py::overload_cast< const std::vector< std::shared_ptr< tom::ObservationCollectionParser > >&, const bool >(
+                   &tom::observationParser ),
            py::arg( "observation_parsers" ),
            py::arg( "combine_conditions" ) = false,
            R"doc(
@@ -709,7 +669,6 @@ void expose_observations_processing( py::module& m )
         tudatpy.estimation.observations.ObservationCollectionParser
             A multi-type observation parser object.
         )doc" );
-
 }
 
 }  // namespace observations_processing
