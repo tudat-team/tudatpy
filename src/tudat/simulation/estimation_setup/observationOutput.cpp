@@ -539,75 +539,42 @@ ObservationDependentVariableFunction getObservationVectorDependentVariableFuncti
     return outputFunction;
 }
 
-void ObservationDependentVariableCalculator::addDependentVariable(
-        const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
-        const SystemOfBodies &bodies )
+std::map< std::pair< int, int >, std::shared_ptr< ObservationDependentVariableSettings > > ObservationDependentVariableBookkeeping::getSettingsIndicesAndSizes( ) const
+{
+    std::map< std::pair< int, int >, std::shared_ptr< ObservationDependentVariableSettings > > settingsStartIndices;
+    for( unsigned int i = 0; i < dependentVariableStartIndices_.size( ); i++ )
+    {
+        settingsStartIndices[ std::make_pair( dependentVariableStartIndices_[ i ], dependentVariableSizes_[ i ] ) ] =
+                settingsList_[ i ];
+    }
+    return settingsStartIndices;
+}
+
+std::pair< int, int > ObservationDependentVariableBookkeeping::addDependentVariable(
+        const std::shared_ptr< ObservationDependentVariableSettings > variableSettings )
 {
     // Check if the requested dependent variable can be used for given link
-    if( doesObservationDependentVariableExistForGivenLink( observableType_, linkEnds_.linkEnds_, variableSettings ) )
+    if( doesObservationDependentVariableExistForGivenLink(  observableType_, linkEnds_.linkEnds_, variableSettings ) )
     {
         // Retrieve the current index in list of dependent variables and size of new parameter
         int currentIndex = totalDependentVariableSize_;
         int parameterSize = getObservationDependentVariableSize( variableSettings, linkEnds_.linkEnds_ );
 
-        // Create function to compute dependent variable
-        ObservationDependentVariableFunction observationDependentVariableFunction =
-                getObservationVectorDependentVariableFunction( bodies, variableSettings, observableType_, linkEnds_ );
-
-        // Create function to compute dependent variable and add to existing list
-        ObservationDependentVariableAddFunction dependentVariableAddFunction =
-                [ = ]( Eigen::VectorXd &dependentVariables,
-                       const std::vector< double > &linkEndTimes,
-                       const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
-                       const Eigen::VectorXd &observable,
-                       const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySimulationSettings ) {
-                    // Check if computation is not overriding existing values
-                    for( int i = 0; i < parameterSize; i++ )
-                    {
-                        if( dependentVariables( currentIndex + i ) == dependentVariables( currentIndex + i ) )
-                        {
-                            throw std::runtime_error( "Error when saving observation dependent variables; overriding existing value" );
-                        }
-                    }
-                    dependentVariables.segment( currentIndex, parameterSize ) =
-                            observationDependentVariableFunction( linkEndTimes, linkEndStates, observable, ancilliarySimulationSettings );
-                };
-
-        // Add new dependent variable function and settings to list
-        dependentVariableAddFunctions_.push_back( dependentVariableAddFunction );
         dependentVariableStartIndices_.push_back( totalDependentVariableSize_ );
         dependentVariableSizes_.push_back( parameterSize );
         settingsList_.push_back( variableSettings );
         totalDependentVariableSize_ += parameterSize;
-    }
-}
 
-void ObservationDependentVariableCalculator::addDependentVariables(
-        const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList,
-        const SystemOfBodies &bodies )
-{
-    // Parse all settings to be added and check if they are already included
-    for( auto settingsToAdd: settingsList )
+        return std::make_pair( currentIndex, parameterSize );
+    }
+    else
     {
-        // Check if settings already exist for given observation set
-        bool settingsDetected = false;
-        for( auto existingSettings: settingsList_ )
-        {
-            if( existingSettings->areSettingsCompatible( settingsToAdd ) )
-            {
-                settingsDetected = true;
-            }
-        }
-
-        // Add required dependent variable if not yet included
-        if( !settingsDetected )
-        {
-            addDependentVariable( settingsToAdd, bodies );
-        }
+        return std::make_pair( 0, 0 );
     }
 }
 
-std::pair< int, int > ObservationDependentVariableCalculator::getDependentVariableIndices(
+
+std::pair< int, int > ObservationDependentVariableBookkeeping::getDependentVariableIndices(
         const std::shared_ptr< ObservationDependentVariableSettings > dependentVariables )
 {
     std::pair< int, int > startAndSizePair = std::make_pair( 0, 0 );
@@ -628,13 +595,55 @@ std::pair< int, int > ObservationDependentVariableCalculator::getDependentVariab
     return startAndSizePair;
 }
 
+
+void ObservationDependentVariableCalculator::addDependentVariable(
+        const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
+        const SystemOfBodies &bodies )
+{
+    std::pair< int, int > currentIndexAndSize = dependentVariableBookkeeping_->addDependentVariable( variableSettings );
+
+    // Check if the requested dependent variable can be used for given link
+    if( currentIndexAndSize.second > 0 )
+    {
+        int currentIndex = currentIndexAndSize.first;
+        int parameterSize = currentIndexAndSize.second;
+
+
+    }
+}
+
+void ObservationDependentVariableCalculator::addDependentVariables(
+        const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList,
+        const SystemOfBodies &bodies )
+{
+    // Parse all settings to be added and check if they are already included
+    for( auto settingsToAdd: settingsList )
+    {
+        // Check if settings already exist for given observation set
+        bool settingsDetected = false;
+        for( auto existingSettings: dependentVariableBookkeeping_->getDependentVariableSettings( ) )
+        {
+            if( existingSettings->areSettingsCompatible( settingsToAdd ) )
+            {
+                settingsDetected = true;
+            }
+        }
+
+        // Add required dependent variable if not yet included
+        if( !settingsDetected )
+        {
+            addDependentVariable( settingsToAdd, bodies );
+        }
+    }
+}
+
 Eigen::VectorXd ObservationDependentVariableCalculator::calculateDependentVariables(
         const std::vector< double > &linkEndTimes,
         const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
         const Eigen::VectorXd &observation,
         const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > observationAncilliarySimulationSettings )
 {
-    Eigen::VectorXd dependentVariables = Eigen::VectorXd::Constant( totalDependentVariableSize_, TUDAT_NAN );
+    Eigen::VectorXd dependentVariables = Eigen::VectorXd::Constant( dependentVariableBookkeeping_->getTotalDependentVariableSize( ), TUDAT_NAN );
 
     for( unsigned int i = 0; i < dependentVariableAddFunctions_.size( ); i++ )
     {
@@ -642,6 +651,39 @@ Eigen::VectorXd ObservationDependentVariableCalculator::calculateDependentVariab
                 dependentVariables, linkEndTimes, linkEndStates, observation, observationAncilliarySimulationSettings );
     }
     return dependentVariables;
+}
+
+void ObservationDependentVariableCalculator::addDependentVariableFunction(
+        const std::shared_ptr< ObservationDependentVariableSettings > variableSettings, const SystemOfBodies& bodies,
+        const int currentIndex,
+        const int parameterSize )
+{
+    // Create function to compute dependent variable
+    ObservationDependentVariableFunction observationDependentVariableFunction =
+            getObservationVectorDependentVariableFunction(
+                    bodies, variableSettings, dependentVariableBookkeeping_->getObservableType( ), dependentVariableBookkeeping_->getLinkEnds( ).linkEnds_ );
+
+    // Create function to compute dependent variable and add to existing list
+    ObservationDependentVariableAddFunction dependentVariableAddFunction =
+            [ = ]( Eigen::VectorXd &dependentVariables,
+                   const std::vector< double > &linkEndTimes,
+                   const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
+                   const Eigen::VectorXd &observable,
+                   const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySimulationSettings ) {
+                // Check if computation is not overriding existing values
+                for( int i = 0; i < parameterSize; i++ )
+                {
+                    if( dependentVariables( currentIndex + i ) == dependentVariables( currentIndex + i ) )
+                    {
+                        throw std::runtime_error( "Error when saving observation dependent variables; overriding existing value" );
+                    }
+                }
+                dependentVariables.segment( currentIndex, parameterSize ) =
+                        observationDependentVariableFunction( linkEndTimes, linkEndStates, observable, ancilliarySimulationSettings );
+            };
+
+    // Add new dependent variable function and settings to list
+    dependentVariableAddFunctions_.push_back( dependentVariableAddFunction );
 }
 
 }  // namespace simulation_setup
