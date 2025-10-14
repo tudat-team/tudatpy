@@ -162,6 +162,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
            py::arg( "bodies" ),
            py::arg( "propagator_settings" ) = nullptr,
            py::arg( "consider_parameters_names" ) = std::vector< std::shared_ptr< tep::EstimatableParameterSettings > >( ),
+           py::arg( "print_parameter_order_warning" ) = true,
            R"doc(
 
  Function for creating a consolidated parameter from the given estimatable parameter settings.
@@ -173,13 +174,21 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  Parameters
  ----------
  parameter_settings : list( :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` )
-     List of objects that define the settings for the parameters that are to be created. Each entry in this list is typically created by a call to a function in the :ref:`parameters_setup` module
+     List of objects that define the settings for the parameters that are to be created. Each entry in this list is typically created by a call to a function in the :ref:`parameters_setup` module.
 
  bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
      Object consolidating all bodies and environment models, including ground station models, that constitute the physical environment.
 
  propagator_settings : :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagatorSettings`
      Object containing the consolidated propagation settings of the simulation.
+
+ consider_parameters_names : list( :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` ) = []
+     List of objects that define the settings for the considered parameters that are to be created. Each entry in this list is typically created by a call to a function in the :ref:`parameters_setup` module.
+
+ print_parameter_order_warning : bool = True
+     Flag to determine whether a warning is printed to the console if there are both scalar and vector parameters found.
+
+
 
  Returns
  -------
