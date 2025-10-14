@@ -147,15 +147,35 @@ public:
      * \brief Get the data type used by this ComaModel instance.
      * \return ComaDataType indicating whether polynomial or Stokes coefficients are used
      */
-    ComaDataType getDataType() const { return dataType_; }
+    inline ComaDataType getDataType() const { return dataType_; }
 
     /*!
      * \brief Get a pointer to the spherical harmonics calculator for sharing.
      * \return Pointer to the spherical harmonics calculator (non-owning)
      */
-    SphericalHarmonicsCalculator* getSphericalHarmonicsCalculator() const { return sphericalHarmonicsCalculator_.get(); }
+    inline SphericalHarmonicsCalculator* getSphericalHarmonicsCalculator() const { return sphericalHarmonicsCalculator_.get(); }
 
 private:
+    // ========== Hot path: Frequently accessed cached values (grouped for cache locality) ==========
+
+    //! Cached solar longitude value to avoid redundant state function calls [rad]
+    mutable double cachedSolarLongitude_;
+
+    //! Time at which solar longitude was last cached [s]
+    mutable double cachedTime_;
+
+    //! Pre-allocated coefficient matrices to avoid repeated allocations
+    mutable Eigen::MatrixXd cachedCosineCoefficients_;
+    mutable Eigen::MatrixXd cachedSineCoefficients_;
+
+    //! Cached file index from last time interval search (optimization hint)
+    mutable int lastFileIndex_;
+
+    //! Flag indicating whether cached solar longitude is valid
+    mutable bool solarLongitudeCacheValid_;
+
+    // ========== Configuration: Model parameters (small, accessed during initialization and queries) ==========
+
     //! Type of data used to determine computation method (polynomial or Stokes coefficients)
     ComaDataType dataType_;
 
@@ -167,6 +187,8 @@ private:
 
     //! Maximum spherical harmonic order used for density computation (-1 for auto-detect)
     int maximumOrder_;
+
+    // ========== Data and computation infrastructure (large objects, less frequently accessed) ==========
 
     //! Polynomial coefficient dataset containing coma density data (used when dataType_ == POLYNOMIAL_COEFFICIENTS)
     std::shared_ptr<simulation_setup::ComaPolyDataset> polyDataset_;
@@ -187,14 +209,14 @@ private:
     std::unique_ptr<SphericalHarmonicsCalculator> sphericalHarmonicsCalculator_;
 
     //! Pre-initialized interpolators for Stokes coefficients (only used for STOKES_COEFFICIENTS data type)
-    //! Maps spherical harmonic degree/order pairs (n,m) to cosine and sine coefficient interpolators
-    std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>> stokesInterpolators_;
+    //! Vector indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators
+    std::vector<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
+                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>> stokesInterpolators_;
 
     //! Pre-initialized interpolators for reduced Stokes coefficients (for radius > reference radius)
-    //! Maps spherical harmonic degree/order pairs (n,m) to cosine and sine coefficient interpolators (1D: solar longitude only)
-    std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
-                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>>> reducedStokesInterpolators_;
+    //! Vector indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators (1D: solar longitude only)
+    std::vector<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
+                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>>>> reducedStokesInterpolators_;
 
     /*!
      * @brief Find the index of the time interval that contains a given time.
@@ -231,15 +253,43 @@ private:
     double computeNumberDensityFromStokesCoefficients( double radius, double longitude, double latitude, double time ) const;
 
     /*!
-     * @brief Calculate solar longitude in comet body-fixed frame.
+     * @brief Calculate solar longitude in comet body-fixed frame with caching.
+     * @param time Time at which to compute solar longitude [s]
      * @return Solar longitude [rad]
      */
-    double calculateSolarLongitude() const;
+    double calculateSolarLongitude( double time ) const;
 
     /*!
      * @brief Initialize interpolators for Stokes coefficients (called only for STOKES_COEFFICIENTS data type)
      */
     void initializeStokesInterpolators();
+
+    /*!
+     * @brief Helper to create 2D interpolator for Stokes coefficients on-the-fly (fallback)
+     * @param fileIndex File index in dataset
+     * @param n Spherical harmonic degree
+     * @param m Spherical harmonic order
+     * @param cosineCoeff Output: interpolated cosine coefficient
+     * @param sineCoeff Output: interpolated sine coefficient
+     * @param radius Radius for interpolation [m]
+     * @param solarLongitude Solar longitude for interpolation [rad]
+     */
+    void createFallback2DInterpolator( int fileIndex, int n, int m,
+                                       double& cosineCoeff, double& sineCoeff,
+                                       double radius, double solarLongitude ) const;
+
+    /*!
+     * @brief Helper to create 1D reduced interpolator for Stokes coefficients on-the-fly (fallback)
+     * @param fileIndex File index in dataset
+     * @param n Spherical harmonic degree
+     * @param m Spherical harmonic order
+     * @param cosineCoeff Output: interpolated cosine coefficient
+     * @param sineCoeff Output: interpolated sine coefficient
+     * @param solarLongitude Solar longitude for interpolation [rad]
+     */
+    void createFallback1DInterpolator( int fileIndex, int n, int m,
+                                       double& cosineCoeff, double& sineCoeff,
+                                       double solarLongitude ) const;
 
 };
 
@@ -292,6 +342,12 @@ private:
 
     //! Cache object for efficient spherical harmonics calculations (stores Legendre polynomials and trigonometric values)
     basic_mathematics::SphericalHarmonicsCache sphericalHarmonicsCache_;
+
+    //! Last used maximum degree (for cache optimization)
+    int lastMaxDegree_ = -1;
+
+    //! Last used maximum order (for cache optimization)
+    int lastMaxOrder_ = -1;
 };
 } // end namespace aerodynamics
 } // end namespace tudat
