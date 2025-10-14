@@ -933,15 +933,16 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
         // Build a truncatedLoveNumberMap that is compatible in formatting with new map-based convention (old one adds two random 0 entries in back of each order vector)
         std::map< int, std::vector< std::complex< double > > > truncatedLoveNumberMap;
 
-        for (const auto& [key, vec] : fullLoveNumberVector) {
+        for (const auto& kv : fullLoveNumberVector) {
+            const int key = kv.first;
+            const std::vector<std::complex<double>>& vec = kv.second;
 
-            std::vector< std::complex< double > > newVec;
+            std::vector<std::complex<double>> newVec;
 
             if (vec.size() > 2) {
-                    newVec = std::vector<std::complex<double>>(vec.begin(), vec.end() - 2);
+                newVec = std::vector<std::complex<double>>(vec.begin(), vec.end() - 2);
             }
-            // if vec.size() <= 2 → newVec stays empty
-
+            // If vec.size() <= 2, newVec remains empty
             truncatedLoveNumberMap.emplace(key, std::move(newVec));
         }
 
