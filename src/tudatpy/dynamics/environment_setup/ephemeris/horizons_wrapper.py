@@ -10,7 +10,8 @@ import re
 import math
 import numpy as np
 import pandas as pd
-
+from tudatpy.astro import time_representation
+from tudatpy.astro.time_representation import DateTime
 from typing import Union, List, Any
 import datetime
 
@@ -963,11 +964,13 @@ class HorizonsQuery:
             res["datetime_jd"] = (
                 new_actual_time_tdb.jd1 + new_actual_time_tdb.jd2
             )
+
             res["epochJ2000secondsTDB"] = (
                 (new_actual_time_tdb.jd1 - constants.JULIAN_DAY_ON_J2000)
                 * constants.JULIAN_DAY
             ) + (new_actual_time_tdb.jd2 * constants.JULIAN_DAY)
 
+            res["epochJ2000secondsUTC"] = res["epochJ2000secondsTDB"]
             res_list.append(res)
 
             # convert back
@@ -985,6 +988,90 @@ class HorizonsQuery:
                 ]
             else:
                 raise ValueError("query epoch has incorrect format")
+
+        raw = vstack(res_list)
+
+        return raw
+
+    def ephemerides_utc(
+            self,
+            reference_system: str = "J2000",
+            extra_precision: bool = False,
+            *args,
+            **kwargs,
+    ) -> astropy.table.Table:
+        """Implements the JPL Horizons ephemerides API and returns it in raw Astropy table format.
+        Ephemerides API provides time-interpolated observer parameters such as right ascension and declination.
+        Note that this means that values provided are not actual observations.
+
+        A number of quantities are retrieved, their definitions can be found here:
+        https://ssd.jpl.nasa.gov/horizons/manual.html#obsquan.
+        By default all available quantities are retrieved.
+
+        More parameters can be passed directly to the astroquery call. These can be passed as kwargs: kwargs=("refraction":True).
+        Check the astroquery documentation for an overview:
+        https://astroquery.readthedocs.io/en/latest/api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass.ephemerides
+
+
+        Parameters
+        ----------
+        reference_system : str, optional
+            Coordinate reference system, value must be one of `ICRF`/`J2000` or B1950, by default "J2000"
+        extra_precision : bool, optional
+            Enables extra precision in right ascension and declination values, by default False
+
+        Returns
+        -------
+        astropy.table.Table
+            Unprocessed output in astropy table format.
+
+        Raises
+        ------
+        ValueError
+            If time query has incorrect format or an incorrect reference system is chosen
+        """
+        if reference_system not in ["ICRF", "J2000", "B1950"]:
+            raise ValueError(
+                "`reference_system` must be one of: `J2000`, `ICRF`, `B1950`"
+            )
+
+        res_list = []
+        for query in self.queries:
+
+            res = query.ephemerides(
+                refsystem=reference_system,
+                extra_precision=extra_precision,
+                *args,
+                **kwargs,
+            )
+
+            timeformatt = "%Y-%b-%d %H:%M:%S"
+            horizons_utc_array = res["datetime_str"].data
+            print('horizons utc array', horizons_utc_array)
+
+            astropy_times = Time.strptime(horizons_utc_array, format_string=timeformatt)
+            iso_strings = astropy_times.iso  # This gives ISO format strings (UTC)
+
+            tudat_utc_times = [DateTime.from_iso_string(iso_string) for iso_string in iso_strings]
+            tudat_julian_days = [DateTime.to_julian_day(utc_time) for utc_time in tudat_utc_times]
+            utc_seconds = [DateTime.to_epoch(utc_time) for utc_time in tudat_utc_times]
+            time_scale_converter = time_representation.default_time_scale_converter( )
+
+            # start and end epoch of simulation conversion from UTC to tdb
+            tdb_seconds = [time_scale_converter.convert_time(
+                input_scale = time_representation.utc_scale,
+                output_scale = time_representation.tdb_scale,
+                input_value = utc_second) for utc_second in utc_seconds
+            ]
+
+            res["datetime_str_UTC"] = iso_strings
+
+            res["datetime_jd"] = tudat_julian_days
+
+            res["epochJ2000secondsTDB"] = tdb_seconds
+            res["epochJ2000secondsUTC"] = utc_seconds
+
+            res_list.append(res)
 
         raw = vstack(res_list)
 
@@ -1072,14 +1159,15 @@ class HorizonsQuery:
         """
 
         kwargs["quantities"] = 4  # This gets azimuth and elevation
-        raw = self.ephemerides(
+        raw = self.ephemerides_utc(
             reference_system=reference_system,
             extra_precision=extra_precision,
             *args,
             **kwargs,
         )
 
-        res = raw.to_pandas().loc[:, ["epochJ2000secondsTDB", "AZ", "EL"]]
+        print(raw)
+        res = raw.to_pandas().loc[:, ["epochJ2000secondsUTC", "AZ", "EL"]]
 
         if not degrees:
             res[["AZ", "EL"]] = res[["AZ", "EL"]].apply(np.radians)

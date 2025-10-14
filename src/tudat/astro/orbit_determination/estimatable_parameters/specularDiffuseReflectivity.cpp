@@ -81,11 +81,11 @@ double SpecularDiffuseReflectivityParameter::normalizeValue( )
         {
             if( parameterName_.first == specular_reflectivity )
             {
-                reflectionLaws_.at( i )->setSpecularReflectivity( averageReflectivity, true );
+                reflectionLaws_.at( i )->setSpecularReflectivity( averageReflectivity, false );
             }
             else
             {
-                reflectionLaws_.at( i )->setDiffuseReflectivity( averageReflectivity, true );
+                reflectionLaws_.at( i )->setDiffuseReflectivity( averageReflectivity, false );
             }
         }
     }
