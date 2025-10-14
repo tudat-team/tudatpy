@@ -873,162 +873,80 @@ class HorizonsQuery:
             frame_orientation=frame_orientation,
         )
 
-    def ephemerides(
-        self,
-        reference_system: str = "J2000",
-        extra_precision: bool = False,
-        *args,
-        **kwargs,
-    ) -> astropy.table.Table:
-        """Implements the JPL Horizons ephemerides API and returns it in raw Astropy table format.
-        Ephemerides API provides time-interpolated observer parameters such as right ascension and declination.
-        Note that this means that values provided are not actual observations.
-
-        A number of quantities are retrieved, their definitions can be found here:
-        https://ssd.jpl.nasa.gov/horizons/manual.html#obsquan.
-        By default all available quantities are retrieved.
-
-        More parameters can be passed directly to the astroquery call. These can be passed as kwargs: kwargs=("refraction":True).
-        Check the astroquery documentation for an overview:
-        https://astroquery.readthedocs.io/en/latest/api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass.ephemerides
-
-
-        Parameters
-        ----------
-        reference_system : str, optional
-            Coordinate reference system, value must be one of `ICRF`/`J2000` or B1950, by default "J2000"
-        extra_precision : bool, optional
-            Enables extra precision in right ascension and declination values, by default False
-
-        Returns
-        -------
-        astropy.table.Table
-            Unprocessed output in astropy table format.
-
-        Raises
-        ------
-        ValueError
-            If time query has incorrect format or an incorrect reference system is chosen
+    def _parse_horizons_time(self, time_string: str) -> Time:
         """
-        if reference_system not in ["ICRF", "J2000", "B1950"]:
-            raise ValueError(
-                "`reference_system` must be one of: `J2000`(=`ICRF`), `ICRF`, `B1950`"
-            )
-        if reference_system == "J2000":
-            reference_system = "ICRF"
+        Parses a JPL Horizons time string by trying multiple formats.
 
-        res_list = []
-        for query in self.queries:
-            # EPHEMERIDES ONLY TAKES UT TIME (UTC)
-            # temporarily transform from TDB to UTC:
-            # NOTE the conversion back and forth is accurate to 1e-5 seconds
+        This function attempts to parse the time string first with microseconds,
+        and if that fails, it tries again without them.
 
-            if isinstance(query.epochs, dict):
-                query.epochs["start"] = Time(
-                    query.epochs["start"], format="iso", scale="tdb"
-                ).utc.iso
-                query.epochs["stop"] = Time(
-                    query.epochs["stop"], format="iso", scale="tdb"
-                ).utc.iso
-            elif isinstance(query.epochs, list) or isinstance(
-                query.epochs, np.ndarray
-            ):
-                query.epochs = [
-                    (
-                        Time(x, format="jd", scale="tdb").utc.jd1
-                        + Time(x, format="jd", scale="tdb").utc.jd2
-                    )
-                    for x in query.epochs
-                ]
-            else:
-                raise ValueError("query epoch has incorrect format")
+        Args:
+            time_string (str): The datetime string from JPL Horizons.
 
-            res = query.ephemerides(
-                refsystem=reference_system,
-                extra_precision=extra_precision,
-                *args,
-                **kwargs,
-            )
+        Returns:
+            astropy.time.Time: The parsed time object.
 
-            timeformatt = "%Y-%b-%d %H:%M:%S.%f"
-            actual_time_tdb = Time.strptime(
-                res["datetime_str"], format_string=timeformatt, scale="utc"
-            ).tdb
+        Raises:
+            ValueError: If the time string does not match any of the expected formats.
+        """
+        time_format_with_ms = "%Y-%b-%d %H:%M:%S.%f"
+        time_format_without_ms = "%Y-%b-%d %H:%M:%S"
 
-            res["datetime_str"] = actual_time_tdb.strftime(timeformatt)
+        try:
+            # First, try the format that includes microseconds
+            return Time.strptime(time_string, time_format_with_ms)
+        except ValueError:
+            # If it fails, try the format without microseconds
+            try:
+                return Time.strptime(time_string, time_format_without_ms)
+            except ValueError as e:
+                # If both formats fail, raise an error
+                raise ValueError(
+                    f"Time data '{time_string}' does not match any expected format."
+                ) from e
 
-            new_actual_time_tdb = Time.strptime(
-                res["datetime_str"], format_string=timeformatt
-            )
-
-            res["datetime_jd"] = (
-                new_actual_time_tdb.jd1 + new_actual_time_tdb.jd2
-            )
-
-            res["epochJ2000secondsTDB"] = (
-                (new_actual_time_tdb.jd1 - constants.JULIAN_DAY_ON_J2000)
-                * constants.JULIAN_DAY
-            ) + (new_actual_time_tdb.jd2 * constants.JULIAN_DAY)
-
-            res["epochJ2000secondsUTC"] = res["epochJ2000secondsTDB"]
-            res_list.append(res)
-
-            # convert back
-            if isinstance(query.epochs, dict):
-                query.epochs["start"] = Time(
-                    query.epochs["start"], format="iso", scale="utc"
-                ).tdb.iso
-                query.epochs["stop"] = Time(
-                    query.epochs["stop"], format="iso", scale="utc"
-                ).tdb.iso
-            elif isinstance(query.epochs, list):
-                query.epochs = [
-                    Time(x, format="jd", scale="utc").tdb.jd
-                    for x in query.epochs
-                ]
-            else:
-                raise ValueError("query epoch has incorrect format")
-
-        raw = vstack(res_list)
-
-        return raw
-
-    def ephemerides_utc(
+    def ephemerides(
             self,
             reference_system: str = "J2000",
             extra_precision: bool = False,
             *args,
             **kwargs,
     ) -> astropy.table.Table:
-        """Implements the JPL Horizons ephemerides API and returns it in raw Astropy table format.
-        Ephemerides API provides time-interpolated observer parameters such as right ascension and declination.
-        Note that this means that values provided are not actual observations.
+        """
+        Implements the JPL Horizons ephemerides API and returns it in a raw Astropy table format.
 
-        A number of quantities are retrieved, their definitions can be found here:
-        https://ssd.jpl.nasa.gov/horizons/manual.html#obsquan.
-        By default all available quantities are retrieved.
+        This method queries the JPL Horizons system for ephemeris data, which includes
+        time-interpolated observer parameters like Right Ascension and Declination.
+        Note that these values are not real observations but are generated from the
+        Horizons ephemeris model.
 
-        More parameters can be passed directly to the astroquery call. These can be passed as kwargs: kwargs=("refraction":True).
-        Check the astroquery documentation for an overview:
-        https://astroquery.readthedocs.io/en/latest/api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass.ephemerides
+        A number of quantities can be retrieved; their definitions can be found in the
+        `Horizons System Manual <https://ssd.jpl.nasa.gov/horizons/manual.html#obsquan>`_.
+        By default, all available quantities are retrieved.
 
+        Additional parameters can be passed directly to the underlying astroquery call
+        as keyword arguments (e.g., `refraction=True`). For a full overview, see the
+        `astroquery documentation <https://astroquery.readthedocs.io/en/latest/api/astroquery.jplhorizons.HorizonsClass.html#astroquery.jplhorizons.HorizonsClass.ephemerides>`_.
 
         Parameters
         ----------
         reference_system : str, optional
-            Coordinate reference system, value must be one of `ICRF`/`J2000` or B1950, by default "J2000"
+            Coordinate reference system. Must be one of 'ICRF'/'J2000' or 'B1950'.
+            Defaults to "J2000".
         extra_precision : bool, optional
-            Enables extra precision in right ascension and declination values, by default False
+            Enables extra precision in Right Ascension and Declination values.
+            Defaults to False.
 
         Returns
         -------
         astropy.table.Table
-            Unprocessed output in astropy table format.
+            An Astropy table containing the processed output from Horizons, with added
+            columns for UTC and TDB time scales in seconds since J2000.
 
         Raises
         ------
         ValueError
-            If time query has incorrect format or an incorrect reference system is chosen
+            If an unsupported `reference_system` is chosen.
         """
         if reference_system not in ["ICRF", "J2000", "B1950"]:
             raise ValueError(
@@ -1037,7 +955,9 @@ class HorizonsQuery:
 
         res_list = []
         for query in self.queries:
-
+            # Astroquery's ephemerides function expects UTC times for its epochs.
+            # The __init__ method of this class already prepares the query.epochs
+            # in a format that astroquery can handle directly.
             res = query.ephemerides(
                 refsystem=reference_system,
                 extra_precision=extra_precision,
@@ -1045,71 +965,64 @@ class HorizonsQuery:
                 **kwargs,
             )
 
-            timeformatt = "%Y-%b-%d %H:%M:%S"
+            # Use the helper function to parse each time string individually
             horizons_utc_array = res["datetime_str"].data
-            print('horizons utc array', horizons_utc_array)
-
-            astropy_times = Time.strptime(horizons_utc_array, format_string=timeformatt)
-            iso_strings = astropy_times.iso  # This gives ISO format strings (UTC)
-
-            tudat_utc_times = [DateTime.from_iso_string(iso_string) for iso_string in iso_strings]
+            astropy_times = np.array([self._parse_horizons_time(ts) for ts in horizons_utc_array])
+            iso_strings_utc = [t.iso for t in astropy_times]
+            # Use Tudat's time representation for consistent conversion
+            tudat_utc_times = [DateTime.from_iso_string(iso) for iso in iso_strings_utc]
+            utc_seconds = [time.epoch() for time in tudat_utc_times]
             tudat_julian_days = [DateTime.to_julian_day(utc_time) for utc_time in tudat_utc_times]
-            utc_seconds = [DateTime.to_epoch(utc_time) for utc_time in tudat_utc_times]
-            time_scale_converter = time_representation.default_time_scale_converter( )
 
-            # start and end epoch of simulation conversion from UTC to tdb
-            tdb_seconds = [time_scale_converter.convert_time(
-                input_scale = time_representation.utc_scale,
-                output_scale = time_representation.tdb_scale,
-                input_value = utc_second) for utc_second in utc_seconds
+            # Convert UTC seconds to TDB seconds
+            time_scale_converter = time_representation.default_time_scale_converter()
+            tdb_seconds = [
+                time_scale_converter.convert_time(
+                    time_representation.utc_scale,
+                    time_representation.tdb_scale,
+                    epoch
+                ) for epoch in utc_seconds
             ]
-
-            res["datetime_str_UTC"] = iso_strings
-
+            res["datetime_str_UTC"] = iso_strings_utc
             res["datetime_jd"] = tudat_julian_days
-
             res["epochJ2000secondsTDB"] = tdb_seconds
             res["epochJ2000secondsUTC"] = utc_seconds
 
             res_list.append(res)
 
         raw = vstack(res_list)
-
         return raw
 
     def interpolated_observations(
-        self,
-        degrees: bool = False,
-        reference_system: str = "J2000",
-        extra_precision: bool = True,
-        *args,
-        **kwargs,
+            self,
+            degrees: bool = False,
+            reference_system: str = "J2000",
+            extra_precision: bool = True,
+            *args,
+            **kwargs,
     ) -> np.ndarray:
-        """Retrieves interpolated Right Ascension and Declination from the Horizons ephemerides API.
+        """
+        Retrieves interpolated Right Ascension and Declination from the Horizons ephemerides API.
         Note that these values are not real observations but instead interpolated
         values based on the Horizons ephemeris system.
 
         Parameters
         ----------
         degrees : bool, optional
-            return values in degrees if True, radians if False, by default false
+            If True, return angular values in degrees; otherwise, in radians. Defaults to False.
         reference_system : str, optional
-            Coordinate reference system, value must be one of `ICRF`/`J2000` or B1950, by default "J2000"
+            Coordinate reference system, value must be one of `ICRF`/`J2000` or B1950. Defaults to "J2000".
         extra_precision : bool, optional
-            Enables extra precision in Right Ascension and Declination values, by default False
+            Enables extra precision in Right Ascension and Declination values. Defaults to True.
 
         Returns
         -------
         np.ndarray
-            Numpy array (N, 3) with time in seconds since J2000 TDB and the Right Ascension and Declination.
-
-        Raises
-        ------
-        ValueError
-            If time query has incorrect format or an incorrect reference system is chosen
+            Numpy array (N, 3) with time in seconds since J2000 TDB, Right Ascension, and Declination.
         """
+        kwargs["quantities"] = 1  # This gets Only RA and Dec
 
-        kwargs["quantities"] = 1  # this gets Only Ra and Dec
+        # Call the corrected ephemerides method
         raw = self.ephemerides(
             reference_system=reference_system,
             extra_precision=extra_precision,
@@ -1117,14 +1030,14 @@ class HorizonsQuery:
             **kwargs,
         )
 
+        # Use the correct TDB time column
         res = raw.to_pandas().loc[:, ["epochJ2000secondsTDB", "RA", "DEC"]]
 
         if not degrees:
             res[["RA", "DEC"]] = res[["RA", "DEC"]].apply(np.radians)
 
-        res = res.to_numpy()
+        return res.to_numpy()
 
-        return res
 
     def interpolated_station_angles(
         self,
@@ -1159,14 +1072,13 @@ class HorizonsQuery:
         """
 
         kwargs["quantities"] = 4  # This gets azimuth and elevation
-        raw = self.ephemerides_utc(
+        raw = self.ephemerides(
             reference_system=reference_system,
             extra_precision=extra_precision,
             *args,
             **kwargs,
         )
 
-        print(raw)
         res = raw.to_pandas().loc[:, ["epochJ2000secondsUTC", "AZ", "EL"]]
 
         if not degrees:
