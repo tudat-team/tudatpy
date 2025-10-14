@@ -1628,7 +1628,7 @@ class BatchMPC:
             temp = temp.loc[:, ["Code", "Name", "count"]]
         return temp
 
-    def _parse_80col_identification_fields(self, line: str, object_type: str) -> dict:
+    def _parse_80cols_identification_fields(self, line: str, object_type: str) -> dict:
         ident_data = {}
         object_type = object_type.lower()
 
@@ -1658,7 +1658,7 @@ class BatchMPC:
             raise ValueError(f"Unknown object_type: '{object_type}'. Must be 'minor_planet', 'comet', or 'natural_satellite'.")
         return ident_data
 
-    def parse_80col_file(self, filename: str, object_type: str) -> List[Dict]:
+    def parse_80cols_file(self, filename: str, object_type: str) -> List[Dict]:
         """
         Reads an MPC observation file (80-column format) and parses each line
         for a specific object type, returning a list of dictionaries with parsed observations.
@@ -1683,7 +1683,7 @@ class BatchMPC:
                     continue
 
                 try:
-                    ident_data = self._parse_80col_identification_fields(line, object_type)
+                    ident_data = self._parse_80cols_identification_fields(line, object_type)
                 except ValueError as e:
                     print(f"Skipped line due to identification parsing error: {e}")
                     continue
