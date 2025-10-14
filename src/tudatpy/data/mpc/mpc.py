@@ -4,17 +4,15 @@ from tudatpy.estimation import observations
 from tudatpy.estimation.observable_models_setup import (
     model_settings,
     links,
-)  # type:ignore
+)
 from tudatpy.dynamics.environment_setup import add_gravity_field_model
 from tudatpy.dynamics.environment_setup.gravity_field import central_sbdb
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.dates as mdates
 import datetime
-
 from astroquery.mpc import MPC
 from astropy.time import Time
 from astropy_healpix import HEALPix
@@ -22,14 +20,11 @@ from astropy.units import Quantity
 from astropy.time import Time
 import astropy.units as u
 import astropy
-
 from typing import Union, Tuple, List, Dict
-
 import copy
-
 import os
 import re
-
+from tudatpy.astro.time_representation import DateTime
 
 BIAS_LOWRES_FILE = os.path.join(
     os.path.expanduser("~"),
@@ -433,7 +428,7 @@ def get_weights_VFCC17(
     ccd = table.note2.isin(["C", "c", "D"])
     cmos = table.note2.isin(["B"])
     ccd = ccd | cmos
-
+    
     tab3_no_catalog = table.catalog.isin(["unknown", np.nan])
 
     # Apply Table 3:
@@ -874,7 +869,7 @@ class BatchMPC:
         self._refresh_metadata()
 
     def _add_table(self, table: pd.DataFrame, in_degrees: bool = True):
-        """Internal. Formats a manually entered table of observations, use from_astropy or from_pandas."""
+        """Internal. Formats a manually entered table of observations, used in from_astropy and in from_pandas."""
         obs = table
         obs = obs.assign(
             epochJ2000secondsTDB=lambda x: (
@@ -892,81 +887,90 @@ class BatchMPC:
         self._table = pd.concat([self._table, obs])
         self._refresh_metadata()
 
-    def from_astropy(
-        self, table: astropy.table.QTable, in_degrees: bool = True, frame: str = "J2000"
-    ):
-        """Manually input an astropy table with observations into the batch. 
-        Usefull when manual filtering from astroquery is required
-        Table must contain the following columns:
-        number - MPC code of the minor planet\\
-        epoch - in julian days\\
-        RA - right ascension in either degrees or radians (degrees is default)\\
-        DEC - declination in either degrees or radians (degrees is default)\\
-        band - band of the observation (currently unused)\\
-        observatory - MPC code of the observatory
+    def _validate_table(self, table, frame: str):
+        """Internal helper to validate the frame and required columns of a table.
 
-        Parameters
-        ----------
-        table : astropy.table.QTable
-            Astropy table with the observations
-        in_degrees : bool, optional
-            if True RA and DEC are assumed in degrees, else radians, by default True
-        frame : str, optional
-            Reference frame. Please note that only J2000 is currently supported
-            , by default "J2000"
+        Args:
+            table (Union[astropy.table.Table, pd.DataFrame]): The table to validate.
+            frame (str): The reference frame to check.
+
+        Raises:
+            NotImplementedError: If the frame is not 'J2000'.
+            ValueError: If the table is missing required columns.
         """
-        if not (
-            isinstance(table, astropy.table.QTable)
-            or isinstance(table, astropy.table.Table)
-        ):
-            raise ValueError(
-                "Table must be of type astropy.table.QTable or astropy.table.Table"
-            )
         if frame != "J2000":
-            txt = "Only observations in J2000 are supported currently"
-            raise NotImplementedError(txt)
+            raise NotImplementedError("Only observations in J2000 are supported currently")
 
-        # check if all mandatory names are present
-        if not set(self._req_cols).issubset(set(table.colnames)):
-            txt = f"Table must include a set of mandatory columns: {self._req_cols}"
-            raise ValueError(txt)
+        # Get column names depending on table type
+        if isinstance(table, (astropy.table.QTable, astropy.table.Table)):
+            colnames = table.colnames
+        elif isinstance(table, pd.DataFrame):
+            colnames = table.columns
+        else:
+            # This case is already handled, but good for robustness
+            return
 
+        if not set(self._req_cols).issubset(set(colnames)):
+            raise ValueError(f"Table must include a set of mandatory columns: {self._req_cols}")
+
+    def from_astropy(self, table: astropy.table.QTable, in_degrees: bool = True, frame: str = "J2000"):
+        """Loads observations from an Astropy Table into the BatchMPC object.
+
+        This method provides a convenient way to import observation data that has been
+        processed or filtered and is stored in an Astropy Table or QTable. It serves
+        as a wrapper that validates the input before converting it to a pandas DataFrame
+        for internal processing.
+
+        Args:
+            table (astropy.table.Table):
+                The Astropy Table or QTable containing the observation data. It must
+                include the following columns: 'number', 'epoch', 'RA', 'DEC',
+                'band', 'observatory'.
+            in_degrees (bool, optional):
+                If True, 'RA' and 'DEC' columns are assumed to be in degrees.
+                If False, they are assumed to be in radians. Defaults to True.
+            frame (str, optional):
+                The reference frame of the observations. Currently, only "J2000" is
+                supported. Defaults to "J2000".
+
+        Raises:
+            ValueError: If the input `table` is not an Astropy Table/QTable or if it
+                is missing any of the required columns.
+            NotImplementedError: If a `frame` other than 'J2000' is provided.
+        """
+        if not isinstance(table, (astropy.table.QTable, astropy.table.Table)):
+            raise ValueError("Table must be of type astropy.table.QTable or astropy.table.Table")
+
+        self._validate_table(table, frame)
         self._add_table(table=table.to_pandas(), in_degrees=in_degrees)
 
-    def from_pandas(
-        self, table: pd.DataFrame, in_degrees: bool = True, frame: str = "J2000"
-    ):
-        """Manually input an pandas dataframe with observations into the batch. 
-        Usefull when manual filtering from astroquery is required
-        Table must contain the following columns:
-        number - MPC code of the minor planet\\
-        epoch - in julian days\\
-        RA - right ascension in either degrees or radians (degrees is default)\\
-        DEC - declination in either degrees or radians (degrees is default)\\
-        band - band of the observation (currently unused)\\
-        observatory - MPC code of the observatory
+    def from_pandas(self, table: pd.DataFrame, in_degrees: bool = True, frame: str = "J2000"):
+        """
+        Loads observations from a pandas DataFrame into the BatchMPC object.
+
+        The DataFrame must contain the following columns:
+        - 'number': The MPC object code (e.g., '433' for Eros).
+        - 'epoch': The observation epoch in Julian Day format.
+        - 'RA': Right Ascension.
+        - 'DEC': Declination.
+        - 'band': The observation band.
+        - 'observatory': The MPC observatory code.
 
         Parameters
         ----------
-        table : astropy.table.QTable
-            Astropy table with the observations
+        table : pd.DataFrame
+            The pandas DataFrame containing the observation data.
         in_degrees : bool, optional
-            if True RA and DEC are assumed in degrees, else radians, by default True
+            If True, RA and DEC columns in the DataFrame are assumed to be in degrees.
+            If False, they are assumed to be in radians. Defaults to True.
         frame : str, optional
-            Reference frame. Please not that only J2000 is currently supported
-            , by default "J2000"
+            The reference frame of the observations. Currently, only "J2000" is supported.
+            Defaults to "J2000".
         """
         if not isinstance(table, pd.DataFrame):
             raise ValueError("Table must be of type pandas.DataFrame")
-        if frame != "J2000":
-            txt = "Only observations in J2000 are supported currently"
-            raise NotImplementedError(txt)
 
-        # check if all mandatory names are present
-        if not set(self._req_cols).issubset(set(table.columns)):
-            txt = f"Table must include a set of mandatory columns: {self._req_cols}"
-            raise ValueError(txt)
-
+        self._validate_table(table, frame)
         self._add_table(table=table, in_degrees=in_degrees)
 
     def set_weights(
@@ -1623,3 +1627,127 @@ class BatchMPC:
         if not include_positions:
             temp = temp.loc[:, ["Code", "Name", "count"]]
         return temp
+
+    def _parse_80col_identification_fields(self, line: str, object_type: str) -> dict:
+        ident_data = {}
+        object_type = object_type.lower()
+
+        if object_type == 'minor_planet':
+            ident_data['number'] = line[0:5].strip()
+            ident_data['provisional_designation'] = line[5:12].strip()
+            ident_data['discovery_asterisk'] = line[12].strip() if line[12].strip() == '*' else None
+            ident_data['primary_id'] = ident_data['number'] or ident_data['provisional_designation']
+
+        elif object_type == 'comet':
+            ident_data['primary_id'] = line[0:5].strip() # This will be the comet designation
+            ident_data['periodic_number'] = line[0:4].strip()
+            ident_data['orbit_type'] = line[4].strip()
+            ident_data['provisional_designation'] = line[5:12].strip()
+
+        elif object_type == 'natural_satellite':
+            ident_data['s_indicator'] = line[4].strip()
+            if line[5:12].strip(): # Provisional designation exists
+                ident_data['provisional_designation'] = line[5:12].strip()
+                ident_data['primary_id'] = ident_data['provisional_designation']
+            else: # Numbered satellite
+                ident_data['planet_identifier'] = line[0].strip()
+                ident_data['satellite_number'] = line[1:4].strip()
+                ident_data['primary_id'] = f"{ident_data['planet_identifier']}{ident_data['satellite_number']}S"
+
+        else:
+            raise ValueError(f"Unknown object_type: '{object_type}'. Must be 'minor_planet', 'comet', or 'natural_satellite'.")
+        return ident_data
+
+    def parse_80col_file(self, filename: str, object_type: str) -> List[Dict]:
+        """
+        Reads an MPC observation file (80-column format) and parses each line
+        for a specific object type, returning a list of dictionaries with parsed observations.
+
+        Parameters
+        ----------
+        filename : str
+            The path to the MPC 80-column observation file.
+        object_type : str
+            The type of object being observed. Must be 'minor_planet', 'comet', or 'natural_satellite'.
+
+        Returns
+        -------
+        List[Dict]
+            A list of dictionaries, where each dictionary represents a parsed observation.
+            Each dictionary contains keys like 'number', 'epoch', 'RA', 'DEC', 'observatory', etc.
+        """
+        parsed_observations = []
+        with open(filename, 'r') as f:
+            for line in f:
+                if len(line) < 80:
+                    continue
+
+                try:
+                    ident_data = self._parse_80col_identification_fields(line, object_type)
+                except ValueError as e:
+                    print(f"Skipped line due to identification parsing error: {e}")
+                    continue
+
+                try:
+                    # --- Time Parsing ---
+                    year = int(line[15:19])
+                    month = int(line[20:22])
+                    day_frac = float(line[23:32])
+                    day = int(day_frac)
+                    remainder = day_frac - day
+                    total_seconds = remainder * 86400
+                    hours = int(total_seconds / 3600)
+                    minutes = int((total_seconds % 3600) / 60)
+                    seconds = total_seconds % 60
+                    microseconds = int((seconds - int(seconds)) * 1_000_000)
+
+                    obs_time_utc = datetime.datetime(year, month, day, hours, minutes, int(seconds), microseconds)
+                    dt_object = DateTime.from_python_datetime(obs_time_utc)
+                    obs_time_jd = dt_object.to_julian_day()
+                    obs_time_seconds = dt_object.to_epoch()
+
+                    # --- RA Parsing ---
+                    ra_parts = line[32:44].strip().split()
+                    ra_hr, ra_min, ra_sec = int(ra_parts[0]), int(ra_parts[1]), float(ra_parts[2])
+                    ra_deg = (ra_hr * 15 + ra_min * 0.25 + ra_sec * (15 / 3600))
+                    ra_deg = np.degrees((np.radians(ra_deg) + np.pi) % (2 * np.pi) - np.pi)
+
+                    # --- Dec Parsing ---
+                    dec_parts = line[44:56].strip().split()
+                    dec_val_str = dec_parts[0]
+                    dec_sign = -1 if dec_val_str.startswith('-') else 1
+                    dec_deg_val = int(dec_val_str.replace('-', '').replace('+', ''))
+                    dec_min, dec_sec = int(dec_parts[1]), float(dec_parts[2])
+                    dec_deg = dec_sign * (dec_deg_val + dec_min / 60 + dec_sec / 3600)
+
+                    mag_str = line[65:70].strip()
+                    magnitude = float(mag_str) if mag_str else None
+
+                    obs_data = {
+                        "epoch_jd": obs_time_jd,
+                        "epoch_utc": obs_time_utc,
+                        "epoch_seconds": obs_time_seconds,
+                        "RA_deg": ra_deg,
+                        "DEC_deg": dec_deg,
+                        "note1": line[14].strip() or None,
+                        "note2": line[15].strip() or None,
+                        "magnitude": magnitude,
+                        "band": line[70].strip() or None,
+                        "observatory_code": line[77:80].strip(),
+                    }
+
+                    # Combine dictionaries
+                    final_data = {"number": ident_data.pop('primary_id'), **ident_data, **obs_data}
+
+                    # Rename keys to match original output
+                    final_data['epoch'] = final_data.pop('epoch_jd')
+                    final_data['RA'] = final_data.pop('RA_deg')
+                    final_data['DEC'] = final_data.pop('DEC_deg')
+                    final_data['observatory'] = final_data.pop('observatory_code')
+                    final_data['catalog'] = None # This is not present in 80-col format
+                    parsed_observations.append(final_data)
+                except (ValueError, IndexError) as e:
+                    print(f"Skipped line due to observation data parsing error: {e}")
+                    continue
+        return parsed_observations
+
