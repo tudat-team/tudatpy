@@ -5,6 +5,7 @@ from tudatpy.estimation.observable_models_setup import (
     model_settings,
     links,
 )
+from astropy.table import Table
 from tudatpy.dynamics.environment_setup import add_gravity_field_model
 from tudatpy.dynamics.environment_setup.gravity_field import central_sbdb
 import pandas as pd
@@ -1749,5 +1750,6 @@ class BatchMPC:
                 except (ValueError, IndexError) as e:
                     print(f"Skipped line due to observation data parsing error: {e}")
                     continue
-        return parsed_observations
+
+        return Table(parsed_observations)
 
