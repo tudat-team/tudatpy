@@ -454,6 +454,28 @@ void expose_estimation_analysis( py::module& m )
          Complete diagonal of the weights matrix that is to be used
 
          :type: numpy.ndarray[numpy.float64[n, 1]]
+      )doc" )
+            .def_property_readonly( "inverse_apriori_covariance",
+                                    py::overload_cast<>(&tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE,
+                                                                   TIME_TYPE >::getInverseOfAprioriCovariance),
+                           R"doc(
+
+         **read-only**
+
+         Inverse a-priori covariance matrix of the estimated parameters.
+
+         :type: numpy.ndarray[numpy.float64[n, n]]
+      )doc" )
+            .def_property_readonly( "consider_covariance",
+                                    &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE,
+                                                                   TIME_TYPE >::getConsiderCovariance,
+                                    R"doc(
+
+         **read-only**
+
+         A-priori covariance matrix of the considered parameters.
+
+         :type: numpy.ndarray[numpy.float64[n, n]]
       )doc" );
 
     py::class_< tss::EstimationInput< STATE_SCALAR_TYPE, TIME_TYPE >,
