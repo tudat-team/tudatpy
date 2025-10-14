@@ -60,8 +60,7 @@ public:
                          const std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel,
                          const basic_astrodynamics::AvailableAcceleration accelerationType ):
         StateDerivativePartial( propagators::translational_state, std::make_pair( acceleratedBody, "" ) ),
-        acceleratedBody_( acceleratedBody ), acceleratingBody_( acceleratingBody ),
-        accelerationModel_( accelerationModel ),
+        acceleratedBody_( acceleratedBody ), acceleratingBody_( acceleratingBody ), accelerationModel_( accelerationModel ),
         accelerationType_( accelerationType )
     {
         if( accelerationModel_ != nullptr )
@@ -72,13 +71,13 @@ public:
             {
                 throw std::runtime_error( "Error when creating acceleration model partial, type is not consistent " +
                                           std::to_string( accelerationType_ ) + ", " +
-                                          std::to_string( basic_astrodynamics::getAccelerationModelType( accelerationModel_ )  )  );
+                                          std::to_string( basic_astrodynamics::getAccelerationModelType( accelerationModel_ ) ) );
             }
         }
     }
 
     //! Virtual destructor.
-    virtual ~AccelerationPartial( ) { }
+    virtual ~AccelerationPartial( ) {}
 
     //! Function to retrieve the function that returns the partial derivative w.r.t. a propagated state.
     /*!
@@ -293,10 +292,9 @@ public:
         {
             switch( parameter->getParameterName( ).first )
             {
-                case estimatable_parameters::area_to_mass_scaling_factor:
-                {
+                case estimatable_parameters::area_to_mass_scaling_factor: {
                     std::shared_ptr< estimatable_parameters::AreaToMassScalingFactor > areaToMassParameter =
-                        std::dynamic_pointer_cast< estimatable_parameters::AreaToMassScalingFactor >( parameter );
+                            std::dynamic_pointer_cast< estimatable_parameters::AreaToMassScalingFactor >( parameter );
                     if( areaToMassParameter == nullptr )
                     {
                         throw std::runtime_error( "Error when creating area to mass scaling partial, parameter is inconsistent" );
@@ -321,9 +319,8 @@ public:
                     }
                     break;
                 }
-                case estimatable_parameters::full_acceleration_scaling_factor:
-                {
-                    if( parameter->getParameterName( ).second.second == acceleratingBody_  )
+                case estimatable_parameters::full_acceleration_scaling_factor: {
+                    if( parameter->getParameterName( ).second.second == acceleratingBody_ )
                     {
                         std::shared_ptr< estimatable_parameters::FullAccelerationScalingFactorParameter > accelerationScalingParameter =
                                 std::dynamic_pointer_cast< estimatable_parameters::FullAccelerationScalingFactorParameter >( parameter );
@@ -332,11 +329,11 @@ public:
                             throw std::runtime_error( "Error when creating acceleration scaling partial, parameter is inconsistent" );
                         }
 
-                        if( accelerationModel_ == accelerationScalingParameter->getAccelerationModel( ) )
+                        if( accelerationScalingParameter->hasAccelerationModel( accelerationModel_ ) )
                         {
-
-                            partialFunction = std::bind(
-                                    &AccelerationPartial::computeAccelerationPartialWrtAccelerationScalingFactor, this, std::placeholders::_1 );
+                            partialFunction = std::bind( &AccelerationPartial::computeAccelerationPartialWrtAccelerationScalingFactor,
+                                                         this,
+                                                         std::placeholders::_1 );
                             numberOfColumns = 1;
                         }
                     }
@@ -379,7 +376,7 @@ public:
                                                const bool addContribution = 1,
                                                const int startRow = 0,
                                                const int startColumn = 3 )
-    { }
+    {}
 
     //! Function for calculating the partial of the acceleration w.r.t. the Cartesian state of the body undergoing acceleration.
     /*!
@@ -423,7 +420,7 @@ public:
                                                 const bool addContribution = 1,
                                                 const int startRow = 0,
                                                 const int startColumn = 3 )
-    { }
+    {}
 
     //! Function for calculating the partial of the acceleration w.r.t. the Cartesian state of the body exerting acceleration.
     /*!
@@ -454,7 +451,7 @@ public:
                                               const bool addContribution = 1,
                                               const int startRow = 0,
                                               const int startColumn = 0 )
-    { }
+    {}
 
     //! Function for calculating the partial of the acceleration w.r.t. the velocity of the third body.
     /*!
@@ -473,7 +470,7 @@ public:
                                               const bool addContribution = 1,
                                               const int startRow = 0,
                                               const int startColumn = 3 )
-    { }
+    {}
 
     //! Function for calculating the partial of the acceleration w.r.t. the Cartesian state of the third body.
     /*!
@@ -503,7 +500,7 @@ public:
                                                            const std::pair< std::string, std::string >& stateReferencePoint,
                                                            const propagators::IntegratedStateType integratedStateType,
                                                            const bool addContribution = true )
-    { }
+    {}
 
     //! Function to check whether the partial derivative w.r.t. the translational state of a third body is non-zero.
     /*!
@@ -548,7 +545,6 @@ public:
     }
 
 protected:
-
     void computeAccelerationPartialWrtAccelerationScalingFactor( Eigen::MatrixXd& accelerationPartial )
     {
         accelerationPartial = accelerationModel_->getUnscaledAcceleration( );
