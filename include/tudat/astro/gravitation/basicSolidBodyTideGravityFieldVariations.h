@@ -512,21 +512,24 @@ public:
                                                   std::placeholders::_1,
                                                   std::placeholders::_2 ) );
 
-        // if cosine mean forcing terms are empty map (default), set map values to zero
-        if (meanForcingCosineTerms.empty()){
-            for (const auto& [key, vec] : loveNumbers_) {
-                // Create a vector<double> of the same size, all zero-initialized
-                meanForcingCosineTerms_[key] = std::vector<double>(vec.size(), 0.0);
-            }
+      // If cosine mean forcing terms are empty map (default), set map values to zero
+      if (meanForcingCosineTerms_.empty()) {
+        for (const auto& kv : loveNumbers_) {
+          const int key = kv.first;
+          const std::size_t size = kv.second.size();
+          meanForcingCosineTerms_[key] = std::vector<double>(size, 0.0);
         }
+      }
 
-        // if sine mean forcing terms are empty map (default), set map values to zero
-        if (meanForcingSineTerms.empty()){
-            for (const auto& [key, vec] : loveNumbers_) {
-                // Create a vector<double> of the same size, all zero-initialized
-                meanForcingSineTerms_[key] = std::vector<double>(vec.size(), 0.0);
-            }
+      // If sine mean forcing terms are empty map (default), set map values to zero
+      if (meanForcingSineTerms_.empty()) {
+        for (const auto& kv : loveNumbers_) {
+          const int key = kv.first;
+          const std::size_t size = kv.second.size();
+          meanForcingSineTerms_[key] = std::vector<double>(size, 0.0);
         }
+      }
+
 
     }
 
