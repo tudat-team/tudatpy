@@ -214,7 +214,7 @@ simulateObservationsWithCheckAndLinkEndIdOutput(
             std::get< 1 >( simulatedObservations ),
             referenceLinkEnd,
             std::get< 2 >( simulatedObservations ),
-            dependentVariableCalculator,
+            ( dependentVariableCalculator == nullptr ) ? nullptr : dependentVariableCalculator->getDependentVariableBookkeeping( ),
             ancilliarySettings );
 }
 
@@ -232,6 +232,12 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
                                                                        observationsToSimulate->getLinkEnds( ).linkEnds_,
                                                                        observationsToSimulate->getObservableType( ),
                                                                        { observationsToSimulate->arcDefiningConstraint_ } );
+
+
+    std::shared_ptr< observation_models::ObservationDependentVariableCalculator > dependentVariableCalculator =
+            std::make_shared<observation_models::ObservationDependentVariableCalculator >(
+                    observationsToSimulate->getObservationDependentVariableBookkeeping( ), bodies );
+
 
     // Define list of arc data
     typedef std::tuple< Eigen::Matrix< ObservationScalarType, ObservationSize, 1 >, std::vector< Eigen::Vector6d >, std::vector< double > >
@@ -340,7 +346,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
                         ancilliarySettings,
                         observationModel->getObservableType( ),
                         observationsToSimulate->getObservationNoiseFunction( ),
-                        observationsToSimulate->getDependentVariableCalculator( ) );
+                        dependentVariableCalculator );
                 observations.push_back( currentObservation );
                 observationTimes.push_back( it.first );
                 observationsDependentVariables.push_back( currentDependentVariable );
@@ -355,7 +361,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
             observationTimes,
             referenceLinkEnd,
             observationsDependentVariables,
-            observationsToSimulate->getDependentVariableCalculator( ),
+            observationsToSimulate->getObservationDependentVariableBookkeeping( ),
             ancilliarySettings );
 }
 
@@ -392,6 +398,9 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
                                                                            observationsToSimulate->getObservableType( ),
                                                                            observationsToSimulate->getViabilitySettingsList( ) );
 
+        std::shared_ptr< observation_models::ObservationDependentVariableCalculator > dependentVariableCalculator =
+                std::make_shared<observation_models::ObservationDependentVariableCalculator >( tabulatedObservationSettings->getObservationDependentVariableBookkeeping( ), bodies );
+
         // Simulate observations at requested pre-defined time.
         simulatedObservations = simulateObservationsWithCheckAndLinkEndIdOutput< ObservationSize, ObservationScalarType, TimeType >(
                 tabulatedObservationSettings->simulationTimes_,
@@ -399,7 +408,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
                 observationsToSimulate->getReferenceLinkEndType( ),
                 currentObservationViabilityCalculators,
                 noiseFunction,
-                observationsToSimulate->getDependentVariableCalculator( ),
+                dependentVariableCalculator,
                 tabulatedObservationSettings->getAncilliarySettings( ) );
     }
     else if( std::dynamic_pointer_cast< PerArcObservationSimulationSettings< TimeType > >( observationsToSimulate ) != nullptr )
@@ -685,13 +694,13 @@ getObservationSimulationSettingsFromObservations(
                 // Add dependent variables
                 if( singleObservationSets.at( i )->getDependentVariableCalculator( ) != nullptr )
                 {
-                    std::vector< std::shared_ptr< ObservationDependentVariableSettings > > dependentVariablesList =
-                            singleObservationSets.at( i )->getDependentVariableCalculator( )->getDependentVariableSettings( );
-                    if( dependentVariablesList.size( ) > 0 )
-                    {
-                        addDependentVariableToSingleObservationSimulationSettings< TimeType >(
-                                singleSetSimulationSettings, dependentVariablesList, bodies );
-                    }
+//                    std::vector< std::shared_ptr< ObservationDependentVariableSettings > > dependentVariablesList =
+//                            singleObservationSets.at( i )->getDependentVariableCalculator( )->getDependentVariableSettings( );
+//                    if( dependentVariablesList.size( ) > 0 )
+//                    {
+//                        addDependentVariableToSingleObservationSimulationSettings< TimeType >(
+//                                singleSetSimulationSettings, dependentVariablesList, bodies );
+//                    }
                 }
 
                 observationSimulationSettings.push_back( singleSetSimulationSettings );
