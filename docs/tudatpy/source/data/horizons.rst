@@ -21,6 +21,8 @@ Classes
 
 .. autoclass:: tudatpy.data.horizons.HorizonsQuery
    :members:
+   :special-members: __init__
 
 .. autoclass:: tudatpy.data.horizons.HorizonsBatch
    :members:
+   :special-members: __init__

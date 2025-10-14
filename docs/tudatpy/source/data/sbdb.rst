@@ -19,4 +19,5 @@ Classes
 
 .. autoclass:: tudatpy.data.sbdb.SBDBquery
    :members:
+   :special-members: __init__
 
