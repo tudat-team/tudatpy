@@ -869,7 +869,7 @@ class BatchMPC:
         self._refresh_metadata()
 
     def _add_table(self, table: pd.DataFrame, in_degrees: bool = True):
-        """Internal. Formats a manually entered table of observations, use from_astropy or from_pandas."""
+        """Internal. Formats a manually entered table of observations, used in from_astropy and in from_pandas."""
         obs = table
         obs = obs.assign(
             epochJ2000secondsTDB=lambda x: (
@@ -887,81 +887,90 @@ class BatchMPC:
         self._table = pd.concat([self._table, obs])
         self._refresh_metadata()
 
-    def from_astropy(
-        self, table: astropy.table.QTable, in_degrees: bool = True, frame: str = "J2000"
-    ):
-        """Manually input an astropy table with observations into the batch. 
-        Usefull when manual filtering from astroquery is required
-        Table must contain the following columns:
-        number - MPC code of the minor planet\\
-        epoch - in julian days\\
-        RA - right ascension in either degrees or radians (degrees is default)\\
-        DEC - declination in either degrees or radians (degrees is default)\\
-        band - band of the observation (currently unused)\\
-        observatory - MPC code of the observatory
+    def _validate_table(self, table, frame: str):
+        """Internal helper to validate the frame and required columns of a table.
 
-        Parameters
-        ----------
-        table : astropy.table.QTable
-            Astropy table with the observations
-        in_degrees : bool, optional
-            if True RA and DEC are assumed in degrees, else radians, by default True
-        frame : str, optional
-            Reference frame. Please note that only J2000 is currently supported
-            , by default "J2000"
+        Args:
+            table (Union[astropy.table.Table, pd.DataFrame]): The table to validate.
+            frame (str): The reference frame to check.
+
+        Raises:
+            NotImplementedError: If the frame is not 'J2000'.
+            ValueError: If the table is missing required columns.
         """
-        if not (
-            isinstance(table, astropy.table.QTable)
-            or isinstance(table, astropy.table.Table)
-        ):
-            raise ValueError(
-                "Table must be of type astropy.table.QTable or astropy.table.Table"
-            )
         if frame != "J2000":
-            txt = "Only observations in J2000 are supported currently"
-            raise NotImplementedError(txt)
+            raise NotImplementedError("Only observations in J2000 are supported currently")
 
-        # check if all mandatory names are present
-        if not set(self._req_cols).issubset(set(table.colnames)):
-            txt = f"Table must include a set of mandatory columns: {self._req_cols}"
-            raise ValueError(txt)
+        # Get column names depending on table type
+        if isinstance(table, (astropy.table.QTable, astropy.table.Table)):
+            colnames = table.colnames
+        elif isinstance(table, pd.DataFrame):
+            colnames = table.columns
+        else:
+            # This case is already handled, but good for robustness
+            return
 
+        if not set(self._req_cols).issubset(set(colnames)):
+            raise ValueError(f"Table must include a set of mandatory columns: {self._req_cols}")
+
+    def from_astropy(self, table: astropy.table.QTable, in_degrees: bool = True, frame: str = "J2000"):
+        """Loads observations from an Astropy Table into the BatchMPC object.
+
+        This method provides a convenient way to import observation data that has been
+        processed or filtered and is stored in an Astropy Table or QTable. It serves
+        as a wrapper that validates the input before converting it to a pandas DataFrame
+        for internal processing.
+
+        Args:
+            table (astropy.table.Table):
+                The Astropy Table or QTable containing the observation data. It must
+                include the following columns: 'number', 'epoch', 'RA', 'DEC',
+                'band', 'observatory'.
+            in_degrees (bool, optional):
+                If True, 'RA' and 'DEC' columns are assumed to be in degrees.
+                If False, they are assumed to be in radians. Defaults to True.
+            frame (str, optional):
+                The reference frame of the observations. Currently, only "J2000" is
+                supported. Defaults to "J2000".
+
+        Raises:
+            ValueError: If the input `table` is not an Astropy Table/QTable or if it
+                is missing any of the required columns.
+            NotImplementedError: If a `frame` other than 'J2000' is provided.
+        """
+        if not isinstance(table, (astropy.table.QTable, astropy.table.Table)):
+            raise ValueError("Table must be of type astropy.table.QTable or astropy.table.Table")
+
+        self._validate_table(table, frame)
         self._add_table(table=table.to_pandas(), in_degrees=in_degrees)
 
-    def from_pandas(
-        self, table: pd.DataFrame, in_degrees: bool = True, frame: str = "J2000"
-    ):
-        """Manually input an pandas dataframe with observations into the batch. 
-        Usefull when manual filtering from astroquery is required
-        Table must contain the following columns:
-        number - MPC code of the minor planet\\
-        epoch - in julian days\\
-        RA - right ascension in either degrees or radians (degrees is default)\\
-        DEC - declination in either degrees or radians (degrees is default)\\
-        band - band of the observation (currently unused)\\
-        observatory - MPC code of the observatory
+    def from_pandas(self, table: pd.DataFrame, in_degrees: bool = True, frame: str = "J2000"):
+        """
+        Loads observations from a pandas DataFrame into the BatchMPC object.
+
+        The DataFrame must contain the following columns:
+        - 'number': The MPC object code (e.g., '433' for Eros).
+        - 'epoch': The observation epoch in Julian Day format.
+        - 'RA': Right Ascension.
+        - 'DEC': Declination.
+        - 'band': The observation band.
+        - 'observatory': The MPC observatory code.
 
         Parameters
         ----------
-        table : astropy.table.QTable
-            Astropy table with the observations
+        table : pd.DataFrame
+            The pandas DataFrame containing the observation data.
         in_degrees : bool, optional
-            if True RA and DEC are assumed in degrees, else radians, by default True
+            If True, RA and DEC columns in the DataFrame are assumed to be in degrees.
+            If False, they are assumed to be in radians. Defaults to True.
         frame : str, optional
-            Reference frame. Please not that only J2000 is currently supported
-            , by default "J2000"
+            The reference frame of the observations. Currently, only "J2000" is supported.
+            Defaults to "J2000".
         """
         if not isinstance(table, pd.DataFrame):
             raise ValueError("Table must be of type pandas.DataFrame")
-        if frame != "J2000":
-            txt = "Only observations in J2000 are supported currently"
-            raise NotImplementedError(txt)
 
-        # check if all mandatory names are present
-        if not set(self._req_cols).issubset(set(table.columns)):
-            txt = f"Table must include a set of mandatory columns: {self._req_cols}"
-            raise ValueError(txt)
-
+        self._validate_table(table, frame)
         self._add_table(table=table, in_degrees=in_degrees)
 
     def set_weights(
@@ -1619,7 +1628,7 @@ class BatchMPC:
             temp = temp.loc[:, ["Code", "Name", "count"]]
         return temp
 
-    def _parse_identification_fields(self, line: str, object_type: str) -> dict:
+    def _parse_80col_identification_fields(self, line: str, object_type: str) -> dict:
         ident_data = {}
         object_type = object_type.lower()
 
@@ -1674,7 +1683,7 @@ class BatchMPC:
                     continue
 
                 try:
-                    ident_data = self._parse_identification_fields(line, object_type)
+                    ident_data = self._parse_80col_identification_fields(line, object_type)
                 except ValueError as e:
                     print(f"Skipped line due to identification parsing error: {e}")
                     continue
@@ -1728,11 +1737,7 @@ class BatchMPC:
                     }
 
                     # Combine dictionaries
-                    final_data = {
-                        "number": ident_data.pop('primary_id'),
-                        **ident_data,
-                        **obs_data
-                    }
+                    final_data = {"number": ident_data.pop('primary_id'), **ident_data, **obs_data}
 
                     # Rename keys to match original output
                     final_data['epoch'] = final_data.pop('epoch_jd')
@@ -1740,9 +1745,9 @@ class BatchMPC:
                     final_data['DEC'] = final_data.pop('DEC_deg')
                     final_data['observatory'] = final_data.pop('observatory_code')
                     final_data['catalog'] = None # This is not present in 80-col format
-
                     parsed_observations.append(final_data)
                 except (ValueError, IndexError) as e:
                     print(f"Skipped line due to observation data parsing error: {e}")
                     continue
         return parsed_observations
+

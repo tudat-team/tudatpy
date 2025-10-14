@@ -46,7 +46,6 @@ void addAncilliarySettingsToObservationSimulationSettingsPy(
 
 }  // namespace tudat
 
-
 namespace tudatpy
 {
 namespace estimation
@@ -92,7 +91,6 @@ Examples
                     tom::ObservationAncilliarySimulationVariable::sequential_range_lowest_ranging_component )
             .value( "range_conversion_factor", tom::ObservationAncilliarySimulationVariable::range_conversion_factor )
             .export_values( );
-
 
     py::class_< tom::ObservationAncilliarySimulationSettings, std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >(
             m,
@@ -202,8 +200,13 @@ Examples
 
      )doc" );
 
+    py::enum_< tudat::observation_models::ObservationIntermediateSimulationVariable >( m,
+                                                                                       "ObservationIntermediateSimulationVariable",
+                                                                                       R"doc(
+        Enumeration of observation intermediate variable types.
 
-     py::enum_< tudat::observation_models::ObservationIntermediateSimulationVariable >( m, "ObservationIntermediateSimulationVariable" )
+        This enum lists variables that are computed during the observation simulation process and can be stored for later analysis.
+        )doc" )
             .value( "transmitter_frequency_intermediate",
                     tudat::observation_models::ObservationIntermediateSimulationVariable::transmitter_frequency_intermediate )
             .value( "received_frequency_intermediate",
@@ -368,19 +371,67 @@ Examples
            py::arg( "reference_frequency" ),
            py::arg( "integration_time" ) = 60.0,
            py::arg( "link_end_delays" ) = std::vector< double >( ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+        Function for creating ancilliary settings for DSN n-way averaged Doppler observable.
+
+        Parameters
+        ----------
+        frequency_bands : list[tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands]
+            List of frequency bands for each link.
+        reference_frequency_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+            Reference frequency band at reception.
+        reference_frequency : float
+            Reference frequency for Doppler calculation.
+        integration_time : float, default = 60.0
+            Integration time for the averaged Doppler observable.
+        link_end_delays : list[float], default = []
+            Retransmission delays at each retransmitter.
+
+        Returns
+        -------
+        tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings
+            Instance of the ObservationAncilliarySimulationSettings with the required settings.
+        )doc" );
 
     m.def( "dsn_n_way_range_ancilliary_settings",
            &tom::getDsnNWayRangeAncillarySettings,
            py::arg( "frequency_bands" ),
            py::arg( "lowest_ranging_component" ),
            py::arg( "link_end_delays" ) = std::vector< double >( ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+        Function for creating ancilliary settings for DSN n-way range observable.
+
+        Parameters
+        ----------
+        frequency_bands : list[tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands]
+            List of frequency bands for each link.
+        lowest_ranging_component : float
+            Lowest ranging component for sequential range.
+        link_end_delays : list[float], default = []
+            Retransmission delays at each retransmitter.
+
+        Returns
+        -------
+        tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings
+            Instance of the ObservationAncilliarySimulationSettings with the required settings.
+        )doc" );
 
     m.def( "doppler_measured_frequency_ancillary_settings",
            &tom::getDopplerMeasuredFrequencyAncilliarySettings,
            py::arg( "frequency_bands" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+        Function for creating ancilliary settings for Doppler observable with measured frequency.
+
+        Parameters
+        ----------
+        frequency_bands : list[tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands]
+            List of frequency bands for each link.
+
+        Returns
+        -------
+        tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings
+            Instance of the ObservationAncilliarySimulationSettings with the required settings.
+        )doc" );
 
     m.def( "add_ancilliary_settings_to_observable",
            py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
@@ -389,7 +440,18 @@ Examples
            py::arg( "observation_simulation_settings_list" ),
            py::arg( "ancilliary_settings" ),
            py::arg( "observable_type" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+        Add ancillary settings to all observation simulation settings of a given observable type.
+
+        Parameters
+        ----------
+        observation_simulation_settings_list : list[tudatpy.estimation.observations_setup.ObservationSimulationSettings]
+            List of observation simulation settings to modify.
+        ancilliary_settings : tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings
+            Ancillary settings to add.
+        observable_type : tudatpy.kernel.astro.ObservableType
+            Observable type for which to add the ancillary settings.
+        )doc" );
 
     m.def( "add_ancilliary_settings_to_observable_for_link_ends",
            py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
@@ -400,14 +462,30 @@ Examples
            py::arg( "ancilliary_settings" ),
            py::arg( "observable_type" ),
            py::arg( "link_ends" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+        Add ancillary settings to observation simulation settings for a specific observable type and link ends.
 
-    
-           /////////////////////////////////////////////////////////////////////////////////////////////////
+        Parameters
+        ----------
+        observation_simulation_settings_list : list[tudatpy.estimation.observations_setup.ObservationSimulationSettings]
+            List of observation simulation settings to modify.
+        ancilliary_settings : tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings
+            Ancillary settings to add.
+        observable_type : tudatpy.kernel.astro.ObservableType
+            Observable type for which to add the ancillary settings.
+        link_ends : tudatpy.kernel.astro.LinkDefinition
+            Link ends for which to add the ancillary settings.
+        )doc" );
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////
     // FREQUENCIES
     /////////////////////////////////////////////////////////////////////////////////////////////////
 
-    py::enum_< tom::FrequencyBands >( m, "FrequencyBands", R"doc(No documentation found.)doc" )
+    py::enum_< tom::FrequencyBands >( m, "FrequencyBands", R"doc(
+        Enumeration of frequency bands.
+
+        This enum lists common frequency bands used in deep space navigation.
+        )doc" )
             .value( "s_band", tom::FrequencyBands::s_band )
             .value( "x_band", tom::FrequencyBands::x_band )
             .value( "ka_band", tom::FrequencyBands::ka_band )
@@ -417,16 +495,47 @@ Examples
            &tom::getDsnDefaultTurnaroundRatios,
            py::arg( "uplink_band" ),
            py::arg( "downlink_band" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+        Get the default DSN turnaround ratio for given uplink and downlink bands.
+
+        Parameters
+        ----------
+        uplink_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+            Uplink frequency band.
+        downlink_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+            Downlink frequency band.
+
+        Returns
+        -------
+        float
+            The turnaround ratio.
+        )doc" );
 
     m.def( "cassini_turnaround_ratios",
            &tom::getCassiniTurnaroundRatio,
            py::arg( "uplink_band" ),
            py::arg( "downlink_band" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+        Get the Cassini turnaround ratio for given uplink and downlink bands.
+
+        This function returns the specific Ka-band turnaround ratio for Cassini if both bands are Ka-band,
+        otherwise it falls back to the DSN default turnaround ratios.
+
+        Parameters
+        ----------
+        uplink_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+            Uplink frequency band.
+        downlink_band : tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands
+            Downlink frequency band.
+
+        Returns
+        -------
+        float
+            The turnaround ratio.
+        )doc" );
 }
 
-}
-}
-}
-}
+}  // namespace ancillary_settings
+}  // namespace observations_setup
+}  // namespace estimation
+}  // namespace tudatpy
