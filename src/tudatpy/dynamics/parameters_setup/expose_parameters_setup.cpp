@@ -347,7 +347,9 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
      )doc" );
 
-    m.def( "drag_component_scaling", &tep::dragComponentScaling, py::arg( "body" ),
+    m.def( "drag_component_scaling",
+           &tep::dragComponentScaling,
+           py::arg( "body" ),
            R"doc(
 
  Function for creating parameter settings for aerodynamic drag scaling factor
@@ -373,7 +375,9 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class that define the settings. )doc" );
 
-    m.def( "side_component_scaling", &tep::sideComponentScaling, py::arg( "body" ),
+    m.def( "side_component_scaling",
+           &tep::sideComponentScaling,
+           py::arg( "body" ),
            R"doc(
 
  Function for creating parameter settings for aerodynamic side force scaling factor
@@ -390,7 +394,9 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class that define the settings. )doc" );
 
-    m.def( "lift_component_scaling", &tep::liftComponentScaling, py::arg( "body" ),
+    m.def( "lift_component_scaling",
+           &tep::liftComponentScaling,
+           py::arg( "body" ),
            R"doc(
 
  Function for creating parameter settings for aerodynamic lift force scaling factor
@@ -1141,7 +1147,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
      :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's polar motion amplitudes.
      )doc" );
 
-        m.def( "iau_rotation_model_pole",
+    m.def( "iau_rotation_model_pole",
            &tep::iauRotationModelNominalPoleParameterSettings,
            py::arg( "body" ),
            R"doc(
@@ -1169,8 +1175,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
      )doc" );
 
-
-        m.def( "iau_rotation_model_pole_rate",
+    m.def( "iau_rotation_model_pole_rate",
            &tep::iauRotationModelPoleRateParameterSettings,
            py::arg( "body" ),
            R"doc(
@@ -1198,7 +1203,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
      )doc" );
 
-        m.def( "iau_rotation_model_longitudinal_librations",
+    m.def( "iau_rotation_model_longitudinal_librations",
            &tep::iauRotationModelLongitudinalLibrationParameterSettings,
            py::arg( "body" ),
            py::arg( "libration_angular_frequencies" ),
@@ -1229,8 +1234,6 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
      :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's property
 
      )doc" );
-
-
 
     // ###############   Observation Model Parameters
     // ################################
