@@ -2779,7 +2779,8 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
         const std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > > propagatorSettings =
                 std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > >( ),
         const std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >& considerParameterNames =
-                std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >( ) )
+                std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > >( ),
+        bool printParameterOrderWarning = true )
 
 {
     using namespace tudat::estimatable_parameters;
@@ -2816,13 +2817,17 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< InitialStatePa
                     parameterNames[ i ], bodies, propagatorSettings ) );
             if( vectorParameterIsFound == true && parameterOrderWarningPrinted == false )
             {
-                std::cerr << "Warning when creating estimated parameters. The parameters will be ordered such that all parameters "
-                             "(excluding initial states) "
-                          << "defined by a single variable will be stored before those represented by a list of variables. "
-                          << "The parameter order will be different than those in your parameter settings. It is recommended that you "
-                          << "check the parameter order by calling the print_parameter_names(Python)/printEstimatableParameterEntries(C++) "
-                             "function"
-                          << std::endl;
+                if( printParameterOrderWarning == true )
+                {
+                    std::cerr << "Warning when creating estimated parameters. The parameters will be ordered such that all parameters "
+                                 "(excluding initial states) "
+                              << "defined by a single variable will be stored before those represented by a list of variables. "
+                              << "The parameter order will be different than those in your parameter settings. It is recommended that you "
+                              << "check the parameter order by calling the "
+                                 "print_parameter_names(Python)/printEstimatableParameterEntries(C++) "
+                                 "function"
+                              << std::endl;
+                }
                 parameterOrderWarningPrinted = true;
             }
         }
