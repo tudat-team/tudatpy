@@ -131,13 +131,13 @@ public:
                               ? observation_models::getDefaultReferenceLinkEndType( observableType )
                               : linkEndType ),
         viabilitySettingsList_( viabilitySettingsList ), observationNoiseFunction_( observationNoiseFunction ),
-        ancilliarySettings_( ancilliarySettings )
+        ancilliarySettings_( ancilliarySettings ), observationDependentVariableBookkeeping_(
+                                                           std::make_shared< ObservationDependentVariableBookkeeping >( observableType_, linkEnds_ ) )
     {
         if( ancilliarySettings_ == nullptr )
         {
             ancilliarySettings_ = observation_models::getDefaultAncilliaryObservationSettings( observableType );
         }
-        dependentVariableCalculator_ = std::make_shared< ObservationDependentVariableCalculator >( observableType_, linkEnds_ );
     }
 
     //! Destructor.
@@ -189,11 +189,6 @@ public:
         observationNoiseFunction_ = getNoiseFunctionForObservable( observationNoiseFunction, observableType_ );
     }
 
-    std::shared_ptr< ObservationDependentVariableCalculator > getDependentVariableCalculator( )
-    {
-        return dependentVariableCalculator_;
-    }
-
     void setAncilliarySettings( std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >& ancilliarySettings )
     {
         ancilliarySettings_ = ancilliarySettings;
@@ -202,6 +197,13 @@ public:
     std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > getAncilliarySettings( )
     {
         return ancilliarySettings_;
+    }
+
+
+    // Settings for variables that are to be saved along with the observables.
+    std::shared_ptr< ObservationDependentVariableBookkeeping > getObservationDependentVariableBookkeeping( )
+    {
+        return observationDependentVariableBookkeeping_;
     }
 
 protected:
@@ -217,15 +219,14 @@ protected:
     // Settings used to check whether observtion is possible (non-viable observations are not simulated)
     std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > > viabilitySettingsList_;
 
-    // Settings for variables that are to be saved along with the observables.
-    std::vector< std::shared_ptr< ObservationDependentVariableSettings > > observationDependentVariableSettings_;
-
     // Function to generate noise to add to observations that are to be simulated
     std::function< Eigen::VectorXd( const double ) > observationNoiseFunction_;
 
-    std::shared_ptr< ObservationDependentVariableCalculator > dependentVariableCalculator_;
-
     std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings_;
+
+
+    // Settings for variables that are to be saved along with the observables.
+    std::shared_ptr< ObservationDependentVariableBookkeeping > observationDependentVariableBookkeeping_;
 };
 
 //! Struct to define a list of observation times, fully defined before simulating the observations
@@ -488,7 +489,8 @@ void addDependentVariableToSingleObservationSimulationSettings(
         }
     }
     // Add all relevant dependent variables
-    observationSimulationSettings->getDependentVariableCalculator( )->addDependentVariables( extendedDependentVariablesList, bodies );
+
+    observationSimulationSettings->getObservationDependentVariableBookkeeping( )->addDependentVariables( extendedDependentVariablesList, bodies );
 }
 
 template< typename TimeType = double >

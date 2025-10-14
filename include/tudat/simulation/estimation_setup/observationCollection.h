@@ -2591,7 +2591,7 @@ namespace tudat
                         oldObsSet->getObservationTimes(),
                         oldObsSet->getReferenceLinkEnd(),
                         oldObsSet->getObservationsDependentVariablesReference(),
-                        oldObsSet->getDependentVariableCalculator(),
+                        oldObsSet->getDependentVariableBookkeeping(),
                         oldObsSet->getAncilliarySettings());
                 newObsSet->setTabulatedWeights(oldObsSet->getWeightsVector());
                 newObsSet->setResiduals(oldObsSet->getResiduals());
