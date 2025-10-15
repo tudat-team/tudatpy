@@ -2047,7 +2047,6 @@ namespace tudat
             // sets
             std::shared_ptr<ObservationCollectionParser> addDependentVariable(
                 std::shared_ptr<simulation_setup::ObservationDependentVariableSettings> settings,
-                const simulation_setup::SystemOfBodies &bodies,
                 const std::shared_ptr<ObservationCollectionParser> parser = std::make_shared<ObservationCollectionParser>())
             {
                 // Create observation collection parser corresponding to the required dependent variable
@@ -2077,7 +2076,7 @@ namespace tudat
                         createAllCompatibleDependentVariableSettings(observableType, linkEnds, settings);
 
                     // Add dependent variables for all compatible settings
-                    set->addDependentVariables(allSettingsToCreate, bodies);
+                    set->addDependentVariables(allSettingsToCreate);
                 }
 
                 // Return joint observation collection parser
@@ -2299,6 +2298,21 @@ namespace tudat
 
                 return std::make_pair(concatenatedDependentVariables, dependentVariables.second);
             }
+
+            void clearDependentVariableValues( )
+            {
+                for( auto observationIterator : observationSetList_ )
+                {
+                    for( auto linkEndIterator : observationIterator.second )
+                    {
+                        for( unsigned int i = 0; i < linkEndIterator.second.size( ); i++ )
+                        {
+                            linkEndIterator.second.at( i )->clearDependentVariableValues( );
+                        }
+                    }
+                }
+            }
+
 
         private:
             void setObservationSetIndices()
