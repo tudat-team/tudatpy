@@ -1231,7 +1231,6 @@ private:
         const FrequencyCache& freqCache = getFrequencyCache( numFrequencyTerms );
 
         // Compute scaled frequencies for vectorized trigonometric operations
-        // Eigen's array operations are optimized for SIMD when properly aligned
         const ArrayXd cosFreqsScaled = freqCache.cosineFrequencies * solarLongitude;
         const ArrayXd sinFreqsScaled = freqCache.sineFrequencies * solarLongitude;
 
@@ -1252,8 +1251,6 @@ private:
         return basis / double( numFrequencyTerms );
     }
 
-    // OPTIMIZATION: Use Eigen::Ref to avoid Array→Matrix conversions
-    // Eigen::Ref can bind to both Matrix and Array expressions without copying
     static double radialPolyvalAndTemporalIFFT( const Eigen::Ref<const Eigen::RowVectorXd>& ifftBasis,
                                                 const Eigen::Ref<const Eigen::MatrixXd>& polynomialMatrix,
                                                 const Eigen::Ref<const Eigen::VectorXd>& radialPowers )
@@ -1261,7 +1258,6 @@ private:
         return ( ifftBasis * polynomialMatrix * radialPowers ).value( );
     }
 
-    // OPTIMIZATION: Use Eigen::Ref to avoid unnecessary conversions
     static double reducedToTemporalIFFT( const Eigen::Ref<const Eigen::RowVectorXd>& ifftBasis,
                                         const Eigen::Ref<const Eigen::VectorXd>& polynomialVector )
     {
@@ -1317,8 +1313,7 @@ public:
             // Pre-compute IFFT basis (trigonometric terms) - computed once per (radius, solarLongitude) pair
             const Eigen::RowVectorXd ifftBasis = computeIFFTBasis( numIntervals, solarLongitude );
 
-            // OPTIMIZATION: Pre-compute radial power terms - computed once per radius
-            // Keep as Array to avoid conversion, Eigen::Ref will handle it automatically
+            // Pre-compute radial power terms - computed once per radius
             const double radialDistance = 1.0 / radius_km - inverseReferenceRadius;
             const Eigen::ArrayXd radialPowers = pow( radialDistance, atPowersInvRadius.array( ) );
 
@@ -1331,7 +1326,6 @@ public:
                 if(degree > maxDegree || absoluteOrder > maxOrder)
                     continue;
 
-                // OPTIMIZATION: Avoid explicit .matrix() conversion, let Eigen::Ref handle it
                 const auto polyCoefs = polyCoefficients.col( coefficientIndex ).reshaped( numIntervals, numRadialTerms ).matrix( );
 
                 // Use pre-computed basis and radial powers (Eigen::Ref accepts both Matrix and Array)

@@ -213,8 +213,7 @@ double ComaModel::getNumberDensity( const double radius,
                                     const double latitude,
                                     const double time )
 {
-    // OPTIMIZATION: Check if we can reuse cached final density result
-    // Use squared differences to avoid std::abs calls
+    // Check if we can reuse cached final density result
     constexpr double tolerance = 1e-10;
     constexpr double toleranceSq = tolerance * tolerance;
 
@@ -442,7 +441,6 @@ int ComaModel::findTimeIntervalIndex( const double time ) const
  */
 double ComaModel::calculateSolarLongitude( const double time ) const
 {
-    // OPTIMIZATION: Use squared difference to avoid std::abs call
     constexpr double timeTolerance = 1e-10;
     constexpr double timeToleranceSq = timeTolerance * timeTolerance;
     const double timeDiff = time - cachedTime_;
@@ -458,7 +456,6 @@ double ComaModel::calculateSolarLongitude( const double time ) const
         throw std::runtime_error( "ComaModel: State functions must be initialized" );
     }
 
-    // OPTIMIZATION: Recompute solar longitude and cache state function results
     cachedSunState_ = sunStateFunction_();
     cachedCometState_ = cometStateFunction_();
     cachedRotationMatrix_ = cometRotationFunction_();
@@ -509,8 +506,7 @@ double ComaModel::computeNumberDensityFromPolyCoefficients( double radius, doubl
     // Calculate current solar longitude for heliocentric dependence (with caching)
     const double solarLongitude = calculateSolarLongitude( time );
 
-    // OPTIMIZATION: Only resize/zero coefficient matrices if dimensions changed
-    // The evaluate2D function will overwrite values, so no need to zero if size is correct
+    // Only resize/zero coefficient matrices if dimensions changed
     const int maxDegreeAvailable = fileMeta.maxDegreeSH;
     const int effectiveMaxDegree = ( maximumDegree_ > 0 ) ? maximumDegree_ : maxDegreeAvailable;
     const int effectiveMaxOrder = ( maximumOrder_ > 0 ) ? maximumOrder_ : maxDegreeAvailable;
@@ -583,8 +579,7 @@ double ComaModel::computeNumberDensityFromStokesCoefficients( double radius, dou
     const int effectiveMaxDegree = maximumDegree_ > 0 ? maximumDegree_ : nmax;
     const int effectiveMaxOrder = maximumOrder_ > 0 ? maximumOrder_ : nmax;
 
-    // OPTIMIZATION: Check if coefficient interpolation can be skipped (same radius/solar longitude)
-    // Use squared differences to avoid std::abs calls
+    // Check if coefficient interpolation can be skipped (same radius/solar longitude)
     constexpr double radiusTolerance = 1e-10;
     constexpr double solarLongitudeTolerance = 1e-10;
     constexpr double radiusToleranceSq = radiusTolerance * radiusTolerance;
@@ -601,7 +596,7 @@ double ComaModel::computeNumberDensityFromStokesCoefficients( double radius, dou
     if ( !sameRadius || !sameSolarLongitude )
     {
         // Cache miss - need to recompute coefficients
-        // Step 3: OPTIMIZATION: Only zero coefficient matrices if dimensions match
+        // Step 3: Only zero coefficient matrices if dimensions match
         if ( cachedCosineCoefficients_.rows() == effectiveMaxDegree + 1 &&
              cachedCosineCoefficients_.cols() == effectiveMaxOrder + 1 )
         {
@@ -617,12 +612,10 @@ double ComaModel::computeNumberDensityFromStokesCoefficients( double radius, dou
     // Step 4: Choose interpolation strategy based on radius
     if (radius <= referenceRadius)
     {
-        // OPTIMIZATION: Use pre-allocated 2D interpolation vector (radius, solar longitude)
         interpolationPoint2D_[0] = radius;
         interpolationPoint2D_[1] = solarLongitude;
 
-        // OPTIMIZATION: Prepare interpolation state once for all coefficients (batch mode)
-        // This amortizes the cost of grid lookups and fraction calculations across all (n,m) pairs
+        // Prepare interpolation state once for all coefficients (batch mode)
         // Check if we have any interpolators to use for state preparation
         if ( !stokesInterpolators_[fileIndex].empty() )
         {
@@ -675,10 +668,9 @@ double ComaModel::computeNumberDensityFromStokesCoefficients( double radius, dou
     }
     else
     {
-        // OPTIMIZATION: Use pre-allocated 1D interpolation vector (solar longitude only) + apply decay term
         interpolationPoint1D_[0] = solarLongitude;
 
-        // OPTIMIZATION: Prepare interpolation state once for all reduced coefficients (batch mode)
+        // Prepare interpolation state once for all reduced coefficients (batch mode)
         if ( !reducedStokesInterpolators_[fileIndex].empty() )
         {
             // Use the first available interpolator to prepare the shared interpolation state
@@ -880,7 +872,7 @@ void ComaModel::initializeStokesInterpolators()
 /*!
  * \brief Helper to create 2D interpolator for Stokes coefficients on-the-fly.
  * This is a fallback method used when pre-initialized interpolators are not available.
- * OPTIMIZATION: Created interpolators are cached for reuse to avoid redundant construction.
+ * Created interpolators are cached for reuse to avoid redundant construction.
  */
 void ComaModel::createFallback2DInterpolator( const int fileIndex, const int degree, const int order,
                                               double& cosineCoeff, double& sineCoeff,
@@ -888,12 +880,11 @@ void ComaModel::createFallback2DInterpolator( const int fileIndex, const int deg
 {
     std::pair<int,int> degreeOrderPair = {degree, order};
 
-    // OPTIMIZATION: Check if we already created this interpolator
+    // Check if we already created this interpolator
     auto it = fallbackStokesInterpolators_[fileIndex].find(degreeOrderPair);
     if ( it != fallbackStokesInterpolators_[fileIndex].end() )
     {
         // Cache hit - reuse existing interpolator
-        // OPTIMIZATION: Use pre-allocated interpolation vector
         interpolationPoint2D_[0] = radius;
         interpolationPoint2D_[1] = solarLongitude;
         cosineCoeff = it->second.first->interpolate(interpolationPoint2D_);
@@ -943,7 +934,6 @@ void ComaModel::createFallback2DInterpolator( const int fileIndex, const int deg
         interpolators::extrapolate_at_boundary
     );
 
-    // OPTIMIZATION: Interpolate with the newly created interpolators using pre-allocated vector
     interpolationPoint2D_[0] = radius;
     interpolationPoint2D_[1] = solarLongitude;
     cosineCoeff = cosineInterpolator->interpolate(interpolationPoint2D_);
@@ -963,7 +953,7 @@ void ComaModel::createFallback2DInterpolator( const int fileIndex, const int deg
 /*!
  * \brief Helper to create 1D reduced interpolator for Stokes coefficients on-the-fly.
  * This is a fallback method used when pre-initialized reduced interpolators are not available.
- * OPTIMIZATION: Created interpolators are cached for reuse to avoid redundant construction.
+ * Created interpolators are cached for reuse to avoid redundant construction.
  */
 void ComaModel::createFallback1DInterpolator( const int fileIndex, const int degree, const int order,
                                               double& cosineCoeff, double& sineCoeff,
@@ -971,12 +961,11 @@ void ComaModel::createFallback1DInterpolator( const int fileIndex, const int deg
 {
     std::pair<int,int> degreeOrderPair = {degree, order};
 
-    // OPTIMIZATION: Check if we already created this interpolator
+    // Check if we already created this interpolator
     auto it = fallbackReducedStokesInterpolators_[fileIndex].find(degreeOrderPair);
     if ( it != fallbackReducedStokesInterpolators_[fileIndex].end() )
     {
         // Cache hit - reuse existing interpolator
-        // OPTIMIZATION: Use pre-allocated interpolation vector
         interpolationPoint1D_[0] = solarLongitude;
         cosineCoeff = it->second.first->interpolate(interpolationPoint1D_);
         if ( order > 0 )
@@ -1019,7 +1008,6 @@ void ComaModel::createFallback1DInterpolator( const int fileIndex, const int deg
         interpolators::extrapolate_at_boundary
     );
 
-    // OPTIMIZATION: Interpolate with the newly created interpolators using pre-allocated vector
     interpolationPoint1D_[0] = solarLongitude;
     cosineCoeff = reducedCosineInterpolator->interpolate(interpolationPoint1D_);
     if ( order > 0 )
@@ -1079,9 +1067,8 @@ double SphericalHarmonicsCalculator::calculateSurfaceSphericalHarmonics(
         throw std::runtime_error( "Spherical harmonics coefficient sizes are incompatible." );
     }
 
-    // OPTIMIZATION: Set up cache for spherical harmonics computation
+    // Set up cache for spherical harmonics computation
     // Only reset if degree/order changed to avoid unnecessary cache invalidation
-    // This check prevents expensive cache reconstruction on every call
     const int maxDegree = static_cast< int >(cosineCoefficients.rows( ));
     const int maxOrder = static_cast< int >(cosineCoefficients.cols( ));
     if ( maxDegree != lastMaxDegree_ || maxOrder != lastMaxOrder_ )
@@ -1092,8 +1079,7 @@ double SphericalHarmonicsCalculator::calculateSurfaceSphericalHarmonics(
     }
     // else: Cache is still valid - skip expensive reset operation
 
-    // OPTIMIZATION: Cache trigonometric computations to avoid redundant std::sin calls
-    // Use squared difference to avoid std::abs
+    // Cache trigonometric computations to avoid redundant std::sin calls
     constexpr double angleToleranceSq = 1e-20; // (1e-10)^2
     const double latDiff = latitude - lastLatitude_;
     const double lonDiff = longitude - lastLongitude_;
@@ -1118,8 +1104,7 @@ double SphericalHarmonicsCalculator::calculateSurfaceSphericalHarmonics(
     sphericalHarmonicsCache_.updateAnglesOnly( sineOfAngle, longitude );
     const basic_mathematics::LegendreCache& legendreCacheReference = sphericalHarmonicsCache_.getLegendreCache( );
 
-    // OPTIMIZATION: Compute spherical harmonics expansion with reduced function call overhead
-    // Pre-extract trig values to avoid repeated function calls in the inner loop
+    // Compute spherical harmonics expansion with reduced function call overhead
     double value = 0.0;
 
     // Process m=0 terms separately (only cosine coefficients)
