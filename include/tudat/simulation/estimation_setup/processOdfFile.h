@@ -1417,7 +1417,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
             compressedObservationTimesTdb,
             originalDopplerData->getReferenceLinkEnd( ),
             std::vector< Eigen::VectorXd >( ),
-            originalDopplerData->getDependentVariableCalculator( ),
+            originalDopplerData->getDependentVariableBookkeeping( ),
             ancilliarySimulationSettings );
 }
 
