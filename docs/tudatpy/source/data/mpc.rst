@@ -19,4 +19,5 @@ Classes
 
 .. autoclass:: tudatpy.data.mpc.BatchMPC
    :members:
+   :special-members: __init__
 
