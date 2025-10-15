@@ -465,8 +465,7 @@ void clearNoiseFunctionFromObservationSimulationSettings(
 template< typename TimeType = double >
 void addDependentVariableToSingleObservationSimulationSettings(
         const std::shared_ptr< ObservationSimulationSettings< TimeType > >& observationSimulationSettings,
-        const std::vector< std::shared_ptr< ObservationDependentVariableSettings > >& dependentVariableList,
-        const SystemOfBodies& bodies )
+        const std::vector< std::shared_ptr< ObservationDependentVariableSettings > >& dependentVariableList )
 {
     std::vector< std::shared_ptr< ObservationDependentVariableSettings > > extendedDependentVariablesList;
 
@@ -490,7 +489,7 @@ void addDependentVariableToSingleObservationSimulationSettings(
     }
     // Add all relevant dependent variables
 
-    observationSimulationSettings->getObservationDependentVariableBookkeeping( )->addDependentVariables( extendedDependentVariablesList, bodies );
+    observationSimulationSettings->getObservationDependentVariableBookkeeping( )->addDependentVariables( extendedDependentVariablesList );
 }
 
 template< typename TimeType = double >
@@ -630,7 +629,7 @@ void addDependentVariablesToObservationSimulationSettings(
         ArgTypes... args )
 {
     std::function< void( const std::shared_ptr< ObservationSimulationSettings< TimeType > > ) > modificationFunction = std::bind(
-            &addDependentVariableToSingleObservationSimulationSettings< TimeType >, std::placeholders::_1, dependentVariableList, bodies );
+            &addDependentVariableToSingleObservationSimulationSettings< TimeType >, std::placeholders::_1, dependentVariableList );
     modifyObservationSimulationSettings( observationSimulationSettings, modificationFunction, args... );
 }
 

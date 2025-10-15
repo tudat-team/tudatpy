@@ -953,6 +953,26 @@ public:
     }
 
 
+    void addDependentVariables(
+            const std::vector< std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > > dependentVariableSettings )
+    {
+        if( dependentVariableBookkeeping_ == nullptr )
+        {
+            dependentVariableBookkeeping_ =
+                    std::make_shared< ObservationDependentVariableBookkeeping >( observableType_, linkEnds_.linkEnds_ );
+        }
+        else if( observationsDependentVariables_.size( ) != 0 )
+        {
+            throw std::runtime_error( "Error, cannot add dependent variable settings to SingleObservationSet that has dependent variables calculated already" );
+        }
+        dependentVariableBookkeeping_->addDependentVariables( dependentVariableSettings );
+    }
+
+    void clearDependentVariableValues( )
+    {
+        observationsDependentVariables_.clear( );
+    }
+
 private:
     void orderObservationsAndMetadata( )
     {

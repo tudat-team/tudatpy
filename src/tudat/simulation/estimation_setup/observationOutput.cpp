@@ -573,6 +573,30 @@ std::pair< int, int > ObservationDependentVariableBookkeeping::addDependentVaria
     }
 }
 
+void ObservationDependentVariableBookkeeping::addDependentVariables( const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList )
+{
+    // Parse all settings to be added and check if they are already included
+    for( auto settingsToAdd: settingsList )
+    {
+        // Check if settings already exist for given observation set
+        bool settingsDetected = false;
+        for( auto existingSettings: settingsList_ )
+        {
+            if( existingSettings->areSettingsCompatible( settingsToAdd ) )
+            {
+                settingsDetected = true;
+            }
+        }
+
+        // Add required dependent variable if not yet included
+        if( !settingsDetected )
+        {
+            addDependentVariable( settingsToAdd );
+        }
+    }
+}
+
+
 
 std::pair< int, int > ObservationDependentVariableBookkeeping::getDependentVariableIndices(
         const std::shared_ptr< ObservationDependentVariableSettings > dependentVariables )

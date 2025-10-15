@@ -692,15 +692,15 @@ getObservationSimulationSettingsFromObservations(
                                 singleObservationSets.at( i )->getAncilliarySettings( ) );
 
                 // Add dependent variables
-                if( singleObservationSets.at( i )->getDependentVariableCalculator( ) != nullptr )
+                if( singleObservationSets.at( i )->getDependentVariableBookkeeping( ) != nullptr )
                 {
-//                    std::vector< std::shared_ptr< ObservationDependentVariableSettings > > dependentVariablesList =
-//                            singleObservationSets.at( i )->getDependentVariableCalculator( )->getDependentVariableSettings( );
-//                    if( dependentVariablesList.size( ) > 0 )
-//                    {
-//                        addDependentVariableToSingleObservationSimulationSettings< TimeType >(
-//                                singleSetSimulationSettings, dependentVariablesList, bodies );
-//                    }
+                    std::vector< std::shared_ptr< ObservationDependentVariableSettings > > dependentVariablesList =
+                            singleObservationSets.at( i )->getDependentVariableBookkeeping( )->getDependentVariableSettings( );
+                    if( dependentVariablesList.size( ) > 0 )
+                    {
+                        addDependentVariableToSingleObservationSimulationSettings< TimeType >(
+                                singleSetSimulationSettings, dependentVariablesList );
+                    }
                 }
 
                 observationSimulationSettings.push_back( singleSetSimulationSettings );
