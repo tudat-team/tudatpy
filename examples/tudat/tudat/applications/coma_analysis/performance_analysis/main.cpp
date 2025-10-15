@@ -38,8 +38,8 @@ private:
     const int numLongitudes_ = 400;
     const double latitude_ = 0.0;       // Fixed at 0 degrees
     const double testTime_ = 490708800;   // s since J2000
-    const int max_degree = 2;
-    const int max_order = 2;
+    const int max_degree = 10;
+    const int max_order = 10;
 
     // Mock state functions for ComaModel
     std::function<Eigen::Vector6d()> sunStateFunction_;
