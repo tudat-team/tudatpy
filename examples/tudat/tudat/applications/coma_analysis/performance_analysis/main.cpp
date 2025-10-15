@@ -79,7 +79,7 @@ public:
         results.stokesDensityGrid.resize(numRadii_, std::vector<double>(numLongitudes_));
 
         // Test with the actual data file (relative to project root)
-        std::string polyFilePath = "/Users/markusreichel/PhD/tudatpy/examples/tudat/tudat/applications/coma_analysis/input/input_poly_coef_test_file.txt";
+        std::string polyFilePath = "../input/input_poly_coef_test_file.txt";
 
         if (!fileExists(polyFilePath)) {
             std::cout << "Error: Test data file not found at " << polyFilePath << std::endl;
@@ -226,7 +226,7 @@ public:
         std::cout << "\nSaving results to CSV files for solar longitude " << solarLongitudeDeg << "°..." << std::endl;
 
         // Create subdirectory for this solar longitude
-        std::string outputDir = "/Users/markusreichel/PhD/tudatpy/examples/tudat/tudat/applications/coma_analysis/performance_analysis/output/solar_longitude_" + std::to_string(static_cast<int>(solarLongitudeDeg));
+        std::string outputDir = "output/solar_longitude_" + std::to_string(static_cast<int>(solarLongitudeDeg));
 
         // Create directory using system command
         std::string mkdirCmd = "mkdir -p " + outputDir;
@@ -337,7 +337,7 @@ int main() {
         }
 
         std::cout << "\n=== ALL TESTS COMPLETED ===" << std::endl;
-        std::cout << "Results saved in /Users/markusreichel/PhD/tudatpy/examples/tudat/tudat/applications/coma_analysis/performance_analysis/output/solar_longitude_*/ directories" << std::endl;
+        std::cout << "Results saved in output/solar_longitude_*/ directories" << std::endl;
         std::cout << "Tudat performance test completed successfully!" << std::endl;
 
     } catch (const std::exception& e) {
