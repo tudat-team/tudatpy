@@ -180,8 +180,8 @@ double ComaModel::getDensity( const double radius,
 
     // Get number density and convert to mass density
     // Convert: number_density [1/m³] × molecular_weight [kg/mol] / N_A [1/mol] = mass_density [kg/m³]
-    const double numberDensityLog2 = getNumberDensity( radius, longitude, latitude, time );
-    return std::exp2(numberDensityLog2) * molecularWeight_ / physical_constants::AVOGADRO_CONSTANT;
+    const double numberDensity = getNumberDensity( radius, longitude, latitude, time );
+    return numberDensity * molecularWeight_ / physical_constants::AVOGADRO_CONSTANT;
 }
 
 /*!
@@ -199,17 +199,26 @@ double ComaModel::getNumberDensity( const double radius,
                                     const double latitude,
                                     const double time )
 {
+    // Internal compute functions return log2 of number density
+    // Convert to actual number density before returning
+    double numberDensityLog2;
+
     switch ( dataType_ )
     {
         case ComaDataType::POLYNOMIAL_COEFFICIENTS:
-            return computeNumberDensityFromPolyCoefficients( radius, longitude, latitude, time );
+            numberDensityLog2 = computeNumberDensityFromPolyCoefficients( radius, longitude, latitude, time );
+            break;
 
         case ComaDataType::STOKES_COEFFICIENTS:
-            return computeNumberDensityFromStokesCoefficients( radius, longitude, latitude, time );
+            numberDensityLog2 = computeNumberDensityFromStokesCoefficients( radius, longitude, latitude, time );
+            break;
 
         default:
             throw std::runtime_error( "ComaModel: Unknown data type" );
     }
+
+    // Convert log2(number_density) to actual number_density
+    return std::exp2( numberDensityLog2 );
 }
 
 /*!

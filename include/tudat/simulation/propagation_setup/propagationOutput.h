@@ -29,6 +29,7 @@
 #include "tudat/astro/aerodynamics/aerodynamicAcceleration.h"
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
 #include "tudat/astro/aerodynamics/marsDtmAtmosphereModel.h"
+#include "tudat/astro/aerodynamics/comaModel.h"
 
 namespace tudat
 {
@@ -2994,8 +2995,27 @@ std::function< double( ) > getDoubleDependentVariableFunction(
             }
             case solar_longitude:
             {
-                variableFunction = std::bind( &::tudat::aerodynamics::MarsDtmAtmosphereModel::getSolarLongitude,
-                                              std::dynamic_pointer_cast< aerodynamics::MarsDtmAtmosphereModel >( bodies.at( bodyWithProperty )->getAtmosphereModel( ) ) );
+                // Try ComaModel first
+                auto comaModel = std::dynamic_pointer_cast< aerodynamics::ComaModel >( bodies.at( bodyWithProperty )->getAtmosphereModel( ) );
+                if ( comaModel != nullptr )
+                {
+                    variableFunction = std::bind( &::tudat::aerodynamics::ComaModel::getSolarLongitude, comaModel );
+                }
+                else
+                {
+                    // Fall back to MarsDtmAtmosphereModel
+                    auto marsDtmModel = std::dynamic_pointer_cast< aerodynamics::MarsDtmAtmosphereModel >( bodies.at( bodyWithProperty )->getAtmosphereModel( ) );
+                    if ( marsDtmModel != nullptr )
+                    {
+                        variableFunction = std::bind( &::tudat::aerodynamics::MarsDtmAtmosphereModel::getSolarLongitude, marsDtmModel );
+                    }
+                    else
+                    {
+                        std::string errorMessage = "Error when making solar longitude dependent variable for body " + bodyWithProperty +
+                                                  ". Body does not have a ComaModel or MarsDtmAtmosphereModel atmosphere.";
+                        throw std::runtime_error( errorMessage );
+                    }
+                }
                 break;
             }
             default:

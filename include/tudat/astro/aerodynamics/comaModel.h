@@ -155,6 +155,13 @@ public:
      */
     inline SphericalHarmonicsCalculator* getSphericalHarmonicsCalculator() const { return sphericalHarmonicsCalculator_.get(); }
 
+    /*!
+     * \brief Get the current solar longitude value.
+     * \return Solar longitude in comet body-fixed frame [rad]
+     * \note Returns the cached value from the most recent density computation. If no density has been computed yet, returns 0.0.
+     */
+    inline double getSolarLongitude() const { return cachedSolarLongitude_; }
+
 private:
     // ========== Hot path: Frequently accessed cached values (grouped for cache locality) ==========
 

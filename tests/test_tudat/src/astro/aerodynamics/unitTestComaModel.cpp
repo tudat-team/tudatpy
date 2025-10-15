@@ -969,7 +969,7 @@ BOOST_FIXTURE_TEST_CASE(test_coma_model_number_density, TestDataPaths)
             const double longitude_rad = point.longitude_deg * mathematical_constants::PI / 180.0;
             const double latitude_rad = point.latitude_deg * mathematical_constants::PI / 180.0;
 
-            // Call getNumberDensity from ComaModel
+            // Call getNumberDensity from ComaModel (returns actual number density)
             const double computedNumberDensity = comaModel->getNumberDensity(
                 testRadius,
                 longitude_rad,
@@ -977,12 +977,12 @@ BOOST_FIXTURE_TEST_CASE(test_coma_model_number_density, TestDataPaths)
                 testTime
             );
 
-            // The expected value is in the 4th column (shEvaluation)
-            // Note: The test file contains log2(number_density), so we need to compare directly
-            const double expectedNumberDensity = point.shEvaluation;
+            // Convert to log2 for comparison since test file contains log2(number_density)
+            const double computedNumberDensityLog2 = std::log2(computedNumberDensity);
+            const double expectedNumberDensityLog2 = point.shEvaluation;
 
             const double tolerance = 1e-10;
-            const double diff = std::abs(computedNumberDensity - expectedNumberDensity);
+            const double diff = std::abs(computedNumberDensityLog2 - expectedNumberDensityLog2);
 
             if (diff > tolerance)
             {
@@ -991,7 +991,7 @@ BOOST_FIXTURE_TEST_CASE(test_coma_model_number_density, TestDataPaths)
                 {
                     BOOST_TEST_MESSAGE("Case 1 - Point " << idx << " mismatch: "
                                       << "lon=" << point.longitude_deg << "°, lat=" << point.latitude_deg << "°, "
-                                      << "computed=" << computedNumberDensity << ", expected=" << expectedNumberDensity
+                                      << "computed_log2=" << computedNumberDensityLog2 << ", expected_log2=" << expectedNumberDensityLog2
                                       << ", diff=" << diff);
                 }
             }
@@ -1126,7 +1126,7 @@ BOOST_FIXTURE_TEST_CASE(test_coma_model_number_density, TestDataPaths)
             const double longitude_rad = point.longitude_deg * mathematical_constants::PI / 180.0;
             const double latitude_rad = point.latitude_deg * mathematical_constants::PI / 180.0;
 
-            // Call getNumberDensity from ComaModel
+            // Call getNumberDensity from ComaModel (returns actual number density)
             const double computedNumberDensity = comaModel->getNumberDensity(
                 testRadius,
                 longitude_rad,
@@ -1134,11 +1134,12 @@ BOOST_FIXTURE_TEST_CASE(test_coma_model_number_density, TestDataPaths)
                 testTime
             );
 
-            // The expected value is in the 4th column (shEvaluation)
-            const double expectedNumberDensity = point.shEvaluation;
+            // Convert to log2 for comparison since test file contains log2(number_density)
+            const double computedNumberDensityLog2 = std::log2(computedNumberDensity);
+            const double expectedNumberDensityLog2 = point.shEvaluation;
 
             const double tolerance = 1e-10;
-            const double diff = std::abs(computedNumberDensity - expectedNumberDensity);
+            const double diff = std::abs(computedNumberDensityLog2 - expectedNumberDensityLog2);
 
             if (diff > tolerance)
             {
@@ -1147,7 +1148,7 @@ BOOST_FIXTURE_TEST_CASE(test_coma_model_number_density, TestDataPaths)
                 {
                     BOOST_TEST_MESSAGE("Case 2 - Point " << idx << " mismatch: "
                                       << "lon=" << point.longitude_deg << "°, lat=" << point.latitude_deg << "°, "
-                                      << "computed=" << computedNumberDensity << ", expected=" << expectedNumberDensity
+                                      << "computed_log2=" << computedNumberDensityLog2 << ", expected_log2=" << expectedNumberDensityLog2
                                       << ", diff=" << diff);
                 }
             }
@@ -1164,6 +1165,181 @@ BOOST_FIXTURE_TEST_CASE(test_coma_model_number_density, TestDataPaths)
             BOOST_CHECK_EQUAL(failCount, 0);
         }
     }
+}
+
+BOOST_FIXTURE_TEST_CASE(test_coma_model_density_validation_from_python, TestDataPaths)
+{
+    // This test validates the entire pipeline by using reference values computed from the Python interface.
+    // The reference_values.txt file contains: time, radial distance, latitude, longitude, solar longitude, and density.
+    // We use these values as input to calculate density with the verified code and validate against the reference density.
+
+    // Load polynomial coefficients from test data file
+    const std::vector<std::string> files = {testFile.string()};
+    const ComaModelFileProcessor processor(files);
+
+    const int maxDegree = 10;
+    const int maxOrder = 10;
+
+    // Molecular weight (kg/mol, water vapor)
+    const double molecularWeight = 0.018;
+
+    // Create Stokes dataset from polynomial dataset
+    // Use the same grid as in Python: radii from 4 km to 10 km (100 points), sol_longitude 0 to 360° (37 points)
+    std::vector<double> radii_m;
+    for (int i = 0; i < 100; ++i)
+    {
+        radii_m.push_back(4000.0 + i * (10000.0 - 4000.0) / 99.0);
+    }
+
+    std::vector<double> lons_deg;
+    for (int i = 0; i < 37; ++i)
+    {
+        lons_deg.push_back(i * 360.0 / 36.0);
+    }
+
+    const ComaStokesDataset stokesDataset = processor.createSHDataset(radii_m, lons_deg, maxDegree, maxOrder);
+
+    // Construct path to reference values file
+    const boost::filesystem::path thisFile(__FILE__);
+    const boost::filesystem::path testDir = thisFile.parent_path();
+    const boost::filesystem::path dataDir = testDir / "test_data";
+    const boost::filesystem::path referenceFile = dataDir / "reference_values.txt";
+
+    // Read reference values file
+    std::ifstream file(referenceFile.string());
+    BOOST_REQUIRE_MESSAGE(file.is_open(), "Cannot open reference values file: " + referenceFile.string());
+
+    struct ReferencePoint {
+        double time;
+        double radialDistance;
+        double latitude;
+        double longitude;
+        double solarLongitude;
+        double density;
+    };
+    std::vector<ReferencePoint> allPoints;
+
+    std::string line;
+    // Skip header line
+    std::getline(file, line);
+
+    while (std::getline(file, line))
+    {
+        std::istringstream iss(line);
+        ReferencePoint point;
+        if (iss >> point.time >> point.radialDistance >> point.latitude >> point.longitude
+                >> point.solarLongitude >> point.density)
+        {
+            allPoints.push_back(point);
+        }
+    }
+    file.close();
+
+    BOOST_REQUIRE_MESSAGE(allPoints.size() > 0, "No data points found in reference values file");
+    BOOST_TEST_MESSAGE("Loaded " << allPoints.size() << " reference data points");
+
+    // Randomly select 100 points for testing (or all if less than 100)
+    const int numTestPoints = 100;
+    std::vector<int> selectedIndices;
+    std::srand(54321);  // Fixed seed for reproducibility
+
+    if (allPoints.size() <= numTestPoints)
+    {
+        for (size_t i = 0; i < allPoints.size(); ++i)
+            selectedIndices.push_back(i);
+    }
+    else
+    {
+        std::vector<int> allIndices;
+        for (size_t i = 0; i < allPoints.size(); ++i)
+            allIndices.push_back(i);
+
+        for (int i = 0; i < numTestPoints; ++i)
+        {
+            int randomIndex = std::rand() % allIndices.size();
+            selectedIndices.push_back(allIndices[randomIndex]);
+            allIndices.erase(allIndices.begin() + randomIndex);
+        }
+    }
+
+    // Test with Stokes dataset
+    int failCount = 0;
+    for (int idx : selectedIndices)
+    {
+        const ReferencePoint& point = allPoints[idx];
+
+        // Define state functions based on the reference solar longitude
+        const double solarDistance = 1.0e11;
+        const double sunX = solarDistance * std::cos(point.solarLongitude);
+        const double sunY = solarDistance * std::sin(point.solarLongitude);
+
+        auto sunStateFunction = [sunX, sunY]() -> Eigen::Vector6d {
+            Eigen::Vector6d state = Eigen::Vector6d::Zero();
+            state.segment(0, 3) = Eigen::Vector3d(sunX, sunY, 0.0);
+            return state;
+        };
+
+        auto cometStateFunction = []() -> Eigen::Vector6d {
+            return Eigen::Vector6d::Zero();
+        };
+
+        auto cometRotationFunction = []() -> Eigen::Matrix3d {
+            return Eigen::Matrix3d::Identity();
+        };
+
+        // Create ComaModel with Stokes coefficients
+        ComaModel comaModel(
+            stokesDataset,
+            molecularWeight,
+            sunStateFunction,
+            cometStateFunction,
+            cometRotationFunction,
+            maxDegree,
+            maxOrder
+        );
+
+        // Calculate density using the ComaModel
+        // getDensity() returns mass density in kg/m³ directly
+        const double computedDensity = comaModel.getDensity(
+            point.radialDistance,
+            point.longitude,
+            point.latitude,
+            point.time
+        );
+
+        // Calculate relative error
+        const double relativeTolerance = 1e-8;  // 1e-8 relative error
+        const double relativeError = std::abs(computedDensity - point.density) /
+                                     std::max(std::abs(point.density), 1e-30);
+
+        if (relativeError > relativeTolerance)
+        {
+            failCount++;
+            if (failCount <= 10)  // Only report first 10 failures
+            {
+                BOOST_TEST_MESSAGE("Point " << idx << " mismatch: "
+                                  << "r=" << point.radialDistance << " m, "
+                                  << "lat=" << point.latitude * 180.0 / mathematical_constants::PI << "°, "
+                                  << "lon=" << point.longitude * 180.0 / mathematical_constants::PI << "°, "
+                                  << "sol=" << point.solarLongitude * 180.0 / mathematical_constants::PI << "°, "
+                                  << "computed=" << computedDensity << " kg/m³, "
+                                  << "expected=" << point.density << " kg/m³, "
+                                  << "rel_error=" << relativeError);
+            }
+        }
+
+        BOOST_CHECK_MESSAGE(
+            relativeError <= relativeTolerance,
+            "Density mismatch at r=" << point.radialDistance << " m, "
+            << "lat=" << point.latitude * 180.0 / mathematical_constants::PI << "°, "
+            << "lon=" << point.longitude * 180.0 / mathematical_constants::PI << "°"
+        );
+    }
+
+    BOOST_TEST_MESSAGE("Python reference validation: Verified " << selectedIndices.size()
+                      << " randomly selected points out of " << allPoints.size()
+                      << " total, " << failCount << " failures");
+    BOOST_CHECK_EQUAL(failCount, 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

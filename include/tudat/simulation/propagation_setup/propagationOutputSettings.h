@@ -1401,6 +1401,12 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > vehiclePartRotatio
     return std::make_shared< SingleDependentVariableSaveSettings >( vehicle_part_rotation_matrix_dependent_variable, bodyName, partName );
 }
 
+//! @get_docstring(solarLongitudeDependentVariable)
+inline std::shared_ptr< SingleDependentVariableSaveSettings > solarLongitudeDependentVariable( const std::string& bodyName )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >( solar_longitude, bodyName, "" );
+}
+
 }  // namespace propagators
 
 }  // namespace tudat

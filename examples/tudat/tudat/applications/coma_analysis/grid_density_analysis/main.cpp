@@ -118,9 +118,9 @@ public:
                     double latRad = lat * mathematical_constants::PI / 180.0;
                     double lonRad = lon * mathematical_constants::PI / 180.0;
 
-                    // Get density (returns log2 value)
-                    double densityLog2 = stokesComaModel.getNumberDensity(radius_, lonRad, latRad, testTime_);
-                    double densityLinear = std::exp2(densityLog2);
+                    // Get density (returns actual number density)
+                    double densityLinear = stokesComaModel.getNumberDensity(radius_, lonRad, latRad, testTime_);
+                    double densityLog2 = std::log2(densityLinear);
 
                     // Write to file
                     outputFile << std::fixed << std::setprecision(6)

@@ -294,6 +294,10 @@ void expose_dependent_variable_setup( py::module &m )
                     tp::PropagationDependentVariables::vehicle_part_rotation_matrix_dependent_variable,
                     R"doc(
       )doc" )
+            .value( "solar_longitude_type",
+                    tp::PropagationDependentVariables::solar_longitude,
+                    R"doc(
+      )doc" )
             .export_values( );
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -2606,6 +2610,43 @@ The type of the acceleration that is to be saved.
  9 (3x3 matrix stored as vector)
 
 
+
+
+     )doc" );
+
+    m.def( "solar_longitude",
+           &tp::solarLongitudeDependentVariable,
+           py::arg( "body" ),
+           R"doc(
+
+ Function to add the solar longitude to the dependent variables to save.
+
+ Function to add the solar longitude (angle from body-fixed X-axis to Sun direction in the XY plane) to the dependent variables to save.
+ This dependent variable is available for bodies with a ComaModel or MarsDtmAtmosphereModel atmosphere.
+ For ComaModel, the solar longitude is computed from the Sun-comet direction in the comet body-fixed frame.
+ The value is cached during atmosphere density computations for efficiency.
+
+ Parameters
+ ----------
+ body : str
+     Body whose solar longitude is to be saved (must have ComaModel or MarsDtmAtmosphereModel atmosphere).
+ Returns
+ -------
+ SingleDependentVariableSaveSettings
+     Dependent variable settings object.
+ Variable Size
+ -------------
+ 1
+
+ Examples
+ --------
+
+ To create settings for saving the solar longitude of a comet with a coma model:
+
+ .. code-block:: python
+
+    # Define save settings for solar longitude
+    propagation_setup.dependent_variable.solar_longitude( "Comet" )
 
 
      )doc" );
