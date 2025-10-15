@@ -1218,6 +1218,7 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > filte
                     singleObservationSet->getObservationTimesReference( ),
                     singleObservationSet->getReferenceLinkEnd( ),
                     singleObservationSet->getObservationsDependentVariablesReference( ),
+                    singleObservationSet->getDependentVariableBookkeeping( ),
                     singleObservationSet->getAncilliarySettings( ) );
     newObservationSet->setTabulatedWeights( singleObservationSet->getWeightsVector( ) );
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals = singleObservationSet->getResidualsReference( );
