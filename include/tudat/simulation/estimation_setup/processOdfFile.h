@@ -67,10 +67,10 @@ public:
      */
     ProcessedOdfFileSingleLinkData( observation_models::ObservableType observableType, std::string receivingStation ):
         receivingStation_( receivingStation ), observableType_( observableType )
-    { }
+    {}
 
     // Destructor
-    virtual ~ProcessedOdfFileSingleLinkData( ) { }
+    virtual ~ProcessedOdfFileSingleLinkData( ) {}
 
     // Observation times as seconds since EME1950 UTC
     std::vector< TimeType > unprocessedObservationTimes_;
@@ -157,10 +157,10 @@ public:
                                  std::string receivingStation,
                                  std::string transmittingStation ):
         ProcessedOdfFileSingleLinkData< TimeType >( observableType, receivingStation ), transmittingStation_( transmittingStation )
-    { }
+    {}
 
     // Destructor
-    ~ProcessedOdfFileDopplerData( ) { }
+    ~ProcessedOdfFileDopplerData( ) {}
 
     // Name of the transmitting ground station
     std::string transmittingStation_;
@@ -214,10 +214,10 @@ public:
                                          std::string receivingStation,
                                          std::string transmittingStation ):
         ProcessedOdfFileSingleLinkData< TimeType >( observableType, receivingStation ), transmittingStation_( transmittingStation )
-    { }
+    {}
 
     // Destructor
-    ~ProcessedOdfFileSequentialRangeData( ) { }
+    ~ProcessedOdfFileSequentialRangeData( ) {}
 
     // Name of the transmitting ground station
     std::string transmittingStation_;
@@ -305,7 +305,7 @@ public:
                                   spacecraftName,
                                   verbose,
                                   earthFixedGroundStationPositions )
-    { }
+    {}
 
     /*!
      * Constructor for multiple ODF data objects. Processes the raw ODF data.
@@ -475,13 +475,13 @@ public:
                   std::map< observation_models::LinkEnds, std::shared_ptr< ProcessedOdfFileSingleLinkData< TimeType > > > >
                 reprocessedDataBlocks;
 
-        for( auto observationIterator: processedDataBlocks_ )
+        for( auto observationIterator : processedDataBlocks_ )
         {
-            for( auto linkEndIterator: observationIterator.second )
+            for( auto linkEndIterator : observationIterator.second )
             {
                 LinkEnds oldLinkEnds = linkEndIterator.first;
                 LinkEnds newLinkEnds = oldLinkEnds;
-                for( auto idIterator: oldLinkEnds )
+                for( auto idIterator : oldLinkEnds )
                 {
                     if( idIterator.second.bodyName_ == spacecraft )
                     {
@@ -509,10 +509,10 @@ public:
                 reprocessedDataBlocks;
 
         // Iterate over all observable types
-        for( auto observationIterator: processedDataBlocks_ )
+        for( auto observationIterator : processedDataBlocks_ )
         {
             // Iterate over all link ends
-            for( auto linkEndIterator: observationIterator.second )
+            for( auto linkEndIterator : observationIterator.second )
             {
                 // Get current data block
                 std::shared_ptr< ProcessedOdfFileSingleLinkData< TimeType > > currentDataBlock = linkEndIterator.second;
@@ -538,7 +538,7 @@ public:
                 {
                     LinkEnds oldLinkEnds = linkEndIterator.first;
                     LinkEnds newLinkEnds = oldLinkEnds;
-                    for( auto idIterator: oldLinkEnds )
+                    for( auto idIterator : oldLinkEnds )
                     {
                         if( idIterator.second.bodyName_ == spacecraft )
                         {
@@ -661,8 +661,7 @@ private:
                 if( verbose_ )
                 {
                     std::cerr << "Warning: observation of ODF type " << static_cast< int >( currentObservableId )
-                              << " not covered by ramp tables,"
-                              << " ignoring it." << std::endl;
+                              << " not covered by ramp tables," << " ignoring it." << std::endl;
                 }
                 ignoredOdfRawDataBlocks_.push_back( rawDataBlock );
                 return false;
@@ -1034,7 +1033,7 @@ inline std::shared_ptr< ProcessedOdfFileContents< TimeType > > processOdfData(
                 simulation_setup::getApproximateDsnGroundStationPositions( ) )
 {
     std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
-    for( std::string odfFile: odfFileNames )
+    for( std::string odfFile : odfFileNames )
     {
         rawOdfDataVector.push_back( std::make_shared< input_output::OdfRawFileContents >( odfFile ) );
     }
@@ -1438,7 +1437,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
             uncompressedObservationSets = compressedData->getObservationsSets( ).at( dsn_n_way_averaged_doppler );
 
     std::map< LinkEnds, std::vector< unsigned int > > indicesSetsToRemove;
-    for( auto it: uncompressedObservationSets )
+    for( auto it : uncompressedObservationSets )
     {
         for( unsigned int index = 0; index < it.second.size( ); index++ )
         {
@@ -1551,7 +1550,7 @@ createOdfObservedObservationCollectionFromFile( simulation_setup::SystemOfBodies
                                                         simulation_setup::getApproximateDsnGroundStationPositions( ) )
 {
     std::vector< std::shared_ptr< input_output::OdfRawFileContents > > rawOdfDataVector;
-    for( std::string odfFileName: odfFileNames )
+    for( std::string odfFileName : odfFileNames )
     {
         rawOdfDataVector.push_back( std::make_shared< input_output::OdfRawFileContents >( odfFileName ) );
     }

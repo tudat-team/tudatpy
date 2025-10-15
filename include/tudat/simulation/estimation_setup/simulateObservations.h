@@ -233,11 +233,9 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
                                                                        observationsToSimulate->getObservableType( ),
                                                                        { observationsToSimulate->arcDefiningConstraint_ } );
 
-
     std::shared_ptr< observation_models::ObservationDependentVariableCalculator > dependentVariableCalculator =
-            std::make_shared<observation_models::ObservationDependentVariableCalculator >(
+            std::make_shared< observation_models::ObservationDependentVariableCalculator >(
                     observationsToSimulate->getObservationDependentVariableBookkeeping( ), bodies );
-
 
     // Define list of arc data
     typedef std::tuple< Eigen::Matrix< ObservationScalarType, ObservationSize, 1 >, std::vector< Eigen::Vector6d >, std::vector< double > >
@@ -326,7 +324,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
     Eigen::VectorXd currentDependentVariable;
     for( unsigned int i = 0; i < simulatedObservations.size( ); i++ )
     {
-        for( auto it: simulatedObservations.at( i ) )
+        for( auto it : simulatedObservations.at( i ) )
         {
             SingleObservationData singleObservation = it.second;
             currentObservation = std::get< 0 >( singleObservation );
@@ -399,7 +397,8 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
                                                                            observationsToSimulate->getViabilitySettingsList( ) );
 
         std::shared_ptr< observation_models::ObservationDependentVariableCalculator > dependentVariableCalculator =
-                std::make_shared<observation_models::ObservationDependentVariableCalculator >( tabulatedObservationSettings->getObservationDependentVariableBookkeeping( ), bodies );
+                std::make_shared< observation_models::ObservationDependentVariableCalculator >(
+                        tabulatedObservationSettings->getObservationDependentVariableBookkeeping( ), bodies );
 
         // Simulate observations at requested pre-defined time.
         simulatedObservations = simulateObservationsWithCheckAndLinkEndIdOutput< ObservationSize, ObservationScalarType, TimeType >(
@@ -554,7 +553,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
     typename observation_models::ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets sortedObservations;
 
     // Iterate over all observables.
-    for( auto itr: observationsInput )
+    for( auto itr : observationsInput )
     {
         observation_models::ObservableType observableType = itr.first;
         observation_models::LinkEnds linkEnds = itr.second.first;
@@ -698,8 +697,8 @@ getObservationSimulationSettingsFromObservations(
                             singleObservationSets.at( i )->getDependentVariableBookkeeping( )->getDependentVariableSettings( );
                     if( dependentVariablesList.size( ) > 0 )
                     {
-                        addDependentVariableToSingleObservationSimulationSettings< TimeType >(
-                                singleSetSimulationSettings, dependentVariablesList );
+                        addDependentVariableToSingleObservationSimulationSettings< TimeType >( singleSetSimulationSettings,
+                                                                                               dependentVariablesList );
                     }
                 }
 
@@ -732,10 +731,10 @@ void computeResidualsAndDependentVariables(
     observationCollection->setResiduals( residuals );
 
     // Parse all observable types
-    for( auto observableIt: computedObservationCollection->getObservationsSets( ) )
+    for( auto observableIt : computedObservationCollection->getObservationsSets( ) )
     {
         // Parse all link ends
-        for( auto linkEndsIt: observableIt.second )
+        for( auto linkEndsIt : observableIt.second )
         {
             // Parse all single observation sets for given observable type and link ends
             for( unsigned int setIndex = 0; setIndex < linkEndsIt.second.size( ); setIndex++ )
