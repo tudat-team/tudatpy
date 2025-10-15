@@ -75,8 +75,7 @@ public:
 
    std::pair< int, int > addDependentVariable( const std::shared_ptr< ObservationDependentVariableSettings > settings );
 
-   void addDependentVariables( const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList,
-                               const SystemOfBodies& bodies );
+   void addDependentVariables( const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList );
 
    std::pair< int, int > getDependentVariableIndices( const std::shared_ptr< ObservationDependentVariableSettings > dependentVariables );
 
