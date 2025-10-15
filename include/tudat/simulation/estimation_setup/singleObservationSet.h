@@ -1343,6 +1343,7 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
                         utilities::getStlVectorSegment( observationSet->getObservationTimesReference( ), startIndex, sizeCurrentSet ),
                         observationSet->getReferenceLinkEnd( ),
                         newDependentVariables,
+                        observationSet->getDependentVariableBookkeeping( ),
                         observationSet->getAncilliarySettings( ) );
 
         Eigen::Matrix< double, Eigen::Dynamic, 1 > newWeightsVector =
