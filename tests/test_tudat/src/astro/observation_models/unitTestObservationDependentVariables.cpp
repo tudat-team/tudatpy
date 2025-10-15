@@ -122,6 +122,7 @@ double computeLineSegmentToCenterOfMassDistance( const Eigen::Vector3d lineSegme
  *  corresponding link in other observables yields identical results
  */
 BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
+//int main( )
 {
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -1163,21 +1164,23 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
 
         if( testCase == 1 )
         {
+            idealObservationsAndTimes->clearDependentVariableValues( );
+
             // Add dependent variables after observation collection is created
             std::shared_ptr< ObservationCollectionParser > elevationAngleParser =
-                    idealObservationsAndTimes->addDependentVariable( elevationAngleSettings, bodies );
+                    idealObservationsAndTimes->addDependentVariable( elevationAngleSettings );
             std::shared_ptr< ObservationCollectionParser > azimuthAngleParser1 =
-                    idealObservationsAndTimes->addDependentVariable( azimuthStationSettings1, bodies );
+                    idealObservationsAndTimes->addDependentVariable( azimuthStationSettings1 );
             std::shared_ptr< ObservationCollectionParser > azimuthAngleParser2 = idealObservationsAndTimes->addDependentVariable(
-                    azimuthStationSettings2, bodies, observationParser( n_way_differenced_range ) );
+                    azimuthStationSettings2, observationParser( n_way_differenced_range ) );
             std::shared_ptr< ObservationCollectionParser > limbDistanceParser =
-                    idealObservationsAndTimes->addDependentVariable( limbDistanceSettings, bodies );
+                    idealObservationsAndTimes->addDependentVariable( limbDistanceSettings );
             std::shared_ptr< ObservationCollectionParser > moonAngleParser = idealObservationsAndTimes->addDependentVariable(
-                    moonAvoidanceAngleSettings, bodies, observationParser( std::make_pair( "Earth", "Station1" ) ) );
+                    moonAvoidanceAngleSettings, observationParser( std::make_pair( "Earth", "Station1" ) ) );
             std::shared_ptr< ObservationCollectionParser > integrationTimeParser =
-                    idealObservationsAndTimes->addDependentVariable( integrationTimeSettings, bodies );
+                    idealObservationsAndTimes->addDependentVariable( integrationTimeSettings );
             std::shared_ptr< ObservationCollectionParser > retransmissionDelaysParser =
-                    idealObservationsAndTimes->addDependentVariable( retransmissionDelaysSettings, bodies );
+                    idealObservationsAndTimes->addDependentVariable( retransmissionDelaysSettings );
 
             // Compute dependent variables
             computeResidualsAndDependentVariables< double, double >( idealObservationsAndTimes, observationSimulators, bodies );
@@ -1238,7 +1241,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
                 for( auto set: idealObservationsAndTimes->getSingleObservationSets( ) )
                 {
                     std::vector< std::pair< int, int > > compatibleIndicesAndSizes;
-                    for( auto it: set->getDependentVariableCalculator( )->getSettingsIndicesAndSizes( ) )
+                    for( auto it: set->getDependentVariableBookkeeping( )->getSettingsIndicesAndSizes( ) )
                     {
                         if( it.second->areSettingsCompatible( currentSettings ) )
                         {
