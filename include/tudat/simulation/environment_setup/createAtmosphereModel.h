@@ -13,6 +13,7 @@
 
 #include <string>
 #include <map>
+#include <unordered_map>
 #include <iostream>
 #include <limits>
 #include <algorithm>
@@ -1167,53 +1168,115 @@ class StokesCoefficientsEvaluator
 {
 public:
 private:
-    static double radialPolyvalAndTemporalIFFT( const double r,
-                                                const double alf,
-                                                const Eigen::MatrixXd& P,
-                                                const Eigen::ArrayXd& pw )
+    // Cached frequency index arrays - computed once per unique numFrequencyTerms
+    struct FrequencyCache
     {
-        using namespace Eigen;
+        Eigen::ArrayXd cosineFrequencies;
+        Eigen::ArrayXd sineFrequencies;
+        int numCosTerms;
+        int numSinTerms;
+    };
 
-        int N = P.rows( );
+    // Thread-safe cache using static local variable (initialized on first use)
+    static const FrequencyCache& getFrequencyCache( const int numFrequencyTerms )
+    {
+        // Static map to cache frequency arrays for different numFrequencyTerms values
+        static std::unordered_map< int, FrequencyCache > cache;
 
-        if(N % 2 == 0)
+        // Check if already cached
+        auto it = cache.find( numFrequencyTerms );
+        if( it != cache.end( ) )
         {
-            return
-            ( ( ArrayXd( N ) << cos( ArrayXd::LinSpaced( N / 2 + 1, 0.0, double( N / 2 ) ) * alf ),
-                    sin( ArrayXd::LinSpaced( N / 2 - 1, 1.0, double( N / 2 - 1 ) ) * alf ) ).finished( ).matrix( ).transpose( ) * P *
-                pow( r, pw ).matrix( )
-            ).value( ) / double( N );
+            return it->second;
+        }
+
+        // Not cached - compute and store
+        FrequencyCache newCache;
+
+        if( numFrequencyTerms % 2 == 0 )
+        {
+            // Even: cos frequencies 0, 1, ..., N/2
+            newCache.numCosTerms = numFrequencyTerms / 2 + 1;
+            newCache.cosineFrequencies = Eigen::ArrayXd::LinSpaced(
+                newCache.numCosTerms, 0.0, double( numFrequencyTerms / 2 ) );
+
+            // Even: sin frequencies 1, 2, ..., N/2-1
+            newCache.numSinTerms = numFrequencyTerms / 2 - 1;
+            newCache.sineFrequencies = Eigen::ArrayXd::LinSpaced(
+                newCache.numSinTerms, 1.0, double( numFrequencyTerms / 2 - 1 ) );
         }
         else
         {
-            return
-            ( ( ArrayXd( N ) << cos( ArrayXd::LinSpaced( N / 2 + 1, 0.0, double( N / 2 ) ) * alf ),
-                    sin( ArrayXd::LinSpaced( N / 2, 1.0, double( N / 2 ) ) * alf ) ).finished( ).matrix( ).transpose( ) * P * pow( r, pw ).
-                matrix( )
-            ).value( ) / double( N );
+            // Odd: cos frequencies 0, 1, ..., N/2
+            newCache.numCosTerms = numFrequencyTerms / 2 + 1;
+            newCache.cosineFrequencies = Eigen::ArrayXd::LinSpaced(
+                newCache.numCosTerms, 0.0, double( numFrequencyTerms / 2 ) );
+
+            // Odd: sin frequencies 1, 2, ..., N/2
+            newCache.numSinTerms = numFrequencyTerms / 2;
+            newCache.sineFrequencies = Eigen::ArrayXd::LinSpaced(
+                newCache.numSinTerms, 1.0, double( numFrequencyTerms / 2 ) );
         }
+
+        cache[ numFrequencyTerms ] = newCache;
+        return cache[ numFrequencyTerms ];
     }
 
-    static double reducedToTemporalIFFT( const double alf, const Eigen::VectorXd& P )
+    // Pre-compute IFFT basis (trigonometric terms) for given solar longitude and number of frequency terms
+    static Eigen::RowVectorXd computeIFFTBasis( const int numFrequencyTerms, const double solarLongitude )
     {
         using namespace Eigen;
 
-        int N = P.rows( );
+        // Get cached frequency indices
+        const FrequencyCache& freqCache = getFrequencyCache( numFrequencyTerms );
 
-        if(N % 2 == 0)
-        {
-            return
-            ( ( ArrayXd( N ) << cos( ArrayXd::LinSpaced( N / 2 + 1, 0.0, double( N / 2 ) ) * alf ),
-                    sin( ArrayXd::LinSpaced( N / 2 - 1, 1.0, double( N / 2 - 1 ) ) * alf ) ).finished( ).matrix( ).transpose( ) * P
-            ).value( ) / double( N );
-        }
-        else
-        {
-            return
-            ( ( ArrayXd( N ) << cos( ArrayXd::LinSpaced( N / 2 + 1, 0.0, double( N / 2 ) ) * alf ),
-                    sin( ArrayXd::LinSpaced( N / 2, 1.0, double( N / 2 ) ) * alf ) ).finished( ).matrix( ).transpose( ) * P
-            ).value( ) / double( N );
-        }
+        // Compute scaled frequencies for vectorized trigonometric operations
+        // Eigen's array operations are optimized for SIMD when properly aligned
+        const ArrayXd cosFreqsScaled = freqCache.cosineFrequencies * solarLongitude;
+        const ArrayXd sinFreqsScaled = freqCache.sineFrequencies * solarLongitude;
+
+        // Compute trigonometric terms using Eigen's vectorized operations
+        // Modern compilers will use SIMD instructions (SSE/AVX) for these operations
+        ArrayXd cosTerms( freqCache.numCosTerms );
+        ArrayXd sinTerms( freqCache.numSinTerms );
+
+        // Vectorized trig computation with compiler hints for optimization
+        #if defined(__GNUC__) || defined(__clang__)
+            #pragma GCC ivdep  // Ignore vector dependencies
+        #elif defined(_MSC_VER)
+            #pragma loop(ivdep)
+        #endif
+        cosTerms = cosFreqsScaled.cos( );
+
+        #if defined(__GNUC__) || defined(__clang__)
+            #pragma GCC ivdep
+        #elif defined(_MSC_VER)
+            #pragma loop(ivdep)
+        #endif
+        sinTerms = sinFreqsScaled.sin( );
+
+        // Pre-allocate and fill basis vector using direct assignment (avoid .transpose())
+        RowVectorXd basis( numFrequencyTerms );
+        basis.head( freqCache.numCosTerms ) = cosTerms;
+        basis.tail( freqCache.numSinTerms ) = sinTerms;
+
+        return basis / double( numFrequencyTerms );
+    }
+
+    // OPTIMIZATION: Use Eigen::Ref to avoid Array→Matrix conversions
+    // Eigen::Ref can bind to both Matrix and Array expressions without copying
+    static double radialPolyvalAndTemporalIFFT( const Eigen::Ref<const Eigen::RowVectorXd>& ifftBasis,
+                                                const Eigen::Ref<const Eigen::MatrixXd>& polynomialMatrix,
+                                                const Eigen::Ref<const Eigen::VectorXd>& radialPowers )
+    {
+        return ( ifftBasis * polynomialMatrix * radialPowers ).value( );
+    }
+
+    // OPTIMIZATION: Use Eigen::Ref to avoid unnecessary conversions
+    static double reducedToTemporalIFFT( const Eigen::Ref<const Eigen::RowVectorXd>& ifftBasis,
+                                        const Eigen::Ref<const Eigen::VectorXd>& polynomialVector )
+    {
+        return ( ifftBasis * polynomialVector ).value( );
     }
 
 public:
@@ -1236,19 +1299,19 @@ public:
         const double radius_km = radius_m / 1000.0; // Conversion from m to km
         const double refRadius = refRadius_m / 1000.0; // Conversion from m to km
 
-        const int maxDegAvailable = atDegreeAndOrder.row( 0 ).maxCoeff( );
-        const int maxOrdAvailable = atDegreeAndOrder.row( 1 ).abs( ).maxCoeff( );
+        const int maxDegreeAvailable = atDegreeAndOrder.row( 0 ).maxCoeff( );
+        const int maxOrderAvailable = atDegreeAndOrder.row( 1 ).abs( ).maxCoeff( );
 
-        if(maxDegree < 0) maxDegree = maxDegAvailable;
-        if(maxOrder < 0) maxOrder = maxOrdAvailable;
+        if(maxDegree < 0) maxDegree = maxDegreeAvailable;
+        if(maxOrder < 0) maxOrder = maxOrderAvailable;
 
-        if(maxDegree > maxDegAvailable || maxOrder > maxOrdAvailable)
+        if(maxDegree > maxDegreeAvailable || maxOrder > maxOrderAvailable)
         {
             std::ostringstream err;
             err << "[FATAL] Requested maxDegree=" << maxDegree
                     << ", maxOrder=" << maxOrder
-                    << " exceeds available (degree=" << maxDegAvailable
-                    << ", order=" << maxOrdAvailable << ")";
+                    << " exceeds available (degree=" << maxDegreeAvailable
+                    << ", order=" << maxOrderAvailable << ")";
             throw std::runtime_error( err.str( ) );
         }
 
@@ -1258,53 +1321,63 @@ public:
         cosineCoefficients = Eigen::MatrixXd::Zero( maxDegree + 1, maxOrder + 1 );
         sineCoefficients = Eigen::MatrixXd::Zero( maxDegree + 1, maxOrder + 1 );
 
-        double VR = ( refRadius < 1.0e-10 ) ? 0.0 : 1.0 / refRadius;
+        double inverseReferenceRadius = ( refRadius < 1.0e-10 ) ? 0.0 : 1.0 / refRadius;
 
         if(radius_km <= refRadius || refRadius < 1.0e-10)
         {
-            for(int i = 0; i < polyCoefficients.cols( ); ++i)
-            {
-                const int l = atDegreeAndOrder( 0, i );
-                const int m = atDegreeAndOrder( 1, i );
-                const int absM = std::abs( m );
+            // Pre-compute IFFT basis (trigonometric terms) - computed once per (radius, solarLongitude) pair
+            const Eigen::RowVectorXd ifftBasis = computeIFFTBasis( numIntervals, solarLongitude );
 
-                if(l > maxDegree || absM > maxOrder)
+            // OPTIMIZATION: Pre-compute radial power terms - computed once per radius
+            // Keep as Array to avoid conversion, Eigen::Ref will handle it automatically
+            const double radialDistance = 1.0 / radius_km - inverseReferenceRadius;
+            const Eigen::ArrayXd radialPowers = pow( radialDistance, atPowersInvRadius.array( ) );
+
+            for(int coefficientIndex = 0; coefficientIndex < polyCoefficients.cols( ); ++coefficientIndex)
+            {
+                const int degree = atDegreeAndOrder( 0, coefficientIndex );
+                const int order = atDegreeAndOrder( 1, coefficientIndex );
+                const int absoluteOrder = std::abs( order );
+
+                if(degree > maxDegree || absoluteOrder > maxOrder)
                     continue;
 
-                const Eigen::MatrixXd polyCoefs =
-                        polyCoefficients.col( i ).reshaped( numIntervals, numRadialTerms ).matrix( );
+                // OPTIMIZATION: Avoid explicit .matrix() conversion, let Eigen::Ref handle it
+                const auto polyCoefs = polyCoefficients.col( coefficientIndex ).reshaped( numIntervals, numRadialTerms ).matrix( );
 
-                double value = radialPolyvalAndTemporalIFFT( 1.0 / radius_km - VR,
-                                                             solarLongitude,
-                                                             polyCoefs,
-                                                             atPowersInvRadius.array( ) );
+                // Use pre-computed basis and radial powers (Eigen::Ref accepts both Matrix and Array)
+                double value = radialPolyvalAndTemporalIFFT( ifftBasis, polyCoefs, radialPowers );
 
-                if(m >= 0)
-                    cosineCoefficients( l, absM ) = value;
+                if(order >= 0)
+                    cosineCoefficients( degree, absoluteOrder ) = value;
                 else
-                    sineCoefficients( l, absM ) = value;
+                    sineCoefficients( degree, absoluteOrder ) = value;
             }
         }
         else
         {
-            for(int i = 0; i < polyCoefficients.cols( ); ++i)
-            {
-                const int l = atDegreeAndOrder( 0, i );
-                const int m = atDegreeAndOrder( 1, i );
-                const int absM = std::abs( m );
+            // Pre-compute IFFT basis (trigonometric terms) - computed once per solarLongitude
+            const Eigen::RowVectorXd ifftBasis = computeIFFTBasis( numIntervals, solarLongitude );
 
-                if(l > maxDegree || absM > maxOrder)
+            for(int coefficientIndex = 0; coefficientIndex < polyCoefficients.cols( ); ++coefficientIndex)
+            {
+                const int degree = atDegreeAndOrder( 0, coefficientIndex );
+                const int order = atDegreeAndOrder( 1, coefficientIndex );
+                const int absoluteOrder = std::abs( order );
+
+                if(degree > maxDegree || absoluteOrder > maxOrder)
                     continue;
 
                 const Eigen::VectorXd polyCoefs =
-                        polyCoefficients.block( 0, i, numIntervals, 1 ).matrix( );
+                        polyCoefficients.block( 0, coefficientIndex, numIntervals, 1 ).matrix( );
 
-                double value = reducedToTemporalIFFT( solarLongitude, polyCoefs );
+                // Use pre-computed basis
+                double value = reducedToTemporalIFFT( ifftBasis, polyCoefs );
 
-                if(m >= 0)
-                    cosineCoefficients( l, absM ) = value;
+                if(order >= 0)
+                    cosineCoefficients( degree, absoluteOrder ) = value;
                 else
-                    sineCoefficients( l, absM ) = value;
+                    sineCoefficients( degree, absoluteOrder ) = value;
             }
 
             // Add logarithmic term for 1/r² decay
@@ -1334,19 +1407,19 @@ public:
             int maxDegree,
             int maxOrder )
     {
-        const int maxDegAvailable = atDegreeAndOrder.row( 0 ).maxCoeff( );
-        const int maxOrdAvailable = atDegreeAndOrder.row( 1 ).abs( ).maxCoeff( );
+        const int maxDegreeAvailable = atDegreeAndOrder.row( 0 ).maxCoeff( );
+        const int maxOrderAvailable = atDegreeAndOrder.row( 1 ).abs( ).maxCoeff( );
 
-        if(maxDegree < 0) maxDegree = maxDegAvailable;
-        if(maxOrder < 0) maxOrder = maxOrdAvailable;
+        if(maxDegree < 0) maxDegree = maxDegreeAvailable;
+        if(maxOrder < 0) maxOrder = maxOrderAvailable;
 
-        if(maxDegree > maxDegAvailable || maxOrder > maxOrdAvailable)
+        if(maxDegree > maxDegreeAvailable || maxOrder > maxOrderAvailable)
         {
             std::ostringstream err;
             err << "[FATAL] Requested maxDegree=" << maxDegree
                     << ", maxOrder=" << maxOrder
-                    << " exceeds available (degree=" << maxDegAvailable
-                    << ", order=" << maxOrdAvailable << ")";
+                    << " exceeds available (degree=" << maxDegreeAvailable
+                    << ", order=" << maxOrderAvailable << ")";
             throw std::runtime_error( err.str( ) );
         }
 
@@ -1356,27 +1429,30 @@ public:
         cosineCoefficients = Eigen::MatrixXd::Zero( maxDegree + 1, maxOrder + 1 );
         sineCoefficients = Eigen::MatrixXd::Zero( maxDegree + 1, maxOrder + 1 );
 
-        // Process only the reduced temporal coefficients (first row of each interval)
-        for(int i = 0; i < polyCoefficients.cols( ); ++i)
-        {
-            const int l = atDegreeAndOrder( 0, i );
-            const int m = atDegreeAndOrder( 1, i );
-            const int absM = std::abs( m );
+        // Pre-compute IFFT basis (trigonometric terms) - computed once per solarLongitude
+        const Eigen::RowVectorXd ifftBasis = computeIFFTBasis( numIntervals, solarLongitude );
 
-            if(l > maxDegree || absM > maxOrder)
+        // Process only the reduced temporal coefficients (first row of each interval)
+        for(int coefficientIndex = 0; coefficientIndex < polyCoefficients.cols( ); ++coefficientIndex)
+        {
+            const int degree = atDegreeAndOrder( 0, coefficientIndex );
+            const int order = atDegreeAndOrder( 1, coefficientIndex );
+            const int absoluteOrder = std::abs( order );
+
+            if(degree > maxDegree || absoluteOrder > maxOrder)
                 continue;
 
             // Extract the reduced polynomial coefficients (first row of each interval)
             const Eigen::VectorXd polyCoefs =
-                    polyCoefficients.block( 0, i, numIntervals, 1 ).matrix( );
+                    polyCoefficients.block( 0, coefficientIndex, numIntervals, 1 ).matrix( );
 
-            // Use reducedToTemporalIFFT for evaluation (no radius component)
-            const double value = reducedToTemporalIFFT( solarLongitude, polyCoefs );
+            // Use pre-computed basis for evaluation (no radius component)
+            const double value = reducedToTemporalIFFT( ifftBasis, polyCoefs );
 
-            if(m >= 0)
-                cosineCoefficients( l, absM ) = value;
+            if(order >= 0)
+                cosineCoefficients( degree, absoluteOrder ) = value;
             else
-                sineCoefficients( l, absM ) = value;
+                sineCoefficients( degree, absoluteOrder ) = value;
         }
     }
 
@@ -1414,7 +1490,7 @@ public:
                                  requestedMaxOrder );
 
         // Determine effective maxima
-        auto [ effNmax, effMmax ] = determineEffectiveMaxima(
+        auto [ effectiveMaxDegree, effectiveMaxOrder ] = determineEffectiveMaxima(
                 polyDataset,
                 requestedMaxDegree,
                 requestedMaxOrder );
@@ -1435,10 +1511,10 @@ public:
                 std::move( files ),
                 radii_m,
                 solLongitudes_rad,
-                effNmax );
+                effectiveMaxDegree );
 
         // Fill dataset with computed coefficients
-        fillStokesDataset( polyDataset, stokesDataset, effNmax, effMmax );
+        fillStokesDataset( polyDataset, stokesDataset, effectiveMaxDegree, effectiveMaxOrder );
 
         return stokesDataset;
     }
@@ -1468,46 +1544,46 @@ private:
             const int requestedMaxDegree,
             const int requestedMaxOrder )
     {
-        int globalMaxDeg = 0;
-        int globalMaxOrd = 0;
+        int globalMaxDegree = 0;
+        int globalMaxOrder = 0;
 
-        const std::size_t F = polyDataset.getNumFiles( );
-        std::vector< int > perFileMaxDeg( F, 0 );
-        std::vector< int > perFileMaxOrd( F, 0 );
+        const std::size_t numFiles = polyDataset.getNumFiles( );
+        std::vector< int > perFileMaxDegree( numFiles, 0 );
+        std::vector< int > perFileMaxOrder( numFiles, 0 );
 
-        for(std::size_t f = 0; f < F; ++f)
+        for(std::size_t fileIndex = 0; fileIndex < numFiles; ++fileIndex)
         {
-            const int fMaxDeg = polyDataset.getMaxDegreeSH( f );
-            const int fMaxOrd = polyDataset.getSHDegreeAndOrderIndices( f ).row( 1 ).abs( ).maxCoeff( );
+            const int fileMaxDegree = polyDataset.getMaxDegreeSH( fileIndex );
+            const int fileMaxOrder = polyDataset.getSHDegreeAndOrderIndices( fileIndex ).row( 1 ).abs( ).maxCoeff( );
 
-            perFileMaxDeg[ f ] = fMaxDeg;
-            perFileMaxOrd[ f ] = fMaxOrd;
+            perFileMaxDegree[ fileIndex ] = fileMaxDegree;
+            perFileMaxOrder[ fileIndex ] = fileMaxOrder;
 
-            globalMaxDeg = std::max( globalMaxDeg, fMaxDeg );
-            globalMaxOrd = std::max( globalMaxOrd, fMaxOrd );
+            globalMaxDegree = std::max( globalMaxDegree, fileMaxDegree );
+            globalMaxOrder = std::max( globalMaxOrder, fileMaxOrder );
         }
 
-        const int effNmax = requestedMaxDegree < 0 ? globalMaxDeg : requestedMaxDegree;
-        const int effMmax = requestedMaxOrder < 0 ? globalMaxOrd : requestedMaxOrder;
+        const int effectiveMaxDegree = requestedMaxDegree < 0 ? globalMaxDegree : requestedMaxDegree;
+        const int effectiveMaxOrder = requestedMaxOrder < 0 ? globalMaxOrder : requestedMaxOrder;
 
-        if(effNmax < 0 || effMmax < 0)
+        if(effectiveMaxDegree < 0 || effectiveMaxOrder < 0)
             throw std::invalid_argument( "determineEffectiveMaxima: resolved negative maxima." );
         // Ensure every file can support requested maxima
-        for(std::size_t f = 0; f < F; ++f)
+        for(std::size_t fileIndex = 0; fileIndex < numFiles; ++fileIndex)
         {
-            if(effNmax > perFileMaxDeg[ f ] || effMmax > perFileMaxOrd[ f ])
+            if(effectiveMaxDegree > perFileMaxDegree[ fileIndex ] || effectiveMaxOrder > perFileMaxOrder[ fileIndex ])
             {
                 std::ostringstream oss;
-                oss << "Requested (nmax=" << effNmax << ", mmax=" << effMmax
-                        << ") exceeds availability in file #" << f
-                        << " [" << polyDataset.getFileMeta( f ).sourcePath << "]: "
-                        << "(maxDegree=" << perFileMaxDeg[ f ]
-                        << ", maxOrder=" << perFileMaxOrd[ f ] << ").";
+                oss << "Requested (nmax=" << effectiveMaxDegree << ", mmax=" << effectiveMaxOrder
+                        << ") exceeds availability in file #" << fileIndex
+                        << " [" << polyDataset.getFileMeta( fileIndex ).sourcePath << "]: "
+                        << "(maxDegree=" << perFileMaxDegree[ fileIndex ]
+                        << ", maxOrder=" << perFileMaxOrder[ fileIndex ] << ").";
                 throw std::invalid_argument( oss.str( ) );
             }
         }
 
-        return { effNmax, effMmax };
+        return { effectiveMaxDegree, effectiveMaxOrder };
     }
 
     static std::vector< ComaStokesDataset::FileMeta > buildFileMeta(
@@ -1515,22 +1591,22 @@ private:
     {
         std::vector< ComaStokesDataset::FileMeta > files;
         files.reserve( polyDataset.getNumFiles( ) );
-        for(std::size_t f = 0; f < polyDataset.getNumFiles( ); ++f)
+        for(std::size_t fileIndex = 0; fileIndex < polyDataset.getNumFiles( ); ++fileIndex)
         {
-            ComaStokesDataset::FileMeta fm{};
-            fm.source_tag = polyDataset.getFileMeta( f ).sourcePath;
-            fm.referenceRadius = polyDataset.getFileMeta( f ).referenceRadius;
-            if(!polyDataset.getFileMeta( f ).timePeriods.empty( ))
+            ComaStokesDataset::FileMeta fileMeta{};
+            fileMeta.source_tag = polyDataset.getFileMeta( fileIndex ).sourcePath;
+            fileMeta.referenceRadius = polyDataset.getFileMeta( fileIndex ).referenceRadius;
+            if(!polyDataset.getFileMeta( fileIndex ).timePeriods.empty( ))
             {
-                fm.start_epoch = polyDataset.getFileMeta( f ).timePeriods.front( ).first;
-                fm.end_epoch = polyDataset.getFileMeta( f ).timePeriods.front( ).second;
+                fileMeta.start_epoch = polyDataset.getFileMeta( fileIndex ).timePeriods.front( ).first;
+                fileMeta.end_epoch = polyDataset.getFileMeta( fileIndex ).timePeriods.front( ).second;
             }
             else
             {
-                fm.start_epoch = 0.0;
-                fm.end_epoch = 0.0;
+                fileMeta.start_epoch = 0.0;
+                fileMeta.end_epoch = 0.0;
             }
-            files.push_back( std::move( fm ) );
+            files.push_back( std::move( fileMeta ) );
         }
         return files;
     }
@@ -1538,85 +1614,91 @@ private:
     static void fillStokesDataset(
             const ComaPolyDataset& polyDataset,
             ComaStokesDataset& stokesDataset,
-            const int effNmax,
-            const int effMmax )
+            const int effectiveMaxDegree,
+            const int effectiveMaxOrder )
     {
-        Eigen::MatrixXd C( effNmax + 1, effMmax + 1 );
-        Eigen::MatrixXd S( effNmax + 1, effMmax + 1 );
-        Eigen::MatrixXd reducedC( effNmax + 1, effMmax + 1 );
-        Eigen::MatrixXd reducedS( effNmax + 1, effMmax + 1 );
+        Eigen::MatrixXd cosineCoefficients( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
+        Eigen::MatrixXd sineCoefficients( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
+        Eigen::MatrixXd reducedCosineCoefficients( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
+        Eigen::MatrixXd reducedSineCoefficients( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
 
-        for(std::size_t f = 0; f < stokesDataset.nFiles( ); ++f)
+        for(std::size_t fileIndex = 0; fileIndex < stokesDataset.nFiles( ); ++fileIndex)
         {
-            const auto& P = polyDataset.getPolyCoefficients( f );
-            const auto& nm = polyDataset.getSHDegreeAndOrderIndices( f );
-            const auto& pw = polyDataset.getPowersInvRadius( f );
-            const double R0 = polyDataset.getReferenceRadius( f ); // (unit as in files; matches old code)
+            const auto& polynomialCoefficients = polyDataset.getPolyCoefficients( fileIndex );
+            const auto& degreeAndOrderIndices = polyDataset.getSHDegreeAndOrderIndices( fileIndex );
+            const auto& inversePowers = polyDataset.getPowersInvRadius( fileIndex );
+            const double referenceRadius = polyDataset.getReferenceRadius( fileIndex ); // (unit as in files; matches old code)
 
             // Fill regular coefficients (for radius <= reference radius)
-            for(std::size_t ri = 0; ri < stokesDataset.nRadii( ); ++ri)
+            for(std::size_t radiusIndex = 0; radiusIndex < stokesDataset.nRadii( ); ++radiusIndex)
             {
-                const double r_m = stokesDataset.radii( )[ ri ]; // radius in meters
+                const double radius_m = stokesDataset.radii( )[ radiusIndex ]; // radius in meters
 
-                for(std::size_t li = 0; li < stokesDataset.nLongitudes( ); ++li)
+                for(std::size_t longitudeIndex = 0; longitudeIndex < stokesDataset.nLongitudes( ); ++longitudeIndex)
                 {
-                    const double Lrad = stokesDataset.lons( )[ li ]; // already in radians
+                    const double solarLongitudeRadians = stokesDataset.lons( )[ longitudeIndex ]; // already in radians
 
                     // Evaluate regular coefficients using existing method
                     StokesCoefficientsEvaluator::evaluate2D(
-                            r_m,
-                            Lrad,
-                            P.array( ),
-                            nm,
-                            pw,
-                            R0,
-                            C,
-                            S,
-                            effNmax,
-                            effMmax );
+                            radius_m,
+                            solarLongitudeRadians,
+                            polynomialCoefficients.array( ),
+                            degreeAndOrderIndices,
+                            inversePowers,
+                            referenceRadius,
+                            cosineCoefficients,
+                            sineCoefficients,
+                            effectiveMaxDegree,
+                            effectiveMaxOrder );
 
-                    // Store regular coefficients
-                    for(int n = 0; n <= effNmax; ++n)
+                    // Store regular coefficients using batch write via block reference
+                    auto coeffBlock = stokesDataset.block( fileIndex, radiusIndex, longitudeIndex );
+                    for(int degree = 0; degree <= effectiveMaxDegree; ++degree)
                     {
-                        const int m_hi = std::min( n, effMmax );
-                        for(int m = 0; m <= m_hi; ++m)
+                        const int maxOrderForDegree = std::min( degree, effectiveMaxOrder );
+                        for(int order = 0; order <= maxOrderForDegree; ++order)
                         {
-                            if(n >= C.rows( ) || m >= C.cols( ))
+                            if(degree >= cosineCoefficients.rows( ) || order >= cosineCoefficients.cols( ))
                                 throw std::runtime_error( "Evaluator returned C/S smaller than requested (nmax,mmax)." );
-                            stokesDataset.setCoeff( f, ri, li, n, m, C( n, m ), S( n, m ) );
+                            const std::size_t coefficientIndex = nm_to_index_deg_major( degree, order );
+                            coeffBlock( static_cast< Eigen::Index >(coefficientIndex), 0 ) = cosineCoefficients( degree, order );
+                            coeffBlock( static_cast< Eigen::Index >(coefficientIndex), 1 ) = sineCoefficients( degree, order );
                         }
                     }
                 }
             }
 
             // Fill reduced coefficients (computed once per solar longitude, no radius dependency)
-            for(std::size_t li = 0; li < stokesDataset.nLongitudes( ); ++li)
+            for(std::size_t longitudeIndex = 0; longitudeIndex < stokesDataset.nLongitudes( ); ++longitudeIndex)
             {
-                const double Lrad = stokesDataset.lons( )[ li ]; // already in radians
+                const double solarLongitudeRadians = stokesDataset.lons( )[ longitudeIndex ]; // already in radians
 
 
-                reducedC.setZero();
-                reducedS.setZero();
+                reducedCosineCoefficients.setZero();
+                reducedSineCoefficients.setZero();
 
                 StokesCoefficientsEvaluator::evaluate2DReduced(
-                    Lrad,
-                    P.array(),
-                    nm,
-                    pw,
-                    reducedC,
-                    reducedS,
-                    effNmax,
-                    effMmax );
+                    solarLongitudeRadians,
+                    polynomialCoefficients.array(),
+                    degreeAndOrderIndices,
+                    inversePowers,
+                    reducedCosineCoefficients,
+                    reducedSineCoefficients,
+                    effectiveMaxDegree,
+                    effectiveMaxOrder );
 
-                // Store reduced coefficients
-                for(int n = 0; n <= effNmax; ++n)
+                // Store reduced coefficients using batch write via block reference
+                auto reducedCoeffBlock = stokesDataset.reducedBlock( fileIndex, longitudeIndex );
+                for(int degree = 0; degree <= effectiveMaxDegree; ++degree)
                 {
-                    const int m_hi = std::min( n, effMmax );
-                    for(int m = 0; m <= m_hi; ++m)
+                    const int maxOrderForDegree = std::min( degree, effectiveMaxOrder );
+                    for(int order = 0; order <= maxOrderForDegree; ++order)
                     {
-                        if(n >= reducedC.rows( ) || m >= reducedC.cols( ))
+                        if(degree >= reducedCosineCoefficients.rows( ) || order >= reducedCosineCoefficients.cols( ))
                             throw std::runtime_error( "Evaluator returned reducedC/S smaller than requested (nmax,mmax)." );
-                        stokesDataset.setReducedCoeff( f, li, n, m, reducedC( n, m ), reducedS( n, m ) );
+                        const std::size_t coefficientIndex = nm_to_index_deg_major( degree, order );
+                        reducedCoeffBlock( static_cast< Eigen::Index >(coefficientIndex), 0 ) = reducedCosineCoefficients( degree, order );
+                        reducedCoeffBlock( static_cast< Eigen::Index >(coefficientIndex), 1 ) = reducedSineCoefficients( degree, order );
                     }
                 }
             }

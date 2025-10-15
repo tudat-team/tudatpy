@@ -162,6 +162,142 @@ public:
      */
     ~MultiLinearInterpolator( ) { }
 
+    //! Structure to cache interpolation state for batch operations
+    struct InterpolationState
+    {
+        std::vector< unsigned int > nearestLowerIndices;
+        std::vector< IndependentVariableType > localIndependentValues;
+        bool isValid = false;
+
+        // 2D optimization: pre-computed fractions and indices
+        IndependentVariableType tx, ty, one_minus_tx, one_minus_ty;
+        unsigned int i0, i1;
+    };
+
+    //! Prepare interpolation state for batch operations (amortizes lookup cost)
+    /*!
+     * This function computes the grid indices and interpolation fractions once,
+     * which can then be reused for multiple interpolations with different dependent data.
+     * This is particularly efficient when interpolating many coefficient values at the same point.
+     * \param independentValuesToInterpolate Vector of independent variable values
+     * \return Interpolation state that can be passed to interpolateWithState()
+     */
+    InterpolationState prepareInterpolationState( const std::vector< IndependentVariableType >& independentValuesToInterpolate )
+    {
+        InterpolationState state;
+
+        // Check whether size of independent variable vector is correct
+        if( independentValuesToInterpolate.size( ) != NumberOfDimensions )
+        {
+            throw std::runtime_error(
+                    "Error in multi-dimensional interpolator. The number of independent variables "
+                    "provided is incompatible with the previous definition. Provided: " +
+                    std::to_string( independentValuesToInterpolate.size( ) ) + ". Needed: " + std::to_string( NumberOfDimensions ) );
+        }
+
+        // Create local copy
+        state.localIndependentValues = independentValuesToInterpolate;
+
+        // Check boundary cases
+        bool useValue = false;
+        DependentVariableType currentDependentVariable;
+        for( unsigned int i = 0; i < NumberOfDimensions; i++ )
+        {
+            this->checkBoundaryCase( i, useValue, state.localIndependentValues.at( i ), currentDependentVariable );
+            if( useValue )
+            {
+                // Cannot use state for boundary cases
+                state.isValid = false;
+                return state;
+            }
+        }
+
+        // Determine the nearest lower neighbours
+        state.nearestLowerIndices.resize( NumberOfDimensions );
+        for( unsigned int i = 0; i < NumberOfDimensions; i++ )
+        {
+            state.nearestLowerIndices[ i ] = lookUpSchemes_[ i ]->findNearestLowerNeighbour( state.localIndependentValues[ i ] );
+
+            if( state.nearestLowerIndices[ i ] == independentValues_[ i ].size( ) - 1 )
+            {
+                state.nearestLowerIndices[ i ] -= 1;
+            }
+        }
+
+        // Pre-compute 2D interpolation fractions if applicable
+        if constexpr ( NumberOfDimensions == 2 )
+        {
+            state.i0 = state.nearestLowerIndices[ 0 ];
+            state.i1 = state.nearestLowerIndices[ 1 ];
+
+            const IndependentVariableType dx = independentValues_[ 0 ][ state.i0 + 1 ] - independentValues_[ 0 ][ state.i0 ];
+            const IndependentVariableType dy = independentValues_[ 1 ][ state.i1 + 1 ] - independentValues_[ 1 ][ state.i1 ];
+
+            state.tx = ( state.localIndependentValues[ 0 ] - independentValues_[ 0 ][ state.i0 ] ) / dx;
+            state.ty = ( state.localIndependentValues[ 1 ] - independentValues_[ 1 ][ state.i1 ] ) / dy;
+
+            state.one_minus_tx = IndependentVariableType( 1 ) - state.tx;
+            state.one_minus_ty = IndependentVariableType( 1 ) - state.ty;
+        }
+
+        state.isValid = true;
+        return state;
+    }
+
+    //! Interpolate using pre-computed interpolation state (for batch operations)
+    /*!
+     * This function performs interpolation using a pre-computed state from prepareInterpolationState().
+     * The dependent data is accessed using the cached indices and fractions, avoiding redundant lookups.
+     * \param state Pre-computed interpolation state
+     * \return Interpolated value of dependent variable
+     */
+    DependentVariableType interpolateWithState( const InterpolationState& state ) const
+    {
+        if( !state.isValid )
+        {
+            throw std::runtime_error( "Cannot interpolate with invalid interpolation state" );
+        }
+
+        // Use optimized 2D implementation if available
+        if constexpr ( NumberOfDimensions == 2 )
+        {
+            // Access the four corner values directly using pre-computed indices
+            boost::array< unsigned int, 2 > indices;
+
+            indices[ 0 ] = state.i0;
+            indices[ 1 ] = state.i1;
+            const DependentVariableType v00 = dependentData_( indices );
+
+            indices[ 0 ] = state.i0 + 1;
+            indices[ 1 ] = state.i1;
+            const DependentVariableType v10 = dependentData_( indices );
+
+            indices[ 0 ] = state.i0;
+            indices[ 1 ] = state.i1 + 1;
+            const DependentVariableType v01 = dependentData_( indices );
+
+            indices[ 0 ] = state.i0 + 1;
+            indices[ 1 ] = state.i1 + 1;
+            const DependentVariableType v11 = dependentData_( indices );
+
+            // Perform bilinear interpolation using pre-computed fractions
+            return state.one_minus_tx * state.one_minus_ty * v00 +
+                   state.tx * state.one_minus_ty * v10 +
+                   state.one_minus_tx * state.ty * v01 +
+                   state.tx * state.ty * v11;
+        }
+        else
+        {
+            // Fall back to recursive implementation for higher dimensions
+            boost::array< unsigned int, NumberOfDimensions > interpolationIndices;
+            for( unsigned int i = 0; i < NumberOfDimensions; i++ )
+            {
+                interpolationIndices[ i ] = static_cast< unsigned int >( -1 );
+            }
+            return performRecursiveInterpolationStep( 0, state.localIndependentValues, interpolationIndices, state.nearestLowerIndices );
+        }
+    }
+
     //! Function to perform interpolation.
     /*!
      *  This function performs the multilinear interpolation.
@@ -210,20 +346,80 @@ public:
             }
         }
 
-        // Initialize function evaluation indices to -1 for debugging purposes.
-        boost::array< unsigned int, NumberOfDimensions > interpolationIndices;
-        for( unsigned int i = 0; i < NumberOfDimensions; i++ )
+        // Use optimized 2D implementation if available (avoids recursion overhead)
+        if constexpr ( NumberOfDimensions == 2 )
         {
-            interpolationIndices[ i ] = -1;
+            return interpolate2DOptimized( localIndependentValuesToInterpolate, nearestLowerIndices );
         }
+        else
+        {
+            // Initialize function evaluation indices to -1 for debugging purposes.
+            boost::array< unsigned int, NumberOfDimensions > interpolationIndices;
+            for( unsigned int i = 0; i < NumberOfDimensions; i++ )
+            {
+                interpolationIndices[ i ] = -1;
+            }
 
-        // Call first step of interpolation, this function calls itself at subsequent independent
-        // variable dimensions to evaluate and properly scale dependent variable table values at
-        // all 2^n grid edges.
-        return performRecursiveInterpolationStep( 0, localIndependentValuesToInterpolate, interpolationIndices, nearestLowerIndices );
+            // Call first step of interpolation, this function calls itself at subsequent independent
+            // variable dimensions to evaluate and properly scale dependent variable table values at
+            // all 2^n grid edges.
+            return performRecursiveInterpolationStep( 0, localIndependentValuesToInterpolate, interpolationIndices, nearestLowerIndices );
+        }
     }
 
 private:
+    //! Optimized 2D bilinear interpolation (non-recursive implementation).
+    /*!
+     * This function performs bilinear interpolation for 2D case without recursion,
+     * reducing function call overhead and improving cache performance.
+     * \param independentValues Vector of independent variable values for interpolation
+     * \param nearestLowerIndices Indices of nearest lower neighbors in each dimension
+     * \return Interpolated value of dependent variable
+     */
+    DependentVariableType interpolate2DOptimized(
+        const std::vector< IndependentVariableType >& independentValues,
+        const std::vector< unsigned int >& nearestLowerIndices )
+    {
+        // Pre-compute interpolation fractions for both dimensions
+        const unsigned int i0 = nearestLowerIndices[ 0 ];
+        const unsigned int i1 = nearestLowerIndices[ 1 ];
+
+        const IndependentVariableType dx = independentValues_[ 0 ][ i0 + 1 ] - independentValues_[ 0 ][ i0 ];
+        const IndependentVariableType dy = independentValues_[ 1 ][ i1 + 1 ] - independentValues_[ 1 ][ i1 ];
+
+        const IndependentVariableType tx = ( independentValues[ 0 ] - independentValues_[ 0 ][ i0 ] ) / dx;
+        const IndependentVariableType ty = ( independentValues[ 1 ] - independentValues_[ 1 ][ i1 ] ) / dy;
+
+        const IndependentVariableType one_minus_tx = IndependentVariableType( 1 ) - tx;
+        const IndependentVariableType one_minus_ty = IndependentVariableType( 1 ) - ty;
+
+        // Access the four corner values directly (avoids recursive calls)
+        boost::array< unsigned int, 2 > indices;
+
+        indices[ 0 ] = i0;
+        indices[ 1 ] = i1;
+        const DependentVariableType v00 = dependentData_( indices );
+
+        indices[ 0 ] = i0 + 1;
+        indices[ 1 ] = i1;
+        const DependentVariableType v10 = dependentData_( indices );
+
+        indices[ 0 ] = i0;
+        indices[ 1 ] = i1 + 1;
+        const DependentVariableType v01 = dependentData_( indices );
+
+        indices[ 0 ] = i0 + 1;
+        indices[ 1 ] = i1 + 1;
+        const DependentVariableType v11 = dependentData_( indices );
+
+        // Perform bilinear interpolation using the formula:
+        // f(x,y) = (1-tx)*(1-ty)*v00 + tx*(1-ty)*v10 + (1-tx)*ty*v01 + tx*ty*v11
+        return one_minus_tx * one_minus_ty * v00 +
+               tx * one_minus_ty * v10 +
+               one_minus_tx * ty * v01 +
+               tx * ty * v11;
+    }
+
     //! Make the lookup scheme that is to be used.
     /*!
      * This function creates the look up scheme that is to be used in determining the interval of
@@ -288,7 +484,7 @@ private:
     DependentVariableType performRecursiveInterpolationStep( const unsigned int currentDimension,
                                                              const std::vector< IndependentVariableType >& independentValuesToInterpolate,
                                                              boost::array< unsigned int, NumberOfDimensions > currentArrayIndices,
-                                                             const std::vector< unsigned int >& nearestLowerIndices )
+                                                             const std::vector< unsigned int >& nearestLowerIndices ) const
     {
         IndependentVariableType upperFraction, lowerFraction;
         DependentVariableType upperContribution, lowerContribution;

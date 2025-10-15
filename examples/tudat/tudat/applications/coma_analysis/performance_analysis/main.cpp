@@ -335,7 +335,7 @@ int main() {
             auto results = test.runTest();
 
             // Save results to subdirectory
-            // test.saveResults(results, static_cast<double>(solarLongDeg));
+            test.saveResults(results, static_cast<double>(solarLongDeg));
 
             // Print summary for this solar longitude
             test.printSummary(results);

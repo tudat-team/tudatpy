@@ -178,8 +178,39 @@ private:
     //! Cached file index from last time interval search (optimization hint)
     mutable int lastFileIndex_;
 
-    //! Flag indicating whether cached solar longitude is valid
-    mutable bool solarLongitudeCacheValid_;
+    //! Cached interpolation point (radius, solar longitude) to detect when cache is valid
+    mutable double cachedRadius_;
+    mutable double cachedInterpolationSolarLongitude_;
+
+    //! Cached latitude/longitude and their trigonometric values
+    mutable double cachedLatitude_;
+    mutable double cachedLongitude_;
+    mutable double cachedSineLatitude_;
+
+    //! Cached final density result to avoid repeated exp2 calls
+    mutable double cachedFinalDensity_;
+
+    //! Cached state function results
+    mutable Eigen::Vector6d cachedSunState_;
+    mutable Eigen::Vector6d cachedCometState_;
+    mutable Eigen::Matrix3d cachedRotationMatrix_;
+
+    //! Pre-allocated interpolation point vectors to avoid repeated allocations
+    mutable std::vector<double> interpolationPoint2D_;
+    mutable std::vector<double> interpolationPoint1D_;
+
+    //! Cache validity flags packed into a bitfield for memory efficiency
+    struct CacheFlags {
+        bool solarLongitudeValid : 1;
+        bool interpolationValid : 1;
+        bool trigValid : 1;
+        bool densityValid : 1;
+        bool stateValid : 1;
+
+        CacheFlags() : solarLongitudeValid(false), interpolationValid(false),
+                       trigValid(false), densityValid(false), stateValid(false) {}
+    };
+    mutable CacheFlags cacheFlags_;
 
     // ========== Configuration: Model parameters (small, accessed during initialization and queries) ==========
 
@@ -224,6 +255,15 @@ private:
     //! Vector indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators (1D: solar longitude only)
     std::vector<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
                                            std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>>>> reducedStokesInterpolators_;
+
+    //! Cache for fallback interpolators (created on-demand, then cached for reuse)
+    //! Vector indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators
+    mutable std::vector<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
+                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>> fallbackStokesInterpolators_;
+
+    //! Cache for fallback reduced interpolators (created on-demand, then cached for reuse)
+    mutable std::vector<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
+                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>>>> fallbackReducedStokesInterpolators_;
 
     /*!
      * @brief Find the index of the time interval that contains a given time.
@@ -355,6 +395,11 @@ private:
 
     //! Last used maximum order (for cache optimization)
     int lastMaxOrder_ = -1;
+
+    //! Cached latitude/longitude and sine of latitude (for trigonometric optimization)
+    double lastLatitude_ = std::numeric_limits<double>::quiet_NaN();
+    double lastLongitude_ = std::numeric_limits<double>::quiet_NaN();
+    double lastSineLatitude_ = 0.0;
 };
 } // end namespace aerodynamics
 } // end namespace tudat
