@@ -1240,19 +1240,8 @@ private:
         ArrayXd cosTerms( freqCache.numCosTerms );
         ArrayXd sinTerms( freqCache.numSinTerms );
 
-        // Vectorized trig computation with compiler hints for optimization
-        #if defined(__GNUC__) || defined(__clang__)
-            #pragma GCC ivdep  // Ignore vector dependencies
-        #elif defined(_MSC_VER)
-            #pragma loop(ivdep)
-        #endif
+        // Vectorized trig computation
         cosTerms = cosFreqsScaled.cos( );
-
-        #if defined(__GNUC__) || defined(__clang__)
-            #pragma GCC ivdep
-        #elif defined(_MSC_VER)
-            #pragma loop(ivdep)
-        #endif
         sinTerms = sinFreqsScaled.sin( );
 
         // Pre-allocate and fill basis vector using direct assignment (avoid .transpose())
