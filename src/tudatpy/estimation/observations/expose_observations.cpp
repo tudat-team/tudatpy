@@ -119,7 +119,7 @@ void expose_observations( py::module& m )
                             const std::vector< TIME_TYPE >,
                             const tom::LinkEndType,
                             const std::vector< Eigen::VectorXd >,
-                            const std::shared_ptr< tss::ObservationDependentVariableCalculator >,
+                            const std::shared_ptr< tss::ObservationDependentVariableBookkeeping >,
                             const std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >( ),
                   py::arg( "observable_type" ),
                   py::arg( "link_ends" ),
@@ -127,7 +127,7 @@ void expose_observations( py::module& m )
                   py::arg( "observation_epochs" ),
                   py::arg( "reference_link_end" ),
                   py::arg( "observation_dependent_variables" ) = std::vector< Eigen::VectorXd >( ),
-                  py::arg( "dependent_variable_calculator" ) = nullptr,
+                  py::arg( "dependent_variable_bookkeeping" ) = nullptr,
                   py::arg( "ancilliary_settings" ) = nullptr )
             .def( "set_observations",
                   py::overload_cast< const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >& >(
@@ -1624,7 +1624,6 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
             .def( "add_dependent_variable",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::addDependentVariable,
                   py::arg( "dependent_variable_settings" ),
-                  py::arg( "bodies" ),
                   py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
                   R"doc(
          Add an observation dependent variable to a subset of the single observation sets.
