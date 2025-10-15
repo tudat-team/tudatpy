@@ -214,7 +214,7 @@ simulateObservationsWithCheckAndLinkEndIdOutput(
             std::get< 1 >( simulatedObservations ),
             referenceLinkEnd,
             std::get< 2 >( simulatedObservations ),
-            dependentVariableCalculator,
+            ( dependentVariableCalculator == nullptr ) ? nullptr : dependentVariableCalculator->getDependentVariableBookkeeping( ),
             ancilliarySettings );
 }
 
@@ -232,6 +232,10 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
                                                                        observationsToSimulate->getLinkEnds( ).linkEnds_,
                                                                        observationsToSimulate->getObservableType( ),
                                                                        { observationsToSimulate->arcDefiningConstraint_ } );
+
+    std::shared_ptr< observation_models::ObservationDependentVariableCalculator > dependentVariableCalculator =
+            std::make_shared< observation_models::ObservationDependentVariableCalculator >(
+                    observationsToSimulate->getObservationDependentVariableBookkeeping( ), bodies );
 
     // Define list of arc data
     typedef std::tuple< Eigen::Matrix< ObservationScalarType, ObservationSize, 1 >, std::vector< Eigen::Vector6d >, std::vector< double > >
@@ -320,7 +324,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
     Eigen::VectorXd currentDependentVariable;
     for( unsigned int i = 0; i < simulatedObservations.size( ); i++ )
     {
-        for( auto it: simulatedObservations.at( i ) )
+        for( auto it : simulatedObservations.at( i ) )
         {
             SingleObservationData singleObservation = it.second;
             currentObservation = std::get< 0 >( singleObservation );
@@ -340,7 +344,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
                         ancilliarySettings,
                         observationModel->getObservableType( ),
                         observationsToSimulate->getObservationNoiseFunction( ),
-                        observationsToSimulate->getDependentVariableCalculator( ) );
+                        dependentVariableCalculator );
                 observations.push_back( currentObservation );
                 observationTimes.push_back( it.first );
                 observationsDependentVariables.push_back( currentDependentVariable );
@@ -355,7 +359,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
             observationTimes,
             referenceLinkEnd,
             observationsDependentVariables,
-            observationsToSimulate->getDependentVariableCalculator( ),
+            observationsToSimulate->getObservationDependentVariableBookkeeping( ),
             ancilliarySettings );
 }
 
@@ -392,6 +396,10 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
                                                                            observationsToSimulate->getObservableType( ),
                                                                            observationsToSimulate->getViabilitySettingsList( ) );
 
+        std::shared_ptr< observation_models::ObservationDependentVariableCalculator > dependentVariableCalculator =
+                std::make_shared< observation_models::ObservationDependentVariableCalculator >(
+                        tabulatedObservationSettings->getObservationDependentVariableBookkeeping( ), bodies );
+
         // Simulate observations at requested pre-defined time.
         simulatedObservations = simulateObservationsWithCheckAndLinkEndIdOutput< ObservationSize, ObservationScalarType, TimeType >(
                 tabulatedObservationSettings->simulationTimes_,
@@ -399,7 +407,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
                 observationsToSimulate->getReferenceLinkEndType( ),
                 currentObservationViabilityCalculators,
                 noiseFunction,
-                observationsToSimulate->getDependentVariableCalculator( ),
+                dependentVariableCalculator,
                 tabulatedObservationSettings->getAncilliarySettings( ) );
     }
     else if( std::dynamic_pointer_cast< PerArcObservationSimulationSettings< TimeType > >( observationsToSimulate ) != nullptr )
@@ -545,7 +553,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
     typename observation_models::ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets sortedObservations;
 
     // Iterate over all observables.
-    for( auto itr: observationsInput )
+    for( auto itr : observationsInput )
     {
         observation_models::ObservableType observableType = itr.first;
         observation_models::LinkEnds linkEnds = itr.second.first;
@@ -683,14 +691,14 @@ getObservationSimulationSettingsFromObservations(
                                 singleObservationSets.at( i )->getAncilliarySettings( ) );
 
                 // Add dependent variables
-                if( singleObservationSets.at( i )->getDependentVariableCalculator( ) != nullptr )
+                if( singleObservationSets.at( i )->getDependentVariableBookkeeping( ) != nullptr )
                 {
                     std::vector< std::shared_ptr< ObservationDependentVariableSettings > > dependentVariablesList =
-                            singleObservationSets.at( i )->getDependentVariableCalculator( )->getDependentVariableSettings( );
+                            singleObservationSets.at( i )->getDependentVariableBookkeeping( )->getDependentVariableSettings( );
                     if( dependentVariablesList.size( ) > 0 )
                     {
-                        addDependentVariableToSingleObservationSimulationSettings< TimeType >(
-                                singleSetSimulationSettings, dependentVariablesList, bodies );
+                        addDependentVariableToSingleObservationSimulationSettings< TimeType >( singleSetSimulationSettings,
+                                                                                               dependentVariablesList );
                     }
                 }
 
@@ -723,10 +731,10 @@ void computeResidualsAndDependentVariables(
     observationCollection->setResiduals( residuals );
 
     // Parse all observable types
-    for( auto observableIt: computedObservationCollection->getObservationsSets( ) )
+    for( auto observableIt : computedObservationCollection->getObservationsSets( ) )
     {
         // Parse all link ends
-        for( auto linkEndsIt: observableIt.second )
+        for( auto linkEndsIt : observableIt.second )
         {
             // Parse all single observation sets for given observable type and link ends
             for( unsigned int setIndex = 0; setIndex < linkEndsIt.second.size( ); setIndex++ )
