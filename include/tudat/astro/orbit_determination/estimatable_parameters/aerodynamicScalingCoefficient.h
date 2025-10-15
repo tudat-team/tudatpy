@@ -22,62 +22,66 @@ namespace estimatable_parameters
 class AerodynamicScalingFactor : public EstimatableParameter< double >
 {
 public:
-    AerodynamicScalingFactor( const std::shared_ptr< aerodynamics::AerodynamicAcceleration > aerodynamicAcceleration,
+    AerodynamicScalingFactor( const std::vector< std::shared_ptr< aerodynamics::AerodynamicAcceleration > > aerodynamicAccelerations,
                               const EstimatebleParametersEnum parameterType,
                               const std::string& associatedBody ):
-        EstimatableParameter< double >( parameterType, associatedBody ),
-        aerodynamicAcceleration_( aerodynamicAcceleration )
+        EstimatableParameter< double >( parameterType, associatedBody ), aerodynamicAccelerations_( aerodynamicAccelerations )
     {
-        if( ( parameterType != drag_component_scaling_factor ) &&
-            ( parameterType != side_component_scaling_factor ) && 
+        if( ( parameterType != drag_component_scaling_factor ) && ( parameterType != side_component_scaling_factor ) &&
             ( parameterType != lift_component_scaling_factor ) )
         {
             throw std::runtime_error( "Error when creating aerodynamic scaling parameter, type is inconsistent: " +
                                       std::to_string( parameterType ) );
         }
+
+        switch( parameterType )
+        {
+            case drag_component_scaling_factor:
+                parameterIndex_ = 0;
+                break;
+            case side_component_scaling_factor:
+                parameterIndex_ = 1;
+                break;
+            case lift_component_scaling_factor:
+                parameterIndex_ = 2;
+                break;
+            default:
+                throw std::runtime_error( "Error when creating aerodynamic scaling parameter, type is inconsistent: " +
+                                          std::to_string( parameterType ) );
+        }
     }
 
-    ~AerodynamicScalingFactor( ) { }
+    AerodynamicScalingFactor( const std::shared_ptr< aerodynamics::AerodynamicAcceleration > aerodynamicAcceleration,
+                              const EstimatebleParametersEnum parameterType,
+                              const std::string& associatedBody ):
+        AerodynamicScalingFactor( std::vector< std::shared_ptr< aerodynamics::AerodynamicAcceleration > >( { aerodynamicAcceleration } ),
+                                  parameterType,
+                                  associatedBody )
+    {}
+
+    ~AerodynamicScalingFactor( ) {}
 
     double getParameterValue( )
     {
-        if( parameterName_.first == drag_component_scaling_factor )
+        double parameterValue = aerodynamicAccelerations_.at( 0 )->getComponentScaling( parameterIndex_ );
+        for( unsigned int i = 1; i < aerodynamicAccelerations_.size( ); i++ )
         {
-            return aerodynamicAcceleration_->getDragComponentScaling( );
+            if( aerodynamicAccelerations_.at( i )->getComponentScaling( parameterIndex_ ) != parameterValue )
+            {
+                std::cerr << "Warning when retrieving aerodynamic acceleration scaling factor from list. List entries are not equal, "
+                             "returning first entry"
+                          << std::endl;
+                break;
+            }
         }
-        else if( parameterName_.first == side_component_scaling_factor )
-        {
-            return aerodynamicAcceleration_->getSideComponentScaling( );
-        }
-        else if( parameterName_.first == lift_component_scaling_factor )
-        {
-            return aerodynamicAcceleration_->getLiftComponentScaling( );
-        }
-        else
-        {
-            throw std::runtime_error( "Error when getting aerodynamic scaling parameter, type is inconsistent: " +
-                                      std::to_string( parameterName_.first ) );
-        }
+        return parameterValue;
     }
 
     void setParameterValue( double parameterValue )
     {
-        if( parameterName_.first == drag_component_scaling_factor )
+        for( unsigned int i = 0; i < aerodynamicAccelerations_.size( ); i++ )
         {
-            return aerodynamicAcceleration_->setDragComponentScaling( parameterValue );
-        }
-        else if( parameterName_.first == side_component_scaling_factor )
-        {
-            return aerodynamicAcceleration_->setSideComponentScaling( parameterValue );
-        }
-        else if( parameterName_.first == lift_component_scaling_factor )
-        {
-            return aerodynamicAcceleration_->setLiftComponentScaling( parameterValue );
-        }
-        else
-        {
-            throw std::runtime_error( "Error when setting aerodynamic scaling parameter, type is inconsistent: " +
-                                      std::to_string( parameterName_.first ) );
+            aerodynamicAccelerations_.at( i )->setComponentScaling( parameterValue, parameterIndex_ );
         }
     }
 
@@ -87,7 +91,9 @@ public:
     }
 
 protected:
-    std::shared_ptr< aerodynamics::AerodynamicAcceleration > aerodynamicAcceleration_;
+    std::vector< std::shared_ptr< aerodynamics::AerodynamicAcceleration > > aerodynamicAccelerations_;
+
+    int parameterIndex_;
 };
 
 }  // namespace estimatable_parameters

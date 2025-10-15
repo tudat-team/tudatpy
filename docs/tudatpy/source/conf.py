@@ -75,6 +75,10 @@ autosummary_generate = True  # Turn on sphinx.ext.autosummary
 add_module_names = False
 autodoc_member_order = "groupwise"
 
+autodoc_default_options = {
+    "show-inheritance": True
+}
+
 bibtex_bibfiles = ["refs.bib"]
 bibtex_default_style = "plain"
 

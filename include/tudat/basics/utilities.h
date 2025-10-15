@@ -20,6 +20,7 @@
 #include <sstream>
 #include <fstream>
 #include <iomanip>
+#include <unordered_set>
 
 #include <functional>
 #include <boost/multi_array.hpp>
@@ -606,7 +607,7 @@ std::map< MapKey, Eigen::Array< ScalarType, Eigen::Dynamic, 1 > > convertStlVect
         std::map< MapKey, std::vector< ScalarType > > stlVectorMap )
 {
     std::map< MapKey, Eigen::Array< ScalarType, Eigen::Dynamic, 1 > > eigenMap;
-    for( auto ent: stlVectorMap )
+    for( auto ent : stlVectorMap )
     {
         Eigen::Array< ScalarType, Eigen::Dynamic, 1 > array( ent.second.size( ) );
         for( int i = 0; i < array.rows( ); i++ )
@@ -659,7 +660,7 @@ template< typename KeyType, typename ScalarType, int FixedSize >
 void castDynamicToFixedSizeEigenVectorMap( std::map< KeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > >& originalMap,
                                            std::map< KeyType, Eigen::Matrix< ScalarType, FixedSize, 1 > >& fixedSizeMap )
 {
-    for( auto mapIterator: originalMap )
+    for( auto mapIterator : originalMap )
     {
         fixedSizeMap[ mapIterator.first ] = mapIterator.second;
     }
@@ -713,7 +714,7 @@ std::map< NewKeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > > sliceMatr
 {
     std::map< NewKeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > > slicedHistory;
 
-    for( auto mapIterator: fullHistory )
+    for( auto mapIterator : fullHistory )
     {
         slicedHistory[ static_cast< NewKeyType >( mapIterator.first ) ] =
                 mapIterator.second.segment( sliceStartIndexAndSize.first, sliceStartIndexAndSize.second );
@@ -734,7 +735,7 @@ Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > convertVectorHistory
     Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > concatenatedMatrix =
             Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic >::Zero( numberOfRows, numberOfColumns );
     int counter = 0;
-    for( auto it: vectorHistory )
+    for( auto it : vectorHistory )
     {
         Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > currentVector = it.second;
         if( currentVector.rows( ) != numberOfColumns )
@@ -781,7 +782,7 @@ std::map< KeyType, ScalarType > getSingleVectorEntryHistory(
         int vectorEntry )
 {
     std::map< KeyType, ScalarType > extractedMap;
-    for( auto mapIterator: originalMap )
+    for( auto mapIterator : originalMap )
     {
         extractedMap[ mapIterator.first ] = mapIterator.second( vectorEntry );
     }
@@ -915,7 +916,7 @@ template< typename T, typename S, typename U >
 std::map< T, U > staticCastMapKeys( const std::map< S, U >& originalMap )
 {
     std::map< T, U > castMap;
-    for( auto it: originalMap )
+    for( auto it : originalMap )
     {
         castMap[ static_cast< T >( it.first ) ] = it.second;
     }
@@ -959,7 +960,7 @@ int countNumberOfOccurencesInVector( const std::vector< T >& vector, const T& va
 template< typename T, typename U >
 bool containsAll( const T& referenceArray, const U searchArray )
 {
-    for( auto search_element: searchArray )
+    for( auto search_element : searchArray )
     {
         if( std::find( referenceArray.begin( ), referenceArray.end( ), search_element ) == referenceArray.end( ) )
         {
@@ -974,7 +975,7 @@ template< typename T >
 std::set< T > vectorToSet( std::vector< T > vector )
 {
     std::set< T > set;
-    for( T& elem: vector )
+    for( T& elem : vector )
     {
         set.insert( elem );
     }
@@ -1167,6 +1168,13 @@ std::vector< std::map< S, T > > mergeMaps( const std::vector< std::map< S, T > >
 
         return mergedData;
     }
+}
+
+template< typename T >
+void removeDuplicates( std::vector< T >& input )
+{
+    std::sort( input.begin( ), input.end( ) );
+    input.erase( std::unique( input.begin( ), input.end( ) ), input.end( ) );
 }
 
 }  // namespace utilities
