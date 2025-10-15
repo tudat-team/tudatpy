@@ -289,7 +289,7 @@ def test_80cols_line_parser():
 def test_parse_80cols_file():
     batch = BatchMPC()
     batch.get_observations([433])
-    batch.filter(epoch_start = datetime.datetime(2021, 6, 7, 00, 4), epoch_end =  datetime.datetime(2021, 6, 7, 16, 4,2))
+    #batch.filter(epoch_start = datetime.datetime(2021, 6, 7, 00, 4), epoch_end =  datetime.datetime(2021, 6, 7, 16, 4,2))
     print(batch.summary())
     MPC_parser = MPC80ColsParser()
     file_path = '/Users/lgisolfi/CLionProjects/tudatpy_examples/estimation/data/eros_obs.txt'
@@ -306,8 +306,3 @@ def test_parse_80cols_file():
 
     tol = 5e-5
     assert not (diff_seconds > tol).any()
-
-
-
-
-test_parse_80cols_file()
