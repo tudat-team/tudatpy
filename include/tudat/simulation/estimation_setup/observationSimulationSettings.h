@@ -41,9 +41,9 @@ std::function< Eigen::VectorXd( const double ) > getNoiseFunctionForObservable(
 
 struct ObservationNoiseModel {
 public:
-    ObservationNoiseModel( ): observationSize_( -1 ) { }
+    ObservationNoiseModel( ): observationSize_( -1 ) {}
 
-    virtual ~ObservationNoiseModel( ) { }
+    virtual ~ObservationNoiseModel( ) {}
 
     virtual Eigen::VectorXd getObservationNoise( const double& observationTime,
                                                  const Eigen::VectorXd& calculatedObservation,
@@ -75,7 +75,7 @@ public:
                 statistics::normal_boost_distribution, { noiseMean, noiseAmplitude }, gaussianNoiseSeed );
     }
 
-    virtual ~UnivariateGaussianObservationNoiseModel( ) { }
+    virtual ~UnivariateGaussianObservationNoiseModel( ) {}
 
     Eigen::VectorXd getObservationNoise( const double& observationTime,
                                          const Eigen::VectorXd& calculatedObservation,
@@ -131,8 +131,9 @@ public:
                               ? observation_models::getDefaultReferenceLinkEndType( observableType )
                               : linkEndType ),
         viabilitySettingsList_( viabilitySettingsList ), observationNoiseFunction_( observationNoiseFunction ),
-        ancilliarySettings_( ancilliarySettings ), observationDependentVariableBookkeeping_(
-                                                           std::make_shared< ObservationDependentVariableBookkeeping >( observableType_, linkEnds_ ) )
+        ancilliarySettings_( ancilliarySettings ),
+        observationDependentVariableBookkeeping_(
+                std::make_shared< ObservationDependentVariableBookkeeping >( observableType_, linkEnds_ ) )
     {
         if( ancilliarySettings_ == nullptr )
         {
@@ -141,7 +142,7 @@ public:
     }
 
     //! Destructor.
-    virtual ~ObservationSimulationSettings( ) { }
+    virtual ~ObservationSimulationSettings( ) {}
 
     observation_models::ObservableType getObservableType( )
     {
@@ -199,7 +200,6 @@ public:
         return ancilliarySettings_;
     }
 
-
     // Settings for variables that are to be saved along with the observables.
     std::shared_ptr< ObservationDependentVariableBookkeeping > getObservationDependentVariableBookkeeping( )
     {
@@ -223,7 +223,6 @@ protected:
     std::function< Eigen::VectorXd( const double ) > observationNoiseFunction_;
 
     std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings_;
-
 
     // Settings for variables that are to be saved along with the observables.
     std::shared_ptr< ObservationDependentVariableBookkeeping > observationDependentVariableBookkeeping_;
@@ -260,10 +259,10 @@ public:
                                                    observationNoiseFunction,
                                                    ancilliarySettings ),
         simulationTimes_( simulationTimes )
-    { }
+    {}
 
     //! Destructor
-    ~TabulatedObservationSimulationSettings( ) { }
+    ~TabulatedObservationSimulationSettings( ) {}
 
     //! List of times at which to perform the observation simulation
     std::vector< TimeType > simulationTimes_;
@@ -298,9 +297,9 @@ public:
         arcDefiningConstraint_( arcDefiningConstraint ), minimumArcDuration_( minimumArcDuration ),
         maximumArcDuration_( maximumArcDuration ), minimumTimeBetweenArcs_( minimumTimeBetweenArcs ),
         additionalViabilitySettingsList_( additionalViabilitySettingsList )
-    { }
+    {}
 
-    ~PerArcObservationSimulationSettings( ) { }
+    ~PerArcObservationSimulationSettings( ) {}
 
     TimeType startTime_;
 
@@ -405,7 +404,7 @@ std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > crea
                 std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ) )
 {
     std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > observationSimulationSettingsList;
-    for( auto observableIterator: linkEndsPerObservable )
+    for( auto observableIterator : linkEndsPerObservable )
     {
         for( unsigned int i = 0; i < observableIterator.second.size( ); i++ )
         {
@@ -431,7 +430,7 @@ std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > perA
                 std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ) )
 {
     std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > observationSimulationSettingsList;
-    for( auto observableIterator: linkEndsPerObservable )
+    for( auto observableIterator : linkEndsPerObservable )
     {
         for( unsigned int i = 0; i < observableIterator.second.size( ); i++ )
         {
@@ -476,13 +475,13 @@ void addDependentVariableToSingleObservationSimulationSettings(
             getInterlinks( observableType, linkEnds );
 
     // Parse all dependent variable settings
-    for( auto settings: dependentVariableList )
+    for( auto settings : dependentVariableList )
     {
         // Create complete list of all dependent variable settings compatible with the original settings (possibly not fully defined, i.e.
         // with missing information on link ends, etc.) for the given observable type and link ends
         std::vector< std::shared_ptr< ObservationDependentVariableSettings > > allSettingsToCreate =
                 createAllCompatibleDependentVariableSettings( observableType, linkEnds, settings );
-        for( auto it: allSettingsToCreate )
+        for( auto it : allSettingsToCreate )
         {
             extendedDependentVariablesList.push_back( it );
         }
@@ -701,7 +700,7 @@ std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > getO
         const observation_models::LinkEndType referenceLinkEnd = observation_models::receiver )
 {
     std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > measurementSimulationInput;
-    for( auto it: linkEndsPerObservable )
+    for( auto it : linkEndsPerObservable )
     {
         observation_models::ObservableType currentObservable = it.first;
         std::vector< observation_models::LinkDefinition > currentLinkEndsList = it.second;
@@ -721,7 +720,7 @@ std::vector< std::shared_ptr< ObservationSimulationSettings< TimeType > > > getO
         const observation_models::LinkEndType referenceLinkEnd = observation_models::receiver )
 {
     std::map< observation_models::ObservableType, std::vector< observation_models::LinkDefinition > > linkDefsPerObservable;
-    for( auto it: linkEndsPerObservable )
+    for( auto it : linkEndsPerObservable )
     {
         for( unsigned int i = 0; i < it.second.size( ); i++ )
         {

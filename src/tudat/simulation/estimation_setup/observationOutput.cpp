@@ -539,13 +539,13 @@ ObservationDependentVariableFunction getObservationVectorDependentVariableFuncti
     return outputFunction;
 }
 
-std::map< std::pair< int, int >, std::shared_ptr< ObservationDependentVariableSettings > > ObservationDependentVariableBookkeeping::getSettingsIndicesAndSizes( ) const
+std::map< std::pair< int, int >, std::shared_ptr< ObservationDependentVariableSettings > >
+ObservationDependentVariableBookkeeping::getSettingsIndicesAndSizes( ) const
 {
     std::map< std::pair< int, int >, std::shared_ptr< ObservationDependentVariableSettings > > settingsStartIndices;
     for( unsigned int i = 0; i < dependentVariableStartIndices_.size( ); i++ )
     {
-        settingsStartIndices[ std::make_pair( dependentVariableStartIndices_[ i ], dependentVariableSizes_[ i ] ) ] =
-                settingsList_[ i ];
+        settingsStartIndices[ std::make_pair( dependentVariableStartIndices_[ i ], dependentVariableSizes_[ i ] ) ] = settingsList_[ i ];
     }
     return settingsStartIndices;
 }
@@ -554,7 +554,7 @@ std::pair< int, int > ObservationDependentVariableBookkeeping::addDependentVaria
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings )
 {
     // Check if the requested dependent variable can be used for given link
-    if( doesObservationDependentVariableExistForGivenLink(  observableType_, linkEnds_.linkEnds_, variableSettings ) )
+    if( doesObservationDependentVariableExistForGivenLink( observableType_, linkEnds_.linkEnds_, variableSettings ) )
     {
         // Retrieve the current index in list of dependent variables and size of new parameter
         int currentIndex = totalDependentVariableSize_;
@@ -573,14 +573,15 @@ std::pair< int, int > ObservationDependentVariableBookkeeping::addDependentVaria
     }
 }
 
-void ObservationDependentVariableBookkeeping::addDependentVariables( const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList )
+void ObservationDependentVariableBookkeeping::addDependentVariables(
+        const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList )
 {
     // Parse all settings to be added and check if they are already included
-    for( auto settingsToAdd: settingsList )
+    for( auto settingsToAdd : settingsList )
     {
         // Check if settings already exist for given observation set
         bool settingsDetected = false;
-        for( auto existingSettings: settingsList_ )
+        for( auto existingSettings : settingsList_ )
         {
             if( existingSettings->areSettingsCompatible( settingsToAdd ) )
             {
@@ -595,8 +596,6 @@ void ObservationDependentVariableBookkeeping::addDependentVariables( const std::
         }
     }
 }
-
-
 
 std::pair< int, int > ObservationDependentVariableBookkeeping::getDependentVariableIndices(
         const std::shared_ptr< ObservationDependentVariableSettings > dependentVariables )
@@ -619,7 +618,6 @@ std::pair< int, int > ObservationDependentVariableBookkeeping::getDependentVaria
     return startAndSizePair;
 }
 
-
 void ObservationDependentVariableCalculator::addDependentVariable(
         const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
         const SystemOfBodies &bodies )
@@ -631,8 +629,6 @@ void ObservationDependentVariableCalculator::addDependentVariable(
     {
         int currentIndex = currentIndexAndSize.first;
         int parameterSize = currentIndexAndSize.second;
-
-
     }
 }
 
@@ -641,11 +637,11 @@ void ObservationDependentVariableCalculator::addDependentVariables(
         const SystemOfBodies &bodies )
 {
     // Parse all settings to be added and check if they are already included
-    for( auto settingsToAdd: settingsList )
+    for( auto settingsToAdd : settingsList )
     {
         // Check if settings already exist for given observation set
         bool settingsDetected = false;
-        for( auto existingSettings: dependentVariableBookkeeping_->getDependentVariableSettings( ) )
+        for( auto existingSettings : dependentVariableBookkeeping_->getDependentVariableSettings( ) )
         {
             if( existingSettings->areSettingsCompatible( settingsToAdd ) )
             {
@@ -667,7 +663,8 @@ Eigen::VectorXd ObservationDependentVariableCalculator::calculateDependentVariab
         const Eigen::VectorXd &observation,
         const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > observationAncilliarySimulationSettings )
 {
-    Eigen::VectorXd dependentVariables = Eigen::VectorXd::Constant( dependentVariableBookkeeping_->getTotalDependentVariableSize( ), TUDAT_NAN );
+    Eigen::VectorXd dependentVariables =
+            Eigen::VectorXd::Constant( dependentVariableBookkeeping_->getTotalDependentVariableSize( ), TUDAT_NAN );
 
     for( unsigned int i = 0; i < dependentVariableAddFunctions_.size( ); i++ )
     {
@@ -678,14 +675,17 @@ Eigen::VectorXd ObservationDependentVariableCalculator::calculateDependentVariab
 }
 
 void ObservationDependentVariableCalculator::addDependentVariableFunction(
-        const std::shared_ptr< ObservationDependentVariableSettings > variableSettings, const SystemOfBodies& bodies,
+        const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
+        const SystemOfBodies &bodies,
         const int currentIndex,
         const int parameterSize )
 {
     // Create function to compute dependent variable
     ObservationDependentVariableFunction observationDependentVariableFunction =
-            getObservationVectorDependentVariableFunction(
-                    bodies, variableSettings, dependentVariableBookkeeping_->getObservableType( ), dependentVariableBookkeeping_->getLinkEnds( ).linkEnds_ );
+            getObservationVectorDependentVariableFunction( bodies,
+                                                           variableSettings,
+                                                           dependentVariableBookkeeping_->getObservableType( ),
+                                                           dependentVariableBookkeeping_->getLinkEnds( ).linkEnds_ );
 
     // Create function to compute dependent variable and add to existing list
     ObservationDependentVariableAddFunction dependentVariableAddFunction =
