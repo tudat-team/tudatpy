@@ -65,7 +65,7 @@ void compareAgainstReference( const std::shared_ptr< ObservationCollection<> > s
             int variableSize = referenceDependentVariables.begin( )->second.rows( );
             auto referenceIterator = referenceDependentVariables.begin( );
             auto computedIterator = computedDependentVariables.begin( );
-            for( auto it: referenceDependentVariables )
+            for( auto it : referenceDependentVariables )
             {
                 BOOST_CHECK_CLOSE_FRACTION( computedIterator->first - referenceIterator->first,
                                             expectedTimeOffset,
@@ -122,6 +122,7 @@ double computeLineSegmentToCenterOfMassDistance( const Eigen::Vector3d lineSegme
  *  corresponding link in other observables yields identical results
  */
 BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
+// int main( )
 {
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -750,7 +751,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                     // Iterate over all times
                     std::vector< double > linkEndTimes;
                     std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates;
-                    for( auto it: elevationAngles1 )
+                    for( auto it : elevationAngles1 )
                     {
                         double currentTime = it.first;
                         double currentElevation = elevationAngles1.at( currentTime )( 0 );
@@ -980,7 +981,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
     // Define observation simulation times and ancillary settings
     std::map< ObservableType, std::vector< double > > baseTimeListPerObservable;
     std::map< ObservableType, std::shared_ptr< ObservationAncilliarySimulationSettings > > ancillarySettingsPerObservable;
-    for( auto linkEndIterator: linkEndsPerObservable )
+    for( auto linkEndIterator : linkEndsPerObservable )
     {
         ObservableType currentObservable = linkEndIterator.first;
         std::vector< LinkEnds > currentLinkEndsList = linkEndIterator.second;
@@ -1134,7 +1135,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
     {
         // Define observation simulation settings
         std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
-        for( auto linkEndIt: linkEndsPerObservable )
+        for( auto linkEndIt : linkEndsPerObservable )
         {
             ObservableType observableType = linkEndIt.first;
             std::vector< LinkEnds > linkEndsList = linkEndIt.second;
@@ -1163,21 +1164,23 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
 
         if( testCase == 1 )
         {
+            idealObservationsAndTimes->clearDependentVariableValues( );
+
             // Add dependent variables after observation collection is created
             std::shared_ptr< ObservationCollectionParser > elevationAngleParser =
-                    idealObservationsAndTimes->addDependentVariable( elevationAngleSettings, bodies );
+                    idealObservationsAndTimes->addDependentVariable( elevationAngleSettings );
             std::shared_ptr< ObservationCollectionParser > azimuthAngleParser1 =
-                    idealObservationsAndTimes->addDependentVariable( azimuthStationSettings1, bodies );
+                    idealObservationsAndTimes->addDependentVariable( azimuthStationSettings1 );
             std::shared_ptr< ObservationCollectionParser > azimuthAngleParser2 = idealObservationsAndTimes->addDependentVariable(
-                    azimuthStationSettings2, bodies, observationParser( n_way_differenced_range ) );
+                    azimuthStationSettings2, observationParser( n_way_differenced_range ) );
             std::shared_ptr< ObservationCollectionParser > limbDistanceParser =
-                    idealObservationsAndTimes->addDependentVariable( limbDistanceSettings, bodies );
+                    idealObservationsAndTimes->addDependentVariable( limbDistanceSettings );
             std::shared_ptr< ObservationCollectionParser > moonAngleParser = idealObservationsAndTimes->addDependentVariable(
-                    moonAvoidanceAngleSettings, bodies, observationParser( std::make_pair( "Earth", "Station1" ) ) );
+                    moonAvoidanceAngleSettings, observationParser( std::make_pair( "Earth", "Station1" ) ) );
             std::shared_ptr< ObservationCollectionParser > integrationTimeParser =
-                    idealObservationsAndTimes->addDependentVariable( integrationTimeSettings, bodies );
+                    idealObservationsAndTimes->addDependentVariable( integrationTimeSettings );
             std::shared_ptr< ObservationCollectionParser > retransmissionDelaysParser =
-                    idealObservationsAndTimes->addDependentVariable( retransmissionDelaysSettings, bodies );
+                    idealObservationsAndTimes->addDependentVariable( retransmissionDelaysSettings );
 
             // Compute dependent variables
             computeResidualsAndDependentVariables< double, double >( idealObservationsAndTimes, observationSimulators, bodies );
@@ -1195,10 +1198,10 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
         }
 
         // Parse all dependent variable types
-        for( auto variableIt: expectedNumberOfSettings )
+        for( auto variableIt : expectedNumberOfSettings )
         {
             // Parse all observable types
-            for( auto observableIt: variableIt.second )
+            for( auto observableIt : variableIt.second )
             {
                 // Retrieve single observation sets for given observable
                 std::vector< std::shared_ptr< SingleObservationSet< double, double > > > observationSets =
@@ -1229,16 +1232,16 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
         // Save dependent variables values from first test case
         if( testCase == 0 )
         {
-            for( auto currentSettings: dependentVariablesList )
+            for( auto currentSettings : dependentVariablesList )
             {
                 ObservationDependentVariables variableType = currentSettings->variableType_;
 
                 std::vector< std::vector< Eigen::MatrixXd > > currentDependentVariablesSortedPerSet;
 
-                for( auto set: idealObservationsAndTimes->getSingleObservationSets( ) )
+                for( auto set : idealObservationsAndTimes->getSingleObservationSets( ) )
                 {
                     std::vector< std::pair< int, int > > compatibleIndicesAndSizes;
-                    for( auto it: set->getDependentVariableCalculator( )->getSettingsIndicesAndSizes( ) )
+                    for( auto it : set->getDependentVariableBookkeeping( )->getSettingsIndicesAndSizes( ) )
                     {
                         if( it.second->areSettingsCompatible( currentSettings ) )
                         {
@@ -1248,7 +1251,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
 
                     std::vector< Eigen::MatrixXd > currentSetDependentVariablesPerSettings;
                     Eigen::MatrixXd currentSetFullDependentVariables = set->getObservationsDependentVariablesMatrix( );
-                    for( auto indicesIt: compatibleIndicesAndSizes )
+                    for( auto indicesIt : compatibleIndicesAndSizes )
                     {
                         Eigen::MatrixXd singleDependentVariableValues =
                                 Eigen::MatrixXd::Zero( currentSetFullDependentVariables.rows( ), indicesIt.second );
@@ -1273,7 +1276,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
         // Compare dependent variable values w.r.t. first test case
         if( testCase == 1 )
         {
-            for( auto currentSettings: dependentVariablesList )
+            for( auto currentSettings : dependentVariablesList )
             {
                 std::vector< std::vector< std::shared_ptr< ObservationDependentVariableSettings > > > compatibleSettingsList =
                         idealObservationsAndTimes->getCompatibleDependentVariablesSettingsList( currentSettings ).first;
