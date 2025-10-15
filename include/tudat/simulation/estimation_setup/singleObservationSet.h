@@ -53,7 +53,6 @@ public:
         dependentVariableBookkeeping_( dependentVariableBookkeeping ), ancilliarySettings_( ancilliarySettings ),
         numberOfObservations_( observations_.size( ) )
     {
-
         if( dependentVariableBookkeeping_ != nullptr )
         {
             if( dependentVariableBookkeeping_->getObservableType( ) != observableType_ )
@@ -338,7 +337,7 @@ public:
         // Get the start indices and sizes of all dependent variables that would be compatible with
         // the settings provided as inputs.
         std::vector< std::pair< int, int > > indicesAndSizes;
-        for( auto it: settingsIndicesAndSizes )
+        for( auto it : settingsIndicesAndSizes )
         {
             if( dependentVariableSettings->areSettingsCompatible( it.second ) )
             {
@@ -372,7 +371,7 @@ public:
     {
         // Check which settings are compatible with the input settings object
         std::vector< std::shared_ptr< ObservationDependentVariableSettings > > compatibleSettings;
-        for( auto it: dependentVariableBookkeeping_->getDependentVariableSettings( ) )
+        for( auto it : dependentVariableBookkeeping_->getDependentVariableSettings( ) )
         {
             if( dependentVariableSettings->areSettingsCompatible( it ) )
             {
@@ -393,7 +392,7 @@ public:
 
         // Retrieve all relevant dependent variables
         std::vector< Eigen::MatrixXd > dependentVariablesList;
-        for( auto it: settingsIndicesAndSizes )
+        for( auto it : settingsIndicesAndSizes )
         {
             if( dependentVariableSettings->areSettingsCompatible( it.second ) )
             {
@@ -669,7 +668,7 @@ public:
     void removeObservations( const std::vector< unsigned int >& indicesToRemove )
     {
         unsigned int counter = 0;
-        for( auto ind: indicesToRemove )
+        for( auto ind : indicesToRemove )
         {
             removeSingleObservation( ind - counter );  // observations are already filtered and sorted
             counter += 1;
@@ -970,7 +969,6 @@ public:
         updateTimeBounds( );
     }
 
-
     void addDependentVariables(
             const std::vector< std::shared_ptr< simulation_setup::ObservationDependentVariableSettings > > dependentVariableSettings )
     {
@@ -981,7 +979,9 @@ public:
         }
         else if( observationsDependentVariables_.size( ) != 0 )
         {
-            throw std::runtime_error( "Error, cannot add dependent variable settings to SingleObservationSet that has dependent variables calculated already" );
+            throw std::runtime_error(
+                    "Error, cannot add dependent variable settings to SingleObservationSet that has dependent variables calculated "
+                    "already" );
         }
         dependentVariableBookkeeping_->addDependentVariables( dependentVariableSettings );
     }
@@ -1080,7 +1080,7 @@ private:
 
         if( moveInFilteredSet )
         {
-            for( auto index: indices )
+            for( auto index : indices )
             {
                 if( index >= numberOfObservations_ )
                 {
@@ -1109,7 +1109,7 @@ private:
         }
         else
         {
-            for( auto index: indices )
+            for( auto index : indices )
             {
                 if( getNumberOfFilteredObservations( ) == 0 )
                 {
@@ -1259,7 +1259,7 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
             std::vector< double > timeTags =
                     std::dynamic_pointer_cast< ObservationSetSplitter< std::vector< double > > >( observationSetSplitter )
                             ->getSplitterValue( );
-            for( auto currentTimeTag: timeTags )
+            for( auto currentTimeTag : timeTags )
             {
                 if( currentTimeTag > observationSet->getTimeBounds( ).first )
                 {
