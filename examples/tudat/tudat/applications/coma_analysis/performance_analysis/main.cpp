@@ -6,6 +6,7 @@
 #include <cmath>
 #include <memory>
 #include <functional>
+#include <boost/filesystem.hpp>
 
 // Tudat includes for the actual ComaModel classes
 #include "tudat/basics/basicTypedefs.h"
@@ -78,8 +79,12 @@ public:
         results.polyDensityGrid.resize(numRadii_, std::vector<double>(numLongitudes_));
         results.stokesDensityGrid.resize(numRadii_, std::vector<double>(numLongitudes_));
 
-        // Test with the actual data file (relative to project root)
-        std::string polyFilePath = "../input/input_poly_coef_test_file.txt";
+        // Test with the actual data file (relative to bin directory)
+        std::string polyFilePath = "../../examples/tudat/tudat/applications/coma_analysis/input/input_poly_coef_test_file.txt";
+
+        // Debug: Print current working directory
+        std::cout << "Current working directory: " << boost::filesystem::current_path() << std::endl;
+        std::cout << "Looking for file at: " << polyFilePath << std::endl;
 
         if (!fileExists(polyFilePath)) {
             std::cout << "Error: Test data file not found at " << polyFilePath << std::endl;
@@ -330,7 +335,7 @@ int main() {
             auto results = test.runTest();
 
             // Save results to subdirectory
-            test.saveResults(results, static_cast<double>(solarLongDeg));
+            // test.saveResults(results, static_cast<double>(solarLongDeg));
 
             // Print summary for this solar longitude
             test.printSummary(results);
