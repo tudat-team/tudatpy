@@ -54,6 +54,24 @@ public:
         numberOfObservations_( observations_.size( ) )
     {
 
+        if( dependentVariableBookkeeping_ != nullptr )
+        {
+            if( dependentVariableBookkeeping_->getObservableType( ) != observableType_ )
+            {
+                std::cout << dependentVariableBookkeeping_->getObservableType( ) << " " << observableType_ << std::endl;
+                throw std::runtime_error(
+                        "Error when creating SingleObservationSet, "
+                        "ObservationDependentVariableBookkeeping has incompatible type " );
+            }
+
+            if( !( dependentVariableBookkeeping_->getLinkEnds( ) == linkEnds ) )
+            {
+                throw std::runtime_error(
+                        "Error when creating SingleObservationSet, "
+                        "ObservationDependentVariableBookkeeping has incompatible link ends " );
+            }
+        }
+
         if( observations_.size( ) != observationTimes_.size( ) )
         {
             throw std::runtime_error( "Error when making SingleObservationSet, input sizes are inconsistent." +
