@@ -5,4 +5,5 @@ from .mpc import (
     BatchMPC,
     BIAS_LOWRES_FILE,
     DEFAULT_CATALOG_FLAGS,
+    MPC80ColsParser
 )

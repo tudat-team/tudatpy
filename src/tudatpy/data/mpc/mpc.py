@@ -1,3 +1,4 @@
+from pydantic.datetime_parse import time_re
 from tudatpy.dynamics import environment_setup  # type:ignore
 from tudatpy.dynamics import environment  # type:ignore
 from tudatpy.estimation import observations
@@ -5,6 +6,7 @@ from tudatpy.estimation.observable_models_setup import (
     model_settings,
     links,
 )
+import re
 from astropy.table import Table
 from tudatpy.dynamics.environment_setup import add_gravity_field_model
 from tudatpy.dynamics.environment_setup.gravity_field import central_sbdb
@@ -21,10 +23,11 @@ from astropy.units import Quantity
 from astropy.time import Time
 import astropy.units as u
 import astropy
-from typing import Union, Tuple, List, Dict
+from typing import Union, Tuple, List, Dict, Optional
 import copy
 import os
 import re
+from tudatpy.astro import time_representation
 from tudatpy.astro.time_representation import DateTime
 
 BIAS_LOWRES_FILE = os.path.join(
@@ -801,17 +804,24 @@ class BatchMPC:
 
     # methods for data retrievels
     def get_observations(
-        self, MPCcodes: List[Union[str, int]], drop_misc_observations: bool = True
+            self,
+            MPCcodes: List[Union[str, int]],
+            id_types: Optional[List[Optional[str]]] = None,
+            drop_misc_observations: bool = True,
     ) -> None:
-        """Retrieve all observations for a set of MPC listed objeccts.
+        """Retrieve all observations for a set of MPC listed objects.
         This method uses astroquery to retrieve the observations from the MPC.
         An internet connection is required, observations are cached for faster subsequent retrieval.
         Removes duplicate and irrelevant observation data by default (see `drop_misc_observations`).
 
         Parameters
         ----------
-        MPCcodes : List[int]
-            List of integer MPC object codes for minor planets or and comets.
+        MPCcodes : List[Union[str, int]]
+            List of integer MPC object codes for minor planets or comets.
+        id_types : Optional[List[Optional[str]]], default None
+            A list of identification types ('asteroid_number', 'comet_number', 'comet_designation') corresponding to each MPCcode.
+            If an element is None, the type is considered unknown. If the entire list is None,
+            all types are considered unknown.
         drop_misc_observations : bool, default True
             Drops observations made by method: radar and offset (natural satellites).
             Drops observations made by roaming observers.
@@ -819,54 +829,62 @@ class BatchMPC:
         """
 
         if not isinstance(MPCcodes, list):
-            raise ValueError("MPCcodes parameter must be list of integers/strings")
-        for code in MPCcodes:
+            raise ValueError("MPCcodes parameter must be a list of integers/strings")
+
+        # 1. If id_types is not provided, create a list of Nones
+        if id_types is None:
+            id_types = [None] * len(MPCcodes)
+
+        # 2. Ensure the lists have the same length for a 1-to-1 mapping
+        if len(MPCcodes) != len(id_types):
+            raise ValueError("MPCcodes and id_types must have the same number of elements.")
+
+        time_scale_converter = time_representation.default_time_scale_converter()
+
+        for code, id_type in zip(MPCcodes, id_types):
             if not (isinstance(code, int) or isinstance(code, str)):
                 raise ValueError(
-                    "All codes in the MPCcodes parameter must be integers or string"
+                    "All codes in the MPCcodes parameter must be integers or strings"
                 )
 
             try:
-                obs = MPC.get_observations(code).to_pandas()  # type: ignore
+                # 3. Conditionally call the function based on whether id_type exists
+                if id_type is not None:
+                    #print(f"Querying for {code} with id_type: '{id_type}'...")
+                    obs = MPC.get_observations(code, id_type=id_type).to_pandas()
+                else:
+                    #print(f"Querying for {code} with unknown id_type...")
+                    obs = MPC.get_observations(code).to_pandas()
 
                 # convert JD to J2000 and UTC, convert deg to rad
                 obs = (
                     obs.assign(
                         epochJ2000secondsTDB=lambda x: (
-                            Time(x.epoch, format="jd", scale="utc").tdb.value
-                            - 2451545.0
-                        )
-                        * 86400
+                                                        Time(x.epoch, format="jd", scale="utc").tdb.value
+                                                               - 2451545.0
+                                                       )
+                                                       * 86400
                     )
                     .assign(RA=lambda x: np.radians(x.RA))
                     .assign(DEC=lambda x: np.radians(x.DEC))
                     .assign(epochUTC=lambda x: Time(x.epoch, format="jd").to_datetime())
                 )
 
-                # drop miscellenous observations:
                 if drop_misc_observations:
-                    first_discoveries = ["x", "X"]
-                    roaming = ["V", "v", "W", "w"]
-                    radar = ["R", "r", "Q", "q"]
-                    offset = ["O"]
-                    observation_types_to_drop = (
-                        first_discoveries + roaming + radar + offset
-                    )
-                    obs = obs.query("note2 != @observation_types_to_drop")
-
-                # convert object mpc code to string
-                if "comettype" in obs.columns:
-                    # for the case where we have a comet
-                    obs.loc[:, "number"] = obs.desig
-                else:
-                    obs.loc[:, "number"] = obs.number.astype(str)
-
+                    observation_types_to_drop = ["x", "X", "V", "v", "W", "w", "R", "r", "Q", "q", "O"]
+                    obs = obs.query("note2 not in @observation_types_to_drop")
+                MPC_parser = MPC80ColsParser()
+                try:
+                    parsed_value = MPC_parser.parse_packed_permanent_designation(str(obs.number[0]))['number']
+                    obs.loc[:, "number"] = int(parsed_value)
+                except:
+                    parsed_value = str(obs['desig'][0])
+                    obs.loc[:, "number"] = parsed_value
                 self._table = pd.concat([self._table, obs])
 
             except Exception as e:
-                print(f"An error occured while retrieving observations of MPC: {code}")
+                print(f"An error occurred while retrieving observations of MPC: {code}")
                 print(e)
-
         self._refresh_metadata()
 
     def _add_table(self, table: pd.DataFrame, in_degrees: bool = True):
@@ -1629,37 +1647,200 @@ class BatchMPC:
             temp = temp.loc[:, ["Code", "Name", "count"]]
         return temp
 
-    def _parse_80cols_identification_fields(self, line: str, object_type: str) -> dict:
-        ident_data = {}
-        object_type = object_type.lower()
+class MPC80ColsParser:
+    """
+    A parser to unpack provisional and permanent designations from the MPC format.
+    """
+    def __init__(self):
+        # Base-62 characters (0-9, A-Z, a-z) for unpacking
+        self._BASE62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+        self._BASE62_MAP = {char: i for i, char in enumerate(self._BASE62)}
 
-        if object_type == 'minor_planet':
-            ident_data['number'] = line[0:5].strip()
-            ident_data['provisional_designation'] = line[5:12].strip()
-            ident_data['discovery_asterisk'] = line[12].strip() if line[12].strip() == '*' else None
-            ident_data['primary_id'] = ident_data['number'] or ident_data['provisional_designation']
+    def _unpack_permanent_minor_planet(self, packed: str) -> str:
+        """Unpacks a 5-char permanent minor planet number."""
+        first_char = packed[0]
 
-        elif object_type == 'comet':
-            ident_data['primary_id'] = line[0:5].strip() # This will be the comet designation
-            ident_data['periodic_number'] = line[0:4].strip()
-            ident_data['orbit_type'] = line[4].strip()
-            ident_data['provisional_designation'] = line[5:12].strip()
+        # Case 1: Numbers >= 620,000 (starts with '~')
+        if first_char == '~':
+            value = 0
+            for char in packed[1:]:
+                value = value * 62 + self._BASE62_MAP[char]
+            return str(value + 620000)
 
-        elif object_type == 'natural_satellite':
-            ident_data['s_indicator'] = line[4].strip()
-            if line[5:12].strip(): # Provisional designation exists
-                ident_data['provisional_designation'] = line[5:12].strip()
-                ident_data['primary_id'] = ident_data['provisional_designation']
-            else: # Numbered satellite
-                ident_data['planet_identifier'] = line[0].strip()
-                ident_data['satellite_number'] = line[1:4].strip()
-                ident_data['primary_id'] = f"{ident_data['planet_identifier']}{ident_data['satellite_number']}S"
+        # Case 2: Numbers 100,000 to 619,999 (starts with a letter)
+        if first_char.isalpha():
+            prefix_val = self._BASE62_MAP[first_char]
+            suffix_val = int(packed[1:])
+            return str(prefix_val * 10000 + suffix_val)
 
+        # Case 3: Numbers < 100,000 (starts with a digit)
+        return str(int(packed))
+
+    def _unpack_provisional_minor_planet(self, packed: str) -> str:
+        """Unpacks a 7-char provisional minor planet designation."""
+        # Case 1: Survey designations (e.g., PLS2040 for 2040 P-L)
+        survey_map = {'PLS': 'P-L', 'T1S': 'T-1', 'T2S': 'T-2', 'T3S': 'T-3'}
+        if packed[0:3] in survey_map:
+            number = int(packed[3:])
+            survey_type = survey_map[packed[0:3]]
+            return f"{number} {survey_type}"
+
+        # Case 2: Standard provisional designations (e.g., K07Tf8A for 2007 TA418)
+        century_map = {'I': '18', 'J': '19', 'K': '20'}
+        year = century_map.get(packed[0], '??') + packed[1:3]
+
+        half_month_1 = packed[3]
+        half_month_2 = packed[6]
+
+        cycle_packed = packed[4:6]
+        cycle = 0
+        if cycle_packed[0].isdigit():
+            cycle = int(cycle_packed)
+        else: # Letter-digit format (e.g., 'f8' -> 418)
+            val1 = self._BASE62_MAP[cycle_packed[0]]
+            val2 = int(cycle_packed[1])
+            cycle = val1 * 10 + val2
+
+        if cycle == 0:
+            return f"{year} {half_month_1}{half_month_2}"
         else:
-            raise ValueError(f"Unknown object_type: '{object_type}'. Must be 'minor_planet', 'comet', or 'natural_satellite'.")
+            return f"{year} {half_month_1}{half_month_2}{cycle}"
+
+    def _unpack_provisional_comet_or_satellite(self, packed: str) -> str:
+        """Unpacks a 7-char provisional comet/satellite designation."""
+        century_map = {'I': '18', 'J': '19', 'K': '20'}
+        year = century_map.get(packed[0], '??') + packed[1:3]
+        half_month = packed[3]
+        order = int(packed[4:6])
+        fragment = packed[6]
+
+        desig = f"{year} {half_month}{order}"
+        if fragment != '0': # Append fragment letter if it exists
+            desig += f"-{fragment.upper()}"
+        return desig
+
+    def _unpack_permanent_natural_satellite(self, packed: str) -> str:
+        """Unpacks a 5-char permanent natural satellite designation (e.g., J013S)."""
+        planet_map = {'J': 'Jupiter', 'S': 'Saturn', 'U': 'Uranus', 'N': 'Neptune'}
+
+        # Simple integer to Roman numeral converter
+        def to_roman(num: int) -> str:
+            val = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1]
+            syb = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"]
+            roman_num = ''
+            i = 0
+            while num > 0:
+                for _ in range(num // val[i]):
+                    roman_num += syb[i]
+                    num -= val[i]
+                i += 1
+            return roman_num
+
+        planet_name = planet_map.get(packed[0], "Unknown Planet")
+        number = int(packed[1:4])
+        return f"{planet_name} {to_roman(number)}"
+
+    def parse_packed_permanent_designation(self, packed_perm_num: str) -> dict:
+        """
+        Parses a packed permanent designation string from the MPC.
+
+        Parameters
+        ----------
+        packed_perm_num : str
+            The 5-character packed permanent designation string (e.g., 'D4341', '0029P', 'J013S').
+
+        Returns
+        -------
+        dict
+            A dictionary containing the unpacked identification data.
+        """
+        ident_data = {}
+        # Clean the input string to handle potential whitespace
+        packed_perm_num = packed_perm_num.strip()
+
+        # Rule for Natural Satellites (e.g., J013S)
+        if re.match(r"^[JSUND]\d{3}S$", packed_perm_num):
+            ident_data['type'] = 'Natural Satellite'
+            ident_data['name'] = self._unpack_permanent_natural_satellite(packed_perm_num)
+
+        # Rule for Comets (e.g., 0029P)
+        elif re.match(r"^\d{4}[PD]$", packed_perm_num):
+            ident_data['type'] = 'Comet'
+            ident_data['number'] = str(int(packed_perm_num[0:4]))
+            ident_data['comettype'] = packed_perm_num[4]
+
+        # Rule for Interstellar Objects (e.g., 0002I)
+        elif re.match(r"^\d{4}I$", packed_perm_num):
+            ident_data['type'] = 'Interstellar Object'
+            number = int(packed_perm_num[0:4])
+            ident_data['name'] = f"{number}I"
+            ident_data['number'] = str(number)
+            ident_data['comettype'] = 'I'
+
+        # Rule for Minor Planets (e.g., 00433, A0345, D4341, ~000z)
+        elif packed_perm_num:
+            ident_data['type'] = 'Minor Planet'
+            ident_data['number'] = self._unpack_permanent_minor_planet(packed_perm_num)
+
         return ident_data
 
-    def parse_80cols_file(self, filename: str, object_type: str) -> List[Dict]:
+    def parse_80cols_identification_fields(self, line: str) -> dict:
+        """
+        Parses the identification part of an 80-column MPC observation line
+        and unpacks the designations.
+        """
+        ident_data = {}
+
+        packed_perm_num = line[0:5].strip()
+        packed_prov_desig = line[5:12].strip()
+        is_discovery = line[12].strip() == '*'
+
+        if is_discovery:
+            ident_data['discovery'] = True
+
+        # Rule for Natural Satellites (Permanent: J013S)
+        if re.match(r"^[JSUND]\d{3}S$", packed_perm_num):
+            ident_data['type'] = 'Natural Satellite'
+            ident_data['name'] = self._unpack_permanent_natural_satellite(packed_perm_num)
+
+        # Rule for Comets (Permanent: 0029P)
+        elif re.match(r"^\d{4}[PD]$", packed_perm_num):
+            ident_data['type'] = 'Comet'
+            ident_data['number'] = str(int(packed_perm_num[0:4]))
+            ident_data['comettype'] = packed_perm_num[4]
+            if packed_prov_desig:
+                ident_data['name'] = packed_prov_desig.strip()
+
+        # Rule for Interstellar Objects (Permanent: 0002I)
+        elif re.match(r"^\d{4}I$", packed_perm_num):
+            ident_data['type'] = 'Interstellar Object'
+            number = int(packed_perm_num[0:4])
+            ident_data['name'] = f"{number}I" # e.g., "2I"
+            ident_data['number'] = str(number)
+            ident_data['comettype'] = 'I'
+            # The rest of the line is often the object's name (e.g., Borisov)
+            if packed_prov_desig:
+                ident_data['desig'] = packed_prov_desig.strip() if packed_prov_desig.strip() != '' else 'NaN'
+
+        # Rule for Minor Planets (Permanent: 03202, A0345, D4341, ~000z, H5642)
+        elif packed_perm_num:
+            ident_data['type'] = 'Minor Planet'
+            ident_data['number'] = self._unpack_permanent_minor_planet(packed_perm_num)
+            if packed_prov_desig:
+                ident_data['desig'] = self._unpack_provisional_minor_planet(packed_prov_desig)
+
+        # Rule for objects with ONLY provisional designations
+        elif packed_prov_desig:
+            if packed_prov_desig[6].isalpha() and packed_prov_desig[6] not in ['I', 'Z']:
+                ident_data['type'] = 'Minor Planet'
+                ident_data['desig'] = self._unpack_provisional_minor_planet(packed_prov_desig)
+            else:
+                ident_data['type'] = 'Comet'
+                ident_data['desig'] = self._unpack_provisional_comet_or_satellite(packed_prov_desig)
+
+        return ident_data
+
+    def parse_80cols_file(self, filename: str) -> List[Dict]:
         """
         Reads an MPC observation file (80-column format) and parses each line
         for a specific object type, returning a list of dictionaries with parsed observations.
@@ -1684,7 +1865,7 @@ class BatchMPC:
                     continue
 
                 try:
-                    ident_data = self._parse_80cols_identification_fields(line, object_type)
+                    ident_data = self.parse_80cols_identification_fields(line)
                 except ValueError as e:
                     print(f"Skipped line due to identification parsing error: {e}")
                     continue
@@ -1736,10 +1917,8 @@ class BatchMPC:
                         "band": line[70].strip() or None,
                         "observatory_code": line[77:80].strip(),
                     }
-
                     # Combine dictionaries
-                    final_data = {"number": ident_data.pop('primary_id'), **ident_data, **obs_data}
-
+                    final_data = {"number": ident_data.pop('number'), **ident_data, **obs_data}
                     # Rename keys to match original output
                     final_data['epoch'] = final_data.pop('epoch_jd')
                     final_data['RA'] = final_data.pop('RA_deg')
@@ -1748,7 +1927,7 @@ class BatchMPC:
                     final_data['catalog'] = None # This is not present in 80-col format
                     parsed_observations.append(final_data)
                 except (ValueError, IndexError) as e:
-                    print(f"Skipped line due to observation data parsing error: {e}")
+                    print(f"MPC Parser Warning: skipped line due to observation data parsing error: {e}")
                     continue
 
         return Table(parsed_observations)
