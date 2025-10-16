@@ -319,30 +319,21 @@ public:
 
                 break;
             case basic_astrodynamics::utc_scale:
-                timesToUpdate.utc = inputTimeValue;
-                timesToUpdate.tai = sofa_interface::convertUTCtoTAI< TimeType >( timesToUpdate.utc );
+                // --- 1. Use function to calculate TAI and TT from UTC ---
+                calculateAtomicTimesFromUtc< TimeType >( inputTimeValue );
 
-                timesToUpdate.tt = basic_astrodynamics::convertTAItoTT< TimeType >( timesToUpdate.tai );
+                // --- 2. Calculate TDB from the newly computed TT ---
                 tdbMinusTt = static_cast< TimeType >( this->getTDBminusTT( timesToUpdate.tt, earthFixedPosition ) );
                 timesToUpdate.tdb = timesToUpdate.tt + tdbMinusTt;
 
-                if( dailyUtcUt1CorrectionInterpolator_ != nullptr )
+                // --- 3. Calculate UT1 if possible (for modern era) ---
+                if( dailyUtcUt1CorrectionInterpolator_ != nullptr && timesToUpdate.tai >= utcIntroductionEpochInTai_ )
                 {
-                    try
-                    {
-                        timesToUpdate.ut1 = static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.utc ) ) +
-                                timesToUpdate.utc;
-                    }
-                    catch( std::runtime_error& caughtException )
-                    {
-                        throw std::runtime_error( "Error in UTC-UT1 correction.\nOriginal error: " + std::string( caughtException.what( ) ) );
-                    }
-
-
+                    timesToUpdate.ut1 = static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.utc ) ) +
+                            timesToUpdate.utc;
                     timesToUpdate.ut1 +=
                             static_cast< TimeType >( shortPeriodUt1CorrectionCalculator_->getCorrections( timesToUpdate.tdb ) );
                 }
-
                 break;
             case basic_astrodynamics::ut1_scale:
 
@@ -506,6 +497,56 @@ private:
                 getCurrentTimeList< TimeType >( ).ut1 += static_cast< TimeType >(
                         shortPeriodUt1CorrectionCalculator_->getCorrections( getCurrentTimeList< TimeType >( ).tt ) );
             }
+        }
+    }
+
+
+    template< typename TimeType >
+    void calculateAtomicTimesFromUtc( const TimeType& inputUtcTime )
+    {
+        // --- NEW LOGIC: Check for historical date FIRST ---
+        // The UTC introduction epoch is in TAI, but we can use it as an approximate
+        // threshold for the input time (which is UTC-like) to decide which path to take.
+        // This avoids calling SOFA functions with dates they cannot handle.
+        std::cout << "Entering calculateAtomicTimesFromUtc()" << std::endl;
+
+        if ( inputUtcTime < utcIntroductionEpochInTai_)
+        {
+            // --- 1. Historical Time (Pre-UTC Era) ---
+            // This path is now correctly taken for the 1893 date.
+            std::cout << "DEBUG: Historical time path taken. Input time is effectively UT1." << std::endl;
+
+            // In this period, the input "UTC" is effectively UT1.
+            // The conversion path is UT1 -> TT -> TAI.
+            getCurrentTimeList< TimeType >( ).ut1 = inputUtcTime;
+            getCurrentTimeList< TimeType >( ).utc = inputUtcTime;
+
+            // Approximate the year to look up the historical ΔT value.
+            double approximateYear = ( inputUtcTime / physical_constants::JULIAN_YEAR ) + 2000.0;
+
+            // Calculate TT from UT1 using the historical ΔT. (TT = UT1 + ΔT)
+            getCurrentTimeList< TimeType >( ).tt = getCurrentTimeList< TimeType >( ).ut1 +
+                historicalDeltaTInterpolator_->interpolate( approximateYear );
+
+            // Convert TT to TAI using the standard constant offset.
+            getCurrentTimeList< TimeType >( ).tai = basic_astrodynamics::convertTTtoTAI< TimeType >(
+                getCurrentTimeList< TimeType >( ).tt );
+        }
+        else
+        {
+            // --- 2. Modern Time (Post-UTC Era) ---
+            std::cout << "DEBUG: Modern time path taken. Using SOFA for UTC -> TAI conversion." << std::endl;
+
+            // The conversion is handled directly by the SOFA function, which correctly
+            // accounts for all leap seconds.
+            getCurrentTimeList< TimeType >( ).utc = inputUtcTime;
+            getCurrentTimeList< TimeType >( ).tai = sofa_interface::convertUTCtoTAI< TimeType >(
+                getCurrentTimeList< TimeType >( ).utc );
+
+            // >>>>> THE FIX IS HERE <<<<<
+            // We must also convert the newly calculated TAI to TT.
+            getCurrentTimeList< TimeType >( ).tt = basic_astrodynamics::convertTAItoTT< TimeType >(
+                getCurrentTimeList< TimeType >( ).tai );
         }
     }
 
