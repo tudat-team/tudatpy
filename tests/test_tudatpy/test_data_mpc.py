@@ -183,18 +183,25 @@ def test_compare_mpc_horizons_eph():
     """Compares true observations from BatchMPC to interpolated simulated RA/DEC from JPL Horizons"""
     batch = BatchMPC()
     batch.get_observations([433])
+
+    # batch.filter takes python datetimes in UTC!
     batch.filter(
         epoch_start=datetime.datetime(2017, 1, 1),
         epoch_end=datetime.datetime(2022, 1, 1),
         observatories=["T08"],
     )
-    batch_times = batch.table.epochJ2000secondsTDB.to_list()
 
+    # Horizons Query wants batch_times (or start_epoch, end_epoch) in UTC!!!
+    utc_datetimes = batch.table.epochUTC
+    batch_times = [DateTime.to_epoch(DateTime.from_python_datetime(t)) for t in utc_datetimes]
     eros = HorizonsQuery(
         query_id="433;", location="T08@399", epoch_list=batch_times, extended_query=True
     )
 
+    # interpolated_observations returns times in TDB!!!
     radec_horizons = eros.interpolated_observations(degrees=False)
+
+    # the retrieved batch.table has time columns: epoch [julian days in UTC], epochUTC [UTC datetime], epochJ2000secondsTDB [TDB seconds]
     radec_mpc = batch.table.loc[:, ["epochJ2000secondsTDB", "RA", "DEC"]].reset_index(
         drop=True
     )
@@ -289,20 +296,16 @@ def test_80cols_line_parser():
 def test_parse_80cols_file():
     batch = BatchMPC()
     batch.get_observations([433])
-    #batch.filter(epoch_start = datetime.datetime(2021, 6, 7, 00, 4), epoch_end =  datetime.datetime(2021, 6, 7, 16, 4,2))
-    print(batch.summary())
+    batch.filter(epoch_start = datetime.datetime(2021, 6, 7, 00, 4), epoch_end =  datetime.datetime(2021, 6, 7, 16, 4,2))
     MPC_parser = MPC80ColsParser()
     file_path = '/Users/lgisolfi/CLionProjects/tudatpy_examples/estimation/data/eros_obs.txt'
     table_output = MPC_parser.parse_80cols_file(file_path)
 
-    # Astroquery 80cols parser is slightly different than the one we have, and I did not dig into
-    # the way they skip malformed lines. For this reason, the length of their batch.table might slightly
-    # differ from the one I create
     epochs1 = pd.to_datetime(table_output['epoch_utc']).to_numpy()
     epochs2 = batch.table['epochUTC'].to_numpy()
     # Get difference in seconds
     diff = np.sort(epochs1) - np.sort(epochs2)
     diff_seconds = diff / np.timedelta64(1, 's')
 
-    tol = 5e-5
+    tol = 5e-5 # not completely sure why some are zero and some are not.
     assert not (diff_seconds > tol).any()
