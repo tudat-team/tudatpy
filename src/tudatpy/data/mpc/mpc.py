@@ -217,6 +217,8 @@ def get_biases_EFCC18(
     # ideally nside should be retrieved from the load_bias_file function
     hp_obj = HEALPix(nside=nside)
 
+    print(Quantity(RA, unit=u.rad))
+    print(Quantity(DEC, unit=u.rad))
     pixels = hp_obj.lonlat_to_healpix(
         Quantity(RA, unit=u.rad), Quantity(DEC, unit=u.rad)
     )
@@ -231,14 +233,9 @@ def get_biases_EFCC18(
     targets = [(pix, cat) for pix, cat in zip(pixels, catalog)]
     biases = bias_df.loc[targets, ["RA", "DEC", "PMRA", "PMDEC"]].to_numpy()
 
-    # transform the values based on the paper, time to JD TT
-    J2000_jd = 2451545.0
-    epochs = (epochJ2000secondsTDB / 86400) + J2000_jd
-    epochs = Time(epochs, format="jd", scale="tdb")
-
-    # this was taken from find_orb -> bias.cpp
+    # same as find_orb -> bias.cpp
     # https://github.com/Bill-Gray/find_orb/blob/master/bias.cpp#L213
-    epochs_years = (epochs.tt.value - J2000_jd) / 365.25
+    epochs_years = [time_representation.seconds_since_epoch_to_julian_years_since_epoch(epoch_tdb) for epoch_tdb in epochJ2000secondsTDB]
 
     # from the bias file readme.txt:
     RA_correction = biases[:, 0] + (epochs_years * (biases[:, 2] / 1000))
@@ -352,7 +349,11 @@ def get_weights_VFCC17(
         )
 
     # create col for Julian Day and the inverted weight
-    table = table.assign(epochJD=lambda x: Time(x.epochUTC).jd1 + Time(x.epochUTC).jd2)
+    table = table.assign(
+        epochJD=lambda x: x['epochUTC'].apply(
+            lambda dt: DateTime.from_python_datetime(dt).to_julian_day()
+        )
+    )    
     # NOTE 1000 is a placeholder. The following observation types are not processed and receive the placeholder value:
     # first_discoveries = ["x", "X"], roaming = ["V", "v", "W", "w"], radar = ["R", "r", "Q", "q"], offset = ["O"]
     table = table.assign(inv_w=lambda _: 1000)
@@ -856,27 +857,35 @@ class BatchMPC:
                     #print(f"Querying for {code} with unknown id_type...")
                     obs = MPC.get_observations(code).to_pandas()
 
+                obs['number'] = obs['number'].astype(str) # to avoid pandas FutureWarning
+
                 # convert JD to J2000 and UTC, convert deg to rad
+                dt_objects = [DateTime.from_julian_day(jd) for jd in obs.epoch]
+
+                # Convert DateTime objects to epochJ2000secondsTDB
+                obs['epochJ2000secondsTDB'] = [
+                    time_scale_converter.convert_time(
+                        input_scale=time_representation.utc_scale,
+                        output_scale=time_representation.tdb_scale,
+                        input_value=dt_obj.epoch()
+                    ) for dt_obj in dt_objects
+                ]
+
+                # Convert DateTime objects to Python datetime objects for epochUTC
+                obs['epochUTC'] = [DateTime.to_python_datetime(dt_obj) for dt_obj in dt_objects]
                 obs = (
                     obs.assign(
-                        epochJ2000secondsTDB=lambda x: (
-                                                        Time(x.epoch, format="jd", scale="utc").tdb.value
-                                                               - 2451545.0
-                                                       )
-                                                       * 86400
+                        RA=lambda x: np.radians(x.RA),
+                        DEC=lambda x: np.radians(x.DEC)
                     )
-                    .assign(RA=lambda x: np.radians(x.RA))
-                    .assign(DEC=lambda x: np.radians(x.DEC))
-                    .assign(epochUTC=lambda x: Time(x.epoch, format="jd").to_datetime())
                 )
-
                 if drop_misc_observations:
                     observation_types_to_drop = ["x", "X", "V", "v", "W", "w", "R", "r", "Q", "q", "O"]
                     obs = obs.query("note2 not in @observation_types_to_drop")
                 MPC_parser = MPC80ColsParser()
                 try:
                     parsed_value = MPC_parser.parse_packed_permanent_designation(str(obs.number[0]))['number']
-                    obs.loc[:, "number"] = int(parsed_value)
+                    obs.loc[:, "number"] = str(int(parsed_value))
                 except:
                     parsed_value = str(obs['desig'][0])
                     obs.loc[:, "number"] = parsed_value
@@ -890,12 +899,19 @@ class BatchMPC:
     def _add_table(self, table: pd.DataFrame, in_degrees: bool = True):
         """Internal. Formats a manually entered table of observations, used in from_astropy and in from_pandas."""
         obs = table
-        obs = obs.assign(
-            epochJ2000secondsTDB=lambda x: (
-                Time(x.epoch, format="jd", scale="utc").tdb.value - 2451545.0
-            )
-            * 86400
-        ).assign(epochUTC=lambda x: Time(x.epoch, format="jd").to_datetime())
+        dt_objects = [DateTime.from_julian_day(jd) for jd in obs.epoch]
+        time_scale_converter = time_representation.default_time_scale_converter()
+        # Convert DateTime objects to epochJ2000secondsTDB
+        obs['epochJ2000secondsTDB'] = [
+            time_scale_converter.convert_time(
+                input_scale=time_representation.utc_scale,
+                output_scale=time_representation.tdb_scale,
+                input_value=dt_obj.epoch()
+            ) for dt_obj in dt_objects
+        ]
+
+        # Convert DateTime objects to Python datetime objects for epochUTC
+        obs['epochUTC'] = [DateTime.to_python_datetime(dt_obj) for dt_obj in dt_objects]
         if in_degrees:
             obs = obs.assign(RA=lambda x: np.radians(x.RA)).assign(
                 DEC=lambda x: np.radians(x.DEC)
@@ -1233,6 +1249,7 @@ class BatchMPC:
 
 
         """
+
         # apply EFCC18 star catalog corrections:
         if apply_star_catalog_debias:
             self._apply_EFCC18(**debias_kwargs)
@@ -1867,7 +1884,7 @@ class MPC80ColsParser:
                 try:
                     ident_data = self.parse_80cols_identification_fields(line)
                 except ValueError as e:
-                    print(f"Skipped line due to identification parsing error: {e}")
+                    #print(f"Skipped line due to identification parsing error: {e}")
                     continue
 
                 try:
@@ -1927,7 +1944,7 @@ class MPC80ColsParser:
                     final_data['catalog'] = None # This is not present in 80-col format
                     parsed_observations.append(final_data)
                 except (ValueError, IndexError) as e:
-                    print(f"MPC Parser Warning: skipped line due to observation data parsing error: {e}")
+                    #print(f"MPC Parser Warning: skipped line due to observation data parsing error: {e}")
                     continue
 
         return Table(parsed_observations)
