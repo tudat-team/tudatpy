@@ -108,6 +108,14 @@ std::shared_ptr< aerodynamics::AtmosphericFlightConditions > createAtmosphericFl
         }
     }
 
+    // Set rotation matrix derivative function for proper handling of non-rotating atmosphere
+    aerodynamicAngleCalculator->setRotationMatrixDerivativeFunction(
+            std::bind( &Body::getCurrentRotationMatrixDerivativeToLocalFrame, centralBody ) );
+
+    // Set atmospheric rotation flag from atmosphere model
+    aerodynamicAngleCalculator->setIncludeAtmosphericRotation(
+            centralBody->getAtmosphereModel( )->getIncludeAtmosphericRotation( ) );
+
     // Create flight conditions.
     std::function< double( const std::string& ) > controlSurfaceDeflectionFunction;
     if( bodyWithFlightConditions->getVehicleSystems( ) != nullptr )

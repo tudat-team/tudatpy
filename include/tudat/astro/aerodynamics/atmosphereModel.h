@@ -62,8 +62,10 @@ enum AtmosphericCompositionSpecies { he_species, o_species, n2_species, o2_speci
 class AtmosphereModel
 {
 public:
-    AtmosphereModel( const bool useGeodeticLatitude = false, const bool useUtc = false, const bool useRadius = false ):
-        useGeodeticLatitude_( useGeodeticLatitude ), useUtc_( useUtc ), useRadius_( useRadius )
+    AtmosphereModel( const bool useGeodeticLatitude = false, const bool useUtc = false, const bool useRadius = false,
+                     const bool includeAtmosphericRotation = true ):
+        useGeodeticLatitude_( useGeodeticLatitude ), useUtc_( useUtc ), useRadius_( useRadius ),
+        includeAtmosphericRotation_( includeAtmosphericRotation )
     { }
 
     //! Default destructor.
@@ -208,6 +210,24 @@ public:
         return useRadius_;
     }
 
+    /*!
+     * Getter for includeAtmosphericRotation
+     * \return Boolean indicating whether atmospheric rotation is included in aerodynamic computations
+     */
+    bool getIncludeAtmosphericRotation( ) const
+    {
+        return includeAtmosphericRotation_;
+    }
+
+    /*!
+     * Setter for includeAtmosphericRotation
+     * \param includeAtmosphericRotation Boolean indicating whether atmospheric rotation should be included in aerodynamic computations
+     */
+    void setIncludeAtmosphericRotation( const bool includeAtmosphericRotation )
+    {
+        includeAtmosphericRotation_ = includeAtmosphericRotation;
+    }
+
 protected:
     //! Model describing the wind velocity vector of the atmosphere
     std::shared_ptr< WindModel > windModel_;
@@ -217,6 +237,9 @@ protected:
     bool useUtc_;
 
     bool useRadius_;
+
+    //! Boolean flag indicating whether atmospheric rotation should be included in aerodynamic computations
+    bool includeAtmosphericRotation_;
 
 private:
 };

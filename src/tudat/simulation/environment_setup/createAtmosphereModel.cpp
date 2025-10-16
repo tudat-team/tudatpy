@@ -425,6 +425,9 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
         atmosphereModel->setWindModel( createWindModel( atmosphereSettings->getWindSettings( ), body, atmosphereModel, bodies ) );
     }
 
+    // Set atmospheric rotation flag from settings
+    atmosphereModel->setIncludeAtmosphericRotation( atmosphereSettings->getIncludeAtmosphericRotation( ) );
+
     return atmosphereModel;
 }
 

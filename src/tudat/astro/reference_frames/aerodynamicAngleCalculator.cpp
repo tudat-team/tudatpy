@@ -115,7 +115,7 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
         currentAerodynamicAngles_[ latitude_angle ] = mathematical_constants::PI / 2.0 - sphericalCoordinates( 1 );
         currentAerodynamicAngles_[ longitude_angle ] = sphericalCoordinates( 2 );
 
-        // Compute wind velocity vector
+        // Compute wind velocity vector (used in both cases)
         Eigen::Vector3d localWindVelocity = Eigen::Vector3d::Zero( );
         if( windModel_ != nullptr )
         {
@@ -128,8 +128,39 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
         }
 
         // Compute airspeed-based velocity vector
-        currentBodyFixedAirspeedBasedState_ = currentBodyFixedGroundSpeedBasedState_;
-        currentBodyFixedAirspeedBasedState_.segment( 3, 3 ) -= localWindVelocity;
+        if( includeAtmosphericRotation_ )
+        {
+            // Standard behavior: atmosphere co-rotates with the body
+            // The body-fixed velocity already includes the rotational component
+            // Airspeed = groundspeed - wind
+            currentBodyFixedAirspeedBasedState_ = currentBodyFixedGroundSpeedBasedState_;
+            currentBodyFixedAirspeedBasedState_.segment( 3, 3 ) -= localWindVelocity;
+        }
+        else
+        {
+            // Atmospheric rotation disabled: atmosphere does NOT co-rotate with the body
+            // The body-fixed groundspeed velocity contains: v_bodyfixed = Ṙ*r + R*v_inertial
+            // For non-rotating atmosphere, we need airspeed = R*v_inertial (velocity relative to inertial atmosphere)
+            // Therefore: v_airspeed = v_bodyfixed - Ṙ*r - wind
+
+            // Compute rotational velocity component Ṙ*r_inertial
+            // Note: transformStateToFrameFromRotations uses Ṙ*r_inertial, not Ṙ*r_bodyfixed
+            Eigen::Vector3d rotationalVelocity = Eigen::Vector3d::Zero( );
+            if( rotationMatrixDerivativeToLocalFrameFunction_ )
+            {
+                // First convert position from body-fixed to inertial frame
+                Eigen::Vector3d r_inertial = currentRotationFromCorotatingToInertialFrame_ *
+                                             currentBodyFixedGroundSpeedBasedState_.segment( 0, 3 );
+                // Then compute Ṙ*r_inertial (rotational velocity in body-fixed frame)
+                Eigen::Matrix3d rotationMatrixDerivative = rotationMatrixDerivativeToLocalFrameFunction_( );
+                rotationalVelocity = rotationMatrixDerivative * r_inertial;
+            }
+
+            // Compute airspeed by removing rotational velocity and wind
+            currentBodyFixedAirspeedBasedState_ = currentBodyFixedGroundSpeedBasedState_;
+            currentBodyFixedAirspeedBasedState_.segment( 3, 3 ) -= rotationalVelocity;
+            currentBodyFixedAirspeedBasedState_.segment( 3, 3 ) -= localWindVelocity;
+        }
 
         // Calculate vertical <-> aerodynamic <-> body-fixed angles if neede.
         if( calculateVerticalToAerodynamicFrame_ )
