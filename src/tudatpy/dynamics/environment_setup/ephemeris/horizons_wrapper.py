@@ -876,22 +876,23 @@ class HorizonsQuery:
     def _parse_horizons_time(self, time_string: str) -> Time:
         """
         Parses a JPL Horizons time string by trying multiple formats.
-
+    
         This function attempts to parse the time string first with microseconds,
-        and if that fails, it tries again without them.
-
+        then without microseconds, and finally without seconds.
+    
         Args:
             time_string (str): The datetime string from JPL Horizons.
-
+    
         Returns:
             astropy.time.Time: The parsed time object.
-
+    
         Raises:
             ValueError: If the time string does not match any of the expected formats.
         """
         time_format_with_ms = "%Y-%b-%d %H:%M:%S.%f"
         time_format_without_ms = "%Y-%b-%d %H:%M:%S"
-
+        time_format_without_s = "%Y-%b-%d %H:%M"
+    
         try:
             # First, try the format that includes microseconds
             return Time.strptime(time_string, time_format_with_ms)
@@ -899,11 +900,15 @@ class HorizonsQuery:
             # If it fails, try the format without microseconds
             try:
                 return Time.strptime(time_string, time_format_without_ms)
-            except ValueError as e:
-                # If both formats fail, raise an error
-                raise ValueError(
-                    f"Time data '{time_string}' does not match any expected format."
-                ) from e
+            except ValueError:
+                # If that also fails, try the format without seconds
+                try:
+                    return Time.strptime(time_string, time_format_without_s)
+                except ValueError as e:
+                    # If all formats fail, raise an error
+                    raise ValueError(
+                        f"Time data '{time_string}' does not match any expected format."
+                    ) from e
 
     def ephemerides(
             self,
