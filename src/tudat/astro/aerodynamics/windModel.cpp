@@ -29,6 +29,7 @@ namespace aerodynamics
  * \param maximumDegree Maximum degree used for computation (-1 for auto)
  * \param maximumOrder Maximum order used for computation (-1 for auto)
  * \param associatedFrame Reference frame for the wind model
+ * \param includeCorotation Boolean indicating whether atmospheric co-rotation should be included
  */
 ComaWindModel::ComaWindModel( const simulation_setup::ComaPolyDataset& xPolyDataset,
                    const simulation_setup::ComaPolyDataset& yPolyDataset,
@@ -39,8 +40,9 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaPolyDataset& xPolyData
                    std::function<Eigen::Matrix3d()> cometRotationFunction,
                    const int& maximumDegree,
                    const int& maximumOrder,
-                   const reference_frames::AerodynamicsReferenceFrames associatedFrame ) :
-        WindModel( associatedFrame ),
+                   const reference_frames::AerodynamicsReferenceFrames associatedFrame,
+                   const bool includeCorotation ) :
+        WindModel( associatedFrame, includeCorotation ),
         dataType_( 0 ), // POLYNOMIAL_COEFFICIENTS
         maximumDegree_( maximumDegree ),
         maximumOrder_( maximumOrder ),
@@ -105,6 +107,7 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaPolyDataset& xPolyData
  * \param maximumDegree Maximum degree used for computation (-1 for auto)
  * \param maximumOrder Maximum order used for computation (-1 for auto)
  * \param associatedFrame Reference frame for the wind model
+ * \param includeCorotation Boolean indicating whether atmospheric co-rotation should be included
  */
 ComaWindModel::ComaWindModel( const simulation_setup::ComaStokesDataset& xStokesDataset,
                    const simulation_setup::ComaStokesDataset& yStokesDataset,
@@ -115,8 +118,9 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaStokesDataset& xStokes
                    std::function<Eigen::Matrix3d()> cometRotationFunction,
                    const int& maximumDegree,
                    const int& maximumOrder,
-                   const reference_frames::AerodynamicsReferenceFrames associatedFrame ) :
-        WindModel( associatedFrame ),
+                   const reference_frames::AerodynamicsReferenceFrames associatedFrame,
+                   const bool includeCorotation ) :
+        WindModel( associatedFrame, includeCorotation ),
         dataType_( 1 ), // STOKES_COEFFICIENTS
         maximumDegree_( maximumDegree ),
         maximumOrder_( maximumOrder ),

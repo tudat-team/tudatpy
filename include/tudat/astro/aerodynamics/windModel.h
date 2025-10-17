@@ -47,8 +47,9 @@ class WindModel
 {
 public:
     //! Constructor.
-    WindModel( const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame ):
-        associatedFrame_( associatedFrame )
+    WindModel( const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
+               const bool includeCorotation = true ):
+        associatedFrame_( associatedFrame ), includeCorotation_( includeCorotation )
     {
         if( !( associatedFrame == reference_frames::inertial_frame || associatedFrame == reference_frames::corotating_frame ||
                associatedFrame == reference_frames::vertical_frame ) )
@@ -83,8 +84,20 @@ public:
         return associatedFrame_;
     }
 
+    /*!
+     * \brief Get whether atmospheric co-rotation is included.
+     * \return Boolean indicating if atmospheric co-rotation is included in aerodynamic computations
+     */
+    bool getIncludeCorotation( ) const
+    {
+        return includeCorotation_;
+    }
+
 protected:
     reference_frames::AerodynamicsReferenceFrames associatedFrame_;
+
+    //! Boolean flag indicating whether atmospheric co-rotation should be included in aerodynamic computations
+    bool includeCorotation_;
 };
 
 /*!
@@ -97,10 +110,12 @@ public:
      * \brief Constructor for constant wind model.
      * \param constantWindVelocity Constant wind velocity vector [m/s]
      * \param associatedFrame Reference frame in which the wind is defined
+     * \param includeCorotation Boolean indicating whether atmospheric co-rotation should be included
      */
     ConstantWindModel( const Eigen::Vector3d constantWindVelocity,
-                       const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame ):
-        WindModel( associatedFrame ), constantWindVelocity_( constantWindVelocity )
+                       const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
+                       const bool includeCorotation = true ):
+        WindModel( associatedFrame, includeCorotation ), constantWindVelocity_( constantWindVelocity )
     { }
 
     /*!
@@ -132,10 +147,13 @@ public:
      * Constructor
      * \param windFunction Function that returns wind vector as a function of altitude, longitude, latitude and time (in that
      * order).
+     * \param associatedFrame Reference frame in which the wind is defined
+     * \param includeCorotation Boolean indicating whether atmospheric co-rotation should be included
      */
     CustomWindModel( const std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction,
-                     const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame ):
-        WindModel( associatedFrame ), windFunction_( windFunction )
+                     const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
+                     const bool includeCorotation = true ):
+        WindModel( associatedFrame, includeCorotation ), windFunction_( windFunction )
     { }
 
     //! Destructor
@@ -163,6 +181,45 @@ private:
     std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction_;
 };
 
+//! Class for empty wind model (no wind, only controls co-rotation behavior)
+/*!
+ * Class for empty wind model that always returns zero wind velocity.
+ * This is used when no physical wind model is required but co-rotation behavior needs to be specified.
+ */
+class EmptyWindModel : public WindModel
+{
+public:
+    //! Constructor
+    /*!
+     * Constructor
+     * \param includeCorotation Boolean indicating whether atmospheric co-rotation should be included
+     */
+    EmptyWindModel( const bool includeCorotation = true ):
+        WindModel( reference_frames::vertical_frame, includeCorotation )
+    { }
+
+    //! Destructor
+    ~EmptyWindModel( ) { }
+
+    //! Function to retrieve wind velocity vector (always zero)
+    /*!
+     * Function to retrieve wind velocity vector in body-fixed, body-centered frame of body with atmosphere.
+     * Always returns zero vector as this is an empty wind model.
+     * \param currentAltitude Altitude at which wind vector is to be retrieved (unused).
+     * \param currentLongitude Longitude at which wind vector is to be retrieved (unused).
+     * \param currentLatitude Latitude at which wind vector is to be retrieved (unused).
+     * \param currentTime Time at which wind vector is to be retrieved (unused).
+     * \return Zero wind velocity vector in body-fixed, body-centered frame
+     */
+    Eigen::Vector3d getCurrentBodyFixedCartesianWindVelocity( const double currentAltitude,
+                                                              const double currentLongitude,
+                                                              const double currentLatitude,
+                                                              const double currentTime )
+    {
+        return Eigen::Vector3d::Zero( );
+    }
+};
+
 //! Class for computing the wind velocity vector from coma models
 /*!
  * Class for computing the wind velocity vector from coma models. This class uses three separate datasets
@@ -183,6 +240,7 @@ public:
      * \param maximumDegree Maximum degree used for computation (-1 for auto)
      * \param maximumOrder Maximum order used for computation (-1 for auto)
      * \param associatedFrame Reference frame for the wind model
+     * \param includeCorotation Boolean indicating whether atmospheric co-rotation should be included
      */
     ComaWindModel( const simulation_setup::ComaPolyDataset& xPolyDataset,
                    const simulation_setup::ComaPolyDataset& yPolyDataset,
@@ -193,7 +251,8 @@ public:
                    std::function<Eigen::Matrix3d()> cometRotationFunction,
                    const int& maximumDegree = -1,
                    const int& maximumOrder = -1,
-                   const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame );
+                   const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
+                   const bool includeCorotation = true );
 
     /*!
      * \brief Constructor for Stokes coefficient datasets.
@@ -207,6 +266,7 @@ public:
      * \param maximumDegree Maximum degree used for computation (-1 for auto)
      * \param maximumOrder Maximum order used for computation (-1 for auto)
      * \param associatedFrame Reference frame for the wind model
+     * \param includeCorotation Boolean indicating whether atmospheric co-rotation should be included
      */
     ComaWindModel( const simulation_setup::ComaStokesDataset& xStokesDataset,
                    const simulation_setup::ComaStokesDataset& yStokesDataset,
@@ -217,7 +277,8 @@ public:
                    std::function<Eigen::Matrix3d()> cometRotationFunction,
                    const int& maximumDegree = -1,
                    const int& maximumOrder = -1,
-                   const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame );
+                   const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
+                   const bool includeCorotation = true );
 
     //! Destructor
     ~ComaWindModel( ) = default;

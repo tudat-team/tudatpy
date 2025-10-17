@@ -138,6 +138,21 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
         }
         else
         {
+            // NOTE: IDEs may falsely flag this block as "unreachable code" because all C++ wind model
+            // constructors default includeCorotation to true. However, this block IS reachable when users
+            // set include_corotation=False via Python bindings:
+            //
+            // Flow diagram when co-rotation is disabled:
+            //   Python: include_corotation=False (in custom_wind_model() or coma_settings.wind_settings)
+            //       ↓
+            //   C++ WindModel: includeCorotation_ = false
+            //       ↓
+            //   createFlightConditions.cpp: reads flag from wind model
+            //       ↓
+            //   AerodynamicAngleCalculator: includeAtmosphericRotation_ = false
+            //       ↓
+            //   THIS BLOCK EXECUTES: computes airspeed = groundspeed - Ṙ*r - wind
+            //
             // Atmospheric rotation disabled: atmosphere does NOT co-rotate with the body
             // The body-fixed groundspeed velocity contains: v_bodyfixed = Ṙ*r + R*v_inertial
             // For non-rotating atmosphere, we need airspeed = R*v_inertial (velocity relative to inertial atmosphere)

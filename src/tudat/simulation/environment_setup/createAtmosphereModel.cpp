@@ -39,6 +39,18 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
     // Check wind model type and create requested model
     switch( windSettings->getWindModelType( ) )
     {
+        case empty_wind_model: {
+            // Check input consistency
+            std::shared_ptr< EmptyWindModelSettings > emptyWindModelSettings =
+                    std::dynamic_pointer_cast< EmptyWindModelSettings >( windSettings );
+
+            if( emptyWindModelSettings == nullptr )
+            {
+                throw std::runtime_error( "Error when making empty wind model for body " + body + ", input is incompatible" );
+            }
+            windModel = std::make_shared< aerodynamics::EmptyWindModel >( emptyWindModelSettings->getIncludeCorotation( ) );
+            break;
+        }
         case constant_wind_model: {
             // Check input consistency
             std::shared_ptr< ConstantWindModelSettings > customWindModelSettings =
@@ -49,7 +61,8 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
                 throw std::runtime_error( "Error when making constant wind model for body " + body + ", input is incompatible" );
             }
             windModel = std::make_shared< aerodynamics::ConstantWindModel >( customWindModelSettings->getConstantWindVelocity( ),
-                                                                             customWindModelSettings->getAssociatedFrame( ) );
+                                                                             customWindModelSettings->getAssociatedFrame( ),
+                                                                             customWindModelSettings->getIncludeCorotation( ) );
             break;
         }
         case custom_wind_model: {
@@ -62,7 +75,8 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
                 throw std::runtime_error( "Error when making custom wind model for body " + body + ", input is incompatible" );
             }
             windModel = std::make_shared< aerodynamics::CustomWindModel >( customWindModelSettings->getWindFunction( ),
-                                                                           customWindModelSettings->getAssociatedFrame( ) );
+                                                                           customWindModelSettings->getAssociatedFrame( ),
+                                                                           customWindModelSettings->getIncludeCorotation( ) );
 
             break;
         }
@@ -122,7 +136,8 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
                         bodyOrientationFunction,
                         maximumDegree,
                         maximumOrder,
-                        comaWindModelSettings->getAssociatedFrame( ) );
+                        comaWindModelSettings->getAssociatedFrame( ),
+                        comaWindModelSettings->getIncludeCorotation( ) );
             }
             else if( comaWindModelSettings->hasStokesData( ) )
             {
@@ -140,7 +155,8 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
                         bodyOrientationFunction,
                         maximumDegree,
                         maximumOrder,
-                        comaWindModelSettings->getAssociatedFrame( ) );
+                        comaWindModelSettings->getAssociatedFrame( ),
+                        comaWindModelSettings->getIncludeCorotation( ) );
             }
             else
             {
@@ -420,13 +436,8 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
                                       std::to_string( atmosphereSettings->getAtmosphereType( ) ) );
     }
 
-    if( atmosphereSettings->getWindSettings( ) != nullptr )
-    {
-        atmosphereModel->setWindModel( createWindModel( atmosphereSettings->getWindSettings( ), body, atmosphereModel, bodies ) );
-    }
-
-    // Set atmospheric rotation flag from settings
-    atmosphereModel->setIncludeAtmosphericRotation( atmosphereSettings->getIncludeAtmosphericRotation( ) );
+    // Always create wind model (windSettings is always initialized in AtmosphereSettings constructor)
+    atmosphereModel->setWindModel( createWindModel( atmosphereSettings->getWindSettings( ), body, atmosphereModel, bodies ) );
 
     return atmosphereModel;
 }

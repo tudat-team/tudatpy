@@ -94,27 +94,24 @@ std::shared_ptr< aerodynamics::AtmosphericFlightConditions > createAtmosphericFl
     std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator = createAerodynamicAngleCalculator(
             bodyWithFlightConditions, centralBody, nameOfBodyUndergoingAcceleration, nameOfBodyExertingAcceleration );
 
-    // Add wind model if present
-    if( centralBody->getAtmosphereModel( )->getWindModel( ) != nullptr )
+    // Add wind model (always exists)
+    if( centralBody->getShapeModel( ) == nullptr )
     {
-        if( centralBody->getShapeModel( ) == nullptr )
-        {
-            std::cerr << "Warnning, body " << nameOfBodyExertingAcceleration
-                      << " has wind model, but no shape model, cannot compute wind as function of altitude " << std::endl;
-        }
-        else
-        {
-            aerodynamicAngleCalculator->setWindModel( centralBody->getAtmosphereModel( )->getWindModel( ), centralBody->getShapeModel( ) );
-        }
+        std::cerr << "Warnning, body " << nameOfBodyExertingAcceleration
+                  << " has wind model, but no shape model, cannot compute wind as function of altitude " << std::endl;
+    }
+    else
+    {
+        aerodynamicAngleCalculator->setWindModel( centralBody->getAtmosphereModel( )->getWindModel( ), centralBody->getShapeModel( ) );
     }
 
     // Set rotation matrix derivative function for proper handling of non-rotating atmosphere
     aerodynamicAngleCalculator->setRotationMatrixDerivativeFunction(
             std::bind( &Body::getCurrentRotationMatrixDerivativeToLocalFrame, centralBody ) );
 
-    // Set atmospheric rotation flag from atmosphere model
+    // Set atmospheric rotation flag from wind model
     aerodynamicAngleCalculator->setIncludeAtmosphericRotation(
-            centralBody->getAtmosphereModel( )->getIncludeAtmosphericRotation( ) );
+            centralBody->getAtmosphereModel( )->getWindModel( )->getIncludeCorotation( ) );
 
     // Create flight conditions.
     std::function< double( const std::string& ) > controlSurfaceDeflectionFunction;

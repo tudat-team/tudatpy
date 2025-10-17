@@ -1828,7 +1828,7 @@ inline std::ostream& operator<<( std::ostream& os, const ComaModelFileProcessor:
  *  List of wind models available in simulations. Wind models not defined by this
  *  given enum cannot be used for automatic model setup.
  */
-enum WindModelTypes { constant_wind_model, custom_wind_model, coma_wind_model };
+enum WindModelTypes { empty_wind_model, constant_wind_model, custom_wind_model, coma_wind_model };
 
 //  Class for providing settings for wind model.
 /*
@@ -1845,10 +1845,13 @@ public:
     /*
      * Constructor
      * \param windModelType Type of wind model that is to be created
+     * \param associatedFrame Reference frame in which the wind is defined
+     * \param includeCorotation Boolean indicating whether atmospheric co-rotation should be included
      */
     WindModelSettings( const WindModelTypes windModelType,
-                       const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame ):
-        windModelType_( windModelType ), associatedFrame_( associatedFrame )
+                       const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
+                       const bool includeCorotation = true ):
+        windModelType_( windModelType ), associatedFrame_( associatedFrame ), includeCorotation_( includeCorotation )
     {
     }
 
@@ -1872,19 +1875,62 @@ public:
         return associatedFrame_;
     }
 
+    //  Function to retrieve whether atmospheric co-rotation should be included
+    /*
+     * Function to retrieve whether atmospheric co-rotation should be included in aerodynamic computations
+     * \return Boolean indicating if atmospheric co-rotation is included
+     */
+    bool getIncludeCorotation( ) const
+    {
+        return includeCorotation_;
+    }
+
+    //  Function to set whether atmospheric co-rotation should be included
+    /*
+     * Function to set whether atmospheric co-rotation should be included in aerodynamic computations
+     * \param includeCorotation Boolean indicating if atmospheric co-rotation should be included
+     */
+    void setIncludeCorotation( const bool includeCorotation )
+    {
+        includeCorotation_ = includeCorotation;
+    }
+
 protected:
     //  Type of wind model that is to be created
     WindModelTypes windModelType_;
 
     reference_frames::AerodynamicsReferenceFrames associatedFrame_;
+
+    //  Boolean flag indicating whether atmospheric co-rotation should be included in aerodynamic computations
+    bool includeCorotation_;
+};
+
+//  Class for empty wind model settings
+/*
+ * Class for empty wind model settings. This represents a wind model with no physical wind
+ * (always returns zero velocity), but allows specification of co-rotation behavior.
+ */
+class EmptyWindModelSettings : public WindModelSettings
+{
+public:
+    //  Constructor
+    /*
+     * Constructor
+     * \param includeCorotation Boolean indicating whether atmospheric co-rotation should be included
+     */
+    EmptyWindModelSettings( const bool includeCorotation = true ):
+        WindModelSettings( empty_wind_model, reference_frames::vertical_frame, includeCorotation )
+    {
+    }
 };
 
 class ConstantWindModelSettings : public WindModelSettings
 {
 public:
     ConstantWindModelSettings( const Eigen::Vector3d constantWindVelocity,
-                               const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame ):
-        WindModelSettings( constant_wind_model, associatedFrame ), constantWindVelocity_( constantWindVelocity )
+                               const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
+                               const bool includeCorotation = true ):
+        WindModelSettings( constant_wind_model, associatedFrame, includeCorotation ), constantWindVelocity_( constantWindVelocity )
     {
     }
 
@@ -1906,10 +1952,13 @@ public:
      * Constructor
      * \param windFunction Function that returns wind vector as a function of altitude, longitude, latitude and time (in that
      * order).
+     * \param associatedFrame Reference frame in which the wind is defined
+     * \param includeCorotation Boolean indicating whether atmospheric co-rotation should be included
      */
     CustomWindModelSettings( const std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction,
-                             const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame ):
-        WindModelSettings( custom_wind_model, associatedFrame ), windFunction_( windFunction )
+                             const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
+                             const bool includeCorotation = true ):
+        WindModelSettings( custom_wind_model, associatedFrame, includeCorotation ), windFunction_( windFunction )
     {
     }
 
@@ -1964,6 +2013,7 @@ public:
      * \param requestedDegree Maximum spherical harmonic degree (-1 for auto)
      * \param requestedOrder Maximum spherical harmonic order (-1 for auto)
      * \param associatedFrame Reference frame for the wind model
+     * \param includeCorotation Boolean indicating whether atmospheric co-rotation should be included
      */
     explicit ComaWindModelSettings( const DataVariant& xData,
                                     const DataVariant& yData,
@@ -1971,8 +2021,9 @@ public:
                                     const int requestedDegree = -1,
                                     const int requestedOrder = -1,
                                     const reference_frames::AerodynamicsReferenceFrames associatedFrame =
-                                            reference_frames::vertical_frame ) :
-        WindModelSettings( coma_wind_model, associatedFrame ),
+                                            reference_frames::vertical_frame,
+                                    const bool includeCorotation = true ) :
+        WindModelSettings( coma_wind_model, associatedFrame, includeCorotation ),
         xData_( xData ),
         yData_( yData ),
         zData_( zData ),
@@ -2273,13 +2324,10 @@ public:
      *  Constructor, sets type of atmosphere model. Settings for atmosphere models requiring
      *  additional information should be defined in a derived class.
      *  \param atmosphereType Type of atmosphere model that is to be created.
-     *  \param includeAtmosphericRotation Boolean flag to indicate whether atmospheric rotation should be included
-     *  in aerodynamic computations (default true for backward compatibility).
      */
-    AtmosphereSettings( const AtmosphereTypes atmosphereType,
-                        const bool includeAtmosphericRotation = true ):
+    AtmosphereSettings( const AtmosphereTypes atmosphereType ):
         atmosphereType_( atmosphereType ),
-        includeAtmosphericRotation_( includeAtmosphericRotation )
+        windSettings_( std::make_shared< EmptyWindModelSettings >( true ) )
     {
     }
 
@@ -2296,16 +2344,6 @@ public:
     AtmosphereTypes getAtmosphereType( )
     {
         return atmosphereType_;
-    }
-
-    //  Function to return whether atmospheric rotation should be included.
-    /*
-     *  Function to return whether atmospheric rotation should be included in aerodynamic computations.
-     *  \return Boolean indicating if atmospheric rotation is included.
-     */
-    bool getIncludeAtmosphericRotation( ) const
-    {
-        return includeAtmosphericRotation_;
     }
 
     //  Function to return settings for the atmosphere's wind model.
@@ -2332,9 +2370,6 @@ private:
     //   Type of atmosphere model that is to be created.
     AtmosphereTypes atmosphereType_;
 
-    //  Boolean flag indicating whether atmospheric rotation should be included in aerodynamic computations.
-    bool includeAtmosphericRotation_;
-
     //  Settings for the atmosphere's wind model.
     std::shared_ptr< WindModelSettings > windSettings_;
 };
@@ -2354,16 +2389,13 @@ public:
      *  composition.
      *  \param ratioOfSpecificHeats Ratio of specific heats for (constant) atmospheric chemical
      *  composition.
-     *  \param includeAtmosphericRotation Boolean flag to indicate whether atmospheric rotation should be included
-     *  in aerodynamic computations (default true for backward compatibility).
      */
     ExponentialAtmosphereSettings( const double densityScaleHeight,
                                    const double constantTemperature,
                                    const double densityAtZeroAltitude,
                                    const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-                                   const double ratioOfSpecificHeats = 1.4,
-                                   const bool includeAtmosphericRotation = true ):
-        AtmosphereSettings( exponential_atmosphere, includeAtmosphericRotation ), densityScaleHeight_( densityScaleHeight ),
+                                   const double ratioOfSpecificHeats = 1.4 ):
+        AtmosphereSettings( exponential_atmosphere ), densityScaleHeight_( densityScaleHeight ),
         constantTemperature_( constantTemperature ), densityAtZeroAltitude_( densityAtZeroAltitude ),
         specificGasConstant_( specificGasConstant ), ratioOfSpecificHeats_( ratioOfSpecificHeats ),
         bodyWithPredefinedExponentialAtmosphere_( undefined_body )
@@ -2376,12 +2408,9 @@ public:
      *  exponential atmosphere model parameters.
      *  \param bodyWithPredefinedExponentialAtmosphere Enumeration denoting the name of the body for which the
      *  predefined atmosphere model is to be loaded.
-     *  \param includeAtmosphericRotation Boolean flag to indicate whether atmospheric rotation should be included
-     *  in aerodynamic computations (default true for backward compatibility).
      */
-    ExponentialAtmosphereSettings( const BodiesWithPredefinedExponentialAtmospheres bodyWithPredefinedExponentialAtmosphere,
-                                   const bool includeAtmosphericRotation = true ):
-        AtmosphereSettings( exponential_atmosphere, includeAtmosphericRotation ), bodyWithPredefinedExponentialAtmosphere_( bodyWithPredefinedExponentialAtmosphere )
+    ExponentialAtmosphereSettings( const BodiesWithPredefinedExponentialAtmospheres bodyWithPredefinedExponentialAtmosphere ):
+        AtmosphereSettings( exponential_atmosphere ), bodyWithPredefinedExponentialAtmosphere_( bodyWithPredefinedExponentialAtmosphere )
     {
         // Check that the body name inserted is available
         switch(bodyWithPredefinedExponentialAtmosphere)
@@ -2491,15 +2520,12 @@ public:
      *  \param constantTemperature Constant atmospheric temperature.
      *  \param specificGasConstant The constant specific gas constant of the atmosphere.
      *  \param ratioOfSpecificHeats The constant ratio of specific heats of the atmosphere.
-     *  \param includeAtmosphericRotation Boolean flag to indicate whether atmospheric rotation should be included
-     *  in aerodynamic computations (default true for backward compatibility).
      */
     CustomConstantTemperatureAtmosphereSettings( const DensityFunction& densityFunction,
                                                  const double constantTemperature,
                                                  const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-                                                 const double ratioOfSpecificHeats = 1.4,
-                                                 const bool includeAtmosphericRotation = true ):
-        AtmosphereSettings( custom_constant_temperature_atmosphere, includeAtmosphericRotation ), densityFunction_( densityFunction ),
+                                                 const double ratioOfSpecificHeats = 1.4 ):
+        AtmosphereSettings( custom_constant_temperature_atmosphere ), densityFunction_( densityFunction ),
         constantTemperature_( constantTemperature ), specificGasConstant_( specificGasConstant ),
         ratioOfSpecificHeats_( ratioOfSpecificHeats )
     {
@@ -2514,16 +2540,13 @@ public:
      *  \param ratioOfSpecificHeats The constant ratio of specific heats of the atmosphere.
      *  \param modelSpecificParameters Vector of parameters to be used to set up the density
      *      function. Both meaning and number of parameters depends on the model.
-     *  \param includeAtmosphericRotation Boolean flag to indicate whether atmospheric rotation should be included
-     *  in aerodynamic computations (default true for backward compatibility).
      */
     CustomConstantTemperatureAtmosphereSettings( const AvailableConstantTemperatureAtmosphereModels densityFunctionType,
                                                  const double constantTemperature,
                                                  const double specificGasConstant,
                                                  const double ratioOfSpecificHeats,
-                                                 const std::vector< double >& modelSpecificParameters,
-                                                 const bool includeAtmosphericRotation = true ):
-        AtmosphereSettings( custom_constant_temperature_atmosphere, includeAtmosphericRotation ), densityFunctionType_( densityFunctionType ),
+                                                 const std::vector< double >& modelSpecificParameters ):
+        AtmosphereSettings( custom_constant_temperature_atmosphere ), densityFunctionType_( densityFunctionType ),
         constantTemperature_( constantTemperature ), specificGasConstant_( specificGasConstant ),
         ratioOfSpecificHeats_( ratioOfSpecificHeats ), modelSpecificParameters_( modelSpecificParameters )
     {
@@ -2642,14 +2665,11 @@ public:
      *  Constructor.
      *  \param spaceWeatherFile File containing space weather data, as in
      *  https://celestrak.com/SpaceData/sw19571001.txt
-     *  \param includeAtmosphericRotation Boolean flag to indicate whether atmospheric rotation should be included
-     *  in aerodynamic computations (default true for backward compatibility).
      */
     NRLMSISE00AtmosphereSettings( const std::string& spaceWeatherFile,
                                   const bool useStormConditions = false,
-                                  const bool useAnomalousOxygen = true,
-                                  const bool includeAtmosphericRotation = true ):
-        AtmosphereSettings( nrlmsise00, includeAtmosphericRotation ), spaceWeatherFile_( spaceWeatherFile ), useStormConditions_( useStormConditions ),
+                                  const bool useAnomalousOxygen = true ):
+        AtmosphereSettings( nrlmsise00 ), spaceWeatherFile_( spaceWeatherFile ), useStormConditions_( useStormConditions ),
         useAnomalousOxygen_( useAnomalousOxygen )
     {
     }
@@ -2700,9 +2720,8 @@ private:
 class MarsDtmAtmosphereSettings : public AtmosphereSettings
 {
 public:
-    MarsDtmAtmosphereSettings( const std::string& spaceWeatherFile = "",
-                               const bool includeAtmosphericRotation = true ):
-        AtmosphereSettings( mars_dtm_atmosphere, includeAtmosphericRotation ), spaceWeatherFile_( spaceWeatherFile )
+    MarsDtmAtmosphereSettings( const std::string& spaceWeatherFile = "" ):
+        AtmosphereSettings( mars_dtm_atmosphere ), spaceWeatherFile_( spaceWeatherFile )
     {
     }
 
@@ -2739,8 +2758,6 @@ public:
      *  \param boundaryHandling List of methods for interpolation behavior when independent variable is out of range.
      *  \param defaultExtrapolationValue List of default values to be used for extrapolation, in case of
      *      use_default_value or use_default_value_with_warning as methods for boundaryHandling.
-     *  \param includeAtmosphericRotation Boolean flag to indicate whether atmospheric rotation should be included
-     *  in aerodynamic computations (default true for backward compatibility).
      */
     TabulatedAtmosphereSettings(
             const std::map< int, std::string >& atmosphereTableFile,
@@ -2751,9 +2768,8 @@ public:
             const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
             const double ratioOfSpecificHeats = 1.4,
             const std::vector< interpolators::BoundaryInterpolationType >& boundaryHandling = {},
-            const std::vector< std::vector< std::pair< double, double > > >& defaultExtrapolationValue = {},
-            const bool includeAtmosphericRotation = true ):
-        AtmosphereSettings( tabulated_atmosphere, includeAtmosphericRotation ), atmosphereFile_( atmosphereTableFile ),
+            const std::vector< std::vector< std::pair< double, double > > >& defaultExtrapolationValue = {} ):
+        AtmosphereSettings( tabulated_atmosphere ), atmosphereFile_( atmosphereTableFile ),
         independentVariables_( independentVariablesNames ), dependentVariables_( dependentVariablesNames ),
         specificGasConstant_( specificGasConstant ), ratioOfSpecificHeats_( ratioOfSpecificHeats ), boundaryHandling_( boundaryHandling ),
         defaultExtrapolationValue_( defaultExtrapolationValue )
@@ -2775,8 +2791,6 @@ public:
      *  \param boundaryHandling Method for interpolation behavior when independent variable is out of range.
      *  \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value or
      *      use_default_value_with_warning as methods for boundaryHandling.
-     *  \param includeAtmosphericRotation Boolean flag to indicate whether atmospheric rotation should be included
-     *  in aerodynamic computations (default true for backward compatibility).
      */
     TabulatedAtmosphereSettings( const std::map< int, std::string >& atmosphereTableFile,
                                  const std::vector< AtmosphereIndependentVariables >& independentVariablesNames,
@@ -2784,8 +2798,7 @@ public:
                                  const double specificGasConstant,
                                  const double ratioOfSpecificHeats,
                                  const interpolators::BoundaryInterpolationType boundaryHandling,
-                                 const double defaultExtrapolationValue = IdentityElement::getAdditionIdentity< double >( ),
-                                 const bool includeAtmosphericRotation = true ):
+                                 const double defaultExtrapolationValue = IdentityElement::getAdditionIdentity< double >( ) ):
         TabulatedAtmosphereSettings(
                 atmosphereTableFile,
                 independentVariablesNames,
@@ -2797,8 +2810,7 @@ public:
                         dependentVariablesNames.size( ),
                         std::vector< std::pair< double, double > >(
                                 independentVariablesNames.size( ),
-                                std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) ) ),
-                includeAtmosphericRotation )
+                                std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) ) ) )
     {
     }
 
@@ -2814,8 +2826,6 @@ public:
      *  \param boundaryHandling Method for interpolation behavior when independent variable is out of range.
      *  \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value or
      *      use_default_value_with_warning as methods for boundaryHandling.
-     *  \param includeAtmosphericRotation Boolean flag to indicate whether atmospheric rotation should be included
-     *  in aerodynamic computations (default true for backward compatibility).
      */
     TabulatedAtmosphereSettings(
             const std::string& atmosphereTableFile,
@@ -2825,8 +2835,7 @@ public:
             const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
             const double ratioOfSpecificHeats = 1.4,
             const interpolators::BoundaryInterpolationType boundaryHandling = interpolators::use_boundary_value,
-            const double defaultExtrapolationValue = IdentityElement::getAdditionIdentity< double >( ),
-            const bool includeAtmosphericRotation = true ):
+            const double defaultExtrapolationValue = IdentityElement::getAdditionIdentity< double >( ) ):
         TabulatedAtmosphereSettings( { { 0, atmosphereTableFile } },
                                      { altitude_dependent_atmosphere },
                                      dependentVariablesNames,
@@ -2837,8 +2846,7 @@ public:
                                              dependentVariablesNames.size( ),
                                              std::vector< std::pair< double, double > >(
                                                      1,
-                                                     std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) ) ),
-                                     includeAtmosphericRotation )
+                                                     std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) ) ) )
     {
     }
 
@@ -3084,9 +3092,8 @@ class ScaledAtmosphereSettings : public AtmosphereSettings
 public:
     ScaledAtmosphereSettings( const std::shared_ptr< AtmosphereSettings > baseSettings,
                               const double scaling,
-                              const bool isScalingAbsolute,
-                              const bool includeAtmosphericRotation = true ):
-        AtmosphereSettings( scaled_atmosphere, includeAtmosphericRotation ), baseSettings_( baseSettings ), scaling_( [ = ]( const double ) {
+                              const bool isScalingAbsolute ):
+        AtmosphereSettings( scaled_atmosphere ), baseSettings_( baseSettings ), scaling_( [ = ]( const double ) {
             return scaling;
         } ),
         isScalingAbsolute_( isScalingAbsolute )
@@ -3095,9 +3102,8 @@ public:
 
     ScaledAtmosphereSettings( const std::shared_ptr< AtmosphereSettings >& baseSettings,
                               const std::function< double( const double ) > scaling,
-                              const bool isScalingAbsolute,
-                              const bool includeAtmosphericRotation = true ):
-        AtmosphereSettings( scaled_atmosphere, includeAtmosphericRotation ), baseSettings_( baseSettings ), scaling_( scaling ), isScalingAbsolute_( isScalingAbsolute )
+                              const bool isScalingAbsolute ):
+        AtmosphereSettings( scaled_atmosphere ), baseSettings_( baseSettings ), scaling_( scaling ), isScalingAbsolute_( isScalingAbsolute )
     {
     }
 
@@ -3145,15 +3151,13 @@ public:
      * \param molecularWeight Molecular weight of the gas species [kg/mol]
      * \param requestedDegree Maximum spherical harmonic degree (-1 for auto)
      * \param requestedOrder Maximum spherical harmonic order (-1 for auto)
-     * \param includeAtmosphericRotation Boolean flag to indicate whether atmospheric rotation should be included
      * in aerodynamic computations (default true for backward compatibility).
      */
     explicit ComaSettings( const ComaPolyDataset& polyData,
                            const double molecularWeight,
                            const int requestedDegree = -1,
-                           const int requestedOrder = -1,
-                           const bool includeAtmosphericRotation = true ) :
-        AtmosphereSettings( coma_model, includeAtmosphericRotation ),
+                           const int requestedOrder = -1) :
+        AtmosphereSettings( coma_model ),
         data_( polyData ),
         molecularWeight_( molecularWeight ),
         requestedDegree_( requestedDegree ),
@@ -3168,15 +3172,13 @@ public:
      * \param molecularWeight Molecular weight of the gas species [kg/mol]
      * \param requestedDegree Maximum spherical harmonic degree (-1 for auto)
      * \param requestedOrder Maximum spherical harmonic order (-1 for auto)
-     * \param includeAtmosphericRotation Boolean flag to indicate whether atmospheric rotation should be included
      * in aerodynamic computations (default true for backward compatibility).
      */
     explicit ComaSettings( const ComaStokesDataset& stokesData,
                            const double molecularWeight,
                            const int requestedDegree = -1,
-                           const int requestedOrder = -1,
-                           const bool includeAtmosphericRotation = true ) :
-        AtmosphereSettings( coma_model, includeAtmosphericRotation ),
+                           const int requestedOrder = -1 ) :
+        AtmosphereSettings( coma_model),
         data_( stokesData ),
         molecularWeight_( molecularWeight ),
         requestedDegree_( requestedDegree ),
@@ -3360,29 +3362,25 @@ inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings(
         const double densityAtZeroAltitude,
         const double constantTemperature,
         const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-        const double ratioOfSpecificHeats = 1.4,
-        const bool includeAtmosphericRotation = true )
+        const double ratioOfSpecificHeats = 1.4)
 {
     return std::make_shared< ExponentialAtmosphereSettings >(
             densityScaleHeight,
             constantTemperature,
             densityAtZeroAltitude,
             specificGasConstant,
-            ratioOfSpecificHeats,
-            includeAtmosphericRotation );
+            ratioOfSpecificHeats);
 }
 
 //! @get_docstring(exponentialAtmosphereSettings,1)
 inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings( const double densityScaleHeight,
-                                                                            const double densityAtZeroAltitude,
-                                                                            const bool includeAtmosphericRotation = true )
+                                                                            const double densityAtZeroAltitude )
 {
-    return std::make_shared< ExponentialAtmosphereSettings >( densityScaleHeight, TUDAT_NAN, densityAtZeroAltitude, TUDAT_NAN, TUDAT_NAN, includeAtmosphericRotation );
+    return std::make_shared< ExponentialAtmosphereSettings >( densityScaleHeight, TUDAT_NAN, densityAtZeroAltitude, TUDAT_NAN, TUDAT_NAN );
 }
 
 //! @get_docstring(exponentialAtmosphereSettings,0)
-inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings( const std::string& bodyName,
-                                                                            const bool includeAtmosphericRotation = true )
+inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings( const std::string& bodyName )
 {
     BodiesWithPredefinedExponentialAtmospheres bodyId;
     if(bodyName == "Earth")
@@ -3400,22 +3398,21 @@ inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings( cons
                 "does not match any predefined atmosphere model. Available models for: "
                 "Earth, Mars." );
     }
-    return std::make_shared< ExponentialAtmosphereSettings >( bodyId, includeAtmosphericRotation );
+    return std::make_shared< ExponentialAtmosphereSettings >( bodyId );
 }
 
 //! @get_docstring(nrlmsise00AtmosphereSettings)
 inline std::shared_ptr< AtmosphereSettings > nrlmsise00AtmosphereSettings( const std::string dataFile = paths::getSpaceWeatherDataPath( ) +
                                                                                    "/sw19571001.txt",
                                                                            const bool useStormConditions = true,
-                                                                           const bool useAnomalousOxygen = true,
-                                                                           const bool includeAtmosphericRotation = true )
+                                                                           const bool useAnomalousOxygen = true )
 {
-    return std::make_shared< NRLMSISE00AtmosphereSettings >( dataFile, useStormConditions, useAnomalousOxygen, includeAtmosphericRotation );
+    return std::make_shared< NRLMSISE00AtmosphereSettings >( dataFile, useStormConditions, useAnomalousOxygen );
 }
 
-inline std::shared_ptr< AtmosphereSettings > marsDtmAtmosphereSettings( const bool includeAtmosphericRotation = true )
+inline std::shared_ptr< AtmosphereSettings > marsDtmAtmosphereSettings( )
 {
-    return std::make_shared< MarsDtmAtmosphereSettings >( "", includeAtmosphericRotation );
+    return std::make_shared< MarsDtmAtmosphereSettings >( "" );
 }
 
 
@@ -3425,8 +3422,7 @@ inline std::shared_ptr< AtmosphereSettings > customConstantTemperatureAtmosphere
         const std::function< double( const double ) > densityFunction,
         const double constantTemperature,
         const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-        const double ratioOfSpecificHeats = 1.4,
-        const bool includeAtmosphericRotation = true )
+        const double ratioOfSpecificHeats = 1.4 )
 {
     DensityFunction fullDensityFunction = [ = ]( const double altitude, const double, const double, const double ) {
         return densityFunction( altitude );
@@ -3435,8 +3431,7 @@ inline std::shared_ptr< AtmosphereSettings > customConstantTemperatureAtmosphere
             fullDensityFunction,
             constantTemperature,
             specificGasConstant,
-            ratioOfSpecificHeats,
-            includeAtmosphericRotation );
+            ratioOfSpecificHeats );
 }
 
 //! @get_docstring(customConstantTemperatureAtmosphereSettings,1)
@@ -3444,33 +3439,29 @@ inline std::shared_ptr< AtmosphereSettings > customConstantTemperatureAtmosphere
         const DensityFunction densityFunction,
         const double constantTemperature,
         const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-        const double ratioOfSpecificHeats = 1.4,
-        const bool includeAtmosphericRotation = true )
+        const double ratioOfSpecificHeats = 1.4 )
 {
     return std::make_shared< CustomConstantTemperatureAtmosphereSettings >(
             densityFunction,
             constantTemperature,
             specificGasConstant,
-            ratioOfSpecificHeats,
-            includeAtmosphericRotation );
+            ratioOfSpecificHeats );
 }
 
 //! @get_docstring(scaledAtmosphereSettings,0)
 inline std::shared_ptr< AtmosphereSettings > scaledAtmosphereSettings( const std::shared_ptr< AtmosphereSettings > baseSettings,
                                                                        const std::function< double( const double ) > scaling,
-                                                                       const bool isScalingAbsolute,
-                                                                       const bool includeAtmosphericRotation = true )
+                                                                       const bool isScalingAbsolute )
 {
-    return std::make_shared< ScaledAtmosphereSettings >( baseSettings, scaling, isScalingAbsolute, includeAtmosphericRotation );
+    return std::make_shared< ScaledAtmosphereSettings >( baseSettings, scaling, isScalingAbsolute );
 }
 
 //! @get_docstring(scaledAtmosphereSettings,1)
 inline std::shared_ptr< AtmosphereSettings > scaledAtmosphereSettings( const std::shared_ptr< AtmosphereSettings > baseSettings,
                                                                        const double scaling,
-                                                                       const bool isScalingAbsolute,
-                                                                       const bool includeAtmosphericRotation = true )
+                                                                       const bool isScalingAbsolute )
 {
-    return std::make_shared< ScaledAtmosphereSettings >( baseSettings, scaling, isScalingAbsolute, includeAtmosphericRotation );
+    return std::make_shared< ScaledAtmosphereSettings >( baseSettings, scaling, isScalingAbsolute );
 }
 
 inline std::shared_ptr< AtmosphereSettings > tabulatedAtmosphereSettings(
@@ -3479,16 +3470,14 @@ inline std::shared_ptr< AtmosphereSettings > tabulatedAtmosphereSettings(
                                                                                        pressure_dependent_atmosphere,
                                                                                        temperature_dependent_atmosphere },
         const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-        const double ratioOfSpecificHeats = 1.4,
-        const bool includeAtmosphericRotation = true )
+        const double ratioOfSpecificHeats = 1.4 )
 {
     return std::make_shared< TabulatedAtmosphereSettings >( atmosphereTableFile,
                                                             dependentVariablesNames,
                                                             specificGasConstant,
                                                             ratioOfSpecificHeats,
                                                             interpolators::throw_exception_at_boundary,
-                                                            IdentityElement::getAdditionIdentity< double >( ),
-                                                            includeAtmosphericRotation );
+                                                            IdentityElement::getAdditionIdentity< double >( ) );
 }
 
 
@@ -3499,18 +3488,15 @@ inline std::shared_ptr< AtmosphereSettings > tabulatedAtmosphereSettings(
  * \param molecularWeight Molecular weight of the gas species [kg/mol]
  * \param requestedDegree Maximum spherical harmonic degree (-1 for auto)
  * \param requestedOrder Maximum spherical harmonic order (-1 for auto)
- * \param includeAtmosphericRotation Boolean flag to indicate whether atmospheric rotation should be included
- * in aerodynamic computations (default true for backward compatibility).
  * \return Shared pointer to AtmosphereSettings configured for coma model
  */
 inline std::shared_ptr< AtmosphereSettings > comaSettings(
         const ComaPolyDataset& polyData,
         const double molecularWeight,
         const int requestedDegree = -1,
-        const int requestedOrder = -1,
-        const bool includeAtmosphericRotation = true )
+        const int requestedOrder = -1 )
 {
-    return std::make_shared< ComaSettings >( polyData, molecularWeight, requestedDegree, requestedOrder, includeAtmosphericRotation );
+    return std::make_shared< ComaSettings >( polyData, molecularWeight, requestedDegree, requestedOrder );
 }
 
 //@get_docstring(ComaSettings,1)
@@ -3520,18 +3506,15 @@ inline std::shared_ptr< AtmosphereSettings > comaSettings(
  * \param molecularWeight Molecular weight of the gas species [kg/mol]
  * \param requestedDegree Maximum spherical harmonic degree (-1 for auto)
  * \param requestedOrder Maximum spherical harmonic order (-1 for auto)
- * \param includeAtmosphericRotation Boolean flag to indicate whether atmospheric rotation should be included
- * in aerodynamic computations (default true for backward compatibility).
  * \return Shared pointer to AtmosphereSettings configured for coma model
  */
 inline std::shared_ptr< AtmosphereSettings > comaSettings(
         const ComaStokesDataset& stokesData,
         const double molecularWeight,
         const int requestedDegree = -1,
-        const int requestedOrder = -1,
-        const bool includeAtmosphericRotation = true )
+        const int requestedOrder = -1 )
 {
-    return std::make_shared< ComaSettings >( stokesData, molecularWeight, requestedDegree, requestedOrder, includeAtmosphericRotation );
+    return std::make_shared< ComaSettings >( stokesData, molecularWeight, requestedDegree, requestedOrder );
 }
 
 
@@ -3550,20 +3533,29 @@ inline std::shared_ptr< ComaModelFileProcessor > comaModelFileProcessorFromSHFil
 }
 
 
+//! @get_docstring(emptyWindModelSettings)
+inline std::shared_ptr< WindModelSettings > emptyWindModelSettings(
+        const bool includeCorotation = true )
+{
+    return std::make_shared< EmptyWindModelSettings >( includeCorotation );
+}
+
 //! @get_docstring(customWindModelSettings)
 inline std::shared_ptr< WindModelSettings > customWindModelSettings(
         const std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction,
-        const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame )
+        const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
+        const bool includeCorotation = true )
 {
-    return std::make_shared< CustomWindModelSettings >( windFunction, associatedFrame );
+    return std::make_shared< CustomWindModelSettings >( windFunction, associatedFrame, includeCorotation );
 }
 
 //! @get_docstring(constantWindModelSettings)
 inline std::shared_ptr< WindModelSettings > constantWindModelSettings(
         const Eigen::Vector3d constantWindVelocity,
-        const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame )
+        const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
+        const bool includeCorotation = true )
 {
-    return std::make_shared< ConstantWindModelSettings >( constantWindVelocity, associatedFrame );
+    return std::make_shared< ConstantWindModelSettings >( constantWindVelocity, associatedFrame, includeCorotation );
 }
 
 //  Function to create a wind model.

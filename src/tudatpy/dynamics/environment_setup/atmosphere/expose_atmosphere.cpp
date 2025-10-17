@@ -167,7 +167,21 @@ void expose_atmosphere_setup( py::module &m )
 
 
 
+      )doc" )
+            .def_property( "include_corotation",
+                           &tss::WindModelSettings::getIncludeCorotation,
+                           &tss::WindModelSettings::setIncludeCorotation,
+                           R"doc(
+
+         Boolean flag indicating whether atmospheric co-rotation should be included in aerodynamic computations.
+
+         :type: bool
       )doc" );
+
+    py::class_< tss::EmptyWindModelSettings,
+                std::shared_ptr< tss::EmptyWindModelSettings >,
+                tss::WindModelSettings >(
+            m, "EmptyWindModelSettings", R"doc(Settings for empty wind model (no physical wind, only co-rotation control).)doc" );
 
     py::class_< tss::ConstantWindModelSettings,
                 std::shared_ptr< tss::ConstantWindModelSettings >,
@@ -239,10 +253,48 @@ void expose_atmosphere_setup( py::module &m )
     //         "TabulatedAtmosphereSettings",
     //                                  get_docstring("TabulatedAtmosphereSettings").c_str());
 
+    m.def( "empty_wind_model",
+           &tss::emptyWindModelSettings,
+           py::arg( "include_corotation" ) = true,
+           R"doc(
+
+ Function for creating empty wind model settings.
+
+ Function for settings object for an empty wind model (no physical wind, returns zero velocity).
+ This is useful when you want to control atmospheric co-rotation behavior without specifying actual wind.
+
+
+ Parameters
+ ----------
+ include_corotation : bool, default = True
+     Boolean flag indicating whether atmospheric co-rotation should be included in aerodynamic computations.
+
+ Returns
+ -------
+ EmptyWindModelSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.WindModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.atmosphere.EmptyWindModelSettings` class
+
+
+ Examples
+ --------
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.atmosphere.WindModelSettings`,
+ for an atmosphere without physical wind but with co-rotation disabled:
+
+ .. code-block:: python
+
+   # Create empty wind model with co-rotation disabled
+   empty_wind = environment_setup.atmosphere.empty_wind_model(include_corotation=False)
+   # Apply to the atmosphere settings
+   body_settings.get("Earth").atmosphere_settings.wind_settings = empty_wind
+
+
+     )doc" );
+
     m.def( "constant_wind_model",
            &tss::constantWindModelSettings,
            py::arg( "wind_velocity" ),
            py::arg( "associated_reference_frame" ) = trf::vertical_frame,
+           py::arg( "include_corotation" ) = true,
            R"doc(
 
  Function for creating wind model settings with constant wind velocity.
@@ -257,6 +309,9 @@ void expose_atmosphere_setup( py::module &m )
 
  associated_reference_frame : dynamics.environment.AerodynamicsReferenceFrames, default = AerodynamicsReferenceFrames.vertical_frame
      Reference frame in which constant wind velocity is defined.
+
+ include_corotation : bool, default = True
+     Boolean flag indicating whether atmospheric co-rotation should be included in aerodynamic computations.
 
  Returns
  -------
@@ -292,6 +347,7 @@ void expose_atmosphere_setup( py::module &m )
            &tss::customWindModelSettings,
            py::arg( "wind_function" ),
            py::arg( "associated_reference_frame" ) = trf::vertical_frame,
+           py::arg( "include_corotation" ) = true,
            R"doc(
 
  Function for creating wind model settings with custom wind velocity.
@@ -310,6 +366,9 @@ void expose_atmosphere_setup( py::module &m )
 
  associated_reference_frame : dynamics.environment.AerodynamicsReferenceFrames, default = AerodynamicsReferenceFrames.vertical_frame
      Reference frame in which wind velocity is defined.
+
+ include_corotation : bool, default = True
+     Boolean flag indicating whether atmospheric co-rotation should be included in aerodynamic computations.
 
  Returns
  -------
@@ -348,9 +407,8 @@ void expose_atmosphere_setup( py::module &m )
      )doc" );
 
     m.def( "exponential_predefined",
-           py::overload_cast< const std::string &, const bool >( &tss::exponentialAtmosphereSettings ),
+           py::overload_cast< const std::string & >( &tss::exponentialAtmosphereSettings ),
            py::arg( "body_name" ),
-           py::arg( "include_atmospheric_rotation" ) = true,
            R"doc(
 
  Function for creating atmospheric model settings from pre-defined exponential model.
@@ -421,15 +479,13 @@ void expose_atmosphere_setup( py::module &m )
                               const double,
                               const double,
                               const double,
-                              const double,
-                              const bool >( &tss::exponentialAtmosphereSettings ),
+                              const double >( &tss::exponentialAtmosphereSettings ),
            py::arg( "scale_height" ),
            py::arg( "surface_density" ),
            py::arg( "constant_temperature" ) = 288.15,
            py::arg( "specific_gas_constant" ) =
                    tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
            py::arg( "ratio_specific_heats" ) = 1.4,
-           py::arg( "include_atmospheric_rotation" ) = true,
            R"doc(
 
  Function for creating atmospheric model settings from fully parametrized exponential model.
@@ -486,8 +542,7 @@ void expose_atmosphere_setup( py::module &m )
                    tudat::paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt",
            py::arg( "use_storm_conditions" ) = false,
            py::arg( "use_anomalous_oxygen" ) = true,
-           py::arg( "include_atmospheric_rotation" ) = true,
-               R"doc(
+           R"doc(
 
 Function for creating NRLMSISE-00 atmospheric model settings.
 
@@ -534,8 +589,7 @@ using the NRLMSISE-00 global reference model:
                      tss::pressure_dependent_atmosphere,
                      tss::temperature_dependent_atmosphere } ),
            py::arg( "specific_gas_constant" ) = tp::SPECIFIC_GAS_CONSTANT_AIR,
-           py::arg( "ratio_of_specific_heats" ) = 1.4,
-           py::arg( "include_atmospheric_rotation" ) = true );
+           py::arg( "ratio_of_specific_heats" ) = 1.4 );
 
     m.def( "us76",
            &tss::us76AtmosphereSettings,
@@ -575,14 +629,12 @@ using the NRLMSISE-00 global reference model:
            py::overload_cast< const std::function< double( const double ) >,
                               const double,
                               const double,
-                              const double,
-                              const bool >( &tss::customConstantTemperatureAtmosphereSettings ),
+                              const double >( &tss::customConstantTemperatureAtmosphereSettings ),
            py::arg( "density_function" ),
            py::arg( "constant_temperature" ),
            py::arg( "specific_gas_constant" ) =
                    tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
            py::arg( "ratio_of_specific_heats" ) = 1.4,
-           py::arg( "include_atmospheric_rotation" ) = true,
            R"doc(
 
  Function for creating atmospheric model settings from custom density profile.
@@ -644,14 +696,12 @@ using the NRLMSISE-00 global reference model:
                                       const double, const double, const double, const double ) >,
                               const double,
                               const double,
-                              const double,
-                              const bool >( &tss::customConstantTemperatureAtmosphereSettings ),
+                              const double >( &tss::customConstantTemperatureAtmosphereSettings ),
            py::arg( "density_function" ),
            py::arg( "constant_temperature" ),
            py::arg( "specific_gas_constant" ) =
                    tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
            py::arg( "ratio_of_specific_heats" ) = 1.4,
-           py::arg( "include_atmospheric_rotation" ) = true,
            R"doc(
 
  Function for creating atmospheric model settings from custom density profile.
@@ -711,12 +761,10 @@ using the NRLMSISE-00 global reference model:
     m.def( "scaled_by_function",
            py::overload_cast< const std::shared_ptr< tss::AtmosphereSettings >,
                               const std::function< double( const double ) >,
-                              const bool,
                               const bool >( &tss::scaledAtmosphereSettings ),
            py::arg( "unscaled_atmosphere_settings" ),
            py::arg( "density_scaling_function" ),
            py::arg( "is_scaling_absolute" ) = false,
-           py::arg( "include_atmospheric_rotation" ) = true,
            R"doc(
 
  Function for creating scaled atmospheric model settings.
@@ -772,12 +820,10 @@ using the NRLMSISE-00 global reference model:
     m.def( "scaled_by_constant",
            py::overload_cast< const std::shared_ptr< tss::AtmosphereSettings >,
                               const double,
-                              const bool,
                               const bool >( &tss::scaledAtmosphereSettings ),
            py::arg( "unscaled_atmosphere_settings" ),
            py::arg( "density_scaling" ),
            py::arg( "is_scaling_absolute" ) = false,
-           py::arg( "include_atmospheric_rotation" ) = true,
            R"doc(
 
  Function for creating scaled atmospheric model settings.
@@ -834,12 +880,11 @@ using the NRLMSISE-00 global reference model:
     m.def(
             "coma_model",
             py::overload_cast<
-                const tss::ComaPolyDataset&, double, int, int, const bool >( &tss::comaSettings ),
+                const tss::ComaPolyDataset&, double, int, int >( &tss::comaSettings ),
             py::arg( "poly_data" ),
             py::arg( "molecular_weight" ),
             py::arg( "max_degree" ) = -1,
             py::arg( "max_order" ) = -1,
-            py::arg( "include_atmospheric_rotation" ) = true,
             R"doc(
     Create a coma atmosphere from polynomial coefficients.
 
@@ -853,8 +898,6 @@ using the NRLMSISE-00 global reference model:
         Maximum spherical harmonic degree (-1 for auto)
     max_order : int, optional
         Maximum spherical harmonic order (-1 for auto)
-    include_atmospheric_rotation : bool, optional
-        Whether to include atmospheric rotation in aerodynamic computations (default True)
 
     Returns
     -------
@@ -866,12 +909,11 @@ using the NRLMSISE-00 global reference model:
     m.def(
             "coma_model",
             py::overload_cast<
-                const tss::ComaStokesDataset&, double, int, int, const bool >( &tss::comaSettings ),
+                const tss::ComaStokesDataset&, double, int, int >( &tss::comaSettings ),
             py::arg( "stokes_data" ),
             py::arg( "molecular_weight" ),
             py::arg( "max_degree" ) = -1,
             py::arg( "max_order" ) = -1,
-            py::arg( "include_atmospheric_rotation" ) = true,
             R"doc(
     Create a coma atmosphere from precomputed Stokes coefficients.
 
@@ -885,8 +927,6 @@ using the NRLMSISE-00 global reference model:
         Maximum spherical harmonic degree (-1 for auto)
     max_order : int, optional
         Maximum spherical harmonic order (-1 for auto)
-    include_atmospheric_rotation : bool, optional
-        Whether to include atmospheric rotation in aerodynamic computations (default True)
 
     Returns
     -------
@@ -959,7 +999,6 @@ using the NRLMSISE-00 global reference model:
 
     m.def("mars_dtm",
           &tss::marsDtmAtmosphereSettings,
-          py::arg( "include_atmospheric_rotation" ) = true,
           R"doc(No documentation found.)doc" );
 }
 
