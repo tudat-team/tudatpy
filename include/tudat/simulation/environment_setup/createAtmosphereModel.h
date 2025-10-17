@@ -878,8 +878,29 @@ public:
         os << '\n';
 
         // REDUCED COEFFICIENTS SECTION (for radius > reference radius)
-        // Skip reduced coefficients for now to debug the assertion issue
-        // TODO: Re-enable when the block access issue is resolved
+        os << "\n# REDUCED COEFFICIENTS SECTION (for radius > ref_radius)\n";
+        os << "# These coefficients are computed using reducedToTemporalIFFT\n";
+        os << "# No radius dimension - coefficients are independent of radius\n";
+
+        for(std::size_t li = 0; li < dataset.nLongitudes( ); ++li)
+        {
+            os << "ID," << li << ',';
+            set_def( );
+            os << "l_0=" << dataset.lons( )[ li ] << '\n';
+
+            os << "n,m,C,S\n";
+
+            const auto blk = dataset.reducedBlock( f, li );
+            for(std::size_t k = 0; k < dataset.nCoeffs( ); ++k)
+            {
+                const auto nm = index_to_nm_deg_major( k );
+                const double C = blk( static_cast< Eigen::Index >(k), 0 );
+                const double S = blk( static_cast< Eigen::Index >(k), 1 );
+                os << nm.first << ',' << nm.second << ',';
+                set_sci( );
+                os << C << ',' << S << '\n';
+            }
+        }
 
         // REGULAR COEFFICIENTS SECTION (for radius <= ref_radius)
         os << "\n# REGULAR COEFFICIENTS SECTION (for radius <= ref_radius)\n";
@@ -1016,56 +1037,23 @@ public:
 
             if(line.find( "ID," ) == 0)
             {
-                // Parse regular block ID line: "ID,block_id,r_0=...,l_0=..."
+                // Parse ID line: check if it's reduced (only l_0) or regular (r_0 and l_0)
+                bool isReduced = (line.find( "r_0=" ) == std::string::npos);
+
                 std::istringstream idStream( line );
                 std::string idToken;
                 std::getline( idStream, idToken, ',' ); // skip "ID"
                 std::getline( idStream, idToken, ',' ); // block_id
                 int block_id = std::stoi( idToken );
 
-                std::size_t ri = block_id / n_lons;
-                std::size_t li = block_id % n_lons;
-
                 // Skip header line "n,m,C,S"
                 std::getline( ifs, line );
 
-                // Read regular coefficients
-                for(int k = 0; k < n_coeffs; ++k)
+                if(isReduced)
                 {
-                    std::getline( ifs, line );
-                    std::istringstream coeffStream( line );
-                    std::string nStr, mStr, cStr, sStr;
-                    std::getline( coeffStream, nStr, ',' );
-                    std::getline( coeffStream, mStr, ',' );
-                    std::getline( coeffStream, cStr, ',' );
-                    std::getline( coeffStream, sStr, ',' );
+                    // Reduced coefficients: ID is just the longitude index
+                    std::size_t li = block_id;
 
-                    int n = std::stoi( nStr );
-                    int m = std::stoi( mStr );
-                    double C = std::stod( cStr );
-                    double S = std::stod( sStr );
-
-                    dataset.setCoeff( 0, ri, li, n, m, C, S );
-                }
-            }
-            else if(line.find( "REDUCED_ID," ) == 0)
-            {
-                // Parse reduced block ID line: "REDUCED_ID,reduced_block_id,l_0=...,type=reduced"
-                std::istringstream idStream( line );
-                std::string idToken;
-                std::getline( idStream, idToken, ',' ); // skip "REDUCED_ID"
-                std::getline( idStream, idToken, ',' ); // reduced_block_id
-                int reduced_block_id = std::stoi( idToken );
-
-                // Extract longitude index from reduced_block_id
-                std::size_t li = reduced_block_id - 1000000;  // Remove the offset
-
-                // Skip header line "n,m,C_reduced,S_reduced"
-                std::getline( ifs, line );
-
-                // Read reduced coefficients (only if has_reduced_coeffs is true)
-                if(has_reduced_coeffs)
-                {
                     for(int k = 0; k < n_coeffs; ++k)
                     {
                         std::getline( ifs, line );
@@ -1078,10 +1066,34 @@ public:
 
                         int n = std::stoi( nStr );
                         int m = std::stoi( mStr );
-                        double C_reduced = std::stod( cStr );
-                        double S_reduced = std::stod( sStr );
+                        double C = std::stod( cStr );
+                        double S = std::stod( sStr );
 
-                        dataset.setReducedCoeff( 0, li, n, m, C_reduced, S_reduced );
+                        dataset.setReducedCoeff( 0, li, n, m, C, S );
+                    }
+                }
+                else
+                {
+                    // Regular coefficients: ID is ri * n_lons + li
+                    std::size_t ri = block_id / n_lons;
+                    std::size_t li = block_id % n_lons;
+
+                    for(int k = 0; k < n_coeffs; ++k)
+                    {
+                        std::getline( ifs, line );
+                        std::istringstream coeffStream( line );
+                        std::string nStr, mStr, cStr, sStr;
+                        std::getline( coeffStream, nStr, ',' );
+                        std::getline( coeffStream, mStr, ',' );
+                        std::getline( coeffStream, cStr, ',' );
+                        std::getline( coeffStream, sStr, ',' );
+
+                        int n = std::stoi( nStr );
+                        int m = std::stoi( mStr );
+                        double C = std::stod( cStr );
+                        double S = std::stod( sStr );
+
+                        dataset.setCoeff( 0, ri, li, n, m, C, S );
                     }
                 }
             }
@@ -1255,7 +1267,7 @@ private:
                                                 const Eigen::Ref<const Eigen::MatrixXd>& polynomialMatrix,
                                                 const Eigen::Ref<const Eigen::VectorXd>& radialPowers )
     {
-        return ( ifftBasis * polynomialMatrix * radialPowers ).value( );
+        return ifftBasis.dot( polynomialMatrix * radialPowers );
     }
 
     static double reducedToTemporalIFFT( const Eigen::Ref<const Eigen::RowVectorXd>& ifftBasis,
@@ -1270,7 +1282,7 @@ public:
             // meter
             const double solarLongitude,
             // radians
-            const Eigen::ArrayXXd& polyCoefficients,
+            const Eigen::MatrixXd& polyCoefficients,
             const Eigen::ArrayXXi& atDegreeAndOrder,
             const Eigen::VectorXd& atPowersInvRadius,
             double refRadius_m,
@@ -1326,9 +1338,8 @@ public:
                 if(degree > maxDegree || absoluteOrder > maxOrder)
                     continue;
 
-                const auto polyCoefs = polyCoefficients.col( coefficientIndex ).reshaped( numIntervals, numRadialTerms ).matrix( );
+                const auto polyCoefs = polyCoefficients.col( coefficientIndex ).reshaped( numIntervals, numRadialTerms );
 
-                // Use pre-computed basis and radial powers (Eigen::Ref accepts both Matrix and Array)
                 double value = radialPolyvalAndTemporalIFFT( ifftBasis, polyCoefs, radialPowers );
 
                 if(order >= 0)
@@ -1352,7 +1363,7 @@ public:
                     continue;
 
                 const Eigen::VectorXd polyCoefs =
-                        polyCoefficients.block( 0, coefficientIndex, numIntervals, 1 ).matrix( );
+                        polyCoefficients.block( 0, coefficientIndex, numIntervals, 1 );
 
                 // Use pre-computed basis
                 double value = reducedToTemporalIFFT( ifftBasis, polyCoefs );
@@ -1382,7 +1393,7 @@ public:
     static void evaluate2DReduced(
             const double solarLongitude,
             // radians
-            const Eigen::ArrayXXd& polyCoefficients,
+            const Eigen::MatrixXd& polyCoefficients,
             const Eigen::ArrayXXi& atDegreeAndOrder,
             const Eigen::VectorXd& atPowersInvRadius,
             Eigen::MatrixXd& cosineCoefficients,
@@ -1427,7 +1438,7 @@ public:
 
             // Extract the reduced polynomial coefficients (first row of each interval)
             const Eigen::VectorXd polyCoefs =
-                    polyCoefficients.block( 0, coefficientIndex, numIntervals, 1 ).matrix( );
+                    polyCoefficients.block( 0, coefficientIndex, numIntervals, 1 );
 
             // Use pre-computed basis for evaluation (no radius component)
             const double value = reducedToTemporalIFFT( ifftBasis, polyCoefs );
@@ -1625,7 +1636,7 @@ private:
                     StokesCoefficientsEvaluator::evaluate2D(
                             radius_m,
                             solarLongitudeRadians,
-                            polynomialCoefficients.array( ),
+                            polynomialCoefficients,
                             degreeAndOrderIndices,
                             inversePowers,
                             referenceRadius,
@@ -1662,7 +1673,7 @@ private:
 
                 StokesCoefficientsEvaluator::evaluate2DReduced(
                     solarLongitudeRadians,
-                    polynomialCoefficients.array(),
+                    polynomialCoefficients,
                     degreeAndOrderIndices,
                     inversePowers,
                     reducedCosineCoefficients,

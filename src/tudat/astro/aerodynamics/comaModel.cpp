@@ -45,6 +45,7 @@ ComaModel::ComaModel( const simulation_setup::ComaPolyDataset& polyDataset,
     lastFileIndex_( 0 ),
     cachedRadius_( 0.0 ),
     cachedInterpolationSolarLongitude_( 0.0 ),
+    coefficientMatricesSized_( false ),
     cachedLatitude_( 0.0 ),
     cachedLongitude_( 0.0 ),
     cachedSineLatitude_( 0.0 ),
@@ -110,6 +111,7 @@ ComaModel::ComaModel( const simulation_setup::ComaStokesDataset& stokesDataset,
     lastFileIndex_( 0 ),
     cachedRadius_( 0.0 ),
     cachedInterpolationSolarLongitude_( 0.0 ),
+    coefficientMatricesSized_( false ),
     cachedLatitude_( 0.0 ),
     cachedLongitude_( 0.0 ),
     cachedSineLatitude_( 0.0 ),
@@ -511,11 +513,14 @@ double ComaModel::computeNumberDensityFromPolyCoefficients( double radius, doubl
     const int effectiveMaxDegree = ( maximumDegree_ > 0 ) ? maximumDegree_ : maxDegreeAvailable;
     const int effectiveMaxOrder = ( maximumOrder_ > 0 ) ? maximumOrder_ : maxDegreeAvailable;
 
-    if ( cachedCosineCoefficients_.rows() != effectiveMaxDegree + 1 ||
+    // Check sizing flag first to avoid repeated size comparisons
+    if ( !coefficientMatricesSized_ ||
+         cachedCosineCoefficients_.rows() != effectiveMaxDegree + 1 ||
          cachedCosineCoefficients_.cols() != effectiveMaxOrder + 1 )
     {
         cachedCosineCoefficients_ = Eigen::MatrixXd::Zero( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
         cachedSineCoefficients_ = Eigen::MatrixXd::Zero( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
+        coefficientMatricesSized_ = true;
     }
     else
     {

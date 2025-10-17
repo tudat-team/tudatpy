@@ -182,6 +182,9 @@ private:
     mutable double cachedRadius_;
     mutable double cachedInterpolationSolarLongitude_;
 
+    //! Flag to track if coefficient matrices have been sized (optimization to avoid repeated size checks)
+    mutable bool coefficientMatricesSized_;
+
     //! Cached latitude/longitude and their trigonometric values
     mutable double cachedLatitude_;
     mutable double cachedLongitude_;
