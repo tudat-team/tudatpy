@@ -167,7 +167,21 @@ void expose_atmosphere_setup( py::module &m )
 
 
 
+      )doc" )
+            .def_property( "include_corotation",
+                           &tss::WindModelSettings::getIncludeCorotation,
+                           &tss::WindModelSettings::setIncludeCorotation,
+                           R"doc(
+
+         Boolean flag indicating whether atmospheric co-rotation should be included in aerodynamic computations.
+
+         :type: bool
       )doc" );
+
+    py::class_< tss::EmptyWindModelSettings,
+                std::shared_ptr< tss::EmptyWindModelSettings >,
+                tss::WindModelSettings >(
+            m, "EmptyWindModelSettings", R"doc(Settings for empty wind model (no physical wind, only co-rotation control).)doc" );
 
     py::class_< tss::ConstantWindModelSettings,
                 std::shared_ptr< tss::ConstantWindModelSettings >,
@@ -239,10 +253,48 @@ void expose_atmosphere_setup( py::module &m )
     //         "TabulatedAtmosphereSettings",
     //                                  get_docstring("TabulatedAtmosphereSettings").c_str());
 
+    m.def( "empty_wind_model",
+           &tss::emptyWindModelSettings,
+           py::arg( "include_corotation" ) = true,
+           R"doc(
+
+ Function for creating empty wind model settings.
+
+ Function for settings object for an empty wind model (no physical wind, returns zero velocity).
+ This is useful when you want to control atmospheric co-rotation behavior without specifying actual wind.
+
+
+ Parameters
+ ----------
+ include_corotation : bool, default = True
+     Boolean flag indicating whether atmospheric co-rotation should be included in aerodynamic computations.
+
+ Returns
+ -------
+ EmptyWindModelSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.WindModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.atmosphere.EmptyWindModelSettings` class
+
+
+ Examples
+ --------
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.atmosphere.WindModelSettings`,
+ for an atmosphere without physical wind but with co-rotation disabled:
+
+ .. code-block:: python
+
+   # Create empty wind model with co-rotation disabled
+   empty_wind = environment_setup.atmosphere.empty_wind_model(include_corotation=False)
+   # Apply to the atmosphere settings
+   body_settings.get("Earth").atmosphere_settings.wind_settings = empty_wind
+
+
+     )doc" );
+
     m.def( "constant_wind_model",
            &tss::constantWindModelSettings,
            py::arg( "wind_velocity" ),
            py::arg( "associated_reference_frame" ) = trf::vertical_frame,
+           py::arg( "include_corotation" ) = true,
            R"doc(
 
  Function for creating wind model settings with constant wind velocity.
@@ -257,6 +309,9 @@ void expose_atmosphere_setup( py::module &m )
 
  associated_reference_frame : dynamics.environment.AerodynamicsReferenceFrames, default = AerodynamicsReferenceFrames.vertical_frame
      Reference frame in which constant wind velocity is defined.
+
+ include_corotation : bool, default = True
+     Boolean flag indicating whether atmospheric co-rotation should be included in aerodynamic computations.
 
  Returns
  -------
@@ -292,6 +347,7 @@ void expose_atmosphere_setup( py::module &m )
            &tss::customWindModelSettings,
            py::arg( "wind_function" ),
            py::arg( "associated_reference_frame" ) = trf::vertical_frame,
+           py::arg( "include_corotation" ) = true,
            R"doc(
 
  Function for creating wind model settings with custom wind velocity.
@@ -310,6 +366,9 @@ void expose_atmosphere_setup( py::module &m )
 
  associated_reference_frame : dynamics.environment.AerodynamicsReferenceFrames, default = AerodynamicsReferenceFrames.vertical_frame
      Reference frame in which wind velocity is defined.
+
+ include_corotation : bool, default = True
+     Boolean flag indicating whether atmospheric co-rotation should be included in aerodynamic computations.
 
  Returns
  -------
@@ -483,7 +542,7 @@ void expose_atmosphere_setup( py::module &m )
                    tudat::paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt",
            py::arg( "use_storm_conditions" ) = false,
            py::arg( "use_anomalous_oxygen" ) = true,
-               R"doc(
+           R"doc(
 
 Function for creating NRLMSISE-00 atmospheric model settings.
 

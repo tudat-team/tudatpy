@@ -99,6 +99,7 @@ public:
      * \param time Time at which number density is to be computed [s]
      * \return Coma number density at specified location and time [m^-3]
      */
+    using AtmosphereModel::getNumberDensity;
     double getNumberDensity( double radius,
                              double longitude,
                              double latitude,

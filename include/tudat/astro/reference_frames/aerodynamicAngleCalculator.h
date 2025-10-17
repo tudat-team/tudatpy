@@ -136,6 +136,26 @@ public:
         shapeModel_ = shapeModel;
     }
 
+    //! Function to set whether atmospheric rotation should be included
+    /*!
+     * Function to set whether atmospheric rotation should be included in aerodynamic computations
+     * \param includeAtmosphericRotation Boolean indicating if atmospheric rotation is included
+     */
+    void setIncludeAtmosphericRotation( const bool includeAtmosphericRotation )
+    {
+        includeAtmosphericRotation_ = includeAtmosphericRotation;
+    }
+
+    //! Function to set the rotation matrix derivative function
+    /*!
+     * Function to set the rotation matrix derivative function for the central body
+     * \param rotationMatrixDerivativeFunction Function returning the time derivative of rotation matrix from inertial to body-fixed frame
+     */
+    void setRotationMatrixDerivativeFunction( const std::function< Eigen::Matrix3d( ) > rotationMatrixDerivativeFunction )
+    {
+        rotationMatrixDerivativeToLocalFrameFunction_ = rotationMatrixDerivativeFunction;
+    }
+
     //! Function to get the current rotation from the global (propagation/inertial) to the local (body-fixed) frame.
     /*!
      * Function to get the current rotation from the global (propagation/inertial) to the local (body-fixed) frame.
@@ -381,6 +401,12 @@ private:
     double currentTime_;
 
     bool aerodynamicAngleClosureIsIncomplete_;
+
+    //! Boolean flag indicating whether atmospheric rotation should be included in aerodynamic computations
+    bool includeAtmosphericRotation_ = true;
+
+    //! Function returning the time derivative of the rotation matrix from inertial to body-fixed frame
+    std::function< Eigen::Matrix3d( ) > rotationMatrixDerivativeToLocalFrameFunction_;
 };
 
 //! Get a function to transform aerodynamic force from local to propagation frame.

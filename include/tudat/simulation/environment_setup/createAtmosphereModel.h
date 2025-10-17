@@ -1828,7 +1828,7 @@ inline std::ostream& operator<<( std::ostream& os, const ComaModelFileProcessor:
  *  List of wind models available in simulations. Wind models not defined by this
  *  given enum cannot be used for automatic model setup.
  */
-enum WindModelTypes { constant_wind_model, custom_wind_model, coma_wind_model };
+enum WindModelTypes { empty_wind_model, constant_wind_model, custom_wind_model, coma_wind_model };
 
 //  Class for providing settings for wind model.
 /*
@@ -1845,10 +1845,13 @@ public:
     /*
      * Constructor
      * \param windModelType Type of wind model that is to be created
+     * \param associatedFrame Reference frame in which the wind is defined
+     * \param includeCorotation Boolean indicating whether atmospheric co-rotation should be included
      */
     WindModelSettings( const WindModelTypes windModelType,
-                       const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame ):
-        windModelType_( windModelType ), associatedFrame_( associatedFrame )
+                       const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
+                       const bool includeCorotation = true ):
+        windModelType_( windModelType ), associatedFrame_( associatedFrame ), includeCorotation_( includeCorotation )
     {
     }
 
@@ -1872,19 +1875,62 @@ public:
         return associatedFrame_;
     }
 
+    //  Function to retrieve whether atmospheric co-rotation should be included
+    /*
+     * Function to retrieve whether atmospheric co-rotation should be included in aerodynamic computations
+     * \return Boolean indicating if atmospheric co-rotation is included
+     */
+    bool getIncludeCorotation( ) const
+    {
+        return includeCorotation_;
+    }
+
+    //  Function to set whether atmospheric co-rotation should be included
+    /*
+     * Function to set whether atmospheric co-rotation should be included in aerodynamic computations
+     * \param includeCorotation Boolean indicating if atmospheric co-rotation should be included
+     */
+    void setIncludeCorotation( const bool includeCorotation )
+    {
+        includeCorotation_ = includeCorotation;
+    }
+
 protected:
     //  Type of wind model that is to be created
     WindModelTypes windModelType_;
 
     reference_frames::AerodynamicsReferenceFrames associatedFrame_;
+
+    //  Boolean flag indicating whether atmospheric co-rotation should be included in aerodynamic computations
+    bool includeCorotation_;
+};
+
+//  Class for empty wind model settings
+/*
+ * Class for empty wind model settings. This represents a wind model with no physical wind
+ * (always returns zero velocity), but allows specification of co-rotation behavior.
+ */
+class EmptyWindModelSettings : public WindModelSettings
+{
+public:
+    //  Constructor
+    /*
+     * Constructor
+     * \param includeCorotation Boolean indicating whether atmospheric co-rotation should be included
+     */
+    EmptyWindModelSettings( const bool includeCorotation = true ):
+        WindModelSettings( empty_wind_model, reference_frames::vertical_frame, includeCorotation )
+    {
+    }
 };
 
 class ConstantWindModelSettings : public WindModelSettings
 {
 public:
     ConstantWindModelSettings( const Eigen::Vector3d constantWindVelocity,
-                               const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame ):
-        WindModelSettings( constant_wind_model, associatedFrame ), constantWindVelocity_( constantWindVelocity )
+                               const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
+                               const bool includeCorotation = true ):
+        WindModelSettings( constant_wind_model, associatedFrame, includeCorotation ), constantWindVelocity_( constantWindVelocity )
     {
     }
 
@@ -1906,10 +1952,13 @@ public:
      * Constructor
      * \param windFunction Function that returns wind vector as a function of altitude, longitude, latitude and time (in that
      * order).
+     * \param associatedFrame Reference frame in which the wind is defined
+     * \param includeCorotation Boolean indicating whether atmospheric co-rotation should be included
      */
     CustomWindModelSettings( const std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction,
-                             const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame ):
-        WindModelSettings( custom_wind_model, associatedFrame ), windFunction_( windFunction )
+                             const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
+                             const bool includeCorotation = true ):
+        WindModelSettings( custom_wind_model, associatedFrame, includeCorotation ), windFunction_( windFunction )
     {
     }
 
@@ -1964,6 +2013,7 @@ public:
      * \param requestedDegree Maximum spherical harmonic degree (-1 for auto)
      * \param requestedOrder Maximum spherical harmonic order (-1 for auto)
      * \param associatedFrame Reference frame for the wind model
+     * \param includeCorotation Boolean indicating whether atmospheric co-rotation should be included
      */
     explicit ComaWindModelSettings( const DataVariant& xData,
                                     const DataVariant& yData,
@@ -1971,8 +2021,9 @@ public:
                                     const int requestedDegree = -1,
                                     const int requestedOrder = -1,
                                     const reference_frames::AerodynamicsReferenceFrames associatedFrame =
-                                            reference_frames::vertical_frame ) :
-        WindModelSettings( coma_wind_model, associatedFrame ),
+                                            reference_frames::vertical_frame,
+                                    const bool includeCorotation = true ) :
+        WindModelSettings( coma_wind_model, associatedFrame, includeCorotation ),
         xData_( xData ),
         yData_( yData ),
         zData_( zData ),
@@ -2275,7 +2326,8 @@ public:
      *  \param atmosphereType Type of atmosphere model that is to be created.
      */
     AtmosphereSettings( const AtmosphereTypes atmosphereType ):
-        atmosphereType_( atmosphereType )
+        atmosphereType_( atmosphereType ),
+        windSettings_( std::make_shared< EmptyWindModelSettings >( true ) )
     {
     }
 
@@ -3099,11 +3151,12 @@ public:
      * \param molecularWeight Molecular weight of the gas species [kg/mol]
      * \param requestedDegree Maximum spherical harmonic degree (-1 for auto)
      * \param requestedOrder Maximum spherical harmonic order (-1 for auto)
+     * in aerodynamic computations (default true for backward compatibility).
      */
     explicit ComaSettings( const ComaPolyDataset& polyData,
                            const double molecularWeight,
                            const int requestedDegree = -1,
-                           const int requestedOrder = -1 ) :
+                           const int requestedOrder = -1) :
         AtmosphereSettings( coma_model ),
         data_( polyData ),
         molecularWeight_( molecularWeight ),
@@ -3119,12 +3172,13 @@ public:
      * \param molecularWeight Molecular weight of the gas species [kg/mol]
      * \param requestedDegree Maximum spherical harmonic degree (-1 for auto)
      * \param requestedOrder Maximum spherical harmonic order (-1 for auto)
+     * in aerodynamic computations (default true for backward compatibility).
      */
     explicit ComaSettings( const ComaStokesDataset& stokesData,
                            const double molecularWeight,
                            const int requestedDegree = -1,
                            const int requestedOrder = -1 ) :
-        AtmosphereSettings( coma_model ),
+        AtmosphereSettings( coma_model),
         data_( stokesData ),
         molecularWeight_( molecularWeight ),
         requestedDegree_( requestedDegree ),
@@ -3308,14 +3362,14 @@ inline std::shared_ptr< AtmosphereSettings > exponentialAtmosphereSettings(
         const double densityAtZeroAltitude,
         const double constantTemperature,
         const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
-        const double ratioOfSpecificHeats = 1.4 )
+        const double ratioOfSpecificHeats = 1.4)
 {
     return std::make_shared< ExponentialAtmosphereSettings >(
             densityScaleHeight,
             constantTemperature,
             densityAtZeroAltitude,
             specificGasConstant,
-            ratioOfSpecificHeats );
+            ratioOfSpecificHeats);
 }
 
 //! @get_docstring(exponentialAtmosphereSettings,1)
@@ -3358,7 +3412,7 @@ inline std::shared_ptr< AtmosphereSettings > nrlmsise00AtmosphereSettings( const
 
 inline std::shared_ptr< AtmosphereSettings > marsDtmAtmosphereSettings( )
 {
-    return std::make_shared< MarsDtmAtmosphereSettings >( );
+    return std::make_shared< MarsDtmAtmosphereSettings >( "" );
 }
 
 
@@ -3422,7 +3476,8 @@ inline std::shared_ptr< AtmosphereSettings > tabulatedAtmosphereSettings(
                                                             dependentVariablesNames,
                                                             specificGasConstant,
                                                             ratioOfSpecificHeats,
-                                                            interpolators::throw_exception_at_boundary );
+                                                            interpolators::throw_exception_at_boundary,
+                                                            IdentityElement::getAdditionIdentity< double >( ) );
 }
 
 
@@ -3478,20 +3533,29 @@ inline std::shared_ptr< ComaModelFileProcessor > comaModelFileProcessorFromSHFil
 }
 
 
+//! @get_docstring(emptyWindModelSettings)
+inline std::shared_ptr< WindModelSettings > emptyWindModelSettings(
+        const bool includeCorotation = true )
+{
+    return std::make_shared< EmptyWindModelSettings >( includeCorotation );
+}
+
 //! @get_docstring(customWindModelSettings)
 inline std::shared_ptr< WindModelSettings > customWindModelSettings(
         const std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction,
-        const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame )
+        const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
+        const bool includeCorotation = true )
 {
-    return std::make_shared< CustomWindModelSettings >( windFunction, associatedFrame );
+    return std::make_shared< CustomWindModelSettings >( windFunction, associatedFrame, includeCorotation );
 }
 
 //! @get_docstring(constantWindModelSettings)
 inline std::shared_ptr< WindModelSettings > constantWindModelSettings(
         const Eigen::Vector3d constantWindVelocity,
-        const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame )
+        const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
+        const bool includeCorotation = true )
 {
-    return std::make_shared< ConstantWindModelSettings >( constantWindVelocity, associatedFrame );
+    return std::make_shared< ConstantWindModelSettings >( constantWindVelocity, associatedFrame, includeCorotation );
 }
 
 //  Function to create a wind model.
