@@ -1914,13 +1914,17 @@ BOOST_AUTO_TEST_CASE( testRTGPartials )
     std::shared_ptr< AccelerationPartial > rtgPartial = createAnalyticalAccelerationPartial(
             rtgAccelerationModel, std::make_pair( "Vehicle", vehicle ), std::make_pair( "Vehicle", vehicle ), bodies );
 
+
+    // Make acceleration models input to list, which is normally handled by parameter settings
+    std::vector<std::shared_ptr<system_models::RTGAccelerationModel>> rtgAccelerationModelsList = { rtgAccelerationModel };
+
     // Create force vector parameter object.
     std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > rtgForceVectorParameter =
-            std::make_shared< RTGForceVector >( rtgAccelerationModel, "Vehicle" );
+            std::make_shared< RTGForceVector >( rtgAccelerationModelsList, "Vehicle" );
 
     // Create force magnitude parameter object.
     std::shared_ptr< EstimatableParameter< double > > rtgForceMagnitudeParameter =
-            std::make_shared< RTGForceVectorMagnitude >( rtgAccelerationModel, "Vehicle" );
+            std::make_shared< RTGForceVectorMagnitude >( rtgAccelerationModelsList, "Vehicle" );
 
     // Calculate analytical partials.
     double evalTime = testTime;
