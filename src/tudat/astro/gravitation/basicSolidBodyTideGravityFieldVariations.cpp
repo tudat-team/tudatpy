@@ -73,21 +73,19 @@ std::complex< double > calculateSolidBodyTideSingleCoefficientSetCorrectionFromA
 }
 
 
-void massageMeanTermsIfDefault(std::map< int, std::vector< double > >& input, const std::map< int, std::vector< std::complex< double > > >& loveNumbersReference) {
+std::map<int, std::vector<double>> generateZeroMeanTermsFromReference(
+    const std::map<int, std::vector<std::complex<double>>>& loveNumbersReference)
+{
+    std::map<int, std::vector<double>> zeroMap;
 
-    const std::map<int, std::vector<double>> default_map = { {0, {0.0}} };
-
-    if (input == default_map) {
-        input.clear(); // reset
-
-        for (const auto &kv : loveNumbersReference) {
-            int key = kv.first;
-            std::size_t length = kv.second.size();
-
-            // Fill vector<double> with zeros of same length
-            input[key] = std::vector<double>(length, 0.0);
-        }
+    for (const auto& kv : loveNumbersReference)
+    {
+        const int key = kv.first;
+        const std::size_t length = kv.second.size();
+        zeroMap[key] = std::vector<double>(length, 0.0);
     }
+
+    return zeroMap;
 }
 
 // This function takes a map with key=degree and value=a vector of coefficients,
@@ -125,13 +123,19 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSolidBodyTideSingleCoeffi
         const Eigen::Vector3d& relativeBodyFixedPosition,
         const int maximumDegree,
         const int maximumOrder,
-        std::map< int, std::vector< double > > meanForcingCosineTerms,
-        std::map< int, std::vector< double > > meanForcingSineTerms)
+        std::map< int, std::vector< double > > meanCosineForcing,
+        std::map< int, std::vector< double > > meanSineForcing)
 
 {
 
-    massageMeanTermsIfDefault(meanForcingCosineTerms, loveNumbers);
-    massageMeanTermsIfDefault(meanForcingSineTerms, loveNumbers);
+    if (meanCosineForcing.empty())
+    {
+        meanCosineForcing = generateZeroMeanTermsFromReference(loveNumbers);
+    }
+    if (meanSineForcing.empty())
+    {
+        meanSineForcing = generateZeroMeanTermsFromReference(loveNumbers);
+    }
 
     // Initialize results.
     Eigen::MatrixXd cosineCorrections = Eigen::MatrixXd::Zero( maximumDegree + 1, maximumOrder + 1 );
@@ -148,7 +152,7 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSolidBodyTideSingleCoeffi
             // Calculate and set corrections at current degree and order.
             currentCorrections = calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude(
             loveNumbers.at( n ).at( m ), massRatio, referenceRadius, relativeBodyFixedPosition, n, m,
-                     meanForcingCosineTerms.at( n ).at( m ), meanForcingSineTerms.at( n ).at( m ));
+                     meanCosineForcing.at( n ).at( m ), meanSineForcing.at( n ).at( m ));
             cosineCorrections( n, m ) = currentCorrections.real( );
             if( m > 0 )
             {

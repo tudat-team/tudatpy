@@ -124,8 +124,8 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSolidBodyTideSingleCoeffi
         const Eigen::Vector3d& relativeBodyFixedPosition,
         const int maximumDegree,
         const int maximumOrder,
-        std::map< int, std::vector< double > > meanCosineForcing = { {0, {0.0}} },
-        std::map< int, std::vector< double > > meanSineForcing = { {0, {0.0}} });
+        std::map< int, std::vector< double > > meanCosineForcing = { },
+        std::map< int, std::vector< double > > meanSineForcing = { });
 
 class SolidBodyTideGravityFieldVariations : public GravityFieldVariations
 {
