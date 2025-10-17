@@ -64,8 +64,8 @@ std::complex< double > calculateSolidBodyTideSingleCoefficientSetCorrectionFromA
 
 // Handle default values of mean tidal forcing terms when calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude function is called with love numbers as map
     // this call is only happening in unit tests (as far as I can tell) and the aux function below is thus also only called in unit test application
-void massageMeanTermsIfDefault( std::map< int, std::vector< double > >& input,
-                                const std::map< int, std::vector< std::complex< double > > >& loveNumbersReference);
+std::map<int, std::vector<double>> generateZeroMeanTermsFromReference(
+    const std::map<int, std::vector<std::complex<double>>>& loveNumbersReference);
 
 
 // This function takes the map of kind key=degree, vector = values at degree, order and maps it onto a nxn matrix
