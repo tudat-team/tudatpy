@@ -393,7 +393,7 @@ public:
     struct FileMeta
     {
         double referenceRadius{};
-        Eigen::VectorXd powersInvRadius;
+        Eigen::ArrayXd powersInvRadius;
         std::vector< std::pair< double, double > > timePeriods;
         int maxDegreeSH{};
         Eigen::Index numRadialTerms{};
@@ -434,7 +434,7 @@ public:
         return fileMeta_[ f ].referenceRadius;
     }
 
-    const Eigen::VectorXd& getPowersInvRadius( std::size_t f ) const
+    const Eigen::ArrayXd& getPowersInvRadius( std::size_t f ) const
     {
         boundsCheck_( f );
         return fileMeta_[ f ].powersInvRadius;
@@ -610,7 +610,7 @@ private:
 
         int maxDegreeSH = 0;
         Eigen::Index numTerms = 0, numCoefs = 0, numRadialTerms = 0, numIntervals = 0;
-        Eigen::VectorXd powers;
+        Eigen::ArrayXd powers;
 
         // ----- Parse header -----
         while(std::getline( file, line ))
@@ -1265,9 +1265,9 @@ private:
 
     static double radialPolyvalAndTemporalIFFT( const Eigen::Ref<const Eigen::RowVectorXd>& ifftBasis,
                                                 const Eigen::Ref<const Eigen::MatrixXd>& polynomialMatrix,
-                                                const Eigen::Ref<const Eigen::VectorXd>& radialPowers )
+                                                const Eigen::Ref<const Eigen::ArrayXd>& radialPowers )
     {
-        return ifftBasis.dot( polynomialMatrix * radialPowers );
+        return ifftBasis.dot( polynomialMatrix * radialPowers.matrix() );
     }
 
     static double reducedToTemporalIFFT( const Eigen::Ref<const Eigen::RowVectorXd>& ifftBasis,
@@ -1284,7 +1284,7 @@ public:
             // radians
             const Eigen::MatrixXd& polyCoefficients,
             const Eigen::ArrayXXi& atDegreeAndOrder,
-            const Eigen::VectorXd& atPowersInvRadius,
+            const Eigen::ArrayXd& atPowersInvRadius,
             double refRadius_m,
             // meter
             Eigen::MatrixXd& cosineCoefficients,
@@ -1327,7 +1327,7 @@ public:
 
             // Pre-compute radial power terms - computed once per radius
             const double radialDistance = 1.0 / radius_km - inverseReferenceRadius;
-            const Eigen::ArrayXd radialPowers = pow( radialDistance, atPowersInvRadius.array( ) );
+            const Eigen::ArrayXd radialPowers = pow( radialDistance, atPowersInvRadius );
 
             for(int coefficientIndex = 0; coefficientIndex < polyCoefficients.cols( ); ++coefficientIndex)
             {
@@ -1338,7 +1338,11 @@ public:
                 if(degree > maxDegree || absoluteOrder > maxOrder)
                     continue;
 
-                const auto polyCoefs = polyCoefficients.col( coefficientIndex ).reshaped( numIntervals, numRadialTerms );
+                // Use Eigen::Map to avoid copying/reshaping polynomial coefficients
+                // The column is stored as [T0R0, T0R1, T0R2, T0R3, T1R0, T1R1, ...] (col-major)
+                // Map interprets this as a (numIntervals × numRadialTerms) matrix without allocation
+                Eigen::Map<const Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor>>
+                    polyCoefs( polyCoefficients.col( coefficientIndex ).data( ), numIntervals, numRadialTerms );
 
                 double value = radialPolyvalAndTemporalIFFT( ifftBasis, polyCoefs, radialPowers );
 
@@ -1395,7 +1399,7 @@ public:
             // radians
             const Eigen::MatrixXd& polyCoefficients,
             const Eigen::ArrayXXi& atDegreeAndOrder,
-            const Eigen::VectorXd& atPowersInvRadius,
+            const Eigen::ArrayXd& atPowersInvRadius,
             Eigen::MatrixXd& cosineCoefficients,
             Eigen::MatrixXd& sineCoefficients,
             int maxDegree,
