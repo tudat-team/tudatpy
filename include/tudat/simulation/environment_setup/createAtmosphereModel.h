@@ -449,14 +449,18 @@ public:
     // Column access methods
     Eigen::VectorXd columnForNM( std::size_t f, int n, int m ) const
     {
-        auto [ ok, col ] = findColumn_( f, n, m );
+        auto result = findColumn_( f, n, m );
+        bool ok = result.first;
+        int col = result.second;
         if(!ok) throw std::out_of_range( "columnForNM: (n,m) not found" );
         return polyCoefficients_[ f ].col( col );
     }
 
     double value( std::size_t f, Eigen::Index termIndex, int n, int m ) const
     {
-        auto [ ok, col ] = findColumn_( f, n, m );
+        auto result = findColumn_( f, n, m );
+        bool ok = result.first;
+        int col = result.second;
         if(!ok) throw std::out_of_range( "value: (n,m) not found" );
         if(termIndex < 0 || termIndex >= polyCoefficients_[ f ].rows( ))
             throw std::out_of_range( "value: termIndex out of range" );
@@ -1000,7 +1004,17 @@ public:
             return { start_epoch, end_epoch, max_degree, max_order, n_radii, n_lons, n_coeffs, has_reduced_coeffs, ref_radius, source };
         };
 
-        auto [ start_epoch, end_epoch, max_degree, max_order, n_radii, n_lons, n_coeffs, has_reduced_coeffs, ref_radius, source ] = parseMeta( line );
+        auto meta = parseMeta( line );
+        double start_epoch = std::get<0>( meta );
+        double end_epoch = std::get<1>( meta );
+        int max_degree = std::get<2>( meta );
+        int max_order = std::get<3>( meta );
+        int n_radii = std::get<4>( meta );
+        int n_lons = std::get<5>( meta );
+        int n_coeffs = std::get<6>( meta );
+        bool has_reduced_coeffs = std::get<7>( meta );
+        double ref_radius = std::get<8>( meta );
+        std::string source = std::get<9>( meta );
 
         // Parse radii line
         std::getline( ifs, line );
@@ -1488,10 +1502,12 @@ public:
                                  requestedMaxOrder );
 
         // Determine effective maxima
-        auto [ effectiveMaxDegree, effectiveMaxOrder ] = determineEffectiveMaxima(
+        auto maxima = determineEffectiveMaxima(
                 polyDataset,
                 requestedMaxDegree,
                 requestedMaxOrder );
+        int effectiveMaxDegree = maxima.first;
+        int effectiveMaxOrder = maxima.second;
 
         // Build file metadata
         auto files = buildFileMeta( polyDataset );

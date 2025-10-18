@@ -55,18 +55,29 @@ struct TestDataPaths
 // Expected values from your original tests
 struct ExpectedPolyValues
 {
-    inline static constexpr int numTerms = 48;
-    inline static constexpr int numCoeffs = 121;
-    inline static constexpr double refRadius = 10000.0;
-    inline static constexpr int maxDegree = 10;
-    inline static constexpr int maxOrder = 10;
+    static constexpr int numTerms = 48;
+    static constexpr int numCoeffs = 121;
+    static constexpr double refRadius = 10000.0;
+    static constexpr int maxDegree = 10;
+    static constexpr int maxOrder = 10;
 
     // Sample poly coefficient values
-    inline static constexpr double polyCoef_0_0 = 6.262302500423528E+02;
-    inline static constexpr double polyCoef_3_1 = -4.459813047951577E-02;
-    inline static constexpr double polyCoef_47_120 = -1.049515320967208E+02;
-    inline static constexpr double polyCoef_10_22 = 1.287417812579956E-01;
+    static constexpr double polyCoef_0_0 = 6.262302500423528E+02;
+    static constexpr double polyCoef_3_1 = -4.459813047951577E-02;
+    static constexpr double polyCoef_47_120 = -1.049515320967208E+02;
+    static constexpr double polyCoef_10_22 = 1.287417812579956E-01;
 };
+
+// C++14 requires definitions for static constexpr members that are ODR-used
+constexpr int ExpectedPolyValues::numTerms;
+constexpr int ExpectedPolyValues::numCoeffs;
+constexpr double ExpectedPolyValues::refRadius;
+constexpr int ExpectedPolyValues::maxDegree;
+constexpr int ExpectedPolyValues::maxOrder;
+constexpr double ExpectedPolyValues::polyCoef_0_0;
+constexpr double ExpectedPolyValues::polyCoef_3_1;
+constexpr double ExpectedPolyValues::polyCoef_47_120;
+constexpr double ExpectedPolyValues::polyCoef_10_22;
 
 // Helper function to read Stokes coefficient data from test files
 struct StokesTestData
@@ -149,7 +160,9 @@ BOOST_AUTO_TEST_CASE(test_stokes_dataset_creation)
 
     // Test coefficient setting and getting
     dataset.setCoeff(0, 0, 0, 2, 1, 0.5, -0.3);
-    auto [C, S] = dataset.getCoeff(0, 0, 0, 2, 1);
+    auto coeff_pair = dataset.getCoeff(0, 0, 0, 2, 1);
+    double C = coeff_pair.first;
+    double S = coeff_pair.second;
     BOOST_CHECK_CLOSE(C, 0.5, 1e-12);
     BOOST_CHECK_CLOSE(S, -0.3, 1e-12);
 
@@ -160,7 +173,9 @@ BOOST_AUTO_TEST_CASE(test_stokes_dataset_creation)
 
     // Test coefficient matrices
     dataset.setCoeff(0, 1, 1, 3, 2, 1.5, 2.5);
-    auto [cosineMatrix, sineMatrix] = dataset.getCoefficientMatrices(0, 1, 1);
+    auto matrices = dataset.getCoefficientMatrices(0, 1, 1);
+    auto cosineMatrix = matrices.first;
+    auto sineMatrix = matrices.second;
     BOOST_CHECK_EQUAL(cosineMatrix.rows(), nmax + 1);
     BOOST_CHECK_EQUAL(cosineMatrix.cols(), nmax + 1);
     BOOST_CHECK_CLOSE(cosineMatrix(3, 2), 1.5, 1e-12);
@@ -336,22 +351,32 @@ BOOST_FIXTURE_TEST_CASE(test_stokes_dataset_reader_from_csv, TestDataPaths)
     BOOST_CHECK_CLOSE(readLons[1], 30.0, 1e-10);
 
     // Verify coefficient values
-    auto [C_0_0_r0_l0, S_0_0_r0_l0] = readDataset.getCoeff(0, 0, 0, 0, 0);
+    auto coeff_0_0_r0_l0 = readDataset.getCoeff(0, 0, 0, 0, 0);
+    double C_0_0_r0_l0 = coeff_0_0_r0_l0.first;
+    double S_0_0_r0_l0 = coeff_0_0_r0_l0.second;
     BOOST_CHECK_CLOSE(C_0_0_r0_l0, 54.0, 1e-10);
     BOOST_CHECK_CLOSE(S_0_0_r0_l0, 0.0, 1e-10);
 
-    auto [C_2_1_r0_l0, S_2_1_r0_l0] = readDataset.getCoeff(0, 0, 0, 2, 1);
+    auto coeff_2_1_r0_l0 = readDataset.getCoeff(0, 0, 0, 2, 1);
+    double C_2_1_r0_l0 = coeff_2_1_r0_l0.first;
+    double S_2_1_r0_l0 = coeff_2_1_r0_l0.second;
     BOOST_CHECK_CLOSE(C_2_1_r0_l0, -0.232, 1e-10);
     BOOST_CHECK_CLOSE(S_2_1_r0_l0, 0.138, 1e-10);
 
-    auto [C_0_0_r0_l1, S_0_0_r0_l1] = readDataset.getCoeff(0, 0, 1, 0, 0);
+    auto coeff_0_0_r0_l1 = readDataset.getCoeff(0, 0, 1, 0, 0);
+    double C_0_0_r0_l1 = coeff_0_0_r0_l1.first;
+    double S_0_0_r0_l1 = coeff_0_0_r0_l1.second;
     BOOST_CHECK_CLOSE(C_0_0_r0_l1, 53.93, 1e-10);
 
-    auto [C_1_1_r1_l0, S_1_1_r1_l0] = readDataset.getCoeff(0, 1, 0, 1, 1);
+    auto coeff_1_1_r1_l0 = readDataset.getCoeff(0, 1, 0, 1, 1);
+    double C_1_1_r1_l0 = coeff_1_1_r1_l0.first;
+    double S_1_1_r1_l0 = coeff_1_1_r1_l0.second;
     BOOST_CHECK_CLOSE(C_1_1_r1_l0, -1.75, 1e-10);
     BOOST_CHECK_CLOSE(S_1_1_r1_l0, 0.407, 1e-10);
 
-    auto [C_3_2_r1_l1, S_3_2_r1_l1] = readDataset.getCoeff(0, 1, 1, 3, 2);
+    auto coeff_3_2_r1_l1 = readDataset.getCoeff(0, 1, 1, 3, 2);
+    double C_3_2_r1_l1 = coeff_3_2_r1_l1.first;
+    double S_3_2_r1_l1 = coeff_3_2_r1_l1.second;
     BOOST_CHECK_CLOSE(C_3_2_r1_l1, -0.084, 1e-10);
     BOOST_CHECK_CLOSE(S_3_2_r1_l1, -0.026, 1e-10);
 }
@@ -409,18 +434,26 @@ BOOST_FIXTURE_TEST_CASE(test_stokes_dataset_reader_from_csv_folder, TestDataPath
     BOOST_CHECK_EQUAL(filesMeta[1].source_tag, "test_file_2");
 
     // Verify coefficient values from first file
-    auto [C1_0_0, S1_0_0] = multiDataset.getCoeff(0, 0, 0, 0, 0);
+    auto coeff_1_0_0 = multiDataset.getCoeff(0, 0, 0, 0, 0);
+    double C1_0_0 = coeff_1_0_0.first;
+    double S1_0_0 = coeff_1_0_0.second;
     BOOST_CHECK_CLOSE(C1_0_0, 10.0, 1e-10);
 
-    auto [C1_1_1, S1_1_1] = multiDataset.getCoeff(0, 0, 1, 1, 1);
+    auto coeff_1_1_1 = multiDataset.getCoeff(0, 0, 1, 1, 1);
+    double C1_1_1 = coeff_1_1_1.first;
+    double S1_1_1 = coeff_1_1_1.second;
     BOOST_CHECK_CLOSE(C1_1_1, 1.5, 1e-10);
     BOOST_CHECK_CLOSE(S1_1_1, -0.5, 1e-10);
 
     // Verify coefficient values from second file
-    auto [C2_0_0, S2_0_0] = multiDataset.getCoeff(1, 0, 0, 0, 0);
+    auto coeff_2_0_0 = multiDataset.getCoeff(1, 0, 0, 0, 0);
+    double C2_0_0 = coeff_2_0_0.first;
+    double S2_0_0 = coeff_2_0_0.second;
     BOOST_CHECK_CLOSE(C2_0_0, 20.0, 1e-10);
 
-    auto [C2_1_1, S2_1_1] = multiDataset.getCoeff(1, 0, 1, 1, 1);
+    auto coeff_2_1_1 = multiDataset.getCoeff(1, 0, 1, 1, 1);
+    double C2_1_1 = coeff_2_1_1.first;
+    double S2_1_1 = coeff_2_1_1.second;
     BOOST_CHECK_CLOSE(C2_1_1, 2.5, 1e-10);
     BOOST_CHECK_CLOSE(S2_1_1, -1.0, 1e-10);
 }
@@ -666,18 +699,26 @@ BOOST_FIXTURE_TEST_CASE(test_dataset_transformer, TestDataPaths)
     BOOST_CHECK_EQUAL(stokesDataset.nmax(), 10);
 
     // Check specific coefficient values at (ri=0, li=0) -> 4000m, 0deg
-    auto [C_0_0_r0l0, S_0_0_r0l0] = stokesDataset.getCoeff(0, 0, 0, 0, 0);
+    auto coeff_0_0_r0l0 = stokesDataset.getCoeff(0, 0, 0, 0, 0);
+    double C_0_0_r0l0 = coeff_0_0_r0l0.first;
+    double S_0_0_r0l0 = coeff_0_0_r0l0.second;
     BOOST_CHECK_CLOSE(C_0_0_r0l0, expectedData1.cosineCoeffs(0, 0), 1e-10);
     BOOST_CHECK_CLOSE(S_0_0_r0l0, expectedData1.sineCoeffs(0, 0), 1e-10);
 
-    auto [C_3_1_r0l0, S_3_1_r0l0] = stokesDataset.getCoeff(0, 0, 0, 3, 1);
+    auto coeff_3_1_r0l0 = stokesDataset.getCoeff(0, 0, 0, 3, 1);
+    double C_3_1_r0l0 = coeff_3_1_r0l0.first;
+    double S_3_1_r0l0 = coeff_3_1_r0l0.second;
     BOOST_CHECK_CLOSE(C_3_1_r0l0, expectedData1.cosineCoeffs(3, 1), 1e-10);
 
-    auto [C_5_4_r0l0, S_5_4_r0l0] = stokesDataset.getCoeff(0, 0, 0, 5, 4);
+    auto coeff_5_4_r0l0 = stokesDataset.getCoeff(0, 0, 0, 5, 4);
+    double C_5_4_r0l0 = coeff_5_4_r0l0.first;
+    double S_5_4_r0l0 = coeff_5_4_r0l0.second;
     BOOST_CHECK_CLOSE(C_5_4_r0l0, expectedData1.cosineCoeffs(5, 4), 1e-10);
 
     // Check coefficient values at (ri=1, li=1) -> 10000m, 30deg
-    auto [C_0_0_r1l1, S_0_0_r1l1] = stokesDataset.getCoeff(0, 1, 1, 0, 0);
+    auto coeff_0_0_r1l1 = stokesDataset.getCoeff(0, 1, 1, 0, 0);
+    double C_0_0_r1l1 = coeff_0_0_r1l1.first;
+    double S_0_0_r1l1 = coeff_0_0_r1l1.second;
     BOOST_CHECK_CLOSE(C_0_0_r1l1, expectedData2.cosineCoeffs(0, 0), 1e-10);
     BOOST_CHECK_CLOSE(S_0_0_r1l1, expectedData2.sineCoeffs(0, 0), 1e-10);
 
@@ -735,7 +776,9 @@ BOOST_FIXTURE_TEST_CASE(test_stokes_dataset_creation_via_processor, TestDataPath
     // This corresponds to dataset indices: radius_index=0, longitude_index=0
     {
         // Get coefficient matrices from the dataset
-        auto [cosineCoefficients, sineCoefficients] = stokesDataset.getCoefficientMatrices(0, 0, 0);
+        auto matrices_0_0 = stokesDataset.getCoefficientMatrices(0, 0, 0);
+        auto cosineCoefficients = matrices_0_0.first;
+        auto sineCoefficients = matrices_0_0.second;
 
         // Check output dimensions
         BOOST_CHECK_EQUAL(cosineCoefficients.rows(), maxDegree + 1);
@@ -779,7 +822,9 @@ BOOST_FIXTURE_TEST_CASE(test_stokes_dataset_creation_via_processor, TestDataPath
     // This corresponds to dataset indices: radius_index=1, longitude_index=1
     {
         // Get coefficient matrices from the dataset
-        auto [cosineCoefficients, sineCoefficients] = stokesDataset.getCoefficientMatrices(0, 1, 1);
+        auto matrices_1_1 = stokesDataset.getCoefficientMatrices(0, 1, 1);
+        auto cosineCoefficients = matrices_1_1.first;
+        auto sineCoefficients = matrices_1_1.second;
 
         // Check output dimensions
         BOOST_CHECK_EQUAL(cosineCoefficients.rows(), maxDegree + 1);
@@ -1388,14 +1433,18 @@ BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_sh_dataset, TestDataPath
     BOOST_CHECK_EQUAL(dataset.nmax(), 10);
 
     // Verify computed coefficients match expected values at (ri=0, li=0) -> 4000m, 0deg
-    auto [cosineMatrix0, sineMatrix0] = dataset.getCoefficientMatrices(0, 0, 0);
+    auto matrix_pair_0 = dataset.getCoefficientMatrices(0, 0, 0);
+    auto cosineMatrix0 = matrix_pair_0.first;
+    auto sineMatrix0 = matrix_pair_0.second;
     BOOST_CHECK_CLOSE(cosineMatrix0(0, 0), expectedData1.cosineCoeffs(0, 0), 1e-10);
     BOOST_CHECK_CLOSE(cosineMatrix0(3, 1), expectedData1.cosineCoeffs(3, 1), 1e-10);
     BOOST_CHECK_CLOSE(sineMatrix0(6, 2), expectedData1.sineCoeffs(6, 2), 1e-10);
     BOOST_CHECK_CLOSE(sineMatrix0(7, 5), expectedData1.sineCoeffs(7, 5), 1e-10);
 
     // Verify computed coefficients at (ri=1, li=1) -> 10000m, 30deg
-    auto [cosineMatrix1, sineMatrix1] = dataset.getCoefficientMatrices(0, 1, 1);
+    auto matrix_pair_1 = dataset.getCoefficientMatrices(0, 1, 1);
+    auto cosineMatrix1 = matrix_pair_1.first;
+    auto sineMatrix1 = matrix_pair_1.second;
     BOOST_CHECK_CLOSE(cosineMatrix1(0, 0), expectedData2.cosineCoeffs(0, 0), 1e-10);
     BOOST_CHECK_CLOSE(cosineMatrix1(3, 1), expectedData2.cosineCoeffs(3, 1), 1e-10);
 }
@@ -1495,23 +1544,39 @@ BOOST_FIXTURE_TEST_CASE(test_sh_processor_from_existing_files, TestDataPaths)
 
     // Verify selected coefficient values match between original and read datasets
     // Test a few specific coefficients across different radii and longitudes
-    auto [orig_C_0_0_r0_l0, orig_S_0_0_r0_l0] = originalDataset.getCoeff(0, 0, 0, 0, 0);
-    auto [read_C_0_0_r0_l0, read_S_0_0_r0_l0] = readDataset.getCoeff(0, 0, 0, 0, 0);
+    auto orig_coeff_0_0_r0_l0 = originalDataset.getCoeff(0, 0, 0, 0, 0);
+    double orig_C_0_0_r0_l0 = orig_coeff_0_0_r0_l0.first;
+    double orig_S_0_0_r0_l0 = orig_coeff_0_0_r0_l0.second;
+    auto read_coeff_0_0_r0_l0 = readDataset.getCoeff(0, 0, 0, 0, 0);
+    double read_C_0_0_r0_l0 = read_coeff_0_0_r0_l0.first;
+    double read_S_0_0_r0_l0 = read_coeff_0_0_r0_l0.second;
     BOOST_CHECK_CLOSE(read_C_0_0_r0_l0, orig_C_0_0_r0_l0, 1e-10);
     BOOST_CHECK_CLOSE(read_S_0_0_r0_l0, orig_S_0_0_r0_l0, 1e-10);
 
-    auto [orig_C_2_1_r0_l1, orig_S_2_1_r0_l1] = originalDataset.getCoeff(0, 0, 1, 2, 1);
-    auto [read_C_2_1_r0_l1, read_S_2_1_r0_l1] = readDataset.getCoeff(0, 0, 1, 2, 1);
+    auto orig_coeff_2_1_r0_l1 = originalDataset.getCoeff(0, 0, 1, 2, 1);
+    double orig_C_2_1_r0_l1 = orig_coeff_2_1_r0_l1.first;
+    double orig_S_2_1_r0_l1 = orig_coeff_2_1_r0_l1.second;
+    auto read_coeff_2_1_r0_l1 = readDataset.getCoeff(0, 0, 1, 2, 1);
+    double read_C_2_1_r0_l1 = read_coeff_2_1_r0_l1.first;
+    double read_S_2_1_r0_l1 = read_coeff_2_1_r0_l1.second;
     BOOST_CHECK_CLOSE(read_C_2_1_r0_l1, orig_C_2_1_r0_l1, 1e-10);
     BOOST_CHECK_CLOSE(read_S_2_1_r0_l1, orig_S_2_1_r0_l1, 1e-10);
 
-    auto [orig_C_3_2_r1_l0, orig_S_3_2_r1_l0] = originalDataset.getCoeff(0, 1, 0, 3, 2);
-    auto [read_C_3_2_r1_l0, read_S_3_2_r1_l0] = readDataset.getCoeff(0, 1, 0, 3, 2);
+    auto orig_coeff_3_2_r1_l0 = originalDataset.getCoeff(0, 1, 0, 3, 2);
+    double orig_C_3_2_r1_l0 = orig_coeff_3_2_r1_l0.first;
+    double orig_S_3_2_r1_l0 = orig_coeff_3_2_r1_l0.second;
+    auto read_coeff_3_2_r1_l0 = readDataset.getCoeff(0, 1, 0, 3, 2);
+    double read_C_3_2_r1_l0 = read_coeff_3_2_r1_l0.first;
+    double read_S_3_2_r1_l0 = read_coeff_3_2_r1_l0.second;
     BOOST_CHECK_CLOSE(read_C_3_2_r1_l0, orig_C_3_2_r1_l0, 1e-10);
     BOOST_CHECK_CLOSE(read_S_3_2_r1_l0, orig_S_3_2_r1_l0, 1e-10);
 
-    auto [orig_C_5_4_r1_l1, orig_S_5_4_r1_l1] = originalDataset.getCoeff(0, 1, 1, 5, 4);
-    auto [read_C_5_4_r1_l1, read_S_5_4_r1_l1] = readDataset.getCoeff(0, 1, 1, 5, 4);
+    auto orig_coeff_5_4_r1_l1 = originalDataset.getCoeff(0, 1, 1, 5, 4);
+    double orig_C_5_4_r1_l1 = orig_coeff_5_4_r1_l1.first;
+    double orig_S_5_4_r1_l1 = orig_coeff_5_4_r1_l1.second;
+    auto read_coeff_5_4_r1_l1 = readDataset.getCoeff(0, 1, 1, 5, 4);
+    double read_C_5_4_r1_l1 = read_coeff_5_4_r1_l1.first;
+    double read_S_5_4_r1_l1 = read_coeff_5_4_r1_l1.second;
     BOOST_CHECK_CLOSE(read_C_5_4_r1_l1, orig_C_5_4_r1_l1, 1e-10);
     BOOST_CHECK_CLOSE(read_S_5_4_r1_l1, orig_S_5_4_r1_l1, 1e-10);
 
@@ -1531,7 +1596,9 @@ BOOST_FIXTURE_TEST_CASE(test_sh_processor_from_existing_files, TestDataPaths)
     BOOST_CHECK_EQUAL(customReadDataset.nmax(), originalDataset.nmax());
 
     // Verify one coefficient value
-    auto [custom_C_0_0, custom_S_0_0] = customReadDataset.getCoeff(0, 0, 0, 0, 0);
+    auto custom_coeff_0_0 = customReadDataset.getCoeff(0, 0, 0, 0, 0);
+    double custom_C_0_0 = custom_coeff_0_0.first;
+    double custom_S_0_0 = custom_coeff_0_0.second;
     BOOST_CHECK_CLOSE(custom_C_0_0, orig_C_0_0_r0_l0, 1e-10);
 
     // Test error handling: calling createPolyCoefDataset on SH processor should throw
@@ -1669,8 +1736,12 @@ BOOST_FIXTURE_TEST_CASE(test_full_pipeline, TestDataPaths)
     BOOST_CHECK_EQUAL(readDataset.nLongitudes(), stokesDataset.nLongitudes());
 
     // Verify some coefficient values match
-    auto [orig_coeff, orig_sine] = stokesDataset.getCoeff(0, 0, 0, 0, 0);
-    auto [read_coeff, read_sine] = readDataset.getCoeff(0, 0, 0, 0, 0);
+    auto orig_pair = stokesDataset.getCoeff(0, 0, 0, 0, 0);
+    double orig_coeff = orig_pair.first;
+    double orig_sine = orig_pair.second;
+    auto read_pair = readDataset.getCoeff(0, 0, 0, 0, 0);
+    double read_coeff = read_pair.first;
+    double read_sine = read_pair.second;
     BOOST_CHECK_CLOSE(read_coeff, orig_coeff, 1e-10);
     BOOST_CHECK_CLOSE(read_sine, orig_sine, 1e-10);
 
@@ -1680,7 +1751,9 @@ BOOST_FIXTURE_TEST_CASE(test_full_pipeline, TestDataPaths)
     BOOST_CHECK_EQUAL(folderReadDataset.nmax(), stokesDataset.nmax());
 
     // Verify coefficient values from folder read match original
-    auto [folder_coeff, folder_sine] = folderReadDataset.getCoeff(0, 0, 0, 0, 0);
+    auto folder_pair = folderReadDataset.getCoeff(0, 0, 0, 0, 0);
+    double folder_coeff = folder_pair.first;
+    double folder_sine = folder_pair.second;
     BOOST_CHECK_CLOSE(folder_coeff, orig_coeff, 1e-10);
     BOOST_CHECK_CLOSE(folder_sine, orig_sine, 1e-10);
 }

@@ -225,7 +225,7 @@ public:
         }
 
         // Pre-compute 2D interpolation fractions if applicable
-        if constexpr ( NumberOfDimensions == 2 )
+        if ( NumberOfDimensions == 2 )
         {
             state.i0 = state.nearestLowerIndices[ 0 ];
             state.i1 = state.nearestLowerIndices[ 1 ];
@@ -259,7 +259,7 @@ public:
         }
 
         // Use optimized 2D implementation if available
-        if constexpr ( NumberOfDimensions == 2 )
+        if ( NumberOfDimensions == 2 )
         {
             // Access the four corner values directly using pre-computed indices
             boost::array< unsigned int, 2 > indices;
@@ -347,7 +347,7 @@ public:
         }
 
         // Use optimized 2D implementation if available (avoids recursion overhead)
-        if constexpr ( NumberOfDimensions == 2 )
+        if ( NumberOfDimensions == 2 )
         {
             return interpolate2DOptimized( localIndependentValuesToInterpolate, nearestLowerIndices );
         }
