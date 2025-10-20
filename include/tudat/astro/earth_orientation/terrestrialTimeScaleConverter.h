@@ -508,14 +508,10 @@ private:
         // The UTC introduction epoch is in TAI, but we can use it as an approximate
         // threshold for the input time (which is UTC-like) to decide which path to take.
         // This avoids calling SOFA functions with dates they cannot handle.
-        std::cout << "Entering calculateAtomicTimesFromUtc()" << std::endl;
-
         if ( inputUtcTime < utcIntroductionEpochInTai_)
         {
             // --- 1. Historical Time (Pre-UTC Era) ---
             // This path is now correctly taken for the 1893 date.
-            std::cout << "DEBUG: Historical time path taken. Input time is effectively UT1." << std::endl;
-
             // In this period, the input "UTC" is effectively UT1.
             // The conversion path is UT1 -> TT -> TAI.
             getCurrentTimeList< TimeType >( ).ut1 = inputUtcTime;
@@ -535,8 +531,6 @@ private:
         else
         {
             // --- 2. Modern Time (Post-UTC Era) ---
-            std::cout << "DEBUG: Modern time path taken. Using SOFA for UTC -> TAI conversion." << std::endl;
-
             // The conversion is handled directly by the SOFA function, which correctly
             // accounts for all leap seconds.
             getCurrentTimeList< TimeType >( ).utc = inputUtcTime;
