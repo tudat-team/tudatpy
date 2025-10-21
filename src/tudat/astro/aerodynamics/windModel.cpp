@@ -64,6 +64,7 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaPolyDataset& xPolyData
         lastYFileIndex_( 0 ),
         lastZFileIndex_( 0 ),
         cachedRadius_( 0.0 ),
+        cachedEffectiveRadius_( 0.0 ),
         cachedInterpolationSolarLongitude_( 0.0 ),
         coefficientMatricesSized_( false ),
         cachedLatitude_( 0.0 ),
@@ -166,6 +167,7 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaStokesDataset& xStokes
         lastYFileIndex_( 0 ),
         lastZFileIndex_( 0 ),
         cachedRadius_( 0.0 ),
+        cachedEffectiveRadius_( 0.0 ),
         cachedInterpolationSolarLongitude_( 0.0 ),
         coefficientMatricesSized_( false ),
         cachedLatitude_( 0.0 ),
@@ -314,13 +316,16 @@ Eigen::Vector3d ComaWindModel::computeWindVectorFromStokesCoefficients(
     const int effectiveMaxDegree = maximumDegree_ > 0 ? maximumDegree_ : nmax;
     const int effectiveMaxOrder = maximumOrder_ > 0 ? maximumOrder_ : nmax;
 
+    // Clamp radius to reference radius - wind velocity is constant beyond reference radius
+    const double effectiveRadius = std::min(radius, referenceRadius);
+
     // Check if coefficient interpolation can be skipped (same radius/solar longitude)
     constexpr double radiusTolerance = 1e-10;
     constexpr double solarLongitudeTolerance = 1e-10;
     constexpr double radiusToleranceSq = radiusTolerance * radiusTolerance;
     constexpr double solarLongitudeToleranceSq = solarLongitudeTolerance * solarLongitudeTolerance;
 
-    const double radiusDiff = radius - cachedRadius_;
+    const double radiusDiff = effectiveRadius - cachedEffectiveRadius_;
     const double solarLongitudeDiff = solarLongitude - cachedInterpolationSolarLongitude_;
 
     const bool sameRadius = cacheFlags_.interpolationValid &&
@@ -357,10 +362,9 @@ Eigen::Vector3d ComaWindModel::computeWindVectorFromStokesCoefficients(
             }
         }
 
-        // Step 4: Choose interpolation strategy based on radius
-        if (radius <= referenceRadius)
+        // Step 4: Interpolate coefficients using 2D interpolation (radius is clamped to referenceRadius)
         {
-            interpolationPoint2D_[0] = radius;
+            interpolationPoint2D_[0] = effectiveRadius;
             interpolationPoint2D_[1] = solarLongitude;
 
             // Prepare interpolation state once for all coefficients (batch mode)
@@ -392,7 +396,7 @@ Eigen::Vector3d ComaWindModel::computeWindVectorFromStokesCoefficients(
                             createFallback2DInterpolator( xStokesDataset_, xFallbackStokesInterpolators_, fileIndex, degree, order,
                                                           cachedXCosineCoefficients_(degree, order),
                                                           cachedXSineCoefficients_(degree, order),
-                                                          radius, solarLongitude );
+                                                          effectiveRadius, solarLongitude );
                         }
 
                         // Y-component
@@ -410,7 +414,7 @@ Eigen::Vector3d ComaWindModel::computeWindVectorFromStokesCoefficients(
                             createFallback2DInterpolator( yStokesDataset_, yFallbackStokesInterpolators_, fileIndex, degree, order,
                                                           cachedYCosineCoefficients_(degree, order),
                                                           cachedYSineCoefficients_(degree, order),
-                                                          radius, solarLongitude );
+                                                          effectiveRadius, solarLongitude );
                         }
 
                         // Z-component
@@ -428,7 +432,7 @@ Eigen::Vector3d ComaWindModel::computeWindVectorFromStokesCoefficients(
                             createFallback2DInterpolator( zStokesDataset_, zFallbackStokesInterpolators_, fileIndex, degree, order,
                                                           cachedZCosineCoefficients_(degree, order),
                                                           cachedZSineCoefficients_(degree, order),
-                                                          radius, solarLongitude );
+                                                          effectiveRadius, solarLongitude );
                         }
                     }
                 }
@@ -443,124 +447,22 @@ Eigen::Vector3d ComaWindModel::computeWindVectorFromStokesCoefficients(
                         createFallback2DInterpolator( xStokesDataset_, xFallbackStokesInterpolators_, fileIndex, degree, order,
                                                       cachedXCosineCoefficients_(degree, order),
                                                       cachedXSineCoefficients_(degree, order),
-                                                      radius, solarLongitude );
+                                                      effectiveRadius, solarLongitude );
                         createFallback2DInterpolator( yStokesDataset_, yFallbackStokesInterpolators_, fileIndex, degree, order,
                                                       cachedYCosineCoefficients_(degree, order),
                                                       cachedYSineCoefficients_(degree, order),
-                                                      radius, solarLongitude );
+                                                      effectiveRadius, solarLongitude );
                         createFallback2DInterpolator( zStokesDataset_, zFallbackStokesInterpolators_, fileIndex, degree, order,
                                                       cachedZCosineCoefficients_(degree, order),
                                                       cachedZSineCoefficients_(degree, order),
-                                                      radius, solarLongitude );
+                                                      effectiveRadius, solarLongitude );
                     }
                 }
             }
-        }
-        else
-        {
-            interpolationPoint1D_[0] = solarLongitude;
-
-            // Prepare interpolation state once for all reduced coefficients (batch mode)
-            if ( !xReducedStokesInterpolators_.empty() && !xReducedStokesInterpolators_[fileIndex].empty() )
-            {
-                // Use the first available interpolator to prepare the shared interpolation state
-                auto firstReducedInterpolator = xReducedStokesInterpolators_[fileIndex].begin()->second.first.get();
-                auto reducedInterpolationState = firstReducedInterpolator->prepareInterpolationState(interpolationPoint1D_);
-
-                // Now interpolate ALL THREE components using the same pre-computed state
-                for ( int degree = 0; degree <= effectiveMaxDegree; ++degree )
-                {
-                    for ( int order = 0; order <= std::min(degree, effectiveMaxOrder); ++order )
-                    {
-                        std::pair<int,int> degreeOrderPair = {degree, order};
-
-                        // X-component
-                        auto itX = xReducedStokesInterpolators_[fileIndex].find(degreeOrderPair);
-                        if ( itX != xReducedStokesInterpolators_[fileIndex].end() )
-                        {
-                            cachedXCosineCoefficients_(degree, order) = itX->second.first->interpolateWithState(reducedInterpolationState);
-                            if ( order > 0 )
-                            {
-                                cachedXSineCoefficients_(degree, order) = itX->second.second->interpolateWithState(reducedInterpolationState);
-                            }
-                        }
-                        else
-                        {
-                            createFallback1DInterpolator( xStokesDataset_, xFallbackReducedStokesInterpolators_, fileIndex, degree, order,
-                                                          cachedXCosineCoefficients_(degree, order),
-                                                          cachedXSineCoefficients_(degree, order),
-                                                          solarLongitude );
-                        }
-
-                        // Y-component
-                        auto itY = yReducedStokesInterpolators_[fileIndex].find(degreeOrderPair);
-                        if ( itY != yReducedStokesInterpolators_[fileIndex].end() )
-                        {
-                            cachedYCosineCoefficients_(degree, order) = itY->second.first->interpolateWithState(reducedInterpolationState);
-                            if ( order > 0 )
-                            {
-                                cachedYSineCoefficients_(degree, order) = itY->second.second->interpolateWithState(reducedInterpolationState);
-                            }
-                        }
-                        else
-                        {
-                            createFallback1DInterpolator( yStokesDataset_, yFallbackReducedStokesInterpolators_, fileIndex, degree, order,
-                                                          cachedYCosineCoefficients_(degree, order),
-                                                          cachedYSineCoefficients_(degree, order),
-                                                          solarLongitude );
-                        }
-
-                        // Z-component
-                        auto itZ = zReducedStokesInterpolators_[fileIndex].find(degreeOrderPair);
-                        if ( itZ != zReducedStokesInterpolators_[fileIndex].end() )
-                        {
-                            cachedZCosineCoefficients_(degree, order) = itZ->second.first->interpolateWithState(reducedInterpolationState);
-                            if ( order > 0 )
-                            {
-                                cachedZSineCoefficients_(degree, order) = itZ->second.second->interpolateWithState(reducedInterpolationState);
-                            }
-                        }
-                        else
-                        {
-                            createFallback1DInterpolator( zStokesDataset_, zFallbackReducedStokesInterpolators_, fileIndex, degree, order,
-                                                          cachedZCosineCoefficients_(degree, order),
-                                                          cachedZSineCoefficients_(degree, order),
-                                                          solarLongitude );
-                        }
-                    }
-                }
-            }
-            else
-            {
-                // No interpolators available - use fallback for all coefficients and components
-                for ( int degree = 0; degree <= effectiveMaxDegree; ++degree )
-                {
-                    for ( int order = 0; order <= std::min(degree, effectiveMaxOrder); ++order )
-                    {
-                        createFallback1DInterpolator( xStokesDataset_, xFallbackReducedStokesInterpolators_, fileIndex, degree, order,
-                                                      cachedXCosineCoefficients_(degree, order),
-                                                      cachedXSineCoefficients_(degree, order),
-                                                      solarLongitude );
-                        createFallback1DInterpolator( yStokesDataset_, yFallbackReducedStokesInterpolators_, fileIndex, degree, order,
-                                                      cachedYCosineCoefficients_(degree, order),
-                                                      cachedYSineCoefficients_(degree, order),
-                                                      solarLongitude );
-                        createFallback1DInterpolator( zStokesDataset_, zFallbackReducedStokesInterpolators_, fileIndex, degree, order,
-                                                      cachedZCosineCoefficients_(degree, order),
-                                                      cachedZSineCoefficients_(degree, order),
-                                                      solarLongitude );
-                    }
-                }
-            }
-
-            // Apply decay term to the reduced coefficients for all components
-            simulation_setup::StokesCoefficientsEvaluator::applyDecayTerm(cachedXCosineCoefficients_, radius, referenceRadius);
-            simulation_setup::StokesCoefficientsEvaluator::applyDecayTerm(cachedYCosineCoefficients_, radius, referenceRadius);
-            simulation_setup::StokesCoefficientsEvaluator::applyDecayTerm(cachedZCosineCoefficients_, radius, referenceRadius);
         }
 
         // Update interpolation cache after successful coefficient computation
-        cachedRadius_ = radius;
+        cachedEffectiveRadius_ = effectiveRadius;
         cachedInterpolationSolarLongitude_ = solarLongitude;
         cacheFlags_.interpolationValid = true;
     }
@@ -911,6 +813,9 @@ double ComaWindModel::computeWindComponentFromStokesCoefficients(
     const int effectiveMaxDegree = maximumDegree_ > 0 ? maximumDegree_ : nmax;
     const int effectiveMaxOrder = maximumOrder_ > 0 ? maximumOrder_ : nmax;
 
+    // Clamp radius to reference radius - wind velocity is constant beyond reference radius
+    const double effectiveRadius = std::min(radius, referenceRadius);
+
     // Determine which cached coefficient matrices and interpolators to use based on dataset pointer
     Eigen::MatrixXd& cosineCoefficients = (dataset == xStokesDataset_) ? cachedXCosineCoefficients_ :
                                           (dataset == yStokesDataset_) ? cachedYCosineCoefficients_ : cachedZCosineCoefficients_;
@@ -932,7 +837,7 @@ double ComaWindModel::computeWindComponentFromStokesCoefficients(
     constexpr double radiusToleranceSq = radiusTolerance * radiusTolerance;
     constexpr double solarLongitudeToleranceSq = solarLongitudeTolerance * solarLongitudeTolerance;
 
-    const double radiusDiff = radius - cachedRadius_;
+    const double radiusDiff = effectiveRadius - cachedEffectiveRadius_;
     const double solarLongitudeDiff = solarLongitude - cachedInterpolationSolarLongitude_;
 
     const bool sameRadius = cacheFlags_.interpolationValid &&
@@ -956,10 +861,9 @@ double ComaWindModel::computeWindComponentFromStokesCoefficients(
             sineCoefficients = Eigen::MatrixXd::Zero( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
         }
 
-        // Step 4: Choose interpolation strategy based on radius
-        if (radius <= referenceRadius)
+        // Step 4: Interpolate coefficients using 2D interpolation (radius is clamped to referenceRadius)
         {
-            interpolationPoint2D_[0] = radius;
+            interpolationPoint2D_[0] = effectiveRadius;
             interpolationPoint2D_[1] = solarLongitude;
 
             // Prepare interpolation state once for all coefficients (batch mode)
@@ -992,7 +896,7 @@ double ComaWindModel::computeWindComponentFromStokesCoefficients(
                             createFallback2DInterpolator( dataset, fallbackInterpolators, fileIndex, degree, order,
                                                           cosineCoefficients(degree, order),
                                                           sineCoefficients(degree, order),
-                                                          radius, solarLongitude );
+                                                          effectiveRadius, solarLongitude );
                         }
                     }
                 }
@@ -1007,71 +911,14 @@ double ComaWindModel::computeWindComponentFromStokesCoefficients(
                         createFallback2DInterpolator( dataset, fallbackInterpolators, fileIndex, degree, order,
                                                       cosineCoefficients(degree, order),
                                                       sineCoefficients(degree, order),
-                                                      radius, solarLongitude );
+                                                      effectiveRadius, solarLongitude );
                     }
                 }
             }
-        }
-        else
-        {
-            interpolationPoint1D_[0] = solarLongitude;
-
-            // Prepare interpolation state once for all reduced coefficients (batch mode)
-            if ( !reducedInterpolators.empty() && !reducedInterpolators[fileIndex].empty() )
-            {
-                // Use the first available interpolator to prepare the shared interpolation state
-                auto firstReducedInterpolator = reducedInterpolators[fileIndex].begin()->second.first.get();
-                auto reducedInterpolationState = firstReducedInterpolator->prepareInterpolationState(interpolationPoint1D_);
-
-                // Now use the pre-computed state for all coefficient interpolations
-                for ( int degree = 0; degree <= effectiveMaxDegree; ++degree )
-                {
-                    for ( int order = 0; order <= std::min(degree, effectiveMaxOrder); ++order )
-                    {
-                        std::pair<int,int> degreeOrderPair = {degree, order};
-                        auto it = reducedInterpolators[fileIndex].find(degreeOrderPair);
-
-                        if ( it != reducedInterpolators[fileIndex].end() )
-                        {
-                            // Use batch interpolation with pre-computed state (much faster!)
-                            cosineCoefficients(degree, order) = it->second.first->interpolateWithState(reducedInterpolationState);
-                            if ( order > 0 )  // Sine coefficients only exist for m > 0
-                            {
-                                sineCoefficients(degree, order) = it->second.second->interpolateWithState(reducedInterpolationState);
-                            }
-                        }
-                        else
-                        {
-                            // Fallback: create 1D reduced interpolator on-the-fly using helper method
-                            createFallback1DInterpolator( dataset, fallbackReducedInterpolators, fileIndex, degree, order,
-                                                          cosineCoefficients(degree, order),
-                                                          sineCoefficients(degree, order),
-                                                          solarLongitude );
-                        }
-                    }
-                }
-            }
-            else
-            {
-                // No interpolators available - use fallback for all coefficients
-                for ( int degree = 0; degree <= effectiveMaxDegree; ++degree )
-                {
-                    for ( int order = 0; order <= std::min(degree, effectiveMaxOrder); ++order )
-                    {
-                        createFallback1DInterpolator( dataset, fallbackReducedInterpolators, fileIndex, degree, order,
-                                                      cosineCoefficients(degree, order),
-                                                      sineCoefficients(degree, order),
-                                                      solarLongitude );
-                    }
-                }
-            }
-
-            // Apply decay term to the reduced coefficients
-            simulation_setup::StokesCoefficientsEvaluator::applyDecayTerm(cosineCoefficients, radius, referenceRadius);
         }
 
         // Update interpolation cache after successful coefficient computation
-        cachedRadius_ = radius;
+        cachedEffectiveRadius_ = effectiveRadius;
         cachedInterpolationSolarLongitude_ = solarLongitude;
         cacheFlags_.interpolationValid = true;
     }

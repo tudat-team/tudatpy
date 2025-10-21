@@ -407,6 +407,7 @@ private:
 
     //! Cached interpolation point (radius, solar longitude) to detect when cache is valid
     mutable double cachedRadius_;
+    mutable double cachedEffectiveRadius_;  // Cached effective radius (clamped to ref radius) for interpolation cache
     mutable double cachedInterpolationSolarLongitude_;
 
     //! Flag to track if coefficient matrices have been sized (optimization to avoid repeated size checks)
