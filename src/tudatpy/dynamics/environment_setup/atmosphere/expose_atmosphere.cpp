@@ -406,6 +406,75 @@ void expose_atmosphere_setup( py::module &m )
 
      )doc" );
 
+    m.def( "coma_wind_model",
+           &tss::comaWindModelSettings,
+           py::arg( "dataset_collection" ),
+           py::arg( "requested_max_degree" ) = -1,
+           py::arg( "requested_max_order" ) = -1,
+           py::arg( "associated_reference_frame" ) = trf::vertical_frame,
+           py::arg( "include_corotation" ) = true,
+           R"doc(
+
+ Function for creating coma wind model settings.
+
+ Function for settings object, defining coma wind model from a dataset collection containing
+ x, y, z wind velocity components. The wind model uses spherical harmonic expansion to compute
+ wind velocities as a function of position.
+
+
+ Parameters
+ ----------
+ dataset_collection : ComaWindDatasetCollection
+     Collection containing x, y, z component datasets (either polynomial or Stokes coefficients).
+
+ requested_max_degree : int, default = -1
+     Maximum spherical harmonic degree to use (-1 for automatic determination from data).
+
+ requested_max_order : int, default = -1
+     Maximum spherical harmonic order to use (-1 for automatic determination from data).
+
+ associated_reference_frame : dynamics.environment.AerodynamicsReferenceFrames, default = AerodynamicsReferenceFrames.vertical_frame
+     Reference frame in which the wind velocity is defined.
+
+ include_corotation : bool, default = True
+     Boolean flag indicating whether atmospheric co-rotation should be included in aerodynamic computations.
+
+ Returns
+ -------
+ WindModelSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.WindModelSettings` derived :class:`~tudatpy.dynamics.environment_setup.atmosphere.ComaWindModelSettings` class
+
+
+ Examples
+ --------
+ In this example, we create :class:`~tudatpy.dynamics.environment_setup.atmosphere.WindModelSettings`
+ for a coma wind model using a dataset collection:
+
+ .. code-block:: python
+
+   # Create file processor from polynomial coefficient files
+   wind_processor = environment_setup.atmosphere.coma_wind_file_processor(
+       x_file_paths, y_file_paths, z_file_paths)
+
+   # Create dataset collection with Stokes coefficients
+   wind_datasets = wind_processor.create_sh_datasets(
+       radii_m=[1000, 2000, 3000],
+       sol_longitudes_deg=[0, 90, 180, 270])
+
+   # Create coma wind model settings in vertical frame
+   coma_wind = environment_setup.atmosphere.coma_wind_model(
+       wind_datasets,
+       requested_max_degree=10,
+       requested_max_order=10,
+       associated_reference_frame=environment.AerodynamicsReferenceFrames.vertical_frame,
+       include_corotation=True)
+
+   # Apply to atmosphere settings
+   body_settings.get("Comet").atmosphere_settings.wind_settings = coma_wind
+
+
+     )doc" );
+
     m.def( "exponential_predefined",
            py::overload_cast< const std::string & >( &tss::exponentialAtmosphereSettings ),
            py::arg( "body_name" ),
@@ -886,23 +955,72 @@ using the NRLMSISE-00 global reference model:
             py::arg( "max_degree" ) = -1,
             py::arg( "max_order" ) = -1,
             R"doc(
-    Create a coma atmosphere from polynomial coefficients.
 
-    Parameters
-    ----------
-    poly_data : ComaPolyDataset
-        Polynomial coefficient dataset
-    molecular_weight : float
-        Molecular weight of the gas species [kg/mol]
-    max_degree : int, optional
-        Maximum spherical harmonic degree (-1 for auto)
-    max_order : int, optional
-        Maximum spherical harmonic order (-1 for auto)
+ Function for creating coma atmosphere model settings from polynomial coefficients.
 
-    Returns
-    -------
-    AtmosphereSettings
-        Atmosphere settings configured for coma model
+ Function for settings object, defining a coma atmosphere model based on spherical harmonic expansion
+ of gas density data. The coma model is designed for modeling cometary atmospheres (comae) where
+ gas density varies with position and time. This variant uses polynomial coefficient data that
+ describes the spatial distribution of gas density.
+
+ The density is computed using spherical harmonic expansion, allowing efficient representation of
+ complex 3D density distributions around the nucleus. The model supports time-dependent density
+ variations through multiple data files covering different time periods.
+
+
+ Parameters
+ ----------
+ poly_data : ComaPolyDataset
+     Polynomial coefficient dataset containing spherical harmonic coefficients for gas density
+     distribution. Create using :func:`~tudatpy.dynamics.environment_setup.atmosphere.coma_model_file_processor`.
+
+ molecular_weight : float
+     Molecular weight (molar mass) of the gas species [kg/mol]. For water vapor (H2O), use 0.018015 kg/mol.
+
+ max_degree : int, default = -1
+     Maximum spherical harmonic degree to use in density calculations. Set to -1 to automatically
+     use the maximum degree available in the dataset.
+
+ max_order : int, default = -1
+     Maximum spherical harmonic order to use in density calculations. Set to -1 to automatically
+     use the maximum order available in the dataset.
+
+ Returns
+ -------
+ AtmosphereSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` class
+     configured for coma model.
+
+
+ Examples
+ --------
+ In this example, we create a coma atmosphere model from polynomial coefficient files:
+
+ .. code-block:: python
+
+   # Define paths to polynomial coefficient files
+   poly_file_paths = [
+       "coma_data/poly_coeffs_epoch1.txt",
+       "coma_data/poly_coeffs_epoch2.txt"
+   ]
+
+   # Create file processor from polynomial files
+   processor = environment_setup.atmosphere.coma_model_file_processor(poly_file_paths)
+
+   # Create polynomial dataset
+   poly_dataset = processor.create_poly_coef_dataset()
+
+   # Create coma atmosphere settings
+   coma_atmosphere = environment_setup.atmosphere.coma_model(
+       poly_data=poly_dataset,
+       molecular_weight=0.018015,  # H2O molecular weight in kg/mol
+       max_degree=10,
+       max_order=10)
+
+   # Apply to body settings
+   body_settings.get("67P").atmosphere_settings = coma_atmosphere
+
+
     )doc"
                 );
 
@@ -915,34 +1033,211 @@ using the NRLMSISE-00 global reference model:
             py::arg( "max_degree" ) = -1,
             py::arg( "max_order" ) = -1,
             R"doc(
-    Create a coma atmosphere from precomputed Stokes coefficients.
 
-    Parameters
-    ----------
-    stokes_data : ComaStokesDataset
-        Precomputed Stokes coefficient dataset
-    molecular_weight : float
-        Molecular weight of the gas species [kg/mol]
-    max_degree : int, optional
-        Maximum spherical harmonic degree (-1 for auto)
-    max_order : int, optional
-        Maximum spherical harmonic order (-1 for auto)
+ Function for creating coma atmosphere model settings from Stokes coefficients.
 
-    Returns
-    -------
-    AtmosphereSettings
-        Atmosphere settings configured for coma model
+ Function for settings object, defining a coma atmosphere model based on spherical harmonic expansion
+ of gas density data using precomputed Stokes coefficients. The coma model is designed for modeling
+ cometary atmospheres (comae) where gas density varies with position and time. This variant uses
+ precomputed Stokes coefficients (spherical harmonics) evaluated at specific radii and solar longitudes.
+
+ Stokes coefficients provide a more direct representation of the spherical harmonic expansion compared
+ to polynomial coefficients, offering faster evaluation during simulation. The coefficients
+ are pre-evaluated at a grid of radii and solar longitudes, with interpolation used for intermediate values.
+
+
+ Parameters
+ ----------
+ stokes_data : ComaStokesDataset
+     Precomputed Stokes coefficient dataset containing spherical harmonic coefficients evaluated at
+     specific radii and solar longitudes. Create using :func:`~tudatpy.dynamics.environment_setup.atmosphere.coma_model_file_processor`
+     or load from pre-existing Stokes coefficient CSV files.
+
+ molecular_weight : float
+     Molecular weight (molar mass) of the gas species [kg/mol]. For water vapor (H2O), use 0.018015 kg/mol.
+
+ max_degree : int, default = -1
+     Maximum spherical harmonic degree to use in density calculations. Set to -1 to automatically
+     use the maximum degree available in the dataset.
+
+ max_order : int, default = -1
+     Maximum spherical harmonic order to use in density calculations. Set to -1 to automatically
+     use the maximum order available in the dataset.
+
+ Returns
+ -------
+ AtmosphereSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` class
+     configured for coma model.
+
+
+ Examples
+ --------
+ In this example, we create a coma atmosphere model by converting polynomial coefficients to Stokes coefficients:
+
+ .. code-block:: python
+
+   # Create file processor from polynomial coefficient files
+   poly_file_paths = ["coma_data/poly_coeffs_epoch1.txt"]
+   processor = environment_setup.atmosphere.coma_model_file_processor(poly_file_paths)
+
+   # Create Stokes dataset by evaluating at specific radii and solar longitudes
+   stokes_dataset = processor.create_sh_dataset(
+       radii_m=[1000.0, 2000.0, 5000.0, 10000.0],
+       sol_longitudes_deg=[0.0, 90.0, 180.0, 270.0],
+       requested_max_degree=10,
+       requested_max_order=10)
+
+   # Create coma atmosphere settings
+   coma_atmosphere = environment_setup.atmosphere.coma_model(
+       stokes_data=stokes_dataset,
+       molecular_weight=0.018015,  # H2O molecular weight in kg/mol
+       max_degree=10,
+       max_order=10)
+
+   # Apply to body settings
+   body_settings.get("67P").atmosphere_settings = coma_atmosphere
+
+ Alternatively, load from pre-existing Stokes coefficient CSV files:
+
+ .. code-block:: python
+
+   # Create file processor from existing Stokes CSV files
+   processor = environment_setup.atmosphere.coma_model_file_processor(
+       input_dir="coma_data/stokes_files",
+       prefix="stokes")
+
+   # Create Stokes dataset (radii and longitudes are read from files)
+   stokes_dataset = processor.create_sh_dataset(
+       radii_m=[],  # Ignored when loading from files
+       sol_longitudes_deg=[]) 
+
+   # Create coma atmosphere settings
+   coma_atmosphere = environment_setup.atmosphere.coma_model(
+       stokes_data=stokes_dataset,
+       molecular_weight=0.018015)
+
+   # Apply to body settings
+   body_settings.get("67P").atmosphere_settings = coma_atmosphere
+
+
     )doc"
             );
 
     // === Coma processing: datasets (minimal shells so Python can hold them) ===
     py::class_< tss::ComaPolyDataset >( m,
                                         "ComaPolyDataset",
-                                        R"doc(Polynomial-coefficient dataset for the coma model.)doc" );
+                                        R"doc(
+
+ Polynomial coefficient dataset for coma atmosphere density model.
+
+ This class holds polynomial coefficients that describe the spherical harmonic expansion of gas
+ density in a cometary coma. The coefficients represent the spatial variation of density as a
+ function of position relative to the comet nucleus. The dataset can contain data from multiple
+ files, each covering a different time period, enabling time-dependent coma modeling.
+
+ Polynomial coefficients are the raw input format and need to be evaluated to produce Stokes
+ coefficients for use in the coma model. This evaluation is typically performed automatically
+ when creating a coma atmosphere model.
+
+ .. note:: This class cannot be directly instantiated by the user. Create instances using
+           :func:`~tudatpy.dynamics.environment_setup.atmosphere.coma_model_file_processor`
+           and its ``create_poly_coef_dataset()`` method.
+
+
+ Examples
+ --------
+ Create a polynomial dataset from coefficient files:
+
+ .. code-block:: python
+
+   # Define paths to polynomial coefficient files
+   file_paths = [
+       "coma_data/h2o_poly_epoch1.txt",
+       "coma_data/h2o_poly_epoch2.txt"
+   ]
+
+   # Create file processor
+   processor = environment_setup.atmosphere.coma_model_file_processor(file_paths)
+
+   # Create polynomial dataset
+   poly_dataset = processor.create_poly_coef_dataset()
+
+   # Use the dataset to create coma atmosphere settings
+   coma_settings = environment_setup.atmosphere.coma_model(
+       poly_data=poly_dataset,
+       molecular_weight=0.018015)  # H2O molecular weight
+
+
+      )doc" );
 
     py::class_< tss::ComaStokesDataset >( m,
                                           "ComaStokesDataset",
-                                          R"doc(Stokes spherical-harmonics dataset for the coma model.)doc" );
+                                          R"doc(
+
+ Stokes coefficient (spherical harmonics) dataset for coma atmosphere density model.
+
+ This class holds precomputed Stokes coefficients (spherical harmonic coefficients) that describe
+ the gas density distribution in a cometary coma. The coefficients are evaluated at a specific grid
+ of radii and solar longitudes, enabling efficient interpolation during simulation. The dataset can
+ contain data from multiple files, each covering a different time period.
+
+ Stokes coefficients provide a direct representation of the spherical harmonic expansion:
+
+ .. math::
+     \\rho(r, \\theta, \\phi) = \\sum_{n=0}^{N} \\sum_{m=0}^{n} [C_{nm}(r) \\cos(m\\phi) + S_{nm}(r) \\sin(m\\phi)] P_{nm}(\\cos\\theta)
+
+ where :math:`C_{nm}` and :math:`S_{nm}` are the Stokes coefficients, :math:`P_{nm}` are associated
+ Legendre polynomials, and :math:`(r, \\theta, \\phi)` are spherical coordinates.
+
+ .. note:: This class cannot be directly instantiated by the user. Create instances using
+           :func:`~tudatpy.dynamics.environment_setup.atmosphere.coma_model_file_processor`
+           and its ``create_sh_dataset()`` method, or load from pre-existing CSV files.
+
+
+ Examples
+ --------
+ Create a Stokes dataset by transforming polynomial coefficients:
+
+ .. code-block:: python
+
+   # Create file processor from polynomial files
+   processor = environment_setup.atmosphere.coma_model_file_processor(
+       ["coma_data/h2o_poly.txt"])
+
+   # Transform to Stokes coefficients at specific radii and solar longitudes
+   stokes_dataset = processor.create_sh_dataset(
+       radii_m=[1000.0, 2000.0, 5000.0, 10000.0],
+       sol_longitudes_deg=[0.0, 90.0, 180.0, 270.0],
+       requested_max_degree=10,
+       requested_max_order=10)
+
+   # Use the dataset to create coma atmosphere settings
+   coma_settings = environment_setup.atmosphere.coma_model(
+       stokes_data=stokes_dataset,
+       molecular_weight=0.018015)
+
+ Alternatively, load from pre-existing Stokes CSV files:
+
+ .. code-block:: python
+
+   # Create file processor from existing Stokes CSV files
+   processor = environment_setup.atmosphere.coma_model_file_processor(
+       input_dir="coma_data/stokes_csv",
+       prefix="stokes")
+
+   # Load Stokes dataset from files
+   stokes_dataset = processor.create_sh_dataset(
+       radii_m=[],  # Ignored when loading from files
+       sol_longitudes_deg=[])
+
+   # Use the dataset
+   coma_settings = environment_setup.atmosphere.coma_model(
+       stokes_data=stokes_dataset,
+       molecular_weight=0.018015)
+
+
+      )doc" );
 
     py::class_< tss::ComaWindDatasetCollection >( m,
                                                    "ComaWindDatasetCollection",
@@ -954,24 +1249,242 @@ using the NRLMSISE-00 global reference model:
         the same type (either all polynomial or all Stokes coefficients).
         )doc" )
         .def("is_poly", &tss::ComaWindDatasetCollection::isPoly,
-             R"doc(Check if the collection contains polynomial datasets.)doc")
+             R"doc(
+
+ Check if the collection contains polynomial coefficient datasets.
+
+ Returns
+ -------
+ bool
+     True if the collection contains :class:`~tudatpy.dynamics.environment_setup.atmosphere.ComaPolyDataset` objects,
+     False if it contains :class:`~tudatpy.dynamics.environment_setup.atmosphere.ComaStokesDataset` objects.
+
+
+ Examples
+ --------
+ .. code-block:: python
+
+   # Create wind dataset collection from polynomial files
+   processor = environment_setup.atmosphere.coma_wind_file_processor(
+       x_file_paths, y_file_paths, z_file_paths)
+   wind_datasets = processor.create_poly_coef_datasets()
+
+   # Check dataset type
+   if wind_datasets.is_poly():
+       print("Collection contains polynomial datasets")
+
+
+      )doc")
         .def("is_stokes", &tss::ComaWindDatasetCollection::isStokes,
-             R"doc(Check if the collection contains Stokes datasets.)doc");
+             R"doc(
+
+ Check if the collection contains Stokes coefficient datasets.
+
+ Returns
+ -------
+ bool
+     True if the collection contains :class:`~tudatpy.dynamics.environment_setup.atmosphere.ComaStokesDataset` objects,
+     False if it contains :class:`~tudatpy.dynamics.environment_setup.atmosphere.ComaPolyDataset` objects.
+
+
+ Examples
+ --------
+ .. code-block:: python
+
+   # Create wind dataset collection from polynomial files and convert to Stokes
+   processor = environment_setup.atmosphere.coma_wind_file_processor(
+       x_file_paths, y_file_paths, z_file_paths)
+   wind_datasets = processor.create_sh_datasets(
+       radii_m=[1000.0, 2000.0],
+       sol_longitudes_deg=[0.0, 90.0, 180.0, 270.0])
+
+   # Check dataset type
+   if wind_datasets.is_stokes():
+       print("Collection contains Stokes datasets")
+
+
+      )doc");
 
     // === Coma processing: file processor ===
     py::class_< tss::ComaModelFileProcessor, std::shared_ptr< tss::ComaModelFileProcessor > >( m,
                                                "ComaModelFileProcessor",
-                                               R"doc(Processor for coma model files (polynomial or spherical harmonics coefficients).)doc" )
+                                               R"doc(
+
+ Processor for creating coma atmosphere datasets from coefficient files.
+
+ This class provides a high-level interface for loading and processing coma model data from files
+ containing either polynomial coefficients or pre-computed Stokes (spherical harmonic) coefficients.
+ It handles two distinct workflows:
+
+ 1. **Polynomial coefficient workflow**: Load polynomial coefficients from text files, optionally
+    transform them to Stokes coefficients at specified radii and solar longitudes, and create datasets
+    for use in coma atmosphere models.
+
+ 2. **Stokes coefficient workflow**: Load pre-computed Stokes coefficients from CSV files that were
+    previously generated and saved.
+
+ The processor automatically manages file reading, data validation, and coordinate transformations,
+ simplifying the setup of complex coma atmosphere models.
+
+ .. note:: This class cannot be directly instantiated. Create instances using the factory functions
+           :func:`~tudatpy.dynamics.environment_setup.atmosphere.coma_model_file_processor`.
+
+
+ Examples
+ --------
+ Polynomial coefficient workflow:
+
+ .. code-block:: python
+
+   # Create processor from polynomial coefficient files
+   poly_files = ["h2o_epoch1.txt", "h2o_epoch2.txt"]
+   processor = environment_setup.atmosphere.coma_model_file_processor(poly_files)
+
+   # Create polynomial dataset directly
+   poly_dataset = processor.create_poly_coef_dataset()
+
+   # Or transform to Stokes coefficients
+   stokes_dataset = processor.create_sh_dataset(
+       radii_m=[1000.0, 2000.0, 5000.0],
+       sol_longitudes_deg=[0.0, 90.0, 180.0, 270.0])
+
+ Stokes coefficient workflow:
+
+ .. code-block:: python
+
+   # Create processor from existing Stokes CSV files
+   processor = environment_setup.atmosphere.coma_model_file_processor(
+       input_dir="coma_stokes_data",
+       prefix="stokes")
+
+   # Load Stokes dataset
+   stokes_dataset = processor.create_sh_dataset(
+       radii_m=[],  # Ignored when loading from files
+       sol_longitudes_deg=[])
+
+
+      )doc" )
         .def("create_poly_coef_dataset",
              &tss::ComaModelFileProcessor::createPolyCoefDataset,
-             R"doc(Create polynomial coefficient dataset. Only available when processor was constructed from polynomial files.)doc")
+             R"doc(
+
+ Create polynomial coefficient dataset from the loaded files.
+
+ Reads and processes polynomial coefficient files to create a :class:`~tudatpy.dynamics.environment_setup.atmosphere.ComaPolyDataset`.
+ This method is only available when the processor was constructed from polynomial coefficient files
+ using the file path variant of :func:`~tudatpy.dynamics.environment_setup.atmosphere.coma_model_file_processor`.
+
+ Returns
+ -------
+ ComaPolyDataset
+     Dataset containing polynomial coefficients for all loaded files.
+
+ Raises
+ ------
+ RuntimeError
+     If the processor was constructed from Stokes coefficient CSV files instead of polynomial files.
+
+
+ Examples
+ --------
+ .. code-block:: python
+
+   # Create processor from polynomial files
+   processor = environment_setup.atmosphere.coma_model_file_processor(
+       ["h2o_poly_epoch1.txt", "h2o_poly_epoch2.txt"])
+
+   # Create polynomial dataset
+   poly_dataset = processor.create_poly_coef_dataset()
+
+   # Use in coma atmosphere model
+   coma_settings = environment_setup.atmosphere.coma_model(
+       poly_data=poly_dataset,
+       molecular_weight=0.018015)
+
+
+      )doc")
         .def("create_sh_dataset",
              &tss::ComaModelFileProcessor::createSHDataset,
              py::arg("radii_m"),
              py::arg("sol_longitudes_deg"),
              py::arg("requested_max_degree") = -1,
              py::arg("requested_max_order") = -1,
-             R"doc(Create spherical harmonics dataset. When constructed from SH files, input parameters are ignored.)doc")
+             R"doc(
+
+ Create Stokes (spherical harmonics) coefficient dataset.
+
+ This method has two distinct behaviors depending on how the processor was constructed:
+
+ 1. **From polynomial files**: Transforms polynomial coefficients to Stokes coefficients by evaluating
+    the spherical harmonic expansion at the specified grid of radii and solar longitudes.
+
+ 2. **From Stokes CSV files**: Loads pre-computed Stokes coefficients from CSV files. In this case,
+    the input parameters (radii_m, sol_longitudes_deg) are ignored, and the radii/longitudes from
+    the files are used instead.
+
+
+ Parameters
+ ----------
+ radii_m : list[float]
+     Vector of radii at which to evaluate Stokes coefficients [m]. Used only when transforming from
+     polynomial coefficients. Ignored when loading from Stokes CSV files.
+
+ sol_longitudes_deg : list[float]
+     Vector of solar longitudes at which to evaluate Stokes coefficients [degrees]. Used only when
+     transforming from polynomial coefficients. Ignored when loading from Stokes CSV files.
+
+ requested_max_degree : int, default = -1
+     Maximum spherical harmonic degree to include in the dataset. Set to -1 to automatically use
+     the maximum degree available in the source data.
+
+ requested_max_order : int, default = -1
+     Maximum spherical harmonic order to include in the dataset. Set to -1 to automatically use
+     the maximum order available in the source data.
+
+ Returns
+ -------
+ ComaStokesDataset
+     Dataset containing Stokes coefficients.
+
+
+ Examples
+ --------
+ Transform polynomial coefficients to Stokes coefficients:
+
+ .. code-block:: python
+
+   # Create processor from polynomial files
+   processor = environment_setup.atmosphere.coma_model_file_processor(
+       ["h2o_poly.txt"])
+
+   # Transform to Stokes at specific radii and solar longitudes
+   stokes_dataset = processor.create_sh_dataset(
+       radii_m=[1000.0, 2000.0, 5000.0, 10000.0, 20000.0],
+       sol_longitudes_deg=[0.0, 90.0, 180.0, 270.0],
+       requested_max_degree=10,
+       requested_max_order=10)
+
+   # Use in coma atmosphere model
+   coma_settings = environment_setup.atmosphere.coma_model(
+       stokes_data=stokes_dataset,
+       molecular_weight=0.018015)
+
+ Load from pre-existing Stokes CSV files:
+
+ .. code-block:: python
+
+   # Create processor from Stokes CSV files
+   processor = environment_setup.atmosphere.coma_model_file_processor(
+       input_dir="stokes_data",
+       prefix="stokes")
+
+   # Load Stokes dataset (parameters are ignored)
+   stokes_dataset = processor.create_sh_dataset(
+       radii_m=[],  # Ignored
+       sol_longitudes_deg=[])  # Ignored
+
+
+      )doc")
         .def("create_sh_files",
              &tss::ComaModelFileProcessor::createSHFiles,
              py::arg("output_dir"),
@@ -979,13 +1492,157 @@ using the NRLMSISE-00 global reference model:
              py::arg("sol_longitudes_deg"),
              py::arg("requested_max_degree") = -1,
              py::arg("requested_max_order") = -1,
-             R"doc(Create spherical harmonics CSV files.)doc");
+             R"doc(
+
+ Create and save Stokes coefficient CSV files from polynomial coefficients.
+
+ Transforms polynomial coefficients to Stokes coefficients and saves them as CSV files in the specified
+ output directory. This is useful for pre-computing Stokes coefficients to avoid repeated transformations
+ during multiple simulation runs. The generated CSV files can later be loaded using a processor created
+ with the directory-based variant of :func:`~tudatpy.dynamics.environment_setup.atmosphere.coma_model_file_processor`.
+
+ This method is only available when the processor was constructed from polynomial coefficient files.
+
+
+ Parameters
+ ----------
+ output_dir : str
+     Directory path where Stokes coefficient CSV files will be saved. The directory will be created
+     if it does not exist.
+
+ radii_m : list[float]
+     Vector of radii at which to evaluate Stokes coefficients [m].
+
+ sol_longitudes_deg : list[float]
+     Vector of solar longitudes at which to evaluate Stokes coefficients [degrees].
+
+ requested_max_degree : int, default = -1
+     Maximum spherical harmonic degree to include. Set to -1 to automatically use the maximum
+     degree available in the polynomial data.
+
+ requested_max_order : int, default = -1
+     Maximum spherical harmonic order to include. Set to -1 to automatically use the maximum
+     order available in the polynomial data.
+
+ Raises
+ ------
+ RuntimeError
+     If the processor was constructed from Stokes CSV files instead of polynomial files.
+
+
+ Examples
+ --------
+ .. code-block:: python
+
+   # Create processor from polynomial files
+   processor = environment_setup.atmosphere.coma_model_file_processor(
+       ["h2o_poly_epoch1.txt", "h2o_poly_epoch2.txt"])
+
+   # Pre-compute and save Stokes coefficients to CSV files
+   processor.create_sh_files(
+       output_dir="stokes_output",
+       radii_m=[1000.0, 2000.0, 5000.0, 10000.0],
+       sol_longitudes_deg=[0.0, 90.0, 180.0, 270.0],
+       requested_max_degree=10,
+       requested_max_order=10)
+
+   # Later, load from the saved CSV files
+   processor_from_csv = environment_setup.atmosphere.coma_model_file_processor(
+       input_dir="stokes_output",
+       prefix="stokes")
+   stokes_dataset = processor_from_csv.create_sh_dataset(
+       radii_m=[],  # Ignored when loading from files
+       sol_longitudes_deg=[])
+
+
+      )doc");
 
     m.def(
             "coma_model_file_processor",
             py::overload_cast<const std::vector<std::string>&>(&tss::comaModelFileProcessorFromPolyFiles),
             py::arg( "file_paths" ),
-            R"doc(Create a ComaModelFileProcessor from a list of polynomial coefficient files.)doc"
+            R"doc(
+
+ Function for creating coma model file processor from polynomial coefficient files.
+
+ Creates a :class:`~tudatpy.dynamics.environment_setup.atmosphere.ComaModelFileProcessor` that loads
+ and processes polynomial coefficient files. These files contain spherical harmonic coefficients in
+ polynomial form that describe gas density distributions in a cometary coma.
+
+ The processor can create polynomial datasets directly, or transform them to Stokes coefficients at
+ specified radii and solar longitudes. Multiple files can be provided to cover different time periods,
+ enabling time-dependent coma modeling.
+
+
+ Parameters
+ ----------
+ file_paths : list[str]
+     List of file paths to polynomial coefficient files. Each file should contain polynomial coefficients
+     for spherical harmonic expansion of gas density. Files may cover different time periods.
+
+ Returns
+ -------
+ ComaModelFileProcessor
+     Processor configured for polynomial coefficient files, capable of creating both polynomial and
+     Stokes datasets.
+
+ Raises
+ ------
+ ValueError
+     If file_paths is an empty list.
+ RuntimeError
+     If any of the specified files do not exist or cannot be opened.
+
+
+ Examples
+ --------
+ Create processor and use polynomial dataset directly:
+
+ .. code-block:: python
+
+   # Define paths to polynomial coefficient files
+   poly_files = [
+       "coma_data/h2o_poly_epoch1.txt",
+       "coma_data/h2o_poly_epoch2.txt"
+   ]
+
+   # Create file processor
+   processor = environment_setup.atmosphere.coma_model_file_processor(poly_files)
+
+   # Create polynomial dataset
+   poly_dataset = processor.create_poly_coef_dataset()
+
+   # Create coma atmosphere settings
+   coma_settings = environment_setup.atmosphere.coma_model(
+       poly_data=poly_dataset,
+       molecular_weight=0.018015,  # H2O in kg/mol
+       max_degree=10,
+       max_order=10)
+
+   # Apply to body
+   body_settings.get("67P").atmosphere_settings = coma_settings
+
+ Transform to Stokes coefficients:
+
+ .. code-block:: python
+
+   # Create processor
+   processor = environment_setup.atmosphere.coma_model_file_processor(poly_files)
+
+   # Transform to Stokes coefficients at specific radii and solar longitudes
+   stokes_dataset = processor.create_sh_dataset(
+       radii_m=[1000.0, 2000.0, 5000.0, 10000.0],
+       sol_longitudes_deg=[0.0, 90.0, 180.0, 270.0],
+       requested_max_degree=10,
+       requested_max_order=10)
+
+   # Create coma atmosphere settings
+   coma_settings = environment_setup.atmosphere.coma_model(
+       stokes_data=stokes_dataset,
+       molecular_weight=0.018015)
+
+
+      )doc"
             );
 
     m.def(
@@ -994,15 +1651,92 @@ using the NRLMSISE-00 global reference model:
             py::arg( "input_dir" ),
             py::arg( "prefix" ) = "stokes",
             R"doc(
-                Create a ComaModelFileProcessor from existing SH CSV files.
 
-                Parameters
-                ----------
-                input_dir : str
-                    Directory containing the SH CSV files to read from
-                prefix : str, optional
-                    File prefix for the CSV files (default: "stokes")
-                )doc"
+ Function for creating coma model file processor from Stokes coefficient CSV files.
+
+ Creates a :class:`~tudatpy.dynamics.environment_setup.atmosphere.ComaModelFileProcessor` that loads
+ pre-computed Stokes (spherical harmonic) coefficients from CSV files. These files typically contain
+ Stokes coefficients that were previously generated and saved using the ``create_sh_files()`` method
+ of a processor created from polynomial files.
+
+ This variant is useful when you want to avoid repeated transformation of polynomial coefficients to
+ Stokes coefficients across multiple simulation runs. The CSV files contain pre-evaluated coefficients
+ at a fixed grid of radii and solar longitudes.
+
+
+ Parameters
+ ----------
+ input_dir : str
+     Directory path containing the Stokes coefficient CSV files to load. All CSV files in this
+     directory with the specified prefix will be loaded.
+
+ prefix : str, default = "stokes"
+     File name prefix for the CSV files. Files are expected to be named as ``{prefix}_0.csv``,
+     ``{prefix}_1.csv``, etc.
+
+ Returns
+ -------
+ ComaModelFileProcessor
+     Processor configured for Stokes coefficient CSV files, capable of loading pre-computed
+     Stokes datasets.
+
+ Raises
+ ------
+ RuntimeError
+     If the directory does not exist, is not a directory, or contains no matching CSV files.
+
+
+ Examples
+ --------
+ Load from previously saved Stokes CSV files:
+
+ .. code-block:: python
+
+   # Create processor from existing Stokes CSV files
+   processor = environment_setup.atmosphere.coma_model_file_processor(
+       input_dir="coma_data/stokes_precomputed",
+       prefix="stokes")
+
+   # Load Stokes dataset (radii and longitudes are read from files)
+   stokes_dataset = processor.create_sh_dataset(
+       radii_m=[],  # Ignored when loading from CSV files
+       sol_longitudes_deg=[])  # Ignored when loading from CSV files
+
+   # Create coma atmosphere settings
+   coma_settings = environment_setup.atmosphere.coma_model(
+       stokes_data=stokes_dataset,
+       molecular_weight=0.018015)  # H2O in kg/mol
+
+   # Apply to body
+   body_settings.get("67P").atmosphere_settings = coma_settings
+
+ Complete workflow from polynomial to saved Stokes to loading:
+
+ .. code-block:: python
+
+   # Step 1: Create and save Stokes coefficients from polynomial files
+   poly_processor = environment_setup.atmosphere.coma_model_file_processor(
+       ["h2o_poly.txt"])
+   poly_processor.create_sh_files(
+       output_dir="stokes_saved",
+       radii_m=[1000.0, 2000.0, 5000.0],
+       sol_longitudes_deg=[0.0, 90.0, 180.0, 270.0])
+
+   # Step 2: Later, load from saved Stokes files
+   stokes_processor = environment_setup.atmosphere.coma_model_file_processor(
+       input_dir="stokes_saved",
+       prefix="stokes")
+   stokes_dataset = stokes_processor.create_sh_dataset(
+       radii_m=[],
+       sol_longitudes_deg=[])
+
+   # Step 3: Use in simulation
+   coma_settings = environment_setup.atmosphere.coma_model(
+       stokes_data=stokes_dataset,
+       molecular_weight=0.018015)
+
+
+      )doc"
             );
 
     // === Coma wind processing: file processor ===
@@ -1018,18 +1752,42 @@ using the NRLMSISE-00 global reference model:
         .def("create_poly_coef_datasets",
              &tss::ComaWindModelFileProcessor::createPolyCoefDatasets,
              R"doc(
-                Create polynomial coefficient dataset collection for all three components.
 
-                Returns
-                -------
-                ComaWindDatasetCollection
-                    Collection containing x, y, z polynomial datasets
+ Create polynomial coefficient dataset collection for all three wind components.
 
-                Raises
-                ------
-                RuntimeError
-                    If processor was constructed from Stokes files
-                )doc")
+ Reads and processes polynomial coefficient files for x, y, and z wind velocity components to create
+ a :class:`~tudatpy.dynamics.environment_setup.atmosphere.ComaWindDatasetCollection`. This method is
+ only available when the processor was constructed from polynomial coefficient files.
+
+ Returns
+ -------
+ ComaWindDatasetCollection
+     Collection containing x, y, z polynomial datasets for wind velocity components.
+
+ Raises
+ ------
+ RuntimeError
+     If processor was constructed from Stokes coefficient CSV files instead of polynomial files.
+
+
+ Examples
+ --------
+ .. code-block:: python
+
+   # Define paths to polynomial coefficient files for each component
+   x_files = ["wind_x_epoch1.txt", "wind_x_epoch2.txt"]
+   y_files = ["wind_y_epoch1.txt", "wind_y_epoch2.txt"]
+   z_files = ["wind_z_epoch1.txt", "wind_z_epoch2.txt"]
+
+   # Create wind file processor
+   wind_processor = environment_setup.atmosphere.coma_wind_file_processor(
+       x_files, y_files, z_files)
+
+   # Create polynomial dataset collection
+   poly_datasets = wind_processor.create_poly_coef_datasets()
+
+
+      )doc")
         .def("create_sh_datasets",
              &tss::ComaWindModelFileProcessor::createSHDatasets,
              py::arg("radii_m"),
@@ -1037,24 +1795,71 @@ using the NRLMSISE-00 global reference model:
              py::arg("requested_max_degree") = -1,
              py::arg("requested_max_order") = -1,
              R"doc(
-                Create Stokes coefficient dataset collection for all three components.
 
-                Parameters
-                ----------
-                radii_m : list[float]
-                    Vector of radii at which to evaluate Stokes coefficients [m]
-                sol_longitudes_deg : list[float]
-                    Vector of solar longitudes [degrees]
-                requested_max_degree : int, optional
-                    Maximum spherical harmonic degree (-1 for auto)
-                requested_max_order : int, optional
-                    Maximum spherical harmonic order (-1 for auto)
+ Create Stokes coefficient dataset collection for all three wind components.
 
-                Returns
-                -------
-                ComaWindDatasetCollection
-                    Collection containing x, y, z Stokes datasets
-                )doc")
+ This method has two distinct behaviors depending on how the processor was constructed:
+
+ 1. **From polynomial files**: Transforms polynomial coefficients to Stokes coefficients for all
+    three components (x, y, z) by evaluating at the specified grid of radii and solar longitudes.
+
+ 2. **From Stokes CSV files**: Loads pre-computed Stokes coefficients from CSV files. In this case,
+    the input parameters (radii_m, sol_longitudes_deg) are ignored.
+
+
+ Parameters
+ ----------
+ radii_m : list[float]
+     Vector of radii at which to evaluate Stokes coefficients [m]. Used only when transforming from
+     polynomial coefficients. Ignored when loading from Stokes CSV files.
+
+ sol_longitudes_deg : list[float]
+     Vector of solar longitudes at which to evaluate Stokes coefficients [degrees]. Used only when
+     transforming from polynomial coefficients. Ignored when loading from Stokes CSV files.
+
+ requested_max_degree : int, default = -1
+     Maximum spherical harmonic degree to include (-1 for automatic determination from data).
+
+ requested_max_order : int, default = -1
+     Maximum spherical harmonic order to include (-1 for automatic determination from data).
+
+ Returns
+ -------
+ ComaWindDatasetCollection
+     Collection containing x, y, z Stokes datasets for wind velocity components.
+
+
+ Examples
+ --------
+ Transform polynomial coefficients to Stokes datasets:
+
+ .. code-block:: python
+
+   # Create wind processor from polynomial files
+   wind_processor = environment_setup.atmosphere.coma_wind_file_processor(
+       x_file_paths=["wind_x.txt"],
+       y_file_paths=["wind_y.txt"],
+       z_file_paths=["wind_z.txt"])
+
+   # Transform to Stokes coefficients at specific radii and solar longitudes
+   stokes_datasets = wind_processor.create_sh_datasets(
+       radii_m=[1000.0, 2000.0, 5000.0, 10000.0],
+       sol_longitudes_deg=[0.0, 90.0, 180.0, 270.0],
+       requested_max_degree=10,
+       requested_max_order=10)
+
+   # Use in coma wind model
+   coma_wind = environment_setup.atmosphere.coma_wind_model(
+       dataset_collection=stokes_datasets,
+       requested_max_degree=10,
+       requested_max_order=10,
+       associated_reference_frame=environment.AerodynamicsReferenceFrames.vertical_frame)
+
+   # Apply to atmosphere settings
+   body_settings.get("67P").atmosphere_settings.wind_settings = coma_wind
+
+
+      )doc")
         .def("create_sh_files",
              &tss::ComaWindModelFileProcessor::createSHFiles,
              py::arg("x_output_dir"),
@@ -1065,25 +1870,77 @@ using the NRLMSISE-00 global reference model:
              py::arg("requested_max_degree") = -1,
              py::arg("requested_max_order") = -1,
              R"doc(
-                Create Stokes coefficient CSV files for all three components.
 
-                Parameters
-                ----------
-                x_output_dir : str
-                    Output directory for x-component files
-                y_output_dir : str
-                    Output directory for y-component files
-                z_output_dir : str
-                    Output directory for z-component files
-                radii_m : list[float]
-                    Vector of radii at which to evaluate Stokes coefficients [m]
-                sol_longitudes_deg : list[float]
-                    Vector of solar longitudes [degrees]
-                requested_max_degree : int, optional
-                    Maximum spherical harmonic degree (-1 for auto)
-                requested_max_order : int, optional
-                    Maximum spherical harmonic order (-1 for auto)
-                )doc")
+ Create and save Stokes coefficient CSV files for all three wind components.
+
+ Transforms polynomial coefficients to Stokes coefficients for x, y, and z wind velocity components
+ and saves them as CSV files in separate output directories. This is useful for pre-computing Stokes
+ coefficients to avoid repeated transformations across multiple simulation runs.
+
+ This method is only available when the processor was constructed from polynomial coefficient files.
+
+
+ Parameters
+ ----------
+ x_output_dir : str
+     Directory path where x-component Stokes coefficient CSV files will be saved. The directory
+     will be created if it does not exist.
+
+ y_output_dir : str
+     Directory path where y-component Stokes coefficient CSV files will be saved. The directory
+     will be created if it does not exist.
+
+ z_output_dir : str
+     Directory path where z-component Stokes coefficient CSV files will be saved. The directory
+     will be created if it does not exist.
+
+ radii_m : list[float]
+     Vector of radii at which to evaluate Stokes coefficients [m].
+
+ sol_longitudes_deg : list[float]
+     Vector of solar longitudes at which to evaluate Stokes coefficients [degrees].
+
+ requested_max_degree : int, default = -1
+     Maximum spherical harmonic degree to include (-1 for automatic determination from data).
+
+ requested_max_order : int, default = -1
+     Maximum spherical harmonic order to include (-1 for automatic determination from data).
+
+ Raises
+ ------
+ RuntimeError
+     If processor was constructed from Stokes CSV files instead of polynomial files.
+
+
+ Examples
+ --------
+ .. code-block:: python
+
+   # Create wind processor from polynomial files
+   wind_processor = environment_setup.atmosphere.coma_wind_file_processor(
+       x_file_paths=["wind_x_epoch1.txt"],
+       y_file_paths=["wind_y_epoch1.txt"],
+       z_file_paths=["wind_z_epoch1.txt"])
+
+   # Pre-compute and save Stokes coefficients for all components
+   wind_processor.create_sh_files(
+       x_output_dir="stokes_wind/x_component",
+       y_output_dir="stokes_wind/y_component",
+       z_output_dir="stokes_wind/z_component",
+       radii_m=[1000.0, 2000.0, 5000.0, 10000.0],
+       sol_longitudes_deg=[0.0, 90.0, 180.0, 270.0],
+       requested_max_degree=10,
+       requested_max_order=10)
+
+   # Later, load from the saved CSV files
+   wind_processor_from_csv = environment_setup.atmosphere.coma_wind_file_processor(
+       x_input_dir="stokes_wind/x_component",
+       y_input_dir="stokes_wind/y_component",
+       z_input_dir="stokes_wind/z_component",
+       prefix="stokes")
+
+
+      )doc")
         .def("is_poly_type", &tss::ComaWindModelFileProcessor::isPolyType,
              R"doc(Check if this processor works with polynomial coefficient files.)doc")
         .def("is_stokes_type", &tss::ComaWindModelFileProcessor::isStokesType,
@@ -1098,22 +1955,101 @@ using the NRLMSISE-00 global reference model:
             py::arg( "y_file_paths" ),
             py::arg( "z_file_paths" ),
             R"doc(
-                Create a ComaWindModelFileProcessor from polynomial coefficient files.
 
-                Parameters
-                ----------
-                x_file_paths : list[str]
-                    List of file paths for x-component polynomial coefficients
-                y_file_paths : list[str]
-                    List of file paths for y-component polynomial coefficients
-                z_file_paths : list[str]
-                    List of file paths for z-component polynomial coefficients
+ Function for creating coma wind model file processor from polynomial coefficient files.
 
-                Returns
-                -------
-                ComaWindModelFileProcessor
-                    Processor configured for polynomial files
-                )doc"
+ Creates a :class:`~tudatpy.dynamics.environment_setup.atmosphere.ComaWindModelFileProcessor` that loads
+ and processes polynomial coefficient files for all three wind velocity components (x, y, z). These files
+ contain spherical harmonic coefficients in polynomial form that describe wind velocity distributions
+ in a cometary coma.
+
+ The processor can create polynomial dataset collections directly, or transform them to Stokes
+ coefficients at specified radii and solar longitudes. Multiple files can be provided for each component
+ to cover different time periods.
+
+
+ Parameters
+ ----------
+ x_file_paths : list[str]
+     List of file paths for x-component polynomial coefficients. Files may cover different time periods.
+
+ y_file_paths : list[str]
+     List of file paths for y-component polynomial coefficients. Files may cover different time periods.
+
+ z_file_paths : list[str]
+     List of file paths for z-component polynomial coefficients. Files may cover different time periods.
+
+ Returns
+ -------
+ ComaWindModelFileProcessor
+     Processor configured for polynomial coefficient files, capable of creating both polynomial and
+     Stokes dataset collections.
+
+ Raises
+ ------
+ ValueError
+     If any of the file path lists is empty.
+ RuntimeError
+     If any of the specified files do not exist or cannot be opened.
+
+
+ Examples
+ --------
+ Create wind model from polynomial files:
+
+ .. code-block:: python
+
+   # Define paths to polynomial coefficient files for each wind component
+   x_files = ["wind_data/vx_epoch1.txt", "wind_data/vx_epoch2.txt"]
+   y_files = ["wind_data/vy_epoch1.txt", "wind_data/vy_epoch2.txt"]
+   z_files = ["wind_data/vz_epoch1.txt", "wind_data/vz_epoch2.txt"]
+
+   # Create wind file processor
+   wind_processor = environment_setup.atmosphere.coma_wind_file_processor(
+       x_file_paths=x_files,
+       y_file_paths=y_files,
+       z_file_paths=z_files)
+
+   # Transform to Stokes coefficients
+   wind_datasets = wind_processor.create_sh_datasets(
+       radii_m=[1000.0, 2000.0, 5000.0, 10000.0],
+       sol_longitudes_deg=[0.0, 90.0, 180.0, 270.0],
+       requested_max_degree=10,
+       requested_max_order=10)
+
+   # Create coma wind model settings
+   coma_wind = environment_setup.atmosphere.coma_wind_model(
+       dataset_collection=wind_datasets,
+       requested_max_degree=10,
+       requested_max_order=10,
+       associated_reference_frame=environment.AerodynamicsReferenceFrames.vertical_frame,
+       include_corotation=True)
+
+   # Apply to atmosphere
+   body_settings.get("67P").atmosphere_settings.wind_settings = coma_wind
+
+ Pre-compute and save Stokes coefficients:
+
+ .. code-block:: python
+
+   # Create processor
+   wind_processor = environment_setup.atmosphere.coma_wind_file_processor(
+       x_file_paths=x_files,
+       y_file_paths=y_files,
+       z_file_paths=z_files)
+
+   # Save Stokes coefficients to CSV files for later use
+   wind_processor.create_sh_files(
+       x_output_dir="stokes_wind/x",
+       y_output_dir="stokes_wind/y",
+       z_output_dir="stokes_wind/z",
+       radii_m=[1000.0, 2000.0, 5000.0, 10000.0],
+       sol_longitudes_deg=[0.0, 90.0, 180.0, 270.0],
+       requested_max_degree=10,
+       requested_max_order=10)
+
+
+      )doc"
             );
 
     m.def(
@@ -1127,24 +2063,108 @@ using the NRLMSISE-00 global reference model:
             py::arg( "z_input_dir" ),
             py::arg( "prefix" ) = "stokes",
             R"doc(
-                Create a ComaWindModelFileProcessor from existing SH CSV files.
 
-                Parameters
-                ----------
-                x_input_dir : str
-                    Directory containing x-component SH CSV files
-                y_input_dir : str
-                    Directory containing y-component SH CSV files
-                z_input_dir : str
-                    Directory containing z-component SH CSV files
-                prefix : str, optional
-                    File prefix for the CSV files (default: "stokes")
+ Function for creating coma wind model file processor from Stokes coefficient CSV files.
 
-                Returns
-                -------
-                ComaWindModelFileProcessor
-                    Processor configured for Stokes files
-                )doc"
+ Creates a :class:`~tudatpy.dynamics.environment_setup.atmosphere.ComaWindModelFileProcessor` that loads
+ pre-computed Stokes (spherical harmonic) coefficients from CSV files for all three wind velocity
+ components (x, y, z). These files typically contain Stokes coefficients that were previously generated
+ and saved using the ``create_sh_files()`` method of a processor created from polynomial files.
+
+ This variant is useful when you want to avoid repeated transformation of polynomial coefficients to
+ Stokes coefficients across multiple simulation runs. The CSV files contain pre-evaluated coefficients
+ at a fixed grid of radii and solar longitudes.
+
+
+ Parameters
+ ----------
+ x_input_dir : str
+     Directory path containing x-component Stokes coefficient CSV files. All CSV files in this
+     directory with the specified prefix will be loaded.
+
+ y_input_dir : str
+     Directory path containing y-component Stokes coefficient CSV files. All CSV files in this
+     directory with the specified prefix will be loaded.
+
+ z_input_dir : str
+     Directory path containing z-component Stokes coefficient CSV files. All CSV files in this
+     directory with the specified prefix will be loaded.
+
+ prefix : str, default = "stokes"
+     File name prefix for the CSV files. Files are expected to be named as ``{prefix}_0.csv``,
+     ``{prefix}_1.csv``, etc.
+
+ Returns
+ -------
+ ComaWindModelFileProcessor
+     Processor configured for Stokes coefficient CSV files, capable of loading pre-computed
+     Stokes dataset collections.
+
+ Raises
+ ------
+ RuntimeError
+     If any of the directories do not exist, are not directories, or contain no matching CSV files.
+
+
+ Examples
+ --------
+ Load from previously saved Stokes CSV files:
+
+ .. code-block:: python
+
+   # Create processor from existing Stokes CSV files
+   wind_processor = environment_setup.atmosphere.coma_wind_file_processor(
+       x_input_dir="wind_stokes/x_component",
+       y_input_dir="wind_stokes/y_component",
+       z_input_dir="wind_stokes/z_component",
+       prefix="stokes")
+
+   # Load Stokes datasets (radii and longitudes are read from files)
+   wind_datasets = wind_processor.create_sh_datasets(
+       radii_m=[],  # Ignored when loading from CSV files
+       sol_longitudes_deg=[])  # Ignored when loading from CSV files
+
+   # Create coma wind model settings
+   coma_wind = environment_setup.atmosphere.coma_wind_model(
+       dataset_collection=wind_datasets,
+       associated_reference_frame=environment.AerodynamicsReferenceFrames.vertical_frame)
+
+   # Apply to atmosphere
+   body_settings.get("67P").atmosphere_settings.wind_settings = coma_wind
+
+ Complete workflow from polynomial to saved Stokes to loading:
+
+ .. code-block:: python
+
+   # Step 1: Create and save Stokes coefficients from polynomial files
+   poly_processor = environment_setup.atmosphere.coma_wind_file_processor(
+       x_file_paths=["vx.txt"],
+       y_file_paths=["vy.txt"],
+       z_file_paths=["vz.txt"])
+   poly_processor.create_sh_files(
+       x_output_dir="wind_stokes/x",
+       y_output_dir="wind_stokes/y",
+       z_output_dir="wind_stokes/z",
+       radii_m=[1000.0, 2000.0, 5000.0],
+       sol_longitudes_deg=[0.0, 90.0, 180.0, 270.0])
+
+   # Step 2: Later, load from saved Stokes files
+   stokes_processor = environment_setup.atmosphere.coma_wind_file_processor(
+       x_input_dir="wind_stokes/x",
+       y_input_dir="wind_stokes/y",
+       z_input_dir="wind_stokes/z",
+       prefix="stokes")
+   wind_datasets = stokes_processor.create_sh_datasets(
+       radii_m=[],
+       sol_longitudes_deg=[])
+
+   # Step 3: Use in simulation
+   coma_wind = environment_setup.atmosphere.coma_wind_model(
+       dataset_collection=wind_datasets)
+   body_settings.get("67P").atmosphere_settings.wind_settings = coma_wind
+
+
+      )doc"
             );
 
 

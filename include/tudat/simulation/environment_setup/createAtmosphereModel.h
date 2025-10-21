@@ -2362,34 +2362,6 @@ public:
     using DataVariant = boost::variant< ComaPolyDataset, ComaStokesDataset >;
 
     /**
-     * \brief Constructor with three datasets (x, y, z components)
-     * \param xData Dataset for x-component wind
-     * \param yData Dataset for y-component wind
-     * \param zData Dataset for z-component wind
-     * \param requestedDegree Maximum spherical harmonic degree (-1 for auto)
-     * \param requestedOrder Maximum spherical harmonic order (-1 for auto)
-     * \param associatedFrame Reference frame for the wind model
-     * \param includeCorotation Boolean indicating whether atmospheric co-rotation should be included
-     */
-    explicit ComaWindModelSettings( const DataVariant& xData,
-                                    const DataVariant& yData,
-                                    const DataVariant& zData,
-                                    const int requestedDegree = -1,
-                                    const int requestedOrder = -1,
-                                    const reference_frames::AerodynamicsReferenceFrames associatedFrame =
-                                            reference_frames::vertical_frame,
-                                    const bool includeCorotation = true ) :
-        WindModelSettings( coma_wind_model, associatedFrame, includeCorotation ),
-        xData_( xData ),
-        yData_( yData ),
-        zData_( zData ),
-        requestedDegree_( requestedDegree ),
-        requestedOrder_( requestedOrder )
-    {
-        validateAndSetDefaults( );
-    }
-
-    /**
      * \brief Constructor from ComaWindDatasetCollection
      * \param datasetCollection Collection containing x, y, z component datasets
      * \param requestedDegree Maximum spherical harmonic degree (-1 for auto)
@@ -3951,6 +3923,17 @@ inline std::shared_ptr< WindModelSettings > constantWindModelSettings(
         const bool includeCorotation = true )
 {
     return std::make_shared< ConstantWindModelSettings >( constantWindVelocity, associatedFrame, includeCorotation );
+}
+
+//! @get_docstring(comaWindModelSettings)
+inline std::shared_ptr< WindModelSettings > comaWindModelSettings(
+        const ComaWindDatasetCollection& datasetCollection,
+        const int requestedDegree = -1,
+        const int requestedOrder = -1,
+        const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
+        const bool includeCorotation = true )
+{
+    return std::make_shared< ComaWindModelSettings >( datasetCollection, requestedDegree, requestedOrder, associatedFrame, includeCorotation );
 }
 
 //  Function to create a wind model.
