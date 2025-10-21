@@ -1723,11 +1723,16 @@ private:
 // ============= Wind Model Dataset Collection =============
 
 /*!
- * \brief Collection of three coma datasets for wind model (x, y, z components).
+ * \brief Collection of three coma datasets for wind model in modified vertical frame.
  *
- * This class holds three datasets (one for each spatial component of the wind velocity)
+ * This class holds three datasets (one for each component of the wind velocity in the modified vertical frame)
  * that are used together to construct a ComaWindModel. All three datasets must be of
  * the same type (either all polynomial or all Stokes coefficients).
+ *
+ * The wind velocity components are defined in a modified vertical frame:
+ *   - X-component: Meridional direction (North, in meridian plane)
+ *   - Y-component: Zonal direction (West, completing the right-handed frame)
+ *   - Z-component: Radial direction pointing OUTWARD from the nucleus (opposite to standard vertical frame)
  */
 class ComaWindDatasetCollection
 {
@@ -2018,17 +2023,19 @@ inline std::ostream& operator<<( std::ostream& os, const ComaModelFileProcessor:
  * \brief Processor for creating wind model datasets from three component file sources.
  *
  * This class manages the creation of ComaWindDatasetCollection from three sets of files
- * (one for each spatial component: x, y, z). It internally uses three ComaModelFileProcessor
- * instances and provides a simplified interface for wind model setup.
+ * (one for each component in the modified vertical frame: X=meridional/North, Y=zonal/West, Z=radial outward).
+ * It internally uses three ComaModelFileProcessor instances and provides a simplified interface for wind model setup.
+ *
+ * \note The Z-component represents radial wind pointing OUTWARD from the nucleus, opposite to standard vertical frame.
  */
 class ComaWindModelFileProcessor
 {
 public:
     /*!
      * \brief Constructor for polynomial coefficient files.
-     * \param xFilePaths Vector of file paths for x-component polynomial coefficients
-     * \param yFilePaths Vector of file paths for y-component polynomial coefficients
-     * \param zFilePaths Vector of file paths for z-component polynomial coefficients
+     * \param xFilePaths Vector of file paths for X-component (meridional/North) polynomial coefficients
+     * \param yFilePaths Vector of file paths for Y-component (zonal/West) polynomial coefficients
+     * \param zFilePaths Vector of file paths for Z-component (radial outward) polynomial coefficients
      * \throws std::invalid_argument if any file list is empty
      */
     ComaWindModelFileProcessor(
@@ -2050,9 +2057,9 @@ public:
 
     /*!
      * \brief Constructor for Stokes coefficient directories.
-     * \param xInputDir Directory containing x-component Stokes CSV files
-     * \param yInputDir Directory containing y-component Stokes CSV files
-     * \param zInputDir Directory containing z-component Stokes CSV files
+     * \param xInputDir Directory containing X-component (meridional/North) Stokes CSV files
+     * \param yInputDir Directory containing Y-component (zonal/West) Stokes CSV files
+     * \param zInputDir Directory containing Z-component (radial outward) Stokes CSV files
      * \param prefix File prefix for the CSV files (default: "stokes")
      */
     ComaWindModelFileProcessor(
@@ -2395,8 +2402,13 @@ protected:
  * \class ComaWindModelSettings
  * \brief Configuration settings for coma wind models
  *
- * This class handles three separate datasets for the x, y, and z wind components.
+ * This class handles three separate datasets for wind velocity components in the modified vertical frame.
  * Each dataset can contain either polynomial coefficients or pre-computed Stokes coefficients.
+ *
+ * The wind velocity components are defined in a modified vertical frame where:
+ *   - X-component: Meridional direction (North, in meridian plane)
+ *   - Y-component: Zonal direction (West, completing the right-handed frame)
+ *   - Z-component: Radial direction pointing OUTWARD from the nucleus (opposite to standard vertical frame)
  */
 class ComaWindModelSettings : public WindModelSettings
 {
@@ -2406,10 +2418,10 @@ public:
 
     /**
      * \brief Constructor from ComaWindDatasetCollection
-     * \param datasetCollection Collection containing x, y, z component datasets
+     * \param datasetCollection Collection containing wind component datasets in modified vertical frame (X=meridional/North, Y=zonal/West, Z=radial outward)
      * \param requestedDegree Maximum spherical harmonic degree (-1 for auto)
      * \param requestedOrder Maximum spherical harmonic order (-1 for auto)
-     * \param associatedFrame Reference frame for the wind model
+     * \param associatedFrame Reference frame for the wind model (uses modified vertical frame with Z pointing outward)
      * \param includeCorotation Boolean indicating whether atmospheric co-rotation should be included
      */
     explicit ComaWindModelSettings( const ComaWindDatasetCollection& datasetCollection,

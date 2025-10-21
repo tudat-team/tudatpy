@@ -418,14 +418,25 @@ void expose_atmosphere_setup( py::module &m )
  Function for creating coma wind model settings.
 
  Function for settings object, defining coma wind model from a dataset collection containing
- x, y, z wind velocity components. The wind model uses spherical harmonic expansion to compute
- wind velocities as a function of position.
+ wind velocity components in a modified vertical frame. The wind model uses spherical harmonic
+ expansion to compute wind velocities as a function of position.
+
+ The wind velocity components are defined in a **modified vertical frame**:
+
+ * **X-axis**: Meridional direction (in the meridian plane, pointing towards the North, aligned with central-body-fixed Z-axis direction)
+ * **Y-axis**: Zonal direction (completes the right-handed frame, pointing towards the West)
+ * **Z-axis**: Radial direction pointing **OUTWARD** from the comet nucleus center (away from origin)
+
+ .. warning::
+     The Z-axis direction is **OPPOSITE** to the standard Tudat vertical frame convention, where
+     Z points inward along the gravity vector. For the coma wind model, positive Z points radially
+     outward. This is critical for correct sign conventions when preparing input data.
 
 
  Parameters
  ----------
  dataset_collection : ComaWindDatasetCollection
-     Collection containing x, y, z component datasets (either polynomial or Stokes coefficients).
+     Collection containing wind component datasets in the modified vertical frame (either polynomial or Stokes coefficients).
 
  requested_max_degree : int, default = -1
      Maximum spherical harmonic degree to use (-1 for automatic determination from data).
@@ -434,7 +445,8 @@ void expose_atmosphere_setup( py::module &m )
      Maximum spherical harmonic order to use (-1 for automatic determination from data).
 
  associated_reference_frame : dynamics.environment.AerodynamicsReferenceFrames, default = AerodynamicsReferenceFrames.vertical_frame
-     Reference frame in which the wind velocity is defined.
+     Reference frame in which the wind velocity is defined. For coma wind model, this uses a modified
+     vertical frame with Z-axis pointing radially outward (away from nucleus), opposite to standard vertical frame.
 
  include_corotation : bool, default = True
      Boolean flag indicating whether atmospheric co-rotation should be included in aerodynamic computations.

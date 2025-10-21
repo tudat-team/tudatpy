@@ -223,16 +223,21 @@ public:
 //! Class for computing the wind velocity vector from coma models
 /*!
  * Class for computing the wind velocity vector from coma models. This class uses three separate datasets
- * for the x, y, and z wind components, each of which can be either polynomial or Stokes coefficients.
+ * for the wind velocity components in the modified vertical frame, each of which can be either polynomial or Stokes coefficients.
+ *
+ * The wind velocity components are defined in a modified vertical frame:
+ *   - X-component: Meridional direction (North, in meridian plane)
+ *   - Y-component: Zonal direction (West, completing the right-handed frame)
+ *   - Z-component: Radial direction pointing OUTWARD from the nucleus (opposite to standard vertical frame)
  */
 class ComaWindModel : public WindModel
 {
 public:
     /*!
      * \brief Constructor for polynomial coefficient datasets.
-     * \param xPolyDataset Dataset for x-component wind (polynomial coefficients)
-     * \param yPolyDataset Dataset for y-component wind (polynomial coefficients)
-     * \param zPolyDataset Dataset for z-component wind (polynomial coefficients)
+     * \param xPolyDataset Dataset for X-component wind (meridional/North, polynomial coefficients)
+     * \param yPolyDataset Dataset for Y-component wind (zonal/West, polynomial coefficients)
+     * \param zPolyDataset Dataset for Z-component wind (radial outward, polynomial coefficients)
      * \param comaModel Shared pointer to the ComaModel for accessing state functions
      * \param sunStateFunction Function returning Sun state vector (position, velocity) [m, m/s]
      * \param cometStateFunction Function returning Comet state vector (position, velocity) [m, m/s]
@@ -256,9 +261,9 @@ public:
 
     /*!
      * \brief Constructor for Stokes coefficient datasets.
-     * \param xStokesDataset Dataset for x-component wind (Stokes coefficients)
-     * \param yStokesDataset Dataset for y-component wind (Stokes coefficients)
-     * \param zStokesDataset Dataset for z-component wind (Stokes coefficients)
+     * \param xStokesDataset Dataset for X-component wind (meridional/North, Stokes coefficients)
+     * \param yStokesDataset Dataset for Y-component wind (zonal/West, Stokes coefficients)
+     * \param zStokesDataset Dataset for Z-component wind (radial outward, Stokes coefficients)
      * \param comaModel Shared pointer to the ComaModel for accessing state functions
      * \param sunStateFunction Function returning Sun state vector (position, velocity) [m, m/s]
      * \param cometStateFunction Function returning Comet state vector (position, velocity) [m, m/s]
@@ -307,18 +312,18 @@ private:
     //! Maximum spherical harmonic order used for computation (-1 for auto-detect)
     int maximumOrder_;
 
-    //! Polynomial coefficient dataset for x-component wind (used when dataType_ == 0)
+    //! Polynomial coefficient dataset for X-component wind (meridional/North, used when dataType_ == 0)
     std::shared_ptr<simulation_setup::ComaPolyDataset> xPolyDataset_;
-    //! Polynomial coefficient dataset for y-component wind (used when dataType_ == 0)
+    //! Polynomial coefficient dataset for Y-component wind (zonal/West, used when dataType_ == 0)
     std::shared_ptr<simulation_setup::ComaPolyDataset> yPolyDataset_;
-    //! Polynomial coefficient dataset for z-component wind (used when dataType_ == 0)
+    //! Polynomial coefficient dataset for Z-component wind (radial outward, used when dataType_ == 0)
     std::shared_ptr<simulation_setup::ComaPolyDataset> zPolyDataset_;
 
-    //! Stokes coefficient dataset for x-component wind (used when dataType_ == 1)
+    //! Stokes coefficient dataset for X-component wind (meridional/North, used when dataType_ == 1)
     std::shared_ptr<simulation_setup::ComaStokesDataset> xStokesDataset_;
-    //! Stokes coefficient dataset for y-component wind (used when dataType_ == 1)
+    //! Stokes coefficient dataset for Y-component wind (zonal/West, used when dataType_ == 1)
     std::shared_ptr<simulation_setup::ComaStokesDataset> yStokesDataset_;
-    //! Stokes coefficient dataset for z-component wind (used when dataType_ == 1)
+    //! Stokes coefficient dataset for Z-component wind (radial outward, used when dataType_ == 1)
     std::shared_ptr<simulation_setup::ComaStokesDataset> zStokesDataset_;
 
     //! Reference to the ComaModel for accessing shared spherical harmonics calculator
@@ -339,13 +344,13 @@ private:
     //! Non-owning pointer to shared spherical harmonics calculator (used when sharing with ComaModel)
     SphericalHarmonicsCalculator* sharedSphericalHarmonicsCalculator_;
 
-    //! Pre-initialized interpolators for x-component Stokes coefficients: map from (n,m) to (cosine, sine) interpolators
+    //! Pre-initialized interpolators for X-component (meridional/North) Stokes coefficients: map from (n,m) to (cosine, sine) interpolators
     std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
                                            std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>> xStokesInterpolators_;
-    //! Pre-initialized interpolators for y-component Stokes coefficients: map from (n,m) to (cosine, sine) interpolators
+    //! Pre-initialized interpolators for Y-component (zonal/West) Stokes coefficients: map from (n,m) to (cosine, sine) interpolators
     std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
                                            std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>> yStokesInterpolators_;
-    //! Pre-initialized interpolators for z-component Stokes coefficients: map from (n,m) to (cosine, sine) interpolators
+    //! Pre-initialized interpolators for Z-component (radial outward) Stokes coefficients: map from (n,m) to (cosine, sine) interpolators
     std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
                                            std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>> zStokesInterpolators_;
 
