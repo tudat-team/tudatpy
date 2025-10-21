@@ -1081,6 +1081,12 @@ std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > > c
         case solar_longitude:
             variablesToUpdate[ body_mass_distribution_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
             break;
+        case number_density:
+            variablesToUpdate[ vehicle_flight_conditions_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+            variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+            variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
+            variablesToUpdate[ body_translational_state_update ].push_back( dependentVariableSaveSettings->secondaryBody_ );
+            break;
         case vehicle_panel_inertial_surface_normals:
             variablesToUpdate[ body_segment_orientation_update ].push_back( dependentVariableSaveSettings->associatedBody_ );
             variablesToUpdate[ body_rotational_state_update ].push_back( dependentVariableSaveSettings->associatedBody_ );

@@ -48,7 +48,6 @@ ComaModel::ComaModel( const simulation_setup::ComaPolyDataset& polyDataset,
     coefficientMatricesSized_( false ),
     cachedLatitude_( 0.0 ),
     cachedLongitude_( 0.0 ),
-    cachedSineLatitude_( 0.0 ),
     cachedFinalDensity_( 0.0 ),
     interpolationPoint2D_( 2 ),
     interpolationPoint1D_( 1 ),
@@ -114,7 +113,6 @@ ComaModel::ComaModel( const simulation_setup::ComaStokesDataset& stokesDataset,
     coefficientMatricesSized_( false ),
     cachedLatitude_( 0.0 ),
     cachedLongitude_( 0.0 ),
-    cachedSineLatitude_( 0.0 ),
     cachedFinalDensity_( 0.0 ),
     interpolationPoint2D_( 2 ),
     interpolationPoint1D_( 1 ),
@@ -177,22 +175,6 @@ double ComaModel::getDensity( const double radius,
 {
     // Validate radius against reference radius
     const int fileIndex = findTimeIntervalIndex( time );
-    double referenceRadius;
-
-    if ( dataType_ == ComaDataType::POLYNOMIAL_COEFFICIENTS )
-    {
-        referenceRadius = polyDataset_->getFileMeta( fileIndex ).referenceRadius;
-    }
-    else // ComaDataType::STOKES_COEFFICIENTS
-    {
-        referenceRadius = stokesDataset_->getReferenceRadius( fileIndex );
-    }
-
-    if ( radius < referenceRadius )
-    {
-        throw std::runtime_error( "ComaModel: Radius " + std::to_string( radius ) +
-                                  " is smaller than reference radius " + std::to_string( referenceRadius ) );
-    }
 
     // Get number density and convert to mass density
     // Convert: number_density [1/m³] × molecular_weight [kg/mol] / N_A [1/mol] = mass_density [kg/m³]

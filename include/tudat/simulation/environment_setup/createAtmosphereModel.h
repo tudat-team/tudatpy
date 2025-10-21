@@ -1720,6 +1720,172 @@ private:
     }
 };
 
+// ============= Wind Model Dataset Collection =============
+
+/*!
+ * \brief Collection of three coma datasets for wind model (x, y, z components).
+ *
+ * This class holds three datasets (one for each spatial component of the wind velocity)
+ * that are used together to construct a ComaWindModel. All three datasets must be of
+ * the same type (either all polynomial or all Stokes coefficients).
+ */
+class ComaWindDatasetCollection
+{
+public:
+    //! Type alias for the dataset variant
+    using DataVariant = boost::variant<ComaPolyDataset, ComaStokesDataset>;
+
+    /*!
+     * \brief Factory method to create collection from polynomial datasets.
+     * \param xPolyDataset Polynomial dataset for x-component wind
+     * \param yPolyDataset Polynomial dataset for y-component wind
+     * \param zPolyDataset Polynomial dataset for z-component wind
+     * \return ComaWindDatasetCollection containing the three datasets
+     */
+    static ComaWindDatasetCollection createFromPoly(
+        ComaPolyDataset xPolyDataset,
+        ComaPolyDataset yPolyDataset,
+        ComaPolyDataset zPolyDataset)
+    {
+        ComaWindDatasetCollection collection;
+        collection.xData_ = std::move(xPolyDataset);
+        collection.yData_ = std::move(yPolyDataset);
+        collection.zData_ = std::move(zPolyDataset);
+        collection.dataType_ = DataType::Polynomial;
+        return collection;
+    }
+
+    /*!
+     * \brief Factory method to create collection from Stokes datasets.
+     * \param xStokesDataset Stokes dataset for x-component wind
+     * \param yStokesDataset Stokes dataset for y-component wind
+     * \param zStokesDataset Stokes dataset for z-component wind
+     * \return ComaWindDatasetCollection containing the three datasets
+     */
+    static ComaWindDatasetCollection createFromStokes(
+        ComaStokesDataset xStokesDataset,
+        ComaStokesDataset yStokesDataset,
+        ComaStokesDataset zStokesDataset)
+    {
+        ComaWindDatasetCollection collection;
+        collection.xData_ = std::move(xStokesDataset);
+        collection.yData_ = std::move(yStokesDataset);
+        collection.zData_ = std::move(zStokesDataset);
+        collection.dataType_ = DataType::Stokes;
+        return collection;
+    }
+
+    /*!
+     * \brief Check if the collection contains polynomial datasets.
+     * \return True if datasets are polynomial type
+     */
+    bool isPoly() const
+    {
+        return dataType_ == DataType::Polynomial;
+    }
+
+    /*!
+     * \brief Check if the collection contains Stokes datasets.
+     * \return True if datasets are Stokes type
+     */
+    bool isStokes() const
+    {
+        return dataType_ == DataType::Stokes;
+    }
+
+    /*!
+     * \brief Get x-component polynomial dataset.
+     * \return Reference to x-component polynomial dataset
+     * \throws std::runtime_error if datasets are not polynomial type
+     */
+    const ComaPolyDataset& getXPolyDataset() const
+    {
+        if (auto* p = boost::get<ComaPolyDataset>(&xData_))
+            return *p;
+        throw std::runtime_error("X-component data does not contain polynomial dataset");
+    }
+
+    /*!
+     * \brief Get y-component polynomial dataset.
+     * \return Reference to y-component polynomial dataset
+     * \throws std::runtime_error if datasets are not polynomial type
+     */
+    const ComaPolyDataset& getYPolyDataset() const
+    {
+        if (auto* p = boost::get<ComaPolyDataset>(&yData_))
+            return *p;
+        throw std::runtime_error("Y-component data does not contain polynomial dataset");
+    }
+
+    /*!
+     * \brief Get z-component polynomial dataset.
+     * \return Reference to z-component polynomial dataset
+     * \throws std::runtime_error if datasets are not polynomial type
+     */
+    const ComaPolyDataset& getZPolyDataset() const
+    {
+        if (auto* p = boost::get<ComaPolyDataset>(&zData_))
+            return *p;
+        throw std::runtime_error("Z-component data does not contain polynomial dataset");
+    }
+
+    /*!
+     * \brief Get x-component Stokes dataset.
+     * \return Reference to x-component Stokes dataset
+     * \throws std::runtime_error if datasets are not Stokes type
+     */
+    const ComaStokesDataset& getXStokesDataset() const
+    {
+        if (auto* p = boost::get<ComaStokesDataset>(&xData_))
+            return *p;
+        throw std::runtime_error("X-component data does not contain Stokes dataset");
+    }
+
+    /*!
+     * \brief Get y-component Stokes dataset.
+     * \return Reference to y-component Stokes dataset
+     * \throws std::runtime_error if datasets are not Stokes type
+     */
+    const ComaStokesDataset& getYStokesDataset() const
+    {
+        if (auto* p = boost::get<ComaStokesDataset>(&yData_))
+            return *p;
+        throw std::runtime_error("Y-component data does not contain Stokes dataset");
+    }
+
+    /*!
+     * \brief Get z-component Stokes dataset.
+     * \return Reference to z-component Stokes dataset
+     * \throws std::runtime_error if datasets are not Stokes type
+     */
+    const ComaStokesDataset& getZStokesDataset() const
+    {
+        if (auto* p = boost::get<ComaStokesDataset>(&zData_))
+            return *p;
+        throw std::runtime_error("Z-component data does not contain Stokes dataset");
+    }
+
+private:
+    //! Enumeration for dataset type
+    enum class DataType
+    {
+        Polynomial,
+        Stokes
+    };
+
+    //! Type of datasets stored in this collection
+    DataType dataType_;
+
+    //! X-component dataset (either polynomial or Stokes)
+    DataVariant xData_;
+
+    //! Y-component dataset (either polynomial or Stokes)
+    DataVariant yData_;
+
+    //! Z-component dataset (either polynomial or Stokes)
+    DataVariant zData_;
+};
+
 // ============= High-Level Processing Interface =============
 
 class ComaModelFileProcessor
@@ -1836,6 +2002,180 @@ inline std::ostream& operator<<( std::ostream& os, const ComaModelFileProcessor:
         default:
             return os << "Unknown";
     }
+}
+
+/*!
+ * \brief Processor for creating wind model datasets from three component file sources.
+ *
+ * This class manages the creation of ComaWindDatasetCollection from three sets of files
+ * (one for each spatial component: x, y, z). It internally uses three ComaModelFileProcessor
+ * instances and provides a simplified interface for wind model setup.
+ */
+class ComaWindModelFileProcessor
+{
+public:
+    /*!
+     * \brief Constructor for polynomial coefficient files.
+     * \param xFilePaths Vector of file paths for x-component polynomial coefficients
+     * \param yFilePaths Vector of file paths for y-component polynomial coefficients
+     * \param zFilePaths Vector of file paths for z-component polynomial coefficients
+     * \throws std::invalid_argument if any file list is empty
+     */
+    ComaWindModelFileProcessor(
+        std::vector<std::string> xFilePaths,
+        std::vector<std::string> yFilePaths,
+        std::vector<std::string> zFilePaths)
+        : xProcessor_(std::move(xFilePaths)),
+          yProcessor_(std::move(yFilePaths)),
+          zProcessor_(std::move(zFilePaths)),
+          isPolyType_(true)
+    {
+        if (xProcessor_.getFileType() != ComaModelFileProcessor::FileType::PolyCoefficients ||
+            yProcessor_.getFileType() != ComaModelFileProcessor::FileType::PolyCoefficients ||
+            zProcessor_.getFileType() != ComaModelFileProcessor::FileType::PolyCoefficients)
+        {
+            throw std::runtime_error("ComaWindModelFileProcessor: All processors must be polynomial type for this constructor");
+        }
+    }
+
+    /*!
+     * \brief Constructor for Stokes coefficient directories.
+     * \param xInputDir Directory containing x-component Stokes CSV files
+     * \param yInputDir Directory containing y-component Stokes CSV files
+     * \param zInputDir Directory containing z-component Stokes CSV files
+     * \param prefix File prefix for the CSV files (default: "stokes")
+     */
+    ComaWindModelFileProcessor(
+        const std::string& xInputDir,
+        const std::string& yInputDir,
+        const std::string& zInputDir,
+        const std::string& prefix = "stokes")
+        : xProcessor_(xInputDir, prefix),
+          yProcessor_(yInputDir, prefix),
+          zProcessor_(zInputDir, prefix),
+          isPolyType_(false)
+    {
+        if (xProcessor_.getFileType() != ComaModelFileProcessor::FileType::StokesCoefficients ||
+            yProcessor_.getFileType() != ComaModelFileProcessor::FileType::StokesCoefficients ||
+            zProcessor_.getFileType() != ComaModelFileProcessor::FileType::StokesCoefficients)
+        {
+            throw std::runtime_error("ComaWindModelFileProcessor: All processors must be Stokes type for this constructor");
+        }
+    }
+
+    /*!
+     * \brief Create polynomial coefficient dataset collection for all three components.
+     * \return ComaWindDatasetCollection containing x, y, z polynomial datasets
+     * \throws std::runtime_error if processor was constructed from Stokes files
+     */
+    ComaWindDatasetCollection createPolyCoefDatasets() const
+    {
+        if (!isPolyType_)
+        {
+            throw std::runtime_error("createPolyCoefDatasets: not available when processor is constructed from SH files. "
+                                   "Use a processor constructed from polynomial coefficient files instead.");
+        }
+
+        ComaPolyDataset xData = xProcessor_.createPolyCoefDataset();
+        ComaPolyDataset yData = yProcessor_.createPolyCoefDataset();
+        ComaPolyDataset zData = zProcessor_.createPolyCoefDataset();
+
+        return ComaWindDatasetCollection::createFromPoly(
+            std::move(xData),
+            std::move(yData),
+            std::move(zData));
+    }
+
+    /*!
+     * \brief Create Stokes coefficient dataset collection for all three components.
+     * \param radii_m Vector of radii at which to evaluate Stokes coefficients [m]
+     * \param solLongitudes_deg Vector of solar longitudes [degrees]
+     * \param requestedMaxDegree Maximum spherical harmonic degree (-1 for auto)
+     * \param requestedMaxOrder Maximum spherical harmonic order (-1 for auto)
+     * \return ComaWindDatasetCollection containing x, y, z Stokes datasets
+     */
+    ComaWindDatasetCollection createSHDatasets(
+        const std::vector<double>& radii_m,
+        const std::vector<double>& solLongitudes_deg,
+        const int requestedMaxDegree = -1,
+        const int requestedMaxOrder = -1) const
+    {
+        ComaStokesDataset xData = xProcessor_.createSHDataset(radii_m, solLongitudes_deg, requestedMaxDegree, requestedMaxOrder);
+        ComaStokesDataset yData = yProcessor_.createSHDataset(radii_m, solLongitudes_deg, requestedMaxDegree, requestedMaxOrder);
+        ComaStokesDataset zData = zProcessor_.createSHDataset(radii_m, solLongitudes_deg, requestedMaxDegree, requestedMaxOrder);
+
+        return ComaWindDatasetCollection::createFromStokes(
+            std::move(xData),
+            std::move(yData),
+            std::move(zData));
+    }
+
+    /*!
+     * \brief Create Stokes coefficient CSV files for all three components.
+     * \param xOutputDir Output directory for x-component files
+     * \param yOutputDir Output directory for y-component files
+     * \param zOutputDir Output directory for z-component files
+     * \param radii_m Vector of radii at which to evaluate Stokes coefficients [m]
+     * \param solLongitudes_deg Vector of solar longitudes [degrees]
+     * \param requestedMaxDegree Maximum spherical harmonic degree (-1 for auto)
+     * \param requestedMaxOrder Maximum spherical harmonic order (-1 for auto)
+     */
+    void createSHFiles(
+        const std::string& xOutputDir,
+        const std::string& yOutputDir,
+        const std::string& zOutputDir,
+        const std::vector<double>& radii_m,
+        const std::vector<double>& solLongitudes_deg,
+        const int requestedMaxDegree = -1,
+        const int requestedMaxOrder = -1) const
+    {
+        xProcessor_.createSHFiles(xOutputDir, radii_m, solLongitudes_deg, requestedMaxDegree, requestedMaxOrder);
+        yProcessor_.createSHFiles(yOutputDir, radii_m, solLongitudes_deg, requestedMaxDegree, requestedMaxOrder);
+        zProcessor_.createSHFiles(zOutputDir, radii_m, solLongitudes_deg, requestedMaxDegree, requestedMaxOrder);
+    }
+
+    /*!
+     * \brief Check if this processor works with polynomial coefficient files.
+     * \return True if constructed from polynomial files
+     */
+    bool isPolyType() const { return isPolyType_; }
+
+    /*!
+     * \brief Check if this processor works with Stokes coefficient files.
+     * \return True if constructed from Stokes files
+     */
+    bool isStokesType() const { return !isPolyType_; }
+
+private:
+    //! Processor for x-component files
+    ComaModelFileProcessor xProcessor_;
+
+    //! Processor for y-component files
+    ComaModelFileProcessor yProcessor_;
+
+    //! Processor for z-component files
+    ComaModelFileProcessor zProcessor_;
+
+    //! Flag indicating if processors work with polynomial (true) or Stokes (false) files
+    bool isPolyType_;
+};
+
+// Factory functions for ComaWindModelFileProcessor
+inline std::shared_ptr<ComaWindModelFileProcessor> comaWindModelFileProcessorFromPolyFiles(
+    const std::vector<std::string>& xFilePaths,
+    const std::vector<std::string>& yFilePaths,
+    const std::vector<std::string>& zFilePaths)
+{
+    return std::make_shared<ComaWindModelFileProcessor>(xFilePaths, yFilePaths, zFilePaths);
+}
+
+inline std::shared_ptr<ComaWindModelFileProcessor> comaWindModelFileProcessorFromSHFiles(
+    const std::string& xInputDir,
+    const std::string& yInputDir,
+    const std::string& zInputDir,
+    const std::string& prefix = "stokes")
+{
+    return std::make_shared<ComaWindModelFileProcessor>(xInputDir, yInputDir, zInputDir, prefix);
 }
 
 
@@ -2046,6 +2386,45 @@ public:
         requestedDegree_( requestedDegree ),
         requestedOrder_( requestedOrder )
     {
+        validateAndSetDefaults( );
+    }
+
+    /**
+     * \brief Constructor from ComaWindDatasetCollection
+     * \param datasetCollection Collection containing x, y, z component datasets
+     * \param requestedDegree Maximum spherical harmonic degree (-1 for auto)
+     * \param requestedOrder Maximum spherical harmonic order (-1 for auto)
+     * \param associatedFrame Reference frame for the wind model
+     * \param includeCorotation Boolean indicating whether atmospheric co-rotation should be included
+     */
+    explicit ComaWindModelSettings( const ComaWindDatasetCollection& datasetCollection,
+                                    const int requestedDegree = -1,
+                                    const int requestedOrder = -1,
+                                    const reference_frames::AerodynamicsReferenceFrames associatedFrame =
+                                            reference_frames::vertical_frame,
+                                    const bool includeCorotation = true ) :
+        WindModelSettings( coma_wind_model, associatedFrame, includeCorotation ),
+        requestedDegree_( requestedDegree ),
+        requestedOrder_( requestedOrder )
+    {
+        // Extract datasets from collection based on type
+        if (datasetCollection.isPoly())
+        {
+            xData_ = datasetCollection.getXPolyDataset();
+            yData_ = datasetCollection.getYPolyDataset();
+            zData_ = datasetCollection.getZPolyDataset();
+        }
+        else if (datasetCollection.isStokes())
+        {
+            xData_ = datasetCollection.getXStokesDataset();
+            yData_ = datasetCollection.getYStokesDataset();
+            zData_ = datasetCollection.getZStokesDataset();
+        }
+        else
+        {
+            throw std::runtime_error("ComaWindModelSettings: Invalid dataset collection type");
+        }
+
         validateAndSetDefaults( );
     }
 

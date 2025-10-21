@@ -298,6 +298,10 @@ void expose_dependent_variable_setup( py::module &m )
                     tp::PropagationDependentVariables::solar_longitude,
                     R"doc(
       )doc" )
+            .value( "number_density_type",
+                    tp::PropagationDependentVariables::number_density,
+                    R"doc(
+      )doc" )
             .export_values( );
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -2647,6 +2651,35 @@ The type of the acceleration that is to be saved.
 
     # Define save settings for solar longitude
     propagation_setup.dependent_variable.solar_longitude( "Comet" )
+
+
+     )doc" );
+
+    m.def( "number_density",
+           &tp::numberDensityDependentVariable,
+           py::arg( "body" ),
+           py::arg( "body_with_atmosphere" ),
+           R"doc(
+
+ Function to add the local freestream number density to the dependent variables to save.
+
+ Function to add the freestream number density (at a body's position) to the dependent variables to save. The calculation of the number density uses the atmosphere model of the central body, and the current state of the body for which the number density is to be calculated.
+
+ Parameters
+ ----------
+ body : str
+     Body whose dependent variable should be saved.
+ body_with_atmosphere : str
+     Body with atmosphere with respect to which the number density is computed.
+ Returns
+ -------
+ SingleDependentVariableSaveSettings
+     Dependent variable settings object.
+ Variable Size
+ -------------
+ 1
+
+
 
 
      )doc" );

@@ -336,6 +336,9 @@ std::string getDependentVariableName( const std::shared_ptr< SingleDependentVari
         case solar_longitude:
             variableName = "Solar longitude";
             break;
+        case number_density:
+            variableName = "Number density";
+            break;
         default:
             std::string errorMessage = "Error, dependent variable " + std::to_string( propagationDependentVariables ) +
                     "not found when retrieving parameter name ";

@@ -944,7 +944,19 @@ using the NRLMSISE-00 global reference model:
                                           "ComaStokesDataset",
                                           R"doc(Stokes spherical-harmonics dataset for the coma model.)doc" );
 
+    py::class_< tss::ComaWindDatasetCollection >( m,
+                                                   "ComaWindDatasetCollection",
+                                                   R"doc(
+        Collection of three coma datasets for wind model (x, y, z components).
 
+        This class holds three datasets (one for each spatial component of the wind velocity)
+        that are used together to construct a ComaWindModel. All three datasets must be of
+        the same type (either all polynomial or all Stokes coefficients).
+        )doc" )
+        .def("is_poly", &tss::ComaWindDatasetCollection::isPoly,
+             R"doc(Check if the collection contains polynomial datasets.)doc")
+        .def("is_stokes", &tss::ComaWindDatasetCollection::isStokes,
+             R"doc(Check if the collection contains Stokes datasets.)doc");
 
     // === Coma processing: file processor ===
     py::class_< tss::ComaModelFileProcessor, std::shared_ptr< tss::ComaModelFileProcessor > >( m,
@@ -993,7 +1005,147 @@ using the NRLMSISE-00 global reference model:
                 )doc"
             );
 
+    // === Coma wind processing: file processor ===
+    py::class_< tss::ComaWindModelFileProcessor, std::shared_ptr< tss::ComaWindModelFileProcessor > >( m,
+                                               "ComaWindModelFileProcessor",
+                                               R"doc(
+        Processor for creating wind model datasets from three component file sources.
 
+        This class manages the creation of ComaWindDatasetCollection from three sets of files
+        (one for each spatial component: x, y, z). It provides a simplified interface for
+        wind model setup by handling all three components together.
+        )doc" )
+        .def("create_poly_coef_datasets",
+             &tss::ComaWindModelFileProcessor::createPolyCoefDatasets,
+             R"doc(
+                Create polynomial coefficient dataset collection for all three components.
+
+                Returns
+                -------
+                ComaWindDatasetCollection
+                    Collection containing x, y, z polynomial datasets
+
+                Raises
+                ------
+                RuntimeError
+                    If processor was constructed from Stokes files
+                )doc")
+        .def("create_sh_datasets",
+             &tss::ComaWindModelFileProcessor::createSHDatasets,
+             py::arg("radii_m"),
+             py::arg("sol_longitudes_deg"),
+             py::arg("requested_max_degree") = -1,
+             py::arg("requested_max_order") = -1,
+             R"doc(
+                Create Stokes coefficient dataset collection for all three components.
+
+                Parameters
+                ----------
+                radii_m : list[float]
+                    Vector of radii at which to evaluate Stokes coefficients [m]
+                sol_longitudes_deg : list[float]
+                    Vector of solar longitudes [degrees]
+                requested_max_degree : int, optional
+                    Maximum spherical harmonic degree (-1 for auto)
+                requested_max_order : int, optional
+                    Maximum spherical harmonic order (-1 for auto)
+
+                Returns
+                -------
+                ComaWindDatasetCollection
+                    Collection containing x, y, z Stokes datasets
+                )doc")
+        .def("create_sh_files",
+             &tss::ComaWindModelFileProcessor::createSHFiles,
+             py::arg("x_output_dir"),
+             py::arg("y_output_dir"),
+             py::arg("z_output_dir"),
+             py::arg("radii_m"),
+             py::arg("sol_longitudes_deg"),
+             py::arg("requested_max_degree") = -1,
+             py::arg("requested_max_order") = -1,
+             R"doc(
+                Create Stokes coefficient CSV files for all three components.
+
+                Parameters
+                ----------
+                x_output_dir : str
+                    Output directory for x-component files
+                y_output_dir : str
+                    Output directory for y-component files
+                z_output_dir : str
+                    Output directory for z-component files
+                radii_m : list[float]
+                    Vector of radii at which to evaluate Stokes coefficients [m]
+                sol_longitudes_deg : list[float]
+                    Vector of solar longitudes [degrees]
+                requested_max_degree : int, optional
+                    Maximum spherical harmonic degree (-1 for auto)
+                requested_max_order : int, optional
+                    Maximum spherical harmonic order (-1 for auto)
+                )doc")
+        .def("is_poly_type", &tss::ComaWindModelFileProcessor::isPolyType,
+             R"doc(Check if this processor works with polynomial coefficient files.)doc")
+        .def("is_stokes_type", &tss::ComaWindModelFileProcessor::isStokesType,
+             R"doc(Check if this processor works with Stokes coefficient files.)doc");
+
+    m.def(
+            "coma_wind_file_processor",
+            py::overload_cast<const std::vector<std::string>&,
+                              const std::vector<std::string>&,
+                              const std::vector<std::string>&>(&tss::comaWindModelFileProcessorFromPolyFiles),
+            py::arg( "x_file_paths" ),
+            py::arg( "y_file_paths" ),
+            py::arg( "z_file_paths" ),
+            R"doc(
+                Create a ComaWindModelFileProcessor from polynomial coefficient files.
+
+                Parameters
+                ----------
+                x_file_paths : list[str]
+                    List of file paths for x-component polynomial coefficients
+                y_file_paths : list[str]
+                    List of file paths for y-component polynomial coefficients
+                z_file_paths : list[str]
+                    List of file paths for z-component polynomial coefficients
+
+                Returns
+                -------
+                ComaWindModelFileProcessor
+                    Processor configured for polynomial files
+                )doc"
+            );
+
+    m.def(
+            "coma_wind_file_processor",
+            py::overload_cast<const std::string&,
+                              const std::string&,
+                              const std::string&,
+                              const std::string&>(&tss::comaWindModelFileProcessorFromSHFiles),
+            py::arg( "x_input_dir" ),
+            py::arg( "y_input_dir" ),
+            py::arg( "z_input_dir" ),
+            py::arg( "prefix" ) = "stokes",
+            R"doc(
+                Create a ComaWindModelFileProcessor from existing SH CSV files.
+
+                Parameters
+                ----------
+                x_input_dir : str
+                    Directory containing x-component SH CSV files
+                y_input_dir : str
+                    Directory containing y-component SH CSV files
+                z_input_dir : str
+                    Directory containing z-component SH CSV files
+                prefix : str, optional
+                    File prefix for the CSV files (default: "stokes")
+
+                Returns
+                -------
+                ComaWindModelFileProcessor
+                    Processor configured for Stokes files
+                )doc"
+            );
 
 
 

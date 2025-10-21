@@ -143,7 +143,8 @@ enum PropagationDependentVariables {
     aerodynamic_coefficients = 76,
     actual_cross_section = 77,
     solar_longitude = 78,
-    vehicle_part_rotation_matrix_dependent_variable = 79
+    vehicle_part_rotation_matrix_dependent_variable = 79,
+    number_density = 80
 
 };
 
@@ -1405,6 +1406,13 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > vehiclePartRotatio
 inline std::shared_ptr< SingleDependentVariableSaveSettings > solarLongitudeDependentVariable( const std::string& bodyName )
 {
     return std::make_shared< SingleDependentVariableSaveSettings >( solar_longitude, bodyName, "" );
+}
+
+//! @get_docstring(numberDensityDependentVariable)
+inline std::shared_ptr< SingleDependentVariableSaveSettings > numberDensityDependentVariable( const std::string& associatedBody,
+                                                                                               const std::string& bodyWithAtmosphere )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >( number_density, associatedBody, bodyWithAtmosphere );
 }
 
 }  // namespace propagators

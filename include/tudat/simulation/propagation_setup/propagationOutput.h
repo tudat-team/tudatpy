@@ -2025,6 +2025,40 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                                               std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
                                                       bodies.at( bodyWithProperty )->getFlightConditions( ) ) );
                 break;
+            case number_density:
+            {
+                if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                            bodies.at( bodyWithProperty )->getFlightConditions( ) ) == nullptr )
+                {
+                    simulation_setup::addAtmosphericFlightConditions( bodies, bodyWithProperty, secondaryBody );
+                }
+                auto flightConditions = std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                        bodies.at( bodyWithProperty )->getFlightConditions( ) );
+                auto centralBody = bodies.at( secondaryBody );
+
+                // Use lambda to get number density
+                variableFunction = [flightConditions, centralBody]( ) -> double
+                {
+                    auto atmosphereModel = flightConditions->getAtmosphereModel( );
+
+                    // Check if it's a ComaModel and use its specific getNumberDensity method
+                    auto comaModel = std::dynamic_pointer_cast< aerodynamics::ComaModel >( atmosphereModel );
+                    if( comaModel != nullptr )
+                    {
+                        double radius = flightConditions->getCurrentAltitude( ) + centralBody->getShapeModel( )->getAverageRadius( );
+                        return comaModel->getNumberDensity(
+                            radius,
+                            flightConditions->getCurrentLongitude( ),
+                            flightConditions->getCurrentLatitude( ),
+                            flightConditions->getCurrentTime( ) );
+                    }
+                    else
+                    {
+                        throw std::runtime_error( "Number density dependent variable is currently only supported for ComaModel atmospheres." );
+                    }
+                };
+                break;
+            }
             case radiation_pressure_dependent_variable: {
                 auto radiationPressureAccelerationList = getAccelerationBetweenBodies( dependentVariableSettings->associatedBody_,
                                                                                        dependentVariableSettings->secondaryBody_,

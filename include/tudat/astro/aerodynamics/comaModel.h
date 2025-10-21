@@ -186,10 +186,9 @@ private:
     //! Flag to track if coefficient matrices have been sized (optimization to avoid repeated size checks)
     mutable bool coefficientMatricesSized_;
 
-    //! Cached latitude/longitude and their trigonometric values
+    //! Cached latitude/longitude
     mutable double cachedLatitude_;
     mutable double cachedLongitude_;
-    mutable double cachedSineLatitude_;
 
     //! Cached final density result to avoid repeated exp2 calls
     mutable double cachedFinalDensity_;
