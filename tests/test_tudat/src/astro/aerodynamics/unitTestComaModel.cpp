@@ -1519,7 +1519,7 @@ BOOST_FIXTURE_TEST_CASE(test_sh_processor_from_existing_files, TestDataPaths)
 
     // Now test creating a new processor from SH files and reading the dataset
     ComaModelFileProcessor shProcessor(shFilesDir.string());
-    ComaStokesDataset readDataset = shProcessor.createSHDataset({}, {});
+    ComaStokesDataset readDataset = shProcessor.createSHDataset();
 
     // Verify structure matches original
     BOOST_CHECK_EQUAL(readDataset.nFiles(), originalDataset.nFiles());
@@ -1589,7 +1589,7 @@ BOOST_FIXTURE_TEST_CASE(test_sh_processor_from_existing_files, TestDataPaths)
 
     // Read back with custom prefix using new processor
     ComaModelFileProcessor customShProcessor(customPrefixDir.string(), "custom");
-    ComaStokesDataset customReadDataset = customShProcessor.createSHDataset({}, {});
+    ComaStokesDataset customReadDataset = customShProcessor.createSHDataset();
 
     // Verify it matches the original
     BOOST_CHECK_EQUAL(customReadDataset.nFiles(), originalDataset.nFiles());
@@ -1682,16 +1682,18 @@ BOOST_FIXTURE_TEST_CASE(test_processor_file_type_behavior, TestDataPaths)
     ComaModelFileProcessor shProc(shTestDir.string());
     BOOST_CHECK_EQUAL(shProc.getFileType(), ComaModelFileProcessor::FileType::StokesCoefficients);
     BOOST_CHECK_THROW(shProc.createPolyCoefDataset(), std::runtime_error);
-    BOOST_CHECK_NO_THROW(shProc.createSHDataset({}, {})); // Parameters ignored
 
-    // Verify that SH processor ignores createSHDataset parameters
-    ComaStokesDataset shDataset1 = shProc.createSHDataset({1000.0}, {45.0});
-    ComaStokesDataset shDataset2 = shProc.createSHDataset({2000.0, 3000.0}, {90.0, 180.0});
+    // Test that parameterless version works on SH processor
+    BOOST_CHECK_NO_THROW(shProc.createSHDataset());
+    ComaStokesDataset shDataset = shProc.createSHDataset();
+    BOOST_CHECK_GT(shDataset.nRadii(), 0);
 
-    // Both should return the same preloaded dataset
-    BOOST_CHECK_EQUAL(shDataset1.nRadii(), shDataset2.nRadii());
-    BOOST_CHECK_EQUAL(shDataset1.nLongitudes(), shDataset2.nLongitudes());
-    BOOST_CHECK_EQUAL(shDataset1.nmax(), shDataset2.nmax());
+    // Test that parameterized version throws error on SH processor
+    BOOST_CHECK_THROW(shProc.createSHDataset({1000.0}, {45.0}), std::runtime_error);
+    BOOST_CHECK_THROW(shProc.createSHDataset(radii_m, lons_deg), std::runtime_error);
+
+    // Test that parameterless version throws error on Poly processor
+    BOOST_CHECK_THROW(polyProc.createSHDataset(), std::runtime_error);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -1747,7 +1749,7 @@ BOOST_FIXTURE_TEST_CASE(test_full_pipeline, TestDataPaths)
 
     // Step 6: Test reading from folder using new SH processor
     ComaModelFileProcessor integratedShProcessor(integratedOutput.string(), "integrated");
-    ComaStokesDataset folderReadDataset = integratedShProcessor.createSHDataset({}, {});
+    ComaStokesDataset folderReadDataset = integratedShProcessor.createSHDataset();
     BOOST_CHECK_EQUAL(folderReadDataset.nmax(), stokesDataset.nmax());
 
     // Verify coefficient values from folder read match original

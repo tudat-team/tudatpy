@@ -1930,31 +1930,41 @@ public:
         return ComaPolyDatasetReader::readFromFiles( filePaths_ );
     }
 
-    // Create Stokes dataset
+    // Create Stokes dataset (parameterless version for Stokes coefficient files)
+    ComaStokesDataset createSHDataset() const
+    {
+        if(fileType_ != FileType::StokesCoefficients)
+        {
+            throw std::runtime_error(
+                "createSHDataset(): parameterless version only available when processor is constructed from "
+                "Stokes coefficient CSV files. Use createSHDataset(radii_m, sol_longitudes_deg, ...) for "
+                "polynomial coefficient files." );
+        }
+        return preloadedSHDataset_;
+    }
+
+    // Create Stokes dataset (with parameters for polynomial coefficient files)
     ComaStokesDataset createSHDataset(
             const std::vector< double >& radii_m,
             const std::vector< double >& solLongitudes_deg,
             const int requestedMaxDegree = -1,
             const int requestedMaxOrder = -1 ) const
     {
-        if(fileType_ == FileType::StokesCoefficients)
+        if(fileType_ != FileType::PolyCoefficients)
         {
-            // When constructed from SH files, return the preloaded dataset
-            // Note: radii_m, solLongitudes_deg, and degree/order parameters are ignored
-            // as they are already determined by the loaded SH files
-            return preloadedSHDataset_;
+            throw std::runtime_error(
+                "createSHDataset(radii_m, sol_longitudes_deg, ...): only available when processor is constructed "
+                "from polynomial coefficient files. Use parameterless createSHDataset() for Stokes coefficient CSV files." );
         }
-        else
-        {
-            // When constructed from poly files, transform as before
-            const ComaPolyDataset polyDataset = createPolyCoefDataset(  );
-            return ComaDatasetTransformer::transformPolyToStokes(
-                    polyDataset,
-                    radii_m,
-                    solLongitudes_deg,
-                    requestedMaxDegree,
-                    requestedMaxOrder );
-        }
+
+        // Transform poly coefficients to Stokes coefficients
+        const ComaPolyDataset polyDataset = createPolyCoefDataset(  );
+        return ComaDatasetTransformer::transformPolyToStokes(
+                polyDataset,
+                radii_m,
+                solLongitudes_deg,
+                requestedMaxDegree,
+                requestedMaxOrder );
     }
 
     // Create SH files (combines dataset creation and writing)
@@ -2087,12 +2097,38 @@ public:
     }
 
     /*!
-     * \brief Create Stokes coefficient dataset collection for all three components.
+     * \brief Create Stokes coefficient dataset collection (parameterless version for Stokes CSV files).
+     * \return ComaWindDatasetCollection containing x, y, z Stokes datasets from preloaded CSV files
+     * \throws std::runtime_error if processor was constructed from polynomial files
+     */
+    ComaWindDatasetCollection createSHDatasets() const
+    {
+        if (!isStokesType())
+        {
+            throw std::runtime_error(
+                "createSHDatasets(): parameterless version only available when processor is constructed from "
+                "Stokes coefficient CSV files. Use createSHDatasets(radii_m, sol_longitudes_deg, ...) for "
+                "polynomial coefficient files.");
+        }
+
+        ComaStokesDataset xData = xProcessor_.createSHDataset();
+        ComaStokesDataset yData = yProcessor_.createSHDataset();
+        ComaStokesDataset zData = zProcessor_.createSHDataset();
+
+        return ComaWindDatasetCollection::createFromStokes(
+            std::move(xData),
+            std::move(yData),
+            std::move(zData));
+    }
+
+    /*!
+     * \brief Create Stokes coefficient dataset collection (with parameters for polynomial files).
      * \param radii_m Vector of radii at which to evaluate Stokes coefficients [m]
      * \param solLongitudes_deg Vector of solar longitudes [degrees]
      * \param requestedMaxDegree Maximum spherical harmonic degree (-1 for auto)
      * \param requestedMaxOrder Maximum spherical harmonic order (-1 for auto)
      * \return ComaWindDatasetCollection containing x, y, z Stokes datasets
+     * \throws std::runtime_error if processor was constructed from Stokes CSV files
      */
     ComaWindDatasetCollection createSHDatasets(
         const std::vector<double>& radii_m,
@@ -2100,6 +2136,13 @@ public:
         const int requestedMaxDegree = -1,
         const int requestedMaxOrder = -1) const
     {
+        if (!isPolyType())
+        {
+            throw std::runtime_error(
+                "createSHDatasets(radii_m, sol_longitudes_deg, ...): only available when processor is constructed "
+                "from polynomial coefficient files. Use parameterless createSHDatasets() for Stokes coefficient CSV files.");
+        }
+
         ComaStokesDataset xData = xProcessor_.createSHDataset(radii_m, solLongitudes_deg, requestedMaxDegree, requestedMaxOrder);
         ComaStokesDataset yData = yProcessor_.createSHDataset(radii_m, solLongitudes_deg, requestedMaxDegree, requestedMaxOrder);
         ComaStokesDataset zData = zProcessor_.createSHDataset(radii_m, solLongitudes_deg, requestedMaxDegree, requestedMaxOrder);
