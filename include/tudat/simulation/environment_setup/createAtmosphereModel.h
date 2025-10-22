@@ -92,7 +92,8 @@ public:
             std::vector< FileMeta > files,
             std::vector< double > radii,
             std::vector< double > solLongs,
-            int nmax )
+            int nmax,
+            bool computeReducedCoeffs = true )
     {
         if(files.empty( ) || radii.empty( ) || solLongs.empty( ) || nmax < 0)
             throw std::runtime_error( "StokesDataset: invalid metadata." );
@@ -174,6 +175,7 @@ public:
         g.radii_ = std::move( validRadii );
         g.lons_ = std::move( solLongs );
         g.nmax_ = nmax;
+        g.hasReducedCoeffs_ = computeReducedCoeffs;
 
         g.n_files_ = g.files_.size( );
         g.n_radii_ = g.radii_.size( );
@@ -182,8 +184,13 @@ public:
 
         const std::size_t totalRows = g.n_files_ * g.n_radii_ * g.n_lons_ * g.n_coeffs_;
         g.data_.setZero( static_cast< Eigen::Index >(totalRows), 2 );
-        const std::size_t reducedTotalRows = g.n_files_ * g.n_lons_ * g.n_coeffs_;
-        g.reduced_data_.setZero( static_cast< Eigen::Index >(reducedTotalRows), 2 );
+
+        // Only allocate reduced coefficient storage if needed
+        if( computeReducedCoeffs )
+        {
+            const std::size_t reducedTotalRows = g.n_files_ * g.n_lons_ * g.n_coeffs_;
+            g.reduced_data_.setZero( static_cast< Eigen::Index >(reducedTotalRows), 2 );
+        }
 
         return g;
     }
@@ -227,6 +234,11 @@ public:
     const std::vector< FileMeta >& files( ) const
     {
         return files_;
+    }
+
+    bool hasReducedCoeffs( ) const
+    {
+        return hasReducedCoeffs_;
     }
 
     // Convenience accessor for reference radius
@@ -382,6 +394,7 @@ private:
     std::vector< double > lons_;
     int nmax_{};
     std::size_t n_files_{}, n_radii_{}, n_lons_{}, n_coeffs_{};
+    bool hasReducedCoeffs_{ true }; // Flag indicating if reduced coefficients are computed/stored
     StokesBlock data_;
     StokesBlock reduced_data_; // For reduced coefficients (n_files × n_lons × n_coeffs)
 };
@@ -859,6 +872,7 @@ public:
         os << ",n_radii=" << dataset.nRadii( );
         os << ",n_lons=" << dataset.nLongitudes( );
         os << ",n_coeffs=" << dataset.nCoeffs( );
+        os << ",has_reduced_coeffs=" << ( dataset.hasReducedCoeffs( ) ? "true" : "false" );
         os << ",source=";
         csvEscape( os, fm.source_tag );
         os << '\n';
@@ -882,29 +896,33 @@ public:
         os << '\n';
 
         // REDUCED COEFFICIENTS SECTION (for radius > reference radius)
-        os << "\n# REDUCED COEFFICIENTS SECTION (for radius > ref_radius)\n";
-        os << "# These coefficients are computed using reducedToTemporalIFFT\n";
-        os << "# No radius dimension - coefficients are independent of radius\n";
-
-        for(std::size_t li = 0; li < dataset.nLongitudes( ); ++li)
+        // Only write if reduced coefficients are present (not needed for wind models)
+        if( dataset.hasReducedCoeffs( ) )
         {
-            os << "ID," << li << ',';
-            set_def( );
-            os << "l_0=" << dataset.lons( )[ li ] << '\n';
+            os << "\n# REDUCED COEFFICIENTS SECTION (for radius > ref_radius)\n";
+            os << "# These coefficients are computed using reducedToTemporalIFFT\n";
+            os << "# No radius dimension - coefficients are independent of radius\n";
 
-            os << "n,m,C,S\n";
-
-            const auto blk = dataset.reducedBlock( f, li );
-            for(std::size_t k = 0; k < dataset.nCoeffs( ); ++k)
+            for(std::size_t li = 0; li < dataset.nLongitudes( ); ++li)
             {
-                const auto nm = index_to_nm_deg_major( k );
-                const double C = blk( static_cast< Eigen::Index >(k), 0 );
-                const double S = blk( static_cast< Eigen::Index >(k), 1 );
+                os << "ID," << li << ',';
+                set_def( );
+                os << "l_0=" << dataset.lons( )[ li ] << '\n';
+
+                os << "n,m,C,S\n";
+
+                const auto blk = dataset.reducedBlock( f, li );
+                for(std::size_t k = 0; k < dataset.nCoeffs( ); ++k)
+                {
+                    const auto nm = index_to_nm_deg_major( k );
+                    const double C = blk( static_cast< Eigen::Index >(k), 0 );
+                    const double S = blk( static_cast< Eigen::Index >(k), 1 );
                 os << nm.first << ',' << nm.second << ',';
                 set_sci( );
                 os << C << ',' << S << '\n';
             }
         }
+        } // End of if( dataset.hasReducedCoeffs( ) )
 
         // REGULAR COEFFICIENTS SECTION (for radius <= ref_radius)
         os << "\n# REGULAR COEFFICIENTS SECTION (for radius <= ref_radius)\n";
@@ -1492,7 +1510,8 @@ public:
             const std::vector< double >& radii_m,
             const std::vector< double >& solLongitudes_deg,
             const int requestedMaxDegree = -1,
-            const int requestedMaxOrder = -1 )
+            const int requestedMaxOrder = -1,
+            const bool computeReducedCoeffs = true )
     {
         // Validate inputs
         validateTransformInputs( polyDataset,
@@ -1525,10 +1544,11 @@ public:
                 std::move( files ),
                 radii_m,
                 solLongitudes_rad,
-                effectiveMaxDegree );
+                effectiveMaxDegree,
+                computeReducedCoeffs );
 
         // Fill dataset with computed coefficients
-        fillStokesDataset( polyDataset, stokesDataset, effectiveMaxDegree, effectiveMaxOrder );
+        fillStokesDataset( polyDataset, stokesDataset, effectiveMaxDegree, effectiveMaxOrder, computeReducedCoeffs );
 
         return stokesDataset;
     }
@@ -1629,12 +1649,20 @@ private:
             const ComaPolyDataset& polyDataset,
             ComaStokesDataset& stokesDataset,
             const int effectiveMaxDegree,
-            const int effectiveMaxOrder )
+            const int effectiveMaxOrder,
+            const bool computeReducedCoeffs )
     {
         Eigen::MatrixXd cosineCoefficients( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
         Eigen::MatrixXd sineCoefficients( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
-        Eigen::MatrixXd reducedCosineCoefficients( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
-        Eigen::MatrixXd reducedSineCoefficients( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
+
+        // Only allocate reduced coefficient matrices if needed
+        Eigen::MatrixXd reducedCosineCoefficients;
+        Eigen::MatrixXd reducedSineCoefficients;
+        if( computeReducedCoeffs )
+        {
+            reducedCosineCoefficients.resize( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
+            reducedSineCoefficients.resize( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
+        }
 
         for(std::size_t fileIndex = 0; fileIndex < stokesDataset.nFiles( ); ++fileIndex)
         {
@@ -1683,36 +1711,40 @@ private:
             }
 
             // Fill reduced coefficients (computed once per solar longitude, no radius dependency)
-            for(std::size_t longitudeIndex = 0; longitudeIndex < stokesDataset.nLongitudes( ); ++longitudeIndex)
+            // Only compute and store if needed (normal coma model requires them, wind model does not)
+            if( computeReducedCoeffs )
             {
-                const double solarLongitudeRadians = stokesDataset.lons( )[ longitudeIndex ]; // already in radians
-
-
-                reducedCosineCoefficients.setZero();
-                reducedSineCoefficients.setZero();
-
-                StokesCoefficientsEvaluator::evaluate2DReduced(
-                    solarLongitudeRadians,
-                    polynomialCoefficients,
-                    degreeAndOrderIndices,
-                    inversePowers,
-                    reducedCosineCoefficients,
-                    reducedSineCoefficients,
-                    effectiveMaxDegree,
-                    effectiveMaxOrder );
-
-                // Store reduced coefficients using batch write via block reference
-                auto reducedCoeffBlock = stokesDataset.reducedBlock( fileIndex, longitudeIndex );
-                for(int degree = 0; degree <= effectiveMaxDegree; ++degree)
+                for(std::size_t longitudeIndex = 0; longitudeIndex < stokesDataset.nLongitudes( ); ++longitudeIndex)
                 {
-                    const int maxOrderForDegree = std::min( degree, effectiveMaxOrder );
-                    for(int order = 0; order <= maxOrderForDegree; ++order)
+                    const double solarLongitudeRadians = stokesDataset.lons( )[ longitudeIndex ]; // already in radians
+
+
+                    reducedCosineCoefficients.setZero();
+                    reducedSineCoefficients.setZero();
+
+                    StokesCoefficientsEvaluator::evaluate2DReduced(
+                        solarLongitudeRadians,
+                        polynomialCoefficients,
+                        degreeAndOrderIndices,
+                        inversePowers,
+                        reducedCosineCoefficients,
+                        reducedSineCoefficients,
+                        effectiveMaxDegree,
+                        effectiveMaxOrder );
+
+                    // Store reduced coefficients using batch write via block reference
+                    auto reducedCoeffBlock = stokesDataset.reducedBlock( fileIndex, longitudeIndex );
+                    for(int degree = 0; degree <= effectiveMaxDegree; ++degree)
                     {
-                        if(degree >= reducedCosineCoefficients.rows( ) || order >= reducedCosineCoefficients.cols( ))
-                            throw std::runtime_error( "Evaluator returned reducedC/S smaller than requested (nmax,mmax)." );
-                        const std::size_t coefficientIndex = nm_to_index_deg_major( degree, order );
-                        reducedCoeffBlock( static_cast< Eigen::Index >(coefficientIndex), 0 ) = reducedCosineCoefficients( degree, order );
-                        reducedCoeffBlock( static_cast< Eigen::Index >(coefficientIndex), 1 ) = reducedSineCoefficients( degree, order );
+                        const int maxOrderForDegree = std::min( degree, effectiveMaxOrder );
+                        for(int order = 0; order <= maxOrderForDegree; ++order)
+                        {
+                            if(degree >= reducedCosineCoefficients.rows( ) || order >= reducedCosineCoefficients.cols( ))
+                                throw std::runtime_error( "Evaluator returned reducedC/S smaller than requested (nmax,mmax)." );
+                            const std::size_t coefficientIndex = nm_to_index_deg_major( degree, order );
+                            reducedCoeffBlock( static_cast< Eigen::Index >(coefficientIndex), 0 ) = reducedCosineCoefficients( degree, order );
+                            reducedCoeffBlock( static_cast< Eigen::Index >(coefficientIndex), 1 ) = reducedSineCoefficients( degree, order );
+                        }
                     }
                 }
             }
@@ -1953,7 +1985,8 @@ public:
             const std::vector< double >& radii_m,
             const std::vector< double >& solLongitudes_deg,
             const int requestedMaxDegree = -1,
-            const int requestedMaxOrder = -1 ) const
+            const int requestedMaxOrder = -1,
+            const bool computeReducedCoeffs = true ) const
     {
         if(fileType_ != FileType::PolyCoefficients)
         {
@@ -1969,7 +2002,8 @@ public:
                 radii_m,
                 solLongitudes_deg,
                 requestedMaxDegree,
-                requestedMaxOrder );
+                requestedMaxOrder,
+                computeReducedCoeffs );
     }
 
     // Create SH files (combines dataset creation and writing)
@@ -1978,13 +2012,15 @@ public:
             const std::vector< double >& radii_m,
             const std::vector< double >& solLongitudes_deg,
             const int requestedMaxDegree = -1,
-            const int requestedMaxOrder = -1 ) const
+            const int requestedMaxOrder = -1,
+            const bool computeReducedCoeffs = true ) const
     {
         const ComaStokesDataset stokesDataset = createSHDataset(
                 radii_m,
                 solLongitudes_deg,
                 requestedMaxDegree,
-                requestedMaxOrder );
+                requestedMaxOrder,
+                computeReducedCoeffs );
 
         ComaStokesDatasetWriter::writeCsvAll( stokesDataset, outputDir );
     }
@@ -2169,6 +2205,7 @@ public:
      * \param solLongitudes_deg Vector of solar longitudes [degrees]
      * \param requestedMaxDegree Maximum spherical harmonic degree (-1 for auto)
      * \param requestedMaxOrder Maximum spherical harmonic order (-1 for auto)
+     * \note Wind models do not require reduced Stokes coefficients, so they are not computed/saved
      */
     void createSHFiles(
         const std::string& xOutputDir,
@@ -2179,9 +2216,10 @@ public:
         const int requestedMaxDegree = -1,
         const int requestedMaxOrder = -1) const
     {
-        xProcessor_.createSHFiles(xOutputDir, radii_m, solLongitudes_deg, requestedMaxDegree, requestedMaxOrder);
-        yProcessor_.createSHFiles(yOutputDir, radii_m, solLongitudes_deg, requestedMaxDegree, requestedMaxOrder);
-        zProcessor_.createSHFiles(zOutputDir, radii_m, solLongitudes_deg, requestedMaxDegree, requestedMaxOrder);
+        // Wind models do not need reduced coefficients - pass false to skip computation and save storage
+        xProcessor_.createSHFiles(xOutputDir, radii_m, solLongitudes_deg, requestedMaxDegree, requestedMaxOrder, false);
+        yProcessor_.createSHFiles(yOutputDir, radii_m, solLongitudes_deg, requestedMaxDegree, requestedMaxOrder, false);
+        zProcessor_.createSHFiles(zOutputDir, radii_m, solLongitudes_deg, requestedMaxDegree, requestedMaxOrder, false);
     }
 
     /*!
