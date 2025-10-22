@@ -875,7 +875,7 @@ class BatchMPC:
                 obs['epochUTC'] = [DateTime.to_python_datetime(dt_obj) for dt_obj in dt_objects]
                 obs = (
                     obs.assign(
-                        RA=lambda x: np.radians(x.RA),
+                        RA=lambda x: (np.radians(x.RA)  + np.pi ) % (2 * np.pi) - np.pi,
                         DEC=lambda x: np.radians(x.DEC)
                     )
                 )
@@ -1877,6 +1877,7 @@ class MPC80ColsParser:
             Each dictionary contains keys like 'number', 'epoch', 'RA', 'DEC', 'observatory', etc.
         """
         parsed_observations = []
+        observation_types_to_drop = ["x", "X", "V", "v", "W", "w", "R", "r", "Q", "q", "O"]
         with open(filename, 'r') as f:
             for line in f:
                 if len(line) < 80:
@@ -1889,6 +1890,12 @@ class MPC80ColsParser:
                     continue
 
                 try:
+                    # 2. GET note2 VALUE AND APPLY FILTER
+                    note2_val = line[14].strip()
+                    print(note2_val)
+                    if note2_val in observation_types_to_drop:
+                        continue  # Skip this line and go to the next one
+
                     # --- Time Parsing ---
                     year = int(line[15:19])
                     month = int(line[20:22])
@@ -1944,8 +1951,8 @@ class MPC80ColsParser:
                         "observatory": line[77:80].strip(),
                         "magnitude": magnitude,
                         "band": line[70].strip() or None,
-                        "note1": line[14].strip() or None,
-                        "note2": line[15].strip() or None,
+                        "note1": line[13].strip() or None,
+                        "note2": line[14].strip() or None,
                         "catalog": None  # This is not present in 80-col format
                     }
                     parsed_observations.append(final_data)
