@@ -119,9 +119,22 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
         Eigen::Vector3d localWindVelocity = Eigen::Vector3d::Zero( );
         if( windModel_ != nullptr )
         {
+            // Determine whether to use radius or altitude based on wind model configuration
+            double altitudeOrRadius;
+            if( windModel_->getUseRadius( ) )
+            {
+                // Use radius (norm of position vector)
+                altitudeOrRadius = currentBodyFixedGroundSpeedBasedState_.segment( 0, 3 ).norm( );
+            }
+            else
+            {
+                // Use altitude (from shape model)
+                altitudeOrRadius = shapeModel_->getAltitude( currentBodyFixedGroundSpeedBasedState_.segment( 0, 3 ) );
+            }
+
             localWindVelocity = getRotationQuaternionBetweenFrames( windModel_->getAssociatedFrame( ), corotating_frame ) *
                     windModel_->getCurrentBodyFixedCartesianWindVelocity(
-                            shapeModel_->getAltitude( currentBodyFixedGroundSpeedBasedState_.segment( 0, 3 ) ),
+                            altitudeOrRadius,
                             currentAerodynamicAngles_[ longitude_angle ],
                             currentAerodynamicAngles_[ latitude_angle ],
                             currentTime );

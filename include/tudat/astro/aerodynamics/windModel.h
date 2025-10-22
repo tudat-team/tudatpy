@@ -48,8 +48,9 @@ class WindModel
 public:
     //! Constructor.
     WindModel( const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
-               const bool includeCorotation = true ):
-        associatedFrame_( associatedFrame ), includeCorotation_( includeCorotation )
+               const bool includeCorotation = true,
+               const bool useRadius = false ):
+        associatedFrame_( associatedFrame ), includeCorotation_( includeCorotation ), useRadius_( useRadius )
     {
         if( !( associatedFrame == reference_frames::inertial_frame || associatedFrame == reference_frames::corotating_frame ||
                associatedFrame == reference_frames::vertical_frame ) )
@@ -93,11 +94,32 @@ public:
         return includeCorotation_;
     }
 
+    /*!
+     * \brief Get whether radius is used instead of altitude.
+     * \return Boolean indicating if radius is used for wind computation instead of altitude
+     */
+    bool getUseRadius( ) const
+    {
+        return useRadius_;
+    }
+
+    /*!
+     * \brief Setter for useRadius
+     * \param useRadius Boolean indicating whether radius is used for wind computation instead of altitude
+     */
+    void setUseRadius( const bool useRadius )
+    {
+        useRadius_ = useRadius;
+    }
+
 protected:
     reference_frames::AerodynamicsReferenceFrames associatedFrame_;
 
     //! Boolean flag indicating whether atmospheric co-rotation should be included in aerodynamic computations
     bool includeCorotation_;
+
+    //! Boolean flag indicating whether radius is used for wind computation instead of altitude
+    bool useRadius_;
 };
 
 /*!
@@ -111,11 +133,13 @@ public:
      * \param constantWindVelocity Constant wind velocity vector [m/s]
      * \param associatedFrame Reference frame in which the wind is defined
      * \param includeCorotation Boolean indicating whether atmospheric co-rotation should be included
+     * \param useRadius Boolean indicating whether radius is used for wind computation instead of altitude
      */
     ConstantWindModel( const Eigen::Vector3d constantWindVelocity,
                        const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
-                       const bool includeCorotation = true ):
-        WindModel( associatedFrame, includeCorotation ), constantWindVelocity_( constantWindVelocity )
+                       const bool includeCorotation = true,
+                       const bool useRadius = false ):
+        WindModel( associatedFrame, includeCorotation, useRadius ), constantWindVelocity_( constantWindVelocity )
     { }
 
     /*!
@@ -149,11 +173,13 @@ public:
      * order).
      * \param associatedFrame Reference frame in which the wind is defined
      * \param includeCorotation Boolean indicating whether atmospheric co-rotation should be included
+     * \param useRadius Boolean indicating whether radius is used for wind computation instead of altitude
      */
     CustomWindModel( const std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction,
                      const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
-                     const bool includeCorotation = true ):
-        WindModel( associatedFrame, includeCorotation ), windFunction_( windFunction )
+                     const bool includeCorotation = true,
+                     const bool useRadius = false ):
+        WindModel( associatedFrame, includeCorotation, useRadius ), windFunction_( windFunction )
     { }
 
     //! Destructor
@@ -193,9 +219,11 @@ public:
     /*!
      * Constructor
      * \param includeCorotation Boolean indicating whether atmospheric co-rotation should be included
+     * \param useRadius Boolean indicating whether radius is used for wind computation instead of altitude
      */
-    EmptyWindModel( const bool includeCorotation = true ):
-        WindModel( reference_frames::vertical_frame, includeCorotation )
+    EmptyWindModel( const bool includeCorotation = true,
+                    const bool useRadius = false ):
+        WindModel( reference_frames::vertical_frame, includeCorotation, useRadius )
     { }
 
     //! Destructor
@@ -246,6 +274,7 @@ public:
      * \param maximumOrder Maximum order used for computation (-1 for auto)
      * \param associatedFrame Reference frame for the wind model
      * \param includeCorotation Boolean indicating whether atmospheric co-rotation should be included
+     * \param useRadius Boolean indicating whether radius is used for wind computation instead of altitude
      */
     ComaWindModel( const simulation_setup::ComaPolyDataset& xPolyDataset,
                    const simulation_setup::ComaPolyDataset& yPolyDataset,
@@ -257,7 +286,8 @@ public:
                    const int& maximumDegree = -1,
                    const int& maximumOrder = -1,
                    const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
-                   const bool includeCorotation = true );
+                   const bool includeCorotation = true,
+                   const bool useRadius = true );
 
     /*!
      * \brief Constructor for Stokes coefficient datasets.
@@ -272,6 +302,7 @@ public:
      * \param maximumOrder Maximum order used for computation (-1 for auto)
      * \param associatedFrame Reference frame for the wind model
      * \param includeCorotation Boolean indicating whether atmospheric co-rotation should be included
+     * \param useRadius Boolean indicating whether radius is used for wind computation instead of altitude
      */
     ComaWindModel( const simulation_setup::ComaStokesDataset& xStokesDataset,
                    const simulation_setup::ComaStokesDataset& yStokesDataset,
@@ -283,7 +314,8 @@ public:
                    const int& maximumDegree = -1,
                    const int& maximumOrder = -1,
                    const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame,
-                   const bool includeCorotation = true );
+                   const bool includeCorotation = true,
+                   const bool useRadius = true );
 
     //! Destructor
     ~ComaWindModel( ) = default;

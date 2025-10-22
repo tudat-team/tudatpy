@@ -41,8 +41,9 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaPolyDataset& xPolyData
                    const int& maximumDegree,
                    const int& maximumOrder,
                    const reference_frames::AerodynamicsReferenceFrames associatedFrame,
-                   const bool includeCorotation ) :
-        WindModel( associatedFrame, includeCorotation ),
+                   const bool includeCorotation,
+                   const bool useRadius ) :
+        WindModel( associatedFrame, includeCorotation, useRadius ),
         dataType_( 0 ), // POLYNOMIAL_COEFFICIENTS
         maximumDegree_( maximumDegree ),
         maximumOrder_( maximumOrder ),
@@ -144,8 +145,9 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaStokesDataset& xStokes
                    const int& maximumDegree,
                    const int& maximumOrder,
                    const reference_frames::AerodynamicsReferenceFrames associatedFrame,
-                   const bool includeCorotation ) :
-        WindModel( associatedFrame, includeCorotation ),
+                   const bool includeCorotation,
+                   const bool useRadius ) :
+        WindModel( associatedFrame, includeCorotation, useRadius ),
         dataType_( 1 ), // STOKES_COEFFICIENTS
         maximumDegree_( maximumDegree ),
         maximumOrder_( maximumOrder ),

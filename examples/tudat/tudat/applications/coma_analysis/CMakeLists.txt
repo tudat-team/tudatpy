@@ -21,3 +21,8 @@ TUDAT_ADD_EXECUTABLE(ComaAnalysis_grid_density
         "grid_density_analysis/main.cpp"
         ${Tudat_PROPAGATION_LIBRARIES}
         )
+
+TUDAT_ADD_EXECUTABLE(ComaAnalysis_DSMC_Wind
+        "DSMC_Wind_comparison/main.cpp"
+        ${Tudat_PROPAGATION_LIBRARIES}
+)
