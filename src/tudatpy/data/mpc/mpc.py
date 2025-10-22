@@ -143,7 +143,7 @@ def load_bias_file(
     # apply the multi_index
     bias_dataframe.columns = m_index
     # stack it so it goes from a Npix x (Ncat x Nvals) to (Npix x Ncat) x Nvals shape
-    bias_dataframe = bias_dataframe.stack(level=0)
+    bias_dataframe = bias_dataframe.stack(level=0, future_stack = True)
 
     return bias_dataframe, Nside
 
@@ -882,6 +882,7 @@ class BatchMPC:
                 if drop_misc_observations:
                     observation_types_to_drop = ["x", "X", "V", "v", "W", "w", "R", "r", "Q", "q", "O"]
                     obs = obs.query("note2 not in @observation_types_to_drop")
+
                 MPC_parser = MPC80ColsParser()
                 try:
                     parsed_value = MPC_parser.parse_packed_permanent_designation(str(obs.number[0]))['number']
@@ -1910,6 +1911,7 @@ class MPC80ColsParser:
                     ra_hr, ra_min, ra_sec = int(ra_parts[0]), int(ra_parts[1]), float(ra_parts[2])
                     ra_deg = (ra_hr * 15 + ra_min * 0.25 + ra_sec * (15 / 3600))
                     ra_deg = np.degrees((np.radians(ra_deg) + np.pi) % (2 * np.pi) - np.pi)
+                    ra_rad = np.radians(ra_deg)
 
                     # --- Dec Parsing ---
                     dec_parts = line[44:56].strip().split()
@@ -1918,30 +1920,34 @@ class MPC80ColsParser:
                     dec_deg_val = int(dec_val_str.replace('-', '').replace('+', ''))
                     dec_min, dec_sec = int(dec_parts[1]), float(dec_parts[2])
                     dec_deg = dec_sign * (dec_deg_val + dec_min / 60 + dec_sec / 3600)
+                    dec_rad = np.radians(dec_deg)
 
                     mag_str = line[65:70].strip()
                     magnitude = float(mag_str) if mag_str else None
 
-                    obs_data = {
-                        "epoch_jd": obs_time_jd,
+                    # Directly create the final dictionary with the correct keys
+                    final_data = {
+                        # Fields from identification parsing
+                        "number": ident_data.get('number'),
+                        "provisional_designation": ident_data.get('provisional_designation'),
+                        "discovery": ident_data.get('discovery'),
+                        "publishable": ident_data.get('publishable'),
+                        "program_code": ident_data.get('program_code'),
+                        "object_type": ident_data.get('object_type'),
+
+                        # Fields from observation parsing (using final key names)
+                        "epoch": obs_time_jd,
                         "epoch_utc": obs_time_utc,
                         "epoch_seconds": obs_time_seconds,
-                        "RA_deg": ra_deg,
-                        "DEC_deg": dec_deg,
-                        "note1": line[14].strip() or None,
-                        "note2": line[15].strip() or None,
+                        "RA": ra_rad,
+                        "DEC": dec_rad,
+                        "observatory": line[77:80].strip(),
                         "magnitude": magnitude,
                         "band": line[70].strip() or None,
-                        "observatory_code": line[77:80].strip(),
+                        "note1": line[14].strip() or None,
+                        "note2": line[15].strip() or None,
+                        "catalog": None  # This is not present in 80-col format
                     }
-                    # Combine dictionaries
-                    final_data = {"number": ident_data.pop('number'), **ident_data, **obs_data}
-                    # Rename keys to match original output
-                    final_data['epoch'] = final_data.pop('epoch_jd')
-                    final_data['RA'] = final_data.pop('RA_deg')
-                    final_data['DEC'] = final_data.pop('DEC_deg')
-                    final_data['observatory'] = final_data.pop('observatory_code')
-                    final_data['catalog'] = None # This is not present in 80-col format
                     parsed_observations.append(final_data)
                 except (ValueError, IndexError) as e:
                     #print(f"MPC Parser Warning: skipped line due to observation data parsing error: {e}")
