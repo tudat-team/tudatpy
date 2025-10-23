@@ -1144,7 +1144,7 @@ void ComaWindModel::initializeStokesInterpolators()
     const std::size_t nFiles = xStokesDataset_->nFiles();
 
     // Resize reduced interpolator vectors to accommodate all files
-    // Note: Using clear() + emplace_back() instead of resize() to avoid copy constructor issues with unique_ptr on MSVC
+    // Note: Using clear() + reserve() + emplace_back() instead of resize() to avoid copy constructor issues with unique_ptr on MSVC
     xReducedStokesInterpolators_.clear();
     yReducedStokesInterpolators_.clear();
     zReducedStokesInterpolators_.clear();
@@ -1156,6 +1156,16 @@ void ComaWindModel::initializeStokesInterpolators()
     xFallbackReducedStokesInterpolators_.clear();
     yFallbackReducedStokesInterpolators_.clear();
     zFallbackReducedStokesInterpolators_.clear();
+
+    xReducedStokesInterpolators_.reserve(nFiles);
+    yReducedStokesInterpolators_.reserve(nFiles);
+    zReducedStokesInterpolators_.reserve(nFiles);
+    xFallbackStokesInterpolators_.reserve(nFiles);
+    yFallbackStokesInterpolators_.reserve(nFiles);
+    zFallbackStokesInterpolators_.reserve(nFiles);
+    xFallbackReducedStokesInterpolators_.reserve(nFiles);
+    yFallbackReducedStokesInterpolators_.reserve(nFiles);
+    zFallbackReducedStokesInterpolators_.reserve(nFiles);
 
     for ( std::size_t i = 0; i < nFiles; ++i )
     {
