@@ -308,6 +308,16 @@ public:
         return currentBodyFixedGroundSpeedBasedState_.segment( 3, 3 );
     }
 
+    //! Function to get the current local wind velocity vector, as set by previous call to update( ).
+    /*!
+     * Function to get the current local wind velocity vector, as set by previous call to update( ).
+     * \return Current local wind velocity expressed in the central-body-fixed frame.
+     */
+    Eigen::Vector3d getCurrentLocalWindVelocity( ) const
+    {
+        return currentLocalWindVelocity_;
+    }
+
     void resetCurrentTime( )
     {
         currentTime_ = TUDAT_NAN;
@@ -401,6 +411,9 @@ private:
     double currentTime_;
 
     bool aerodynamicAngleClosureIsIncomplete_;
+
+    //! Current local wind velocity expressed in the central-body-fixed frame.
+    Eigen::Vector3d currentLocalWindVelocity_ = Eigen::Vector3d::Zero( );
 
     //! Boolean flag indicating whether atmospheric rotation should be included in aerodynamic computations
     bool includeAtmosphericRotation_ = true;

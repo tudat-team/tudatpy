@@ -1455,12 +1455,13 @@ using the NRLMSISE-00 global reference model:
 
       )doc")
         .def("create_sh_dataset",
-             py::overload_cast<const std::vector<double>&, const std::vector<double>&, const int, const int>(
+             py::overload_cast<const std::vector<double>&, const std::vector<double>&, const int, const int, const bool>(
                  &tss::ComaModelFileProcessor::createSHDataset, py::const_),
              py::arg("radii_m"),
              py::arg("sol_longitudes_deg"),
              py::arg("requested_max_degree") = -1,
              py::arg("requested_max_order") = -1,
+             py::arg("compute_reduced_coeffs") = true,
              R"doc(
 
  Create Stokes coefficient dataset by transforming polynomial coefficients (parameterized version).
@@ -1523,6 +1524,7 @@ using the NRLMSISE-00 global reference model:
              py::arg("sol_longitudes_deg"),
              py::arg("requested_max_degree") = -1,
              py::arg("requested_max_order") = -1,
+             py::arg("compute_reduced_coeffs") = true,
              R"doc(
 
  Create and save Stokes coefficient CSV files from polynomial coefficients.

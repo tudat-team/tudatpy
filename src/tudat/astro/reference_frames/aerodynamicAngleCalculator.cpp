@@ -140,6 +140,8 @@ void AerodynamicAngleCalculator::update( const double currentTime, const bool up
                             currentTime );
         }
 
+        currentLocalWindVelocity_ = localWindVelocity;
+
         // Compute airspeed-based velocity vector
         if( includeAtmosphericRotation_ )
         {

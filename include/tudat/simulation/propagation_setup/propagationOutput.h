@@ -1094,6 +1094,60 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             parameterSize = 3;
             break;
         }
+        case local_wind_velocity_dependent_variable: {
+            if( std::dynamic_pointer_cast< aerodynamics::AtmosphericFlightConditions >(
+                        bodies.at( bodyWithProperty )->getFlightConditions( ) ) == nullptr )
+            {
+                simulation_setup::addAtmosphericFlightConditions( bodies, bodyWithProperty, secondaryBody );
+            }
+
+            if( bodies.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ) == nullptr )
+            {
+                std::string errorMessage =
+                        "Error, no aerodynamic angle calculator when creating dependent variable function of type "
+                        "local_wind_velocity_dependent_variable";
+                throw std::runtime_error( errorMessage );
+            }
+
+            // Get the target frame from settings
+            std::shared_ptr< LocalWindVelocityDependentVariableSaveSettings > windVelocitySettings =
+                    std::dynamic_pointer_cast< LocalWindVelocityDependentVariableSaveSettings >( dependentVariableSettings );
+
+            if( windVelocitySettings == nullptr )
+            {
+                throw std::runtime_error( "Error: could not cast to LocalWindVelocityDependentVariableSaveSettings" );
+            }
+
+            reference_frames::AerodynamicsReferenceFrames targetFrame = windVelocitySettings->targetFrame_;
+
+            // If target frame is corotating frame, return wind velocity directly
+            if( targetFrame == reference_frames::corotating_frame )
+            {
+                variableFunction = std::bind( &reference_frames::AerodynamicAngleCalculator::getCurrentLocalWindVelocity,
+                                              bodies.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ) );
+            }
+            else
+            {
+                // Create function to transform wind velocity to target frame
+                std::function< Eigen::Vector3d( ) > windVelocityCorotatingFunction =
+                        std::bind( &reference_frames::AerodynamicAngleCalculator::getCurrentLocalWindVelocity,
+                                   bodies.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ) );
+
+                std::function< Eigen::Matrix3d( ) > rotationMatrixFunction =
+                        std::bind( &reference_frames::AerodynamicAngleCalculator::getRotationMatrixBetweenFrames,
+                                   bodies.at( bodyWithProperty )->getFlightConditions( )->getAerodynamicAngleCalculator( ),
+                                   reference_frames::corotating_frame,
+                                   targetFrame );
+
+                variableFunction = [windVelocityCorotatingFunction, rotationMatrixFunction]( )
+                {
+                    return rotationMatrixFunction( ) * windVelocityCorotatingFunction( );
+                };
+            }
+
+            parameterSize = 3;
+            break;
+        }
         case tnw_to_inertial_frame_rotation_dependent_variable: {
             std::function< Eigen::Vector6d( ) > vehicleStateFunction =
                     std::bind( &simulation_setup::Body::getState, bodies.at( dependentVariableSettings->associatedBody_ ) );

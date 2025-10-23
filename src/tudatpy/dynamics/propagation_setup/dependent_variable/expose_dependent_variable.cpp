@@ -220,6 +220,10 @@ void expose_dependent_variable_setup( py::module &m )
                     tp::PropagationDependentVariables::body_fixed_groundspeed_based_velocity_variable,
                     R"doc(
       )doc" )
+            .value( "local_wind_velocity_type",
+                    tp::PropagationDependentVariables::local_wind_velocity_dependent_variable,
+                    R"doc(
+      )doc" )
             .value( "keplerian_state_type",
                     tp::PropagationDependentVariables::keplerian_state_dependent_variable,
                     R"doc(
@@ -323,7 +327,45 @@ void expose_dependent_variable_setup( py::module &m )
 
 
 
-      )doc" );
+    )doc" );
+
+    m.def( "local_wind_velocity",
+           &tp::localWindVelocityVariable,
+           py::arg( "body" ),
+           py::arg( "body_with_atmosphere" ),
+           py::arg( "target_frame" ) = trf::corotating_frame,
+           R"doc(
+
+Function to add the local wind velocity vector to the dependent variables to save.
+
+Function to add the local wind velocity vector to the dependent variables to save. The wind velocity represents the atmospheric wind removed from the groundspeed when deriving the airspeed. The calculation uses the wind model of the body with atmosphere, and the current state of the body for which the wind velocity is to be calculated. The wind velocity can be expressed in any aerodynamic reference frame.
+
+Parameters
+----------
+body : str
+    Body whose dependent variable should be saved.
+body_with_atmosphere : str
+    Body with atmosphere with respect to which the local wind velocity is computed.
+target_frame : AerodynamicsReferenceFrames, default=corotating_frame
+    Reference frame in which the wind velocity should be expressed. Available frames:
+    - corotating_frame: Body-fixed corotating frame (default)
+    - vertical_frame: Local vertical frame
+    - trajectory_frame: Velocity-aligned trajectory frame
+    - aerodynamic_frame: Aerodynamic frame
+    - body_frame: Vehicle body frame
+    - inertial_frame: Inertial frame
+Returns
+-------
+SingleDependentVariableSaveSettings
+    Dependent variable settings object.
+Variable Size
+-------------
+3
+
+
+
+
+    )doc" );
 
     py::class_< tp::SingleDependentVariableSaveSettings, std::shared_ptr< tp::SingleDependentVariableSaveSettings >, tp::VariableSettings >(
             m,

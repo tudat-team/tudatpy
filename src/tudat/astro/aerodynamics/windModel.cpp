@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <cmath>
 #include <utility>
+#include <algorithm>
 
 #include "tudat/simulation/estimation_setup/observationSimulationSettings.h"
 #include "tudat/math/interpolators/multiLinearInterpolator.h"
@@ -516,11 +517,14 @@ Eigen::Vector3d ComaWindModel::computeWindVectorFromPolyCoefficients(
 
     // Get time-dependent data and solar longitude (shared for all components)
     const int fileIndex = findTimeIntervalIndex( time, xPolyDataset_ );  // Assume all datasets have same time structure
-    const auto& fileMeta = xPolyDataset_->getFileMeta( fileIndex );
+    const auto& xFileMeta = xPolyDataset_->getFileMeta( fileIndex );
+    const auto& yFileMeta = yPolyDataset_->getFileMeta( fileIndex );
+    const auto& zFileMeta = zPolyDataset_->getFileMeta( fileIndex );
     const double solarLongitude = calculateSolarLongitude( time );
 
     // Only resize/zero coefficient matrices if dimensions changed
-    const int maxDegreeAvailable = fileMeta.maxDegreeSH;
+    // Use the maximum degree available across all three datasets to ensure matrices are large enough
+    const int maxDegreeAvailable = std::max({xFileMeta.maxDegreeSH, yFileMeta.maxDegreeSH, zFileMeta.maxDegreeSH});
     const int effectiveMaxDegree = ( maximumDegree_ > 0 ) ? maximumDegree_ : maxDegreeAvailable;
     const int effectiveMaxOrder = ( maximumOrder_ > 0 ) ? maximumOrder_ : maxDegreeAvailable;
 
@@ -550,30 +554,34 @@ Eigen::Vector3d ComaWindModel::computeWindVectorFromPolyCoefficients(
     }
 
     // Evaluate polynomial coefficients for all three components
+    // Each component uses its own dataset's metadata (referenceRadius, powersInvRadius)
     const auto& xPolyCoefficients = xPolyDataset_->getPolyCoefficients( fileIndex );
     const auto& xShIndices = xPolyDataset_->getSHDegreeAndOrderIndices( fileIndex );
+    const double effectiveRadiusX = std::min( radius, xFileMeta.referenceRadius );
     simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
-        radius, solarLongitude,
+        effectiveRadiusX, solarLongitude,
         xPolyCoefficients, xShIndices,
-        fileMeta.powersInvRadius, fileMeta.referenceRadius,
+        xFileMeta.powersInvRadius, xFileMeta.referenceRadius,
         cachedXCosineCoefficients_, cachedXSineCoefficients_,
         maximumDegree_, maximumOrder_ );
 
     const auto& yPolyCoefficients = yPolyDataset_->getPolyCoefficients( fileIndex );
     const auto& yShIndices = yPolyDataset_->getSHDegreeAndOrderIndices( fileIndex );
+    const double effectiveRadiusY = std::min( radius, yFileMeta.referenceRadius );
     simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
-        radius, solarLongitude,
+        effectiveRadiusY, solarLongitude,
         yPolyCoefficients, yShIndices,
-        fileMeta.powersInvRadius, fileMeta.referenceRadius,
+        yFileMeta.powersInvRadius, yFileMeta.referenceRadius,
         cachedYCosineCoefficients_, cachedYSineCoefficients_,
         maximumDegree_, maximumOrder_ );
 
     const auto& zPolyCoefficients = zPolyDataset_->getPolyCoefficients( fileIndex );
     const auto& zShIndices = zPolyDataset_->getSHDegreeAndOrderIndices( fileIndex );
+    const double effectiveRadiusZ = std::min( radius, zFileMeta.referenceRadius );
     simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
-        radius, solarLongitude,
+        effectiveRadiusZ, solarLongitude,
         zPolyCoefficients, zShIndices,
-        fileMeta.powersInvRadius, fileMeta.referenceRadius,
+        zFileMeta.powersInvRadius, zFileMeta.referenceRadius,
         cachedZCosineCoefficients_, cachedZSineCoefficients_,
         maximumDegree_, maximumOrder_ );
 
@@ -760,8 +768,9 @@ double ComaWindModel::computeWindComponentFromPolyCoefficients(
         sineCoefficients.setZero();
     }
 
+    const double effectiveRadius = std::min( radius, fileMeta.referenceRadius );
     simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
-        radius,
+        effectiveRadius,
         solarLongitude,
         polyCoefficients,
         shIndices,

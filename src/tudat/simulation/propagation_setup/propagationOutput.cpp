@@ -273,6 +273,9 @@ int getDependentVariableSize( const std::shared_ptr< SingleDependentVariableSave
         case body_fixed_groundspeed_based_velocity_variable:
             variableSize = 3;
             break;
+        case local_wind_velocity_dependent_variable:
+            variableSize = 3;
+            break;
         case total_aerodynamic_g_load_variable:
             variableSize = 1;
             break;

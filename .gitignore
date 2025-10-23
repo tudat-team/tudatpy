@@ -72,6 +72,9 @@ boost-numpy-eigen-*-Linux.tar.gz
 **/.DS_Store
 .DS_Store
 
+timing_results.csv
+wind_velocity_differences.csv
+
 # Common build output folders
 cmake-build-debug/
 cmake-build-release/

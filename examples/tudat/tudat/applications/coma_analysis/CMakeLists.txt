@@ -26,3 +26,8 @@ TUDAT_ADD_EXECUTABLE(ComaAnalysis_DSMC_Wind
         "DSMC_Wind_comparison/main.cpp"
         ${Tudat_PROPAGATION_LIBRARIES}
 )
+
+TUDAT_ADD_EXECUTABLE(ComaAnalysis_performance_wind
+        "performance_wind_analysis/main.cpp"
+        ${Tudat_PROPAGATION_LIBRARIES}
+)
