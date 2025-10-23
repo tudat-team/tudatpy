@@ -1792,7 +1792,7 @@ BOOST_FIXTURE_TEST_CASE(test_calculate_surface_spherical_harmonics, TestDataPath
 
     // ========== Test Case 1: solar longitude = 0°, radius = 4 km ==========
     {
-        const boost::filesystem::path residualsFile1 = dataDir / "residual_r_cometFixed_ep10-000_04km.txt";
+        const boost::filesystem::path residualsFile1 = dataDir / "density" / "residual" / "residual_r_cometFixed_ep10-000_04km.txt";
         const double testRadius = 4000.0;  // 4 km in meters
         const double testSolarLongitude = 0.0 * mathematical_constants::PI / 180.0;  // 0 degrees in radians
 
@@ -1909,7 +1909,7 @@ BOOST_FIXTURE_TEST_CASE(test_calculate_surface_spherical_harmonics, TestDataPath
 
     // ========== Test Case 2: solar longitude = 30°, radius = 10 km ==========
     {
-        const boost::filesystem::path residualsFile2 = dataDir / "residual_r_cometFixed_ep10-030_10km.txt";
+        const boost::filesystem::path residualsFile2 = dataDir / "density" / "residual" / "residual_r_cometFixed_ep10-030_10km.txt";
         const double testRadius = 10000.0;  // 10 km in meters
         const double testSolarLongitude = 30.0 * mathematical_constants::PI / 180.0;  // 30 degrees in radians
 
