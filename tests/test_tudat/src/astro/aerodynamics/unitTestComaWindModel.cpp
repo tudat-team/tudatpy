@@ -379,9 +379,9 @@ BOOST_FIXTURE_TEST_CASE(test_wind_processor_poly_to_stokes, WindTestDataPaths)
     // Only check m >= 0 to match reference file format
     std::cout << "\n=== Testing X and Y components (should be all zeros) ===" << std::endl;
     int numZeroChecked = 0;
-    for (int iRad = 0; iRad < xStokes.nRadii(); ++iRad)
+    for (std::size_t iRad = 0; iRad < xStokes.nRadii(); ++iRad)
     {
-        for (int iLon = 0; iLon < xStokes.nLongitudes(); ++iLon)
+        for (std::size_t iLon = 0; iLon < xStokes.nLongitudes(); ++iLon)
         {
             for (int degree = 0; degree <= xStokes.nmax(); ++degree)
             {
@@ -416,7 +416,7 @@ BOOST_FIXTURE_TEST_CASE(test_wind_processor_poly_to_stokes, WindTestDataPaths)
     int iLon_0deg = 0, iLon_30deg = 1;  // These match our request order
 
     // Try to find which radius index corresponds to 4km by checking a known coefficient
-    for (int iRad = 0; iRad < zStokes.nRadii(); ++iRad)
+    for (std::size_t iRad = 0; iRad < zStokes.nRadii(); ++iRad)
     {
         auto testCoeff = zStokes.getCoeff(0, iRad, iLon_0deg, 2, 1);
         // Check if this matches the 4km reference value (degree=2, order=1)
@@ -428,7 +428,7 @@ BOOST_FIXTURE_TEST_CASE(test_wind_processor_poly_to_stokes, WindTestDataPaths)
     }
 
     // Try to find which radius index corresponds to 10km at sol=30deg
-    for (int iRad = 0; iRad < zStokes.nRadii(); ++iRad)
+    for (std::size_t iRad = 0; iRad < zStokes.nRadii(); ++iRad)
     {
         auto testCoeff = zStokes.getCoeff(0, iRad, iLon_30deg, 2, 1);
         // Check if this matches the 10km reference value at sol=30 (degree=2, order=1)
@@ -445,8 +445,11 @@ BOOST_FIXTURE_TEST_CASE(test_wind_processor_poly_to_stokes, WindTestDataPaths)
     // For sol=0°, r=4km
     std::cout << "Checking sol=0°, r=4km (radIdx=" << iRad_4km << ", lonIdx=" << iLon_0deg << ")..." << std::endl;
     int numChecked = 0;
-    for (const auto& [degOrder, refCoeffs] : ref_sol0_r4km.coefficients)
+    for (const auto& coefficientEntry : ref_sol0_r4km.coefficients)
     {
+        const std::pair<int, int>& degOrder = coefficientEntry.first;
+        const std::pair<double, double>& refCoeffs = coefficientEntry.second;
+
         int degree = degOrder.first;
         int order = degOrder.second;  // Always >= 0 in reference files
 
@@ -479,8 +482,11 @@ BOOST_FIXTURE_TEST_CASE(test_wind_processor_poly_to_stokes, WindTestDataPaths)
     // For sol=30°, r=10km
     std::cout << "Checking sol=30°, r=10km (radIdx=" << iRad_10km << ", lonIdx=" << iLon_30deg << ")..." << std::endl;
     numChecked = 0;
-    for (const auto& [degOrder, refCoeffs] : ref_sol30_r10km.coefficients)
+    for (const auto& coefficientEntry : ref_sol30_r10km.coefficients)
     {
+        const std::pair<int, int>& degOrder = coefficientEntry.first;
+        const std::pair<double, double>& refCoeffs = coefficientEntry.second;
+
         int degree = degOrder.first;
         int order = degOrder.second;  // Always >= 0 in reference files
 
@@ -527,9 +533,9 @@ BOOST_FIXTURE_TEST_CASE(test_wind_processor_poly_to_stokes, WindTestDataPaths)
     // All three components should now match the Z component from the original test
     // Only check m >= 0 to avoid indexing issues
     numChecked = 0;
-    for (int iRad = 0; iRad < zStokes.nRadii(); ++iRad)
+    for (std::size_t iRad = 0; iRad < zStokes.nRadii(); ++iRad)
     {
-        for (int iLon = 0; iLon < zStokes.nLongitudes(); ++iLon)
+        for (std::size_t iLon = 0; iLon < zStokes.nLongitudes(); ++iLon)
         {
             for (int degree = 0; degree <= zStokes.nmax(); ++degree)
             {
