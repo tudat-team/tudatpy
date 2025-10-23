@@ -1144,17 +1144,31 @@ void ComaWindModel::initializeStokesInterpolators()
     const std::size_t nFiles = xStokesDataset_->nFiles();
 
     // Resize reduced interpolator vectors to accommodate all files
-    xReducedStokesInterpolators_.resize( nFiles );
-    yReducedStokesInterpolators_.resize( nFiles );
-    zReducedStokesInterpolators_.resize( nFiles );
+    // Note: Using clear() + emplace_back() instead of resize() to avoid copy constructor issues with unique_ptr on MSVC
+    xReducedStokesInterpolators_.clear();
+    yReducedStokesInterpolators_.clear();
+    zReducedStokesInterpolators_.clear();
 
     // Resize fallback cache vectors to accommodate all files
-    xFallbackStokesInterpolators_.resize( nFiles );
-    yFallbackStokesInterpolators_.resize( nFiles );
-    zFallbackStokesInterpolators_.resize( nFiles );
-    xFallbackReducedStokesInterpolators_.resize( nFiles );
-    yFallbackReducedStokesInterpolators_.resize( nFiles );
-    zFallbackReducedStokesInterpolators_.resize( nFiles );
+    xFallbackStokesInterpolators_.clear();
+    yFallbackStokesInterpolators_.clear();
+    zFallbackStokesInterpolators_.clear();
+    xFallbackReducedStokesInterpolators_.clear();
+    yFallbackReducedStokesInterpolators_.clear();
+    zFallbackReducedStokesInterpolators_.clear();
+
+    for ( std::size_t i = 0; i < nFiles; ++i )
+    {
+        xReducedStokesInterpolators_.emplace_back();
+        yReducedStokesInterpolators_.emplace_back();
+        zReducedStokesInterpolators_.emplace_back();
+        xFallbackStokesInterpolators_.emplace_back();
+        yFallbackStokesInterpolators_.emplace_back();
+        zFallbackStokesInterpolators_.emplace_back();
+        xFallbackReducedStokesInterpolators_.emplace_back();
+        yFallbackReducedStokesInterpolators_.emplace_back();
+        zFallbackReducedStokesInterpolators_.emplace_back();
+    }
 
     std::vector<std::vector<double>> reducedIndependentGrids(1);
     reducedIndependentGrids[0] = longitudeGrid; // Solar longitude grid only

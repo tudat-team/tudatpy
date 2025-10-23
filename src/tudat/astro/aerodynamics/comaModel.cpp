@@ -756,10 +756,19 @@ void ComaModel::initializeStokesInterpolators()
     const int effectiveMaxOrder = maximumOrder_ > 0 ? maximumOrder_ : nmax;
 
     // Resize interpolator vectors to accommodate all files
-    stokesInterpolators_.resize( nFiles );
-    reducedStokesInterpolators_.resize( nFiles );
-    fallbackStokesInterpolators_.resize( nFiles );
-    fallbackReducedStokesInterpolators_.resize( nFiles );
+    // Note: Using clear() + emplace_back() instead of resize() to avoid copy constructor issues with unique_ptr on MSVC
+    stokesInterpolators_.clear();
+    reducedStokesInterpolators_.clear();
+    fallbackStokesInterpolators_.clear();
+    fallbackReducedStokesInterpolators_.clear();
+
+    for ( std::size_t i = 0; i < nFiles; ++i )
+    {
+        stokesInterpolators_.emplace_back();
+        reducedStokesInterpolators_.emplace_back();
+        fallbackStokesInterpolators_.emplace_back();
+        fallbackReducedStokesInterpolators_.emplace_back();
+    }
 
     // Set up interpolation grids (shared for all interpolators)
     std::vector<std::vector<double>> independentGrids(2);
