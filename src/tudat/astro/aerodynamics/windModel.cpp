@@ -237,14 +237,11 @@ ComaWindModel::ComaWindModel( const simulation_setup::ComaStokesDataset& xStokes
  * \param currentTime Time at which wind vector is to be retrieved [s]
  * \return Wind velocity vector in body-fixed, body-centered frame [m/s]
  */
-Eigen::Vector3d ComaWindModel::getCurrentBodyFixedCartesianWindVelocity( const double currentAltitude,
+Eigen::Vector3d ComaWindModel::getCurrentBodyFixedCartesianWindVelocity( const double radius,
                                                               const double currentLongitude,
                                                               const double currentLatitude,
                                                               const double currentTime )
     {
-        // Convert altitude to radius (assuming currentAltitude is already radius from center)
-        const double radius = currentAltitude;
-
         // Check if we can reuse cached final wind vector result
         constexpr double tolerance = 1e-10;
         constexpr double toleranceSq = tolerance * tolerance;

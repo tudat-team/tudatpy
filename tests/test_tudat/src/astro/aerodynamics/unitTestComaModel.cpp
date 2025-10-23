@@ -28,8 +28,8 @@ struct TestDataPaths
         const boost::filesystem::path thisFile(__FILE__);
         const boost::filesystem::path testDir = thisFile.parent_path();
         const boost::filesystem::path dataDir = testDir / "test_data";
-        testFile = dataDir / "input_poly_coef_test_file.txt";
-        outputDir = dataDir / "test_output";
+        testFile = dataDir / "density" / "polynomial" / "input_poly_coef_test_file.txt";
+        outputDir = dataDir / "output" / "density";
 
         // Ensure test file exists
         if (!boost::filesystem::exists(testFile))
@@ -486,8 +486,8 @@ BOOST_FIXTURE_TEST_CASE(test_stokes_coefficients_evaluator, TestDataPaths)
     const boost::filesystem::path thisFile(__FILE__);
     const boost::filesystem::path testDir = thisFile.parent_path();
     const boost::filesystem::path dataDir = testDir / "test_data";
-    const boost::filesystem::path testFile1 = dataDir / "SH-d10-rp3-fft12__r_cometFixed_ep10-000_04km.txt";
-    const boost::filesystem::path testFile2 = dataDir / "SH-d10-rp3-fft12__r_cometFixed_ep10-030_10km.txt";
+    const boost::filesystem::path testFile1 = dataDir / "density" / "stokes" / "SH-d10-rp3-fft12__r_cometFixed_ep10-000_04km.txt";
+    const boost::filesystem::path testFile2 = dataDir / "density" / "stokes" / "SH-d10-rp3-fft12__r_cometFixed_ep10-030_10km.txt";
 
     // Load expected values from both test files
     StokesTestData expectedData1 = StokesTestData::readFromFile(testFile1.string(), maxDegree);
@@ -684,8 +684,8 @@ BOOST_FIXTURE_TEST_CASE(test_dataset_transformer, TestDataPaths)
     const boost::filesystem::path thisFile(__FILE__);
     const boost::filesystem::path testDir = thisFile.parent_path();
     const boost::filesystem::path dataDir = testDir / "test_data";
-    const boost::filesystem::path testFile1 = dataDir / "SH-d10-rp3-fft12__r_cometFixed_ep10-000_04km.txt";
-    const boost::filesystem::path testFile2 = dataDir / "SH-d10-rp3-fft12__r_cometFixed_ep10-030_10km.txt";
+    const boost::filesystem::path testFile1 = dataDir / "density" / "stokes" / "SH-d10-rp3-fft12__r_cometFixed_ep10-000_04km.txt";
+    const boost::filesystem::path testFile2 = dataDir / "density" / "stokes" / "SH-d10-rp3-fft12__r_cometFixed_ep10-030_10km.txt";
     StokesTestData expectedData1 = StokesTestData::readFromFile(testFile1.string(), 10);
     StokesTestData expectedData2 = StokesTestData::readFromFile(testFile2.string(), 10);
 
@@ -765,8 +765,8 @@ BOOST_FIXTURE_TEST_CASE(test_stokes_dataset_creation_via_processor, TestDataPath
     const boost::filesystem::path thisFile(__FILE__);
     const boost::filesystem::path testDir = thisFile.parent_path();
     const boost::filesystem::path dataDir = testDir / "test_data";
-    const boost::filesystem::path testFile1 = dataDir / "SH-d10-rp3-fft12__r_cometFixed_ep10-000_04km.txt";
-    const boost::filesystem::path testFile2 = dataDir / "SH-d10-rp3-fft12__r_cometFixed_ep10-030_10km.txt";
+    const boost::filesystem::path testFile1 = dataDir / "density" / "stokes" / "SH-d10-rp3-fft12__r_cometFixed_ep10-000_04km.txt";
+    const boost::filesystem::path testFile2 = dataDir / "density" / "stokes" / "SH-d10-rp3-fft12__r_cometFixed_ep10-030_10km.txt";
 
     // Load expected values from both test files
     StokesTestData expectedData1 = StokesTestData::readFromFile(testFile1.string(), maxDegree);
@@ -903,7 +903,7 @@ BOOST_FIXTURE_TEST_CASE(test_coma_model_number_density, TestDataPaths)
 
         // ========== Test Case 1: solar longitude = 0°, radius = 4 km ==========
         {
-            const boost::filesystem::path residualsFile1 = dataDir / "residual_r_cometFixed_ep10-000_04km.txt";
+            const boost::filesystem::path residualsFile1 = dataDir / "density" / "residual" / "residual_r_cometFixed_ep10-000_04km.txt";
             const double testRadius = 4000.0;  // 4 km in meters
             const double testSolarLongitude = 0.0;  // 0 degrees in radians
             const double testTime = 490708800;   // s since J2000
@@ -1055,7 +1055,7 @@ BOOST_FIXTURE_TEST_CASE(test_coma_model_number_density, TestDataPaths)
 
         // ========== Test Case 2: solar longitude = 30°, radius = 10 km ==========
         {
-            const boost::filesystem::path residualsFile2 = dataDir / "residual_r_cometFixed_ep10-030_10km.txt";
+            const boost::filesystem::path residualsFile2 = dataDir / "density" / "residual" / "residual_r_cometFixed_ep10-030_10km.txt";
             const double testRadius = 10000.0;  // 10 km in meters
             const double testSolarLongitude = 30.0 * mathematical_constants::PI / 180.0;  // 30 degrees in radians
             const double testTime = 490708800;   // s since J2000
@@ -1248,7 +1248,7 @@ BOOST_FIXTURE_TEST_CASE(test_coma_model_density_validation_from_python, TestData
     const boost::filesystem::path thisFile(__FILE__);
     const boost::filesystem::path testDir = thisFile.parent_path();
     const boost::filesystem::path dataDir = testDir / "test_data";
-    const boost::filesystem::path referenceFile = dataDir / "reference_values.txt";
+    const boost::filesystem::path referenceFile = dataDir / "density" / "reference_values.txt";
 
     // Read reference values file
     std::ifstream file(referenceFile.string());
@@ -1419,8 +1419,8 @@ BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_sh_dataset, TestDataPath
     const boost::filesystem::path thisFile(__FILE__);
     const boost::filesystem::path testDir = thisFile.parent_path();
     const boost::filesystem::path dataDir = testDir / "test_data";
-    const boost::filesystem::path testFile1 = dataDir / "SH-d10-rp3-fft12__r_cometFixed_ep10-000_04km.txt";
-    const boost::filesystem::path testFile2 = dataDir / "SH-d10-rp3-fft12__r_cometFixed_ep10-030_10km.txt";
+    const boost::filesystem::path testFile1 = dataDir / "density" / "stokes" / "SH-d10-rp3-fft12__r_cometFixed_ep10-000_04km.txt";
+    const boost::filesystem::path testFile2 = dataDir / "density" / "stokes" / "SH-d10-rp3-fft12__r_cometFixed_ep10-030_10km.txt";
     StokesTestData expectedData1 = StokesTestData::readFromFile(testFile1.string(), 10);
     StokesTestData expectedData2 = StokesTestData::readFromFile(testFile2.string(), 10);
 
