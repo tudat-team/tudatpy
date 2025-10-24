@@ -843,10 +843,10 @@ Enumeration of available integrated state types.
             .def( "reset_and_recreate_acceleration_models",
                   &tp::TranslationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::resetAccelerationModelsMap,
                   py::arg( "new_acceleration_settings" ),
-                  py::arg( "bodies" ) );
-            //.def( "reset_initial_states",
-            //      &tp::TranslationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::resetInitialStates,
-            //      py::arg( "initial_states" ) );
+                  py::arg( "bodies" ) )
+            .def( "reset_initial_states",
+                  &tp::TranslationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::resetInitialStates,
+                  py::arg( "initial_states" ) );
 
     //            .def_property_readonly("acceleration_settings",
     //                                   &tp::TranslationalStatePropagatorSettings<STATE_SCALAR_TYPE>::getAccelerationSettingsMap);
