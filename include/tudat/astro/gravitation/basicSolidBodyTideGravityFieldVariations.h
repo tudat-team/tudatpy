@@ -68,8 +68,9 @@ std::map<int, std::vector<double>> generateZeroMeanTermsFromReference(
     const std::map<int, std::vector<std::complex<double>>>& loveNumbersReference);
 
 
-// This function takes the map of kind key=degree, vector = values at degree, order and maps it onto a nxn matrix
-Eigen::MatrixXd convertSHMapToMatrix(const std::map<int, std::vector<double>>& inputMap, int n);
+// This function takes the map of kind key=degree, vector = values of spherical harmonic coefficients at degree, order and maps it onto a
+// matirix of nxn (with n the maximumDegree + 1 )
+Eigen::MatrixXd convertSphericalHarmonicCoefficientMapToMatrix(const std::map<int, std::vector<double>>& inputMap, int maximumDegree);
 
 
 //! Function to calculate solid body tide gravity field variations due to single body at single degree and order directly
@@ -514,19 +515,19 @@ public:
 
       // If cosine mean forcing terms are empty map (default), set map values to zero
       if (meanForcingCosineTerms_.empty()) {
-        for (const auto& kv : loveNumbers_) {
-          const int key = kv.first;
-          const std::size_t size = kv.second.size();
-          meanForcingCosineTerms_[key] = std::vector<double>(size, 0.0);
+        for (const auto& it : loveNumbers_) {
+          const int degree = it.first;
+          const std::size_t numberOfOrders = it.second.size();
+          meanForcingCosineTerms_[degree] = std::vector<double>(numberOfOrders, 0.0);
         }
       }
 
       // If sine mean forcing terms are empty map (default), set map values to zero
       if (meanForcingSineTerms_.empty()) {
-        for (const auto& kv : loveNumbers_) {
-          const int key = kv.first;
-          const std::size_t size = kv.second.size();
-          meanForcingSineTerms_[key] = std::vector<double>(size, 0.0);
+        for (const auto& it : loveNumbers_) {
+          const int degree = it.first;
+          const std::size_t numberOfOrders = it.second.size();
+          meanForcingSineTerms_[degree] = std::vector<double>(numberOfOrders, 0.0);
         }
       }
 
