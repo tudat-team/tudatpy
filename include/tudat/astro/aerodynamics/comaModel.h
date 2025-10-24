@@ -11,6 +11,7 @@
 #include "tudat/simulation/environment_setup/createAtmosphereModel.h"
 #include "tudat/math/interpolators/multiLinearInterpolator.h"
 
+#include <deque>
 #include <functional>
 #include <map>
 
@@ -254,22 +255,22 @@ private:
     std::unique_ptr<SphericalHarmonicsCalculator> sphericalHarmonicsCalculator_;
 
     //! Pre-initialized interpolators for Stokes coefficients (only used for STOKES_COEFFICIENTS data type)
-    //! Vector indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators
-    std::vector<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
+    //! Deque indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators
+    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
                                            std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>> stokesInterpolators_;
 
     //! Pre-initialized interpolators for reduced Stokes coefficients (for radius > reference radius)
-    //! Vector indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators (1D: solar longitude only)
-    std::vector<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
+    //! Deque indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators (1D: solar longitude only)
+    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
                                            std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>>>> reducedStokesInterpolators_;
 
     //! Cache for fallback interpolators (created on-demand, then cached for reuse)
-    //! Vector indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators
-    mutable std::vector<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
+    //! Deque indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators
+    mutable std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
                                            std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>> fallbackStokesInterpolators_;
 
     //! Cache for fallback reduced interpolators (created on-demand, then cached for reuse)
-    mutable std::vector<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
+    mutable std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
                                            std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>>>> fallbackReducedStokesInterpolators_;
 
     /*!
