@@ -1287,7 +1287,7 @@ void ComaWindModel::initializeStokesInterpolators()
  */
 void ComaWindModel::createFallback2DInterpolator(
     std::shared_ptr<simulation_setup::ComaStokesDataset> dataset,
-    std::vector<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
+    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
                                            std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>>& fallbackCache,
     const int fileIndex, const int degree, const int order,
     double& cosineCoeff, double& sineCoeff,
@@ -1372,7 +1372,7 @@ void ComaWindModel::createFallback2DInterpolator(
  */
 void ComaWindModel::createFallback1DInterpolator(
     std::shared_ptr<simulation_setup::ComaStokesDataset> dataset,
-    std::vector<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
+    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
                                            std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>>>>& fallbackCache,
     const int fileIndex, const int degree, const int order,
     double& cosineCoeff, double& sineCoeff,
