@@ -31,44 +31,38 @@ namespace tudat
 namespace simulation_setup
 {
 
-inline std::shared_ptr< GravityFieldVariationSettings >
-degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy(
+inline std::shared_ptr< GravityFieldVariationSettings > degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy(
         const std::vector< std::string >& deformingBodies,
         const std::map< int, std::vector< double > > loveNumber )
 {
     std::map< int, std::vector< std::complex< double > > > loveNumbers;
-    for( auto loveNumberIt: loveNumber )
+    for( auto loveNumberIt : loveNumber )
     {
         for( unsigned int i = 0; i < loveNumberIt.second.size( ); i++ )
         {
-            loveNumbers[ loveNumberIt.first ].push_back(
-                    std::complex< double >( loveNumberIt.second.at( i ), 0 ) );
+            loveNumbers[ loveNumberIt.first ].push_back( std::complex< double >( loveNumberIt.second.at( i ), 0 ) );
         }
     }
-    return std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
-            deformingBodies, loveNumbers, nullptr );
+    return std::make_shared< BasicSolidBodyGravityFieldVariationSettings >( deformingBodies, loveNumbers, nullptr );
 }
 
-inline std::shared_ptr< GravityFieldVariationSettings >
-degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy(
+inline std::shared_ptr< GravityFieldVariationSettings > degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy(
         const std::string deformingBody,
         const std::map< int, std::vector< double > > loveNumber )
 {
     std::map< int, std::vector< std::complex< double > > > loveNumbers;
-    for( auto loveNumberIt: loveNumber )
+    for( auto loveNumberIt : loveNumber )
     {
         for( unsigned int i = 0; i < loveNumberIt.second.size( ); i++ )
         {
-            loveNumbers[ loveNumberIt.first ].push_back(
-                    std::complex< double >( loveNumberIt.second.at( i ), 0 ) );
+            loveNumbers[ loveNumberIt.first ].push_back( std::complex< double >( loveNumberIt.second.at( i ), 0 ) );
         }
     }
     return std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
             std::vector< std::string >( { deformingBody } ), loveNumbers, nullptr );
 }
 
-inline std::shared_ptr< GravityFieldVariationSettings >
-degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy(
+inline std::shared_ptr< GravityFieldVariationSettings > degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy(
         const std::string deformingBody,
         const std::map< int, std::vector< std::complex< double > > > loveNumber )
 {
@@ -90,60 +84,66 @@ namespace gravity_field_variation
 
 void expose_gravity_field_variation_setup( py::module& m )
 {
-    py::enum_< tg::BodyDeformationTypes >( m, "BodyDeformationTypes",
+    py::enum_< tg::BodyDeformationTypes >( m,
+                                           "BodyDeformationTypes",
                                            R"doc(
 
 Enumeration listing the different types of gravity and/or shape field variation models available in tudat.
 Note that for some types, only one of the two types of variations is available
 
       )doc" )
-            .value( "basic_solid_body", tg::basic_solid_body,
+            .value( "basic_solid_body",
+                    tg::basic_solid_body,
                     R"doc(
 
 Basic tidal variation model, assuming a single constant Love number for the variation
 
 )doc" )
-        .value( "iers_2010_tidal", tg::iers_2010,
-                R"doc(
+            .value( "iers_2010_tidal",
+                    tg::iers_2010,
+                    R"doc(
 
 High-fidelity Earth tidal variation model based on IERS 2010 conventions
 
 )doc" )
-            .value( "tabulated_deformation", tg::tabulated_variation,
-        R"doc(
+            .value( "tabulated_deformation",
+                    tg::tabulated_variation,
+                    R"doc(
 
 Variation model using interpolated tabular data for the variation model
 
 )doc" )
-        .value( "periodic_variation", tg::periodic_variation,
-                R"doc(
+            .value( "periodic_variation",
+                    tg::periodic_variation,
+                    R"doc(
 
 Variation model using purely sinusoidal variations (as a function of time) for gravity field coefficients
 
 )doc" )
-        .value( "polynomial_variation", tg::polynomial_variation,
-                R"doc(
+            .value( "polynomial_variation",
+                    tg::polynomial_variation,
+                    R"doc(
 
 Variation model using polynomial functions of time for gravity field coefficients variations
 
 )doc" )
-        .value( "ocean_tide", tg::ocean_tide,
-                R"doc(
+            .value( "ocean_tide",
+                    tg::ocean_tide,
+                    R"doc(
 
 Variation model due to ocean tides
 
 )doc" )
-        .value( "pole_tide", tg::pole_tide,
-                R"doc(
+            .value( "pole_tide",
+                    tg::pole_tide,
+                    R"doc(
 
 Variation model due to pole tides
 
       )doc" )
             .export_values( );
 
-
-    py::class_< tss::GravityFieldVariationSettings,
-                std::shared_ptr< tss::GravityFieldVariationSettings > >(
+    py::class_< tss::GravityFieldVariationSettings, std::shared_ptr< tss::GravityFieldVariationSettings > >(
             m,
             "GravityFieldVariationSettings",
             R"doc(
@@ -163,11 +163,11 @@ Variation model due to pole tides
 
       )doc" )
 
-         .def( "set_mean_tidal_forcing_terms_to_subtract" ,
-                &tss::BasicSolidBodyGravityFieldVariationSettings::setMeanTidalForcingTerms,
-                py::arg( "mean_tidal_forcing_cosine_terms" ),
-                py::arg( "mean_tidal_forcing_sine_terms" ),
-                R"doc(
+            .def( "set_mean_tidal_forcing_terms_to_subtract",
+                  &tss::BasicSolidBodyGravityFieldVariationSettings::setMeanTidalForcingTerms,
+                  py::arg( "mean_tidal_forcing_cosine_terms" ),
+                  py::arg( "mean_tidal_forcing_sine_terms" ),
+                  R"doc(
 
          Function to set mean tidal forcing terms to be subtracted from tidally induced gravity field variations.
 
@@ -395,8 +395,7 @@ In this example, we create gravity field variations of the Moon, for a tide rais
      )doc" );
 
     m.def( "solid_multi_body_tide_degree_order_variable_k",
-           py::overload_cast< const std::vector< std::string >&,
-                              const std::map< int, std::vector< double > > >(
+           py::overload_cast< const std::vector< std::string >&, const std::map< int, std::vector< double > > >(
                    &tss::degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy ),
            py::arg( "tide_raising_bodies" ),
            py::arg( "love_number_per_degree_and_order" ),
@@ -423,10 +422,8 @@ BasicSolidBodyGravityFieldVariationSettings
 
      )doc" );
 
-
     m.def( "solid_body_tide_degree_order_variable_complex_k",
-           py::overload_cast< const std::string,
-                              const std::map< int, std::vector< std::complex< double > > > >(
+           py::overload_cast< const std::string, const std::map< int, std::vector< std::complex< double > > > >(
                    &tss::degreeOrderVariableLoveNumberGravityFieldVariationSettingsPy ),
            py::arg( "tide_raising_body" ),
            py::arg( "love_number_per_degree_and_order" ),
@@ -451,7 +448,6 @@ BasicSolidBodyGravityFieldVariationSettings
 
 
      )doc" );
-
 
     m.def( "mode_coupled_solid_body_tide",
            &tss::modeCoupledSolidBodyGravityFieldVariationSettings,
@@ -492,7 +488,6 @@ GravityFieldVariationSettings
 
 
      )doc" );
-
 
     m.def( "periodic",
            &tss::periodicGravityFieldVariationsSettings,
@@ -603,7 +598,6 @@ GravityFieldVariationSettings
 
 )doc" );
 
-
     m.def( "polynomial",
            &tss::polynomialGravityFieldVariationsSettings,
            py::arg( "cosine_amplitudes_per_power" ),
@@ -692,9 +686,6 @@ GravityFieldVariationSettings
     Instance of a :class:`~tudatpy.dynamics.environment_setup.gravity_field_variation.GravityFieldVariationSettings` derived class containing required settings
 
 )doc" );
-
-
-
 
     m.def( "tabulated",
            &tss::tabulatedGravityFieldVariationSettings,

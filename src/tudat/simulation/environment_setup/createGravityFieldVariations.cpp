@@ -227,7 +227,7 @@ std::shared_ptr< gravitation::GravityFieldVariations > createGravityFieldVariati
                         basicSolidBodyGravityVariationSettings->getLoveNumbers( ),
                         deformingBodies,
                         basicSolidBodyGravityVariationSettings->getMeanForcingCosineTerms( ),
-                        basicSolidBodyGravityVariationSettings->getMeanForcingSineTerms( ));
+                        basicSolidBodyGravityVariationSettings->getMeanForcingSineTerms( ) );
             }
             else if( gravityFieldVariationSettings->getBodyDeformationType( ) == mode_coupled_solid_body )
             {
