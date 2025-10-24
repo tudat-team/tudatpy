@@ -31,7 +31,8 @@ public:
         {
             if( accelerationModels_.at( i )->getAccelerationScalingFactor( ) != currentScalingFactor )
             {
-                std::cerr << "Warning when creating area to mass scaling factor, scaling factors of constituent acceleration models are not initialized to the same value, setting all values to " +
+                std::cerr << "Warning when creating area to mass scaling factor, scaling factors of constituent acceleration models are "
+                             "not initialized to the same value, setting all values to " +
                                 std::to_string( currentScalingFactor )
                           << std::endl;
                 accelerationModels_.at( i )->setAccelerationScalingFactor( currentScalingFactor );
@@ -39,7 +40,13 @@ public:
         }
     }
 
-    ~AreaToMassScalingFactor( ) { }
+    AreaToMassScalingFactor( const std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel,
+                             const std::string& associatedBody ):
+        AreaToMassScalingFactor( std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > >( { accelerationModel } ),
+                                 associatedBody )
+    {}
+
+    ~AreaToMassScalingFactor( ) {}
 
     double getParameterValue( )
     {
@@ -49,7 +56,8 @@ public:
             if( accelerationModels_.at( i )->getAccelerationScalingFactor( ) != currentScalingFactor )
             {
                 throw std::runtime_error(
-                        "Error when retrieving area to mass scaling factor value from parameters, scaling factors of constituent acceleration models is not consistent" );
+                        "Error when retrieving area to mass scaling factor value from parameters, scaling factors of constituent "
+                        "acceleration models is not consistent" );
             }
         }
         return currentScalingFactor;
@@ -72,6 +80,7 @@ public:
     {
         return accelerationModels_;
     }
+
 protected:
     std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > accelerationModels_;
 };
@@ -80,26 +89,46 @@ class FullAccelerationScalingFactorParameter : public EstimatableParameter< doub
 {
 public:
     FullAccelerationScalingFactorParameter(
-            const std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel,
+            const std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > accelerationModels,
             const std::string& bodyUndergoingAcceleration,
             const std::string& bodyExertingAcceleration ):
         EstimatableParameter< double >( full_acceleration_scaling_factor, bodyUndergoingAcceleration, bodyExertingAcceleration ),
-        accelerationModel_( accelerationModel )
-    {
+        accelerationModels_( accelerationModels )
+    {}
 
-    }
+    FullAccelerationScalingFactorParameter( const std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel,
+                                            const std::string& bodyUndergoingAcceleration,
+                                            const std::string& bodyExertingAcceleration ):
+        FullAccelerationScalingFactorParameter(
+                std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > >( { accelerationModel } ),
+                bodyUndergoingAcceleration,
+                bodyExertingAcceleration )
+    {}
 
-    ~FullAccelerationScalingFactorParameter( ) { }
+    ~FullAccelerationScalingFactorParameter( ) {}
 
     double getParameterValue( )
     {
-        return accelerationModel_->getAccelerationScalingFactor(  );
-
+        double parameterValue = accelerationModels_.at( 0 )->getAccelerationScalingFactor( );
+        for( unsigned int i = 1; i < accelerationModels_.size( ); i++ )
+        {
+            if( accelerationModels_.at( i )->getAccelerationScalingFactor( ) != parameterValue )
+            {
+                std::cerr << "Warning when retrieving acceleration scaling factor from list. List entries are not equal, returning first "
+                             "entry"
+                          << std::endl;
+                break;
+            }
+        }
+        return parameterValue;
     }
 
     void setParameterValue( double parameterValue )
     {
-        accelerationModel_->setAccelerationScalingFactor( parameterValue );
+        for( unsigned int i = 0; i < accelerationModels_.size( ); i++ )
+        {
+            accelerationModels_.at( i )->setAccelerationScalingFactor( parameterValue );
+        }
     }
 
     int getParameterSize( )
@@ -107,15 +136,28 @@ public:
         return 1;
     }
 
-    std::shared_ptr< basic_astrodynamics::AccelerationModel3d > getAccelerationModel( )
+    std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAccelerationModels( )
     {
-        return accelerationModel_;
+        return accelerationModels_;
     }
+
+    bool hasAccelerationModel( const std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel )
+    {
+        bool hasModel = false;
+        for( unsigned int i = 0; i < accelerationModels_.size( ); i++ )
+        {
+            if( accelerationModels_.at( i ) == accelerationModel )
+            {
+                hasModel = true;
+                break;
+            }
+        }
+        return hasModel;
+    }
+
 protected:
-    const std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel_;
-
+    const std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > accelerationModels_;
 };
-
 
 }  // namespace estimatable_parameters
 
