@@ -60,18 +60,15 @@ std::complex< double > calculateSolidBodyTideSingleCoefficientSetCorrectionFromA
                                                                                           const double meanCosineForcing = 0.0,
                                                                                           const double meanSineForcing = 0.0 );
 
-
-
-// Handle default values of mean tidal forcing terms when calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude function is called with love numbers as map
-    // this call is only happening in unit tests (as far as I can tell) and the aux function below is thus also only called in unit test application
-std::map<int, std::vector<double>> generateZeroMeanTermsFromReference(
-    const std::map<int, std::vector<std::complex<double>>>& loveNumbersReference);
-
+// Handle default values of mean tidal forcing terms when calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude function is
+// called with love numbers as map this call is only happening in unit tests (as far as I can tell) and the aux function below is thus also
+// only called in unit test application
+std::map< int, std::vector< double > > generateZeroMeanTermsFromReference(
+        const std::map< int, std::vector< std::complex< double > > >& loveNumbersReference );
 
 // This function takes the map of kind key=degree, vector = values of spherical harmonic coefficients at degree, order and maps it onto a
 // matirix of nxn (with n the maximumDegree + 1 )
-Eigen::MatrixXd convertSphericalHarmonicCoefficientMapToMatrix(const std::map<int, std::vector<double>>& inputMap, int maximumDegree);
-
+Eigen::MatrixXd convertSphericalHarmonicCoefficientMapToMatrix( const std::map< int, std::vector< double > >& inputMap, int maximumDegree );
 
 //! Function to calculate solid body tide gravity field variations due to single body at single degree and order directly
 //! from perturbing body's Cartesian state.
@@ -126,7 +123,7 @@ std::pair< Eigen::MatrixXd, Eigen::MatrixXd > calculateSolidBodyTideSingleCoeffi
         const int maximumDegree,
         const int maximumOrder,
         std::map< int, std::vector< double > > meanCosineForcing = { },
-        std::map< int, std::vector< double > > meanSineForcing = { });
+        std::map< int, std::vector< double > > meanSineForcing = { } );
 
 class SolidBodyTideGravityFieldVariations : public GravityFieldVariations
 {
@@ -169,7 +166,7 @@ public:
     /*!
      *  Destructor
      */
-    virtual ~SolidBodyTideGravityFieldVariations( ) { }
+    virtual ~SolidBodyTideGravityFieldVariations( ) {}
 
     //! Function for calculating basic spherical harmonic coefficient corrections.
     /*!
@@ -493,8 +490,8 @@ public:
             const std::vector< std::function< double( ) > > deformingBodyMasses,
             const std::map< int, std::vector< std::complex< double > > > loveNumbers,
             const std::vector< std::string > deformingBodies,
-            std::map<int, std::vector<double>> meanForcingCosineTerms = { },
-            std::map<int, std::vector<double>> meanForcingSineTerms = { } ):
+            std::map< int, std::vector< double > > meanForcingCosineTerms = { },
+            std::map< int, std::vector< double > > meanForcingSineTerms = { } ):
         // LOVE NUMBERS TODO: FIX MIN/MAX STUFF
         SolidBodyTideGravityFieldVariations( deformedBodyStateFunction,
                                              deformedBodyOrientationFunction,
@@ -513,32 +510,34 @@ public:
                                                   std::placeholders::_1,
                                                   std::placeholders::_2 ) );
 
-      // If cosine mean forcing terms are empty map (default), set map values to zero
-      if (meanForcingCosineTerms_.empty()) {
-        for (const auto& it : loveNumbers_) {
-          const int degree = it.first;
-          const std::size_t numberOfOrders = it.second.size();
-          meanForcingCosineTerms_[degree] = std::vector<double>(numberOfOrders, 0.0);
+        // If cosine mean forcing terms are empty map (default), set map values to zero
+        if( meanForcingCosineTerms_.empty( ) )
+        {
+            for( const auto& it : loveNumbers_ )
+            {
+                const int degree = it.first;
+                const std::size_t numberOfOrders = it.second.size( );
+                meanForcingCosineTerms_[ degree ] = std::vector< double >( numberOfOrders, 0.0 );
+            }
         }
-      }
 
-      // If sine mean forcing terms are empty map (default), set map values to zero
-      if (meanForcingSineTerms_.empty()) {
-        for (const auto& it : loveNumbers_) {
-          const int degree = it.first;
-          const std::size_t numberOfOrders = it.second.size();
-          meanForcingSineTerms_[degree] = std::vector<double>(numberOfOrders, 0.0);
+        // If sine mean forcing terms are empty map (default), set map values to zero
+        if( meanForcingSineTerms_.empty( ) )
+        {
+            for( const auto& it : loveNumbers_ )
+            {
+                const int degree = it.first;
+                const std::size_t numberOfOrders = it.second.size( );
+                meanForcingSineTerms_[ degree ] = std::vector< double >( numberOfOrders, 0.0 );
+            }
         }
-      }
-
-
     }
 
     //! Destructor
     /*!
      *  Destructor
      */
-    virtual ~BasicSolidBodyTideGravityFieldVariations( ) { }
+    virtual ~BasicSolidBodyTideGravityFieldVariations( ) {}
 
     //! Function to retrieve the love numbers at given degree.
     /*!
@@ -595,12 +594,14 @@ public:
     }
 
     // getter function for the mean tidal forcing cosine terms
-    std::map<int, std::vector<double>> getMeanForcingCosineTerms( ){
+    std::map< int, std::vector< double > > getMeanForcingCosineTerms( )
+    {
         return meanForcingCosineTerms_;
     }
 
     // getter function for the mean tidal forcing sine terms
-    std::map<int, std::vector<double>> getMeanForcingSineTerms( ){
+    std::map< int, std::vector< double > > getMeanForcingSineTerms( )
+    {
         return meanForcingSineTerms_;
     }
 
@@ -630,11 +631,10 @@ protected:
     std::map< int, std::vector< std::complex< double > > > loveNumbers_;
 
     //! Map with mean cosine forcing terms per degree [key] and order [vector position]
-    std::map<int, std::vector<double>> meanForcingCosineTerms_;
+    std::map< int, std::vector< double > > meanForcingCosineTerms_;
 
     //! Map with mean sine forcing terms per degree [key] and order [vector position]
-    std::map<int, std::vector<double>> meanForcingSineTerms_;
-
+    std::map< int, std::vector< double > > meanForcingSineTerms_;
 };
 
 int getModeCoupledMaximumResponseDegree( const std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > >& loveNumbers );
@@ -675,7 +675,7 @@ public:
     /*!
      *  Destructor
      */
-    virtual ~ModeCoupledSolidBodyTideGravityFieldVariations( ) { }
+    virtual ~ModeCoupledSolidBodyTideGravityFieldVariations( ) {}
 
     std::map< std::pair< int, int >, std::map< std::pair< int, int >, double > > getLoveNumbers( )
     {

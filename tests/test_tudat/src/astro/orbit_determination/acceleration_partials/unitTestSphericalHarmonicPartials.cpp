@@ -470,8 +470,7 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
 }
 
 //! Function to get tidal deformation model for Earth
-std::vector< std::shared_ptr< GravityFieldVariationSettings > > getEarthGravityFieldVariationSettings(
-        const int subtractConstantTides )
+std::vector< std::shared_ptr< GravityFieldVariationSettings > > getEarthGravityFieldVariationSettings( const int subtractConstantTides )
 {
     std::vector< std::shared_ptr< GravityFieldVariationSettings > > gravityFieldVariations;
 
@@ -496,7 +495,7 @@ std::vector< std::shared_ptr< GravityFieldVariationSettings > > getEarthGravityF
             std::make_shared< BasicSolidBodyGravityFieldVariationSettings >( deformingBodies, loveNumbers );
     if( subtractConstantTides > 0 )
     {
-        std::map<int, std::vector<double>> meanTidalForcingCosineTerms;
+        std::map< int, std::vector< double > > meanTidalForcingCosineTerms;
         meanTidalForcingCosineTerms[ 2 ].push_back( 1.0E-8 );
         meanTidalForcingCosineTerms[ 2 ].push_back( 3.0E-9 );
         meanTidalForcingCosineTerms[ 2 ].push_back( -5.0E-9 );
@@ -505,7 +504,7 @@ std::vector< std::shared_ptr< GravityFieldVariationSettings > > getEarthGravityF
         meanTidalForcingCosineTerms[ 3 ].push_back( -5.0E-11 );
         meanTidalForcingCosineTerms[ 3 ].push_back( 5.0E-11 );
 
-        std::map<int, std::vector<double>> meanTidalForcingSineTerms;
+        std::map< int, std::vector< double > > meanTidalForcingSineTerms;
         meanTidalForcingSineTerms[ 2 ].push_back( 2.0E-8 );
         meanTidalForcingSineTerms[ 2 ].push_back( 2.0E-9 );
         meanTidalForcingSineTerms[ 2 ].push_back( 8.0E-9 );
@@ -513,8 +512,7 @@ std::vector< std::shared_ptr< GravityFieldVariationSettings > > getEarthGravityF
         meanTidalForcingSineTerms[ 3 ].push_back( -2.0E-11 );
         meanTidalForcingSineTerms[ 3 ].push_back( -8.0E-11 );
         meanTidalForcingSineTerms[ 3 ].push_back( -7.0E-11 );
-        singleGravityFieldVariation->setMeanTidalForcingTerms(
-                meanTidalForcingCosineTerms, meanTidalForcingSineTerms );
+        singleGravityFieldVariation->setMeanTidalForcingTerms( meanTidalForcingCosineTerms, meanTidalForcingSineTerms );
     }
     gravityFieldVariations.push_back( singleGravityFieldVariation );
 
@@ -854,7 +852,8 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
             }
             BOOST_CHECK_EQUAL( isExceptionCaught, true );
 
-            wrongParameterNames[ 0 ] = std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >( "Earth", 3, "Sun", false );
+            wrongParameterNames[ 0 ] =
+                    std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >( "Earth", 3, "Sun", false );
             isExceptionCaught = false;
             try
             {
@@ -871,14 +870,14 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
         std::shared_ptr< EstimatableParameter< double > > accelerationScalingParameter =
                 std::make_shared< FullAccelerationScalingFactorParameter >( gravitationalAcceleration, "Vehicle", "Earth" );
 
-
         // Create acceleration partial object.
-        std::shared_ptr< SphericalHarmonicsGravityPartial > accelerationPartial = std::dynamic_pointer_cast< SphericalHarmonicsGravityPartial >(
-                createAnalyticalAccelerationPartial( gravitationalAcceleration,
-                                                     std::make_pair( "Vehicle", vehicle ),
-                                                     std::make_pair( "Earth", earth ),
-                                                     bodies,
-                                                     parameterSet ) );
+        std::shared_ptr< SphericalHarmonicsGravityPartial > accelerationPartial =
+                std::dynamic_pointer_cast< SphericalHarmonicsGravityPartial >(
+                        createAnalyticalAccelerationPartial( gravitationalAcceleration,
+                                                             std::make_pair( "Vehicle", vehicle ),
+                                                             std::make_pair( "Earth", earth ),
+                                                             bodies,
+                                                             parameterSet ) );
 
         accelerationPartial->update( testTime );
 
@@ -971,7 +970,8 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
                                                            sphericalHarmonicFieldUpdate );
         vectorParametersIterator++;
 
-        Eigen::MatrixXd partialWrtDegreeTwoLoveNumberAtSeparateOrders = accelerationPartial->wrtParameter( vectorParametersIterator->second );
+        Eigen::MatrixXd partialWrtDegreeTwoLoveNumberAtSeparateOrders =
+                accelerationPartial->wrtParameter( vectorParametersIterator->second );
         Eigen::MatrixXd testPartialWrtDegreeTwoLoveNumberAtSeparateOrders =
                 calculateAccelerationWrtParameterPartials( vectorParametersIterator->second,
                                                            gravitationalAcceleration,
@@ -988,10 +988,11 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
         vectorParametersIterator++;
 
         Eigen::MatrixXd partialWrtDegreeThreeLoveNumber = accelerationPartial->wrtParameter( vectorParametersIterator->second );
-        Eigen::MatrixXd testPartialWrtDegreeThreeLoveNumber = calculateAccelerationWrtParameterPartials( vectorParametersIterator->second,
-                                                                                                         gravitationalAcceleration,
-                                                                                                         Eigen::VectorXd::Constant( 1, 10.0 ),
-                                                                                                         sphericalHarmonicFieldUpdate );
+        Eigen::MatrixXd testPartialWrtDegreeThreeLoveNumber =
+                calculateAccelerationWrtParameterPartials( vectorParametersIterator->second,
+                                                           gravitationalAcceleration,
+                                                           Eigen::VectorXd::Constant( 1, 10.0 ),
+                                                           sphericalHarmonicFieldUpdate );
         vectorParametersIterator++;
 
         Eigen::MatrixXd partialWrtComplexDegreeThreeLoveNumberAtSeparateOrder =
@@ -1012,10 +1013,11 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
         vectorParametersIterator++;
 
         Eigen::MatrixXd partialWrtPolynomialVariations = accelerationPartial->wrtParameter( vectorParametersIterator->second );
-        Eigen::MatrixXd testPartialWrtPolynomialVariations = calculateAccelerationWrtParameterPartials( vectorParametersIterator->second,
-                                                                                                        gravitationalAcceleration,
-                                                                                                        Eigen::VectorXd::Constant( 6, 1.0E-6 ),
-                                                                                                        sphericalHarmonicFieldUpdate );
+        Eigen::MatrixXd testPartialWrtPolynomialVariations =
+                calculateAccelerationWrtParameterPartials( vectorParametersIterator->second,
+                                                           gravitationalAcceleration,
+                                                           Eigen::VectorXd::Constant( 6, 1.0E-6 ),
+                                                           sphericalHarmonicFieldUpdate );
 
         vectorParametersIterator++;
         Eigen::MatrixXd partialWrtPeriodicVariations = accelerationPartial->wrtParameter( vectorParametersIterator->second );
@@ -1073,7 +1075,6 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtAccelerationScaling, testPartialWrtAccelerationScaling, 1.0E-8 );
     }
-
 }
 
 //! Unit test to check working onf spherical harmonic state partial for synchronously rotating body (and rotation depending on state)
