@@ -145,7 +145,20 @@ public:
                                                  const std::shared_ptr< ModelInterpolationSettings > interpolatorSettings = nullptr ):
         GravityFieldVariationSettings( gravitation::basic_solid_body, interpolatorSettings ), deformingBodies_( deformingBodies ),
         loveNumbers_( loveNumbers )
-    { }
+    {
+
+        // initialise mean forcing terms to default to zeros, user should use setMeanTidalForcingTerms function to set non-zero values
+        for (const auto& it : loveNumbers)
+        {
+            const int degree = it.first;
+            const std::size_t numberOfOrders = it.second.size();
+
+            meanForcingCosineTerms_[degree] = std::vector<double>(numberOfOrders, 0.0);
+            meanForcingSineTerms_[degree]   = std::vector<double>(numberOfOrders, 0.0);
+        }
+
+
+    }
 
     virtual ~BasicSolidBodyGravityFieldVariationSettings( ) { }
 
@@ -179,12 +192,132 @@ public:
         deformingBodies_ = deformingBodies;
     }
 
+
+//! Function to set meanForcingCosineTerms_ map
+/*!
+ * \brief Function to set meanForcingCosineTerms_ map
+ * \param newCosineTerms New map of vectors containing mean cosine forcing terms,
+ * where keys refer to forcing degree m and vector position to order n
+ */
+void setMeanForcingCosineTerms(const std::map<int, std::vector<double>>& newCosineTerms)
+{
+    // Check same number of keys
+    if (newCosineTerms.size() != meanForcingCosineTerms_.size()) {
+        throw std::runtime_error(
+            "Error when setting meanForcingSineTerms in BasicSolidBodyGravityFieldVariationSettings. "
+            "Number of keys of newCosineTerms argument " + std::to_string(newCosineTerms.size()) +
+            " must match with existing love number keys " +
+            std::to_string(meanForcingCosineTerms_.size()) + " .");
+    }
+
+    for (std::map<int, std::vector<double>>::const_iterator it = meanForcingCosineTerms_.begin();
+         it != meanForcingCosineTerms_.end(); ++it)
+    {
+        int degree = it->first;
+        const std::vector<double>& orders = it->second;
+
+        std::map<int, std::vector<double>>::const_iterator findIterator = newCosineTerms.find(degree);
+
+        // Check that key is found
+        if (findIterator == newCosineTerms.end()) {
+            throw std::runtime_error(
+                "Error when setting meanForcingSineTerms in BasicSolidBodyGravityFieldVariationSettings. "
+                "Love number settings require mean forcing input at degree " + std::to_string(degree) +
+                " , but not found in provided newCosineTerms map. ");
+        } else if (findIterator->second.size() != orders.size()) {
+            throw std::runtime_error(
+                "Error when setting meanForcingSineTerms in BasicSolidBodyGravityFieldVariationSettings. "
+                "Vector at key " + std::to_string(degree) + " is of length " +
+                std::to_string(findIterator->second.size()) +
+                " but should match length of love number vector (" +
+                std::to_string(orders.size()) + ").");
+        }
+    }
+
+    meanForcingCosineTerms_ = newCosineTerms;
+}
+
+//! Function to set meanForcingSineTerms_ map
+/*!
+ * \brief Function to set meanForcingSineTerms_ map
+ * \param newSineTerms New map of vectors containing mean sine forcing terms,
+ * where keys refer to forcing degree m and vector position to order n
+ */
+void setMeanForcingSineTerms(const std::map<int, std::vector<double>>& newSineTerms)
+{
+    // Check same number of keys
+    if (newSineTerms.size() != meanForcingSineTerms_.size()) {
+        throw std::runtime_error(
+            "Error when setting meanForcingSineTerms in BasicSolidBodyGravityFieldVariationSettings. "
+            "Number of keys of newSineTerms argument " + std::to_string(newSineTerms.size()) +
+            " must match with existing love number keys " +
+            std::to_string(meanForcingSineTerms_.size()) + " .");
+    }
+
+    for (std::map<int, std::vector<double>>::const_iterator it = meanForcingSineTerms_.begin();
+         it != meanForcingSineTerms_.end(); ++it)
+    {
+        int degree = it->first;
+        const std::vector<double>& orders = it->second;
+
+        std::map<int, std::vector<double>>::const_iterator findIterator = newSineTerms.find(degree);
+
+        // Check that key is found
+        if (findIterator == newSineTerms.end()) {
+            throw std::runtime_error(
+                "Error when setting meanForcingSineTerms in BasicSolidBodyGravityFieldVariationSettings. "
+                "Love number settings require mean forcing input at degree " + std::to_string(degree) +
+                " , but not found in provided newSineTerms map. ");
+        } else if (findIterator->second.size() != orders.size()) {
+            throw std::runtime_error(
+                "Error when setting meanForcingSineTerms in BasicSolidBodyGravityFieldVariationSettings. "
+                "Vector at key " + std::to_string(degree) + " is of length " +
+                std::to_string(findIterator->second.size()) +
+                " but should match length of love number vector (" +
+                std::to_string(orders.size()) + ").");
+        }
+    }
+
+    meanForcingSineTerms_ = newSineTerms;
+}
+
+    //! Function to set mean tidal forcing terms
+    /*!
+     * \brief Function to set mean tidal forcing terms
+     * \param newMeanCosineTerms New map of vectors containing mean cosine forcing terms, where keys refer to forcing degree m and vector position to order n
+     * \param newMeanSineTerms New map of vectors containing mean sine forcing terms, where keys refer to forcing degree m and vector position to order n
+     */
+    void setMeanTidalForcingTerms( std::map<int, std::vector<double>> meanTidalForcingCosineTerms,
+                                   std::map<int, std::vector<double>> meanTidalForcingSineTerms )
+    {
+        // input validation happens inside these setter functions.
+        setMeanForcingCosineTerms(meanTidalForcingCosineTerms);
+        setMeanForcingSineTerms(meanTidalForcingSineTerms);
+    }
+
+    // getter function for the mean tidal forcing cosine terms
+    std::map<int, std::vector<double>> getMeanForcingCosineTerms( ){
+        return meanForcingCosineTerms_;
+    }
+
+    // getter function for the mean tidal forcing sine terms
+    std::map<int, std::vector<double>> getMeanForcingSineTerms( ){
+        return meanForcingSineTerms_;
+    }
+
+
 protected:
     //! List of bodies causing tidal deformation
     std::vector< std::string > deformingBodies_;
 
     //! List of Love number for the deformed body.
     std::map< int, std::vector< std::complex< double > > > loveNumbers_;
+
+    //! Map with mean cosine forcing terms per degree [key] and order [vector position]
+    std::map<int, std::vector<double>> meanForcingCosineTerms_;
+
+    //! Map with mean sine forcing terms per degree [key] and order [vector position]
+    std::map<int, std::vector<double>> meanForcingSineTerms_;
 };
 
 class ModeCoupledSolidBodyGravityFieldVariationSettings : public GravityFieldVariationSettings

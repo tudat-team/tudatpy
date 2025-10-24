@@ -819,11 +819,11 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
     double loveNumber = 0.25;
     double loveNumberDegreeThree = 100.0;
 
-    std::map< int, std::vector< std::complex< double > > > fullLoveNumberVector = getFullLoveNumbersVector( loveNumber, 3, 2 );
+    const std::map< int, std::vector< std::complex< double > > > fullLoveNumberVector = getFullLoveNumbersVector( loveNumber, 3, 2 );
     double testTime = 0.5E7;
 
-    Eigen::MatrixXd cosineCorrections1, cosineCorrections2, cosineCorrections3;
-    Eigen::MatrixXd sineCorrections1, sineCorrections2, sineCorrections3;
+    Eigen::MatrixXd cosineCorrections1, cosineCorrections2, cosineCorrections3, cosineCorrectionsX;
+    Eigen::MatrixXd sineCorrections1, sineCorrections2, sineCorrections3, sineCorrectionsX;
 
     // Calculate non-interpolated corrections from two bodies in single object.
     {
@@ -890,40 +890,108 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
         sineCorrections2 = earthGravityField->getSineCoefficients( ) - sineCoefficients;
     }
 
-    {
+        // Calculate non-interpolated corrections from two bodies in separate objects
+        {
+                bodySettings.at( "Earth" )->gravityFieldVariationSettings.clear( );
+
+            // Define correction settings
+            std::vector< std::string > deformingBodies;
+            deformingBodies.push_back( "Moon" );
+            deformingBodies.push_back( "Sun" );
+            bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(
+                    std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                            deformingBodies,
+                            fullLoveNumberVector,
+                            std::make_shared< ModelInterpolationSettings >(
+                                    0.25E7, 0.75E7, 600.0, std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) ) ) );
+
+            // Create bodies
+            SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+            // Update gravity field
+            std::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
+                    std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+                            bodies.at( "Earth" )->getGravityFieldModel( ) );
+
+            earthGravityField->update( testTime );
+
+            // Retrieve corrections.
+            cosineCorrections3 = earthGravityField->getCosineCoefficients( ) - cosineCoefficients;
+            sineCorrections3 = earthGravityField->getSineCoefficients( ) - sineCoefficients;
+        }
+
+        // Calculate non-interpolated corrections from single bodies in single object using mean subtraction terms
+        {
+
+        // Calculate interpolated corrections from single body with subtraction of mean forcing terms.
         bodySettings.at( "Earth" )->gravityFieldVariationSettings.clear( );
 
         // Define correction settings
         std::vector< std::string > deformingBodies;
         deformingBodies.push_back( "Moon" );
-        deformingBodies.push_back( "Sun" );
-        bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(
-                std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
-                        deformingBodies,
-                        fullLoveNumberVector,
-                        std::make_shared< ModelInterpolationSettings >(
-                                0.25E7, 0.75E7, 600.0, std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) ) ) );
+
+        // Build a truncatedLoveNumberMap that is compatible in formatting with new map-based convention (old one adds two random 0 entries in back of each order vector)
+        std::map< int, std::vector< std::complex< double > > > truncatedLoveNumberMap;
+
+        for (const auto& kv : fullLoveNumberVector) {
+            const int key = kv.first;
+            const std::vector<std::complex<double>>& vec = kv.second;
+
+            std::vector<std::complex<double>> newVec;
+
+            if (vec.size() > 2) {
+                newVec = std::vector<std::complex<double>>(vec.begin(), vec.end() - 2);
+            }
+            // If vec.size() <= 2, newVec remains empty
+            truncatedLoveNumberMap.emplace(key, std::move(newVec));
+        }
+
+
+        std::shared_ptr< BasicSolidBodyGravityFieldVariationSettings > gravityFieldVariationsSettings = std::make_shared< BasicSolidBodyGravityFieldVariationSettings >(
+                                deformingBodies,
+                                truncatedLoveNumberMap);
+
+
+        std::map< int, std::vector< double > > meanCosineTerms = {{2, {-3E-09, -3E-09, -1E-09}}, {3, {-1E-11, -1E-11, -1E-11, 0.0}}};
+        std::map< int, std::vector< double > > meanSineTerms = {{2, {0.0, -8E-10, -8E-10}}, {3, {0.0, -8E-11, -8E-11, 0.0}}};
+
+        Eigen::MatrixXd meanTermsCosineMatrix = gravitation::convertSphericalHarmonicCoefficientMapToMatrix(meanCosineTerms, 5);
+        Eigen::MatrixXd meanTermsSineMatrix = gravitation::convertSphericalHarmonicCoefficientMapToMatrix(meanSineTerms, 5);
+
+        Eigen::MatrixXd meanTermsCosineCoeffs = meanTermsCosineMatrix * loveNumber;
+        Eigen::MatrixXd meanTermsSineCoeffs = meanTermsSineMatrix * loveNumber;
+
+        gravityFieldVariationsSettings->setMeanTidalForcingTerms(meanCosineTerms, meanSineTerms);
+        bodySettings.at( "Earth" )->gravityFieldVariationSettings.push_back(gravityFieldVariationsSettings);
 
         // Create bodies
         SystemOfBodies bodies = createSystemOfBodies( bodySettings );
 
-        // Update gravity field
-        std::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
-                std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
-                        bodies.at( "Earth" )->getGravityFieldModel( ) );
+        // Update states.
+        bodies.at( "Earth" )->setStateFromEphemeris( testTime );
+        bodies.at( "Earth" )->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
+        bodies.at( "Sun" )->setStateFromEphemeris( testTime );
+        bodies.at( "Moon" )->setStateFromEphemeris( testTime );
 
+        // Update gravity field
+        std::shared_ptr< gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField = std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+                    bodies.at( "Earth" )->getGravityFieldModel( ) );
         earthGravityField->update( testTime );
 
-        // Retrieve corrections.
-        cosineCorrections3 = earthGravityField->getCosineCoefficients( ) - cosineCoefficients;
-        sineCorrections3 = earthGravityField->getSineCoefficients( ) - sineCoefficients;
+        Eigen::MatrixXd cosineCorrectionsMoonOnly = earthGravityField->getCosineCoefficients( ) - cosineCoefficients;
+        Eigen::MatrixXd sineCorrectionsMoonOnly = earthGravityField->getSineCoefficients( ) - sineCoefficients;
+
+        cosineCorrectionsX = cosineCorrectionsMoonOnly + meanTermsCosineCoeffs;
+        sineCorrectionsX = sineCorrectionsMoonOnly + meanTermsSineCoeffs;
+
     }
 
-    // Mutually compare results of three methods.
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cosineCorrections1.block( 2, 0, 2, 3 ), cosineCorrections2.block( 2, 0, 2, 3 ), 1.0E-10 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cosineCorrections1.block( 2, 0, 2, 3 ), cosineCorrections3.block( 2, 0, 2, 3 ), 1.0E-10 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sineCorrections1.block( 2, 1, 2, 3 ), sineCorrections2.block( 2, 1, 2, 3 ), 1.0E-10 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sineCorrections1.block( 2, 1, 2, 3 ), sineCorrections2.block( 2, 1, 2, 3 ), 1.0E-10 );
+        // Mutually compare results of four methods.
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cosineCorrections1.block( 2, 0, 2, 3 ), cosineCorrections2.block( 2, 0, 2, 3 ), 1.0E-10 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( cosineCorrections1.block( 2, 0, 2, 3 ), cosineCorrections3.block( 2, 0, 2, 3 ), 1.0E-10 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sineCorrections1.block( 2, 1, 2, 3 ), sineCorrections2.block( 2, 1, 2, 3 ), 1.0E-10 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( sineCorrections1.block( 2, 1, 2, 3 ), sineCorrections3.block( 2, 1, 2, 3 ), 1.0E-10 );
+        // Not including the cosineCorrectionsX, sineCorrectionsX here, because expecting different value (moon tide only)
 
     // Check whether 0 coefficients are actually 0.
     for( unsigned int i = 0; i < 6; i++ )
@@ -935,16 +1003,19 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
                 BOOST_CHECK_EQUAL( cosineCorrections1( i, j ), 0.0 );
                 BOOST_CHECK_EQUAL( cosineCorrections2( i, j ), 0.0 );
                 BOOST_CHECK_EQUAL( cosineCorrections3( i, j ), 0.0 );
+                BOOST_CHECK_EQUAL( cosineCorrectionsX( i, j ), 0.0 );
 
                 BOOST_CHECK_EQUAL( sineCorrections1( i, j ), 0.0 );
                 BOOST_CHECK_EQUAL( sineCorrections2( i, j ), 0.0 );
                 BOOST_CHECK_EQUAL( sineCorrections3( i, j ), 0.0 );
+                BOOST_CHECK_EQUAL( sineCorrectionsX( i, j ), 0.0 );
             }
             else if( j == 0 )
             {
                 BOOST_CHECK_EQUAL( sineCorrections1( i, j ), 0.0 );
                 BOOST_CHECK_EQUAL( sineCorrections2( i, j ), 0.0 );
                 BOOST_CHECK_EQUAL( sineCorrections3( i, j ), 0.0 );
+                BOOST_CHECK_EQUAL( sineCorrectionsX( i, j ), 0.0 );
             }
         }
     }
@@ -973,6 +1044,9 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
         {
             BOOST_CHECK_SMALL( directMoonTide.first( n, m ) + directSunTide.first( n, m ) - cosineCorrections1( n, m ), 1.0E-18 );
             BOOST_CHECK_SMALL( directMoonTide.second( n, m ) + directSunTide.second( n, m ) - sineCorrections1( n, m ), 1.0E-18 );
+
+            BOOST_CHECK_SMALL( directMoonTide.first( n, m ) - cosineCorrectionsX( n, m ), 1.0E-18 );
+            BOOST_CHECK_SMALL( directMoonTide.second( n, m ) - sineCorrectionsX( n, m ), 1.0E-18 );
         }
     }
 
