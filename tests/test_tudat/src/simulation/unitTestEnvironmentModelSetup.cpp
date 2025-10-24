@@ -955,8 +955,8 @@ BOOST_AUTO_TEST_CASE( test_gravityFieldVariationSetup )
         std::map< int, std::vector< double > > meanCosineTerms = {{2, {-3E-09, -3E-09, -1E-09}}, {3, {-1E-11, -1E-11, -1E-11, 0.0}}};
         std::map< int, std::vector< double > > meanSineTerms = {{2, {0.0, -8E-10, -8E-10}}, {3, {0.0, -8E-11, -8E-11, 0.0}}};
 
-        Eigen::MatrixXd meanTermsCosineMatrix = gravitation::convertSHMapToMatrix(meanCosineTerms, 6);
-        Eigen::MatrixXd meanTermsSineMatrix = gravitation::convertSHMapToMatrix(meanSineTerms, 6);
+        Eigen::MatrixXd meanTermsCosineMatrix = gravitation::convertSphericalHarmonicCoefficientMapToMatrix(meanCosineTerms, 5);
+        Eigen::MatrixXd meanTermsSineMatrix = gravitation::convertSphericalHarmonicCoefficientMapToMatrix(meanSineTerms, 5);
 
         Eigen::MatrixXd meanTermsCosineCoeffs = meanTermsCosineMatrix * loveNumber;
         Eigen::MatrixXd meanTermsSineCoeffs = meanTermsSineMatrix * loveNumber;
