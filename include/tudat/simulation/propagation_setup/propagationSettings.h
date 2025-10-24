@@ -44,13 +44,13 @@ namespace propagators
 struct PropagatorType {
     PropagatorType( const TranslationalPropagatorType translationalPropagatorType ):
         translationalPropagatorType_( translationalPropagatorType )
-    { }
+    {}
 
-    PropagatorType( const RotationalPropagatorType rotationalPropagatorType ): rotationalPropagatorType_( rotationalPropagatorType ) { }
+    PropagatorType( const RotationalPropagatorType rotationalPropagatorType ): rotationalPropagatorType_( rotationalPropagatorType ) {}
 
-    PropagatorType( ): otherPropagator_( true ) { }
+    PropagatorType( ): otherPropagator_( true ) {}
 
-    PropagatorType( const int customStateSize ): customStateSize_( customStateSize ) { }
+    PropagatorType( const int customStateSize ): customStateSize_( customStateSize ) {}
 
     TranslationalPropagatorType translationalPropagatorType_ = undefined_translational_propagator;
     RotationalPropagatorType rotationalPropagatorType_ = undefined_rotational_propagator;
@@ -74,10 +74,10 @@ public:
                         const bool isMultiArc ):
         initialStates_( initialBodyStates ), outputSettingsBase_( outputSettings ), stateSize_( initialBodyStates.rows( ) ),
         isMultiArc_( isMultiArc )
-    { }
+    {}
 
     //! Destructor
-    virtual ~PropagatorSettings( ) { }
+    virtual ~PropagatorSettings( ) {}
 
     //! Function to retrieve the initial state used as input for numerical integration
     /*!
@@ -197,7 +197,7 @@ public:
         PropagatorSettings< StateScalarType >( initialBodyStates, outputSettings, false ), stateType_( stateType ),
         initialTime_( TUDAT_NAN ), terminationSettings_( terminationSettings ), dependentVariablesToSave_( dependentVariablesToSave ),
         integratorSettings_( nullptr ), outputSettings_( outputSettings ), statePrintInterval_( statePrintInterval )
-    { }
+    {}
 
     SingleArcPropagatorSettings( const IntegratedStateType stateType,
                                  const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialBodyStates,
@@ -216,7 +216,7 @@ public:
     }
 
     //! Virtual destructor.
-    virtual ~SingleArcPropagatorSettings( ) { }
+    virtual ~SingleArcPropagatorSettings( ) {}
 
     //! Type of state being propagated.
     IntegratedStateType getStateType( )
@@ -459,7 +459,7 @@ public:
     }
 
     //! Destructor
-    virtual ~MultiArcPropagatorSettings( ) { }
+    virtual ~MultiArcPropagatorSettings( ) {}
 
     //! Function get the list of propagator settings for each arc in propagation.
     /*!
@@ -509,7 +509,7 @@ public:
      */
     virtual void resetIntegratedStateModels( const simulation_setup::SystemOfBodies& bodies )
     {
-        for( std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > singleArcSettings: singleArcSettings_ )
+        for( std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > singleArcSettings : singleArcSettings_ )
         {
             if( singleArcSettings )
             {
@@ -525,7 +525,7 @@ public:
      */
     void resetInitialStates( const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& initialBodyStates )
     {
-        if( this->stateSize_ != this->initialStates_.rows( ) )
+        if( this->stateSize_ != initialBodyStates.rows( ) )
         {
             std::cerr << "Warning when resetting multi-arc initial states, size is incomparible with original size." << std::endl;
         }
@@ -924,7 +924,7 @@ public:
     //        accelerationSettingsMap_( accelerationSettingsMap ) { verifyInput( ); }
 
     //! Destructor
-    ~TranslationalStatePropagatorSettings( ) { }
+    ~TranslationalStatePropagatorSettings( ) {}
 
     //! List of bodies w.r.t. which the bodies in bodiesToIntegrate_ are propagated.
     std::vector< std::string > centralBodies_;
@@ -1137,7 +1137,7 @@ public:
     }
 
     //! Destructor
-    ~RotationalStatePropagatorSettings( ) { }
+    ~RotationalStatePropagatorSettings( ) {}
 
     //! List of bodies that are to be propagated numerically.
     std::vector< std::string > bodiesToIntegrate_;
@@ -1641,7 +1641,7 @@ public:
                                              std::placeholders::_1,
                                              std::placeholders::_2 ) ),
         stateSize_( 1 )
-    { }
+    {}
 
     //! Constructor for vector custom state
     /*!
@@ -1666,7 +1666,7 @@ public:
                                                                   dependentVariablesToSave,
                                                                   statePrintInterval ),
         stateDerivativeFunction_( stateDerivativeFunction ), stateSize_( initialState.rows( ) )
-    { }
+    {}
 
     CustomStatePropagatorSettings( const std::function< StateVectorType( const TimeType, const StateVectorType& ) > stateDerivativeFunction,
                                    const StateVectorType initialState,
@@ -1685,10 +1685,10 @@ public:
                                                                   dependentVariablesToSave,
                                                                   outputSettings ),
         stateDerivativeFunction_( stateDerivativeFunction ), stateSize_( initialState.rows( ) )
-    { }
+    {}
 
     //! Destructor
-    ~CustomStatePropagatorSettings( ) { }
+    ~CustomStatePropagatorSettings( ) {}
 
     //! Function to compute the state derivative, as a function of current time and state.
     std::function< StateVectorType( const TimeType, const StateVectorType& ) > stateDerivativeFunction_;
@@ -2064,7 +2064,7 @@ public:
     }
 
     //! Destructor
-    ~MultiTypePropagatorSettings( ) { }
+    ~MultiTypePropagatorSettings( ) {}
 
     //! Function to reset the initial state used as input for numerical integration
     /*!
@@ -2154,7 +2154,7 @@ public:
         std::vector< std::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType, TimeType > > > vectorOfTranslationalSettings;
         if( propagatorSettingsMap_.count( translational_state ) > 0 )
         {
-            for( std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > translationalSettings:
+            for( std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > translationalSettings :
                  propagatorSettingsMap_.at( translational_state ) )
             {
                 vectorOfTranslationalSettings.push_back(
@@ -2163,7 +2163,7 @@ public:
             }
         }
 
-        for( auto entry: propagatorSettingsMap_ )
+        for( auto entry : propagatorSettingsMap_ )
         {
             for( unsigned int i = 0; i < entry.second.size( ); ++i )
             {
@@ -2204,7 +2204,7 @@ public:
 
     void makeOutputSettingsConsistent( )
     {
-        for( auto it: propagatorSettingsMap_ )
+        for( auto it : propagatorSettingsMap_ )
         {
             for( unsigned int i = 0; i < it.second.size( ); i++ )
             {
@@ -2465,7 +2465,7 @@ inline std::map< std::pair< int, int >, std::string > getProcessedStateStrings(
     unsigned int stateVectorIndex = 0;
     std::map< std::pair< int, int >, std::string > stringPerIndex;
 
-    for( auto integratedTypeAndBody: integratedTypeAndBodyList )
+    for( auto integratedTypeAndBody : integratedTypeAndBodyList )
     {
         // Extract state type and list of body names
         IntegratedStateType stateType = integratedTypeAndBody.first;
@@ -2518,7 +2518,7 @@ inline std::map< std::pair< int, int >, std::string > getPropagatedStateStrings(
     unsigned int stateVectorIndex = 0;
     std::map< std::pair< int, int >, std::string > stringPerIndex;
 
-    for( auto integratedTypeAndBody: integratedTypeAndBodyList )
+    for( auto integratedTypeAndBody : integratedTypeAndBodyList )
     {
         // Extract state type and list of body names
         IntegratedStateType stateType = integratedTypeAndBody.first;

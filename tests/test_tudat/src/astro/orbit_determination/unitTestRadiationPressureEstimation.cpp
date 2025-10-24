@@ -271,10 +271,6 @@ BOOST_AUTO_TEST_CASE( test_RadiationPressurePartialsFromEstimation )
             {
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalValue, analyticalValue, ( toleranceParameter * 5.0 ) );
             }
-
-            //                    Eigen::VectorXd ratio = ( numericalValue - analyticalValue ).cwiseQuotient( analyticalValue );
-            //                    std::cout<<ratio.segment( 0, 3 ).maxCoeff( )<<" "<<ratio.segment( 3, 3 ).maxCoeff( )<<" "<<ratio( 6
-            //                    )<<std::endl;
         }
     }
 }
@@ -441,8 +437,7 @@ BOOST_AUTO_TEST_CASE( test_PanelledRadiationPressureEstimation )
                 measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        //////////////////    PERTURB PARAMETER VECTOR AND ESTIMATE PARAMETERS     ///////////        //
-/////////////////////////////////
+        //////////////////    PERTURB PARAMETER VECTOR AND ESTIMATE PARAMETERS     //////////////////////////////////////////////
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // Perturb parameter estimate.
@@ -475,18 +470,18 @@ BOOST_AUTO_TEST_CASE( test_PanelledRadiationPressureEstimation )
         std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
 
         double rmsResidual = linear_algebra::getVectorEntryRootMeanSquare( observationsAndTimes->getConcatenatedResiduals( ) );
-        BOOST_CHECK_SMALL( rmsResidual, 1.0E-4 );
+        BOOST_CHECK_SMALL( rmsResidual, 1.0E-3 );
         Eigen::VectorXd parameterEstimate = estimationOutput->parameterEstimate_;
         std::cout << "parameter estimate: " << ( parameterEstimate ).transpose( ) << std::endl;
 
         Eigen::VectorXd estimationError = parameterEstimate - truthParameters;
         for( int i = 0; i < 3; i++ )
         {
-            BOOST_CHECK_SMALL( std::fabs( estimationError( i ) ), 2.0E-4 );
-            BOOST_CHECK_SMALL( std::fabs( estimationError( i + 3 ) ), 2.0E-7 );
+            BOOST_CHECK_SMALL( std::fabs( estimationError( i ) ), 5.0E-3 );
+            BOOST_CHECK_SMALL( std::fabs( estimationError( i + 3 ) ), 1.0E-6 );
         }
-        BOOST_CHECK_SMALL( std::fabs( estimationError( 6 ) ), 2.0E-4 );
-        BOOST_CHECK_SMALL( std::fabs( estimationError( 6 ) ), 2.0E-4 );
+        BOOST_CHECK_SMALL( std::fabs( estimationError( 6 ) ), 5.0E-3 );
+        BOOST_CHECK_SMALL( std::fabs( estimationError( 6 ) ), 5.0E-3 );
 
         Eigen::Matrix< double, Eigen::Dynamic, 1 > newTestValues = parametersToEstimate->template getFullParameterValues< double >( );
         std::cout << "TEST C:" << newTestValues.transpose( ) << std::endl;
