@@ -49,7 +49,7 @@ public:
      *  Get value of rtg acceleration components
      *  \return Value of rtg acceleration components
      */
-    Eigen::VectorXd getParameterValue( ) override
+    Eigen::VectorXd getParameterValue( )
     {   // Here we ensure that parameter values across rtg acceleration models in multi-arc setup are consistent
         Eigen::Vector3d referenceValue =
             rtgAccelerationModels_.front()->getbodyFixedForceVectorAtReferenceEpoch();
@@ -72,7 +72,8 @@ public:
      *  Reset value of rtg acceleration components
      *  \param parameterValue New value of rtg acceleration components
      */
-    void setParameterValue( Eigen::VectorXd parameterValue ) {
+    void setParameterValue( const Eigen::VectorXd parameterValue )
+    {
         // test size of Xd
         if( parameterValue.size( ) != parameterSize_ )
         {
@@ -171,7 +172,7 @@ public:
      *  Reset value of rtg force magnitude
      *  \param parameterValue New value of rtg force magnitude
      */
-    void setParameterValue( double parameterValue ) override
+    void setParameterValue( const double parameterValue )
     {
         for (const auto& model : rtgAccelerationModels_)
         {
