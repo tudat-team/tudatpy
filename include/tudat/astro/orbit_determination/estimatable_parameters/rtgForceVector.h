@@ -101,7 +101,6 @@ public:
     //! Function to retrieve list of components in rtg accelerations that are to be estimated (always 0, 1, 2).
     Eigen::Vector3i getIndices( )
     {
-        Eigen::Vector3i v = ( Eigen::Vector3i( ) << 0, 1, 2 ).finished( );
         return accelerationIndices_;
     }
 
@@ -189,7 +188,6 @@ public:
     //! Function to retrieve list of components in rtg accelerations that are to be estimated (always 0, 1, 2).
     Eigen::Vector3i getIndices( )
     {
-        Eigen::Vector3i v = ( Eigen::Vector3i( ) << 0, 1, 2 ).finished( );
         return accelerationIndices_;
     }
 

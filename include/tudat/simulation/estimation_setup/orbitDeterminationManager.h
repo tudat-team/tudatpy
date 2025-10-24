@@ -659,20 +659,13 @@ public:
 
         // Define full parameters values
         ParameterVectorType parameterValues = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
-        ParameterVectorType fullParameterEstimate;
-        fullParameterEstimate.resize( totalNumberParameters_ );
-        fullParameterEstimate.segment( 0, numberEstimatedParameters_ ) = parameterValues;
-        if( considerParametersIncluded_ )
-        {
-            fullParameterEstimate.segment( numberEstimatedParameters_, numberConsiderParameters_ ) = considerParametersValues_;
-        }
 
         // Compute design matrices (estimated and consider), and residuals (empty for covariance analysis)
         bool exceptionDuringPropagation = false;
         std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > simulationResults;
         std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
                 designMatricesAndResiduals = performPreEstimationSteps(
-                        estimationInput, fullParameterEstimate, false, 0, exceptionDuringPropagation, simulationResults );
+                        estimationInput, parameterValues, false, 0, exceptionDuringPropagation, simulationResults );
         Eigen::MatrixXd designMatrixEstimatedParameters = designMatricesAndResiduals.first.first;
         Eigen::MatrixXd designMatrixConsiderParameters;
         if( considerParametersIncluded_ )
@@ -821,8 +814,6 @@ public:
         // Set current parameter estimate as both previous and current estimate
         ParameterVectorType newParameterEstimate = currentParameterEstimate_;
         ParameterVectorType oldParameterEstimate = currentParameterEstimate_;
-        ParameterVectorType newFullParameterEstimate;
-        newFullParameterEstimate.resize( totalNumberParameters_ );
 
         bool exceptionDuringPropagation = false, exceptionDuringInversion = false;
 
@@ -832,17 +823,12 @@ public:
         while( true )
         {
             oldParameterEstimate = newParameterEstimate;
-            newFullParameterEstimate.segment( 0, numberEstimatedParameters_ ) = newParameterEstimate;
-            if( considerParametersIncluded_ )
-            {
-                newFullParameterEstimate.segment( numberEstimatedParameters_, numberConsiderParameters_ ) = considerParametersValues_;
-            }
 
             // Compute design matrices (for estimated and consider parameters) and residuals.
             std::shared_ptr< propagators::SimulationResults< ObservationScalarType, TimeType > > simulationResults;
             std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
                     designMatricesAndResiduals = performPreEstimationSteps( estimationInput,
-                                                                            newFullParameterEstimate,
+                                                                            newParameterEstimate,
                                                                             true,
                                                                             numberOfIterations,
                                                                             exceptionDuringPropagation,
@@ -1096,14 +1082,13 @@ public:
      */
     void resetParameterEstimate( const ParameterVectorType& newParameterEstimate, const bool reintegrateVariationalEquations = 1 )
     {
+        parametersToEstimate_->template resetParameterValues< ObservationScalarType >( newParameterEstimate );
         if( integrateAndEstimateOrbit_ )
         {
-            variationalEquationsSolver_->resetParameterEstimate( newParameterEstimate, reintegrateVariationalEquations );
+            variationalEquationsSolver_->resetParameterEstimate(
+                    fullParameters_->template getFullParameterValues< ObservationScalarType >( ), reintegrateVariationalEquations );
         }
-        else
-        {
-            parametersToEstimate_->template resetParameterValues< ObservationScalarType >( newParameterEstimate );
-        }
+
         currentParameterEstimate_ = newParameterEstimate;
     }
 
@@ -1398,7 +1383,7 @@ protected:
 
     std::pair< std::pair< Eigen::MatrixXd, Eigen::MatrixXd >, Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >
     performPreEstimationSteps( std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
-                               ParameterVectorType& newParameterEstimate,
+                               const ParameterVectorType& newParameterEstimate,
                                const bool calculateResiduals,
                                const int numberOfIterations,
                                bool& exceptionDuringPropagation,
