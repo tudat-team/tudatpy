@@ -320,6 +320,10 @@ public:
     //! Destructor
     ~ComaWindModel( ) = default;
 
+    //! Delete copy constructor and copy assignment operator (class contains unique_ptr members)
+    ComaWindModel(const ComaWindModel&) = delete;
+    ComaWindModel& operator=(const ComaWindModel&) = delete;
+
     //! Function to retrieve wind velocity vector in body-fixed, body-centered frame of body with atmosphere
     /*!
      * Function to retrieve wind velocity vector in body-fixed, body-centered frame of body with atmosphere
