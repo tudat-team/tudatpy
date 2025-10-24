@@ -78,11 +78,11 @@ std::map<int, std::vector<double>> generateZeroMeanTermsFromReference(
 {
     std::map<int, std::vector<double>> zeroMap;
 
-    for (const auto& kv : loveNumbersReference)
+    for (const auto& it : loveNumbersReference)
     {
-        const int key = kv.first;
-        const std::size_t length = kv.second.size();
-        zeroMap[key] = std::vector<double>(length, 0.0);
+        const int degree = it.first;
+        const std::size_t numberOfOrders = it.second.size();
+        zeroMap[degree] = std::vector<double>(numberOfOrders, 0.0);
     }
 
     return zeroMap;
@@ -90,19 +90,19 @@ std::map<int, std::vector<double>> generateZeroMeanTermsFromReference(
 
 // This function takes a map with key=degree and value=a vector of coefficients,
 // and maps it onto an n x n matrix.
-Eigen::MatrixXd convertSHMapToMatrix(const std::map<int, std::vector<double>>& inputMap, int n) {
-    Eigen::MatrixXd matrix = Eigen::MatrixXd::Zero(n, n);  // Initialize with zeros
+Eigen::MatrixXd convertSphericalHarmonicCoefficientMapToMatrix(const std::map<int, std::vector<double>>& inputMap, int maximumDegree) {
+    Eigen::MatrixXd matrix = Eigen::MatrixXd::Zero( maximumDegree + 1, maximumDegree + 1);  // Initialize with zeros
 
-    for (const auto& kv : inputMap) {
-        const int row = kv.first;
-        const std::vector<double>& vec = kv.second;
+    for (const auto& it : inputMap) {
+        const int degree = it.first;
+        const std::vector<double>& vec = it.second;
 
-        if (row >= n) {
+        if (degree >= (maximumDegree + 1)) {
             continue;  // Skip out-of-bounds rows
         }
 
-        for (std::size_t col = 0; col < vec.size() && col < static_cast<std::size_t>(n); ++col) {
-            matrix(row, col) = vec[col];
+        for (std::size_t order = 0; order < vec.size() && order < static_cast<std::size_t>(maximumDegree + 1); ++order) {
+            matrix(degree, order) = vec[order];
         }
     }
 

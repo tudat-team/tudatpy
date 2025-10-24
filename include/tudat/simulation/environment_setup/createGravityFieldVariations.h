@@ -148,13 +148,13 @@ public:
     {
 
         // initialise mean forcing terms to default to zeros, user should use setMeanTidalForcingTerms function to set non-zero values
-        for (const auto& kv : loveNumbers)
+        for (const auto& it : loveNumbers)
         {
-            const int key = kv.first;
-            const std::size_t size = kv.second.size();
+            const int degree = it.first;
+            const std::size_t numberOfOrders = it.second.size();
 
-            meanForcingCosineTerms_[key] = std::vector<double>(size, 0.0);
-            meanForcingSineTerms_[key]   = std::vector<double>(size, 0.0);
+            meanForcingCosineTerms_[degree] = std::vector<double>(numberOfOrders, 0.0);
+            meanForcingSineTerms_[degree]   = std::vector<double>(numberOfOrders, 0.0);
         }
 
 
@@ -210,27 +210,27 @@ void setMeanForcingCosineTerms(const std::map<int, std::vector<double>>& newCosi
             std::to_string(meanForcingCosineTerms_.size()) + " .");
     }
 
-    for (std::map<int, std::vector<double>>::const_iterator itOld = meanForcingCosineTerms_.begin();
-         itOld != meanForcingCosineTerms_.end(); ++itOld)
+    for (std::map<int, std::vector<double>>::const_iterator it = meanForcingCosineTerms_.begin();
+         it != meanForcingCosineTerms_.end(); ++it)
     {
-        int key = itOld->first;
-        const std::vector<double>& vec = itOld->second;
+        int degree = it->first;
+        const std::vector<double>& orders = it->second;
 
-        std::map<int, std::vector<double>>::const_iterator itNew = newCosineTerms.find(key);
+        std::map<int, std::vector<double>>::const_iterator findIterator = newCosineTerms.find(degree);
 
         // Check that key is found
-        if (itNew == newCosineTerms.end()) {
+        if (findIterator == newCosineTerms.end()) {
             throw std::runtime_error(
                 "Error when setting meanForcingSineTerms in BasicSolidBodyGravityFieldVariationSettings. "
-                "Love number settings require mean forcing input at degree " + std::to_string(key) +
+                "Love number settings require mean forcing input at degree " + std::to_string(degree) +
                 " , but not found in provided newCosineTerms map. ");
-        } else if (itNew->second.size() != vec.size()) {
+        } else if (findIterator->second.size() != orders.size()) {
             throw std::runtime_error(
                 "Error when setting meanForcingSineTerms in BasicSolidBodyGravityFieldVariationSettings. "
-                "Vector at key " + std::to_string(key) + " is of length " +
-                std::to_string(itNew->second.size()) +
+                "Vector at key " + std::to_string(degree) + " is of length " +
+                std::to_string(findIterator->second.size()) +
                 " but should match length of love number vector (" +
-                std::to_string(vec.size()) + ").");
+                std::to_string(orders.size()) + ").");
         }
     }
 
@@ -254,27 +254,27 @@ void setMeanForcingSineTerms(const std::map<int, std::vector<double>>& newSineTe
             std::to_string(meanForcingSineTerms_.size()) + " .");
     }
 
-    for (std::map<int, std::vector<double>>::const_iterator itOld = meanForcingSineTerms_.begin();
-         itOld != meanForcingSineTerms_.end(); ++itOld)
+    for (std::map<int, std::vector<double>>::const_iterator it = meanForcingSineTerms_.begin();
+         it != meanForcingSineTerms_.end(); ++it)
     {
-        int key = itOld->first;
-        const std::vector<double>& vec = itOld->second;
+        int degree = it->first;
+        const std::vector<double>& orders = it->second;
 
-        std::map<int, std::vector<double>>::const_iterator itNew = newSineTerms.find(key);
+        std::map<int, std::vector<double>>::const_iterator findIterator = newSineTerms.find(degree);
 
         // Check that key is found
-        if (itNew == newSineTerms.end()) {
+        if (findIterator == newSineTerms.end()) {
             throw std::runtime_error(
                 "Error when setting meanForcingSineTerms in BasicSolidBodyGravityFieldVariationSettings. "
-                "Love number settings require mean forcing input at degree " + std::to_string(key) +
+                "Love number settings require mean forcing input at degree " + std::to_string(degree) +
                 " , but not found in provided newSineTerms map. ");
-        } else if (itNew->second.size() != vec.size()) {
+        } else if (findIterator->second.size() != orders.size()) {
             throw std::runtime_error(
                 "Error when setting meanForcingSineTerms in BasicSolidBodyGravityFieldVariationSettings. "
-                "Vector at key " + std::to_string(key) + " is of length " +
-                std::to_string(itNew->second.size()) +
+                "Vector at key " + std::to_string(degree) + " is of length " +
+                std::to_string(findIterator->second.size()) +
                 " but should match length of love number vector (" +
-                std::to_string(vec.size()) + ").");
+                std::to_string(orders.size()) + ").");
         }
     }
 
