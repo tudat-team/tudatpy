@@ -163,6 +163,10 @@ public:
      */
     inline double getSolarLongitude() const { return cachedSolarLongitude_; }
 
+    //! Delete copy constructor and copy assignment operator (class contains unique_ptr members)
+    ComaModel(const ComaModel&) = delete;
+    ComaModel& operator=(const ComaModel&) = delete;
+
 private:
     // ========== Hot path: Frequently accessed cached values (grouped for cache locality) ==========
 
