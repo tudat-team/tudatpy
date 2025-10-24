@@ -98,7 +98,7 @@ public:
         return parameterDescription;
     }
 
-    //! Function to retrieve list of components in rtg accelerations that are to be estimated (always 0, 1, 2).
+    //! Function to retrieve list of components in rtg accelerations that are to be estimated it.
     Eigen::Vector3i getIndices( )
     {
         return accelerationIndices_;
@@ -135,7 +135,12 @@ public:
                              const std::string& associatedBody ):
         EstimatableParameter< double >( rtg_force_vector_magnitude, associatedBody ), rtgAccelerationModels_( rtgAccelerationModels ),
         parameterSize_( 1 )
-    { }
+    {
+        if( rtgAccelerationModels_.size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when creating RTG force magnitude parameter, no accelerations provided" );
+        }
+    }
 
     //! Destructor
     ~RTGForceVectorMagnitude( ) { }
@@ -145,18 +150,20 @@ public:
      *  Get value of rtg acceleration components
      *  \return Value of rtg acceleration components
      */
-    double getParameterValue( ) override
-    {  // Here we ensure that parameter values across rtg acceleration models in multi-arc setup are consistent
-        const double referenceValue = rtgAccelerationModels_.front()->getForceVectorMagnitudeAtReferenceEpoch();
+    double getParameterValue( )
+    {
+        // Here we ensure that parameter values across rtg acceleration models in multi-arc setup are consistent
+        const double referenceValue = rtgAccelerationModels_.at( 0 )->getForceVectorMagnitudeAtReferenceEpoch();
 
-        for (const auto& model : rtgAccelerationModels_)
+        for( unsigned int i = 0; i < rtgAccelerationModels_.size( ); i++ )
         {
-            double value = model->getForceVectorMagnitudeAtReferenceEpoch();
+            double value = rtgAccelerationModels_.at( i )->getForceVectorMagnitudeAtReferenceEpoch();
             if ( std::fabs(value - referenceValue) > 1.0e-12 )
             {
                 throw std::runtime_error("Inconsistent RTG force vector magnitudes across models");
             }
         }
+        return referenceValue;
     }
 
     //! Reset value of rtg force magnitude
@@ -185,7 +192,7 @@ public:
         return parameterDescription;
     }
 
-    //! Function to retrieve list of components in rtg accelerations that are to be estimated (always 0, 1, 2).
+    //! Function to retrieve list of components in rtg accelerations that are to be estimated
     Eigen::Vector3i getIndices( )
     {
         return accelerationIndices_;
