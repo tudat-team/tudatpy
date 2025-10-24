@@ -470,7 +470,8 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicPartials )
 }
 
 //! Function to get tidal deformation model for Earth
-std::vector< std::shared_ptr< GravityFieldVariationSettings > > getEarthGravityFieldVariationSettings( )
+std::vector< std::shared_ptr< GravityFieldVariationSettings > > getEarthGravityFieldVariationSettings(
+        const int subtractConstantTides )
 {
     std::vector< std::shared_ptr< GravityFieldVariationSettings > > gravityFieldVariations;
 
@@ -491,8 +492,30 @@ std::vector< std::shared_ptr< GravityFieldVariationSettings > > getEarthGravityF
     loveNumbers[ 2 ] = degreeTwoLoveNumbers_;
     loveNumbers[ 3 ] = degreeThreeLoveNumbers_;
 
-    std::shared_ptr< GravityFieldVariationSettings > singleGravityFieldVariation =
+    std::shared_ptr< BasicSolidBodyGravityFieldVariationSettings > singleGravityFieldVariation =
             std::make_shared< BasicSolidBodyGravityFieldVariationSettings >( deformingBodies, loveNumbers );
+    if( subtractConstantTides > 0 )
+    {
+        std::map<int, std::vector<double>> meanTidalForcingCosineTerms;
+        meanTidalForcingCosineTerms[ 2 ].push_back( 1.0E-8 );
+        meanTidalForcingCosineTerms[ 2 ].push_back( 3.0E-9 );
+        meanTidalForcingCosineTerms[ 2 ].push_back( -5.0E-9 );
+        meanTidalForcingCosineTerms[ 3 ].push_back( 1.0E-11 );
+        meanTidalForcingCosineTerms[ 3 ].push_back( 3.0E-11 );
+        meanTidalForcingCosineTerms[ 3 ].push_back( -5.0E-11 );
+        meanTidalForcingCosineTerms[ 3 ].push_back( 5.0E-11 );
+
+        std::map<int, std::vector<double>> meanTidalForcingSineTerms;
+        meanTidalForcingSineTerms[ 2 ].push_back( 2.0E-8 );
+        meanTidalForcingSineTerms[ 2 ].push_back( 2.0E-9 );
+        meanTidalForcingSineTerms[ 2 ].push_back( 8.0E-9 );
+        meanTidalForcingSineTerms[ 3 ].push_back( -2.0E-11 );
+        meanTidalForcingSineTerms[ 3 ].push_back( -2.0E-11 );
+        meanTidalForcingSineTerms[ 3 ].push_back( -8.0E-11 );
+        meanTidalForcingSineTerms[ 3 ].push_back( -7.0E-11 );
+        singleGravityFieldVariation->setMeanTidalForcingTerms(
+                meanTidalForcingCosineTerms, meanTidalForcingSineTerms );
+    }
     gravityFieldVariations.push_back( singleGravityFieldVariation );
 
     // Define Love numbers ( constant for degree 2 only)
@@ -562,487 +585,494 @@ BOOST_AUTO_TEST_CASE( testSphericalHarmonicAccelerationPartial )
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
-    // Create empty bodies, earth and vehicle.
-    std::shared_ptr< Body > earth = std::make_shared< Body >( );
-    std::shared_ptr< Body > vehicle = std::make_shared< Body >( );
-
-    const double gravitationalParameter = 3.986004418e14;
-    const double planetaryRadius = 6378137.0;
-
-    Eigen::MatrixXd cosineCoefficients = ( Eigen::MatrixXd( 6, 6 ) << 0.0,
-                                           0.0,
-                                           0.0,
-                                           0.0,
-                                           0.0,
-                                           0.0,
-                                           0.0,
-                                           0.0,
-                                           0.0,
-                                           0.0,
-                                           0.0,
-                                           0.0,
-                                           -4.841651437908150e-4,
-                                           -2.066155090741760e-10,
-                                           2.439383573283130e-6,
-                                           0.0,
-                                           0.0,
-                                           0.0,
-                                           9.571612070934730e-7,
-                                           2.030462010478640e-6,
-                                           9.047878948095281e-7,
-                                           7.213217571215680e-7,
-                                           0.0,
-                                           0.0,
-                                           5.399658666389910e-7,
-                                           -5.361573893888670e-7,
-                                           3.505016239626490e-7,
-                                           9.908567666723210e-7,
-                                           -1.885196330230330e-7,
-                                           0.0,
-                                           6.867029137366810e-8,
-                                           -6.292119230425290e-8,
-                                           6.520780431761640e-7,
-                                           -4.518471523288430e-7,
-                                           -2.953287611756290e-7,
-                                           1.748117954960020e-7 )
-                                                 .finished( );
-
-    Eigen::MatrixXd sineCoefficients = ( Eigen::MatrixXd( 6, 6 ) << 0.0,
-                                         0.0,
-                                         0.0,
-                                         0.0,
-                                         0.0,
-                                         0.0,
-                                         0.0,
-                                         0.0,
-                                         0.0,
-                                         0.0,
-                                         0.0,
-                                         0.0,
-                                         0.0,
-                                         1.384413891379790e-9,
-                                         -1.400273703859340e-6,
-                                         0.0,
-                                         0.0,
-                                         0.0,
-                                         0.0,
-                                         2.482004158568720e-7,
-                                         -6.190054751776180e-7,
-                                         1.414349261929410e-6,
-                                         0.0,
-                                         0.0,
-                                         0.0,
-                                         -4.735673465180860e-7,
-                                         6.624800262758290e-7,
-                                         -2.009567235674520e-7,
-                                         3.088038821491940e-7,
-                                         0.0,
-                                         0.0,
-                                         -9.436980733957690e-8,
-                                         -3.233531925405220e-7,
-                                         -2.149554083060460e-7,
-                                         4.980705501023510e-8,
-                                         -6.693799351801650e-7 )
-                                               .finished( );
-
-    std::shared_ptr< GravityFieldSettings > earthGravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
-            gravitationalParameter, planetaryRadius, cosineCoefficients, sineCoefficients, "IAU_Earth" );
-
-    std::vector< std::shared_ptr< GravityFieldVariationSettings > > gravityFieldVariationSettings =
-            getEarthGravityFieldVariationSettings( );
-
-    SystemOfBodies bodies;
-    bodies.addBody( earth, "Earth" );
-    bodies.addBody( vehicle, "Vehicle" );
-    ;
-    bodies.addBody( createSystemOfBodies( getDefaultBodySettings( { "Moon" } ) ).at( "Moon" ), "Moon" );
-
-    std::shared_ptr< ephemerides::SimpleRotationalEphemeris > simpleRotationalEphemeris =
-            std::make_shared< ephemerides::SimpleRotationalEphemeris >(
-                    spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000", "IAU_Earth", 0.0 ),
-                    2.0 * mathematical_constants::PI / 86400.0,
-                    1.0E7,
-                    "ECLIPJ2000",
-                    "IAU_Earth" );
-    earth->setRotationalEphemeris( simpleRotationalEphemeris );
-
-    std::shared_ptr< tudat::gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
-            std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
-                    tudat::simulation_setup::createGravityFieldModel(
-                            earthGravityFieldSettings, "Earth", bodies, gravityFieldVariationSettings ) );
-    earth->setGravityFieldModel( earthGravityField );
-    bodies.at( "Earth" )->setGravityFieldVariationSet(
-            createGravityFieldModelVariationsSet( "Earth", bodies, gravityFieldVariationSettings ) );
-    bodies.at( "Earth" )->updateConstantEphemerisDependentMemberQuantities( );
-
-    // Set current state of vehicle and earth.
-    double testTime = 1.0E6;
-    earth->setState( Eigen::Vector6d::Zero( ) );
-    earth->setCurrentRotationToLocalFrameFromEphemeris( testTime );
-    bodies.at( "Moon" )->setState(
-            tudat::spice_interface::getBodyCartesianStateAtEpoch( "Moon", "Earth", "ECLIPJ2000", "None", testTime ) );
-
-    // Set Keplerian elements for Asterix.
-    Eigen::Vector6d asterixInitialStateInKeplerianElements;
-    asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
-    asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
-    asterixInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
-    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = unit_conversions::convertDegreesToRadians( 235.7 );
-    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
-    asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
-
-    Eigen::Vector6d asterixInitialState = orbital_element_conversions::convertKeplerianToCartesianElements(
-            asterixInitialStateInKeplerianElements, gravitationalParameter );
-
-    vehicle->setState( asterixInitialState );
-
-    // Create acceleration due to vehicle on earth.
-    std::shared_ptr< SphericalHarmonicAccelerationSettings > accelerationSettings =
-            std::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 );
-    std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > gravitationalAcceleration =
-            std::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >(
-                    createAccelerationModel( vehicle, earth, accelerationSettings, "Vehicle", "Earth" ) );
-
-    gravitationalAcceleration->updateMembers( 0.0 );
-    gravitationalAcceleration->getAcceleration( );
-
-    // Declare numerical partials.
-    Eigen::Matrix3d testPartialWrtEarthPosition = Eigen::Matrix3d::Zero( );
-    Eigen::Matrix3d testPartialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
-    Eigen::Matrix3d testPartialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
-    Eigen::Matrix3d testPartialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
-
-    // Declare perturbations in position for numerical partial/
-    Eigen::Vector3d positionPerturbation;
-    positionPerturbation << 10.0, 10.0, 10.0;
-    Eigen::Vector3d velocityPerturbation;
-    velocityPerturbation << 1.0E-3, 1.0E-3, 1.0E-3;
-
-    // Create state access/modification functions for bodies.
-    std::function< void( Eigen::Vector6d ) > earthStateSetFunction = std::bind( &Body::setState, earth, std::placeholders::_1 );
-    std::function< void( Eigen::Vector6d ) > vehicleStateSetFunction = std::bind( &Body::setState, vehicle, std::placeholders::_1 );
-    std::function< Eigen::Vector6d( ) > earthStateGetFunction = std::bind( &Body::getState, earth );
-    std::function< Eigen::Vector6d( ) > vehicleStateGetFunction = std::bind( &Body::getState, vehicle );
-
-    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    parameterNames.push_back(
-            std::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >( "Earth", 0.0, "ECLIPJ2000" ) );
-    parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Earth", gravitational_parameter ) );
-    parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Earth", constant_rotation_rate ) );
-    parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Earth", rotation_pole_position ) );
-
-    parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-            2, 0, 5, 4, "Earth", spherical_harmonics_cosine_coefficient_block ) );
-    parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
-            2, 1, 5, 4, "Earth", spherical_harmonics_sine_coefficient_block ) );
-
-    parameterNames.push_back( std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
-            "Earth", 2, std::vector< int >{ 2, 0, 1 }, "", false ) );
-    parameterNames.push_back( std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >( "Earth", 2, "Moon", true ) );
-    parameterNames.push_back( std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >( "Earth", 3, "", false ) );
-    parameterNames.push_back( std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
-            "Earth", 3, std::vector< int >{ 0, 3 }, "", true ) );
-
-    std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices;
-    loveNumberIndices[ { 2, 0 } ].push_back( { 2, 1 } );
-    loveNumberIndices[ { 2, 0 } ].push_back( { 2, 2 } );
-    loveNumberIndices[ { 2, 2 } ].push_back( { 2, 2 } );
-    loveNumberIndices[ { 2, 2 } ].push_back( { 2, 1 } );
-    loveNumberIndices[ { 2, 2 } ].push_back( { 3, 2 } );
-    loveNumberIndices[ { 2, 1 } ].push_back( { 3, 1 } );
-    loveNumberIndices[ { 3, 3 } ].push_back( { 3, 1 } );
-
-    parameterNames.push_back( std::make_shared< ModeCoupledTidalLoveNumberEstimatableParameterSettings >(
-            "Earth", loveNumberIndices, std::vector< std::string >( { "Moon" } ) ) );
-    std::map< int, std::vector< std::pair< int, int > > > cosineBlockIndicesPerPower;
-    cosineBlockIndicesPerPower[ 1 ].push_back( std::make_pair( 2, 0 ) );
-    cosineBlockIndicesPerPower[ 1 ].push_back( std::make_pair( 3, 2 ) );
-    cosineBlockIndicesPerPower[ 1 ].push_back( std::make_pair( 4, 4 ) );
-    cosineBlockIndicesPerPower[ 2 ].push_back( std::make_pair( 2, 0 ) );
-    cosineBlockIndicesPerPower[ 2 ].push_back( std::make_pair( 2, 2 ) );
-
-    std::map< int, std::vector< std::pair< int, int > > > sineBlockIndicesPerPower;
-    sineBlockIndicesPerPower[ 1 ].push_back( std::make_pair( 3, 2 ) );
-    parameterNames.push_back( std::make_shared< PolynomialGravityFieldVariationEstimatableParameterSettings >(
-            "Earth", cosineBlockIndicesPerPower, sineBlockIndicesPerPower ) );
-
-    std::map< int, std::vector< std::pair< int, int > > > cosineBlockIndicesPerPeriod;
-    cosineBlockIndicesPerPeriod[ 0 ].push_back( std::make_pair( 2, 1 ) );
-    cosineBlockIndicesPerPeriod[ 2 ].push_back( std::make_pair( 2, 0 ) );
-    cosineBlockIndicesPerPeriod[ 1 ].push_back( std::make_pair( 3, 2 ) );
-
-    std::map< int, std::vector< std::pair< int, int > > > sineBlockIndicesPerPeriod;
-    sineBlockIndicesPerPeriod[ 1 ].push_back( std::make_pair( 3, 1 ) );
-    parameterNames.push_back( std::make_shared< PeriodicGravityFieldVariationEstimatableParameterSettings >(
-            "Earth", cosineBlockIndicesPerPeriod, sineBlockIndicesPerPeriod ) );
-
-    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
-            createParametersToEstimate( parameterNames, bodies );
-
-    // Check if incompatible tidal parameters correctly throw an error
+    for( int subtractConstantTides = 0; subtractConstantTides < 2; subtractConstantTides++ )
     {
-        bool isExceptionCaught = false;
-        std::vector< std::shared_ptr< EstimatableParameterSettings > > wrongParameterNames;
-        wrongParameterNames.resize( 1 );
-        wrongParameterNames[ 0 ] = std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
-                "Earth", 2, std::vector< int >{ 2, 0, 1 }, "Sun", false );
-        try
-        {
-            std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
-                    createParametersToEstimate( wrongParameterNames, bodies );
-        }
-        catch( std::runtime_error const& )
-        {
-            isExceptionCaught = true;
-        }
-        BOOST_CHECK_EQUAL( isExceptionCaught, true );
+        // Create empty bodies, earth and vehicle.
+        std::shared_ptr< Body > earth = std::make_shared< Body >( );
+        std::shared_ptr< Body > vehicle = std::make_shared< Body >( );
 
-        std::vector< std::string > deformingBodyNames;
-        deformingBodyNames.push_back( "Moon" );
-        deformingBodyNames.push_back( "Sun" );
+        const double gravitationalParameter = 3.986004418e14;
+        const double planetaryRadius = 6378137.0;
 
-        wrongParameterNames[ 0 ] = std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
-                "Earth", 2, std::vector< int >{ 2, 0, 1 }, deformingBodyNames, false );
-        isExceptionCaught = false;
-        try
-        {
-            std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
-                    createParametersToEstimate( wrongParameterNames, bodies );
-        }
-        catch( std::runtime_error const& )
-        {
-            isExceptionCaught = true;
-        }
-        BOOST_CHECK_EQUAL( isExceptionCaught, true );
+        Eigen::MatrixXd cosineCoefficients = ( Eigen::MatrixXd( 6, 6 ) << 0.0,
+                                               0.0,
+                                               0.0,
+                                               0.0,
+                                               0.0,
+                                               0.0,
+                                               0.0,
+                                               0.0,
+                                               0.0,
+                                               0.0,
+                                               0.0,
+                                               0.0,
+                                               -4.841651437908150e-4,
+                                               -2.066155090741760e-10,
+                                               2.439383573283130e-6,
+                                               0.0,
+                                               0.0,
+                                               0.0,
+                                               9.571612070934730e-7,
+                                               2.030462010478640e-6,
+                                               9.047878948095281e-7,
+                                               7.213217571215680e-7,
+                                               0.0,
+                                               0.0,
+                                               5.399658666389910e-7,
+                                               -5.361573893888670e-7,
+                                               3.505016239626490e-7,
+                                               9.908567666723210e-7,
+                                               -1.885196330230330e-7,
+                                               0.0,
+                                               6.867029137366810e-8,
+                                               -6.292119230425290e-8,
+                                               6.520780431761640e-7,
+                                               -4.518471523288430e-7,
+                                               -2.953287611756290e-7,
+                                               1.748117954960020e-7 )
+                                                     .finished( );
 
-        wrongParameterNames[ 0 ] =
-                std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >( "Earth", 2, deformingBodyNames, true );
-        isExceptionCaught = false;
-        try
-        {
-            std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
-                    createParametersToEstimate( wrongParameterNames, bodies );
-        }
-        catch( std::runtime_error const& )
-        {
-            isExceptionCaught = true;
-        }
-        BOOST_CHECK_EQUAL( isExceptionCaught, true );
+        Eigen::MatrixXd sineCoefficients = ( Eigen::MatrixXd( 6, 6 ) << 0.0,
+                                             0.0,
+                                             0.0,
+                                             0.0,
+                                             0.0,
+                                             0.0,
+                                             0.0,
+                                             0.0,
+                                             0.0,
+                                             0.0,
+                                             0.0,
+                                             0.0,
+                                             0.0,
+                                             1.384413891379790e-9,
+                                             -1.400273703859340e-6,
+                                             0.0,
+                                             0.0,
+                                             0.0,
+                                             0.0,
+                                             2.482004158568720e-7,
+                                             -6.190054751776180e-7,
+                                             1.414349261929410e-6,
+                                             0.0,
+                                             0.0,
+                                             0.0,
+                                             -4.735673465180860e-7,
+                                             6.624800262758290e-7,
+                                             -2.009567235674520e-7,
+                                             3.088038821491940e-7,
+                                             0.0,
+                                             0.0,
+                                             -9.436980733957690e-8,
+                                             -3.233531925405220e-7,
+                                             -2.149554083060460e-7,
+                                             4.980705501023510e-8,
+                                             -6.693799351801650e-7 )
+                                                   .finished( );
 
-        wrongParameterNames[ 0 ] = std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >( "Earth", 3, "Sun", false );
-        isExceptionCaught = false;
-        try
+        std::shared_ptr< GravityFieldSettings > earthGravityFieldSettings = std::make_shared< SphericalHarmonicsGravityFieldSettings >(
+                gravitationalParameter, planetaryRadius, cosineCoefficients, sineCoefficients, "IAU_Earth" );
+
+        std::vector< std::shared_ptr< GravityFieldVariationSettings > > gravityFieldVariationSettings =
+                getEarthGravityFieldVariationSettings( subtractConstantTides );
+
+        SystemOfBodies bodies;
+        bodies.addBody( earth, "Earth" );
+        bodies.addBody( vehicle, "Vehicle" );
+        ;
+        bodies.addBody( createSystemOfBodies( getDefaultBodySettings( { "Moon" } ) ).at( "Moon" ), "Moon" );
+
+        std::shared_ptr< ephemerides::SimpleRotationalEphemeris > simpleRotationalEphemeris =
+                std::make_shared< ephemerides::SimpleRotationalEphemeris >(
+                        spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000", "IAU_Earth", 0.0 ),
+                        2.0 * mathematical_constants::PI / 86400.0,
+                        1.0E7,
+                        "ECLIPJ2000",
+                        "IAU_Earth" );
+        earth->setRotationalEphemeris( simpleRotationalEphemeris );
+
+        std::shared_ptr< tudat::gravitation::TimeDependentSphericalHarmonicsGravityField > earthGravityField =
+                std::dynamic_pointer_cast< gravitation::TimeDependentSphericalHarmonicsGravityField >(
+                        tudat::simulation_setup::createGravityFieldModel(
+                                earthGravityFieldSettings, "Earth", bodies, gravityFieldVariationSettings ) );
+        earth->setGravityFieldModel( earthGravityField );
+        bodies.at( "Earth" )->setGravityFieldVariationSet(
+                createGravityFieldModelVariationsSet( "Earth", bodies, gravityFieldVariationSettings ) );
+        bodies.at( "Earth" )->updateConstantEphemerisDependentMemberQuantities( );
+
+        // Set current state of vehicle and earth.
+        double testTime = 1.0E6;
+        earth->setState( Eigen::Vector6d::Zero( ) );
+        earth->setCurrentRotationToLocalFrameFromEphemeris( testTime );
+        bodies.at( "Moon" )->setState(
+                tudat::spice_interface::getBodyCartesianStateAtEpoch( "Moon", "Earth", "ECLIPJ2000", "None", testTime ) );
+
+        // Set Keplerian elements for Asterix.
+        Eigen::Vector6d asterixInitialStateInKeplerianElements;
+        asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7500.0E3;
+        asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.1;
+        asterixInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
+        asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = unit_conversions::convertDegreesToRadians( 235.7 );
+        asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
+        asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
+
+        Eigen::Vector6d asterixInitialState = orbital_element_conversions::convertKeplerianToCartesianElements(
+                asterixInitialStateInKeplerianElements, gravitationalParameter );
+
+        vehicle->setState( asterixInitialState );
+
+        // Create acceleration due to vehicle on earth.
+        std::shared_ptr< SphericalHarmonicAccelerationSettings > accelerationSettings =
+                std::make_shared< SphericalHarmonicAccelerationSettings >( 5, 5 );
+        std::shared_ptr< SphericalHarmonicsGravitationalAccelerationModel > gravitationalAcceleration =
+                std::dynamic_pointer_cast< SphericalHarmonicsGravitationalAccelerationModel >(
+                        createAccelerationModel( vehicle, earth, accelerationSettings, "Vehicle", "Earth" ) );
+
+        gravitationalAcceleration->updateMembers( 0.0 );
+        gravitationalAcceleration->getAcceleration( );
+
+        // Declare numerical partials.
+        Eigen::Matrix3d testPartialWrtEarthPosition = Eigen::Matrix3d::Zero( );
+        Eigen::Matrix3d testPartialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
+        Eigen::Matrix3d testPartialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
+        Eigen::Matrix3d testPartialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
+
+        // Declare perturbations in position for numerical partial/
+        Eigen::Vector3d positionPerturbation;
+        positionPerturbation << 10.0, 10.0, 10.0;
+        Eigen::Vector3d velocityPerturbation;
+        velocityPerturbation << 1.0E-3, 1.0E-3, 1.0E-3;
+
+        // Create state access/modification functions for bodies.
+        std::function< void( Eigen::Vector6d ) > earthStateSetFunction = std::bind( &Body::setState, earth, std::placeholders::_1 );
+        std::function< void( Eigen::Vector6d ) > vehicleStateSetFunction = std::bind( &Body::setState, vehicle, std::placeholders::_1 );
+        std::function< Eigen::Vector6d( ) > earthStateGetFunction = std::bind( &Body::getState, earth );
+        std::function< Eigen::Vector6d( ) > vehicleStateGetFunction = std::bind( &Body::getState, vehicle );
+
+        std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
+        parameterNames.push_back(
+                std::make_shared< InitialRotationalStateEstimatableParameterSettings< double > >( "Earth", 0.0, "ECLIPJ2000" ) );
+        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Earth", gravitational_parameter ) );
+        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Earth", constant_rotation_rate ) );
+        parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Earth", rotation_pole_position ) );
+
+        parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                2, 0, 5, 4, "Earth", spherical_harmonics_cosine_coefficient_block ) );
+        parameterNames.push_back( std::make_shared< SphericalHarmonicEstimatableParameterSettings >(
+                2, 1, 5, 4, "Earth", spherical_harmonics_sine_coefficient_block ) );
+
+        parameterNames.push_back( std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
+                "Earth", 2, std::vector< int >{ 2, 0, 1 }, "", false ) );
+        parameterNames.push_back( std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >( "Earth", 2, "Moon", true ) );
+        parameterNames.push_back( std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >( "Earth", 3, "", false ) );
+        parameterNames.push_back( std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
+                "Earth", 3, std::vector< int >{ 0, 3 }, "", true ) );
+
+        std::map< std::pair< int, int >, std::vector< std::pair< int, int > > > loveNumberIndices;
+        loveNumberIndices[ { 2, 0 } ].push_back( { 2, 1 } );
+        loveNumberIndices[ { 2, 0 } ].push_back( { 2, 2 } );
+        loveNumberIndices[ { 2, 2 } ].push_back( { 2, 2 } );
+        loveNumberIndices[ { 2, 2 } ].push_back( { 2, 1 } );
+        loveNumberIndices[ { 2, 2 } ].push_back( { 3, 2 } );
+        loveNumberIndices[ { 2, 1 } ].push_back( { 3, 1 } );
+        loveNumberIndices[ { 3, 3 } ].push_back( { 3, 1 } );
+
+        parameterNames.push_back( std::make_shared< ModeCoupledTidalLoveNumberEstimatableParameterSettings >(
+                "Earth", loveNumberIndices, std::vector< std::string >( { "Moon" } ) ) );
+        std::map< int, std::vector< std::pair< int, int > > > cosineBlockIndicesPerPower;
+        cosineBlockIndicesPerPower[ 1 ].push_back( std::make_pair( 2, 0 ) );
+        cosineBlockIndicesPerPower[ 1 ].push_back( std::make_pair( 3, 2 ) );
+        cosineBlockIndicesPerPower[ 1 ].push_back( std::make_pair( 4, 4 ) );
+        cosineBlockIndicesPerPower[ 2 ].push_back( std::make_pair( 2, 0 ) );
+        cosineBlockIndicesPerPower[ 2 ].push_back( std::make_pair( 2, 2 ) );
+
+        std::map< int, std::vector< std::pair< int, int > > > sineBlockIndicesPerPower;
+        sineBlockIndicesPerPower[ 1 ].push_back( std::make_pair( 3, 2 ) );
+        parameterNames.push_back( std::make_shared< PolynomialGravityFieldVariationEstimatableParameterSettings >(
+                "Earth", cosineBlockIndicesPerPower, sineBlockIndicesPerPower ) );
+
+        std::map< int, std::vector< std::pair< int, int > > > cosineBlockIndicesPerPeriod;
+        cosineBlockIndicesPerPeriod[ 0 ].push_back( std::make_pair( 2, 1 ) );
+        cosineBlockIndicesPerPeriod[ 2 ].push_back( std::make_pair( 2, 0 ) );
+        cosineBlockIndicesPerPeriod[ 1 ].push_back( std::make_pair( 3, 2 ) );
+
+        std::map< int, std::vector< std::pair< int, int > > > sineBlockIndicesPerPeriod;
+        sineBlockIndicesPerPeriod[ 1 ].push_back( std::make_pair( 3, 1 ) );
+        parameterNames.push_back( std::make_shared< PeriodicGravityFieldVariationEstimatableParameterSettings >(
+                "Earth", cosineBlockIndicesPerPeriod, sineBlockIndicesPerPeriod ) );
+
+        std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
+                createParametersToEstimate( parameterNames, bodies );
+
+        // Check if incompatible tidal parameters correctly throw an error
         {
-            std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
-                    createParametersToEstimate( wrongParameterNames, bodies );
+            bool isExceptionCaught = false;
+            std::vector< std::shared_ptr< EstimatableParameterSettings > > wrongParameterNames;
+            wrongParameterNames.resize( 1 );
+            wrongParameterNames[ 0 ] = std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
+                    "Earth", 2, std::vector< int >{ 2, 0, 1 }, "Sun", false );
+            try
+            {
+                std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
+                        createParametersToEstimate( wrongParameterNames, bodies );
+            }
+            catch( std::runtime_error const& )
+            {
+                isExceptionCaught = true;
+            }
+            BOOST_CHECK_EQUAL( isExceptionCaught, true );
+
+            std::vector< std::string > deformingBodyNames;
+            deformingBodyNames.push_back( "Moon" );
+            deformingBodyNames.push_back( "Sun" );
+
+            wrongParameterNames[ 0 ] = std::make_shared< SingleDegreeVariableTidalLoveNumberEstimatableParameterSettings >(
+                    "Earth", 2, std::vector< int >{ 2, 0, 1 }, deformingBodyNames, false );
+            isExceptionCaught = false;
+            try
+            {
+                std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
+                        createParametersToEstimate( wrongParameterNames, bodies );
+            }
+            catch( std::runtime_error const& )
+            {
+                isExceptionCaught = true;
+            }
+            BOOST_CHECK_EQUAL( isExceptionCaught, true );
+
+            wrongParameterNames[ 0 ] =
+                    std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >( "Earth", 2, deformingBodyNames, true );
+            isExceptionCaught = false;
+            try
+            {
+                std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
+                        createParametersToEstimate( wrongParameterNames, bodies );
+            }
+            catch( std::runtime_error const& )
+            {
+                isExceptionCaught = true;
+            }
+            BOOST_CHECK_EQUAL( isExceptionCaught, true );
+
+            wrongParameterNames[ 0 ] = std::make_shared< FullDegreeTidalLoveNumberEstimatableParameterSettings >( "Earth", 3, "Sun", false );
+            isExceptionCaught = false;
+            try
+            {
+                std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parameterSet =
+                        createParametersToEstimate( wrongParameterNames, bodies );
+            }
+            catch( std::runtime_error const& )
+            {
+                isExceptionCaught = true;
+            }
+            BOOST_CHECK_EQUAL( isExceptionCaught, true );
         }
-        catch( std::runtime_error const& )
+
+        std::shared_ptr< EstimatableParameter< double > > accelerationScalingParameter =
+                std::make_shared< FullAccelerationScalingFactorParameter >( gravitationalAcceleration, "Vehicle", "Earth" );
+
+
+        // Create acceleration partial object.
+        std::shared_ptr< SphericalHarmonicsGravityPartial > accelerationPartial = std::dynamic_pointer_cast< SphericalHarmonicsGravityPartial >(
+                createAnalyticalAccelerationPartial( gravitationalAcceleration,
+                                                     std::make_pair( "Vehicle", vehicle ),
+                                                     std::make_pair( "Earth", earth ),
+                                                     bodies,
+                                                     parameterSet ) );
+
+        accelerationPartial->update( testTime );
+
+        Eigen::MatrixXd partialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
+        accelerationPartial->wrtPositionOfAcceleratedBody( partialWrtVehiclePosition.block( 0, 0, 3, 3 ) );
+        Eigen::MatrixXd partialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
+        accelerationPartial->wrtVelocityOfAcceleratedBody( partialWrtVehicleVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
+        Eigen::MatrixXd partialWrtEarthPosition = Eigen::Matrix3d::Zero( );
+        accelerationPartial->wrtPositionOfAcceleratingBody( partialWrtEarthPosition.block( 0, 0, 3, 3 ) );
+        Eigen::MatrixXd partialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
+        accelerationPartial->wrtVelocityOfAcceleratingBody( partialWrtEarthVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
+
+        Eigen::MatrixXd partialWrtEarthOrientation = Eigen::MatrixXd::Zero( 3, 7 );
+        accelerationPartial->wrtNonTranslationalStateOfAdditionalBody(
+                partialWrtEarthOrientation.block( 0, 0, 3, 7 ), std::make_pair( "Earth", "" ), propagators::rotational_state );
+
+        // Calculate numerical partials.
+        testPartialWrtVehiclePosition = calculateAccelerationWrtStatePartials(
+                vehicleStateSetFunction, gravitationalAcceleration, vehicle->getState( ), positionPerturbation, 0 );
+        testPartialWrtVehicleVelocity = calculateAccelerationWrtStatePartials(
+                vehicleStateSetFunction, gravitationalAcceleration, vehicle->getState( ), velocityPerturbation, 3 );
+
+        testPartialWrtEarthPosition = calculateAccelerationWrtStatePartials(
+                earthStateSetFunction, gravitationalAcceleration, earth->getState( ), positionPerturbation, 0 );
+        testPartialWrtEarthVelocity = calculateAccelerationWrtStatePartials(
+                earthStateSetFunction, gravitationalAcceleration, earth->getState( ), velocityPerturbation, 3 );
+
+        Eigen::Vector4d orientationPerturbation;
+        orientationPerturbation << 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8;
+
+        std::function< void( Eigen::Vector7d ) > earthRotationalStateSetFunction =
+                std::bind( &Body::setCurrentRotationalStateToLocalFrame, earth, std::placeholders::_1 );
+        std::vector< Eigen::Vector4d > appliedQuaternionPerturbation;
+        Eigen::MatrixXd accelerationDeviations = calculateAccelerationDeviationDueToOrientationChange( earthRotationalStateSetFunction,
+                                                                                                       gravitationalAcceleration,
+                                                                                                       earth->getRotationalStateVector( ),
+                                                                                                       orientationPerturbation,
+                                                                                                       appliedQuaternionPerturbation );
+
+        // Calculate numerical partials.
+        std::map< int, std::shared_ptr< EstimatableParameter< double > > > doubleParameters = parameterSet->getDoubleParameters( );
+        std::map< int, std::shared_ptr< EstimatableParameter< double > > >::iterator doubleParametersIterator = doubleParameters.begin( );
+
+        Eigen::Vector3d testPartialWrtEarthGravitationalParameter =
+                calculateAccelerationWrtParameterPartials( doubleParametersIterator->second, gravitationalAcceleration, 1.0E12 );
+        Eigen::Vector3d partialWrtEarthGravitationalParameter = accelerationPartial->wrtParameter( doubleParametersIterator->second );
+        doubleParametersIterator++;
+
+        Eigen::Vector3d partialWrtEarthRotationRate = accelerationPartial->wrtParameter( doubleParametersIterator->second );
+        Eigen::Vector3d testPartialWrtEarthRotationRate = calculateAccelerationWrtParameterPartials(
+                doubleParametersIterator->second,
+                gravitationalAcceleration,
+                1.0E-12,
+                &emptyFunction,
+                testTime,
+                std::bind( &Body::setCurrentRotationToLocalFrameFromEphemeris, earth, std::placeholders::_1 ) );
+
+        std::map< int, std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > vectorParameters = parameterSet->getVectorParameters( );
+        std::map< int, std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >::iterator vectorParametersIterator =
+                vectorParameters.begin( );
+        Eigen::MatrixXd partialWrtPolePosition = accelerationPartial->wrtParameter( vectorParametersIterator->second );
+        Eigen::MatrixXd testPartialWrtPosition = calculateAccelerationWrtParameterPartials(
+                vectorParametersIterator->second,
+                gravitationalAcceleration,
+                Eigen::Vector2d::Constant( 1.0E-6 ),
+                &emptyFunction,
+                testTime,
+                std::bind( &Body::setCurrentRotationToLocalFrameFromEphemeris, earth, std::placeholders::_1 ) );
+        vectorParametersIterator++;
+
+        std::function< void( ) > sphericalHarmonicFieldUpdate =
+                std::bind( &tudat::gravitation::TimeDependentSphericalHarmonicsGravityField::update,
+                           std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >( earthGravityField ),
+                           testTime );
+
+        Eigen::MatrixXd partialWrtCosineCoefficients = accelerationPartial->wrtParameter( vectorParametersIterator->second );
+        Eigen::MatrixXd testPartialWrtCosineCoefficients =
+                calculateAccelerationWrtParameterPartials( vectorParametersIterator->second,
+                                                           gravitationalAcceleration,
+                                                           vectorParametersIterator->second->getParameterValue( ) * 1.0E-2,
+                                                           sphericalHarmonicFieldUpdate );
+        vectorParametersIterator++;
+
+        accelerationPartial->getParameterPartialFunction( vectorParametersIterator->second );
+        Eigen::MatrixXd partialWrtSineCoefficients = accelerationPartial->wrtParameter( vectorParametersIterator->second );
+        Eigen::MatrixXd testPartialWrtSineCoefficients =
+                calculateAccelerationWrtParameterPartials( vectorParametersIterator->second,
+                                                           gravitationalAcceleration,
+                                                           vectorParametersIterator->second->getParameterValue( ) * 1.0E-2,
+                                                           sphericalHarmonicFieldUpdate );
+        vectorParametersIterator++;
+
+        Eigen::MatrixXd partialWrtDegreeTwoLoveNumberAtSeparateOrders = accelerationPartial->wrtParameter( vectorParametersIterator->second );
+        Eigen::MatrixXd testPartialWrtDegreeTwoLoveNumberAtSeparateOrders =
+                calculateAccelerationWrtParameterPartials( vectorParametersIterator->second,
+                                                           gravitationalAcceleration,
+                                                           Eigen::VectorXd::Constant( 3, 1.0 ),
+                                                           sphericalHarmonicFieldUpdate );
+        vectorParametersIterator++;
+
+        Eigen::MatrixXd partialWrtComplexDegreeTwoLoveNumber = accelerationPartial->wrtParameter( vectorParametersIterator->second );
+        Eigen::MatrixXd testPartialWrtComplexDegreeTwoLoveNumber =
+                calculateAccelerationWrtParameterPartials( vectorParametersIterator->second,
+                                                           gravitationalAcceleration,
+                                                           Eigen::VectorXd::Constant( 2, 1.0 ),
+                                                           sphericalHarmonicFieldUpdate );
+        vectorParametersIterator++;
+
+        Eigen::MatrixXd partialWrtDegreeThreeLoveNumber = accelerationPartial->wrtParameter( vectorParametersIterator->second );
+        Eigen::MatrixXd testPartialWrtDegreeThreeLoveNumber = calculateAccelerationWrtParameterPartials( vectorParametersIterator->second,
+                                                                                                         gravitationalAcceleration,
+                                                                                                         Eigen::VectorXd::Constant( 1, 10.0 ),
+                                                                                                         sphericalHarmonicFieldUpdate );
+        vectorParametersIterator++;
+
+        Eigen::MatrixXd partialWrtComplexDegreeThreeLoveNumberAtSeparateOrder =
+                accelerationPartial->wrtParameter( vectorParametersIterator->second );
+        Eigen::MatrixXd testPartialWrtComplexDegreeThreeLoveNumberAtSeparateOrder =
+                calculateAccelerationWrtParameterPartials( vectorParametersIterator->second,
+                                                           gravitationalAcceleration,
+                                                           Eigen::VectorXd::Constant( 4, 10.0 ),
+                                                           sphericalHarmonicFieldUpdate );
+
+        vectorParametersIterator++;
+        Eigen::MatrixXd partialWrtModeCoupledLoveNumbers = accelerationPartial->wrtParameter( vectorParametersIterator->second );
+        Eigen::MatrixXd testPartialWrtModeCoupledLoveNumbers = calculateAccelerationWrtParameterPartials(
+                vectorParametersIterator->second,
+                gravitationalAcceleration,
+                Eigen::VectorXd::Constant( vectorParametersIterator->second->getParameterSize( ), 10.0 ),
+                sphericalHarmonicFieldUpdate );
+        vectorParametersIterator++;
+
+        Eigen::MatrixXd partialWrtPolynomialVariations = accelerationPartial->wrtParameter( vectorParametersIterator->second );
+        Eigen::MatrixXd testPartialWrtPolynomialVariations = calculateAccelerationWrtParameterPartials( vectorParametersIterator->second,
+                                                                                                        gravitationalAcceleration,
+                                                                                                        Eigen::VectorXd::Constant( 6, 1.0E-6 ),
+                                                                                                        sphericalHarmonicFieldUpdate );
+
+        vectorParametersIterator++;
+        Eigen::MatrixXd partialWrtPeriodicVariations = accelerationPartial->wrtParameter( vectorParametersIterator->second );
+        Eigen::MatrixXd testPartialWrtPeriodicVariations = calculateAccelerationWrtParameterPartials(
+                vectorParametersIterator->second,
+                gravitationalAcceleration,
+                Eigen::VectorXd::Constant( vectorParametersIterator->second->getParameterSize( ), 1.0E-2 ),
+                sphericalHarmonicFieldUpdate );
+
+        Eigen::Vector3d partialWrtAccelerationScaling = accelerationPartial->wrtParameter( accelerationScalingParameter );
+        Eigen::Vector3d testPartialWrtAccelerationScaling =
+                calculateAccelerationWrtParameterPartials( accelerationScalingParameter, gravitationalAcceleration, 10.0 );
+
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehiclePosition, partialWrtVehiclePosition, 1.0E-6 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehicleVelocity, partialWrtVehicleVelocity, 1.0E-6 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthPosition, partialWrtEarthPosition, 1.0E-6 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthVelocity, partialWrtEarthVelocity, 1.0E-6 );
+
+        //    // Compare numerical and analytical results.
+        for( int index = 1; index < 4; index++ )
         {
-            isExceptionCaught = true;
+            Eigen::Vector3d numericalChangeInAcceleration = accelerationDeviations.block( 0, index - 1, 3, 1 );
+            Eigen::Vector3d analyticalChangeInAcceleration =
+                    partialWrtEarthOrientation.block( 0, 0, 3, 1 ) * appliedQuaternionPerturbation[ index ]( 0 ) +
+                    partialWrtEarthOrientation.block( 0, index, 3, 1 ) * appliedQuaternionPerturbation[ index ]( index );
+
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalChangeInAcceleration, analyticalChangeInAcceleration, 1.0E-6 );
         }
-        BOOST_CHECK_EQUAL( isExceptionCaught, true );
+
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthGravitationalParameter, partialWrtEarthGravitationalParameter, 1.0E-12 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthRotationRate, partialWrtEarthRotationRate, 1.0E-6 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPosition, partialWrtPolePosition, 1.0E-6 );
+
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtCosineCoefficients, partialWrtCosineCoefficients, 1.0E-6 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSineCoefficients, partialWrtSineCoefficients, 1.0E-6 );
+
+        BOOST_CHECK_EQUAL( testPartialWrtCosineCoefficients.cols( ), 17 );
+        BOOST_CHECK_EQUAL( testPartialWrtSineCoefficients.cols( ), 13 );
+
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                partialWrtDegreeTwoLoveNumberAtSeparateOrders, testPartialWrtDegreeTwoLoveNumberAtSeparateOrders, 1.0E-6 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtComplexDegreeTwoLoveNumber, testPartialWrtComplexDegreeTwoLoveNumber, 1.0E-6 );
+
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtDegreeThreeLoveNumber, testPartialWrtDegreeThreeLoveNumber, 1.0E-6 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                partialWrtComplexDegreeThreeLoveNumberAtSeparateOrder, testPartialWrtComplexDegreeThreeLoveNumberAtSeparateOrder, 1.0E-6 );
+
+        if( !subtractConstantTides )
+        {
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtModeCoupledLoveNumbers, testPartialWrtModeCoupledLoveNumbers, 1.0E-6 );
+        }
+
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtPolynomialVariations, testPartialWrtPolynomialVariations, 1.0E-12 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtPeriodicVariations, testPartialWrtPeriodicVariations, 1.0E-12 );
+
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtAccelerationScaling, testPartialWrtAccelerationScaling, 1.0E-8 );
     }
-
-    std::shared_ptr< EstimatableParameter< double > > accelerationScalingParameter =
-            std::make_shared< FullAccelerationScalingFactorParameter >( gravitationalAcceleration, "Vehicle", "Earth" );
-
-
-    // Create acceleration partial object.
-    std::shared_ptr< SphericalHarmonicsGravityPartial > accelerationPartial = std::dynamic_pointer_cast< SphericalHarmonicsGravityPartial >(
-            createAnalyticalAccelerationPartial( gravitationalAcceleration,
-                                                 std::make_pair( "Vehicle", vehicle ),
-                                                 std::make_pair( "Earth", earth ),
-                                                 bodies,
-                                                 parameterSet ) );
-
-    accelerationPartial->update( testTime );
-
-    Eigen::MatrixXd partialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
-    accelerationPartial->wrtPositionOfAcceleratedBody( partialWrtVehiclePosition.block( 0, 0, 3, 3 ) );
-    Eigen::MatrixXd partialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
-    accelerationPartial->wrtVelocityOfAcceleratedBody( partialWrtVehicleVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
-    Eigen::MatrixXd partialWrtEarthPosition = Eigen::Matrix3d::Zero( );
-    accelerationPartial->wrtPositionOfAcceleratingBody( partialWrtEarthPosition.block( 0, 0, 3, 3 ) );
-    Eigen::MatrixXd partialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
-    accelerationPartial->wrtVelocityOfAcceleratingBody( partialWrtEarthVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
-
-    Eigen::MatrixXd partialWrtEarthOrientation = Eigen::MatrixXd::Zero( 3, 7 );
-    accelerationPartial->wrtNonTranslationalStateOfAdditionalBody(
-            partialWrtEarthOrientation.block( 0, 0, 3, 7 ), std::make_pair( "Earth", "" ), propagators::rotational_state );
-
-    // Calculate numerical partials.
-    testPartialWrtVehiclePosition = calculateAccelerationWrtStatePartials(
-            vehicleStateSetFunction, gravitationalAcceleration, vehicle->getState( ), positionPerturbation, 0 );
-    testPartialWrtVehicleVelocity = calculateAccelerationWrtStatePartials(
-            vehicleStateSetFunction, gravitationalAcceleration, vehicle->getState( ), velocityPerturbation, 3 );
-
-    testPartialWrtEarthPosition = calculateAccelerationWrtStatePartials(
-            earthStateSetFunction, gravitationalAcceleration, earth->getState( ), positionPerturbation, 0 );
-    testPartialWrtEarthVelocity = calculateAccelerationWrtStatePartials(
-            earthStateSetFunction, gravitationalAcceleration, earth->getState( ), velocityPerturbation, 3 );
-
-    Eigen::Vector4d orientationPerturbation;
-    orientationPerturbation << 1.0E-8, 1.0E-8, 1.0E-8, 1.0E-8;
-
-    std::function< void( Eigen::Vector7d ) > earthRotationalStateSetFunction =
-            std::bind( &Body::setCurrentRotationalStateToLocalFrame, earth, std::placeholders::_1 );
-    std::vector< Eigen::Vector4d > appliedQuaternionPerturbation;
-    Eigen::MatrixXd accelerationDeviations = calculateAccelerationDeviationDueToOrientationChange( earthRotationalStateSetFunction,
-                                                                                                   gravitationalAcceleration,
-                                                                                                   earth->getRotationalStateVector( ),
-                                                                                                   orientationPerturbation,
-                                                                                                   appliedQuaternionPerturbation );
-
-    // Calculate numerical partials.
-    std::map< int, std::shared_ptr< EstimatableParameter< double > > > doubleParameters = parameterSet->getDoubleParameters( );
-    std::map< int, std::shared_ptr< EstimatableParameter< double > > >::iterator doubleParametersIterator = doubleParameters.begin( );
-
-    Eigen::Vector3d testPartialWrtEarthGravitationalParameter =
-            calculateAccelerationWrtParameterPartials( doubleParametersIterator->second, gravitationalAcceleration, 1.0E12 );
-    Eigen::Vector3d partialWrtEarthGravitationalParameter = accelerationPartial->wrtParameter( doubleParametersIterator->second );
-    doubleParametersIterator++;
-
-    Eigen::Vector3d partialWrtEarthRotationRate = accelerationPartial->wrtParameter( doubleParametersIterator->second );
-    Eigen::Vector3d testPartialWrtEarthRotationRate = calculateAccelerationWrtParameterPartials(
-            doubleParametersIterator->second,
-            gravitationalAcceleration,
-            1.0E-12,
-            &emptyFunction,
-            testTime,
-            std::bind( &Body::setCurrentRotationToLocalFrameFromEphemeris, earth, std::placeholders::_1 ) );
-
-    std::map< int, std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > vectorParameters = parameterSet->getVectorParameters( );
-    std::map< int, std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > >::iterator vectorParametersIterator =
-            vectorParameters.begin( );
-    Eigen::MatrixXd partialWrtPolePosition = accelerationPartial->wrtParameter( vectorParametersIterator->second );
-    Eigen::MatrixXd testPartialWrtPosition = calculateAccelerationWrtParameterPartials(
-            vectorParametersIterator->second,
-            gravitationalAcceleration,
-            Eigen::Vector2d::Constant( 1.0E-6 ),
-            &emptyFunction,
-            testTime,
-            std::bind( &Body::setCurrentRotationToLocalFrameFromEphemeris, earth, std::placeholders::_1 ) );
-    vectorParametersIterator++;
-
-    std::function< void( ) > sphericalHarmonicFieldUpdate =
-            std::bind( &tudat::gravitation::TimeDependentSphericalHarmonicsGravityField::update,
-                       std::dynamic_pointer_cast< TimeDependentSphericalHarmonicsGravityField >( earthGravityField ),
-                       testTime );
-
-    Eigen::MatrixXd partialWrtCosineCoefficients = accelerationPartial->wrtParameter( vectorParametersIterator->second );
-    Eigen::MatrixXd testPartialWrtCosineCoefficients =
-            calculateAccelerationWrtParameterPartials( vectorParametersIterator->second,
-                                                       gravitationalAcceleration,
-                                                       vectorParametersIterator->second->getParameterValue( ) * 1.0E-2,
-                                                       sphericalHarmonicFieldUpdate );
-    vectorParametersIterator++;
-
-    accelerationPartial->getParameterPartialFunction( vectorParametersIterator->second );
-    Eigen::MatrixXd partialWrtSineCoefficients = accelerationPartial->wrtParameter( vectorParametersIterator->second );
-    Eigen::MatrixXd testPartialWrtSineCoefficients =
-            calculateAccelerationWrtParameterPartials( vectorParametersIterator->second,
-                                                       gravitationalAcceleration,
-                                                       vectorParametersIterator->second->getParameterValue( ) * 1.0E-2,
-                                                       sphericalHarmonicFieldUpdate );
-    vectorParametersIterator++;
-
-    Eigen::MatrixXd partialWrtDegreeTwoLoveNumberAtSeparateOrders = accelerationPartial->wrtParameter( vectorParametersIterator->second );
-    Eigen::MatrixXd testPartialWrtDegreeTwoOrderTwoLoveNumberAtSeparateOrders =
-            calculateAccelerationWrtParameterPartials( vectorParametersIterator->second,
-                                                       gravitationalAcceleration,
-                                                       Eigen::VectorXd::Constant( 3, 1.0 ),
-                                                       sphericalHarmonicFieldUpdate );
-    vectorParametersIterator++;
-
-    Eigen::MatrixXd partialWrtComplexDegreeTwoLoveNumber = accelerationPartial->wrtParameter( vectorParametersIterator->second );
-    Eigen::MatrixXd testPartialWrtComplexDegreeTwoLoveNumber =
-            calculateAccelerationWrtParameterPartials( vectorParametersIterator->second,
-                                                       gravitationalAcceleration,
-                                                       Eigen::VectorXd::Constant( 2, 1.0 ),
-                                                       sphericalHarmonicFieldUpdate );
-    vectorParametersIterator++;
-
-    Eigen::MatrixXd partialWrtDegreeThreeLoveNumber = accelerationPartial->wrtParameter( vectorParametersIterator->second );
-    Eigen::MatrixXd testPartialWrtDegreeThreeLoveNumber = calculateAccelerationWrtParameterPartials( vectorParametersIterator->second,
-                                                                                                     gravitationalAcceleration,
-                                                                                                     Eigen::VectorXd::Constant( 1, 10.0 ),
-                                                                                                     sphericalHarmonicFieldUpdate );
-    vectorParametersIterator++;
-
-    Eigen::MatrixXd partialWrtComplexDegreeThreeLoveNumberAtSeparateOrder =
-            accelerationPartial->wrtParameter( vectorParametersIterator->second );
-    Eigen::MatrixXd testPartialWrtComplexDegreeThreeLoveNumberAtSeparateOrder =
-            calculateAccelerationWrtParameterPartials( vectorParametersIterator->second,
-                                                       gravitationalAcceleration,
-                                                       Eigen::VectorXd::Constant( 4, 10.0 ),
-                                                       sphericalHarmonicFieldUpdate );
-
-    vectorParametersIterator++;
-    Eigen::MatrixXd partialWrtModeCoupledLoveNumbers = accelerationPartial->wrtParameter( vectorParametersIterator->second );
-    Eigen::MatrixXd testPartialWrtModeCoupledLoveNumbers = calculateAccelerationWrtParameterPartials(
-            vectorParametersIterator->second,
-            gravitationalAcceleration,
-            Eigen::VectorXd::Constant( vectorParametersIterator->second->getParameterSize( ), 10.0 ),
-            sphericalHarmonicFieldUpdate );
-    vectorParametersIterator++;
-
-    Eigen::MatrixXd partialWrtPolynomialVariations = accelerationPartial->wrtParameter( vectorParametersIterator->second );
-    Eigen::MatrixXd testPartialWrtPolynomialVariations = calculateAccelerationWrtParameterPartials( vectorParametersIterator->second,
-                                                                                                    gravitationalAcceleration,
-                                                                                                    Eigen::VectorXd::Constant( 6, 1.0E-6 ),
-                                                                                                    sphericalHarmonicFieldUpdate );
-
-    vectorParametersIterator++;
-    Eigen::MatrixXd partialWrtPeriodicVariations = accelerationPartial->wrtParameter( vectorParametersIterator->second );
-    Eigen::MatrixXd testPartialWrtPeriodicVariations = calculateAccelerationWrtParameterPartials(
-            vectorParametersIterator->second,
-            gravitationalAcceleration,
-            Eigen::VectorXd::Constant( vectorParametersIterator->second->getParameterSize( ), 1.0E-2 ),
-            sphericalHarmonicFieldUpdate );
-
-    Eigen::Vector3d partialWrtAccelerationScaling = accelerationPartial->wrtParameter( accelerationScalingParameter );
-    Eigen::Vector3d testPartialWrtAccelerationScaling =
-            calculateAccelerationWrtParameterPartials( accelerationScalingParameter, gravitationalAcceleration, 10.0 );
-
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehiclePosition, partialWrtVehiclePosition, 1.0E-6 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehicleVelocity, partialWrtVehicleVelocity, 1.0E-6 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthPosition, partialWrtEarthPosition, 1.0E-6 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthVelocity, partialWrtEarthVelocity, 1.0E-6 );
-
-    //    // Compare numerical and analytical results.
-    for( int index = 1; index < 4; index++ )
-    {
-        Eigen::Vector3d numericalChangeInAcceleration = accelerationDeviations.block( 0, index - 1, 3, 1 );
-        Eigen::Vector3d analyticalChangeInAcceleration =
-                partialWrtEarthOrientation.block( 0, 0, 3, 1 ) * appliedQuaternionPerturbation[ index ]( 0 ) +
-                partialWrtEarthOrientation.block( 0, index, 3, 1 ) * appliedQuaternionPerturbation[ index ]( index );
-
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( numericalChangeInAcceleration, analyticalChangeInAcceleration, 1.0E-6 );
-    }
-
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthGravitationalParameter, partialWrtEarthGravitationalParameter, 1.0E-12 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthRotationRate, partialWrtEarthRotationRate, 1.0E-6 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPosition, partialWrtPolePosition, 1.0E-6 );
-
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtCosineCoefficients, partialWrtCosineCoefficients, 1.0E-6 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSineCoefficients, partialWrtSineCoefficients, 1.0E-6 );
-
-    BOOST_CHECK_EQUAL( testPartialWrtCosineCoefficients.cols( ), 17 );
-    BOOST_CHECK_EQUAL( testPartialWrtSineCoefficients.cols( ), 13 );
-
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            partialWrtDegreeTwoLoveNumberAtSeparateOrders, testPartialWrtDegreeTwoOrderTwoLoveNumberAtSeparateOrders, 1.0E-6 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtComplexDegreeTwoLoveNumber, testPartialWrtComplexDegreeTwoLoveNumber, 1.0E-6 );
-
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtDegreeThreeLoveNumber, testPartialWrtDegreeThreeLoveNumber, 1.0E-6 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-            partialWrtComplexDegreeThreeLoveNumberAtSeparateOrder, testPartialWrtComplexDegreeThreeLoveNumberAtSeparateOrder, 1.0E-6 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtModeCoupledLoveNumbers, testPartialWrtModeCoupledLoveNumbers, 1.0E-6 );
-
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtPolynomialVariations, testPartialWrtPolynomialVariations, 1.0E-12 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtPeriodicVariations, testPartialWrtPeriodicVariations, 1.0E-12 );
-
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtAccelerationScaling, testPartialWrtAccelerationScaling, 1.0E-8 );
 
 }
 

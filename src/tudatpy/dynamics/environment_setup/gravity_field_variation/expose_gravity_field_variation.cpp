@@ -161,11 +161,25 @@ Variation model due to pole tides
 
          Class for providing settings for solid body tidal gravity field variations, derived from GravityFieldVariationSettings.
 
+      )doc" )
 
+         .def( "set_mean_tidal_forcing_terms_to_subtract" ,
+                &tss::BasicSolidBodyGravityFieldVariationSettings::setMeanTidalForcingTerms,
+                py::arg( "mean_tidal_forcing_cosine_terms" ),
+                py::arg( "mean_tidal_forcing_sine_terms" ),
+                R"doc(
 
+         Function to set mean tidal forcing terms to be subtracted from tidally induced gravity field variations.
 
+                 Parameters
+                 ----------
+                 mean_tidal_forcing_cosine_terms : dict{ int, numpy.ndarray}
+                 Dictionary in which key value represents degree m and vector position order m of mean forcing acting on cosine coefficient
 
-      )doc" );
+                 mean_tidal_forcing_sine_terms : numpy.ndarray
+                 Dictionary in which key value represents degree m and vector position order m of mean forcing acting on cosine coefficient
+
+    )doc" );
 
     m.def( "solid_body_tide",
            py::overload_cast< const std::string, const double, const int >(
