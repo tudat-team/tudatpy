@@ -243,6 +243,10 @@ public:
 
 #elif defined( __APPLE__ )
         minimumRepresentableEpoch = std::max( minimumRepresentableEpoch, DateTime( 1900, 1, 1, 0, 0, 0.0L ).epoch< double >( ) );
+#else
+        // THIS BLOCK IS FOR LINUX AND OTHER SYSTEMS
+        // On Linux, std::mktime is generally not safe before 1970
+        minimumRepresentableEpoch = std::max( minimumRepresentableEpoch, DateTime( 1970, 1, 1, 0, 0, 0.0L ).epoch< double >( ) );
 #endif
 
         return minimumRepresentableEpoch;
