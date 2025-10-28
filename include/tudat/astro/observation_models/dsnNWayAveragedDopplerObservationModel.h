@@ -51,8 +51,10 @@ namespace observation_models
  *      second (false) partial.
  * @return Scaling factor
  */
+ template< typename ObservationScalarType >
 inline double getDsnNWayAveragedDopplerScalingFactor(
         const std::function< double( std::vector< FrequencyBands > frequencyBands, double time ) > receivedFrequencyFunction,
+        const bool subtractDopplerSignature,
         const observation_models::LinkEndType referenceLinkEnd,
         const std::vector< Eigen::Vector6d >& linkEndStates,
         const std::vector< double >& linkEndTimes,
@@ -104,7 +106,9 @@ inline double getDsnNWayAveragedDopplerScalingFactor(
     double frequency = receivedFrequencyFunction( frequencyBands, transmissionTime );
 
     // Moyer (2000), eq. 13-59
-    return frequency / integrationTime / physical_constants::getSpeedOfLight< double >( );
+    return ( subtractDopplerSignature ? mathematical_constants::getFloatingInteger< ObservationScalarType >( 1.0 )
+                                      : mathematical_constants::getFloatingInteger< ObservationScalarType >( -1.0 ) ) *
+            frequency / integrationTime / physical_constants::getSpeedOfLight< double >( );
 }
 
 template< typename ObservationScalarType = double, typename TimeType = Time >
@@ -334,6 +338,12 @@ public:
     {
         return arcStartObservationModel_;
     }
+
+    bool getSubtractDopplerSignature( )
+    {
+        return subtractDopplerSignature_;
+    }
+
 
 private:
     // N-way range observation model associated with the start of the Doppler integration time.
