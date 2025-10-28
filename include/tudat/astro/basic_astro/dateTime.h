@@ -243,10 +243,6 @@ public:
 
 #elif defined( __APPLE__ )
         minimumRepresentableEpoch = std::max( minimumRepresentableEpoch, DateTime( 1900, 1, 1, 0, 0, 0.0L ).epoch< double >( ) );
-#else
-        // THIS BLOCK IS FOR LINUX AND OTHER SYSTEMS
-        // On Linux, std::mktime is generally not safe before 1970
-        minimumRepresentableEpoch = std::max( minimumRepresentableEpoch, DateTime( 1970, 1, 1, 0, 0, 0.0L ).epoch< double >( ) );
 #endif
 
         return minimumRepresentableEpoch;
@@ -276,95 +272,33 @@ public:
 
     std::chrono::system_clock::time_point timePoint( ) const
     {
-        // Get the OS-specific safe lower bound
         double minimumChronoEpoch = minimumChronoRepresentableEpoch( );
+        double maximumChronoEpoch = maximumChronoRepresentableEpoch( );
 
-        // Check if the current date is in the "danger zone" (before the safe epoch)
-        if( this->epoch< double >( ) < minimumChronoEpoch )
+        if( this->epoch< double >( ) >= maximumChronoEpoch || this->epoch< double >( ) <= minimumChronoEpoch )
         {
-            // --- PLATFORM-SPECIFIC HISTORICAL DATE WORKAROUND ---
-            // The standard std::mktime function is unreliable for historical dates on
-            // many platforms. We bypass it by manually calculating the offset from a
-            // known, safe epoch.
-
-    #if defined( __APPLE__ )
-            // --- macOS WORKAROUND (base: 1900) ---
-            // On macOS, std::chrono is unreliable before ~1900. We must construct
-            // the time_point relative to this safe historical epoch.
-
-            const DateTime unixEpoch( 1970, 1, 1, 0, 0, 0.0L );
-            const DateTime historicalSafeEpoch( 1900, 1, 1, 0, 0, 0.0L );
-            const std::chrono::system_clock::time_point unixEpochTimePoint;
-
-            // Calculate the offset in seconds from our historical date to the safe epoch (1900).
-            const double secondsFromHistoricalEpoch = this->epoch< double >( ) - historicalSafeEpoch.epoch< double >( );
-
-            // Calculate the offset in seconds from the safe epoch (1900) to the Unix epoch (1970).
-            const double secondsFrom1900to1970 = unixEpoch.epoch< double >( ) - historicalSafeEpoch.epoch< double >( );
-
-            // Create a time_point for our safe epoch (1900) by subtracting the offset from the Unix time_point.
-            auto offsetTo1900 = std::chrono::duration_cast<std::chrono::system_clock::duration>(
-                std::chrono::duration<double>( secondsFrom1900to1970 ) );
-            const std::chrono::system_clock::time_point historicalEpochTimePoint = unixEpochTimePoint - offsetTo1900;
-
-            // Create the final time_point by adding the offset from our date to the 1900 time_point.
-            auto finalOffset = std::chrono::duration_cast<std::chrono::system_clock::duration>(
-                std::chrono::duration<double>( secondsFromHistoricalEpoch ) );
-
-            return historicalEpochTimePoint + finalOffset;
-
-    #else
-            // --- WINDOWS & LINUX WORKAROUND (base: 1970) ---
-            // On Windows, std::mktime is unreliable before 1970. On Linux, this approach
-            // is also safe and robust. We calculate the offset directly from the Unix epoch.
-
-            const DateTime unixEpoch( 1970, 1, 1, 0, 0, 0.0L );
-            const double secondsFromUnixEpoch = this->epoch< double >( ) - unixEpoch.epoch< double >( );
-            const std::chrono::system_clock::time_point epochTimePoint;
-
-            // Create a duration from the double seconds.
-            std::chrono::duration<double> offsetInSeconds( secondsFromUnixEpoch );
-
-            // Cast the floating-point duration to the system_clock's native integer-based duration.
-            auto integerOffset = std::chrono::duration_cast<std::chrono::system_clock::duration>( offsetInSeconds );
-
-            // Add the correctly-typed duration to the time_point.
-            return epochTimePoint + integerOffset;
-
-    #endif
+            throw std::runtime_error( " Date " + this->isoString( false, 3 ) +
+                                      " is out of range for conversion to time point. Lower limit (in seconds from J2000) is: " +
+                                      std::to_string( minimumChronoEpoch ) + ", upper limit: " + std::to_string( maximumChronoEpoch ) );
         }
-        else
-        {
-            // --- MODERN DATE PATH (Original Logic) ---
-            // (This part remains unchanged)
-            double maximumChronoEpoch = maximumChronoRepresentableEpoch( );
-            if( this->epoch< double >( ) >= maximumChronoEpoch )
-            {
-                throw std::runtime_error( " Date " + this->isoString( false, 3 ) +
-                                          " is out of range for conversion to time point. Upper limit (in seconds from J2000) is: " +
-                                          std::to_string( maximumChronoEpoch ) );
-            }
 
-            std::tm tm = { };
-            tm.tm_sec = static_cast< int >( this->getSeconds( ) );
-            tm.tm_min = this->getMinute( );
-            tm.tm_hour = this->getHour( );
-            tm.tm_mday = this->getDay( );
-            tm.tm_mon = this->getMonth( ) - 1;
-            tm.tm_year = this->getYear( ) - 1900;
-            tm.tm_isdst = -1;
+        std::tm tm = { };
+        tm.tm_sec = static_cast< int >( this->getSeconds( ) );
+        tm.tm_min = this->getMinute( );
+        tm.tm_hour = this->getHour( );
+        tm.tm_mday = this->getDay( );
+        tm.tm_mon = this->getMonth( ) - 1;
+        tm.tm_year = this->getYear( ) - 1900;
 
-            std::time_t tt = std::mktime( &tm );
-            if (tt == -1) {
-                throw std::runtime_error("Failed to convert date to time_t using mktime for date: " + this->isoString());
-            }
+        tm.tm_isdst = -1;
 
-            std::chrono::system_clock::time_point timePoint = std::chrono::system_clock::from_time_t( tt );
-            return timePoint +
-                    std::chrono::microseconds(
-                            static_cast< int >( std::round( ( this->getSeconds( ) - static_cast< long double >( tm.tm_sec ) ) *
-                                                            tudat::mathematical_constants::getFloatingInteger< long double >( 1E6 ) ) ) );
-        }
+        std::time_t tt = std::mktime( &tm );
+
+        std::chrono::system_clock::time_point timePoint = std::chrono::system_clock::from_time_t( tt );
+        return timePoint +
+                std::chrono::microseconds(
+                        static_cast< int >( std::round( ( this->getSeconds( ) - static_cast< long double >( tm.tm_sec ) ) *
+                                                        tudat::mathematical_constants::getFloatingInteger< long double >( 1E6 ) ) ) );
     }
 
     static DateTime fromTimePoint( const std::chrono::system_clock::time_point datetime )
