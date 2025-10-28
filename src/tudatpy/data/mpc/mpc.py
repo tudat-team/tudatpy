@@ -872,11 +872,13 @@ class BatchMPC:
                 ]
 
                 # Convert DateTime objects to Python datetime objects for epochUTC
-                obs['epochUTC'] = [DateTime.to_python_datetime(dt_obj) for dt_obj in dt_objects]
+                # obs['epochUTC'] = [DateTime.to(dt_obj) for dt_obj in dt_objects]
+
                 obs = (
                     obs.assign(
                         RA=lambda x: (np.radians(x.RA)  + np.pi ) % (2 * np.pi) - np.pi,
-                        DEC=lambda x: np.radians(x.DEC)
+                        DEC=lambda x: np.radians(x.DEC),
+                        epochUTC=lambda x: Time(x.epoch, format="jd").to_datetime()
                     )
                 )
                 if drop_misc_observations:
