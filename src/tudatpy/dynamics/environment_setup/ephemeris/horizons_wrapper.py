@@ -1040,6 +1040,7 @@ class HorizonsQuery:
 
         if not degrees:
             res[["RA", "DEC"]] = res[["RA", "DEC"]].apply(np.radians)
+            res['RA'] = (res['RA'] + np.pi) % (2 * np.pi) - np.pi
 
         return res.to_numpy()
 

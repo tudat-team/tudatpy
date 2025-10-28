@@ -208,7 +208,6 @@ def test_compare_mpc_horizons_eph():
 
     diff = (radec_horizons - radec_mpc).to_numpy()
     diff = np.abs(diff).max(axis=0)
-
     time_diff = diff[0]
     RA_diff = diff[1]
     DEC_diff = diff[2]
@@ -309,3 +308,5 @@ def test_parse_80cols_file():
 
     tol = 5e-5 # not completely sure why some are zero and some are not.
     assert not (diff_seconds > tol).any()
+
+test_compare_mpc_horizons_eph()
