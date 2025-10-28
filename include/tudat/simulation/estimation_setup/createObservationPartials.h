@@ -385,7 +385,7 @@ createObservablePartialsList(
             partialsList;
 
     observation_models::ObservableType observableType = observation_models::undefined_observation_model;
-    for( auto it: observationModelList )
+    for( auto it : observationModelList )
     {
         if( observableType == observation_models::undefined_observation_model )
         {
@@ -419,7 +419,8 @@ public:
             const std::shared_ptr< ObservationPartial< ObservationSize > > secondPartial,
             const observation_models::LinkEnds& linkEnds,
             const simulation_setup::SystemOfBodies& bodies,
-            const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ScalarType, TimeType > > undifferencedObservationModel );
+            const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ScalarType, TimeType > >
+                    undifferencedObservationModel );
 };
 
 template< typename ScalarType, typename TimeType >
@@ -535,7 +536,8 @@ public:
                 }
 
                 std::shared_ptr< observation_models::DsnNWayAveragedDopplerObservationModel< ScalarType, TimeType > > dsnObservationModel =
-                        std::dynamic_pointer_cast< observation_models::DsnNWayAveragedDopplerObservationModel< ScalarType, TimeType >  >( undifferencedObservationModel );
+                        std::dynamic_pointer_cast< observation_models::DsnNWayAveragedDopplerObservationModel< ScalarType, TimeType > >(
+                                undifferencedObservationModel );
                 bool subtractDopplerSignature = false;
                 if( dsnObservationModel == nullptr )
                 {
@@ -662,7 +664,7 @@ mergeUndifferencedPartialContribution(
 
     std::shared_ptr< ObservationPartial< ObservationSize > > firstPartial;
     std::shared_ptr< ObservationPartial< ObservationSize > > secondPartial;
-    for( auto it: firstPartialList )
+    for( auto it : firstPartialList )
     {
         firstPartial = it.second;
         if( secondPartialList.count( it.first ) != 0 )
@@ -676,7 +678,7 @@ mergeUndifferencedPartialContribution(
         mergedPartials[ it.first ] = std::make_pair( firstPartial, secondPartial );
     }
 
-    for( auto it: secondPartialList )
+    for( auto it : secondPartialList )
     {
         if( mergedPartials.count( it.first ) == 0 )
         {
@@ -734,7 +736,7 @@ createDifferencedObservablePartials(
     std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > > differencedObservationPartialList;
 
     // Iterate over all one-way range partials and create one-way range rate partial from them.
-    for( auto it: mergedPartials )
+    for( auto it : mergedPartials )
     {
         // Create range rate partial.
         differencedObservationPartialList[ it.first ] =

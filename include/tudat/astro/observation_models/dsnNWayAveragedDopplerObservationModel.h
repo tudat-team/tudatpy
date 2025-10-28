@@ -51,7 +51,7 @@ namespace observation_models
  *      second (false) partial.
  * @return Scaling factor
  */
- template< typename ObservationScalarType >
+template< typename ObservationScalarType >
 inline double getDsnNWayAveragedDopplerScalingFactor(
         const std::function< double( std::vector< FrequencyBands > frequencyBands, double time ) > receivedFrequencyFunction,
         const bool subtractDopplerSignature,
@@ -343,7 +343,6 @@ public:
     {
         return subtractDopplerSignature_;
     }
-
 
 private:
     // N-way range observation model associated with the start of the Doppler integration time.
