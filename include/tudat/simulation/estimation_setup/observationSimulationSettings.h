@@ -264,12 +264,13 @@ public:
     //! Destructor
     ~TabulatedObservationSimulationSettings( ) {}
 
-
-    std::vector< TimeType > getSimulationTimes( ){
+    std::vector< TimeType > getSimulationTimes( )
+    {
         return simulationTimes_;
     }
 
-    void setSimulationTimes( std::vector< TimeType > newSimulationTimes ){
+    void setSimulationTimes( std::vector< TimeType > newSimulationTimes )
+    {
         simulationTimes_ = newSimulationTimes;
     }
 
