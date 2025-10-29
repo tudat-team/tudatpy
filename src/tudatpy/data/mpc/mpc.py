@@ -20,7 +20,6 @@ from astropy.units import Quantity
 from astropy.time import Time
 import astropy.units as u
 import astropy
-from typing import Union, Tuple, List, Dict, Optional
 import copy
 import os
 import re
@@ -69,24 +68,24 @@ DEFAULT_CATALOG_FLAGS = [
 
 
 def load_bias_file(
-    filepath: str,
-    Nside: Union[None, int] = None,
-    catalog_flags: list = DEFAULT_CATALOG_FLAGS,
-) -> Tuple[pd.DataFrame, int]:
+        filepath: str,
+        Nside: int | None = None,
+        catalog_flags: list = DEFAULT_CATALOG_FLAGS,
+) -> tuple[pd.DataFrame, int]:
     """Loads a healpix star catalog debias file and processes it into a dataframe. Automatically retrieves NSIDE parameter.
 
     Parameters
     ----------
     filepath : str
         Filepath of debias file.
-    Nside : Union[None, int], optional
+    Nside : int | None, optional
         NSIDE value, to be left None in most cases as this is retrieved automatically by the function, by default None
-    catalog_flags : Union[None, list], optional
+    catalog_flags : list | None, optional
         list of catalog flags, should be left default in most cases, by default None
 
     Returns
     -------
-    Tuple[pd.DataFrame, int]
+    tuple[pd.DataFrame, int]
         Dataframe with biases in multiindex format ((Npix x Ncat) x Nvals), the numpix value
 
     Raises
@@ -146,14 +145,14 @@ def load_bias_file(
 
 
 def get_biases_EFCC18(
-    RA: Union[float, np.ndarray, list],
-    DEC: Union[float, np.ndarray, list],
-    epochJ2000secondsTDB: Union[float, np.ndarray, list],
-    catalog: Union[str, np.ndarray, list],
-    bias_file: Union[str, None] = BIAS_LOWRES_FILE,
-    Nside: Union[int, None] = None,
-    catalog_flags: List[str] = DEFAULT_CATALOG_FLAGS,
-) -> Tuple[np.ndarray, np.ndarray]:
+        RA: float | np.ndarray | list,
+        DEC: float | np.ndarray | list,
+        epochJ2000secondsTDB: float | np.ndarray | list,
+        catalog: str | np.ndarray | list,
+        bias_file: str | None = BIAS_LOWRES_FILE,
+        Nside: int | None = None,
+        catalog_flags: list[str] = DEFAULT_CATALOG_FLAGS,
+) -> tuple[np.ndarray, np.ndarray]:
     """Calculate and return star catalog bias values as described in:
     "Star catalog position and proper motion corrections in asteroid astrometry II: The Gaia era" by Eggl et al. (2018).
     Uses the regular bias set by default. A high res version of the bias map can be retrieved from the paper.
@@ -161,24 +160,24 @@ def get_biases_EFCC18(
 
     Parameters
     ----------
-    RA : Union[float, np.ndarray, list]
+    RA : float | np.ndarray | list
         Right Ascension value in radians
-    DEC : Union[float, np.ndarray, list]
+    DEC : float | np.ndarray | list
         Declination value in radians
-    epochJ2000secondsTDB : Union[float, np.ndarray, list]
+    epochJ2000secondsTDB : float | np.ndarray | list
         Time in seconds since J2000 TDB.
-    catalog : Union[str, np.ndarray, list]
+    catalog : str | np.ndarray | list
         Star Catalog code as described by MPC: https://www.minorplanetcenter.net/iau/info/CatalogueCodes.html
-    bias_file : Tuple[str, None], optional
+    bias_file : str | None, optional
         Optional bias file location, used to load in alternative debias coefficients. By default coefficients are retrieved from Tudat resources, by default None
-    Nside : Tuple[int, None], optional
+    Nside : int | None, optional
         Optional Nside value, should be left None in most cases, by default None
-    catalog_flags : Tuple[List[str], None], optional
+    catalog_flags : list[str] | None, optional
         List of catalog values to use, should be left None in most cases, by default None
 
     Returns
     -------
-    Tuple[np.ndarray, np.ndarray]
+    tuple[np.ndarray, np.ndarray]
         Right Ascencion Corrections, Declination corrections
 
     Raises
@@ -245,14 +244,14 @@ def get_biases_EFCC18(
 
 
 def get_weights_VFCC17(
-    MPC_codes: Union[pd.Series, list, np.ndarray, None] = None,
-    epochUTC: Union[pd.Series, list, np.ndarray, None] = None,
-    observation_type: Union[pd.Series, list, np.ndarray, None] = None,
-    observatory: Union[pd.Series, list, np.ndarray, None] = None,
-    star_catalog: Union[pd.Series, list, np.ndarray, None] = None,
-    mpc_table: Union[pd.DataFrame, None] = None,
-    return_full_table=False,
-) -> Union[np.ndarray, pd.DataFrame]:
+        MPC_codes: pd.Series | list | np.ndarray | None = None,
+        epochUTC: pd.Series | list | np.ndarray | None = None,
+        observation_type: pd.Series | list | np.ndarray | None = None,
+        observatory: pd.Series | list | np.ndarray | None = None,
+        star_catalog: pd.Series | list | np.ndarray | None = None,
+        mpc_table: pd.DataFrame | None = None,
+        return_full_table=False,
+) -> np.ndarray | pd.DataFrame:
     """Retrieves observation weights using the weighting scheme presented in
     "Statistical analysis of astrometric errors for the most productive
     asteroid surveys" by Veres et al. (2017). Input may be provided using
@@ -265,25 +264,25 @@ def get_weights_VFCC17(
 
     Parameters
     ----------
-    MPC_codes : Union[pd.Series, list, np.ndarray, None], optional
+    MPC_codes : pd.Series | list | np.ndarray | None, optional
         Iterable with the MPC target codes, e.g. 433 for Eros. Size must match
         other iterables, by default None
-    epochUTC : Union[pd.Series, list, np.ndarray, None], optional
+    epochUTC : pd.Series | list | np.ndarray | None, optional
         Iterable with UTC times. Size must match other iterables, by default None
-    observation_type : Union[pd.Series, list, np.ndarray, None], optional
+    observation_type : pd.Series | list | np.ndarray | None, optional
         Iterable with the observation types in MPC format.
         See the NOTE2 section of the MPC format description for the exact encoding:
         https://minorplanetcenter.net/iau/info/OpticalObs.html.
         Size must match other iterables, by default None
-    observatory : Union[pd.Series, list, np.ndarray, None], optional
+    observatory : pd.Series | list | np.ndarray | None, optional
         Iterable with the MPC target codes, e.g. 433 for Eros.
         Size must match other iterables, by default None
-    star_catalog : Union[pd.Series, list, np.ndarray, None], optional
+    star_catalog : pd.Series | list | np.ndarray | None, optional
         Iterable with the star catalog codes.
         See the MPC catalog codes page for the exact encoding:
         https://www.minorplanetcenter.net/iau/info/CatalogueCodes.html.
         Size must match other iterables, by default None
-    mpc_table : Union[pd.DataFrame, None], optional
+    mpc_table : pd.DataFrame | None, optional
         Table retrieved by calling the mpc.BatchMPC.table property.
         Set None when using iterable input.
         Set others None when using table, by default None
@@ -308,17 +307,17 @@ def get_weights_VFCC17(
 
     # Input handling
     if (
-        (mpc_table is None)
-        and (epochUTC is not None)
-        and (observation_type is not None)
-        and (observatory is not None)
-        and (star_catalog is not None)
+            (mpc_table is None)
+            and (epochUTC is not None)
+            and (observation_type is not None)
+            and (observatory is not None)
+            and (star_catalog is not None)
     ):
         if not (
-            len(epochUTC)
-            == len(observation_type)
-            == len(observatory)
-            == len(star_catalog)
+                len(epochUTC)
+                == len(observation_type)
+                == len(observatory)
+                == len(star_catalog)
         ):
             raise ValueError("All inputs must have same size")
 
@@ -331,11 +330,11 @@ def get_weights_VFCC17(
         }
         table = pd.DataFrame.from_dict(table_dict)
     elif (
-        (mpc_table is not None)
-        and (epochUTC is None)
-        and (observation_type is None)
-        and (observatory is None)
-        and (star_catalog is None)
+            (mpc_table is not None)
+            and (epochUTC is None)
+            and (observation_type is None)
+            and (observatory is None)
+            and (star_catalog is None)
     ):
         table = mpc_table.copy()
     else:
@@ -348,7 +347,7 @@ def get_weights_VFCC17(
         epochJD=lambda x: x['epochUTC'].apply(
             lambda dt: DateTime.from_python_datetime(dt).to_julian_day()
         )
-    )    
+    )
     # NOTE 1000 is a placeholder. The following observation types are not processed and receive the placeholder value:
     # first_discoveries = ["x", "X"], roaming = ["V", "v", "W", "w"], radar = ["R", "r", "Q", "q"], offset = ["O"]
     table = table.assign(inv_w=lambda _: 1000)
@@ -428,7 +427,7 @@ def get_weights_VFCC17(
     ccd = table.note2.isin(["C", "c", "D"])
     cmos = table.note2.isin(["B"])
     ccd = ccd | cmos
-    
+
     tab3_no_catalog = table.catalog.isin(["unknown", np.nan])
 
     # Apply Table 3:
@@ -519,19 +518,19 @@ def get_weights_VFCC17(
     tab4_Catalog_USNOB12 = table.catalog.isin(["o", "s"])
 
     tab4_G83_UCAC4_PPMXL = (
-        (table.observatory == "G83") & tab4_Catalog_UCAC4 & tab4_Catalog_PPMXL
+            (table.observatory == "G83") & tab4_Catalog_UCAC4 & tab4_Catalog_PPMXL
     )
     tab4_G83_GAIA = (table.observatory == "G83") & tab4_Catalog_GAIA
 
     tab4_Y28_GAIA_PPMXL = (
-        (table.observatory == "Y28") & tab4_Catalog_PPMXL & tab4_Catalog_GAIA
+            (table.observatory == "Y28") & tab4_Catalog_PPMXL & tab4_Catalog_GAIA
     )
     tab4_568_USNOB = (table.observatory == "568") & tab4_Catalog_USNOB12
     tab4_568_GAIA = (table.observatory == "568") & tab4_Catalog_GAIA
     tab4_568_PPMXL = (table.observatory == "568") & tab4_Catalog_PPMXL
     tab4_T09_T12_T14_GAIA = (table.observatory == "568") & tab4_Catalog_GAIA
     tab4_309_UCAC4_PPMXL = (
-        (table.observatory == "568") & tab4_Catalog_UCAC4 & tab4_Catalog_PPMXL
+            (table.observatory == "568") & tab4_Catalog_UCAC4 & tab4_Catalog_PPMXL
     )
     tab4_309_GAIA = (table.observatory == "568") & tab4_Catalog_GAIA
 
@@ -559,7 +558,7 @@ def get_weights_VFCC17(
     # Transform residual into weight:
     table = table.assign(
         weight_pre=lambda x: 1
-        / np.square(Quantity(x.inv_w, unit=u.arcsec).to(u.rad).value)
+                             / np.square(Quantity(x.inv_w, unit=u.arcsec).to(u.rad).value)
     )
 
     # Reduce weight if there are more than 4 observations that night:
@@ -615,14 +614,14 @@ class BatchMPC:
     def __init__(self) -> None:
         """Create an empty MPC batch."""
         self._table: pd.DataFrame = pd.DataFrame()
-        self._observatories: List[str] = []
-        self._space_telescopes: List[str] = []
-        self._bands: List[str] = []
-        self._MPC_codes: List[str] = []
+        self._observatories: list[str] = []
+        self._space_telescopes: list[str] = []
+        self._bands: list[str] = []
+        self._MPC_codes: list[str] = []
         self._size: int = 0
 
-        self._observatory_info: Union[pd.DataFrame, None] = None
-        self._MPC_space_telescopes: List[str] = []
+        self._observatory_info: pd.DataFrame | None = None
+        self._MPC_space_telescopes: list[str] = []
 
         self._get_station_info()
 
@@ -662,17 +661,17 @@ class BatchMPC:
         return self._table
 
     @property
-    def observatories(self) -> List[str]:
+    def observatories(self) -> list[str]:
         """List of observatories in batch"""
         return self._observatories
 
     @property
-    def space_telescopes(self) -> List[str]:
+    def space_telescopes(self) -> list[str]:
         """List of satellite_observatories in batch"""
         return self._space_telescopes
 
     @property
-    def MPC_objects(self) -> List[str]:
+    def MPC_objects(self) -> list[str]:
         """List of MPC objects"""
         return self._MPC_codes
 
@@ -682,7 +681,7 @@ class BatchMPC:
         return self._size
 
     @property
-    def bands(self) -> List[str]:
+    def bands(self) -> list[str]:
         """List of bands in batch"""
         return self._bands
 
@@ -747,7 +746,7 @@ class BatchMPC:
             print(e)
 
     def _add_observatory_positions(
-        self, bodies: environment.SystemOfBodies, earth_name
+            self, bodies: environment.SystemOfBodies, earth_name
     ) -> None:
         """Internal. Add observatory cartesian postions to station data"""
         temp = self._observatory_info
@@ -769,10 +768,10 @@ class BatchMPC:
         self._observatory_info = temp
 
     def _apply_EFCC18(
-        self,
-        bias_file=None,
-        Nside=None,
-        catalog_flags=None,
+            self,
+            bias_file=None,
+            Nside=None,
+            catalog_flags=None,
     ):
         """
         Internal, applies star catalog biases based on
@@ -801,8 +800,8 @@ class BatchMPC:
     # methods for data retrievels
     def get_observations(
             self,
-            MPCcodes: List[Union[str, int]],
-            id_types: Optional[List[Optional[str]]] = None,
+            MPCcodes: list[str | int],
+            id_types: list[str | None] | None = None,
             drop_misc_observations: bool = True,
     ) -> None:
         """Retrieve all observations for a set of MPC listed objects.
@@ -812,9 +811,9 @@ class BatchMPC:
 
         Parameters
         ----------
-        MPCcodes : List[Union[str, int]]
+        MPCcodes : list[str | int]
             List of integer MPC object codes for minor planets or comets.
-        id_types : Optional[List[Optional[str]]], default None
+        id_types : list[str | None] | None, default None
             A list of identification types ('asteroid_number', 'comet_number', 'comet_designation') corresponding to each MPCcode.
             If an element is None, the type is considered unknown. If the entire list is None,
             all types are considered unknown.
@@ -920,11 +919,11 @@ class BatchMPC:
         self._table = pd.concat([self._table, obs])
         self._refresh_metadata()
 
-    def _validate_table(self, table, frame: str):
+    def _validate_table(self, table: astropy.table.QTable | astropy.table.Table, frame: str):
         """Internal helper to validate the frame and required columns of a table.
 
         Args:
-            table (Union[astropy.table.Table, pd.DataFrame]): The table to validate.
+            table (astropy.table.Table | pd.DataFrame): The table to validate.
             frame (str): The reference frame to check.
 
         Raises:
@@ -946,7 +945,7 @@ class BatchMPC:
         if not set(self._req_cols).issubset(set(colnames)):
             raise ValueError(f"Table must include a set of mandatory columns: {self._req_cols}")
 
-    def from_astropy(self, table: astropy.table.QTable, in_degrees: bool = True, frame: str = "J2000"):
+    def from_astropy(self, table: astropy.table.QTable | astropy.table.Table, in_degrees: bool = True, frame: str = "J2000"):
         """Loads observations from an Astropy Table into the BatchMPC object.
 
         This method provides a convenient way to import observation data that has been
@@ -1007,8 +1006,8 @@ class BatchMPC:
         self._add_table(table=table, in_degrees=in_degrees)
 
     def set_weights(
-        self,
-        weights: Union[list, np.ndarray, pd.Series],
+            self,
+            weights: list | np.ndarray | pd.Series,
     ):
         """Manually set weights per observation. Weights are passed to
         observation collection when `.to_tudat()` is called. Set the
@@ -1018,7 +1017,7 @@ class BatchMPC:
 
         Parameters
         ----------
-        weights : Union[list, np.ndarray, pd.Series]
+        weights : list | np.ndarray | pd.Series
             Iterable with weights per observation.
 
         Raises
@@ -1039,40 +1038,40 @@ class BatchMPC:
         self._custom_weights_set = True
 
     def filter(
-        self,
-        bands: Union[List[str], None] = None,
-        catalogs: Union[List[str], None] = None,
-        observation_types: Union[List[str], None] = None,
-        observatories: Union[List[str], None] = None,
-        observatories_exclude: Union[List[str], None] = None,
-        epoch_start: Union[float, datetime.datetime, None] = None,
-        epoch_end: Union[float, datetime.datetime, None] = None,
-        in_place: bool = True,
-    ) -> Union[None, "BatchMPC"]:
+            self,
+            bands: list[str] | None = None,
+            catalogs: list[str] | None = None,
+            observation_types: list[str] | None = None,
+            observatories: list[str] | None = None,
+            observatories_exclude: list[str] | None = None,
+            epoch_start: float | datetime.datetime | None = None,
+            epoch_end: float | datetime.datetime | None = None,
+            in_place: bool = True,
+    ) -> None | "BatchMPC":
         """Filter out observations from the batch.
 
         Parameters
         ----------
-        bands : Union[List[str], None], optional
+        bands : list[str] | None, optional
             List of observation bands to keep in the batch, by default None
-        catalogs : Union[List[str], None], optional
-            List of star catalogs to keep in the batch. See 
+        catalogs : list[str] | None, optional
+            List of star catalogs to keep in the batch. See
             https://www.minorplanetcenter.net/iau/info/CatalogueCodes.html
             for the exact encodings used by MPC, by default None
-        observation_types : Union[List[str], None], optional
+        observation_types : list[str] | None, optional
             List of observation types to keep in the batch, e.g. CCD,
             Photographic etc. See the Note2 section of the MPC format description:
-            https://www.minorplanetcenter.net/iau/info/OpticalObs.html
+            https://minorplanetcenter.net/iau/info/OpticalObs.html
             for the exact encoding, by default None
-        observatories : Union[List[str], None], optional
+        observatories : list[str] | None, optional
             List of observatories to keep in the batch, by default None
-        observatories_exclude : Union[List[str], None], optional
+        observatories_exclude : list[str] | None, optional
             List of observatories to remove from the batch, by default None
-        epoch_start : Union[float, datetime.datetime, None], optional
+        epoch_start : float | datetime.datetime | None, optional
             Start date to include observations from, can be in python datetime in utc\
                  or the more conventional tudat seconds since j2000 in TDB if float,\
                      by default None
-        epoch_end : Union[float, datetime.datetime, None], optional
+        epoch_end : float | datetime.datetime | None, optional
             Final date to include observations from, can be in python datetime in utc\
                  or the more conventional tudat seconds since j2000 in TDB if float,\
                      by default None
@@ -1084,7 +1083,7 @@ class BatchMPC:
         Raises
         ------
         ValueError
-            Is raised if bands, observatories, or observatories_exclude are not list or 
+            Is raised if bands, observatories, or observatories_exclude are not list or
             None.
         ValueError
             Is raised if both observations_exclude and observatories are not None.
@@ -1098,7 +1097,7 @@ class BatchMPC:
         # basic user input handling
         assert not isinstance(
             observatories, int
-        ), "stations parameter must be of type 'str' or 'List[str]'"
+        ), "stations parameter must be of type 'str' or 'list[str]'"
 
         if not (isinstance(observatories, list) or (observatories is None)):
             raise ValueError("observatories parameter must be list of strings or None")
@@ -1112,7 +1111,7 @@ class BatchMPC:
             )
 
         if not (
-            isinstance(observatories_exclude, list) or (observatories_exclude is None)
+                isinstance(observatories_exclude, list) or (observatories_exclude is None)
         ):
             raise ValueError(
                 "observatories_exclude parameter must be list of strings or None"
@@ -1168,31 +1167,31 @@ class BatchMPC:
             return new
 
     def to_tudat(
-        self,
-        bodies: environment.SystemOfBodies,
-        included_satellites: Union[Dict[str, str], None],
-        station_body: str = "Earth",
-        add_sbdb_gravity_model: bool = False,
-        apply_weights_VFCC17: bool = True,
-        apply_star_catalog_debias: bool = True,
-        debias_kwargs: dict = dict(),
+            self,
+            bodies: environment.SystemOfBodies,
+            included_satellites: dict[str, str] | None,
+            station_body: str = "Earth",
+            add_sbdb_gravity_model: bool = False,
+            apply_weights_VFCC17: bool = True,
+            apply_star_catalog_debias: bool = True,
+            debias_kwargs: dict = dict(),
     ) -> observations.ObservationCollection:
         """Converts the observations in the batch into a Tudat compatible format and
           sets up the relevant Tudat infrastructure to support estimation.
         This method does the following:\\
             1. (By Default) Applies star catalog debiasing and estimation
             weight calculation.\\
-            2. Creates an empty body for each minor planet with their MPC code as a 
+            2. Creates an empty body for each minor planet with their MPC code as a
             name.\\
             3. Adds this body to the system of bodies inputted to the method.\\
-            4. Retrieves the global position of the terrestrial observatories in 
+            4. Retrieves the global position of the terrestrial observatories in
             the batch and adds these stations to the Tudat environment.\\
-            5. Creates link definitions between each unique terrestrial 
+            5. Creates link definitions between each unique terrestrial
             observatory/ minor planet combination in the batch.\\
-            6. (Optionally) creates a link definition between each 
-            space telescope / minor planet combination in the batch. 
+            6. (Optionally) creates a link definition between each
+            space telescope / minor planet combination in the batch.
             This requires an addional input.\\
-            7. Creates a `SingleObservationSet` object for each unique link that 
+            7. Creates a `SingleObservationSet` object for each unique link that
             includes all observations for that link.\\
             8. (By Default) Add the relevant weights to the `SingleObservationSet`
             per observation.\\
@@ -1202,21 +1201,21 @@ class BatchMPC:
         Parameters
         ----------
         bodies : environment.SystemOfBodies
-            SystemOfBodies containing at least the earth to allow for the placement of 
+            SystemOfBodies containing at least the earth to allow for the placement of
             terrestrial telescopes
-        included_satellites : Union[Dict[str, str], None], optional
-            A dictionary that links the name of a space telescope used by the user with 
-            the observatory code in MPC. Used when utilising observations from space 
-            telescopes like TESS and WISE. The keys should be the MPC observatory 
-            codes. The values should be the bodies' in the user's code. The relevant 
-            observatory code can be retrieved using 
+        included_satellites : dict[str, str] | None, optional
+            A dictionary that links the name of a space telescope used by the user with
+            the observatory code in MPC. Used when utilising observations from space
+            telescopes like TESS and WISE. The keys should be the MPC observatory
+            codes. The values should be the bodies' in the user's code. The relevant
+            observatory code can be retrieved using
             the .observatories_table() method, by default None
         station_body : str, optional
-            Body to attach ground stations to. Does not need to be changed unless the 
+            Body to attach ground stations to. Does not need to be changed unless the
             `Earth` body has been renamed, by default "Earth"
         station_body : bool, optional
-            Adds a central_sbdb gravity model to the object, generated using JPL's small body database. 
-            This option is only available for a limited number of bodies and raises an error if unavailable. 
+            Adds a central_sbdb gravity model to the object, generated using JPL's small body database.
+            This option is only available for a limited number of bodies and raises an error if unavailable.
             See tudatpy.dynamics.environment_setup.gravity_field.central_sbdb for more info.
             Enabled if True, by default False
         apply_weights_VFCC17 : bool, optional
@@ -1224,11 +1223,11 @@ class BatchMPC:
             for the most productive asteroid surveys" by Veres et al. (2017). Overwrites custom weights
             set through the `.set_weights()` method if True, by default True
         apply_star_catalog_debias : bool, optional
-            Applies star catalog debiasing as described in: "Star catalog position and proper motion corrections 
+            Applies star catalog debiasing as described in: "Star catalog position and proper motion corrections
             in asteroid astrometry II: The Gaia era" by Eggl et al. (2018), by default True
         debias_kwargs : dict, optional
-            Additional options when applying star catalog debiasing. A different debias file 
-            can be set here. Options are set as kwargs using a dictionary, see data._biases.get_biases_EFCC18() 
+            Additional options when applying star catalog debiasing. A different debias file
+            can be set here. Options are set as kwargs using a dictionary, see data._biases.get_biases_EFCC18()
             for more info, by default dict()
 
         Returns
@@ -1305,8 +1304,8 @@ class BatchMPC:
 
         # get relevant stations positions
         tempStations = self._observatory_info.query("Code == @self.observatories").loc[
-            :, ["Code", "X", "Y", "Z"]
-        ]
+                       :, ["Code", "X", "Y", "Z"]
+                       ]
 
         # add station positions to the observations
         observations_table = pd.merge(
@@ -1388,12 +1387,12 @@ class BatchMPC:
             ).query("observatory == @station_name")
 
             observation_angles = observations_for_this_link.loc[
-                :, [RA_col, DEC_col]
-            ].to_numpy()
+                                 :, [RA_col, DEC_col]
+                                 ].to_numpy()
 
             observation_times = observations_for_this_link.loc[
-                :, ["epochJ2000secondsTDB"]
-            ].to_numpy()[:, 0]
+                                :, ["epochJ2000secondsTDB"]
+                                ].to_numpy()[:, 0]
 
             # create a set of obs for this link
             observation_set = observations.single_observation_set(
@@ -1407,8 +1406,8 @@ class BatchMPC:
             # apply weights if apply_weights is True or set_weights() has been used.
             if apply_weights_VFCC17 or self._custom_weights_set:
                 observation_weights = observations_for_this_link.loc[
-                    :, ["weight"]
-                ].to_numpy()[:, 0]
+                                      :, ["weight"]
+                                      ].to_numpy()[:, 0]
                 # this is to make sure the order is RA1, DEC1, 2, 2, 3, 3 etc.
                 observation_weights = np.ravel(
                     [observation_weights, observation_weights], "F"
@@ -1424,9 +1423,9 @@ class BatchMPC:
         return observation_collection
 
     def plot_observations_temporal(
-        self,
-        objects: Union[List[str], None] = None,
-        figsize: Tuple[float] = (9.0, 6.0),
+            self,
+            objects: list[str] | None = None,
+            figsize: tuple[float] = (9.0, 6.0),
     ):
         """Generates a matplotlib figure with the declination and right ascension
         over time.
@@ -1434,13 +1433,13 @@ class BatchMPC:
 
         Parameters
         ----------
-        objects : Union[List[str], None], optional
+        objects : list[str] | None, optional
             List of specific MPC objects in batch to plot, None to plot all
             , by default None
         projection : str, optional
             projection of the figure options are: 'aitoff', 'hammer',
             'lambert' and 'mollweide', by default "aitoff"
-        figsize : Tuple[float], optional
+        figsize : tuple[float], optional
             size of the matplotlib figure, by default (15, 7)
 
         Returns
@@ -1492,23 +1491,23 @@ class BatchMPC:
         return fig
 
     def plot_observations_sky(
-        self,
-        objects: Union[List[str], None] = None,
-        projection: Union[str, None] = None,
-        figsize: Tuple[float] = (14.0, 7.0),
+            self,
+            objects: list[str] | None = None,
+            projection: str | None = None,
+            figsize: tuple[float] = (14.0, 7.0),
     ):
         """Generates a matplotlib figure with the observations'
         right ascension and declination over time.
 
         Parameters
         ----------
-        objects : Union[List[str], None], optional
+        objects : list[str] | None, optional
             List of specific MPC objects in batch to plot, None to plot all
             , by default None
         projection : str, optional
             projection of the figure options are: 'aitoff', 'hammer',
             'lambert' and 'mollweide', by default "aitoff"
-        figsize : Tuple[float], optional
+        figsize : tuple[float], optional
             size of the matplotlib figure, by default (15, 7)
 
         Returns
@@ -1608,11 +1607,11 @@ class BatchMPC:
         print()
 
     def observatories_table(
-        self,
-        only_in_batch: bool = True,
-        only_space_telescopes: bool = False,
-        exclude_space_telescopes: bool = False,
-        include_positions: bool = False,
+            self,
+            only_in_batch: bool = True,
+            only_space_telescopes: bool = False,
+            exclude_space_telescopes: bool = False,
+            include_positions: bool = False,
     ) -> pd.DataFrame:
         """Returns a pandas DataFrame with information about all MPC observatories,
         Carthesian positions are only available after running the `to_tudat()` method.
@@ -1855,7 +1854,7 @@ class MPC80ColsParser:
 
         return ident_data
 
-    def parse_80cols_file(self, filename: str) -> List[Dict]:
+    def parse_80cols_file(self, filename: str) -> list[dict]:
         """
         Reads an MPC observation file (80-column format) and parses each line
         for a specific object type, returning a list of dictionaries with parsed observations.
@@ -1869,7 +1868,7 @@ class MPC80ColsParser:
 
         Returns
         -------
-        List[Dict]
+        list[dict]
             A list of dictionaries, where each dictionary represents a parsed observation.
             Each dictionary contains keys like 'number', 'epoch', 'RA', 'DEC', 'observatory', etc.
         """
@@ -1957,4 +1956,3 @@ class MPC80ColsParser:
                     continue
 
         return Table(parsed_observations)
-
