@@ -54,52 +54,14 @@ public:
     //! Destructor
     ~MultiArcEphemeris( ) { }
     
-    std::pair< bool, int > getCurrentEphemerisArc( const double currentTime )
-    {
-        if( singleArcEphemerides_.size( ) == 0 )
-        {
-            throw std::runtime_error(
-                    "Error when retrieving state from multi-arc ephemeris; no constituent single-arc ephemerides are set" );
-        }
-        
-        int arcIndex = lookUpscheme_->findNearestLowerNeighbour( currentTime ); 
-        if( arcEndTimes_.at( arcIndex ) < currentTime )
-        {
-            return std::make_pair( false, arcIndex );
-        }
-        else
-        {
-            return std::make_pair( true, arcIndex );
-        }
-    }
-    
+    std::pair< bool, int > getCurrentEphemerisArc( const double currentTime );
     //! Get state from ephemeris.
     /*!
      * Returns state from ephemeris at given Julian date.
      * \param currentTime Seconds since epoch (J2000) at which ephemeris is to be evaluated.
      * \return State from ephemeris.
      */
-    Eigen::Vector6d getCartesianState( const double currentTime )
-    {
-
-        std::pair< bool, int > currentArc = getCurrentEphemerisArc( currentTime );
-        if( currentArc.first )
-        {
-            return singleArcEphemerides_.at( currentArc.second )->getCartesianState( currentTime );
-        }
-        else
-        {
-            if( defaultEphemeris_ == nullptr )
-            {
-                throw exceptions::MultiArcEphemerisError< double >(
-                        currentTime, std::make_pair( arcStartTimes_.at( currentArc.second ), arcEndTimes_.at( currentArc.second ) ), currentArc.second );
-            }
-            else
-            {
-                return defaultEphemeris_->getCartesianState( currentTime );
-            }
-        }
-    }
+    Eigen::Vector6d getCartesianState( const double currentTime );
 
     //! Get state from ephemeris (long double state output).
     /*!
@@ -107,26 +69,7 @@ public:
      * \param currentTime Seconds since epoch (J2000) at which ephemeris is to be evaluated.
      * \return State from ephemeris.
      */
-    Eigen::Matrix< long double, 6, 1 > getCartesianLongState( const double currentTime )
-    {
-        std::pair< bool, int > currentArc = getCurrentEphemerisArc( currentTime );
-        if( currentArc.first )
-        {
-            return singleArcEphemerides_.at( currentArc.second )->getCartesianLongState( double( currentTime ) );
-        }
-        else
-        {
-            if( defaultEphemeris_ == nullptr )
-            {
-                throw exceptions::MultiArcEphemerisError< double >(
-                        currentTime, std::make_pair( arcStartTimes_.at( currentArc.second ), arcEndTimes_.at( currentArc.second ) ), currentArc.second );
-            }
-            else
-            {
-                return defaultEphemeris_->getCartesianLongState( currentTime );
-            }
-        }
-    }
+    Eigen::Matrix< long double, 6, 1 > getCartesianLongState( const double currentTime );
 
     //! Get state from ephemeris (Time time input)
     /*!
@@ -134,26 +77,7 @@ public:
      * \param currentTime Seconds since epoch (J2000) at which ephemeris is to be evaluated.
      * \return State from ephemeris.
      */
-    Eigen::Vector6d getCartesianStateFromExtendedTime( const Time& currentTime )
-    {
-        std::pair< bool, int > currentArc = getCurrentEphemerisArc( currentTime );
-        if( currentArc.first )
-        {
-            return singleArcEphemerides_.at( currentArc.second )->getCartesianStateFromExtendedTime( currentTime );
-        }
-        else
-        {
-            if( defaultEphemeris_ == nullptr )
-            {
-                throw exceptions::MultiArcEphemerisError< Time >(
-                        currentTime, std::make_pair( arcStartTimes_.at( currentArc.second ), arcEndTimes_.at( currentArc.second ) ), currentArc.second );
-            }
-            else
-            {
-                return defaultEphemeris_->getCartesianStateFromExtendedTime( currentTime );
-            }
-        }
-    }
+    Eigen::Vector6d getCartesianStateFromExtendedTime( const Time& currentTime );
 
     //! Get state from ephemeris (long double state output and Time time input)
     /*!
@@ -161,26 +85,7 @@ public:
      * \param currentTime Seconds since epoch (J2000) at which ephemeris is to be evaluated.
      * \return State currentTime ephemeris.
      */
-    Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromExtendedTime( const Time& currentTime )
-    {
-        std::pair< bool, int > currentArc = getCurrentEphemerisArc( currentTime );
-        if( currentArc.first )
-        {
-            return singleArcEphemerides_.at( currentArc.second )->getCartesianLongStateFromExtendedTime( double( currentTime ) );
-        }
-        else
-        {
-            if( defaultEphemeris_ == nullptr )
-            {
-                throw exceptions::MultiArcEphemerisError< Time >(
-                        currentTime, std::make_pair( arcStartTimes_.at( currentArc.second ), arcEndTimes_.at( currentArc.second ) ), currentArc.second );
-            }
-            else
-            {
-                return defaultEphemeris_->getCartesianLongStateFromExtendedTime( currentTime );
-            }
-        }
-    }
+    Eigen::Matrix< long double, 6, 1 > getCartesianLongStateFromExtendedTime( const Time& currentTime );
 
     //! Function to reset the constituent arc ephemerides
     /*!
