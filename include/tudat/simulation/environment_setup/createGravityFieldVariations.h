@@ -151,7 +151,6 @@ public:
         {
             const int degree = it.first;
             const std::size_t numberOfOrders = it.second.size( );
-
             meanForcingCosineTerms_[ degree ] = std::vector< double >( numberOfOrders, 0.0 );
             meanForcingSineTerms_[ degree ] = std::vector< double >( numberOfOrders, 0.0 );
         }

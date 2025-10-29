@@ -116,7 +116,10 @@ void expose_observations_simulation_settings( py::module& m )
 
 
 
-      )doc" );
+      )doc" )
+        .def_property("simulation_times",
+           &tss::TabulatedObservationSimulationSettings<TIME_TYPE>::getSimulationTimes,
+           &tss::TabulatedObservationSimulationSettings<TIME_TYPE>::setSimulationTimes);
     
 
     m.def( "tabulated_simulation_settings",
