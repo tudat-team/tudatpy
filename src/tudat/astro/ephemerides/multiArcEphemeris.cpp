@@ -30,7 +30,7 @@ void MultiArcEphemeris::resetSingleArcEphemerides(
     arcStartTimes_ = arcStartTimes;
     arcEndTimes_.resize( arcStartTimes_.size( ) );
 
-    for( unsigned int i = 0; i < singleArcEphemerides_.size( ) - 1 ; i++ )
+    for( int i = 0; i < static_cast< int > ( singleArcEphemerides_.size( ) ) - 1 ; i++ )
     {
         std::pair< double, double > safeInterval = getSafeEphemerisEvaluationInterval( singleArcEphemerides_.at( i ) );
         if( safeInterval.second < arcStartTimes_.at( i + 1 ) )
@@ -41,16 +41,122 @@ void MultiArcEphemeris::resetSingleArcEphemerides(
         {
             arcEndTimes_[ i ] = arcStartTimes_.at( i + 1 );
         }
-        arcEndTimes_[ singleArcEphemerides_.size( ) - 1 ] = std::numeric_limits< double >::max( );
-
     }
-
+    if( singleArcEphemerides_.size( ) > 0 )
+    {
+        arcEndTimes_[ singleArcEphemerides_.size( ) - 1 ] = std::numeric_limits< double >::max( );
+    }
     // Create times at which the look up changes from one arc to the other.
     std::vector< double > arcSplitTimes = arcStartTimes_;
     arcSplitTimes.push_back( std::numeric_limits< double >::max( ) );
     lookUpscheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< double > >( arcSplitTimes );
 }
 
+Eigen::Vector6d MultiArcEphemeris::getCartesianState( const double currentTime )
+{
+
+    std::pair< bool, int > currentArc = getCurrentEphemerisArc( currentTime );
+    if( currentArc.first )
+    {
+        return singleArcEphemerides_.at( currentArc.second )->getCartesianState( currentTime );
+    }
+    else
+    {
+        if( defaultEphemeris_ == nullptr )
+        {
+            throw exceptions::MultiArcEphemerisError< double >(
+                    currentTime, std::make_pair( arcStartTimes_.at( currentArc.second ), arcEndTimes_.at( currentArc.second ) ), currentArc.second );
+        }
+        else
+        {
+            return defaultEphemeris_->getCartesianState( currentTime );
+        }
+    }
+}
+
+Eigen::Matrix< long double, 6, 1 > MultiArcEphemeris::getCartesianLongState( const double currentTime )
+{
+    std::pair< bool, int > currentArc = getCurrentEphemerisArc( currentTime );
+    if( currentArc.first )
+    {
+        return singleArcEphemerides_.at( currentArc.second )->getCartesianLongState( double( currentTime ) );
+    }
+    else
+    {
+        if( defaultEphemeris_ == nullptr )
+        {
+            throw exceptions::MultiArcEphemerisError< double >(
+                    currentTime, std::make_pair( arcStartTimes_.at( currentArc.second ), arcEndTimes_.at( currentArc.second ) ), currentArc.second );
+        }
+        else
+        {
+            return defaultEphemeris_->getCartesianLongState( currentTime );
+        }
+    }
+}
+
+Eigen::Vector6d MultiArcEphemeris::getCartesianStateFromExtendedTime( const Time& currentTime )
+{
+    std::pair< bool, int > currentArc = getCurrentEphemerisArc( currentTime );
+    if( currentArc.first )
+    {
+        return singleArcEphemerides_.at( currentArc.second )->getCartesianStateFromExtendedTime( currentTime );
+    }
+    else
+    {
+        if( defaultEphemeris_ == nullptr )
+        {
+            throw exceptions::MultiArcEphemerisError< Time >(
+                    currentTime, std::make_pair( arcStartTimes_.at( currentArc.second ), arcEndTimes_.at( currentArc.second ) ), currentArc.second );
+        }
+        else
+        {
+            return defaultEphemeris_->getCartesianStateFromExtendedTime( currentTime );
+        }
+    }
+}
+
+
+Eigen::Matrix< long double, 6, 1 > MultiArcEphemeris::getCartesianLongStateFromExtendedTime( const Time& currentTime )
+{
+    std::pair< bool, int > currentArc = getCurrentEphemerisArc( currentTime );
+    if( currentArc.first )
+    {
+        return singleArcEphemerides_.at( currentArc.second )->getCartesianLongStateFromExtendedTime( double( currentTime ) );
+    }
+    else
+    {
+        if( defaultEphemeris_ == nullptr )
+        {
+            throw exceptions::MultiArcEphemerisError< Time >(
+                    currentTime, std::make_pair( arcStartTimes_.at( currentArc.second ), arcEndTimes_.at( currentArc.second ) ), currentArc.second );
+        }
+        else
+        {
+            return defaultEphemeris_->getCartesianLongStateFromExtendedTime( currentTime );
+        }
+    }
+}
+
+
+std::pair< bool, int > MultiArcEphemeris::getCurrentEphemerisArc( const double currentTime )
+{
+    if( singleArcEphemerides_.size( ) == 0 )
+    {
+        throw std::runtime_error(
+                "Error when retrieving state from multi-arc ephemeris; no constituent single-arc ephemerides are set" );
+    }
+
+    int arcIndex = lookUpscheme_->findNearestLowerNeighbour( currentTime );
+    if( arcEndTimes_.at( arcIndex ) < currentTime )
+    {
+        return std::make_pair( false, arcIndex );
+    }
+    else
+    {
+        return std::make_pair( true, arcIndex );
+    }
+}
 
 //! Function that retrieves the time interval at which an ephemeris can be safely interrogated
 std::pair< double, double > getSafeEphemerisEvaluationInterval( const std::shared_ptr< ephemerides::Ephemeris > ephemerisModel )
