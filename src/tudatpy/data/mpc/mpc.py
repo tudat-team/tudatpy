@@ -1,4 +1,3 @@
-from pydantic.datetime_parse import time_re
 from tudatpy.dynamics import environment_setup  # type:ignore
 from tudatpy.dynamics import environment  # type:ignore
 from tudatpy.estimation import observations
@@ -6,7 +5,6 @@ from tudatpy.estimation.observable_models_setup import (
     model_settings,
     links,
 )
-import re
 from astropy.table import Table
 from tudatpy.dynamics.environment_setup import add_gravity_field_model
 from tudatpy.dynamics.environment_setup.gravity_field import central_sbdb
@@ -17,7 +15,6 @@ import matplotlib.cm as cm
 import matplotlib.dates as mdates
 import datetime
 from astroquery.mpc import MPC
-from astropy.time import Time
 from astropy_healpix import HEALPix
 from astropy.units import Quantity
 from astropy.time import Time
@@ -217,8 +214,6 @@ def get_biases_EFCC18(
     # ideally nside should be retrieved from the load_bias_file function
     hp_obj = HEALPix(nside=nside)
 
-    print(Quantity(RA, unit=u.rad))
-    print(Quantity(DEC, unit=u.rad))
     pixels = hp_obj.lonlat_to_healpix(
         Quantity(RA, unit=u.rad), Quantity(DEC, unit=u.rad)
     )
@@ -1894,7 +1889,6 @@ class MPC80ColsParser:
                 try:
                     # 2. GET note2 VALUE AND APPLY FILTER
                     note2_val = line[14].strip()
-                    print(note2_val)
                     if note2_val in observation_types_to_drop:
                         continue  # Skip this line and go to the next one
 
