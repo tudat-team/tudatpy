@@ -60,6 +60,7 @@ std::complex< double > calculateSolidBodyTideSingleCoefficientSetCorrectionFromA
                                                                                           const double meanCosineForcing = 0.0,
                                                                                           const double meanSineForcing = 0.0 );
 
+
 // Handle default values of mean tidal forcing terms when calculateSolidBodyTideSingleCoefficientSetCorrectionFromAmplitude function is
 // called with love numbers as map this call is only happening in unit tests (as far as I can tell) and the aux function below is thus also
 // only called in unit test application
