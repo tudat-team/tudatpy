@@ -36,12 +36,9 @@ public:
      *  \param rtgAccelerationModel Class defining properties of rtg acceleration used in propagation.
      *  \param associatedBody Body for which empirical accelerations are estimated
      */
-    RTGForceVector(
-            const std::shared_ptr< system_models::RTGAccelerationModel > rtgAccelerationModel,
-            const std::string& associatedBody):
-        EstimatableParameter< Eigen::VectorXd >( rtg_force_vector, associatedBody),
-        rtgAccelerationModel_( rtgAccelerationModel ),
-        parameterSize_(3)
+    RTGForceVector( const std::vector < std::shared_ptr< system_models::RTGAccelerationModel > >& rtgAccelerationModels, const std::string& associatedBody ):
+        EstimatableParameter< Eigen::VectorXd >( rtg_force_vector, associatedBody ), rtgAccelerationModels_( rtgAccelerationModels ),
+        parameterSize_( 3 )
     { }
 
     //! Destructor
@@ -53,9 +50,21 @@ public:
      *  \return Value of rtg acceleration components
      */
     Eigen::VectorXd getParameterValue( )
-    {
-        Eigen::Vector3d parameter = rtgAccelerationModel_->getbodyFixedForceVectorAtReferenceEpoch();
-        return parameter;
+    {   // Here we ensure that parameter values across rtg acceleration models in multi-arc setup are consistent
+        Eigen::Vector3d referenceValue =
+            rtgAccelerationModels_.front()->getbodyFixedForceVectorAtReferenceEpoch();
+
+        for (const auto& model : rtgAccelerationModels_)
+        {
+            Eigen::Vector3d value =
+                model->getbodyFixedForceVectorAtReferenceEpoch();
+
+            if ( (value - referenceValue).norm() > 1.0e-12 )
+            {
+                throw std::runtime_error("Inconsistent RTG force vectors across models");
+            }
+        }
+        return referenceValue;
     }
 
     //! Reset value of rtg acceleration components
@@ -63,17 +72,18 @@ public:
      *  Reset value of rtg acceleration components
      *  \param parameterValue New value of rtg acceleration components
      */
-    void setParameterValue( Eigen::VectorXd parameterValue )
+    void setParameterValue( const Eigen::VectorXd parameterValue )
     {
         // test size of Xd
-        if( parameterValue.size() != parameterSize_ )
+        if( parameterValue.size( ) != parameterSize_ )
         {
             throw std::runtime_error( "Error when getting rtg force parameter size; inconsistent sizes found." );
         }
 
-        // Reset components in acceleration model
-        rtgAccelerationModel_->resetForceVectorAtReferenceEpoch( parameterValue );
-
+        for (const auto& model : rtgAccelerationModels_)
+        {
+            model->resetForceVectorAtReferenceEpoch(parameterValue);
+        }
     }
 
     //! Function to retrieve the size of the rtg force vector parameter (always 3)
@@ -89,11 +99,16 @@ public:
         return parameterDescription;
     }
 
-    //! Function to retrieve list of components in rtg accelerations that are to be estimated (always 0, 1, 2).a
+    //! Function to retrieve list of components in rtg accelerations that are to be estimated it.
+    Eigen::Vector3i getIndices( )
+    {
+        return accelerationIndices_;
+    }
+
 protected:
 private:
     //! Class defining properties of rtg acceleration used in propagation.
-    std::shared_ptr< system_models::RTGAccelerationModel > rtgAccelerationModel_;
+    std::vector < std::shared_ptr< system_models::RTGAccelerationModel > > rtgAccelerationModels_;
 
     //! Number of rtg acceleration components that are to be estimated.
     int parameterSize_;
@@ -101,9 +116,6 @@ private:
     //! List of component indices in rtg accelerations that are to be estimated.
     Eigen::Vector3i accelerationIndices_;
 };
-
-
-
 
 //! Interface class for estimation of a body's time-independent empirical accelerations
 /*!
@@ -120,13 +132,16 @@ public:
      *  \param rtgAccelerationModel Class defining properties of rtg acceleration used in propagation.
      *  \param associatedBody Body for which empirical accelerations are estimated
      */
-    RTGForceVectorMagnitude(
-            const std::shared_ptr< system_models::RTGAccelerationModel > rtgAccelerationModel,
-            const std::string& associatedBody):
-        EstimatableParameter< double >( rtg_force_vector_magnitude, associatedBody),
-        rtgAccelerationModel_( rtgAccelerationModel ),
-        parameterSize_(1)
-    { }
+    RTGForceVectorMagnitude( const std::vector< std::shared_ptr< system_models::RTGAccelerationModel > >& rtgAccelerationModels,
+                             const std::string& associatedBody ):
+        EstimatableParameter< double >( rtg_force_vector_magnitude, associatedBody ), rtgAccelerationModels_( rtgAccelerationModels ),
+        parameterSize_( 1 )
+    {
+        if( rtgAccelerationModels_.size( ) == 0 )
+        {
+            throw std::runtime_error( "Error when creating RTG force magnitude parameter, no accelerations provided" );
+        }
+    }
 
     //! Destructor
     ~RTGForceVectorMagnitude( ) { }
@@ -138,7 +153,18 @@ public:
      */
     double getParameterValue( )
     {
-        return rtgAccelerationModel_->getForceVectorMagnitudeAtReferenceEpoch();
+        // Here we ensure that parameter values across rtg acceleration models in multi-arc setup are consistent
+        const double referenceValue = rtgAccelerationModels_.at( 0 )->getForceVectorMagnitudeAtReferenceEpoch();
+
+        for( unsigned int i = 0; i < rtgAccelerationModels_.size( ); i++ )
+        {
+            double value = rtgAccelerationModels_.at( i )->getForceVectorMagnitudeAtReferenceEpoch();
+            if ( std::fabs(value - referenceValue) > 1.0e-12 )
+            {
+                throw std::runtime_error("Inconsistent RTG force vector magnitudes across models");
+            }
+        }
+        return referenceValue;
     }
 
     //! Reset value of rtg force magnitude
@@ -146,11 +172,12 @@ public:
      *  Reset value of rtg force magnitude
      *  \param parameterValue New value of rtg force magnitude
      */
-    void setParameterValue( double parameterValue )
+    void setParameterValue( const double parameterValue )
     {
-        // Reset value of rtg force magnitude
-        rtgAccelerationModel_->resetForceMagnitudeAtReferenceEpoch( parameterValue );
-
+        for (const auto& model : rtgAccelerationModels_)
+        {
+            model->resetForceMagnitudeAtReferenceEpoch(parameterValue);
+        }
     }
 
     //! Function to retrieve the size of the rtg force vector parameter (always 3)
@@ -166,7 +193,7 @@ public:
         return parameterDescription;
     }
 
-    //! Function to retrieve list of components in rtg accelerations that are to be estimated (always 0, 1, 2).
+    //! Function to retrieve list of components in rtg accelerations that are to be estimated
     Eigen::Vector3i getIndices( )
     {
         return accelerationIndices_;
@@ -175,7 +202,7 @@ public:
 protected:
 private:
     //! Class defining properties of rtg acceleration used in propagation.
-    std::shared_ptr< system_models::RTGAccelerationModel > rtgAccelerationModel_;
+    std::vector < std::shared_ptr< system_models::RTGAccelerationModel > > rtgAccelerationModels_;
 
     //! Number of rtg acceleration components that are to be estimated.
     int parameterSize_;
@@ -183,7 +210,6 @@ private:
     //! List of component indices in rtg accelerations that are to be estimated.
     Eigen::Vector3i accelerationIndices_;
 };
-
 
 }  // namespace estimatable_parameters
 
