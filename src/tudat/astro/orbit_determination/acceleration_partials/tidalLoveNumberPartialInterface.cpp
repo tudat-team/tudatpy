@@ -476,8 +476,6 @@ std::vector< Eigen::Vector2d > TidalLoveNumberPartialInterface::calculateCoeffic
     return realCoefficientPartials;
 }
 
-
-
 }  // namespace orbit_determination
 
 }  // namespace tudat
