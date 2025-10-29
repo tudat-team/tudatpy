@@ -376,6 +376,10 @@ std::pair< double, double > getTabulatedEphemerisSafeInterval( const std::shared
         safeInterval =
                 std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >( ephemeris )->getSafeInterpolationInterval( );
     }
+    else
+    {
+        throw std::runtime_error( "Error when getting tabulated ephemeris safe interval, tabulated ephemeris not recognized" );
+    }
     return safeInterval;
 }
 
