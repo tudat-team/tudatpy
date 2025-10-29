@@ -117,10 +117,9 @@ void expose_observations_simulation_settings( py::module& m )
 
 
       )doc" )
-        .def_property("simulation_times",
-           &tss::TabulatedObservationSimulationSettings<TIME_TYPE>::getSimulationTimes,
-           &tss::TabulatedObservationSimulationSettings<TIME_TYPE>::setSimulationTimes);
-    
+            .def_property( "simulation_times",
+                           &tss::TabulatedObservationSimulationSettings< TIME_TYPE >::getSimulationTimes,
+                           &tss::TabulatedObservationSimulationSettings< TIME_TYPE >::setSimulationTimes );
 
     m.def( "tabulated_simulation_settings",
            &tss::tabulatedObservationSimulationSettings< TIME_TYPE >,
@@ -344,13 +343,13 @@ void expose_observations_simulation_settings( py::module& m )
 
      )doc" );
 
-     m.def( "observation_settings_from_collection",
+    m.def( "observation_settings_from_collection",
            &tss::getObservationSimulationSettingsFromObservations< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "observation_collection" ),
            py::arg( "bodies" ),
            R"doc(No documentation found.)doc" );
 
-           m.def( "change_simulation_settings_observable_types",
+    m.def( "change_simulation_settings_observable_types",
            &tom::changeObservableTypesOfObservationSimulationSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "observation_simulation_settings" ),
            py::arg( "replacement_observable_types" ) =
@@ -366,13 +365,10 @@ void expose_observations_simulation_settings( py::module& m )
     //          get_docstring("create_odf_observation_simulation_settings_list").c_str()
     //          );
 
-
     // #   Observation Model Settings --> Observation Simulator #
     m.def( "create_observation_simulators",
-           py::overload_cast<
-               const std::vector< std::shared_ptr< tom::ObservationModelSettings > >&,
-               const tss::SystemOfBodies& >(
-               &tom::createObservationSimulators< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::overload_cast< const std::vector< std::shared_ptr< tom::ObservationModelSettings > >&, const tss::SystemOfBodies& >(
+                   &tom::createObservationSimulators< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "observation_settings" ),
            py::arg( "bodies" ),
            R"doc(
@@ -414,10 +410,9 @@ void expose_observations_simulation_settings( py::module& m )
 
 
      )doc" );
-
 }
 
-}
-}
-}
-}
+}  // namespace observations_simulation_settings
+}  // namespace observations_setup
+}  // namespace estimation
+}  // namespace tudatpy
