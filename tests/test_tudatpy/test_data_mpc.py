@@ -1,17 +1,14 @@
 
 from tudatpy.data.mpc import BatchMPC, MPC80ColsParser
 from tudatpy.data.horizons import HorizonsQuery
-
 from tudatpy.dynamics import environment_setup
 from tudatpy.interface import spice
-
 import numpy as np
-import pytest
 import datetime
 import pytest
 from tudatpy.astro.time_representation import DateTime
-from astroquery.mpc import MPC
 import pandas as pd
+import os
 
 spice.load_standard_kernels()
 
@@ -297,7 +294,7 @@ def test_parse_80cols_file():
     batch.get_observations([433])
     batch.filter(epoch_start = datetime.datetime(2021, 6, 7, 00, 4), epoch_end =  datetime.datetime(2021, 6, 7, 16, 4,2))
     MPC_parser = MPC80ColsParser()
-    file_path = '/Users/lgisolfi/CLionProjects/tudatpy_examples/estimation/data/eros_obs.txt'
+    file_path = os.path.dirname(__file__) + '/eros_obs.txt'
     table_output = MPC_parser.parse_80cols_file(file_path)
 
     epochs1 = pd.to_datetime(table_output['epoch_utc']).to_numpy()
@@ -308,5 +305,3 @@ def test_parse_80cols_file():
 
     tol = 5e-5 # not completely sure why some are zero and some are not.
     assert not (diff_seconds > tol).any()
-
-test_compare_mpc_horizons_eph()
