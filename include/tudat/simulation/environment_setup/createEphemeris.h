@@ -54,7 +54,8 @@ enum EphemerisType {
     custom_ephemeris,
     direct_tle_ephemeris,
     interpolated_tle_ephemeris,
-    scaled_ephemeris
+    scaled_ephemeris,
+    multi_arc_ephemeris
 };
 
 // Class for providing settings for ephemeris model.
@@ -819,6 +820,31 @@ private:
     std::shared_ptr< ephemerides::Tle > tle_;
 };
 
+class MultiArcEphemerisSettings : public EphemerisSettings
+{
+public:
+    // Constructor of settings for an ephemeris producing a constant (time-independent) state.
+    /*
+     * Constructor of settings for an ephemeris producing a constant (time-independent) state.
+     * \param constantState Constant state that will be provided as output of the ephemeris at all times.
+     * \param frameOrigin Origin of frame in which ephemeris data is defined.
+     * \param frameOrientation Orientation of frame in which ephemeris data is defined.
+     */
+    MultiArcEphemerisSettings( const std::map< double, std::shared_ptr< EphemerisSettings > >& singleArcEphemerides,
+                               const std::string& frameOrigin = "SSB",
+                               const std::string& frameOrientation = "ECLIPJ2000",
+                               const std::shared_ptr< EphemerisSettings > defaultEphemeris = nullptr ):
+        EphemerisSettings( multi_arc_ephemeris, frameOrigin, frameOrientation ), singleArcEphemerides_( singleArcEphemerides ),
+        defaultEphemeris_( defaultEphemeris )
+    { }
+
+    std::map< double, std::shared_ptr< EphemerisSettings > > singleArcEphemerides_;
+
+    std::shared_ptr< EphemerisSettings > defaultEphemeris_;
+
+
+};
+
 template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > > createStateInterpolatorFromSpice(
         const std::string& body,
@@ -1096,6 +1122,16 @@ inline std::shared_ptr< EphemerisSettings > scaledEphemerisSettings( const std::
 {
     return std::make_shared< ScaledEphemerisSettings >( baseSettings, scaling, isScalingAbsolute );
 }
+
+inline std::shared_ptr< EphemerisSettings > multiArcEphemerisSettings(
+        const std::map< double, std::shared_ptr< EphemerisSettings > >& singleArcEphemerides,
+        const std::string& frameOrigin = "SSB",
+        const std::string& frameOrientation = "ECLIPJ2000",
+        const std::shared_ptr< EphemerisSettings > defaultEphemeris = nullptr )
+{
+    return std::make_shared< MultiArcEphemerisSettings >( singleArcEphemerides, frameOrigin, frameOrientation, defaultEphemeris );
+}
+
 
 // Function to create a ephemeris model.
 /*
@@ -1394,6 +1430,36 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris( const std::shared
                 }
                 break;
             }
+            case multi_arc_ephemeris: {
+                // Check consistency of type and class.
+                std::shared_ptr< MultiArcEphemerisSettings > multiArcEphemerisSettings =
+                        std::dynamic_pointer_cast< MultiArcEphemerisSettings >( ephemerisSettings );
+                if( multiArcEphemerisSettings == nullptr )
+                {
+                    throw std::runtime_error( "Error, expected multi-arc ephemeris settings for body " + bodyName );
+                }
+                else
+                {
+                    std::map< double, std::shared_ptr< Ephemeris > > singleArcEphemerides;
+                    for( auto it : multiArcEphemerisSettings->singleArcEphemerides_ )
+                    {
+                        singleArcEphemerides[ it.first ] = createBodyEphemeris< StateScalarType, TimeType >(
+                                it.second, bodyName );
+                    }
+                    std::shared_ptr< Ephemeris > defaultEphemeris;
+                    if( multiArcEphemerisSettings->defaultEphemeris_ != nullptr )
+                    {
+                        defaultEphemeris = createBodyEphemeris< StateScalarType, TimeType >(
+                                multiArcEphemerisSettings->defaultEphemeris_, bodyName );
+                    }
+                    ephemeris = std::make_shared< MultiArcEphemeris >( singleArcEphemerides,
+                                                                       multiArcEphemerisSettings->getFrameOrigin( ),
+                                                                       multiArcEphemerisSettings->getFrameOrientation( ),
+                                                                       defaultEphemeris );
+
+                }
+                break;
+            }
             default: {
                 throw std::runtime_error( "Error, did not recognize ephemeris model settings type " +
                                           std::to_string( ephemerisSettings->getEphemerisType( ) ) );
@@ -1402,16 +1468,6 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris( const std::shared
     }
     return ephemeris;
 }
-
-// Function that retrieves the time interval at which an ephemeris can be safely interrogated
-/*
- * Function that retrieves the time interval at which an ephemeris can be safely interrogated. For most ephemeris types,
- * this function returns the full range of double values ( lowest( ) to max( ) ). For the tabulated ephemeris, the interval
- * on which the interpolator inside this object is valid is checked and returned
- * \param ephemerisModel Ephemeris model for which the interval is to be determined.
- * \return The time interval at which the ephemeris can be safely interrogated
- */
-std::pair< double, double > getSafeInterpolationInterval( const std::shared_ptr< ephemerides::Ephemeris > ephemerisModel );
 
 }  // namespace simulation_setup
 
