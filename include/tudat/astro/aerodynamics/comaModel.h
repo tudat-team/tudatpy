@@ -51,6 +51,8 @@ public:
      * \param cometRotationFunction Function returning comet body-fixed rotation matrix
      * \param maximumDegree Maximum degree used to compute the coma density with SH (-1 for auto)
      * \param maximumOrder Maximum Order used to compute the coma density with SH (-1 for auto)
+     * \param temperaturePolyDataset Optional temperature polynomial coefficient dataset (nullptr if not provided)
+     * \param heatCapacityRatio Heat capacity ratio (gamma) for speed of sound calculation (default 1.33 for water vapor)
      */
     ComaModel( const simulation_setup::ComaPolyDataset& polyDataset,
                const double molecularWeight,
@@ -58,7 +60,9 @@ public:
                std::function<Eigen::Vector6d()> cometStateFunction,
                std::function<Eigen::Matrix3d()> cometRotationFunction,
                const int& maximumDegree = -1,
-               const int& maximumOrder = -1 );
+               const int& maximumOrder = -1,
+               const simulation_setup::ComaPolyDataset* temperaturePolyDataset = nullptr,
+               const double heatCapacityRatio = 1.33 );
 
     /*!
      * \brief Constructor for Stokes coefficient data.
@@ -69,6 +73,8 @@ public:
      * \param cometRotationFunction Function returning comet body-fixed rotation matrix
      * \param maximumDegree Maximum degree used to compute the coma density with SH (-1 for auto)
      * \param maximumOrder Maximum Order used to compute the coma density with SH (-1 for auto)
+     * \param temperatureStokesDataset Optional temperature Stokes coefficient dataset (nullptr if not provided)
+     * \param heatCapacityRatio Heat capacity ratio (gamma) for speed of sound calculation (default 1.33 for water vapor)
      */
     ComaModel( const simulation_setup::ComaStokesDataset& stokesDataset,
                const double molecularWeight,
@@ -76,7 +82,9 @@ public:
                std::function<Eigen::Vector6d()> cometStateFunction,
                std::function<Eigen::Matrix3d()> cometRotationFunction,
                const int& maximumDegree = -1,
-               const int& maximumOrder = -1 );
+               const int& maximumOrder = -1,
+               const simulation_setup::ComaStokesDataset* temperatureStokesDataset = nullptr,
+               const double heatCapacityRatio = 1.33 );
 
 
     /*!
@@ -198,6 +206,13 @@ private:
     //! Cached final density result to avoid repeated exp2 calls
     mutable double cachedFinalDensity_;
 
+    //! Cached final temperature result to avoid repeated calculations
+    mutable double cachedFinalTemperature_;
+
+    //! Cached temperature coefficient matrices (only allocated if temperature dataset provided)
+    mutable Eigen::MatrixXd cachedTemperatureCosineCoefficients_;
+    mutable Eigen::MatrixXd cachedTemperatureSineCoefficients_;
+
     //! Cached state function results
     mutable Eigen::Vector6d cachedSunState_;
     mutable Eigen::Vector6d cachedCometState_;
@@ -214,9 +229,11 @@ private:
         bool trigValid : 1;
         bool densityValid : 1;
         bool stateValid : 1;
+        bool temperatureValid : 1;
 
         CacheFlags() : solarLongitudeValid(false), interpolationValid(false),
-                       trigValid(false), densityValid(false), stateValid(false) {}
+                       trigValid(false), densityValid(false), stateValid(false),
+                       temperatureValid(false) {}
     };
     mutable CacheFlags cacheFlags_;
 
@@ -234,6 +251,15 @@ private:
     //! Maximum spherical harmonic order used for density computation (-1 for auto-detect)
     int maximumOrder_;
 
+    //! Heat capacity ratio (gamma) for speed of sound calculation
+    double heatCapacityRatio_;
+
+    //! Specific gas constant R_specific = R_universal / molecular_weight [J/(kg·K)]
+    double specificGasConstant_;
+
+    //! Flag indicating whether temperature dataset was provided
+    bool hasTemperatureDataset_;
+
     // ========== Data and computation infrastructure (large objects, less frequently accessed) ==========
 
     //! Polynomial coefficient dataset containing coma density data (used when dataType_ == POLYNOMIAL_COEFFICIENTS)
@@ -241,6 +267,12 @@ private:
 
     //! Stokes coefficient dataset containing coma density data (used when dataType_ == STOKES_COEFFICIENTS)
     std::shared_ptr<simulation_setup::ComaStokesDataset> stokesDataset_;
+
+    //! Polynomial coefficient dataset containing coma temperature data (nullptr if not provided)
+    std::shared_ptr<simulation_setup::ComaPolyDataset> temperaturePolyDataset_;
+
+    //! Stokes coefficient dataset containing coma temperature data (nullptr if not provided)
+    std::shared_ptr<simulation_setup::ComaStokesDataset> temperatureStokesDataset_;
 
     //! Function returning Sun state vector (position [m], velocity [m/s]) in inertial frame
     std::function<Eigen::Vector6d()> sunStateFunction_;
@@ -272,6 +304,25 @@ private:
     //! Cache for fallback reduced interpolators (created on-demand, then cached for reuse)
     mutable std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
                                            std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>>>> fallbackReducedStokesInterpolators_;
+
+    //! Pre-initialized interpolators for temperature Stokes coefficients (only used if temperature dataset provided)
+    //! Deque indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators
+    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
+                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>> temperatureStokesInterpolators_;
+
+    //! Pre-initialized interpolators for reduced temperature Stokes coefficients (for radius > reference radius)
+    //! Deque indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators (1D: solar longitude only)
+    std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
+                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>>>> reducedTemperatureStokesInterpolators_;
+
+    //! Cache for fallback temperature interpolators (created on-demand, then cached for reuse)
+    //! Deque indexed by file, each containing a map from (n,m) pairs to cosine and sine coefficient interpolators
+    mutable std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>,
+                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 2>>>>> fallbackTemperatureStokesInterpolators_;
+
+    //! Cache for fallback reduced temperature interpolators (created on-demand, then cached for reuse)
+    mutable std::deque<std::map<std::pair<int,int>, std::pair<std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>,
+                                           std::unique_ptr<interpolators::MultiLinearInterpolator<double, double, 1>>>>> fallbackReducedTemperatureStokesInterpolators_;
 
     /*!
      * @brief Find the index of the time interval that contains a given time.
@@ -308,6 +359,28 @@ private:
     double computeNumberDensityFromStokesCoefficients( double radius, double longitude, double latitude, double time ) const;
 
     /*!
+     * \brief Compute temperature from polynomial coefficients.
+     * \param radius Radial distance from comet center [m]
+     * \param longitude Longitude in comet body-fixed frame [rad]
+     * \param latitude Latitude in comet body-fixed frame [rad]
+     * \param time Time at which to compute temperature [s]
+     * \return Coma temperature [K]
+     * \throws std::runtime_error If dataset is null or time is out of range
+     */
+    double computeTemperatureFromPolyCoefficients( double radius, double longitude, double latitude, double time ) const;
+
+    /*!
+     * \brief Compute temperature from Stokes coefficients.
+     * \param radius Radial distance from comet center [m]
+     * \param longitude Longitude in comet body-fixed frame [rad]
+     * \param latitude Latitude in comet body-fixed frame [rad]
+     * \param time Time at which to compute temperature [s]
+     * \return Coma temperature [K]
+     * \throws std::runtime_error If dataset is null or time is out of range
+     */
+    double computeTemperatureFromStokesCoefficients( double radius, double longitude, double latitude, double time ) const;
+
+    /*!
      * @brief Calculate solar longitude in comet body-fixed frame with caching.
      * @param time Time at which to compute solar longitude [s]
      * @return Solar longitude [rad]
@@ -318,6 +391,11 @@ private:
      * @brief Initialize interpolators for Stokes coefficients (called only for STOKES_COEFFICIENTS data type)
      */
     void initializeStokesInterpolators();
+
+    /*!
+     * @brief Initialize interpolators for temperature Stokes coefficients (called only if temperature dataset provided)
+     */
+    void initializeTemperatureStokesInterpolators();
 
     /*!
      * @brief Helper to create 2D interpolator for Stokes coefficients on-the-fly (fallback)

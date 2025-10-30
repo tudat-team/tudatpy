@@ -38,7 +38,9 @@ ComaModel::ComaModel( const simulation_setup::ComaPolyDataset& polyDataset,
                       std::function<Eigen::Vector6d()> cometStateFunction,
                       std::function<Eigen::Matrix3d()> cometRotationFunction,
                       const int& maximumDegree,
-                      const int& maximumOrder ) :
+                      const int& maximumOrder,
+                      const simulation_setup::ComaPolyDataset* temperaturePolyDataset,
+                      const double heatCapacityRatio ) :
     AtmosphereModel( false, false, true ),  // Use radius instead of altitude
     cachedSolarLongitude_( 0.0 ),
     cachedTime_( -std::numeric_limits<double>::infinity() ),
@@ -49,14 +51,21 @@ ComaModel::ComaModel( const simulation_setup::ComaPolyDataset& polyDataset,
     cachedLatitude_( 0.0 ),
     cachedLongitude_( 0.0 ),
     cachedFinalDensity_( 0.0 ),
+    cachedFinalTemperature_( 0.0 ),
     interpolationPoint2D_( 2 ),
     interpolationPoint1D_( 1 ),
     dataType_( ComaDataType::POLYNOMIAL_COEFFICIENTS ),
     molecularWeight_( molecularWeight ),
     maximumDegree_( maximumDegree ),
     maximumOrder_( maximumOrder ),
+    heatCapacityRatio_( heatCapacityRatio ),
+    specificGasConstant_( physical_constants::MOLAR_GAS_CONSTANT / molecularWeight ),
+    hasTemperatureDataset_( temperaturePolyDataset != nullptr ),
     polyDataset_( std::make_shared<simulation_setup::ComaPolyDataset>( polyDataset ) ),
     stokesDataset_( nullptr ),
+    temperaturePolyDataset_( temperaturePolyDataset ?
+        std::make_shared<simulation_setup::ComaPolyDataset>( *temperaturePolyDataset ) : nullptr ),
+    temperatureStokesDataset_( nullptr ),
     sunStateFunction_( std::move( sunStateFunction ) ),
     cometStateFunction_( std::move( cometStateFunction ) ),
     cometRotationFunction_( std::move( cometRotationFunction ) ),
@@ -84,6 +93,16 @@ ComaModel::ComaModel( const simulation_setup::ComaPolyDataset& polyDataset,
     const int effectiveMaxOrder = ( maximumOrder_ > 0 ) ? maximumOrder_ : maxDegreeAvailable;
     cachedCosineCoefficients_ = Eigen::MatrixXd::Zero( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
     cachedSineCoefficients_ = Eigen::MatrixXd::Zero( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
+
+    // Allocate temperature coefficient matrices if temperature dataset provided
+    if ( hasTemperatureDataset_ )
+    {
+        const int tempMaxDegreeAvailable = temperaturePolyDataset_->getMaxDegreeSH( 0 );
+        const int tempEffectiveMaxDegree = ( maximumDegree_ > 0 ) ? maximumDegree_ : tempMaxDegreeAvailable;
+        const int tempEffectiveMaxOrder = ( maximumOrder_ > 0 ) ? maximumOrder_ : tempMaxDegreeAvailable;
+        cachedTemperatureCosineCoefficients_ = Eigen::MatrixXd::Zero( tempEffectiveMaxDegree + 1, tempEffectiveMaxOrder + 1 );
+        cachedTemperatureSineCoefficients_ = Eigen::MatrixXd::Zero( tempEffectiveMaxDegree + 1, tempEffectiveMaxOrder + 1 );
+    }
 }
 
 /*!
@@ -103,7 +122,9 @@ ComaModel::ComaModel( const simulation_setup::ComaStokesDataset& stokesDataset,
                       std::function<Eigen::Vector6d()> cometStateFunction,
                       std::function<Eigen::Matrix3d()> cometRotationFunction,
                       const int& maximumDegree,
-                      const int& maximumOrder ) :
+                      const int& maximumOrder,
+                      const simulation_setup::ComaStokesDataset* temperatureStokesDataset,
+                      const double heatCapacityRatio ) :
     AtmosphereModel( false, false, true ),  // Use radius instead of altitude
     cachedSolarLongitude_( 0.0 ),
     cachedTime_( -std::numeric_limits<double>::infinity() ),
@@ -114,14 +135,21 @@ ComaModel::ComaModel( const simulation_setup::ComaStokesDataset& stokesDataset,
     cachedLatitude_( 0.0 ),
     cachedLongitude_( 0.0 ),
     cachedFinalDensity_( 0.0 ),
+    cachedFinalTemperature_( 0.0 ),
     interpolationPoint2D_( 2 ),
     interpolationPoint1D_( 1 ),
     dataType_( ComaDataType::STOKES_COEFFICIENTS ),
     molecularWeight_( molecularWeight ),
     maximumDegree_( maximumDegree ),
     maximumOrder_( maximumOrder ),
+    heatCapacityRatio_( heatCapacityRatio ),
+    specificGasConstant_( physical_constants::MOLAR_GAS_CONSTANT / molecularWeight ),
+    hasTemperatureDataset_( temperatureStokesDataset != nullptr ),
     polyDataset_( nullptr ),
     stokesDataset_( std::make_shared<simulation_setup::ComaStokesDataset>( stokesDataset ) ),
+    temperaturePolyDataset_( nullptr ),
+    temperatureStokesDataset_( temperatureStokesDataset ?
+        std::make_shared<simulation_setup::ComaStokesDataset>( *temperatureStokesDataset ) : nullptr ),
     sunStateFunction_( std::move( sunStateFunction ) ),
     cometStateFunction_( std::move( cometStateFunction ) ),
     cometRotationFunction_( std::move( cometRotationFunction ) ),
@@ -150,8 +178,24 @@ ComaModel::ComaModel( const simulation_setup::ComaStokesDataset& stokesDataset,
     cachedCosineCoefficients_ = Eigen::MatrixXd::Zero( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
     cachedSineCoefficients_ = Eigen::MatrixXd::Zero( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
 
+    // Allocate temperature coefficient matrices if temperature dataset provided
+    if ( hasTemperatureDataset_ )
+    {
+        const int tempNmax = temperatureStokesDataset_->nmax();
+        const int tempEffectiveMaxDegree = ( maximumDegree_ > 0 ) ? maximumDegree_ : tempNmax;
+        const int tempEffectiveMaxOrder = ( maximumOrder_ > 0 ) ? maximumOrder_ : tempNmax;
+        cachedTemperatureCosineCoefficients_ = Eigen::MatrixXd::Zero( tempEffectiveMaxDegree + 1, tempEffectiveMaxOrder + 1 );
+        cachedTemperatureSineCoefficients_ = Eigen::MatrixXd::Zero( tempEffectiveMaxDegree + 1, tempEffectiveMaxOrder + 1 );
+    }
+
     // Initialize interpolators for efficient Stokes coefficient evaluation
     initializeStokesInterpolators();
+
+    // Initialize temperature interpolators if temperature dataset provided
+    if ( hasTemperatureDataset_ )
+    {
+        initializeTemperatureStokesInterpolators();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -242,88 +286,122 @@ double ComaModel::getNumberDensity( const double radius,
 
 /*!
  * \brief Compute coma pressure at specified location and time.
- * Estimates pressure using ideal gas law with typical coma temperature
- * and composition (primarily water vapor).
+ * Uses ideal gas law with actual temperature from dataset: P = ρ * R_specific * T
+ * where R_specific = R_universal / molecular_weight
  * \param radius Radius from comet center at which pressure is to be computed [m]
  * \param longitude Longitude in comet body-fixed frame at which pressure is to be computed [rad]
  * \param latitude Latitude in comet body-fixed frame at which pressure is to be computed [rad]
  * \param time Time at which pressure is to be computed [s]
  * \return Coma pressure at specified location and time [N/m²]
+ * \throws std::runtime_error If temperature dataset was not provided in constructor
  */
 double ComaModel::getPressure( const double radius,
                                const double longitude,
                                const double latitude,
                                const double time )
 {
-    // For a coma, pressure is typically negligible compared to planetary atmospheres
-    // Return a small value proportional to density using ideal gas law: P = ρRT/M
+    // Check if temperature dataset was provided
+    if ( !hasTemperatureDataset_ )
+    {
+        throw std::runtime_error( "ComaModel: Pressure calculation requested but no temperature dataset provided. "
+                                  "Pressure requires temperature via ideal gas law P=ρRT/M." );
+    }
+
+    // Ideal gas law: P = ρ * R_specific * T
+    // where R_specific = R_universal / molecular_weight
     const double density = getDensity( radius, longitude, latitude, time );
+    const double temperature = getTemperature( radius, longitude, latitude, time );
 
-    // Use typical values for comet coma gas (mostly water vapor)
-    const double temperature = 200.0;      // K, typical coma temperature
-    const double molarMass = 0.018;        // kg/mol, water vapor
-    const double gasConstant = 8.314;      // J/(mol·K)
-
-    return density * gasConstant * temperature / molarMass;
+    return density * specificGasConstant_ * temperature;
 }
 
 /*!
  * \brief Compute coma temperature at specified location and time.
- * Uses a simple exponential decay model with distance from the comet surface.
+ * Uses either polynomial or Stokes coefficients depending on the data type
+ * to evaluate the temperature field using spherical harmonics.
  * \param radius Radius from comet center at which temperature is to be computed [m]
  * \param longitude Longitude in comet body-fixed frame at which temperature is to be computed [rad]
  * \param latitude Latitude in comet body-fixed frame at which temperature is to be computed [rad]
  * \param time Time at which temperature is to be computed [s]
  * \return Coma temperature at specified location and time [K]
+ * \throws std::runtime_error If temperature dataset was not provided in constructor
  */
 double ComaModel::getTemperature( const double radius,
                                   const double longitude,
                                   const double latitude,
                                   const double time )
 {
-    // For comet coma, temperature varies with distance from nucleus and solar irradiation
-    // Implement a simple exponential decay model based on altitude
+    // Check if temperature dataset was provided
+    if ( !hasTemperatureDataset_ )
+    {
+        throw std::runtime_error( "ComaModel: Temperature calculation requested but no temperature dataset provided. "
+                                  "Please provide temperature polynomial/Stokes coefficients in constructor." );
+    }
 
-    TUDAT_UNUSED_PARAMETER( longitude );
-    TUDAT_UNUSED_PARAMETER( latitude );
-    TUDAT_UNUSED_PARAMETER( time );
+    // Check cache first
+    constexpr double tolerance = 1e-10;
+    constexpr double toleranceSq = tolerance * tolerance;
 
-    const double cometRadius = 1000.0;         // m, typical comet radius
-    const double surfaceTemperature = 200.0;   // K, surface temperature
-    const double spaceTemperature = 2.7;       // K, cosmic background temperature
-    const double scaleHeight = 10000.0;        // m, characteristic scale for temperature decay
+    const double radiusDiff = radius - cachedRadius_;
+    const double lonDiff = longitude - cachedLongitude_;
+    const double latDiff = latitude - cachedLatitude_;
+    const double timeDiff = time - cachedTime_;
 
-    // Simple exponential decay with altitude
-    const double distanceFromSurface = radius - cometRadius;
-    return spaceTemperature + ( surfaceTemperature - spaceTemperature ) *
-           std::exp( -distanceFromSurface / scaleHeight );
+    if ( cacheFlags_.temperatureValid &&
+         radiusDiff * radiusDiff < toleranceSq &&
+         lonDiff * lonDiff < toleranceSq &&
+         latDiff * latDiff < toleranceSq &&
+         timeDiff * timeDiff < toleranceSq )
+    {
+        return cachedFinalTemperature_;
+    }
+
+    // Compute temperature based on data type
+    switch ( dataType_ )
+    {
+        case ComaDataType::POLYNOMIAL_COEFFICIENTS:
+            cachedFinalTemperature_ = computeTemperatureFromPolyCoefficients( radius, longitude, latitude, time );
+            break;
+
+        case ComaDataType::STOKES_COEFFICIENTS:
+            cachedFinalTemperature_ = computeTemperatureFromStokesCoefficients( radius, longitude, latitude, time );
+            break;
+
+        default:
+            throw std::runtime_error( "ComaModel: Unknown data type" );
+    }
+
+    cacheFlags_.temperatureValid = true;
+    return cachedFinalTemperature_;
 }
 
 /*!
  * \brief Compute speed of sound in coma at specified location and time.
- * Calculates speed of sound using ideal gas formula with local temperature
- * and typical water vapor properties.
+ * Calculates speed of sound using ideal gas formula: c = sqrt(gamma * R_specific * T)
+ * where R_specific = R_universal / molecular_weight
  * \param radius Radius from comet center at which speed of sound is to be computed [m]
  * \param longitude Longitude in comet body-fixed frame at which speed of sound is to be computed [rad]
  * \param latitude Latitude in comet body-fixed frame at which speed of sound is to be computed [rad]
  * \param time Time at which speed of sound is to be computed [s]
  * \return Coma speed of sound at specified location and time [m/s]
+ * \throws std::runtime_error If temperature dataset was not provided in constructor
  */
 double ComaModel::getSpeedOfSound( const double radius,
                                    const double longitude,
                                    const double latitude,
                                    const double time )
 {
-    // Speed of sound in ideal gas: c = √(γRT/M)
-    // where γ is heat capacity ratio, R is gas constant, T is temperature, M is molar mass
+    // Check if temperature dataset was provided
+    if ( !hasTemperatureDataset_ )
+    {
+        throw std::runtime_error( "ComaModel: Speed of sound calculation requested but no temperature dataset provided. "
+                                  "Speed of sound requires temperature: c = sqrt(gamma*R*T/M)." );
+    }
+
     const double temperature = getTemperature( radius, longitude, latitude, time );
 
-    // Typical values for water vapor (dominant component in comet coma)
-    const double heatCapacityRatio = 1.33;     // For water vapor
-    const double molarMass = 0.018;            // kg/mol
-    const double gasConstant = 8.314;          // J/(mol·K)
-
-    return std::sqrt( heatCapacityRatio * gasConstant * temperature / molarMass );
+    // Speed of sound: c = sqrt(gamma * R_specific * T)
+    return std::sqrt( heatCapacityRatio_ * specificGasConstant_ * temperature );
 }
 
 //-----------------------------------------------------------------------------
@@ -862,6 +940,135 @@ void ComaModel::initializeStokesInterpolators()
     }
 }
 
+/*!
+ * \brief Initialize interpolators for temperature Stokes coefficients.
+ * Pre-computes multilinear interpolators for all temperature spherical harmonic coefficient
+ * pairs to significantly improve performance during temperature evaluations.
+ * This follows the same pattern as initializeStokesInterpolators() but for temperature data.
+ */
+void ComaModel::initializeTemperatureStokesInterpolators()
+{
+    // This function is only called when temperature Stokes dataset is provided
+    if ( !temperatureStokesDataset_ )
+    {
+        return;
+    }
+
+    // Get dataset properties
+    const auto& radiiGrid = temperatureStokesDataset_->radii();
+    const auto& longitudeGrid = temperatureStokesDataset_->lons();
+    const int nmax = temperatureStokesDataset_->nmax();
+    const std::size_t nFiles = temperatureStokesDataset_->nFiles();
+
+    // Determine effective maximum degree and order
+    const int effectiveMaxDegree = ( maximumDegree_ > 0 ) ? maximumDegree_ : nmax;
+    const int effectiveMaxOrder = ( maximumOrder_ > 0 ) ? maximumOrder_ : nmax;
+
+    // Resize interpolator vectors to accommodate all files
+    temperatureStokesInterpolators_.clear();
+    reducedTemperatureStokesInterpolators_.clear();
+    fallbackTemperatureStokesInterpolators_.clear();
+    fallbackReducedTemperatureStokesInterpolators_.clear();
+
+    for ( std::size_t i = 0; i < nFiles; ++i )
+    {
+        temperatureStokesInterpolators_.emplace_back();
+        reducedTemperatureStokesInterpolators_.emplace_back();
+        fallbackTemperatureStokesInterpolators_.emplace_back();
+        fallbackReducedTemperatureStokesInterpolators_.emplace_back();
+    }
+
+    // Set up interpolation grids (shared for all interpolators)
+    std::vector<std::vector<double>> independentGrids(2);
+    independentGrids[0] = radiiGrid;     // Radius grid
+    independentGrids[1] = longitudeGrid; // Solar longitude grid
+
+    // Initialize interpolators for each file
+    for ( std::size_t fileIndex = 0; fileIndex < nFiles; ++fileIndex )
+    {
+        // Initialize interpolators for each (n,m) pair for this file
+        for ( int degree = 0; degree <= effectiveMaxDegree; ++degree )
+        {
+            for ( int order = 0; order <= std::min(degree, effectiveMaxOrder); ++order )
+            {
+                // Create 2D grids for this coefficient
+                const std::size_t numRadii = radiiGrid.size();
+                const std::size_t numLongitudes = longitudeGrid.size();
+
+                boost::multi_array<double, 2> cosineGrid(boost::extents[numRadii][numLongitudes]);
+                boost::multi_array<double, 2> sineGrid(boost::extents[numRadii][numLongitudes]);
+
+                // Fill grids with coefficient values for this file
+                for ( std::size_t radiusIndex = 0; radiusIndex < numRadii; ++radiusIndex )
+                {
+                    for ( std::size_t longitudeIndex = 0; longitudeIndex < numLongitudes; ++longitudeIndex )
+                    {
+                        auto coeffs = temperatureStokesDataset_->getCoeff(fileIndex, radiusIndex, longitudeIndex, degree, order);
+                        cosineGrid[radiusIndex][longitudeIndex] = coeffs.first;  // Cosine coefficient
+                        sineGrid[radiusIndex][longitudeIndex] = coeffs.second;   // Sine coefficient
+                    }
+                }
+
+                // Create and store interpolators for this coefficient and file
+                auto cosineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 2>>(
+                    independentGrids, cosineGrid,
+                    interpolators::huntingAlgorithm,
+                    interpolators::extrapolate_at_boundary
+                );
+
+                auto sineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 2>>(
+                    independentGrids, sineGrid,
+                    interpolators::huntingAlgorithm,
+                    interpolators::extrapolate_at_boundary
+                );
+
+                std::pair<int,int> degreeOrderPair = {degree, order};
+                temperatureStokesInterpolators_[fileIndex][degreeOrderPair] = {std::move(cosineInterpolator), std::move(sineInterpolator)};
+            }
+        }
+
+        // Initialize reduced interpolators for coefficients beyond reference radius
+        // These are 1D interpolators (solar longitude only)
+        std::vector<std::vector<double>> reducedIndependentGrids(1);
+        reducedIndependentGrids[0] = longitudeGrid; // Solar longitude grid only
+
+        for ( int degree = 0; degree <= effectiveMaxDegree; ++degree )
+        {
+            for ( int order = 0; order <= std::min(degree, effectiveMaxOrder); ++order )
+            {
+                const std::size_t numLongitudes = longitudeGrid.size();
+
+                boost::multi_array<double, 1> reducedCosineGrid(boost::extents[numLongitudes]);
+                boost::multi_array<double, 1> reducedSineGrid(boost::extents[numLongitudes]);
+
+                // Fill grids with reduced coefficient values for this file
+                for ( std::size_t longitudeIndex = 0; longitudeIndex < numLongitudes; ++longitudeIndex )
+                {
+                    auto reducedCoeffs = temperatureStokesDataset_->getReducedCoeff(fileIndex, longitudeIndex, degree, order);
+                    reducedCosineGrid[longitudeIndex] = reducedCoeffs.first;  // Cosine coefficient
+                    reducedSineGrid[longitudeIndex] = reducedCoeffs.second;   // Sine coefficient
+                }
+
+                // Create and store reduced interpolators for this coefficient and file
+                auto reducedCosineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 1>>(
+                    reducedIndependentGrids, reducedCosineGrid,
+                    interpolators::huntingAlgorithm,
+                    interpolators::extrapolate_at_boundary
+                );
+
+                auto reducedSineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 1>>(
+                    reducedIndependentGrids, reducedSineGrid,
+                    interpolators::huntingAlgorithm,
+                    interpolators::extrapolate_at_boundary
+                );
+
+                std::pair<int,int> degreeOrderPair = {degree, order};
+                reducedTemperatureStokesInterpolators_[fileIndex][degreeOrderPair] = {std::move(reducedCosineInterpolator), std::move(reducedSineInterpolator)};
+            }
+        }
+    }
+}
+
 //-----------------------------------------------------------------------------
 // Private Helper Methods - Fallback Interpolator Creation
 //-----------------------------------------------------------------------------
@@ -1018,6 +1225,201 @@ void ComaModel::createFallback1DInterpolator( const int fileIndex, const int deg
 
     // Store interpolators in cache for future use
     fallbackReducedStokesInterpolators_[fileIndex][degreeOrderPair] = {std::move(reducedCosineInterpolator), std::move(reducedSineInterpolator)};
+}
+
+//-----------------------------------------------------------------------------
+// Private Helper Methods - Temperature Computation
+//-----------------------------------------------------------------------------
+
+/*!
+ * \brief Compute temperature from polynomial coefficients.
+ * Uses the same computational approach as density: evaluates polynomial coefficients
+ * to obtain spherical harmonic coefficients, then computes temperature field.
+ * \param radius Radial distance from comet center [m]
+ * \param longitude Longitude in comet body-fixed frame [rad]
+ * \param latitude Latitude in comet body-fixed frame [rad]
+ * \param time Time at which to compute temperature [s]
+ * \return Coma temperature [K]
+ * \throws std::runtime_error If dataset is null or time is out of range
+ */
+double ComaModel::computeTemperatureFromPolyCoefficients( double radius, double longitude, double latitude, double time ) const
+{
+    if ( !temperaturePolyDataset_ )
+    {
+        throw std::runtime_error( "ComaModel: temperaturePolyDataset_ is null" );
+    }
+
+    // Find the time interval and get file metadata
+    const int fileIndex = findTimeIntervalIndex( time );
+    const auto& fileMeta = temperaturePolyDataset_->getFileMeta( fileIndex );
+    const auto& polyCoefficients = temperaturePolyDataset_->getPolyCoefficients( fileIndex );
+    const auto& shIndices = temperaturePolyDataset_->getSHDegreeAndOrderIndices( fileIndex );
+
+    // Calculate solar longitude for current time
+    const double solarLongitude = calculateSolarLongitude( time );
+
+    // Determine effective maximum degree and order
+    const int maxDegreeAvailable = fileMeta.maxDegreeSH;
+    const int effectiveMaxDegree = ( maximumDegree_ > 0 ) ? maximumDegree_ : maxDegreeAvailable;
+    const int effectiveMaxOrder = ( maximumOrder_ > 0 ) ? maximumOrder_ : maxDegreeAvailable;
+
+    // Resize/zero temperature coefficient matrices if needed
+    if ( cachedTemperatureCosineCoefficients_.rows() != effectiveMaxDegree + 1 ||
+         cachedTemperatureCosineCoefficients_.cols() != effectiveMaxOrder + 1 )
+    {
+        cachedTemperatureCosineCoefficients_ = Eigen::MatrixXd::Zero( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
+        cachedTemperatureSineCoefficients_ = Eigen::MatrixXd::Zero( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
+    }
+    else
+    {
+        // Same size - just zero the contents (faster than reallocation)
+        cachedTemperatureCosineCoefficients_.setZero();
+        cachedTemperatureSineCoefficients_.setZero();
+    }
+
+    // Evaluate polynomial coefficients to get spherical harmonic coefficients
+    simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
+        radius,
+        solarLongitude,
+        polyCoefficients,
+        shIndices,
+        fileMeta.powersInvRadius,
+        fileMeta.referenceRadius,
+        cachedTemperatureCosineCoefficients_,
+        cachedTemperatureSineCoefficients_,
+        maximumDegree_,
+        maximumOrder_ );
+
+    // Compute temperature using spherical harmonics expansion
+    return sphericalHarmonicsCalculator_->calculateSurfaceSphericalHarmonics(
+        cachedTemperatureSineCoefficients_, cachedTemperatureCosineCoefficients_,
+        latitude, longitude,
+        maximumDegree_ > 0 ? maximumDegree_ : cachedTemperatureCosineCoefficients_.rows() - 1,
+        maximumOrder_ > 0 ? maximumOrder_ : cachedTemperatureCosineCoefficients_.cols() - 1 );
+}
+
+/*!
+ * \brief Compute temperature from Stokes coefficients using interpolators.
+ * Uses pre-initialized interpolators to efficiently evaluate Stokes coefficients
+ * and applies distance-dependent decay for radii beyond the reference radius.
+ * \param radius Radial distance from comet center [m]
+ * \param longitude Longitude in comet body-fixed frame [rad]
+ * \param latitude Latitude in comet body-fixed frame [rad]
+ * \param time Time at which to compute temperature [s]
+ * \return Coma temperature [K]
+ * \throws std::runtime_error If dataset is null or time is out of range
+ */
+double ComaModel::computeTemperatureFromStokesCoefficients( double radius, double longitude, double latitude, double time ) const
+{
+    if ( !temperatureStokesDataset_ )
+    {
+        throw std::runtime_error( "ComaModel: temperatureStokesDataset_ is null" );
+    }
+
+    // Step 1: Get time-dependent properties
+    const int fileIndex = findTimeIntervalIndex( time );
+    const double solarLongitude = calculateSolarLongitude( time );
+
+    // Step 2: Get dataset properties
+    const int nmax = temperatureStokesDataset_->nmax();
+    const double referenceRadius = temperatureStokesDataset_->getReferenceRadius(fileIndex);
+
+    // Determine effective maximum degree and order
+    const int effectiveMaxDegree = maximumDegree_ > 0 ? maximumDegree_ : nmax;
+    const int effectiveMaxOrder = maximumOrder_ > 0 ? maximumOrder_ : nmax;
+
+    // Step 3: Resize/zero temperature coefficient matrices if needed
+    if ( cachedTemperatureCosineCoefficients_.rows() != effectiveMaxDegree + 1 ||
+         cachedTemperatureCosineCoefficients_.cols() != effectiveMaxOrder + 1 )
+    {
+        cachedTemperatureCosineCoefficients_ = Eigen::MatrixXd::Zero( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
+        cachedTemperatureSineCoefficients_ = Eigen::MatrixXd::Zero( effectiveMaxDegree + 1, effectiveMaxOrder + 1 );
+    }
+    else
+    {
+        cachedTemperatureCosineCoefficients_.setZero();
+        cachedTemperatureSineCoefficients_.setZero();
+    }
+
+    // Step 4: Interpolate coefficients based on whether radius is within reference radius
+    if ( radius <= referenceRadius )
+    {
+        // Within reference radius - use 2D interpolation (radius + solar longitude)
+        interpolationPoint2D_[0] = radius;
+        interpolationPoint2D_[1] = solarLongitude;
+
+        // Check if pre-initialized interpolators are available
+        if ( fileIndex < static_cast<int>(temperatureStokesInterpolators_.size()) &&
+             !temperatureStokesInterpolators_[fileIndex].empty() )
+        {
+            // Use pre-initialized interpolators
+            for ( int degree = 0; degree <= effectiveMaxDegree; ++degree )
+            {
+                for ( int order = 0; order <= std::min(degree, effectiveMaxOrder); ++order )
+                {
+                    std::pair<int,int> degreeOrderPair = {degree, order};
+                    auto it = temperatureStokesInterpolators_[fileIndex].find(degreeOrderPair);
+                    if ( it != temperatureStokesInterpolators_[fileIndex].end() )
+                    {
+                        cachedTemperatureCosineCoefficients_(degree, order) = it->second.first->interpolate(interpolationPoint2D_);
+                        if ( order > 0 )  // Sine coefficients only exist for m > 0
+                        {
+                            cachedTemperatureSineCoefficients_(degree, order) = it->second.second->interpolate(interpolationPoint2D_);
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            // Fallback: Temperature interpolators not pre-initialized - use on-demand creation
+            // This can happen if temperature dataset was added after initial construction
+            throw std::runtime_error( "ComaModel: Temperature Stokes interpolators not initialized. "
+                                      "This should not happen if temperature dataset was provided in constructor." );
+        }
+    }
+    else
+    {
+        // Beyond reference radius - use reduced coefficients with 1D interpolation (solar longitude only)
+        interpolationPoint1D_[0] = solarLongitude;
+
+        // Use pre-initialized reduced interpolators or fallback
+        if ( fileIndex < static_cast<int>(reducedTemperatureStokesInterpolators_.size()) &&
+             !reducedTemperatureStokesInterpolators_[fileIndex].empty() )
+        {
+            // Use pre-initialized reduced interpolators
+            for ( int degree = 0; degree <= effectiveMaxDegree; ++degree )
+            {
+                for ( int order = 0; order <= std::min(degree, effectiveMaxOrder); ++order )
+                {
+                    std::pair<int,int> degreeOrderPair = {degree, order};
+                    auto it = reducedTemperatureStokesInterpolators_[fileIndex].find(degreeOrderPair);
+                    if ( it != reducedTemperatureStokesInterpolators_[fileIndex].end() )
+                    {
+                        cachedTemperatureCosineCoefficients_(degree, order) = it->second.first->interpolate(interpolationPoint1D_);
+                        if ( order > 0 )  // Sine coefficients only exist for m > 0
+                        {
+                            cachedTemperatureSineCoefficients_(degree, order) = it->second.second->interpolate(interpolationPoint1D_);
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            throw std::runtime_error( "ComaModel: Reduced temperature Stokes interpolators not initialized." );
+        }
+
+        // Apply decay term to the reduced coefficients
+        simulation_setup::StokesCoefficientsEvaluator::applyDecayTerm(cachedTemperatureCosineCoefficients_, radius, referenceRadius);
+    }
+
+    // Step 5: Compute temperature using spherical harmonics expansion
+    return sphericalHarmonicsCalculator_->calculateSurfaceSphericalHarmonics(
+        cachedTemperatureSineCoefficients_, cachedTemperatureCosineCoefficients_,
+        latitude, longitude,
+        effectiveMaxDegree, effectiveMaxOrder
+    );
 }
 
 //=============================================================================
