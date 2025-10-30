@@ -194,6 +194,37 @@ public:
 
     virtual InterpolatorTypes getInterpolatorType( ) = 0;
 
+    virtual std::pair< IndependentVariableType, IndependentVariableType > getValidInterpolationInterval( )
+    {
+        std::pair< IndependentVariableType, IndependentVariableType > validRange;
+        switch( boundaryHandling_ )
+        {
+            case throw_exception_at_boundary:
+            case use_nan_value:
+            case use_nan_value_with_warning:
+                validRange =  std::make_pair( independentValues_.at( 0 ), independentValues_.at( independentValues_.size() - 1 ) );
+                break;
+            case use_boundary_value:
+            case use_boundary_value_with_warning:
+            case extrapolate_at_boundary:
+            case extrapolate_at_boundary_with_warning:
+            case use_default_value:
+            case use_default_value_with_warning:
+                validRange = std::make_pair( IndependentVariableType( std::numeric_limits< double >::max( ) ),
+                                       IndependentVariableType( -std::numeric_limits< double >::max( ) ) );
+                break;
+
+        }
+        return validRange;
+    }
+
+    std::pair< double, double > getValidDoubleInterpolationInterval( )
+    {
+        std::pair< IndependentVariableType, IndependentVariableType > validRange = getValidInterpolationInterval( );
+        return std::make_pair( static_cast< double >( validRange.first ), static_cast< double >( validRange.second ) );
+
+    }
+
 protected:
     //! Function to return the condition of the current independent variable.
     /*!
