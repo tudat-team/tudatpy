@@ -33,6 +33,11 @@ void MultiArcEphemeris::resetSingleArcEphemerides(
     for( int i = 0; i < static_cast< int > ( singleArcEphemerides_.size( ) ) - 1 ; i++ )
     {
         std::pair< double, double > safeInterval = getSafeEphemerisEvaluationInterval( singleArcEphemerides_.at( i ) );
+        if( arcStartTimes_.at( i ) < safeInterval.first )
+        {
+            arcStartTimes_[ i ] = safeInterval.first;
+        }
+
         if( safeInterval.second < arcStartTimes_.at( i + 1 ) )
         {
             arcEndTimes_[ i ] = safeInterval.second;

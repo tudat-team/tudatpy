@@ -177,9 +177,9 @@ public:
                     std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, double > >( interpolator_ )
                             ->getNumberOfStages( );
 
-            safeInterpolationInterval.first = interpolator_->getIndependentValues( ).at( 0 + numberOfNodes / 2 + 1 );
-            safeInterpolationInterval.second = interpolator_->getIndependentValues( ).at( interpolator_->getIndependentValues( ).size( ) -
-                                                                                          1 - ( +numberOfNodes / 2 + 1 ) );
+            safeInterpolationInterval.first = interpolator_->getIndependentValues( ).at( numberOfNodes / 2 );
+            safeInterpolationInterval.second = interpolator_->getIndependentValues( ).at( interpolator_->getIndependentValues( ).size( )
+                                                                                          - ( numberOfNodes / 2 + 1 ) );
         }
         else if( std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, long double > >( interpolator_ ) !=
                  nullptr )
@@ -187,9 +187,9 @@ public:
             int numberOfNodes =
                     std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, long double > >( interpolator_ )
                             ->getNumberOfStages( );
-            safeInterpolationInterval.first = interpolator_->getIndependentValues( ).at( 0 + numberOfNodes / 2 + 1 );
-            safeInterpolationInterval.second = interpolator_->getIndependentValues( ).at( interpolator_->getIndependentValues( ).size( ) -
-                                                                                          1 - ( +numberOfNodes / 2 + 1 ) );
+            safeInterpolationInterval.first = interpolator_->getIndependentValues( ).at( numberOfNodes / 2 );
+            safeInterpolationInterval.second = interpolator_->getIndependentValues( ).at( interpolator_->getIndependentValues( ).size( )
+                                                                                          - ( numberOfNodes / 2 + 1 ) );
         }
         return safeInterpolationInterval;
     }
