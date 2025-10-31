@@ -210,8 +210,8 @@ public:
             case extrapolate_at_boundary_with_warning:
             case use_default_value:
             case use_default_value_with_warning:
-                validRange = std::make_pair( IndependentVariableType( std::numeric_limits< double >::max( ) ),
-                                       IndependentVariableType( -std::numeric_limits< double >::max( ) ) );
+                validRange = std::make_pair( IndependentVariableType( -std::numeric_limits< double >::infinity( ) ),
+                                       IndependentVariableType( std::numeric_limits< double >::infinity( ) ) );
                 break;
 
         }
