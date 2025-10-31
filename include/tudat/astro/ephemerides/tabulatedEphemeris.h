@@ -158,40 +158,7 @@ public:
      */
     std::pair< double, double > getSafeInterpolationInterval( )
     {
-        std::pair< double, double > safeInterpolationInterval;
-
-        // Check interpolator type. If interpolator is not a Lagrange interpolator, return full domain
-        if( std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, double > >( interpolator_ ) == nullptr &&
-            std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, long double > >( interpolator_ ) ==
-                    nullptr )
-        {
-            safeInterpolationInterval.first = interpolator_->getIndependentValues( ).at( 0 );
-            safeInterpolationInterval.second =
-                    interpolator_->getIndependentValues( ).at( interpolator_->getIndependentValues( ).size( ) - 1 );
-        }
-        // If interpolator is a Lagrange interpolator, return full domain minus edges where interpolator has reduced accuracy
-        else if( std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, double > >( interpolator_ ) !=
-                 nullptr )
-        {
-            int numberOfNodes =
-                    std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, double > >( interpolator_ )
-                            ->getNumberOfStages( );
-
-            safeInterpolationInterval.first = interpolator_->getIndependentValues( ).at( numberOfNodes / 2 );
-            safeInterpolationInterval.second = interpolator_->getIndependentValues( ).at( interpolator_->getIndependentValues( ).size( )
-                                                                                          - ( numberOfNodes / 2 + 1 ) );
-        }
-        else if( std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, long double > >( interpolator_ ) !=
-                 nullptr )
-        {
-            int numberOfNodes =
-                    std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, long double > >( interpolator_ )
-                            ->getNumberOfStages( );
-            safeInterpolationInterval.first = interpolator_->getIndependentValues( ).at( numberOfNodes / 2 );
-            safeInterpolationInterval.second = interpolator_->getIndependentValues( ).at( interpolator_->getIndependentValues( ).size( )
-                                                                                          - ( numberOfNodes / 2 + 1 ) );
-        }
-        return safeInterpolationInterval;
+        return interpolator_->getValidDoubleInterpolationInterval( );
     }
 
 private:

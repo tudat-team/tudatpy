@@ -862,7 +862,7 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Mat
 
     // Calculate state from spice at given time intervals and store in timeHistoryOfState.
     TimeType currentTime = initialTime;
-    while( currentTime < endTime )
+    while( currentTime <= endTime )
     {
         timeHistoryOfState[ currentTime ] = spice_interface::getBodyCartesianStateAtEpoch(
                                                     body, observerName, referenceFrameName, "none", static_cast< double >( currentTime ) )
