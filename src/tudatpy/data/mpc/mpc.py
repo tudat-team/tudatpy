@@ -1047,7 +1047,7 @@ class BatchMPC:
             epoch_start: float | datetime.datetime | None = None,
             epoch_end: float | datetime.datetime | None = None,
             in_place: bool = True,
-    ) -> None | "BatchMPC":
+    ) -> "None | BatchMPC":
         """Filter out observations from the batch.
 
         Parameters
@@ -1337,6 +1337,7 @@ class BatchMPC:
             if station_name in self._space_telescopes:
                 continue
 
+
             ground_station_settings = environment_setup.ground_station.basic_station(
                 station_name=station_name,
                 station_nominal_position=[
@@ -1357,6 +1358,7 @@ class BatchMPC:
         unique_link_combos = (
             observations_table.loc[:, ["number", "observatory"]].drop_duplicates()
         ).values
+
 
         observation_set_list = []
         for combo in unique_link_combos:
