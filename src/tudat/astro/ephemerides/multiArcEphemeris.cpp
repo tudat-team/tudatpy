@@ -157,15 +157,12 @@ std::pair< bool, int > MultiArcEphemeris::getCurrentEphemerisArc( const double c
     }
 
     int arcIndex = lookUpscheme_->findNearestLowerNeighbour( currentTime );
-    std::cout<<"Search "<<arcIndex<<" "<<singleArcEphemerides_.size( )<< " "<<currentTime<<" "<<arcStartTimes_.at( arcIndex ) <<" "<<arcEndTimes_.at( arcIndex )<<std::endl;
     if( currentTime > arcEndTimes_.at( arcIndex ) || currentTime < arcStartTimes_.at( arcIndex ) )
     {
-        std::cout<<"FALSE"<<std::endl;
         return std::make_pair( false, arcIndex );
     }
     else
     {
-        std::cout<<"TRUE"<<std::endl;
         return std::make_pair( true, arcIndex );
     }
 }
