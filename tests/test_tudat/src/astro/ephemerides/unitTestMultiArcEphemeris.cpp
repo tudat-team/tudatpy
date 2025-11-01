@@ -57,7 +57,7 @@ void testEphemerisDifference(
         stateDifference = ephemeris->getCartesianState( testEpoch ) -
                 defaultEphemeris->getCartesianState( testEpoch );
     }
-    catch( ... )
+    catch( std::runtime_error& caughtException )
     {
         exceptionCaught = true;
     }
@@ -75,24 +75,16 @@ void testEphemerisDifference(
             BOOST_CHECK_EQUAL( stateDifference.segment( 3, 3 ).norm( ) > 1.0E-5, true );
         }
     }
-    std::cout<<stateDifference.transpose( )<<std::endl;
-    std::cout<<exceptionCaught<<std::endl;
+//    std::cout<<stateDifference.transpose( )<<std::endl;
+//    std::cout<<exceptionCaught<<" "<<isEpochValid<<std::endl;
 
-//    if( isEpochValid )
-//    {
-//        std::cout << stateDifference.transpose( ) << std::endl;
-//    }
-//    else
-//    {
-//        std::cout << exceptionCaught << std::endl << std::endl;
-//    }
 }
 
 BOOST_AUTO_TEST_CASE( testMultiArcEphemeris )
 {
    spice_interface::loadStandardSpiceKernels( );
 
-   int numberOfArcs = 2;
+   int numberOfArcs = 10;
    double arcLength = 1.0E6;
    double arcGap = 4.0E6;
    double interpolationStep = 1000.0;
@@ -105,8 +97,9 @@ BOOST_AUTO_TEST_CASE( testMultiArcEphemeris )
    std::map< double, std::shared_ptr< EphemerisSettings > > perArcEphemerisSettings;
    std::shared_ptr< EphemerisSettings > defaultEphemerisSettings = directSpiceEphemerisSettings( "SSB", "ECLIPJ2000", false, false, false );
 
-   for( int hasDefaultEphemeris = 0; hasDefaultEphemeris < 1; hasDefaultEphemeris++ )
+   for( int hasDefaultEphemeris = 0; hasDefaultEphemeris < 2; hasDefaultEphemeris++ )
    {
+       bool hasDefaultEphemerisBool = static_cast< bool >( hasDefaultEphemeris );
        for( int interpolationBoundaries = 0; interpolationBoundaries < 4; interpolationBoundaries++ )
        {
            std::cout<<"RUN SETTINGS "<<hasDefaultEphemeris<<" "<<interpolationBoundaries<<std::endl;;
@@ -121,7 +114,6 @@ BOOST_AUTO_TEST_CASE( testMultiArcEphemeris )
            }
            else
            {
-               std::cout<<"EXTRAPOLATE ******************************** "<<std::endl;
                boundaryHandling = extrapolate_at_boundary;
                outOfRangeIsValid = true;
            }
@@ -187,41 +179,35 @@ BOOST_AUTO_TEST_CASE( testMultiArcEphemeris )
 
                for( unsigned int j = 0; j < outOfRangeTestPoints.size( ); j++ )
                {
-                   std::cout<<"Arc "<<i<<" Point "<<j<<std::endl;
                    const double deltaT = outOfRangeTestPoints.at( j );
 
-                   std::cout<<"Arc start "<<std::endl;
-                   testEphemerisDifference( arcStartTimes.at( i ) + deltaT, ephemeris, defaultEphemeris, outOfRangeIsValid,
-                                            static_cast< bool >( hasDefaultEphemeris ) );
-                   std::cout<<"Arc end "<<std::endl;
-                   testEphemerisDifference( arcEndTimes.at( i ) - deltaT, ephemeris, defaultEphemeris, outOfRangeIsValid,
-                                            static_cast< bool >( hasDefaultEphemeris ) );
+                   bool errorIsSmall = hasDefaultEphemerisBool && !outOfRangeIsValid;
+                   testEphemerisDifference( arcStartTimes.at( i ) + deltaT, ephemeris, defaultEphemeris, outOfRangeIsValid || hasDefaultEphemerisBool,
+                                            errorIsSmall );
+                   testEphemerisDifference( arcEndTimes.at( i ) - deltaT, ephemeris, defaultEphemeris, outOfRangeIsValid || hasDefaultEphemerisBool,
+                                            errorIsSmall );
 
                }
 
                for( unsigned int j = 0; j < outOfLagrangeRangeValidTestPoints.size( ); j++ )
                {
-                   std::cout<<"Arc B "<<i<<" Point "<<j<<std::endl;
                    const double deltaT = outOfLagrangeRangeValidTestPoints.at( j );
 
-                   std::cout<<"Arc start "<<std::endl;
-                   testEphemerisDifference( arcStartTimes.at( i ) + deltaT, ephemeris, defaultEphemeris, lagrangeBoundaryIsValid, true );
-                   std::cout<<"Arc end "<<std::endl;
-                   testEphemerisDifference( arcEndTimes.at( i ) - deltaT, ephemeris, defaultEphemeris, lagrangeBoundaryIsValid, true );
+                   testEphemerisDifference( arcStartTimes.at( i ) + deltaT, ephemeris, defaultEphemeris, lagrangeBoundaryIsValid || hasDefaultEphemerisBool, true );
+                   testEphemerisDifference( arcEndTimes.at( i ) - deltaT, ephemeris, defaultEphemeris, lagrangeBoundaryIsValid || hasDefaultEphemerisBool, true );
 
                }
 
                for( unsigned int j = 0; j < outOfLagrangeRangeInvalidTestPoints.size( ); j++ )
                {
-                   std::cout<<"Arc C "<<i<<" Point "<<j<<std::endl;
                    const double deltaT = outOfLagrangeRangeInvalidTestPoints.at( j );
 
-                   std::cout<<"Arc start "<<std::endl;
-                   testEphemerisDifference( arcStartTimes.at( i ) + deltaT, ephemeris, defaultEphemeris, lagrangeBoundaryIsValid,
-                                            static_cast< bool >( hasDefaultEphemeris ) );
-                   std::cout<<"Arc end "<<std::endl;
-                   testEphemerisDifference( arcEndTimes.at( i ) - deltaT, ephemeris, defaultEphemeris, lagrangeBoundaryIsValid,
-                                            static_cast< bool >( hasDefaultEphemeris )  );
+                   bool errorIsSmall = hasDefaultEphemerisBool && !lagrangeBoundaryIsValid;
+
+                   testEphemerisDifference( arcStartTimes.at( i ) + deltaT, ephemeris, defaultEphemeris, lagrangeBoundaryIsValid || hasDefaultEphemerisBool,
+                                            errorIsSmall );
+                   testEphemerisDifference( arcEndTimes.at( i ) - deltaT, ephemeris, defaultEphemeris, lagrangeBoundaryIsValid || hasDefaultEphemerisBool,
+                                            errorIsSmall  );
 
                }
            }
