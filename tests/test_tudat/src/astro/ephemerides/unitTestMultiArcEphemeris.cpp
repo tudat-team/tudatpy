@@ -42,11 +42,57 @@ using namespace interpolators;
 
 BOOST_AUTO_TEST_SUITE( test_MultiArcEphemeris )
 
+void testEphemerisDifference(
+        double testEpoch,
+        const std::shared_ptr< Ephemeris > ephemeris,
+        const std::shared_ptr< Ephemeris > defaultEphemeris,
+        bool isEpochValid,
+        const bool expectSmallError )
+{
+    bool exceptionCaught = false;
+    Eigen::Vector6d stateDifference = Eigen::Vector6d::Constant( TUDAT_NAN );
+
+    try
+    {
+        stateDifference = ephemeris->getCartesianState( testEpoch ) -
+                defaultEphemeris->getCartesianState( testEpoch );
+    }
+    catch( ... )
+    {
+        exceptionCaught = true;
+    }
+    BOOST_CHECK_EQUAL( isEpochValid, !exceptionCaught );
+    if( isEpochValid )
+    {
+        if( expectSmallError )
+        {
+            BOOST_CHECK_EQUAL( stateDifference.segment( 0, 3 ).norm( ) < 1.0E-4, true );
+            BOOST_CHECK_EQUAL( stateDifference.segment( 3, 3 ).norm( ) < 1.0E-10, true );
+        }
+        else
+        {
+            BOOST_CHECK_EQUAL( stateDifference.segment( 0, 3 ).norm( ) > 1.0E2, true );
+            BOOST_CHECK_EQUAL( stateDifference.segment( 3, 3 ).norm( ) > 1.0E-5, true );
+        }
+    }
+    std::cout<<stateDifference.transpose( )<<std::endl;
+    std::cout<<exceptionCaught<<std::endl;
+
+//    if( isEpochValid )
+//    {
+//        std::cout << stateDifference.transpose( ) << std::endl;
+//    }
+//    else
+//    {
+//        std::cout << exceptionCaught << std::endl << std::endl;
+//    }
+}
+
 BOOST_AUTO_TEST_CASE( testMultiArcEphemeris )
 {
    spice_interface::loadStandardSpiceKernels( );
 
-   int numberOfArcs = 10;
+   int numberOfArcs = 2;
    double arcLength = 1.0E6;
    double arcGap = 4.0E6;
    double interpolationStep = 1000.0;
@@ -63,6 +109,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcEphemeris )
    {
        for( int interpolationBoundaries = 0; interpolationBoundaries < 4; interpolationBoundaries++ )
        {
+           std::cout<<"RUN SETTINGS "<<hasDefaultEphemeris<<" "<<interpolationBoundaries<<std::endl;;
            bool lagrangeBoundaryIsValid, outOfRangeIsValid;
            LagrangeInterpolatorBoundaryHandling lagrangeBoundaryHandling;
            BoundaryInterpolationType boundaryHandling;
@@ -74,6 +121,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcEphemeris )
            }
            else
            {
+               std::cout<<"EXTRAPOLATE ******************************** "<<std::endl;
                boundaryHandling = extrapolate_at_boundary;
                outOfRangeIsValid = true;
            }
@@ -108,7 +156,7 @@ BOOST_AUTO_TEST_CASE( testMultiArcEphemeris )
                        "SSB",
                        "ECLIPJ2000",
                        std::make_shared< LagrangeInterpolatorSettings >(
-                               6, 0, huntingAlgorithm, lagrange_cubic_spline_boundary_interpolation, extrapolate_at_boundary ) );
+                               6, 0, huntingAlgorithm, lagrangeBoundaryHandling, boundaryHandling ) );
            }
 
            std::shared_ptr< EphemerisSettings > ehemerisSettings;
@@ -131,65 +179,54 @@ BOOST_AUTO_TEST_CASE( testMultiArcEphemeris )
            {
                for( unsigned int j = 0; j < inRangeTestPoints.size( ); j++ )
                {
-                   testTime = arcStartTimes.at( i ) + inRangeTestPoints.at( j );
-                   stateDifference = ephemeris->getCartesianState( testTime ) -
-                           defaultEphemeris->getCartesianState( testTime );
-                   std::cout<<stateDifference.transpose( )<<std::endl;
+                   const double deltaT = inRangeTestPoints.at( j );
 
-                   testTime = arcEndTimes.at( i ) - inRangeTestPoints.at( j );
-                   stateDifference = ephemeris->getCartesianState( testTime ) -
-                           defaultEphemeris->getCartesianState( testTime );
+                   testEphemerisDifference( arcStartTimes.at( i ) + deltaT, ephemeris, defaultEphemeris, true, true );
+                   testEphemerisDifference( arcEndTimes.at( i ) - deltaT, ephemeris, defaultEphemeris, true, true );
+               }
 
-                   std::cout<<stateDifference.transpose( )<<std::endl<<std::endl;
+               for( unsigned int j = 0; j < outOfRangeTestPoints.size( ); j++ )
+               {
+                   std::cout<<"Arc "<<i<<" Point "<<j<<std::endl;
+                   const double deltaT = outOfRangeTestPoints.at( j );
+
+                   std::cout<<"Arc start "<<std::endl;
+                   testEphemerisDifference( arcStartTimes.at( i ) + deltaT, ephemeris, defaultEphemeris, outOfRangeIsValid,
+                                            static_cast< bool >( hasDefaultEphemeris ) );
+                   std::cout<<"Arc end "<<std::endl;
+                   testEphemerisDifference( arcEndTimes.at( i ) - deltaT, ephemeris, defaultEphemeris, outOfRangeIsValid,
+                                            static_cast< bool >( hasDefaultEphemeris ) );
+
                }
 
                for( unsigned int j = 0; j < outOfLagrangeRangeValidTestPoints.size( ); j++ )
                {
-                   testTime = arcStartTimes.at( i ) + outOfLagrangeRangeValidTestPoints.at( j );
+                   std::cout<<"Arc B "<<i<<" Point "<<j<<std::endl;
+                   const double deltaT = outOfLagrangeRangeValidTestPoints.at( j );
 
-                   exceptionCaught = false;
-                   try
-                   {
-                       stateDifference = ephemeris->getCartesianState( testTime ) -
-                               defaultEphemeris->getCartesianState( testTime );
-                   }
-                   catch( ... )
-                   {
-                       exceptionCaught = true;
-                   }
-                   if( lagrangeBoundaryIsValid )
-                   {
-                       std::cout<<stateDifference.transpose( )<<std::endl;
-                   }
-                   else
-                   {
-                       std::cout<<exceptionCaught<<std::endl<<std::endl;
-                   }
-
-                   testTime = arcEndTimes.at( i ) - outOfLagrangeRangeValidTestPoints.at( j );
-
-                   exceptionCaught = false;
-                   try
-                   {
-                       stateDifference = ephemeris->getCartesianState( testTime ) -
-                               defaultEphemeris->getCartesianState( testTime );
-                   }
-                   catch( ... )
-                   {
-                       exceptionCaught = true;
-                   }
-                   if( lagrangeBoundaryIsValid )
-                   {
-                       std::cout<<stateDifference.transpose( )<<std::endl;
-                   }
-                   else
-                   {
-                       std::cout<<exceptionCaught<<std::endl<<std::endl;
-                   }
+                   std::cout<<"Arc start "<<std::endl;
+                   testEphemerisDifference( arcStartTimes.at( i ) + deltaT, ephemeris, defaultEphemeris, lagrangeBoundaryIsValid, true );
+                   std::cout<<"Arc end "<<std::endl;
+                   testEphemerisDifference( arcEndTimes.at( i ) - deltaT, ephemeris, defaultEphemeris, lagrangeBoundaryIsValid, true );
 
                }
 
+               for( unsigned int j = 0; j < outOfLagrangeRangeInvalidTestPoints.size( ); j++ )
+               {
+                   std::cout<<"Arc C "<<i<<" Point "<<j<<std::endl;
+                   const double deltaT = outOfLagrangeRangeInvalidTestPoints.at( j );
+
+                   std::cout<<"Arc start "<<std::endl;
+                   testEphemerisDifference( arcStartTimes.at( i ) + deltaT, ephemeris, defaultEphemeris, lagrangeBoundaryIsValid,
+                                            static_cast< bool >( hasDefaultEphemeris ) );
+                   std::cout<<"Arc end "<<std::endl;
+                   testEphemerisDifference( arcEndTimes.at( i ) - deltaT, ephemeris, defaultEphemeris, lagrangeBoundaryIsValid,
+                                            static_cast< bool >( hasDefaultEphemeris )  );
+
+               }
            }
+
+
 
        }
    }
