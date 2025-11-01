@@ -30,26 +30,30 @@ void MultiArcEphemeris::resetSingleArcEphemerides(
     arcStartTimes_ = arcStartTimes;
     arcEndTimes_.resize( arcStartTimes_.size( ) );
 
-    for( int i = 0; i < static_cast< int > ( singleArcEphemerides_.size( ) ) - 1 ; i++ )
+    for( int i = 0; i < static_cast< int > ( singleArcEphemerides_.size( ) ) ; i++ )
     {
         std::pair< double, double > safeInterval = getSafeEphemerisEvaluationInterval( singleArcEphemerides_.at( i ) );
-        if( arcStartTimes_.at( i ) < safeInterval.first )
+        if( arcStartTimes_.at( i ) < safeInterval.first || i == 0 )
         {
             arcStartTimes_[ i ] = safeInterval.first;
         }
 
-        if( safeInterval.second < arcStartTimes_.at( i + 1 ) )
+
+        if( static_cast< unsigned  int >( i ) != singleArcEphemerides_.size( ) - 1 )
         {
-            arcEndTimes_[ i ] = safeInterval.second;
+            if( safeInterval.second < arcStartTimes_.at( i + 1 ) )
+            {
+                arcEndTimes_[ i ] = safeInterval.second;
+            }
+            else
+            {
+                arcEndTimes_[ i ] = arcStartTimes_.at( i + 1 );
+            }
         }
         else
         {
-            arcEndTimes_[ i ] = arcStartTimes_.at( i + 1 );
+            arcEndTimes_[ i ] = safeInterval.second;
         }
-    }
-    if( singleArcEphemerides_.size( ) > 0 )
-    {
-        arcEndTimes_[ singleArcEphemerides_.size( ) - 1 ] = std::numeric_limits< double >::max( );
     }
     // Create times at which the look up changes from one arc to the other.
     std::vector< double > arcSplitTimes = arcStartTimes_;
@@ -153,15 +157,15 @@ std::pair< bool, int > MultiArcEphemeris::getCurrentEphemerisArc( const double c
     }
 
     int arcIndex = lookUpscheme_->findNearestLowerNeighbour( currentTime );
-
-    std::cout<<arcIndex<<" "<<currentTime<<" "<<arcStartTimes_.at( arcIndex )<<" "<<arcEndTimes_.at( arcIndex )<<std::endl;
-
+    std::cout<<"Search "<<arcIndex<<" "<<singleArcEphemerides_.size( )<< " "<<currentTime<<" "<<arcStartTimes_.at( arcIndex ) <<" "<<arcEndTimes_.at( arcIndex )<<std::endl;
     if( currentTime > arcEndTimes_.at( arcIndex ) || currentTime < arcStartTimes_.at( arcIndex ) )
     {
+        std::cout<<"FALSE"<<std::endl;
         return std::make_pair( false, arcIndex );
     }
     else
     {
+        std::cout<<"TRUE"<<std::endl;
         return std::make_pair( true, arcIndex );
     }
 }
