@@ -194,7 +194,7 @@ public:
 
     virtual InterpolatorTypes getInterpolatorType( ) = 0;
 
-    virtual std::pair< IndependentVariableType, IndependentVariableType > getValidInterpolationInterval( )
+    virtual std::pair< IndependentVariableType, IndependentVariableType > getValidInterpolationInterval( const bool acceptUserDefinedRisk  )
     {
         std::pair< IndependentVariableType, IndependentVariableType > validRange;
         switch( boundaryHandling_ )
@@ -209,18 +209,26 @@ public:
             case extrapolate_at_boundary:
             case extrapolate_at_boundary_with_warning:
             case use_default_value:
-            case use_default_value_with_warning:
-                validRange = std::make_pair( IndependentVariableType( -std::numeric_limits< double >::infinity( ) ),
-                                       IndependentVariableType( std::numeric_limits< double >::infinity( ) ) );
+            case use_default_value_with_warning: {
+                if( acceptUserDefinedRisk )
+                {
+                    validRange = std::make_pair( IndependentVariableType( -std::numeric_limits< double >::infinity( ) ),
+                                                 IndependentVariableType( std::numeric_limits< double >::infinity( ) ) );
+                }
+                else
+                {
+                    validRange = std::make_pair( independentValues_.at( 0 ), independentValues_.at( independentValues_.size( ) - 1 ) );
+                }
                 break;
+            }
 
         }
         return validRange;
     }
 
-    std::pair< double, double > getValidDoubleInterpolationInterval( )
+    std::pair< double, double > getValidDoubleInterpolationInterval( const bool acceptUserDefinedRisk )
     {
-        std::pair< IndependentVariableType, IndependentVariableType > validRange = getValidInterpolationInterval( );
+        std::pair< IndependentVariableType, IndependentVariableType > validRange = getValidInterpolationInterval( acceptUserDefinedRisk );
         return std::make_pair( static_cast< double >( validRange.first ), static_cast< double >( validRange.second ) );
 
     }

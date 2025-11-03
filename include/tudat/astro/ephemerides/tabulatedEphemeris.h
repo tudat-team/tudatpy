@@ -156,9 +156,9 @@ public:
      * on which the interpolator inside this object is valid is checked and returned
      * \return The time interval at which the tabulated ephemeris can be safely interrogated
      */
-    std::pair< double, double > getSafeInterpolationInterval( )
+    std::pair< double, double > getSafeInterpolationInterval( const bool acceptUserDefinedRisk = true )
     {
-        return interpolator_->getValidDoubleInterpolationInterval( );
+        return interpolator_->getValidDoubleInterpolationInterval( acceptUserDefinedRisk );
     }
 
 private:
@@ -187,7 +187,8 @@ bool isTabulatedEphemeris( const std::shared_ptr< Ephemeris > ephemeris );
  * a tabulated ephemeris
  * \return The time interval at which the tabulated ephemeris can be safely interrogated
  */
-std::pair< double, double > getTabulatedEphemerisSafeInterval( const std::shared_ptr< Ephemeris > ephemeris );
+std::pair< double, double > getTabulatedEphemerisSafeInterval( const std::shared_ptr< Ephemeris > ephemeris,
+                                                               const bool acceptUserDefinedRisk = true );
 
 //! Function to create an empty (dummy) tabulated ephemeris
 /*!
