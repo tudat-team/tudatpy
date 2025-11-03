@@ -100,7 +100,7 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::Vector
 
     // Get range over which observations are to be simulated.
     std::pair< double, double > dataTimeInterval =
-            getTabulatedEphemerisSafeInterval( bodies.at( observedBodies.at( 0 ) )->getEphemeris( ) );
+            getTabulatedEphemerisSafeInterval( bodies.at( observedBodies.at( 0 ) )->getEphemeris( ), false );
     double startTime = dataTimeInterval.first;
     double endTime = dataTimeInterval.second;
 
