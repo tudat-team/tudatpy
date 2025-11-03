@@ -25,7 +25,7 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matri
             stateMap,
             6,
             interpolators::huntingAlgorithm,
-            interpolators::lagrange_cubic_spline_boundary_interpolation,
+            interpolators::lagrange_no_boundary_interpolation,
             interpolators::throw_exception_at_boundary );
 }
 
@@ -38,7 +38,7 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matri
             stateMap,
             6,
             interpolators::huntingAlgorithm,
-            interpolators::lagrange_cubic_spline_boundary_interpolation,
+            interpolators::lagrange_no_boundary_interpolation,
             interpolators::throw_exception_at_boundary );
 }
 
@@ -51,7 +51,7 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix<
             stateMap,
             6,
             interpolators::huntingAlgorithm,
-            interpolators::lagrange_cubic_spline_boundary_interpolation,
+            interpolators::lagrange_no_boundary_interpolation,
             interpolators::throw_exception_at_boundary );
 }
 
@@ -64,7 +64,7 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix<
             stateMap,
             6,
             interpolators::huntingAlgorithm,
-            interpolators::lagrange_cubic_spline_boundary_interpolation,
+            interpolators::lagrange_no_boundary_interpolation,
             interpolators::throw_exception_at_boundary );
 }
 
@@ -76,7 +76,7 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matri
             stateMap,
             6,
             interpolators::huntingAlgorithm,
-            interpolators::lagrange_cubic_spline_boundary_interpolation,
+            interpolators::lagrange_no_boundary_interpolation,
             interpolators::throw_exception_at_boundary );
 }
 
@@ -88,7 +88,7 @@ createRotationalStateInterpolator( const std::map< double, Eigen::Matrix< long d
             stateMap,
             6,
             interpolators::huntingAlgorithm,
-            interpolators::lagrange_cubic_spline_boundary_interpolation,
+            interpolators::lagrange_no_boundary_interpolation,
             interpolators::throw_exception_at_boundary );
 }
 
@@ -100,7 +100,7 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix<
             stateMap,
             6,
             interpolators::huntingAlgorithm,
-            interpolators::lagrange_cubic_spline_boundary_interpolation,
+            interpolators::lagrange_no_boundary_interpolation,
             interpolators::throw_exception_at_boundary );
 }
 
@@ -112,7 +112,7 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< Time, Eigen::Matrix<
             stateMap,
             6,
             interpolators::huntingAlgorithm,
-            interpolators::lagrange_cubic_spline_boundary_interpolation,
+            interpolators::lagrange_no_boundary_interpolation,
             interpolators::throw_exception_at_boundary );
 }
 
