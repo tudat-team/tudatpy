@@ -385,7 +385,7 @@ createObservablePartialsList(
             partialsList;
 
     observation_models::ObservableType observableType = observation_models::undefined_observation_model;
-    for( auto it: observationModelList )
+    for( auto it : observationModelList )
     {
         if( observableType == observation_models::undefined_observation_model )
         {
@@ -409,7 +409,7 @@ createObservablePartialsList(
     return partialsList;
 }
 
-template< int ObservationSize >
+template< int ObservationSize, typename ScalarType, typename TimeType >
 class DifferencedObservationPartialCreator
 {
 public:
@@ -418,11 +418,13 @@ public:
             const std::shared_ptr< ObservationPartial< ObservationSize > > firstPartial,
             const std::shared_ptr< ObservationPartial< ObservationSize > > secondPartial,
             const observation_models::LinkEnds& linkEnds,
-            const simulation_setup::SystemOfBodies& bodies );
+            const simulation_setup::SystemOfBodies& bodies,
+            const std::shared_ptr< observation_models::ObservationModel< ObservationSize, ScalarType, TimeType > >
+                    undifferencedObservationModel );
 };
 
-template<>
-class DifferencedObservationPartialCreator< 1 >
+template< typename ScalarType, typename TimeType >
+class DifferencedObservationPartialCreator< 1, ScalarType, TimeType >
 {
 public:
     static std::shared_ptr< ObservationPartial< 1 > > createDifferencedObservationPartial(
@@ -430,7 +432,8 @@ public:
             const std::shared_ptr< ObservationPartial< 1 > > firstPartial,
             const std::shared_ptr< ObservationPartial< 1 > > secondPartial,
             const observation_models::LinkEnds& linkEnds,
-            const simulation_setup::SystemOfBodies& bodies )
+            const simulation_setup::SystemOfBodies& bodies,
+            const std::shared_ptr< observation_models::ObservationModel< 1, ScalarType, TimeType > > undifferencedObservationModel )
     {
         using namespace observation_models;
 
@@ -532,6 +535,18 @@ public:
                     }
                 }
 
+                std::shared_ptr< observation_models::DsnNWayAveragedDopplerObservationModel< ScalarType, TimeType > > dsnObservationModel =
+                        std::dynamic_pointer_cast< observation_models::DsnNWayAveragedDopplerObservationModel< ScalarType, TimeType > >(
+                                undifferencedObservationModel );
+                bool subtractDopplerSignature = false;
+                if( dsnObservationModel == nullptr )
+                {
+                    throw std::runtime_error( "Error when creating DSN Doppler observation partials, observation model is inconsistent" );
+                }
+                else
+                {
+                    subtractDopplerSignature = dsnObservationModel->getSubtractDopplerSignature( );
+                }
                 const std::function< double( std::vector< FrequencyBands >, double ) > receivedFrequencyFunction =
                         createLinkFrequencyFunction( bodies, linkEnds, observation_models::retransmitter, observation_models::receiver );
 
@@ -540,8 +555,9 @@ public:
                                              const std::vector< double >&,
                                              const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >,
                                              const bool ) >
-                        scalingFactorFunction = std::bind( observation_models::getDsnNWayAveragedDopplerScalingFactor,
+                        scalingFactorFunction = std::bind( observation_models::getDsnNWayAveragedDopplerScalingFactor< ScalarType >,
                                                            receivedFrequencyFunction,
+                                                           subtractDopplerSignature,
                                                            std::placeholders::_1,
                                                            std::placeholders::_2,
                                                            std::placeholders::_3,
@@ -563,8 +579,8 @@ public:
     }
 };
 
-template<>
-class DifferencedObservationPartialCreator< 2 >
+template< typename ScalarType, typename TimeType >
+class DifferencedObservationPartialCreator< 2, ScalarType, TimeType >
 {
 public:
     static std::shared_ptr< ObservationPartial< 2 > > createDifferencedObservationPartial(
@@ -572,7 +588,8 @@ public:
             const std::shared_ptr< ObservationPartial< 2 > > firstPartial,
             const std::shared_ptr< ObservationPartial< 2 > > secondPartial,
             const observation_models::LinkEnds& linkEnds,
-            const simulation_setup::SystemOfBodies& bodies )
+            const simulation_setup::SystemOfBodies& bodies,
+            const std::shared_ptr< observation_models::ObservationModel< 2, ScalarType, TimeType > > undifferencedObservationModel )
     {
         using namespace observation_models;
 
@@ -647,7 +664,7 @@ mergeUndifferencedPartialContribution(
 
     std::shared_ptr< ObservationPartial< ObservationSize > > firstPartial;
     std::shared_ptr< ObservationPartial< ObservationSize > > secondPartial;
-    for( auto it: firstPartialList )
+    for( auto it : firstPartialList )
     {
         firstPartial = it.second;
         if( secondPartialList.count( it.first ) != 0 )
@@ -661,7 +678,7 @@ mergeUndifferencedPartialContribution(
         mergedPartials[ it.first ] = std::make_pair( firstPartial, secondPartial );
     }
 
-    for( auto it: secondPartialList )
+    for( auto it : secondPartialList )
     {
         if( mergedPartials.count( it.first ) == 0 )
         {
@@ -719,12 +736,12 @@ createDifferencedObservablePartials(
     std::map< std::pair< int, int >, std::shared_ptr< ObservationPartial< ObservationSize > > > differencedObservationPartialList;
 
     // Iterate over all one-way range partials and create one-way range rate partial from them.
-    for( auto it: mergedPartials )
+    for( auto it : mergedPartials )
     {
         // Create range rate partial.
         differencedObservationPartialList[ it.first ] =
-                DifferencedObservationPartialCreator< ObservationSize >::createDifferencedObservationPartial(
-                        differencedObservableType, it.second.first, it.second.second, linkEnds, bodies );
+                DifferencedObservationPartialCreator< ObservationSize, ParameterType, TimeType >::createDifferencedObservationPartial(
+                        differencedObservableType, it.second.first, it.second.second, linkEnds, bodies, observationModel );
     }
 
     // Creatlinke bias partials
