@@ -128,7 +128,7 @@ TidalLoveNumberPartialInterface::calculateSphericalHarmonicCoefficientsPartialWr
 
     // Compute list of partials for all orders at requested degree
     std::map< int, std::vector< Eigen::Vector2d > > partialsPerDegree;
-    for( auto it: ordersPerDegree )
+    for( auto it : ordersPerDegree )
     {
         partialsPerDegree[ it.first ] =
                 calculateCoefficientPartialWrtRealTidalLoveNumber( it.first, it.second, deformingBodyIndices, maximumDegree, maximumOrder );
@@ -437,7 +437,6 @@ std::vector< Eigen::Vector2d > TidalLoveNumberPartialInterface::calculateCoeffic
         realCoefficientPartials[ i ] = Eigen::Vector2d::Zero( );
     }
 
-    // Check if any dependency exists
     if( degree <= maximumDegree )
     {
         std::complex< double > unitLoveNumberCoefficientVariations;
@@ -460,13 +459,20 @@ std::vector< Eigen::Vector2d > TidalLoveNumberPartialInterface::calculateCoeffic
                             basic_mathematics::computeLegendrePolynomialExplicit( degree, orders.at( m ), sineOfLatitude_ ),
                             static_cast< double >( orders.at( m ) ) * iLongitude_,
                             degree,
-                            orders.at( m ) );
+                            orders.at( m ),
+                            ( gravityFieldVariationsCast_ != nullptr )
+                                    ? gravityFieldVariationsCast_->getMeanForcingCosineTerms( ).at( degree ).at( orders.at( m ) )
+                                    : 0.0,
+                            ( gravityFieldVariationsCast_ != nullptr )
+                                    ? gravityFieldVariationsCast_->getMeanForcingSineTerms( ).at( degree ).at( orders.at( m ) )
+                                    : 0.0 );
                     realCoefficientPartials[ m ].x( ) += unitLoveNumberCoefficientVariations.real( );
                     realCoefficientPartials[ m ].y( ) -= unitLoveNumberCoefficientVariations.imag( );
                 }
             }
         }
     }
+
     return realCoefficientPartials;
 }
 
