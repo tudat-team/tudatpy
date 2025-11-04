@@ -159,7 +159,6 @@ Eigen::VectorXd executeParameterEstimation( const int linkArcs )
                 integrationArcStartTimes.at( i ),
                 integratorSettings,
                 propagationTimeTerminationSettings( integrationArcEndTimes.at( i ) ) ) );
-        std::cout<<"Arc times "<<integrationArcStartTimes.at( i )<<" "<<integrationArcEndTimes.at( i )<<" "<<integrationArcLimits.at( i )<<std::endl;
 
     }
     std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
