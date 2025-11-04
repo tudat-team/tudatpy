@@ -52,8 +52,8 @@ public:
     }
 
     //! Destructor
-    ~MultiArcEphemeris( ) { }
-    
+    ~MultiArcEphemeris( ) {}
+
     std::pair< bool, int > getCurrentEphemerisArc( const double currentTime );
     //! Get state from ephemeris.
     /*!
@@ -107,7 +107,6 @@ public:
                                    utilities::createVectorFromMapKeys( singleArcEphemerides ) );
     }
 
-
     //! Function to retrieve the list of arc ephemeris objects
     /*!
      *  Function to retrieve the list of arc ephemeris objects
@@ -119,7 +118,6 @@ public:
     }
 
 private:
-
     void setArcInitialAndFinalTimes( );
 
     std::shared_ptr< Ephemeris > defaultEphemeris_;
@@ -132,11 +130,9 @@ private:
 
     std::vector< double > arcEndTimes_;
 
-
     //! Lookup scheme to determine which ephemeris to use.
     std::shared_ptr< interpolators::HuntingAlgorithmLookupScheme< double > > lookUpscheme_;
 };
-
 
 // Function that retrieves the time interval at which an ephemeris can be safely interrogated
 /*

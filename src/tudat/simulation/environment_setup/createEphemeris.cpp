@@ -19,7 +19,6 @@ namespace tudat
 namespace simulation_setup
 {
 
-
 }  // namespace simulation_setup
 
 }  // namespace tudat
