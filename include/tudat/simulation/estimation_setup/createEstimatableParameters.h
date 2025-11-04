@@ -1391,26 +1391,31 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                 std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
                         getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings,
                                                                                                                doubleParameterName );
+
                 if( associatedAccelerationModels.size( ) == 0 )
                 {
-                    throw std::runtime_error( "Error when trying to make rtg force magnitude parameter, no acceleration model found. " );
-                }
-                else if( associatedAccelerationModels.size( ) > 1 )
-                {
-                    throw std::runtime_error(
-                            "Error when trying to make rtg force magnitude parameter, more than one acceleration model found. " );
+                    throw std::runtime_error( "Error when trying to make rtg force vector parameter, no acceleration model found. " );
                 }
 
-                std::shared_ptr< system_models::RTGAccelerationModel > rtgAccelerationModel =
-                        std::dynamic_pointer_cast< system_models::RTGAccelerationModel >( associatedAccelerationModels.at( 0 ) );
-
-                if( rtgAccelerationModel == nullptr )
+                // Create parameter object
+                std::vector< std::shared_ptr< system_models::RTGAccelerationModel > > listOfRTGAccelerationModels;
+                for( const auto& model : associatedAccelerationModels )
                 {
-                    throw std::runtime_error( "Error, expected RTGAccelerationModel when creating rtg_force_vector_magnitude parameter" );
+                    std::shared_ptr< system_models::RTGAccelerationModel > rtgAccelerationModel =
+                            std::dynamic_pointer_cast< system_models::RTGAccelerationModel >( associatedAccelerationModels.at( 0 ) );
+
+                    if( rtgAccelerationModel == nullptr )
+                    {
+                        throw std::runtime_error( "Error, expected RTGAccelerationModel when creating rtg_force_vector parameter" );
+                    }
+                    else
+                    {
+                        listOfRTGAccelerationModels.push_back( rtgAccelerationModel );
+                    }
                 }
 
                 // Create rtg force vector magnitude parameter
-                doubleParameterToEstimate = std::make_shared< RTGForceVectorMagnitude >( rtgAccelerationModel,
+                doubleParameterToEstimate = std::make_shared< RTGForceVectorMagnitude >( listOfRTGAccelerationModels,
                                                                                          doubleParameterName->parameterType_.second.first );
 
                 break;
@@ -2077,18 +2082,6 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                     throw std::runtime_error( "Error when creating rtg_force_vector parameter, no propagatorSettings provided." );
                 }
 
-                /*// Check input consistency --> redundant, no dynamic casting to be done, since rtg force vector settings object is of base
-                class EstimatableParameterSettings type std::shared_ptr< EstimatableParameterSettings > rtgAccelerationSettings =
-                        std::dynamic_pointer_cast< EstimatableParameterSettings >( vectorParameterName );
-                if( empiricalAccelerationSettings == nullptr )
-                {
-                    throw std::runtime_error(
-                            "Error when trying to make constant empirical acceleration coefficients parameter, settings type "
-                            "inconsistent" );
-                }
-                else
-                {*/
-
                 std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
                         getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings,
                                                                                                                vectorParameterName );
@@ -2097,24 +2090,27 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 {
                     throw std::runtime_error( "Error when trying to make rtg force vector parameter, no acceleration model found. " );
                 }
-                else if( associatedAccelerationModels.size( ) > 1 )
-                {
-                    throw std::runtime_error(
-                            "Error when trying to make rtg force vector parameter, more than one acceleration model found. " );
-                }
 
                 // Create parameter object
-                std::shared_ptr< system_models::RTGAccelerationModel > rtgAccelerationModel =
-                        std::dynamic_pointer_cast< system_models::RTGAccelerationModel >( associatedAccelerationModels.at( 0 ) );
-
-                if( rtgAccelerationModel == nullptr )
+                std::vector< std::shared_ptr< system_models::RTGAccelerationModel > > listOfRTGAccelerationModels;
+                for( const auto& model : associatedAccelerationModels )
                 {
-                    throw std::runtime_error( "Error, expected RTGAccelerationModel when creating rtg_force_vector parameter" );
+                    std::shared_ptr< system_models::RTGAccelerationModel > rtgAccelerationModel =
+                            std::dynamic_pointer_cast< system_models::RTGAccelerationModel >( associatedAccelerationModels.at( 0 ) );
+
+                    if( rtgAccelerationModel == nullptr )
+                    {
+                        throw std::runtime_error( "Error, expected RTGAccelerationModel when creating rtg_force_vector parameter" );
+                    }
+                    else
+                    {
+                        listOfRTGAccelerationModels.push_back( rtgAccelerationModel );
+                    }
                 }
 
                 // Create rtg force vector parameter
                 vectorParameterToEstimate =
-                        std::make_shared< RTGForceVector >( rtgAccelerationModel, vectorParameterName->parameterType_.second.first );
+                        std::make_shared< RTGForceVector >( listOfRTGAccelerationModels, vectorParameterName->parameterType_.second.first );
 
                 break;
             }
