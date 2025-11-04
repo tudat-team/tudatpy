@@ -25,6 +25,8 @@ import os
 import re
 from tudatpy.astro import time_representation
 from tudatpy.astro.time_representation import DateTime
+from tudatpy.data.mpc.parser_80col import parse_80cols_file
+from tudatpy.data.mpc.parser_80col.unpackers import OBS_TYPES_TO_DROP
 
 BIAS_LOWRES_FILE = os.path.join(
     os.path.expanduser("~"),
@@ -69,13 +71,13 @@ DEFAULT_CATALOG_FLAGS = [
 
 def load_bias_file(
         filepath: str,
-        Nside: int | None = None,
+        Nside: int | None = None, # type: ignore
         catalog_flags: list = DEFAULT_CATALOG_FLAGS,
 ) -> tuple[pd.DataFrame, int]:
     """Loads a healpix star catalog debias file and processes it into a dataframe. Automatically retrieves NSIDE parameter.
 
     Parameters
-    ----------
+    ---------- 
     filepath : str
         Filepath of debias file.
     Nside : int | None, optional
@@ -148,7 +150,7 @@ def get_biases_EFCC18(
         RA: float | np.ndarray | list,
         DEC: float | np.ndarray | list,
         epochJ2000secondsTDB: float | np.ndarray | list,
-        catalog: str | np.ndarray | list,
+        catalog: str | np.ndarray | list, # type: ignore
         bias_file: str | None = BIAS_LOWRES_FILE,
         Nside: int | None = None,
         catalog_flags: list[str] = DEFAULT_CATALOG_FLAGS,
@@ -159,7 +161,7 @@ def get_biases_EFCC18(
     This can then be selected using the bias_file paramater.
 
     Parameters
-    ----------
+    ---------- 
     RA : float | np.ndarray | list
         Right Ascension value in radians
     DEC : float | np.ndarray | list
@@ -245,11 +247,11 @@ def get_biases_EFCC18(
 
 def get_weights_VFCC17(
         MPC_codes: pd.Series | list | np.ndarray | None = None,
-        epochUTC: pd.Series | list | np.ndarray | None = None,
-        observation_type: pd.Series | list | np.ndarray | None = None,
-        observatory: pd.Series | list | np.ndarray | None = None,
-        star_catalog: pd.Series | list | np.ndarray | None = None,
-        mpc_table: pd.DataFrame | None = None,
+        epochUTC: pd.Series | list | np.ndarray | None = None, # type: ignore
+        observation_type: pd.Series | list | np.ndarray | None = None, # type: ignore
+        observatory: pd.Series | list | np.ndarray | None = None, # type: ignore
+        star_catalog: pd.Series | list | np.ndarray | None = None, # type: ignore
+        mpc_table: pd.DataFrame | None = None, # type: ignore
         return_full_table=False,
 ) -> np.ndarray | pd.DataFrame:
     """Retrieves observation weights using the weighting scheme presented in
@@ -263,7 +265,7 @@ def get_weights_VFCC17(
     if provided.
 
     Parameters
-    ----------
+    ---------- 
     MPC_codes : pd.Series | list | np.ndarray | None, optional
         Iterable with the MPC target codes, e.g. 433 for Eros. Size must match
         other iterables, by default None
@@ -648,7 +650,7 @@ class BatchMPC:
         """Create a copy of the batch, equivalent to copy.copy(batchMPC())
 
         Returns
-        -------
+        ------- 
         BatchMPC
             Copy of batch.
         """
@@ -657,42 +659,42 @@ class BatchMPC:
     # getters to make everything read-only
     @property
     def table(self) -> pd.DataFrame:
-        """Pandas dataframe with observation data"""
+        """Pandas dataframe with observation data."""
         return self._table
 
     @property
     def observatories(self) -> list[str]:
-        """List of observatories in batch"""
+        """List of observatories in batch."""
         return self._observatories
 
     @property
     def space_telescopes(self) -> list[str]:
-        """List of satellite_observatories in batch"""
+        """List of satellite_observatories in batch."""
         return self._space_telescopes
 
     @property
     def MPC_objects(self) -> list[str]:
-        """List of MPC objects"""
+        """List of MPC objects."""
         return self._MPC_codes
 
     @property
     def size(self) -> int:
-        """Number of observations in batch"""
+        """Number of observations in batch."""
         return self._size
 
     @property
     def bands(self) -> list[str]:
-        """List of bands in batch"""
+        """List of bands in batch."""
         return self._bands
 
     @property
     def epoch_start(self) -> float:
-        """Epoch of oldest observation in batch in seconds since J2000 TDB"""
+        """Epoch of oldest observation in batch in seconds since J2000 TDB."""
         return self._epoch_start
 
     @property
     def epoch_end(self) -> float:
-        """Epoch of latest observation in batch in seconds since J2000 TDB"""
+        """Epoch of latest observation in batch in seconds since J2000 TDB."""
         return self._epoch_end
 
     @property
@@ -718,7 +720,7 @@ class BatchMPC:
 
     # helper functions
     def _refresh_metadata(self) -> None:
-        """Internal. Update batch metadata"""
+        """Internal. Update batch metadata."""
         self._table.drop_duplicates()
 
         self._observatories = list(self._table.observatory.unique())
@@ -734,7 +736,7 @@ class BatchMPC:
         self._epoch_end = self._table.epochJ2000secondsTDB.max()
 
     def _get_station_info(self) -> None:
-        """Internal. Retrieve data on MPC listed observatories"""
+        """Internal. Retrieve data on MPC listed observatories."""
         try:
             temp = MPC.get_observatory_codes().to_pandas()  # type: ignore
             # This query checks if Longitude is Nan: non-terretrial telescopes
@@ -746,7 +748,7 @@ class BatchMPC:
             print(e)
 
     def _add_observatory_positions(
-            self, bodies: environment.SystemOfBodies, earth_name
+            self, bodies: environment.SystemOfBodies, earth_name # type: ignore
     ) -> None:
         """Internal. Add observatory cartesian postions to station data"""
         temp = self._observatory_info
@@ -773,7 +775,7 @@ class BatchMPC:
             Nside=None,
             catalog_flags=None,
     ):
-        """
+        """Internal, applies star catalog biases based on
         Internal, applies star catalog biases based on
         'Star catalog position and proper motion corrections in asteroid astrometry II: The Gaia era' by Eggl et al. (2018)
         """
@@ -797,13 +799,111 @@ class BatchMPC:
 
             self._EFCC18_applied = True
 
-    # methods for data retrievels
+    def _add_time_columns(self, table: pd.DataFrame) -> pd.DataFrame:
+        """
+        Internal helper to add standardized time columns to an observation table.
+
+        This function takes a DataFrame with an 'epoch' column (in Julian Days, UTC)
+        and adds 'epochJ2000secondsTDB' and 'epochUTC' columns.
+
+        Parameters
+        ----------
+        table : pd.DataFrame
+            The input DataFrame, which must contain an 'epoch' column.
+
+        Returns
+        -------
+        pd.DataFrame
+            The DataFrame with the new time columns added.
+        """
+
+        # Create DateTime objects from the Julian Day 'epoch' column
+        dt_objects = [DateTime.from_julian_day(jd) for jd in table['epoch']]
+
+        # Get the default time scale converter
+        time_scale_converter = time_representation.default_time_scale_converter()
+
+        # Add 'epochJ2000secondsTDB' column by converting from UTC to TDB
+        table['epochJ2000secondsTDB'] = [
+            time_scale_converter.convert_time(
+                input_scale=time_representation.utc_scale,
+                output_scale=time_representation.tdb_scale,
+                input_value=dt_obj.epoch()
+            ) for dt_obj in dt_objects
+        ]
+
+        ####
+        # The following line will have to be changed whenever the time conversion (datetime.h)
+        # for historical dates has taken place (at the moment, using time_representation.DateTime
+        # will result in an error for observations dating back to < ~1900.
+        ####
+        table['epochUTC'] = [Time(jd, format = "jd").to_datetime() for jd in table['epoch']]
+
+        return table
+
+
+    # data retrieval options: from_file: allows external observations to be added
+    def from_file(self, filename: str, in_degrees: bool = False, frame: str = "J2000") -> None:
+        """
+        Loads observations from a local MPC 80-column text file. 
+
+        This method serves as a high-level convenience function that orchestrates the
+        parsing of a raw 80-column file and loading the data into the batch. It uses
+        the `tudatpy.data.mpc.parser_80col.parse_80cols_file` function internally.
+
+        The parser returns an Astropy Table with RA/DEC values in radians, so this
+        method subsequently calls `from_astropy` to ingest the data. The `in_degrees`
+        parameter should therefore be `False` (the default).
+
+        Note
+        ----
+        If you wish to perform intermediate operations on the parsed data using
+        pandas, you can call the parser directly and then use the `from_pandas`
+        method:
+
+        .. code-block:: python
+
+            from tudatpy.data.mpc.parser_80col import parse_80cols_file
+
+            # 1. Parse the file to an Astropy Table
+            astropy_table = parse_80cols_file("my_obs.txt")
+
+            # 2. Convert to a pandas DataFrame for manipulation
+            pandas_df = astropy_table.to_pandas()
+            # ... perform custom pandas operations on pandas_df ...
+
+            # 3. Load the processed DataFrame into the batch
+            batch = BatchMPC()
+            batch.from_pandas(pandas_df, in_degrees=False)
+
+
+        Parameters
+        ---------- 
+        filename : str
+            The path to the MPC 80-column formatted text file.
+        in_degrees : bool, optional
+            Specifies the unit of RA/DEC in the file. Since the internal parser
+            handles the conversion to radians, this should be left as `False`.
+            Defaults to False.
+        frame : str, optional
+            The reference frame of the observations. Currently, only "J2000" is
+            supported. Defaults to "J2000".
+        """
+        # Use the dedicated parser submodule to parse the external file.
+        # This function returns an astropy.Table with RA/DEC in radians.
+        astropy_table = parse_80cols_file(filename)
+
+        # Use the from_astropy method to validate and add the data.
+        # in_degrees is False because the parser has already converted to radians.
+        self.from_astropy(astropy_table, in_degrees=in_degrees, frame=frame)
+
+    # data retrieval options: get_observations: retrieves data from mpc through astroquery.
     def get_observations(
             self,
             MPCcodes: list[str | int],
             id_types: list[str | None] | None = None,
             drop_misc_observations: bool = True,
-    ) -> None:
+    ) -> None: # type: ignore
         """Retrieve all observations for a set of MPC listed objects.
         This method uses astroquery to retrieve the observations from the MPC.
         An internet connection is required, observations are cached for faster subsequent retrieval.
@@ -811,7 +911,7 @@ class BatchMPC:
 
         Parameters
         ----------
-        MPCcodes : list[str | int]
+        MPCcodes : list[str | int] 
             List of integer MPC object codes for minor planets or comets.
         id_types : list[str | None] | None, default None
             A list of identification types ('asteroid_number', 'comet_number', 'comet_designation') corresponding to each MPCcode.
@@ -834,8 +934,6 @@ class BatchMPC:
         if len(MPCcodes) != len(id_types):
             raise ValueError("MPCcodes and id_types must have the same number of elements.")
 
-        time_scale_converter = time_representation.default_time_scale_converter()
-
         for code, id_type in zip(MPCcodes, id_types):
             if not (isinstance(code, int) or isinstance(code, str)):
                 raise ValueError(
@@ -845,47 +943,36 @@ class BatchMPC:
             try:
                 # 3. Conditionally call the function based on whether id_type exists
                 if id_type is not None:
-                    #print(f"Querying for {code} with id_type: '{id_type}'...")
                     obs = MPC.get_observations(code, id_type=id_type).to_pandas()
                 else:
-                    #print(f"Querying for {code} with unknown id_type...")
                     obs = MPC.get_observations(code).to_pandas()
 
                 obs['number'] = obs['number'].astype(str) # to avoid pandas FutureWarning
 
                 # convert JD to J2000 and UTC, convert deg to rad
-                dt_objects = [DateTime.from_julian_day(jd) for jd in obs.epoch]
-
-                # Convert DateTime objects to epochJ2000secondsTDB
-                obs['epochJ2000secondsTDB'] = [
-                    time_scale_converter.convert_time(
-                        input_scale=time_representation.utc_scale,
-                        output_scale=time_representation.tdb_scale,
-                        input_value=dt_obj.epoch()
-                    ) for dt_obj in dt_objects
-                ]
-
-                # Convert DateTime objects to Python datetime objects for epochUTC
-                # obs['epochUTC'] = [DateTime.to(dt_obj) for dt_obj in dt_objects]
-
-                obs = (
-                    obs.assign(
-                        RA=lambda x: (np.radians(x.RA)  + np.pi ) % (2 * np.pi) - np.pi,
-                        DEC=lambda x: np.radians(x.DEC),
-                        epochUTC=lambda x: Time(x.epoch, format="jd").to_datetime()
-                    )
+                obs = self._add_time_columns(obs)
+                obs = obs.assign(
+                    RA=lambda x: (np.radians(x.RA) + np.pi) % (2 * np.pi) - np.pi,
+                    DEC=lambda x: np.radians(x.DEC)
                 )
-                if drop_misc_observations:
-                    observation_types_to_drop = ["x", "X", "V", "v", "W", "w", "R", "r", "Q", "q", "O"]
-                    obs = obs.query("note2 not in @observation_types_to_drop")
 
-                MPC_parser = MPC80ColsParser()
-                try:
-                    parsed_value = MPC_parser.parse_packed_permanent_designation(str(obs.number[0]))['number']
-                    obs.loc[:, "number"] = str(int(parsed_value))
-                except:
-                    parsed_value = str(obs['desig'][0])
-                    obs.loc[:, "number"] = parsed_value
+                if drop_misc_observations:
+                    obs = obs.query("note2 not in @OBS_TYPES_TO_DROP")
+
+                if 'number' in obs.columns and pd.notna(obs['number'].iloc[0]):
+                    # If a valid permanent number exists, use it as the identifier for all rows.
+                    identifier = str(obs['number'].iloc[0])
+                elif 'desig' in obs.columns and pd.notna(obs['desig'].iloc[0]):
+                    # Otherwise, fall back to using the provisional designation.
+                    identifier = str(obs['desig'].iloc[0])
+                else:
+                    # If neither identifier is found, something is wrong.
+                    # We can skip this object with a warning.
+                    print(f"Warning: Could not find a valid identifier for object code {code}. Skipping.")
+                    continue
+
+                # Assign the chosen identifier to the 'number' column for the entire DataFrame.
+                obs.loc[:, "number"] = identifier
                 self._table = pd.concat([self._table, obs])
 
             except Exception as e:
@@ -894,23 +981,11 @@ class BatchMPC:
         self._refresh_metadata()
 
     def _add_table(self, table: pd.DataFrame, in_degrees: bool = True):
-        """Internal. Formats a manually entered table of observations, used in from_astropy and in from_pandas."""
+        """Internal. Formats a manually entered table of observations, used in from_astropy and in from_pandas. """
         obs = table
-        dt_objects = [DateTime.from_julian_day(jd) for jd in obs.epoch]
-        time_scale_converter = time_representation.default_time_scale_converter()
-        # Convert DateTime objects to epochJ2000secondsTDB
-        obs['epochJ2000secondsTDB'] = [
-            time_scale_converter.convert_time(
-                input_scale=time_representation.utc_scale,
-                output_scale=time_representation.tdb_scale,
-                input_value=dt_obj.epoch()
-            ) for dt_obj in dt_objects
-        ]
-
-        # Convert DateTime objects to Python datetime objects for epochUTC
-        obs['epochUTC'] = [DateTime.to_python_datetime(dt_obj) for dt_obj in dt_objects]
+        obs = self._add_time_columns(obs)
         if in_degrees:
-            obs = obs.assign(RA=lambda x: np.radians(x.RA)).assign(
+            obs = obs.assign(RA=lambda x: (np.radians(x.RA)  + np.pi ) % (2 * np.pi) - np.pi).assign(
                 DEC=lambda x: np.radians(x.DEC)
             )
 
@@ -919,17 +994,16 @@ class BatchMPC:
         self._table = pd.concat([self._table, obs])
         self._refresh_metadata()
 
-    def _validate_table(self, table: astropy.table.QTable | astropy.table.Table, frame: str):
+    def _validate_table(self, table: astropy.table.QTable | astropy.table.Table | pd.DataFrame, frame: str) -> None:
         """Internal helper to validate the frame and required columns of a table.
 
-        Args:
-            table (astropy.table.Table | pd.DataFrame): The table to validate.
-            frame (str): The reference frame to check.
-
-        Raises:
-            NotImplementedError: If the frame is not 'J2000'.
-            ValueError: If the table is missing required columns.
-        """
+         Parameters
+         ----------
+         table : astropy.table.QTable | astropy.table.Table | pd.DataFrame
+             The table to validate.
+         frame : str
+             The reference frame to check.
+         """
         if frame != "J2000":
             raise NotImplementedError("Only observations in J2000 are supported currently")
 
@@ -939,15 +1013,14 @@ class BatchMPC:
         elif isinstance(table, pd.DataFrame):
             colnames = table.columns
         else:
-            # This case is already handled, but good for robustness
-            return
+            raise TypeError(f"Unsupported table type: {type(table).__name__}")
 
         if not set(self._req_cols).issubset(set(colnames)):
             raise ValueError(f"Table must include a set of mandatory columns: {self._req_cols}")
 
-    def from_astropy(self, table: astropy.table.QTable | astropy.table.Table, in_degrees: bool = True, frame: str = "J2000"):
+    def from_astropy(self, table: astropy.table.QTable | astropy.table.Table, in_degrees: bool = True, frame: str = "J2000") -> None:
         """Loads observations from an Astropy Table into the BatchMPC object.
-
+        
         This method provides a convenient way to import observation data that has been
         processed or filtered and is stored in an Astropy Table or QTable. It serves
         as a wrapper that validates the input before converting it to a pandas DataFrame
@@ -955,17 +1028,17 @@ class BatchMPC:
 
         Args:
             table (astropy.table.Table):
-                The Astropy Table or QTable containing the observation data. It must
+                The Astropy Table or QTable containing the observation data. It must 
                 include the following columns: 'number', 'epoch', 'RA', 'DEC',
                 'band', 'observatory'.
             in_degrees (bool, optional):
-                If True, 'RA' and 'DEC' columns are assumed to be in degrees.
+                If True, 'RA' and 'DEC' columns are assumed to be in degrees. 
                 If False, they are assumed to be in radians. Defaults to True.
             frame (str, optional):
-                The reference frame of the observations. Currently, only "J2000" is
+                The reference frame of the observations. Currently, only "J2000" is 
                 supported. Defaults to "J2000".
 
-        Raises:
+        Raises: 
             ValueError: If the input `table` is not an Astropy Table/QTable or if it
                 is missing any of the required columns.
             NotImplementedError: If a `frame` other than 'J2000' is provided.
@@ -976,9 +1049,9 @@ class BatchMPC:
         self._validate_table(table, frame)
         self._add_table(table=table.to_pandas(), in_degrees=in_degrees)
 
-    def from_pandas(self, table: pd.DataFrame, in_degrees: bool = True, frame: str = "J2000"):
+    def from_pandas(self, table: pd.DataFrame, in_degrees: bool = True, frame: str = "J2000") -> None:
         """
-        Loads observations from a pandas DataFrame into the BatchMPC object.
+        Loads observations from a pandas DataFrame into the BatchMPC object. 
 
         The DataFrame must contain the following columns:
         - 'number': The MPC object code (e.g., '433' for Eros).
@@ -989,7 +1062,7 @@ class BatchMPC:
         - 'observatory': The MPC observatory code.
 
         Parameters
-        ----------
+        ---------- 
         table : pd.DataFrame
             The pandas DataFrame containing the observation data.
         in_degrees : bool, optional
@@ -1008,7 +1081,7 @@ class BatchMPC:
     def set_weights(
             self,
             weights: list | np.ndarray | pd.Series,
-    ):
+    ): # type: ignore
         """Manually set weights per observation. Weights are passed to
         observation collection when `.to_tudat()` is called. Set the
         `apply_weights_VFCC17` parameter in `.to_tudat()` to `False` to avoid
@@ -1016,7 +1089,7 @@ class BatchMPC:
         the `.table` parameter.
 
         Parameters
-        ----------
+        ---------- 
         weights : list | np.ndarray | pd.Series
             Iterable with weights per observation.
 
@@ -1046,7 +1119,7 @@ class BatchMPC:
             observatories_exclude: list[str] | None = None,
             epoch_start: float | datetime.datetime | None = None,
             epoch_end: float | datetime.datetime | None = None,
-            in_place: bool = True,
+            in_place: bool = True, # type: ignore
     ) -> "None | BatchMPC":
         """Filter out observations from the batch.
 
@@ -1069,7 +1142,7 @@ class BatchMPC:
             List of observatories to remove from the batch, by default None
         epoch_start : float | datetime.datetime | None, optional
             Start date to include observations from, can be in python datetime in utc\
-                 or the more conventional tudat seconds since j2000 in TDB if float,\
+                or the more conventional tudat seconds since j2000 in TDB if float,\
                      by default None
         epoch_end : float | datetime.datetime | None, optional
             Final date to include observations from, can be in python datetime in utc\
@@ -1080,7 +1153,7 @@ class BatchMPC:
                   If false returns a new object that is\
                       filtered, currect batch remains unmodified, by default True
 
-        Raises
+        Raises 
         ------
         ValueError
             Is raised if bands, observatories, or observatories_exclude are not list or
@@ -1089,7 +1162,7 @@ class BatchMPC:
             Is raised if both observations_exclude and observatories are not None.
 
         Returns
-        -------
+        ------- 
         None or BatchMPC
             Returns a new instance of BatchMPC that is filtered.
         """
@@ -1169,7 +1242,7 @@ class BatchMPC:
     def to_tudat(
             self,
             bodies: environment.SystemOfBodies,
-            included_satellites: dict[str, str] | None,
+            included_satellites: dict[str, str] | None, # type: ignore
             station_body: str = "Earth",
             add_sbdb_gravity_model: bool = False,
             apply_weights_VFCC17: bool = True,
@@ -1199,7 +1272,7 @@ class BatchMPC:
 
 
         Parameters
-        ----------
+        ---------- 
         bodies : environment.SystemOfBodies
             SystemOfBodies containing at least the earth to allow for the placement of
             terrestrial telescopes
@@ -1231,7 +1304,7 @@ class BatchMPC:
             for more info, by default dict()
 
         Returns
-        -------
+        ------- 
         observations.ObservationCollection
             ObservationCollection with the observations found in the batch
 
@@ -1427,14 +1500,14 @@ class BatchMPC:
     def plot_observations_temporal(
             self,
             objects: list[str] | None = None,
-            figsize: tuple[float] = (9.0, 6.0),
-    ):
+            figsize: tuple[float] = (9.0, 6.0), # type: ignore
+    ): # type: ignore
         """Generates a matplotlib figure with the declination and right ascension
         over time.
 
 
         Parameters
-        ----------
+        ---------- 
         objects : list[str] | None, optional
             List of specific MPC objects in batch to plot, None to plot all
             , by default None
@@ -1445,7 +1518,7 @@ class BatchMPC:
             size of the matplotlib figure, by default (15, 7)
 
         Returns
-        -------
+        ------- 
         Matplotlib figure
             Matplotlib figure with the observations
         """
@@ -1496,14 +1569,14 @@ class BatchMPC:
             self,
             objects: list[str] | None = None,
             projection: str | None = None,
-            figsize: tuple[float] = (14.0, 7.0),
-    ):
+            figsize: tuple[float] = (14.0, 7.0), # type: ignore
+    ): # type: ignore
         """Generates a matplotlib figure with the observations'
         right ascension and declination over time.
 
         Parameters
         ----------
-        objects : list[str] | None, optional
+        objects : list[str] | None, optional 
             List of specific MPC objects in batch to plot, None to plot all
             , by default None
         projection : str, optional
@@ -1513,7 +1586,7 @@ class BatchMPC:
             size of the matplotlib figure, by default (15, 7)
 
         Returns
-        -------
+        ------- 
         Matplotlib figure
             Matplotlib figure with the observations
         """
@@ -1582,7 +1655,7 @@ class BatchMPC:
         return fig
 
     def summary(self):
-        """Produce a quick summary of the content of the batch"""
+        """Produce a quick summary of the content of the batch."""
         print()
         print("   Batch Summary:")
         print(f"1. Batch includes {len(self._MPC_codes)} minor planets:")
@@ -1613,14 +1686,14 @@ class BatchMPC:
             only_in_batch: bool = True,
             only_space_telescopes: bool = False,
             exclude_space_telescopes: bool = False,
-            include_positions: bool = False,
+            include_positions: bool = False, # type: ignore
     ) -> pd.DataFrame:
         """Returns a pandas DataFrame with information about all MPC observatories,
         Carthesian positions are only available after running the `to_tudat()` method.
 
         Parameters
         ----------
-        only_in_batch : bool, optional
+        only_in_batch : bool, optional 
             Filter out observatories that are not in the batch, by default True
         only_space_telescopes : bool, optional
             Filter out all observatories except space telescopes, by default False
@@ -1629,7 +1702,7 @@ class BatchMPC:
         include_positions : bool, optional
             Include cartesian positions of the terrestrial telescopes only available
             after running to_tudat(), by default False
-
+        
         Returns
         -------
         pd.DataFrame
@@ -1662,299 +1735,3 @@ class BatchMPC:
         if not include_positions:
             temp = temp.loc[:, ["Code", "Name", "count"]]
         return temp
-
-class MPC80ColsParser:
-    """
-    A parser to unpack provisional and permanent designations from the MPC format.
-    """
-    def __init__(self):
-        # Base-62 characters (0-9, A-Z, a-z) for unpacking
-        self._BASE62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-        self._BASE62_MAP = {char: i for i, char in enumerate(self._BASE62)}
-
-    def _unpack_permanent_minor_planet(self, packed: str) -> str:
-        """Unpacks a 5-char permanent minor planet number."""
-        first_char = packed[0]
-
-        # Case 1: Numbers >= 620,000 (starts with '~')
-        if first_char == '~':
-            value = 0
-            for char in packed[1:]:
-                value = value * 62 + self._BASE62_MAP[char]
-            return str(value + 620000)
-
-        # Case 2: Numbers 100,000 to 619,999 (starts with a letter)
-        if first_char.isalpha():
-            prefix_val = self._BASE62_MAP[first_char]
-            suffix_val = int(packed[1:])
-            return str(prefix_val * 10000 + suffix_val)
-
-        # Case 3: Numbers < 100,000 (starts with a digit)
-        return str(int(packed))
-
-    def _unpack_provisional_minor_planet(self, packed: str) -> str:
-        """Unpacks a 7-char provisional minor planet designation."""
-        # Case 1: Survey designations (e.g., PLS2040 for 2040 P-L)
-        survey_map = {'PLS': 'P-L', 'T1S': 'T-1', 'T2S': 'T-2', 'T3S': 'T-3'}
-        if packed[0:3] in survey_map:
-            number = int(packed[3:])
-            survey_type = survey_map[packed[0:3]]
-            return f"{number} {survey_type}"
-
-        # Case 2: Standard provisional designations (e.g., K07Tf8A for 2007 TA418)
-        century_map = {'I': '18', 'J': '19', 'K': '20'}
-        year = century_map.get(packed[0], '??') + packed[1:3]
-
-        half_month_1 = packed[3]
-        half_month_2 = packed[6]
-
-        cycle_packed = packed[4:6]
-        cycle = 0
-        if cycle_packed[0].isdigit():
-            cycle = int(cycle_packed)
-        else: # Letter-digit format (e.g., 'f8' -> 418)
-            val1 = self._BASE62_MAP[cycle_packed[0]]
-            val2 = int(cycle_packed[1])
-            cycle = val1 * 10 + val2
-
-        if cycle == 0:
-            return f"{year} {half_month_1}{half_month_2}"
-        else:
-            return f"{year} {half_month_1}{half_month_2}{cycle}"
-
-    def _unpack_provisional_comet_or_satellite(self, packed: str) -> str:
-        """Unpacks a 7-char provisional comet/satellite designation."""
-        century_map = {'I': '18', 'J': '19', 'K': '20'}
-        year = century_map.get(packed[0], '??') + packed[1:3]
-        half_month = packed[3]
-        order = int(packed[4:6])
-        fragment = packed[6]
-
-        desig = f"{year} {half_month}{order}"
-        if fragment != '0': # Append fragment letter if it exists
-            desig += f"-{fragment.upper()}"
-        return desig
-
-    def _unpack_permanent_natural_satellite(self, packed: str) -> str:
-        """Unpacks a 5-char permanent natural satellite designation (e.g., J013S)."""
-        planet_map = {'J': 'Jupiter', 'S': 'Saturn', 'U': 'Uranus', 'N': 'Neptune'}
-
-        # Simple integer to Roman numeral converter
-        def to_roman(num: int) -> str:
-            val = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1]
-            syb = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"]
-            roman_num = ''
-            i = 0
-            while num > 0:
-                for _ in range(num // val[i]):
-                    roman_num += syb[i]
-                    num -= val[i]
-                i += 1
-            return roman_num
-
-        planet_name = planet_map.get(packed[0], "Unknown Planet")
-        number = int(packed[1:4])
-        return f"{planet_name} {to_roman(number)}"
-
-    def parse_packed_permanent_designation(self, packed_perm_num: str) -> dict:
-        """
-        Parses a packed permanent designation string from the MPC.
-
-        Parameters
-        ----------
-        packed_perm_num : str
-            The 5-character packed permanent designation string (e.g., 'D4341', '0029P', 'J013S').
-
-        Returns
-        -------
-        dict
-            A dictionary containing the unpacked identification data.
-        """
-        ident_data = {}
-        # Clean the input string to handle potential whitespace
-        packed_perm_num = packed_perm_num.strip()
-
-        # Rule for Natural Satellites (e.g., J013S)
-        if re.match(r"^[JSUND]\d{3}S$", packed_perm_num):
-            ident_data['type'] = 'Natural Satellite'
-            ident_data['name'] = self._unpack_permanent_natural_satellite(packed_perm_num)
-
-        # Rule for Comets (e.g., 0029P)
-        elif re.match(r"^\d{4}[PD]$", packed_perm_num):
-            ident_data['type'] = 'Comet'
-            ident_data['number'] = str(int(packed_perm_num[0:4]))
-            ident_data['comettype'] = packed_perm_num[4]
-
-        # Rule for Interstellar Objects (e.g., 0002I)
-        elif re.match(r"^\d{4}I$", packed_perm_num):
-            ident_data['type'] = 'Interstellar Object'
-            number = int(packed_perm_num[0:4])
-            ident_data['name'] = f"{number}I"
-            ident_data['number'] = str(number)
-            ident_data['comettype'] = 'I'
-
-        # Rule for Minor Planets (e.g., 00433, A0345, D4341, ~000z)
-        elif packed_perm_num:
-            ident_data['type'] = 'Minor Planet'
-            ident_data['number'] = self._unpack_permanent_minor_planet(packed_perm_num)
-
-        return ident_data
-
-    def parse_80cols_identification_fields(self, line: str) -> dict:
-        """
-        Parses the identification part of an 80-column MPC observation line
-        and unpacks the designations.
-        """
-        ident_data = {}
-
-        packed_perm_num = line[0:5].strip()
-        packed_prov_desig = line[5:12].strip()
-        is_discovery = line[12].strip() == '*'
-
-        if is_discovery:
-            ident_data['discovery'] = True
-
-        # Rule for Natural Satellites (Permanent: J013S)
-        if re.match(r"^[JSUND]\d{3}S$", packed_perm_num):
-            ident_data['type'] = 'Natural Satellite'
-            ident_data['name'] = self._unpack_permanent_natural_satellite(packed_perm_num)
-
-        # Rule for Comets (Permanent: 0029P)
-        elif re.match(r"^\d{4}[PD]$", packed_perm_num):
-            ident_data['type'] = 'Comet'
-            ident_data['number'] = str(int(packed_perm_num[0:4]))
-            ident_data['comettype'] = packed_perm_num[4]
-            if packed_prov_desig:
-                ident_data['name'] = packed_prov_desig.strip()
-
-        # Rule for Interstellar Objects (Permanent: 0002I)
-        elif re.match(r"^\d{4}I$", packed_perm_num):
-            ident_data['type'] = 'Interstellar Object'
-            number = int(packed_perm_num[0:4])
-            ident_data['name'] = f"{number}I" # e.g., "2I"
-            ident_data['number'] = str(number)
-            ident_data['comettype'] = 'I'
-            # The rest of the line is often the object's name (e.g., Borisov)
-            if packed_prov_desig:
-                ident_data['desig'] = packed_prov_desig.strip() if packed_prov_desig.strip() != '' else 'NaN'
-
-        # Rule for Minor Planets (Permanent: 03202, A0345, D4341, ~000z, H5642)
-        elif packed_perm_num:
-            ident_data['type'] = 'Minor Planet'
-            ident_data['number'] = self._unpack_permanent_minor_planet(packed_perm_num)
-            if packed_prov_desig:
-                ident_data['desig'] = self._unpack_provisional_minor_planet(packed_prov_desig)
-
-        # Rule for objects with ONLY provisional designations
-        elif packed_prov_desig:
-            if packed_prov_desig[6].isalpha() and packed_prov_desig[6] not in ['I', 'Z']:
-                ident_data['type'] = 'Minor Planet'
-                ident_data['desig'] = self._unpack_provisional_minor_planet(packed_prov_desig)
-            else:
-                ident_data['type'] = 'Comet'
-                ident_data['desig'] = self._unpack_provisional_comet_or_satellite(packed_prov_desig)
-
-        return ident_data
-
-    def parse_80cols_file(self, filename: str) -> list[dict]:
-        """
-        Reads an MPC observation file (80-column format) and parses each line
-        for a specific object type, returning a list of dictionaries with parsed observations.
-
-        Parameters
-        ----------
-        filename : str
-            The path to the MPC 80-column observation file.
-        object_type : str
-            The type of object being observed. Must be 'minor_planet', 'comet', or 'natural_satellite'.
-
-        Returns
-        -------
-        list[dict]
-            A list of dictionaries, where each dictionary represents a parsed observation.
-            Each dictionary contains keys like 'number', 'epoch', 'RA', 'DEC', 'observatory', etc.
-        """
-        parsed_observations = []
-        observation_types_to_drop = ["x", "X", "V", "v", "W", "w", "R", "r", "Q", "q", "O"]
-        with open(filename, 'r') as f:
-            for line in f:
-                if len(line) < 80:
-                    continue
-
-                try:
-                    ident_data = self.parse_80cols_identification_fields(line)
-                except ValueError as e:
-                    #print(f"Skipped line due to identification parsing error: {e}")
-                    continue
-
-                try:
-                    # 2. GET note2 VALUE AND APPLY FILTER
-                    note2_val = line[14].strip()
-                    if note2_val in observation_types_to_drop:
-                        continue  # Skip this line and go to the next one
-
-                    # --- Time Parsing ---
-                    year = int(line[15:19])
-                    month = int(line[20:22])
-                    day_frac = float(line[23:32])
-                    day = int(day_frac)
-                    remainder = day_frac - day
-                    total_seconds = remainder * 86400
-                    hours = int(total_seconds / 3600)
-                    minutes = int((total_seconds % 3600) / 60)
-                    seconds = total_seconds % 60
-                    microseconds = int((seconds - int(seconds)) * 1_000_000)
-
-                    obs_time_utc = datetime.datetime(year, month, day, hours, minutes, int(seconds), microseconds)
-                    dt_object = DateTime.from_python_datetime(obs_time_utc)
-                    obs_time_jd = dt_object.to_julian_day()
-                    obs_time_seconds = dt_object.to_epoch()
-
-                    # --- RA Parsing ---
-                    ra_parts = line[32:44].strip().split()
-                    ra_hr, ra_min, ra_sec = int(ra_parts[0]), int(ra_parts[1]), float(ra_parts[2])
-                    ra_deg = (ra_hr * 15 + ra_min * 0.25 + ra_sec * (15 / 3600))
-                    ra_deg = np.degrees((np.radians(ra_deg) + np.pi) % (2 * np.pi) - np.pi)
-                    ra_rad = np.radians(ra_deg)
-
-                    # --- Dec Parsing ---
-                    dec_parts = line[44:56].strip().split()
-                    dec_val_str = dec_parts[0]
-                    dec_sign = -1 if dec_val_str.startswith('-') else 1
-                    dec_deg_val = int(dec_val_str.replace('-', '').replace('+', ''))
-                    dec_min, dec_sec = int(dec_parts[1]), float(dec_parts[2])
-                    dec_deg = dec_sign * (dec_deg_val + dec_min / 60 + dec_sec / 3600)
-                    dec_rad = np.radians(dec_deg)
-
-                    mag_str = line[65:70].strip()
-                    magnitude = float(mag_str) if mag_str else None
-
-                    # Directly create the final dictionary with the correct keys
-                    final_data = {
-                        # Fields from identification parsing
-                        "number": ident_data.get('number'),
-                        "provisional_designation": ident_data.get('provisional_designation'),
-                        "discovery": ident_data.get('discovery'),
-                        "publishable": ident_data.get('publishable'),
-                        "program_code": ident_data.get('program_code'),
-                        "object_type": ident_data.get('object_type'),
-
-                        # Fields from observation parsing (using final key names)
-                        "epoch": obs_time_jd,
-                        "epoch_utc": obs_time_utc,
-                        "epoch_seconds": obs_time_seconds,
-                        "RA": ra_rad,
-                        "DEC": dec_rad,
-                        "observatory": line[77:80].strip(),
-                        "magnitude": magnitude,
-                        "band": line[70].strip() or None,
-                        "note1": line[13].strip() or None,
-                        "note2": line[14].strip() or None,
-                        "catalog": None  # This is not present in 80-col format
-                    }
-                    parsed_observations.append(final_data)
-                except (ValueError, IndexError) as e:
-                    #print(f"MPC Parser Warning: skipped line due to observation data parsing error: {e}")
-                    continue
-
-        return Table(parsed_observations)
