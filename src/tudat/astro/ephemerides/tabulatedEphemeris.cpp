@@ -31,7 +31,6 @@ Eigen::Vector6d TabulatedCartesianEphemeris< double, double >::getCartesianState
     {
         throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
-
 }
 
 //! Get cartesian state from ephemeris (in long double precision), for double StateScalarType
@@ -50,7 +49,6 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, double >
     {
         throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
-
 }
 
 //! Get cartesian state from ephemeris (in double precision from Time input), for double StateScalarType
@@ -69,7 +67,6 @@ Eigen::Vector6d TabulatedCartesianEphemeris< double, double >::getCartesianState
     {
         throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
-
 }
 
 //! Get cartesian state from ephemeris (in long double precision from Time input), for double StateScalarType
@@ -88,7 +85,6 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, double >
     {
         throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
-
 }
 
 //! Get cartesian state from ephemeris (in double precision), for long double StateScalarType
@@ -107,7 +103,6 @@ Eigen::Vector6d TabulatedCartesianEphemeris< long double, double >::getCartesian
     {
         throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
-
 }
 
 //! Get cartesian state from ephemeris (in long double precision), for long double StateScalarType
@@ -127,7 +122,6 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, dou
     {
         throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
-
 }
 
 //! Get cartesian state from ephemeris (in double precision from Time input), for double StateScalarType
@@ -146,7 +140,6 @@ Eigen::Vector6d TabulatedCartesianEphemeris< long double, double >::getCartesian
     {
         throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
-
 }
 
 //! Get cartesian state from ephemeris (in long double precision from Time input), for double StateScalarType
@@ -166,7 +159,6 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, dou
     {
         throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
-
 }
 
 //! Get cartesian state from ephemeris (in double precision), double StateScalarType
@@ -185,8 +177,6 @@ Eigen::Vector6d TabulatedCartesianEphemeris< double, Time >::getCartesianState( 
     {
         throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
-
-
 }
 
 //! Get cartesian state from ephemeris (in long double precision), for double StateScalarType
@@ -205,8 +195,6 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, Time >::
     {
         throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
-
-
 }
 
 //! Get cartesian state from ephemeris (in double precision from Time input).
@@ -225,8 +213,6 @@ Eigen::Vector6d TabulatedCartesianEphemeris< double, Time >::getCartesianStateFr
     {
         throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
-
-
 }
 
 //! Get cartesian state from ephemeris (in long double precision from Time input).
@@ -245,8 +231,6 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< double, Time >::
     {
         throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
-
-
 }
 
 //! Get cartesian state from ephemeris (in double precision), for long double StateScalarType
@@ -265,8 +249,6 @@ Eigen::Vector6d TabulatedCartesianEphemeris< long double, Time >::getCartesianSt
     {
         throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
-
-
 }
 
 //! Get cartesian state from ephemeris (in long double precision), for long double StateScalarType
@@ -285,8 +267,6 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, Tim
     {
         throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
-
-
 }
 
 //! Get cartesian state from ephemeris (in double precision from Time input).
@@ -305,8 +285,6 @@ Eigen::Vector6d TabulatedCartesianEphemeris< long double, Time >::getCartesianSt
     {
         throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
-
-
 }
 
 //! Get cartesian state from ephemeris (in long double precision from Time input).
@@ -326,8 +304,6 @@ Eigen::Matrix< long double, 6, 1 > TabulatedCartesianEphemeris< long double, Tim
     {
         throw std::runtime_error( "Error in tabulated ephemeris.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
-
-
 }
 
 //! Function to check whether an ephemeris is a (type of) tabulated ephemeris
@@ -359,22 +335,23 @@ std::pair< double, double > getTabulatedEphemerisSafeInterval( const std::shared
     // Identify type of tabulated ephemeris, and call associated safe interval function
     else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >( ephemeris ) != nullptr )
     {
-        safeInterval =
-                std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >( ephemeris )->getSafeInterpolationInterval( acceptUserDefinedRisk );
+        safeInterval = std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >( ephemeris )
+                               ->getSafeInterpolationInterval( acceptUserDefinedRisk );
     }
     else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, double > >( ephemeris ) != nullptr )
     {
-        safeInterval = std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, double > >( ephemeris )->getSafeInterpolationInterval( acceptUserDefinedRisk );
+        safeInterval = std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, double > >( ephemeris )
+                               ->getSafeInterpolationInterval( acceptUserDefinedRisk );
     }
     else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, Time > >( ephemeris ) != nullptr )
     {
-        safeInterval =
-                std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, Time > >( ephemeris )->getSafeInterpolationInterval( acceptUserDefinedRisk );
+        safeInterval = std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, Time > >( ephemeris )
+                               ->getSafeInterpolationInterval( acceptUserDefinedRisk );
     }
     else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >( ephemeris ) != nullptr )
     {
-        safeInterval =
-                std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >( ephemeris )->getSafeInterpolationInterval( acceptUserDefinedRisk );
+        safeInterval = std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >( ephemeris )
+                               ->getSafeInterpolationInterval( acceptUserDefinedRisk );
     }
     else
     {
@@ -382,7 +359,6 @@ std::pair< double, double > getTabulatedEphemerisSafeInterval( const std::shared
     }
     return safeInterval;
 }
-
 
 }  // namespace ephemerides
 
