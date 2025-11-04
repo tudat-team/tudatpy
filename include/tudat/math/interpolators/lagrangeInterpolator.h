@@ -333,6 +333,34 @@ public:
         return lagrangeBoundaryHandling_;
     }
 
+    std::pair< IndependentVariableType, IndependentVariableType > getValidInterpolationInterval( const bool acceptUserDefinedRisk )
+    {
+        std::pair< IndependentVariableType, IndependentVariableType > validInterval =
+                OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::getValidInterpolationInterval( acceptUserDefinedRisk );
+
+        switch( lagrangeBoundaryHandling_ )
+        {
+            case lagrange_cubic_spline_boundary_interpolation:
+            case lagrange_cubic_spline_boundary_interpolation_with_warning:
+                if( !acceptUserDefinedRisk )
+                {
+                    validInterval =  std::make_pair( independentValues_.at( numberOfStages_ / 2 - 1 ),
+                                                    independentValues_.at( numberOfIndependentValues_ - ( numberOfStages_ /2 ) ) );
+                }
+                break;
+            case lagrange_boundary_nan_interpolation:
+            case lagrange_boundary_nan_interpolation_with_warning:
+            case lagrange_no_boundary_interpolation:
+                validInterval =  std::make_pair( independentValues_.at( numberOfStages_ / 2 - 1 ),
+                                                independentValues_.at( numberOfIndependentValues_ - ( numberOfStages_ /2 ) ) );
+                break;
+        }
+
+
+        return validInterval;
+
+    }
+
 protected:
 private:
     DependentVariableType performLagrangeBoundaryInterpolation(

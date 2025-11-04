@@ -734,7 +734,7 @@ void expose_environment_setup( py::module& m )
            "station_name" );
 
     m.def( "get_safe_interpolation_interval",
-           &tss::getSafeInterpolationInterval,
+           &tudat::ephemerides::getSafeEphemerisEvaluationInterval,
            py::arg( "ephemeris_model" ) );
 
     m.def( "add_aerodynamic_coefficient_interface",

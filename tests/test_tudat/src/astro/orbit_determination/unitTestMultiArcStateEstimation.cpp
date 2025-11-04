@@ -159,6 +159,7 @@ Eigen::VectorXd executeParameterEstimation( const int linkArcs )
                 integrationArcStartTimes.at( i ),
                 integratorSettings,
                 propagationTimeTerminationSettings( integrationArcEndTimes.at( i ) ) ) );
+
     }
     std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
             std::make_shared< MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettingsList, linkArcs );
@@ -197,7 +198,7 @@ Eigen::VectorXd executeParameterEstimation( const int linkArcs )
 
     TimeType observationTime;
     int numberOfObservationsPerArc = 5000;
-    double timeBuffer = 9000.0;
+    double timeBuffer = 12000.0;
 
     std::vector< TimeType > initialObservationTimes;
     initialObservationTimes.resize( numberOfObservationsPerArc * integrationArcStartTimes.size( ) );
