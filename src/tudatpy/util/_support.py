@@ -363,3 +363,29 @@ def vector2matrix(flat_matrix: np.ndarray):
         Rotation matrix (3x3 orthogonal matrix).
     """
     return flat_matrix.reshape(3, 3)
+
+def to_roman(num: int) -> str:
+    """Converts an integer to a Roman numeral string.
+
+    Parameters
+    ----------
+    num : int
+        The integer to convert.
+
+    Returns
+    -------
+    str
+        The Roman numeral representation of the integer.
+
+    """
+    # For converting integers to Roman numerals
+    _ROMAN_NUMERAL_MAP = {
+        1000: 'M', 900: 'CM', 500: 'D', 400: 'CD', 100: 'C', 90: 'XC',
+        50: 'L', 40: 'XL', 10: 'X', 9: 'IX', 5: 'V', 4: 'IV', 1: 'I'
+    }
+    roman_num = ''
+    for val, syb in _ROMAN_NUMERAL_MAP.items():
+        while num >= val:
+            roman_num += syb
+            num -= val
+    return roman_num
