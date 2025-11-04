@@ -61,7 +61,7 @@ public:
                                  const std::string referenceFrameOrigin = "SSB",
                                  const std::string referenceFrameOrientation = "ECLIPJ2000" ):
         Ephemeris( referenceFrameOrigin, referenceFrameOrientation ), interpolator_( interpolator )
-    { }
+    {}
 
     TabulatedCartesianEphemeris( const VariableStateInterpolatorPointer interpolator,
                                  const std::string referenceFrameOrigin = "SSB",
@@ -77,7 +77,7 @@ public:
     /*!
      *  Destructor
      */
-    ~TabulatedCartesianEphemeris( ) { }
+    ~TabulatedCartesianEphemeris( ) {}
 
     //! Function to reset the state interpolator.
     /*!

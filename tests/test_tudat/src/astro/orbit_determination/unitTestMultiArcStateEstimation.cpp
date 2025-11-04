@@ -159,7 +159,6 @@ Eigen::VectorXd executeParameterEstimation( const int linkArcs )
                 integrationArcStartTimes.at( i ),
                 integratorSettings,
                 propagationTimeTerminationSettings( integrationArcEndTimes.at( i ) ) ) );
-
     }
     std::shared_ptr< MultiArcPropagatorSettings< StateScalarType, TimeType > > propagatorSettings =
             std::make_shared< MultiArcPropagatorSettings< StateScalarType, TimeType > >( propagatorSettingsList, linkArcs );
@@ -267,7 +266,7 @@ BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
     // Execute test for linked arcs and separate arcs.
     for( unsigned int testCase = 0; testCase < 2; testCase++ )
     {
-#if ( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
         Eigen::VectorXd parameterError = executeParameterEstimation< long double, tudat::Time, long double >( testCase );
         int numberOfEstimatedArcs = ( parameterError.rows( ) - 3 ) / 6;
 

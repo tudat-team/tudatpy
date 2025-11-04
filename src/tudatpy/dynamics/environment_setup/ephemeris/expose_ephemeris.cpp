@@ -1168,11 +1168,11 @@ void expose_ephemeris_setup( py::module& m )
      )doc" );
 
     m.def( "multi_arc_ephemeris",
-       &tss::multiArcEphemerisSettings,
-       py::arg( "single_arc_ephemeris_settings" ),
-       py::arg( "frame_origin" ) = "SSB",
-       py::arg( "frame_orientation" ) = "ECLIPJ2000",
-       py::arg( "default_ephemeris_settings" ) = nullptr,
+           &tss::multiArcEphemerisSettings,
+           py::arg( "single_arc_ephemeris_settings" ),
+           py::arg( "frame_origin" ) = "SSB",
+           py::arg( "frame_orientation" ) = "ECLIPJ2000",
+           py::arg( "default_ephemeris_settings" ) = nullptr,
            R"doc(
 
  Function for creating multi-arc ephemeris model settings.
