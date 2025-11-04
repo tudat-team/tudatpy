@@ -127,6 +127,11 @@ TUDAT_ADD_TEST_CASE(IauRotationalEphemeris
         tudat_basic_mathematics
         )
 
+TUDAT_ADD_TEST_CASE(MultiArcEphemeris
+        PRIVATE_LINKS
+        ${Tudat_PROPAGATION_LIBRARIES}
+)
+
 if(TUDAT_BUILD_WITH_SOFA_INTERFACE)
 
     TUDAT_ADD_TEST_CASE(ItrsToGcrsRotationModel

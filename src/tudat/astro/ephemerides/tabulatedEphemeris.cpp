@@ -345,7 +345,8 @@ bool isTabulatedEphemeris( const std::shared_ptr< Ephemeris > ephemeris )
 }
 
 //! Function that retrieves the time interval at which a tabulated ephemeris can be safely interrogated
-std::pair< double, double > getTabulatedEphemerisSafeInterval( const std::shared_ptr< Ephemeris > ephemeris )
+std::pair< double, double > getTabulatedEphemerisSafeInterval( const std::shared_ptr< Ephemeris > ephemeris,
+                                                               const bool acceptUserDefinedRisk )
 {
     // Initialize return pair
     std::pair< double, double > safeInterval = std::make_pair( TUDAT_NAN, TUDAT_NAN );
@@ -359,25 +360,29 @@ std::pair< double, double > getTabulatedEphemerisSafeInterval( const std::shared
     else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >( ephemeris ) != nullptr )
     {
         safeInterval =
-                std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >( ephemeris )->getSafeInterpolationInterval( );
+                std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, double > >( ephemeris )->getSafeInterpolationInterval( acceptUserDefinedRisk );
     }
     else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, double > >( ephemeris ) != nullptr )
     {
-        safeInterval = std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, double > >( ephemeris )
-                               ->getSafeInterpolationInterval( );
+        safeInterval = std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, double > >( ephemeris )->getSafeInterpolationInterval( acceptUserDefinedRisk );
     }
     else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, Time > >( ephemeris ) != nullptr )
     {
         safeInterval =
-                std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, Time > >( ephemeris )->getSafeInterpolationInterval( );
+                std::dynamic_pointer_cast< TabulatedCartesianEphemeris< long double, Time > >( ephemeris )->getSafeInterpolationInterval( acceptUserDefinedRisk );
     }
     else if( std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >( ephemeris ) != nullptr )
     {
         safeInterval =
-                std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >( ephemeris )->getSafeInterpolationInterval( );
+                std::dynamic_pointer_cast< TabulatedCartesianEphemeris< double, Time > >( ephemeris )->getSafeInterpolationInterval( acceptUserDefinedRisk );
+    }
+    else
+    {
+        throw std::runtime_error( "Error when getting tabulated ephemeris safe interval, tabulated ephemeris not recognized" );
     }
     return safeInterval;
 }
+
 
 }  // namespace ephemerides
 
