@@ -156,6 +156,20 @@ private:
 };
 
 template< typename T >
+class MultiArcEphemerisError : public TudatError
+{
+public:
+    MultiArcEphemerisError( const T currentTime, const std::pair< double, double >& arcTimes, const int arcIndex )
+        : TudatError( "Error when retrieving state from multi-arc ephemeris, epoch " + std::to_string( static_cast< double >( currentTime ) ) +
+                      " is out of bounds for current arc ("+ std::to_string( arcIndex )   + "), which has bounds [" +
+                      std::to_string( arcTimes.first ) + ", " + std::to_string( arcTimes.second ) + "]" ) { }
+
+    ~MultiArcEphemerisError( ){ }
+
+private:
+
+};
+template< typename T >
 class LightTimeSolutionError : public TudatError
 {
 public:
