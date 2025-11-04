@@ -26,6 +26,7 @@ import re
 from tudatpy.astro import time_representation
 from tudatpy.astro.time_representation import DateTime
 from tudatpy.data.mpc.parser_80col import parse_80cols_file
+from .parser_80col import unpackers
 from tudatpy.data.mpc.parser_80col.unpackers import OBS_TYPES_TO_DROP
 
 BIAS_LOWRES_FILE = os.path.join(
@@ -959,19 +960,21 @@ class BatchMPC:
                 if drop_misc_observations:
                     obs = obs.query("note2 not in @OBS_TYPES_TO_DROP")
 
-                if 'number' in obs.columns and pd.notna(obs['number'].iloc[0]):
-                    # If a valid permanent number exists, use it as the identifier for all rows.
-                    identifier = str(obs['number'].iloc[0])
-                elif 'desig' in obs.columns and pd.notna(obs['desig'].iloc[0]):
-                    # Otherwise, fall back to using the provisional designation.
+                identifier = None
+                if 'number' in obs.columns:
+                    pd.set_option('future.no_silent_downcasting', True)
+                    valid_numbers = obs['number'].dropna().astype(str).replace('<NA>', np.nan).dropna()
+                    if not valid_numbers.empty:
+                        potential_id = valid_numbers.iloc[0]
+                        identifier = unpackers.unpack_permanent_minor_planet(potential_id)
+                if identifier is None and 'desig' in obs.columns and pd.notna(obs['desig'].iloc[0]):
                     identifier = str(obs['desig'].iloc[0])
-                else:
-                    # If neither identifier is found, something is wrong.
-                    # We can skip this object with a warning.
+
+                if identifier is None:
                     print(f"Warning: Could not find a valid identifier for object code {code}. Skipping.")
                     continue
 
-                # Assign the chosen identifier to the 'number' column for the entire DataFrame.
+                # Assign the identifier to the 'number' column for the entire DataFrame.
                 obs.loc[:, "number"] = identifier
                 self._table = pd.concat([self._table, obs])
 
