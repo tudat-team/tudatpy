@@ -100,6 +100,9 @@ Functions
 
    horizons_wrapper.jpl_horizons
 
+   multi_arc_ephemeris
+
+
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ephemeris.direct_spice
 
@@ -128,6 +131,9 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.ephemeris.tabulated_from_existing
 
 .. autofunction:: tudatpy.dynamics.environment_setup.ephemeris.horizons_wrapper.jpl_horizons
+
+.. autofunction:: tudatpy.dynamics.environment_setup.ephemeris.multi_arc_ephemeris
+
 
 
 
