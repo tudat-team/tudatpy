@@ -9,6 +9,7 @@ from ._support import (
     redirect_std,
     pareto_optimums,
     vector2matrix,
+    to_roman,
 )
 
 __all__ = [
