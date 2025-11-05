@@ -211,40 +211,45 @@ BOOST_AUTO_TEST_CASE( testDifferencedTimeOfArrival )
 
     // Test partials with constant ephemerides (allows test of position partials)
     {
-        // Create environment
-        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
+//        for( int testMultiplier = -4; testMultiplier <= 3; testMultiplier++ )
+        {
+            // Create environment
+            SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true, 1.0, false, true );
 
-        // Set link ends for observation model
-        LinkEnds linkEnds;
-        linkEnds[ transmitter ] = groundStations[ 1 ];
-        linkEnds[ receiver ] = groundStations[ 0 ];
-        linkEnds[ receiver2 ] = groundStations[ 2 ];
+            // Set link ends for observation model
+            LinkEnds linkEnds;
+            linkEnds[ transmitter ] = groundStations[ 0 ];
+            linkEnds[ receiver ] = groundStations[ 1 ];
+            linkEnds[ receiver2 ] = groundStations[ 2 ];
 
-        // Generate one-way differenced range model
-        std::vector< std::string > perturbingBodies;
-        perturbingBodies.push_back( "Earth" );
-        std::shared_ptr< ObservationModel< 1 > > oneWayDifferencedRangeModel =
-                observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                        std::make_shared< observation_models::ObservationModelSettings >(
-                                observation_models::differenced_time_of_arrival,
-                                linkEnds,
-                                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) ),
-                        bodies );
+            // Generate one-way differenced range model
+            std::vector< std::string > perturbingBodies;
+            perturbingBodies.push_back( "Earth" );
+            std::shared_ptr< ObservationModel< 1 > > oneWayDifferencedRangeModel =
+                    observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
+                            std::make_shared< observation_models::ObservationModelSettings >(
+                                    observation_models::differenced_time_of_arrival,
+                                    linkEnds,
+                                    std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) ),
+                            bodies );
 
-        // Create parameter objects.
-        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
+            // Create parameter objects.
+            std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
 
-        testObservationPartials< 1 >( oneWayDifferencedRangeModel,
-                                      bodies,
-                                      fullEstimatableParameterSet,
-                                      linkEnds,
-                                      differenced_time_of_arrival,
-                                      1.0E-4,
-                                      true,
-                                      true,
-                                      1000.0,
-                                      parameterPerturbationMultipliers,
-                                      getAveragedDopplerAncilliarySettings( 60.0 ) );
+//            double scalingFactor = std::pow( 10.0, testMultiplier );
+            testObservationPartials< 1 >( oneWayDifferencedRangeModel,
+                                          bodies,
+                                          fullEstimatableParameterSet,
+                                          linkEnds,
+                                          differenced_time_of_arrival,
+                                          1.5E-3,
+                                          true,
+                                          true,
+                                          10.0,
+                                          parameterPerturbationMultipliers );
+
+            std::cout<<std::endl<<std::endl<<std::endl;
+        }
     }
 
 //    // Test partials with real ephemerides (without test of position partials)

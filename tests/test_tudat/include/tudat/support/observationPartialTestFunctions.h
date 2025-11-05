@@ -52,7 +52,8 @@ SystemOfBodies setupEnvironment( const std::vector< std::pair< std::string, std:
                                  const double stateEvaluationTime = 0.0,
                                  const bool useConstantEphemerides = 1,
                                  const double gravitationalParameterScaling = 1.0,
-                                 const bool useConstantRotationalEphemeris = false );
+                                 const bool useConstantRotationalEphemeris = false,
+                                 const bool moveMarsToMoon = false );
 
 //! Function to create estimated parameters for general observation partial tests.
 std::shared_ptr< EstimatableParameterSet< double > > createEstimatableParameters( const SystemOfBodies& bodies,
@@ -349,6 +350,10 @@ void testObservationPartials(
                     // Test position partial
                     if( ( observableType != angular_position ) && ( observableType != relative_angular_position ) )
                     {
+
+                        std::cout<<bodyPositionPartial<<std::endl;
+                        std::cout<<numericalPartialWrtBodyPosition<<std::endl<<std::endl;
+
                         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( bodyPositionPartial, ( numericalPartialWrtBodyPosition ), tolerance );
                     }
                     else
@@ -455,6 +460,8 @@ void testObservationPartials(
                         for( unsigned int j = 0; j < analyticalObservationPartials[ i + numberOfEstimatedBodies ].size( ); j++ )
                         {
                             currentParameterPartial += analyticalObservationPartials[ i + numberOfEstimatedBodies ].at( j ).first;
+                            std::cout<<"Computing contribution "<<std::setprecision( 15 )<<analyticalObservationPartials[ i + numberOfEstimatedBodies ].at( j ).first<<std::endl;
+
                         }
                         std::cout << "Current double partial " << i << " " << std::setprecision( 16 )
                                   << analyticalObservationPartials[ i + numberOfEstimatedBodies ].size( ) << " " << currentParameterPartial
@@ -508,6 +515,7 @@ void testObservationPartials(
                         for( unsigned int j = 0; j < analyticalObservationPartials[ i + startIndex ].size( ); j++ )
                         {
                             currentParameterPartial += analyticalObservationPartials[ i + startIndex ].at( j ).first;
+                            std::cout<<"Computing contribution "<<std::setprecision( 15 )<<analyticalObservationPartials[ i + startIndex ].at( j ).first<<std::endl;
                         }
 
                         std::cout << "Current vector partial " << i << " " << currentParameterPartial << " "
