@@ -161,10 +161,12 @@ void expose_ground_station_setup( py::module& m )
  station_name : string
      Name (unique identifier) by which the station is to be known.
  station_position_element_type : PositionElementTypes, default = cartesian_position
-     Type of elements for ``station_nominal_position``. Choose between cartesian_position, spherical_position and geodetic_position
+     Type of elements for ``station_nominal_position``.
  station_nominal_position : numpy.ndarray([3,1])
      Nominal position of the station in a body-fixed frame. Depending on the choice of ``station_position_element_type`` input, this vector must contain
-     * Cartesian - :math:`[x,y,z]`, denoting :math:`x-`, :math:`y-` and :math:`z-` components of body-fixed position (w.r.t body-fixed frame origin, typically center of mass) * Spherical - :math:`[r,\phi',\theta]`, denoting distance from body-fixed frame origin (typically center of mass), latitude and longitude * Geodetic - :math:`[h,\phi,\theta]`, denoting the altitude w.r.t. the body shape model, geodetic latitude and longitude
+     * Cartesian (for ``cartesian_position`` input) - :math:`[x,y,z]`, denoting :math:`x-`, :math:`y-` and :math:`z-` components of body-fixed position (w.r.t body-fixed frame origin, typically center of mass)
+     * Spherical (for ``spherical_position`` input) - - :math:`[r,\phi',\theta]`, denoting distance from body-fixed frame origin (typically center of mass), latitude and longitude
+     * Geodetic (for ``geodetic_position`` input) - - :math:`[h,\phi,\theta]`, denoting the altitude w.r.t. the body shape model, geodetic latitude and longitude. Note that, in this case, the conversion to Cartesian position depends on the body's shape model
  station_motion_settings : list[ GroundStationMotionSettings ], default = None
      List of settings defining time-variations of the individual ground station
  Returns
@@ -222,12 +224,7 @@ void expose_ground_station_setup( py::module& m )
            py::arg( "station_name" ),
            R"doc(
 
- Function for creating settings for single DSN station
-
- Function for creating settings for single DSN station, defined by nominal positions and linear velocities, as defined
- by Cartesian elements in *DSN No. 810-005, 301, Rev. K*,  see `this link <https://deepspace.jpl.nasa.gov/dsndocs/810-005/301/301K.pdf>`__.
- Note that calling these settings will use the Cartesian elements provided in this document (in ITRF93) and apply them to the Earth-fixed
- station positions, regardless of the selected Earth rotation model.
+ Function for creating settings for single DSN station (see :func:`~dsn_stations`)
 
  Parameters
  ----------
@@ -294,12 +291,7 @@ void expose_ground_station_setup( py::module& m )
            &tss::getRadioTelescopeStationSettings,
            R"doc(
 
- Function for creating settings for all DSN and EVN stations.
-
- Function for creating settings for all DSN and EVN stations.
- DSN stations are defined by nominal positions and linear velocities, as defined by Cartesian elements in DSN No. 810-005, 301, Rev. K., see `this link <https://deepspace.jpl.nasa.gov/dsndocs/810-005/301/301K.pdf>`__.
- EVN stations are defined by nominal positions and linear velocities, as defined by the glo.sit station file, see `this link <https://gitlab.com/gofrito/pysctrack/-/blob/master/cats/glo.sit?ref_type=heads>`__.
- Note that calling these settings will use the Cartesian elements provided by these documents and apply them to the Earth-fixed station positions, regardless of the selected Earth rotation model.
+ Function for creating settings for all DSN and EVN stations, combining :func:`~evn_stations` and :func:`dsn_stations`
 
  Returns
  -------
