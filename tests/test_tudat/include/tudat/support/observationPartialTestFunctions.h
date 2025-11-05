@@ -207,6 +207,11 @@ void testObservationPartials(
             runSimulation = false;
         }
 
+        if( observableType == observation_models::differenced_time_of_arrival && linkEndIterator->first != receiver )
+        {
+            runSimulation = false;
+        }
+
         if( observableType == observation_models::doppler_measured_frequency && linkEndIterator->first != receiver )
         {
             runSimulation = false;
@@ -292,11 +297,15 @@ void testObservationPartials(
                     // Associated times for partial derivatives w.r.t. gamma not yet fully consistent (no impact on estimation)
                     if( i < 2 )
                     {
+                        std::cout<<"A "<<i<<std::endl;
                         BOOST_CHECK_EQUAL( analyticalObservationPartials.at( i ).size( ), expectedPartialTimes.at( i ).size( ) );
                     }
 
                     for( unsigned int j = 0; j < expectedPartialTimes.at( i ).size( ); j++ )
                     {
+                        std::cout<<"B "<<i<<" "<<j<<std::endl;
+                        std::cout<<std::setprecision( 15 )<<analyticalObservationPartials.at( i ).at( j ).second<<std::endl<<
+                                expectedPartialTimes.at( i ).at( j )<<std::endl;
                         BOOST_CHECK_EQUAL( analyticalObservationPartials.at( i ).at( j ).second, expectedPartialTimes.at( i ).at( j ) );
                     }
                 }
