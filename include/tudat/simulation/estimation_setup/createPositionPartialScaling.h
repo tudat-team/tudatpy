@@ -182,7 +182,28 @@ public:
                 positionPartialScaler = std::make_shared< DifferencedObservablePartialScaling >(
                         firstPositionPartialScaling,
                         secondPositionPartialScaling,
-                        observation_models::getUndifferencedTimeAndStateIndices( observation_models::one_way_differenced_range, 2 ) );
+                        observation_models::getUndifferencedTimeAndStateIndices( observation_models::one_way_differenced_range, 2 ),
+                        &getDefaultDifferencedReferenceLinkEndTypes );
+                break;
+            }
+            case observation_models::differenced_time_of_arrival: {
+                if( std::dynamic_pointer_cast< OneWayRangeScaling >( firstPositionPartialScaling ) == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when creating differenced time of arrival scaling object, first range partial is of incompatible "
+                            "type" );
+                }
+                if( std::dynamic_pointer_cast< OneWayRangeScaling >( secondPositionPartialScaling ) == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when creating differenced time of arrival scaling object, second range partial is of incompatible "
+                            "type" );
+                }
+                positionPartialScaler = std::make_shared< DifferencedObservablePartialScaling >(
+                        firstPositionPartialScaling,
+                        secondPositionPartialScaling,
+                        observation_models::getUndifferencedTimeAndStateIndices( observation_models::differenced_time_of_arrival, 3 ),
+                        &getDifferencedTimeOfArrivalDifferencedReferenceLinkEndTypes );
                 break;
             }
             case observation_models::n_way_differenced_range:
@@ -208,7 +229,8 @@ public:
                 positionPartialScaler = std::make_shared< DifferencedObservablePartialScaling >(
                         firstPositionPartialScaling,
                         secondPositionPartialScaling,
-                        observation_models::getUndifferencedTimeAndStateIndices( differencedObservableType, numberOfLinkEnds ) );
+                        observation_models::getUndifferencedTimeAndStateIndices( differencedObservableType, numberOfLinkEnds ),
+                        &getDefaultDifferencedReferenceLinkEndTypes );
                 break;
             }
             default:
@@ -284,6 +306,7 @@ public:
                         firstPositionPartialScaling,
                         secondPositionPartialScaling,
                         observation_models::getUndifferencedTimeAndStateIndices( observation_models::relative_angular_position, 3 ),
+                        &getDefaultDifferencedReferenceLinkEndTypes,
                         customCheckFunction );
                 break;
             }
