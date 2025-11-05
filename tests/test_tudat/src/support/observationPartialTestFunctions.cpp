@@ -423,6 +423,11 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
                     {
                         currentPartialTimes.push_back( linkEndTimes.at( currentPartialTimeIndices.at( j ) ) );
                     }
+
+                    if( linkEndIterator->first == transmitter && observableType == differenced_time_of_arrival )
+                    {
+                        currentPartialTimes.push_back( linkEndTimes.at( currentPartialTimeIndices.at( j ) ) );
+                    }
                 }
             }
         }
@@ -433,6 +438,7 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
         {
             iter_swap( currentPartialTimes.begin( ) + 1, currentPartialTimes.begin( ) + 2 );
         }
+        std::cout<<"BUILDING TEST "<<currentPartialTimes.size( )<<std::endl;
         partialTimes.push_back( currentPartialTimes );
     }
 
