@@ -2,10 +2,17 @@
 
 ``rotation_model``
 ==================
+
 This module contains a set of factory functions for setting up the
-rotation models of celestial bodies in an environment. Below a short
-overview of aspects of some of the rotation models in order to aid in
-properly selecting an choosing a model.
+rotation models of bodies in an environment.
+
+The main interfaces with Tudat is the :attr:`~tudatpy.dynamics.environment_setup.BodySettings.rotation_model_settings`
+attribute  (of type :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings`) of the body settings, which defines settings for the rotation model of a body.
+**The functions in this submodule are used to create these settings objects.** When creating a body (typically using the
+:func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies` function), an object of type
+:class:`~tudatpy.dynamics.environment.RotationalEphemeris` (or a derived class) is created
+and added to the associated :class:`~tudatpy.dynamics.environment.Body` object based on the settings object, which can
+be retrieved using the :attr:`~tudatpy.dynamics.environment.Body.rotation_model` attribute.
 
 Tudat has a broad range of rotation models available. In principle, these models can be assigned to both celestial bodies and natural bodies. 
 However, a subset of these models is typically only applied to natural *or* artificial bodies. Rotation models have a wide range of,

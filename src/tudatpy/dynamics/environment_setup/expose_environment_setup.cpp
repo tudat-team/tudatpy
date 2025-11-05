@@ -98,7 +98,7 @@ void expose_environment_setup( py::module &m )
          Class for defining settings for the creation of a single body.
 
          Class for defining settings for the creation of a single body, this object is typically stored inside a
-         :class:`BodyListSettings` object.
+         :class:`BodyListSettings` object (see module-level description :ref:`environment_setup` for details on interfaces with rest of tudat)
 
       )doc" )
             .def_readwrite( "constant_mass", &tss::BodySettings::constantMass, R"doc(
@@ -239,16 +239,6 @@ void expose_environment_setup( py::module &m )
 
 
          :type: FullPanelledBodySettings
-      )doc" )
-            .def_readwrite( "radiation_pressure_settings",
-                            &tss::BodySettings::radiationPressureSettings,
-                            R"doc(
-
-         .. warning::
-
-             This interface is deprecated and will be removed in a future release. Use :attr:`~tudatpy.dynamics.environment_setup.BodySettings.radiation_source_settings` and :attr:`~tudatpy.dynamics.environment_setup.BodySettings.radiation_pressure_target_settings` instead.
-
-
       )doc" );
 
     py::class_< tss::BodyListSettings, std::shared_ptr< tss::BodyListSettings > >( m, "BodyListSettings", R"doc(
@@ -256,10 +246,7 @@ void expose_environment_setup( py::module &m )
          Class for defining settings for the creation of a system of bodies.
 
          Class for defining settings for the creation of a system of bodies. This object is typically created from default settings, and
-         then adapted to the user's specific needs.
-
-
-
+         then adapted to the user's specific needs (see module-level description :ref:`environment_setup` for details on interfaces with rest of tudat).
 
 
       )doc" )
@@ -281,9 +268,9 @@ void expose_environment_setup( py::module &m )
          Parameters
          ----------
          frame_origin : str
-             Definition of the global frame origin for the bodies.
+             Definition of the global frame origin for the bodies  See the `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/frames-in-environment.html#the-global-origin-the-current-states-in-the-bodies>`_ for more information.
          frame_orientation : str
-             Definition of the global frame orientation for the bodies.
+             Definition of the global frame orientation for the bodies. See the `user guide https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/frames-in-environment.html#frame-orientation>`_ for more information.
 
 
       )doc" )
@@ -356,7 +343,7 @@ void expose_environment_setup( py::module &m )
 
          **read-only**
 
-         Definition of the global frame origin for the bodies
+         Definition of the global frame origin for the bodies. See the `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/frames-in-environment.html#the-global-origin-the-current-states-in-the-bodies>`_ for more information.
 
          :type: str
       )doc" )
@@ -364,7 +351,7 @@ void expose_environment_setup( py::module &m )
 
          **read-only**
 
-         Definition of the global frame orientation for the bodies
+         Definition of the global frame orientation for the bodies. See the `user guide <https://docs.tudat.space/en/latest/user-guide/state-propagation/environment-setup/frames-in-environment.html#frame-orientation>`_ for more information.
 
          :type: str
       )doc" );
@@ -401,9 +388,6 @@ void expose_environment_setup( py::module &m )
  -------
  BodyListSettings
      Object containing the settings for the SystemOfBodies that are to be created
-
-
-
 
 
 
@@ -629,9 +613,6 @@ void expose_environment_setup( py::module &m )
 
 
 
-
-
-
      )doc" );
 
     m.def( "create_system_of_bodies",
@@ -641,9 +622,10 @@ void expose_environment_setup( py::module &m )
 
  Function that creates a System of bodies from associated settings.
 
- Function that creates a System of bodies from associated settings. This function creates the separate :class:`~tudatpy.dynamics.environment.Body`
- objects and stores them in a :class:`~tudatpy.dynamics.environment.SystemOfBodies` object. This object represents the full
- physical environment in the simulation.
+ Function that creates a class:`~tudatpy.dynamics.environment.SystemOfBodies` of bodies from associated settings in a class:`~tudatpy.dynamics.environment_setup.BodyListSettings` object.
+ This function creates the separate :class:`~tudatpy.dynamics.environment.Body`
+ objects and stores them in a ``SystemOfBodies`` object. This ``SystemOfBodies`` object represents the full
+ physical environment in the simulation, and this function is responsible for creating this envitronent from the user-defined settings
 
 
  Parameters
@@ -744,16 +726,7 @@ void expose_environment_setup( py::module &m )
  coefficient_settings : AerodynamicCoefficientSettings
      Settings defining the coefficient interface that is to be created.
 
-
-
-
-
      )doc" );
-
-    m.def( "create_aerodynamic_coefficient_interface",
-           &tss::createAerodynamicCoefficientInterfaceDeprecated,
-           py::arg( "coefficient_settings" ),
-           py::arg( "body" ) );
 
     m.def( "create_aerodynamic_coefficient_interface",
            &tss::createAerodynamicCoefficientInterface,
@@ -761,12 +734,6 @@ void expose_environment_setup( py::module &m )
            py::arg( "body" ),
            py::arg( "bodies" ),
            R"doc(No documentation found.)doc" );
-
-    m.def( "add_radiation_pressure_interface",
-           &tss::addRadiationPressureInterface,
-           py::arg( "bodies" ),
-           py::arg( "body_name" ),
-           py::arg( "radiation_pressure_settings" ) );
 
     m.def( "add_radiation_pressure_target_model",
            &tss::addRadiationPressureTargetModel,
@@ -793,10 +760,6 @@ void expose_environment_setup( py::module &m )
      Name of the body to which the radiation pressure interface is to be assigned
  radiation_pressure_target_settings : RadiationPressureTargetModelSettings
     Settings defining the radiation pressure target model that is to be created.
-
-
-
-
 
      )doc" );
 
@@ -873,10 +836,6 @@ void expose_environment_setup( py::module &m )
      Name of the body to which the model is to be assigned
  rigid_body_property_settings : RigidBodyPropertiesSettings
      Settings defining the rigid body properties model that is to be created.
-
-
-
-
 
      )doc" );
 
@@ -1011,8 +970,22 @@ void expose_environment_setup( py::module &m )
            py::arg( "body" ),
            py::arg( "ground_station_settings" ),
            R"doc(No documentation found.)doc" );
+//
+//
+//    .. code-block:: python
+//
+//# Create ground station settings
+//                     ground_station_settings = environment_setup.ground_station.basic_station(
+//                                                                                       "TrackingStation",
+//                                                                                       [station_altitude, delft_latitude, delft_longitude],
+//                                                                                       element_conversion.geodetic_position_type)
+//
+//# Add the ground station to the environment
+//                                                       environment_setup.add_ground_station(
+//                                                                                bodies.get_body("Earth"),
+//                                                                                ground_station_settings )
 
-    m.def( "create_radiation_pressure_interface",
+                                                               m.def( "create_radiation_pressure_interface",
            &tss::createRadiationPressureInterface,
            py::arg( "radiationPressureInterfaceSettings" ),
            py::arg( "body_name" ),
@@ -1031,31 +1004,6 @@ void expose_environment_setup( py::module &m )
     //        m.def_submodule("system_models");
     //        gravity_field_variation::expose_system_model_setup(system_model_setup);
 
-    // Function removed; error is shown
-    m.def( "set_aerodynamic_guidance",
-           py::overload_cast< const std::shared_ptr< ta::AerodynamicGuidance >, const std::shared_ptr< tss::Body >, const bool >(
-                   &tss::setGuidanceAnglesFunctions ),
-           py::arg( "aerodynamic_guidance" ),
-           py::arg( "body" ),
-           py::arg( "silence_warnings" ) = false );
-
-    // Function removed; error is shown
-    m.def( "set_aerodynamic_orientation_functions",
-           &tss::setAerodynamicOrientationFunctions,
-           py::arg( "body" ),
-           py::arg( "angle_of_attack_function" ) = std::function< double( ) >( ),
-           py::arg( "sideslip_angle_function" ) = std::function< double( ) >( ),
-           py::arg( "bank_angle_function" ) = std::function< double( ) >( ),
-           py::arg( "update_function" ) = std::function< void( const double ) >( ) );
-
-    // Function removed; error is shown
-    m.def( "set_constant_aerodynamic_orientation",
-           &tss::setConstantAerodynamicOrientation,
-           py::arg( "body" ),
-           py::arg( "angle_of_attack" ),
-           py::arg( "sideslip_angle" ),
-           py::arg( "bank_angle" ),
-           py::arg( "silence_warnings" ) = false );
 }
 
 }  // namespace environment_setup

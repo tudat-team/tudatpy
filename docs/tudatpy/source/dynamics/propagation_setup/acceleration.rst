@@ -8,7 +8,8 @@ objects for accelerations that are provided as input to the :func:`~tudatpy.dyna
 function. For more details on how these accelerations interface with the rest of the Tudat propagation framework,
 see our user guide page on `translational dynamics <https://docs.tudat.space/en/latest/user-guide/state-propagation/propagation-setup/translational.html>`_
 
-Mathematical model descriptions are provided either directly here per acceleration, or on a dedicated page of the Tudat user guide for
+Mathematical model descriptions are provided either directly here per acceleration, and several accelerations are discusse in more detail
+on a dedicated page:
  * `Gravitational accelerations <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/third_body_acceleration.html>`_
  * `Thrust accelerations <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/thrust_models.html>`_
  * `Radiation pressure accelerations <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/radiation_pressure_acceleration.html>`_.
