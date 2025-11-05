@@ -712,6 +712,9 @@ std::pair< std::vector< int >, std::vector< int > > getUndifferencedTimeAndState
     switch( differencedObservableType )
     {
         case one_way_differenced_range:
+            firstIndices = { 0, 1 };
+            secondIndices = { 2, 3 };
+            break;
         case differenced_time_of_arrival:
             firstIndices = { 0, 1 };
             secondIndices = { 0, 2 };
