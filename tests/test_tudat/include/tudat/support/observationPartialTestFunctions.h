@@ -298,15 +298,11 @@ void testObservationPartials(
                     // Associated times for partial derivatives w.r.t. gamma not yet fully consistent (no impact on estimation)
                     if( i < 2 )
                     {
-                        std::cout<<"A "<<i<<std::endl;
                         BOOST_CHECK_EQUAL( analyticalObservationPartials.at( i ).size( ), expectedPartialTimes.at( i ).size( ) );
                     }
 
                     for( unsigned int j = 0; j < expectedPartialTimes.at( i ).size( ); j++ )
                     {
-                        std::cout<<"B "<<i<<" "<<j<<std::endl;
-                        std::cout<<std::setprecision( 15 )<<analyticalObservationPartials.at( i ).at( j ).second<<std::endl<<
-                                expectedPartialTimes.at( i ).at( j )<<std::endl;
                         BOOST_CHECK_EQUAL( analyticalObservationPartials.at( i ).at( j ).second, expectedPartialTimes.at( i ).at( j ) );
                     }
                 }
@@ -350,10 +346,6 @@ void testObservationPartials(
                     // Test position partial
                     if( ( observableType != angular_position ) && ( observableType != relative_angular_position ) )
                     {
-
-                        std::cout<<bodyPositionPartial<<std::endl;
-                        std::cout<<numericalPartialWrtBodyPosition<<std::endl<<std::endl;
-
                         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( bodyPositionPartial, ( numericalPartialWrtBodyPosition ), tolerance );
                     }
                     else
@@ -460,7 +452,6 @@ void testObservationPartials(
                         for( unsigned int j = 0; j < analyticalObservationPartials[ i + numberOfEstimatedBodies ].size( ); j++ )
                         {
                             currentParameterPartial += analyticalObservationPartials[ i + numberOfEstimatedBodies ].at( j ).first;
-                            std::cout<<"Computing contribution "<<std::setprecision( 15 )<<analyticalObservationPartials[ i + numberOfEstimatedBodies ].at( j ).first<<std::endl;
 
                         }
                         std::cout << "Current double partial " << i << " " << std::setprecision( 16 )
@@ -515,7 +506,6 @@ void testObservationPartials(
                         for( unsigned int j = 0; j < analyticalObservationPartials[ i + startIndex ].size( ); j++ )
                         {
                             currentParameterPartial += analyticalObservationPartials[ i + startIndex ].at( j ).first;
-                            std::cout<<"Computing contribution "<<std::setprecision( 15 )<<analyticalObservationPartials[ i + startIndex ].at( j ).first<<std::endl;
                         }
 
                         std::cout << "Current vector partial " << i << " " << currentParameterPartial << " "

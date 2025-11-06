@@ -42,34 +42,11 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_one_way_observation_partials )
 
-Eigen::Vector3d computeUnitVectorToReceiverFromTransmitterState(
-        const Eigen::Vector3d receiverPosition,
-        const std::function< Eigen::Vector6d( const double ) > transmitterStateFunction,
-        const double evaluationTime )
-{
-    return ( receiverPosition - transmitterStateFunction( evaluationTime ).segment( 0, 3 ) ).normalized( );
-}
-
-Eigen::Vector3d computeUnitVectorToReceiverFromReceiverState( const std::function< Eigen::Vector6d( const double ) > receiverStateFunction,
-                                                              const Eigen::Vector3d transmitterPosition,
-                                                              const double evaluationTime )
-{
-    return ( receiverStateFunction( evaluationTime ).segment( 0, 3 ) - transmitterPosition ).normalized( );
-}
-
-Eigen::VectorXd getProperTimeRateInVectorForm( std::shared_ptr< DopplerProperTimeRateInterface > properTimeRateCalculator,
-                                               const std::vector< double >& linkEndTimes,
-                                               const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-                                               const LinkEndType linkEndAssociatedWithTime )
-{
-    return ( Eigen::Vector1d( ) << properTimeRateCalculator->getOberverProperTimeDeviation( linkEndTimes, linkEndStates ) ).finished( );
-}
-
 //! Test partial derivatives of one-way doppler observable, using general test suite of observation partials.
 BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
 {
     using namespace tudat::gravitation;
-    using namespace tudat::gravitation;
+    using namespace tudat::ground_stations;
     using namespace tudat::ephemerides;
     using namespace tudat::observation_models;
     using namespace tudat::simulation_setup;
@@ -86,9 +63,26 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
     // Test partials with constant ephemerides (allows test of position partials)
     for( unsigned int normalizeObservable = 0; normalizeObservable < 2; normalizeObservable++ )
     {
+        for( unsigned int useFrequency = 0; useFrequency < 2; useFrequency++ )
         {
+            std::cout<<"USE FREQUENCY "<<useFrequency<<std::endl;
             // Create environment
             SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
+
+            std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings;
+
+            if( useFrequency == 1 )
+            {
+                bodies.at( "Earth" )->getGroundStation( "Graz" )->getVehicleSystems( )->setTransponderTurnaroundRatio( );
+                bodies.at( "Mars" )->getGroundStation( "MSL" )->setTransmittingFrequencyCalculator(
+                        std::make_shared< ground_stations::ConstantFrequencyInterpolator >( 5.0E9 ) );
+                ancilliarySettings = std::make_shared< observation_models::ObservationAncilliarySimulationSettings >( );
+                ancilliarySettings->setAncilliaryDoubleVectorData(
+                        frequency_bands, { static_cast< double >( x_band ), static_cast< double >( x_band ) } );
+                ancilliarySettings->setAncilliaryDoubleData( doppler_reference_frequency, 0.0 );
+                ancilliarySettings->setAncilliaryDoubleData( reception_reference_frequency_band,
+                                                            convertFrequencyBandToDouble( x_band ) );
+            }
 
             // Set link ends for observation model
             LinkDefinition linkEnds;
@@ -96,7 +90,8 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
             linkEnds[ reflector1 ] = groundStations[ 0 ];
             linkEnds[ receiver ] = groundStations[ 1 ];
 
-            for( unsigned int estimationCase = 0; estimationCase < 2; estimationCase++ )
+            unsigned int caseStartIndex = ( useFrequency == 0 ) ? 0 : 1;
+            for( unsigned int estimationCase = caseStartIndex; estimationCase < 2; estimationCase++ )
             {
                 std::cout << "Case A " << normalizeObservable << " " << estimationCase << std::endl;
                 // Generate one-way doppler model
@@ -134,7 +129,8 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
                                             std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ),
                                             nullptr,
                                             std::make_shared< LightTimeConvergenceCriteria >( ),
-                                            static_cast< bool >( normalizeObservable ) ) ),
+                                            static_cast< bool >( normalizeObservable ) ),
+                                    ( useFrequency == 0 ) ? two_way_doppler : doppler_measured_frequency ),
                             bodies );
                 }
 
@@ -149,22 +145,40 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
                                               bodies,
                                               fullEstimatableParameterSet,
                                               linkEnds,
-                                              two_way_doppler,
-                                              1.0E-5,
+                                              ( useFrequency == 0 ) ? two_way_doppler : doppler_measured_frequency,
+                                              ( useFrequency == 0 ) ? 1.0E-5 : 1.0E-4,
                                               true,
                                               true,
                                               10.0,
                                               parameterPerturbationMultipliers,
-                                              nullptr,
+                                              ancilliarySettings,
                                               1.1E7,
                                               100.0 );
             }
         }
 
         // Test partials with real ephemerides (without test of position partials)
+        for( unsigned int useFrequency = 0; useFrequency < 2; useFrequency++ )
         {
+            std::cout<<"USE FREQUENCY "<<useFrequency<<std::endl;
+
             // Create environment
             SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
+
+            std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings;
+
+            if( useFrequency == 1 )
+            {
+                bodies.at( "Earth" )->getGroundStation( "Graz" )->getVehicleSystems( )->setTransponderTurnaroundRatio( );
+                bodies.at( "Mars" )->getGroundStation( "MSL" )->setTransmittingFrequencyCalculator(
+                        std::make_shared< ground_stations::ConstantFrequencyInterpolator >( 5.0E9 ) );
+                ancilliarySettings = std::make_shared< observation_models::ObservationAncilliarySimulationSettings >( );
+                ancilliarySettings->setAncilliaryDoubleVectorData(
+                        frequency_bands, { static_cast< double >( x_band ), static_cast< double >( x_band ) } );
+                ancilliarySettings->setAncilliaryDoubleData( doppler_reference_frequency, 0.0 );
+                ancilliarySettings->setAncilliaryDoubleData( reception_reference_frequency_band,
+                                                             convertFrequencyBandToDouble( x_band ) );
+            }
 
             // Set link ends for observation model
             LinkDefinition linkEnds;
@@ -172,7 +186,8 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
             linkEnds[ reflector1 ] = groundStations[ 0 ];
             linkEnds[ receiver ] = groundStations[ 1 ];
 
-            for( unsigned int estimationCase = 0; estimationCase < 2; estimationCase++ )
+            unsigned int caseStartIndex = ( useFrequency == 0 ) ? 0 : 1;
+            for( unsigned int estimationCase = caseStartIndex; estimationCase < 2; estimationCase++ )
             {
                 std::cout << "Case B " << normalizeObservable << " " << estimationCase << std::endl;
                 // Generate two-way doppler model
@@ -204,7 +219,8 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
                                             getDownlinkFromTwoWayLinkEnds( linkEnds ),
                                             std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ),
                                             std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Earth" ),
-                                            std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ) ) ),
+                                            std::make_shared< DirectFirstOrderDopplerProperTimeRateSettings >( "Mars" ) ),
+                                    ( useFrequency == 0 ) ? two_way_doppler : doppler_measured_frequency ),
                             bodies );
                 }
                 // Create parameter objects.
@@ -218,13 +234,13 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
                                               bodies,
                                               fullEstimatableParameterSet,
                                               linkEnds,
-                                              two_way_doppler,
+                                              ( useFrequency == 0 ) ? two_way_doppler : doppler_measured_frequency,
                                               1.0E-4,
                                               false,
                                               true,
                                               1.0,
                                               parameterPerturbationMultipliers,
-                                              nullptr,
+                                              ancilliarySettings,
                                               1.1E7,
                                               100.0 );
             }
