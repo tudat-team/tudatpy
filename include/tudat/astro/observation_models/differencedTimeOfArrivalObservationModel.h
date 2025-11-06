@@ -103,7 +103,7 @@ public:
         }
         else
         {
-            throw std::runtime_error( "Error in differenced differenced time of arrival, reference link end not recognized" );
+            throw std::runtime_error( "Error in differenced time of arrival, reference link end not recognized" );
         }
 
         linkEndStates[ 0 ] = transmitterStateForFirstLink.template cast< double >( );

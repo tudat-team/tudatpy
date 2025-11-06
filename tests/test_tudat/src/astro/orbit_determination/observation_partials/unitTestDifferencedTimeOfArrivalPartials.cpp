@@ -106,8 +106,7 @@ BOOST_AUTO_TEST_CASE( testDifferencedTimeOfArrivalDirectPartial )
             linkEnds2,
             lightTimeCorrectionSettings );
 
-    std::shared_ptr< ObservationModelSettings > differencedObservableSettings = std::make_shared< ObservationModelSettings >(
-            differenced_time_of_arrival,
+    std::shared_ptr< ObservationModelSettings > differencedObservableSettings = std::make_shared< DifferencedTimeOfArrivalObservationSettings >(
             differencedLinkEnds,
             lightTimeCorrectionSettings );
 
@@ -193,7 +192,6 @@ BOOST_AUTO_TEST_CASE( testDifferencedTimeOfArrivalDirectPartial )
 //        std::cout << secondRangePartialValues.at( 0 ).first << std::endl;
 //        std::cout << -differencedTimeOfArrivalPartialValues.at( 1 ).first * physical_constants::SPEED_OF_LIGHT << std::endl;
 
-        std::cout << "Done" << std::endl;
     }
 
 }
@@ -210,84 +208,86 @@ BOOST_AUTO_TEST_CASE( testDifferencedTimeOfArrival )
     groundStations[ 2 ] = std::make_pair( "Earth", "DSS-35" );
 
     // Test partials with constant ephemerides (allows test of position partials)
+    for( int useUtc = 0; useUtc < 2; useUtc++ )
     {
-//        for( int testMultiplier = -4; testMultiplier <= 3; testMultiplier++ )
-        {
-            // Create environment
-            SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true, 1.0, false, true );
+        // Create environment
+        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true, 1.0, false, true );
 
-            // Set link ends for observation model
-            LinkEnds linkEnds;
-            linkEnds[ transmitter ] = groundStations[ 0 ];
-            linkEnds[ receiver ] = groundStations[ 1 ];
-            linkEnds[ receiver2 ] = groundStations[ 2 ];
+        // Set link ends for observation model
+        LinkEnds linkEnds;
+        linkEnds[ transmitter ] = groundStations[ 0 ];
+        linkEnds[ receiver ] = groundStations[ 1 ];
+        linkEnds[ receiver2 ] = groundStations[ 2 ];
 
-            // Generate one-way differenced range model
-            std::vector< std::string > perturbingBodies;
-            perturbingBodies.push_back( "Earth" );
-            std::shared_ptr< ObservationModel< 1 > > oneWayDifferencedRangeModel =
-                    observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-                            std::make_shared< observation_models::ObservationModelSettings >(
-                                    observation_models::differenced_time_of_arrival,
-                                    linkEnds,
-                                    std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) ),
-                            bodies );
+        // Generate one-way differenced range model
+        std::vector< std::string > perturbingBodies;
+        perturbingBodies.push_back( "Earth" );
+        std::shared_ptr< ObservationModel< 1 > > oneWayDifferencedRangeModel =
+                observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
+                        std::make_shared< observation_models::DifferencedTimeOfArrivalObservationSettings >(
+                                linkEnds,
+                                std::vector< std::shared_ptr< LightTimeCorrectionSettings > >(
+                                        { std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) } ),
+                                ( useUtc == 0 ) ? basic_astrodynamics::tdb_scale : basic_astrodynamics::utc_scale ),
+                        bodies );
 
-            // Create parameter objects.
-            std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
+        // Create parameter objects.
+        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
 
 //            double scalingFactor = std::pow( 10.0, testMultiplier );
-            testObservationPartials< 1 >( oneWayDifferencedRangeModel,
-                                          bodies,
-                                          fullEstimatableParameterSet,
-                                          linkEnds,
-                                          differenced_time_of_arrival,
-                                          1.5E-3,
-                                          true,
-                                          true,
-                                          10.0,
-                                          parameterPerturbationMultipliers );
+        testObservationPartials< 1 >( oneWayDifferencedRangeModel,
+                                      bodies,
+                                      fullEstimatableParameterSet,
+                                      linkEnds,
+                                      differenced_time_of_arrival,
+                                      1.5E-3,
+                                      true,
+                                      true,
+                                      10.0,
+                                      parameterPerturbationMultipliers );
 
-            std::cout<<std::endl<<std::endl<<std::endl;
-        }
+        std::cout<<std::endl<<std::endl<<std::endl;
     }
 
-//    // Test partials with real ephemerides (without test of position partials)
-//    {
-//        // Create environment
-//        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
-//
-//        // Set link ends for observation model
-//        LinkEnds linkEnds;
-//        linkEnds[ transmitter ] = groundStations[ 1 ];
-//        linkEnds[ receiver ] = groundStations[ 0 ];
-//
-//        // Generate one-way range model
-//        std::vector< std::string > perturbingBodies;
-//        perturbingBodies.push_back( "Earth" );
-//        std::shared_ptr< ObservationModel< 1 > > oneWayDifferencedRangeModel =
-//                observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
-//                        std::make_shared< observation_models::ObservationModelSettings >(
-//                                observation_models::one_way_differenced_range,
-//                                linkEnds,
-//                                std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) ),
-//                        bodies );
-//
-//        // Create parameter objects.
-//        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
-//
-//        testObservationPartials< 1 >( oneWayDifferencedRangeModel,
-//                                      bodies,
-//                                      fullEstimatableParameterSet,
-//                                      linkEnds,
-//                                      one_way_differenced_range,
-//                                      1.0E-4,
-//                                      false,
-//                                      true,
-//                                      1000.0,
-//                                      parameterPerturbationMultipliers,
-//                                      getAveragedDopplerAncilliarySettings( 60.0 ) );
-//    }
+    // Test partials with real ephemerides (without test of position partials)
+    for( int useUtc = 0; useUtc < 2; useUtc++ )
+    {
+        // Create environment
+        SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false, 1.0, false, true );
+
+        // Set link ends for observation model
+        LinkEnds linkEnds;
+        linkEnds[ transmitter ] = groundStations[ 0 ];
+        linkEnds[ receiver ] = groundStations[ 1 ];
+        linkEnds[ receiver2 ] = groundStations[ 2 ];
+
+        // Generate one-way differenced range model
+        std::vector< std::string > perturbingBodies;
+        perturbingBodies.push_back( "Earth" );
+        std::shared_ptr< ObservationModel< 1 > > oneWayDifferencedRangeModel =
+                observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
+                        std::make_shared< observation_models::DifferencedTimeOfArrivalObservationSettings >(
+                                linkEnds,
+                                std::vector< std::shared_ptr< LightTimeCorrectionSettings > >(
+                                        { std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( perturbingBodies ) } ),
+                                ( useUtc == 0 ) ? basic_astrodynamics::tdb_scale : basic_astrodynamics::utc_scale ),
+                        bodies );
+
+        // Create parameter objects.
+        std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
+
+        testObservationPartials< 1 >( oneWayDifferencedRangeModel,
+                                      bodies,
+                                      fullEstimatableParameterSet,
+                                      linkEnds,
+                                      differenced_time_of_arrival,
+                                      1.5E-3,
+                                      false,
+                                      true,
+                                      10.0,
+                                      parameterPerturbationMultipliers,
+                                      getAveragedDopplerAncilliarySettings( 60.0 ) );
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
