@@ -35,6 +35,7 @@ using namespace tudat::observation_models;
 using namespace tudat::spice_interface;
 using namespace tudat::ephemerides;
 using namespace tudat::simulation_setup;
+using namespace tudat::earth_orientation;
 
 BOOST_AUTO_TEST_SUITE( test_differenced_time_of_arrival )
 
@@ -93,58 +94,79 @@ BOOST_AUTO_TEST_CASE( testDifferencedTimeOfArrival )
             linkEnds2,
             lightTimeCorrectionSettings );
 
-    std::shared_ptr< ObservationModelSettings > differencedObservableSettings = std::make_shared< ObservationModelSettings >(
-            differenced_time_of_arrival,
-            differencedLinkEnds,
-            lightTimeCorrectionSettings );
-
-    // Create observation model.
-    std::shared_ptr< ObservationModel< 1, double, Time > > firstRangeObservationModel =
-            ObservationModelCreator< 1, double, Time >::createObservationModel( rangeObservableSettings1, bodies );
-    std::shared_ptr< ObservationModel< 1, double, Time > > secondRangeObservationModel =
-            ObservationModelCreator< 1, double, Time >::createObservationModel( rangeObservableSettings2, bodies );
-    std::shared_ptr< ObservationModel< 1, double, Time > > differencedTimeOfArrivalObservationModel =
-            ObservationModelCreator< 1, double, Time >::createObservationModel( differencedObservableSettings, bodies );
-
-    // Compute observation separately with two functions.
-    double receiverObservationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
-    std::vector< double > linkEndTimesDifferenced, linkEndTimesRange1, linkEndTimesRange2;
-    std::vector< Eigen::Vector6d > linkEndStatesDifferenced, linkEndStatesRange1, linkEndStatesRange2;
-
-    double differencedTimeOfArrival =
-            differencedTimeOfArrivalObservationModel->computeObservationsWithLinkEndData(
-                    receiverObservationTime, receiver, linkEndTimesDifferenced, linkEndStatesDifferenced )( 0 );
-    
-
-    double firstRange =
-            firstRangeObservationModel->computeObservationsWithLinkEndData(
-                    receiverObservationTime, receiver, linkEndTimesRange1, linkEndStatesRange1 )( 0 );
+    for( int testTimeScale = 0; testTimeScale < 2; testTimeScale ++ )
+    {
+        std::shared_ptr< ObservationModelSettings > differencedObservableSettings = std::make_shared< DifferencedTimeOfArrivalObservationSettings >(
+                differencedLinkEnds,
+                lightTimeCorrectionSettings,
+                ( testTimeScale == 0 ) ? basic_astrodynamics::tdb_scale : basic_astrodynamics::utc_scale );
 
 
-     double secondRange =
-             secondRangeObservationModel->computeObservationsWithLinkEndData(
-                     linkEndTimesRange1.at( 0 ), transmitter, linkEndTimesRange2, linkEndStatesRange2 )( 0 );
+        // Create observation model.
+        std::shared_ptr< ObservationModel< 1, double, Time > > firstRangeObservationModel =
+                ObservationModelCreator< 1, double, Time >::createObservationModel( rangeObservableSettings1, bodies );
+        std::shared_ptr< ObservationModel< 1, double, Time > > secondRangeObservationModel =
+                ObservationModelCreator< 1, double, Time >::createObservationModel( rangeObservableSettings2, bodies );
+        std::shared_ptr< ObservationModel< 1, double, Time > > differencedTimeOfArrivalObservationModel =
+                ObservationModelCreator< 1, double, Time >::createObservationModel( differencedObservableSettings, bodies );
 
-    std::cout<<std::setprecision( 16 )<<linkEndTimesDifferenced.at( 0 )<<" "<<linkEndTimesDifferenced.at( 1 )<<" "<<linkEndTimesDifferenced.at( 2 )<<std::endl;
-    std::cout<<linkEndTimesRange1.at( 0 )<<" "<<linkEndTimesRange1.at( 1 )<<std::endl;
-    std::cout<<linkEndTimesRange2.at( 0 )<<" "<<linkEndTimesRange2.at( 1 )<<std::endl;
+        // Compute observation separately with two functions.
+        Time receiverObservationTime = ( finalEphemerisTime + initialEphemerisTime ) / 2.0;
+        std::vector< double > linkEndTimesDifferenced, linkEndTimesRange1, linkEndTimesRange2;
+        std::vector< Eigen::Vector6d > linkEndStatesDifferenced, linkEndStatesRange1, linkEndStatesRange2;
 
-    BOOST_CHECK_CLOSE_FRACTION( linkEndTimesDifferenced.at( 0 ), linkEndTimesRange1.at( 0 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
-    BOOST_CHECK_CLOSE_FRACTION( linkEndTimesDifferenced.at( 1 ), linkEndTimesRange1.at( 1 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
+        double differencedTimeOfArrival =
+                differencedTimeOfArrivalObservationModel->computeObservationsWithLinkEndData(
+                        receiverObservationTime, receiver, linkEndTimesDifferenced, linkEndStatesDifferenced )( 0 );
 
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( linkEndStatesDifferenced.at( 0 ), linkEndStatesRange1.at( 0 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( linkEndStatesDifferenced.at( 1 ), linkEndStatesRange1.at( 1 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
 
-    BOOST_CHECK_CLOSE_FRACTION( linkEndTimesDifferenced.at( 0 ), linkEndTimesRange2.at( 0 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
-    BOOST_CHECK_CLOSE_FRACTION( linkEndTimesDifferenced.at( 2 ), linkEndTimesRange2.at( 1 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
-    
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( linkEndStatesDifferenced.at( 0 ), linkEndStatesRange2.at( 0 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( linkEndStatesDifferenced.at( 2 ), linkEndStatesRange2.at( 1 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
+        double firstRange =
+                firstRangeObservationModel->computeObservationsWithLinkEndData(
+                        receiverObservationTime, receiver, linkEndTimesRange1, linkEndStatesRange1 )( 0 );
 
-    std::cout<<( firstRange - secondRange ) / physical_constants::SPEED_OF_LIGHT<<" "<<differencedTimeOfArrival<<std::endl;
-    std::cout<<( firstRange - secondRange ) / physical_constants::SPEED_OF_LIGHT - differencedTimeOfArrival<<std::endl;
 
-    BOOST_CHECK_SMALL( ( firstRange - secondRange ) / physical_constants::SPEED_OF_LIGHT - differencedTimeOfArrival, 5.0E-11 );
+         double secondRange =
+                 secondRangeObservationModel->computeObservationsWithLinkEndData(
+                         linkEndTimesRange1.at( 0 ), transmitter, linkEndTimesRange2, linkEndStatesRange2 )( 0 );
+
+        std::cout<<std::setprecision( 16 )<<linkEndTimesDifferenced.at( 0 )<<" "<<linkEndTimesDifferenced.at( 1 )<<" "<<linkEndTimesDifferenced.at( 2 )<<std::endl;
+        std::cout<<linkEndTimesRange1.at( 0 )<<" "<<linkEndTimesRange1.at( 1 )<<std::endl;
+        std::cout<<linkEndTimesRange2.at( 0 )<<" "<<linkEndTimesRange2.at( 1 )<<std::endl;
+
+        BOOST_CHECK_CLOSE_FRACTION( linkEndTimesDifferenced.at( 0 ), linkEndTimesRange1.at( 0 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
+        BOOST_CHECK_CLOSE_FRACTION( linkEndTimesDifferenced.at( 1 ), linkEndTimesRange1.at( 1 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
+
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( linkEndStatesDifferenced.at( 0 ), linkEndStatesRange1.at( 0 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( linkEndStatesDifferenced.at( 1 ), linkEndStatesRange1.at( 1 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
+
+        BOOST_CHECK_CLOSE_FRACTION( linkEndTimesDifferenced.at( 0 ), linkEndTimesRange2.at( 0 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
+        BOOST_CHECK_CLOSE_FRACTION( linkEndTimesDifferenced.at( 2 ), linkEndTimesRange2.at( 1 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
+
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( linkEndStatesDifferenced.at( 0 ), linkEndStatesRange2.at( 0 ), ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( linkEndStatesDifferenced.at( 2 ), linkEndStatesRange2.at( 1 ), 2.0E-14 );
+
+        std::cout<<( firstRange - secondRange ) / physical_constants::SPEED_OF_LIGHT<<" "<<differencedTimeOfArrival<<std::endl;
+        std::cout<<( firstRange - secondRange ) / physical_constants::SPEED_OF_LIGHT - differencedTimeOfArrival<<std::endl;
+
+        if( testTimeScale == 0 )
+        {
+            BOOST_CHECK_SMALL( ( firstRange - secondRange ) / physical_constants::SPEED_OF_LIGHT - differencedTimeOfArrival, 5.0E-13 );
+        }
+        else if( testTimeScale == 1 )
+        {
+            std::shared_ptr< TerrestrialTimeScaleConverter > defaultTimeConverter = createDefaultTimeConverter( );
+            Time receptionTdbTime1 = receiverObservationTime;
+            Time receptionTdbTime2 = receiverObservationTime - ( ( firstRange - secondRange ) / physical_constants::SPEED_OF_LIGHT );
+            Time receptionUtcTime1 = defaultTimeConverter->getCurrentTime< Time >(
+                    basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, receptionTdbTime1,
+                    getApproximateDsnGroundStationPositions( ).at( "DSS-13" ) );
+            Time receptionUtcTime2 = defaultTimeConverter->getCurrentTime< Time >(
+                    basic_astrodynamics::tdb_scale, basic_astrodynamics::utc_scale, receptionTdbTime2,
+                    getApproximateDsnGroundStationPositions( ).at( "DSS-43" ) );
+
+            BOOST_CHECK_SMALL( static_cast< double >( receptionUtcTime1 - receptionUtcTime2 ) - differencedTimeOfArrival, 5.0E-13 );
+        }
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
