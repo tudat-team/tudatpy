@@ -398,12 +398,6 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
         const std::vector< double >& linkEndTimes,
         const std::shared_ptr< EstimatableParameterSet< double > >& estimatedParameters )
 {
-    std::cout<<"LINK END TIMES "<<std::setprecision( 16 );
-    for( int i = 0; i < linkEndTimes.size( ); i++ )
-    {
-        std::cout << linkEndTimes.at( i ) << " ";
-    }
-    std::cout<<std::endl;
     std::vector< std::vector< double > > partialTimes;
     std::vector< double > currentPartialTimes;
     std::vector< int > currentPartialTimeIndices;
@@ -445,7 +439,6 @@ std::vector< std::vector< double > > getAnalyticalPartialEvaluationTimes(
         {
             iter_swap( currentPartialTimes.begin( ) + 1, currentPartialTimes.begin( ) + 2 );
         }
-        std::cout<<"BUILDING TEST "<<currentPartialTimes.size( )<<std::endl;
         partialTimes.push_back( currentPartialTimes );
     }
 

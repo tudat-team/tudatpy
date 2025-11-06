@@ -179,6 +179,10 @@ public:
      */
     std::shared_ptr< system_models::VehicleSystems > getVehicleSystems( )
     {
+        if( vehicleSystems_ == nullptr )
+        {
+            vehicleSystems_ = std::make_shared< system_models::VehicleSystems >( );
+        }
         return vehicleSystems_;
     }
 
