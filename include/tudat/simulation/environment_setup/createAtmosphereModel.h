@@ -3732,6 +3732,120 @@ public:
         return availableMaxOrder_;
     }
 
+    /**
+     * \brief Add temperature model from polynomial coefficient data
+     * \param temperaturePolyData Pre-loaded polynomial coefficient dataset for temperature
+     * \param maxDegree Maximum spherical harmonic degree for temperature (-1 for auto)
+     * \param maxOrder Maximum spherical harmonic order for temperature (-1 for auto)
+     * \param gamma Heat capacity ratio (default 1.33 for water vapor)
+     */
+    void addTemperatureModel( const ComaPolyDataset& temperaturePolyData,
+                              const int maxDegree = -1,
+                              const int maxOrder = -1,
+                              const double gamma = 1.33 )
+    {
+        temperatureData_ = temperaturePolyData;
+        temperatureMaxDegree_ = maxDegree;
+        temperatureMaxOrder_ = maxOrder;
+        heatCapacityRatio_ = gamma;
+        hasTemperatureModel_ = true;
+    }
+
+    /**
+     * \brief Add temperature model from Stokes coefficient data
+     * \param temperatureStokesData Pre-computed Stokes coefficient dataset for temperature
+     * \param maxDegree Maximum spherical harmonic degree for temperature (-1 for auto)
+     * \param maxOrder Maximum spherical harmonic order for temperature (-1 for auto)
+     * \param gamma Heat capacity ratio (default 1.33 for water vapor)
+     */
+    void addTemperatureModel( const ComaStokesDataset& temperatureStokesData,
+                              const int maxDegree = -1,
+                              const int maxOrder = -1,
+                              const double gamma = 1.33 )
+    {
+        temperatureData_ = temperatureStokesData;
+        temperatureMaxDegree_ = maxDegree;
+        temperatureMaxOrder_ = maxOrder;
+        heatCapacityRatio_ = gamma;
+        hasTemperatureModel_ = true;
+    }
+
+    /**
+     * \brief Check if temperature model has been added
+     */
+    bool hasTemperatureModel( ) const
+    {
+        return hasTemperatureModel_;
+    }
+
+    /**
+     * \brief Get temperature data variant
+     */
+    const DataVariant& getTemperatureData( ) const
+    {
+        return temperatureData_;
+    }
+
+    /**
+     * \brief Check if temperature data is polynomial type
+     */
+    bool hasTemperaturePolyData( ) const
+    {
+        return hasTemperatureModel_ && temperatureData_.type( ) == typeid( ComaPolyDataset );
+    }
+
+    /**
+     * \brief Check if temperature data is Stokes type
+     */
+    bool hasTemperatureStokesData( ) const
+    {
+        return hasTemperatureModel_ && temperatureData_.type( ) == typeid( ComaStokesDataset );
+    }
+
+    /**
+     * \brief Get temperature polynomial dataset if available
+     * \throws std::runtime_error if temperature data is not polynomial type
+     */
+    const ComaPolyDataset& getTemperaturePolyDataset( ) const
+    {
+        if( auto* p = boost::get< ComaPolyDataset >( &temperatureData_ ) ) return *p;
+        throw std::runtime_error( "ComaSettings does not contain temperature polynomial data" );
+    }
+
+    /**
+     * \brief Get temperature Stokes dataset if available
+     * \throws std::runtime_error if temperature data is not Stokes type
+     */
+    const ComaStokesDataset& getTemperatureStokesDataset( ) const
+    {
+        if( auto* p = boost::get< ComaStokesDataset >( &temperatureData_ ) ) return *p;
+        throw std::runtime_error( "ComaSettings does not contain temperature Stokes data" );
+    }
+
+    /**
+     * \brief Get temperature maximum degree
+     */
+    int getTemperatureMaxDegree( ) const
+    {
+        return temperatureMaxDegree_;
+    }
+
+    /**
+     * \brief Get temperature maximum order
+     */
+    int getTemperatureMaxOrder( ) const
+    {
+        return temperatureMaxOrder_;
+    }
+
+    /**
+     * \brief Get heat capacity ratio
+     */
+    double getHeatCapacityRatio( ) const
+    {
+        return heatCapacityRatio_;
+    }
+
 private:
     /**
      * \brief Validate settings and set defaults for degree/order
@@ -3813,6 +3927,13 @@ private:
     int requestedOrder_; // User-requested max order
     int availableMaxDegree_{ 0 }; // Maximum available in data
     int availableMaxOrder_{ 0 }; // Maximum available in data
+
+    // Temperature model data members
+    bool hasTemperatureModel_{ false }; // Flag indicating if temperature model is added
+    DataVariant temperatureData_; // Holds either poly or Stokes data for temperature
+    int temperatureMaxDegree_{ -1 }; // Maximum degree for temperature model
+    int temperatureMaxOrder_{ -1 }; // Maximum order for temperature model
+    double heatCapacityRatio_{ 1.33 }; // Heat capacity ratio (gamma)
 };
 
 

@@ -999,9 +999,10 @@ using the NRLMSISE-00 global reference model:
 
  Returns
  -------
- AtmosphereSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` class
-     configured for coma model.
+ ComaSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.ComaSettings` class
+     configured for coma model. The returned object can be used to add a temperature model via
+     the :meth:`~tudatpy.dynamics.environment_setup.atmosphere.ComaSettings.add_temperature_model` method.
 
 
  Examples
@@ -1023,14 +1024,17 @@ using the NRLMSISE-00 global reference model:
    poly_dataset = processor.create_poly_coef_dataset()
 
    # Create coma atmosphere settings
-   coma_atmosphere = environment_setup.atmosphere.coma_model(
+   coma_settings = environment_setup.atmosphere.coma_model(
        poly_data=poly_dataset,
        molecular_weight=0.018015,  # H2O molecular weight in kg/mol
        max_degree=10,
        max_order=10)
 
+   # Optionally add temperature model
+   # coma_settings.add_temperature_model(poly_data=temperature_poly_dataset)
+
    # Apply to body settings
-   body_settings.get("67P").atmosphere_settings = coma_atmosphere
+   body_settings.get("67P").atmosphere_settings = coma_settings
 
 
     )doc"
@@ -1078,9 +1082,10 @@ using the NRLMSISE-00 global reference model:
 
  Returns
  -------
- AtmosphereSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` class
-     configured for coma model.
+ ComaSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.ComaSettings` class
+     configured for coma model. The returned object can be used to add a temperature model via
+     the :meth:`~tudatpy.dynamics.environment_setup.atmosphere.ComaSettings.add_temperature_model` method.
 
 
  Examples
@@ -1101,14 +1106,17 @@ using the NRLMSISE-00 global reference model:
        requested_max_order=10)
 
    # Create coma atmosphere settings
-   coma_atmosphere = environment_setup.atmosphere.coma_model(
+   coma_settings = environment_setup.atmosphere.coma_model(
        stokes_data=stokes_dataset,
        molecular_weight=0.018015,  # H2O molecular weight in kg/mol
        max_degree=10,
        max_order=10)
 
+   # Optionally add temperature model
+   # coma_settings.add_temperature_model(stokes_data=temperature_stokes_dataset)
+
    # Apply to body settings
-   body_settings.get("67P").atmosphere_settings = coma_atmosphere
+   body_settings.get("67P").atmosphere_settings = coma_settings
 
  Alternatively, load from pre-existing Stokes coefficient CSV files:
 
@@ -1125,16 +1133,160 @@ using the NRLMSISE-00 global reference model:
        sol_longitudes_deg=[])
 
    # Create coma atmosphere settings
-   coma_atmosphere = environment_setup.atmosphere.coma_model(
+   coma_settings = environment_setup.atmosphere.coma_model(
        stokes_data=stokes_dataset,
        molecular_weight=0.018015)
 
+   # Optionally add temperature model
+   # coma_settings.add_temperature_model(stokes_data=temperature_stokes_dataset)
+
    # Apply to body settings
-   body_settings.get("67P").atmosphere_settings = coma_atmosphere
+   body_settings.get("67P").atmosphere_settings = coma_settings
 
 
     )doc"
             );
+
+    // === ComaSettings class exposure ===
+    py::class_< tss::ComaSettings,
+                std::shared_ptr< tss::ComaSettings >,
+                tss::AtmosphereSettings >(
+            m,
+            "ComaSettings",
+            R"doc(
+Settings class for coma atmosphere models.
+
+This class extends :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings`
+to provide configuration for cometary coma atmosphere models. It supports both polynomial
+and Stokes coefficient datasets for density modeling, and allows optional temperature
+modeling via the :meth:`add_temperature_model` method.
+
+.. note:: This class is typically created using the factory functions
+          :func:`~tudatpy.dynamics.environment_setup.atmosphere.coma_model` rather than
+          being instantiated directly.
+
+Examples
+--------
+Create coma settings and add temperature model:
+
+.. code-block:: python
+
+  # Create coma atmosphere settings from polynomial data
+  coma_settings = environment_setup.atmosphere.coma_model(
+      poly_data=density_poly_dataset,
+      molecular_weight=0.018015)  # H2O in kg/mol
+
+  # Add temperature model using polynomial data
+  coma_settings.add_temperature_model(
+      poly_data=temperature_poly_dataset,
+      max_degree=10,
+      max_order=10,
+      gamma=1.33)
+
+  # Apply to body
+  body_settings.get("67P").atmosphere_settings = coma_settings
+
+)doc" )
+            .def( "add_temperature_model",
+                  py::overload_cast< const tss::ComaPolyDataset&, const int, const int, const double >(
+                          &tss::ComaSettings::addTemperatureModel ),
+                  py::arg( "poly_data" ),
+                  py::arg( "max_degree" ) = -1,
+                  py::arg( "max_order" ) = -1,
+                  py::arg( "gamma" ) = 1.33,
+                  R"doc(
+Add temperature model from polynomial coefficient data.
+
+This method adds a temperature model to the coma atmosphere settings using polynomial
+coefficient data. The temperature model uses spherical harmonic expansion to compute
+temperature as a function of position and time.
+
+.. note:: The temperature data type (polynomial or Stokes) must match the density data type.
+
+Parameters
+----------
+poly_data : ComaPolyDataset
+    Polynomial coefficient dataset for temperature distribution.
+
+max_degree : int, default = -1
+    Maximum spherical harmonic degree for temperature calculations. Set to -1 to use
+    the maximum degree available in the dataset.
+
+max_order : int, default = -1
+    Maximum spherical harmonic order for temperature calculations. Set to -1 to use
+    the maximum order available in the dataset.
+
+gamma : float, default = 1.33
+    Heat capacity ratio (gamma = Cp/Cv) for the gas species. Default value 1.33 is
+    appropriate for water vapor.
+
+Examples
+--------
+.. code-block:: python
+
+  # Create coma settings with polynomial density data
+  coma_settings = environment_setup.atmosphere.coma_model(
+      poly_data=density_poly_data,
+      molecular_weight=0.018015)
+
+  # Add temperature model with polynomial data
+  coma_settings.add_temperature_model(
+      poly_data=temperature_poly_data,
+      max_degree=10,
+      max_order=10,
+      gamma=1.33)
+
+)doc" )
+            .def( "add_temperature_model",
+                  py::overload_cast< const tss::ComaStokesDataset&, const int, const int, const double >(
+                          &tss::ComaSettings::addTemperatureModel ),
+                  py::arg( "stokes_data" ),
+                  py::arg( "max_degree" ) = -1,
+                  py::arg( "max_order" ) = -1,
+                  py::arg( "gamma" ) = 1.33,
+                  R"doc(
+Add temperature model from Stokes coefficient data.
+
+This method adds a temperature model to the coma atmosphere settings using precomputed
+Stokes (spherical harmonic) coefficient data. The temperature model uses interpolation
+of the Stokes coefficients to compute temperature as a function of position and time.
+
+.. note:: The temperature data type (polynomial or Stokes) must match the density data type.
+
+Parameters
+----------
+stokes_data : ComaStokesDataset
+    Stokes coefficient dataset for temperature distribution.
+
+max_degree : int, default = -1
+    Maximum spherical harmonic degree for temperature calculations. Set to -1 to use
+    the maximum degree available in the dataset.
+
+max_order : int, default = -1
+    Maximum spherical harmonic order for temperature calculations. Set to -1 to use
+    the maximum order available in the dataset.
+
+gamma : float, default = 1.33
+    Heat capacity ratio (gamma = Cp/Cv) for the gas species. Default value 1.33 is
+    appropriate for water vapor.
+
+Examples
+--------
+.. code-block:: python
+
+  # Create coma settings with Stokes density data
+  coma_settings = environment_setup.atmosphere.coma_model(
+      stokes_data=density_stokes_data,
+      molecular_weight=0.018015)
+
+  # Add temperature model with Stokes data
+  coma_settings.add_temperature_model(
+      stokes_data=temperature_stokes_data,
+      max_degree=10,
+      max_order=10,
+      gamma=1.33)
+
+)doc" );
 
     // === Coma processing: datasets (minimal shells so Python can hold them) ===
     py::class_< tss::ComaPolyDataset >( m,

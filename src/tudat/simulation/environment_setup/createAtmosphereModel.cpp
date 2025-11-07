@@ -397,31 +397,90 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
                 const int maximumDegree = comaSettings->getRequestedDegree( );
                 const int maximumOrder = comaSettings->getRequestedOrder( );
                 const double molecularWeight = comaSettings->getMolecularWeight( );
+                const double heatCapacityRatio = comaSettings->getHeatCapacityRatio( );
 
                 // Create ComaModel based on data type
                 if( comaSettings->hasPolyData( ) )
                 {
                     const auto& polyDataset = comaSettings->getPolyDataset( );
-                    atmosphereModel = std::make_shared< aerodynamics::ComaModel >(
-                            polyDataset,
-                            molecularWeight,
-                            sunStateFunction,
-                            bodyStateFunction,
-                            bodyOrientationFunction,
-                            maximumDegree,
-                            maximumOrder );
+
+                    // Check if temperature model is provided
+                    if( comaSettings->hasTemperatureModel( ) )
+                    {
+                        if( comaSettings->hasTemperaturePolyData( ) )
+                        {
+                            // Create with temperature polynomial data
+                            const auto& temperaturePolyDataset = comaSettings->getTemperaturePolyDataset( );
+                            atmosphereModel = std::make_shared< aerodynamics::ComaModel >(
+                                    polyDataset,
+                                    molecularWeight,
+                                    sunStateFunction,
+                                    bodyStateFunction,
+                                    bodyOrientationFunction,
+                                    maximumDegree,
+                                    maximumOrder,
+                                    &temperaturePolyDataset,
+                                    heatCapacityRatio );
+                        }
+                        else if( comaSettings->hasTemperatureStokesData( ) )
+                        {
+                            throw std::runtime_error( "Error, ComaSettings for body " + body +
+                                                    " has polynomial density data but Stokes temperature data. Both must be the same type." );
+                        }
+                    }
+                    else
+                    {
+                        // Create without temperature model
+                        atmosphereModel = std::make_shared< aerodynamics::ComaModel >(
+                                polyDataset,
+                                molecularWeight,
+                                sunStateFunction,
+                                bodyStateFunction,
+                                bodyOrientationFunction,
+                                maximumDegree,
+                                maximumOrder );
+                    }
                 }
                 else if( comaSettings->hasStokesData( ) )
                 {
                     const auto& stokesDataset = comaSettings->getStokesDataset( );
-                    atmosphereModel = std::make_shared< aerodynamics::ComaModel >(
-                            stokesDataset,
-                            molecularWeight,
-                            sunStateFunction,
-                            bodyStateFunction,
-                            bodyOrientationFunction,
-                            maximumDegree,
-                            maximumOrder );
+
+                    // Check if temperature model is provided
+                    if( comaSettings->hasTemperatureModel( ) )
+                    {
+                        if( comaSettings->hasTemperatureStokesData( ) )
+                        {
+                            // Create with temperature Stokes data
+                            const auto& temperatureStokesDataset = comaSettings->getTemperatureStokesDataset( );
+                            atmosphereModel = std::make_shared< aerodynamics::ComaModel >(
+                                    stokesDataset,
+                                    molecularWeight,
+                                    sunStateFunction,
+                                    bodyStateFunction,
+                                    bodyOrientationFunction,
+                                    maximumDegree,
+                                    maximumOrder,
+                                    &temperatureStokesDataset,
+                                    heatCapacityRatio );
+                        }
+                        else if( comaSettings->hasTemperaturePolyData( ) )
+                        {
+                            throw std::runtime_error( "Error, ComaSettings for body " + body +
+                                                    " has Stokes density data but polynomial temperature data. Both must be the same type." );
+                        }
+                    }
+                    else
+                    {
+                        // Create without temperature model
+                        atmosphereModel = std::make_shared< aerodynamics::ComaModel >(
+                                stokesDataset,
+                                molecularWeight,
+                                sunStateFunction,
+                                bodyStateFunction,
+                                bodyOrientationFunction,
+                                maximumDegree,
+                                maximumOrder );
+                    }
                 }
                 else
                 {
