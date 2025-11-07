@@ -100,6 +100,12 @@ public:
         currentTime_ = TUDAT_NAN;
     }
 
+    std::function< double( ) > perturberMassFunction( )
+    {
+        return perturberMassFunction_;
+    }
+
+
 protected:
 private:
     //! Spherical harmonic acceleration that the body that undergoes the torque exerts on the body that exerts the torque
