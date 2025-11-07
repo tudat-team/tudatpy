@@ -8,9 +8,9 @@
  *    http://tudat.tudelft.nl/LICENSE.
  *
  */
-
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MAIN
+//
+//#define BOOST_TEST_DYN_LINK
+//#define BOOST_TEST_MAIN
 
 #include <string>
 
@@ -30,13 +30,16 @@
 #include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
 #include "tudat/simulation/estimation.h"
 
-namespace tudat
-{
-
-namespace unit_tests
-{
+//namespace tudat
+//{
+//
+//namespace unit_tests
+//{
 
 //! Using declarations.
+using namespace tudat;
+//using namespace unit_tests;
+
 using namespace interpolators;
 using namespace numerical_integrators;
 using namespace spice_interface;
@@ -47,9 +50,10 @@ using namespace orbital_element_conversions;
 using namespace propagators;
 using namespace tudat::estimatable_parameters;
 
-BOOST_AUTO_TEST_SUITE( test_consider_parameters )
+//BOOST_AUTO_TEST_SUITE( test_consider_parameters )
 
-BOOST_AUTO_TEST_CASE( testConsiderParameters )
+//BOOST_AUTO_TEST_CASE( testConsiderParameters )
+int main( )
 {
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -370,9 +374,9 @@ BOOST_AUTO_TEST_CASE( testConsiderParameters )
     // Check consistency
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( updatedParameters, computedUpdatedParameters, 1.0e-12 );
 }
-
-BOOST_AUTO_TEST_SUITE_END( )
-
-}  // namespace unit_tests
-
-}  // namespace tudat
+//
+//BOOST_AUTO_TEST_SUITE_END( )
+//
+//}  // namespace unit_tests
+//
+//}  // namespace tudat

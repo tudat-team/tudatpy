@@ -185,7 +185,6 @@ public:
      *  Function to return the total number of parameter values (excluding consider parameters)
      *  \return Size of parameter vector (excluding consider parameters)
      */
-     // TODO CONSIDER CHECK ALL USAGES
     int getEstimatedParameterSetSize( )
     {
         return estimatedParameterSetSize_;
@@ -843,6 +842,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameterSet< StateScalarTyp
     }
 }
 
+// TODO CONSIDER, ITERATE ONLY OVER REGULAR PARAMETERS
 template< typename InitialStateParameterType >
 void printEstimatableParameterEntries( const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > estimatableParameters )
 {
