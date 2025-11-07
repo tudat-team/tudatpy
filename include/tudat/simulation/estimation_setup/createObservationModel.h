@@ -1340,6 +1340,18 @@ inline std::shared_ptr< ObservationModelSettings > nWayRangeSimple(
             linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria );
 }
 
+inline std::shared_ptr< ObservationModelSettings > differencedTimeOfArrivalObservationSettings(
+        const LinkDefinition linkEnds,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrections,
+        const basic_astrodynamics::TimeScales differencedTimeScale = basic_astrodynamics::tdb_scale,
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
+                std::make_shared< LightTimeConvergenceCriteria >( ) )
+{
+    return std::make_shared< DifferencedTimeOfArrivalObservationSettings >(
+            linkEnds, lightTimeCorrections, differencedTimeScale, biasSettings, lightTimeConvergenceCriteria );
+}
+
 inline std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria(
         const bool iterateCorrections = false,
         const int maximumNumberOfIterations = 50,
