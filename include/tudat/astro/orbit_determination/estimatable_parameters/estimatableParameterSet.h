@@ -59,7 +59,6 @@ public:
                             ( std::vector< std::shared_ptr<
                                       EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >( ) ),
             const std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > considerParameters = nullptr ):
-        estimatedDoubleParameters_( estimatedDoubleParameters ), estimatedVectorParameters_( estimatedVectorParameters ),
         considerParameters_( considerParameters ), totalConstraintSize_( 0 )
     {
         // Initialize total number of parameters to 0.
@@ -68,77 +67,107 @@ public:
         initialDynamicalSingleArcStateParameterSize_ = 0;
         initialDynamicalMultiArcStateParameterSize_ = 0;
 
+
+        //! List of initial single-arc dynamical states that are to be estimated.
+        std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+                estimateSingleArcInitialStateParameters;
+
+        //! List of initial multi-arc dynamical states that are to be estimated.
+        std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+                estimateMultiArcInitialStateParameters;
+
         // Iterate over all double parameters and add to parameter size.
         for( unsigned int i = 0; i < estimateInitialStateParameters.size( ); i++ )
         {
             if( isDynamicalParameterSingleArc( estimateInitialStateParameters[ i ] ) )
             {
-                estimateSingleArcInitialStateParameters_.push_back( estimateInitialStateParameters[ i ] );
+                estimateSingleArcInitialStateParameters.push_back( estimateInitialStateParameters[ i ] );
             }
             else
             {
-                estimateMultiArcInitialStateParameters_.push_back( estimateInitialStateParameters[ i ] );
+                estimateMultiArcInitialStateParameters.push_back( estimateInitialStateParameters[ i ] );
             }
         }
 
-        estimateInitialStateParameters_ = estimateSingleArcInitialStateParameters_;
-        estimateInitialStateParameters_.insert( estimateInitialStateParameters_.end( ),
-                                                estimateMultiArcInitialStateParameters_.begin( ),
-                                                estimateMultiArcInitialStateParameters_.end( ) );
+        std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
+                estimateInitialStateParametersOrdered = estimateSingleArcInitialStateParameters;
+        estimateInitialStateParametersOrdered.insert( estimateInitialStateParametersOrdered.end( ),
+                                                estimateMultiArcInitialStateParameters.begin( ),
+                                                estimateMultiArcInitialStateParameters.end( ) );
 
-        for( unsigned int i = 0; i < estimateSingleArcInitialStateParameters_.size( ); i++ )
+        for( unsigned int i = 0; i < estimateSingleArcInitialStateParameters.size( ); i++ )
         {
-            initialStateParameters_[ estimatedParameterSetSize_ ] = estimateSingleArcInitialStateParameters_[ i ];
+            initialStateParameters_[ estimatedParameterSetSize_ ] = estimateSingleArcInitialStateParameters[ i ];
             parameterIndices_.push_back(
-                    std::make_pair( estimatedParameterSetSize_, estimateInitialStateParameters_[ i ]->getParameterSize( ) ) );
-            totalConstraintSize_ += estimateInitialStateParameters_[ i ]->getConstraintSize( );
+                    std::make_pair( estimatedParameterSetSize_, estimateInitialStateParametersOrdered[ i ]->getParameterSize( ) ) );
+            totalConstraintSize_ += estimateInitialStateParametersOrdered[ i ]->getConstraintSize( );
 
-            initialDynamicalSingleArcStateParameterSize_ += estimateSingleArcInitialStateParameters_[ i ]->getParameterSize( );
-            initialSingleArcStateParameters_[ estimatedParameterSetSize_ ] = estimateSingleArcInitialStateParameters_[ i ];
+            initialDynamicalSingleArcStateParameterSize_ += estimateSingleArcInitialStateParameters[ i ]->getParameterSize( );
+            initialSingleArcStateParameters_[ estimatedParameterSetSize_ ] = estimateSingleArcInitialStateParameters[ i ];
 
-            initialDynamicalStateParameterSize_ += estimateSingleArcInitialStateParameters_[ i ]->getParameterSize( );
-            estimatedParameterSetSize_ += estimateSingleArcInitialStateParameters_[ i ]->getParameterSize( );
+            initialDynamicalStateParameterSize_ += estimateSingleArcInitialStateParameters[ i ]->getParameterSize( );
+            estimatedParameterSetSize_ += estimateSingleArcInitialStateParameters[ i ]->getParameterSize( );
         }
 
-        for( unsigned int i = 0; i < estimateMultiArcInitialStateParameters_.size( ); i++ )
+        for( unsigned int i = 0; i < estimateMultiArcInitialStateParameters.size( ); i++ )
         {
-            initialStateParameters_[ estimatedParameterSetSize_ ] = estimateMultiArcInitialStateParameters_[ i ];
+            initialStateParameters_[ estimatedParameterSetSize_ ] = estimateMultiArcInitialStateParameters[ i ];
             parameterIndices_.push_back(
-                    std::make_pair( estimatedParameterSetSize_, estimateMultiArcInitialStateParameters_[ i ]->getParameterSize( ) ) );
+                    std::make_pair( estimatedParameterSetSize_, estimateMultiArcInitialStateParameters[ i ]->getParameterSize( ) ) );
 
-            initialDynamicalMultiArcStateParameterSize_ += estimateMultiArcInitialStateParameters_[ i ]->getParameterSize( );
-            initialMultiArcStateParameters_[ estimatedParameterSetSize_ ] = estimateMultiArcInitialStateParameters_[ i ];
+            initialDynamicalMultiArcStateParameterSize_ += estimateMultiArcInitialStateParameters[ i ]->getParameterSize( );
+            initialMultiArcStateParameters_[ estimatedParameterSetSize_ ] = estimateMultiArcInitialStateParameters[ i ];
 
-            initialDynamicalStateParameterSize_ += estimateMultiArcInitialStateParameters_[ i ]->getParameterSize( );
-            estimatedParameterSetSize_ += estimateMultiArcInitialStateParameters_[ i ]->getParameterSize( );
+            initialDynamicalStateParameterSize_ += estimateMultiArcInitialStateParameters[ i ]->getParameterSize( );
+            estimatedParameterSetSize_ += estimateMultiArcInitialStateParameters[ i ]->getParameterSize( );
         }
 
         // Iterate over all double parameters and add to parameter size and set indices in parameterIndices_
-        for( unsigned int i = 0; i < estimatedDoubleParameters_.size( ); i++ )
+        for( unsigned int i = 0; i < estimatedDoubleParameters.size( ); i++ )
         {
-            doubleParameters_[ estimatedParameterSetSize_ ] = estimatedDoubleParameters_[ i ];
-            totalConstraintSize_ += estimatedDoubleParameters_[ i ]->getConstraintSize( );
+            doubleParameters_[ estimatedParameterSetSize_ ] = estimatedDoubleParameters[ i ];
+            totalConstraintSize_ += estimatedDoubleParameters[ i ]->getConstraintSize( );
 
             parameterIndices_.push_back( std::make_pair( estimatedParameterSetSize_, 1 ) );
             estimatedParameterSetSize_++;
         }
 
+        totalParameterSetSize_ = estimatedParameterSetSize_;
+
         // Iterate over all vector parameter, add to total number of parameters and set indices in parameterIndices_
-        for( unsigned int i = 0; i < estimatedVectorParameters_.size( ); i++ )
+        for( unsigned int i = 0; i < estimatedVectorParameters.size( ); i++ )
         {
-            vectorParameters_[ estimatedParameterSetSize_ ] = estimatedVectorParameters_[ i ];
-            totalConstraintSize_ += estimatedVectorParameters_[ i ]->getConstraintSize( );
+            vectorParameters_[ totalParameterSetSize_ ] = estimatedVectorParameters[ i ];
+            totalConstraintSize_ += estimatedVectorParameters[ i ]->getConstraintSize( );
 
             parameterIndices_.push_back(
-                    std::make_pair( estimatedParameterSetSize_, estimatedVectorParameters_[ i ]->getParameterSize( ) ) );
-            estimatedParameterSetSize_ += estimatedVectorParameters_[ i ]->getParameterSize( );
+                    std::make_pair( totalParameterSetSize_, estimatedVectorParameters[ i ]->getParameterSize( ) ) );
+            totalParameterSetSize_ += estimatedVectorParameters[ i ]->getParameterSize( );
         }
 
-        totalParameterSetSize_ = estimatedParameterSetSize_;
+        // Iterate over all double consider parameters and add to parameter size and set indices in parameterIndices_
+        std::vector< std::shared_ptr< EstimatableParameter< double > > > considerDoubleParameters;
+        for( unsigned int i = 0; i < considerDoubleParameters.size( ); i++ )
+        {
+            doubleParameters_[ totalParameterSetSize_ ] = considerDoubleParameters[ i ];
+            parameterIndices_.push_back( std::make_pair( totalParameterSetSize_, 1 ) );
+            totalParameterSetSize_++;
+        }
+
+        // Iterate over all vector consider parameters, add to total number of parameters and set indices in parameterIndices_
+        std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > considerVectorParameters;
+        for( unsigned int i = 0; i < considerVectorParameters.size( ); i++ )
+        {
+            vectorParameters_[ totalParameterSetSize_ ] = considerVectorParameters[ i ];
+            parameterIndices_.push_back(
+                    std::make_pair( totalParameterSetSize_, considerVectorParameters[ i ]->getParameterSize( ) ) );
+            totalParameterSetSize_ += considerVectorParameters[ i ]->getParameterSize( );
+        }
+
 
         // Process multi-arc parameters
         multiArcInitialStateParametersPerArc_ = getMultiArcDynamicalStateToEstimatePerArc(
-                estimateMultiArcInitialStateParameters_, bodiesToEstimatePerArc_, multiArcStateParametersSizePerArc_ );
+                estimateMultiArcInitialStateParameters, bodiesToEstimatePerArc_, multiArcStateParametersSizePerArc_ );
     }
 
     //! Function to return the total number of parameter values (including consider parameters)
@@ -156,6 +185,7 @@ public:
      *  Function to return the total number of parameter values (excluding consider parameters)
      *  \return Size of parameter vector (excluding consider parameters)
      */
+     // TODO CONSIDER CHECK ALL USAGES
     int getEstimatedParameterSetSize( )
     {
         return estimatedParameterSetSize_;
@@ -196,6 +226,7 @@ public:
      * Function to return the total number of non-dynamical state parameters that are estimated.
      * \return Total number of estimated parameters that are NOT initial dynamical state parameters
      */
+    // TODO CONSIDER CHECK ALL USAGES
     int getNonDynamicalStateParameterSize( )
     {
         return estimatedParameterSetSize_ - initialDynamicalStateParameterSize_;
@@ -210,34 +241,36 @@ public:
      *  \return Vector containing all parameter values
      */
     template< typename ParameterScalar >
-    Eigen::Matrix< ParameterScalar, Eigen::Dynamic, 1 > getFullParameterValues( )
+    Eigen::Matrix< ParameterScalar, Eigen::Dynamic, 1 > getFullParameterValues( const bool includeConsiderParameters = false )
     {
+        int sizeToUse = includeConsiderParameters ? totalParameterSetSize_ : estimatedParameterSetSize_;
         Eigen::Matrix< ParameterScalar, Eigen::Dynamic, 1 > parameterValues =
-                Eigen::Matrix< ParameterScalar, Eigen::Dynamic, 1 >::Zero( totalParameterSetSize_ );
-
-        int currentStartIndex = 0;
+                Eigen::Matrix< ParameterScalar, Eigen::Dynamic, 1 >::Zero( sizeToUse );
 
         // Retrieve initial state parameter values.
-        for( unsigned int i = 0; i < estimateInitialStateParameters_.size( ); i++ )
+        for( auto it : initialStateParameters_ )
         {
-            parameterValues.segment( currentStartIndex, estimateInitialStateParameters_[ i ]->getParameterSize( ) ) =
-                    estimateInitialStateParameters_[ i ]->getParameterValue( ).template cast< ParameterScalar >( );
-            currentStartIndex += estimateInitialStateParameters_[ i ]->getParameterSize( );
+            parameterValues.segment( it.first, it.second->getParameterSize( ) ) =
+                    it.second->getParameterValue( ).template cast< ParameterScalar >( );
         }
 
         // Retrieve double parameter values.
-        for( unsigned int i = 0; i < estimatedDoubleParameters_.size( ); i++ )
+        for( auto it : doubleParameters_ )
         {
-            parameterValues( currentStartIndex ) = static_cast< ParameterScalar >( estimatedDoubleParameters_[ i ]->getParameterValue( ) );
-            currentStartIndex++;
+            if( it.first < sizeToUse )
+            {
+                parameterValues( it.first ) = static_cast< ParameterScalar >( it.second->getParameterValue( ) );
+            }
         }
 
         // Retrieve vector parameter values.
-        for( unsigned int i = 0; i < estimatedVectorParameters_.size( ); i++ )
+        for( auto it : vectorParameters_ )
         {
-            parameterValues.segment( currentStartIndex, estimatedVectorParameters_[ i ]->getParameterSize( ) ) =
-                    estimatedVectorParameters_[ i ]->getParameterValue( ).template cast< ParameterScalar >( );
-            currentStartIndex += estimatedVectorParameters_[ i ]->getParameterSize( );
+            if( it.first < sizeToUse )
+            {
+                parameterValues.segment( it.first, it.second->getParameterSize( ) ) =
+                        it.second->getParameterValue( ).template cast< ParameterScalar >( );
+            }
         }
 
         return parameterValues;
@@ -250,53 +283,50 @@ public:
      * getFullParameterValues
      */
     template< typename ParameterScalar >
-    void resetParameterValues( const Eigen::Matrix< ParameterScalar, Eigen::Dynamic, 1 >& newParameterValues )
+    void resetParameterValues( const Eigen::Matrix< ParameterScalar, Eigen::Dynamic, 1 >& newParameterValues,
+                               const bool includeConsiderParameters = false )
     {
+        int sizeToUse = includeConsiderParameters ? totalParameterSetSize_ : estimatedParameterSetSize_;
+
         // Check input consistency
-        if( newParameterValues.rows( ) != totalParameterSetSize_ )
+        if( newParameterValues.rows( ) != sizeToUse )
         {
             throw std::runtime_error( "Error when resetting parameters of parameter set, given vector has size " +
                                       std::to_string( newParameterValues.rows( ) ) + ", while internal size is " +
-                                      std::to_string( totalParameterSetSize_ ) );
+                                      std::to_string( sizeToUse ) );
         }
         else
         {
-            int currentStartIndex = 0;
-
             //            std::cout << "before reset initial state parameters" << "\n\n";
-            for( unsigned int i = 0; i < estimateInitialStateParameters_.size( ); i++ )
+            for( auto it : initialStateParameters_ )
             {
-                estimateInitialStateParameters_[ i ]->setParameterValue(
-                        newParameterValues.segment( currentStartIndex, estimateInitialStateParameters_[ i ]->getParameterSize( ) )
+                it.second->setParameterValue(
+                        newParameterValues.segment( it.first, it.second->getParameterSize( ) )
                                 .template cast< InitialStateParameterType >( ) );
-                currentStartIndex += estimateInitialStateParameters_[ i ]->getParameterSize( );
             }
             //            std::cout << "after reset initial state parameters" << "\n\n";
 
             // Set double parameter values.
             //            std::cout << "before reset double parameters" << "\n\n";
-            for( unsigned int i = 0; i < estimatedDoubleParameters_.size( ); i++ )
+            for( auto it : doubleParameters_ )
             {
-                estimatedDoubleParameters_[ i ]->setParameterValue( static_cast< double >( newParameterValues( currentStartIndex ) ) );
-                currentStartIndex++;
+                if( it.first < sizeToUse )
+                {
+                    it.second->setParameterValue( static_cast< double >( newParameterValues( it.first ) ) );
+                }
             }
             //            std::cout << "after reset double parameters" << "\n\n";
 
             // Set vector parameter values.
             //            std::cout << "before reset vector parameters" << "\n\n";
             //            std::cout << "new parameters values: " << newParameterValues.transpose( ) << "\n\n";
-            for( unsigned int i = 0; i < estimatedVectorParameters_.size( ); i++ )
+            for( auto it : vectorParameters_ )
             {
-                //                std::cout << "current start index: " << currentStartIndex << "\n\n";
-                //                std::cout << "current parameter size: " << estimatedVectorParameters_[ i ]->getParameterSize( ) << "\n\n";
-                //                std::cout << "newParameterValues current parameter: "
-                //                          << newParameterValues.segment( currentStartIndex, estimatedVectorParameters_[ i
-                //                          ]->getParameterSize( ) ).transpose( ) << "\n\n";
-                estimatedVectorParameters_[ i ]->setParameterValue(
-                        newParameterValues.segment( currentStartIndex, estimatedVectorParameters_[ i ]->getParameterSize( ) )
-                                .template cast< double >( ) );
-
-                currentStartIndex += estimatedVectorParameters_[ i ]->getParameterSize( );
+                if( it.first < sizeToUse )
+                {
+                    it.second->setParameterValue(
+                            newParameterValues.segment( it.first, it.second->getParameterSize( ) ).template cast< double >( ) );
+                }
             }
             //            std::cout << "after reset vector parameters" << "\n\n";
         }
@@ -354,12 +384,12 @@ public:
 
     std::vector< std::shared_ptr< EstimatableParameter< double > > > getEstimatedDoubleParameters( )
     {
-        return estimatedDoubleParameters_;
+        return utilities::createVectorFromMapValues( doubleParameters_ );
     }
 
     std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > getEstimatedVectorParameters( )
     {
-        return estimatedVectorParameters_;
+        return utilities::createVectorFromMapValues( vectorParameters_ );
     }
 
     std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > getConsiderParameters( )
@@ -552,7 +582,7 @@ public:
     std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
     getEstimatedInitialStateParameters( )
     {
-        return estimateInitialStateParameters_;
+        return utilities::createVectorFromMapValues( initialStateParameters_ );
     }
 
     //! Function to get list of single-arc initial dynamical states that are to be estimated.
@@ -564,7 +594,7 @@ public:
     std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
     getEstimatedSingleArcInitialStateParameters( )
     {
-        return estimateSingleArcInitialStateParameters_;
+        return utilities::createVectorFromMapValues( initialSingleArcStateParameters_ );
     }
 
     //! Function to get list of multi-arc initial dynamical states that are to be estimated.
@@ -576,7 +606,7 @@ public:
     std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
     getEstimatedMultiArcInitialStateParameters( )
     {
-        return estimateMultiArcInitialStateParameters_;
+        return utilities::createVectorFromMapValues( initialMultiArcStateParameters_ );
     }
 
     //! Function to retrieve list of start indices and sizes (map keys) of estimated parameters.
@@ -735,36 +765,18 @@ protected:
     //! Total size of all initial multi-arc dynamical states that are to be estimated.
     int initialDynamicalMultiArcStateParameterSize_;
 
-    //! Total number of parameter values (including currently non yet implemented consider parameters).
+    //! Total number of parameter values (including consider parameters).
     int totalParameterSetSize_;
 
-    //! Total number of estimated parameter values (excluding currently non yet implemented consider parameters).
+    //! Total number of estimated parameter values (excluding consider parameters).
     int estimatedParameterSetSize_;
 
     //! List of start indices and sizes (map keys) of estimated parameters.
     /*!
      * List of start indices and sizes (map keys) of estimated parameters, in order of vector
-     * estimateInitialStateParameters_, followed by estimatedDoubleParameters_, followed by estimatedVectorParameters_.
+     * initialStateParameters_, followed by doubleParamters_, followed by vectorParameters_.
      */
     std::vector< std::pair< int, int > > parameterIndices_;
-
-    //! List of double parameters that are to be estimated.
-    std::vector< std::shared_ptr< EstimatableParameter< double > > > estimatedDoubleParameters_;
-
-    //! List of vector parameters that are to be estimated.
-    std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > estimatedVectorParameters_;
-
-    //! List of initial dynamical states that are to be estimated.
-    std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
-            estimateInitialStateParameters_;
-
-    //! List of initial single-arc dynamical states that are to be estimated.
-    std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
-            estimateSingleArcInitialStateParameters_;
-
-    //! List of initial multi-arc dynamical states that are to be estimated.
-    std::vector< std::shared_ptr< EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > > >
-            estimateMultiArcInitialStateParameters_;
 
     //! Set of consider parameters.
     std::shared_ptr< EstimatableParameterSet< InitialStateParameterType > > considerParameters_;

@@ -1305,6 +1305,7 @@ protected:
     }
 
     //! Function to create full parameters set with estimated and consider parameters.
+    // TODO CONSIDER: MODIFY
     void setFullParametersSet( )
     {
         std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > > fullDoubleParameters =
