@@ -302,6 +302,11 @@ public:
         timeScaleConverter_ = earth_orientation::createDefaultTimeConverter( );
     }
 
+    virtual void setTimeScaleConverter( )
+    {
+        timeScaleConverter_ = earth_orientation::createDefaultTimeConverter( );
+    }
+
 protected:
     bool setFrequencyProperties( const TimeType time,
                                  const LinkEndType linkEndAssociatedWithTime,

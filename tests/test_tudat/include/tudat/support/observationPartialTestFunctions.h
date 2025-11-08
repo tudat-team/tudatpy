@@ -52,7 +52,8 @@ SystemOfBodies setupEnvironment( const std::vector< std::pair< std::string, std:
                                  const double stateEvaluationTime = 0.0,
                                  const bool useConstantEphemerides = 1,
                                  const double gravitationalParameterScaling = 1.0,
-                                 const bool useConstantRotationalEphemeris = false );
+                                 const bool useConstantRotationalEphemeris = false,
+                                 const bool moveMarsToMoon = false );
 
 //! Function to create estimated parameters for general observation partial tests.
 std::shared_ptr< EstimatableParameterSet< double > > createEstimatableParameters( const SystemOfBodies& bodies,
@@ -203,6 +204,11 @@ void testObservationPartials(
         }
 
         if( observableType == observation_models::dsn_n_way_averaged_doppler && linkEndIterator->first != receiver )
+        {
+            runSimulation = false;
+        }
+
+        if( observableType == observation_models::differenced_time_of_arrival && linkEndIterator->first != receiver )
         {
             runSimulation = false;
         }
@@ -446,6 +452,7 @@ void testObservationPartials(
                         for( unsigned int j = 0; j < analyticalObservationPartials[ i + numberOfEstimatedBodies ].size( ); j++ )
                         {
                             currentParameterPartial += analyticalObservationPartials[ i + numberOfEstimatedBodies ].at( j ).first;
+
                         }
                         std::cout << "Current double partial " << i << " " << std::setprecision( 16 )
                                   << analyticalObservationPartials[ i + numberOfEstimatedBodies ].size( ) << " " << currentParameterPartial

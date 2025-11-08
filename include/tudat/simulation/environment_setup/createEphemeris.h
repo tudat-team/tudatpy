@@ -54,7 +54,8 @@ enum EphemerisType {
     custom_ephemeris,
     direct_tle_ephemeris,
     interpolated_tle_ephemeris,
-    scaled_ephemeris
+    scaled_ephemeris,
+    multi_arc_ephemeris
 };
 
 // Class for providing settings for ephemeris model.
@@ -84,10 +85,10 @@ public:
                        const std::string& frameOrigin = "SSB",
                        const std::string& frameOrientation = "ECLIPJ2000" ):
         ephemerisType_( ephemerisType ), frameOrigin_( frameOrigin ), frameOrientation_( frameOrientation ), makeMultiArcEphemeris_( false )
-    { }
+    {}
 
     // Destructor
-    virtual ~EphemerisSettings( ) { }
+    virtual ~EphemerisSettings( ) {}
 
     // Function to return type of ephemeris that is to be created.
     /*
@@ -186,21 +187,21 @@ public:
         EphemerisSettings( scaled_ephemeris, baseSettings->getFrameOrigin( ), baseSettings->getFrameOrientation( ) ),
         baseSettings_( baseSettings ), scaling_( [ = ]( const double ) { return Eigen::Vector6d::Constant( scaling ); } ),
         isScalingAbsolute_( isScalingAbsolute )
-    { }
+    {}
 
     ScaledEphemerisSettings( const std::shared_ptr< EphemerisSettings > baseSettings,
                              const Eigen::Vector6d scaling,
                              const bool isScalingAbsolute ):
         EphemerisSettings( scaled_ephemeris, baseSettings->getFrameOrigin( ), baseSettings->getFrameOrientation( ) ),
         baseSettings_( baseSettings ), scaling_( [ = ]( const double ) { return scaling; } ), isScalingAbsolute_( isScalingAbsolute )
-    { }
+    {}
 
     ScaledEphemerisSettings( const std::shared_ptr< EphemerisSettings > baseSettings,
                              const std::function< Eigen::Vector6d( const double ) > scaling,
                              const bool isScalingAbsolute ):
         EphemerisSettings( scaled_ephemeris, baseSettings->getFrameOrigin( ), baseSettings->getFrameOrientation( ) ),
         baseSettings_( baseSettings ), scaling_( scaling ), isScalingAbsolute_( isScalingAbsolute )
-    { }
+    {}
 
     std::shared_ptr< EphemerisSettings > getBaseSettings( )
     {
@@ -256,7 +257,7 @@ public:
         EphemerisSettings( ephemerisType, frameOrigin, frameOrientation ), correctForStellarAberration_( correctForStellarAberration ),
         correctForLightTimeAberration_( correctForLightTimeAberration ), convergeLighTimeAberration_( convergeLighTimeAberration ),
         bodyNameOverride_( "" )
-    { }
+    {}
 
     DirectSpiceEphemerisSettings( const std::string frameOrigin,
                                   const std::string frameOrientation,
@@ -264,10 +265,10 @@ public:
                                   const EphemerisType ephemerisType = direct_spice_ephemeris ):
         EphemerisSettings( ephemerisType, frameOrigin, frameOrientation ), correctForStellarAberration_( false ),
         correctForLightTimeAberration_( false ), convergeLighTimeAberration_( false ), bodyNameOverride_( bodyNameOverride )
-    { }
+    {}
 
     // Destructor
-    virtual ~DirectSpiceEphemerisSettings( ) { }
+    virtual ~DirectSpiceEphemerisSettings( ) {}
 
     // Returns whether to correct for stellar aberration in retrieved values of (observed state).
     /*
@@ -357,7 +358,7 @@ public:
                                         const std::string bodyNameOverride = "" ):
         DirectSpiceEphemerisSettings( frameOrigin, frameOrientation, bodyNameOverride, interpolated_spice ), initialTime_( initialTime ),
         finalTime_( finalTime ), timeStep_( timeStep ), interpolatorSettings_( interpolatorSettings )
-    { }
+    {}
 
     // Function to return initial time from which interpolated data from Spice should be created.
     /*
@@ -436,7 +437,7 @@ public:
     ApproximateJplEphemerisSettings( const std::string bodyName, const bool useCircularCoplanarApproximation = false ):
         EphemerisSettings( approximate_planet_positions ), bodyName_( bodyName ),
         useCircularCoplanarApproximation_( useCircularCoplanarApproximation )
-    { }
+    {}
 
     // Function to return parameter identifying for which body an ephemeris is to be created.
     /*
@@ -490,7 +491,7 @@ public:
                                const std::string& frameOrigin = "SSB",
                                const std::string& frameOrientation = "ECLIPJ2000" ):
         EphemerisSettings( constant_ephemeris, frameOrigin, frameOrientation ), constantState_( constantState )
-    { }
+    {}
 
     Eigen::Vector6d getConstantState( )
     {
@@ -518,7 +519,7 @@ public:
                              const std::string& frameOrigin = "SSB",
                              const std::string& frameOrientation = "ECLIPJ2000" ):
         EphemerisSettings( custom_ephemeris, frameOrigin, frameOrientation ), customStateFunction_( customStateFunction )
-    { }
+    {}
 
     // Function to return the function returning the state as a function of time
     /*
@@ -569,7 +570,7 @@ public:
         centralBodyGravitationalParameter_( centralBodyGravitationalParameter ),
         rootFinderAbsoluteTolerance_( rootFinderAbsoluteTolerance ),
         rootFinderMaximumNumberOfIterations_( rootFinderMaximumNumberOfIterations )
-    { }
+    {}
 
     // Function to return the kepler elements at time epochOfInitialState.
     /*
@@ -671,7 +672,7 @@ public:
                                 std::string frameOrigin = "SSB",
                                 std::string frameOrientation = "ECLIPJ2000" ):
         EphemerisSettings( tabulated_ephemeris, frameOrigin, frameOrientation ), bodyStateHistory_( bodyStateHistory )
-    { }
+    {}
 
     // Function returning data map defining discrete data from which an ephemeris is to be created.
     /*
@@ -706,7 +707,7 @@ public:
                            ephemerisSettings->getFrameOrientation( ) ),
         ephemerisSettings_( ephemerisSettings ), startTime_( startTime ), endTime_( endTime ), timeStep_( timeStep ),
         interpolatorSettings_( interpolatorSettings )
-    { }
+    {}
 
     std::shared_ptr< EphemerisSettings > getEphemerisSettings( )
     {
@@ -752,7 +753,7 @@ public:
                                 const std::string frameOrigin = "Earth",
                                 const std::string frameOrientation = "J2000" ):
         EphemerisSettings( direct_tle_ephemeris, frameOrigin, frameOrientation ), tle_( tle )
-    { }
+    {}
 
     const std::shared_ptr< ephemerides::Tle > getTle( ) const
     {
@@ -776,7 +777,7 @@ public:
                                       const std::string& frameOrientation = "J2000" ):
         EphemerisSettings( interpolated_tle_ephemeris, frameOrigin, frameOrientation ), initialTime_( initialTime ),
         finalTime_( finalTime ), timeStep_( timeStep ), interpolatorSettings_( interpolatorSettings ), tle_( tle )
-    { }
+    {}
 
     double getInitialTime( ) const
     {
@@ -819,16 +820,39 @@ private:
     std::shared_ptr< ephemerides::Tle > tle_;
 };
 
+class MultiArcEphemerisSettings : public EphemerisSettings
+{
+public:
+    // Constructor of settings for an ephemeris producing a constant (time-independent) state.
+    /*
+     * Constructor of settings for an ephemeris producing a constant (time-independent) state.
+     * \param constantState Constant state that will be provided as output of the ephemeris at all times.
+     * \param frameOrigin Origin of frame in which ephemeris data is defined.
+     * \param frameOrientation Orientation of frame in which ephemeris data is defined.
+     */
+    MultiArcEphemerisSettings( const std::map< double, std::shared_ptr< EphemerisSettings > >& singleArcEphemerides,
+                               const std::string& frameOrigin = "SSB",
+                               const std::string& frameOrientation = "ECLIPJ2000",
+                               const std::shared_ptr< EphemerisSettings > defaultEphemeris = nullptr ):
+        EphemerisSettings( multi_arc_ephemeris, frameOrigin, frameOrientation ), singleArcEphemerides_( singleArcEphemerides ),
+        defaultEphemeris_( defaultEphemeris )
+    {}
+
+    std::map< double, std::shared_ptr< EphemerisSettings > > singleArcEphemerides_;
+
+    std::shared_ptr< EphemerisSettings > defaultEphemeris_;
+};
+
 template< typename StateScalarType = double, typename TimeType = double >
-std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > > createStateInterpolatorFromSpice(
-        const std::string& body,
-        const TimeType initialTime,
-        const TimeType endTime,
-        const TimeType timeStep,
-        const std::string& observerName,
-        const std::string& referenceFrameName,
-        std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
-                std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) )
+std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > >
+createStateInterpolatorFromSpice( const std::string& body,
+                                  const TimeType initialTime,
+                                  const TimeType endTime,
+                                  const TimeType timeStep,
+                                  const std::string& observerName,
+                                  const std::string& referenceFrameName,
+                                  std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
+                                          std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) )
 {
     using namespace interpolators;
 
@@ -836,7 +860,7 @@ std::shared_ptr< interpolators::OneDimensionalInterpolator< TimeType, Eigen::Mat
 
     // Calculate state from spice at given time intervals and store in timeHistoryOfState.
     TimeType currentTime = initialTime;
-    while( currentTime < endTime )
+    while( currentTime <= endTime )
     {
         timeHistoryOfState[ currentTime ] = spice_interface::getBodyCartesianStateAtEpoch(
                                                     body, observerName, referenceFrameName, "none", static_cast< double >( currentTime ) )
@@ -876,12 +900,12 @@ std::shared_ptr< ephemerides::Ephemeris > createTabulatedEphemerisFromSpice(
         std::shared_ptr< interpolators::InterpolatorSettings > interpolatorSettings =
                 std::make_shared< interpolators::LagrangeInterpolatorSettings >( 8 ) )
 {
-
-
     // Create ephemeris and return.
     return std::make_shared< ephemerides::TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
-            createStateInterpolatorFromSpice<StateScalarType, TimeType >(
-                    body, initialTime, endTime, timeStep, observerName, referenceFrameName, interpolatorSettings ), observerName, referenceFrameName );
+            createStateInterpolatorFromSpice< StateScalarType, TimeType >(
+                    body, initialTime, endTime, timeStep, observerName, referenceFrameName, interpolatorSettings ),
+            observerName,
+            referenceFrameName );
 }
 
 template< typename StateScalarType = double, typename TimeType = double >
@@ -1095,6 +1119,15 @@ inline std::shared_ptr< EphemerisSettings > scaledEphemerisSettings( const std::
                                                                      const bool isScalingAbsolute )
 {
     return std::make_shared< ScaledEphemerisSettings >( baseSettings, scaling, isScalingAbsolute );
+}
+
+inline std::shared_ptr< EphemerisSettings > multiArcEphemerisSettings(
+        const std::map< double, std::shared_ptr< EphemerisSettings > >& singleArcEphemerides,
+        const std::string& frameOrigin = "SSB",
+        const std::string& frameOrientation = "ECLIPJ2000",
+        const std::shared_ptr< EphemerisSettings > defaultEphemeris = nullptr )
+{
+    return std::make_shared< MultiArcEphemerisSettings >( singleArcEphemerides, frameOrigin, frameOrientation, defaultEphemeris );
 }
 
 // Function to create a ephemeris model.
@@ -1394,6 +1427,34 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris( const std::shared
                 }
                 break;
             }
+            case multi_arc_ephemeris: {
+                // Check consistency of type and class.
+                std::shared_ptr< MultiArcEphemerisSettings > multiArcEphemerisSettings =
+                        std::dynamic_pointer_cast< MultiArcEphemerisSettings >( ephemerisSettings );
+                if( multiArcEphemerisSettings == nullptr )
+                {
+                    throw std::runtime_error( "Error, expected multi-arc ephemeris settings for body " + bodyName );
+                }
+                else
+                {
+                    std::map< double, std::shared_ptr< Ephemeris > > singleArcEphemerides;
+                    for( auto it : multiArcEphemerisSettings->singleArcEphemerides_ )
+                    {
+                        singleArcEphemerides[ it.first ] = createBodyEphemeris< StateScalarType, TimeType >( it.second, bodyName );
+                    }
+                    std::shared_ptr< Ephemeris > defaultEphemeris;
+                    if( multiArcEphemerisSettings->defaultEphemeris_ != nullptr )
+                    {
+                        defaultEphemeris =
+                                createBodyEphemeris< StateScalarType, TimeType >( multiArcEphemerisSettings->defaultEphemeris_, bodyName );
+                    }
+                    ephemeris = std::make_shared< MultiArcEphemeris >( singleArcEphemerides,
+                                                                       multiArcEphemerisSettings->getFrameOrigin( ),
+                                                                       multiArcEphemerisSettings->getFrameOrientation( ),
+                                                                       defaultEphemeris );
+                }
+                break;
+            }
             default: {
                 throw std::runtime_error( "Error, did not recognize ephemeris model settings type " +
                                           std::to_string( ephemerisSettings->getEphemerisType( ) ) );
@@ -1402,16 +1463,6 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris( const std::shared
     }
     return ephemeris;
 }
-
-// Function that retrieves the time interval at which an ephemeris can be safely interrogated
-/*
- * Function that retrieves the time interval at which an ephemeris can be safely interrogated. For most ephemeris types,
- * this function returns the full range of double values ( lowest( ) to max( ) ). For the tabulated ephemeris, the interval
- * on which the interpolator inside this object is valid is checked and returned
- * \param ephemerisModel Ephemeris model for which the interval is to be determined.
- * \return The time interval at which the ephemeris can be safely interrogated
- */
-std::pair< double, double > getSafeInterpolationInterval( const std::shared_ptr< ephemerides::Ephemeris > ephemerisModel );
 
 }  // namespace simulation_setup
 
