@@ -50,7 +50,7 @@ public:
             const std::function< double( ) > perturberMassFunction ):
         sphericalHarmonicAcceleration_( sphericalHarmonicAcceleration ), rotationToBodyUndergoingTorque_( rotationToBodyUndergoingTorque ),
         perturberMassFunction_( perturberMassFunction )
-    { }
+    {}
 
     //! Get gravitational torque.
     /*!
@@ -104,7 +104,6 @@ public:
     {
         return perturberMassFunction_;
     }
-
 
 protected:
 private:

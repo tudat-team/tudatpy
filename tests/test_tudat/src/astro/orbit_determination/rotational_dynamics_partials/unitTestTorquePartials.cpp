@@ -80,7 +80,8 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
         phobosInertiaTensor( 0, 0 ) = 0.3615;
         phobosInertiaTensor( 1, 1 ) = 0.4265;
         phobosInertiaTensor( 2, 2 ) = 0.5024;
-        double scaledMeanMomentOfInertia = ( phobosInertiaTensor( 0, 0 ) + phobosInertiaTensor( 1, 1 ) + phobosInertiaTensor( 2, 2 ) ) / 3.0;
+        double scaledMeanMomentOfInertia =
+                ( phobosInertiaTensor( 0, 0 ) + phobosInertiaTensor( 1, 1 ) + phobosInertiaTensor( 2, 2 ) ) / 3.0;
 
         // Create gravity field
         double phobosMass = 1.0659E16;
@@ -99,12 +100,13 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
                                                                 phobosSineGravityFieldCoefficients,
                                                                 scaledMeanMomentOfInertia );
         bodies.at( "Phobos" )
-                ->setGravityFieldModel( std::make_shared< gravitation::SphericalHarmonicsGravityField >( phobosGravitationalParameter,
-                                                                                                         phobosReferenceRadius,
-                                                                                                         phobosCosineGravityFieldCoefficients,
-                                                                                                         phobosSineGravityFieldCoefficients,
-                                                                                                         "Phobos_Fixed",
-                                                                                                         scaledMeanMomentOfInertia ) );
+                ->setGravityFieldModel(
+                        std::make_shared< gravitation::SphericalHarmonicsGravityField >( phobosGravitationalParameter,
+                                                                                         phobosReferenceRadius,
+                                                                                         phobosCosineGravityFieldCoefficients,
+                                                                                         phobosSineGravityFieldCoefficients,
+                                                                                         "Phobos_Fixed",
+                                                                                         scaledMeanMomentOfInertia ) );
         double testTime = 1000.0;
         bodies.at( "Phobos" )->getMassProperties( )->update( testTime );
         std::cout << bodies.at( "Phobos" )->getBodyInertiaTensor( ) << std::endl;
@@ -123,8 +125,8 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
         std::shared_ptr< interpolators::OneDimensionalInterpolator< double, Eigen::Matrix< double, 7, 1 > > > dummyInterpolator =
                 std::make_shared< interpolators::LinearInterpolator< double, Eigen::Matrix< double, 7, 1 > > >( dummyRotationMap );
         bodies.at( "Phobos" )
-                ->setRotationalEphemeris(
-                        std::make_shared< TabulatedRotationalEphemeris< double, double > >( dummyInterpolator, "ECLIPJ2000", "Phobos_Fixed" ) );
+                ->setRotationalEphemeris( std::make_shared< TabulatedRotationalEphemeris< double, double > >(
+                        dummyInterpolator, "ECLIPJ2000", "Phobos_Fixed" ) );
 
         Eigen::Vector6d phobosKeplerElements = Eigen::Vector6d::Zero( );
         double phobosSemiMajorAxis = 9376.0E3;
@@ -149,19 +151,17 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
         std::shared_ptr< TorqueModel > gravitationalTorque;
         if( torqueModelTest == 0 )
         {
-            gravitationalTorque = createSecondDegreeGravitationalTorqueModel(
-                    bodies.at( "Phobos" ),
-                                                                    bodies.at( "Mars" ),
-                                                                    "Phobos",
-                                                                    "Mars" );
+            gravitationalTorque =
+                    createSecondDegreeGravitationalTorqueModel( bodies.at( "Phobos" ), bodies.at( "Mars" ), "Phobos", "Mars" );
         }
         else if( torqueModelTest == 1 )
         {
-            gravitationalTorque = createSphericalHarmonicGravitationalTorqueModel( bodies.at( "Phobos" ),
-                                                             bodies.at( "Mars" ),
-                                                             std::make_shared< SphericalHarmonicTorqueSettings >( 2, 2 ),
-                                                             "Phobos",
-                                                             "Mars" );
+            gravitationalTorque =
+                    createSphericalHarmonicGravitationalTorqueModel( bodies.at( "Phobos" ),
+                                                                     bodies.at( "Mars" ),
+                                                                     std::make_shared< SphericalHarmonicTorqueSettings >( 2, 2 ),
+                                                                     "Phobos",
+                                                                     "Mars" );
         }
 
         // Create parameter objects
@@ -183,9 +183,12 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
                 parameterSet->getEstimatedVectorParameters( ).at( 1 );
 
         // Create torque partial.
-        std::shared_ptr< TorquePartial > torquePartial =
-                createAnalyticalTorquePartial( gravitationalTorque, std::make_pair( "Phobos", phobos ), std::make_pair( "Mars", mars ),
-                                               basic_astrodynamics::SingleBodyTorqueModelMap( ), bodies, parameterSet );
+        std::shared_ptr< TorquePartial > torquePartial = createAnalyticalTorquePartial( gravitationalTorque,
+                                                                                        std::make_pair( "Phobos", phobos ),
+                                                                                        std::make_pair( "Mars", mars ),
+                                                                                        basic_astrodynamics::SingleBodyTorqueModelMap( ),
+                                                                                        bodies,
+                                                                                        parameterSet );
 
         // Calculate analytical partials.
         torquePartial->update( testTime );
@@ -253,8 +256,12 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
                                                                                             3 );
         testPartialWrtMarsOrientation = calculateTorqueWrtRotationalStatePartials(
                 marsRotationalStateSetFunction, gravitationalTorque, mars->getRotationalStateVector( ), orientationPerturbation, 0, 4 );
-        testPartialWrtMarsRotationalVelocity = calculateTorqueWrtRotationalStatePartials(
-                marsRotationalStateSetFunction, gravitationalTorque, mars->getRotationalStateVector( ), rotationalVelocityPerturbation, 4, 3 );
+        testPartialWrtMarsRotationalVelocity = calculateTorqueWrtRotationalStatePartials( marsRotationalStateSetFunction,
+                                                                                          gravitationalTorque,
+                                                                                          mars->getRotationalStateVector( ),
+                                                                                          rotationalVelocityPerturbation,
+                                                                                          4,
+                                                                                          3 );
 
         std::function< void( Eigen::Vector6d ) > phobosStateSetFunction = std::bind( &Body::setState, phobos, std::placeholders::_1 );
         std::function< void( Eigen::Vector6d ) > marsStateSetFunction = std::bind( &Body::setState, mars, std::placeholders::_1 );
@@ -287,11 +294,11 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
                 gravitationalTorque,
                 Eigen::VectorXd::Constant( phobosCosineCoefficientsParameter->getParameterSize( ), 1.0E-6 ),
                 updateFunction );
-        Eigen::MatrixXd testPartialWrtPhobosSineCoefficients =
-                calculateTorqueWrtParameterPartials( phobosSineCoefficientsParameter,
-                                                     gravitationalTorque,
-                                                     Eigen::VectorXd::Constant( phobosSineCoefficientsParameter->getParameterSize( ), 1.0E-6 ),
-                                                     updateFunction );
+        Eigen::MatrixXd testPartialWrtPhobosSineCoefficients = calculateTorqueWrtParameterPartials(
+                phobosSineCoefficientsParameter,
+                gravitationalTorque,
+                Eigen::VectorXd::Constant( phobosSineCoefficientsParameter->getParameterSize( ), 1.0E-6 ),
+                updateFunction );
 
         // Compare numerical and analytical results.
         for( int index = 1; index < 4; index++ )
@@ -639,7 +646,7 @@ class EffectiveTorqueModel : public basic_astrodynamics::TorqueModel
 public:
     EffectiveTorqueModel( const std::function< Eigen::Matrix3d( ) > inertiaTensorFunction, const SingleBodyTorqueModelMap& torqueList ):
         inertiaTensorFunction_( inertiaTensorFunction ), torqueList_( torqueList )
-    { }
+    {}
 
     Eigen::Vector3d getTorque( )
     {

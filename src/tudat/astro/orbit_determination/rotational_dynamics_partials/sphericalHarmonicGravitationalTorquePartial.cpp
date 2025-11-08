@@ -94,10 +94,10 @@ void SphericalHarmonicGravitationalTorquePartial::wrtNonRotationalStateOfAdditio
     if( ( stateReferencePoint.first == bodyExertingTorque_ || stateReferencePoint.first == bodyUndergoingTorque_ ) &&
         integratedStateType == propagators::translational_state )
     {
-        partialMatrix.block( 0, 0, 3, 3 ) += ( ( stateReferencePoint.first == bodyExertingTorque_ ) ? 1.0 : -1.0 ) *
-                       -currentMass_ * ( currentBodyFixedRelativePositionCrossProductMatrix_ * currentRotationToBodyFixedFrame_ *
-                        accelerationPartial_->getCurrentPartialWrtPosition( ) -
-                currentBodyFixedPotentialGradientCrossProductMatrix_ * currentRotationToBodyFixedFrame_ );
+        partialMatrix.block( 0, 0, 3, 3 ) += ( ( stateReferencePoint.first == bodyExertingTorque_ ) ? 1.0 : -1.0 ) * -currentMass_ *
+                ( currentBodyFixedRelativePositionCrossProductMatrix_ * currentRotationToBodyFixedFrame_ *
+                          accelerationPartial_->getCurrentPartialWrtPosition( ) -
+                  currentBodyFixedPotentialGradientCrossProductMatrix_ * currentRotationToBodyFixedFrame_ );
     }
 }
 
@@ -123,14 +123,16 @@ void SphericalHarmonicGravitationalTorquePartial::update( const double currentTi
         linear_algebra::computePartialDerivativeOfRotationMatrixWrtQuaternion( currentQuaternionVector_,
                                                                                currentRotationMatrixDerivativesWrtQuaternion_ );
 
-        currentPartialDerivativeWrtQuaternion_ = -currentMass_ * getPartialDerivativeOfSphericalHarmonicGravitationalTorqueWrtQuaternion(
-                currentBodyFixedRelativePositionCrossProductMatrix_,
-                accelerationPartial_->getCurrentBodyFixedPartialWrtPosition( ),
-                currentBodyFixedPotentialGradientCrossProductMatrix_,
-                torqueModel_->getSphericalHarmonicAcceleration( )->getCurrentInertialRelativePosition( ),
-                currentRotationMatrixDerivativesWrtQuaternion_ );
+        currentPartialDerivativeWrtQuaternion_ = -currentMass_ *
+                getPartialDerivativeOfSphericalHarmonicGravitationalTorqueWrtQuaternion(
+                        currentBodyFixedRelativePositionCrossProductMatrix_,
+                        accelerationPartial_->getCurrentBodyFixedPartialWrtPosition( ),
+                        currentBodyFixedPotentialGradientCrossProductMatrix_,
+                        torqueModel_->getSphericalHarmonicAcceleration( )->getCurrentInertialRelativePosition( ),
+                        currentRotationMatrixDerivativesWrtQuaternion_ );
 
-        currentParameterPartialPreMultiplier_ = -currentMass_ * currentBodyFixedRelativePositionCrossProductMatrix_ * currentRotationToBodyFixedFrame_;
+        currentParameterPartialPreMultiplier_ =
+                -currentMass_ * currentBodyFixedRelativePositionCrossProductMatrix_ * currentRotationToBodyFixedFrame_;
     }
 }
 
