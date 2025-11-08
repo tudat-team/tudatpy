@@ -134,7 +134,10 @@ void expose_ephemeris_setup( py::module& m )
                            &tss::EphemerisSettings::resetMakeMultiArcEphemeris,
                            R"doc(
 
-         Boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris.
+         Boolean denoting whether the ephemeris that is to be created is a multi-arc ephemeris. If this is set to ``true`` (default is ``false``),
+         the ephemeris settings object will be processed as though it were a :func:`~multi_arc_ephemeris` object initialized with a single arc
+         (with that single arc defined using this object). This is required when doing a multi-arc propagation/estimation (:func:`~tudatpy.dynamics.propagation_setup.propagator.multi_arc`)
+         in which the ephemeris of this body is to be reset.
 
          :type: bool
       )doc" )
@@ -1160,6 +1163,68 @@ void expose_ephemeris_setup( py::module& m )
        custom_state_function,
        frame_origin,
        frame_orientation)
+
+
+     )doc" );
+
+    m.def( "multi_arc_ephemeris",
+           &tss::multiArcEphemerisSettings,
+           py::arg( "single_arc_ephemeris_settings" ),
+           py::arg( "frame_origin" ) = "SSB",
+           py::arg( "frame_orientation" ) = "ECLIPJ2000",
+           py::arg( "default_ephemeris_settings" ) = nullptr,
+           R"doc(
+
+ Function for creating multi-arc ephemeris model settings.
+
+ Function for creating multi-arc ephemeris model settings, in which different ephemerides are used over different time
+ intervals to compute the state of a given object. This object is typically used in conjunction with
+ a multi-arc propagation (settings for which are defined using :func:`~tudatpy.dynamics.propagation_setup.propagator.multi_arc`)
+ and/or estimation. Then, the propagation results of the different arcs can be used to reset the ephemeris of the body, using this
+ multi-arc ephemeris model
+
+ The ``single_arc_ephemeris_settings`` input is a dictionary to define the arc ephemeris settings,
+ with key the arc initial epoch :math:`t_{i,0}` of arc :math:`i`, and with value the
+ ephemeris settings defining the state function :math:`\mathbf{x}_{i}(t)` of the associated arc :math:`i`. The time interval during
+ which the arc is 'valid' (e.g during which the state function :math:`\mathbf{x}_{i}(t)` can be queried) depends on the underlying
+ ephemeris model. If :math:`\mathbf{x}_{i}(t)` is an ephemeris model that does not have any specific boundaries of validity (such
+ as a Keplerian ephemeris or a constant ephemeris), then arc :math:`i` is defined to be the time interval :math:`[t_{i}, t_{i+1})`
+ for all but the first and last arc. For the first arc, the boundary is then :math:`[-\infty, t_{i+1})` final arc, the
+ boundary in this case becomes :math:`[t_{i}, \infty)`. As a result, if the underlying arc-wise ephemerides are defined everywhere, the
+ multi-arc ephemeris is defined everywhere.
+
+ For the case where the underlying ephemeris is not defined everywhere (for instance a tabulated ephemeris), the minimum and maximum
+ epoch of the underlying ephemeris :math:`t_{\min,i},t_{\max,i}` are extracted, and the valid time interval of arc :math:`i` becomes
+ :math:`[\max(t_{0,i},t_{\min,i}),\min(t_{0,i+1},t_{\max,i})`. Note that, for a Lagrange interpolator underlying the tabulated ephemeris
+ (as is the default for a numerical propagation result stored in an ephemeris), the interpolator can use a cubic spline interpolator at
+ the boundaries of the domain to avoid Runge's phenomenon (see :func:`~tudatpy.math.interpolators.lagrange_interpolation`). In this case,
+ the interpolator is defined to be valid over the full propagation domain (even if the cubic spine interpolator will be much less accurate than
+ the Lagrange interpolator).
+
+ For cases where there are 'gaps' in the coverage of the multi-arc ephemeris, we provide the option to set a default ephemeris that gets
+ queried if a state is requested at an epoch that is not a valid epoch for any of the arcs (using the ``default_ephemeris_settings`` input).
+ If the state is queried at an epoch where not arc is valid, and no default ephemeris is provided, an exception is thrown.
+
+ Note that, when resetting the arc-wise ephemerides (for instance as a result of a repropagation and resetting of the dynamics), both
+ the number of arcs and the initial/final epochs of the arc may change.
+
+
+ Parameters
+ ----------
+ single_arc_ephemeris_settings : dict[float, EphemerisSettings]
+     Dictionary of underlying single-arc ephemeris, with the key providing :math:`t_{i,0}` and the value the settings
+     for the ephemeris settings from which the state function :math:`\mathbf{x}(t_{i})` is created
+ frame_origin : str, default="SSB"
+     Origin of frame in which ephemeris data is defined.
+ frame_orientation : str, default="ECLIPJ2000"
+     Orientation of frame in which ephemeris data is defined.
+ default_ephemeris_settings: EphemerisSettings, default = None
+     Settings to create a default ephemeris model that is use when the multi-arc ephemeris is queried at an epoch at which none of the
+     arcs are valid
+ Returns
+ -------
+ EphemerisSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` class with the required settings
 
 
      )doc" );

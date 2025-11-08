@@ -61,7 +61,7 @@ public:
                                  const std::string referenceFrameOrigin = "SSB",
                                  const std::string referenceFrameOrientation = "ECLIPJ2000" ):
         Ephemeris( referenceFrameOrigin, referenceFrameOrientation ), interpolator_( interpolator )
-    { }
+    {}
 
     TabulatedCartesianEphemeris( const VariableStateInterpolatorPointer interpolator,
                                  const std::string referenceFrameOrigin = "SSB",
@@ -77,7 +77,7 @@ public:
     /*!
      *  Destructor
      */
-    ~TabulatedCartesianEphemeris( ) { }
+    ~TabulatedCartesianEphemeris( ) {}
 
     //! Function to reset the state interpolator.
     /*!
@@ -156,42 +156,9 @@ public:
      * on which the interpolator inside this object is valid is checked and returned
      * \return The time interval at which the tabulated ephemeris can be safely interrogated
      */
-    std::pair< double, double > getSafeInterpolationInterval( )
+    std::pair< double, double > getSafeInterpolationInterval( const bool acceptUserDefinedRisk = true )
     {
-        std::pair< double, double > safeInterpolationInterval;
-
-        // Check interpolator type. If interpolator is not a Lagrange interpolator, return full domain
-        if( std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, double > >( interpolator_ ) == nullptr &&
-            std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, long double > >( interpolator_ ) ==
-                    nullptr )
-        {
-            safeInterpolationInterval.first = interpolator_->getIndependentValues( ).at( 0 );
-            safeInterpolationInterval.second =
-                    interpolator_->getIndependentValues( ).at( interpolator_->getIndependentValues( ).size( ) - 1 );
-        }
-        // If interpolator is a Lagrange interpolator, return full domain minus edges where interpolator has reduced accuracy
-        else if( std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, double > >( interpolator_ ) !=
-                 nullptr )
-        {
-            int numberOfNodes =
-                    std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, double > >( interpolator_ )
-                            ->getNumberOfStages( );
-
-            safeInterpolationInterval.first = interpolator_->getIndependentValues( ).at( 0 + numberOfNodes / 2 + 1 );
-            safeInterpolationInterval.second = interpolator_->getIndependentValues( ).at( interpolator_->getIndependentValues( ).size( ) -
-                                                                                          1 - ( +numberOfNodes / 2 + 1 ) );
-        }
-        else if( std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, long double > >( interpolator_ ) !=
-                 nullptr )
-        {
-            int numberOfNodes =
-                    std::dynamic_pointer_cast< interpolators::LagrangeInterpolator< TimeType, StateType, long double > >( interpolator_ )
-                            ->getNumberOfStages( );
-            safeInterpolationInterval.first = interpolator_->getIndependentValues( ).at( 0 + numberOfNodes / 2 + 1 );
-            safeInterpolationInterval.second = interpolator_->getIndependentValues( ).at( interpolator_->getIndependentValues( ).size( ) -
-                                                                                          1 - ( +numberOfNodes / 2 + 1 ) );
-        }
-        return safeInterpolationInterval;
+        return interpolator_->getValidDoubleInterpolationInterval( acceptUserDefinedRisk );
     }
 
 private:
@@ -220,7 +187,8 @@ bool isTabulatedEphemeris( const std::shared_ptr< Ephemeris > ephemeris );
  * a tabulated ephemeris
  * \return The time interval at which the tabulated ephemeris can be safely interrogated
  */
-std::pair< double, double > getTabulatedEphemerisSafeInterval( const std::shared_ptr< Ephemeris > ephemeris );
+std::pair< double, double > getTabulatedEphemerisSafeInterval( const std::shared_ptr< Ephemeris > ephemeris,
+                                                               const bool acceptUserDefinedRisk = true );
 
 //! Function to create an empty (dummy) tabulated ephemeris
 /*!

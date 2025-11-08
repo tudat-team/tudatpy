@@ -27,7 +27,6 @@
 #include "estimation_setup/createObservationPartials.h"
 #include "estimation_setup/createStateDerivativePartials.h"
 #include "estimation_setup/createTorquePartials.h"
-#include "estimation_setup/determinePostFitParameterInfluence.h"
 #include "estimation_setup/estimatableParameterSettings.h"
 #include "estimation_setup/orbitDeterminationManager.h"
 #include "estimation_setup/orbitDeterminationTestCases.h"

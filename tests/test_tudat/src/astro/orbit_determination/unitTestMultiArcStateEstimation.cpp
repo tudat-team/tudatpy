@@ -197,7 +197,7 @@ Eigen::VectorXd executeParameterEstimation( const int linkArcs )
 
     TimeType observationTime;
     int numberOfObservationsPerArc = 5000;
-    double timeBuffer = 9000.0;
+    double timeBuffer = 12000.0;
 
     std::vector< TimeType > initialObservationTimes;
     initialObservationTimes.resize( numberOfObservationsPerArc * integrationArcStartTimes.size( ) );
@@ -266,7 +266,7 @@ BOOST_AUTO_TEST_CASE( test_MultiArcStateEstimation )
     // Execute test for linked arcs and separate arcs.
     for( unsigned int testCase = 0; testCase < 2; testCase++ )
     {
-#if ( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
+#if( TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS )
         Eigen::VectorXd parameterError = executeParameterEstimation< long double, tudat::Time, long double >( testCase );
         int numberOfEstimatedArcs = ( parameterError.rows( ) - 3 ) / 6;
 

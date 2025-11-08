@@ -69,7 +69,7 @@ public:
                                         std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
                                                         IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ):
         boundaryHandling_( boundaryHandling ), defaultExtrapolationValue_( defaultExtrapolationValue )
-    { }
+    {}
 
     //! Constructor.
     /*!throw_exception_at_boundary
@@ -81,13 +81,13 @@ public:
      */
     OneDimensionalInterpolator( const BoundaryInterpolationType boundaryHandling, const DependentVariableType& defaultExtrapolationValue ):
         OneDimensionalInterpolator( boundaryHandling, std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) )
-    { }
+    {}
 
     //! Destructor.
     /*!
      * Destructor.
      */
-    virtual ~OneDimensionalInterpolator( ) { }
+    virtual ~OneDimensionalInterpolator( ) {}
 
     //! Function to perform interpolation.
     /*!
@@ -193,6 +193,43 @@ public:
     }
 
     virtual InterpolatorTypes getInterpolatorType( ) = 0;
+
+    virtual std::pair< IndependentVariableType, IndependentVariableType > getValidInterpolationInterval( const bool acceptUserDefinedRisk )
+    {
+        std::pair< IndependentVariableType, IndependentVariableType > validRange;
+        switch( boundaryHandling_ )
+        {
+            case throw_exception_at_boundary:
+            case use_nan_value:
+            case use_nan_value_with_warning:
+                validRange = std::make_pair( independentValues_.at( 0 ), independentValues_.at( independentValues_.size( ) - 1 ) );
+                break;
+            case use_boundary_value:
+            case use_boundary_value_with_warning:
+            case extrapolate_at_boundary:
+            case extrapolate_at_boundary_with_warning:
+            case use_default_value:
+            case use_default_value_with_warning: {
+                if( acceptUserDefinedRisk )
+                {
+                    validRange = std::make_pair( IndependentVariableType( -std::numeric_limits< double >::infinity( ) ),
+                                                 IndependentVariableType( std::numeric_limits< double >::infinity( ) ) );
+                }
+                else
+                {
+                    validRange = std::make_pair( independentValues_.at( 0 ), independentValues_.at( independentValues_.size( ) - 1 ) );
+                }
+                break;
+            }
+        }
+        return validRange;
+    }
+
+    std::pair< double, double > getValidDoubleInterpolationInterval( const bool acceptUserDefinedRisk )
+    {
+        std::pair< IndependentVariableType, IndependentVariableType > validRange = getValidInterpolationInterval( acceptUserDefinedRisk );
+        return std::make_pair( static_cast< double >( validRange.first ), static_cast< double >( validRange.second ) );
+    }
 
 protected:
     //! Function to return the condition of the current independent variable.

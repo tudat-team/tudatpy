@@ -57,7 +57,7 @@ public:
         currentRotationMatrixDerivativesWrtQuaternion_.resize( 4 );
     }
 
-    ~SphericalHarmonicGravitationalTorquePartial( ) { }
+    ~SphericalHarmonicGravitationalTorquePartial( ) {}
 
     //! Function for setting up and retrieving a function returning a partial w.r.t. a double parameter.
     /*!
@@ -179,6 +179,8 @@ protected:
 
     //! Current matrix by which to pre-multiply acceleration partial to obtain torque partial
     Eigen::Matrix3d currentParameterPartialPreMultiplier_;
+
+    double currentMass_;
 
     //! Current partial derivative of torque w.r.t. quaternion
     Eigen::Matrix< double, 3, 4 > currentPartialDerivativeWrtQuaternion_;
