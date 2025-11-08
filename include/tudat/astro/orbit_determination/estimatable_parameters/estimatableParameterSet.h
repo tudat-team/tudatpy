@@ -145,25 +145,28 @@ public:
 
         totalParameterSetSize_ = estimatedParameterSetSize_;
 
-        // Iterate over all double consider parameters and add to parameter size and set indices in parameterIndices_
-        std::vector< std::shared_ptr< EstimatableParameter< double > > > considerDoubleParameters =
-                considerParameters_->getEstimatedDoubleParameters( );
-        for( unsigned int i = 0; i < considerDoubleParameters.size( ); i++ )
+        if( considerParameters_!= nullptr )
         {
-            doubleParameters_[ totalParameterSetSize_ ] = considerDoubleParameters[ i ];
-            parameterIndices_.push_back( std::make_pair( totalParameterSetSize_, 1 ) );
-            totalParameterSetSize_++;
-        }
+            // Iterate over all double consider parameters and add to parameter size and set indices in parameterIndices_
+            std::vector< std::shared_ptr< EstimatableParameter< double > > > considerDoubleParameters =
+                    considerParameters_->getEstimatedDoubleParameters( );
+            for( unsigned int i = 0; i < considerDoubleParameters.size( ); i++ )
+            {
+                doubleParameters_[ totalParameterSetSize_ ] = considerDoubleParameters[ i ];
+                parameterIndices_.push_back( std::make_pair( totalParameterSetSize_, 1 ) );
+                totalParameterSetSize_++;
+            }
 
-        // Iterate over all vector consider parameters, add to total number of parameters and set indices in parameterIndices_
-        std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > considerVectorParameters =
-                considerParameters_->getEstimatedVectorParameters( );
-        for( unsigned int i = 0; i < considerVectorParameters.size( ); i++ )
-        {
-            vectorParameters_[ totalParameterSetSize_ ] = considerVectorParameters[ i ];
-            parameterIndices_.push_back(
-                    std::make_pair( totalParameterSetSize_, considerVectorParameters[ i ]->getParameterSize( ) ) );
-            totalParameterSetSize_ += considerVectorParameters[ i ]->getParameterSize( );
+            // Iterate over all vector consider parameters, add to total number of parameters and set indices in parameterIndices_
+            std::vector< std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > > considerVectorParameters =
+                    considerParameters_->getEstimatedVectorParameters( );
+            for( unsigned int i = 0; i < considerVectorParameters.size( ); i++ )
+            {
+                vectorParameters_[ totalParameterSetSize_ ] = considerVectorParameters[ i ];
+                parameterIndices_.push_back(
+                        std::make_pair( totalParameterSetSize_, considerVectorParameters[ i ]->getParameterSize( ) ) );
+                totalParameterSetSize_ += considerVectorParameters[ i ]->getParameterSize( );
+            }
         }
 
 
