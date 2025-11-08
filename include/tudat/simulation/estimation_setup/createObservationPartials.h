@@ -72,6 +72,8 @@ createDifferencedObservablePartials(
         const bool isPartialForDifferencedObservable = false,
         const bool isPartialForConcatenatedObservable = false );
 
+
+
 //! Interface class for creating observation partials
 /*!
  *  Interface class for creating observation partials. This class is used instead of a single
@@ -194,6 +196,15 @@ public:
                 {
                     throw std::runtime_error(
                             "Error when requesting partial creation for 1-way averaged Doppler; concatenated partial not supported" );
+                }
+                observationPartials = createDifferencedObservablePartials< ObservationScalarType, TimeType, 1 >(
+                        observationModel, bodies, parametersToEstimate, isPartialForDifferencedObservable );
+                break;
+            case observation_models::differenced_time_of_arrival:
+                if( isPartialForConcatenatedObservable )
+                {
+                    throw std::runtime_error(
+                            "Error when requesting partial creation for differenced time of arrical; concatenated partial not supported" );
                 }
                 observationPartials = createDifferencedObservablePartials< ObservationScalarType, TimeType, 1 >(
                         observationModel, bodies, parametersToEstimate, isPartialForDifferencedObservable );
@@ -409,6 +420,8 @@ createObservablePartialsList(
     return partialsList;
 }
 
+
+
 template< int ObservationSize, typename ScalarType, typename TimeType >
 class DifferencedObservationPartialCreator
 {
@@ -483,7 +496,55 @@ public:
                         firstPartial,
                         secondPartial,
                         &observation_models::getDifferencedOneWayRangeScalingFactor,
-                        getUndifferencedTimeAndStateIndices( one_way_differenced_range, linkEnds.size( ) ) );
+                        getUndifferencedTimeAndStateIndices( one_way_differenced_range, linkEnds.size( ) ),
+                        &getDefaultDifferencedReferenceLinkEndTypes );
+                break;
+            }
+            case differenced_time_of_arrival: {
+                if( !isParameterObservationLinkTimeProperty(
+                            getDifferencedPartialParameterIdentifier( firstPartial, secondPartial ).first ) )
+                {
+                    if( firstPartial != nullptr )
+                    {
+                        if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( firstPartial ) == nullptr )
+                        {
+                            throw std::runtime_error(
+                                    "Error when creating differenced time of arrival partial; first "
+                                    "input object type is incompatible" );
+                        }
+                        else if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( firstPartial )->getObservableType( ) !=
+                                 one_way_range )
+                        {
+                            throw std::runtime_error(
+                                    "Error when creating differenced time of arrival partial; first "
+                                    "input observable type is incompatible" );
+                        }
+                    }
+
+                    if( secondPartial != nullptr )
+                    {
+                        if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( secondPartial ) == nullptr )
+                        {
+                            throw std::runtime_error(
+                                    "Error when creating differenced time of arrival partial; second "
+                                    "input object type is incompatible" );
+                        }
+                        else if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( secondPartial )->getObservableType( ) !=
+                                 one_way_range )
+                        {
+                            throw std::runtime_error(
+                                    "Error when creating differenced time of arrival partial; second "
+                                    "input observable type is incompatible" );
+                        }
+                    }
+                }
+
+                differencedPartial = std::make_shared< DifferencedObservablePartial< 1 > >(
+                        firstPartial,
+                        secondPartial,
+                        &observation_models::getDifferencedTimeOfArrivalScalingFactor,
+                        getUndifferencedTimeAndStateIndices( differenced_time_of_arrival, linkEnds.size( ) ),
+                        &getDifferencedTimeOfArrivalDifferencedReferenceLinkEndTypes );
                 break;
             }
             case n_way_differenced_range: {
@@ -511,7 +572,8 @@ public:
                         firstPartial,
                         secondPartial,
                         &observation_models::getDifferencedNWayRangeScalingFactor,
-                        getUndifferencedTimeAndStateIndices( n_way_differenced_range, linkEnds.size( ) ) );
+                        getUndifferencedTimeAndStateIndices( n_way_differenced_range, linkEnds.size( ) ),
+                        &getDefaultDifferencedReferenceLinkEndTypes );
                 break;
             }
             case dsn_n_way_averaged_doppler: {
@@ -568,7 +630,8 @@ public:
                         firstPartial,
                         secondPartial,
                         scalingFactorFunction,
-                        getUndifferencedTimeAndStateIndices( dsn_n_way_averaged_doppler, linkEnds.size( ) ) );
+                        getUndifferencedTimeAndStateIndices( dsn_n_way_averaged_doppler, linkEnds.size( ) ),
+                        &getDefaultDifferencedReferenceLinkEndTypes );
                 break;
             }
             default:
@@ -639,7 +702,8 @@ public:
                         firstPartial,
                         secondPartial,
                         &getRelativeAngularPositionScalingFactor,
-                        getUndifferencedTimeAndStateIndices( relative_angular_position, linkEnds.size( ) ) );
+                        getUndifferencedTimeAndStateIndices( relative_angular_position, linkEnds.size( ) ),
+                        &getDefaultDifferencedReferenceLinkEndTypes );
                 break;
             }
             default:

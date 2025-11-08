@@ -14,6 +14,7 @@
 #include "tudat/simulation/estimation_setup/createObservationModel.h"
 
 namespace tom = tudat::observation_models;
+namespace tba = tudat::basic_astrodynamics;
 
 namespace tudatpy
 {
@@ -66,6 +67,7 @@ Examples
             .value( "dsn_n_way_averaged_doppler_type", tom::ObservableType::dsn_n_way_averaged_doppler )
             .value( "doppler_measured_frequency_type", tom::ObservableType::doppler_measured_frequency )
             .value( "dsn_n_way_range_type", tom::ObservableType::dsn_n_way_range )
+            .value( "differenced_time_of_arrival_type", tom::ObservableType::differenced_time_of_arrival )
             .export_values( );
 
 
@@ -592,11 +594,6 @@ Examples
  -------
  :class:`ObservationModelSettings`
      Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the relative angular position observable.
-
-
-
-
-
 
      )doc" );
 
@@ -1129,6 +1126,61 @@ Examples
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
            R"doc(No documentation found.)doc" );
 
+
+    m.def( "differenced_time_of_arrival", &tom::differencedTimeOfArrivalObservationSettings,
+           py::arg( "link_ends" ),
+           py::arg( "time_difference_time_scale" ) = tba::tdb_scale,
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           R"doc(
+
+ Function for creating settings for a time difference of arrival observation model
+
+ Function for creating settings for a time difference of arrival observation model, computed from the time difference :math:`\Delta t`
+ at which the same transmitted signal is received by two different link ends. For a signal transmitted at :math:`t_{T}` and received by two
+ receivers at :math:`t_{R,1}` and :math:`t_{R,2}`, respectively, the observable :math:`h` is computed from:
+
+ .. math::
+
+    h = t_{R,1} - t_{R,2}
+
+ From the reference link (typically :math:`t_{R,1}`), the times at the other two link ends are computed as described for the
+ :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_range`. Using :math:`t_{R,1}` as reference, the time
+ :math:`t_{T}` is computed from which :math:`t_{R,2}` is subsequently calculated, combining two light-time calculations (one from
+ receiver to transmitter, and one from transmitter to receiver2).
+
+ While the observation model performs all operations in TDB scale (including the time tag of teh observation), the model
+ can convert :math:`t_{R,1}` and :math:`t_{R,2}` to a different time scale (typically UTC) to compute :math:`h` by using the ``time_difference_time_scale`` input.
+
+
+ Parameters
+ ----------
+ link_ends : LinkDefinition
+     Set of link ends that define the geometry of the observation. This observable requires the
+     ``transmitter``, ``receiver`` and ``receiver2`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
+
+ link_ends : TimeScales, default = tdb_scale
+     Time scale in which the epochs :math:`t_{R,1}` and :math:`t_{R,2}` are expressed before differencing to compute the observation
+
+
+ light_time_correction_settings : List[ :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings` ], default = list()
+     List of corrections for the light-time that are to be used. Default is none, which will result
+     in the signal being modelled as moving in a straight line with the speed of light
+
+ bias_settings : :class:`ObservationBiasSettings`, default = None
+     Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
+
+ light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`light_time_convergence_settings`
+     Settings for convergence of the light-time
+
+ Returns
+ -------
+ :class:`ObservationModelSettings`
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` class defining the settings for the differenced time of arrival model.
+
+
+)doc" );
 
     //////////////////////////////////////////// DEPRECATED
     ///////////////////////////////////////////////
