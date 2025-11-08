@@ -549,6 +549,7 @@ std::shared_ptr< ObservationManagerBase< ObservationScalarType, TimeType > > cre
         case dsn_n_way_averaged_doppler:
         case doppler_measured_frequency:
         case dsn_n_way_range:
+        case differenced_time_of_arrival:
             observationManager = createObservationManager< 1, ObservationScalarType, TimeType >( observableType,
                                                                                                  observationModelSettingsList,
                                                                                                  bodies,
