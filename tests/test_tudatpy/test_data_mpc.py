@@ -1,4 +1,3 @@
-
 from tudatpy.data.mpc import BatchMPC
 from tudatpy.data.horizons import HorizonsQuery
 from tudatpy.dynamics import environment_setup
