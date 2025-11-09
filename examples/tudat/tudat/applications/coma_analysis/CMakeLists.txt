@@ -31,3 +31,8 @@ TUDAT_ADD_EXECUTABLE(ComaAnalysis_performance_wind
         "performance_wind_analysis/main.cpp"
         ${Tudat_PROPAGATION_LIBRARIES}
 )
+
+TUDAT_ADD_EXECUTABLE(ComaAnalysis_debug_solar_longitude
+        "debug_solar_longitude/main.cpp"
+        ${Tudat_PROPAGATION_LIBRARIES}
+)

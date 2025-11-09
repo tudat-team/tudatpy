@@ -97,11 +97,12 @@ public:
             std::vector<std::string> polyFiles = {polyFilePath};
             ComaModelFileProcessor processor(polyFiles);
 
-            // Create grid for Stokes dataset - use a reasonable range around the DSMC data points
-            std::vector<double> stokesRadii = {5000, dsmc_file.cometDistance * 1000.0}; // Convert km to m
-            std::vector<double> stokesLongitudes = {6.0, dsmc_file.solarLongitude};   // in degree
+            // Create grid for Stokes dataset
+            // IMPORTANT: Need at least 2 solar longitudes for interpolation
+            std::vector<double> stokesRadii = {dsmc_file.cometDistance * 1000.0}; // Convert km to m
+            std::vector<double> stokesLongitudes = {dsmc_file.solarLongitude - 0.1, dsmc_file.solarLongitude + 0.1};   // in degree
 
-            std::cout << "Creating Stokes dataset..." << std::endl;
+            std::cout << "Creating Stokes dataset at solar longitude " << dsmc_file.solarLongitude << "°..." << std::endl;
             ComaStokesDataset stokesDataset = processor.createSHDataset(stokesRadii, stokesLongitudes);
 
             // Create ComaModel with Stokes dataset
@@ -255,8 +256,9 @@ private:
         // Write data
         for (const auto& point : dsmc_file.dataPoints) {
             double dsmc_log2 = std::log2(point.density);
-            double my_linear = std::exp2(point.myDensity); // Convert log2 back to linear
-            double diff_log2 = point.myDensity - dsmc_log2;
+            double my_linear = point.myDensity; // Already in linear space (getNumberDensity returns linear now)
+            double my_log2 = std::log2(point.myDensity);
+            double diff_log2 = my_log2 - dsmc_log2;
             double diff_linear = my_linear - point.density;
 
             outputFile << std::fixed << std::setprecision(6)
@@ -266,7 +268,7 @@ private:
                       << my_linear << ","
                       << diff_linear << ","
                       << std::fixed << std::setprecision(6) << dsmc_log2 << ","
-                      << point.myDensity << ","
+                      << my_log2 << ","
                       << diff_log2 << "\n";
         }
 
@@ -283,8 +285,9 @@ private:
 
         for (const auto& point : dsmc_file.dataPoints) {
             double dsmc_log2 = std::log2(point.density);
-            double my_linear = std::exp2(point.myDensity);
-            double diff_log2 = point.myDensity - dsmc_log2;
+            double my_linear = point.myDensity; // Already in linear space (getNumberDensity returns linear now)
+            double my_log2 = std::log2(point.myDensity);
+            double diff_log2 = my_log2 - dsmc_log2;
             double diff_linear = my_linear - point.density;
             double abs_diff_log2 = std::abs(diff_log2);
             double abs_diff_linear = std::abs(diff_linear);

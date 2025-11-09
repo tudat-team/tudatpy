@@ -70,7 +70,7 @@ public:
                   << " = " << (numRadii_ * numLongitudes_) << " points" << std::endl;
     }
 
-    TestResults runTest() {
+    TestResults runTest(double solarLongitudeDeg) {
         TestResults results;
 
         std::cout << "\n=== Tudat Coma Performance Test (Using Real ComaModel) ===" << std::endl;
@@ -108,12 +108,19 @@ public:
         std::cout << "Polynomial dataset creation time: " << results.polyDatasetCreationTime << " s" << std::endl;
 
         // Test 2: Create Stokes dataset using actual Tudat transformation
-        std::cout << "Creating Stokes dataset using ComaModelFileProcessor..." << std::endl;
+        // IMPORTANT: Create Stokes dataset at solar longitudes around the one being tested
+        // We need at least 2 solar longitudes for interpolation, so we use the current one +/- a small delta
+        std::cout << "Creating Stokes dataset at solar longitude " << solarLongitudeDeg << "° using ComaModelFileProcessor..." << std::endl;
         start = std::chrono::high_resolution_clock::now();
 
         // Create grid for Stokes dataset
         std::vector<double> stokesRadii = radiiGrid_;
-        std::vector<double> stokesLongitudes = longitudeGrid_;
+        // Create a full grid of solar longitudes for proper interpolation across all angles
+        // Include both 0° and 360° to ensure proper wraparound interpolation
+        std::vector<double> stokesLongitudes;
+        for (int i = 0; i <= 36; ++i) {
+            stokesLongitudes.push_back(i * 10.0);  // 0°, 10°, 20°, ..., 360°
+        }
 
         ComaStokesDataset stokesDataset = polyProcessor.createSHDataset(stokesRadii, stokesLongitudes);
 
@@ -221,8 +228,8 @@ public:
         // This rotates around the z-axis (rotation about comet's spin axis)
         cometRotationFunction_ = [solarLongitudeRad]() -> Eigen::Matrix3d {
             Eigen::Matrix3d rotation;
-            rotation << std::cos(solarLongitudeRad), -std::sin(solarLongitudeRad), 0,
-                       std::sin(solarLongitudeRad),  std::cos(solarLongitudeRad), 0,
+            rotation << std::cos(solarLongitudeRad),  std::sin(solarLongitudeRad), 0,
+                       -std::sin(solarLongitudeRad),  std::cos(solarLongitudeRad), 0,
                        0,                            0,                           1;
             return rotation;
         };
@@ -230,8 +237,8 @@ public:
     void saveResults(const TestResults& results, double solarLongitudeDeg) {
         std::cout << "\nSaving results to CSV files for solar longitude " << solarLongitudeDeg << "°..." << std::endl;
 
-        // Create subdirectory for this solar longitude
-        std::string outputDir = "output/solar_longitude_" + std::to_string(static_cast<int>(solarLongitudeDeg));
+        // Create subdirectory for this solar longitude in the source tree
+        std::string outputDir = "../../examples/tudat/tudat/applications/coma_analysis/performance_analysis/output/solar_longitude_" + std::to_string(static_cast<int>(solarLongitudeDeg));
 
         // Create directory using system command
         std::string mkdirCmd = "mkdir -p " + outputDir;
@@ -331,8 +338,8 @@ int main() {
             // Set the solar longitude for this iteration
             test.setSolarLongitude(static_cast<double>(solarLongDeg));
 
-            // Run the test
-            auto results = test.runTest();
+            // Run the test, passing the solar longitude so the Stokes dataset is created correctly
+            auto results = test.runTest(static_cast<double>(solarLongDeg));
 
             // Save results to subdirectory
             test.saveResults(results, static_cast<double>(solarLongDeg));

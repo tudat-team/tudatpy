@@ -79,10 +79,11 @@ public:
             setSolarLongitude(solarLongitude);
 
             // Create grid for Stokes dataset
-            std::vector<double> stokesRadii = {radius_,5000};
-            std::vector<double> stokesLongitudes = {solarLongitude,5};
+            // IMPORTANT: Need at least 2 solar longitudes for interpolation
+            std::vector<double> stokesRadii = {radius_};
+            std::vector<double> stokesLongitudes = {solarLongitude - 0.1, solarLongitude + 0.1};
 
-            std::cout << "Creating Stokes dataset..." << std::endl;
+            std::cout << "Creating Stokes dataset at solar longitude " << solarLongitude << "°..." << std::endl;
             ComaStokesDataset stokesDataset = processor.createSHDataset(stokesRadii, stokesLongitudes);
 
             // Create ComaModel with Stokes dataset

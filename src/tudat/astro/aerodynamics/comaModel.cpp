@@ -529,7 +529,16 @@ double ComaModel::calculateSolarLongitude( const double time ) const
     const Eigen::Vector3d sunDirectionBodyFixed = cachedRotationMatrix_.transpose() * sunDirection;
 
     // Calculate solar longitude (angle from X-axis in XY plane)
-    cachedSolarLongitude_ = std::atan2( sunDirectionBodyFixed.y(), sunDirectionBodyFixed.x() );
+    const double atan2Result = std::atan2( sunDirectionBodyFixed.y(), sunDirectionBodyFixed.x() );
+    cachedSolarLongitude_ = atan2Result;
+
+    // Normalize to [0, 2π] range to match Stokes dataset storage convention
+    // atan2 returns values in [-π, π], but Stokes datasets store longitudes in [0, 2π]
+    if ( cachedSolarLongitude_ < 0.0 )
+    {
+        cachedSolarLongitude_ += 2.0 * mathematical_constants::PI;
+    }
+
     cachedTime_ = time;
     cacheFlags_.solarLongitudeValid = true;
     cacheFlags_.stateValid = true;
@@ -803,10 +812,10 @@ double ComaModel::computeNumberDensityFromStokesCoefficients( double radius, dou
     cachedLongitude_ = longitude;
 
     return sphericalHarmonicsCalculator_->calculateSurfaceSphericalHarmonics(
-        cachedSineCoefficients_, cachedCosineCoefficients_,
-        latitude, longitude,
-        effectiveMaxDegree, effectiveMaxOrder
-    );
+         cachedSineCoefficients_, cachedCosineCoefficients_,
+         latitude, longitude,
+         effectiveMaxDegree, effectiveMaxOrder
+     );
 }
 
 //-----------------------------------------------------------------------------
