@@ -774,7 +774,7 @@ public:
         Eigen::VectorXd bestTransformationData = Eigen::VectorXd::Constant( numberEstimatedParameters_, TUDAT_NAN );
         Eigen::VectorXd bestResiduals = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
         Eigen::MatrixXd bestDesignMatrixEstimatedParameters =
-                Eigen::MatrixXd::Constant( totalNumberOfObservations, totalNumberParameters_, TUDAT_NAN );
+                Eigen::MatrixXd::Constant( totalNumberOfObservations, numberEstimatedParameters_, TUDAT_NAN );
         Eigen::VectorXd bestWeightsMatrixDiagonal = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
         Eigen::MatrixXd bestInverseNormalizedCovarianceMatrix =
                 Eigen::MatrixXd::Constant( numberEstimatedParameters_, numberEstimatedParameters_, TUDAT_NAN );

@@ -230,10 +230,9 @@ public:
      * Function to return the total number of non-dynamical state parameters that are estimated.
      * \return Total number of estimated parameters that are NOT initial dynamical state parameters
      */
-    // TODO CONSIDER CHECK ALL USAGES
     int getNonDynamicalStateParameterSize( )
     {
-        return estimatedParameterSetSize_ - initialDynamicalStateParameterSize_;
+        return totalParameterSetSize_ - initialDynamicalStateParameterSize_;
     }
 
     //! Function that returns a vector containing all current parameter values
