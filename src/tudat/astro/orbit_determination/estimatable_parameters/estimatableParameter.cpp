@@ -192,6 +192,15 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case lift_component_scaling_factor:
             parameterDescription = "lift component scaling factor ";
             break;
+        case arc_wise_drag_component_scaling_factor:
+            parameterDescription = "arc-wise drag component scaling factor ";
+            break;
+        case arc_wise_side_component_scaling_factor:
+            parameterDescription = "arc-wise side component scaling factor ";
+            break;
+        case arc_wise_lift_component_scaling_factor:
+            parameterDescription = "arc-wise lift component scaling factor ";
+            break;
         case rtg_force_vector:
             parameterDescription = "force vector from anisotropic RTG radiation in body-fixed frame ";
             break;
@@ -397,12 +406,13 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
             isDoubleParameter = false;
             break;
         case drag_component_scaling_factor:
-            isDoubleParameter = true;
-            break;
         case side_component_scaling_factor:
+        case lift_component_scaling_factor:
             isDoubleParameter = true;
             break;
-        case lift_component_scaling_factor:
+        case arc_wise_drag_component_scaling_factor:
+        case arc_wise_side_component_scaling_factor:
+        case arc_wise_lift_component_scaling_factor:
             isDoubleParameter = true;
             break;
         case rtg_force_vector:
