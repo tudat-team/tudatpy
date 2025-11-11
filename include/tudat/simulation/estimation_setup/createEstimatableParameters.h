@@ -389,7 +389,10 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
         }
         case drag_component_scaling_factor:
         case side_component_scaling_factor:
-        case lift_component_scaling_factor: {
+        case lift_component_scaling_factor:
+        case arc_wise_drag_component_scaling_factor:
+        case arc_wise_side_component_scaling_factor:
+        case arc_wise_lift_component_scaling_factor:{
             if( parameterSettings == nullptr )
             {
                 throw std::runtime_error( "Error, expected aerodynamic scaling factor parameter settings." );
