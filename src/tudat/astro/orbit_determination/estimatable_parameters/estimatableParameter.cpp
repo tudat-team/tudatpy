@@ -413,7 +413,7 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         case arc_wise_drag_component_scaling_factor:
         case arc_wise_side_component_scaling_factor:
         case arc_wise_lift_component_scaling_factor:
-            isDoubleParameter = true;
+            isDoubleParameter = false;
             break;
         case rtg_force_vector:
             isDoubleParameter = false;
