@@ -241,14 +241,25 @@ public:
 
     int getParameterSize( )
     {
-        return 1;
+        return componentScalingCoefficients_.size( );
     }
 
+    int getNumberOfArcs( )
+    {
+        return getParameterSize( );
+    }
+
+    int getParameterIndex( )
+    {
+        return parameterIndex_;
+    }
 
     std::shared_ptr< interpolators::LookUpScheme< double > > getArcTimeLookupScheme( )
     {
         return coefficientInterpolator_->getLookUpScheme( );
     }
+
+
 
 protected:
 
