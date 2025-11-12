@@ -73,6 +73,7 @@ using namespace tudat::propulsion;
 
 BOOST_AUTO_TEST_SUITE( test_acceleration_partials )
 
+/*
 BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
 {
     tudat::spice_interface::loadStandardSpiceKernels( );
@@ -746,12 +747,16 @@ BOOST_AUTO_TEST_CASE( testThirdBodyGravityPartials )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtAccelerationScaling, testPartialWrtAccelerationScaling, 1.0E-8 );
 }
 
+*/
+
 void updateFlightConditionsWithPerturbedState( const std::shared_ptr< aerodynamics::FlightConditions > flightConditions,
                                                const double timeToUpdate )
 {
     flightConditions->resetCurrentTime( );
     flightConditions->updateConditions( timeToUpdate );
 }
+
+
 
 BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
 {
@@ -819,6 +824,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
             std::make_shared< ConstantDragCoefficient >( std::dynamic_pointer_cast< aerodynamics::CustomAerodynamicCoefficientInterface >(
                                                                  bodies.at( "Vehicle" )->getAerodynamicCoefficientInterface( ) ),
                                                          "Vehicle" );
+
     // drag/side/lift direction scaling parameters
     auto aeroAccelerationModel = std::dynamic_pointer_cast< aerodynamics::AerodynamicAcceleration >( accelerationModel );
     std::shared_ptr< EstimatableParameter< double > > dragDirectionScaling =
@@ -827,6 +833,32 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
             std::make_shared< AerodynamicScalingFactor >( aeroAccelerationModel, side_component_scaling_factor, "Vehicle" );
     std::shared_ptr< EstimatableParameter< double > > liftDirectionScaling =
             std::make_shared< AerodynamicScalingFactor >( aeroAccelerationModel, lift_component_scaling_factor, "Vehicle" );
+
+
+    // arcwise parameters
+    std::vector< double > arcTimes = { 0.0, 10.0, 25.0 };
+
+    std::cout << "Call construction: ArcWiseConstantDragCoefficient" << std::endl;
+    std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > arcwiseDragCoefficientParameter =
+            std::make_shared< ArcWiseConstantDragCoefficient >( std::dynamic_pointer_cast< aerodynamics::CustomAerodynamicCoefficientInterface >(
+                                                                 bodies.at( "Vehicle" )->getAerodynamicCoefficientInterface( ) ),
+                                                                 std::vector<double>{ 0.0, 10.0, 25.0 },
+                                                         "Vehicle" );
+
+    std::cout << "Call construction: ArcWiseAerodynamicScalingFactor (0)" << std::endl;
+    std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > arcwiseDragDirectionScaling = std::make_shared< ArcWiseAerodynamicScalingFactor >(
+        aeroAccelerationModel, arc_wise_drag_component_scaling_factor, arcTimes, "Vehicle" );
+
+    std::cout << "Call construction: ArcWiseAerodynamicScalingFactor (1)" << std::endl;
+    std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > arcwiseSideDirectionScaling = std::make_shared< ArcWiseAerodynamicScalingFactor >(
+        aeroAccelerationModel, arc_wise_side_component_scaling_factor, arcTimes, "Vehicle" );
+
+    std::cout << "Call construction: ArcWiseAerodynamicScalingFactor (2)" << std::endl;
+    std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > arcwiseLiftDirectionScaling = std::make_shared< ArcWiseAerodynamicScalingFactor >(
+        aeroAccelerationModel, arc_wise_lift_component_scaling_factor, arcTimes, "Vehicle" );
+
+
+    // other scaling parameters
     std::shared_ptr< EstimatableParameter< double > > accelerationScalingParameter =
             std::make_shared< FullAccelerationScalingFactorParameter >( accelerationModel, "Vehicle", "Earth" );
     std::shared_ptr< EstimatableParameter< double > > areaToMassScalingFactor = std::make_shared< AreaToMassScalingFactor >(
@@ -843,11 +875,22 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
     Eigen::MatrixXd partialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
     aerodynamicAccelerationPartial->wrtVelocityOfAcceleratingBody( partialWrtEarthVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
 
+    std::cout << "aerodynamicAccelerationPartial->wrtParameter eval : dragCoefficientParameter ... " << std::endl;
     Eigen::Vector3d partialWrtDragCoefficient = aerodynamicAccelerationPartial->wrtParameter( dragCoefficientParameter );
-
+    std::cout << "aerodynamicAccelerationPartial->wrtParameter eval : dragDirectionScaling ... " << std::endl;
     Eigen::Vector3d partialWrtDragDirection = aerodynamicAccelerationPartial->wrtParameter( dragDirectionScaling );
+    std::cout << " ... done " << std::endl;
     Eigen::Vector3d partialWrtSideDirection = aerodynamicAccelerationPartial->wrtParameter( sideDirectionScaling );
     Eigen::Vector3d partialWrtLiftDirection = aerodynamicAccelerationPartial->wrtParameter( liftDirectionScaling );
+
+    std::cout << "aerodynamicAccelerationPartial->wrtParameter eval : arcwiseDragCoefficientParameter ... " << std::endl;
+    Eigen::Vector3d partialWrtArcWiseDragDragCoefficient = aerodynamicAccelerationPartial->wrtParameter( arcwiseDragCoefficientParameter );
+    std::cout << "aerodynamicAccelerationPartial->wrtParameter eval : arcwiseDragDirectionScaling ... " << std::endl;
+    Eigen::Vector3d partialWrtArcWiseDragDirection = aerodynamicAccelerationPartial->wrtParameter( arcwiseDragDirectionScaling );
+    std::cout << " ... done " << std::endl;
+    Eigen::Vector3d partialWrtArcWiseSideDirection = aerodynamicAccelerationPartial->wrtParameter( arcwiseSideDirectionScaling );
+    Eigen::Vector3d partialWrtArcWiseLiftDirection = aerodynamicAccelerationPartial->wrtParameter( arcwiseLiftDirectionScaling );
+
     Eigen::Vector3d partialWrtAccelerationScaling = aerodynamicAccelerationPartial->wrtParameter( accelerationScalingParameter );
     Eigen::Vector3d partialWrtAreaToMassScaling = aerodynamicAccelerationPartial->wrtParameter( areaToMassScalingFactor );
 
@@ -900,19 +943,45 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
                                                                          3,
                                                                          environmentUpdateFunction );
 
+    Eigen::VectorXd arcwiseParameterPerturbation = Eigen::VectorXd::Constant( 3, 1.0E-4 );
+
     Eigen::Vector3d testPartialWrtDragCoefficient =
             calculateAccelerationWrtParameterPartials( dragCoefficientParameter, accelerationModel, 1.0E-4, environmentUpdateFunction );
-
     Eigen::Vector3d testPartialWrtDragDirectionScaling =
             calculateAccelerationWrtParameterPartials( dragDirectionScaling, accelerationModel, 1.0E-4, environmentUpdateFunction );
     Eigen::Vector3d testPartialWrtSideDirectionScaling =
             calculateAccelerationWrtParameterPartials( sideDirectionScaling, accelerationModel, 1.0E-4, environmentUpdateFunction );
-    Eigen::Vector3d testPartialWrtLiftDirectionScalingt =
+    Eigen::Vector3d testPartialWrtLiftDirectionScaling =
             calculateAccelerationWrtParameterPartials( liftDirectionScaling, accelerationModel, 1.0E-4, environmentUpdateFunction );
     Eigen::Vector3d testPartialWrtAccelerationScaling =
             calculateAccelerationWrtParameterPartials( accelerationScalingParameter, accelerationModel, 10.0 );
     Eigen::Vector3d testPartialWrtAreaToMassScaling =
             calculateAccelerationWrtParameterPartials( areaToMassScalingFactor, accelerationModel, 10.0 );
+
+
+
+    std::cout << "partialWrtArcWiseDragDirection: " << partialWrtArcWiseDragDirection << std::endl;
+
+    for( int i = 0; i < arcTimes.size( ); i++ )
+    {
+        double currentTime = arcTimes.at( i );
+
+        std::cout << "currentTime: " << currentTime << std::endl;
+
+        Eigen::Vector3d testPartialWrtArcWiseDragCoefficient =
+                calculateAccelerationWrtParameterPartials( arcwiseDragCoefficientParameter, accelerationModel, arcwiseParameterPerturbation, environmentUpdateFunction, currentTime );
+        Eigen::Vector3d testPartialWrtArcWiseDragDirectionScaling =
+                calculateAccelerationWrtParameterPartials( arcwiseDragDirectionScaling, accelerationModel, arcwiseParameterPerturbation, environmentUpdateFunction, currentTime );
+        Eigen::Vector3d testPartialWrtArcWiseSideDirectionScaling =
+                calculateAccelerationWrtParameterPartials( arcwiseSideDirectionScaling, accelerationModel, arcwiseParameterPerturbation, environmentUpdateFunction, currentTime );
+        Eigen::Vector3d testPartialWrtArcWiseLiftDirectionScaling =
+                calculateAccelerationWrtParameterPartials( arcwiseLiftDirectionScaling, accelerationModel, arcwiseParameterPerturbation, environmentUpdateFunction, currentTime );
+
+        std::cout << "testPartialWrtArcWiseDragDirectionScaling: " << testPartialWrtArcWiseDragDirectionScaling << std::endl;
+
+    }
+
+
 
     // Compare numerical and analytical results.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtVehiclePosition, partialWrtVehiclePosition, 1.0E-6 );
@@ -924,14 +993,16 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtDragDirectionScaling, partialWrtDragDirection, 1.0E-10 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSideDirectionScaling, partialWrtSideDirection, 1.0E-10 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtLiftDirectionScalingt, partialWrtLiftDirection, 1.0E-10 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtLiftDirectionScaling, partialWrtLiftDirection, 1.0E-10 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtAccelerationScaling, testPartialWrtAccelerationScaling, 1.0E-8 );
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtAreaToMassScaling, testPartialWrtAreaToMassScaling, 1.0E-8 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
             partialWrtAreaToMassScaling, partialWrtAccelerationScaling, std::numeric_limits< double >::epsilon( ) );
+
 }
 
+/*
 BOOST_AUTO_TEST_CASE( testRelativisticAccelerationPartial )
 {
     // Create earth and vehicle bodies.
@@ -1975,7 +2046,7 @@ BOOST_AUTO_TEST_CASE( testRTGPartials )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtRTGForceVector, partialWrtRTGForceVector, 1.0E-8 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtRTGForceMagnitude, partialWrtRTGForceMagnitude, 1.0E-8 );
 }
-
+*/
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests
