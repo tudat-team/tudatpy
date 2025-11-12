@@ -23,6 +23,8 @@ Functions
 
    propagate_covariance
 
+   propagate_covariance_from_analysis_objects
+
    propagate_covariance_split_output
 
    propagate_covariance_rsw_split_output
@@ -40,6 +42,8 @@ Functions
 
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.propagate_covariance
+
+.. autofunction:: tudatpy.estimation.estimation_analysis.propagate_covariance_from_analysis_objects
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.propagate_covariance_split_output
 
