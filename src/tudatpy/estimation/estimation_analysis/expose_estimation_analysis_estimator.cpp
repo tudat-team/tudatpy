@@ -27,8 +27,6 @@ namespace tom = tudat::observation_models;
 namespace tp = tudat::propagators;
 namespace trf = tudat::reference_frames;
 
-
-
 namespace tudatpy
 {
 namespace estimation
@@ -36,15 +34,12 @@ namespace estimation
 namespace estimation_analysis
 {
 
-void expose_estimation_analysis_estimator( py::module& m )
+void expose_estimation_analysis_estimator( py::module &m )
 {
-
-
     py::class_< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >,
-            std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > > >(
-            m,
-            "Estimator",
-            R"doc(
+                std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > > >( m,
+                                                                                                     "Estimator",
+                                                                                                     R"doc(
 
          Class for consolidating all estimation functionality.
 
@@ -56,11 +51,10 @@ void expose_estimation_analysis_estimator( py::module& m )
 
       )doc" )
             .def( py::init< const tss::SystemOfBodies &,
-                          const std::shared_ptr<
-                                  tep::EstimatableParameterSet< STATE_SCALAR_TYPE > >,
-                          const std::vector< std::shared_ptr< tom::ObservationModelSettings > > &,
-                          const std::shared_ptr< tp::PropagatorSettings< STATE_SCALAR_TYPE > >,
-                          const bool >( ),
+                            const std::shared_ptr< tep::EstimatableParameterSet< STATE_SCALAR_TYPE > >,
+                            const std::vector< std::shared_ptr< tom::ObservationModelSettings > > &,
+                            const std::shared_ptr< tp::PropagatorSettings< STATE_SCALAR_TYPE > >,
+                            const bool >( ),
                   py::arg( "bodies" ),
                   py::arg( "estimated_parameters" ),
                   py::arg( "observation_settings" ),
@@ -110,11 +104,9 @@ void expose_estimation_analysis_estimator( py::module& m )
 
 
      )doc" )
-            .def_property_readonly(
-                    "observation_simulators",
-                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE,
-                            TIME_TYPE >::getObservationSimulators,
-                    R"doc(
+            .def_property_readonly( "observation_simulators",
+                                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationSimulators,
+                                    R"doc(
 
          **read-only**
 
@@ -124,11 +116,9 @@ void expose_estimation_analysis_estimator( py::module& m )
 
          :type: list[ :class:`~tudatpy.estimation.observable_models.observables_simulation.ObservationSimulator` ]
       )doc" )
-            .def_property_readonly(
-                    "observation_managers",
-                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE,
-                            TIME_TYPE >::getObservationManagers,
-                    R"doc(
+            .def_property_readonly( "observation_managers",
+                                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationManagers,
+                                    R"doc(
 
          **read-only**
 
@@ -140,8 +130,7 @@ void expose_estimation_analysis_estimator( py::module& m )
       )doc" )
             .def_property_readonly(
                     "state_transition_interface",
-                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::
-                    getStateTransitionAndSensitivityMatrixInterface,
+                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::getStateTransitionAndSensitivityMatrixInterface,
                     R"doc(
 
          **read-only**
@@ -152,8 +141,7 @@ void expose_estimation_analysis_estimator( py::module& m )
          :type: :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
       )doc" )
             .def( "perform_estimation",
-                  &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE,
-                          TIME_TYPE >::estimateParameters,
+                  &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::estimateParameters,
                   py::arg( "estimation_input" ),
                   R"doc(
 
@@ -182,8 +170,7 @@ void expose_estimation_analysis_estimator( py::module& m )
 
      )doc" )
             .def( "compute_covariance",
-                  &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE,
-                          TIME_TYPE >::computeCovariance,
+                  &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::computeCovariance,
                   py::arg( "covariance_analysis_input" ),
                   R"doc(
 
@@ -224,11 +211,9 @@ void expose_estimation_analysis_estimator( py::module& m )
 
 
      )doc" )
-            .def_property_readonly(
-                    "variational_solver",
-                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE,
-                            TIME_TYPE >::getVariationalEquationsSolver,
-                    R"doc(
+            .def_property_readonly( "variational_solver",
+                                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::getVariationalEquationsSolver,
+                                    R"doc(
 
          **read-only**
 
