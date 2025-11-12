@@ -693,12 +693,15 @@ struct CovarianceAnalysisOutput {
                               const Eigen::MatrixXd& designMatrixConsiderParameters = Eigen::MatrixXd::Zero( 0, 0 ),
                               const Eigen::VectorXd& considerNormalizationFactors = Eigen::VectorXd::Zero( 0 ),
                               const Eigen::MatrixXd& considerCovarianceContribution = Eigen::MatrixXd::Zero( 0, 0 ),
+                              const Eigen::MatrixXd& considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
                               const bool exceptionDuringPropagation = false ):
         normalizedDesignMatrix_( normalizedDesignMatrix ), weightsMatrixDiagonal_( weightsMatrixDiagonal ),
         designMatrixTransformationDiagonal_( designMatrixTransformationDiagonal ),
         inverseNormalizedCovarianceMatrix_( inverseNormalizedCovarianceMatrix ),
         normalizedDesignMatrixConsiderParameters_( designMatrixConsiderParameters ),
-        considerNormalizationFactors_( considerNormalizationFactors ), exceptionDuringPropagation_( exceptionDuringPropagation )
+        considerNormalizationFactors_( considerNormalizationFactors ),
+        considerCovariance_( considerCovariance ),
+        exceptionDuringPropagation_( exceptionDuringPropagation )
     {
         considerParametersIncluded_ = false;
         if( designMatrixConsiderParameters.size( ) > 0 && considerNormalizationFactors.size( ) > 0 &&
@@ -732,8 +735,8 @@ struct CovarianceAnalysisOutput {
                     normalizedCovarianceWithConsiderParameters_, designMatrixTransformationDiagonal_, false );
 
             // Save unnormalised contribution to covariance from consider parameters
-            considerCovarianceContribution_ =
-                    normaliseUnnormaliseCovarianceMatrix( considerCovarianceContribution, designMatrixTransformationDiagonal_, false );
+            considerCovarianceContribution_ = normaliseUnnormaliseCovarianceMatrix(
+                    considerCovarianceContribution, designMatrixTransformationDiagonal_, false );
         }
     }
 
@@ -854,6 +857,14 @@ struct CovarianceAnalysisOutput {
         return getUnnormalizedCovarianceMatrix( ).cwiseQuotient( getFormalErrorVector( ) * getFormalErrorVector( ).transpose( ) );
     }
 
+    Eigen::MatrixXd getConsiderCovariance( )
+    {
+        return considerCovariance_;
+    }
+
+
+
+
     Eigen::MatrixXd getUnnormalizedDesignMatrixConsiderParameters( )
     {
         Eigen::MatrixXd unnormalizedPartials = Eigen::MatrixXd::Zero( normalizedDesignMatrixConsiderParameters_.rows( ),
@@ -904,6 +915,8 @@ struct CovarianceAnalysisOutput {
     //! Vector of values by which the columns of the unnormalized consider design matrix were divided to normalize its entries.
     Eigen::VectorXd considerNormalizationFactors_;
 
+    Eigen::MatrixXd considerCovariance_;
+
     //! Boolean denoting whether an exception was caught during (re)propagation of equations of motion (and variational equations)
     bool exceptionDuringPropagation_;
 
@@ -946,6 +959,7 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
                       const Eigen::MatrixXd& designMatrixConsiderParameters = Eigen::MatrixXd::Zero( 0, 0 ),
                       const Eigen::VectorXd& considerNormalizationFactors = Eigen::VectorXd::Zero( 0 ),
                       const Eigen::MatrixXd& covarianceConsiderContribution = Eigen::MatrixXd::Zero( 0, 0 ),
+                      const Eigen::MatrixXd& considerCovariance = Eigen::MatrixXd::Zero( 0, 0 ),
                       const bool exceptionDuringInversion = false,
                       const bool exceptionDuringPropagation = false ):
         CovarianceAnalysisOutput< ObservationScalarType, TimeType >( normalizedDesignMatrix,
@@ -955,6 +969,7 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
                                                                      designMatrixConsiderParameters,
                                                                      considerNormalizationFactors,
                                                                      covarianceConsiderContribution,
+                                                                     considerCovariance,
                                                                      exceptionDuringPropagation ),
         parameterEstimate_( parameterEstimate ), residuals_( residuals ), bestIteration_( bestIteration ),
         residualStandardDeviation_( residualStandardDeviation ), residualHistory_( residualHistory ), parameterHistory_( parameterHistory ),
