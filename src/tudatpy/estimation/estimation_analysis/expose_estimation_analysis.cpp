@@ -962,8 +962,40 @@ void expose_estimation_analysis( py::module& m )
      Dictionary reporting the propagated covariances at each output time.
 
 
+     )doc" );
+
+    m.def( "propagate_covariance_from_analysis_objects", &tss::propagateCovarianceFromObjects< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "analysis_input" ),
+           py::arg( "analysis_output" ),
+           py::arg( "state_transition_interface" ),
+           py::arg( "output_times" ),
+           R"doc(
+
+ Function to propagate system covariance through time.
+
+ Function to propagate the covariance of a given system through time.
+ The system dynamics and numerical settings of the propagation are prescribed by the `state_transition_interface` parameter.
 
 
+ Parameters
+ ----------
+ initial_covariance : numpy.ndarray[numpy.float64[m, n]]
+     System covariance matrix (symmetric and positive semi-definite) at initial time.
+     Dimensions have to be consistent with estimatable parameters in the system (specified by `state_transition_interface`)
+
+ state_transition_interface : :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
+     Interface to the variational equations of the system dynamics, handling the propagation of the covariance matrix through time.
+
+ output_times : List[ astro.time_representation.Time ]
+     Times at which the propagated covariance matrix shall be reported.
+     Note that this argument has no impact on the integration time-steps of the covariance propagation,
+     which always adheres to the integrator settings that the `state_transition_interface` links to.
+     Output times which do not coincide with integration time steps are calculated via interpolation.
+
+ Returns
+ -------
+ Dict[ astro.time_representation.Time, numpy.ndarray[numpy.float64[m, n]] ]
+     Dictionary reporting the propagated covariances at each output time.
 
 
      )doc" );
