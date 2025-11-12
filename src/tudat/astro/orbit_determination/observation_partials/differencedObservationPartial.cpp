@@ -15,6 +15,24 @@ namespace tudat
 namespace observation_partials
 {
 
+
+std::pair< observation_models::LinkEndType, observation_models::LinkEndType > getDefaultDifferencedReferenceLinkEndTypes(
+        const observation_models::LinkEndType& undifferencedReferenceLinkEndType )
+{
+    return std::make_pair( undifferencedReferenceLinkEndType, undifferencedReferenceLinkEndType );
+}
+
+std::pair< observation_models::LinkEndType, observation_models::LinkEndType > getDifferencedTimeOfArrivalDifferencedReferenceLinkEndTypes(
+        const observation_models::LinkEndType& undifferencedReferenceLinkEndType )
+{
+    if( undifferencedReferenceLinkEndType != observation_models::receiver )
+    {
+        throw std::runtime_error( "Error when getting differenced reference linke ends for differenced time of arrival, input is not supported" );
+    }
+    return std::make_pair( observation_models::receiver, observation_models::transmitter );
+}
+
+
 void DifferencedObservablePartialScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
                                                   const std::vector< double >& times,
                                                   const observation_models::LinkEndType fixedLinkEnd,
@@ -27,14 +45,17 @@ void DifferencedObservablePartialScaling::update( const std::vector< Eigen::Vect
             customCheckFunction_( fixedLinkEnd );
         }
 
+        std::pair< observation_models::LinkEndType, observation_models::LinkEndType > differencedReferenceLinkEndTypes =
+                undifferencedToDifferencedReferenceLinkEndType_( fixedLinkEnd );
+
         firstPartialScaling_->update( utilities::getVectorEntries( linkEndStates, firstIndices_ ),
                                       utilities::getVectorEntries( times, firstIndices_ ),
-                                      fixedLinkEnd,
+                                      differencedReferenceLinkEndTypes.first,
                                       Eigen::VectorXd::Constant( currentObservation.rows( ), TUDAT_NAN ) );
 
         secondPartialScaling_->update( utilities::getVectorEntries( linkEndStates, secondIndices_ ),
                                        utilities::getVectorEntries( times, secondIndices_ ),
-                                       fixedLinkEnd,
+                                       differencedReferenceLinkEndTypes.second,
                                        Eigen::VectorXd::Constant( currentObservation.rows( ), TUDAT_NAN ) );
     }
     catch( const std::exception& caughtException )
