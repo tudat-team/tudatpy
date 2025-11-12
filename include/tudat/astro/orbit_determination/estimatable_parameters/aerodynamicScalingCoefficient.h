@@ -135,13 +135,13 @@ public:
 
         for( unsigned int i = 0; i < aerodynamicAccelerations_.size( ); i++ )
         {
-            if( std::isnan( aerodynamicAccelerations_.at(i)->getCoefficient( ) ) )
+            if( std::isnan( aerodynamicAccelerations_.at(i)->getComponentScaling( parameterIndex_ ) ) )
             {
                 throw std::runtime_error( "Error when creating estimated arcwise Cr coefficient for " + associatedBody +
                                           ", current Cr not initialized" );
             }
 
-            if( aerodynamicAccelerations_.at(i)->getCoefficientFunction( ) != nullptr )
+            if( aerodynamicAccelerations_.at(i)->getComponentScalingFunction( parameterIndex_ ) != nullptr )
             {
                 throw std::runtime_error( "Error when creating estimated arcwise Cr coefficient for " + associatedBody +
                                           ", time-variable Cr function defined" );
@@ -163,12 +163,14 @@ public:
 
 
         typedef interpolators::OneDimensionalInterpolator< double, double > LocalInterpolator;
-        std::bind( static_cast< double ( LocalInterpolator::* )( const double ) >( &LocalInterpolator::interpolate ),
-            coefficientInterpolator_, std::placeholders::_1 );
+
 
         for( unsigned int i = 0; i < aerodynamicAccelerations_.size( ); i++ )
         {
-            aerodynamicAccelerations_.at( i )->setComponentScalingFunction(coefficientInterpolator_, parameterIndex_);
+            aerodynamicAccelerations_.at( i )->setComponentScalingFunction(
+                std::bind( static_cast< double ( LocalInterpolator::* )( const double ) >( &LocalInterpolator::interpolate ),
+                    coefficientInterpolator_, std::placeholders::_1 ),
+            parameterIndex_);
         }
     }
 
