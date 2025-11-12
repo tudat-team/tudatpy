@@ -61,6 +61,7 @@ Examples
             .value( "reflector3", tom::LinkEndType::reflector3 )
             .value( "reflector4", tom::LinkEndType::reflector4 )
             .value( "receiver", tom::LinkEndType::receiver )
+            .value( "receiver2", tom::LinkEndType::receiver2 )
             .value( "transmitter2", tom::LinkEndType::transmitter2 )
             .value( "observer", tom::LinkEndType::observer )
             .value( "observed_body", tom::LinkEndType::observed_body )

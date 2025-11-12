@@ -111,3 +111,8 @@ TUDAT_ADD_TEST_CASE(RelativePositionPartials
          ${Tudat_ESTIMATION_LIBRARIES}
  )
 
+ TUDAT_ADD_TEST_CASE(DifferencedTimeOfArrivalPartials
+         PRIVATE_LINKS
+         tudat_test_support
+         ${Tudat_ESTIMATION_LIBRARIES}
+ )
