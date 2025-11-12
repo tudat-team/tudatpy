@@ -17,6 +17,7 @@
 #include "tudat/math/basic/leastSquaresEstimation.h"
 #include "tudat/astro/observation_models/observationManager.h"
 #include "tudat/astro/orbit_determination/podInputOutputTypes.h"
+#include "tudat/astro/propagators/propagateCovariance.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/initialTranslationalState.h"
 #include "tudat/simulation/estimation_setup/variationalEquationsSolver.h"
 #include "tudat/simulation/estimation_setup/createObservationManager.h"
@@ -256,6 +257,38 @@ void calculateResiduals(
     Eigen::VectorXd dummyMatrix;
     calculateDesignMatrixAndResiduals< ObservationScalarType, TimeType >(
             observationsCollection, observationManagers, 0, totalObservationSize, dummyMatrix, residuals, true, false );
+}
+
+
+
+//! Function to propagate full covariance at the initial time to state formal errors at later times
+template< typename ObservationScalarType = double,
+          typename TimeType = double,
+          typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
+std::map< double, Eigen::MatrixXd > propagateCovarianceFromObjects(
+        const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
+        const std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > > estimationOutput,
+        const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
+        const std::vector< double > evaluationTimes )
+{
+    Eigen::MatrixXd initialCovariance;
+    if( !estimationOutput->considerParametersIncluded_ )
+    {
+        initialCovariance = estimationOutput->getUnnormalizedCovarianceMatrix( );
+    }
+    else
+    {
+        Eigen::MatrixXd parameterCovariance = estimationOutput->getUnnormalizedCovarianceMatrix( ) + estimationOutput->getConsiderCovarianceContribution( );
+        Eigen::MatrixXd considerCovariance = estimationInput->getConsiderCovariance( );
+        initialCovariance = Eigen::MatrixXd::Zero( parameterCovariance.rows( ) + considerCovariance.rows( ),
+                                                   parameterCovariance.cols( ) + considerCovariance.cols( ) );
+        initialCovariance.block( 0, 0, parameterCovariance.rows( ), parameterCovariance.cols( ) ) = parameterCovariance;
+        initialCovariance.block( parameterCovariance.rows( ), parameterCovariance.cols( ),
+                                 considerCovariance.rows( ), considerCovariance.cols( ) ) = considerCovariance;
+
+    }
+    return propagators::propagateCovariance( initialCovariance, stateTransitionInterface, evaluationTimes );
+
 }
 
 //! Top-level class for performing orbit determination.
