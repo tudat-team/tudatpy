@@ -857,6 +857,14 @@ struct CovarianceAnalysisOutput {
         return getUnnormalizedCovarianceMatrix( ).cwiseQuotient( getFormalErrorVector( ) * getFormalErrorVector( ).transpose( ) );
     }
 
+    Eigen::MatrixXd getConsiderCovariance( )
+    {
+        return considerCovariance_;
+    }
+
+
+
+
     Eigen::MatrixXd getUnnormalizedDesignMatrixConsiderParameters( )
     {
         Eigen::MatrixXd unnormalizedPartials = Eigen::MatrixXd::Zero( normalizedDesignMatrixConsiderParameters_.rows( ),
