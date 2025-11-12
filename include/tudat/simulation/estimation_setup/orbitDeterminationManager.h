@@ -266,7 +266,6 @@ template< typename ObservationScalarType = double,
           typename TimeType = double,
           typename std::enable_if< is_state_scalar_and_time_type< ObservationScalarType, TimeType >::value, int >::type = 0 >
 std::map< double, Eigen::MatrixXd > propagateCovarianceFromObjects(
-        const std::shared_ptr< CovarianceAnalysisInput< ObservationScalarType, TimeType > > estimationInput,
         const std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > > estimationOutput,
         const std::shared_ptr< propagators::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
         const std::vector< double > evaluationTimes )
@@ -279,7 +278,7 @@ std::map< double, Eigen::MatrixXd > propagateCovarianceFromObjects(
     else
     {
         Eigen::MatrixXd parameterCovariance = estimationOutput->getUnnormalizedCovarianceMatrix( ) + estimationOutput->getConsiderCovarianceContribution( );
-        Eigen::MatrixXd considerCovariance = estimationInput->getConsiderCovariance( );
+        Eigen::MatrixXd considerCovariance = estimationOutput->considerCovariance_;
         initialCovariance = Eigen::MatrixXd::Zero( parameterCovariance.rows( ) + considerCovariance.rows( ),
                                                    parameterCovariance.cols( ) + considerCovariance.cols( ) );
         initialCovariance.block( 0, 0, parameterCovariance.rows( ), parameterCovariance.cols( ) ) = parameterCovariance;
@@ -762,6 +761,7 @@ public:
                         designMatrixConsiderParameters,
                         considerNormalizationTerms,
                         covarianceContributionConsiderParameters,
+                        estimationInput->getConsiderCovariance( ),
                         exceptionDuringPropagation );
 
         return estimationOutput;
@@ -1053,6 +1053,7 @@ public:
                                                                                          bestDesignMatrixConsiderParameters,
                                                                                          bestConsiderTransformationData,
                                                                                          bestConsiderCovarianceContribution,
+                                                                                         estimationInput->getConsiderCovariance( ),
                                                                                          exceptionDuringInversion,
                                                                                          exceptionDuringPropagation );
 
