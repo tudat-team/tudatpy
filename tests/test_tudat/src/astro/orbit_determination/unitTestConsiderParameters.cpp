@@ -38,7 +38,7 @@ namespace unit_tests
 
 //! Using declarations.
 using namespace tudat;
-//using namespace unit_tests;
+// using namespace unit_tests;
 
 using namespace interpolators;
 using namespace numerical_integrators;
@@ -54,7 +54,6 @@ BOOST_AUTO_TEST_SUITE( test_consider_parameters )
 
 BOOST_AUTO_TEST_CASE( testConsiderParametersSingleArc )
 {
-
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
@@ -84,8 +83,6 @@ BOOST_AUTO_TEST_CASE( testConsiderParametersSingleArc )
     bodySettings.at( "Vehicle" )->aerodynamicCoefficientSettings =
             std::make_shared< ConstantAerodynamicCoefficientSettings >( referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ) );
 
-
-
     SystemOfBodies bodies = createSystemOfBodies( bodySettings );
     bodies.getBody( "Vehicle" )->setConstantBodyMass( 100.0 );
 
@@ -101,7 +98,7 @@ BOOST_AUTO_TEST_CASE( testConsiderParametersSingleArc )
     accelerationsOfSatellite[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( aerodynamic ) );
     accelerationsOfSatellite[ "Sun" ].push_back( std::make_shared< AccelerationSettings >( radiation_pressure ) );
 
-    accelerationSettings[ "Vehicle"] = accelerationsOfSatellite;
+    accelerationSettings[ "Vehicle" ] = accelerationsOfSatellite;
 
     basic_astrodynamics::AccelerationMap accelerationsMap =
             createAccelerationModelsMap( bodies, accelerationSettings, bodiesToPropagate, centralBodies );
@@ -194,11 +191,10 @@ BOOST_AUTO_TEST_CASE( testConsiderParametersSingleArc )
     // Define observation times
     std::vector< double > observationTimes;
 
-    for( double time = initialEpoch + 10.0 * timeStep; time < finalEpoch- 10 * timeStep; time += 0.1 * 3600.0 )
+    for( double time = initialEpoch + 10.0 * timeStep; time < finalEpoch - 10 * timeStep; time += 0.1 * 3600.0 )
     {
         observationTimes.push_back( time );
     }
-
 
     // Define observation settings
     std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementInput;
@@ -219,7 +215,6 @@ BOOST_AUTO_TEST_CASE( testConsiderParametersSingleArc )
             simulateObservations<>( measurementInput, orbitDeterminationManagerAll.getObservationSimulators( ), bodies );
     std::shared_ptr< observation_models::ObservationCollection<> > observationsAndTimes =
             simulateObservations<>( measurementInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
-
 
     // Define consider covariance
     int numberOfConsiderParameters = parameters->getConsiderParameters( )->getEstimatedParameterSetSize( );
@@ -273,8 +268,6 @@ BOOST_AUTO_TEST_CASE( testConsiderParametersSingleArc )
     considerTestMatchIndices[ { 7, 2 } ] = { 0, 2 };
     considerTestMatchIndices[ { 12, 2 } ] = { 2, 2 };
 
-
-
     {
         Eigen::MatrixXd fullUnnormalizedPartials = covarianceOutputAll->getUnnormalizedDesignMatrix( );
         Eigen::MatrixXd fullConsiderPartials = covarianceOutputAll->getUnnormalizedDesignMatrixConsiderParameters( );
@@ -288,7 +281,6 @@ BOOST_AUTO_TEST_CASE( testConsiderParametersSingleArc )
         BOOST_CHECK_EQUAL( unnormalizedPartials.rows( ), numberOfObservations );
         BOOST_CHECK_EQUAL( unnormalizedConsiderPartials.rows( ), numberOfObservations );
 
-
         BOOST_CHECK_EQUAL( fullUnnormalizedPartials.cols( ), numberOfEstimatedParameters + numberOfConsiderParameters );
         BOOST_CHECK_EQUAL( fullConsiderPartials.cols( ), 0 );
         BOOST_CHECK_EQUAL( unnormalizedPartials.cols( ), numberOfEstimatedParameters );
@@ -299,8 +291,10 @@ BOOST_AUTO_TEST_CASE( testConsiderParametersSingleArc )
             std::pair< int, int > fullIndices = it.first;
             std::pair< int, int > splitIndices = it.second;
 
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( fullUnnormalizedPartials.block( 0, fullIndices.first, numberOfObservations, fullIndices.second ),
-                                               unnormalizedPartials.block( 0, splitIndices.first, numberOfObservations, splitIndices.second ), 1.0e-12 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                    fullUnnormalizedPartials.block( 0, fullIndices.first, numberOfObservations, fullIndices.second ),
+                    unnormalizedPartials.block( 0, splitIndices.first, numberOfObservations, splitIndices.second ),
+                    1.0e-12 );
         }
 
         for( auto it : considerTestMatchIndices )
@@ -308,10 +302,11 @@ BOOST_AUTO_TEST_CASE( testConsiderParametersSingleArc )
             std::pair< int, int > fullIndices = it.first;
             std::pair< int, int > splitIndices = it.second;
 
-            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( fullUnnormalizedPartials.block( 0, fullIndices.first, numberOfObservations, fullIndices.second ),
-                                               unnormalizedConsiderPartials.block( 0, splitIndices.first, numberOfObservations, splitIndices.second ), 1.0e-12 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                    fullUnnormalizedPartials.block( 0, fullIndices.first, numberOfObservations, fullIndices.second ),
+                    unnormalizedConsiderPartials.block( 0, splitIndices.first, numberOfObservations, splitIndices.second ),
+                    1.0e-12 );
         }
-
     }
 
     // Retrieve covariance matrix
@@ -571,7 +566,6 @@ BOOST_AUTO_TEST_CASE( testConsiderParametersMultiArc )
     std::shared_ptr< observation_models::ObservationCollection<> > observationsAndTimes =
             simulateObservations<>( measurementInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
 
-
     // Define consider covariance
     int numberOfConsiderParameters = parameters->getConsiderParameters( )->getEstimatedParameterSetSize( );
     Eigen::VectorXd considerParametersValues = parameters->getConsiderParameters( )->getFullParameterValues< double >( );
@@ -580,7 +574,6 @@ BOOST_AUTO_TEST_CASE( testConsiderParametersMultiArc )
     {
         considerCovariance( i, i ) = ( 0.1 * considerParametersValues[ i ] ) * ( 0.1 * considerParametersValues[ i ] );
     }
-
 
     // Define estimation input with consider parameters
     Eigen::VectorXd considerParametersDeviations = 0.1 * considerParametersValues;
