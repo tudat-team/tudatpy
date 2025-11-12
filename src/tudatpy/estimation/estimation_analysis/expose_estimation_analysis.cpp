@@ -40,7 +40,9 @@ std::map< double, Eigen::MatrixXd > propagateCovarianceRsw(
         const std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > > orbitDeterminationManager,
         const std::vector< double > evaluationTimes )
 {
-    std::cerr<<"The propagation of covariances converted to RSW frame is deprecated as of v1.0 due to insufficient flexibility and lack of use cases"<<std::endl;
+    std::cerr << "The propagation of covariances converted to RSW frame is deprecated as of v1.0 due to insufficient flexibility and lack "
+                 "of use cases"
+              << std::endl;
 
     std::map< double, Eigen::MatrixXd > propagatedCovariance;
     tp::propagateCovariance( propagatedCovariance,
@@ -109,7 +111,6 @@ std::pair< std::vector< double >, std::vector< Eigen::MatrixXd > > propagateCova
         const std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > > orbitDeterminationManager,
         const std::vector< double > evaluationTimes )
 {
-
     std::map< double, Eigen::MatrixXd > propagatedRswCovariance =
             propagateCovarianceRsw( initialCovariance, orbitDeterminationManager, evaluationTimes );
 
@@ -136,7 +137,8 @@ std::pair< std::vector< double >, std::vector< Eigen::VectorXd > > propagateForm
         const std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > > orbitDeterminationManager,
         const std::vector< double > evaluationTimes )
 {
-    std::cerr<<"The propagate_covariance_rsw_split_output function is deprecated as of v1.0, use propagate_covariance_rsw instead"<<std::endl;
+    std::cerr << "The propagate_covariance_rsw_split_output function is deprecated as of v1.0, use propagate_covariance_rsw instead"
+              << std::endl;
 
     std::map< double, Eigen::VectorXd > propagatedFormalErrors =
             propagateFormalErrorsRsw( initialCovariance, orbitDeterminationManager, evaluationTimes );
@@ -149,7 +151,7 @@ std::pair< std::vector< double >, std::vector< Eigen::MatrixXd > > propagateCova
         const std::shared_ptr< tp::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
         const std::vector< double > evaluationTimes )
 {
-    std::cerr<<"The propagate_covariance_split_output function is deprecated as of v1.0, use propagate_covariance instead"<<std::endl;
+    std::cerr << "The propagate_covariance_split_output function is deprecated as of v1.0, use propagate_covariance instead" << std::endl;
     std::map< double, Eigen::MatrixXd > propagatedCovariance;
     tp::propagateCovariance( propagatedCovariance, initialCovariance, stateTransitionInterface, evaluationTimes );
     return std::make_pair( utilities::createVectorFromMapKeys( propagatedCovariance ),
@@ -161,8 +163,8 @@ std::pair< std::vector< double >, std::vector< Eigen::VectorXd > > propagateForm
         const std::shared_ptr< tp::CombinedStateTransitionAndSensitivityMatrixInterface > stateTransitionInterface,
         const std::vector< double > evaluationTimes )
 {
-
-    std::cerr<<"The propagate_formal_errors_split_output function is deprecated as of v1.0, use propagate_formal_errors instead"<<std::endl;
+    std::cerr << "The propagate_formal_errors_split_output function is deprecated as of v1.0, use propagate_formal_errors instead"
+              << std::endl;
 
     std::map< double, Eigen::VectorXd > propagatedFormalErrors;
     tp::propagateFormalErrors( propagatedFormalErrors, initialCovariance, stateTransitionInterface, evaluationTimes );
@@ -738,7 +740,7 @@ void expose_estimation_analysis( py::module& m )
          :type: numpy.ndarray[numpy.float64[m, n]]
       )doc" )
 
-          .def_readonly( "normalization_terms",
+            .def_readonly( "normalization_terms",
                            &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::designMatrixTransformationDiagonal_,
                            R"doc(
 
@@ -823,8 +825,6 @@ void expose_estimation_analysis( py::module& m )
 
     // PROPAGATE COVARIANCE
 
-
-
     m.def( "propagate_covariance",
            py::overload_cast< const Eigen::MatrixXd,
                               const std::shared_ptr< tp::CombinedStateTransitionAndSensitivityMatrixInterface >,
@@ -878,7 +878,8 @@ void expose_estimation_analysis( py::module& m )
 
      )doc" );
 
-    m.def( "propagate_covariance_from_analysis_objects", &tss::propagateCovarianceFromObjects< STATE_SCALAR_TYPE, TIME_TYPE >,
+    m.def( "propagate_covariance_from_analysis_objects",
+           &tss::propagateCovarianceFromObjects< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "analysis_output" ),
            py::arg( "state_transition_interface" ),
            py::arg( "output_times" ),
@@ -918,7 +919,6 @@ void expose_estimation_analysis( py::module& m )
 
 
      )doc" );
-
 
     m.def( "propagate_formal_errors",
            py::overload_cast< const Eigen::MatrixXd,
@@ -998,7 +998,6 @@ void expose_estimation_analysis( py::module& m )
 
 
      )doc" );
-
 
     m.def( "propagate_covariance_rsw_split_output",
            &tp::propagateCovarianceVectorsRsw,
@@ -1118,7 +1117,6 @@ void expose_estimation_analysis( py::module& m )
 
 
      )doc" );
-
 
     m.def( "propagate_covariance_rsw_split_output",
            &tp::propagateCovarianceVectorsRsw,

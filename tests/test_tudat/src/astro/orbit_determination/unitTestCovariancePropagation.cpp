@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE( test_CovariancePropagation )
         std::map< double, Eigen::MatrixXd > tnwPropagatedCovariance = convertCovarianceHistoryToFrame(
                 propagatedCovariance, stateHistory, reference_frames::global_reference_frame, reference_frames::tnw_reference_frame );
 
-        for( auto it: propagatedCovariance )
+        for( auto it : propagatedCovariance )
         {
             Eigen::MatrixXd currentStateTransition = stateTransitionMatrixHistory.at( it.first );
             if( test == 0 )
@@ -296,13 +296,10 @@ BOOST_AUTO_TEST_CASE( test_CovariancePropagationReferenceEpoch )
     using namespace tudat::ground_stations;
     using namespace tudat::observation_models;
 
-
     const double startTime = 0.0E7;
-    
+
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
-
-
 
     for( int useConsiderParameter = 0; useConsiderParameter < 2; useConsiderParameter++ )
     {
@@ -468,7 +465,10 @@ BOOST_AUTO_TEST_CASE( test_CovariancePropagationReferenceEpoch )
 
             std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
             observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
-                    position_observable, linkEnds, nullptr, std::make_shared< ConstantObservationBiasSettings >( Eigen::Vector3d::Zero( ), true ) ) );
+                    position_observable,
+                    linkEnds,
+                    nullptr,
+                    std::make_shared< ConstantObservationBiasSettings >( Eigen::Vector3d::Zero( ), true ) ) );
 
             // Create orbit determination object.
             OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
@@ -512,9 +512,8 @@ BOOST_AUTO_TEST_CASE( test_CovariancePropagationReferenceEpoch )
 
             std::map< double, Eigen::MatrixXd > propagatedCovariance =
                     propagateCovarianceFromObjects( estimationOutput,
-                                         orbitDeterminationManager.getStateTransitionAndSensitivityMatrixInterface( ),
-                                         utilities::createVectorFromMapKeys( stateHistory ) );
-
+                                                    orbitDeterminationManager.getStateTransitionAndSensitivityMatrixInterface( ),
+                                                    utilities::createVectorFromMapKeys( stateHistory ) );
 
             if( referenceEpochTest == 0 )
             {
@@ -537,8 +536,8 @@ BOOST_AUTO_TEST_CASE( test_CovariancePropagationReferenceEpoch )
 
         double relativeTolerance = 1.0e-6;
 
-        std::cout<<"Start covariance "<<std::endl<<itStart->second<<std::endl<<std::endl;
-        std::cout<<"Full covariance "<<std::endl<<itMiddle->second<<std::endl<<std::endl;
+        std::cout << "Start covariance " << std::endl << itStart->second << std::endl << std::endl;
+        std::cout << "Full covariance " << std::endl << itMiddle->second << std::endl << std::endl;
 
         while( itStart != propagatedCovarianceStartReference.end( ) )
         {
@@ -547,8 +546,8 @@ BOOST_AUTO_TEST_CASE( test_CovariancePropagationReferenceEpoch )
             Eigen::MatrixXd& covarianceMatrixStart = itStart->second;
             Eigen::MatrixXd& covarianceMatrixMiddle = itMiddle->second;
 
-//            std::cout<<"Times "<<itStart->first<<" "<<itMiddle->first<<std::endl;
-//            std::cout<<"Covariances "<<std::endl<<itStart->second<<std::endl<<std::endl<<itMiddle->second<<std::endl;
+            //            std::cout<<"Times "<<itStart->first<<" "<<itMiddle->first<<std::endl;
+            //            std::cout<<"Covariances "<<std::endl<<itStart->second<<std::endl<<std::endl<<itMiddle->second<<std::endl;
 
             for( int rowBlockIndex = 0; rowBlockIndex < 2; ++rowBlockIndex )
             {
@@ -562,8 +561,8 @@ BOOST_AUTO_TEST_CASE( test_CovariancePropagationReferenceEpoch )
 
                     Eigen::MatrixXd blockStart =
                             covarianceMatrixStart.block( rowStartIndex, columnStartIndex, numberOfRowsInBlock, numberOfColumnsInBlock );
-                    Eigen::MatrixXd blockMiddle = covarianceMatrixMiddle.block(
-                            rowStartIndex, columnStartIndex, numberOfRowsInBlock, numberOfColumnsInBlock );
+                    Eigen::MatrixXd blockMiddle =
+                            covarianceMatrixMiddle.block( rowStartIndex, columnStartIndex, numberOfRowsInBlock, numberOfColumnsInBlock );
 
                     double blockNormStart = blockStart.norm( );
                     double blockNormMiddle = blockMiddle.norm( );
