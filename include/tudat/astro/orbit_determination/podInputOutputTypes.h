@@ -53,7 +53,7 @@ public:
         }
     }
 
-    virtual ~CovarianceAnalysisInput( ) { }
+    virtual ~CovarianceAnalysisInput( ) {}
 
     void setWeightsFromObservationCollection( )
     {
@@ -164,7 +164,7 @@ public:
         std::cerr << "Warning, function setConstantPerObservableWeightsMatrix is deprecated, "
                      "weights should preferably be defined at the observation collection level.";
         std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightsPerObservationParser;
-        for( auto observableIt: weightPerObservable )
+        for( auto observableIt : weightPerObservable )
         {
             weightsPerObservationParser[ observationParser( observableIt.first ) ] = observableIt.second;
         }
@@ -177,7 +177,7 @@ public:
         std::cerr << "Warning, function setConstantPerObservableVectorWeightsMatrix is deprecated, "
                      "weights should preferably be defined at the observation collection level.";
         std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, Eigen::VectorXd > weightsPerObservationParser;
-        for( auto observableIt: weightPerObservable )
+        for( auto observableIt : weightPerObservable )
         {
             weightsPerObservationParser[ observationParser( observableIt.first ) ] = observableIt.second;
         }
@@ -196,9 +196,9 @@ public:
         std::cerr << "Warning, function setConstantPerObservableAndLinkEndsWeights is deprecated, "
                      "weights should preferably be defined at the observation collection level.";
         std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightPerObservationParser;
-        for( auto observableIt: weightPerObservableAndLinkEnds )
+        for( auto observableIt : weightPerObservableAndLinkEnds )
         {
-            for( auto linkEndsIt: observableIt.second )
+            for( auto linkEndsIt : observableIt.second )
             {
                 weightPerObservationParser[ observationParser(
                         std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
@@ -216,9 +216,9 @@ public:
         std::cerr << "Warning, function setConstantPerObservableAndLinkEndsVectorWeights is deprecated, "
                      "weights should preferably be defined at the observation collection level.";
         std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, Eigen::VectorXd > weightPerObservationParser;
-        for( auto observableIt: weightPerObservableAndLinkEnds )
+        for( auto observableIt : weightPerObservableAndLinkEnds )
         {
-            for( auto linkEndsIt: observableIt.second )
+            for( auto linkEndsIt : observableIt.second )
             {
                 weightPerObservationParser[ observationParser(
                         std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
@@ -265,9 +265,9 @@ public:
         std::cerr << "Warning, function setTabulatedPerObservableAndLinkEndsWeights is deprecated, "
                      "weights should preferably be defined at the observation collection level.";
         std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, Eigen::VectorXd > weightPerObservableParser;
-        for( auto observableIt: weightsPerObservableAndLinkEnds )
+        for( auto observableIt : weightsPerObservableAndLinkEnds )
         {
-            for( auto linkEndsIt: observableIt.second )
+            for( auto linkEndsIt : observableIt.second )
             {
                 weightPerObservableParser[ observationParser(
                         std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
@@ -482,7 +482,7 @@ public:
                                   const int numberOfIterationsWithoutImprovement = 2 ):
         maximumNumberOfIterations_( maximumNumberOfIterations ), minimumResidualChange_( minimumResidualChange ),
         minimumResidual_( minimumResidual ), numberOfIterationsWithoutImprovement_( numberOfIterationsWithoutImprovement )
-    { }
+    {}
 
     //! Function to determine whether the estimation is deemed to be converged
     /*!
@@ -585,7 +585,7 @@ public:
     }
 
     //! Destructor
-    virtual ~EstimationInput( ) { }
+    virtual ~EstimationInput( ) {}
 
     //! Function to define specific settings for estimation process
     /*!
@@ -699,8 +699,7 @@ struct CovarianceAnalysisOutput {
         designMatrixTransformationDiagonal_( designMatrixTransformationDiagonal ),
         inverseNormalizedCovarianceMatrix_( inverseNormalizedCovarianceMatrix ),
         normalizedDesignMatrixConsiderParameters_( designMatrixConsiderParameters ),
-        considerNormalizationFactors_( considerNormalizationFactors ),
-        considerCovariance_( considerCovariance ),
+        considerNormalizationFactors_( considerNormalizationFactors ), considerCovariance_( considerCovariance ),
         exceptionDuringPropagation_( exceptionDuringPropagation )
     {
         considerParametersIncluded_ = false;
@@ -735,8 +734,8 @@ struct CovarianceAnalysisOutput {
                     normalizedCovarianceWithConsiderParameters_, designMatrixTransformationDiagonal_, false );
 
             // Save unnormalised contribution to covariance from consider parameters
-            considerCovarianceContribution_ = normaliseUnnormaliseCovarianceMatrix(
-                    considerCovarianceContribution, designMatrixTransformationDiagonal_, false );
+            considerCovarianceContribution_ =
+                    normaliseUnnormaliseCovarianceMatrix( considerCovarianceContribution, designMatrixTransformationDiagonal_, false );
         }
     }
 
@@ -862,9 +861,6 @@ struct CovarianceAnalysisOutput {
         return considerCovariance_;
     }
 
-
-
-
     Eigen::MatrixXd getUnnormalizedDesignMatrixConsiderParameters( )
     {
         Eigen::MatrixXd unnormalizedPartials = Eigen::MatrixXd::Zero( normalizedDesignMatrixConsiderParameters_.rows( ),
@@ -974,7 +970,7 @@ struct EstimationOutput : public CovarianceAnalysisOutput< ObservationScalarType
         parameterEstimate_( parameterEstimate ), residuals_( residuals ), bestIteration_( bestIteration ),
         residualStandardDeviation_( residualStandardDeviation ), residualHistory_( residualHistory ), parameterHistory_( parameterHistory ),
         exceptionDuringInversion_( exceptionDuringInversion ), numberOfParameters_( normalizedDesignMatrix.cols( ) )
-    { }
+    {}
 
     //! Function to get residual vectors per iteration concatenated into a matrix
     /*!
