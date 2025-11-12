@@ -162,7 +162,7 @@ void expose_estimation_analysis_estimator( py::module& m )
 
 
          Function to trigger the parameter estimation. Much of the process and requirements are similar to those described in the
-         :func:`~tudatpy.estimation.estimation_analysis.Estimator.compute_covariance` function. This function uses an iterative least-squares
+         :attr:`~tudatpy.estimation.estimation_analysis.Estimator.compute_covariance` function. This function uses an iterative least-squares
          estimate process to fit the data (inside ``estimation_input``) to the model defined by the inputs to the ``Estimator`` constructor.s
 
 
