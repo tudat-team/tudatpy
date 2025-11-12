@@ -511,8 +511,7 @@ BOOST_AUTO_TEST_CASE( test_CovariancePropagationReferenceEpoch )
                                         ->getEquationsOfMotionNumericalSolution( );
 
             std::map< double, Eigen::MatrixXd > propagatedCovariance =
-                    propagateCovarianceFromObjects( estimationInput,
-                                         estimationOutput,
+                    propagateCovarianceFromObjects( estimationOutput,
                                          orbitDeterminationManager.getStateTransitionAndSensitivityMatrixInterface( ),
                                          utilities::createVectorFromMapKeys( stateHistory ) );
 
