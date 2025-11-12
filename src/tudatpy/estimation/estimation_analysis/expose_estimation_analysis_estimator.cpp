@@ -146,8 +146,7 @@ void expose_estimation_analysis_estimator( py::module& m )
 
          **read-only**
 
-         State transition and sensitivity matrix interface, setting the variational equations/dynamics in the
-         Estimator object.
+         State transition and sensitivity matrix interface, in which the numerical solution of the variational equations is stored/updated
 
 
          :type: :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
