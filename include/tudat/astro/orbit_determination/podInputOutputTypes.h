@@ -732,7 +732,8 @@ struct CovarianceAnalysisOutput {
                     normalizedCovarianceWithConsiderParameters_, designMatrixTransformationDiagonal_, false );
 
             // Save unnormalised contribution to covariance from consider parameters
-            considerCovarianceContribution_ = considerCovarianceContribution;
+            considerCovarianceContribution_ = normaliseUnnormaliseCovarianceMatrix(
+                    considerCovarianceContribution, designMatrixTransformationDiagonal_, false );
         }
     }
 
