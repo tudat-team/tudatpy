@@ -540,11 +540,20 @@ void expose_estimation_analysis( py::module& m )
                                                                                                     "CovarianceAnalysisOutput",
                                                                                                     R"doc(
 
-         Class collecting all outputs from the covariance analysis process.
+         Class collecting all outputs from the covariance analysis process (which takes a :class:`~CovarianceAnalysisInput` as input)
 
+         This object is typically created by the :attr:`~tudatpy.estimation.estimation_analysis.Estimator.compute_covariance` or
+         :attr:`~tudatpy.estimation.estimation_analysis.Estimator.perform_estimation` function of the :class:`~tudatpy.estimation.estimation_analysis.Estimator` class.
+         The inputs used to create this object are (see `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/estimation-settings.html#covariance-analysis-settings>`_ for underlying models)
 
+            * The partials matrix :math:`\mathbf{H}=\frac{\partial\mathbf{h}}{\partial\mathbf{p}}` of the observations w.r.t. the estimated parameters
+            * The inverse covariance matrix :math:`P^{-1}` of the estimated parameters (without influence of consider parameters). The inverse covariance is provided as input for situations where the inverse is unstable
+            * The partials matrix :math:`\mathbf{H}=\frac{\partial\mathbf{h}}{\partial\mathbf{p}_{c}}` of the observations w.r.t. the consider parameters (if any)
+            * The contribution :math:`\mathbf{P}_{c}` of the consider parameters to the estimated parameter covariance
 
-
+         Each of these quantities can be retrieved in normalized or unnormalized form. The normalization is described in our `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/performing-estimation.html#normalization>`_
+         and is used to improve the stability of the inversion problem. When wanting to recreate the internal workings of the analysis, use the normalized quantities,
+         when interested in the actual covariances, sensitivities, etc of the observations/parameters, use the unnormalized quantities.
 
       )doc" )
             .def_property_readonly( "inverse_covariance",
@@ -553,7 +562,9 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         (Unnormalized) inverse estimation covariance matrix :math:`\mathbf{P}^{-1}`.
+         (Unnormalized) inverse estimation covariance matrix :math:`\mathbf{P}^{-1}`. Note: if the any consider parameters are included in the analysis,
+         this attribute does not include their contribution. The contribution of the consider parameters to the covariance can be retrieved
+         from the :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.consider_covariance_contribution` attribute
 
          :type: numpy.ndarray[numpy.float64[m, m]]
       )doc" )
@@ -563,7 +574,9 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         (Unnormalized) estimation covariance matrix :math:`\mathbf{P}`. Note: if the :class:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisInput` includes consider parameters, this matrix does not include their contribution.
+         (Unnormalized) estimation covariance matrix :math:`\mathbf{P}`. Note: if the any consider parameters are included in the analysis,
+         this attribute does not include their contribution. The contribution of the consider parameters to the covariance can be retrieved
+         from the :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.consider_covariance_contribution` attribute
 
          :type: numpy.ndarray[numpy.float64[m, m]]
       )doc" )
@@ -573,7 +586,7 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         Normalized inverse estimation covariance matrix :math:`\mathbf{\tilde{P}}^{-1}`.
+         Normalized version of :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.inverse_covariance`
 
          :type: numpy.ndarray[numpy.float64[m, m]]
       )doc" )
@@ -583,7 +596,7 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         Normalized estimation covariance matrix :math:`\mathbf{\tilde{P}}`.
+         Normalized version of :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.covariance`
 
          :type: numpy.ndarray[numpy.float64[m, m]]
       )doc" )
@@ -593,7 +606,7 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         Formal error vector :math:`\boldsymbol{\sigma}` of the estimation result (e.g. square root of diagonal entries of covariance)s
+         Formal error vector :math:`\boldsymbol{\sigma}` of the estimation result (e.g. square root of diagonal entries of covariance :math:`\mathbf{P}`)
 
          :type: numpy.ndarray[numpy.float64[m, 1]]s
       )doc" )
@@ -613,7 +626,7 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         Matrix of unnormalized partial derivatives :math:`\mathbf{H}=\frac{\partial\mathbf{h}}{\partial\mathbf{p}}`.
+         Matrix of partial derivatives :math:`\mathbf{H}=\frac{\partial\mathbf{h}}{\partial\mathbf{p}}`.
 
          :type: numpy.ndarray[numpy.float64[m, n]]
       )doc" )
@@ -623,7 +636,7 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         Matrix of normalized partial derivatives :math:`\tilde{\mathbf{H}}`.
+         Normalized version of :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.design_matrix`
 
          :type: numpy.ndarray[numpy.float64[m, n]]
       )doc" )
@@ -643,7 +656,7 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         Matrix of weighted, normalized partial derivatives, equal to :math:`\mathbf{W}^{1/2}\tilde{\mathbf{H}}`
+         Normalized version of :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.weighted_design_matrix`
 
          :type: numpy.ndarray[numpy.float64[m, n]]
       )doc" )
@@ -653,7 +666,20 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         Contribution of the consider parameters to the consider covariance matrix, equal to :math:`(\mathbf{P} \mathbf{H}^{T} \mathbf{W}) (\mathbf{H}_c \mathbf{C} \mathbf{H}^{T}_c) (\mathbf{P} \mathbf{H}^{T} \mathbf{W})^{T}`
+         Contribution of the consider parameters to the estimated parameter covariance matrix, equal to :math:`(\mathbf{P} \mathbf{H}^{T} \mathbf{W}) (\mathbf{H}_c \mathbf{C} \mathbf{H}^{T}_c) (\mathbf{P} \mathbf{H}^{T} \mathbf{W})^{T}`
+
+         :type: numpy.ndarray[numpy.float64[m, n]]
+      )doc" )
+            .def_property_readonly(
+                    "covariance_with_consider_parameters",
+                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getUnnormalizedCovarianceWithConsiderParameters,
+                    R"doc(
+
+         **read-only**
+
+         Covariance matrix of the estimated parameters that includes the contribution of the consider parameters, 
+         equal to the sum of the :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.covariance` matrix and the :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.consider_covariance_contribution` matrix.
+
 
          :type: numpy.ndarray[numpy.float64[m, n]]
       )doc" )
@@ -664,30 +690,18 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         Normalized consider covariance matrix :math:`\tilde{\mathbf{P}}_c`, with entries :math:`\tilde{P}_{c,ij}=P_{c,ij}\nu_{i}\nu_{j}`, where :math:`\nu_{i},\nu_{j}` are the normalization terms as given by the :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.normalization_terms` attribute.
+         Normalized version of :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.covariance_with_consider_parameters`
 
          :type: numpy.ndarray[numpy.float64[m, n]]
       )doc" )
             .def_property_readonly(
-                    "unnormalized_covariance_with_consider_parameters",
-                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getUnnormalizedCovarianceWithConsiderParameters,
-                    R"doc(
-
-         **read-only**
-
-         Consider covariance matrix :math:`\mathbf{P}_c`, equal to the sum of the :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.covariance` matrix and the :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.consider_covariance_contribution` matrix.
-
-
-         :type: numpy.ndarray[numpy.float64[m, n]]
-      )doc" )
-            .def_property_readonly(
-                    "unnormalized_design_matrix_consider_parameters",
+                    "design_matrix_consider_parameters",
                     &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getUnnormalizedDesignMatrixConsiderParameters,
                     R"doc(
 
          **read-only**
 
-         Matrix of unnormalized partial derivatives for consider parameters :math:`\mathbf{H}_c=\frac{\partial\mathbf{h}}{\partial\mathbf{c}}`.
+         Matrix of partial derivatives of observations w.r.t. consider parameters :math:`\mathbf{H}_c=\frac{\partial\mathbf{h}}{\partial\mathbf{c}}`.
 
          :type: numpy.ndarray[numpy.float64[m, n]]
       )doc" )
@@ -698,27 +712,28 @@ void expose_estimation_analysis( py::module& m )
 
          **read-only**
 
-         Matrix of normalized partial derivatives for consider parameters :math:`\tilde{\mathbf{H}_c}`.
+         Normalized version of :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.design_matrix_consider_parameters`
 
          :type: numpy.ndarray[numpy.float64[m, n]]
       )doc" )
-            .def_property_readonly( "consider_normalization_factors",
-                                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getConsiderNormalizationFactors,
-                                    R"doc(
 
-         **read-only**
-
-         Vector of normalization terms used for consider covariance and consider design matrix
-
-         :type: numpy.ndarray[numpy.float64[m, 1]]
-      )doc" )
-            .def_readonly( "normalization_terms",
+          .def_readonly( "normalization_terms",
                            &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::designMatrixTransformationDiagonal_,
                            R"doc(
 
          **read-only**
 
-         Vector of normalization terms used for covariance and design matrix
+         Vector of estimated parameter normalization terms :math:`\math{N}`
+
+         :type: numpy.ndarray[numpy.float64[m, 1]]
+      )doc" )
+            .def_property_readonly( "consider_normalization_terms",
+                                    &tss::CovarianceAnalysisOutput< STATE_SCALAR_TYPE, TIME_TYPE >::getConsiderNormalizationFactors,
+                                    R"doc(
+
+         **read-only**
+
+         Vector of consider parameter normalization terms :math:`\math{N}_{c}`
 
          :type: numpy.ndarray[numpy.float64[m, 1]]
       )doc" );
