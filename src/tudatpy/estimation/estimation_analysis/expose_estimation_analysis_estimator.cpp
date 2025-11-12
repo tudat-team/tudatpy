@@ -192,7 +192,7 @@ void expose_estimation_analysis_estimator( py::module& m )
 
          Function to perform a covariance analysis for the given observations and parameters. The observations are provided through the
          ``covariance_analysis_input`` input, as are the weights :math:`\mathbf{W}` and inverse a priori covariance :math:`(\mathbf{P}_{0})^{-1}`.
-         Calling this function uses the environment and propagator settings provided to the constructor of this `Estimator` class to simulate
+         Calling this function uses the environment and propagator settings provided to the constructor of this class to simulate
          the dynamics of any relevant bodies for the observations (and associated variational equations). The observations are then
          computed using the observation models created by the settings provided to the constructor of this `Estimator` class, as is the
          associated design matrix :math:`\mathbf{H}`. This function then produces the covariance :math:`\mathbf{P}` (omitting the normalization used
@@ -200,6 +200,8 @@ void expose_estimation_analysis_estimator( py::module& m )
 
          .. math::
             \mathbf{P}=\left(\mathbf{H}^{T}\mathbf{W}\mathbf{H}+(\mathbf{P}_{0})^{-1}\right)^{-1}
+
+         In the presence of consider parameters, an additional term :math:`\Delta\mathbf{P}_{c}` is computed (see :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.consider_covariance_contribution`)
 
          Note that, although the actual observations are formally not required for a covariance analysis, all additional data (e.g. observation time, type, link ends, etc.)
          are. And, as such, the ``covariance_analysis_input`` does require the full set of observations and associated information, for consistency purposes (e.g., same input as
