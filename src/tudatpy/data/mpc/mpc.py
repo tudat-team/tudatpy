@@ -1,5 +1,5 @@
-from tudatpy.dynamics import environment_setup  # type:ignore
-from tudatpy.dynamics import environment  # type:ignore
+from tudatpy.dynamics import environment_setup
+from tudatpy.dynamics import environment
 from tudatpy.estimation import observations
 from tudatpy.estimation.observable_models_setup import (
     model_settings,
@@ -72,7 +72,7 @@ DEFAULT_CATALOG_FLAGS = [
 
 def load_bias_file(
         filepath: str,
-        Nside: int | None = None, # type: ignore
+        Nside: int | None = None, 
         catalog_flags: list = DEFAULT_CATALOG_FLAGS,
 ) -> tuple[pd.DataFrame, int]:
     """Loads a healpix star catalog debias file and processes it into a dataframe. Automatically retrieves NSIDE parameter.
@@ -151,7 +151,7 @@ def get_biases_EFCC18(
         RA: float | np.ndarray | list,
         DEC: float | np.ndarray | list,
         epochJ2000secondsTDB: float | np.ndarray | list,
-        catalog: str | np.ndarray | list, # type: ignore
+        catalog: str | np.ndarray | list, 
         bias_file: str | None = BIAS_LOWRES_FILE,
         Nside: int | None = None,
         catalog_flags: list[str] = DEFAULT_CATALOG_FLAGS,
@@ -248,11 +248,11 @@ def get_biases_EFCC18(
 
 def get_weights_VFCC17(
         MPC_codes: pd.Series | list | np.ndarray | None = None,
-        epochUTC: pd.Series | list | np.ndarray | None = None, # type: ignore
-        observation_type: pd.Series | list | np.ndarray | None = None, # type: ignore
-        observatory: pd.Series | list | np.ndarray | None = None, # type: ignore
-        star_catalog: pd.Series | list | np.ndarray | None = None, # type: ignore
-        mpc_table: pd.DataFrame | None = None, # type: ignore
+        epochUTC: pd.Series | list | np.ndarray | None = None, 
+        observation_type: pd.Series | list | np.ndarray | None = None, 
+        observatory: pd.Series | list | np.ndarray | None = None, 
+        star_catalog: pd.Series | list | np.ndarray | None = None, 
+        mpc_table: pd.DataFrame | None = None, 
         return_full_table=False,
 ) -> np.ndarray | pd.DataFrame:
     """Retrieves observation weights using the weighting scheme presented in
@@ -739,7 +739,7 @@ class BatchMPC:
     def _get_station_info(self) -> None:
         """Internal. Retrieve data on MPC listed observatories."""
         try:
-            temp = MPC.get_observatory_codes().to_pandas()  # type: ignore
+            temp = MPC.get_observatory_codes().to_pandas()  
             # This query checks if Longitude is Nan: non-terretrial telescopes
             sats = list(temp.query("Longitude != Longitude").Code.values)
             self._observatory_info = temp
@@ -749,7 +749,7 @@ class BatchMPC:
             print(e)
 
     def _add_observatory_positions(
-            self, bodies: environment.SystemOfBodies, earth_name # type: ignore
+            self, bodies: environment.SystemOfBodies, earth_name 
     ) -> None:
         """Internal. Add observatory cartesian postions to station data"""
         temp = self._observatory_info
@@ -904,7 +904,7 @@ class BatchMPC:
             MPCcodes: list[str | int],
             id_types: list[str | None] | None = None,
             drop_misc_observations: bool = True,
-    ) -> None: # type: ignore
+    ) -> None: 
         """Retrieve all observations for a set of MPC listed objects.
         This method uses astroquery to retrieve the observations from the MPC.
         An internet connection is required, observations are cached for faster subsequent retrieval.
@@ -1084,7 +1084,7 @@ class BatchMPC:
     def set_weights(
             self,
             weights: list | np.ndarray | pd.Series,
-    ): # type: ignore
+    ): 
         """Manually set weights per observation. Weights are passed to
         observation collection when `.to_tudat()` is called. Set the
         `apply_weights_VFCC17` parameter in `.to_tudat()` to `False` to avoid
@@ -1122,7 +1122,7 @@ class BatchMPC:
             observatories_exclude: list[str] | None = None,
             epoch_start: float | datetime.datetime | None = None,
             epoch_end: float | datetime.datetime | None = None,
-            in_place: bool = True, # type: ignore
+            in_place: bool = True, 
     ) -> "None | BatchMPC":
         """Filter out observations from the batch.
 
@@ -1245,7 +1245,7 @@ class BatchMPC:
     def to_tudat(
             self,
             bodies: environment.SystemOfBodies,
-            included_satellites: dict[str, str] | None, # type: ignore
+            included_satellites: dict[str, str] | None, 
             station_body: str = "Earth",
             add_sbdb_gravity_model: bool = False,
             apply_weights_VFCC17: bool = True,
@@ -1334,7 +1334,7 @@ class BatchMPC:
 
         # Calculate observation weights and update table:
         if apply_weights_VFCC17 and not self._custom_weights_set:
-            temp_table: pd.DataFrame = get_weights_VFCC17(  # type:ignore
+            temp_table: pd.DataFrame = get_weights_VFCC17(
                 mpc_table=self.table,
                 return_full_table=True,
             )
@@ -1385,7 +1385,7 @@ class BatchMPC:
 
         # add station positions to the observations
         observations_table = pd.merge(
-            left=temp_table,  # type: ignore
+            left=temp_table,  
             right=tempStations,
             left_on="observatory",
             right_on="Code",
@@ -1503,8 +1503,8 @@ class BatchMPC:
     def plot_observations_temporal(
             self,
             objects: list[str] | None = None,
-            figsize: tuple[float] = (9.0, 6.0), # type: ignore
-    ): # type: ignore
+            figsize: tuple[float] = (9.0, 6.0), 
+    ): 
         """Generates a matplotlib figure with the declination and right ascension
         over time.
 
@@ -1572,8 +1572,8 @@ class BatchMPC:
             self,
             objects: list[str] | None = None,
             projection: str | None = None,
-            figsize: tuple[float] = (14.0, 7.0), # type: ignore
-    ): # type: ignore
+            figsize: tuple[float] = (14.0, 7.0), 
+    ): 
         """Generates a matplotlib figure with the observations'
         right ascension and declination over time.
 
@@ -1689,7 +1689,7 @@ class BatchMPC:
             only_in_batch: bool = True,
             only_space_telescopes: bool = False,
             exclude_space_telescopes: bool = False,
-            include_positions: bool = False, # type: ignore
+            include_positions: bool = False, 
     ) -> pd.DataFrame:
         """Returns a pandas DataFrame with information about all MPC observatories,
         Carthesian positions are only available after running the `to_tudat()` method.
