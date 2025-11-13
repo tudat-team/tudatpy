@@ -305,5 +305,3 @@ def test_parse_80cols_file():
 
     tol = 5e-5 # not completely sure why some are zero and some are not.
     assert not (diff_seconds > tol).any()
-
-test_80cols_line_parser()
