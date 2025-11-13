@@ -240,6 +240,22 @@ private:
         printSettings_->setPrintArcIndex( printArcIndex );
     }
 
+    void setClearNumericalSolutionsFromMultiArc( const bool clearNumericalSolutions )
+    {
+        PropagatorProcessingSettings::setClearNumericalSolutions( clearNumericalSolutions );
+    }
+
+    void setIntegratedResultFromMultiArc( const bool setIntegratedResult )
+    {
+        PropagatorProcessingSettings::setIntegratedResult( setIntegratedResult );
+    }
+
+    void setCreateStateProcessorsFromMultiArc( const bool createStateProcessors )
+    {
+        PropagatorProcessingSettings::setCreateStateProcessors( createStateProcessors );
+    }
+
+
     bool isPartOfMultiArc_;
     int arcIndex_;
 
@@ -287,10 +303,10 @@ public:
 
         for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
         {
-            singleArcSettings_.at( i )->setClearNumericalSolutions( false );
-            singleArcSettings_.at( i )->setIntegratedResult( false );
+            singleArcSettings_.at( i )->setClearNumericalSolutionsFromMultiArc( false );
+            singleArcSettings_.at( i )->setIntegratedResultFromMultiArc( false );
             singleArcSettings_.at( i )->setAsMultiArc( i, printCurrentArcIndex_ );
-            singleArcSettings_.at( i )->setCreateStateProcessors( setIntegratedResult_ );
+            singleArcSettings_.at( i )->setCreateStateProcessorsFromMultiArc( setIntegratedResult_ );
             if( useIdenticalSettings_ )
             {
                 if( consistentSingleArcPrintSettings_ == nullptr )
@@ -396,7 +412,7 @@ public:
         createStateProcessors_ = setIntegratedResult;
         for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
         {
-            singleArcSettings_.at( i )->setCreateStateProcessors( setIntegratedResult_ );
+            singleArcSettings_.at( i )->setCreateStateProcessorsFromMultiArc( setIntegratedResult_ );
         }
     }
 
