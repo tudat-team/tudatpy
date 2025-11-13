@@ -609,7 +609,7 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
         if( arcStartTimes.size( ) != 0 )
         {
             if( std::fabs( arcStartTimes.at( i ) - arcStartTimesToUse.at( i ) ) >
-                10.0 * std::numeric_limits< double >::epsilon( ) * arcStartTimesToUse.at( i ) )
+                std::fabs( 10.0 * std::numeric_limits< double >::epsilon( ) * arcStartTimesToUse.at( i ) ) )
             {
                 throw std::runtime_error(
                         "Error when making multi-arc initial state parameter, times do not match: do not provide times manually" );
