@@ -363,3 +363,102 @@ def vector2matrix(flat_matrix: np.ndarray):
         Rotation matrix (3x3 orthogonal matrix).
     """
     return flat_matrix.reshape(3, 3)
+
+REGIME_THRESHOLDS = {
+    "LEO_REGIME": {
+        "rp": (100, 2000),
+        "ra": (100, 2000),
+        "default_bodies_to_create": ['Sun', 'Earth', 'Moon']
+    },
+    "MEO_REGIME": {
+        "rp": (2000, 35786),
+        "ra": (2000, 35786),
+        "default_bodies_to_create": ['Sun', 'Earth', 'Moon']
+    },
+    "GEO_REGIME": {
+        "rp": (35586, 35986),  # 35786 ± 200 km
+        "ra": (35586, 35986),
+        "ecc": (0.0, 0.01),
+        "inc": (0.0, 1.0),     # degrees
+        "default_bodies_to_create": ['Sun', 'Earth', 'Moon', 'Jupiter', 'Mars', 'Venus', 'Saturn']
+    },
+    "GSO_REGIME": {
+        "rp": (35586, 35986),  # Same altitude range as GEO
+        "ra": (35586, 35986),
+        "default_bodies_to_create": ['Sun', 'Earth', 'Moon', 'Jupiter', 'Mars', 'Venus', 'Saturn']
+        # No constraints on ecc/inc — anything not satisfying GEO will fall here
+    },
+    "HEO_REGIME": {
+        "rp": (100, 10000),
+        "ra": (35000, 50000),
+        "default_bodies_to_create": ['Sun', 'Earth', 'Moon', 'Jupiter', 'Mars', 'Venus', 'Saturn']
+    }
+}
+
+DEFAULT_OTHER_REGIME = {
+    "default_bodies_to_create": ['Sun', 'Earth', 'Moon', 'Jupiter', 'Mars', 'Venus', 'Saturn']
+}
+
+
+def get_orbital_regime(json_dict) -> tuple[str, dict[str, any]]:
+    """
+    Queries Space-Track for a NORAD ID and classifies its orbital regime.
+
+    Parameters
+    ----------
+    json_dict: OMM json dict object (e.g. as a result of Space-Track.org query)
+
+    Returns
+    -------
+    tuple[str, dict[str, any]]
+        - orbital_regime (str): The name of the regime (e.g., "LEO_REGIME").
+        - regime_definition (dict): The dictionary of thresholds for that regime.
+
+    Raises
+    ------
+    ValueError
+        If no data is found for the given json_dict or the object is not Earth-orbiting.
+    """
+
+    central_body_name = json_dict.get("CENTER_NAME")
+    if central_body_name != 'EARTH':
+        raise ValueError(f'Central body must be "EARTH" (found {central_body_name}).')
+
+    try:
+        rp_object = float(json_dict.get('PERIAPSIS'))  # km above surface
+        ra_object = float(json_dict.get('APOAPSIS'))   # km above surface
+        ecc = float(json_dict.get('ECCENTRICITY'))
+        inc = float(json_dict.get('INCLINATION'))
+    except TypeError:
+        raise ValueError(f"Orbit data is incomplete (contains None values).")
+
+    orbital_regime = "OTHER"
+
+    # Loop through defined regimes
+    for regime, thresholds in REGIME_THRESHOLDS.items():
+        rp_min, rp_max = thresholds["rp"]
+        ra_min, ra_max = thresholds["ra"]
+
+        if not (rp_min <= rp_object <= rp_max and ra_min <= ra_object <= ra_max):
+            continue
+
+        # Check eccentricity and inclination if required
+        ecc_range = thresholds.get("ecc")
+        inc_range = thresholds.get("inc")
+
+        if ecc_range and (not ecc_range[0] <= ecc <= ecc_range[1]):
+            continue
+        if inc_range and (not inc_range[0] <= inc <= inc_range[1]):
+            continue
+
+        # All checks passed
+        orbital_regime = regime
+        break
+
+    # 4. Return only name and definition
+    if orbital_regime != "OTHER":
+        regime_definition = REGIME_THRESHOLDS[orbital_regime]
+    else:
+        regime_definition = DEFAULT_OTHER_REGIME
+
+    return orbital_regime, regime_definition
