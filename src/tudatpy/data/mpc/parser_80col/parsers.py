@@ -7,7 +7,7 @@ from tudatpy.astro.time_representation import DateTime
 # Import the refactored unpacker functions and constants
 from . import unpackers
 
-def parse_packed_permanent_designation(packed_perm_num: str) -> dict:
+def parse_packed_permanent_designation(packed_perm_num: str) -> dict[str,str]:
     """
     Parses a packed permanent designation string from the MPC.
 
@@ -51,7 +51,7 @@ def parse_packed_permanent_designation(packed_perm_num: str) -> dict:
     return ident_data
 
 
-def parse_80cols_identification_fields(line: str) -> dict:
+def parse_80cols_identification_fields(line: str) -> dict[str,str]:
     """
     Parses the identification part of an 80-column MPC observation line.
 
@@ -116,7 +116,6 @@ def parse_80cols_file(filename: str) -> Table:
         for line in f:
             if len(line) < 80:
                 continue
-
             try:
                 ident_data = parse_80cols_identification_fields(line)
             except (ValueError, IndexError):
