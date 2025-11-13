@@ -155,7 +155,7 @@ void AerodynamicAccelerationPartial::computeAccelerationPartialWrtArcWiseAerodyn
 
         if( currentArc >= accelerationPartial.cols( ) )
         {
-            throw std::runtime_error( "Error when getting arc-wise radiation pressure coefficient partials, data not consistent" );
+            throw std::runtime_error( "Error when getting arc-wise aerodynamic component scaling partials, data not consistent" );
         }
 
         // Set partial
