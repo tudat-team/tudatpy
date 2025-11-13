@@ -364,7 +364,7 @@ def vector2matrix(flat_matrix: np.ndarray):
     """
     return flat_matrix.reshape(3, 3)
 
-def to_roman(num: int) -> str:
+def transform_integer_to_roman_number(num: int) -> str:
     """Converts an integer to a Roman numeral string.
 
     Parameters
