@@ -28,6 +28,8 @@ dependencies:
   - geopandas # for fancy ground track visualizations (kosmos example)
   - requests
   - spiceypy # for automatic data downloader and kernel converter
+  # Smart API requests
+  - requests_cache
   # Data downloader tabular output
   - tabulate
   - colorama
