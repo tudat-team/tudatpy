@@ -4,9 +4,14 @@ Users are referred to the Minor Planet Center website:
 https://minorplanetcenter.net/iau/info/OpticalObs.html
 for info about the designation format for Optical Astrometric Observations Of Comets,
 Minor Planets and Natural Satellites.
+
+Packing:
+Converting a long, human-readable designation into a short, coded version that fits the 80-column space.
+Unpacking:
+Converting the short, packed form back into a human-readable designation.
 """
 
-from tudatpy.util._support import to_roman
+from tudatpy.util._support import transform_integer_to_roman_number
 
 _BASE62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 BASE62_MAP = {char: i for i, char in enumerate(_BASE62)}
@@ -180,4 +185,4 @@ def unpack_permanent_natural_satellite(packed: str) -> str:
     """
     planet_name = PLANET_MAP.get(packed[0], "Unknown Planet")
     number = int(packed[1:4])
-    return f"{planet_name} {to_roman(number)}"
+    return f"{planet_name} {transform_integer_to_roman_number(number)}"
