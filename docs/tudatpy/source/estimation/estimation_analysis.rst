@@ -23,15 +23,9 @@ Functions
 
    propagate_covariance
 
-   propagate_covariance_split_output
-
-   propagate_covariance_rsw_split_output
+   propagate_covariance_from_analysis_objects
 
    propagate_formal_errors
-
-   propagate_formal_errors_split_output
-
-   propagate_formal_errors_rsw_split_output
 
    estimation_convergence_checker
 
@@ -41,15 +35,9 @@ Functions
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.propagate_covariance
 
-.. autofunction:: tudatpy.estimation.estimation_analysis.propagate_covariance_split_output
-
-.. autofunction:: tudatpy.estimation.estimation_analysis.propagate_covariance_rsw_split_output
+.. autofunction:: tudatpy.estimation.estimation_analysis.propagate_covariance_from_analysis_objects
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.propagate_formal_errors
-
-.. autofunction:: tudatpy.estimation.estimation_analysis.propagate_formal_errors_split_output
-
-.. autofunction:: tudatpy.estimation.estimation_analysis.propagate_formal_errors_rsw_split_output
 
 .. autofunction:: tudatpy.estimation.estimation_analysis.estimation_convergence_checker
 
