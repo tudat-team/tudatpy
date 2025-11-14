@@ -75,7 +75,7 @@ public:
         return createStateProcessors_;
     }
 
-    void setCreateStateProcessors( const bool createStateProcessors )
+    virtual void setCreateStateProcessors( const bool createStateProcessors )
     {
         createStateProcessors_ = createStateProcessors;
     }
@@ -142,6 +142,33 @@ public:
     double getResultsSaveFrequencyInSeconds( )
     {
         return resultsSaveFrequencyInSeconds_;
+    }
+
+    virtual void setClearNumericalSolutions( const bool clearNumericalSolutions )
+    {
+        if( isPartOfMultiArc_ )
+        {
+            throw std::runtime_error( "Error, resetting setClearNumericalSolutions of single-arc propagation setting after it has been made part of a multi-arc propagation setting, this is not permitted as it breaks multi-arc settings consistency" );
+        }
+        PropagatorProcessingSettings::setClearNumericalSolutions( clearNumericalSolutions );
+    }
+
+    virtual void setIntegratedResult( const bool setIntegratedResult )
+    {
+        if( isPartOfMultiArc_ )
+        {
+            throw std::runtime_error( "Error, resetting setIntegratedResult of single-arc propagation setting after it has been made part of a multi-arc propagation setting" );
+        }
+        PropagatorProcessingSettings::setIntegratedResult( setIntegratedResult );
+    }
+
+    virtual void setCreateStateProcessors( const bool createStateProcessors )
+    {
+        if( isPartOfMultiArc_ )
+        {
+            throw std::runtime_error( "Error, resetting setCreateStateProcessors of single-arc propagation setting after it has been made part of a multi-arc propagation setting, this is not permitted as it breaks multi-arc settings consistency" );
+        }
+        PropagatorProcessingSettings::setCreateStateProcessors( createStateProcessors );
     }
 
     bool saveCurrentStep( const int stepsSinceLastSave, const double timeSinceLastSave )
@@ -213,6 +240,22 @@ private:
         printSettings_->setPrintArcIndex( printArcIndex );
     }
 
+    void setClearNumericalSolutionsFromMultiArc( const bool clearNumericalSolutions )
+    {
+        PropagatorProcessingSettings::setClearNumericalSolutions( clearNumericalSolutions );
+    }
+
+    void setIntegratedResultFromMultiArc( const bool setIntegratedResult )
+    {
+        PropagatorProcessingSettings::setIntegratedResult( setIntegratedResult );
+    }
+
+    void setCreateStateProcessorsFromMultiArc( const bool createStateProcessors )
+    {
+        PropagatorProcessingSettings::setCreateStateProcessors( createStateProcessors );
+    }
+
+
     bool isPartOfMultiArc_;
     int arcIndex_;
 
@@ -260,10 +303,10 @@ public:
 
         for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
         {
-            singleArcSettings_.at( i )->setClearNumericalSolutions( false );
-            singleArcSettings_.at( i )->setIntegratedResult( false );
+            singleArcSettings_.at( i )->setClearNumericalSolutionsFromMultiArc( false );
+            singleArcSettings_.at( i )->setIntegratedResultFromMultiArc( false );
             singleArcSettings_.at( i )->setAsMultiArc( i, printCurrentArcIndex_ );
-            singleArcSettings_.at( i )->setCreateStateProcessors( setIntegratedResult_ );
+            singleArcSettings_.at( i )->setCreateStateProcessorsFromMultiArc( setIntegratedResult_ );
             if( useIdenticalSettings_ )
             {
                 if( consistentSingleArcPrintSettings_ == nullptr )
@@ -369,7 +412,7 @@ public:
         createStateProcessors_ = setIntegratedResult;
         for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
         {
-            singleArcSettings_.at( i )->setCreateStateProcessors( setIntegratedResult_ );
+            singleArcSettings_.at( i )->setCreateStateProcessorsFromMultiArc( setIntegratedResult_ );
         }
     }
 
