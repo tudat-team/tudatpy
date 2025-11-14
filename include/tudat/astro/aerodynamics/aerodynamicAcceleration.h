@@ -130,7 +130,7 @@ public:
             {
                 sideComponentScaling_ = sideComponentScalingFunction_( currentTime_ );
             }
-            if( (dragComponentScalingFunction_ != nullptr) )
+            if( (liftComponentScalingFunction_ != nullptr) )
             {
                 liftComponentScaling_ = liftComponentScalingFunction_( currentTime_ );
             }
