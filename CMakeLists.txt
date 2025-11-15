@@ -23,21 +23,6 @@ string(
     TUDATPY_VERSION "${VERSION_LABEL}"
 )
 
-# Help CMake find compilers in conda environment
-if(DEFINED ENV{CONDA_PREFIX})
-    set(CONDA_PREFIX "$ENV{CONDA_PREFIX}")
-    message(STATUS "Detected conda environment: ${CONDA_PREFIX}")
-    
-    # Add conda bin directory to program search path
-    list(APPEND CMAKE_PROGRAM_PATH "${CONDA_PREFIX}/bin")
-    
-    # Set Fortran compiler hint if it exists
-    if(EXISTS "${CONDA_PREFIX}/bin/gfortran")
-        set(CMAKE_Fortran_COMPILER "${CONDA_PREFIX}/bin/gfortran" CACHE FILEPATH "Fortran compiler")
-        message(STATUS "Found gfortran in conda: ${CONDA_PREFIX}/bin/gfortran")
-    endif()
-endif()
-
 # Determine which languages to enable
 # Check if we need Fortran (only for MCD)
 set(PROJECT_LANGUAGES CXX C)
@@ -50,27 +35,6 @@ option(
 )
 
 if(TUDAT_BUILD_WITH_MCD)
-    # Verify Fortran compiler exists before enabling the language
-    if(NOT CMAKE_Fortran_COMPILER)
-        if(DEFINED ENV{CONDA_PREFIX})
-            set(GFORTRAN_PATH "$ENV{CONDA_PREFIX}/bin/gfortran")
-        else()
-            find_program(GFORTRAN_PATH NAMES gfortran)
-        endif()
-        
-        if(GFORTRAN_PATH)
-            set(CMAKE_Fortran_COMPILER "${GFORTRAN_PATH}" CACHE FILEPATH "Fortran compiler")
-            message(STATUS "Setting Fortran compiler: ${GFORTRAN_PATH}")
-        else()
-            message(FATAL_ERROR 
-                "MCD support requires a Fortran compiler, but gfortran was not found.\n"
-                "Please install gfortran:\n"
-                "  conda install -c conda-forge gfortran_linux-64\n"
-                "Or set CMAKE_Fortran_COMPILER manually."
-            )
-        endif()
-    endif()
-    
     list(APPEND PROJECT_LANGUAGES Fortran)
     message(STATUS "Fortran language enabled for MCD support")
 endif()
