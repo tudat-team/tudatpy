@@ -1131,46 +1131,41 @@ class Builder:
             self.build_dir.mkdir(parents=True, exist_ok=True)
             with chdir(self.build_dir):
 
+                # Base cmake command
+                cmake_command = [
+                    "cmake",
+                    f"-DCMAKE_PREFIX_PATH={self.conda_prefix}",
+                    f"-DCMAKE_INSTALL_PREFIX={self.conda_prefix}",
+                    f"-DCMAKE_CXX_STANDARD={self.args.cxx_standard}",
+                    "-DBoost_NO_BOOST_CMAKE=ON",
+                    f"-DCMAKE_BUILD_TYPE={self.args.build_type}",
+                    f"-DTUDAT_BUILD_TESTS={self.build_tests}",
+                    f"-DTUDAT_BUILD_WITH_MCD={'ON' if self.args.build_with_mcd else 'OFF'}",
+                    f"-DTUDAT_BUILD_GITHUB_ACTIONS={self.build_github_actions}",
+                ]
+
+                # Add Fortran compiler path if building with MCD
+                if self.args.build_with_mcd:
+                    gfortran_path = self.conda_prefix / "bin" / "gfortran"
+                    if gfortran_path.exists():
+                        cmake_command.append(
+                            f"-DCMAKE_Fortran_COMPILER={gfortran_path}"
+                        )
+                    else:
+                        print(
+                            f"WARNING: gfortran not found at {gfortran_path}. "
+                            "CMake will attempt to find it automatically."
+                        )
+
+                # Add build and source directories
+                cmake_command.extend(["-B", f"{self.build_dir}", "-S", ".."])
+
                 if _output_dest is None:
-                    outcome = subprocess.run(
-                        [
-                            "cmake",
-                            # f"-DSKIP_TUDAT={self.skip_tudat}",
-                            # f"-DSKIP_TUDATPY={self.skip_tudatpy}",
-                            f"-DCMAKE_PREFIX_PATH={self.conda_prefix}",
-                            f"-DCMAKE_INSTALL_PREFIX={self.conda_prefix}",
-                            f"-DCMAKE_CXX_STANDARD={self.args.cxx_standard}",
-                            "-DBoost_NO_BOOST_CMAKE=ON",
-                            f"-DCMAKE_BUILD_TYPE={self.args.build_type}",
-                            f"-DTUDAT_BUILD_TESTS={self.build_tests}",
-                            f"-DTUDAT_BUILD_WITH_MCD={'ON' if self.args.build_with_mcd else 'OFF'}",
-                            f"-DTUDAT_BUILD_GITHUB_ACTIONS={self.build_github_actions}",
-                            "-B",
-                            f"{self.build_dir}",
-                            "-S",
-                            "..",
-                        ]
-                    )
+                    outcome = subprocess.run(cmake_command)
                 else:
                     with _output_dest.open("w") as output_dest:
                         outcome = subprocess.run(
-                            [
-                                "cmake",
-                                # f"-DSKIP_TUDAT={self.skip_tudat}",
-                                # f"-DSKIP_TUDATPY={self.skip_tudatpy}",
-                                f"-DCMAKE_PREFIX_PATH={self.conda_prefix}",
-                                f"-DCMAKE_INSTALL_PREFIX={self.conda_prefix}",
-                                f"-DCMAKE_CXX_STANDARD={self.args.cxx_standard}",
-                                "-DBoost_NO_BOOST_CMAKE=ON",
-                                f"-DCMAKE_BUILD_TYPE={self.args.build_type}",
-                                f"-DTUDAT_BUILD_TESTS={self.build_tests}",
-                                f"-DTUDAT_BUILD_WITH_MCD={'ON' if self.args.build_with_mcd else 'OFF'}",
-                                f"-DTUDAT_BUILD_GITHUB_ACTIONS={self.build_github_actions}",
-                                "-B",
-                                f"{self.build_dir}",
-                                "-S",
-                                "..",
-                            ],
+                            cmake_command,
                             stdout=output_dest,
                             stderr=output_dest,
                         )

@@ -12,6 +12,8 @@
             "generator": "Unix Makefiles",
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
+                "CMAKE_PREFIX_PATH": "/home/valeriofilice/miniconda3/envs/tudatpy-dev",
+                "CMAKE_INSTALL_PREFIX": "/home/valeriofilice/miniconda3/envs/tudatpy-dev",
                 "Boost_NO_BOOST_CMAKE": "ON",
                 "CMAKE_BUILD_TYPE": "Release",
                 "TUDAT_BUILD_TESTS": "ON",
@@ -31,7 +33,8 @@
             "inherits": "default",
             "description": "Build with Mars Climate Database support",
             "cacheVariables": {
-                "TUDAT_BUILD_WITH_MCD": "ON"
+                "TUDAT_BUILD_WITH_MCD": "ON",
+                "CMAKE_Fortran_COMPILER": "/home/valeriofilice/miniconda3/envs/tudatpy-dev/bin/gfortran"
             }
         },
         {
@@ -39,7 +42,8 @@
             "inherits": "default-no-tests",
             "description": "Build with MCD support without tests",
             "cacheVariables": {
-                "TUDAT_BUILD_WITH_MCD": "ON"
+                "TUDAT_BUILD_WITH_MCD": "ON",
+                "CMAKE_Fortran_COMPILER": "/home/valeriofilice/miniconda3/envs/tudatpy-dev/bin/gfortran"
             }
         },
         {
