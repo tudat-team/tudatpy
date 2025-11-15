@@ -1,0 +1,36 @@
+DIRECTORY CONTENTS:
+===================
+
+README             This file
+fmcd_gfortran.sh   Bash script to generate python interface fmcd.pyf
+test_mcd.py        Example of a python script calling the mcd
+test_mcd.def       Example of user inputs to test_mcd.py
+
+GENERAL DESCRIPTION:
+====================
+The test_mcd.py python script is an illustrative example of how one may
+call upon the fortran routine call_mcd to retreive data from the Mars Climate Database.
+
+PREREQUISITES:
+==============
+- The NetCDF library should be installed on your system. Moreover, from our
+  experience, it seems that it must have been build using the "-fPIC" (for
+  gfortran; the name of the option changes with compilers) option which
+  generates position independent code suitable for use in a shared library.
+- The fcm_gfortran.sh bash script relies on "f2py" utility, which is part
+  of the "numpy" package (see http://www.scipy.org/F2py)
+
+BUILDING THE PYTHON INTERFACE:
+==============================
+- Edit and adapt the "fcm_gfortran.sh" bash script so that the paths to
+  your local netcdf library and mcd distribution are used. Then simply run
+  the script, and if all went well, files "fmcd.log", "fmcd.so" and "fmcd.pyf"
+  should have been created. 
+  In case the .so file has a different name, just rename it "fmcd.so"
+
+USAGE:
+======
+The "test_mcd.py" script provides a simple and straightforward example of
+how one can call the mcd from within a python script. When run it requires
+some input from the user (hence the "test_mcd.def" file, for those who prefer
+to redirect input from a file rather than type as the program proceeds).

@@ -1,0 +1,156 @@
+ Do you want to use Earth date (e) or Mars date (m) ?
+ e
+ enter date : day month year hour minute second
+ 26/ 8/2006   3:30: 0
+date, in Julian days : 2453973.64583333
+ choose your type for vertical coordinates:
+ 1 radius from center of planet (in meters )
+ 2 height above areoid (in meters )
+ 3 height above the surface (in meters )
+ 4 pressure level (in Pa )
+2
+ please enter height above areoid (m)
+ 20000.000
+  high resolution? (1: yes, 0: no)
+1
+ latitude in deg ?
+    15.000
+ EAST longitude in deg ?
+     5.000
+ dust/EUV scenarios ?
+ 1= Climatology     typical Mars year dust scenario
+                    average solar EUV conditions
+ 2= Climatology     typical Mars year dust scenario
+                    minimum solar EUV conditions
+ 3= Climatology     typical Mars year dust scenario 
+                    maximum solar EUV conditions
+ 4= dust storm      constant dust opacity = 5
+                    min solar EUV conditions
+ 5= dust storm      constant dust opacity = 5
+                    ave solar EUV conditions
+ 6= dust storm      constant dust opacity = 5
+                    max solar EUV conditions
+ 7= warm scenario   warm scenario: dustier conditions
+                    max solar EUV conditions
+ 8= cold scenario   cold scenario: clearer conditions
+                    min solar EUV conditions
+7
+  perturbation : none = 1 ;  large scale = 2 ; small scale= 3 ; small+large = 4 ; n sig =5
+1
+  seedin and gwlength:
+        5.      0.00
+ extra variables : yes = 1, no = 0
+1
+ 
+ Loading variables for new season
+ Opening MCD_DATA/warm/warm_03_me.nc
+ Opening MCD_DATA/warm/warm_03_sd.nc
+ Opening MCD_DATA/warm/warm_03_thermo_max_me.nc
+ Opening MCD_DATA/warm/warm_03_thermo_max_sd.nc
+ Opening MCD_DATA/warm/warm_04_me.nc
+ Opening MCD_DATA/warm/warm_04_sd.nc
+ Opening MCD_DATA/warm/warm_04_thermo_max_me.nc
+ Opening MCD_DATA/warm/warm_04_thermo_max_sd.nc
+ Loading new mean variable
+ Loading gravity field coefficients from file MCD_DATA/mgm1025
+ Loading MOLA topography from file MCD_DATA/mola32.nc
+ Done reading MOLA data
+ Opening MCD_DATA/slope_map.nc
+ Opening MCD_DATA/dust_high_resol/dust_warm.nc
+p   =                 7.83E+01 Pa
+rho =                 2.25E-03 kg/m**3
+T   =                 1.82E+02 K
+Zonal wind      =    -4.83E+01 m/s
+Meridional wind =    -3.08E+00 m/s
+ 
+meanvar( 1) =     7.83E+01
+meanvar( 2) =     2.25E-03
+meanvar( 3) =     1.82E+02
+meanvar( 4) =    -4.83E+01
+meanvar( 5) =    -3.08E+00
+ 
+extvar( 1)  =     3.41E+06
+extvar( 2)  =     2.00E+04
+extvar( 3)  =     2.12E+04
+extvar( 4)  =    -1.18E+03
+extvar( 5)  =    -1.57E+03
+extvar( 6)  =     8.18E-01
+extvar( 7)  =    -1.16E+02
+extvar( 8)  =     1.65E+00
+extvar( 9)  =     9.79E+01
+extvar(10)  =     7.47E+00
+extvar(11)  =     7.19E+00
+extvar(12)  =     7.13E+00
+extvar(13)  =     6.41E+01
+extvar(14)  =     2.07E+02
+extvar(15)  =     6.33E+02
+extvar(16)  =     6.49E+02
+extvar(17)  =     3.13E+02
+extvar(18)  =     1.02E-02
+extvar(19)  =     0.00E+00
+extvar(20)  =    -0.00E+00
+extvar(21)  =     5.04E-01
+extvar(22)  =     4.81E-01
+extvar(23)  =     6.10E-01
+extvar(24)  =     1.50E-05
+extvar(25)  =     1.35E+00
+extvar(26)  =     5.08E+00
+extvar(27)  =     7.89E+00
+extvar(28)  =     5.55E-02
+extvar(29)  =     2.21E+02
+extvar(30)  =     6.68E+01
+extvar(31)  =     1.76E+02
+extvar(32)  =     1.74E+02
+extvar(33)  =     4.63E+01
+extvar(34)  =     9.65E+01
+extvar(35)  =     2.29E+01
+extvar(36)  =     1.06E-03
+extvar(37)  =     9.27E+01
+extvar(38)  =     2.62E-01
+extvar(39)  =     5.45E-01
+extvar(40)  =     4.16E-01
+extvar(41)  =     4.09E-06
+extvar(42)  =     1.24E-06
+extvar(43)  =     4.22E-10
+extvar(44)  =     0.00E+00
+extvar(45)  =     3.89E-05
+extvar(46)  =     0.00E+00
+extvar(47)  =     1.05E-02
+extvar(48)  =     9.65E-05
+extvar(49)  =     2.53E-04
+extvar(50)  =     2.15E-05
+extvar(51)  =     9.60E-06
+extvar(52)  =     2.44E+02
+extvar(53)  =     2.48E+00
+extvar(54)  =     1.58E+00
+extvar(55)  =     0.00E+00
+extvar(56)  =     0.00E+00
+extvar(57)  =     3.82E-03
+extvar(58)  =    -3.77E+00
+extvar(59)  =     7.24E+02
+extvar(60)  =     1.36E+00
+extvar(61)  =     1.91E+02
+extvar(62)  =     9.28E-06
+extvar(63)  =     9.44E+03
+extvar(64)  =     9.56E-01
+extvar(65)  =     2.38E-02
+extvar(66)  =     1.78E-02
+extvar(67)  =     8.54E-04
+extvar(68)  =     8.07E-10
+extvar(69)  =     1.40E-03
+extvar(70)  =     1.61E-09
+extvar(71)  =     4.28E-11
+extvar(72)  =     2.14E-05
+extvar(73)  =     3.34E-06
+extvar(74)  =     1.64E+02
+extvar(75)  =     2.69E+00
+extvar(76)  =     2.89E+00
+extvar(77)  =     9.76E-02
+extvar(78)  =     4.90E-05
+extvar(79)  =     1.81E-01
+extvar(80)  =     1.09E-06
+extvar(81)  =     3.98E-09
+extvar(82)  =     1.73E-04
+extvar(83)  =     5.41E-05
+extvar(84)  =     5.99E-02
+extvar(85)  =     6.12E+09

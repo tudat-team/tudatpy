@@ -1,0 +1,39 @@
+How to test the "call_mcd" subroutine with the "test_mcd" program :
+(note that this testcase suite uses dust scenarios 1 and 7, so at least these
+ two must be available)
+
+1) Compile test_mcd and ensure a symbolic link MCD_DATA 
+   has been set up to the MCD data there 
+   (ln -s /full/path/to/mcd/data MCD_DATA) as explained in the documentation.
+
+2) Possibly modify TEST_SCRIPT as necessary to specify the location of
+   test_mcd if it is not '..' anymore.
+
+3) Execute TEST_SCRIPT, and watch...
+   If all goes well, then the results of the testcases should match those
+   you obtain. Compilers tend to treat long character strings differently
+   so the tests may show many discrepencies about messages to output such
+   as " Opening some_long_file_name"; these are obviously not a problem.
+   You might also obtain, depending on compiler, comiler optimizing options,
+   and compiler versions, some slightly different numercical values.
+
+Test cases for the MCD :
+
+date: 26/08/2006 3h30m00
+latitude: 15 deg
+East longitude: 5 deg
+altitude above areoid : z=20, 50 or 150km
+
+       clim     warm   z=   z=    z=     mean  large_scale  small_scale  high
+     solar ave         20km 50km  150km           pert.       pert.      res.
+------------------------------------------------------------------------------
+1       x               x                  x                               x
+2       x               x                            x                     x
+3       x                    x                                    x        x
+4       x                           x      x                               x
+5       x                           x                x                     x
+6       x                           x                             x        
+7                 x     x                  x                               x
+8                 x     x                            x                     x
+9       x                           x      x                                
+10                x                 x                x                     

@@ -23,8 +23,60 @@ string(
     TUDATPY_VERSION "${VERSION_LABEL}"
 )
 
-# Project declaration.
-project(tudatpy VERSION "${TUDATPY_VERSION}" LANGUAGES CXX C)
+# Help CMake find compilers in conda environment
+if(DEFINED ENV{CONDA_PREFIX})
+    set(CONDA_PREFIX "$ENV{CONDA_PREFIX}")
+    message(STATUS "Detected conda environment: ${CONDA_PREFIX}")
+    
+    # Add conda bin directory to program search path
+    list(APPEND CMAKE_PROGRAM_PATH "${CONDA_PREFIX}/bin")
+    
+    # Set Fortran compiler hint if it exists
+    if(EXISTS "${CONDA_PREFIX}/bin/gfortran")
+        set(CMAKE_Fortran_COMPILER "${CONDA_PREFIX}/bin/gfortran" CACHE FILEPATH "Fortran compiler")
+        message(STATUS "Found gfortran in conda: ${CONDA_PREFIX}/bin/gfortran")
+    endif()
+endif()
+
+# Determine which languages to enable
+# Check if we need Fortran (only for MCD)
+set(PROJECT_LANGUAGES CXX C)
+
+# Read the MCD option early to determine if we need Fortran
+option(
+    TUDAT_BUILD_WITH_MCD
+    "Build Tudat with Mars Climate Database support."
+    OFF
+)
+
+if(TUDAT_BUILD_WITH_MCD)
+    # Verify Fortran compiler exists before enabling the language
+    if(NOT CMAKE_Fortran_COMPILER)
+        if(DEFINED ENV{CONDA_PREFIX})
+            set(GFORTRAN_PATH "$ENV{CONDA_PREFIX}/bin/gfortran")
+        else()
+            find_program(GFORTRAN_PATH NAMES gfortran)
+        endif()
+        
+        if(GFORTRAN_PATH)
+            set(CMAKE_Fortran_COMPILER "${GFORTRAN_PATH}" CACHE FILEPATH "Fortran compiler")
+            message(STATUS "Setting Fortran compiler: ${GFORTRAN_PATH}")
+        else()
+            message(FATAL_ERROR 
+                "MCD support requires a Fortran compiler, but gfortran was not found.\n"
+                "Please install gfortran:\n"
+                "  conda install -c conda-forge gfortran_linux-64\n"
+                "Or set CMAKE_Fortran_COMPILER manually."
+            )
+        endif()
+    endif()
+    
+    list(APPEND PROJECT_LANGUAGES Fortran)
+    message(STATUS "Fortran language enabled for MCD support")
+endif()
+
+# Project declaration with conditional Fortran support
+project(tudatpy VERSION "${TUDATPY_VERSION}" LANGUAGES ${PROJECT_LANGUAGES})
 set(BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
 # Set position independent code [From tudat cmake]
@@ -158,6 +210,13 @@ if (TUDAT_BUILD_GITHUB_ACTIONS AND MSVC)
     endif()
 endif()
 
+# MCD (Mars Climate Database) Option
+option(
+    TUDAT_BUILD_WITH_MCD
+    "Build Tudat with Mars Climate Database support."
+    OFF
+)
+
 include(show_build_configuration)
 
 # +============================================================================
@@ -183,6 +242,14 @@ set(
 set(
     Tudat_DEFINITIONS
     "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=${TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS}"
+)
+set(
+    Tudat_DEFINITIONS
+    "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=${TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS}"
+)
+set(
+    Tudat_DEFINITIONS
+    "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_MCD=${TUDAT_BUILD_WITH_MCD}"
 )
 
 # TODO: NOT SURE IF THIS BELONGS HERE (Comes from tudatpy cmake)
@@ -387,6 +454,23 @@ if (TUDAT_BUILD_WITH_JSON_INTERFACE)
     find_package(nlohmann_json REQUIRED 3.7.3)
 endif ()
 
+# MCD Dependencies
+if(TUDAT_BUILD_WITH_MCD)
+    message(STATUS "Configuring MCD (Mars Climate Database)...")
+    
+    # Find NetCDF (required for MCD)
+    find_package(NetCDF REQUIRED)
+    
+    if(NOT NetCDF_FOUND)
+        message(FATAL_ERROR "NetCDF not found. MCD requires NetCDF Fortran and C libraries. "
+                           "Please install NetCDF using: conda install -c conda-forge netcdf-fortran")
+    endif()
+    
+    message(STATUS "  NetCDF C library: ${NetCDF_C_LIBRARIES}")
+    message(STATUS "  NetCDF Fortran library: ${NetCDF_Fortran_LIBRARIES}")
+    message(STATUS "  NetCDF include dirs: ${NetCDF_INCLUDE_DIRS}")
+endif()
+
 # TODO: Not sure if this is needed. Comes from CMake of tudatpy
 set(Boost_USE_STATIC_LIBS OFF)
 set(Boost_USE_STATIC_RUNTIME OFF)
@@ -506,6 +590,57 @@ message(
     STATUS
     "TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX: ${TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX}"
 )
+
+# ============================================================================
+# MCD Library Configuration
+# ============================================================================
+if(TUDAT_BUILD_WITH_MCD)
+    set(MCD_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_parties/mcd)
+    
+    # Check if MCD.F90 exists
+    if(NOT EXISTS ${MCD_SOURCE_DIR}/MCD.F90)
+        message(FATAL_ERROR "MCD.F90 not found at ${MCD_SOURCE_DIR}")
+    endif()
+    
+    # Build MCD as a static library
+    add_library(mcd_library STATIC
+        ${MCD_SOURCE_DIR}/MCD.F90
+    )
+    
+    # Explicitly set the language for this target (should be automatic, but just in case)
+    set_target_properties(mcd_library PROPERTIES
+        LINKER_LANGUAGE Fortran
+        Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/mcd_modules
+    )
+    
+    # Include directories for NetCDF
+    target_include_directories(mcd_library PRIVATE
+        ${NetCDF_INCLUDE_DIRS}
+    )
+    
+    # Link NetCDF libraries
+    target_link_libraries(mcd_library PUBLIC
+        NetCDF::NetCDF_Fortran
+        NetCDF::NetCDF_C
+    )
+    
+    # Set MCD data directory path
+    set(MCD_DATA_DIR "${MCD_SOURCE_DIR}/data")
+    
+    # Export MCD_DATA_DIR for use in C++ code
+    target_compile_definitions(mcd_library PUBLIC
+        MCD_DATA_PATH="${MCD_DATA_DIR}/"
+    )
+    
+    # Install mcd.h header for C++ interfacing
+    if(EXISTS ${MCD_SOURCE_DIR}/mcd.h)
+        install(FILES ${MCD_SOURCE_DIR}/mcd.h
+                DESTINATION ${INSTALL_INCLUDE_DIR}/tudat/external/mcd)
+    endif()
+    
+    message(STATUS "MCD library configured successfully")
+    message(STATUS "  MCD data directory: ${MCD_DATA_DIR}")
+endif()
 
 # +============================================================================
 # Tudatpy specific configuration

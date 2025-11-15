@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Script to test the database software (call_mcd subroutine)
+# on 10 reference case (see README file)
+
+#######################
+# Directory where the "test_mcd" program is to be found :
+mcd='..'
+#######################
+
+if [[ ! -r MCD_DATA ]]
+then
+  ln -s $mcd/MCD_DATA MCD_DATA
+fi
+
+
+for (( ind=1 ; ind<=10 ; ind++ ))
+do
+  echo "---------------------------"
+  echo "Testcase: $ind"
+  $mcd/test_mcd < INPUT_K${ind}.txt > OUTPUT_K$ind
+  echo " differences with reference results : "
+  diff -b REF_OUTPUT_K${ind} OUTPUT_K${ind}
+done

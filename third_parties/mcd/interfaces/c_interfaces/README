@@ -1,0 +1,43 @@
+DIRECTORY CONTENTS:
+===================
+
+README		This file
+Makefile	Makefile to build C and C++ programs
+mcd.h		C/C++ header file
+test_mcd.c	C program
+test_mcd.cpp	C++ program
+
+GENERAL DESCRIPTION:
+====================
+These programs are examples of how C and C++ programs may call upon
+the fortran routine call_mcd in MCD.F90
+to retrieve data from the Mars Climate Database.
+
+PREREQUISITES:
+==============
+- The NetCDF library should be installed on your system.
+- A fortran compiler.
+- A C and/or C++ compiler.
+
+BUILDING THE PROGRAMS:
+======================
+Before building the programs, you should edit them to change the
+'dset' string to the path to the MCD datafiles on your system.
+You should then edit the provided Makefile to match your system specificities
+(path to the NetCDF library, compilers,... see the examples and comments
+in the Makefile, as well as in the user's guide).
+
+-The C program test_mcd.c can then be compiled using the following command:
+make test_mcd_c
+
+-Similarly, the C++ program is built by:
+make test_mcd_cpp
+
+USAGE:
+======
+
+Both programs behave similarly to the test_mcd.F90 fortran program and
+provide a simple example of how to call the call_mcd routine of MCD.F90 module.
+
+Given the same input than the fortran program "test_mcd", "test_mcd_c"
+(and "test_mcd_cpp") will yield identical results.
