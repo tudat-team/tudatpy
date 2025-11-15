@@ -1,0 +1,16 @@
+m     
+315   
+0.0   
+3      
+500  
+0    
+0. 
+0. 
+8   
+1                 
+1                 
+
+
+This file can be use as an input to the example program test_mcd. Just type:
+
+test_mcd.py < test_mcd.def

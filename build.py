@@ -104,6 +104,12 @@ class BuildParser(argparse.ArgumentParser):
             default="Release",
             help="Build type (e.g., Release, Debug)",
         )
+        cmake_group.add_argument(
+            "--with-mcd",
+            dest="build_with_mcd",
+            action="store_true",
+            help="Build with Mars Climate Database support [Default: False]",
+        )
 
         # Misc
         misc_group = self.add_argument_group("Miscellaneous")
@@ -250,9 +256,7 @@ class StubGenerator:
 
         return unparsed_content
 
-    def __fix_tudatpy_imports(
-        self, module: ast.Module, stub: Path
-    ) -> ast.Module:
+    def __fix_tudatpy_imports(self, module: ast.Module, stub: Path) -> ast.Module:
         """Fix imports from tudatpy
 
         - Replace kernel imports with submodule imports
@@ -285,9 +289,7 @@ class StubGenerator:
                     else:
 
                         # Remove tudatpy.kernel. prefix from import
-                        relative_alias = alias.name.replace(
-                            "tudatpy.kernel.", ""
-                        )
+                        relative_alias = alias.name.replace("tudatpy.kernel.", "")
                         internal_imports.append(relative_alias)
 
                 # Keep original external import statements
@@ -349,10 +351,7 @@ class StubGenerator:
             if isinstance(statement, ast.ImportFrom):
 
                 # Remove `from __future__ import annotations`
-                if (
-                    ast.unparse(statement)
-                    == "from __future__ import annotations"
-                ):
+                if ast.unparse(statement) == "from __future__ import annotations":
                     continue
 
             # Regular import statements
@@ -526,9 +525,7 @@ class StubGenerator:
             else:
                 shutil.copy(
                     stub,
-                    self.stubs_dir
-                    / relative_path.with_suffix("")
-                    / "extension.pyi",
+                    self.stubs_dir / relative_path.with_suffix("") / "extension.pyi",
                 )
 
         return None
@@ -618,9 +615,7 @@ class StubGenerator:
         for _name in statement.value.elts:
 
             # All items in __all__ should be strings
-            if not (
-                isinstance(_name, ast.Constant) and isinstance(_name.value, str)
-            ):
+            if not (isinstance(_name, ast.Constant) and isinstance(_name.value, str)):
                 raise NotImplementedError(
                     f"Failed to expand {ast.unparse(statement)}: "
                     f"Unexpected item in __all__."
@@ -648,9 +643,7 @@ class StubGenerator:
                     module_all = statement
                     break
         if module_all is None:
-            raise ValueError(
-                f"Script {script} does not contain an __all__ statement."
-            )
+            raise ValueError(f"Script {script} does not contain an __all__ statement.")
 
         return module_all
 
@@ -816,15 +809,13 @@ class StubGenerator:
                     if is_star_import(statement):
 
                         # Get submodule stubs path from statement
-                        submodule_stubs_path = (
-                            module_path / statement.module.replace(".", "/")
+                        submodule_stubs_path = module_path / statement.module.replace(
+                            ".", "/"
                         )
 
                         # Generate __init__.pyi if it does not exist
                         if not module_has_init_stub(submodule_stubs_path):
-                            self.__generate_single_init_stub(
-                                submodule_stubs_path
-                            )
+                            self.__generate_single_init_stub(submodule_stubs_path)
 
                         # Get contents in __all__ statement from __init__.pyi
                         submodule_all_statement = self.__find_all_statement(
@@ -839,9 +830,7 @@ class StubGenerator:
                             continue
 
                         # Replace star with imported items
-                        __aliases = [
-                            ast.alias(item) for item in submodule_contents
-                        ]
+                        __aliases = [ast.alias(item) for item in submodule_contents]
                         statement.names = __aliases
 
                     # Add all imported items, or their aliases, to __all__
@@ -916,9 +905,7 @@ class StubGenerator:
         # Add __all__ to the stub
         if len(stub_all) > 0:
             all_stmt = ast.parse(
-                "__all__ = ["
-                + ", ".join([f"'{_name}'" for _name in stub_all])
-                + "]"
+                "__all__ = [" + ", ".join([f"'{_name}'" for _name in stub_all]) + "]"
             ).body[0]
             stub_body.append(all_stmt)
 
@@ -963,9 +950,7 @@ class StubGenerator:
 
         # Generate __all__ statement
         all_stmt = ast.parse(
-            "__all__ = ["
-            + ", ".join([f"'{_name}'" for _name in submodules])
-            + "]"
+            "__all__ = [" + ", ".join([f"'{_name}'" for _name in submodules]) + "]"
         ).body[0]
         init_body.append(all_stmt)
 
@@ -1034,9 +1019,7 @@ class Builder:
         # Resolve conda prefix
         self.conda_prefix = Path(os.environ["CONDA_PREFIX"])
         if not self.conda_prefix.exists():
-            raise FileNotFoundError(
-                f"Conda prefix {self.conda_prefix} does not exist."
-            )
+            raise FileNotFoundError(f"Conda prefix {self.conda_prefix} does not exist.")
 
         # Source directory of tudatpy
         self.python_source_dir = Path(__file__).parent / "src/tudatpy"
@@ -1160,6 +1143,7 @@ class Builder:
                             "-DBoost_NO_BOOST_CMAKE=ON",
                             f"-DCMAKE_BUILD_TYPE={self.args.build_type}",
                             f"-DTUDAT_BUILD_TESTS={self.build_tests}",
+                            f"-DTUDAT_BUILD_WITH_MCD={'ON' if self.args.build_with_mcd else 'OFF'}",
                             f"-DTUDAT_BUILD_GITHUB_ACTIONS={self.build_github_actions}",
                             "-B",
                             f"{self.build_dir}",
@@ -1180,6 +1164,7 @@ class Builder:
                                 "-DBoost_NO_BOOST_CMAKE=ON",
                                 f"-DCMAKE_BUILD_TYPE={self.args.build_type}",
                                 f"-DTUDAT_BUILD_TESTS={self.build_tests}",
+                                f"-DTUDAT_BUILD_WITH_MCD={'ON' if self.args.build_with_mcd else 'OFF'}",
                                 f"-DTUDAT_BUILD_GITHUB_ACTIONS={self.build_github_actions}",
                                 "-B",
                                 f"{self.build_dir}",

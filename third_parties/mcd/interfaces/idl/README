@@ -1,0 +1,73 @@
+DIRECTORY CONTENTS:
+===================
+
+README               This file
+makefile	     Makefile to compile object file MCD.o
+test_mcd4idl.pro     Demo IDL script
+call_mcd.pro         This function (IDL script) performs checking of variables 
+                     and add the string size in the first byte of dset (a string setting the data set) 
+                     before a call is made to an external routine via CALL_EXTERNAL. 
+call_mcd_wrapf.f90   The wrapper routine called by IDL to call call_mcd4idl.f90
+call_mcd4idl.f90     Fortran subroutine putting the dset in FORTRAN style string 
+                     and calling call_mcd
+julian.F90           Fortran routine julian()                     
+julian.pro           This function (IDL script) performs checking of variables 
+                     before a call is made to an external routine via CALL_EXTERNAL.                                          
+julian_wrapf.f90     The wrapper routine called by IDL to call julian
+
+GENERAL DESCRIPTION:
+====================
+This program is an example of how call the fortran routines call_mcd and julian 
+from IDL to retrieve data from the Mars Climate Database.
+WARNING:
+Since in IDL the index of array starts from 0 (not from 1 like in MCD),
+arrays extvarkeys, meanvar, extvar have size+1 with respect to those
+mentionned in the user_manual, but index 0 is not used (in order to preserve
+the index numering given in the MCD user manual).
+
+PREREQUISITES:
+==============
+- The NetCDF library should be installed on your system.
+  IMPORTANT WARNING: librairies NetCDF should be compiled with -fPIC option.
+- A fortran compiler.
+- IDL (this example was tested using IDL version 6.4)
+
+BUILDING THE PROGRAMS:
+======================
+You should edit the provided makefile to match your system specificities
+(e.g. set the path to your NetCDF library NETCDF_DIR).
+
+Compile the Fortran MCD src files, wrapf routines and call_mcd4idl.f90 
+to generate call_mcd.so using the make command:
+> make
+
+USAGE:
+======
+The test_mcd4idl.pro demo script provide a simple example of how to call 
+the call_mcd() routine via a call to call_mcd.pro and 
+the julian() routine via a call to julian.pro.
+
+You should edit test_mcd4idl.pro to set the 'dset' string to 
+the path to the MCD datafiles on your system (default is 'MCD_DATA').
+WARNING: Maximum length is 50 characters (this limit is set in call_mcd4idl.f90).
+You may also change/set the desired input parameters in test_mcd4idl.pro.
+WARNING: Some dummy output parameters must also be set before calling call_mcd()
+and/or julian() in order to allocate memory.
+
+WARNING: Before launching the IDL session, one must enforce that it will
+be able to find the NetCDF shared library (libnetcdff.so). The path to this
+library should thus be included in your LD_LIBRARY_PATH environment variable,
+e.g. :
+> export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path/to/netcdf/lib
+Alternatively one can copy (or link over) the shared library in the current
+directory where IDL is run.
+
+To run the Demo script:
+#0 Start and idl session
+>idl
+#1 compile call_mcd.pro
+IDL>.compile call_mcd
+#2 compile julian.pro
+IDL>.compile julian
+#3 run test script test_mcd4idl.pro
+IDL>@test_mcd4idl.pro
