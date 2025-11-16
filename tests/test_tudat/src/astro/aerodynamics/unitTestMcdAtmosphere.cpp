@@ -48,61 +48,310 @@ using namespace basic_mathematics;
 
 BOOST_AUTO_TEST_SUITE( test_mcd_atmosphere )
 
-// Test basic MCD atmosphere model functionality
-BOOST_AUTO_TEST_CASE( testMcdAtmosphere )
+// Helper function to convert date to seconds since J2000
+double convertDateToJ2000( int day, int month, int year, int hour, int min, int sec )
 {
-    // Define tolerance for equality
-    double tolerance = 1.0E-6;
+    double julianDay = basic_astrodynamics::convertCalendarDateToJulianDay( year, month, day, hour, min, static_cast< double >( sec ) );
 
-    // Create MCD atmosphere model with default settings
-    std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel = std::make_shared< aerodynamics::McdAtmosphereModel >( );
+    // J2000 epoch is JD 2451545.0
+    double daysSinceJ2000 = julianDay - basic_astrodynamics::JULIAN_DAY_ON_J2000;
+    return daysSinceJ2000 * physical_constants::JULIAN_DAY;
+}
 
-    // Test parameters
-    double altitude = 100.0E3;  // 100 km
-    double longitude = unit_conversions::convertDegreesToRadians( 10.0 );
+// Test Case 1: High-res mode, 20km altitude, perturbation=1
+BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase1 )
+{
+    // Input parameters from INPUT_K1.txt
+    double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
+    double altitude = 20000.0;  // meters above areoid
     double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
-    double time = 0.0;  // J2000 epoch
+    double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
+
+    // Create MCD atmosphere: dust scenario=1, perturbation=1, high-res=1
+    std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel =
+            std::make_shared< aerodynamics::McdAtmosphereModel >( "", 1, 1, 5.0, 0.0, 1 );
 
     // Get atmospheric properties
     double density = atmosphereModel->getDensity( altitude, longitude, latitude, time );
     double pressure = atmosphereModel->getPressure( altitude, longitude, latitude, time );
     double temperature = atmosphereModel->getTemperature( altitude, longitude, latitude, time );
+    double zonalWind = atmosphereModel->getZonalWind( );
+    double meridionalWind = atmosphereModel->getMeridionalWind( );
 
-    // Check that values are reasonable (using placeholder values)
-    BOOST_CHECK( density > 0.0 );
-    BOOST_CHECK( density < 1.0 );  // Should be less than surface density
-    BOOST_CHECK( pressure > 0.0 );
-    BOOST_CHECK( pressure < 1000.0 );    // Should be less than typical surface pressure
-    BOOST_CHECK( temperature > 100.0 );  // Above absolute zero
-    BOOST_CHECK( temperature < 300.0 );  // Below typical max temperature
+    // Expected values from REF_OUTPUT_K1
+    double expectedPressure = 7.57E+01;         // Pa
+    double expectedDensity = 2.23E-03;          // kg/m^3
+    double expectedTemperature = 1.77E+02;      // K
+    double expectedZonalWind = -3.42E+01;       // m/s
+    double expectedMeridionalWind = -7.82E+00;  // m/s
 
-    std::cout << "MCD Atmosphere Test Results:" << std::endl;
-    std::cout << "  Density: " << density << " kg/m^3" << std::endl;
-    std::cout << "  Pressure: " << pressure << " Pa" << std::endl;
-    std::cout << "  Temperature: " << temperature << " K" << std::endl;
+    // Tolerance for comparison (adjust based on expected accuracy)
+    double relativeTolerance = 0.05;  // 5% relative error
+
+    BOOST_CHECK_CLOSE( pressure, expectedPressure, relativeTolerance * 100.0 );
+    BOOST_CHECK_CLOSE( density, expectedDensity, relativeTolerance * 100.0 );
+    BOOST_CHECK_CLOSE( temperature, expectedTemperature, relativeTolerance * 100.0 );
+    BOOST_CHECK_CLOSE( zonalWind, expectedZonalWind, relativeTolerance * 100.0 );
+    BOOST_CHECK_CLOSE( meridionalWind, expectedMeridionalWind, relativeTolerance * 100.0 );
+
+    std::cout << "Test Case 1 Results:" << std::endl;
+    std::cout << "  Pressure: " << pressure << " Pa (expected: " << expectedPressure << ")" << std::endl;
+    std::cout << "  Density: " << density << " kg/m^3 (expected: " << expectedDensity << ")" << std::endl;
+    std::cout << "  Temperature: " << temperature << " K (expected: " << expectedTemperature << ")" << std::endl;
 }
 
-// Test MCD atmosphere with different dust scenarios
-BOOST_AUTO_TEST_CASE( testMcdAtmosphereDustScenarios )
+// Test Case 2: High-res mode, 20km altitude, perturbation=2
+BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase2 )
 {
-    double altitude = 50.0E3;  // 50 km
-    double longitude = 0.0;
-    double latitude = 0.0;
-    double time = 0.0;
+    double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
+    double altitude = 20000.0;
+    double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
+    double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
 
-    // Test different dust scenarios
-    for( int dustScenario = 1; dustScenario <= 8; dustScenario++ )
-    {
-        std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel =
-                std::make_shared< aerodynamics::McdAtmosphereModel >( "", dustScenario, 0, 0.0, 0.0, 0 );
+    std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel =
+            std::make_shared< aerodynamics::McdAtmosphereModel >( "", 1, 2, 5.0, 0.0, 1 );
 
-        double density = atmosphereModel->getDensity( altitude, longitude, latitude, time );
+    double density = atmosphereModel->getDensity( altitude, longitude, latitude, time );
+    double pressure = atmosphereModel->getPressure( altitude, longitude, latitude, time );
+    double temperature = atmosphereModel->getTemperature( altitude, longitude, latitude, time );
 
-        BOOST_CHECK( density > 0.0 );
+    // Expected from REF_OUTPUT_K2
+    double expectedPressure = 7.78E+01;
+    double expectedDensity = 2.29E-03;
+    double expectedTemperature = 1.78E+02;
 
-        std::cout << "Dust scenario " << dustScenario << " - Density: " << density << " kg/m^3" << std::endl;
-    }
+    double relativeTolerance = 0.05;
+    BOOST_CHECK_CLOSE( pressure, expectedPressure, relativeTolerance * 100.0 );
+    BOOST_CHECK_CLOSE( density, expectedDensity, relativeTolerance * 100.0 );
+    BOOST_CHECK_CLOSE( temperature, expectedTemperature, relativeTolerance * 100.0 );
+
+    std::cout << "Test Case 2 completed." << std::endl;
 }
+
+// Test Case 3: High-res mode, 50km altitude, perturbation=3 with gravity waves
+BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase3 )
+{
+    double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
+    double altitude = 50000.0;
+    double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
+    double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
+
+    std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel =
+            std::make_shared< aerodynamics::McdAtmosphereModel >( "", 1, 3, 5.0, 16000.0, 1 );
+
+    double density = atmosphereModel->getDensity( altitude, longitude, latitude, time );
+    double pressure = atmosphereModel->getPressure( altitude, longitude, latitude, time );
+    double temperature = atmosphereModel->getTemperature( altitude, longitude, latitude, time );
+
+    // Expected from REF_OUTPUT_K3
+    double expectedPressure = 1.80E+00;
+    double expectedDensity = 7.31E-05;
+    double expectedTemperature = 1.29E+02;
+
+    double relativeTolerance = 0.05;
+    BOOST_CHECK_CLOSE( pressure, expectedPressure, relativeTolerance * 100.0 );
+    BOOST_CHECK_CLOSE( density, expectedDensity, relativeTolerance * 100.0 );
+    BOOST_CHECK_CLOSE( temperature, expectedTemperature, relativeTolerance * 100.0 );
+
+    std::cout << "Test Case 3 completed." << std::endl;
+}
+
+// Test Case 4: High-res mode, 150km altitude, perturbation=1
+BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase4 )
+{
+    double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
+    double altitude = 150000.0;
+    double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
+    double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
+
+    std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel =
+            std::make_shared< aerodynamics::McdAtmosphereModel >( "", 1, 1, 5.0, 0.0, 1 );
+
+    double density = atmosphereModel->getDensity( altitude, longitude, latitude, time );
+    double pressure = atmosphereModel->getPressure( altitude, longitude, latitude, time );
+    double temperature = atmosphereModel->getTemperature( altitude, longitude, latitude, time );
+
+    // Expected from REF_OUTPUT_K4
+    double expectedPressure = 4.79E-06;
+    double expectedDensity = 1.21E-10;
+    double expectedTemperature = 1.93E+02;
+
+    double relativeTolerance = 0.05;
+    BOOST_CHECK_CLOSE( pressure, expectedPressure, relativeTolerance * 100.0 );
+    BOOST_CHECK_CLOSE( density, expectedDensity, relativeTolerance * 100.0 );
+    BOOST_CHECK_CLOSE( temperature, expectedTemperature, relativeTolerance * 100.0 );
+
+    std::cout << "Test Case 4 completed." << std::endl;
+}
+
+// Test Case 5: High-res mode, 150km altitude, perturbation=2
+BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase5 )
+{
+    double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
+    double altitude = 150000.0;
+    double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
+    double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
+
+    std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel =
+            std::make_shared< aerodynamics::McdAtmosphereModel >( "", 1, 2, 5.0, 0.0, 1 );
+
+    double density = atmosphereModel->getDensity( altitude, longitude, latitude, time );
+    double pressure = atmosphereModel->getPressure( altitude, longitude, latitude, time );
+    double temperature = atmosphereModel->getTemperature( altitude, longitude, latitude, time );
+
+    // Expected from REF_OUTPUT_K5
+    double expectedPressure = 4.63E-06;
+    double expectedDensity = 1.19E-10;
+    double expectedTemperature = 1.90E+02;
+
+    double relativeTolerance = 0.05;
+    BOOST_CHECK_CLOSE( pressure, expectedPressure, relativeTolerance * 100.0 );
+    BOOST_CHECK_CLOSE( density, expectedDensity, relativeTolerance * 100.0 );
+    BOOST_CHECK_CLOSE( temperature, expectedTemperature, relativeTolerance * 100.0 );
+
+    std::cout << "Test Case 5 completed." << std::endl;
+}
+
+// Test Case 6: Low-res mode, 150km altitude, perturbation=3 with gravity waves
+BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase6 )
+{
+    double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
+    double altitude = 150000.0;
+    double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
+    double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
+
+    std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel =
+            std::make_shared< aerodynamics::McdAtmosphereModel >( "", 1, 3, 5.0, 16000.0, 0 );
+
+    double density = atmosphereModel->getDensity( altitude, longitude, latitude, time );
+    double pressure = atmosphereModel->getPressure( altitude, longitude, latitude, time );
+    double temperature = atmosphereModel->getTemperature( altitude, longitude, latitude, time );
+
+    // Expected from REF_OUTPUT_K6
+    double expectedPressure = 4.79E-06;
+    double expectedDensity = 9.47E-11;
+    double expectedTemperature = 2.26E+02;
+
+    double relativeTolerance = 0.05;
+    BOOST_CHECK_CLOSE( pressure, expectedPressure, relativeTolerance * 100.0 );
+    BOOST_CHECK_CLOSE( density, expectedDensity, relativeTolerance * 100.0 );
+    BOOST_CHECK_CLOSE( temperature, expectedTemperature, relativeTolerance * 100.0 );
+
+    std::cout << "Test Case 6 completed." << std::endl;
+}
+
+// Test Case 7: High-res mode, 20km altitude, dust scenario=7 (warm), perturbation=1
+BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase7 )
+{
+    double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
+    double altitude = 20000.0;
+    double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
+    double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
+
+    std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel =
+            std::make_shared< aerodynamics::McdAtmosphereModel >( "", 7, 1, 5.0, 0.0, 1 );
+
+    double density = atmosphereModel->getDensity( altitude, longitude, latitude, time );
+    double pressure = atmosphereModel->getPressure( altitude, longitude, latitude, time );
+    double temperature = atmosphereModel->getTemperature( altitude, longitude, latitude, time );
+
+    // Expected from REF_OUTPUT_K7
+    double expectedPressure = 7.83E+01;
+    double expectedDensity = 2.25E-03;
+    double expectedTemperature = 1.82E+02;
+
+    double relativeTolerance = 0.05;
+    BOOST_CHECK_CLOSE( pressure, expectedPressure, relativeTolerance * 100.0 );
+    BOOST_CHECK_CLOSE( density, expectedDensity, relativeTolerance * 100.0 );
+    BOOST_CHECK_CLOSE( temperature, expectedTemperature, relativeTolerance * 100.0 );
+
+    std::cout << "Test Case 7 completed." << std::endl;
+}
+
+// Test Case 8: High-res mode, 20km altitude, dust scenario=7 (warm), perturbation=2
+BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase8 )
+{
+    double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
+    double altitude = 20000.0;
+    double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
+    double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
+
+    std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel =
+            std::make_shared< aerodynamics::McdAtmosphereModel >( "", 7, 2, 5.0, 0.0, 1 );
+
+    double density = atmosphereModel->getDensity( altitude, longitude, latitude, time );
+    double pressure = atmosphereModel->getPressure( altitude, longitude, latitude, time );
+    double temperature = atmosphereModel->getTemperature( altitude, longitude, latitude, time );
+
+    // Expected from REF_OUTPUT_K8
+    double expectedPressure = 7.98E+01;
+    double expectedDensity = 2.29E-03;
+    double expectedTemperature = 1.82E+02;
+
+    double relativeTolerance = 0.05;
+    BOOST_CHECK_CLOSE( pressure, expectedPressure, relativeTolerance * 100.0 );
+    BOOST_CHECK_CLOSE( density, expectedDensity, relativeTolerance * 100.0 );
+    BOOST_CHECK_CLOSE( temperature, expectedTemperature, relativeTolerance * 100.0 );
+
+    std::cout << "Test Case 8 completed." << std::endl;
+}
+
+// Test Case 9: Low-res mode, 150km altitude, dust scenario=1, perturbation=1
+BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase9 )
+{
+    double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
+    double altitude = 150000.0;
+    double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
+    double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
+
+    std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel =
+            std::make_shared< aerodynamics::McdAtmosphereModel >( "", 1, 1, 5.0, 0.0, 0 );
+
+    double density = atmosphereModel->getDensity( altitude, longitude, latitude, time );
+    double pressure = atmosphereModel->getPressure( altitude, longitude, latitude, time );
+    double temperature = atmosphereModel->getTemperature( altitude, longitude, latitude, time );
+
+    // Expected from REF_OUTPUT_K9
+    double expectedPressure = 4.79E-06;
+    double expectedDensity = 1.21E-10;
+    double expectedTemperature = 1.93E+02;
+
+    double relativeTolerance = 0.05;
+    BOOST_CHECK_CLOSE( pressure, expectedPressure, relativeTolerance * 100.0 );
+    BOOST_CHECK_CLOSE( density, expectedDensity, relativeTolerance * 100.0 );
+    BOOST_CHECK_CLOSE( temperature, expectedTemperature, relativeTolerance * 100.0 );
+
+    std::cout << "Test Case 9 completed." << std::endl;
+}
+
+// Test Case 10: Low-res mode, 150km altitude, dust scenario=7 (warm), perturbation=2
+BOOST_AUTO_TEST_CASE( testMcdAtmosphereCase10 )
+{
+    double time = convertDateToJ2000( 26, 8, 2006, 3, 30, 0 );
+    double altitude = 150000.0;
+    double latitude = unit_conversions::convertDegreesToRadians( 15.0 );
+    double longitude = unit_conversions::convertDegreesToRadians( 5.0 );
+
+    std::shared_ptr< aerodynamics::McdAtmosphereModel > atmosphereModel =
+            std::make_shared< aerodynamics::McdAtmosphereModel >( "", 7, 2, 5.0, 0.0, 0 );
+
+    double density = atmosphereModel->getDensity( altitude, longitude, latitude, time );
+    double pressure = atmosphereModel->getPressure( altitude, longitude, latitude, time );
+    double temperature = atmosphereModel->getTemperature( altitude, longitude, latitude, time );
+
+    // Expected from REF_OUTPUT_K10
+    double expectedPressure = 8.26E-06;
+    double expectedDensity = 1.71E-10;
+    double expectedTemperature = 2.38E+02;
+
+    double relativeTolerance = 0.05;
+    BOOST_CHECK_CLOSE( pressure, expectedPressure, relativeTolerance * 100.0 );
+    BOOST_CHECK_CLOSE( density, expectedDensity, relativeTolerance * 100.0 );
+    BOOST_CHECK_CLOSE( temperature, expectedTemperature, relativeTolerance * 100.0 );
+
+    std::cout << "Test Case 10 completed." << std::endl;
+}
+
 // Test MCD atmosphere in propagation
 BOOST_AUTO_TEST_CASE( testMcdAtmosphereInPropagation )
 {

@@ -14,6 +14,9 @@
 #include <cmath>
 #include <stdexcept>
 
+// Include MCD header
+#include "mcd.h"
+
 namespace tudat
 {
 namespace aerodynamics
@@ -28,7 +31,8 @@ McdAtmosphereModel::McdAtmosphereModel( const std::string& mcdDataPath,
                                         const int highResolutionMode ):
     mcdDataPath_( mcdDataPath ), dustScenario_( dustScenario ), perturbationKey_( perturbationKey ), perturbationSeed_( perturbationSeed ),
     gravityWaveLength_( gravityWaveLength ), highResolutionMode_( highResolutionMode ), currentDensity_( 0.0 ), currentPressure_( 0.0 ),
-    currentTemperature_( 0.0 ), currentZonalWind_( 0.0 ), currentMeridionalWind_( 0.0 ), currentSeedOut_( perturbationSeed )
+    currentTemperature_( 0.0 ), currentZonalWind_( 0.0 ), currentMeridionalWind_( 0.0 ), currentSeedOut_( perturbationSeed ),
+    currentLs_( 0.0 ), currentLTST_( 0.0 ), currentMarsAU_( 0.0 )
 {
     // Initialize mean and extra variables vectors
     currentMeanVariables_.resize( 5, 0.0 );
@@ -37,18 +41,18 @@ McdAtmosphereModel::McdAtmosphereModel( const std::string& mcdDataPath,
     // Set default MCD data path if not provided
     if( mcdDataPath_.empty( ) )
     {
-        mcdDataPath_ = paths::getAtmosphereTablesPath( ) + "/MCD_DATA";
+        mcdDataPath_ = paths::getAtmosphereTablesPath( ) + "/MCD_DATA/";
     }
 
     // Validate input parameters
-    if( dustScenario_ < 1 || dustScenario_ > 8 )
+    if( ( dustScenario_ < 1 || dustScenario_ > 8 ) && ( dustScenario_ < 24 || dustScenario_ > 35 ) )
     {
-        throw std::runtime_error( "McdAtmosphereModel: Invalid dust scenario. Must be between 1 and 8." );
+        throw std::runtime_error( "McdAtmosphereModel: Invalid dust scenario. Must be 1-8 or 24-35." );
     }
 
     if( perturbationKey_ < 0 || perturbationKey_ > 5 )
     {
-        throw std::runtime_error( "McdAtmosphereModel: Invalid perturbation key. Must be between 0 and 5." );
+        throw std::runtime_error( "McdAtmosphereModel: Invalid perturbation key. Must be 0-5." );
     }
 
     if( highResolutionMode_ != 0 && highResolutionMode_ != 1 )
@@ -83,61 +87,95 @@ double McdAtmosphereModel::getSpeedOfSound( const double altitude, const double 
 {
     computeProperties( altitude, longitude, latitude, time );
 
-    // Calculate speed of sound using: a = sqrt(gamma * R * T)
-    // For Mars atmosphere: gamma ≈ 1.3, R ≈ 192 J/(kg·K)
-    const double gamma = 1.3;
-    const double specificGasConstant = 192.0;  // J/(kg·K)
+    // Get gamma and R from extra variables if available
+    // extvar(60) = gamma, extvar(61) = R
+    double gamma = currentExtraVariables_[ 59 ];  // Index 59 = extvar(60)
+    double R = currentExtraVariables_[ 60 ];      // Index 60 = extvar(61)
 
-    return std::sqrt( gamma * specificGasConstant * currentTemperature_ );
+    if( gamma > 0.0 && R > 0.0 )
+    {
+        return std::sqrt( gamma * R * currentTemperature_ );
+    }
+    else
+    {
+        // Fallback values for Mars atmosphere
+        const double defaultGamma = 1.3;
+        const double defaultR = 192.0;  // J/(kg·K)
+        return std::sqrt( defaultGamma * defaultR * currentTemperature_ );
+    }
 }
 
 // Compute properties (main computation function)
 void McdAtmosphereModel::computeProperties( const double altitude, const double longitude, const double latitude, const double time )
 {
-    // Convert time to MCD format
-    int dateKey;
+    // Convert time to MCD format (Julian date)
+    int dateKey = 0;  // Use Earth date (Julian date)
     double xdate;
-    double localTime;
+    float localTime;
+
     convertTimeToMcdFormat( time, longitude, dateKey, xdate, localTime );
 
     // Convert coordinates to degrees
-    double longitudeDeg = unit_conversions::convertRadiansToDegrees( longitude );
-    double latitudeDeg = unit_conversions::convertRadiansToDegrees( latitude );
+    float longitudeDeg = static_cast< float >( unit_conversions::convertRadiansToDegrees( longitude ) );
+    float latitudeDeg = static_cast< float >( unit_conversions::convertRadiansToDegrees( latitude ) );
 
-    // Set vertical coordinate type: 3 = height above surface (meters)
-    const int zkey = 3;
+    // Use zkey=1: radial distance from center of planet (meters)
+    // Remove const to match Fortran interface
+    int zkey = 1;
+    // Convert altitude above surface to radial distance from center
+    // Mars mean radius = 3389500 m
+    const double marsRadius = 3389500.0;
+    float radialDistance = static_cast< float >( marsRadius + altitude );
 
-    // Prepare extra variable flags (all off for now)
-    std::vector< int > extvarkeys( 100, 0 );
+    // Prepare extra variable flags (enable all for comprehensive output)
+    int extvarkeys[ 100 ];
+    for( int i = 0; i < 100; ++i )
+    {
+        extvarkeys[ i ] = 1;
+    }
 
-    // Output variables
-    double pres, dens, temp, zonwind, merwind;
+    // Output variables (MCD uses float)
+    float pres, dens, temp, zonwind, merwind;
+    float meanvar[ 5 ];
+    float extvar[ 100 ];
+    float seedout;
     int ier;
 
-    // Call MCD Fortran routine
-    callMcdFortran( zkey,
-                    altitude,
-                    longitudeDeg,
-                    latitudeDeg,
-                    highResolutionMode_,
-                    dateKey,
-                    xdate,
-                    localTime,
-                    mcdDataPath_,
-                    dustScenario_,
-                    perturbationKey_,
-                    perturbationSeed_,
-                    gravityWaveLength_,
-                    extvarkeys,
-                    pres,
-                    dens,
-                    temp,
-                    zonwind,
-                    merwind,
-                    currentMeanVariables_,
-                    currentExtraVariables_,
-                    currentSeedOut_,
-                    ier );
+    // localTime must be 0 when using dateKey=0 (compulsory)
+    localTime = 0.0f;
+
+    // Prepare other inputs as float (remove const to match Fortran interface)
+    float seedin_f = static_cast< float >( perturbationSeed_ );
+    float gwlength_f = static_cast< float >( gravityWaveLength_ );
+    int dustScenario = dustScenario_;
+    int perturbationKey = perturbationKey_;
+    int highResolutionMode = highResolutionMode_;
+
+    // Call MCD Fortran routine directly
+    __mcd_MOD_call_mcd( &zkey,
+                        &radialDistance,
+                        &longitudeDeg,
+                        &latitudeDeg,
+                        &highResolutionMode,
+                        &dateKey,
+                        &xdate,
+                        &localTime,
+                        mcdDataPath_.c_str( ),
+                        &dustScenario,
+                        &perturbationKey,
+                        &seedin_f,
+                        &gwlength_f,
+                        extvarkeys,
+                        &pres,
+                        &dens,
+                        &temp,
+                        &zonwind,
+                        &merwind,
+                        meanvar,
+                        extvar,
+                        &seedout,
+                        &ier,
+                        static_cast< int >( mcdDataPath_.length( ) ) );
 
     // Check for errors
     if( ier != 0 )
@@ -145,102 +183,53 @@ void McdAtmosphereModel::computeProperties( const double altitude, const double 
         throw std::runtime_error( "McdAtmosphereModel: MCD routine returned error code " + std::to_string( ier ) );
     }
 
-    // Store results
-    currentPressure_ = pres;
-    currentDensity_ = dens;
-    currentTemperature_ = temp;
-    currentZonalWind_ = zonwind;
-    currentMeridionalWind_ = merwind;
+    // Store results (convert float to double)
+    currentPressure_ = static_cast< double >( pres );
+    currentDensity_ = static_cast< double >( dens );
+    currentTemperature_ = static_cast< double >( temp );
+    currentZonalWind_ = static_cast< double >( zonwind );
+    currentMeridionalWind_ = static_cast< double >( merwind );
+    currentSeedOut_ = static_cast< double >( seedout );
+
+    // Copy mean variables
+    for( int i = 0; i < 5; ++i )
+    {
+        currentMeanVariables_[ i ] = static_cast< double >( meanvar[ i ] );
+    }
+
+    // Copy extra variables
+    for( int i = 0; i < 100; ++i )
+    {
+        currentExtraVariables_[ i ] = static_cast< double >( extvar[ i ] );
+    }
+
+    // Extract Ls and other orbital parameters from extra variables
+    // According to MCD documentation:
+    // extvar(9) = Ls (solar longitude in degrees)
+    // extvar(10) = LST (local true solar time in hours)
+    // Note: array indices in C++ are 0-based, so extvar[8] = extvar(9) in Fortran
+    if( currentExtraVariables_.size( ) >= 10 )
+    {
+        currentLs_ = currentExtraVariables_[ 8 ];    // extvar(9) = Ls
+        currentLTST_ = currentExtraVariables_[ 9 ];  // extvar(10) = LST
+    }
 }
 
-// Convert time to MCD format
-void McdAtmosphereModel::convertTimeToMcdFormat( const double time, const double longitude, int& dateKey, double& xdate, double& localTime )
+// Convert time to MCD format (simplified - only Julian date needed)
+void McdAtmosphereModel::convertTimeToMcdFormat( const double time, const double longitude, int& dateKey, double& xdate, float& localTime )
 {
-    // Convert time from seconds since J2000 to calendar date
-    basic_astrodynamics::DateTime currentDateTime = basic_astrodynamics::DateTime::fromTime( time );
+    // Convert time from seconds since J2000 to Julian date
+    const double J2000_JD = 2451545.0;  // Julian date of J2000 epoch
+    const double secondsPerDay = 86400.0;
 
-    // Use Earth date (dateKey = 0) and convert to Julian date
+    double julianDate = J2000_JD + ( time / secondsPerDay );
+
+    // Use Earth date (dateKey = 0)
     dateKey = 0;
-
-    // Convert to Julian date
-    // PLACEHOLDER: This will call the actual MCD julian conversion routine
-    double julianDate;
-    int ier;
-
-    // For now, use Tudat's conversion
-    julianDate = basic_astrodynamics::convertCalendarDateToJulianDay( currentDateTime.getYear( ),
-                                                                      currentDateTime.getMonth( ),
-                                                                      currentDateTime.getDay( ),
-                                                                      currentDateTime.getHour( ),
-                                                                      currentDateTime.getMinute( ),
-                                                                      static_cast< double >( currentDateTime.getSeconds( ) ) );
-
     xdate = julianDate;
 
-    // Local time is set to 0 when using Earth date (compulsory with dateKey=0)
-    localTime = 0.0;
-}
-
-// Call MCD Fortran routine (PLACEHOLDER)
-void McdAtmosphereModel::callMcdFortran( const int zkey,
-                                         const double xz,
-                                         const double xlon,
-                                         const double xlat,
-                                         const int hireskey,
-                                         const int datekey,
-                                         const double xdate,
-                                         const double localtime,
-                                         const std::string& dset,
-                                         const int dust,
-                                         const int perturkey,
-                                         const double seedin,
-                                         const double gwlength,
-                                         const std::vector< int >& extvarkeys,
-                                         double& pres,
-                                         double& dens,
-                                         double& temp,
-                                         double& zonwind,
-                                         double& merwind,
-                                         std::vector< double >& meanvar,
-                                         std::vector< double >& extvar,
-                                         double& seedout,
-                                         int& ier )
-{
-    // PLACEHOLDER: This function will interface with the actual MCD Fortran routine
-    // For now, provide dummy values for testing
-
-    // TODO: Replace this with actual call to MCD Fortran routine:
-    // __mcd_MOD_call_mcd(&zkey, &xz, &xlon, &xlat, &hireskey,
-    //                    &datekey, &xdate, &localtime, dset.c_str(),
-    //                    &dust, &perturkey, &seedin, &gwlength,
-    //                    extvarkeys.data(), &pres, &dens, &temp,
-    //                    &zonwind, &merwind, meanvar.data(),
-    //                    extvar.data(), &seedout, &ier,
-    //                    dset.length());
-
-    // Dummy implementation for testing purposes
-    // Using simple exponential atmosphere approximation
-    const double scaleHeight = 11100.0;       // m
-    const double surfacePressure = 610.0;     // Pa
-    const double surfaceTemperature = 210.0;  // K
-    const double surfaceDensity = 0.020;      // kg/m^3
-
-    // Exponential decay
-    double tempDecay = std::exp( -xz / ( 2.5 * scaleHeight ) );  // Slower decay
-    temp = surfaceTemperature * ( 0.7 + 0.3 * tempDecay );       // Between 147K and 210K
-
-    // Simple wind model (latitude dependent)
-    zonwind = 10.0 * std::sin( xlat * mathematical_constants::PI / 180.0 );
-    merwind = 5.0 * std::cos( xlat * mathematical_constants::PI / 180.0 );
-
-    // No errors
-    ier = 0;
-    seedout = seedin;
-
-    // Note: meanvar and extvar remain as initialized (zeros)
-
-    std::cout << "McdAtmosphereModel: Using PLACEHOLDER MCD routine. "
-              << "Replace with actual MCD interface." << std::endl;
+    // localTime must be set to 0 when using dateKey=0 (compulsory)
+    localTime = 0.0f;
 }
 
 }  // namespace aerodynamics

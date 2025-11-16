@@ -25,12 +25,9 @@ set(aerodynamics_SOURCES
         "equilibriumWallTemperature.cpp"
         "gasSurfaceInteractionModel.cpp"
         "marsDtmAtmosphereModel.cpp"
+        "nrlmsise00Atmosphere.cpp"
+        "nrlmsise00InputFunctions.cpp"
 )
-
-# Conditionally add MCD atmosphere model (follows NRLMSISE pattern)
-if(TUDAT_BUILD_WITH_MCD)
-    list(APPEND aerodynamics_SOURCES "mcdAtmosphereModel.cpp")
-endif()
 
 # Set the header files.
 set(aerodynamics_HEADERS
@@ -56,55 +53,34 @@ set(aerodynamics_HEADERS
         "windModel.h"
         "gasSurfaceInteractionModel.h"
         "marsDtmAtmosphereModel.h"
+        "nrlmsise00Atmosphere.h"
+        "nrlmsise00InputFunctions.h"
 )
-# Conditionally add MCD header
+
+# Conditionally add MCD sources and headers
 if(TUDAT_BUILD_WITH_MCD)
+    list(APPEND aerodynamics_SOURCES "mcdAtmosphereModel.cpp")
     list(APPEND aerodynamics_HEADERS "mcdAtmosphereModel.h")
 endif()
 
-    set(aerodynamics_SOURCES
-            "${aerodynamics_SOURCES}"
-            "nrlmsise00Atmosphere.cpp"
-            "nrlmsise00InputFunctions.cpp"
-            )
-    set(aerodynamics_HEADERS
-            "${aerodynamics_HEADERS}"
-            "nrlmsise00Atmosphere.h"
-            "nrlmsise00InputFunctions.h"
-            )
-    TUDAT_ADD_LIBRARY("aerodynamics"
-            "${aerodynamics_SOURCES}"
-            "${aerodynamics_HEADERS}"
-            PRIVATE_LINKS
-            "${NRLMSISE00_LIBRARIES}"
-            #        tudat_input_output
-            #        tudat_geometric_shapes
-            #        tudat_reference_frames
-            #        tudat_interpolators
-            #        PRIVATE_LINKS "${Boost_LIBRARIES}"
-            )
+# Create the library
+TUDAT_ADD_LIBRARY("aerodynamics"
+    "${aerodynamics_SOURCES}"
+    "${aerodynamics_HEADERS}"
+    PRIVATE_LINKS
+    "${NRLMSISE00_LIBRARIES}"
+)
 
-            # Add MCD-specific linking if enabled
-
+# Link MCD if enabled - this should be the ONLY place we link MCD to aerodynamics
 if(TUDAT_BUILD_WITH_MCD)
-    # Link NetCDF libraries
-    target_link_libraries(tudat_aerodynamics PUBLIC 
-        NetCDF::NetCDF_Fortran
-        NetCDF::NetCDF_C
+    # Link the MCD Fortran library
+    target_link_libraries(tudat_aerodynamics PRIVATE mcd_fortran)
+    
+    # Include MCD module directory and source directory
+    target_include_directories(tudat_aerodynamics PRIVATE
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/mcd_modules>
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/third_parties/mcd>
     )
     
-    # Include NetCDF headers
-    target_include_directories(tudat_aerodynamics PUBLIC 
-        ${NetCDF_INCLUDE_DIRS}
-    )
-    
-    # Link MCD library if it exists as separate target
-    if(TARGET mcd_library)
-        target_link_libraries(tudat_aerodynamics PUBLIC mcd_library)
-    endif()
-    
-    message(STATUS "MCD support enabled for tudat_aerodynamics")
-else()
-    # Add compile definition to disable MCD
-    target_compile_definitions(tudat_aerodynamics PUBLIC TUDAT_BUILD_WITH_MCD=0)
+    message(STATUS "MCD library linked to tudat_aerodynamics")
 endif()
