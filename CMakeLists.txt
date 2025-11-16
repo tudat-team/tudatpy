@@ -23,29 +23,8 @@ string(
     TUDATPY_VERSION "${VERSION_LABEL}"
 )
 
-# Determine which languages to enable
-# Check if we need Fortran (only for MCD)
-set(PROJECT_LANGUAGES CXX C)
-
-# Read the MCD option early to determine if we need Fortran
-option(
-    TUDAT_BUILD_WITH_MCD
-    "Build Tudat with Mars Climate Database support."
-    OFF
-)
-# Add the definition immediately after the option
-if(TUDAT_BUILD_WITH_MCD)
-    add_compile_definitions(TUDAT_BUILD_WITH_MCD=1)
-    message(STATUS "MCD support ENABLED globally")
-    list(APPEND PROJECT_LANGUAGES Fortran)
-    message(STATUS "Fortran language enabled for MCD support")
-else()
-    add_compile_definitions(TUDAT_BUILD_WITH_MCD=0)
-    message(STATUS "MCD support DISABLED globally")
-endif()
-
-# Project declaration with conditional Fortran support
-project(tudatpy VERSION "${TUDATPY_VERSION}" LANGUAGES ${PROJECT_LANGUAGES})
+# Project declaration.
+project(tudatpy VERSION "${TUDATPY_VERSION}" LANGUAGES CXX C)
 set(BASE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
 # Set position independent code [From tudat cmake]
@@ -204,14 +183,6 @@ set(
 set(
     Tudat_DEFINITIONS
     "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=${TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS}"
-)
-set(
-    Tudat_DEFINITIONS
-    "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=${TUDAT_BUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS}"
-)
-set(
-    Tudat_DEFINITIONS
-    "${Tudat_DEFINITIONS} -DTUDAT_BUILD_WITH_MCD=${TUDAT_BUILD_WITH_MCD}"
 )
 
 # TODO: NOT SURE IF THIS BELONGS HERE (Comes from tudatpy cmake)
@@ -416,21 +387,32 @@ if (TUDAT_BUILD_WITH_JSON_INTERFACE)
     find_package(nlohmann_json REQUIRED 3.7.3)
 endif ()
 
-# MCD Dependencies
+# MCD dependency - add option and enable Fortran if needed
+option(
+    TUDAT_BUILD_WITH_MCD
+    "Build Tudat with Mars Climate Database support."
+    OFF
+)
+
 if(TUDAT_BUILD_WITH_MCD)
-    message(STATUS "Configuring MCD (Mars Climate Database)...")
+    # Enable Fortran language
+    enable_language(Fortran)
     
     # Find NetCDF (required for MCD)
-    find_package(NetCDF REQUIRED)
+    find_package(NetCDF REQUIRED COMPONENTS Fortran C)
     
     if(NOT NetCDF_FOUND)
         message(FATAL_ERROR "NetCDF not found. MCD requires NetCDF Fortran and C libraries. "
                            "Please install NetCDF using: conda install -c conda-forge netcdf-fortran")
     endif()
     
-    message(STATUS "  NetCDF C library: ${NetCDF_C_LIBRARIES}")
-    message(STATUS "  NetCDF Fortran library: ${NetCDF_Fortran_LIBRARIES}")
-    message(STATUS "  NetCDF include dirs: ${NetCDF_INCLUDE_DIRS}")
+    message(STATUS "MCD: NetCDF C library: ${NetCDF_C_LIBRARIES}")
+    message(STATUS "MCD: NetCDF Fortran library: ${NetCDF_Fortran_LIBRARIES}")
+    message(STATUS "MCD: NetCDF include dirs: ${NetCDF_INCLUDE_DIRS}")
+    
+    add_definitions(-DTUDAT_BUILD_WITH_MCD=1)
+else()
+    add_definitions(-DTUDAT_BUILD_WITH_MCD=0)
 endif()
 
 # TODO: Not sure if this is needed. Comes from CMake of tudatpy
@@ -446,6 +428,35 @@ include(YOLOProjectAddExternalData)
 
 # Define list of libraries in tudat and run setup for submodules
 include(TudatLinkLibraries)
+
+# Build MCD library if enabled (must be AFTER TudatLinkLibraries)
+if(TUDAT_BUILD_WITH_MCD)
+    set(MCD_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_parties/mcd)
+    add_subdirectory(${MCD_SOURCE_DIR})
+    
+    # Set MCD data directory path
+    set(MCD_DATA_DIR "${MCD_SOURCE_DIR}/data")
+    target_compile_definitions(mcd_fortran PUBLIC MCD_DATA_PATH="${MCD_DATA_DIR}/")
+    
+    message(STATUS "MCD: Library configured successfully")
+    message(STATUS "MCD: Data directory: ${MCD_DATA_DIR}")
+endif()
+
+# Set up config.hpp file BEFORE building subdirectories
+file(
+    RELATIVE_PATH TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX
+    "${CMAKE_INSTALL_PREFIX}"
+    "${INSTALL_DATA_DIR}/tudat"
+)
+
+configure_file(
+    "${BASE_DIRECTORY}/configuration/tudat/config.hpp.in"
+    "${PROJECT_BINARY_DIR}/include/tudat/config.hpp" @ONLY
+)
+
+include_directories("${PROJECT_BINARY_DIR}/include")
+
+# Add Tudat subdirectories
 add_subdirectory(src/tudat/astro)
 add_subdirectory(src/tudat/basics)
 add_subdirectory(src/tudat/interface)
@@ -463,18 +474,6 @@ endif()
 
 # Additional contents from original tudat cmake
 # ========================================================================
-
-file(
-    RELATIVE_PATH TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX
-    "${CMAKE_INSTALL_PREFIX}"
-    "${INSTALL_DATA_DIR}/tudat"
-)
-
-# Set up config.hpp file of tudat for current version
-configure_file(
-        "${BASE_DIRECTORY}/configuration/tudat/config.hpp.in"
-        "${PROJECT_BINARY_DIR}/include/tudat/config.hpp" @ONLY
-)
 
 # Installation of the header files.
 install(
@@ -552,63 +551,6 @@ message(
     STATUS
     "TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX: ${TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX}"
 )
-
-# ============================================================================
-# MCD Library Configuration
-# ============================================================================
-if(TUDAT_BUILD_WITH_MCD)
-    set(MCD_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_parties/mcd)
-    
-    # Check if MCD.F90 exists
-    if(NOT EXISTS ${MCD_SOURCE_DIR}/MCD.F90)
-        message(FATAL_ERROR "MCD.F90 not found at ${MCD_SOURCE_DIR}")
-    endif()
-    
-    # Build MCD as a static library
-    add_library(mcd_library STATIC
-        ${MCD_SOURCE_DIR}/MCD.F90
-    )
-    
-    # Explicitly set the language for this target (should be automatic, but just in case)
-    set_target_properties(mcd_library PROPERTIES
-        LINKER_LANGUAGE Fortran
-        Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/mcd_modules
-    )
-    
-    # Include directories for NetCDF
-    target_include_directories(mcd_library PRIVATE
-        ${NetCDF_INCLUDE_DIRS}
-    )
-    
-    # Link NetCDF libraries
-    target_link_libraries(mcd_library PUBLIC
-        NetCDF::NetCDF_Fortran
-        NetCDF::NetCDF_C
-    )
-    
-    # Set MCD data directory path
-    set(MCD_DATA_DIR "${MCD_SOURCE_DIR}/data")
-    
-    # Export MCD_DATA_DIR for use in C++ code
-    target_compile_definitions(mcd_library PUBLIC
-        MCD_DATA_PATH="${MCD_DATA_DIR}/"
-    )
-    
-    # Install mcd.h header for C++ interfacing
-    if(EXISTS ${MCD_SOURCE_DIR}/mcd.h)
-        install(FILES ${MCD_SOURCE_DIR}/mcd.h
-                DESTINATION ${INSTALL_INCLUDE_DIR}/tudat/external/mcd)
-    endif()
-    
-    message(STATUS "MCD library configured successfully")
-    message(STATUS "  MCD data directory: ${MCD_DATA_DIR}")
-    
-    # Add global compile definition
-    add_definitions(-DTUDAT_BUILD_WITH_MCD=1)
-else()
-    add_definitions(-DTUDAT_BUILD_WITH_MCD=0)
-endif()
-
 
 # +============================================================================
 # Tudatpy specific configuration

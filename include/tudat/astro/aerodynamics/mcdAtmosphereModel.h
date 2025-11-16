@@ -116,6 +116,18 @@ public:
         return currentMeridionalWind_;
     }
 
+    //! Get mean variables (pressure, density, temperature, zonal wind, meridional wind)
+    const std::vector< double >& getMeanVariables( ) const
+    {
+        return currentMeanVariables_;
+    }
+
+    //! Get extra variables (100 variables as per MCD specification)
+    const std::vector< double >& getExtraVariables( ) const
+    {
+        return currentExtraVariables_;
+    }
+
     //! Get dust scenario
     int getDustScenario( ) const
     {
@@ -140,57 +152,35 @@ public:
         highResolutionMode_ = highResolutionMode;
     }
 
+    //! Get solar longitude (Ls) in degrees
+    double getSolarLongitude( ) const
+    {
+        return currentLs_;
+    }
+
+    //! Get local true solar time in hours
+    double getLocalTrueSolarTime( ) const
+    {
+        return currentLTST_;
+    }
+
 protected:
 private:
     //! Compute atmospheric properties
-    /*!
-     * Internal function to compute atmospheric properties at given conditions.
-     * This function calls the MCD Fortran routine and caches results.
-     * \param altitude Altitude above surface (m)
-     * \param longitude East longitude (radians)
-     * \param latitude Latitude (radians)
-     * \param time Time since J2000 (seconds)
-     */
     void computeProperties( const double altitude, const double longitude, const double latitude, const double time );
 
-    //! Convert time to MCD format
+    //! Convert time to MCD format (Julian date only)
     /*!
-     * Converts time from seconds since J2000 to MCD date format.
+     * Converts time from seconds since J2000 to Julian date.
      * \param time Time since J2000 (seconds)
-     * \param dateKey Date key (0: Earth date, 1: Mars date with Ls)
-     * \param xdate Output date (Julian date if dateKey=0, Ls if dateKey=1)
-     * \param localTime Output local time (hours)
+     * \param longitude East longitude (radians) - not used with dateKey=0
+     * \param dateKey Date key (always 0 for Julian date)
+     * \param xdate Output Julian date
+     * \param localTime Output local time (always 0 with dateKey=0)
      */
-    void convertTimeToMcdFormat( const double time, const double longitude, int& dateKey, double& xdate, double& localTime );
+    void convertTimeToMcdFormat( const double time, const double longitude, int& dateKey, double& xdate, float& localTime );
 
-    //! Call MCD Fortran routine
-    /*!
-     * Placeholder function to call the MCD Fortran routine.
-     * This will be implemented with actual MCD interface later.
-     * \param zkey Vertical coordinate type (1-4)
-     * \param xz Vertical coordinate value
-     * \param xlon East longitude (degrees)
-     * \param xlat Latitude (degrees)
-     * \param hireskey High resolution flag
-     * \param datekey Date flag (0: Earth date, 1: Mars date)
-     * \param xdate Date value
-     * \param localtime Local time (hours)
-     * \param dset Path to datasets
-     * \param dust Dust scenario
-     * \param perturkey Perturbation type
-     * \param seedin Perturbation seed
-     * \param gwlength Gravity wave wavelength
-     * \param extvarkeys Extra variable flags
-     * \param pres Output pressure
-     * \param dens Output density
-     * \param temp Output temperature
-     * \param zonwind Output zonal wind
-     * \param merwind Output meridional wind
-     * \param meanvar Output mean variables
-     * \param extvar Output extra variables
-     * \param seedout Output seed
-     * \param ier Output error code
-     */
+    //! Call MCD Fortran routine via C interface
     void callMcdFortran( const int zkey,
                          const double xz,
                          const double xlon,
@@ -218,7 +208,7 @@ private:
     //! Path to MCD data files
     std::string mcdDataPath_;
 
-    //! Dust and solar EUV scenario (1-8)
+    //! Dust and solar EUV scenario (1-8 or 24-35)
     int dustScenario_;
 
     //! Perturbation type
@@ -256,6 +246,15 @@ private:
 
     //! Current random seed value
     double currentSeedOut_;
+
+    //! Cached solar longitude (degrees)
+    double currentLs_;
+
+    //! Cached local true solar time (hours)
+    double currentLTST_;
+
+    //! Cached Sun-Mars distance (AU)
+    double currentMarsAU_;
 };
 
 }  // namespace aerodynamics
