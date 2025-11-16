@@ -58,10 +58,10 @@ public:
     WindModelSettings( const WindModelTypes windModelType,
                        const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame ):
         windModelType_( windModelType ), associatedFrame_( associatedFrame )
-    { }
+    {}
 
     //  Destructor
-    virtual ~WindModelSettings( ) { }
+    virtual ~WindModelSettings( ) {}
 
     //  Function to retrieve type of wind model that is to be created
     /*
@@ -91,7 +91,7 @@ public:
     ConstantWindModelSettings( const Eigen::Vector3d constantWindVelocity,
                                const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame ):
         WindModelSettings( constant_wind_model, associatedFrame ), constantWindVelocity_( constantWindVelocity )
-    { }
+    {}
 
     Eigen::Vector3d getConstantWindVelocity( )
     {
@@ -115,10 +115,10 @@ public:
     CustomWindModelSettings( const std::function< Eigen::Vector3d( const double, const double, const double, const double ) > windFunction,
                              const reference_frames::AerodynamicsReferenceFrames associatedFrame = reference_frames::vertical_frame ):
         WindModelSettings( custom_wind_model, associatedFrame ), windFunction_( windFunction )
-    { }
+    {}
 
     //  Destructor
-    ~CustomWindModelSettings( ) { }
+    ~CustomWindModelSettings( ) {}
 
     //  Function to retrieve function that returns wind vector as a function of altitude, longitude, latitude and time
     /*
@@ -156,6 +156,7 @@ enum AtmosphereTypes {
     tabulated_atmosphere,
     nrlmsise00,
     mars_dtm_atmosphere,
+    mcd_atmosphere,
     scaled_atmosphere
 };
 
@@ -176,10 +177,10 @@ public:
      *  additional information should be defined in a derived class.
      *  \param atmosphereType Type of atmosphere model that is to be created.
      */
-    AtmosphereSettings( const AtmosphereTypes atmosphereType ): atmosphereType_( atmosphereType ) { }
+    AtmosphereSettings( const AtmosphereTypes atmosphereType ): atmosphereType_( atmosphereType ) {}
 
     //  Destructor
-    virtual ~AtmosphereSettings( ) { }
+    virtual ~AtmosphereSettings( ) {}
 
     //  Function to return type of atmosphere model that is to be created.
     /*
@@ -244,7 +245,7 @@ public:
         constantTemperature_( constantTemperature ), densityAtZeroAltitude_( densityAtZeroAltitude ),
         specificGasConstant_( specificGasConstant ), ratioOfSpecificHeats_( ratioOfSpecificHeats ),
         bodyWithPredefinedExponentialAtmosphere_( undefined_body )
-    { }
+    {}
 
     //  Default constructor.
     /*
@@ -372,7 +373,7 @@ public:
         AtmosphereSettings( custom_constant_temperature_atmosphere ), densityFunction_( densityFunction ),
         constantTemperature_( constantTemperature ), specificGasConstant_( specificGasConstant ),
         ratioOfSpecificHeats_( ratioOfSpecificHeats )
-    { }
+    {}
 
     //  Constructor.
     /*
@@ -392,7 +393,7 @@ public:
         AtmosphereSettings( custom_constant_temperature_atmosphere ), densityFunctionType_( densityFunctionType ),
         constantTemperature_( constantTemperature ), specificGasConstant_( specificGasConstant ),
         ratioOfSpecificHeats_( ratioOfSpecificHeats ), modelSpecificParameters_( modelSpecificParameters )
-    { }
+    {}
 
     //  Get the function to compute the density at the current conditions.
     /*
@@ -513,7 +514,7 @@ public:
                                   const bool useAnomalousOxygen = true ):
         AtmosphereSettings( nrlmsise00 ), spaceWeatherFile_( spaceWeatherFile ), useStormConditions_( useStormConditions ),
         useAnomalousOxygen_( useAnomalousOxygen )
-    { }
+    {}
 
     //  Function to return file containing space weather data.
     /*
@@ -558,14 +559,17 @@ private:
     bool useAnomalousOxygen_;
 };
 
-class MarsDtmAtmosphereSettings: public AtmosphereSettings
+class MarsDtmAtmosphereSettings : public AtmosphereSettings
 {
 public:
-
     MarsDtmAtmosphereSettings( const std::string& spaceWeatherFile = "" ):
-        AtmosphereSettings( mars_dtm_atmosphere ), spaceWeatherFile_( spaceWeatherFile ){ }
+        AtmosphereSettings( mars_dtm_atmosphere ), spaceWeatherFile_( spaceWeatherFile )
+    {}
 
-    std::string getSpaceWeatherFile( ){ return spaceWeatherFile_; }
+    std::string getSpaceWeatherFile( )
+    {
+        return spaceWeatherFile_;
+    }
 
 private:
     //  File containing space weather data.
@@ -573,10 +577,85 @@ private:
      *  File containing space weather data, as in https://celestrak.com/SpaceData/sw19571001.txt
      */
     std::string spaceWeatherFile_;
-
-
 };
 
+#if TUDAT_BUILD_WITH_MCD
+//! MCD Atmosphere Settings
+/*!
+ * Settings class for Mars Climate Database atmosphere model.
+ */
+class McdAtmosphereSettings : public AtmosphereSettings
+{
+public:
+    //! Constructor
+    McdAtmosphereSettings( const std::string& mcdDataPath = "",
+                           const int dustScenario = 1,
+                           const int perturbationKey = 0,
+                           const double perturbationSeed = 0.0,
+                           const double gravityWaveLength = 0.0,
+                           const int highResolutionMode = 0 ):
+        AtmosphereSettings( mcd_atmosphere ), mcdDataPath_( mcdDataPath ), dustScenario_( dustScenario ),
+        perturbationKey_( perturbationKey ), perturbationSeed_( perturbationSeed ), gravityWaveLength_( gravityWaveLength ),
+        highResolutionMode_( highResolutionMode )
+    {}
+
+    // ...getter methods...
+    std::string getMcdDataPath( ) const
+    {
+        return mcdDataPath_;
+    }
+    int getDustScenario( ) const
+    {
+        return dustScenario_;
+    }
+    int getPerturbationKey( ) const
+    {
+        return perturbationKey_;
+    }
+    double getPerturbationSeed( ) const
+    {
+        return perturbationSeed_;
+    }
+    double getGravityWaveLength( ) const
+    {
+        return gravityWaveLength_;
+    }
+    int getHighResolutionMode( ) const
+    {
+        return highResolutionMode_;
+    }
+
+private:
+    std::string mcdDataPath_;
+    int dustScenario_;
+    int perturbationKey_;
+    double perturbationSeed_;
+    double gravityWaveLength_;
+    int highResolutionMode_;
+};
+
+//! Factory function for MCD atmosphere settings
+/*!
+ * Creates settings for Mars Climate Database atmosphere model.
+ * \param mcdDataPath Path to MCD data files (default: empty, uses default path)
+ * \param dustScenario Dust and solar EUV scenario (1-8, default: 1)
+ * \param perturbationKey Perturbation type (0-5, default: 0)
+ * \param perturbationSeed Random seed for perturbations (default: 0.0)
+ * \param gravityWaveLength Gravity wave wavelength (default: 0.0)
+ * \param highResolutionMode High resolution flag (0 or 1, default: 0)
+ * \return Shared pointer to MCD atmosphere settings
+ */
+inline std::shared_ptr< AtmosphereSettings > mcdAtmosphereSettings( const std::string& mcdDataPath = "",
+                                                                    const int dustScenario = 1,
+                                                                    const int perturbationKey = 0,
+                                                                    const double perturbationSeed = 0.0,
+                                                                    const double gravityWaveLength = 0.0,
+                                                                    const int highResolutionMode = 0 )
+{
+    return std::make_shared< McdAtmosphereSettings >(
+            mcdDataPath, dustScenario, perturbationKey, perturbationSeed, gravityWaveLength, highResolutionMode );
+}
+#endif  // TUDAT_BUILD_WITH_MCD
 
 //  AtmosphereSettings for defining an atmosphere with tabulated data from file.
 // //! @get_docstring(TabulatedAtmosphereSettings.__docstring__)
@@ -612,7 +691,7 @@ public:
         independentVariables_( independentVariablesNames ), dependentVariables_( dependentVariablesNames ),
         specificGasConstant_( specificGasConstant ), ratioOfSpecificHeats_( ratioOfSpecificHeats ), boundaryHandling_( boundaryHandling ),
         defaultExtrapolationValue_( defaultExtrapolationValue )
-    { }
+    {}
 
     //  Constructor with single boundary handling parameters.
     /*
@@ -649,7 +728,7 @@ public:
                         std::vector< std::pair< double, double > >(
                                 independentVariablesNames.size( ),
                                 std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) ) ) )
-    { }
+    {}
 
     //  Constructor compatible with old version.
     /*
@@ -684,7 +763,7 @@ public:
                                              std::vector< std::pair< double, double > >(
                                                      1,
                                                      std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) ) ) )
-    { }
+    {}
 
     //  Constructor with no specific gas constant nor ratio of specific heats.
     /*
@@ -708,7 +787,7 @@ public:
         independentVariables_( independentVariablesNames ), dependentVariables_( dependentVariablesNames ),
         specificGasConstant_( physical_constants::SPECIFIC_GAS_CONSTANT_AIR ), ratioOfSpecificHeats_( 1.4 ),
         boundaryHandling_( boundaryHandling ), defaultExtrapolationValue_( defaultExtrapolationValue )
-    { }
+    {}
 
     //  Constructor with no specific gas constant nor ratio of specific heats.
     /*
@@ -790,7 +869,7 @@ public:
                         std::vector< std::pair< double, double > >(
                                 independentVariablesNames.size( ),
                                 std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) ) ) )
-    { }
+    {}
 
     //  Function to return file containing atmospheric properties.
     /*
@@ -929,13 +1008,13 @@ public:
                               const bool isScalingAbsolute ):
         AtmosphereSettings( scaled_atmosphere ), baseSettings_( baseSettings ), scaling_( [ = ]( const double ) { return scaling; } ),
         isScalingAbsolute_( isScalingAbsolute )
-    { }
+    {}
 
     ScaledAtmosphereSettings( const std::shared_ptr< AtmosphereSettings > baseSettings,
                               const std::function< double( const double ) > scaling,
                               const bool isScalingAbsolute ):
         AtmosphereSettings( scaled_atmosphere ), baseSettings_( baseSettings ), scaling_( scaling ), isScalingAbsolute_( isScalingAbsolute )
-    { }
+    {}
 
     std::shared_ptr< AtmosphereSettings > getBaseSettings( )
     {
@@ -1014,7 +1093,6 @@ inline std::shared_ptr< AtmosphereSettings > marsDtmAtmosphereSettings( )
 {
     return std::make_shared< MarsDtmAtmosphereSettings >( );
 }
-
 
 typedef std::function< double( const double, const double, const double, const double ) > DensityFunction;
 //! @get_docstring(customConstantTemperatureAtmosphereSettings,0)

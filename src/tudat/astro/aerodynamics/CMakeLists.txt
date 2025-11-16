@@ -27,6 +27,11 @@ set(aerodynamics_SOURCES
         "marsDtmAtmosphereModel.cpp"
 )
 
+# Conditionally add MCD atmosphere model (follows NRLMSISE pattern)
+if(TUDAT_BUILD_WITH_MCD)
+    list(APPEND aerodynamics_SOURCES "mcdAtmosphereModel.cpp")
+endif()
+
 # Set the header files.
 set(aerodynamics_HEADERS
         "aerodynamicAcceleration.h"
@@ -52,6 +57,10 @@ set(aerodynamics_HEADERS
         "gasSurfaceInteractionModel.h"
         "marsDtmAtmosphereModel.h"
 )
+# Conditionally add MCD header
+if(TUDAT_BUILD_WITH_MCD)
+    list(APPEND aerodynamics_HEADERS "mcdAtmosphereModel.h")
+endif()
 
     set(aerodynamics_SOURCES
             "${aerodynamics_SOURCES}"
@@ -74,3 +83,28 @@ set(aerodynamics_HEADERS
             #        tudat_interpolators
             #        PRIVATE_LINKS "${Boost_LIBRARIES}"
             )
+
+            # Add MCD-specific linking if enabled
+
+if(TUDAT_BUILD_WITH_MCD)
+    # Link NetCDF libraries
+    target_link_libraries(tudat_aerodynamics PUBLIC 
+        NetCDF::NetCDF_Fortran
+        NetCDF::NetCDF_C
+    )
+    
+    # Include NetCDF headers
+    target_include_directories(tudat_aerodynamics PUBLIC 
+        ${NetCDF_INCLUDE_DIRS}
+    )
+    
+    # Link MCD library if it exists as separate target
+    if(TARGET mcd_library)
+        target_link_libraries(tudat_aerodynamics PUBLIC mcd_library)
+    endif()
+    
+    message(STATUS "MCD support enabled for tudat_aerodynamics")
+else()
+    # Add compile definition to disable MCD
+    target_compile_definitions(tudat_aerodynamics PUBLIC TUDAT_BUILD_WITH_MCD=0)
+endif()
