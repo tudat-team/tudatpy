@@ -48,6 +48,8 @@ Functions
 
    nrlmsise00
 
+   mcd
+
    us76
 
    custom_constant_temperature
@@ -69,6 +71,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.exponential
 
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.nrlmsise00
+
+.. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mcd
 
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.us76
 

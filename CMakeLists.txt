@@ -33,10 +33,15 @@ option(
     "Build Tudat with Mars Climate Database support."
     OFF
 )
-
+# Add the definition immediately after the option
 if(TUDAT_BUILD_WITH_MCD)
+    add_compile_definitions(TUDAT_BUILD_WITH_MCD=1)
+    message(STATUS "MCD support ENABLED globally")
     list(APPEND PROJECT_LANGUAGES Fortran)
     message(STATUS "Fortran language enabled for MCD support")
+else()
+    add_compile_definitions(TUDAT_BUILD_WITH_MCD=0)
+    message(STATUS "MCD support DISABLED globally")
 endif()
 
 # Project declaration with conditional Fortran support
@@ -173,13 +178,6 @@ if (TUDAT_BUILD_GITHUB_ACTIONS AND MSVC)
         )
     endif()
 endif()
-
-# MCD (Mars Climate Database) Option
-option(
-    TUDAT_BUILD_WITH_MCD
-    "Build Tudat with Mars Climate Database support."
-    OFF
-)
 
 include(show_build_configuration)
 
@@ -604,7 +602,13 @@ if(TUDAT_BUILD_WITH_MCD)
     
     message(STATUS "MCD library configured successfully")
     message(STATUS "  MCD data directory: ${MCD_DATA_DIR}")
+    
+    # Add global compile definition
+    add_definitions(-DTUDAT_BUILD_WITH_MCD=1)
+else()
+    add_definitions(-DTUDAT_BUILD_WITH_MCD=0)
 endif()
+
 
 # +============================================================================
 # Tudatpy specific configuration
