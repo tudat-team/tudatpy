@@ -583,11 +583,54 @@ private:
 //! MCD Atmosphere Settings
 /*!
  * Settings class for Mars Climate Database atmosphere model.
+ *
+ * NOTE ON ALTITUDE INPUT:
+ * -----------------------
+ * The MCD model expects altitude as "height above local surface" (matching Tudat's convention).
+ * Internally, this is converted to radial distance from Mars center using:
+ *   radial_distance = MARS_MEAN_RADIUS + altitude
+ * where MARS_MEAN_RADIUS = 3396200.0 m (IAU 2015).
+ *
+ * FUTURE IMPROVEMENT: This should be enhanced to use the actual Body shape model
+ * (oblate spheroid + MOLA topography if high-resolution mode is enabled).
+ *
+ * PARAMETERS:
+ * -----------
+ * - mcdDataPath: Path to MCD NetCDF data files. If empty, uses compile-time default.
+ * - dustScenario: Dust and solar EUV scenario selection
+ *     1-3   = Climatology (average/min/max solar)
+ *     4-6   = Dust storm scenarios
+ *     7-8   = Warm/cold scenarios (requires additional data files)
+ *     24-35 = Mars Year 24-35 scenarios with associated solar EUV
+ * - perturbationKey: Type of atmospheric perturbations
+ *     0 = No perturbations (default, most stable)
+ *     1 = Reserved (not used)
+ *     2 = Large scale EOF (Empirical Orthogonal Functions) perturbations
+ *     3 = Small scale gravity wave perturbations (may cause crashes)
+ *     4 = Both large and small scale perturbations (may cause crashes)
+ *     5 = Add n×standard_deviation (seedin must be in [-4, 4])
+ * - perturbationSeed: Random seed or scaling factor for perturbations
+ *     For perturbationKey=2,3,4: seed for random number generation
+ *     For perturbationKey=5: coefficient for standard deviation scaling
+ * - gravityWaveLength: Vertical wavelength of gravity waves in meters
+ *     Only used if perturbationKey=3 or 4
+ *     Default 0.0 means use MCD default (16000 m)
+ * - highResolutionMode: Use high-resolution topography
+ *     0 = GCM resolution (default)
+ *     1 = High-resolution MOLA topography
  */
 class McdAtmosphereSettings : public AtmosphereSettings
 {
 public:
-    //! Constructor
+    //! Constructor with all parameters
+    /*!
+     * \param mcdDataPath Path to MCD data directory. Empty string uses compile-time default.
+     * \param dustScenario Dust/solar scenario (1-8 or 24-35), default=1 (climatology avg)
+     * \param perturbationKey Perturbation type (0-5), default=0 (none)
+     * \param perturbationSeed Random seed or scaling factor, default=0.0
+     * \param gravityWaveLength GW wavelength in meters, default=0.0 (uses MCD default)
+     * \param highResolutionMode High-res topography flag (0 or 1), default=0
+     */
     McdAtmosphereSettings( const std::string& mcdDataPath = "",
                            const int dustScenario = 1,
                            const int perturbationKey = 0,
@@ -597,9 +640,27 @@ public:
         AtmosphereSettings( mcd_atmosphere ), mcdDataPath_( mcdDataPath ), dustScenario_( dustScenario ),
         perturbationKey_( perturbationKey ), perturbationSeed_( perturbationSeed ), gravityWaveLength_( gravityWaveLength ),
         highResolutionMode_( highResolutionMode )
-    {}
+    {
+        // Validate parameters at construction time
+        if( ( dustScenario_ < 1 || dustScenario_ > 8 ) && ( dustScenario_ < 24 || dustScenario_ > 35 ) )
+        {
+            throw std::runtime_error( "McdAtmosphereSettings: Invalid dustScenario. Must be 1-8 or 24-35." );
+        }
+        if( perturbationKey_ < 0 || perturbationKey_ > 5 )
+        {
+            throw std::runtime_error( "McdAtmosphereSettings: Invalid perturbationKey. Must be 0-5." );
+        }
+        if( perturbationKey_ == 5 && ( perturbationSeed_ < -4.0 || perturbationSeed_ > 4.0 ) )
+        {
+            throw std::runtime_error( "McdAtmosphereSettings: For perturbationKey=5, perturbationSeed must be in [-4, 4]." );
+        }
+        if( highResolutionMode_ != 0 && highResolutionMode_ != 1 )
+        {
+            throw std::runtime_error( "McdAtmosphereSettings: Invalid highResolutionMode. Must be 0 or 1." );
+        }
+    }
 
-    // ...getter methods...
+    // Getter methods with const correctness
     std::string getMcdDataPath( ) const
     {
         return mcdDataPath_;
@@ -626,23 +687,41 @@ public:
     }
 
 private:
-    std::string mcdDataPath_;
-    int dustScenario_;
-    int perturbationKey_;
-    double perturbationSeed_;
-    double gravityWaveLength_;
-    int highResolutionMode_;
+    std::string mcdDataPath_;   //! Path to MCD data files
+    int dustScenario_;          //! Dust/solar scenario (1-8 or 24-35)
+    int perturbationKey_;       //! Perturbation type (0-5)
+    double perturbationSeed_;   //! Random seed or scaling factor
+    double gravityWaveLength_;  //! Gravity wave wavelength (meters)
+    int highResolutionMode_;    //! High-resolution topography flag (0 or 1)
 };
 
 //! Factory function for MCD atmosphere settings
 /*!
  * Creates settings for Mars Climate Database atmosphere model.
- * \param mcdDataPath Path to MCD data files (default: empty, uses default path)
- * \param dustScenario Dust and solar EUV scenario (1-8, default: 1)
- * \param perturbationKey Perturbation type (0-5, default: 0)
+ *
+ * \param mcdDataPath Path to MCD data files. If empty (default), uses the compile-time
+ *                    default path (typically third_parties/mcd/data/). Users can provide
+ *                    a custom absolute path to their MCD data directory.
+ * \param dustScenario Dust and solar EUV scenario (1-8 or 24-35, default: 1)
+ *                     1-3: Climatology (avg/min/max solar)
+ *                     4-6: Dust storm scenarios
+ *                     7-8: Warm/cold scenarios (requires additional data files)
+ *                     24-35: Mars Year scenarios with associated solar EUV
+ * \param perturbationKey Perturbation type (0-5, default: 0 = none)
+ *                        0: No perturbations (recommended for most uses)
+ *                        2: Large scale EOF perturbations
+ *                        3: Small scale gravity waves (may cause crashes - use with caution)
+ *                        4: Both large and small scale (may cause crashes - use with caution)
+ *                        5: Add n×standard_deviation (perturbationSeed must be in [-4,4])
  * \param perturbationSeed Random seed for perturbations (default: 0.0)
- * \param gravityWaveLength Gravity wave wavelength (default: 0.0)
- * \param highResolutionMode High resolution flag (0 or 1, default: 0)
+ *                         For perturbationKey=2,3,4: random seed
+ *                         For perturbationKey=5: coefficient for std deviation
+ * \param gravityWaveLength Gravity wave vertical wavelength in meters (default: 0.0)
+ *                          Only used if perturbationKey=3 or 4
+ *                          0.0 means use MCD default (16000 m)
+ * \param highResolutionMode High resolution topography flag (0 or 1, default: 0)
+ *                           0: Use GCM resolution
+ *                           1: Use high-resolution MOLA topography
  * \return Shared pointer to MCD atmosphere settings
  */
 inline std::shared_ptr< AtmosphereSettings > mcdAtmosphereSettings( const std::string& mcdDataPath = "",
@@ -788,52 +867,6 @@ public:
         specificGasConstant_( physical_constants::SPECIFIC_GAS_CONSTANT_AIR ), ratioOfSpecificHeats_( 1.4 ),
         boundaryHandling_( boundaryHandling ), defaultExtrapolationValue_( defaultExtrapolationValue )
     {}
-
-    //  Constructor with no specific gas constant nor ratio of specific heats.
-    /*
-     *  Constructor with no specific gas constant nor ratio of specific heats. These two values will be given
-     *  the default Earth value, or are specified inside the atmosphere table file (and thus, inside the
-     *  dependent variables vector).
-     *  \param atmosphereTableFile Map of files containing information on the atmosphere. The order of both
-     *      independent and dependent parameters needs to be specified in the independentVariablesNames and
-     *      dependentVariablesNames vectors, respectively. Note that specific gas constant and specific heat ratio
-     *      will be given the default constant values for Earth, unless they are included in the file map.
-     *  \param independentVariablesNames List of independent parameters describing the atmosphere.
-     *  \param dependentVariablesNames List of dependent parameters output by the atmosphere.
-     *  \param boundaryHandling List of methods for interpolation behavior when independent variable is out of range.
-     *  \param defaultExtrapolationValue List of default values to be used for extrapolation, in case of
-     *      use_default_value or use_default_value_with_warning as methods for boundaryHandling.
-     */
-    TabulatedAtmosphereSettings( const std::map< int, std::string >& atmosphereTableFile,
-                                 const std::vector< AtmosphereIndependentVariables >& independentVariablesNames,
-                                 const std::vector< AtmosphereDependentVariables >& dependentVariablesNames,
-                                 const std::vector< interpolators::BoundaryInterpolationType >& boundaryHandling,
-                                 const std::vector< double >& defaultExtrapolationValue ):
-        AtmosphereSettings( tabulated_atmosphere ), atmosphereFile_( atmosphereTableFile ),
-        independentVariables_( independentVariablesNames ), dependentVariables_( dependentVariablesNames ),
-        specificGasConstant_( physical_constants::SPECIFIC_GAS_CONSTANT_AIR ), ratioOfSpecificHeats_( 1.4 ),
-        boundaryHandling_( boundaryHandling )
-    {
-        // Assign default values
-        defaultExtrapolationValue_.resize( dependentVariablesNames.size( ) );
-        for( unsigned int i = 0; i < dependentVariablesNames.size( ); i++ )
-        {
-            for( unsigned int j = 0; j < independentVariablesNames.size( ); j++ )
-            {
-                if( boundaryHandling_.at( j ) == interpolators::use_default_value ||
-                    boundaryHandling_.at( j ) == interpolators::use_default_value_with_warning )
-                {
-                    defaultExtrapolationValue_.at( i ).push_back(
-                            std::make_pair( defaultExtrapolationValue.at( i ), defaultExtrapolationValue.at( i ) ) );
-                }
-                else
-                {
-                    defaultExtrapolationValue_.at( i ).push_back( std::make_pair( IdentityElement::getAdditionIdentity< double >( ),
-                                                                                  IdentityElement::getAdditionIdentity< double >( ) ) );
-                }
-            }
-        }
-    }
 
     //  Constructor with no specific gas constant nor ratio of specific heats, and with
     //  single boundary handling parameters.

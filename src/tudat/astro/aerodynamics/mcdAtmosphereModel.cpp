@@ -38,26 +38,64 @@ McdAtmosphereModel::McdAtmosphereModel( const std::string& mcdDataPath,
     currentMeanVariables_.resize( 5, 0.0 );
     currentExtraVariables_.resize( 100, 0.0 );
 
-    // Set default MCD data path if not provided
+    // Set default MCD data path if not provided by user
     if( mcdDataPath_.empty( ) )
     {
-        mcdDataPath_ = paths::getAtmosphereTablesPath( ) + "/MCD_DATA/";
+        // Use the compile-time defined path to the MCD data directory
+        // This is set by CMake and points to the source tree location
+#ifdef MCD_DATA_PATH
+        mcdDataPath_ = MCD_DATA_PATH;
+#else
+        // Fallback: this should not normally happen if CMake is configured correctly
+        throw std::runtime_error(
+                "Error in MCD atmosphere model: MCD_DATA_PATH not defined at compile time. "
+                "Please ensure MCD is properly configured in CMake." );
+#endif
     }
 
-    // Validate input parameters
+    // Ensure the path ends with a slash
+    if( !mcdDataPath_.empty( ) && mcdDataPath_.back( ) != '/' )
+    {
+        mcdDataPath_ += '/';
+    }
+
+    // Validate input parameters (matching validation in McdAtmosphereSettings)
     if( ( dustScenario_ < 1 || dustScenario_ > 8 ) && ( dustScenario_ < 24 || dustScenario_ > 35 ) )
     {
-        throw std::runtime_error( "McdAtmosphereModel: Invalid dust scenario. Must be 1-8 or 24-35." );
+        throw std::runtime_error( "McdAtmosphereModel: Invalid dustScenario " + std::to_string( dustScenario_ ) +
+                                  ". Must be 1-8 or 24-35." );
     }
 
     if( perturbationKey_ < 0 || perturbationKey_ > 5 )
     {
-        throw std::runtime_error( "McdAtmosphereModel: Invalid perturbation key. Must be 0-5." );
+        throw std::runtime_error( "McdAtmosphereModel: Invalid perturbationKey " + std::to_string( perturbationKey_ ) + ". Must be 0-5." );
+    }
+
+    // Validate perturbationSeed for perturbationKey=5
+    if( perturbationKey_ == 5 )
+    {
+        if( perturbationSeed_ < -4.0 || perturbationSeed_ > 4.0 )
+        {
+            throw std::runtime_error(
+                    "McdAtmosphereModel: For perturbationKey=5, perturbationSeed must be in [-4, 4]. "
+                    "Got: " +
+                    std::to_string( perturbationSeed_ ) );
+        }
     }
 
     if( highResolutionMode_ != 0 && highResolutionMode_ != 1 )
     {
-        throw std::runtime_error( "McdAtmosphereModel: Invalid high resolution mode. Must be 0 or 1." );
+        throw std::runtime_error( "McdAtmosphereModel: Invalid highResolutionMode " + std::to_string( highResolutionMode_ ) +
+                                  ". Must be 0 or 1." );
+    }
+
+    // Validate gravity wave length if perturbations are used
+    if( ( perturbationKey_ == 3 || perturbationKey_ == 4 ) && gravityWaveLength_ < 0.0 )
+    {
+        throw std::runtime_error(
+                "McdAtmosphereModel: gravityWaveLength must be >= 0.0 when using gravity wave perturbations. "
+                "Got: " +
+                std::to_string( gravityWaveLength_ ) );
     }
 }
 
@@ -120,12 +158,16 @@ void McdAtmosphereModel::computeProperties( const double altitude, const double 
     float latitudeDeg = static_cast< float >( unit_conversions::convertRadiansToDegrees( latitude ) );
 
     // Use zkey=1: radial distance from center of planet (meters)
-    // Remove const to match Fortran interface
-    int zkey = 1;
-    // Convert altitude above surface to radial distance from center
-    // Mars mean radius = 3389500 m
-    const double marsRadius = 3389500.0;
-    float radialDistance = static_cast< float >( marsRadius + altitude );
+    // Tudat provides altitude above local surface, so we need to convert to radial distance
+    // For now, we use a fixed Mars mean radius.
+    // TODO: This should be improved to use the actual shape model (e.g., oblate spheroid or MOLA)
+    //       defined by the user in the Body object. The conversion should account for:
+    //       - Local areoid radius at the given latitude/longitude
+    //       - Local topography (MOLA) if high-resolution mode is enabled
+    const double MARS_MEAN_RADIUS = 3396200.0;  // meters (IAU 2015 value)
+
+    int zkey = 1;  // radial distance from planet center
+    float radialDistance = static_cast< float >( MARS_MEAN_RADIUS + altitude );
 
     // Prepare extra variable flags (enable all for comprehensive output)
     int extvarkeys[ 100 ];
