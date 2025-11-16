@@ -28,6 +28,28 @@ namespace aerodynamics
  * Class for Mars Climate Database atmosphere model.
  * This class interfaces with the MCD Fortran routines to provide
  * atmospheric properties (density, temperature, pressure, winds) for Mars.
+ *
+ * ALTITUDE CONVENTION:
+ * --------------------
+ * Input altitude is expected as "height above local surface" (matching Tudat convention).
+ * Internally converted to radial distance: radial_distance = MARS_MEAN_RADIUS + altitude
+ * where MARS_MEAN_RADIUS = 3396200.0 m (IAU 2015).
+ *
+ * LIMITATION: This simplified conversion does not account for:
+ *   - Local areoid variations (Mars oblate shape)
+ *   - Local MOLA topography (when highResolutionMode=1)
+ * This causes ~10-15% systematic differences vs. MCD reference outputs.
+ *
+ * TODO: Enhance to use proper Body shape model + MOLA topography corrections.
+ *
+ * PARAMETERS:
+ * -----------
+ * See constructor documentation for detailed parameter descriptions.
+ *
+ * THREAD SAFETY:
+ * --------------
+ * This class is NOT thread-safe due to cached internal state.
+ * Each thread should use its own instance.
  */
 class McdAtmosphereModel : public AtmosphereModel
 {
@@ -35,12 +57,12 @@ public:
     //! Constructor
     /*!
      * Constructor for MCD atmosphere model.
-     * \param mcdDataPath Path to MCD data files
-     * \param dustScenario Dust and solar EUV scenario (1-8)
-     * \param perturbationKey Perturbation type (0: none, 1-4: various perturbations, 5: n-sigma)
-     * \param perturbationSeed Random seed for perturbations (if perturbationKey != 0)
-     * \param gravityWaveLength Gravity wave wavelength (if perturbationKey == 3 or 4)
-     * \param highResolutionMode Flag for high resolution topography (0: off, 1: on)
+     * \param mcdDataPath Path to MCD data files (default: "" = use compile-time default)
+     * \param dustScenario Dust and solar EUV scenario (1-8 or 24-35, default: 1)
+     * \param perturbationKey Perturbation type (0-5, default: 0 = none)
+     * \param perturbationSeed Random seed or scaling factor (default: 0.0)
+     * \param gravityWaveLength Gravity wave wavelength in meters (default: 0.0 = use MCD default)
+     * \param highResolutionMode High resolution topography flag (0 or 1, default: 0)
      */
     McdAtmosphereModel( const std::string& mcdDataPath = "",
                         const int dustScenario = 1,
@@ -55,7 +77,10 @@ public:
     //! Get local density
     /*!
      * Returns the local density of the atmosphere in kg/m^3.
-     * \param altitude Altitude above surface (m)
+     * Note: Internally uses zkey=1 (radial distance from center). The input altitude
+     *       is converted to radial distance using a fixed Mars mean radius (3396.2 km).
+     *       TODO: Should be improved to use the actual Body shape model.
+     * \param altitude Altitude above local surface (m) - as computed by Tudat
      * \param longitude East longitude (radians)
      * \param latitude Latitude (radians)
      * \param time Time since J2000 (seconds)
@@ -66,7 +91,10 @@ public:
     //! Get local pressure
     /*!
      * Returns the local pressure of the atmosphere in Pa.
-     * \param altitude Altitude above surface (m)
+     * Note: Internally uses zkey=1 (radial distance from center). The input altitude
+     *       is converted to radial distance using a fixed Mars mean radius (3396.2 km).
+     *       TODO: Should be improved to use the actual Body shape model.
+     * \param altitude Altitude above local surface (m) - as computed by Tudat
      * \param longitude East longitude (radians)
      * \param latitude Latitude (radians)
      * \param time Time since J2000 (seconds)
@@ -77,7 +105,10 @@ public:
     //! Get local temperature
     /*!
      * Returns the local temperature of the atmosphere in K.
-     * \param altitude Altitude above surface (m)
+     * Note: Internally uses zkey=1 (radial distance from center). The input altitude
+     *       is converted to radial distance using a fixed Mars mean radius (3396.2 km).
+     *       TODO: Should be improved to use the actual Body shape model.
+     * \param altitude Altitude above local surface (m) - as computed by Tudat
      * \param longitude East longitude (radians)
      * \param latitude Latitude (radians)
      * \param time Time since J2000 (seconds)
@@ -88,7 +119,10 @@ public:
     //! Get local speed of sound
     /*!
      * Returns the local speed of sound of the atmosphere in m/s.
-     * \param altitude Altitude above surface (m)
+     * Note: Internally uses zkey=1 (radial distance from center). The input altitude
+     *       is converted to radial distance using a fixed Mars mean radius (3396.2 km).
+     *       TODO: Should be improved to use the actual Body shape model.
+     * \param altitude Altitude above local surface (m) - as computed by Tudat
      * \param longitude East longitude (radians)
      * \param latitude Latitude (radians)
      * \param time Time since J2000 (seconds)

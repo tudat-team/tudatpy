@@ -84,6 +84,31 @@ target_link_libraries(mcd_fortran PUBLIC
     NetCDF::NetCDF_C
 )
 
+# Set MCD data directory path (absolute path to the data directory)
+set(MCD_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data")
+
+# Validate that the data directory exists
+if(NOT EXISTS "${MCD_DATA_DIR}")
+    message(WARNING "MCD data directory does not exist: ${MCD_DATA_DIR}")
+    message(WARNING "MCD atmosphere model will not work correctly without data files.")
+else()
+    message(STATUS "MCD data directory found: ${MCD_DATA_DIR}")
+endif()
+
+# Export MCD_DATA_DIR as a compile definition for use by C++ code
+# This passes the absolute path to the data directory at compile time
+target_compile_definitions(mcd_fortran PUBLIC
+    MCD_DATA_PATH="${MCD_DATA_DIR}/"
+)
+
+# Also propagate this definition to any target that links against mcd_fortran
+# This ensures tudat_aerodynamics gets the definition
+set_target_properties(mcd_fortran PROPERTIES
+    INTERFACE_COMPILE_DEFINITIONS "MCD_DATA_PATH=\"${MCD_DATA_DIR}/\""
+)
+
+message(STATUS "MCD_DATA_PATH set to: ${MCD_DATA_DIR}/")
+
 # Install library - ADD to tudat_export to resolve dependency
 install(TARGETS mcd_fortran
     EXPORT tudat_export

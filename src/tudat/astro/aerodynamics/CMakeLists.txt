@@ -76,11 +76,24 @@ if(TUDAT_BUILD_WITH_MCD)
     # Link the MCD Fortran library
     target_link_libraries(tudat_aerodynamics PRIVATE mcd_fortran)
     
-    # Include MCD module directory and source directory
+    # Include MCD directories for building tudat_aerodynamics only
+    # These are not propagated to consumers of tudat_aerodynamics
     target_include_directories(tudat_aerodynamics PRIVATE
-        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/mcd_modules>
-        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/third_parties/mcd>
+        ${CMAKE_BINARY_DIR}/mcd_modules
+        ${CMAKE_SOURCE_DIR}/third_parties/mcd
+    )
+    
+        # Get the MCD_DATA_PATH from mcd_fortran target
+    get_target_property(MCD_DATA_PATH_DEF mcd_fortran INTERFACE_COMPILE_DEFINITIONS)
+    
+    # Propagate MCD_DATA_PATH to tudat_aerodynamics
+    # The path is already set by mcd_fortran's INTERFACE_COMPILE_DEFINITIONS
+    # but we explicitly add it here for clarity
+    set(MCD_DATA_DIR "${CMAKE_SOURCE_DIR}/third_parties/mcd/data")
+    target_compile_definitions(tudat_aerodynamics PRIVATE
+        MCD_DATA_PATH="${MCD_DATA_DIR}/"
     )
     
     message(STATUS "MCD library linked to tudat_aerodynamics")
+    message(STATUS "MCD data path for tudat_aerodynamics: ${MCD_DATA_DIR}/")
 endif()

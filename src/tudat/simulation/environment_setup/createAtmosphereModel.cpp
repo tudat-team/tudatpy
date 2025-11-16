@@ -208,10 +208,11 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
 
             if( mcdAtmosphereSettings == nullptr )
             {
-                throw std::runtime_error( "Error when creating MCD atmosphere model, model settings are incompatible." );
+                throw std::runtime_error( "Error when creating MCD atmosphere model for body " + body +
+                                          ": model settings are incompatible." );
             }
 
-            // Create atmosphere model using MCD - all getters match the McdAtmosphereSettings class
+            // Create atmosphere model - all parameters are validated in both Settings and Model constructors
             atmosphereModel = std::make_shared< aerodynamics::McdAtmosphereModel >( mcdAtmosphereSettings->getMcdDataPath( ),
                                                                                     mcdAtmosphereSettings->getDustScenario( ),
                                                                                     mcdAtmosphereSettings->getPerturbationKey( ),
