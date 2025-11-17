@@ -2037,7 +2037,7 @@ inside a `Body` instance and used in observation corrections or environmental qu
              Cartesian position of the station at the current epoch, in a body-centered, body-fixed frame
 
      )doc" )
-            .def_property_readonly( "cartesian_positon_at_reference_epoch",
+            .def_property_readonly( "cartesian_position_at_reference_epoch",
                                     &tgs::GroundStationState::getNominalCartesianPosition,
                                     R"doc(
 
@@ -2049,7 +2049,7 @@ inside a `Body` instance and used in observation corrections or environmental qu
          :type: numpy.ndarray[numpy.float64[3, 1]]
 
      )doc" )
-            .def_property_readonly( "spherical_positon_at_reference_epoch",
+            .def_property_readonly( "spherical_position_at_reference_epoch",
                                     &tgs::GroundStationState::getNominalSphericalPosition,
                                     R"doc(
 
