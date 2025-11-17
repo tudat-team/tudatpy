@@ -35,10 +35,6 @@ void expose_parameters_setup( py::module& m )
          Note that not all of the listed types might be accessible via functions in the python interface yet.
 
 
-
-
-
-
       )doc" )
             .value( "arc_wise_initial_body_state_type", tep::EstimatebleParametersEnum::arc_wise_initial_body_state )
             .value( "initial_body_state_type", tep::EstimatebleParametersEnum::initial_body_state )
@@ -94,6 +90,9 @@ void expose_parameters_setup( py::module& m )
             .value( "drag_component_scaling_factor_type", tep::EstimatebleParametersEnum::drag_component_scaling_factor )
             .value( "side_component_scaling_factor_type", tep::EstimatebleParametersEnum::side_component_scaling_factor )
             .value( "lift_component_scaling_factor_type", tep::EstimatebleParametersEnum::lift_component_scaling_factor )
+            .value( "arc_wise_drag_component_scaling_factor_type", tep::EstimatebleParametersEnum::arc_wise_drag_component_scaling_factor )
+            .value( "arc_wise_side_component_scaling_factor_type", tep::EstimatebleParametersEnum::arc_wise_side_component_scaling_factor )
+            .value( "arc_wise_lift_component_scaling_factor_type", tep::EstimatebleParametersEnum::arc_wise_lift_component_scaling_factor )
             .value( "rtg_force_vector_type", tep::EstimatebleParametersEnum::rtg_force_vector )
             .value( "rtg_force_vector_magnitude_type", tep::EstimatebleParametersEnum::rtg_force_vector_magnitude )
 
@@ -266,11 +265,6 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
      List of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` objects, one per component of each initial state in the simulation.
 
 
-
-
-
-
-
      )doc" );
 
     // ###############    Vehicle Model Parameters
@@ -375,6 +369,42 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class that define the settings. )doc" );
 
+
+    m.def( "arcwise_drag_component_scaling",
+           &tep::arcwiseDragComponentScaling,
+           py::arg( "body" ),
+           py::arg( "arc_initial_times" ),
+           R"doc(
+
+ Function for creating parameter settings for arc-wise aerodynamic drag scaling factor
+
+ Function for creating parameter settings object for an arcwise scaling factor :math:`K` (initialized to 1.0) for the aerodynamic force along the drag direction
+ (effectively scaling the drag coefficient :math:`C_{D}` (see :func:`~tudatpy.dynamics.propagation_setup.acceleration.aerodynamic` )
+
+ Using the arc-wise drag component scaling as an estimatable parameter requires:
+
+ * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.aerodynamic` acceleration
+
+ Note that, unlike the :func:`constant_drag_coefficient` parameter, this parameter does not modify the drag coefficient itself, but works
+ regardless of the type of aerodynamic coefficients (in any frame, and with any dependencies). Using this parameter, the aerodynamic
+ force along the drag directon is scaled (multiplied) by the factor :math:`K` during each function evaluation.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body, with whose aerodynamic acceleration model the estimatable parameter is associated.
+
+ arc_initial_times : List[ float ]
+     Ordered list of starting times over which the component scaling parameters are to be applied.
+
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings` class that define the settings. )doc" );
+
+
+
     m.def( "side_component_scaling",
            &tep::sideComponentScaling,
            py::arg( "body" ),
@@ -394,6 +424,33 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class that define the settings. )doc" );
 
+
+    m.def( "arcwise_side_component_scaling",
+           &tep::arcwiseSideComponentScaling,
+           py::arg( "body" ),
+           py::arg( "arc_initial_times" ),
+           R"doc(
+
+ Function for creating parameter settings for arc-wise aerodynamic side force scaling factor
+
+ As :func:`~arcwise_drag_component_scaling`, but scales the force along the :math:`C_{S}` direction rather than the :math:`C_{D}` direction
+
+ Parameters
+ ----------
+ body : str
+     Name of the body, with whose aerodynamic acceleration model the estimatable parameter is associated.
+
+ arc_initial_times : List[ float ]
+     Ordered list of starting times over which the component scaling parameters are to be applied.
+
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings` class that define the settings. )doc" );
+
+
+
     m.def( "lift_component_scaling",
            &tep::liftComponentScaling,
            py::arg( "body" ),
@@ -412,6 +469,34 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  -------
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class that define the settings. )doc" );
+
+
+    m.def( "arcwise_lift_component_scaling",
+           &tep::arcwiseLiftComponentScaling,
+           py::arg( "body" ),
+           py::arg( "arc_initial_times" ),
+           R"doc(
+
+ Function for creating parameter settings for arc-wise aerodynamic lift force scaling factor
+
+ As :func:`~arcwise_drag_component_scaling`, but scales the force along the :math:`C_{L}` direction rather than the :math:`C_{D}` direction
+
+ Parameters
+ ----------
+ body : str
+     Name of the body, with whose aerodynamic acceleration model the estimatable parameter is associated.
+
+ arc_initial_times : List[ float ]
+     Ordered list of starting times over which the component scaling parameters are to be applied.
+
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings` class that define the settings. )doc" );
+
+
+
 
     m.def( "radiation_pressure_coefficient",
            &tep::radiationPressureCoefficient,
