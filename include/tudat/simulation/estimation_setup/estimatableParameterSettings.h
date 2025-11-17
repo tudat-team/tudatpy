@@ -1171,17 +1171,17 @@ inline std::shared_ptr< EstimatableParameterSettings > dragComponentScaling( con
 
 inline std::shared_ptr< EstimatableParameterSettings > arcwiseDragComponentScaling( const std::string bodyName, const std::vector< double > arcStartTimes)
 {
-    return std::make_shared< ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings >( drag_component_scaling_factor, bodyName, arcStartTimes);
+    return std::make_shared< ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings >( arc_wise_drag_component_scaling_factor, bodyName, arcStartTimes);
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > sideComponentScaling( const std::string bodyName )
 {
-    return std::make_shared< EstimatableParameterSettings >( bodyName, side_component_scaling_factor );
+    return std::make_shared< EstimatableParameterSettings >( bodyName, arc_wise_side_component_scaling_factor );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > arcwiseSideComponentScaling( const std::string bodyName, const std::vector< double > arcStartTimes)
 {
-    return std::make_shared< ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings >( side_component_scaling_factor, bodyName, arcStartTimes);
+    return std::make_shared< ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings >( arc_wise_side_component_scaling_factor, bodyName, arcStartTimes);
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > liftComponentScaling( const std::string bodyName )
@@ -1191,7 +1191,7 @@ inline std::shared_ptr< EstimatableParameterSettings > liftComponentScaling( con
 
 inline std::shared_ptr< EstimatableParameterSettings > arcwiseLiftComponentScaling( const std::string bodyName, const std::vector< double > arcStartTimes)
 {
-    return std::make_shared< ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings >( lift_component_scaling_factor, bodyName, arcStartTimes);
+    return std::make_shared< ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings >( arc_wise_lift_component_scaling_factor, bodyName, arcStartTimes);
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > radiationPressureCoefficient( const std::string bodyName )
