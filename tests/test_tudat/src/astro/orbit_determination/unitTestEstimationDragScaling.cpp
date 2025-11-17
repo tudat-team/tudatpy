@@ -51,8 +51,6 @@ BOOST_AUTO_TEST_CASE( test_EstimationDragScaling )
     for( unsigned int i = 0; i < 5; i++ )
     {
 
-        std::cout << "i: " << i << std::endl;
-
         double initialTime = DateTime( 1999, 3, 10, 0, 0, 0.0 ).epoch< double >( );
         double finalTime = initialTime + 3600 * 6;
 
@@ -244,16 +242,13 @@ BOOST_AUTO_TEST_CASE( test_EstimationArcwiseDragScaling )
     spice_interface::loadSpiceKernelInTudat( paths::getTudatTestDataPath( ) +
                                              "/dsn_n_way_doppler_observation_model/mgs_map1_ipng_mgs95j.bsp" );
 
-    std::cout << "start "  << std::endl;
 
     for( unsigned int i = 0; i < 3; i++ )
     {
-        std::cout << "i: " << i << std::endl;
 
         double initialTime = DateTime( 1999, 3, 10, 0, 0, 0.0 ).epoch< double >( );
         double finalTime = initialTime + 3600 * 10;
 
-        std::cout << "arcStartTimes " << std::endl;
 
         std::vector<double> arcStartTimes = {initialTime, initialTime+4*3600, initialTime+7.5*3600};
 
@@ -342,10 +337,8 @@ BOOST_AUTO_TEST_CASE( test_EstimationArcwiseDragScaling )
         std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsList;
         for( unsigned int j = 0; j < integrationArcStartTimes.size( ); j++ )
         {
-            std::cout << "Querying initial states " << std::endl;
             Eigen::Matrix< double, Eigen::Dynamic, 1 > currentInitialState =
                 spice_interface::getBodyCartesianStateAtEpoch( "MGS", "Mars", "J2000", "None", integrationArcStartTimes.at(j));
-            std::cout << "Got: " << currentInitialState << std::endl;
 
             propagatorSettingsList.push_back(
                 std::make_shared< TranslationalStatePropagatorSettings< double > >(
@@ -361,7 +354,6 @@ BOOST_AUTO_TEST_CASE( test_EstimationArcwiseDragScaling )
 
         }
 
-        std::cout << "MultiArcPropagatorSettings" << std::endl;
         std::shared_ptr< MultiArcPropagatorSettings< double > > propagatorSettings =
                 std::make_shared< MultiArcPropagatorSettings< double > >( propagatorSettingsList,
         false, std::make_shared< MultiArcPropagatorProcessingSettings >(false, true));
@@ -373,7 +365,6 @@ BOOST_AUTO_TEST_CASE( test_EstimationArcwiseDragScaling )
 
         parameterNames.insert( parameterNames.end( ), additionalParameterNames.begin( ), additionalParameterNames.end( ) );
 
-        std::cout << "EstimatableParameterSet" << std::endl;
         std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
                 createParametersToEstimate< double, double >( parameterNames, bodies, propagatorSettings );
         printEstimatableParameterEntries( parametersToEstimate );
@@ -391,14 +382,8 @@ BOOST_AUTO_TEST_CASE( test_EstimationArcwiseDragScaling )
             }
         }
 
-        std::cout << "Integrate Equations of Motion" << std::endl;
         // Create simulation object (but do not propagate dynamics).
         MultiArcDynamicsSimulator<> dynamicsSimulator( bodies, propagatorSettings, true );
-
-        std::cout << bodies.getBody( "MGS" )->getEphemeris(  ) << std::endl;
-        std::cout << bodies.getBody( "MGS" )->getEphemeris(  )->getCartesianState( arcStartTimes.at(0) ) << std::endl;
-        std::cout << bodies.getBody( "MGS" )->getEphemeris(  )->getCartesianState( arcStartTimes.at(0) + 10.) << std::endl;
-
 
         std::pair< std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >,
                    std::shared_ptr< observation_models::ObservationCollection< double > > >
@@ -410,10 +395,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationArcwiseDragScaling )
         std::vector< std::shared_ptr< observation_models::ObservationModelSettings > > observationModelSettingsList =
                 observationCollectionAndModelSettings.first;
 
-        std::cout << "getFullParameterValues: " << std::endl;
         Eigen::VectorXd truthParameters = parametersToEstimate->getFullParameterValues< double >( );
-        std::cout << "truthParameters: " << truthParameters << std::endl;
-
 
         // resetParameterValues
         Eigen::VectorXd perturbation0(3);
