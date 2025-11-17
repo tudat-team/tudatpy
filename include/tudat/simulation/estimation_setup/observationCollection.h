@@ -1585,8 +1585,10 @@ public:
                 std::vector< std::pair< double, double > > timeBoundsVector =
                         std::dynamic_pointer_cast< ObservationCollectionTimeBoundsParser >( observationParser )->getTimeBoundsVector( );
 
+                std::cout<<"Using time bounds parser"<<std::endl;
                 for( auto timeBounds : timeBoundsVector )
                 {
+                    std::cout<<"Using time bounds "<<timeBounds.first <<" "<<timeBounds.second<<std::endl;
                     for( auto observableIt : observationSetList_ )
                     {
                         std::map< LinkEnds, std::vector< unsigned int > > indicesPerObservable;
@@ -1605,6 +1607,7 @@ public:
                                 {
                                     isInTimeBounds = true;
                                 }
+
                                 if( ( isInTimeBounds && ( !observationParser->useOppositeCondition( ) ) ) ||
                                     ( !isInTimeBounds && ( observationParser->useOppositeCondition( ) ) ) )
                                 {
