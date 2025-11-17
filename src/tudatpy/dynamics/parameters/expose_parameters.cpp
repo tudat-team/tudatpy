@@ -111,12 +111,23 @@ void expose_parameters( py::module& m )
       )doc" )
             .def_property( "parameter_vector",
                            &tep::EstimatableParameterSet<
-                                   STATE_SCALAR_TYPE >::getFullParameterValues< double >,
-                           &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::resetParameterValues<
+                                   STATE_SCALAR_TYPE >::getFullParameterValuesWithoutConsiderParameters< double >,
+                           &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::resetParameterValuesWithoutConsiderParameters<
                                    double >,
                            R"doc(
 
-         Vector containing the parameter values of all parameters in the set.
+         Vector containing the parameter values of all parameters in the set (excluding consider parameters).
+
+         :type: numpy.ndarray[numpy.float64[m, 1]]
+      )doc" )
+            .def_property( "estimated_and_consider_parameter_vector",
+                           &tep::EstimatableParameterSet<
+                                   STATE_SCALAR_TYPE >::getFullParameterValuesWithConsiderParameters< double >,
+                           &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::resetParameterValuesWithConsiderParameters<
+                                   double >,
+                           R"doc(
+
+         Vector containing the parameter values of all parameters in the set (including consider parameters; concatenated after estimated parameters).
 
          :type: numpy.ndarray[numpy.float64[m, 1]]
       )doc" )
