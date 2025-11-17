@@ -58,11 +58,16 @@ BOOST_AUTO_TEST_CASE(testMarsDtmAtmosphere)
     double tolerance = 1.0E-15;
     std::shared_ptr<AtmosphereSettings> marsDtmAtmosphereSettings;
     marsDtmAtmosphereSettings = std::make_shared<MarsDtmAtmosphereSettings>();
+
+    // Create a minimal SystemOfBodies for the atmosphere model
+    SystemOfBodies bodies;
+    bodies.createEmptyBody("Mars");
+
     std::shared_ptr<aerodynamics::AtmosphereModel> marsAtmosphereModel = createAtmosphereModel(
-            marsDtmAtmosphereSettings, "Mars");
+            marsDtmAtmosphereSettings, "Mars", bodies);
     std::shared_ptr<MarsDtmAtmosphereModel> atmosphereModel =
             std::dynamic_pointer_cast<MarsDtmAtmosphereModel>(
-                    createAtmosphereModel(marsDtmAtmosphereSettings, "Mars"));
+                    createAtmosphereModel(marsDtmAtmosphereSettings, "Mars", bodies));
     int alt_km = 400E3;
     int time = 86400;
     double latitude = unit_conversions::convertDegreesToRadians(15.0);

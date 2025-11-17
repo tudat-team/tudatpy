@@ -18,7 +18,6 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <functional>
-#include <cmath> // for M_PI
 
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/astro/basic_astro/celestialBodyConstants.h"

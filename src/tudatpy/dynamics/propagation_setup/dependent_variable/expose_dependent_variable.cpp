@@ -220,6 +220,10 @@ void expose_dependent_variable_setup( py::module &m )
                     tp::PropagationDependentVariables::body_fixed_groundspeed_based_velocity_variable,
                     R"doc(
       )doc" )
+            .value( "local_wind_velocity_type",
+                    tp::PropagationDependentVariables::local_wind_velocity_dependent_variable,
+                    R"doc(
+      )doc" )
             .value( "keplerian_state_type",
                     tp::PropagationDependentVariables::keplerian_state_dependent_variable,
                     R"doc(
@@ -290,6 +294,18 @@ void expose_dependent_variable_setup( py::module &m )
                     tp::PropagationDependentVariables::gravity_field_laplacian_of_potential_dependent_variable,
                     R"doc(
       )doc" )
+            .value( "vehicle_part_rotation_matrix_type",
+                    tp::PropagationDependentVariables::vehicle_part_rotation_matrix_dependent_variable,
+                    R"doc(
+      )doc" )
+            .value( "solar_longitude_type",
+                    tp::PropagationDependentVariables::solar_longitude,
+                    R"doc(
+      )doc" )
+            .value( "number_density_type",
+                    tp::PropagationDependentVariables::number_density,
+                    R"doc(
+      )doc" )
             .export_values( );
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -311,7 +327,45 @@ void expose_dependent_variable_setup( py::module &m )
 
 
 
-      )doc" );
+    )doc" );
+
+    m.def( "local_wind_velocity",
+           &tp::localWindVelocityVariable,
+           py::arg( "body" ),
+           py::arg( "body_with_atmosphere" ),
+           py::arg( "target_frame" ) = trf::corotating_frame,
+           R"doc(
+
+Function to add the local wind velocity vector to the dependent variables to save.
+
+Function to add the local wind velocity vector to the dependent variables to save. The wind velocity represents the atmospheric wind removed from the groundspeed when deriving the airspeed. The calculation uses the wind model of the body with atmosphere, and the current state of the body for which the wind velocity is to be calculated. The wind velocity can be expressed in any aerodynamic reference frame.
+
+Parameters
+----------
+body : str
+    Body whose dependent variable should be saved.
+body_with_atmosphere : str
+    Body with atmosphere with respect to which the local wind velocity is computed.
+target_frame : AerodynamicsReferenceFrames, default=corotating_frame
+    Reference frame in which the wind velocity should be expressed. Available frames:
+    - corotating_frame: Body-fixed corotating frame (default)
+    - vertical_frame: Local vertical frame
+    - trajectory_frame: Velocity-aligned trajectory frame
+    - aerodynamic_frame: Aerodynamic frame
+    - body_frame: Vehicle body frame
+    - inertial_frame: Inertial frame
+Returns
+-------
+SingleDependentVariableSaveSettings
+    Dependent variable settings object.
+Variable Size
+-------------
+3
+
+
+
+
+    )doc" );
 
     py::class_< tp::SingleDependentVariableSaveSettings, std::shared_ptr< tp::SingleDependentVariableSaveSettings >, tp::VariableSettings >(
             m,
@@ -2575,6 +2629,102 @@ The type of the acceleration that is to be saved.
            py::arg( "central_body_name" ),
            py::arg( "acceleration_type" ) = "radiation_pressure",
            R"doc(No documentation found.)doc" );
+
+    m.def( "vehicle_part_rotation_matrix",
+           &tp::vehiclePartRotationMatrixVariable,
+           py::arg( "body" ),
+           py::arg( "part_name" ) = "",
+           R"doc(
+
+ Function to add the vehicle part rotation matrix to the dependent variables to save.
+
+ Function to add the rotation matrix of a vehicle part (relative to the body-fixed frame) to the dependent variables to save.
+ The rotation matrix is stored at each time step and represents the orientation of the specified vehicle part.
+
+ Parameters
+ ----------
+ body : str
+     Body (vehicle) whose part rotation should be saved.
+ part_name : str
+     Name of the vehicle part whose rotation is to be saved. Empty string for main body.
+ Returns
+ -------
+ SingleDependentVariableSaveSettings
+     Dependent variable settings object.
+ Variable Size
+ -------------
+ 9 (3x3 matrix stored as vector)
+
+
+
+
+     )doc" );
+
+    m.def( "solar_longitude",
+           &tp::solarLongitudeDependentVariable,
+           py::arg( "body" ),
+           R"doc(
+
+ Function to add the solar longitude to the dependent variables to save.
+
+ Function to add the solar longitude (angle from body-fixed X-axis to Sun direction in the XY plane) to the dependent variables to save.
+ This dependent variable is available for bodies with a ComaModel or MarsDtmAtmosphereModel atmosphere.
+ For ComaModel, the solar longitude is computed from the Sun-comet direction in the comet body-fixed frame.
+ The value is cached during atmosphere density computations for efficiency.
+
+ Parameters
+ ----------
+ body : str
+     Body whose solar longitude is to be saved (must have ComaModel or MarsDtmAtmosphereModel atmosphere).
+ Returns
+ -------
+ SingleDependentVariableSaveSettings
+     Dependent variable settings object.
+ Variable Size
+ -------------
+ 1
+
+ Examples
+ --------
+
+ To create settings for saving the solar longitude of a comet with a coma model:
+
+ .. code-block:: python
+
+    # Define save settings for solar longitude
+    propagation_setup.dependent_variable.solar_longitude( "Comet" )
+
+
+     )doc" );
+
+    m.def( "number_density",
+           &tp::numberDensityDependentVariable,
+           py::arg( "body" ),
+           py::arg( "body_with_atmosphere" ),
+           R"doc(
+
+ Function to add the local freestream number density to the dependent variables to save.
+
+ Function to add the freestream number density (at a body's position) to the dependent variables to save. The calculation of the number density uses the atmosphere model of the central body, and the current state of the body for which the number density is to be calculated.
+
+ Parameters
+ ----------
+ body : str
+     Body whose dependent variable should be saved.
+ body_with_atmosphere : str
+     Body with atmosphere with respect to which the number density is computed.
+ Returns
+ -------
+ SingleDependentVariableSaveSettings
+     Dependent variable settings object.
+ Variable Size
+ -------------
+ 1
+
+
+
+
+     )doc" );
 }
 
 }  // namespace dependent_variable

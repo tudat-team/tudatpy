@@ -1,5 +1,13 @@
 # Generated files
-examples
+examples/*
+!examples/tudat/
+examples/tudat/*
+!examples/tudat/tudat/
+examples/tudat/tudat/*
+!examples/tudat/tudat/applications/
+examples/tudat/tudat/applications/*
+!examples/tudat/tudat/applications/CMakeLists.txt
+!examples/tudat/tudat/applications/coma_analysis/
 lib/
 libs/
 CMakeFiles/
@@ -63,6 +71,9 @@ boost-numpy-eigen-*-Linux.tar.gz
 *.so
 **/.DS_Store
 .DS_Store
+
+timing_results.csv
+wind_velocity_differences.csv
 
 # Common build output folders
 cmake-build-debug/
@@ -171,3 +182,11 @@ Tudat/interface/spice/Kernels/
 /cmake-build-debug/*
 /cmake-build*
 *.vscode
+
+# Test directories
+coma_performance_test/
+
+# Coma analysis output directories
+examples/tudat/tudat/applications/coma_analysis/DSMC_comparison/output/
+examples/tudat/tudat/applications/coma_analysis/performance_analysis/output/
+examples/tudat/tudat/applications/coma_analysis/grid_density_analysis/output/

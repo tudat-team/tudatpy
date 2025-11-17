@@ -136,6 +136,26 @@ public:
         shapeModel_ = shapeModel;
     }
 
+    //! Function to set whether atmospheric rotation should be included
+    /*!
+     * Function to set whether atmospheric rotation should be included in aerodynamic computations
+     * \param includeAtmosphericRotation Boolean indicating if atmospheric rotation is included
+     */
+    void setIncludeAtmosphericRotation( const bool includeAtmosphericRotation )
+    {
+        includeAtmosphericRotation_ = includeAtmosphericRotation;
+    }
+
+    //! Function to set the rotation matrix derivative function
+    /*!
+     * Function to set the rotation matrix derivative function for the central body
+     * \param rotationMatrixDerivativeFunction Function returning the time derivative of rotation matrix from inertial to body-fixed frame
+     */
+    void setRotationMatrixDerivativeFunction( const std::function< Eigen::Matrix3d( ) > rotationMatrixDerivativeFunction )
+    {
+        rotationMatrixDerivativeToLocalFrameFunction_ = rotationMatrixDerivativeFunction;
+    }
+
     //! Function to get the current rotation from the global (propagation/inertial) to the local (body-fixed) frame.
     /*!
      * Function to get the current rotation from the global (propagation/inertial) to the local (body-fixed) frame.
@@ -288,6 +308,16 @@ public:
         return currentBodyFixedGroundSpeedBasedState_.segment( 3, 3 );
     }
 
+    //! Function to get the current local wind velocity vector, as set by previous call to update( ).
+    /*!
+     * Function to get the current local wind velocity vector, as set by previous call to update( ).
+     * \return Current local wind velocity expressed in the central-body-fixed frame.
+     */
+    Eigen::Vector3d getCurrentLocalWindVelocity( ) const
+    {
+        return currentLocalWindVelocity_;
+    }
+
     void resetCurrentTime( )
     {
         currentTime_ = TUDAT_NAN;
@@ -381,6 +411,15 @@ private:
     double currentTime_;
 
     bool aerodynamicAngleClosureIsIncomplete_;
+
+    //! Current local wind velocity expressed in the central-body-fixed frame.
+    Eigen::Vector3d currentLocalWindVelocity_ = Eigen::Vector3d::Zero( );
+
+    //! Boolean flag indicating whether atmospheric rotation should be included in aerodynamic computations
+    bool includeAtmosphericRotation_ = true;
+
+    //! Function returning the time derivative of the rotation matrix from inertial to body-fixed frame
+    std::function< Eigen::Matrix3d( ) > rotationMatrixDerivativeToLocalFrameFunction_;
 };
 
 //! Get a function to transform aerodynamic force from local to propagation frame.

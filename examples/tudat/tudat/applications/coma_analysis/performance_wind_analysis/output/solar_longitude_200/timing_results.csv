@@ -1,0 +1,9 @@
+Solar Longitude (deg): 200
+Number radii: 600
+Number longitude: 400
+Evaluated Points: 240000
+Method,Operation,Time_seconds
+Polynomial,Dataset_Creation,0.00143563
+Polynomial,Wind_Computation,2.60256
+Stokes,Dataset_Creation,0.946928
+Stokes,Wind_Computation,0.0916959

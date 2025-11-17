@@ -142,7 +142,10 @@ enum PropagationDependentVariables {
     full_body_paneled_geometry = 75,
     aerodynamic_coefficients = 76,
     actual_cross_section = 77,
-    solar_longitude = 78
+    solar_longitude = 78,
+    vehicle_part_rotation_matrix_dependent_variable = 79,
+    number_density = 80,
+    local_wind_velocity_dependent_variable = 81
 
 };
 
@@ -396,6 +399,34 @@ public:
 
     // Orientation angle that is to be saved.
     reference_frames::AerodynamicsReferenceFrameAngles angle_;
+};
+
+// Class to define settings for saving local wind velocity in a specified reference frame.
+class LocalWindVelocityDependentVariableSaveSettings : public SingleDependentVariableSaveSettings
+{
+public:
+    // Constructor.
+    /*
+     *  Constructor.
+     *  \param associatedBody Body for which the wind velocity is to be saved.
+     *  \param bodyWithAtmosphere Body with atmosphere/wind model with respect to which the wind velocity is computed.
+     *  \param targetFrame Frame in which the wind velocity is to be expressed (default: corotating_frame).
+     *  \param componentIndex Index of the component to be saved. Only applicable to vectorial dependent variables.
+     *  By default -1, i.e. all the components are saved.
+     */
+    LocalWindVelocityDependentVariableSaveSettings( const std::string& associatedBody,
+                                                    const std::string& bodyWithAtmosphere,
+                                                    const reference_frames::AerodynamicsReferenceFrames targetFrame = reference_frames::corotating_frame,
+                                                    const int componentIndex = -1 ):
+        SingleDependentVariableSaveSettings( local_wind_velocity_dependent_variable,
+                                            associatedBody,
+                                            bodyWithAtmosphere,
+                                            componentIndex ),
+        targetFrame_( targetFrame )
+    { }
+
+    // Frame in which the wind velocity is to be expressed.
+    reference_frames::AerodynamicsReferenceFrames targetFrame_;
 };
 
 class ControlSurfaceCoefficientDependentVariableSettings : public SingleDependentVariableSaveSettings
@@ -1018,6 +1049,16 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > bodyFixedGroundspe
             body_fixed_groundspeed_based_velocity_variable, associatedBody, centralBody );
 }
 
+//! @get_docstring(localWindVelocityVariable)
+inline std::shared_ptr< SingleDependentVariableSaveSettings > localWindVelocityVariable(
+        const std::string& associatedBody,
+        const std::string& bodyWithAtmosphere,
+        const reference_frames::AerodynamicsReferenceFrames targetFrame = reference_frames::corotating_frame )
+{
+    return std::make_shared< LocalWindVelocityDependentVariableSaveSettings >(
+            associatedBody, bodyWithAtmosphere, targetFrame );
+}
+
 //! @get_docstring(tnwToInertialFrameRotationMatrixVariable)
 inline std::shared_ptr< SingleDependentVariableSaveSettings > tnwToInertialFrameRotationMatrixVariable( const std::string& associatedBody,
                                                                                                         const std::string& centralBody )
@@ -1392,6 +1433,25 @@ inline std::shared_ptr< SingleDependentVariableSaveSettings > actualCrossSection
 {
     return std::make_shared< CrossSectionDependentVariableSaveSettings >(
             actual_cross_section, bodyName, centralBodyName, accelerationType );
+}
+
+inline std::shared_ptr< SingleDependentVariableSaveSettings > vehiclePartRotationMatrixVariable( const std::string& bodyName,
+                                                                                                  const std::string& partName = "" )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >( vehicle_part_rotation_matrix_dependent_variable, bodyName, partName );
+}
+
+//! @get_docstring(solarLongitudeDependentVariable)
+inline std::shared_ptr< SingleDependentVariableSaveSettings > solarLongitudeDependentVariable( const std::string& bodyName )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >( solar_longitude, bodyName, "" );
+}
+
+//! @get_docstring(numberDensityDependentVariable)
+inline std::shared_ptr< SingleDependentVariableSaveSettings > numberDensityDependentVariable( const std::string& associatedBody,
+                                                                                               const std::string& bodyWithAtmosphere )
+{
+    return std::make_shared< SingleDependentVariableSaveSettings >( number_density, associatedBody, bodyWithAtmosphere );
 }
 
 }  // namespace propagators
