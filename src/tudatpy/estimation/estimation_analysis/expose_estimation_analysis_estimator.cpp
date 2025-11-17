@@ -27,8 +27,6 @@ namespace tom = tudat::observation_models;
 namespace tp = tudat::propagators;
 namespace trf = tudat::reference_frames;
 
-
-
 namespace tudatpy
 {
 namespace estimation
@@ -36,15 +34,12 @@ namespace estimation
 namespace estimation_analysis
 {
 
-void expose_estimation_analysis_estimator( py::module& m )
+void expose_estimation_analysis_estimator( py::module &m )
 {
-
-
     py::class_< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >,
-            std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > > >(
-            m,
-            "Estimator",
-            R"doc(
+                std::shared_ptr< tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE > > >( m,
+                                                                                                     "Estimator",
+                                                                                                     R"doc(
 
          Class for consolidating all estimation functionality.
 
@@ -56,11 +51,10 @@ void expose_estimation_analysis_estimator( py::module& m )
 
       )doc" )
             .def( py::init< const tss::SystemOfBodies &,
-                          const std::shared_ptr<
-                                  tep::EstimatableParameterSet< STATE_SCALAR_TYPE > >,
-                          const std::vector< std::shared_ptr< tom::ObservationModelSettings > > &,
-                          const std::shared_ptr< tp::PropagatorSettings< STATE_SCALAR_TYPE > >,
-                          const bool >( ),
+                            const std::shared_ptr< tep::EstimatableParameterSet< STATE_SCALAR_TYPE > >,
+                            const std::vector< std::shared_ptr< tom::ObservationModelSettings > > &,
+                            const std::shared_ptr< tp::PropagatorSettings< STATE_SCALAR_TYPE > >,
+                            const bool >( ),
                   py::arg( "bodies" ),
                   py::arg( "estimated_parameters" ),
                   py::arg( "observation_settings" ),
@@ -110,11 +104,9 @@ void expose_estimation_analysis_estimator( py::module& m )
 
 
      )doc" )
-            .def_property_readonly(
-                    "observation_simulators",
-                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE,
-                            TIME_TYPE >::getObservationSimulators,
-                    R"doc(
+            .def_property_readonly( "observation_simulators",
+                                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationSimulators,
+                                    R"doc(
 
          **read-only**
 
@@ -124,11 +116,9 @@ void expose_estimation_analysis_estimator( py::module& m )
 
          :type: list[ :class:`~tudatpy.estimation.observable_models.observables_simulation.ObservationSimulator` ]
       )doc" )
-            .def_property_readonly(
-                    "observation_managers",
-                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE,
-                            TIME_TYPE >::getObservationManagers,
-                    R"doc(
+            .def_property_readonly( "observation_managers",
+                                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::getObservationManagers,
+                                    R"doc(
 
          **read-only**
 
@@ -140,21 +130,18 @@ void expose_estimation_analysis_estimator( py::module& m )
       )doc" )
             .def_property_readonly(
                     "state_transition_interface",
-                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::
-                    getStateTransitionAndSensitivityMatrixInterface,
+                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::getStateTransitionAndSensitivityMatrixInterface,
                     R"doc(
 
          **read-only**
 
-         State transition and sensitivity matrix interface, setting the variational equations/dynamics in the
-         Estimator object.
+         State transition and sensitivity matrix interface, in which the numerical solution of the variational equations is stored/updated
 
 
          :type: :class:`~tudatpy.dynamics.simulator.CombinedStateTransitionAndSensitivityMatrixInterface`
       )doc" )
             .def( "perform_estimation",
-                  &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE,
-                          TIME_TYPE >::estimateParameters,
+                  &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::estimateParameters,
                   py::arg( "estimation_input" ),
                   R"doc(
 
@@ -162,7 +149,7 @@ void expose_estimation_analysis_estimator( py::module& m )
 
 
          Function to trigger the parameter estimation. Much of the process and requirements are similar to those described in the
-         :func:`~tudatpy.estimation.estimation_analysis.Estimator.compute_covariance` function. This function uses an iterative least-squares
+         :attr:`~tudatpy.estimation.estimation_analysis.Estimator.compute_covariance` function. This function uses an iterative least-squares
          estimate process to fit the data (inside ``estimation_input``) to the model defined by the inputs to the ``Estimator`` constructor.s
 
 
@@ -183,8 +170,7 @@ void expose_estimation_analysis_estimator( py::module& m )
 
      )doc" )
             .def( "compute_covariance",
-                  &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE,
-                          TIME_TYPE >::computeCovariance,
+                  &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::computeCovariance,
                   py::arg( "covariance_analysis_input" ),
                   R"doc(
 
@@ -193,7 +179,7 @@ void expose_estimation_analysis_estimator( py::module& m )
 
          Function to perform a covariance analysis for the given observations and parameters. The observations are provided through the
          ``covariance_analysis_input`` input, as are the weights :math:`\mathbf{W}` and inverse a priori covariance :math:`(\mathbf{P}_{0})^{-1}`.
-         Calling this function uses the environment and propagator settings provided to the constructor of this `Estimator` class to simulate
+         Calling this function uses the environment and propagator settings provided to the constructor of this class to simulate
          the dynamics of any relevant bodies for the observations (and associated variational equations). The observations are then
          computed using the observation models created by the settings provided to the constructor of this `Estimator` class, as is the
          associated design matrix :math:`\mathbf{H}`. This function then produces the covariance :math:`\mathbf{P}` (omitting the normalization used
@@ -201,6 +187,8 @@ void expose_estimation_analysis_estimator( py::module& m )
 
          .. math::
             \mathbf{P}=\left(\mathbf{H}^{T}\mathbf{W}\mathbf{H}+(\mathbf{P}_{0})^{-1}\right)^{-1}
+
+         In the presence of consider parameters, an additional term :math:`\Delta\mathbf{P}_{c}` is computed (see :attr:`~tudatpy.estimation.estimation_analysis.CovarianceAnalysisOutput.consider_covariance_contribution`)
 
          Note that, although the actual observations are formally not required for a covariance analysis, all additional data (e.g. observation time, type, link ends, etc.)
          are. And, as such, the ``covariance_analysis_input`` does require the full set of observations and associated information, for consistency purposes (e.g., same input as
@@ -223,11 +211,9 @@ void expose_estimation_analysis_estimator( py::module& m )
 
 
      )doc" )
-            .def_property_readonly(
-                    "variational_solver",
-                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE,
-                            TIME_TYPE >::getVariationalEquationsSolver,
-                    R"doc(
+            .def_property_readonly( "variational_solver",
+                                    &tss::OrbitDeterminationManager< STATE_SCALAR_TYPE, TIME_TYPE >::getVariationalEquationsSolver,
+                                    R"doc(
 
          **read-only**
 
