@@ -21,13 +21,14 @@
 #include "tudat/simulation/estimation_setup/podProcessing.h"
 #include "tudat/astro/propagators/propagateCovariance.h"
 
+using namespace tudat;
 namespace tudat
 {
 namespace unit_tests
 {
 BOOST_AUTO_TEST_SUITE( test_covariance_propagation )
 
-BOOST_AUTO_TEST_CASE( test_EstimationInputAndOutput )
+BOOST_AUTO_TEST_CASE( test_CovariancePropagation )
 {
     const double startTime = 1.0E7;
 
@@ -222,7 +223,7 @@ BOOST_AUTO_TEST_CASE( test_EstimationInputAndOutput )
         std::map< double, Eigen::MatrixXd > tnwPropagatedCovariance = convertCovarianceHistoryToFrame(
                 propagatedCovariance, stateHistory, reference_frames::global_reference_frame, reference_frames::tnw_reference_frame );
 
-        for( auto it: propagatedCovariance )
+        for( auto it : propagatedCovariance )
         {
             Eigen::MatrixXd currentStateTransition = stateTransitionMatrixHistory.at( it.first );
             if( test == 0 )
@@ -275,7 +276,321 @@ BOOST_AUTO_TEST_CASE( test_EstimationInputAndOutput )
                 TUDAT_CHECK_MATRIX_CLOSE_FRACTION( it.second, manualCovariance, 1.0E-12 );
             }
         }
-        //        std::cout <<"formal error: "<< ( estimationOutput->getFormalErrorVector( ) ).transpose( ) << std::endl;
+    }
+}
+
+BOOST_AUTO_TEST_CASE( test_CovariancePropagationReferenceEpoch )
+{
+    using namespace tudat::observation_models;
+    using namespace tudat::orbit_determination;
+    using namespace tudat::estimatable_parameters;
+    using namespace tudat::interpolators;
+    using namespace tudat::numerical_integrators;
+    using namespace tudat::spice_interface;
+    using namespace tudat::simulation_setup;
+    using namespace tudat::orbital_element_conversions;
+    using namespace tudat::ephemerides;
+    using namespace tudat::propagators;
+    using namespace tudat::basic_astrodynamics;
+    using namespace tudat::coordinate_conversions;
+    using namespace tudat::ground_stations;
+    using namespace tudat::observation_models;
+
+    const double startTime = 0.0E7;
+
+    // Load spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
+    for( int useConsiderParameter = 0; useConsiderParameter < 2; useConsiderParameter++ )
+    {
+        std::map< double, Eigen::MatrixXd > propagatedCovarianceStartReference;
+        std::map< double, Eigen::MatrixXd > propagatedCovarianceMiddleReference;
+
+        Eigen::VectorXd middleState;
+
+        for( int referenceEpochTest = 0; referenceEpochTest < 2; referenceEpochTest++ )
+        {
+            // Define bodies in simulation
+            std::vector< std::string > bodyNames;
+            bodyNames.push_back( "Earth" );
+            bodyNames.push_back( "Sun" );
+            bodyNames.push_back( "Moon" );
+            bodyNames.push_back( "Mars" );
+
+            // Specify initial time
+            double initialEphemerisTime = startTime;
+            double finalEphemerisTime = initialEphemerisTime + 4.0 * 3600.0;
+            double middleEpoch = ( initialEphemerisTime + finalEphemerisTime ) / 2.0;
+
+            // Create bodies needed in simulation
+            BodyListSettings bodySettings = getDefaultBodySettings( bodyNames, "Earth", "ECLIPJ2000" );
+            bodySettings.at( "Earth" )->rotationModelSettings = std::make_shared< SimpleRotationModelSettings >(
+                    "ECLIPJ2000",
+                    "IAU_Earth",
+                    spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000", "IAU_Earth", initialEphemerisTime ),
+                    initialEphemerisTime,
+                    2.0 * mathematical_constants::PI / ( physical_constants::JULIAN_DAY ) );
+
+            SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+            bodies.createEmptyBody( "Vehicle" );
+            bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
+
+            // Create aerodynamic coefficient interface settings.
+            double referenceArea = 4.0;
+            double aerodynamicCoefficient = 1.2;
+            std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
+                    std::make_shared< ConstantAerodynamicCoefficientSettings >(
+                            referenceArea,
+                            aerodynamicCoefficient * ( Eigen::Vector3d( ) << 1.2, -0.1, -0.4 ).finished( ),
+                            negative_aerodynamic_frame_coefficients );
+
+            // Create and set aerodynamic coefficnumberOfDaysOfDataients object
+            bodies.at( "Vehicle" )
+                    ->setAerodynamicCoefficientInterface(
+                            createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle", bodies ) );
+
+            // Create radiation pressure settings
+            double referenceAreaRadiation = 4.0;
+            double radiationPressureCoefficient = 1.2;
+            std::vector< std::string > occultingBodies;
+            occultingBodies.push_back( "Earth" );
+            std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
+                    std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
+                            "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
+
+            // Create and set radiation pressure settings
+            bodies.at( "Vehicle" )
+                    ->setRadiationPressureInterface(
+                            "Sun", createRadiationPressureInterface( asterixRadiationPressureSettings, "Vehicle", bodies ) );
+
+            // Set accelerations on Vehicle that are to be taken into account.
+            SelectedAccelerationMap accelerationMap;
+            std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
+            accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 2, 2 ) );
+            accelerationsOfVehicle[ "Sun" ].push_back(
+                    std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
+            accelerationsOfVehicle[ "Moon" ].push_back(
+                    std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
+            accelerationsOfVehicle[ "Mars" ].push_back(
+                    std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
+            accelerationsOfVehicle[ "Sun" ].push_back(
+                    std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+            accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::aerodynamic ) );
+            accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
+
+            // Set bodies for which initial state is to be estimated and integrated.
+            std::vector< std::string > bodiesToIntegrate;
+            std::vector< std::string > centralBodies;
+            bodiesToIntegrate.push_back( "Vehicle" );
+            centralBodies.push_back( "Earth" );
+
+            // Create acceleration models
+            AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
+
+            // Set Keplerian elements for Asterix.
+            Eigen::Vector6d asterixInitialStateInKeplerianElements;
+            asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 8000.0E3;
+            asterixInitialStateInKeplerianElements( eccentricityIndex ) = 1.0E-2;
+            asterixInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
+            asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = unit_conversions::convertDegreesToRadians( 235.7 );
+            asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
+            asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
+
+            double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+
+            // Set (perturbed) initial state.
+            Eigen::Matrix< double, 6, 1 > systemInitialState;
+            if( referenceEpochTest == 0 )
+            {
+                systemInitialState =
+                        convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
+            }
+            else
+            {
+                systemInitialState = middleState;
+            }
+
+            // Create propagator settings
+            std::shared_ptr< IntegratorSettings< double > > integratorSettings =
+                    rungeKuttaFixedStepSettings( 300.0, CoefficientSets::rungeKuttaFehlberg78 );
+            std::shared_ptr< TranslationalStatePropagatorSettings< double, double > > propagatorSettings;
+            if( referenceEpochTest == 0 )
+            {
+                propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double, double > >(
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToIntegrate,
+                        systemInitialState,
+                        initialEphemerisTime,
+                        integratorSettings,
+                        propagationTimeTerminationSettings( finalEphemerisTime ),
+                        cowell );
+            }
+            else
+            {
+                propagatorSettings = std::make_shared< TranslationalStatePropagatorSettings< double, double > >(
+                        centralBodies,
+                        accelerationModelMap,
+                        bodiesToIntegrate,
+                        systemInitialState,
+                        middleEpoch,
+                        integratorSettings,
+                        nonSequentialPropagationTerminationSettings( propagationTimeTerminationSettings( finalEphemerisTime ),
+                                                                     propagationTimeTerminationSettings( initialEphemerisTime ) ),
+                        cowell );
+            }
+
+            // Define parameters.
+            LinkEnds linkEnds;
+            linkEnds[ observed_body ] = LinkEndId( "Vehicle", "" );
+
+            std::map< ObservableType, std::vector< LinkEnds > > linkEndsPerObservable;
+            linkEndsPerObservable[ position_observable ].push_back( linkEnds );
+
+            std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames, considerParameterNames;
+            parameterNames.push_back( std::make_shared< InitialTranslationalStateEstimatableParameterSettings< double > >(
+                    "Vehicle", systemInitialState, "Earth" ) );
+            parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", radiation_pressure_coefficient ) );
+            parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", constant_drag_coefficient ) );
+
+            if( useConsiderParameter == 1 )
+            {
+                considerParameterNames.push_back(
+                        std::make_shared< ConstantObservationBiasEstimatableParameterSettings >( linkEnds, position_observable, true ) );
+            }
+
+            // Create parameters
+            std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
+                    createParametersToEstimate< double, double >( parameterNames, bodies, nullptr, considerParameterNames );
+
+            std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
+            observationSettingsList.push_back( std::make_shared< ObservationModelSettings >(
+                    position_observable,
+                    linkEnds,
+                    nullptr,
+                    std::make_shared< ConstantObservationBiasSettings >( Eigen::Vector3d::Zero( ), true ) ) );
+
+            // Create orbit determination object.
+            OrbitDeterminationManager< double, double > orbitDeterminationManager = OrbitDeterminationManager< double, double >(
+                    bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
+
+            std::vector< double > baseTimeList;
+            double observationTimeStart = initialEphemerisTime + 100.0;
+            double observationInterval = 20.0;
+            double currentObservationTime = observationTimeStart;
+            while( currentObservationTime < finalEphemerisTime - 100.0 )
+            {
+                baseTimeList.push_back( currentObservationTime );
+                currentObservationTime += observationInterval;
+            }
+
+            std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput =
+                    getObservationSimulationSettings< double >( linkEndsPerObservable, baseTimeList, observed_body );
+
+            // Simulate observations
+            std::shared_ptr< ObservationCollection< double, double > > simulatedObservations = simulateObservations< double, double >(
+                    measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+
+            // Define estimation input
+            Eigen::MatrixXd considerCovariance = Eigen::MatrixXd::Identity( 3, 3 );
+            std::shared_ptr< CovarianceAnalysisInput< double, double > > estimationInput =
+                    std::make_shared< CovarianceAnalysisInput< double, double > >(
+                            simulatedObservations, Eigen::MatrixXd::Zero( 0, 0 ), considerCovariance );
+
+            std::map< observation_models::ObservableType, double > weightPerObservable;
+            weightPerObservable[ position_observable ] = 1.0;
+            estimationInput->setConstantPerObservableWeightsMatrix( weightPerObservable );
+
+            // Perform estimation
+            std::shared_ptr< CovarianceAnalysisOutput< double > > estimationOutput =
+                    orbitDeterminationManager.computeCovariance( estimationInput );
+
+            auto stateHistory = std::dynamic_pointer_cast< SingleArcVariationalEquationsSolver<> >(
+                                        orbitDeterminationManager.getVariationalEquationsSolver( ) )
+                                        ->getDynamicsSimulator( )
+                                        ->getEquationsOfMotionNumericalSolution( );
+
+            std::map< double, Eigen::MatrixXd > propagatedCovariance =
+                    propagateCovarianceFromObjects( estimationOutput,
+                                                    orbitDeterminationManager.getStateTransitionAndSensitivityMatrixInterface( ),
+                                                    utilities::createVectorFromMapKeys( stateHistory ) );
+
+            if( referenceEpochTest == 0 )
+            {
+                middleState = stateHistory.at( middleEpoch );
+                propagatedCovarianceStartReference = propagatedCovariance;
+            }
+            else
+            {
+                propagatedCovarianceMiddleReference = propagatedCovariance;
+            }
+        }
+
+        std::map< double, Eigen::MatrixXd >::iterator itStart = propagatedCovarianceStartReference.begin( );
+        std::map< double, Eigen::MatrixXd >::iterator itMiddle = propagatedCovarianceMiddleReference.begin( );
+
+        BOOST_CHECK_EQUAL( propagatedCovarianceStartReference.size( ), propagatedCovarianceMiddleReference.size( ) );
+
+        // Define row and column blocks: (start index, size)
+        std::pair< int, int > blockIndices[ 2 ] = { std::make_pair( 0, 3 ), std::make_pair( 3, 3 ) };
+
+        double relativeTolerance = 1.0e-6;
+
+        std::cout << "Start covariance " << std::endl << itStart->second << std::endl << std::endl;
+        std::cout << "Full covariance " << std::endl << itMiddle->second << std::endl << std::endl;
+
+        while( itStart != propagatedCovarianceStartReference.end( ) )
+        {
+            BOOST_CHECK_EQUAL( itStart->first, itMiddle->first );
+
+            Eigen::MatrixXd& covarianceMatrixStart = itStart->second;
+            Eigen::MatrixXd& covarianceMatrixMiddle = itMiddle->second;
+
+            //            std::cout<<"Times "<<itStart->first<<" "<<itMiddle->first<<std::endl;
+            //            std::cout<<"Covariances "<<std::endl<<itStart->second<<std::endl<<std::endl<<itMiddle->second<<std::endl;
+
+            for( int rowBlockIndex = 0; rowBlockIndex < 2; ++rowBlockIndex )
+            {
+                int rowStartIndex = blockIndices[ rowBlockIndex ].first;
+                int numberOfRowsInBlock = blockIndices[ rowBlockIndex ].second;
+
+                for( int columnBlockIndex = 0; columnBlockIndex < 2; ++columnBlockIndex )
+                {
+                    int columnStartIndex = blockIndices[ columnBlockIndex ].first;
+                    int numberOfColumnsInBlock = blockIndices[ columnBlockIndex ].second;
+
+                    Eigen::MatrixXd blockStart =
+                            covarianceMatrixStart.block( rowStartIndex, columnStartIndex, numberOfRowsInBlock, numberOfColumnsInBlock );
+                    Eigen::MatrixXd blockMiddle =
+                            covarianceMatrixMiddle.block( rowStartIndex, columnStartIndex, numberOfRowsInBlock, numberOfColumnsInBlock );
+
+                    double blockNormStart = blockStart.norm( );
+                    double blockNormMiddle = blockMiddle.norm( );
+                    double blockScale = std::max( blockNormStart, blockNormMiddle );
+
+                    if( blockScale == 0.0 )
+                    {
+                        double differenceNorm = ( blockStart - blockMiddle ).norm( );
+                        BOOST_CHECK_EQUAL( differenceNorm, 0.0 );
+                    }
+                    else
+                    {
+                        for( int rowIndex = 0; rowIndex < numberOfRowsInBlock; ++rowIndex )
+                        {
+                            for( int columnIndex = 0; columnIndex < numberOfColumnsInBlock; ++columnIndex )
+                            {
+                                double normalizedValueStart = blockStart( rowIndex, columnIndex ) / blockScale;
+                                double normalizedValueMiddle = blockMiddle( rowIndex, columnIndex ) / blockScale;
+                                BOOST_CHECK_SMALL( std::fabs( normalizedValueStart - normalizedValueMiddle ), relativeTolerance );
+                            }
+                        }
+                    }
+                }
+            }
+
+            ++itStart;
+            ++itMiddle;
+        }
     }
 }
 
