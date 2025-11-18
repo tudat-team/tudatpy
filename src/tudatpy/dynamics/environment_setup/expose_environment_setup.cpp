@@ -970,22 +970,23 @@ void expose_environment_setup( py::module &m )
            py::arg( "body" ),
            py::arg( "ground_station_settings" ),
            R"doc(No documentation found.)doc" );
-//
-//
-//    .. code-block:: python
-//
-//# Create ground station settings
-//                     ground_station_settings = environment_setup.ground_station.basic_station(
-//                                                                                       "TrackingStation",
-//                                                                                       [station_altitude, delft_latitude, delft_longitude],
-//                                                                                       element_conversion.geodetic_position_type)
-//
-//# Add the ground station to the environment
-//                                                       environment_setup.add_ground_station(
-//                                                                                bodies.get_body("Earth"),
-//                                                                                ground_station_settings )
+    //
+    //
+    //    .. code-block:: python
+    //
+    // # Create ground station settings
+    //                     ground_station_settings = environment_setup.ground_station.basic_station(
+    //                                                                                       "TrackingStation",
+    //                                                                                       [station_altitude, delft_latitude,
+    //                                                                                       delft_longitude],
+    //                                                                                       element_conversion.geodetic_position_type)
+    //
+    // # Add the ground station to the environment
+    //                                                       environment_setup.add_ground_station(
+    //                                                                                bodies.get_body("Earth"),
+    //                                                                                ground_station_settings )
 
-                                                               m.def( "create_radiation_pressure_interface",
+    m.def( "create_radiation_pressure_interface",
            &tss::createRadiationPressureInterface,
            py::arg( "radiationPressureInterfaceSettings" ),
            py::arg( "body_name" ),
@@ -1003,7 +1004,6 @@ void expose_environment_setup( py::module &m )
     //        auto system_model_setup =
     //        m.def_submodule("system_models");
     //        gravity_field_variation::expose_system_model_setup(system_model_setup);
-
 }
 
 }  // namespace environment_setup
