@@ -31,7 +31,7 @@ namespace earth_orientation
 template< typename TimeType >
 struct CurrentTimes {
     //! Default constructor
-    CurrentTimes( ): tai( TUDAT_NAN ), tt( TUDAT_NAN ), tdb( TUDAT_NAN ), utc( TUDAT_NAN ), ut1( TUDAT_NAN ) { }
+    CurrentTimes( ): tai( TUDAT_NAN ), tt( TUDAT_NAN ), tdb( TUDAT_NAN ), utc( TUDAT_NAN ), ut1( TUDAT_NAN ) {}
 
     //! Function to retrieve the current time in requested scale
     /*!
@@ -340,7 +340,8 @@ public:
                 timesToUpdate.ut1 = inputTimeValue;
                 try
                 {
-                    timesToUpdate.utc = timesToUpdate.ut1 - static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.ut1 ) );
+                    timesToUpdate.utc = timesToUpdate.ut1 -
+                            static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.ut1 ) );
                 }
                 catch( std::runtime_error& caughtException )
                 {
@@ -356,8 +357,8 @@ public:
                 // Iterate conversion.
                 try
                 {
-                    timesToUpdate.utc =
-                        timesToUpdate.ut1 - static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.utc ) );
+                    timesToUpdate.utc = timesToUpdate.ut1 -
+                            static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate( timesToUpdate.utc ) );
                 }
                 catch( std::runtime_error& caughtException )
                 {
@@ -394,14 +395,12 @@ public:
         try
         {
             return dailyUtcUt1CorrectionInterpolator_->interpolate( currentUtc ) +
-                shortPeriodUt1CorrectionCalculator_->getCorrections( currentTt );
+                    shortPeriodUt1CorrectionCalculator_->getCorrections( currentTt );
         }
         catch( std::runtime_error& caughtException )
         {
             throw std::runtime_error( "Error in UT1 correction.\nOriginal error: " + std::string( caughtException.what( ) ) );
         }
-
-
     }
 
     //! Interpolator for UT1 corrections, values published daily by IERS
@@ -424,8 +423,6 @@ private:
             {
                 throw std::runtime_error( "Error in TDB-TT interpolation.\nOriginal error: " + std::string( caughtException.what( ) ) );
             }
-
-
         }
         else
         {
@@ -467,13 +464,13 @@ private:
             try
             {
                 getCurrentTimeList< TimeType >( ).ut1 =
-                    getCurrentTimeList< TimeType >( ).tt - historicalDeltaTInterpolator_->interpolate( approximateYear );
+                        getCurrentTimeList< TimeType >( ).tt - historicalDeltaTInterpolator_->interpolate( approximateYear );
             }
             catch( std::runtime_error& caughtException )
             {
-                throw std::runtime_error( "Error in historical UT calculation.\nOriginal error: " + std::string( caughtException.what( ) ) );
+                throw std::runtime_error( "Error in historical UT calculation.\nOriginal error: " +
+                                          std::string( caughtException.what( ) ) );
             }
-
 
             getCurrentTimeList< TimeType >( ).utc = getCurrentTimeList< TimeType >( ).ut1;
         }
@@ -486,20 +483,19 @@ private:
                 try
                 {
                     getCurrentTimeList< TimeType >( ).ut1 = static_cast< TimeType >( dailyUtcUt1CorrectionInterpolator_->interpolate(
-                                                                    getCurrentTimeList< TimeType >( ).utc ) ) + getCurrentTimeList< TimeType >( ).utc;
+                                                                    getCurrentTimeList< TimeType >( ).utc ) ) +
+                            getCurrentTimeList< TimeType >( ).utc;
                 }
                 catch( std::runtime_error& caughtException )
                 {
                     throw std::runtime_error( "Error in UT1 calculation.\nOriginal error: " + std::string( caughtException.what( ) ) );
                 }
 
-
                 getCurrentTimeList< TimeType >( ).ut1 += static_cast< TimeType >(
                         shortPeriodUt1CorrectionCalculator_->getCorrections( getCurrentTimeList< TimeType >( ).tt ) );
             }
         }
     }
-
 
     template< typename TimeType >
     void calculateAtomicTimesFromUtc( const TimeType& inputUtcTime )
@@ -508,7 +504,7 @@ private:
         // The UTC introduction epoch is in TAI, but we can use it as an approximate
         // threshold for the input time (which is UTC-like) to decide which path to take.
         // This avoids calling SOFA functions with dates they cannot handle.
-        if ( inputUtcTime < utcIntroductionEpochInTai_)
+        if( inputUtcTime < utcIntroductionEpochInTai_ )
         {
             // --- 1. Historical Time (Pre-UTC Era) ---
             // This path is now correctly taken for the 1893 date.
@@ -521,12 +517,11 @@ private:
             double approximateYear = ( inputUtcTime / physical_constants::JULIAN_YEAR ) + 2000.0;
 
             // Calculate TT from UT1 using the historical ΔT. (TT = UT1 + ΔT)
-            getCurrentTimeList< TimeType >( ).tt = getCurrentTimeList< TimeType >( ).ut1 +
-                historicalDeltaTInterpolator_->interpolate( approximateYear );
+            getCurrentTimeList< TimeType >( ).tt =
+                    getCurrentTimeList< TimeType >( ).ut1 + historicalDeltaTInterpolator_->interpolate( approximateYear );
 
             // Convert TT to TAI using the standard constant offset.
-            getCurrentTimeList< TimeType >( ).tai = basic_astrodynamics::convertTTtoTAI< TimeType >(
-                getCurrentTimeList< TimeType >( ).tt );
+            getCurrentTimeList< TimeType >( ).tai = basic_astrodynamics::convertTTtoTAI< TimeType >( getCurrentTimeList< TimeType >( ).tt );
         }
         else
         {
@@ -534,13 +529,11 @@ private:
             // The conversion is handled directly by the SOFA function, which correctly
             // accounts for all leap seconds.
             getCurrentTimeList< TimeType >( ).utc = inputUtcTime;
-            getCurrentTimeList< TimeType >( ).tai = sofa_interface::convertUTCtoTAI< TimeType >(
-                getCurrentTimeList< TimeType >( ).utc );
+            getCurrentTimeList< TimeType >( ).tai = sofa_interface::convertUTCtoTAI< TimeType >( getCurrentTimeList< TimeType >( ).utc );
 
             // >>>>> THE FIX IS HERE <<<<<
             // We must also convert the newly calculated TAI to TT.
-            getCurrentTimeList< TimeType >( ).tt = basic_astrodynamics::convertTAItoTT< TimeType >(
-                getCurrentTimeList< TimeType >( ).tai );
+            getCurrentTimeList< TimeType >( ).tt = basic_astrodynamics::convertTAItoTT< TimeType >( getCurrentTimeList< TimeType >( ).tai );
         }
     }
 
