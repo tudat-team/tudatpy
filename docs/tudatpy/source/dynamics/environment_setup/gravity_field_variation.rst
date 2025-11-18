@@ -6,15 +6,15 @@ This module contains a set of factory functions for setting up the
 gravity field variations of a (spherical harmonic) gravity field.
 
 The main interfaces with Tudat is the :attr:`~tudatpy.dynamics.environment_setup.BodySettings.gravity_field_variation_settings`
-list attribute of the body settings, which defines settings for time-variations of spherical harmonic coefficients of a body.
-The functions in this submodule are used to create the settings objects that go into this list. When creating a body (typically using the
+list attribute (with entries of type :class:`~tudatpy.dynamics.environment_setup.gravity_field_variation.GravityFieldVariationSettings`)  of the body settings, which defines settings for time-variations of spherical harmonic coefficients of a body.
+**The functions in this submodule are used to create the settings objects that go into this list.** When creating a body (typically using the
 :func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies` function), an list of objects of type
 :class:`~tudatpy.dynamics.environment.GravityFieldVariationModel` (or a derived class) is created
 and added to the associated :class:`~tudatpy.dynamics.environment.Body` object based on the settings object. This list
 of gravity field variation objects is then stored in an object of type :class:`~tudatpy.dynamics.environment.GravityFieldVariationsSet` which can
 be retrieved using the :attr:`~tudatpy.dynamics.environment.Body.gravity_field_variation_set` attribute.
 
-Using gravity field variations is only possible when a body has been endowed with a spherical harmonic gravity field setting (see :mod:`~tudatpy.dynamics.environment_setup.gravity_field`).
+Using gravity field variations is only possible when a body has been endowed with a spherical harmonic gravity field setting (see :ref:`gravity_field`).
 
 Once created, the gravity field variation settings defined through the settings in this submodule each compute a :math:`\Delta \bar{C}_{j,lm}`
 and :math:`\Delta \bar{S}_{j,lm}` variation to the cosine and sine coefficients at degree :math:`l` and order :math:`m`.

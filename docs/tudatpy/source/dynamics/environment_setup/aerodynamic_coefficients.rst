@@ -6,8 +6,8 @@ This module contains the factory functions for setting up the
 aerodynamic coefficient models of (artificial and natural) bodies in an environment.
 
 The main interfaces with Tudat is the :attr:`~tudatpy.dynamics.environment_setup.BodySettings.aerodynamic_coefficient_settings`
-attribute  (of type :class:`~AerodynamicCoefficientSettings`) of the body settings, which defines settings for the aerodynamic coefficients of a body.
-The functions in this submodule are used to create this settings objects. When creating a body (typically using the
+attribute  (of type :class:`~~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings`) of the body settings, which defines settings for the aerodynamic coefficients of a body.
+**The functions in this submodule are used to create these settings objects.** When creating a body (typically using the
 :func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies` function), an object of type
 :class:`~tudatpy.dynamics.environment.AerodynamicCoefficientInterface` (or a derived class) is created
 and added to the associated :class:`~tudatpy.dynamics.environment.Body` object based on the settings object, which can
@@ -20,8 +20,8 @@ The coefficient models create from the settings defined by these settings are us
 
 The functions in this module can be used to define force and/or moment coefficients. The frame in which
 the coefficients are to be provided can be defined by the user through the appropriate :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientFrames` input. For instance, when wanting to provide :math:`C_{D},C_{S},C_{L}`,
-``positive_body_fixed_frame_coefficients`` is used. When wanting to provide :math:`C_{X},C_{Y},C_{Z}`,
-``negative_aerodynamic_frame_coefficients`` is used.
+``negative_aerodynamic_frame_coefficients`` is used. When wanting to provide :math:`C_{X},C_{Y},C_{Z}`,
+``positive_body_fixed_frame_coefficients`` is used.
 
 
 In the definition of moment coefficients, a reference point w.r.t. which aerodynamic moment coefficients are defined must be provided.
