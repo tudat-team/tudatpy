@@ -1098,6 +1098,10 @@ public:
                 }
             }
         }
+
+        // Reset observation set indices and concatenated observations and times
+        setObservationSetIndices( );
+        setConcatenatedObservationsAndTimes( );
     }
 
     void filterObservations(
