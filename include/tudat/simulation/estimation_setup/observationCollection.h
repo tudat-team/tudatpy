@@ -1605,6 +1605,7 @@ public:
                                 {
                                     isInTimeBounds = true;
                                 }
+
                                 if( ( isInTimeBounds && ( !observationParser->useOppositeCondition( ) ) ) ||
                                     ( !isInTimeBounds && ( observationParser->useOppositeCondition( ) ) ) )
                                 {
