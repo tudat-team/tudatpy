@@ -209,7 +209,7 @@ void expose_ground_station_setup( py::module& m )
 
                 // Convert the std::map to a Python dict
                 py::dict pythonDict;
-                for( const auto& entry: stationPositions )
+                for( const auto& entry : stationPositions )
                 {
                     // entry.first is the station name, entry.second is the Eigen::Vector3d
                     pythonDict[ entry.first.c_str( ) ] = entry.second;
