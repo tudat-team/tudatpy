@@ -16,7 +16,6 @@ from tudatpy.kernel.dynamics.environment_setup import (
     get_safe_interpolation_interval,
     add_aerodynamic_coefficient_interface,
     create_aerodynamic_coefficient_interface,
-    add_radiation_pressure_interface,
     add_radiation_pressure_target_model,
     add_rotation_model,
     add_gravity_field_model,
@@ -29,9 +28,6 @@ from tudatpy.kernel.dynamics.environment_setup import (
     add_ground_station,
     create_radiation_pressure_interface,
     get_ground_station_list,
-    set_aerodynamic_guidance,
-    set_aerodynamic_orientation_functions,
-    set_constant_aerodynamic_orientation,
 )
 from . import (
     aerodynamic_coefficients,
