@@ -369,7 +369,6 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class that define the settings. )doc" );
 
-
     m.def( "arcwise_drag_component_scaling",
            &tep::arcwiseDragComponentScaling,
            py::arg( "body" ),
@@ -403,8 +402,6 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings`
      Instance of :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings` class that define the settings. )doc" );
 
-
-
     m.def( "side_component_scaling",
            &tep::sideComponentScaling,
            py::arg( "body" ),
@@ -423,7 +420,6 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  -------
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class that define the settings. )doc" );
-
 
     m.def( "arcwise_side_component_scaling",
            &tep::arcwiseSideComponentScaling,
@@ -449,8 +445,6 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings`
      Instance of :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings` class that define the settings. )doc" );
 
-
-
     m.def( "lift_component_scaling",
            &tep::liftComponentScaling,
            py::arg( "body" ),
@@ -469,7 +463,6 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  -------
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class that define the settings. )doc" );
-
 
     m.def( "arcwise_lift_component_scaling",
            &tep::arcwiseLiftComponentScaling,
@@ -494,9 +487,6 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  -------
  :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings`
      Instance of :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings` class that define the settings. )doc" );
-
-
-
 
     m.def( "radiation_pressure_coefficient",
            &tep::radiationPressureCoefficient,

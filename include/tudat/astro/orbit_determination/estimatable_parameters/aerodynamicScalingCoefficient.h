@@ -96,8 +96,6 @@ protected:
     int parameterIndex_;
 };
 
-
-
 class ArcWiseAerodynamicScalingFactor : public EstimatableParameter< Eigen::VectorXd >
 {
 public:
@@ -105,7 +103,8 @@ public:
                                      const EstimatebleParametersEnum parameterType,
                                      const std::vector< double > timeLimits,
                                      const std::string& associatedBody ):
-        EstimatableParameter< Eigen::VectorXd >( parameterType, associatedBody ), aerodynamicAccelerations_( aerodynamicAccelerations ), timeLimits_( timeLimits )
+        EstimatableParameter< Eigen::VectorXd >( parameterType, associatedBody ), aerodynamicAccelerations_( aerodynamicAccelerations ),
+        timeLimits_( timeLimits )
     {
         if( ( parameterType != arc_wise_drag_component_scaling_factor ) && ( parameterType != arc_wise_side_component_scaling_factor ) &&
             ( parameterType != arc_wise_lift_component_scaling_factor ) )
@@ -130,18 +129,17 @@ public:
                                           std::to_string( parameterType ) );
         }
 
-
         // setup of arcwise parameter object
 
         for( unsigned int i = 0; i < aerodynamicAccelerations_.size( ); i++ )
         {
-            if( std::isnan( aerodynamicAccelerations_.at(i)->getComponentScaling( parameterIndex_ ) ) )
+            if( std::isnan( aerodynamicAccelerations_.at( i )->getComponentScaling( parameterIndex_ ) ) )
             {
                 throw std::runtime_error( "Error when creating estimated arcwise Cr coefficient for " + associatedBody +
                                           ", current Cr not initialized" );
             }
 
-            if( aerodynamicAccelerations_.at(i)->getComponentScalingFunction( parameterIndex_ ) != nullptr )
+            if( aerodynamicAccelerations_.at( i )->getComponentScalingFunction( parameterIndex_ ) != nullptr )
             {
                 throw std::runtime_error( "Error when creating estimated arcwise Cr coefficient for " + associatedBody +
                                           ", time-variable Cr function defined" );
@@ -161,32 +159,30 @@ public:
         coefficientInterpolator_ = std::make_shared< interpolators::PiecewiseConstantInterpolator< double, double > >(
                 timeLimits_, fullComponentScalingCoefficients_ );
 
-
         typedef interpolators::OneDimensionalInterpolator< double, double > LocalInterpolator;
-
 
         for( unsigned int i = 0; i < aerodynamicAccelerations_.size( ); i++ )
         {
             aerodynamicAccelerations_.at( i )->setComponentScalingFunction(
-                std::bind( static_cast< double ( LocalInterpolator::* )( const double ) >( &LocalInterpolator::interpolate ),
-                    coefficientInterpolator_, std::placeholders::_1 ),
-            parameterIndex_);
+                    std::bind( static_cast< double ( LocalInterpolator::* )( const double ) >( &LocalInterpolator::interpolate ),
+                               coefficientInterpolator_,
+                               std::placeholders::_1 ),
+                    parameterIndex_ );
         }
     }
 
-
     ArcWiseAerodynamicScalingFactor( const std::shared_ptr< aerodynamics::AerodynamicAcceleration > aerodynamicAcceleration,
-                              const EstimatebleParametersEnum parameterType,
-                              const std::vector< double > timeLimits,
-                              const std::string& associatedBody ):
-        ArcWiseAerodynamicScalingFactor( std::vector< std::shared_ptr< aerodynamics::AerodynamicAcceleration > >( { aerodynamicAcceleration } ),
-                                  parameterType,
-                                  timeLimits,
-                                  associatedBody )
+                                     const EstimatebleParametersEnum parameterType,
+                                     const std::vector< double > timeLimits,
+                                     const std::string& associatedBody ):
+        ArcWiseAerodynamicScalingFactor(
+                std::vector< std::shared_ptr< aerodynamics::AerodynamicAcceleration > >( { aerodynamicAcceleration } ),
+                parameterType,
+                timeLimits,
+                associatedBody )
     {}
 
     ~ArcWiseAerodynamicScalingFactor( ) {}
-
 
     //! Function to ask for values from acceleration model (only for initialization)
     double getParameterValueFromAccelerationModel( )
@@ -205,11 +201,11 @@ public:
         return parameterValue;
     }
 
-
     //! Function to reset the arc-wise values of the component scaling factors to be estimated.
     /*!
-     * Function to reset the arc-wise values of the component scaling factors to be estimated. Note that this function is not binding a new piecewise interpolator function, but changes the data in the existsing (member) interpolator.
-     * \param parameterValue New value of the radiation pressure coefficient that is to be estimated.
+     * Function to reset the arc-wise values of the component scaling factors to be estimated. Note that this function is not binding a new
+     * piecewise interpolator function, but changes the data in the existsing (member) interpolator. \param parameterValue New value of the
+     * radiation pressure coefficient that is to be estimated.
      */
 
     void setParameterValue( Eigen::VectorXd parameterValue )
@@ -240,7 +236,6 @@ public:
         return utilities::convertStlVectorToEigenVector( componentScalingCoefficients_ );
     }
 
-
     int getParameterSize( )
     {
         return componentScalingCoefficients_.size( );
@@ -261,10 +256,7 @@ public:
         return coefficientInterpolator_->getLookUpScheme( );
     }
 
-
-
 protected:
-
     std::vector< std::shared_ptr< aerodynamics::AerodynamicAcceleration > > aerodynamicAccelerations_;
 
     int parameterIndex_;
@@ -280,9 +272,7 @@ protected:
 
     //! Interpolator that returns the aerodynamic component scaling coefficient as a function of time.
     std::shared_ptr< interpolators::PiecewiseConstantInterpolator< double, double > > coefficientInterpolator_;
-
 };
-
 
 }  // namespace estimatable_parameters
 
