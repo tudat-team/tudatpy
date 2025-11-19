@@ -40,35 +40,33 @@ def test_dependent_variable_dictionary():
         global_frame_origin,
         global_frame_orientation)
 
-    # Create system of selected celestial bodies
-    bodies = environment_setup.create_system_of_bodies(body_settings)
-
     # Create vehicle objects.
-    bodies.create_empty_body("Delfi-C3")
+    body_settings.add_empty_settings("Delfi-C3")
 
-    bodies.get("Delfi-C3").mass = 400.0
+    # Create radiation pressure settings, and add to vehicle
+    reference_area_radiation = 4.0
+    radiation_pressure_coefficient = 1.2
+    occulting_bodies_dict = dict()
+    occulting_bodies_dict["Sun"] = ["Earth"]
+    vehicle_target_settings = environment_setup.radiation_pressure.cannonball_radiation_target(
+        reference_area_radiation, radiation_pressure_coefficient, occulting_bodies_dict )
 
-    # Create aerodynamic coefficient interface settings, and add to vehicle
+    # Add the radiation pressure interface to the body settings
+    body_settings.get("Delfi-C3").radiation_pressure_target_settings = vehicle_target_settings
+
+
+    # Add the aerodynamic interface to the body settings
     reference_area = 4.0
     drag_coefficient = 1.2
     aero_coefficient_settings = environment_setup.aerodynamic_coefficients.constant(
         reference_area, [drag_coefficient, 0, 0]
     )
-    environment_setup.add_aerodynamic_coefficient_interface(
-        bodies, "Delfi-C3", aero_coefficient_settings)
+    body_settings.get("Delfi-C3").aerodynamic_coefficient_settings = aero_coefficient_settings
 
-    # To account for the pressure of the solar radiation on the satellite, let's add another interface. This takes a radiation pressure coefficient of 1.2, and a radiation area of 4m$^2$. This interface also accounts for the variation in pressure cause by the shadow of Earth.
+    # Create system of selected celestial bodies
+    bodies = environment_setup.create_system_of_bodies(body_settings)
+    bodies.get("Delfi-C3").mass = 400.0
 
-    # Create radiation pressure settings, and add to vehicle
-    reference_area_radiation = 4.0
-    radiation_pressure_coefficient = 1.2
-    occulting_bodies = ["Earth"]
-    radiation_pressure_settings = environment_setup.radiation_pressure.cannonball(
-        "Sun", reference_area_radiation, radiation_pressure_coefficient, occulting_bodies
-    )
-    environment_setup.add_radiation_pressure_interface(
-        bodies, "Delfi-C3", radiation_pressure_settings)
-    
     # Define bodies that are propagated
     bodies_to_propagate = ["Delfi-C3"]
 
