@@ -430,7 +430,12 @@ void expose_observations_wrapper( py::module& m )
         )doc" );
 
     m.def( "create_pseudo_observations_and_models",
-           &tss::simulatePseudoObservations< TIME_TYPE, STATE_SCALAR_TYPE >,
+    py::overload_cast<  const tss::SystemOfBodies &,
+                        const std::vector< std::string > &,
+                        const std::vector< std::string > &,
+                        const TIME_TYPE,
+                        const TIME_TYPE,
+                        const TIME_TYPE > ( &tss::simulatePseudoObservations< TIME_TYPE, STATE_SCALAR_TYPE > ),
            py::arg( "bodies" ),
            py::arg( "observed_bodies" ),
            py::arg( "central_bodies" ),
@@ -438,6 +443,20 @@ void expose_observations_wrapper( py::module& m )
            py::arg( "final_time" ),
            py::arg( "time_step" ),
            R"doc(No documentation found.)doc" );
+
+
+    m.def( "create_pseudo_observations_and_models_from_observation_times",
+            py::overload_cast<  const tss::SystemOfBodies &,
+                    const std::vector< std::string > &,
+                    const std::vector< std::string > &,
+                    const std::vector< TIME_TYPE > >
+                    ( &tss::simulatePseudoObservations< TIME_TYPE, STATE_SCALAR_TYPE > ),
+       py::arg( "bodies" ),
+       py::arg( "observed_bodies" ),
+       py::arg( "central_bodies" ),
+       py::arg( "observation_times" ),
+       R"doc(No documentation found.)doc" );
+
 
     m.def( "set_existing_observations",
            &tss::setExistingObservations< STATE_SCALAR_TYPE, TIME_TYPE >,
