@@ -494,6 +494,10 @@ public:
 
     //! Orientation of the frame in which the state is defined.
     std::string frameOrientation_;
+
+    std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction_;
+
+    std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > initialStateSetFunction_;
 };
 
 //! Class to define settings for estimating an arcwise initial translational state.
@@ -598,6 +602,10 @@ public:
 
     //! Boolean to denote whether initial states are set, or if they need to be computed
     bool isStateSet_;
+
+    std::vector< std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > > initialStateGetFunctions_;
+
+    std::vector< std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > > initialStateSetFunctions_;
 };
 
 //! Class to define settings for estimating an initial rotational state.
@@ -644,6 +652,10 @@ public:
 
     //! Orientation w.r.t. which the initial state is to be estimated.
     std::string baseOrientation_;
+
+    std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction_;
+
+    std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > initialStateSetFunction_;
 };
 
 //! Class to define settings for estimating an initial rotational state.
@@ -656,6 +668,11 @@ public:
     {}
 
     InitialStateParameterType initialStateValue_;
+
+
+    std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction_;
+
+    std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > initialStateSetFunction_;
 };
 
 //! Class to define settings for estimating time-independent empirical acceleration components

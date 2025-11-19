@@ -34,11 +34,19 @@ public:
 
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > getParameterValue( )
     {
+        if( initialStateGetFunction_ != nullptr )
+        {
+            initialMassState_ = initialStateGetFunction_( );
+        }
         return initialMassState_;
     }
 
     void setParameterValue( Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > parameterValue )
     {
+        if( initialStateSetFunction_ != nullptr )
+        {
+            initialStateSetFunction_( parameterValue );
+        }
         initialMassState_ = parameterValue;
     }
 
@@ -47,8 +55,27 @@ public:
         return 1;
     }
 
+    void addStateClosureFunctions(
+            const std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction,
+            const std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > initialStateSetFunction )
+    {
+        initialStateGetFunction_ = initialStateGetFunction;
+        initialStateSetFunction_ = initialStateSetFunction;
+
+        if( initialStateGetFunction_ != nullptr )
+        {
+            initialMassState_ = initialStateGetFunction_( );
+        }
+    }
+
 private:
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialMassState_;
+
+
+
+    std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction_;
+
+    std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > initialStateSetFunction_;
 };
 
 }  // namespace estimatable_parameters
