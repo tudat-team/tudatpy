@@ -1101,15 +1101,6 @@ void setPropagatorSettingsMultiArcStatesInEstimatedDynamicalParameters(
     // Set information in estimation objects
     for( unsigned int i = 0; i < bodiesWithPropagatedTranslationalState.size( ); i++ )
     {
-        StateType parameterInitialStates = estimatedBodies.at( bodiesWithPropagatedTranslationalState.at( i ) )->getParameterValue( );
-        StateType propagatorInitialStates = arcInitialTranslationalStates.at( bodiesWithPropagatedTranslationalState.at( i ) );
-
-        if( !(parameterInitialStates.array( ) == propagatorInitialStates.array( ) ).all( ) )
-        {
-            std::cerr<<"Warning, multi-arc propagator states and estimated multi-arc parameter values are not identical for body " + bodiesWithPropagatedTranslationalState.at( i )<<std::endl;
-            std::cerr<<" difference is "<< ( parameterInitialStates - propagatorInitialStates ).transpose( )<<std::endl;
-        }
-        
         estimatedBodies.at( bodiesWithPropagatedTranslationalState.at( i ) )
                 ->setParameterValue( arcInitialTranslationalStates.at( bodiesWithPropagatedTranslationalState.at( i ) ) );
     }

@@ -197,7 +197,17 @@ public:
         PropagatorSettings< StateScalarType >( initialBodyStates, outputSettings, false ), stateType_( stateType ),
         initialTime_( TUDAT_NAN ), terminationSettings_( terminationSettings ), dependentVariablesToSave_( dependentVariablesToSave ),
         integratorSettings_( nullptr ), outputSettings_( outputSettings ), statePrintInterval_( statePrintInterval )
-    {}
+    {
+        if( stateType_ != custom_state )
+        {
+            singleBodyStateSize_ = getSingleIntegrationSize( stateType_ );
+        }
+        else
+        {
+            singleBodyStateSize_ = initialBodyStates.rows( );
+        }
+
+    }
 
     SingleArcPropagatorSettings( const IntegratedStateType stateType,
                                  const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialBodyStates,
@@ -212,7 +222,14 @@ public:
         initialTime_( initialTime ), terminationSettings_( terminationSettings ), dependentVariablesToSave_( dependentVariablesToSave ),
         integratorSettings_( integratorSettings ), outputSettings_( outputSettings ), statePrintInterval_( TUDAT_NAN )
     {
-        //        if( )
+        if( stateType_ != custom_state )
+        {
+            singleBodyStateSize_ = getSingleIntegrationSize( stateType_ );
+        }
+        else
+        {
+            singleBodyStateSize_ = initialBodyStates.rows( );
+        }
     }
 
     //! Virtual destructor.
@@ -330,6 +347,22 @@ public:
         initialTime_ = initialTime;
     }
 
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getStateOfBody( const int bodyIndex )
+    {
+        return this->initialStates_.segment( singleBodyStateSize_ * bodyIndex, singleBodyStateSize_ );
+    }
+
+    void setStateOfBody( const int bodyIndex, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& newBodyState )
+    {
+        if( newBodyState.rows( ) != 6 )
+        {
+            throw std::runtime_error( "Error when resseting state of body in translational propagator settings; expected vector of size 6" );
+        }
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newInitialStates = this->initialStates_;
+        newInitialStates.segment( singleBodyStateSize_ * bodyIndex, singleBodyStateSize_ ) = newBodyState;
+        this->resetInitialStates( newInitialStates );
+    }
+
 protected:
     //!Type of state being propagated
     IntegratedStateType stateType_;
@@ -349,6 +382,8 @@ protected:
     //! Variable indicating how often (once per statePrintInterval_ seconds or propagation independenty variable) the
     //! current state and time are to be printed to console (default never).
     double statePrintInterval_;
+
+    int singleBodyStateSize_;
 
 private:
     void resetSingleArcOutputSettings( const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings )

@@ -53,6 +53,10 @@ public:
      */
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > getParameterValue( )
     {
+        if( initialStateGetFunction_ != nullptr )
+        {
+            initialRotationalState_ = initialStateGetFunction_( );
+        }
         return initialRotationalState_;
     }
 
@@ -63,8 +67,12 @@ public:
      */
     void setParameterValue( Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > parameterValue )
     {
+        parameterValue.segment( 0, 4 ).normalize( );
+        if( initialStateSetFunction_ != nullptr )
+        {
+            initialStateSetFunction_( parameterValue );
+        }
         initialRotationalState_ = parameterValue;
-        initialRotationalState_.segment( 0, 4 ).normalize( );
     }
 
     //! Function to retrieve the size of the parameter (always 6).
@@ -129,6 +137,19 @@ public:
         return inertiaTensorFunction_;
     }
 
+    void addStateClosureFunctions(
+            const std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction,
+            const std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > initialStateSetFunction )
+    {
+        initialStateGetFunction_ = initialStateGetFunction;
+        initialStateSetFunction_ = initialStateSetFunction;
+
+        if( initialStateGetFunction_ != nullptr )
+        {
+            initialRotationalState_ = initialStateGetFunction_( );
+        }
+    }
+
 private:
     //! Current value of initial state (w.r.t. centralBody)
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialRotationalState_;
@@ -141,6 +162,11 @@ private:
 
     //! Function that returns the current inertia tensor
     std::function< Eigen::Matrix3d( ) > inertiaTensorFunction_;
+
+
+    std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction_;
+
+    std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > initialStateSetFunction_;
 };
 
 }  // namespace estimatable_parameters
