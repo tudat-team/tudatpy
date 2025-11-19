@@ -392,7 +392,7 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
         case lift_component_scaling_factor:
         case arc_wise_drag_component_scaling_factor:
         case arc_wise_side_component_scaling_factor:
-        case arc_wise_lift_component_scaling_factor:{
+        case arc_wise_lift_component_scaling_factor: {
             if( parameterSettings == nullptr )
             {
                 throw std::runtime_error( "Error, expected aerodynamic scaling factor parameter settings." );
@@ -1867,7 +1867,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                             std::dynamic_pointer_cast< ephemerides::SimpleRotationalEphemeris >( currentBody->getRotationalEphemeris( ) ),
                             currentBodyName );
                 }
-            break;
+                break;
 
             case spherical_harmonics_cosine_coefficient_block: {
                 std::shared_ptr< GravityFieldModel > gravityField = currentBody->getGravityFieldModel( );
@@ -2189,11 +2189,13 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
             case arc_wise_lift_component_scaling_factor: {
                 // Check input consistency
                 std::shared_ptr< ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings > scalingCoefficientSettings =
-                        std::dynamic_pointer_cast< ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings >( vectorParameterName );
+                        std::dynamic_pointer_cast< ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings >(
+                                vectorParameterName );
                 if( scalingCoefficientSettings == nullptr )
                 {
                     throw std::runtime_error(
-                            "Error when trying to make arc-wise aerodynamic component scaling coefficients parameter, settings type inconsistent" );
+                            "Error when trying to make arc-wise aerodynamic component scaling coefficients parameter, settings type "
+                            "inconsistent" );
                 }
 
                 std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
@@ -2225,8 +2227,11 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                     }
                 }
 
-                vectorParameterToEstimate = std::make_shared< ArcWiseAerodynamicScalingFactor >(associateAerodynamicAccelerationModels,
-                    vectorParameterName->parameterType_.first, scalingCoefficientSettings->arcStartTimeList_, currentBodyName );
+                vectorParameterToEstimate =
+                        std::make_shared< ArcWiseAerodynamicScalingFactor >( associateAerodynamicAccelerationModels,
+                                                                             vectorParameterName->parameterType_.first,
+                                                                             scalingCoefficientSettings->arcStartTimeList_,
+                                                                             currentBodyName );
 
                 break;
             }
@@ -2756,16 +2761,16 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 std::string errorMessage = "Warning, this vector parameter (" +
                         std::to_string( vectorParameterName->parameterType_.first ) +
                         ") has not yet been implemented when making parameters";
-            throw std::runtime_error( errorMessage );
-            }
+                throw std::runtime_error( errorMessage );
         }
+    }
 
-        if( vectorParameterName->customPartialSettings_.size( ) != 0 )
-        {
-            vectorParameterToEstimate->setCustomPartialSettings( vectorParameterName->customPartialSettings_ );
-        }
+    if( vectorParameterName->customPartialSettings_.size( ) != 0 )
+    {
+        vectorParameterToEstimate->setCustomPartialSettings( vectorParameterName->customPartialSettings_ );
+    }
 
-        return vectorParameterToEstimate;
+    return vectorParameterToEstimate;
 }
 
 //! Function checking whether the direct tidal parameters to be estimated are not incompatible

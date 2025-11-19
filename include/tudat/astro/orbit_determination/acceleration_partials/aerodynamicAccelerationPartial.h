@@ -57,7 +57,6 @@ public:
         bodyStatePerturbations_ << 10.0, 10.0, 10.0, 1.0E-2, 1.0E-2, 1.0E-2;
     }
 
-
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!
      *  Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration
@@ -247,7 +246,6 @@ protected:
             Eigen::MatrixXd& accelerationPartial,
             std::shared_ptr< estimatable_parameters::ArcWiseConstantDragCoefficient > parameter );
 
-
     //! Function to compute the partial derivative of the acceleration w.r.t. drag component scaling factor
     /*!
      * Function to compute the partial derivative of the acceleration w.r.t. drag component scaling factor
@@ -269,17 +267,14 @@ protected:
      */
     void computeAccelerationPartialWrtLiftComponent( Eigen::MatrixXd& partial );
 
-
     //! Function to compute the partial derivative of the acceleration w.r.t. an aerodynamic component scaling factor
     /*!
      * Function to compute the partial derivative of the acceleration w.r.t. an aerodynamic component scaling factor
      * \param accelerationPartial Derivative of acceleration w.r.t. an aerodynamic component scaling factor (returned by reference).
      */
     void computeAccelerationPartialWrtArcWiseAerodynamicScalingCofficient(
-          Eigen::MatrixXd& accelerationPartial,
-          std::shared_ptr< estimatable_parameters::ArcWiseAerodynamicScalingFactor > parameter );
-
-
+            Eigen::MatrixXd& accelerationPartial,
+            std::shared_ptr< estimatable_parameters::ArcWiseAerodynamicScalingFactor > parameter );
 
     //! Perturbations of Cartesian state used in the numerical (central difference) computation of
     //! currentAccelerationStatePartials_

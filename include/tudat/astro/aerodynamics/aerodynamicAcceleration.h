@@ -122,15 +122,15 @@ public:
         if( isScalingModelSet_ )
         {
             // if scalings are defined via functions (--> arc-wise!) update the scaling factor to current time
-            if( (dragComponentScalingFunction_ != nullptr) )
+            if( ( dragComponentScalingFunction_ != nullptr ) )
             {
                 dragComponentScaling_ = dragComponentScalingFunction_( currentTime_ );
             }
-            if( (sideComponentScalingFunction_ != nullptr) )
+            if( ( sideComponentScalingFunction_ != nullptr ) )
             {
                 sideComponentScaling_ = sideComponentScalingFunction_( currentTime_ );
             }
-            if( (liftComponentScalingFunction_ != nullptr) )
+            if( ( liftComponentScalingFunction_ != nullptr ) )
             {
                 liftComponentScaling_ = liftComponentScalingFunction_( currentTime_ );
             }
@@ -178,7 +178,7 @@ public:
         dragComponentScaling_ = dragComponentScaling;
     }
 
-    void setDragComponentScalingFunction( std::function<double(double)> dragComponentScalingFunction )
+    void setDragComponentScalingFunction( std::function< double( double ) > dragComponentScalingFunction )
     {
         enableScaling( );
         dragComponentScalingFunction_ = dragComponentScalingFunction;
@@ -190,7 +190,7 @@ public:
         sideComponentScaling_ = sideComponentScaling;
     }
 
-    void setSideComponentScalingFunction( std::function<double(double)> sideComponentScalingFunction )
+    void setSideComponentScalingFunction( std::function< double( double ) > sideComponentScalingFunction )
     {
         enableScaling( );
         sideComponentScalingFunction_ = sideComponentScalingFunction;
@@ -202,7 +202,7 @@ public:
         liftComponentScaling_ = liftComponentScaling;
     }
 
-    void setLiftComponentScalingFunction( std::function<double(double)> liftComponentScalingFunction )
+    void setLiftComponentScalingFunction( std::function< double( double ) > liftComponentScalingFunction )
     {
         enableScaling( );
         liftComponentScalingFunction_ = liftComponentScalingFunction;
@@ -228,32 +228,31 @@ public:
     }
 
     // setter interface for arc-wise parameter
-    void setComponentScalingFunction( std::function<double(double)> scalingFunction, const int index )
+    void setComponentScalingFunction( std::function< double( double ) > scalingFunction, const int index )
     {
         switch( index )
         {
             case 0:
                 setDragComponentScalingFunction( scalingFunction );
-            break;
+                break;
             case 1:
                 setSideComponentScalingFunction( scalingFunction );
-            break;
+                break;
             case 2:
                 setLiftComponentScalingFunction( scalingFunction );
-            break;
+                break;
             default:
                 throw std::runtime_error( "Error when setting aerodynamic component scaling function, index not supported" +
                                           std::to_string( index ) );
         }
     }
 
-
     double getDragComponentScaling( )
     {
         return dragComponentScaling_;
     }
 
-    std::function<double(double)> getDragComponentScalingFunction( )
+    std::function< double( double ) > getDragComponentScalingFunction( )
     {
         return dragComponentScalingFunction_;
     }
@@ -263,7 +262,7 @@ public:
         return sideComponentScaling_;
     }
 
-    std::function<double(double)> getSideComponentScalingFunction( )
+    std::function< double( double ) > getSideComponentScalingFunction( )
     {
         return sideComponentScalingFunction_;
     }
@@ -273,7 +272,7 @@ public:
         return liftComponentScaling_;
     }
 
-    std::function<double(double)> getLiftComponentScalingFunction( )
+    std::function< double( double ) > getLiftComponentScalingFunction( )
     {
         return liftComponentScalingFunction_;
     }
@@ -297,19 +296,19 @@ public:
         }
     }
 
-    std::function<double(double)> getComponentScalingFunction( const int index )
+    std::function< double( double ) > getComponentScalingFunction( const int index )
     {
         switch( index )
         {
             case 0:
                 return getDragComponentScalingFunction( );
-            break;
+                break;
             case 1:
                 return getSideComponentScalingFunction( );
-            break;
+                break;
             case 2:
                 return getLiftComponentScalingFunction( );
-            break;
+                break;
             default:
                 throw std::runtime_error( "Error when retrieving aerodynamic component scaling factor, index not supported" +
                                           std::to_string( index ) );
@@ -352,16 +351,15 @@ private:
 
     double dragComponentScaling_;
 
-    std::function<double(double)> dragComponentScalingFunction_;
+    std::function< double( double ) > dragComponentScalingFunction_;
 
     double liftComponentScaling_;
 
-    std::function<double(double)> liftComponentScalingFunction_;
+    std::function< double( double ) > liftComponentScalingFunction_;
 
     double sideComponentScaling_;
 
-    std::function<double(double)> sideComponentScalingFunction_;
-
+    std::function< double( double ) > sideComponentScalingFunction_;
 };
 
 }  // namespace aerodynamics
