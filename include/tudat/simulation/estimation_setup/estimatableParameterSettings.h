@@ -752,6 +752,26 @@ public:
     std::vector< double > arcStartTimeList_;
 };
 
+//! Class to define settings for estimating time-dependent (arcwise) aerodynamic component scaling coefficients
+class ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings : public EstimatableParameterSettings
+{
+public:
+    //! Constructor
+    /*!
+     * Constructor
+     * \param parameterType type of parameter ,
+     * \param associatedBody Name of body undergoing acceleration
+     * \param arcStartTimeList List of times at which drag coefficient arcs are to start
+     */
+    ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings(
+        const EstimatebleParametersEnum parameterType, const std::string associatedBody, const std::vector< double > arcStartTimeList ):
+        EstimatableParameterSettings( associatedBody, parameterType ), arcStartTimeList_( arcStartTimeList )
+    { }
+
+    //! List of times at which drag coefficient arcs are to start
+    std::vector< double > arcStartTimeList_;
+};
+
 //! Class to define settings for estimating a Tidal Love number (k_{n}) at a single degree that is constant for all orders
 /*!
  *  Class to define settings for estimating a Tidal Love number (k_{n}) at a single degree that is constant for all orders.
@@ -1149,14 +1169,29 @@ inline std::shared_ptr< EstimatableParameterSettings > dragComponentScaling( con
     return std::make_shared< EstimatableParameterSettings >( bodyName, drag_component_scaling_factor );
 }
 
+inline std::shared_ptr< EstimatableParameterSettings > arcwiseDragComponentScaling( const std::string bodyName, const std::vector< double > arcStartTimes)
+{
+    return std::make_shared< ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings >( arc_wise_drag_component_scaling_factor, bodyName, arcStartTimes);
+}
+
 inline std::shared_ptr< EstimatableParameterSettings > sideComponentScaling( const std::string bodyName )
 {
-    return std::make_shared< EstimatableParameterSettings >( bodyName, side_component_scaling_factor );
+    return std::make_shared< EstimatableParameterSettings >( bodyName, arc_wise_side_component_scaling_factor );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > arcwiseSideComponentScaling( const std::string bodyName, const std::vector< double > arcStartTimes)
+{
+    return std::make_shared< ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings >( arc_wise_side_component_scaling_factor, bodyName, arcStartTimes);
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > liftComponentScaling( const std::string bodyName )
 {
     return std::make_shared< EstimatableParameterSettings >( bodyName, lift_component_scaling_factor );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > arcwiseLiftComponentScaling( const std::string bodyName, const std::vector< double > arcStartTimes)
+{
+    return std::make_shared< ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings >( arc_wise_lift_component_scaling_factor, bodyName, arcStartTimes);
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > radiationPressureCoefficient( const std::string bodyName )
