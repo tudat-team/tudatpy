@@ -577,10 +577,6 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
     std::vector< std::shared_ptr< TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType > > >
             singleArcTranslationalSettings;
 
-    std::vector< std::string > propagatedBodies;
-    std::vector< std::vector< std::string > > centralBodiesPerArc;
-    std::vector< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > > initialStates;
-
     if( arcStartTimes.size( ) > 0 )
     {
         if( arcStartTimes.size( ) != singleArcSettings.size( ) )
@@ -591,11 +587,13 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
         }
     }
     std::vector< double > arcStartTimesToUse;
+    std::map< std::string, std::vector< std::pair< int, int > > > bodyMappingIndices;
     for( unsigned int i = 0; i < singleArcSettings.size( ); i++ )
     {
         singleArcTranslationalSettings.push_back(
                 std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType > >(
                         singleArcSettings.at( i ) ) );
+
         if( singleArcSettings.at( i )->getInitialTime( ) == singleArcSettings.at( i )->getInitialTime( ) )
         {
             arcStartTimesToUse.push_back( singleArcSettings.at( i )->getInitialTime( ) );
@@ -618,59 +616,61 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
                         "Error when making multi-arc initial state parameter, times do not match: do not provide times manually" );
             }
         }
+
         if( singleArcTranslationalSettings.at( i ) == nullptr )
         {
             throw std::runtime_error( "Only translational state supported when auto-creating multi-arc initial state settings" );
         }
         else
         {
-            initialStates.push_back( singleArcTranslationalSettings.at( i )->getInitialStates( ) );
-            centralBodiesPerArc.push_back( singleArcTranslationalSettings.at( i )->centralBodies_ );
-            if( i == 0 )
+            std::vector< std::string > propagatedBodies = singleArcTranslationalSettings.at( i )->bodiesToIntegrate_;
+            for( unsigned int j = 0; j < propagatedBodies.size( ); j++ )
             {
-                propagatedBodies = singleArcTranslationalSettings.at( i )->bodiesToIntegrate_;
+                bodyMappingIndices[ propagatedBodies.at( j ) ].push_back( std::make_pair( i, j ) );
             }
-            else
-            {
-                if( !( propagatedBodies == ( singleArcTranslationalSettings.at( i )->bodiesToIntegrate_ ) ) )
-                {
-                    throw std::runtime_error( "Only equal bodies per arc supported when auto-creating multi-arc initial state settings" );
-                }
-            }
-        }
-    }
-
-    std::vector< std::vector< std::string > > centralBodiesPerBody;
-    centralBodiesPerBody.resize( centralBodiesPerArc.at( 0 ).size( ) );
-
-    for( unsigned int i = 0; i < centralBodiesPerArc.size( ); i++ )
-    {
-        for( unsigned int j = 0; j < centralBodiesPerArc.at( i ).size( ); j++ )
-        {
-            if( i == 0 )
-            {
-                centralBodiesPerBody.at( j ).resize( centralBodiesPerArc.size( ) );
-            }
-            centralBodiesPerBody.at( j ).at( i ) = centralBodiesPerArc.at( i ).at( j );
         }
     }
 
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > arcwiseInitialStates;
-    for( unsigned int i = 0; i < propagatedBodies.size( ); i++ )
+    for( auto it : bodyMappingIndices )
     {
-        Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > multiArcInitialStateValue =
-                Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >::Zero( 6 * initialStates.size( ) );
-        for( unsigned int j = 0; j < initialStates.size( ); j++ )
+        std::string currentBody = it.first;
+        std::vector< std::pair< int, int > > arcAndBodyIndices = it.second;
+
+        Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStates =
+                Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >::Zero( 6 * arcAndBodyIndices.size( ) );
+        std::vector< double > currentBodyArcStartTimes;
+        std::vector< std::string > centralBodies;
+
+        std::vector< std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > > initialStateGetFunctions;
+        std::vector< std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > > initialStateSetFunctions;
+
+
+        for( unsigned int i = 0; i < arcAndBodyIndices.size( ); i++ )
         {
-            multiArcInitialStateValue.segment( j * 6, 6 ) = initialStates.at( j ).segment( i * 6, 6 );
+            std::pair< int, int > currentArcAndBodyIndex = arcAndBodyIndices.at( i );
+            initialStates.segment( i * 6, 6 ) = singleArcTranslationalSettings.at( currentArcAndBodyIndex.first )
+                                                        ->getInitialStates( )
+                                                        .segment( 6 * currentArcAndBodyIndex.second, 6 );
+            currentBodyArcStartTimes.push_back( arcStartTimesToUse.at( currentArcAndBodyIndex.first ) );
+            centralBodies.push_back(
+                    singleArcTranslationalSettings.at( currentArcAndBodyIndex.first )->centralBodies_.at( currentArcAndBodyIndex.second ) );
+            initialStateGetFunctions.push_back(
+                    std::bind( &TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType >::getStateOfBody,
+                               singleArcTranslationalSettings.at( currentArcAndBodyIndex.first ), currentArcAndBodyIndex.second ) );
+            initialStateSetFunctions.push_back(
+                    std::bind( &TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType >::setStateOfBody,
+                               singleArcTranslationalSettings.at( currentArcAndBodyIndex.first ), currentArcAndBodyIndex.second, std::placeholders::_1 ) );
         }
-        arcwiseInitialStates.push_back(
-                std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >(
-                        propagatedBodies.at( i ),
-                        multiArcInitialStateValue,
-                        arcStartTimesToUse,
-                        centralBodiesPerBody.at( i ),
-                        bodies.getFrameOrientation( ) ) );
+
+        std::shared_ptr< ArcWiseInitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > > arcWiseTranslationalInitialStates =
+            std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >(
+                currentBody, initialStates, currentBodyArcStartTimes, centralBodies, bodies.getFrameOrientation( ) );
+
+        arcWiseTranslationalInitialStates->initialStateSetFunctions_ = initialStateSetFunctions;
+        arcWiseTranslationalInitialStates->initialStateGetFunctions_ = initialStateGetFunctions;
+
+        arcwiseInitialStates.push_back( arcWiseTranslationalInitialStates );
     }
 
     return arcwiseInitialStates;
@@ -694,6 +694,57 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
     return hybirdArcParameters;
 }
 
+template< typename InitialStateParameterType >
+void addUpdateFunctionToParameterStateSetter( const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings,
+                                              const std::function< void( ) > multiTypeUpdateFunction )
+{
+    std::shared_ptr< estimatable_parameters::InitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > > translationalStateSettings =
+            std::dynamic_pointer_cast< estimatable_parameters::InitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >( parameterSettings );
+
+    std::shared_ptr< estimatable_parameters::InitialRotationalStateEstimatableParameterSettings< InitialStateParameterType > > rotationalStateSettings =
+            std::dynamic_pointer_cast< estimatable_parameters::InitialRotationalStateEstimatableParameterSettings< InitialStateParameterType > >( parameterSettings );
+
+    std::shared_ptr< estimatable_parameters::InitialMassEstimatableParameterSettings< InitialStateParameterType > > massStateSettings =
+            std::dynamic_pointer_cast< estimatable_parameters::InitialMassEstimatableParameterSettings< InitialStateParameterType > >( parameterSettings );
+    if( translationalStateSettings != nullptr )
+    {
+        std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > originalInitialStateSetFunction =
+                translationalStateSettings->initialStateSetFunction_;
+        std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > newInitialStateSetFunction =
+        [=]( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& newState ){
+                    originalInitialStateSetFunction( newState );
+                    multiTypeUpdateFunction( );
+                };
+    }
+    else if( rotationalStateSettings != nullptr )
+    {
+        std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > originalInitialStateSetFunction =
+                rotationalStateSettings->initialStateSetFunction_;
+        std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > newInitialStateSetFunction =
+                [=]( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& newState ){
+                    originalInitialStateSetFunction( newState );
+                    multiTypeUpdateFunction( );
+                };
+    }
+    else if( massStateSettings != nullptr )
+    {
+        std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > originalInitialStateSetFunction =
+                massStateSettings->initialStateSetFunction_;
+        std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > newInitialStateSetFunction =
+                [=]( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& newState ){
+                    originalInitialStateSetFunction( newState );
+                    multiTypeUpdateFunction( );
+                };
+    }
+    else
+    {
+        throw std::runtime_error( "Error when linking multi-type propagator settings to estimated initial state parameter, initial state type not recognized" );
+    }
+
+}
+
+
+
 template< typename InitialStateParameterType, typename TimeType >
 std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getInitialStateParameterSettings(
         const std::shared_ptr< propagators::PropagatorSettings< InitialStateParameterType > > propagatorSettings,
@@ -715,10 +766,13 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
                 std::shared_ptr< MultiTypePropagatorSettings< InitialStateParameterType, TimeType > > multiTypePropagatorSettings =
                         std::dynamic_pointer_cast< MultiTypePropagatorSettings< InitialStateParameterType, TimeType > >(
                                 propagatorSettings );
-
+                std::function< void( ) > multiTypeUpdateFunction = std::bind(
+                        &MultiTypePropagatorSettings< InitialStateParameterType, TimeType >::recomputeInitialStates, multiTypePropagatorSettings );
                 std::map< IntegratedStateType,
                           std::vector< std::shared_ptr< SingleArcPropagatorSettings< InitialStateParameterType, TimeType > > > >
                         propagatorSettingsMap = multiTypePropagatorSettings->propagatorSettingsMap_;
+
+
                 for( auto propIterator : propagatorSettingsMap )
                 {
                     for( unsigned int i = 0; i < propIterator.second.size( ); i++ )
@@ -727,6 +781,10 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
                                 singleTypeinitialStateParameterSettings =
                                         getInitialStateParameterSettings< InitialStateParameterType, TimeType >(
                                                 propIterator.second.at( i ), bodies );
+                        for( unsigned int j = 0; j < singleTypeinitialStateParameterSettings.size( ); j++ )
+                        {
+                            addUpdateFunctionToParameterStateSetter< InitialStateParameterType >( singleTypeinitialStateParameterSettings.at( j ), multiTypeUpdateFunction );
+                        }
                         initialStateParameterSettings.insert( initialStateParameterSettings.end( ),
                                                               singleTypeinitialStateParameterSettings.begin( ),
                                                               singleTypeinitialStateParameterSettings.end( ) );
@@ -748,12 +806,25 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
                         translationalPropagatorSettings->getInitialStates( );
                 for( unsigned int i = 0; i < propagatedBodies.size( ); i++ )
                 {
-                    initialStateParameterSettings.push_back(
-                            std::make_shared< estimatable_parameters::InitialTranslationalStateEstimatableParameterSettings<
-                                    InitialStateParameterType > >( propagatedBodies.at( i ),
-                                                                   initialStates.segment( i * 6, 6 ),
-                                                                   centralBodies.at( i ),
-                                                                   bodies.getFrameOrientation( ) ) );
+                    using namespace estimatable_parameters;
+                    std::shared_ptr< InitialTranslationalStateEstimatableParameterSettings<
+                            InitialStateParameterType > > initialStateParameter =
+                                    std::make_shared< InitialTranslationalStateEstimatableParameterSettings<
+                                   InitialStateParameterType > >( propagatedBodies.at( i ),
+                                                                  initialStates.segment( i * 6, 6 ),
+                                                                  centralBodies.at( i ),
+                                                                  bodies.getFrameOrientation( ) );
+
+                    std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction =
+                            std::bind( &TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType >::getStateOfBody,
+                                       translationalPropagatorSettings, i );
+                    std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > initialStateSetFunction =
+                            std::bind( &TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType >::setStateOfBody,
+                                       translationalPropagatorSettings, i, std::placeholders::_1 );
+                    initialStateParameter->initialStateSetFunction_ = initialStateSetFunction;
+                    initialStateParameter->initialStateGetFunction_ = initialStateGetFunction;
+
+                    initialStateParameterSettings.push_back( initialStateParameter );
                 }
                 break;
             }
@@ -769,12 +840,27 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
                         rotationalPropagatorSettings->getInitialStates( );
                 for( unsigned int i = 0; i < propagatedBodies.size( ); i++ )
                 {
-                    initialStateParameterSettings.push_back(
-                            std::make_shared< estimatable_parameters::InitialRotationalStateEstimatableParameterSettings<
+                    using namespace estimatable_parameters;
+
+                    std::shared_ptr< InitialRotationalStateEstimatableParameterSettings<
+                            InitialStateParameterType > > initialStateParameter =
+                            std::make_shared< InitialRotationalStateEstimatableParameterSettings<
                                     InitialStateParameterType > >(
                                     propagatedBodies.at( i ),
                                     initialStates.segment( i * 7, 7 ).template cast< InitialStateParameterType >( ),
-                                    bodies.getFrameOrientation( ) ) );
+                                    bodies.getFrameOrientation( ) );
+
+                    std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction =
+                            std::bind( &RotationalStatePropagatorSettings< InitialStateParameterType, TimeType >::getStateOfBody,
+                                       rotationalPropagatorSettings, i );
+                    std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > initialStateSetFunction =
+                            std::bind( &RotationalStatePropagatorSettings< InitialStateParameterType, TimeType >::setStateOfBody,
+                                       rotationalPropagatorSettings, i, std::placeholders::_1 );
+                    initialStateParameter->initialStateSetFunction_ = initialStateSetFunction;
+                    initialStateParameter->initialStateGetFunction_ = initialStateGetFunction;
+
+                    initialStateParameterSettings.push_back( initialStateParameter );
+
                 }
                 break;
             }
@@ -786,10 +872,23 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
                 Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStates = massPropagatorSettings->getInitialStates( );
                 for( unsigned int i = 0; i < propagatedBodies.size( ); i++ )
                 {
-                    initialStateParameterSettings.push_back(
-                            std::make_shared<
-                                    estimatable_parameters::InitialMassEstimatableParameterSettings< InitialStateParameterType > >(
-                                    propagatedBodies.at( i ), initialStates( i ) ) );
+                    using namespace estimatable_parameters;
+
+                    std::shared_ptr< InitialMassEstimatableParameterSettings<
+                            InitialStateParameterType > > initialStateParameter =
+                                    std::make_shared< InitialMassEstimatableParameterSettings< InitialStateParameterType > >(
+                                            propagatedBodies.at( i ), initialStates( i ) );
+
+                    std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction =
+                            std::bind( &MassPropagatorSettings< InitialStateParameterType, TimeType >::getStateOfBody,
+                                       massPropagatorSettings, i );
+                    std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > initialStateSetFunction =
+                            std::bind( &MassPropagatorSettings< InitialStateParameterType, TimeType >::setStateOfBody,
+                                       massPropagatorSettings, i, std::placeholders::_1 );
+                    initialStateParameter->initialStateSetFunction_ = initialStateSetFunction;
+                    initialStateParameter->initialStateGetFunction_ = initialStateGetFunction;
+
+                    initialStateParameterSettings.push_back( initialStateParameter );
                 }
                 break;
             }
@@ -884,11 +983,16 @@ createInitialDynamicalStateParameterToEstimate(
                     }
 
                     // Create translational state estimation interface object
-                    initialStateParameterToEstimate = std::make_shared< InitialTranslationalStateParameter< InitialStateParameterType > >(
+                    std::shared_ptr< InitialTranslationalStateParameter< InitialStateParameterType > > initialTranslationalStateParameter
+                            = std::make_shared< InitialTranslationalStateParameter< InitialStateParameterType > >(
                             initialStateSettings->parameterType_.second.first,
                             initialTranslationalState,
                             initialStateSettings->centralBody_,
                             initialStateSettings->frameOrientation_ );
+                    initialTranslationalStateParameter->addStateClosureFunctions(
+                            initialStateSettings->initialStateGetFunction_,
+                            initialStateSettings->initialStateSetFunction_ );
+                    initialStateParameterToEstimate = initialTranslationalStateParameter;
                 }
                 break;
             case arc_wise_initial_body_state:
@@ -904,9 +1008,10 @@ createInitialDynamicalStateParameterToEstimate(
                                     ArcWiseInitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >(
                                     parameterSettings );
 
+                    std::shared_ptr< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > > arcWiseInitialTranslationalStateParameter;
                     if( initialStateSettings->isStateSet_ )
                     {
-                        initialStateParameterToEstimate =
+                        arcWiseInitialTranslationalStateParameter =
                                 std::make_shared< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >(
                                         initialStateSettings->parameterType_.second.first,
                                         initialStateSettings->arcStartTimes_,
@@ -916,7 +1021,7 @@ createInitialDynamicalStateParameterToEstimate(
                     }
                     else
                     {
-                        initialStateParameterToEstimate =
+                        arcWiseInitialTranslationalStateParameter =
                                 std::make_shared< ArcWiseInitialTranslationalStateParameter< InitialStateParameterType > >(
                                         initialStateSettings->parameterType_.second.first,
                                         initialStateSettings->arcStartTimes_,
@@ -928,6 +1033,7 @@ createInitialDynamicalStateParameterToEstimate(
                                         initialStateSettings->centralBodies_,
                                         initialStateSettings->frameOrientation_ );
                     }
+                    initialStateParameterToEstimate = arcWiseInitialTranslationalStateParameter;
                 }
                 break;
             case initial_rotational_body_state:
@@ -962,11 +1068,16 @@ createInitialDynamicalStateParameterToEstimate(
                     }
 
                     // Create rotational state estimation interface object
-                    initialStateParameterToEstimate = std::make_shared< InitialRotationalStateParameter< InitialStateParameterType > >(
+                    std::shared_ptr< InitialRotationalStateParameter< InitialStateParameterType > > initialRotationalStateParameter =
+                            std::make_shared< InitialRotationalStateParameter< InitialStateParameterType > >(
                             initialStateSettings->parameterType_.second.first,
                             initialRotationalState,
                             std::bind( &Body::getBodyInertiaTensor, bodies.at( initialStateSettings->parameterType_.second.first ) ),
                             initialStateSettings->baseOrientation_ );
+                    initialRotationalStateParameter->addStateClosureFunctions(
+                            initialStateSettings->initialStateGetFunction_,
+                            initialStateSettings->initialStateSetFunction_  );
+                    initialStateParameterToEstimate = initialRotationalStateParameter;
                 }
                 break;
             case initial_mass_state: {
@@ -983,9 +1094,14 @@ createInitialDynamicalStateParameterToEstimate(
                                     parameterSettings );
 
                     InitialStateParameterType initialMass = initialStateSettings->initialStateValue_;
-                    initialStateParameterToEstimate = std::make_shared< InitialMassStateParameter< InitialStateParameterType > >(
+                    std::shared_ptr< InitialMassStateParameter< InitialStateParameterType > > initialMassStateParameter =
+                            std::make_shared< InitialMassStateParameter< InitialStateParameterType > >(
                             initialStateSettings->parameterType_.second.first,
                             ( Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( 1 ) << initialMass ).finished( ) );
+                    initialMassStateParameter->addStateClosureFunctions(
+                            initialStateSettings->initialStateGetFunction_,
+                            initialStateSettings->initialStateSetFunction_  );
+                    initialStateParameterToEstimate = initialMassStateParameter;
                 }
                 break;
             }
