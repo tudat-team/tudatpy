@@ -206,7 +206,7 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
             break;
         case rtg_force_vector_magnitude:
             parameterDescription = "magnitude of force vector from anisotropic RTG radiation ";
-        break;
+            break;
         case area_to_mass_scaling_factor:
             parameterDescription = "area-to-mass scaling factor ";
             break;

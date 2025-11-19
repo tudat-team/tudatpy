@@ -81,14 +81,13 @@ simulatePseudoObservations( const SystemOfBodies& bodies,
     return std::make_pair( observationModelSettingsList, observationCollection );
 }
 
-
 template< typename TimeType = double, typename StateScalarType = double >
 std::pair< std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >,
            std::shared_ptr< observation_models::ObservationCollection< StateScalarType, TimeType > > >
 simulatePseudoObservations( const SystemOfBodies& bodies,
                             const std::vector< std::string >& bodiesToPropagate,
                             const std::vector< std::string >& centralBodies,
-                            const std::vector< TimeType > observationTimes)
+                            const std::vector< TimeType > observationTimes )
 {
     using namespace observation_models;
 
@@ -117,9 +116,6 @@ simulatePseudoObservations( const SystemOfBodies& bodies,
 
     return std::make_pair( observationModelSettingsList, observationCollection );
 }
-
-
-
 
 template< typename TimeType = double, typename StateScalarType = double >
 std::shared_ptr< EstimationOutput< StateScalarType, TimeType > > createBestFitToCurrentEphemeris(
