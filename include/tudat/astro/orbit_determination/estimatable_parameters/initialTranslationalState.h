@@ -304,7 +304,7 @@ public:
 
         if( initialStateGetFunctions.size( ) > 0 )
         {
-            if( initialTranslationalState_.rows( ) / 6 != initialStateGetFunctions.size( ) )
+            if( initialTranslationalState_.rows( ) / 6 != static_cast< int >( initialStateGetFunctions.size( ) ) )
             {
                 throw std::runtime_error( "Error when setting arc-wise initial translational state closure, sizes are incompatible with initial state" );
             }
