@@ -96,9 +96,7 @@ SystemOfBodies createBodies(  )
 
    // Define settings for JUICE spacecraft
    bodySettings.addSettings( "JUICE" );
-
-//   bodySettings.at( "JUICE" )->ephemerisSettings = directSpiceEphemerisSettings( "Jupiter", "ECLIPJ2000", "-28" );
-//   bodySettings.at( "JUICE" )->ephemerisSettings->resetMakeMultiArcEphemeris( true );
+   bodySettings.addSettings( "JUICE2" );
 
    bodySettings.at( "Io" )->ephemerisSettings->resetFrameOrigin( "Jupiter" );
    bodySettings.at( "Europa" )->ephemerisSettings->resetFrameOrigin( "Jupiter" );
@@ -124,19 +122,22 @@ static const std::vector< double > flybysTimes = { 957842194.921875,  962785494.
 
 
 basic_astrodynamics::AccelerationMap getMultiArcAccelerationModelMap( const SystemOfBodies& bodies,
-                                                                     const std::string& multiArcBodyToPropagate,
-                                                                     const std::string& multiArcCentralBody )
+                                                                      const std::vector< std::string >& bodyNames,
+                                                                      const std::vector< std::string >& centralBodyNames )
 {
    using namespace tudat::basic_astrodynamics;
    using namespace tudat::ephemerides;
 
    SelectedAccelerationMap accelerationSettingsJuice;
-   accelerationSettingsJuice[ "JUICE" ][ "Jupiter" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 2, 0 ) );
-   accelerationSettingsJuice[ "JUICE" ][ multiArcCentralBody ].push_back(
-           std::make_shared< SphericalHarmonicAccelerationSettings >( 2, 2 ) );
-   accelerationSettingsJuice[ "JUICE" ][ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+   for( unsigned int i = 0; i < bodyNames.size( ); i++ )
+   {
+       accelerationSettingsJuice[ bodyNames.at( i ) ][ "Jupiter" ].push_back( std::make_shared< SphericalHarmonicAccelerationSettings >( 2, 0 ) );
+       accelerationSettingsJuice[ bodyNames.at( i ) ][ centralBodyNames.at( i ) ].push_back(
+               std::make_shared< SphericalHarmonicAccelerationSettings >( 2, 2 ) );
+       accelerationSettingsJuice[ bodyNames.at( i ) ][ "Sun" ].push_back( std::make_shared< AccelerationSettings >( point_mass_gravity ) );
+   }
    
-   return createAccelerationModelsMap( bodies, accelerationSettingsJuice, { multiArcBodyToPropagate }, { multiArcCentralBody } );
+   return createAccelerationModelsMap( bodies, accelerationSettingsJuice, bodyNames, centralBodyNames);
 }
 
 basic_astrodynamics::AccelerationMap getMoonsAccelerationMap( const SystemOfBodies& bodies,
@@ -207,11 +208,32 @@ BOOST_AUTO_TEST_CASE( testPropagatorParameterConsistency )
    std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > propagationSettingsList;
    for( unsigned int i = 0; i < flybysBodies.size( ); i++ )
    {
+       std::vector< std::string > propagatedBodies;
+       std::vector< std::string > centralBodies;
+
+       propagatedBodies.push_back( "JUICE" );
+       centralBodies.push_back( flybysBodies.at( i ) );
+
+       if( i % 2 == 0 )
+       {
+           propagatedBodies.push_back( "JUICE2" );
+           centralBodies.push_back( flybysBodies.at( i % 2 ) );
+       }
+
+       Eigen::VectorXd initialStates = Eigen::VectorXd::Zero( 6 * propagatedBodies.size( ) );
+
+       for( unsigned int j = 0; j < propagatedBodies.size( ); j++ )
+       {
+           initialStates.segment( 6 * j, 6 ) =
+                   spice_interface::getBodyCartesianStateAtEpoch( "JUICE", centralBodies.at( j ), "ECLIPJ2000", "NONE", flybysTimes.at( i ) ) +
+                   static_cast< double >( j ) * Eigen::Vector6d::Ones( ) * 12.5;
+       }
+
        propagationSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< double > >(
-               std::vector< std::string >( { flybysBodies.at( i ) } ),
-               getMultiArcAccelerationModelMap( bodies, "JUICE", flybysBodies.at( i ) ),
-               std::vector< std::string >( { "JUICE" } ),
-               spice_interface::getBodyCartesianStateAtEpoch( "JUICE", flybysBodies.at( i ), "ECLIPJ2000", "NONE", flybysTimes.at( i ) ),
+               centralBodies,
+               getMultiArcAccelerationModelMap( bodies, propagatedBodies, centralBodies ),
+               propagatedBodies,
+               initialStates,
                flybysTimes.at( i ),
                rungeKuttaFixedStepSettings( 50.0, numerical_integrators::CoefficientSets::rungeKutta4Classic ),
                std::make_shared< PropagationTimeTerminationSettings >( flybysTimes.at( i ) + 3600.0 ) ) );
@@ -226,9 +248,9 @@ BOOST_AUTO_TEST_CASE( testPropagatorParameterConsistency )
    }
    std::shared_ptr< SingleArcPropagatorSettings< double > > singleArcPropagatorSettings =
            std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                   galileanSatelliteNames,
-                   getMoonsAccelerationMap( bodies, galileanSatelliteNames, galileanSatelliteCentralNames ),
                    galileanSatelliteCentralNames,
+                   getMoonsAccelerationMap( bodies, galileanSatelliteNames, galileanSatelliteCentralNames ),
+                   galileanSatelliteNames,
                    initialStates,
                    flybysTimes.at( 0 ),
                    rungeKuttaFixedStepSettings( 50.0, numerical_integrators::CoefficientSets::rungeKutta4Classic ),
