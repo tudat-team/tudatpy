@@ -563,6 +563,90 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
         const SystemOfBodies& bodies,
         const std::vector< double > arcStartTimes = std::vector< double >( ) );
 
+template< typename InitialStateParameterType >
+void addUpdateFunctionToParameterStateSetter( const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings,
+                                              const std::function< void( ) > multiTypeUpdateFunction )
+{
+    std::shared_ptr< estimatable_parameters::InitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > > translationalStateSettings =
+            std::dynamic_pointer_cast< estimatable_parameters::InitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >( parameterSettings );
+
+    std::shared_ptr< estimatable_parameters::InitialRotationalStateEstimatableParameterSettings< InitialStateParameterType > > rotationalStateSettings =
+            std::dynamic_pointer_cast< estimatable_parameters::InitialRotationalStateEstimatableParameterSettings< InitialStateParameterType > >( parameterSettings );
+
+    std::shared_ptr< estimatable_parameters::InitialMassEstimatableParameterSettings< InitialStateParameterType > > massStateSettings =
+            std::dynamic_pointer_cast< estimatable_parameters::InitialMassEstimatableParameterSettings< InitialStateParameterType > >( parameterSettings );
+    if( translationalStateSettings != nullptr )
+    {
+        std::cout<<"setting single-arc closure function"<<std::endl;
+        std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > originalInitialStateSetFunction =
+                translationalStateSettings->initialStateSetFunction_;
+        std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > newInitialStateSetFunction =
+                [=]( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& newState ){
+                    originalInitialStateSetFunction( newState );
+//                    std::cout<<"Updating hybrid-arc "<<newState.transpose( )<<std::endl;
+                    multiTypeUpdateFunction( );
+                };
+        translationalStateSettings->initialStateSetFunction_ = newInitialStateSetFunction;
+    }
+    else if( rotationalStateSettings != nullptr )
+    {
+        std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > originalInitialStateSetFunction =
+                rotationalStateSettings->initialStateSetFunction_;
+        std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > newInitialStateSetFunction =
+                [=]( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& newState ){
+                    originalInitialStateSetFunction( newState );
+                    multiTypeUpdateFunction( );
+                };
+        rotationalStateSettings->initialStateSetFunction_ = newInitialStateSetFunction;
+
+    }
+    else if( massStateSettings != nullptr )
+    {
+        std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > originalInitialStateSetFunction =
+                massStateSettings->initialStateSetFunction_;
+        std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > newInitialStateSetFunction =
+                [=]( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& newState ){
+                    originalInitialStateSetFunction( newState );
+                    multiTypeUpdateFunction( );
+                };
+        massStateSettings->initialStateSetFunction_ = newInitialStateSetFunction;
+    }
+    else
+    {
+        throw std::runtime_error( "Error when linking multi-type propagator settings to estimated initial state parameter, initial state type not recognized" );
+    }
+
+}
+
+template< typename InitialStateParameterType >
+void addUpdateFunctionToMultiArcParameterStateSetter(
+        const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings,
+        const std::function< void( ) > multiArcUpdateFunction )
+{
+    std::shared_ptr< estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > > translationalStateSettings =
+            std::dynamic_pointer_cast< estimatable_parameters::ArcWiseInitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >( parameterSettings );
+
+    if( translationalStateSettings != nullptr )
+    {
+        if( translationalStateSettings->initialStateSetClosure_ == nullptr )
+        {
+            translationalStateSettings->initialStateSetClosure_ = multiArcUpdateFunction;
+        }
+        else
+        {
+            std::function< void( ) > originalUpdateFunction = translationalStateSettings->initialStateSetClosure_;
+            std::function< void( ) > newUpdateFunction = [=]( ){
+                originalUpdateFunction( );
+                multiArcUpdateFunction( );
+            };
+        }
+    }
+    else
+    {
+        throw std::runtime_error( "Error when linking multi-arc propagator settings to estimated initial state parameter, initial state type not recognized" );
+    }
+
+}
 
 template< typename InitialStateParameterType = double, typename TimeType = double >
 std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getInitialMultiArcParameterSettings(
@@ -696,6 +780,15 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
         }
     }
 
+
+    std::function< void( ) > multiArcUpdateFunction = std::bind(
+            &MultiArcPropagatorSettings< InitialStateParameterType, TimeType >::updateInitialStateFromConsituentSettings, propagatorSettings );
+    for( unsigned int j = 0; j < arcwiseInitialStates.size( ); j++ )
+    {
+        addUpdateFunctionToMultiArcParameterStateSetter< InitialStateParameterType >( arcwiseInitialStates.at( j ),
+                                                                                      multiArcUpdateFunction );
+    }
+
     return arcwiseInitialStates;
 }
 
@@ -708,64 +801,30 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > multiArcParameters =
             getInitialMultiArcParameterSettings< InitialStateParameterType, TimeType >(
                     propagatorSettings->getMultiArcPropagatorSettings( ), bodies, arcStartTimes );
+
+    std::function< void( ) > hybridArcUpdateFunction = std::bind(
+            &propagators::HybridArcPropagatorSettings< InitialStateParameterType, TimeType >::setInitialStatesFromConstituents, propagatorSettings );
+    for( unsigned int j = 0; j < multiArcParameters.size( ); j++ )
+    {
+        addUpdateFunctionToMultiArcParameterStateSetter< InitialStateParameterType >( multiArcParameters.at( j ),
+                                                                                      hybridArcUpdateFunction );
+    }
+
+
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > singleArcParameters =
             getInitialStateParameterSettings< InitialStateParameterType, TimeType >( propagatorSettings->getSingleArcPropagatorSettings( ),
                                                                                      bodies );
+    for( unsigned int j = 0; j < singleArcParameters.size( ); j++ )
+    {
+        addUpdateFunctionToParameterStateSetter< InitialStateParameterType >( singleArcParameters.at( j ), hybridArcUpdateFunction );
+    }
+
+
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > hybirdArcParameters = multiArcParameters;
 
     hybirdArcParameters.insert( hybirdArcParameters.end( ), singleArcParameters.begin( ), singleArcParameters.end( ) );
     return hybirdArcParameters;
 }
-
-template< typename InitialStateParameterType >
-void addUpdateFunctionToParameterStateSetter( const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings,
-                                              const std::function< void( ) > multiTypeUpdateFunction )
-{
-    std::shared_ptr< estimatable_parameters::InitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > > translationalStateSettings =
-            std::dynamic_pointer_cast< estimatable_parameters::InitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >( parameterSettings );
-
-    std::shared_ptr< estimatable_parameters::InitialRotationalStateEstimatableParameterSettings< InitialStateParameterType > > rotationalStateSettings =
-            std::dynamic_pointer_cast< estimatable_parameters::InitialRotationalStateEstimatableParameterSettings< InitialStateParameterType > >( parameterSettings );
-
-    std::shared_ptr< estimatable_parameters::InitialMassEstimatableParameterSettings< InitialStateParameterType > > massStateSettings =
-            std::dynamic_pointer_cast< estimatable_parameters::InitialMassEstimatableParameterSettings< InitialStateParameterType > >( parameterSettings );
-    if( translationalStateSettings != nullptr )
-    {
-        std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > originalInitialStateSetFunction =
-                translationalStateSettings->initialStateSetFunction_;
-        std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > newInitialStateSetFunction =
-        [=]( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& newState ){
-                    originalInitialStateSetFunction( newState );
-                    multiTypeUpdateFunction( );
-                };
-    }
-    else if( rotationalStateSettings != nullptr )
-    {
-        std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > originalInitialStateSetFunction =
-                rotationalStateSettings->initialStateSetFunction_;
-        std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > newInitialStateSetFunction =
-                [=]( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& newState ){
-                    originalInitialStateSetFunction( newState );
-                    multiTypeUpdateFunction( );
-                };
-    }
-    else if( massStateSettings != nullptr )
-    {
-        std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > originalInitialStateSetFunction =
-                massStateSettings->initialStateSetFunction_;
-        std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > newInitialStateSetFunction =
-                [=]( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& newState ){
-                    originalInitialStateSetFunction( newState );
-                    multiTypeUpdateFunction( );
-                };
-    }
-    else
-    {
-        throw std::runtime_error( "Error when linking multi-type propagator settings to estimated initial state parameter, initial state type not recognized" );
-    }
-
-}
-
 
 
 template< typename InitialStateParameterType, typename TimeType >
@@ -929,7 +988,10 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
     {
         std::shared_ptr< MultiArcPropagatorSettings< InitialStateParameterType, TimeType > > multiArcSettings =
                 std::dynamic_pointer_cast< MultiArcPropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings );
-        initialStateParameterSettings = getInitialMultiArcParameterSettings( multiArcSettings, bodies, arcStartTimes );
+        initialStateParameterSettings =
+                getInitialMultiArcParameterSettings( multiArcSettings, bodies, arcStartTimes );
+
+
     }
     else if( std::dynamic_pointer_cast< HybridArcPropagatorSettings< InitialStateParameterType, TimeType > >( propagatorSettings ) !=
              nullptr )
@@ -1059,7 +1121,8 @@ createInitialDynamicalStateParameterToEstimate(
 
                     arcWiseInitialTranslationalStateParameter->addStateClosureFunctions(
                             initialStateSettings->initialStateGetFunctions_,
-                            initialStateSettings->initialStateSetFunctions_  );
+                            initialStateSettings->initialStateSetFunctions_,
+                            initialStateSettings->initialStateSetClosure_ );
                     initialStateParameterToEstimate = arcWiseInitialTranslationalStateParameter;
                 }
                 break;

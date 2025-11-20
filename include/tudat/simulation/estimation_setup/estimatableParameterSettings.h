@@ -606,6 +606,8 @@ public:
     std::vector< std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > > initialStateGetFunctions_;
 
     std::vector< std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > > initialStateSetFunctions_;
+
+    std::function< void( ) > initialStateSetClosure_;
 };
 
 //! Class to define settings for estimating an initial rotational state.

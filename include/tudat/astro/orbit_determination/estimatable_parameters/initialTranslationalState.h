@@ -225,6 +225,10 @@ public:
                 initialStateSetFunctions_.at( i )( parameterValue.segment( 6 * i, 6 ) );
             }
         }
+        if( initialStateSetClosure_ != nullptr )
+        {
+            initialStateSetClosure_( );
+        }
         initialTranslationalState_ = parameterValue;
     }
 
@@ -286,10 +290,12 @@ public:
 
     void addStateClosureFunctions(
             const std::vector< std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > >& initialStateGetFunctions,
-            const std::vector< std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > >& initialStateSetFunctions )
+            const std::vector< std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > >& initialStateSetFunctions,
+            const std::function< void( ) > initialStateSetClosure )
     {
         initialStateGetFunctions_ = initialStateGetFunctions;
         initialStateSetFunctions_ = initialStateSetFunctions;
+        initialStateSetClosure_ = initialStateSetClosure;
 
         if( initialStateSetFunctions.size( ) != initialStateGetFunctions.size( ) )
         {
@@ -335,6 +341,8 @@ private:
     std::vector< std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > > initialStateGetFunctions_;
 
     std::vector< std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > > initialStateSetFunctions_;
+
+    std::function< void( ) > initialStateSetClosure_;
 };
 
 ////! Function to retrieve the size of the estimatable parameter set.

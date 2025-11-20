@@ -264,9 +264,66 @@ BOOST_AUTO_TEST_CASE( testPropagatorParameterConsistency )
 
    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > hybridArcParameters = getParametersToEstimate(
            hybridArcPropagatorSettings, bodies );
+   std::map< int, std::shared_ptr< EstimatableParameter< Eigen::Matrix< double, Eigen::Dynamic, 1 > > > > singleArcParameters =
+           hybridArcParameters->getInitialSingleArcStateParameters( );
+   printEstimatableParameterEntries( hybridArcParameters );
 
-   std::cout<<"Propagator settings "<<hybridArcPropagatorSettings->getInitialStates( ).transpose( )<<std::endl<<std::endl;
-   std::cout<<"Parameters "<<hybridArcParameters->getFullParameterValues< double >( ).transpose( )<<std::endl<<std::endl;
+   // Modify parameters and propagator
+   for( int test = 0; test < 3; test++ )
+   {
+       std::cout<<"Pre-modify"<<std::endl;
+       std::cout<<singleArcPropagatorSettings->getInitialStates( ).segment( 0, 6 ).transpose( )<<std::endl;
+       std::cout<<hybridArcParameters->getFullParameterValues< double >( ).segment( 0, 6 ).transpose( )<<std::endl;
+
+       Eigen::Vector6d statePerturbation = Eigen::Vector6d::Zero( );
+       statePerturbation( 0 ) = 10.0E3;
+       statePerturbation( 4 ) = -0.53E3;
+
+       Eigen::VectorXd originalInitialStates = singleArcPropagatorSettings->getInitialStates( );
+       for( int singleArcBody = 0; singleArcBody < 4; singleArcBody++ )
+       {
+            int startIndex = 6 * singleArcBody;
+            if( test == 0 )
+            {
+                Eigen::VectorXd nominalValue = singleArcParameters[ startIndex ]->getParameterValue( );
+                Eigen::VectorXd perturbedValue = nominalValue + statePerturbation;
+                singleArcParameters[ startIndex ]->setParameterValue( perturbedValue );
+            }
+            else if( test == 1 )
+            {
+                Eigen::VectorXd nominalValue = hybridArcPropagatorSettings->getInitialStates( );
+                Eigen::VectorXd perturbedValue = nominalValue;
+                perturbedValue.segment( startIndex, 6 ) = perturbedValue.segment( startIndex, 6 ) + statePerturbation;
+                hybridArcPropagatorSettings->resetInitialStates( perturbedValue );
+            }
+            else if( test == 2 )
+            {
+                Eigen::VectorXd nominalValue = singleArcPropagatorSettings->getInitialStates( );
+                Eigen::VectorXd perturbedValue = nominalValue;
+                perturbedValue.segment( startIndex, 6 ) = perturbedValue.segment( startIndex, 6 ) + statePerturbation;
+                singleArcPropagatorSettings->resetInitialStates( perturbedValue );
+                hybridArcPropagatorSettings->setInitialStatesFromConstituents( );
+            }
+
+            Eigen::Vector6d stateDifference = singleArcPropagatorSettings->getInitialStates( ).segment( startIndex, 6 ) - originalInitialStates.segment( startIndex, 6 ) ;
+            std::cout<<"Error: "<<stateDifference.transpose( )<<std::endl;
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                    stateDifference,
+                    statePerturbation,
+                    std::numeric_limits< double >::epsilon( ) );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                    ( singleArcPropagatorSettings->getInitialStates( ).segment( 0, 24 ) ),
+                    ( hybridArcPropagatorSettings->getInitialStates( ).segment( 0, 24 ) ),
+                    ( std::numeric_limits< double >::epsilon( ) ) );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                    ( singleArcPropagatorSettings->getInitialStates( ).segment( 0, 24 ) ),
+                    ( hybridArcParameters->getFullParameterValues< double >( ).segment( 0, 24 ) ),
+                    ( std::numeric_limits< double >::epsilon( ) ) );
+       }
+   }
+
+//   std::cout<<"Propagator settings "<<hybridArcPropagatorSettings->getInitialStates( ).transpose( )<<std::endl<<std::endl;
+//   std::cout<<"Parameters "<<hybridArcParameters->getFullParameterValues< double >( ).transpose( )<<std::endl<<std::endl;
 
 
 }
