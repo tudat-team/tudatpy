@@ -256,57 +256,54 @@ BOOST_AUTO_TEST_CASE( testPropagatorParameterConsistency )
                    rungeKuttaFixedStepSettings( 50.0, numerical_integrators::CoefficientSets::rungeKutta4Classic ),
                    std::make_shared< PropagationTimeTerminationSettings >( flybysTimes.at( 22 ) ) );
 
+   std::shared_ptr< MultiArcPropagatorSettings< double > > multiArcPropagatorSettings =
+           std::make_shared< MultiArcPropagatorSettings< double > >( propagationSettingsList );
    std::shared_ptr< HybridArcPropagatorSettings< double > > hybridArcPropagatorSettings =
            std::make_shared< HybridArcPropagatorSettings< double > >(
-                   singleArcPropagatorSettings, std::make_shared< MultiArcPropagatorSettings< double > >(
-                                                                           propagationSettingsList ) );
+                   singleArcPropagatorSettings, multiArcPropagatorSettings );
 
 
    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > hybridArcParameters = getParametersToEstimate(
            hybridArcPropagatorSettings, bodies );
    std::map< int, std::shared_ptr< EstimatableParameter< Eigen::Matrix< double, Eigen::Dynamic, 1 > > > > singleArcParameters =
            hybridArcParameters->getInitialSingleArcStateParameters( );
+   std::map< int, std::shared_ptr< EstimatableParameter< Eigen::Matrix< double, Eigen::Dynamic, 1 > > > > multiArcParameters =
+           hybridArcParameters->getInitialMultiArcStateParameters( );
    printEstimatableParameterEntries( hybridArcParameters );
 
-   // Modify parameters and propagator
-   for( int test = 0; test < 3; test++ )
+   Eigen::Vector6d statePerturbation = Eigen::Vector6d::Zero( );
+   statePerturbation( 0 ) = 10.0E3;
+   statePerturbation( 4 ) = -0.53E3;
+   
+   for( int singleArcTest = 0; singleArcTest < 3; singleArcTest++ )
    {
-       std::cout<<"Pre-modify"<<std::endl;
-       std::cout<<singleArcPropagatorSettings->getInitialStates( ).segment( 0, 6 ).transpose( )<<std::endl;
-       std::cout<<hybridArcParameters->getFullParameterValues< double >( ).segment( 0, 6 ).transpose( )<<std::endl;
-
-       Eigen::Vector6d statePerturbation = Eigen::Vector6d::Zero( );
-       statePerturbation( 0 ) = 10.0E3;
-       statePerturbation( 4 ) = -0.53E3;
-
        Eigen::VectorXd originalInitialStates = singleArcPropagatorSettings->getInitialStates( );
        for( int singleArcBody = 0; singleArcBody < 4; singleArcBody++ )
        {
             int startIndex = 6 * singleArcBody;
-            if( test == 0 )
+            if( singleArcTest == 0 )
             {
                 Eigen::VectorXd nominalValue = singleArcParameters[ startIndex ]->getParameterValue( );
                 Eigen::VectorXd perturbedValue = nominalValue + statePerturbation;
                 singleArcParameters[ startIndex ]->setParameterValue( perturbedValue );
             }
-            else if( test == 1 )
+            else if( singleArcTest == 1 )
             {
                 Eigen::VectorXd nominalValue = hybridArcPropagatorSettings->getInitialStates( );
                 Eigen::VectorXd perturbedValue = nominalValue;
                 perturbedValue.segment( startIndex, 6 ) = perturbedValue.segment( startIndex, 6 ) + statePerturbation;
                 hybridArcPropagatorSettings->resetInitialStates( perturbedValue );
             }
-            else if( test == 2 )
+            else if( singleArcTest == 2 )
             {
                 Eigen::VectorXd nominalValue = singleArcPropagatorSettings->getInitialStates( );
                 Eigen::VectorXd perturbedValue = nominalValue;
                 perturbedValue.segment( startIndex, 6 ) = perturbedValue.segment( startIndex, 6 ) + statePerturbation;
                 singleArcPropagatorSettings->resetInitialStates( perturbedValue );
-                hybridArcPropagatorSettings->setInitialStatesFromConstituents( );
+                hybridArcPropagatorSettings->updateInitialState( );
             }
 
             Eigen::Vector6d stateDifference = singleArcPropagatorSettings->getInitialStates( ).segment( startIndex, 6 ) - originalInitialStates.segment( startIndex, 6 ) ;
-            std::cout<<"Error: "<<stateDifference.transpose( )<<std::endl;
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     stateDifference,
                     statePerturbation,
@@ -322,8 +319,97 @@ BOOST_AUTO_TEST_CASE( testPropagatorParameterConsistency )
        }
    }
 
-//   std::cout<<"Propagator settings "<<hybridArcPropagatorSettings->getInitialStates( ).transpose( )<<std::endl<<std::endl;
-//   std::cout<<"Parameters "<<hybridArcParameters->getFullParameterValues< double >( ).transpose( )<<std::endl<<std::endl;
+   std::vector< int > arcStartIndex;
+   int currentIndex = hybridArcPropagatorSettings->getSingleArcPropagatorSettings( )->getConventionalStateSize( );
+   for( unsigned int i = 0; i < hybridArcPropagatorSettings->getMultiArcPropagatorSettings( )->getSingleArcSettings( ).size( ); i++ )
+   {
+       arcStartIndex.push_back( currentIndex );
+       currentIndex += hybridArcPropagatorSettings->getMultiArcPropagatorSettings( )->getSingleArcSettings( ).at( i )->getConventionalStateSize( );
+   }
+
+   for( int multiArcTest = 0; multiArcTest < 4; multiArcTest++ )
+   {
+       Eigen::VectorXd originalInitialStates = multiArcPropagatorSettings->getInitialStates( );
+       for( int bodyIndex = 0; bodyIndex < 2; bodyIndex++ )
+       {
+           auto it = multiArcParameters.begin( );
+           if( bodyIndex == 1 )
+           {
+               it++;
+           }
+           std::shared_ptr< EstimatableParameter< Eigen::Matrix< double, Eigen::Dynamic, 1 > > > currentParameter = it->second;
+           for( int arcIndex = 0; arcIndex < 4; arcIndex++ )
+           {
+               std::cout<<multiArcTest<<" "<<bodyIndex<<" "<<arcIndex<<std::endl;
+               int parameterStartIndex = arcIndex * 6;
+               int propagatorArcIndex = ( bodyIndex == 0 ? 1 : 2 ) * arcIndex;
+               int singleArcPropagatorStartIndex = 6 * bodyIndex;
+               int hybridArcPropagatorStartIndex = arcStartIndex.at( propagatorArcIndex ) + singleArcPropagatorStartIndex;
+
+               Eigen::VectorXd originalValueFromParameter = currentParameter->getParameterValue( ).segment( parameterStartIndex, 6 );
+               Eigen::VectorXd originalValueFromSingleArc = hybridArcPropagatorSettings->getMultiArcPropagatorSettings( )->getSingleArcSettings( ).at( propagatorArcIndex )->getInitialStates( ).segment( singleArcPropagatorStartIndex, 6 );
+               Eigen::VectorXd originalValueFromHybridArc = hybridArcPropagatorSettings->getInitialStates( ).segment( hybridArcPropagatorStartIndex, 6 );
+               Eigen::VectorXd originalValueFromMultiArc = multiArcPropagatorSettings->getInitialStates( ).segment( hybridArcPropagatorStartIndex - 24, 6 );
+
+              TUDAT_CHECK_MATRIX_CLOSE_FRACTION( originalValueFromParameter, originalValueFromSingleArc,( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+              TUDAT_CHECK_MATRIX_CLOSE_FRACTION( originalValueFromParameter, originalValueFromMultiArc,( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+              TUDAT_CHECK_MATRIX_CLOSE_FRACTION( originalValueFromParameter, originalValueFromHybridArc,( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+
+                if( multiArcTest == 0 )
+               {
+                   Eigen::VectorXd perturbedParameterValue = currentParameter->getParameterValue( );
+                   perturbedParameterValue.segment( parameterStartIndex, 6 ) += statePerturbation;
+                   currentParameter->setParameterValue( perturbedParameterValue );
+               }
+               else if( multiArcTest == 1 )
+               {
+                   Eigen::VectorXd perturbedSingleArcValue = hybridArcPropagatorSettings->getMultiArcPropagatorSettings( )->getSingleArcSettings( ).at( propagatorArcIndex )->getInitialStates( );
+                   perturbedSingleArcValue.segment( singleArcPropagatorStartIndex, 6 ) += statePerturbation;
+                   hybridArcPropagatorSettings->getMultiArcPropagatorSettings( )->getSingleArcSettings( ).at( propagatorArcIndex )->resetInitialStates( perturbedSingleArcValue );
+               }
+               else if( multiArcTest == 2 )
+               {
+                   Eigen::VectorXd perturbedMultiArcValue = hybridArcPropagatorSettings->getMultiArcPropagatorSettings( )->getInitialStates( );
+                   perturbedMultiArcValue.segment( hybridArcPropagatorStartIndex - 24, 6 ) += statePerturbation;
+                   hybridArcPropagatorSettings->getMultiArcPropagatorSettings( )->resetInitialStates( perturbedMultiArcValue );
+               }
+               else if( multiArcTest == 3 )
+               {
+                   Eigen::VectorXd perturbedHybridArcValue = hybridArcPropagatorSettings->getInitialStates( );
+                   perturbedHybridArcValue.segment( hybridArcPropagatorStartIndex, 6 ) += statePerturbation;
+                   hybridArcPropagatorSettings->resetInitialStates( perturbedHybridArcValue );
+               }
+
+               Eigen::VectorXd perturbedValueFromParameter = currentParameter->getParameterValue( ).segment( parameterStartIndex, 6 );
+               Eigen::VectorXd perturbedValueFromSingleArc = hybridArcPropagatorSettings->getMultiArcPropagatorSettings( )->getSingleArcSettings( ).at( propagatorArcIndex )->getInitialStates( ).segment( singleArcPropagatorStartIndex, 6 );
+               Eigen::VectorXd perturbedValueFromHybridArc = hybridArcPropagatorSettings->getInitialStates( ).segment( hybridArcPropagatorStartIndex, 6 );
+               Eigen::VectorXd perturbedValueFromMultiArc = multiArcPropagatorSettings->getInitialStates( ).segment( hybridArcPropagatorStartIndex - 24, 6 );
+
+               std::cout<<( perturbedValueFromParameter - originalValueFromParameter ).transpose( )<<std::endl;
+               std::cout<<( perturbedValueFromSingleArc - originalValueFromSingleArc ).transpose( )<<std::endl;
+               std::cout<<( perturbedValueFromHybridArc - originalValueFromHybridArc ).transpose( )<<std::endl;
+               std::cout<<( perturbedValueFromMultiArc - originalValueFromMultiArc ).transpose( )<<std::endl<<std::endl<<std::endl;
+
+               Eigen::Vector6d stateDifference = perturbedValueFromParameter - originalValueFromParameter;
+               TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                       stateDifference,
+                       statePerturbation,
+                       ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+               TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                       perturbedValueFromParameter,
+                       perturbedValueFromSingleArc,
+                       ( std::numeric_limits< double >::epsilon( ) ) );
+               TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                       perturbedValueFromParameter,
+                       perturbedValueFromMultiArc,
+                       ( std::numeric_limits< double >::epsilon( ) ) );
+               TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                       perturbedValueFromParameter,
+                       perturbedValueFromHybridArc,
+                       ( std::numeric_limits< double >::epsilon( ) ) );
+           }
+       }
+   }
 
 
 }
