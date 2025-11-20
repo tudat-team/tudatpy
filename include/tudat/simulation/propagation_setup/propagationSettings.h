@@ -198,13 +198,17 @@ public:
         initialTime_( TUDAT_NAN ), terminationSettings_( terminationSettings ), dependentVariablesToSave_( dependentVariablesToSave ),
         integratorSettings_( nullptr ), outputSettings_( outputSettings ), statePrintInterval_( statePrintInterval )
     {
-        if( stateType_ != custom_state )
+        if( stateType_ == custom_state )
         {
-            singleBodyStateSize_ = getSingleIntegrationSize( stateType_ );
+            singleBodyStateSize_ = initialBodyStates.rows( );
+        }
+        else if( stateType_ == hybrid )
+        {
+            singleBodyStateSize_ = 0;
         }
         else
         {
-            singleBodyStateSize_ = initialBodyStates.rows( );
+            singleBodyStateSize_ = getSingleIntegrationSize( stateType_ );
         }
 
     }
@@ -347,16 +351,17 @@ public:
         initialTime_ = initialTime;
     }
 
-    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getStateOfBody( const int bodyIndex )
+    virtual Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getStateOfBody( const int bodyIndex )
     {
         return this->initialStates_.segment( singleBodyStateSize_ * bodyIndex, singleBodyStateSize_ );
     }
 
-    void setStateOfBody( const int bodyIndex, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& newBodyState )
+    virtual void setStateOfBody( const int bodyIndex, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& newBodyState )
     {
-        if( newBodyState.rows( ) != 6 )
+        if( newBodyState.rows( ) != singleBodyStateSize_ )
         {
-            throw std::runtime_error( "Error when resseting state of body in translational propagator settings; expected vector of size 6" );
+            throw std::runtime_error( "Error when resetting state of body in propagator settings of type "  +
+                                      getIntegratedStateTypString( stateType_ )+ " expected vector of size " + std::to_string( singleBodyStateSize_ ) );
         }
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newInitialStates = this->initialStates_;
         newInitialStates.segment( singleBodyStateSize_ * bodyIndex, singleBodyStateSize_ ) = newBodyState;
@@ -624,6 +629,7 @@ public:
         }
         return outputSettings_;
     }
+
 
 protected:
     //! List of propagator settings for each arc in propagation.
@@ -2247,6 +2253,18 @@ public:
             }
         }
     }
+
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getStateOfBody( const int bodyIndex )
+    {
+        throw std::runtime_error( "Error, cannot get state of single body directly from multi-type propagator settings" );
+    }
+
+    void setStateOfBody( const int bodyIndex, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& newBodyState )
+    {
+        throw std::runtime_error( "Error, cannot set state of single body directly from multi-type propagator settings" );
+
+    }
+
 };
 
 template< typename StateScalarType = double, typename TimeType = double >
