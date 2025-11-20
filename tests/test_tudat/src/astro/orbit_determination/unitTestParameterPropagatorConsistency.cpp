@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE( testPropagatorParameterConsistency )
 {
    // Load spice kernels
    spice_interface::loadStandardSpiceKernels( );
-   spice_interface::loadSpiceKernelInTudat( "/home/dominic/Downloads/juice_mat_crema_5_1_150lb_v01.bsp" );
+   spice_interface::loadSpiceKernelInTudat( tudat::paths::getTudatTestDataPath( ) + "juice_mat_crema_5_1_150lb_v01.bsp" );
 
    // Simulation parameters
    double initialEpoch = 946728000.0;
