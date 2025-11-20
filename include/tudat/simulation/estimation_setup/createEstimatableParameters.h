@@ -782,7 +782,7 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
 
 
     std::function< void( ) > multiArcUpdateFunction = std::bind(
-            &MultiArcPropagatorSettings< InitialStateParameterType, TimeType >::updateInitialStateFromConsituentSettings, propagatorSettings );
+            &MultiArcPropagatorSettings< InitialStateParameterType, TimeType >::updateInitialState, propagatorSettings );
     for( unsigned int j = 0; j < arcwiseInitialStates.size( ); j++ )
     {
         addUpdateFunctionToMultiArcParameterStateSetter< InitialStateParameterType >( arcwiseInitialStates.at( j ),
@@ -803,7 +803,7 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
                     propagatorSettings->getMultiArcPropagatorSettings( ), bodies, arcStartTimes );
 
     std::function< void( ) > hybridArcUpdateFunction = std::bind(
-            &propagators::HybridArcPropagatorSettings< InitialStateParameterType, TimeType >::setInitialStatesFromConstituents, propagatorSettings );
+            &propagators::HybridArcPropagatorSettings< InitialStateParameterType, TimeType >::updateInitialState, propagatorSettings );
     for( unsigned int j = 0; j < multiArcParameters.size( ); j++ )
     {
         addUpdateFunctionToMultiArcParameterStateSetter< InitialStateParameterType >( multiArcParameters.at( j ),
@@ -849,7 +849,7 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
                         std::dynamic_pointer_cast< MultiTypePropagatorSettings< InitialStateParameterType, TimeType > >(
                                 propagatorSettings );
                 std::function< void( ) > multiTypeUpdateFunction = std::bind(
-                        &MultiTypePropagatorSettings< InitialStateParameterType, TimeType >::recomputeInitialStates, multiTypePropagatorSettings );
+                        &MultiTypePropagatorSettings< InitialStateParameterType, TimeType >::updateInitialState, multiTypePropagatorSettings );
                 std::map< IntegratedStateType,
                           std::vector< std::shared_ptr< SingleArcPropagatorSettings< InitialStateParameterType, TimeType > > > >
                         propagatorSettingsMap = multiTypePropagatorSettings->propagatorSettingsMap_;
@@ -3337,7 +3337,7 @@ void setInitialStateVectorFromParameterSet(
                 }
             }
             propagators::resetSingleArcInitialStates( singleArcSettings.at( i ), currentArcInitialStates );
-            multiArcSettings->updateInitialStateFromConsituentSettings( );
+            multiArcSettings->updateInitialState( );
         }
     }
     else if( std::dynamic_pointer_cast< propagators::HybridArcPropagatorSettings< InitialStateParameterType, TimeType > >(
@@ -3365,7 +3365,7 @@ void setInitialStateVectorFromParameterSet(
                         estimatableParameters->getEstimatedMultiArcInitialStateParameters( ) ),
                 multiArcSettings );
 
-        hybridArcSettings->setInitialStatesFromConstituents( );
+        hybridArcSettings->updateInitialState( );
     }
     else
     {

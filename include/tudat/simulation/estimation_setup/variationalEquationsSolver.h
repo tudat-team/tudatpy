@@ -1963,7 +1963,7 @@ public:
             counterOriginalArcWiseIndex += originalMultiArcDynamicsSingleArcSize_.at( i );
         }
         propagatorSettings_->getMultiArcPropagatorSettings( )->resetInitialStates( totalMultiArcInitialState );
-        propagatorSettings_->setInitialStatesFromConstituents( );
+        propagatorSettings_->updateInitialState( );
 
         // Reset parameters for arc-wise parameters in both originalMultiArcSolver_ and multiArcSolver_
         for( unsigned int i = 0; i < arcStartTimes_.size( ); i++ )
@@ -2118,7 +2118,7 @@ protected:
 
         // Reset initial multi-arc states in propagator settings and estimated parameters
         propagatorSettings_->getMultiArcPropagatorSettings( )->resetInitialStatesList( arcInitialStates );
-        propagatorSettings_->setInitialStatesFromConstituents( );
+        propagatorSettings_->updateInitialState( );
     }
 
     //! Function that removes the single-arc body data from propagation results before processing data
@@ -2159,7 +2159,7 @@ protected:
         }
 
         originalPopagatorSettings_->getMultiArcPropagatorSettings( )->resetInitialStatesList( originalMultiArcInitialStates );
-        originalPopagatorSettings_->setInitialStatesFromConstituents( );
+        originalPopagatorSettings_->updateInitialState( );
     }
 
     //! Object to solve multi-arc variational equations (multi-arc bodies only).
