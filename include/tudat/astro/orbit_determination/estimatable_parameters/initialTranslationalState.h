@@ -296,13 +296,16 @@ public:
             throw std::runtime_error( "Error when setting arc-wise initial translational state closure, sizes are incompatible" );
         }
 
-        if( initialTranslationalState_.rows( ) / 6 != initialStateGetFunctions.size( ) )
+        if( initialStateGetFunctions.size( ) > 0 )
         {
-            throw std::runtime_error( "Error when setting arc-wise initial translational state closure, sizes are incompatible with initial state" );
-        }
-        if( initialStateSetFunctions_.size( ) > 0 )
-        {
-            setInitialStateVectorFromClosure( );
+            if( initialTranslationalState_.rows( ) / 6 != initialStateGetFunctions.size( ) )
+            {
+                throw std::runtime_error( "Error when setting arc-wise initial translational state closure, sizes are incompatible with initial state" );
+            }
+            if( initialStateSetFunctions_.size( ) > 0 )
+            {
+                setInitialStateVectorFromClosure( );
+            }
         }
     }
 

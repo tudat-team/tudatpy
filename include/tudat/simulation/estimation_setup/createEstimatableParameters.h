@@ -563,6 +563,7 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
         const SystemOfBodies& bodies,
         const std::vector< double > arcStartTimes = std::vector< double >( ) );
 
+
 template< typename InitialStateParameterType = double, typename TimeType = double >
 std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getInitialMultiArcParameterSettings(
         const std::shared_ptr< propagators::MultiArcPropagatorSettings< InitialStateParameterType, TimeType > > propagatorSettings,
@@ -588,6 +589,8 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
     }
     std::vector< double > arcStartTimesToUse;
     std::map< std::string, std::vector< std::pair< int, int > > > bodyMappingIndices;
+    std::vector< std::string > fullBodyList;
+
     for( unsigned int i = 0; i < singleArcSettings.size( ); i++ )
     {
         singleArcTranslationalSettings.push_back(
@@ -626,12 +629,22 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
             std::vector< std::string > propagatedBodies = singleArcTranslationalSettings.at( i )->bodiesToIntegrate_;
             for( unsigned int j = 0; j < propagatedBodies.size( ); j++ )
             {
+                if( std::find( fullBodyList.begin( ), fullBodyList.end( ), propagatedBodies.at( j ) ) == fullBodyList.end( ) )
+                {
+                    fullBodyList.push_back( propagatedBodies.at( j ) );
+                }
+                bool isOrderCorrect = utilities::checkOrderPreserved( fullBodyList, propagatedBodies );
+                if( !isOrderCorrect )
+                {
+                    throw std::runtime_error( "Error, order of bodies propagated in different arcs is not consistent (order must be maintained)" );
+                }
                 bodyMappingIndices[ propagatedBodies.at( j ) ].push_back( std::make_pair( i, j ) );
             }
         }
     }
 
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > arcwiseInitialStates;
+    arcwiseInitialStates.resize( fullBodyList.size( ) );
     for( auto it : bodyMappingIndices )
     {
         std::string currentBody = it.first;
@@ -670,7 +683,17 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
         arcWiseTranslationalInitialStates->initialStateSetFunctions_ = initialStateSetFunctions;
         arcWiseTranslationalInitialStates->initialStateGetFunctions_ = initialStateGetFunctions;
 
-        arcwiseInitialStates.push_back( arcWiseTranslationalInitialStates );
+        std::vector< std::string >::iterator findIterator =
+                std::find( fullBodyList.begin( ), fullBodyList.end( ), currentBody );
+        if( findIterator != fullBodyList.end( ) )
+        {
+            int bodyIndex = std::distance( fullBodyList.begin( ), findIterator );
+            arcwiseInitialStates[ bodyIndex ] = arcWiseTranslationalInitialStates;
+        }
+        else
+        {
+            throw std::runtime_error( "Error when finding body index for arc-wise translational state parameter, body " + currentBody + " not found" );
+        }
     }
 
     return arcwiseInitialStates;
@@ -1033,6 +1056,10 @@ createInitialDynamicalStateParameterToEstimate(
                                         initialStateSettings->centralBodies_,
                                         initialStateSettings->frameOrientation_ );
                     }
+
+                    arcWiseInitialTranslationalStateParameter->addStateClosureFunctions(
+                            initialStateSettings->initialStateGetFunctions_,
+                            initialStateSettings->initialStateSetFunctions_  );
                     initialStateParameterToEstimate = arcWiseInitialTranslationalStateParameter;
                 }
                 break;

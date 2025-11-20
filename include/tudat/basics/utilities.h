@@ -1205,6 +1205,37 @@ void removeDuplicates( std::vector< T >& input )
     input.erase( std::unique( input.begin( ), input.end( ) ), input.end( ) );
 }
 
+template< typename T >
+bool checkOrderPreserved( const std::vector< T >& A,
+                                 const std::vector< T >& B)
+{
+    if( B.size( ) <= 1 || A.size( ) <= 1 )
+    {
+        return true;
+    }
+    else
+    {
+        // Map each element of A to its index
+        std::unordered_map<std::string, std::size_t> indexInA;
+        for (std::size_t i = 0; i < A.size(); ++i)
+        {
+            indexInA[A[i]] = i;
+        }
+
+        // Check ordering for consecutive entries in B
+        for (std::size_t i = 1; i < B.size(); ++i)
+        {
+            std::size_t prevIndex = indexInA[B[i-1]];
+            std::size_t currIndex = indexInA[B[i]];
+            if (currIndex <= prevIndex)
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 }  // namespace utilities
 
 }  // namespace tudat

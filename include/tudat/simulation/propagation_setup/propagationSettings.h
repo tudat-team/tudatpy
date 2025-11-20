@@ -226,13 +226,17 @@ public:
         initialTime_( initialTime ), terminationSettings_( terminationSettings ), dependentVariablesToSave_( dependentVariablesToSave ),
         integratorSettings_( integratorSettings ), outputSettings_( outputSettings ), statePrintInterval_( TUDAT_NAN )
     {
-        if( stateType_ != custom_state )
+        if( stateType_ == custom_state )
         {
-            singleBodyStateSize_ = getSingleIntegrationSize( stateType_ );
+            singleBodyStateSize_ = initialBodyStates.rows( );
+        }
+        else if( stateType_ == hybrid )
+        {
+            singleBodyStateSize_ = 0;
         }
         else
         {
-            singleBodyStateSize_ = initialBodyStates.rows( );
+            singleBodyStateSize_ = getSingleIntegrationSize( stateType_ );
         }
     }
 
