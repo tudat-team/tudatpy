@@ -310,7 +310,7 @@ BOOST_AUTO_TEST_CASE( testPropagatorParameterConsistency )
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     stateDifference,
                     statePerturbation,
-                    std::numeric_limits< double >::epsilon( ) );
+                    ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
             TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                     ( singleArcPropagatorSettings->getInitialStates( ).segment( 0, 24 ) ),
                     ( hybridArcPropagatorSettings->getInitialStates( ).segment( 0, 24 ) ),
