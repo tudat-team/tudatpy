@@ -613,6 +613,7 @@ public:
         int currentIndex = 0;
         for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
         {
+            initialStateList_[ i ] = singleArcSettings_.at( i )->getInitialStates( );
             this->initialStates_.segment( currentIndex, singleArcSettings_.at( i )->getConventionalStateSize( ) ) =
                     singleArcSettings_.at( i )->getInitialStates( );
             currentIndex += singleArcSettings_.at( i )->getConventionalStateSize( );
@@ -731,6 +732,8 @@ public:
     //! Function that sets initial states from single- and multi-arc initial states
     void setInitialStatesFromConstituents( )
     {
+//        std::cout<<"Updating hybrid-arc in object "<<singleArcPropagatorSettings_->getInitialStates( ).transpose( )<<std::endl;
+
         this->initialStates_.segment( 0, singleArcPropagatorSettings_->getPropagatedStateSize( ) ) =
                 singleArcPropagatorSettings_->getInitialStates( );
         this->initialStates_.segment( singleArcPropagatorSettings_->getPropagatedStateSize( ),
