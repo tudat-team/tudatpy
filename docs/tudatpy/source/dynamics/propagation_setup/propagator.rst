@@ -2,13 +2,26 @@
 
 ``propagator``
 ==============
-This module provides the functionality for creating propagator settings.
 
+This module contains a set of functions for setting up the
+propagator settings and associated termination conditions in a propagation.
 
+The propagator settings object(s) (derived classed of :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagatorSettings`)
+defined through this module are the container through
+which all information on the numerical propagation is communicated to the propagation of dynamics
+(through the :func:`~tudatpy.dynamics.simulator.create_dynamics_simulator` function), the propagation of variational equations
+(through the :func:`~tudatpy.dynamics.simulator.create_variational_equations_solver` function) or an estimation (through the
+:class:`~~tudatpy.estimation.estimation_analysis.Estimator` class constructor).
 
+The propagator settings defined here can be used for propagating single- and multi-arc dynamics, translational dynamics,
+rotational dynamics, multi-type dynamics, etc. with a large diversity of termination settings options,
+dependent variables to save and many more options. The full options and structure are described on a `dedicated page
+<https://docs.tudat.space/en/latest/user-guide/state-propagation/propagation-setup.html>`_
 
-
-
+In addition to settings for the full propagation, this module also contains function to create settings for the termination
+of a propagation (stored in instances of :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagationTerminationSettings
+and its derived class). These objects are passed to the propagator settings function in this module to define the
+propagation termination.
 
 
 .. References
