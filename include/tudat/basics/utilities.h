@@ -888,39 +888,37 @@ std::string paddedZeroIntString( const IntType valueToConvert, const int numberO
 template< typename T >
 std::pair< std::string, bool > to_string_with_precision( const T a_value, const int n = 6 )
 {
-  static_assert( std::is_floating_point<T>::value,
-                "to_string_with_precision requires a floating point type" );
+    static_assert( std::is_floating_point< T >::value, "to_string_with_precision requires a floating point type" );
 
-  bool roundedUpByOne = false;
+    bool roundedUpByOne = false;
 
-  // 10^n as T (no long double)
-  T power10 = static_cast<T>(1);
-  for( int i = 0; i < n; ++i )
-  {
-    power10 *= static_cast<T>(10);
-  }
+    // 10^n as T (no long double)
+    T power10 = static_cast< T >( 1 );
+    for( int i = 0; i < n; ++i )
+    {
+        power10 *= static_cast< T >( 10 );
+    }
 
-  // Manually do the rounding that the stream will do
-  T scaled        = a_value * power10;
-  T roundedScaled = std::round( scaled );
-  T roundedValue  = roundedScaled / power10;
+    // Manually do the rounding that the stream will do
+    T scaled = a_value * power10;
+    T roundedScaled = std::round( scaled );
+    T roundedValue = roundedScaled / power10;
 
-  // Detect if rounding crossed an integer boundary (off by 1 in "seconds" sense)
-  // This happens when roundedValue and a_value are in different integer bins,
-  // but the difference is consistent with normal rounding at this precision.
-  const T diff = roundedValue - a_value;
+    // Detect if rounding crossed an integer boundary (off by 1 in "seconds" sense)
+    // This happens when roundedValue and a_value are in different integer bins,
+    // but the difference is consistent with normal rounding at this precision.
+    const T diff = roundedValue - a_value;
 
-  if( std::floor( a_value ) != std::floor( roundedValue ) &&
-      std::fabs( diff ) <= static_cast<T>(0.5) / power10 +
-                             std::numeric_limits<T>::epsilon() )
-  {
-    roundedUpByOne = true;
-  }
+    if( std::floor( a_value ) != std::floor( roundedValue ) &&
+        std::fabs( diff ) <= static_cast< T >( 0.5 ) / power10 + std::numeric_limits< T >::epsilon( ) )
+    {
+        roundedUpByOne = true;
+    }
 
-  std::ostringstream out;
-  out.precision( n );
-  out << std::fixed << roundedValue;
-  return std::make_pair( out.str(), roundedUpByOne );
+    std::ostringstream out;
+    out.precision( n );
+    out << std::fixed << roundedValue;
+    return std::make_pair( out.str( ), roundedUpByOne );
 }
 
 template< typename T >
