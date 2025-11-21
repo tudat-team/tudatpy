@@ -156,10 +156,17 @@ Classes
 .. autosummary::
 
    DateTime
+
+   Time
    
    TimeScaleConverter
 
 .. autoclass:: tudatpy.astro.time_representation.DateTime
+   :members:
+   :special-members: __init__
+   :exclude-members: iso_string, day_of_year, epoch, julian_day, modified_julian_day
+
+.. autoclass:: tudatpy.astro.time_representation.Time
    :members:
    :special-members: __init__
    :exclude-members: iso_string, day_of_year, epoch, julian_day, modified_julian_day
