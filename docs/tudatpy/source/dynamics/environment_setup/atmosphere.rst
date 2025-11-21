@@ -13,6 +13,26 @@ attribute (of type :class:`~tudatpy.dynamics.environment_setup.atmosphere.Atmosp
 and added to the associated :class:`~tudatpy.dynamics.environment.Body` object based on the settings object, which can
 be retrieved using the :attr:`~tudatpy.dynamics.environment.Body.atmosphere_model` attribute.
 
+The following code block gives an overview of the steps to define, create, and extract an atmosphere model, for the specific example of exponential atmosphere drag (:math:`\rho_{0}=1.225` kg/m\ :sup:`3`, :math:`H=7200` m)
+
+.. code-block:: python
+
+  from tudatpy.dynamics import environment_setup
+
+  # Create body settings
+  body_settings =  environment_setup.get_default_body_settings( ... ) # Typical way to instantiate body settings
+
+  # Modify atmosphere model settings (base class type AtmosphereSettings)
+  body_settings.get( 'Earth' ).atmosphere_settings = environment_setup.atmosphere.exponential(
+      scale_height = 7200.0,
+      surface_density = 1.225 )
+
+  # Create bodies
+  bodies = environment_setup.create_system_of_bodies(body_settings)
+
+  # Extract atmosphere model (base class type AtmosphereModel) from Earth
+  earth_atmosphere_model = bodies.get( 'Earth' ).atmosphere_model
+
 As a property of the atmosphere model, Tudat allows a wind model to be defined. In the absence of a wind model, the
 atmosphere is assumed to co-rotate with the central body. Specifically, the wind velocity in the central-body fixed frame
 is exactly :math:`\mathbf{0}` by default. Settings for a wind model to deviate from this are added to the atmosphere settings

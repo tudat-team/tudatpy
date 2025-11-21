@@ -335,7 +335,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
 
 
-      )doc" )
+      )doc" );
 
 
     py::class_< tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE >,
