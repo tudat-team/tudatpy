@@ -682,7 +682,7 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
                 {
                     fullBodyList.push_back( propagatedBodies.at( j ) );
                 }
-                bool isOrderCorrect = checkOrderPreserved( fullBodyList, propagatedBodies );
+                bool isOrderCorrect = utilities::checkOrderPreserved( fullBodyList, propagatedBodies );
                 if( !isOrderCorrect )
                 {
                     for( unsigned int k = 0; k < fullBodyList.size( ); k++ )
