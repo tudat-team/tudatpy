@@ -336,22 +336,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
 
       )doc" )
-            .def_readwrite( "initial_time",
-                            &tni::IntegratorSettings< TIME_TYPE >::initialTimeDeprecated_ );
 
-    py::class_< tni::RungeKuttaFixedStepSizeSettings< TIME_TYPE >,
-                std::shared_ptr< tni::RungeKuttaFixedStepSizeSettings< TIME_TYPE > >,
-                tni::IntegratorSettings< TIME_TYPE > >( m,
-                                                        "RungeKuttaFixedStepSizeSettings",
-                                                        R"doc(
-
-         `IntegratorSettings`-derived class to define settings for Runge Kutta integrators with a fixed step size
-
-
-
-
-
-      )doc" );
 
     py::class_< tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE >,
                 std::shared_ptr< tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE > >,
@@ -1602,34 +1587,16 @@ IntegratorSettings
      */
 
     m.def( "euler",
-           &tni::eulerSettingsDeprecated< TIME_TYPE >,
-           py::arg( "initial_time" ),
-           py::arg( "initial_time_step" ),
-           py::arg( "assess_termination_on_minor_steps" ) = false );
-
-    m.def( "euler",
            &tni::eulerSettings< TIME_TYPE >,
            py::arg( "initial_time_step" ),
            py::arg( "assess_termination_on_minor_steps" ) = false );
 
-    m.def( "runge_kutta_4",
-           &tni::rungeKutta4SettingsDeprecated< TIME_TYPE >,
-           py::arg( "initial_time" ),
-           py::arg( "initial_time_step" ),
-           py::arg( "assess_termination_on_minor_steps" ) = false );
 
     m.def( "runge_kutta_4",
            &tni::rungeKutta4Settings< TIME_TYPE >,
            py::arg( "initial_time_step" ),
            py::arg( "assess_termination_on_minor_steps" ) = false );
 
-    m.def( "runge_kutta_fixed_step_size",
-           &tni::rungeKuttaFixedStepSettingsDeprecated< TIME_TYPE >,
-           py::arg( "initial_time" ),
-           py::arg( "initial_time_step" ),
-           py::arg( "coefficient_set" ),
-           py::arg( "order_to_use" ) = tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
-           py::arg( "assess_termination_on_minor_steps" ) = false );
 
     m.def( "runge_kutta_fixed_step_size",
            &tni::rungeKuttaFixedStepSettings< TIME_TYPE >,
@@ -1637,51 +1604,6 @@ IntegratorSettings
            py::arg( "coefficient_set" ),
            py::arg( "order_to_use" ) = tni::RungeKuttaCoefficients::OrderEstimateToIntegrate::lower,
            py::arg( "assess_termination_on_minor_steps" ) = false );
-
-    m.def( "runge_kutta_variable_step_size",
-           &tni::rungeKuttaVariableStepSettingsScalarTolerancesDeprecated< TIME_TYPE >,
-           py::arg( "initial_time" ),
-           py::arg( "initial_time_step" ),
-           py::arg( "coefficient_set" ),
-           py::arg( "minimum_step_size" ),
-           py::arg( "maximum_step_size" ),
-           py::arg( "relative_error_tolerance" ),
-           py::arg( "absolute_error_tolerance" ),
-           py::arg( "assess_termination_on_minor_steps" ) = false,
-           py::arg( "safety_factor" ) = 0.8,
-           py::arg( "maximum_factor_increase" ) = 4.0,
-           py::arg( "minimum_factor_increase" ) = 0.1,
-           py::arg( "throw_exception_if_minimum_step_exceeded" ) = true );
-
-    m.def( "runge_kutta_variable_step_size_vector_tolerances",
-           &tni::rungeKuttaVariableStepSettingsVectorTolerancesDeprecated< TIME_TYPE >,
-           py::arg( "initial_time" ),
-           py::arg( "initial_time_step" ),
-           py::arg( "coefficient_set" ),
-           py::arg( "minimum_step_size" ),
-           py::arg( "maximum_step_size" ),
-           py::arg( "relative_error_tolerance" ),
-           py::arg( "absolute_error_tolerance" ),
-           py::arg( "assess_termination_on_minor_steps" ) = false,
-           py::arg( "safety_factor" ) = 0.8,
-           py::arg( "maximum_factor_increase" ) = 4.0,
-           py::arg( "minimum_factor_increase" ) = 0.1,
-           py::arg( "throw_exception_if_minimum_step_exceeded" ) = true );
-
-    m.def( "bulirsch_stoer",
-           &tni::bulirschStoerIntegratorSettingsDeprecated< TIME_TYPE >,
-           py::arg( "initial_time" ),
-           py::arg( "initial_time_step" ),
-           py::arg( "extrapolation_sequence" ),
-           py::arg( "maximum_number_of_steps" ),
-           py::arg( "minimum_step_size" ),
-           py::arg( "maximum_step_size" ),
-           py::arg( "relative_error_tolerance" ) = 1.0E-12,
-           py::arg( "absolute_error_tolerance" ) = 1.0E-12,
-           py::arg( "assess_termination_on_minor_steps" ) = false,
-           py::arg( "safety_factor" ) = 0.7,
-           py::arg( "maximum_factor_increase" ) = 10.0,
-           py::arg( "minimum_factor_increase" ) = 0.1 );
 
     m.def( "bulirsch_stoer",
            &tni::bulirschStoerIntegratorSettingsDeprecatedNew< TIME_TYPE >,
@@ -1745,19 +1667,6 @@ IntegratorSettings
 
      )doc" );
 
-    m.def( "adams_bashforth_moulton",
-           &tni::adamsBashforthMoultonSettingsDeprecated< TIME_TYPE >,
-           py::arg( "initial_time" ),
-           py::arg( "initial_time_step" ),
-           py::arg( "minimum_step_size" ),
-           py::arg( "maximum_step_size" ),
-           py::arg( "relative_error_tolerance" ) = 1.0E-12,
-           py::arg( "absolute_error_tolerance" ) = 1.0E-12,
-           py::arg( "minimum_order" ) = 6,
-           py::arg( "maximum_order" ) = 11,
-           py::arg( "assess_termination_on_minor_steps" ) = false,
-           py::arg( "bandwidth" ) = 200.0,
-           "" );
 }
 
 }  // namespace integrator
