@@ -174,7 +174,9 @@ High-Precision Constants
 
 The following constants have high-precision ``_LONG`` variants using ``long double`` 
 precision instead of standard ``double`` precision. These provide extended precision 
-for calculations requiring high accuracy over long time spans.
+for calculations requiring high accuracy over long time spans (the high-accuracy may
+only be realized in C++, on architectures/compilers where ``long double`` will map 
+to 80-bit precision).
 
 **When to use high-precision variants:**
 
