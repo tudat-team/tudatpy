@@ -50,8 +50,6 @@ propagation/estimation is through the impact of atmospheric density :math:`\rho`
 
 
 
-
-
 Functions
 ---------
 .. currentmodule:: tudatpy.dynamics.environment_setup.atmosphere
@@ -59,25 +57,17 @@ Functions
 .. autosummary::
 
    constant_wind_model
-
    custom_wind_model
-
    exponential_predefined
-
    exponential
-
    nrlmsise00
-
+   tabulated
    us76
-
+   mars_dtm
    custom_constant_temperature
-
    custom_four_dimensional_constant_temperature
-
    scaled_by_constant
-
    scaled_by_function
-
 
 
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.constant_wind_model
@@ -90,7 +80,11 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.nrlmsise00
 
+.. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.tabulated
+
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.us76
+
+.. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mars_dtm
 
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.custom_constant_temperature
 
@@ -101,10 +95,6 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.scaled_by_function
 
 
-
-
-
-
 Classes
 -------
 .. currentmodule:: tudatpy.dynamics.environment_setup.atmosphere
@@ -112,21 +102,70 @@ Classes
 .. autosummary::
 
    WindModelSettings
-
+   ConstantWindModelSettings
+   CustomWindModelSettings
    AtmosphereSettings
-
    ExponentialAtmosphereSettings
+   CustomConstantTemperatureAtmosphereSettings
+   ScaledAtmosphereSettings
+   NRLMSISE00Input
+   NRLMSISE00Atmosphere
 
 
+Wind Model Settings
+~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: tudatpy.dynamics.environment_setup.atmosphere.WindModelSettings
    :members:
+
+.. autoclass:: tudatpy.dynamics.environment_setup.atmosphere.ConstantWindModelSettings
+   :members:
+   :show-inheritance:
+
+.. autoclass:: tudatpy.dynamics.environment_setup.atmosphere.CustomWindModelSettings
+   :members:
+   :show-inheritance:
+
+
+Atmosphere Settings
+~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings
    :members:
 
 .. autoclass:: tudatpy.dynamics.environment_setup.atmosphere.ExponentialAtmosphereSettings
    :members:
+   :show-inheritance:
+
+.. autoclass:: tudatpy.dynamics.environment_setup.atmosphere.CustomConstantTemperatureAtmosphereSettings
+   :members:
+   :show-inheritance:
+
+.. autoclass:: tudatpy.dynamics.environment_setup.atmosphere.ScaledAtmosphereSettings
+   :members:
+   :show-inheritance:
 
 
+Atmosphere Model Classes
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. autoclass:: tudatpy.dynamics.environment_setup.atmosphere.NRLMSISE00Input
+   :members:
+   :special-members: __init__
+
+.. autoclass:: tudatpy.dynamics.environment_setup.atmosphere.NRLMSISE00Atmosphere
+   :members:
+   :special-members: __init__
+
+
+Enumerations
+------------
+.. currentmodule:: tudatpy.dynamics.environment_setup.atmosphere
+
+.. autosummary::
+
+   AtmosphereDependentVariables
+
+
+.. autoclass:: tudatpy.dynamics.environment_setup.atmosphere.AtmosphereDependentVariables
+   :members:
