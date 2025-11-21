@@ -190,9 +190,7 @@ BOOST_AUTO_TEST_CASE( testDateTimeStringRepresentation )
             BOOST_CHECK_EQUAL( testString1, dateString1.substr( 0, testString1.length( ) ) );
             BOOST_CHECK_EQUAL( testString2, dateString2.substr( 0, testString1.length( ) ) );
         }
-
     }
-
 }
 
 BOOST_AUTO_TEST_CASE( testTimePointConversions )
