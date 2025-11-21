@@ -9,6 +9,7 @@ from tudatpy.astro.time_representation import DateTime
 import pandas as pd
 import os
 from tudatpy.data.mpc.parser_80col.parsers import parse_80cols_identification_fields, parse_80cols_file
+from tudatpy.data import get_ephemeris_path
 
 spice.load_standard_kernels()
 
@@ -294,7 +295,7 @@ def test_parse_80cols_file():
     batch = BatchMPC()
     batch.get_observations([433])
     batch.filter(epoch_start = datetime.datetime(2021, 6, 7, 00, 4), epoch_end =  datetime.datetime(2021, 6, 7, 16, 4,2))
-    file_path = os.path.dirname(__file__) + '/eros_obs.txt'
+    file_path = get_ephemeris_path( ) + '/eros_obs.txt'
     table_output = parse_80cols_file(file_path)
 
     epochs1 = pd.to_datetime(table_output['epoch_utc']).to_numpy()
