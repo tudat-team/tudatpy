@@ -602,16 +602,16 @@ void expose_simulator( py::module& m )
 
 
      )doc" )
-            .def_property(
+            .def_property_readonly(
                     "parameter_vector",
                     &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE,
                                                               TIME_TYPE >::getParametersToEstimate,
-                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE,
-                                                              TIME_TYPE >::resetParameterEstimate,
                     R"doc(
 
-         Consolidated set of (estimatable) parameters
-         w.r.t. the variational dynamics in the Variational Simulator are defined.
+         **read-only**
+
+         Object containing the set of (estimatable) parameters
+         w.r.t. the variational dynamics in this object are estimated
 
 
          :type: :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
@@ -627,6 +627,12 @@ void expose_simulator( py::module& m )
          List containing the solution of the variational equations, i.e. the
          state transition matrix history (first entry) and sensitivity matrix history (second vector entry).
 
+         .. warning::
+
+           This function is deprecated and will be removed in a future version of Tudat. Use ``state_transition_matrix_history``
+           and ``sensitivity_matrix_history` attributes of
+           :attr:`~tudatpy.dynamics.simulator.SingleArcVariationalSimulator.variational_propagation_results` instead.
+
 
          :type: list[ dict[float, numpy.ndarray] ]
       )doc" )
@@ -639,8 +645,11 @@ void expose_simulator( py::module& m )
          **read-only**
 
          State transition matrix history, given as epoch with propagation epochs as keys.
-         This is (alongside the `sensitivity_matrix_history`) the solution of the variational equations.
 
+         .. warning::
+
+           This function is deprecated and will be removed in a future version of Tudat. Use ``state_transition_matrix_history`` attribute of
+           :attr:`~tudatpy.dynamics.simulator.SingleArcVariationalSimulator.variational_propagation_results` instead.
 
          :type: dict[float, numpy.ndarray]
       )doc" )
@@ -653,7 +662,11 @@ void expose_simulator( py::module& m )
          **read-only**
 
          Sensitivity matrix history, given as epoch with propagation epochs as keys.
-         This is (alongside the `state_transition_matrix_history`) the solution of the variational equations.
+
+         .. warning::
+
+            This function is deprecated and will be removed in a future version of Tudat. Use ``sensitivity_matrix_history`` attribute of
+            :attr:`~tudatpy.dynamics.simulator.SingleArcVariationalSimulator.variational_propagation_results` instead.
 
 
          :type: dict[float, numpy.ndarray]
@@ -667,12 +680,50 @@ void expose_simulator( py::module& m )
          **read-only**
 
          State history, given as epoch with propagation epochs as keys.
-         This is the solution of the (propagated) equations of motion, describing the states along which
-         the variational dynamics are solved.
 
+         .. warning::
+
+            This function is deprecated and will be removed in a future version of Tudat. Use ``dynamics_results.state_history`` attribute of
+            :attr:`~tudatpy.dynamics.simulator.SingleArcVariationalSimulator.variational_propagation_results` instead.
 
          :type: dict[float, numpy.ndarray]
       )doc" )
+            .def_property_readonly(
+                    "variational_propagation_results",
+                    &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getVariationalPropagationResults,
+                    R"doc(
+
+        **read-only**
+
+        Object containing all the results of the numerical propagation of both the dynamics and the variational equations, stored
+        in a single wrapper object.
+
+        Examples
+        --------
+
+        Assuming you have an object of type ``SingleArcVariationalSimulator`` named ``variational_simulator``, the numerical solution
+        of the state transition matrix and sensitivity matrix can be retrieved as:
+
+        .. code-block:: python
+
+           # Retrieve object containing all propagation results
+           results_container = variational_simulator.variational_propagation_results
+
+           # Retrieve dictionaries with numerically integrated time histories of state transition and sensitivity matrices
+           state_transition_matrix_history = results_container.state_transition_matrix_history
+           sensitivity_matrix_history = results_container.sensitivity_matrix_history
+
+           # Retrieve object containing propagation results of the dynamics (not including variational equations)
+           dynamics_results_container = results_container.dynamics_results
+
+           # Retrieve dictionaries with numerically integrated time history of states and associated dependent variables
+           state_history = dynamics_results_container.state_history
+           dependent_variable_history = dynamics_results_container.dependent_variable_history
+
+        :type: SingleArcVariationalSimulationResults
+
+      )doc" )
+
             .def_property_readonly(
                     "dynamics_simulator",
                     &tp::SingleArcVariationalEquationsSolver< STATE_SCALAR_TYPE,
