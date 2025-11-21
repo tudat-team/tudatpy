@@ -53,6 +53,7 @@ public:
      */
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > getParameterValue( )
     {
+        // Retrieve state from propagator settings (to ensure consistency) if link is set
         if( initialStateGetFunction_ != nullptr )
         {
             initialRotationalState_ = initialStateGetFunction_( );
@@ -68,6 +69,10 @@ public:
     void setParameterValue( Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > parameterValue )
     {
         parameterValue.segment( 0, 4 ).normalize( );
+
+
+        // Update state in propagator settings (to ensure consistency) if link is set
+        // Update state in propagator settings (to ensure consistency) if link is set
         if( initialStateSetFunction_ != nullptr )
         {
             initialStateSetFunction_( parameterValue );
@@ -137,6 +142,8 @@ public:
         return inertiaTensorFunction_;
     }
 
+    // Add functions to get and set the state from the propagator settings, to ensure the states in propagator settings and parameters are
+    // always identical
     void addStateClosureFunctions(
             const std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction,
             const std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > initialStateSetFunction )
@@ -144,6 +151,7 @@ public:
         initialStateGetFunction_ = initialStateGetFunction;
         initialStateSetFunction_ = initialStateSetFunction;
 
+        // Retrieve state from propagator settings (to ensure consistency) if link is set
         if( initialStateGetFunction_ != nullptr )
         {
             initialRotationalState_ = initialStateGetFunction_( );
