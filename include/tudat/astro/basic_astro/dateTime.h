@@ -174,7 +174,9 @@ public:
         verifySeconds( );
     }
 
-    std::string isoStringWithCheck( const bool addT = false, const int numberOfFractionalSecondDigits = 15, const bool checkRounding = true ) const
+    std::string isoStringWithCheck( const bool addT = false,
+                                    const int numberOfFractionalSecondDigits = 15,
+                                    const bool checkRounding = true ) const
     {
         std::string yearString = std::to_string( year_ );
         std::string monthString = utilities::paddedZeroIntString( month_, 2 );
@@ -189,10 +191,10 @@ public:
         std::string fractionalSecondString = stringAndRounding.first;
         if( stringAndRounding.second == true && checkRounding )
         {
-            DateTime copyDateTime = DateTime(
-                    year_, month_, day_, hour_, minute_, seconds_ );
+            DateTime copyDateTime = DateTime( year_, month_, day_, hour_, minute_, seconds_ );
 
-            DateTime incrementedDateTime = copyDateTime.addSecondsToDateTime( mathematical_constants::getFloatingInteger< long double >( 1.0 ) );
+            DateTime incrementedDateTime =
+                    copyDateTime.addSecondsToDateTime( mathematical_constants::getFloatingInteger< long double >( 1.0 ) );
 
             return incrementedDateTime.isoStringWithCheck( addT, numberOfFractionalSecondDigits, false );
         }
