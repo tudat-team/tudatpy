@@ -563,56 +563,6 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
         const SystemOfBodies& bodies,
         const std::vector< double > arcStartTimes = std::vector< double >( ) );
 
-template< typename InitialStateParameterType >
-void addUpdateFunctionToParameterStateSetter( const std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > parameterSettings )
-{
-    std::shared_ptr< estimatable_parameters::InitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > > translationalStateSettings =
-            std::dynamic_pointer_cast< estimatable_parameters::InitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >( parameterSettings );
-
-    std::shared_ptr< estimatable_parameters::InitialRotationalStateEstimatableParameterSettings< InitialStateParameterType > > rotationalStateSettings =
-            std::dynamic_pointer_cast< estimatable_parameters::InitialRotationalStateEstimatableParameterSettings< InitialStateParameterType > >( parameterSettings );
-
-    std::shared_ptr< estimatable_parameters::InitialMassEstimatableParameterSettings< InitialStateParameterType > > massStateSettings =
-            std::dynamic_pointer_cast< estimatable_parameters::InitialMassEstimatableParameterSettings< InitialStateParameterType > >( parameterSettings );
-    if( translationalStateSettings != nullptr )
-    {
-        std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > originalInitialStateSetFunction =
-                translationalStateSettings->initialStateSetFunction_;
-        std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > newInitialStateSetFunction =
-                [=]( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& newState ){
-                    originalInitialStateSetFunction( newState );
-                };
-        translationalStateSettings->initialStateSetFunction_ = newInitialStateSetFunction;
-    }
-    else if( rotationalStateSettings != nullptr )
-    {
-        std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > originalInitialStateSetFunction =
-                rotationalStateSettings->initialStateSetFunction_;
-        std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > newInitialStateSetFunction =
-                [=]( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& newState ){
-                    originalInitialStateSetFunction( newState );
-                };
-        rotationalStateSettings->initialStateSetFunction_ = newInitialStateSetFunction;
-
-    }
-    else if( massStateSettings != nullptr )
-    {
-        std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > originalInitialStateSetFunction =
-                massStateSettings->initialStateSetFunction_;
-        std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > newInitialStateSetFunction =
-                [=]( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& newState ){
-                    originalInitialStateSetFunction( newState );
-                };
-        massStateSettings->initialStateSetFunction_ = newInitialStateSetFunction;
-    }
-    else
-    {
-        throw std::runtime_error( "Error when linking multi-type propagator settings to estimated initial state parameter, initial state type not recognized" );
-    }
-
-}
-
-
 template< typename InitialStateParameterType = double, typename TimeType = double >
 std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > getInitialMultiArcParameterSettings(
         const std::shared_ptr< propagators::MultiArcPropagatorSettings< InitialStateParameterType, TimeType > > propagatorSettings,
@@ -637,15 +587,14 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
         }
     }
     std::vector< double > arcStartTimesToUse;
+
+    // Map to track which body is propagated in which arc (first entry of pair), and which index in propagated body list it is
+    // in that arc (second entry of pair)
     std::map< std::string, std::vector< std::pair< int, int > > > bodyMappingIndices;
     std::vector< std::string > fullBodyList;
 
     for( unsigned int i = 0; i < singleArcSettings.size( ); i++ )
     {
-        singleArcTranslationalSettings.push_back(
-                std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType > >(
-                        singleArcSettings.at( i ) ) );
-
         if( singleArcSettings.at( i )->getInitialTime( ) == singleArcSettings.at( i )->getInitialTime( ) )
         {
             arcStartTimesToUse.push_back( singleArcSettings.at( i )->getInitialTime( ) );
@@ -669,6 +618,11 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
             }
         }
 
+        // So far, only arc-wise translational state is supported
+        singleArcTranslationalSettings.push_back(
+                std::dynamic_pointer_cast< TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType > >(
+                        singleArcSettings.at( i ) ) );
+
         if( singleArcTranslationalSettings.at( i ) == nullptr )
         {
             throw std::runtime_error( "Only translational state supported when auto-creating multi-arc initial state settings" );
@@ -678,6 +632,7 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
             std::vector< std::string > propagatedBodies = singleArcTranslationalSettings.at( i )->bodiesToIntegrate_;
             for( unsigned int j = 0; j < propagatedBodies.size( ); j++ )
             {
+                // Add body to full list of propagated bodies and check order consistency
                 if( std::find( fullBodyList.begin( ), fullBodyList.end( ), propagatedBodies.at( j ) ) == fullBodyList.end( ) )
                 {
                     fullBodyList.push_back( propagatedBodies.at( j ) );
@@ -685,17 +640,6 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
                 bool isOrderCorrect = utilities::checkOrderPreserved( fullBodyList, propagatedBodies );
                 if( !isOrderCorrect )
                 {
-                    for( unsigned int k = 0; k < fullBodyList.size( ); k++ )
-                    {
-                        std::cout<<fullBodyList.at( k )<<" ";
-                    }
-                    std::cout<<std::endl;
-
-                    for( unsigned int k = 0; k < propagatedBodies.size( ); k++ )
-                    {
-                        std::cout<<propagatedBodies.at( k )<<" ";
-                    }
-                    std::cout<<std::endl;
                     throw std::runtime_error( "Error, order of bodies propagated in different arcs is not consistent (order must be maintained)" );
                 }
                 bodyMappingIndices[ propagatedBodies.at( j ) ].push_back( std::make_pair( i, j ) );
@@ -703,6 +647,7 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
         }
     }
 
+    // Crate arc-wise estimated parameter in a manner that the order of the bodies will match in each arc
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > arcwiseInitialStates;
     arcwiseInitialStates.resize( fullBodyList.size( ) );
     for( auto it : bodyMappingIndices )
@@ -710,17 +655,20 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
         std::string currentBody = it.first;
         std::vector< std::pair< int, int > > arcAndBodyIndices = it.second;
 
+        // Initial states, arc initial times and central bodies (per arc) for current body
         Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStates =
                 Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >::Zero( 6 * arcAndBodyIndices.size( ) );
         std::vector< double > currentBodyArcStartTimes;
         std::vector< std::string > centralBodies;
 
+        // Setter/getters in propagator settings to ensure consistency between parameter and propagator settings
         std::vector< std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > > initialStateGetFunctions;
         std::vector< std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > > initialStateSetFunctions;
 
-
+        // Iterate over all arcs in which current body is propagated (and to be estimated)
         for( unsigned int i = 0; i < arcAndBodyIndices.size( ); i++ )
         {
+            // Set initial state, time and central body
             std::pair< int, int > currentArcAndBodyIndex = arcAndBodyIndices.at( i );
             initialStates.segment( i * 6, 6 ) = singleArcTranslationalSettings.at( currentArcAndBodyIndex.first )
                                                         ->getInitialStates( )
@@ -728,6 +676,8 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
             currentBodyArcStartTimes.push_back( arcStartTimesToUse.at( currentArcAndBodyIndex.first ) );
             centralBodies.push_back(
                     singleArcTranslationalSettings.at( currentArcAndBodyIndex.first )->centralBodies_.at( currentArcAndBodyIndex.second ) );
+
+            // Link propagator get/set functions for state
             initialStateGetFunctions.push_back(
                     std::bind( &TranslationalStatePropagatorSettings< InitialStateParameterType, TimeType >::getStateOfBody,
                                singleArcTranslationalSettings.at( currentArcAndBodyIndex.first ), currentArcAndBodyIndex.second ) );
@@ -736,13 +686,14 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
                                singleArcTranslationalSettings.at( currentArcAndBodyIndex.first ), currentArcAndBodyIndex.second, std::placeholders::_1 ) );
         }
 
+        // Create estimate parameter
         std::shared_ptr< ArcWiseInitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > > arcWiseTranslationalInitialStates =
             std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< InitialStateParameterType > >(
                 currentBody, initialStates, currentBodyArcStartTimes, centralBodies, bodies.getFrameOrientation( ) );
-
         arcWiseTranslationalInitialStates->initialStateSetFunctions_ = initialStateSetFunctions;
         arcWiseTranslationalInitialStates->initialStateGetFunctions_ = initialStateGetFunctions;
 
+        // Add arc-wise initial state parameter in the list at the correct entry to ensure consistent order of propagated and estimated bodies
         std::vector< std::string >::iterator findIterator =
                 std::find( fullBodyList.begin( ), fullBodyList.end( ), currentBody );
         if( findIterator != fullBodyList.end( ) )
@@ -772,11 +723,6 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > singleArcParameters =
             getInitialStateParameterSettings< InitialStateParameterType, TimeType >( propagatorSettings->getSingleArcPropagatorSettings( ),
                                                                                      bodies );
-    for( unsigned int j = 0; j < singleArcParameters.size( ); j++ )
-    {
-        addUpdateFunctionToParameterStateSetter< InitialStateParameterType >( singleArcParameters.at( j ) );
-    }
-
 
     std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettings > > hybirdArcParameters = multiArcParameters;
 
@@ -819,10 +765,7 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
                                 singleTypeinitialStateParameterSettings =
                                         getInitialStateParameterSettings< InitialStateParameterType, TimeType >(
                                                 propIterator.second.at( i ), bodies );
-                        for( unsigned int j = 0; j < singleTypeinitialStateParameterSettings.size( ); j++ )
-                        {
-                            addUpdateFunctionToParameterStateSetter< InitialStateParameterType >( singleTypeinitialStateParameterSettings.at( j ) );
-                        }
+
                         initialStateParameterSettings.insert( initialStateParameterSettings.end( ),
                                                               singleTypeinitialStateParameterSettings.begin( ),
                                                               singleTypeinitialStateParameterSettings.end( ) );
@@ -842,6 +785,8 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
 
                 Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStates =
                         translationalPropagatorSettings->getInitialStates( );
+
+                // Link propagator get/set functions for state to ensure consistecy between propagator/parameter
                 for( unsigned int i = 0; i < propagatedBodies.size( ); i++ )
                 {
                     using namespace estimatable_parameters;
@@ -876,6 +821,8 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
 
                 Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStates =
                         rotationalPropagatorSettings->getInitialStates( );
+
+                // Link propagator get/set functions for state to ensure consistecy between propagator/parameter
                 for( unsigned int i = 0; i < propagatedBodies.size( ); i++ )
                 {
                     using namespace estimatable_parameters;
@@ -908,6 +855,8 @@ std::vector< std::shared_ptr< estimatable_parameters::EstimatableParameterSettin
 
                 std::vector< std::string > propagatedBodies = massPropagatorSettings->bodiesWithMassToPropagate_;
                 Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialStates = massPropagatorSettings->getInitialStates( );
+
+                // Link propagator get/set functions for state to ensure consistecy between propagator/parameter
                 for( unsigned int i = 0; i < propagatedBodies.size( ); i++ )
                 {
                     using namespace estimatable_parameters;
@@ -1077,8 +1026,7 @@ createInitialDynamicalStateParameterToEstimate(
 
                     arcWiseInitialTranslationalStateParameter->addStateClosureFunctions(
                             initialStateSettings->initialStateGetFunctions_,
-                            initialStateSettings->initialStateSetFunctions_,
-                            initialStateSettings->initialStateSetClosure_ );
+                            initialStateSettings->initialStateSetFunctions_ );
                     initialStateParameterToEstimate = arcWiseInitialTranslationalStateParameter;
                 }
                 break;

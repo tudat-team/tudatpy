@@ -47,6 +47,7 @@ public:
      */
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > getParameterValue( )
     {
+        // Retrieve state from propagator settings (to ensure consistency) if link is set
         if( initialStateGetFunction_ != nullptr )
         {
             initialTranslationalState_ = initialStateGetFunction_( );
@@ -61,6 +62,7 @@ public:
      */
     void setParameterValue( Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > parameterValue )
     {
+        // Update state in propagator settings (to ensure consistency) if link is set
         if( initialStateSetFunction_ != nullptr )
         {
             initialStateSetFunction_( parameterValue );
@@ -98,6 +100,10 @@ public:
         return frameOrientation_;
     }
 
+    // Add functions to get and set the state from the propagator settings, to ensure the states in propagator settings and parameters are
+    // always identical
+    // Add functions to get and set the state from the propagator settings, to ensure the states in propagator settings and parameters are
+    // always identical
     void addStateClosureFunctions(
         const std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction,
         const std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > initialStateSetFunction )
@@ -105,6 +111,7 @@ public:
         initialStateGetFunction_ = initialStateGetFunction;
         initialStateSetFunction_ = initialStateSetFunction;
 
+        // Retrieve state from propagator settings (to ensure consistency) if link is set
         if( initialStateGetFunction_ != nullptr )
         {
             initialTranslationalState_ = initialStateGetFunction_( );
@@ -225,10 +232,7 @@ public:
                 initialStateSetFunctions_.at( i )( parameterValue.segment( 6 * i, 6 ) );
             }
         }
-        if( initialStateSetClosure_ != nullptr )
-        {
-            initialStateSetClosure_( );
-        }
+
         initialTranslationalState_ = parameterValue;
     }
 
@@ -288,14 +292,14 @@ public:
         return frameOrientation_;
     }
 
+    // Add functions to get and set the state from the propagator settings, to ensure the states in propagator settings and parameters are
+    // always identical
     void addStateClosureFunctions(
             const std::vector< std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > >& initialStateGetFunctions,
-            const std::vector< std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > >& initialStateSetFunctions,
-            const std::function< void( ) > initialStateSetClosure )
+            const std::vector< std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > >& initialStateSetFunctions )
     {
         initialStateGetFunctions_ = initialStateGetFunctions;
         initialStateSetFunctions_ = initialStateSetFunctions;
-        initialStateSetClosure_ = initialStateSetClosure;
 
         if( initialStateSetFunctions.size( ) != initialStateGetFunctions.size( ) )
         {
@@ -341,8 +345,6 @@ private:
     std::vector< std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > > initialStateGetFunctions_;
 
     std::vector< std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > > initialStateSetFunctions_;
-
-    std::function< void( ) > initialStateSetClosure_;
 };
 
 ////! Function to retrieve the size of the estimatable parameter set.
