@@ -2,18 +2,14 @@
 
 ``integrator``
 ==============
-This module provides the functionality for creating integrator
-settings.
+This module provides the functionality for creating integrator settings used for the numerical propagation of
+states of bodies.
 
+The main interfaces with Tudat are the ``integrator_settings`` inputs to the propagator settings functions in the :ref:`propagator`
+module (such as :func:`~tudatpy.dynamics.propagation_setup.propagator.translational`, :func:`~tudatpy.dynamics.propagation_setup.propagator.rotational` and
+:func:`~tudatpy.dynamics.propagation_setup.propagator.multitype`). This input is of type :class:`~tudatpy.dynamics.propagation_setup.integrator.IntegratorSettings`  **The functions in this submodule are used to create these settings objects.**
 
-
-
-
-
-
-
-
-
+More details on the integrator settings and the manner in which to control the step-sizes is given on `a dedicated user guide page <https://docs.tudat.space/en/latest/user-guide/state-propagation/propagation-setup/integration-setup.html>`_
 
 
 Functions
