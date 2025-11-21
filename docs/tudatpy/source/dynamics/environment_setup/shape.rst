@@ -14,6 +14,29 @@ attribute  (of type :class:`~tudatpy.dynamics.environment_setup.shape.BodyShapeS
 and added to the associated :class:`~tudatpy.dynamics.environment.Body` object based on the settings object, which can
 be retrieved using the :attr:`~tudatpy.dynamics.environment.Body.shape_model` attribute.
 
+The following code block gives an overview of the steps to define, create, and extract a shape model, for the specific example of an oblate spheroid shape model
+  with :math:`R_{e}=3396.2` km equatorial radius, and flattening :math:`f=0.00589`
+
+.. code-block:: python
+
+  from tudatpy.dynamics import environment_setup
+  from tudatpy.astro import time_representation
+
+  # Create body settings
+  body_settings =  environment_setup.get_default_body_settings( ... ) # Typical way to instantiate body settings
+
+  # Modify shape model settings (base class type BodyShapeSettings)
+  body_settings.get( 'Mars' ).shape_settings = environment_setup.shape.oblate_spherical(
+      equatorial_radius = 3396.2E3,
+      flattening = 0.00589 )
+
+  # Create bodies
+  bodies = environment_setup.create_system_of_bodies(body_settings)
+
+  # Extract shape model (base class type ShapeModel) from Earth
+  mars_shape_model = bodies.get( 'Mars' ).shape_model
+
+
 Note that, in Tudat, the physical shape of a body and its gravity field are completely independent. In addition,
 the functionality in this module is for defining shapes of natural bodies. Shapes of spacecraft (e.g. macromodels)
 are defined through functionality in the :func:`vehicle_systems` module.
