@@ -3,6 +3,20 @@
 ``biases``
 ==========
 
+This module contains a set of factory functions for setting up the
+biases for observation models.
+
+The functions in this module create objects of type :class:`~tudatpy.estimation.biases.ObservationBiasSettings`,
+which define settings for a type of observation bias. The main interface with Tudat is that these objects are used
+as input to the observation model functions created in the :ref:`model_settings` module.
+
+For an ideal observation :math:`h(t)`, this bias models created through the settings in this module
+modify this into a biased (true) observation :math:`\tilde{h}(t)`, with the mapping from ideal to true
+observation defined by the specific factory functions below.
+
+More details on the link with the observation model is given on the `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-model-setup.html>`_ .
+
+
 Functions
 ---------
 .. currentmodule:: tudatpy.estimation.observable_models_setup.biases
