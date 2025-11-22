@@ -1,7 +1,22 @@
 .. _model_settings:
 
 ``model_settings``
-=====================
+==================
+
+This module contains a set of factory functions for creating settings for observation models (e.g. one-way range,
+two-way Doppler, angular position, etc.). The functions here all create an object of type :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings`, from which observation models are created.
+
+Many observation models are based on the transfer of electromagnetic signals (e.g. laser ranging, radio Doppler, etc.),
+which require the solution of the light-time solution. Deviations from ideal Euclidean propagation at the speed of light
+can be modelled using light-time corrections, for which settings (as objects of type :class:`~tudatpy.estimation.biases.LightTimeCorrectionSettings`) are created in the :ref:`light_time_corrections` module and provided as input to functions here. Similarly, settings
+for observation biases (as objects of type :class:`~tudatpy.estimation.biases.ObservationBiasSettings`) are created
+in the :ref:`biases` module. Definition of the observation link are created through the :ref:`links` module.
+
+Details on the procedure to create observation models, and the various top-level options for their creatoon, is given on the `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-model-setup.html#defining-observation-settings>`_.
+
+
+
+
 
 Functions
 ---------
