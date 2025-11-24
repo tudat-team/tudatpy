@@ -65,7 +65,8 @@ void expose_ancillary_settings( py::module& m )
       Enumeration of observation ancillary variable types.
 
       )doc" )
-            .value( "link_ends_delays", tom::ObservationAncilliarySimulationVariable::link_ends_delays,
+            .value( "link_ends_delays",
+                    tom::ObservationAncilliarySimulationVariable::link_ends_delays,
                     R"doc(
                     Retransmission delays at the retransmitter link ends (in seconds), typically for an n-way range or Doppler observation.
                     For a set of link ends consisting of :math:`N` one-way link ends (for instance ``transmitter``->``retransmitter``->``receiver``
@@ -74,14 +75,16 @@ void expose_ancillary_settings( py::module& m )
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings.get_float_list_settings` and
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings.set_float_list_settings`
                     )doc" )
-            .value( "doppler_integration_time", tom::ObservationAncilliarySimulationVariable::doppler_integration_time,
+            .value( "doppler_integration_time",
+                    tom::ObservationAncilliarySimulationVariable::doppler_integration_time,
                     R"doc(
                     Time interval :math:`\Delta t` in seconds over which averaged Doppler observables (see :ref:`model_settings` for ``_averaged`` observation models)
                     are averaged. This quantity is also termed the count time. This ancillary setting is retrieved and set using the
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings.get_float_settings` and
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings.set_float_settings`
                     )doc" )
-            .value( "doppler_reference_frequency", tom::ObservationAncilliarySimulationVariable::doppler_reference_frequency,
+            .value( "doppler_reference_frequency",
+                    tom::ObservationAncilliarySimulationVariable::doppler_reference_frequency,
                     R"doc(
                     Reference frequency :math:`f_{\text{ref}}` w.r.t. which the Doppler observable is computed for the
                     :func:`~tudatpy.estimation.observable_models_setup.model_settings.dsn_n_way_doppler_averaged` observation model.
@@ -89,7 +92,8 @@ void expose_ancillary_settings( py::module& m )
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings.get_float_settings` and
                     :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings.set_float_settings`
                     )doc" )
-            .value( "frequency_bands", tom::ObservationAncilliarySimulationVariable::frequency_bands,
+            .value( "frequency_bands",
+                    tom::ObservationAncilliarySimulationVariable::frequency_bands,
                     R"doc(
                     Frequency bands for the up and down-link of a radio observable, used to compute the turnaround ratio :math:`M_{2}` at the
                     retransmitter (so that the received frequency :math:`f_{1}` and the retransmitted frequency :math:`f_{2}` are related as
@@ -101,7 +105,8 @@ void expose_ancillary_settings( py::module& m )
                     enum to integers (with s-band equal to 1, x-band to 1, ku band to 2, ka-band to 3). So, for an s-band up and x-band downlink, this
                     ancillary setting gets the value ``[0, 1]``
                     )doc" )
-            .value( "reception_reference_frequency_band", tom::ObservationAncilliarySimulationVariable::reception_reference_frequency_band,
+            .value( "reception_reference_frequency_band",
+                    tom::ObservationAncilliarySimulationVariable::reception_reference_frequency_band,
                     R"doc(
                     Receiver reference frequency  band w.r.t. which the reference turnaround ratio :math:`M_{2,R}` is computed for the
                     :func:`~tudatpy.estimation.observable_models_setup.model_settings.dsn_n_way_doppler_averaged` observation model.
@@ -130,7 +135,7 @@ void expose_ancillary_settings( py::module& m )
     This class holds both single-valued (float) and multi-valued (list of floats) ancillary settings
 
       )doc" )
-            .def( py::init< >( ),
+            .def( py::init<>( ),
                   R"doc(
 
                  Create an empty ancillary settings object
@@ -161,7 +166,7 @@ void expose_ancillary_settings( py::module& m )
                   &tudat::observation_models::ObservationAncilliarySimulationSettings::setAncilliaryDoubleVectorData,
                   py::arg( "variable" ),
                   py::arg( "value" ),
-                R"doc(
+                  R"doc(
 
                 Function to set a single-valued ancillary setting value in this object
 

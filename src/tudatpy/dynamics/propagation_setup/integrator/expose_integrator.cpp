@@ -42,8 +42,7 @@ namespace integrator
 void expose_integrator( py::module &m )
 {
     // ENUMS
-    py::enum_< tni::MinimumIntegrationTimeStepHandling >(
-            m, "MinimumIntegrationTimeStepHandling", R"doc(
+    py::enum_< tni::MinimumIntegrationTimeStepHandling >( m, "MinimumIntegrationTimeStepHandling", R"doc(
 
 Enumeration defining possible behaviours when :math:`\Delta t_{rec}<\Delta t_{\min}`. in step-size control (e.g. recommended time step is smaller than minimum time step)
 
@@ -66,7 +65,7 @@ The propagation is terminated and a :class:`tudatpy.exceptions.MinimumStepSizeVi
 The final time step is set to :math:`\Delta t=\Delta t_{\min}`, violating requirements of step-size control algorithm, without any message to user"
 
 )doc" )
-      .value( "set_to_minimum_step_single_warning",
+            .value( "set_to_minimum_step_single_warning",
                     tni::MinimumIntegrationTimeStepHandling::set_to_minimum_step_single_warning,
                     R"doc(
 
@@ -95,13 +94,10 @@ The final time step is set to :math:`\Delta t=\Delta t_{\min}`, violating requir
             //       tni::AvailableIntegrators::euler)
             //       .value("runge_kutta_4_type",
             //       tni::AvailableIntegrators::rungeKutta4)
-            .value( "runge_kutta_fixed_step_size_type",
-                    tni::AvailableIntegrators::rungeKuttaFixedStepSize )
-            .value( "runge_kutta_variable_step_size_type",
-                    tni::AvailableIntegrators::rungeKuttaVariableStepSize )
+            .value( "runge_kutta_fixed_step_size_type", tni::AvailableIntegrators::rungeKuttaFixedStepSize )
+            .value( "runge_kutta_variable_step_size_type", tni::AvailableIntegrators::rungeKuttaVariableStepSize )
             .value( "bulirsch_stoer_type", tni::AvailableIntegrators::bulirschStoer )
-            .value( "adams_bashforth_moulton_type",
-                    tni::AvailableIntegrators::adamsBashforthMoulton )
+            .value( "adams_bashforth_moulton_type", tni::AvailableIntegrators::adamsBashforthMoulton )
             .export_values( );
 
     py::enum_< tni::CoefficientSets >( m,
@@ -320,10 +316,9 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
             .export_values( );
 
     // CLASSES
-    py::class_< tni::IntegratorSettings< TIME_TYPE >,
-                std::shared_ptr< tni::IntegratorSettings< TIME_TYPE > > >( m,
-                                                                           "IntegratorSettings",
-                                                                           R"doc(
+    py::class_< tni::IntegratorSettings< TIME_TYPE >, std::shared_ptr< tni::IntegratorSettings< TIME_TYPE > > >( m,
+                                                                                                                 "IntegratorSettings",
+                                                                                                                 R"doc(
 
          Functional base class to define settings for integrators.
 
@@ -337,27 +332,19 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
       )doc" );
 
-
     py::class_< tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE >,
                 std::shared_ptr< tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE > >,
-                tni::IntegratorSettings< TIME_TYPE > >(
-            m, "RungeKuttaVariableStepSizeBaseSettings", R"doc(No documentation found.)doc" );
+                tni::IntegratorSettings< TIME_TYPE > >( m, "RungeKuttaVariableStepSizeBaseSettings", R"doc(No documentation found.)doc" );
 
-    py::class_<
-            tni::RungeKuttaVariableStepSizeSettingsVectorTolerances< TIME_TYPE >,
-            std::shared_ptr< tni::RungeKuttaVariableStepSizeSettingsVectorTolerances< TIME_TYPE > >,
-            tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE > >(
-            m,
-            "RungeKuttaVariableStepSizeSettingsVectorTolerances",
-            R"doc(No documentation found.)doc" );
+    py::class_< tni::RungeKuttaVariableStepSizeSettingsVectorTolerances< TIME_TYPE >,
+                std::shared_ptr< tni::RungeKuttaVariableStepSizeSettingsVectorTolerances< TIME_TYPE > >,
+                tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE > >(
+            m, "RungeKuttaVariableStepSizeSettingsVectorTolerances", R"doc(No documentation found.)doc" );
 
-    py::class_<
-            tni::RungeKuttaVariableStepSizeSettingsScalarTolerances< TIME_TYPE >,
-            std::shared_ptr< tni::RungeKuttaVariableStepSizeSettingsScalarTolerances< TIME_TYPE > >,
-            tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE > >(
-            m,
-            "RungeKuttaVariableStepSizeSettingsScalarTolerances",
-            R"doc(No documentation found.)doc" );
+    py::class_< tni::RungeKuttaVariableStepSizeSettingsScalarTolerances< TIME_TYPE >,
+                std::shared_ptr< tni::RungeKuttaVariableStepSizeSettingsScalarTolerances< TIME_TYPE > >,
+                tni::RungeKuttaVariableStepSizeBaseSettings< TIME_TYPE > >(
+            m, "RungeKuttaVariableStepSizeSettingsScalarTolerances", R"doc(No documentation found.)doc" );
 
     py::class_< tni::BulirschStoerIntegratorSettings< TIME_TYPE >,
                 std::shared_ptr< tni::BulirschStoerIntegratorSettings< TIME_TYPE > >,
@@ -387,8 +374,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
       )doc" );
 
-    py::class_< tni::IntegratorStepSizeControlSettings,
-                std::shared_ptr< tni::IntegratorStepSizeControlSettings > >(
+    py::class_< tni::IntegratorStepSizeControlSettings, std::shared_ptr< tni::IntegratorStepSizeControlSettings > >(
             m,
             "IntegratorStepSizeControlSettings",
             R"doc(
@@ -402,17 +388,11 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
 
       )doc" )
-            .def_readwrite( "safety_factor",
-                            &tni::IntegratorStepSizeControlSettings::safetyFactorForNextStepSize_ )
-            .def_readwrite(
-                    "minimum_step_decrease",
-                    &tni::IntegratorStepSizeControlSettings::minimumFactorDecreaseForNextStepSize_ )
-            .def_readwrite( "maximum_step_decrease",
-                            &tni::IntegratorStepSizeControlSettings::
-                                    maximumFactorDecreaseForNextStepSize_ );
+            .def_readwrite( "safety_factor", &tni::IntegratorStepSizeControlSettings::safetyFactorForNextStepSize_ )
+            .def_readwrite( "minimum_step_decrease", &tni::IntegratorStepSizeControlSettings::minimumFactorDecreaseForNextStepSize_ )
+            .def_readwrite( "maximum_step_decrease", &tni::IntegratorStepSizeControlSettings::maximumFactorDecreaseForNextStepSize_ );
 
-    py::class_< tni::IntegratorStepSizeValidationSettings,
-                std::shared_ptr< tni::IntegratorStepSizeValidationSettings > >(
+    py::class_< tni::IntegratorStepSizeValidationSettings, std::shared_ptr< tni::IntegratorStepSizeValidationSettings > >(
             m,
             "IntegratorStepSizeValidationSettings",
             R"doc(
@@ -426,13 +406,9 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
 
       )doc" )
-            .def_readwrite( "minimum_step",
-                            &tni::IntegratorStepSizeValidationSettings::minimumStep_ )
-            .def_readwrite( "maximum_step",
-                            &tni::IntegratorStepSizeValidationSettings::maximumStep_ )
-            .def_readwrite( "minimum_step_handling",
-                            &tni::IntegratorStepSizeValidationSettings::
-                                    minimumIntegrationTimeStepHandling_ );
+            .def_readwrite( "minimum_step", &tni::IntegratorStepSizeValidationSettings::minimumStep_ )
+            .def_readwrite( "maximum_step", &tni::IntegratorStepSizeValidationSettings::maximumStep_ )
+            .def_readwrite( "minimum_step_handling", &tni::IntegratorStepSizeValidationSettings::minimumIntegrationTimeStepHandling_ );
 
     // FACTORY FUNCTIONS
     m.def( "print_butcher_tableau",
@@ -1591,12 +1567,10 @@ IntegratorSettings
            py::arg( "initial_time_step" ),
            py::arg( "assess_termination_on_minor_steps" ) = false );
 
-
     m.def( "runge_kutta_4",
            &tni::rungeKutta4Settings< TIME_TYPE >,
            py::arg( "initial_time_step" ),
            py::arg( "assess_termination_on_minor_steps" ) = false );
-
 
     m.def( "runge_kutta_fixed_step_size",
            &tni::rungeKuttaFixedStepSettings< TIME_TYPE >,
@@ -1666,7 +1640,6 @@ IntegratorSettings
 
 
      )doc" );
-
 }
 
 }  // namespace integrator
