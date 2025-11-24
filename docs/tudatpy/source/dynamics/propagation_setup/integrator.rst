@@ -142,7 +142,11 @@ Classes
 
    IntegratorSettings
 
-   RungeKuttaFixedStepSizeSettings
+   RungeKuttaVariableStepSizeBaseSettings
+
+   RungeKuttaVariableStepSizeSettingsVectorTolerances
+
+   RungeKuttaVariableStepSizeSettingsScalarTolerances
 
    BulirschStoerIntegratorSettings
 
@@ -159,7 +163,13 @@ Classes
 .. autoclass:: tudatpy.dynamics.propagation_setup.integrator.IntegratorSettings
    :members:
 
-.. autoclass:: tudatpy.dynamics.propagation_setup.integrator.RungeKuttaFixedStepSizeSettings
+.. autoclass:: tudatpy.dynamics.propagation_setup.integrator.RungeKuttaVariableStepSizeBaseSettings
+   :members:
+
+.. autoclass:: tudatpy.dynamics.propagation_setup.integrator.RungeKuttaVariableStepSizeSettingsVectorTolerances
+   :members:
+
+.. autoclass:: tudatpy.dynamics.propagation_setup.integrator.RungeKuttaVariableStepSizeSettingsScalarTolerances
    :members:
 
 .. autoclass:: tudatpy.dynamics.propagation_setup.integrator.BulirschStoerIntegratorSettings
