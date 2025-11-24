@@ -196,8 +196,7 @@ void expose_time_representation( py::module& m )
      >>> t = Time(3600.0)  # 1 hour after J2000
      )doc" )
 
-            .def( py::init< const int >( ),
-                  py::arg( "seconds_since_j2000" ) )
+            .def( py::init< const int >( ), py::arg( "seconds_since_j2000" ) )
 
             // Add docstring for the second constructor
             .def( py::init< const int, const long double >( ),
@@ -225,20 +224,18 @@ void expose_time_representation( py::module& m )
      >>> from tudatpy.kernel import Time
      >>> t = Time(2, 1800.0)  # 2.5 hours after epoch
      )doc" )
-        .def(py::pickle(
-            [](const Time &p) { // __getstate__
-                /* Return a tuple that fully encodes the state of the object */
-                return py::make_tuple(p.getFullPeriods(), p.getSecondsIntoFullPeriod());
-            },
-            [](py::tuple t) { // __setstate__
-                if (t.size() != 2)
-                    throw std::runtime_error("Invalid state!");
+            .def( py::pickle(
+                    []( const Time& p ) {  // __getstate__
+                        /* Return a tuple that fully encodes the state of the object */
+                        return py::make_tuple( p.getFullPeriods( ), p.getSecondsIntoFullPeriod( ) );
+                    },
+                    []( py::tuple t ) {  // __setstate__
+                        if( t.size( ) != 2 ) throw std::runtime_error( "Invalid state!" );
 
-                /* Create a new C++ instance */
-                return Time(t[0].cast<int>(), t[1].cast<long double>());
+                        /* Create a new C++ instance */
+                        return Time( t[ 0 ].cast< int >( ), t[ 1 ].cast< long double >( ) );
 
-            }
-        ))
+                    } ) )
             .def( "to_float",
                   &tudat::Time::getSeconds< double >,
                   R"doc(

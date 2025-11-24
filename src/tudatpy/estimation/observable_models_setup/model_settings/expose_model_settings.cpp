@@ -28,7 +28,6 @@ namespace model_settings
 
 void expose_model_settings( py::module& m )
 {
-    
     py::enum_< tom::ObservableType >( m, "ObservableType", R"doc(
 
 Enumeration of available observable types.
@@ -69,7 +68,6 @@ Examples
             .value( "dsn_n_way_range_type", tom::ObservableType::dsn_n_way_range )
             .value( "differenced_time_of_arrival_type", tom::ObservableType::differenced_time_of_arrival )
             .export_values( );
-
 
     py::class_< tom::DopplerProperTimeRateSettings, std::shared_ptr< tom::DopplerProperTimeRateSettings > >(
             m,
@@ -169,8 +167,9 @@ Examples
 
       )doc" );
 
-    py::class_< tom::NWayRangeObservationModelSettings, std::shared_ptr< tom::NWayRangeObservationModelSettings >, tom::ObservationModelSettings >(
-            m, "NWayRangeObservationModelSettings", R"doc(No documentation found.)doc" );
+    py::class_< tom::NWayRangeObservationModelSettings,
+                std::shared_ptr< tom::NWayRangeObservationModelSettings >,
+                tom::ObservationModelSettings >( m, "NWayRangeObservationModelSettings", R"doc(No documentation found.)doc" );
 
     m.def( "one_way_range",
            &tom::oneWayRangeSettings,
@@ -1228,7 +1227,6 @@ Returns
 
 .)doc" );
 
-
     m.def( "two_way_doppler_instantaneous_frequency",
            py::overload_cast< const tom::LinkDefinition&,
                               const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >&,
@@ -1345,8 +1343,8 @@ Returns
 
 )doc" );
 
-
-    m.def( "differenced_time_of_arrival", &tom::differencedTimeOfArrivalObservationSettings,
+    m.def( "differenced_time_of_arrival",
+           &tom::differencedTimeOfArrivalObservationSettings,
            py::arg( "link_ends" ),
            py::arg( "time_difference_time_scale" ) = tba::tdb_scale,
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
@@ -1454,7 +1452,6 @@ Returns
            py::arg( "bias_settings" ) = nullptr,
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ) );
 
-
     m.def( "doppler_measured_frequency",
            py::overload_cast< const tom::LinkDefinition&,
                               const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >&,
@@ -1466,10 +1463,9 @@ Returns
            py::arg( "bias_settings" ) = nullptr,
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
            R"doc(No documentation found.)doc" );
-
 }
 
-}
-}
-}
-}
+}  // namespace model_settings
+}  // namespace observable_models_setup
+}  // namespace estimation
+}  // namespace tudatpy
