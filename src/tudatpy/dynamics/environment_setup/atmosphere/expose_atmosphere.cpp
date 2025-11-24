@@ -74,7 +74,9 @@ void expose_atmosphere_setup( py::module& m )
                           day_of_year). :param ap_daily: Current daily magnetic
                           index :param ap_vector: Current magnetic index data
                           vector: \sa ap_array :param switches: List of
-                          NRLMSISE-specific flags: \sa nrlmsise_flags )doc" )
+                          NRLMSISE-specific flags: \sa nrlmsise_flags
+
+)doc" )
             .def( py::init< int, int, double, double, double, double, double, std::vector< double >, std::vector< int > >( ),
                   py::arg( "year" ) = 0,
                   py::arg( "day_of_year" ) = 0,
