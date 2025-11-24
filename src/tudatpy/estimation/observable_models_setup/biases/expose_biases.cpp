@@ -192,10 +192,10 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- arc_start_times : List[ astro.time_representation.Time ]
+ arc_start_times : list[ astro.time_representation.Time ]
      List containing starting times for each arc.
 
- bias_values : List[ numpy.ndarray ]
+ bias_values : list[ numpy.ndarray ]
      List of arc-wise bias vectors that are to be applied to the given observable. The vectors should be the same size as the observable to which it is
      applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
 
@@ -261,9 +261,9 @@ void expose_biases( py::module& m )
  --------
  .. code-block:: python
 
- # Code Snippet to showcase the use of the arcwise_absolute_bias function
- from tudatpy.estimation.observable_models_setup import biases
- import numpy as np
+     # Code Snippet to showcase the use of the arcwise_absolute_bias function
+     from tudatpy.estimation.observable_models_setup import biases
+     import numpy as np
 
      # The function arcwise_absolute_bias_settings_per_time() requires:
      # 1) a dictionary with times as keys and bias values as values ,2) a reference_link_end_type
@@ -298,10 +298,10 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- arc_start_times : List[ astro.time_representation.Time ]
+ arc_start_times : list[ astro.time_representation.Time ]
      List containing starting times for each arc.
 
- bias_values : List[ numpy.ndarray ]
+ bias_values : list[ numpy.ndarray ]
      List of arc-wise bias vectors that are to be applied to the given observable. The vectors should be the same size as the observable to which it is
      applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
 
@@ -473,13 +473,13 @@ void expose_biases( py::module& m )
      Constant time drift bias that is to be considered for the observation time. This vector should be the same size as the observable to which it is
      assigned (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
 
- arc_start_times : List[ astro.time_representation.Time ]
+ arc_start_times : list[ astro.time_representation.Time ]
      List containing starting times for each arc.
 
  time_link_end : :class:`LinkEndType`
      Defines the link end (via the :class:`LinkEndType`) which is used the current time.
 
- ref_epochs : List[ astro.time_representation.Time ]
+ ref_epochs : list[ astro.time_representation.Time ]
      List containing the arc-wise reference epochs at which the effect of the arc-wise time drift is initialised.
 
  Returns
@@ -534,7 +534,7 @@ void expose_biases( py::module& m )
  time_link_end : :class:`LinkEndType`
      Defines the link end (via the :class:`LinkEndType`) which is used the current time.
 
- ref_epochs : List[ astro.time_representation.Time ]
+ ref_epochs : list[ astro.time_representation.Time ]
      List containing the arc-wise reference epochs at which the effect of the arc-wise time drift is initialised.
 
  Returns
@@ -648,7 +648,7 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- bias_list : List[:class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`]
+ bias_list : list[:class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`]
      A list containing the bias settings that are to be applied to the observable.
 
  Returns

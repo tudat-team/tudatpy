@@ -62,34 +62,62 @@ void expose_ancillary_settings( py::module& m )
                                                                "ObservationAncilliarySimulationVariable",
                                                                R"doc(
 
-Enumeration of observation ancillary variable types.
-
-Examples
---------
-
-.. code-block:: python
-
-    # Code snippet to print all available Observation Ancillary Variable Types
-    from tudatpy.estimation.observations_setup import ancillary_settings
-
-    num_observation_ancillary_variable_types = len(ancillary_settings.ObservationAncilliarySimulationVariable.__members__)
-    print(f'The length of all available Tudatpy  Observation Ancillary Variable Types is: {num_observation_ancillary_variable_types}')
-
-    # Print all Observation Ancillary Variable Types using the "name" property
-    for i in range(num_observation_ancillary_variable_types):
-        print(i, ancillary_settings.ObservationAncilliarySimulationVariable(i).name)
-
-
+      Enumeration of observation ancillary variable types.
 
       )doc" )
-            .value( "link_ends_delays", tom::ObservationAncilliarySimulationVariable::link_ends_delays )
-            .value( "doppler_integration_time", tom::ObservationAncilliarySimulationVariable::doppler_integration_time )
-            .value( "doppler_reference_frequency", tom::ObservationAncilliarySimulationVariable::doppler_reference_frequency )
-            .value( "frequency_bands", tom::ObservationAncilliarySimulationVariable::frequency_bands )
-            .value( "reception_reference_frequency_band", tom::ObservationAncilliarySimulationVariable::reception_reference_frequency_band )
+            .value( "link_ends_delays", tom::ObservationAncilliarySimulationVariable::link_ends_delays,
+                    R"doc(
+                    Retransmission delays at the retransmitter link ends (in seconds), typically for an n-way range or Doppler observation.
+                    For a set of link ends consisting of :math:`N` one-way link ends (for instance ``transmitter``->``retransmitter``->``receiver``
+                    for :math:`N=2`, this ancillary setting is a list of length :math:`N-1` representing the time in seconds between
+                    signal reception and subsequent retransmission/reflection at a link end. This ancillary setting is retrieved and set using the
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings.get_float_list_settings` and
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings.set_float_list_settings`
+                    )doc" )
+            .value( "doppler_integration_time", tom::ObservationAncilliarySimulationVariable::doppler_integration_time,
+                    R"doc(
+                    Time interval :math:`\Delta t` in seconds over which averaged Doppler observables (see :ref:`model_settings` for ``_averaged`` observation models)
+                    are averaged. This quantity is also termed the count time. This ancillary setting is retrieved and set using the
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings.get_float_settings` and
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings.set_float_settings`
+                    )doc" )
+            .value( "doppler_reference_frequency", tom::ObservationAncilliarySimulationVariable::doppler_reference_frequency,
+                    R"doc(
+                    Reference frequency :math:`f_{\text{ref}}` w.r.t. which the Doppler observable is computed for the
+                    :func:`~tudatpy.estimation.observable_models_setup.model_settings.dsn_n_way_doppler_averaged` observation model.
+                    This ancillary setting is retrieved and set using the
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings.get_float_settings` and
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings.set_float_settings`
+                    )doc" )
+            .value( "frequency_bands", tom::ObservationAncilliarySimulationVariable::frequency_bands,
+                    R"doc(
+                    Frequency bands for the up and down-link of a radio observable, used to compute the turnaround ratio :math:`M_{2}` at the
+                    retransmitter (so that the received frequency :math:`f_{1}` and the retransmitted frequency :math:`f_{2}` are related as
+                    :math:`f_{2}=M_{2}\cdot f_{1}`.
+                    This ancillary setting is retrieved and set using the
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings.get_float_list_settings` and
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings.set_float_list_settings`
+                    the mapping of the :class:`~tudatpy.estimation.observations_setup.ancillary_settings.FrequencyBands`
+                    enum to integers (with s-band equal to 1, x-band to 1, ku band to 2, ka-band to 3). So, for an s-band up and x-band downlink, this
+                    ancillary setting gets the value ``[0, 1]``
+                    )doc" )
+            .value( "reception_reference_frequency_band", tom::ObservationAncilliarySimulationVariable::reception_reference_frequency_band,
+                    R"doc(
+                    Receiver reference frequency  band w.r.t. which the reference turnaround ratio :math:`M_{2,R}` is computed for the
+                    :func:`~tudatpy.estimation.observable_models_setup.model_settings.dsn_n_way_doppler_averaged` observation model.
+                    This ancillary setting is retrieved and set using the
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings.get_float_settings` and
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings.set_float_settings`
+                    )doc" )
             .value( "sequential_range_lowest_ranging_component",
-                    tom::ObservationAncilliarySimulationVariable::sequential_range_lowest_ranging_component )
-            .value( "range_conversion_factor", tom::ObservationAncilliarySimulationVariable::range_conversion_factor )
+                    tom::ObservationAncilliarySimulationVariable::sequential_range_lowest_ranging_component,
+                    R"doc(
+                    Lowest sequential ranging component :math:`n` used for the
+                    :func:`~tudatpy.estimation.observable_models_setup.model_settings.dsn_n_way_range` observation model.
+                    This ancillary setting is retrieved and set using the
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings.get_float_settings` and
+                    :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings.set_float_settings`
+                    )doc" )
             .export_values( );
 
     py::class_< tom::ObservationAncilliarySimulationSettings, std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >(
@@ -97,41 +125,55 @@ Examples
             "ObservationAncilliarySimulationSettings",
             R"doc(
 
-         Base class for holding ancilliary settings for observation simulation.
+    Class for holding ancilliary settings for observation simulation (see module level documentation for typical usage and creation).
 
-         Base class for holding ancilliary settings for observation simulation.
-         The user can create instances of this class via the :func:`~estimation.observations_setup.observations_dependent_variables.elevation_angle_dependent_variable` function.
-
-         Examples
-         --------
-         .. code-block:: python
-
-             # Code snippet to show the creation of an ObservationAncillarySimulationSettings object
-             from tudatpy.estimation.observations_setup import ancillary_settings
-
-             # Example 1: Create ObservationAncillarySimulationSettings object using ancillary_settings.n_way_range_ancilliary_settings function
-             # In this case the frequency bands of the retransmitter - we set it to x band.
-             n_way_range_ancillary_settings = ancillary_settings.n_way_range_ancilliary_settings(frequency_bands=[ancillary_settings.FrequencyBands.x_band])
-
-             # Show that this is indeed an ObservationAncillarySimulationSettings object
-             print(n_way_range_ancillary_settings)
-
-             # Example 2: Create ObservationAncillarySimulationSettings object using ancillary_settings.doppler_ancilliary_settings function
-             # In this case the integration time (in seconds) has to be given as input - we set it to 60s
-             doppler_ancillary_settings = ancillary_settings.doppler_ancilliary_settings(60)
-
-             # Show that this is indeed an ObservationAncillarySimulationSettings object
-             print(doppler_ancillary_settings)
-
-             # [OPTIONAL] Verify that we indeed added Frequency Bands as Ancillary Simulation Variables for the n_way_range_ancillary_settings.
-             list_num = n_way_range_ancillary_settings.get_float_list_settings(ancillary_settings.ObservationAncilliarySimulationVariable.frequency_bands)
-             for num in list_num:
-                 name = ancillary_settings.ObservationAncilliarySimulationVariable(int(num)).name
-                 print(f'Ancillary Simulation Variable(s): {name}, corresponding to enumeration object n. {int(num)} of the ObservationAncilliarySimulationVariable Enumeration')
-
-
+    This class holds both single-valued (float) and multi-valued (list of floats) ancillary settings
 
       )doc" )
+            .def( py::init< >( ),
+                  R"doc(
+
+                 Create an empty ancillary settings object
+
+                 Returns
+                 -------
+                 estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings
+
+                 )doc" )
+            .def( "set_float_settings",
+                  &tudat::observation_models::ObservationAncilliarySimulationSettings::setAncilliaryDoubleData,
+                  py::arg( "variable" ),
+                  py::arg( "value" ),
+                  R"doc(
+
+                Function to set a multi-valued ancillary setting in this object
+
+                Parameters
+                ----------
+                setting_type : ObservationAncilliarySimulationVariable
+                   Type of the setting for which the value is to be set
+
+                value : list[float]
+                   List of value that define the provided setting type
+
+                )doc" )
+            .def( "set_float_list_settings",
+                  &tudat::observation_models::ObservationAncilliarySimulationSettings::setAncilliaryDoubleVectorData,
+                  py::arg( "variable" ),
+                  py::arg( "value" ),
+                R"doc(
+
+                Function to set a single-valued ancillary setting value in this object
+
+                Parameters
+                ----------
+                setting_type : ObservationAncilliarySimulationVariable
+                   Type of the setting for which the value is to be set
+
+                value : float
+                   Value for the setting
+
+                )doc" )
             .def( "set_intermediate_double_data",
                   &tudat::observation_models::ObservationAncilliarySimulationSettings::setIntermediateDoubleData,
                   py::arg( "variable" ),
@@ -142,6 +184,7 @@ Examples
                   py::arg( "throw_exception" ) = true,
                   R"doc(
 
+         Function to retrieve a single-valued (``float``) ancillary setting value
 
          Parameters
          ----------
@@ -154,7 +197,7 @@ Examples
          Returns
          -------
          float
-             Value of the requested ancilliary variable (or NaN if it does not exist)
+             Value of the requested ancilliary variable (or NaN if it does not exist and ``throw_exception`` is ``false``)
 
      )doc" )
             .def( "get_float_list_settings",
@@ -163,6 +206,7 @@ Examples
                   py::arg( "throw_exception" ) = true,
                   R"doc(
 
+         Function to retrieve a multi-valued (``list`` of ``float``) ancillary setting value
 
          Parameters
          ----------
@@ -175,7 +219,7 @@ Examples
          Returns
          -------
          list[ float ]
-             Value of the requested ancilliary variable (or empty list if it does not exist)
+             Value of the requested ancilliary variable (or empty list if it does not exist and ``throw_exception`` is ``false``)
 
          Examples
          --------
@@ -221,10 +265,11 @@ Examples
  Function for creating ancilliary settings for averaged Doppler observable.
 
  Function for creating ancilliary settings for an averaged Doppler observable. Specifically, this
- function can be used to create settings for the integration time of the observable. Note: in case no retransmission
+ function can be used to create settings for the integration time :math:`\Delta t` of the observable
+ (see :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationVariable.doppler_integration_time`).
+ Note: in case no retransmission
  delays (or other additional ancilliary settings) are to be defined, this setting may be used for one-, two-, or N-way
  averaged Doppler.
-
 
  Parameters
  ----------
@@ -252,8 +297,8 @@ Examples
  Function for creating ancilliary settings for two-way range observable.
 
  Function for creating ancilliary settings for a two-way range observable. Specifically, this
- function can be used to create settings for the retransmission delay of the observable. NOTE:
- this function is provided for convenience, and is equivalent to calling :func:`~tudatpy.estimation.observations_setup.ancillary_settings.n_way_range_ancilliary_settings`
+ function can be used to create settings for the retransmission delay of the observable (see :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationVariable.link_ends_delays`).
+ Note: this function is provided for convenience, and is equivalent to calling :func:`~tudatpy.estimation.observations_setup.ancillary_settings.n_way_range_ancilliary_settings`
  with a single retransmission delay.
 
 
@@ -282,7 +327,8 @@ Examples
  Function for creating ancilliary settings for two-way averaged Doppler observable.
 
  Function for creating ancilliary settings for a two-way range observable. Specifically, this
- function can be used to create settings for the retransmission delay of the observable.  NOTE:
+ function can be used to create settings for the retransmission delay of the observable  (see :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationVariable.link_ends_delays`).
+ Note:
  this function is provided for convenience, and is equivalent to calling :func:`~tudatpy.estimation.observations_setup.ancillary_settings.n_way_doppler_ancilliary_settings`
  with a single retransmission delay.
 
@@ -314,7 +360,7 @@ Examples
  Function for creating ancilliary settings for n-way range observable.
 
  Function for creating ancilliary settings for a n-way range observable. Specifically, this
- function can be used to create settings for the retransmission delays of the observable, for each of the retransmitters.
+ function can be used to create settings for the retransmission delays of the observable (see :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationVariable.link_ends_delays`), for each of the retransmitters.
 
 
  Parameters
@@ -343,7 +389,8 @@ Examples
  Function for creating ancilliary settings for n-way averaged Doppler observable.
 
  Function for creating ancilliary settings for a n-way averaged Doppler observable. Specifically, this
- function can be used to create settings for the integration time of the observable, and the  retransmission delays for each of the retransmitters.
+ function can be used to create settings for the integration time of the observable (see :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationVariable.doppler_integration_time`),
+ and the  retransmission delays for each of the retransmitters (see :attr:`~tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationVariable.link_ends_delays`).
 
 
  Parameters
@@ -372,7 +419,8 @@ Examples
            py::arg( "integration_time" ) = 60.0,
            py::arg( "link_end_delays" ) = std::vector< double >( ),
            R"doc(
-        Function for creating ancilliary settings for DSN n-way averaged Doppler observable.
+
+        Function for creating ancilliary settings for DSN n-way averaged Doppler observable (:func:`~tudatpy.estimation.observable_models_setup.model_settings.dsn_n_way_doppler_averaged`).
 
         Parameters
         ----------
@@ -399,7 +447,7 @@ Examples
            py::arg( "lowest_ranging_component" ),
            py::arg( "link_end_delays" ) = std::vector< double >( ),
            R"doc(
-        Function for creating ancilliary settings for DSN n-way range observable.
+        Function for creating ancilliary settings for DSN n-way range observable (:func:`~tudatpy.estimation.observable_models_setup.model_settings.dsn_n_way_range`).
 
         Parameters
         ----------
@@ -420,7 +468,8 @@ Examples
            &tom::getDopplerMeasuredFrequencyAncilliarySettings,
            py::arg( "frequency_bands" ),
            R"doc(
-        Function for creating ancilliary settings for Doppler observable with measured frequency.
+
+        Function for creating ancilliary settings for two-way Doppler frequency observable (:func:`~tudatpy.estimation.observable_models_setup.model_settings.two_way_doppler_instantaneous_frequency`).
 
         Parameters
         ----------
@@ -441,6 +490,7 @@ Examples
            py::arg( "ancilliary_settings" ),
            py::arg( "observable_type" ),
            R"doc(
+
         Add ancillary settings to all observation simulation settings of a given observable type.
 
         Parameters
@@ -496,6 +546,7 @@ Examples
            py::arg( "uplink_band" ),
            py::arg( "downlink_band" ),
            R"doc(
+
         Get the default DSN turnaround ratio for given uplink and downlink bands.
 
         Parameters
