@@ -30,7 +30,7 @@ namespace trampoline
 
 class PyLambertTargeter : public tms::LambertTargeter
 {
-   public:
+public:
     /* Inherit the constructors */
     using tms::LambertTargeter::LambertTargeter;
 
@@ -63,7 +63,7 @@ namespace astro
 {
 namespace two_body_dynamics
 {
-void expose_two_body_dynamics( py::module &m )
+void expose_two_body_dynamics( py::module& m )
 {
     m.def( "compute_escape_or_capture_delta_v",
            &tms::computeEscapeOrCaptureDeltaV,
@@ -104,83 +104,248 @@ void expose_two_body_dynamics( py::module &m )
 
      )doc" );
 
-    py::class_< tms::PericenterFindingFunctions,
-                std::shared_ptr< tms::PericenterFindingFunctions > >( m,
-                                                                      "PericenterFindingFunctions" )
+    py::class_< tms::PericenterFindingFunctions, std::shared_ptr< tms::PericenterFindingFunctions > >( m, "PericenterFindingFunctions" )
             .def( py::init< const double, const double, const double >( ),
                   py::arg( "absolute_incoming_semi_major_axis" ),
                   py::arg( "absolute_outgoing_semi_major_axis" ),
                   py::arg( "bending_angle" ) )
-            .def( "compute_pericenter_radius_fn",
-                  &tms::PericenterFindingFunctions::computePericenterRadiusFunction )
+            .def( "compute_pericenter_radius_fn", &tms::PericenterFindingFunctions::computePericenterRadiusFunction )
             .def( "compute_derivative_pericenter_radius_fn",
-                  &tms::PericenterFindingFunctions::
-                          computeFirstDerivativePericenterRadiusFunction );
+                  &tms::PericenterFindingFunctions::computeFirstDerivativePericenterRadiusFunction );
 
-    py::class_< tms::EccentricityFindingFunctions,
-                std::shared_ptr< tms::EccentricityFindingFunctions > >(
-            m, "EccentricityFindingFunctions" )
+    py::class_< tms::EccentricityFindingFunctions, std::shared_ptr< tms::EccentricityFindingFunctions > >( m,
+                                                                                                           "EccentricityFindingFunctions",
+                                                                                                           R"doc(
+Class containing functions for finding the eccentricity during a gravity assist.
+
+This class provides the objective function and its derivative for solving the incoming 
+eccentricity in a gravity assist maneuver, given the incoming and outgoing hyperbolic 
+semi-major axes and the bending angle. Used as input for root-finding algorithms.
+
+)doc" )
             .def( py::init< const double, const double, const double >( ),
                   py::arg( "absolute_incoming_semi_major_axis" ),
                   py::arg( "absolute_outgoing_semi_major_axis" ),
-                  py::arg( "bending_angle" ) )
-            .def( "compute_incoming_eccentricity_fn",
-                  &tms::EccentricityFindingFunctions::computeIncomingEccentricityFunction )
-            .def( "compute_derivative_incoming_eccentricity_fn",
-                  &tms::EccentricityFindingFunctions::
-                          computeFirstDerivativeIncomingEccentricityFunction );
+                  py::arg( "bending_angle" ),
+                  R"doc(
+Constructor for EccentricityFindingFunctions.
 
-    py::class_< tms::LambertTargeter,
-                std::shared_ptr< tms::LambertTargeter >,
-                trampoline::PyLambertTargeter >( m, "LambertTargeter" )
+Parameters
+----------
+absolute_incoming_semi_major_axis : float
+    Absolute value of the semi-major axis of the incoming hyperbolic trajectory [m].
+absolute_outgoing_semi_major_axis : float
+    Absolute value of the semi-major axis of the outgoing hyperbolic trajectory [m].
+absolute_bending_angle : float
+    Bending angle of the gravity assist [rad].
+
+)doc" )
+            .def( "compute_incoming_eccentricity_fn",
+                  &tms::EccentricityFindingFunctions::computeIncomingEccentricityFunction,
+                  py::arg( "incoming_eccentricity" ),
+                  R"doc(
+Compute the incoming eccentricity function value.
+
+Parameters
+----------
+incoming_eccentricity : float
+    Incoming eccentricity for which to evaluate the function [-].
+
+Returns
+-------
+float
+    Function value.
+
+)doc" )
+            .def( "compute_derivative_incoming_eccentricity_fn",
+                  &tms::EccentricityFindingFunctions::computeFirstDerivativeIncomingEccentricityFunction,
+                  py::arg( "incoming_eccentricity" ),
+                  R"doc(
+Compute the first derivative of the incoming eccentricity function.
+
+Parameters
+----------
+incoming_eccentricity : float
+    Incoming eccentricity for which to evaluate the derivative [-].
+
+Returns
+-------
+float
+    First derivative of the function.
+
+)doc" );
+
+    py::class_< tms::LambertTargeter, std::shared_ptr< tms::LambertTargeter >, trampoline::PyLambertTargeter >( m,
+                                                                                                                "LambertTargeter",
+                                                                                                                R"doc(
+Base class for Lambert targeting algorithms.
+
+This abstract base class defines the interface for Lambert problem solvers. The Lambert 
+problem consists of finding the orbit that connects two position vectors in a specified 
+time of flight. Derived classes implement specific solution algorithms (e.g., Gooding, Izzo).
+
+)doc" )
             // This class required a trampoline class to inherit from
             // due to the virtual ~execute member.
-            .def( py::init< const Eigen::Vector3d &,
-                            const Eigen::Vector3d &,
-                            const double,
-                            const double >( ),
+            .def( py::init< const Eigen::Vector3d&, const Eigen::Vector3d&, const double, const double >( ),
                   py::arg( "departure_position" ),
                   py::arg( "arrival_position" ),
                   py::arg( "time_of_flight" ),
-                  py::arg( "gravitational_parameter" ) )
-            .def( "get_departure_velocity", &tms::LambertTargeter::getInertialVelocityAtDeparture )
-            .def( "get_arrival_velocity", &tms::LambertTargeter::getInertialVelocityAtArrival )
-            .def( "get_velocity_vectors", &tms::LambertTargeter::getInertialVelocityVectors );
+                  py::arg( "gravitational_parameter" ),
+                  R"doc(
+Constructor for LambertTargeter.
+
+Parameters
+----------
+departure_position : numpy.ndarray
+    Cartesian position vector at departure [m].
+arrival_position : numpy.ndarray
+    Cartesian position vector at arrival [m].
+time_of_flight : float
+    Time of flight between departure and arrival [s].
+gravitational_parameter : float
+    Gravitational parameter of the central body [m^3/s^2].
+
+)doc" )
+            .def( "get_departure_velocity",
+                  &tms::LambertTargeter::getInertialVelocityAtDeparture,
+                  R"doc(
+Get the inertial velocity at departure.
+
+Returns
+-------
+numpy.ndarray
+    Cartesian velocity vector at departure [m/s].
+
+)doc" )
+            .def( "get_arrival_velocity",
+                  &tms::LambertTargeter::getInertialVelocityAtArrival,
+                  R"doc(
+Get the inertial velocity at arrival.
+
+Returns
+-------
+numpy.ndarray
+    Cartesian velocity vector at arrival [m/s].
+
+)doc" )
+            .def( "get_velocity_vectors",
+                  &tms::LambertTargeter::getInertialVelocityVectors,
+                  R"doc(
+Get both velocity vectors as a pair.
+
+Returns
+-------
+tuple[numpy.ndarray, numpy.ndarray]
+    Tuple containing the departure and arrival velocity vectors [m/s].
+
+)doc" );
 
     //////////////////////////////////////////////////////////////////////
     //  lambertTargeterGooding.cpp (complete)
     //////////////////////////////////////////////////////////////////////
-    py::class_< tms::LambertTargeterGooding,
-                std::shared_ptr< tms::LambertTargeterGooding >,
-                tms::LambertTargeter >( m, "LambertTargeterGooding" )
-            .def( py::init< const Eigen::Vector3d &,
-                            const Eigen::Vector3d &,
-                            const double,
-                            const double,
-                            trf::RootFinderPointer >( ),
+    py::class_< tms::LambertTargeterGooding, std::shared_ptr< tms::LambertTargeterGooding >, tms::LambertTargeter >(
+            m, "LambertTargeterGooding" )
+            .def( py::init< const Eigen::Vector3d&, const Eigen::Vector3d&, const double, const double, trf::RootFinderPointer >( ),
                   py::arg( "departure_position" ),
                   py::arg( "arrival_position" ),
                   py::arg( "time_of_flight" ),
                   py::arg( "gravitational_parameter" ),
-                  py::arg( "root_finder" ) = trf::RootFinderPointer( ) )
+                  py::arg( "root_finder" ) = trf::RootFinderPointer( ),
+                  R"doc(
+Constructor for LambertTargeterGooding.
+
+Parameters
+----------
+departure_position : numpy.ndarray
+    Cartesian position vector at departure [m].
+arrival_position : numpy.ndarray
+    Cartesian position vector at arrival [m].
+time_of_flight : float
+    Time of flight between departure and arrival [s].
+gravitational_parameter : float
+    Gravitational parameter of the central body [m^3/s^2].
+root_finder : RootFinder, default=None
+    Root finder to use for solving the Lambert equation. If None, a default Newton-Raphson 
+    solver with 1000 iterations and 1e-12 relative tolerance is used.
+
+)doc" )
             .def( "get_radial_departure_velocity",
-                  &tms::LambertTargeterGooding::getRadialVelocityAtDeparture )
+                  &tms::LambertTargeterGooding::getRadialVelocityAtDeparture,
+                  R"doc(
+Get the radial velocity component at departure.
+
+Returns
+-------
+float
+    Radial velocity at departure [m/s].
+
+)doc" )
             .def( "get_radial_arrival_velocity",
-                  &tms::LambertTargeterGooding::getRadialVelocityAtArrival )
+                  &tms::LambertTargeterGooding::getRadialVelocityAtArrival,
+                  R"doc(
+Get the radial velocity component at arrival.
+
+Returns
+-------
+float
+    Radial velocity at arrival [m/s].
+
+)doc" )
             .def( "get_transverse_departure_velocity",
-                  &tms::LambertTargeterGooding::getTransverseVelocityAtDeparture )
+                  &tms::LambertTargeterGooding::getTransverseVelocityAtDeparture,
+                  R"doc(
+Get the transverse velocity component at departure.
+
+Returns
+-------
+float
+    Transverse velocity at departure [m/s].
+
+)doc" )
             .def( "get_transverse_arrival_velocity",
-                  &tms::LambertTargeterGooding::getTransverseVelocityAtArrival )
-            .def( "get_semi_major_axis", &tms::LambertTargeterGooding::getSemiMajorAxis );
+                  &tms::LambertTargeterGooding::getTransverseVelocityAtArrival,
+                  R"doc(
+Get the transverse velocity component at arrival.
+
+Returns
+-------
+float
+    Transverse velocity at arrival [m/s].
+
+)doc" )
+            .def( "get_semi_major_axis",
+                  &tms::LambertTargeterGooding::getSemiMajorAxis,
+                  R"doc(
+Get the semi-major axis of the transfer orbit.
+
+Returns
+-------
+float
+    Semi-major axis of the conic section connecting departure and arrival [m].
+
+)doc" );
 
     //////////////////////////////////////////////////////////////////////
     //  lambertTargeterIzzo.cpp (complete)
     //////////////////////////////////////////////////////////////////////
-    py::class_< tms::LambertTargeterIzzo,
-                std::shared_ptr< tms::LambertTargeterIzzo >,
-                tms::LambertTargeter >( m, "LambertTargeterIzzo" )
-            .def( py::init< const Eigen::Vector3d &,
-                            const Eigen::Vector3d &,
+    py::class_< tms::LambertTargeterIzzo, std::shared_ptr< tms::LambertTargeterIzzo >, tms::LambertTargeter >( m,
+                                                                                                               "LambertTargeterIzzo",
+                                                                                                               R"doc(
+Lambert targeter using Izzo's algorithm.
+
+Implementation of Izzo's Lambert targeting algorithm. This method is particularly robust 
+for near-pi transfers and does not suffer from singularities that affect other methods. 
+It supports both prograde and retrograde orbits.
+
+References
+----------
+Izzo, D., "Revisiting Lambert's problem", Celestial Mechanics and Dynamical Astronomy, 
+Vol. 121, 2015.
+
+)doc" )
+            .def( py::init< const Eigen::Vector3d&,
+                            const Eigen::Vector3d&,
                             const double,
                             const double,
                             const bool,
@@ -192,25 +357,100 @@ void expose_two_body_dynamics( py::module &m )
                   py::arg( "gravitational_parameter" ),
                   py::arg( "is_retrograde" ) = false,
                   py::arg( "tolerance" ) = 1e-9,
-                  py::arg( "max_iter" ) = 50 )
+                  py::arg( "max_iter" ) = 50,
+                  R"doc(
+Constructor for LambertTargeterIzzo.
+
+Parameters
+----------
+departure_position : numpy.ndarray
+    Cartesian position vector at departure [m].
+arrival_position : numpy.ndarray
+    Cartesian position vector at arrival [m].
+time_of_flight : float
+    Time of flight between departure and arrival [s].
+gravitational_parameter : float
+    Gravitational parameter of the central body [m^3/s^2].
+is_retrograde : bool, default=False
+    If True, computes retrograde orbit; if False, computes prograde orbit.
+tolerance : float, default=1e-9
+    Convergence tolerance for the iterative solution.
+max_iter : int, default=50
+    Maximum number of iterations for the solution procedure.
+
+)doc" )
             .def( "get_radial_departure_velocity",
-                  &tms::LambertTargeterIzzo::getRadialVelocityAtDeparture )
+                  &tms::LambertTargeterIzzo::getRadialVelocityAtDeparture,
+                  R"doc(
+Get the radial velocity component at departure.
+
+Returns
+-------
+float
+    Radial velocity at departure [m/s].
+
+)doc" )
             .def( "get_radial_arrival_velocity",
-                  &tms::LambertTargeterIzzo::getRadialVelocityAtArrival )
+                  &tms::LambertTargeterIzzo::getRadialVelocityAtArrival,
+                  R"doc(
+Get the radial velocity component at arrival.
+
+Returns
+-------
+float
+    Radial velocity at arrival [m/s].
+
+)doc" )
             .def( "get_transverse_departure_velocity",
-                  &tms::LambertTargeterIzzo::getTransverseVelocityAtDeparture )
+                  &tms::LambertTargeterIzzo::getTransverseVelocityAtDeparture,
+                  R"doc(
+Get the transverse velocity component at departure.
+
+Returns
+-------
+float
+    Transverse velocity at departure [m/s].
+
+)doc" )
             .def( "get_transverse_arrival_velocity",
-                  &tms::LambertTargeterIzzo::getTransverseVelocityAtArrival )
-            .def( "get_semi_major_axis", &tms::LambertTargeterIzzo::getSemiMajorAxis );
+                  &tms::LambertTargeterIzzo::getTransverseVelocityAtArrival,
+                  R"doc(
+Get the transverse velocity component at arrival.
+
+Returns
+-------
+float
+    Transverse velocity at arrival [m/s].
+
+)doc" )
+            .def( "get_semi_major_axis",
+                  &tms::LambertTargeterIzzo::getSemiMajorAxis,
+                  R"doc(
+Get the semi-major axis of the transfer orbit.
+
+Returns
+-------
+float
+    Semi-major axis of the conic section connecting departure and arrival [m].
+
+)doc" );
 
     //////////////////////////////////////////////////////////////////////
     //  zeroRevolutionLambertTargeterIzzo.cpp (complete)
     //////////////////////////////////////////////////////////////////////
-    py::class_< tms::ZeroRevolutionLambertTargeterIzzo,
-                std::shared_ptr< tms::ZeroRevolutionLambertTargeterIzzo >,
-                tms::LambertTargeter >( m, "ZeroRevolutionLambertTargeterIzzo" )
-            .def( py::init< const Eigen::Vector3d &,
-                            const Eigen::Vector3d &,
+    py::class_< tms::ZeroRevolutionLambertTargeterIzzo, std::shared_ptr< tms::ZeroRevolutionLambertTargeterIzzo >, tms::LambertTargeter >(
+            m,
+            "ZeroRevolutionLambertTargeterIzzo",
+            R"doc(
+Zero-revolution Lambert targeter using Izzo's algorithm.
+
+Specialized implementation of Izzo's algorithm for zero-revolution transfers (direct transfers 
+without completing full orbits). This is a more focused version that handles the most common 
+case efficiently.
+
+)doc" )
+            .def( py::init< const Eigen::Vector3d&,
+                            const Eigen::Vector3d&,
                             const double,
                             const double,
                             const bool,
@@ -222,26 +462,101 @@ void expose_two_body_dynamics( py::module &m )
                   py::arg( "gravitational_parameter" ),
                   py::arg( "is_retrograde" ) = false,
                   py::arg( "tolerance" ) = 1e-9,
-                  py::arg( "max_iter" ) = 50 )
+                  py::arg( "max_iter" ) = 50,
+                  R"doc(
+Constructor for ZeroRevolutionLambertTargeterIzzo.
+
+Parameters
+----------
+departure_position : numpy.ndarray
+    Cartesian position vector at departure [m].
+arrival_position : numpy.ndarray
+    Cartesian position vector at arrival [m].
+time_of_flight : float
+    Time of flight between departure and arrival [s].
+gravitational_parameter : float
+    Gravitational parameter of the central body [m^3/s^2].
+is_retrograde : bool, default=False
+    If True, computes retrograde orbit; if False, computes prograde orbit.
+tolerance : float, default=1e-9
+    Convergence tolerance for the iterative solution.
+max_iter : int, default=50
+    Maximum number of iterations for the solution procedure.
+
+)doc" )
             .def( "get_radial_departure_velocity",
-                  &tms::ZeroRevolutionLambertTargeterIzzo::getRadialVelocityAtDeparture )
+                  &tms::ZeroRevolutionLambertTargeterIzzo::getRadialVelocityAtDeparture,
+                  R"doc(
+Get the radial velocity component at departure.
+
+Returns
+-------
+float
+    Radial velocity at departure [m/s].
+
+)doc" )
             .def( "get_radial_arrival_velocity",
-                  &tms::ZeroRevolutionLambertTargeterIzzo::getRadialVelocityAtArrival )
+                  &tms::ZeroRevolutionLambertTargeterIzzo::getRadialVelocityAtArrival,
+                  R"doc(
+Get the radial velocity component at arrival.
+
+Returns
+-------
+float
+    Radial velocity at arrival [m/s].
+
+)doc" )
             .def( "get_transverse_departure_velocity",
-                  &tms::ZeroRevolutionLambertTargeterIzzo::getTransverseVelocityAtDeparture )
+                  &tms::ZeroRevolutionLambertTargeterIzzo::getTransverseVelocityAtDeparture,
+                  R"doc(
+Get the transverse velocity component at departure.
+
+Returns
+-------
+float
+    Transverse velocity at departure [m/s].
+
+)doc" )
             .def( "get_transverse_arrival_velocity",
-                  &tms::ZeroRevolutionLambertTargeterIzzo::getTransverseVelocityAtArrival )
+                  &tms::ZeroRevolutionLambertTargeterIzzo::getTransverseVelocityAtArrival,
+                  R"doc(
+Get the transverse velocity component at arrival.
+
+Returns
+-------
+float
+    Transverse velocity at arrival [m/s].
+
+)doc" )
             .def( "get_semi_major_axis",
-                  &tms::ZeroRevolutionLambertTargeterIzzo::getSemiMajorAxis );
+                  &tms::ZeroRevolutionLambertTargeterIzzo::getSemiMajorAxis,
+                  R"doc(
+Get the semi-major axis of the transfer orbit.
+
+Returns
+-------
+float
+    Semi-major axis of the conic section connecting departure and arrival [m].
+
+)doc" );
 
     //////////////////////////////////////////////////////////////////////
     //  multiRevolutionLambertTargeterIzzo.cpp (complete)
     //////////////////////////////////////////////////////////////////////
     py::class_< tms::MultiRevolutionLambertTargeterIzzo,
                 std::shared_ptr< tms::MultiRevolutionLambertTargeterIzzo >,
-                tms::ZeroRevolutionLambertTargeterIzzo >( m, "MultiRevolutionLambertTargeterIzzo" )
-            .def( py::init< const Eigen::Vector3d &,
-                            const Eigen::Vector3d &,
+                tms::ZeroRevolutionLambertTargeterIzzo >( m,
+                                                          "MultiRevolutionLambertTargeterIzzo",
+                                                          R"doc(
+Multi-revolution Lambert targeter using Izzo's algorithm.
+
+Extension of Izzo's algorithm to handle multi-revolution transfers. Supports computing 
+solutions for transfers that complete one or more full orbits before arrival, with both 
+left-branch and right-branch solutions available.
+
+)doc" )
+            .def( py::init< const Eigen::Vector3d&,
+                            const Eigen::Vector3d&,
                             const double,
                             const double,
                             const int,
@@ -257,13 +572,60 @@ void expose_two_body_dynamics( py::module &m )
                   py::arg( "is_right_branch" ) = false,
                   py::arg( "is_retrograde" ) = false,
                   py::arg( "tolerance" ) = 1e-9,
-                  py::arg( "max_iter" ) = 50 )
+                  py::arg( "max_iter" ) = 50,
+                  R"doc(
+Constructor for MultiRevolutionLambertTargeterIzzo.
+
+Parameters
+----------
+departure_position : numpy.ndarray
+    Cartesian position vector at departure [m].
+arrival_position : numpy.ndarray
+    Cartesian position vector at arrival [m].
+time_of_flight : float
+    Time of flight between departure and arrival [s].
+gravitational_parameter : float
+    Gravitational parameter of the central body [m^3/s^2].
+n_revolutions : int, default=0
+    Number of complete revolutions before arrival.
+is_right_branch : bool, default=False
+    If True, uses right branch solution; if False, uses left branch solution.
+is_retrograde : bool, default=False
+    If True, computes retrograde orbit; if False, computes prograde orbit.
+tolerance : float, default=1e-9
+    Convergence tolerance for the iterative solution.
+max_iter : int, default=50
+    Maximum number of iterations for the solution procedure.
+
+)doc" )
             //        .def("NO_MAXIMUM_REVOLUTIONS",
             //        &tms::MultiRevolutionLambertTargeterIzzo::NO_MAXIMUM_REVOLUTIONS)
             .def( "compute_for_revolutions_and_branch",
-                  &tms::MultiRevolutionLambertTargeterIzzo::getRadialVelocityAtArrival )
-            .def( "get_max_n_revolutions",
-                  &tms::MultiRevolutionLambertTargeterIzzo::getRadialVelocityAtArrival );
+                  &tms::MultiRevolutionLambertTargeterIzzo::computeForRevolutionsAndBranch,
+                  py::arg( "n_revolutions" ),
+                  py::arg( "is_right_branch" ),
+                  R"doc(
+Compute the Lambert solution for specified revolutions and branch.
+
+Parameters
+----------
+n_revolutions : int
+    Number of complete revolutions.
+is_right_branch : bool
+    If True, uses right branch solution; if False, uses left branch solution.
+
+)doc" )
+            .def( "get_maximum_number_of_revolutions",
+                  &tms::MultiRevolutionLambertTargeterIzzo::getMaximumNumberOfRevolutions,
+                  R"doc(
+Get the maximum number of revolutions for which a solution exists.
+
+Returns
+-------
+int
+    Maximum number of revolutions possible for the given geometry and time of flight.
+
+)doc" );
 
     //////////////////////////////////////////////////////////////////////
     //  keplerPropagator.h (complete)

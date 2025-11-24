@@ -6,7 +6,7 @@ This module contains the factory functions for setting up the
 aerodynamic coefficient models of (artificial and natural) bodies in an environment.
 
 The main interfaces with Tudat is the :attr:`~tudatpy.dynamics.environment_setup.BodySettings.aerodynamic_coefficient_settings`
-attribute  (of type :class:`~~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings`) of the body settings, which defines settings for the aerodynamic coefficients of a body.
+attribute  (of type :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings`) of the body settings, which defines settings for the aerodynamic coefficients of a body.
 **The functions in this submodule are used to create these settings objects.** When creating a body (typically using the
 :func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies` function), an object of type
 :class:`~tudatpy.dynamics.environment.AerodynamicCoefficientInterface` (or a derived class) is created
@@ -17,6 +17,28 @@ The coefficient models create from the settings defined by these settings are us
 :func:`~tudatpy.dynamics.propagation_setup.acceleration.aerodynamic` acceleration model and
 :func:`~tudatpy.dynamics.propagation_setup.torque.aerodynamic` torque model.
 
+The following code block gives an overview of the steps to define, create, and extract an aerodynamic coefficient model, for the specific example of constant drag (:math:`C_{D}=1.5`, :math:`S_{ref}=2` m\ :sup:`2`)
+
+.. code-block:: python
+
+  from tudatpy.dynamics import environment_setup
+
+  # Create body settings
+  body_settings =  environment_setup.get_default_body_settings( ... ) # Typical way to instantiate body settings
+
+  # Add empty settings for Vehicle, since no default is defined
+  body_settings.add_empty_settings( 'Vehicle' )
+
+  # Add aerodynamic model settings (base class type AerodynamicCoefficientSettings)
+  body_settings.get( 'Vehicle' ).aerodynamic_coefficient_settings = environment_setup.aerodynamic_coefficients.constant(
+      reference_area = 2.0,
+      constant_force_coefficient = [1.5, 0.0, 0.0])
+
+  # Create bodies
+  bodies = environment_setup.create_system_of_bodies(body_settings)
+
+  # Extract aerodynamic coefficient model (base class type AerodynamicCoefficientInterface) from Vehicle
+  vehicle_aerodynamic_coefficient_model = bodies.get( 'Vehicle' ).aerodynamic_coefficient_interface
 
 The functions in this module can be used to define force and/or moment coefficients. The frame in which
 the coefficients are to be provided can be defined by the user through the appropriate :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientFrames` input. For instance, when wanting to provide :math:`C_{D},C_{S},C_{L}`,

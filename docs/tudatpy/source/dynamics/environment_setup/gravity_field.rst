@@ -16,6 +16,25 @@ be retrieved using the :attr:`~tudatpy.dynamics.environment.Body.gravity_field_m
 The gravity field model is used in numerous aspects of a propagation and estimation in Tudat. Most prominently, it
 is used to compute gravitational accelerations (see :ref:`acceleration`) and torques (see :ref:`torque`).
 
+The following code block gives an overview of the steps to define, create, and extract a gravity field model, for the specific example of a point-mass model with :math:`\mu=3.986004418\cdot 10^{14}` m\ :sup:`3`/s\ :sup:`2`.
+
+.. code-block:: python
+
+  from tudatpy.dynamics import environment_setup
+
+  # Create body settings
+  body_settings =  environment_setup.get_default_body_settings( ... ) # Typical way to instantiate body settings
+
+  # Modify gravity field model settings (base class type GravityFieldSettings)
+  body_settings.get( 'Earth' ).gravity_field_settings = environment_setup.gravity_field.central(
+      gravitational_parameter = 3.986004418E14 )
+
+  # Create bodies
+  bodies = environment_setup.create_system_of_bodies(body_settings)
+
+  # Extract gravity field model (base class type GravityFieldModel) from Earth
+  earth_gravity_field_model = bodies.get( 'Earth' ).gravity_field_model
+
 Below a short
 overview of aspects of some of the gravity field models in order to aid in
 properly selecting an choosing a model.
