@@ -8,8 +8,8 @@ two-way Doppler, angular position, etc.). The functions here all create an objec
 
 Many observation models are based on the transfer of electromagnetic signals (e.g. laser ranging, radio Doppler, etc.),
 which require the solution of the light-time solution. Deviations from ideal Euclidean propagation at the speed of light
-can be modelled using light-time corrections, for which settings (as objects of type :class:`~tudatpy.estimation.biases.LightTimeCorrectionSettings`) are created in the :ref:`light_time_corrections` module and provided as input to functions here. Similarly, settings
-for observation biases (as objects of type :class:`~tudatpy.estimation.biases.ObservationBiasSettings`) are created
+can be modelled using light-time corrections, for which settings (as objects of type :class:`~tudatpy.estimation.light_time_correction..LightTimeCorrectionSettings`) are created in the :ref:`light_time_corrections` module and provided as input to functions here. Similarly, settings
+for observation biases (as objects of type :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`) are created
 in the :ref:`biases` module. Definition of the observation link are created through the :ref:`links` module.
 
 Details on the procedure to create observation models, and the various top-level options for their creatoon, is given on the `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-model-setup.html#defining-observation-settings>`_.
@@ -46,8 +46,6 @@ Functions
    n_way_doppler_averaged_from_one_way_links
 
    dsn_n_way_doppler_averaged
-
-   dsn_n_way_doppler_averaged_from_one_way_links
 
    one_way_doppler_instantaneous
 
@@ -91,8 +89,6 @@ Functions
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.n_way_doppler_averaged_from_one_way_links
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.dsn_n_way_doppler_averaged
-
-.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.dsn_n_way_doppler_averaged_from_one_way_links
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.one_way_doppler_instantaneous
 
