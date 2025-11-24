@@ -191,8 +191,8 @@ Variation model due to pole tides
          This option can be used for any of the solid-body tide gravity field variation options.
 
          Parameters
-
          ----------
+
          mean_tidal_forcing_cosine_terms : dict{ int, numpy.ndarray}
              Dictionary in which key represents degree :math:`l` and the value a vector (with index in the vector equal to order :math:`m`) of mean forcing for the cosine coefficient variations
 

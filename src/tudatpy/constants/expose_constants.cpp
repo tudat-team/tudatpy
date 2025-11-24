@@ -26,9 +26,56 @@ namespace tudatpy
 {
 namespace constants
 {
-void expose_constants( py::module &m )
+void expose_constants( py::module& m )
 {
-    m.attr( "__doc__" ) = R"doc(No documentation found)doc";
+    m.attr( "__doc__" ) = R"doc(
+Physical, mathematical, and astronomical constants.
+
+This module provides fundamental constants used throughout tudatpy for astrodynamics 
+calculations. Constants are organized into several categories:
+
+- **Physical constants**: Fundamental physical quantities (speed of light, gravitational constant, etc.)
+- **Time constants**: Time conversion factors (Julian day, sidereal time, etc.)
+- **Mathematical constants**: Mathematical values (π, e, golden ratio, etc.)
+- **Astronomical constants**: Astronomical unit, Julian day epochs
+
+High-precision variants
+-----------------------
+Several constants have ``_LONG`` variants that provide extended precision using 
+``long double`` type instead of ``double``. These are useful for high-accuracy 
+calculations over long time spans:
+
+- ``JULIAN_DAY_LONG``: High-precision seconds per Julian day
+- ``JULIAN_YEAR_IN_DAYS_LONG``: High-precision days per Julian year  
+- ``SPEED_OF_LIGHT_LONG``: High-precision speed of light [m/s]
+- ``LG_TIME_RATE_TERM_LONG``: High-precision TCG-TT time rate term
+
+Time Scales
+-----------
+The module includes constants for relativistic time scale transformations:
+
+- ``LG_TIME_RATE_TERM``: Relative rate difference between Geocentric Coordinate Time (TCG) 
+  and Terrestrial Time (TT). TCG differs from TT by approximately 0.7 parts per billion.
+- ``LB_TIME_RATE_TERM``: Relative rate difference between Barycentric Coordinate Time (TCB) 
+  and Barycentric Dynamical Time (TDB).
+
+References
+----------
+Standish, E.M. (1995) "Report of the IAU WGAS Sub-Group on Numerical Standards", 
+in Highlights of Astronomy (I. Appenzeller, ed.), Table 1, Kluwer Academic Publishers, 
+Dordrecht.
+
+NASA SSD. Astrodynamic Parameters, http://ssd.jpl.nasa.gov/?constants#ref, 
+6th September, 2011, last accessed: 21st February, 2012.
+
+IAU 2012, Resolution B2. https://www.iau.org/static/resolutions/IAU2012_English.pdf
+
+Anderson, J.D. Jr. Hypersonic and High-Temperature Gas Dynamics, Second Edition, 2006.
+
+NIST. NIST reference on constants, units and uncertainty.
+http://physics.nist.gov/cuu/Constants/index.html
+
+)doc";
 
     // physicalConstants.h
     m.attr( "SEA_LEVEL_GRAVITATIONAL_ACCELERATION" ) = tpc::SEA_LEVEL_GRAVITATIONAL_ACCELERATION;

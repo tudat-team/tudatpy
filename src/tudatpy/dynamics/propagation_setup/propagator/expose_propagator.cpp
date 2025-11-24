@@ -984,24 +984,6 @@ Enumeration of available integrated state types.
     ///////////////////////////////////////////////////////////////////////////////////////
 
     m.def( "translational",
-           py::overload_cast< const std::vector< std::string > &,
-                              const tba::AccelerationMap &,
-                              const std::vector< std::string > &,
-                              const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > &,
-                              const std::shared_ptr< tp::PropagationTerminationSettings >,
-                              const tp::TranslationalPropagatorType,
-                              const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > > &,
-                              const double >( &tp::translationalStatePropagatorSettingsDeprecated< STATE_SCALAR_TYPE, TIME_TYPE > ),
-           py::arg( "central_bodies" ),
-           py::arg( "acceleration_models" ),
-           py::arg( "bodies_to_integrate" ),
-           py::arg( "initial_states" ),
-           py::arg( "termination_settings" ),
-           py::arg( "propagator" ) = tp::cowell,
-           py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
-           py::arg( "print_interval" ) = TUDAT_NAN );
-
-    m.def( "translational",
            tp::translationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "central_bodies" ),
            py::arg( "acceleration_models" ),
@@ -1062,22 +1044,6 @@ TranslationalStatePropagatorSettings
 
 
      )doc" );
-
-    m.def( "rotational",
-           py::overload_cast< const tba::TorqueModelMap &,
-                              const std::vector< std::string > &,
-                              const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > &,
-                              const std::shared_ptr< tp::PropagationTerminationSettings >,
-                              const tp::RotationalPropagatorType,
-                              const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
-                              const double >( &tp::rotationalStatePropagatorSettingsDeprecated< STATE_SCALAR_TYPE, TIME_TYPE > ),
-           py::arg( "torque_models" ),
-           py::arg( "bodies_to_integrate" ),
-           py::arg( "initial_states" ),
-           py::arg( "termination_settings" ),
-           py::arg( "propagator" ) = tp::quaternions,
-           py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
-           py::arg( "print_interval" ) = TUDAT_NAN );
 
     m.def( "rotational",
            &tp::rotationalStatePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -1143,20 +1109,6 @@ RotationalStatePropagatorSettings
 
 
      )doc" );
-
-    m.def( "mass",
-           py::overload_cast< const std::vector< std::string >,
-                              const std::map< std::string, std::vector< std::shared_ptr< tba::MassRateModel > > > &,
-                              const Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > &,
-                              const std::shared_ptr< tp::PropagationTerminationSettings >,
-                              const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
-                              const double >( &tp::massPropagatorSettingsDeprecated< STATE_SCALAR_TYPE, TIME_TYPE > ),
-           py::arg( "bodies_with_mass_to_propagate" ),
-           py::arg( "mass_rate_models" ),
-           py::arg( "initial_body_masses" ),
-           py::arg( "termination_settings" ),
-           py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
-           py::arg( "print_interval" ) = TUDAT_NAN );
 
     m.def( "mass",
            &tp::massPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -1263,15 +1215,7 @@ SingleArcPropagatorSettings
     Custom propagator settings object.
      )doc" );
 
-    m.def( "multitype",
-           py::overload_cast< const std::vector< std::shared_ptr< tp::SingleArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > > >,
-                              const std::shared_ptr< tp::PropagationTerminationSettings >,
-                              const std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >,
-                              const double >( &tp::multiTypePropagatorSettingsDeprecated< STATE_SCALAR_TYPE, TIME_TYPE > ),
-           py::arg( "propagator_settings_list" ),
-           py::arg( "termination_settings" ),
-           py::arg( "output_variables" ) = std::vector< std::shared_ptr< tp::SingleDependentVariableSaveSettings > >( ),
-           py::arg( "print_interval" ) = TUDAT_NAN );
+
 
     m.def( "multitype",
            &tp::multiTypePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
