@@ -460,7 +460,9 @@ The body-fixed frame of the body itself.
 
     py::enum_< ta::GasSurfaceInteractionModelType >(m, "GasSurfaceInteractionModelType",
             R"doc(
+
         Enum defining Gas-Surface Interaction Model (GSIM) for panelled aerodynamic force
+
 .)doc" )
         .value( "newton", ta::newton,
             R"doc(

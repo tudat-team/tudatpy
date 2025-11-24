@@ -996,7 +996,7 @@ void expose_rotation_model_setup( py::module& m )
  Function for creating a body rotation model using the typical formulation used by the IAU
 
  Function for creating a body rotation model using the typical formulation used by the International
- Astronomical Union (IAU), such as those in ::cite:p:`archinal2018`. It uses the following formulation
+ Astronomical Union (IAU), such as those in ::cite:p:`Archinal2018`. It uses the following formulation
  :math:`\mathbf{R}^{(B/I)}(t)` for the body-fixed to inertial rotation, defined by the rotation
  pole right ascension and declination (:math:`\alpha` and :math:`\delta`), and the prime meridian angle :math:`W`:
 

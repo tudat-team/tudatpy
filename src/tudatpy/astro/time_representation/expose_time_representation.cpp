@@ -171,7 +171,7 @@ void expose_time_representation( py::module& m )
     over a range of 2147483647 hours (about 300,000 years), which is more than sufficient for practical 
     applications.
     
-    The Time class supports standard arithmetic operations (+, -, *, /) with Time objects and floats, comparison operations, and 
+    The Time class supports standard arithmetic operations (addition, multiplication, etc.) with Time objects and floats, comparison operations, and
     automatic conversion to/from floating-point types.
         )doc" )
             .def( py::init< const double >( ),
@@ -1488,7 +1488,7 @@ datetime.datetime
     Time object representing the epoch as seconds since J2000, in the TT time scale.
  Returns
  -------
-astro.time_representation.Time
+ astro.time_representation.Time
     Time object representing the epoch as seconds since J2000, in the TAI time scale.
 
 
