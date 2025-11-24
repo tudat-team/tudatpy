@@ -824,15 +824,25 @@ Examples
            py::arg( "bias_settings" ) = nullptr,
            R"doc(
 
- Function for creating settings for a two-way instantaneous Doppler observable.
+Function for creating settings for a two-way instantaneous Doppler observable.
 
+Function for creating settings for a two-way instantaneous Doppler observable for a single link definition. The associated observation model creates
+a scalar observable :math:`h_{_{\text{2-Dopp.}}}`
 
- Function for creating settings for a two-way instantaneous Doppler observable for a single link definition. The
- implementation is the same as :func:`~tudatpy.estimation.observable_models_setup.model_settings.two_way_doppler_instantaneous`, with the difference
- that the constituent one-way ranges may have different settings.
+.. math::
 
- The observable may be non-dimensionalized by the speed of light :math:`c` (in the constituent one-way Doppler observable settings),
- which results in the observable being equal to the received and transmitted signal frequencies :math:`f_{R}/f_{T}-1`.
+   h_{_{\text{2-Dopp.}}}=c\left(\frac{d\tau_{T}}{dt_{T}}\frac{dt_{T}}{dt_{R}}\frac{dt_{R}}{d\tau_{R}}-1\right)
+
+with the link end :math:`T` and :math:`R` denoting the transmitter and receiver of a two-way link. The observable is computed
+from a concatenation of a one-way Doppler uplink observation
+:math:`h_{_{\text{1-Dopp.}\uparrow}}` and a one-way Doppler downlink obervation :math:`h_{_{\text{1-Dopp.}\downarrow}}` (see
+:func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_doppler_instantaneous`) as (with the term :math:`c` omitted in the 1-way computations):
+
+.. math::
+
+   h_{_{\text{2-Dopp.}}}&=c\left(\left(h_{_{\text{1-Dopp.}\uparrow}}+1\right)\left(h_{_{\text{1-Dopp.}\downarrow}}+1\right)-1\right)
+                        &=c\left(h_{_{\text{1-Dopp.}\uparrow}}h_{_{\text{1-Dopp.}\downarrow}}+h_{_{\text{1-Dopp.}\uparrow}}+h_{_{\text{1-Dopp.}\downarrow}}\right)
+
 
 
  Parameters
@@ -846,9 +856,6 @@ Examples
  bias_settings : :class:`ObservationBiasSettings`, default = None
      Settings for the observation bias that is to be used for the full observation, default is none (unbiased observation). Note that,
      even if no bias is applied to the two-way observable, the constituent one-way observables may still be biased.
-
- light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
-     Settings for convergence of the light-time
 
  Returns
  -------
@@ -868,20 +875,44 @@ Examples
            py::arg( "bias_settings" ) = nullptr,
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
            py::arg( "normalized_with_speed_of_light" ) = false,
-           R"doc(No documentation found.)doc" );
+           R"doc(
 
-     m.def( "two_doppler_instantaneous",
-           py::overload_cast< const tom::LinkDefinition&,
-                              const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >&,
-                              const std::shared_ptr< tom::ObservationBiasSettings >,
-                              const std::shared_ptr< tom::LightTimeConvergenceCriteria >,
-                              const bool >( &tom::twoWayOpenLoopDoppler ),
-           py::arg( "link_ends" ),
-           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
-           py::arg( "bias_settings" ) = nullptr,
-           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
-           py::arg( "normalized_with_speed_of_light" ) = false,
-           R"doc(No documentation found.)doc" );
+
+Function for creating settings for a two-way instantaneous Doppler observable.
+
+Implementation as in :func:`~tudatpy.estimation.observable_models_setup.model_settings.two_way_doppler_instantaneous_from_one_way_links`,
+but without full control over the up- and downlink settings (specifically, no control over proper time rate settings: :math:`d\tau/dt=1` is used
+for this factory function)
+
+
+Parameters
+----------
+link_ends : LinkDefinition
+    Set of link ends that define the geometry of the observation. This observable requires that the
+    ``transmitter``, ``retransmitter`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
+
+light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
+    List of corrections for the light-time that are to be used. Default is none, which will result
+    in the signal being modelled as moving in a straight line with the speed of light
+
+bias_settings : :class:`ObservationBiasSettings`, default = None
+    Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
+
+light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
+    Settings for convergence of the light-time
+
+normalized_with_speed_of_light : bool, default = false
+    Option to non-dimensionalize the observable with speed of light :math:`c`
+
+ Returns
+ -------
+ :class:`OneWayDopplerObservationModelSettings`
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` derived :class:`OneWayDopplerObservationModelSettings` class defining the settings for the one-way open doppler observable observable.
+
+
+
+
+)doc" );
 
     m.def( "one_way_doppler_averaged",
            py::overload_cast< const tom::LinkDefinition&,
@@ -900,15 +931,15 @@ Examples
  a scalar observable :math:`h_{_{1-\bar{\text{Dopp}}}}` as follows (in the unbiased case):
 
  .. math::
-    h_{_{1-\bar{\text{Dopp}}}}&=c\int_{t-\Delta t}^{t+\Delta t}\frac{t_{T}}{dt_{R}}d\bar{t}\\
-                              &=\frac{h_{_{\text{1-range}}}(t_{R}=t+\Delta t,t_{T})-h_{_{\text{1-range}}}(t_{R}=t,t_{T})}{\Delta t}
+    h_{_{1-\bar{\text{Dopp}}}}&=c\int_{t-\Delta t/2}^{t+\Delta t/2}\frac{dt_{T}}{dt_{R}}d\bar{t}\\
+                              &=\frac{h_{_{\text{1-range}}}(t_{R}=t+\Delta t/2,t_{T})-h_{_{\text{1-range}}}(t_{R}=t+\Delta t/2,t_{T})}{\Delta t}
 
  where, in the latter formulation (which is the one that is implemented), the observable is referenced to the receiver time. This averaged Doppler observable
  is computed as the difference of two one-way range observables (see :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_range`),
- with the reference time shifted by :math:`\Delta t`. As such, it is sensitive to numerical errors for small :math:`\Delta t`
+ with the reference time shifted by :math:`\Delta t` (in TDB time, with the time tag in the center of this interval). As such, it is sensitive to numerical errors for small :math:`\Delta t`
 
  The integration time :math:`\Delta t` is defined in the ancilliary settings (see
- user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/creating-observations/simulating-observations.html#defining-observation-simulation-settings>`_)
+ `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/creating-observations/simulating-observations.html#defining-observation-simulation-settings>`_)
  when simulating the observations (with 60 s as default).
 
  Note that this observation model is a simplified version of the Doppler data as generated by the DSN/ESTRACK, which is suitable for simulation
@@ -1144,7 +1175,7 @@ It requires a frequency calculator to be set for the transmitter.
 The Doppler observable at time tag :math:`t_{R}` (in TDB) is computed as follows, based on :cite:p:`moyer2005`:
 
 * First the time tag is computed from TDB to UTC (denoted here :math:`\bar{t}_{R}`).
-* The receiver start time :math:`\bar{t}_{R,s}` and end time :math:`\bar{t}_{R,e}` (in UTC) of the observation are then computed as :math:`\bar{t}_{R,s}=\bar{t}_{R}-\Delta t` and :math:`\bar{t}_{R,e}=\bar{t}_{R}+\Delta t`.
+* The receiver start time :math:`\bar{t}_{R,s}` and end time :math:`\bar{t}_{R,e}` (in UTC) of the observation are then computed as :math:`\bar{t}_{R,s}=\bar{t}_{R}-\Delta t/2` and :math:`\bar{t}_{R,e}=\bar{t}_{R}+\Delta t/2`.
 * These times are then converted back to TDB times :math:`t_{R,s}` and :math:`t_{R,e}`.
 * The two-way light time from the receiver :math:`R` to the transmitter :math:`T` is then computed, for both :math:`t_{R,s}` and :math:`t_{R,e}` as reception times, to obtain the associated signal transmission times (in TDB) :math:`t_{T,s}` and :math:`t_{T,e}`. Note that, if frequency-dependent light-time corrections (such as ionosphere) are used, the transmission frequency :math:`f_{T}` is evaluated using the transmission epoch from the first iteration of the light-time solution (this incurs a very minor error on the frequencies used in the light-time solution).
 * These transmission times are converted to UTC to obtain :math:`\bar{t}_{T,s}` and :math:`\bar{t}_{T,e}`.
@@ -1208,7 +1239,37 @@ Returns
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg( "bias_settings" ) = nullptr,
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+Function for creating settings for a two-way instantaneous Doppler frequency observable.
+
+Implementation as in :func:`~tudatpy.estimation.observable_models_setup.model_settings.two_way_doppler_instantaneous`, but
+with the observable in Hz rather than m/s. It requires a frequency calculator to be set for the transmitter.
+
+Parameters
+----------
+link_ends : LinkDefinition
+    Set of link ends that define the geometry of the observation. This observable requires that the
+    ``transmitter``, ``retransmitter`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
+
+light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
+    List of corrections for the light-time that are to be used. Default is none, which will result
+    in the signal being modelled as moving in a straight line with the speed of light
+
+bias_settings : :class:`ObservationBiasSettings`, default = None
+    Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
+
+light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
+    Settings for convergence of the light-time
+
+ Returns
+ -------
+ :class:`OneWayDopplerObservationModelSettings`
+     Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` derived :class:`OneWayDopplerObservationModelSettings` class defining the settings for the one-way open doppler observable observable.
+
+
+
+)doc" );
 
     m.def( "dsn_n_way_range",
            py::overload_cast< const tom::LinkDefinition&,

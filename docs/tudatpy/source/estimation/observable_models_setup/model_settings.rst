@@ -53,6 +53,8 @@ Functions
 
    two_way_doppler_instantaneous_from_one_way_links
 
+   two_way_doppler_instantaneous_frequency
+
    angular_position
 
    relative_angular_position
@@ -95,6 +97,8 @@ Functions
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.two_way_doppler_instantaneous
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.two_way_doppler_instantaneous_from_one_way_links
+
+.. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.two_way_doppler_instantaneous_frequency
 
 .. autofunction:: tudatpy.estimation.observable_models_setup.model_settings.angular_position
 
