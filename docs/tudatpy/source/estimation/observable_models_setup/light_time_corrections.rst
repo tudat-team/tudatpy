@@ -6,7 +6,7 @@
 This module contains a set of factory functions for setting up the
 light-time corrections for observation models.
 
-Most functions in this module create objects of type :class:`~tudatpy.estimation.biases.LightTimeCorrectionSettings`,
+Most functions in this module create objects of type :class:`~tudatpy.estimation.observable_models_setup.light_time_corrections.LightTimeCorrectionSettings`,
 which define settings for a type of light-time correction. The main interface with Tudat is that these objects are used
 as input to the observation model functions created in the :ref:`model_settings` module.
 

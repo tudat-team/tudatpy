@@ -6,7 +6,7 @@
 This module contains a set of factory functions for setting up the
 biases for observation models.
 
-The functions in this module create objects of type :class:`~tudatpy.estimation.biases.ObservationBiasSettings`,
+The functions in this module create objects of type :class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`,
 which define settings for a type of observation bias. The main interface with Tudat is that these objects are used
 as input to the observation model functions created in the :ref:`model_settings` module.
 

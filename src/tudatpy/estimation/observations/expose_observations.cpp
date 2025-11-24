@@ -1907,6 +1907,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
            py::arg( "original_observation_collection" ),
            py::arg( "observation_filters_map" ),
            R"doc(
+
         Creates a new, filtered observation collection from an existing one using multiple filters.
 
         This function applies a set of filters, each associated with a parser, to an observation collection
@@ -1923,6 +1924,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
         -------
         tudatpy.estimation.observations.ObservationCollection
             A new observation collection containing the filtered observations.
+
         )doc" );
 
     m.def( "create_filtered_observation_collection",
@@ -1934,6 +1936,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
            py::arg( "observation_filter" ),
            py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
            R"doc(
+
         Creates a new, filtered observation collection from an existing one using a single filter.
 
         This function applies a single filter to a subset of an observation collection (selected by a parser)
@@ -1952,6 +1955,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
         -------
         tudatpy.estimation.observations.ObservationCollection
             A new observation collection containing the filtered observations.
+
         )doc" );
 
     m.def( "split_observation_collection",
