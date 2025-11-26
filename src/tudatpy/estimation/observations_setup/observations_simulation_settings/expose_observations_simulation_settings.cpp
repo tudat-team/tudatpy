@@ -51,6 +51,11 @@ void expose_observations_simulation_settings( py::module& m )
                            R"doc(
          noise_function : Callable[ [float], numpy.ndarray[numpy.float64[m, 1]] ], default = None -
          Function providing the observation noise as a function of observation time (can be constant or time-dependent), default is None.
+      )doc" )
+            .def_property( "ancillary_settings",
+                           &tss::ObservationSimulationSettings< TIME_TYPE >::getAncilliarySettings,
+                           &tss::ObservationSimulationSettings< TIME_TYPE >::setAncilliarySettings,
+                           R"doc( No documentation found
       )doc" );
     //            .def_property("observable_type",
     //                         &tss::ObservationSimulationSettings<double>::getObservableType,
