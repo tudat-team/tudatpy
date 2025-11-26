@@ -16,6 +16,34 @@ be retrieved using the :attr:`~tudatpy.dynamics.environment.Body.gravity_field_v
 
 Using gravity field variations is only possible when a body has been endowed with a spherical harmonic gravity field setting (see :ref:`gravity_field`).
 
+The following code block gives an overview of the steps to define, create, and extract a gravity field variation model, for the specific example of a constant :math:`k_{2}=0.301` Love number, and both the Sun and Moon as tide-raising bodies.
+
+.. code-block:: python
+
+  from tudatpy.dynamics import environment_setup
+
+  # Create body settings
+  body_settings =  environment_setup.get_default_body_settings( ... ) # Typical way to instantiate body settings
+
+  # Modify gravity field variation settings (base class type GravityFieldVariationSettings)
+  # NOTE, this requires the body_settings.get( 'Earth' ).gravity_field_settings to define a spherical harmonic gravity field
+  body_settings.get( 'Earth' ).gravity_field_variation_settings = [
+      environment_setup.gravity_field_variation.solid_body_tide(
+         tide_raising_body = 'Sun',
+         love_number = 0.301,
+         degree = 2 ),
+      environment_setup.gravity_field_variation.solid_body_tide(
+         tide_raising_body = 'Moon',
+         love_number = 0.301,
+         degree = 2 ) ]
+
+  # Create bodies
+  bodies = environment_setup.create_system_of_bodies(body_settings)
+
+  # Extract list of gravity field variation model (base class type GravityFieldVariationModel) from Vehicle
+  earth_gravity_field_variation_models = bodies.get( 'Earth' ).gravity_field_model.gravity_field_variation_models
+
+
 Once created, the gravity field variation settings defined through the settings in this submodule each compute a :math:`\Delta \bar{C}_{j,lm}`
 and :math:`\Delta \bar{S}_{j,lm}` variation to the cosine and sine coefficients at degree :math:`l` and order :math:`m`.
 Each of the :math:`N` gravity field variation models defined for a given body is evaluated at each time step to produce:
