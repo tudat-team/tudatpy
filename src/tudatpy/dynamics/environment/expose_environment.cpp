@@ -2122,14 +2122,14 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
          Function that provides the local temperature at the ground station (typically use for media corrections) as a function of time
 
-         :type: :type: Callable[[float], float]
+         :type: :type: callable[[float], float]
 
      )doc" )
             .def_property_readonly( "pressure_function", &tgs::GroundStation::getPressureFunction, R"doc(
 
          Function that provides the local pressure at the ground station (typically use for media corrections) as a function of time
 
-         :type: :type: Callable[[float], float]
+         :type: :type: callable[[float], float]
 
      )doc" )
             .def_property_readonly( "relative_humidity_function",
@@ -2138,7 +2138,7 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
          Function that provides the local relative humidity at the ground station (typically use for media corrections) as a function of time
 
-         :type: :type: Callable[[float], float]
+         :type: :type: callable[[float], float]
 
      )doc" )
             .def_property_readonly( "pointing_angles_calculator",

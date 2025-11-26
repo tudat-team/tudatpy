@@ -141,11 +141,11 @@ void expose_parameters( py::module& m )
 
          Parameters
          ----------
-         parameter_type : Tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, Tuple[str, str] ]
+         parameter_type : tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, tuple[str, str] ]
              Parameter identifier for which the indices are retrieved. The first element of the tuple is the parameter type, the second element is a tuple containing the body name and, if applicable, a secondary identifier (e.g., station name), else this is an empty string.
          Returns
          -------
-         List[ Tuple[int, int] ]
+         List[ tuple[int, int] ]
              Indices of the parameters corresponding to the description. The first element of the tuple is the start index, the second element is the size of the parameter.
 
      )doc" )
@@ -168,7 +168,7 @@ void expose_parameters( py::module& m )
 
          Returns
          -------
-         List[ Tuple[int, int] ]
+         List[ tuple[int, int] ]
              Indices of the parameters corresponding to the description. The first element of the tuple is the start index, the second element is the size of the parameter.
 
      )doc" )
@@ -193,7 +193,7 @@ void expose_parameters( py::module& m )
 
          Returns
          -------
-         Tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, Tuple[str, str] ]
+         tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, tuple[str, str] ]
              List of parameter identifiers. The first element of the tuple is the parameter type, the second element is a tuple containing the body name and, if applicable, a secondary identifier (e.g., station name), else this is an empty string.
 
 
