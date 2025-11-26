@@ -284,80 +284,89 @@ void expose_estimation_analysis( py::module& m )
                   py::arg( "weight" ),
                   R"doc(
 
-         Function to set a constant weight matrix for all observables.
-
-         Function to set a constant weight matrix for all observables.
-         The weights are applied to all observations managed by the given PodInput object.
-
-
-         Parameters
-         ----------
-         constant_weight : float
-             Constant weight factor that is to be applied to all observations.
-         Returns
-         -------
-         None
-             Function modifies the object in-place.
-
-
-
+         Function is deprecated, weights should be set in the :class:`~tudatpy.estimation.observations.ObservationCollection` object
+         containing the data, see `user guide description <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights>`_
 
 
      )doc" )
             .def( "set_weights_from_observation_collection",
                   &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setWeightsFromObservationCollection,
-                  R"doc(No documentation found.)doc" )
+                  R"doc(
+
+
+        Function is deprecated, weights should be set in the :class:`~tudatpy.estimation.observations.ObservationCollection` object
+        containing the data, see `user guide description <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights>`_
+
+
+)doc" )
             .def( "set_constant_single_observable_weight",
                   &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantSingleObservableWeights,
                   py::arg( "observable_type" ),
                   py::arg( "weight" ),
-                  R"doc(No documentation found.)doc" )
+                  R"doc(
+
+Function is deprecated, weights should be set in the :class:`~tudatpy.estimation.observations.ObservationCollection` object
+containing the data, see `user guide description <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights>`_
+
+
+)doc" )
             .def( "set_constant_single_observable_vector_weight",
                   &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantSingleObservableVectorWeights,
                   py::arg( "observable_type" ),
                   py::arg( "weight" ),
-                  R"doc(No documentation found.)doc" )
+                  R"doc(
+
+Function is deprecated, weights should be set in the :class:`~tudatpy.estimation.observations.ObservationCollection` object
+containing the data, see `user guide description <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights>`_
+
+
+)doc" )
             .def( "set_constant_single_observable_and_link_end_weight",
                   &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantSingleObservableAndLinkEndsWeights,
                   py::arg( "observable_type" ),
                   py::arg( "link_ends" ),
                   py::arg( "weight" ),
-                  R"doc(No documentation found.)doc" )
+                  R"doc(
+
+Function is deprecated, weights should be set in the :class:`~tudatpy.estimation.observations.ObservationCollection` object
+containing the data, see `user guide description <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights>`_
+
+
+)doc" )
             .def( "set_constant_single_observable_and_link_end_vector_"
                   "weight",
                   &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantSingleObservableAndLinkEndsVectorWeights,
                   py::arg( "observable_type" ),
                   py::arg( "link_ends" ),
                   py::arg( "weight" ),
-                  R"doc(No documentation found.)doc" )
+                  R"doc(
+
+Function is deprecated, weights should be set in the :class:`~tudatpy.estimation.observations.ObservationCollection` object
+containing the data, see `user guide description <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights>`_
+
+
+)doc" )
             .def( "set_total_single_observable_and_link_end_vector_"
                   "weight",
                   &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setTabulatedSingleObservableAndLinkEndsWeights,
                   py::arg( "observable_type" ),
                   py::arg( "link_ends" ),
                   py::arg( "weight_vector" ),
-                  R"doc(No documentation found.)doc" )
+                  R"doc(
+
+Function is deprecated, weights should be set in the :class:`~tudatpy.estimation.observations.ObservationCollection` object
+containing the data, see `user guide description <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights>`_
+
+
+
+)doc" )
             .def( "set_constant_weight_per_observable",
                   &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantPerObservableWeightsMatrix,
                   py::arg( "weight_per_observable" ),
                   R"doc(
 
-         Function to set a constant weight matrix for a given type of observable.
-
-         Function to set a constant weight matrix for a given type of observable.
-         The weights are applied to all observations of the observable type specified by the `weight_per_observable` parameter.
-
-
-         Parameters
-         ----------
-         constant_weight : Dict[ :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservableType`, float ]
-             Constant weight factor that is to be applied to all observations.
-         Returns
-         -------
-         None
-             Function modifies the object in-place.
-
-
+Function is deprecated, weights should be set in the :class:`~tudatpy.estimation.observations.ObservationCollection` object
+containing the data, see `user guide description <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights>`_
 
 
 
@@ -365,7 +374,13 @@ void expose_estimation_analysis( py::module& m )
             .def( "set_constant_vector_weight_per_observable",
                   &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::setConstantPerObservableVectorWeightsMatrix,
                   py::arg( "weight_per_observable" ),
-                  R"doc(No documentation found.)doc" )
+                  R"doc(
+
+Function is deprecated, weights should be set in the :class:`~tudatpy.estimation.observations.ObservationCollection` object
+containing the data, see `user guide description <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights>`_
+
+
+)doc" )
             .def( "define_covariance_settings",
                   &tss::CovarianceAnalysisInput< STATE_SCALAR_TYPE, TIME_TYPE >::defineCovarianceSettings,
                   py::arg( "reintegrate_equations_on_first_iteration" ) = true,
@@ -1004,7 +1019,7 @@ void expose_estimation_analysis( py::module& m )
 
  Returns
  -------
- tuple[ list[astro.time_representation.Time], list[numpy.ndarray[numpy.float64[m, n]]] ]
+ tuple[ list[:class:`~tudatpy.astro.time_representation.Time`], list[numpy.ndarray[numpy.float64[m, n]]] ]
      Tuple containing a list of output times, and a list of propagated covariances at each output time.
 
 
@@ -1083,7 +1098,7 @@ void expose_estimation_analysis( py::module& m )
 
  Returns
  -------
- tuple[ list[astro.time_representation.Time], list[numpy.ndarray[numpy.float64[m, n]]] ]
+ tuple[ list[:class:`~tudatpy.astro.time_representation.Time`], list[numpy.ndarray[numpy.float64[m, n]]] ]
      Tuple containing a list of output times, and a list of propagated formal errors in RSW frame at each output time.
 
 
@@ -1120,7 +1135,7 @@ void expose_estimation_analysis( py::module& m )
 
  Returns
  -------
- tuple[ list[astro.time_representation.Time], list[numpy.ndarray[numpy.float64[m, n]]] ]
+ tuple[ list[:class:`~tudatpy.astro.time_representation.Time`], list[numpy.ndarray[numpy.float64[m, n]]] ]
      Tuple containing a list of output times, and a list of propagated formal errors at each output time.
 
 
@@ -1202,7 +1217,7 @@ void expose_estimation_analysis( py::module& m )
 
  Returns
  -------
- tuple[ list[astro.time_representation.Time], list[numpy.ndarray[numpy.float64[m, n]]] ]
+ tuple[ list[:class:`~tudatpy.astro.time_representation.Time`], list[numpy.ndarray[numpy.float64[m, n]]] ]
      Tuple containing a list of output times, and a list of propagated formal errors in RSW frame at each output time.
 
 

@@ -206,6 +206,29 @@ public:
         return observationDependentVariableBookkeeping_;
     }
 
+    void addDependentVariableSettings( const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList )
+    {
+        observationDependentVariableBookkeeping_-> addDependentVariables( settingsList );
+    }
+
+    void setDependentVariableSettings( const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList )
+    {
+        observationDependentVariableBookkeeping_->clearSettings( );
+        observationDependentVariableBookkeeping_-> addDependentVariables( settingsList );
+    }
+
+
+    std::vector< std::shared_ptr< ObservationDependentVariableSettings > > getDependentVariableSettings( )
+    {
+        return observationDependentVariableBookkeeping_->getDependentVariableSettings( );
+    }
+
+    void clearDependentVariableSettings( )
+    {
+        observationDependentVariableBookkeeping_->clearSettings( );
+    }
+
+
 protected:
     // Type of observable to be simulated
     observation_models::ObservableType observableType_;

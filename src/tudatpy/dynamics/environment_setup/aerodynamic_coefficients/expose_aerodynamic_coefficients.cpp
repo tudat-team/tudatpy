@@ -976,7 +976,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
  force_coefficients_frame : AerodynamicCoefficientFrames, default = negative_aerodynamic_frame_coefficients
      Variable defining the frame in which the force coefficients are defined. By default, this is the negative aerodynamic
      frame, so that the coefficients are for drag, side force and lift (:math:`C_{D}, C_{S}, C_{L}`)
- interpolator_settings : math.interpolators.InterpolatorSettings, default = :func:`tudatpy.math.interpolators.linear_interpolation`
+ interpolator_settings : math.interpolators.InterpolatorSettings, default = :func:`~tudatpy.math.interpolators.linear_interpolation`
      Interpolator settings object, where the conditions for interpolation of tabulated inputs are saved.
      Pointer to an interpolator settings object where the conditions for interpolation of tabulated inputs are saved.
 
