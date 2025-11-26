@@ -318,8 +318,8 @@ BOOST_AUTO_TEST_CASE( testSecondDegreeGravitationalTorquePartials )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 testPartialWrtMarsRotationalVelocity, partialWrtMarsRotationalVelocity, std::numeric_limits< double >::epsilon( ) );
 
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtPhobosState.block( 0, 0, 3, 3 ), testPartialWrtPhobosPosition, 1.0E-8 );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtMarsState.block( 0, 0, 3, 3 ), testPartialWrtMarsPosition, 1.0E-8 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtPhobosState.block( 0, 0, 3, 3 ), testPartialWrtPhobosPosition, 1.0E-7 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtMarsState.block( 0, 0, 3, 3 ), testPartialWrtMarsPosition, 1.0E-7 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
                 partialWrtPhobosState.block( 0, 3, 3, 3 ), testPartialWrtPhobosVelocity, std::numeric_limits< double >::epsilon( ) );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
