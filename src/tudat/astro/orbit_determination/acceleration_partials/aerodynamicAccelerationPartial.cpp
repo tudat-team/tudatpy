@@ -16,12 +16,60 @@ namespace tudat
 namespace acceleration_partials
 {
 
-void AerodynamicAccelerationPartial::computeAerodynamicAccelerationWrtDragComponent(
-    Eigen::MatrixXd& partial )
+//! Function to compute the partial derivative of the acceleration w.r.t. the current drag coefficient
+/*!
+ * Function to compute the partial derivative of the acceleration w.r.t. the current drag coefficient
+ * \param accelerationPartial Derivative of acceleration w.r.t. the current drag coefficient (returned by reference).
+ */
+
+void AerodynamicAccelerationPartial::computeAccelerationPartialWrtCurrentDragCoefficient( Eigen::MatrixXd& accelerationPartial )
 {
-    Eigen::Quaterniond rotationToInertialFrame =
-                flightConditions_->getAerodynamicAngleCalculator( )->getRotationQuaternionBetweenFrames(
-                        reference_frames::aerodynamic_frame, reference_frames::inertial_frame );
+    Eigen::Quaterniond rotationToInertialFrame = flightConditions_->getAerodynamicAngleCalculator( )->getRotationQuaternionBetweenFrames(
+            reference_frames::aerodynamic_frame, reference_frames::inertial_frame );
+
+    double currentAirspeed = flightConditions_->getCurrentAirspeed( );
+    accelerationPartial = rotationToInertialFrame * Eigen::Vector3d::UnitX( ) *
+            ( -0.5 * flightConditions_->getCurrentDensity( ) * currentAirspeed * currentAirspeed *
+              flightConditions_->getAerodynamicCoefficientInterface( )->getReferenceArea( ) ) /
+            aerodynamicAcceleration_->getCurrentMass( );
+}
+
+//! Function to compute the partial derivative of the acceleration w.r.t. the arc-wise constant drag coefficient
+/*!
+ * Function to compute the partial derivative of the acceleration w.r.t. the arc-wise constant drag coefficient
+ * \param accelerationPartial Derivative of acceleration w.r.t. arc-wise constant drag coefficient (returned by reference).
+ * \param parameter Parameter object containing information on arcwise drag coefficient that is to be estimated
+ */
+
+void AerodynamicAccelerationPartial::computeAccelerationPartialWrtArcwiseDragCoefficient(
+        Eigen::MatrixXd& accelerationPartial,
+        const std::shared_ptr< estimatable_parameters::ArcWiseConstantDragCoefficient > parameter )
+{
+    // Get partial w.r.t. rdrag coefficient
+    Eigen::MatrixXd partialWrtSingleParameter = Eigen::Vector3d::Zero( );
+    this->computeAccelerationPartialWrtCurrentDragCoefficient( partialWrtSingleParameter );
+
+    // Retrieve current arc
+    std::shared_ptr< interpolators::LookUpScheme< double > > currentArcIndexLookUp = parameter->getArcTimeLookupScheme( );
+    accelerationPartial.setZero( 3, parameter->getNumberOfArcs( ) );
+    if( currentArcIndexLookUp->getMinimumValue( ) <= currentTime_ )
+    {
+        int currentArc = currentArcIndexLookUp->findNearestLowerNeighbour( currentTime_ );
+
+        if( currentArc >= accelerationPartial.cols( ) )
+        {
+            throw std::runtime_error( "Error when getting arc-wise radiation pressure coefficient partials, data not consistent" );
+        }
+
+        // Set partial
+        accelerationPartial.block( 0, currentArc, 3, 1 ) = partialWrtSingleParameter;
+    }
+}
+
+void AerodynamicAccelerationPartial::computeAccelerationPartialWrtDragComponent( Eigen::MatrixXd& partial )
+{
+    Eigen::Quaterniond rotationToInertialFrame = flightConditions_->getAerodynamicAngleCalculator( )->getRotationQuaternionBetweenFrames(
+            reference_frames::aerodynamic_frame, reference_frames::inertial_frame );
 
     Eigen::Vector3d currentDragComponentPartial = Eigen::Vector3d::Zero( );
     Eigen::Vector3d unscaledAcceleration = aerodynamicAcceleration_->getCurrentUnscaledAccelerationInAerodynamicFrame( );
@@ -29,12 +77,10 @@ void AerodynamicAccelerationPartial::computeAerodynamicAccelerationWrtDragCompon
     partial = rotationToInertialFrame * currentDragComponentPartial;
 };
 
-void AerodynamicAccelerationPartial::computeAerodynamicAccelerationWrtSideComponent(
-    Eigen::MatrixXd& partial )
+void AerodynamicAccelerationPartial::computeAccelerationPartialWrtSideComponent( Eigen::MatrixXd& partial )
 {
-    Eigen::Quaterniond rotationToInertialFrame =
-                flightConditions_->getAerodynamicAngleCalculator( )->getRotationQuaternionBetweenFrames(
-                        reference_frames::aerodynamic_frame, reference_frames::inertial_frame );
+    Eigen::Quaterniond rotationToInertialFrame = flightConditions_->getAerodynamicAngleCalculator( )->getRotationQuaternionBetweenFrames(
+            reference_frames::aerodynamic_frame, reference_frames::inertial_frame );
 
     Eigen::Vector3d currentSideComponentPartial = Eigen::Vector3d::Zero( );
     Eigen::Vector3d unscaledAcceleration = aerodynamicAcceleration_->getCurrentUnscaledAccelerationInAerodynamicFrame( );
@@ -42,18 +88,63 @@ void AerodynamicAccelerationPartial::computeAerodynamicAccelerationWrtSideCompon
     partial = rotationToInertialFrame * currentSideComponentPartial;
 };
 
-void AerodynamicAccelerationPartial::computeAerodynamicAccelerationWrtLiftComponent(
-    Eigen::MatrixXd& partial )
+void AerodynamicAccelerationPartial::computeAccelerationPartialWrtLiftComponent( Eigen::MatrixXd& partial )
 {
-    Eigen::Quaterniond rotationToInertialFrame =
-                flightConditions_->getAerodynamicAngleCalculator( )->getRotationQuaternionBetweenFrames(
-                        reference_frames::aerodynamic_frame, reference_frames::inertial_frame );
+    Eigen::Quaterniond rotationToInertialFrame = flightConditions_->getAerodynamicAngleCalculator( )->getRotationQuaternionBetweenFrames(
+            reference_frames::aerodynamic_frame, reference_frames::inertial_frame );
 
     Eigen::Vector3d currentLiftComponentPartial = Eigen::Vector3d::Zero( );
     Eigen::Vector3d unscaledAcceleration = aerodynamicAcceleration_->getCurrentUnscaledAccelerationInAerodynamicFrame( );
     currentLiftComponentPartial( 2 ) = unscaledAcceleration( 2 );
-    partial = rotationToInertialFrame * currentLiftComponentPartial;  
+    partial = rotationToInertialFrame * currentLiftComponentPartial;
 };
+
+//! Function to compute the partial derivative of the acceleration w.r.t. an aerodynamic component scaling factor
+/*!
+ * Function to compute the partial derivative of the acceleration w.r.t. an aerodynamic component scaling factor
+ * \param accelerationPartial Derivative of acceleration w.r.t. an aerodynamic component scaling factor (returned by reference).
+ */
+void AerodynamicAccelerationPartial::computeAccelerationPartialWrtArcWiseAerodynamicScalingCofficient(
+        Eigen::MatrixXd& accelerationPartial,
+        const std::shared_ptr< estimatable_parameters::ArcWiseAerodynamicScalingFactor > parameter )
+{
+    // Get partial w.r.t. aerodynamic component coefficient
+    Eigen::MatrixXd partialWrtSingleParameter = Eigen::Vector3d::Zero( );
+    switch( parameter->getParameterName( ).first )
+    {
+        case estimatable_parameters::arc_wise_drag_component_scaling_factor: {
+            this->computeAccelerationPartialWrtDragComponent( partialWrtSingleParameter );
+            break;
+        }
+        case estimatable_parameters::arc_wise_side_component_scaling_factor: {
+            this->computeAccelerationPartialWrtSideComponent( partialWrtSingleParameter );
+            break;
+        }
+        case estimatable_parameters::arc_wise_lift_component_scaling_factor: {
+            this->computeAccelerationPartialWrtLiftComponent( partialWrtSingleParameter );
+            break;
+        }
+
+        default:
+            break;
+    }
+
+    // Retrieve current arc
+    std::shared_ptr< interpolators::LookUpScheme< double > > currentArcIndexLookUp = parameter->getArcTimeLookupScheme( );
+    accelerationPartial.setZero( 3, parameter->getNumberOfArcs( ) );
+    if( currentArcIndexLookUp->getMinimumValue( ) <= currentTime_ )
+    {
+        int currentArc = currentArcIndexLookUp->findNearestLowerNeighbour( currentTime_ );
+
+        if( currentArc >= accelerationPartial.cols( ) )
+        {
+            throw std::runtime_error( "Error when getting arc-wise aerodynamic component scaling partials, data not consistent" );
+        }
+
+        // Set partial
+        accelerationPartial.block( 0, currentArc, 3, 1 ) = partialWrtSingleParameter;
+    }
+}
 
 //! Function for updating partial w.r.t. the bodies' positions
 void AerodynamicAccelerationPartial::update( const double currentTime )
@@ -109,8 +200,9 @@ void AerodynamicAccelerationPartial::update( const double currentTime )
     currentTime_ = currentTime;
 }
 
+// overwrite base class (essential!) function, which evaluates all acceleration model parameter (double) partials:
 std::pair< std::function< void( Eigen::MatrixXd& ) >, int > AerodynamicAccelerationPartial::getParameterPartialFunctionDerivedAcceleration(
-            std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > parameter )
 {
     std::function< void( Eigen::MatrixXd& ) > partialFunction;
     int numberOfColumns = 0;
@@ -118,34 +210,27 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > AerodynamicAccelerat
     {
         switch( parameter->getParameterName( ).first )
         {
-            case estimatable_parameters::constant_drag_coefficient:
-            {
+            case estimatable_parameters::constant_drag_coefficient: {
                 partialFunction = std::bind(
-                    &AerodynamicAccelerationPartial::computeAccelerationPartialWrtCurrentDragCoefficient, this, std::placeholders::_1 );
+                        &AerodynamicAccelerationPartial::computeAccelerationPartialWrtCurrentDragCoefficient, this, std::placeholders::_1 );
                 numberOfColumns = 1;
                 break;
             }
-            case estimatable_parameters::drag_component_scaling_factor:
-            {
+            case estimatable_parameters::drag_component_scaling_factor: {
                 partialFunction = std::bind(
-                    &AerodynamicAccelerationPartial::computeAerodynamicAccelerationWrtDragComponent, 
-                    this, std::placeholders::_1 );
+                        &AerodynamicAccelerationPartial::computeAccelerationPartialWrtDragComponent, this, std::placeholders::_1 );
                 numberOfColumns = 1;
                 break;
             }
-            case estimatable_parameters::side_component_scaling_factor:
-            {
+            case estimatable_parameters::side_component_scaling_factor: {
                 partialFunction = std::bind(
-                    &AerodynamicAccelerationPartial::computeAerodynamicAccelerationWrtSideComponent, 
-                    this, std::placeholders::_1 );
+                        &AerodynamicAccelerationPartial::computeAccelerationPartialWrtSideComponent, this, std::placeholders::_1 );
                 numberOfColumns = 1;
                 break;
             }
-            case estimatable_parameters::lift_component_scaling_factor:
-            {
+            case estimatable_parameters::lift_component_scaling_factor: {
                 partialFunction = std::bind(
-                    &AerodynamicAccelerationPartial::computeAerodynamicAccelerationWrtLiftComponent, 
-                    this, std::placeholders::_1 );
+                        &AerodynamicAccelerationPartial::computeAccelerationPartialWrtLiftComponent, this, std::placeholders::_1 );
                 numberOfColumns = 1;
                 break;
             }
@@ -154,6 +239,58 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > AerodynamicAccelerat
         }
     }
 
+    return std::make_pair( partialFunction, numberOfColumns );
+}
+
+// overwrite base class (essential!) function, which evaluates all acceleration model parameter (VectorXd) partials:
+std::pair< std::function< void( Eigen::MatrixXd& ) >, int > AerodynamicAccelerationPartial::getParameterPartialFunctionDerivedAcceleration(
+        std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
+
+{
+    std::function< void( Eigen::MatrixXd& ) > partialFunction;
+    int numberOfColumns = 0;
+    if( parameter->getParameterName( ).second.first == acceleratedBody_ )
+    {
+        switch( parameter->getParameterName( ).first )
+        {
+            case estimatable_parameters::arc_wise_constant_drag_coefficient: {
+                if( std::dynamic_pointer_cast< estimatable_parameters::ArcWiseConstantDragCoefficient >( parameter ) != nullptr )
+                {
+                    partialFunction =
+                            std::bind( &AerodynamicAccelerationPartial::computeAccelerationPartialWrtArcwiseDragCoefficient,
+                                       this,
+                                       std::placeholders::_1,
+                                       std::dynamic_pointer_cast< estimatable_parameters::ArcWiseConstantDragCoefficient >( parameter ) );
+                    numberOfColumns = parameter->getParameterSize( );
+                }
+                else
+                {
+                    throw std::runtime_error( "Error when making radiation drag, arcwise drag parameter not consistent" );
+                }
+                break;
+            }
+            case estimatable_parameters::arc_wise_drag_component_scaling_factor:
+            case estimatable_parameters::arc_wise_side_component_scaling_factor:
+            case estimatable_parameters::arc_wise_lift_component_scaling_factor: {
+                if( std::dynamic_pointer_cast< estimatable_parameters::ArcWiseAerodynamicScalingFactor >( parameter ) != nullptr )
+                {
+                    partialFunction =
+                            std::bind( &AerodynamicAccelerationPartial::computeAccelerationPartialWrtArcWiseAerodynamicScalingCofficient,
+                                       this,
+                                       std::placeholders::_1,
+                                       std::dynamic_pointer_cast< estimatable_parameters::ArcWiseAerodynamicScalingFactor >( parameter ) );
+                    numberOfColumns = parameter->getParameterSize( );
+                }
+                else
+                {
+                    throw std::runtime_error( "Error when making radiation drag, arcwise drag parameter not consistent" );
+                }
+                break;
+            }
+            default:
+                break;
+        }
+    }
 
     return std::make_pair( partialFunction, numberOfColumns );
 }

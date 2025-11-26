@@ -5,7 +5,7 @@ import numpy as np
 
 # Load Tudatpy modules
 from tudatpy.dynamics import environment_setup
-from tudatpy.data import read_solar_activity_data, get_space_weather_path
+from tudatpy.data import read_solar_activity_data, get_space_weather_path, get_atmosphere_tables_path
 from tudatpy.astro.time_representation import iso_string_to_epoch
 from tudatpy.astro.element_conversion import convert_geographic_to_geodetic_latitude
 
@@ -16,7 +16,7 @@ def test_nrlmsise00():
     # The data contains the generated input data (date [iso string], longitude [deg], latitude [deg], altitude [meters]), 
     # pymsis resulting densities [kg/m^3], and the corresponding space weather parameters (F10.7, F10.7a, and daily Ap) used 
     # internally by pymsis for future references.
-    with open(os.path.dirname(__file__) + '/nrlmsise00_validation_data.pkl', "rb") as file:
+    with open( get_atmosphere_tables_path() + '/nrlmsise00_validation_data.pkl', "rb") as file:
         validation_data = pickle.load(file)
 
     # Initialise Tudat NRLMSISE00 model

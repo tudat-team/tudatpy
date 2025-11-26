@@ -62,16 +62,16 @@ targets = [
 user_input = [
     # start end stepsize + epoch formats
     (
-        datetime.datetime(2022, 1, 1),
-        datetime.datetime(2022, 2, 1),
+        datetime.datetime(2022, 1, 1, 0,0,0),
+        datetime.datetime(2022, 2, 1,0,0,0),
         "5d",
         None,
         False,
         does_not_raise(),
     ),
     (
-        datetime.datetime(2022, 1, 1),
-        datetime.datetime(2022, 5, 1),
+        datetime.datetime(2022, 1, 1, 0,0,0),
+        datetime.datetime(2022, 5, 1,0,0,0),
         "1m",
         None,
         True,
@@ -79,7 +79,7 @@ user_input = [
     ),
     (
         694267200.000,
-        datetime.datetime(2022, 5, 1),
+        datetime.datetime(2022, 5, 1, 0,0,0),
         "1m",
         None,
         True,
@@ -87,14 +87,14 @@ user_input = [
     ),
     (
         694267200.000,
-        datetime.datetime(2022, 2, 1),
+        datetime.datetime(2022, 2, 1, 0,0,0),
         "5d",
         None,
         False,
         does_not_raise(),
     ),
     (
-        datetime.datetime(2022, 1, 1),
+        datetime.datetime(2022, 1, 1, 0,0,0),
         696945600.000,
         "5d",
         None,
@@ -111,16 +111,16 @@ user_input = [
     ),
     # start end num steps
     (
-        datetime.datetime(2022, 1, 1),
-        datetime.datetime(2022, 2, 1),
+        datetime.datetime(2022, 1, 1, 0,0,0),
+        datetime.datetime(2022, 2, 1, 0,0,0),
         "20",
         None,
         False,
         does_not_raise(),
     ),
     (
-        datetime.datetime(2022, 1, 1),
-        datetime.datetime(2022, 2, 1),
+        datetime.datetime(2022, 1, 1, 0,0,0),
+        datetime.datetime(2022, 2, 1, 0,0,0),
         "100000",
         None,
         True,
@@ -163,8 +163,8 @@ user_input = [
 
 user_input_short = [
     (
-        datetime.datetime(2022, 1, 1),
-        datetime.datetime(2022, 2, 1),
+        datetime.datetime(2022, 1, 1, 0,0,0),
+        datetime.datetime(2022, 2, 1, 0,0,0),
         "5d",
         None,
         False,
@@ -259,8 +259,8 @@ def test_hybrid_function_wrapper(query_id, location, frame_orientation, frame_or
         horizons_location=location,
         frame_origin=frame_origin,  # tudat frame origin and orientation
         frame_orientation=frame_orientation,
-        epoch_start=datetime.datetime(2020, 1, 1),
-        epoch_end=datetime.datetime(2023, 1, 1),
+        epoch_start=datetime.datetime(2020, 1, 1,0,0,0),
+        epoch_end=datetime.datetime(2023, 1, 1,0,0,0),
         epoch_step="1d",
         extended_query=True,
     )
