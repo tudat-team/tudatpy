@@ -40,6 +40,7 @@ std::shared_ptr< tom::SingleObservationSet< ObservationScalarType, TimeType > > 
         const tom::LinkEndType referenceLinkEnd,
         const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr )
 {
+    std::cerr<<"Function single_observation_set is deprecated. Use create_single_observation_set instead"<<std::endl;
     return std::make_shared< tom::SingleObservationSet< ObservationScalarType, TimeType > >( observableType,
                                                                                              linkEnds,
                                                                                              observations,
@@ -552,30 +553,9 @@ numpy.ndarray
            py::arg( "reference_link_end" ),
            py::arg( "ancilliary_settings" ) = nullptr,
            R"doc(
-        Creates a `SingleObservationSet` object without dependent variables.
 
-        This function is a factory function that simplifies the creation of a `SingleObservationSet`
-        when no dependent variables are associated with the observations.
+        Deprecated. Use :func:`~tudatpy.estimation.observations.create_single_observation_set` instead.
 
-        Parameters
-        ----------
-        observable_type : tudatpy.astro.observation_models.ObservableType
-            Type of observable.
-        link_definition : tudatpy.astro.observation_models.LinkDefinition
-            Definition of the link ends for the observation.
-        observations : list[numpy.ndarray]
-            List of observations. Each entry is a vector representing a single observation.
-        observation_times : list[float]
-            List of observation times.
-        reference_link_end : tudatpy.astro.observation_models.LinkEndType
-            Reference link end for the observation.
-        ancilliary_settings : tudatpy.astro.observation_models.ObservationAncilliarySimulationSettings, optional
-            Ancillary settings for the observation.
-
-        Returns
-        -------
-        tudatpy.estimation.observations.SingleObservationSet
-            A `SingleObservationSet` object.
         )doc" );
 
     m.def( "create_single_observation_set",
@@ -926,7 +906,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -942,7 +922,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -958,7 +938,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -974,7 +954,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -990,7 +970,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -1006,7 +986,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -1022,7 +1002,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -1038,7 +1018,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -1054,7 +1034,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -1070,7 +1050,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -1086,7 +1066,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -1102,7 +1082,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -1118,7 +1098,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -1134,7 +1114,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -1150,7 +1130,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -1166,7 +1146,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -1182,7 +1162,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -1199,7 +1179,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser
              Object that is used to select a subset of the observation sets.
 
          Returns
@@ -1215,7 +1195,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -1231,7 +1211,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -1247,7 +1227,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -1263,7 +1243,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -1279,7 +1259,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -1295,7 +1275,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -1311,7 +1291,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -1327,7 +1307,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -1347,7 +1327,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          ----------
          weight : float
              The constant weight to set.
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, applying to all observation sets.
      )doc" )
             .def( "set_constant_weight",
@@ -1362,7 +1342,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          ----------
          weight : numpy.ndarray
              The constant weight vector to set.
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, applying to all observation sets.
      )doc" )
             .def( "set_constant_weight_per_observation_parser",
@@ -1374,7 +1354,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         weights_per_observation_parser : dict[tudatpy.numerical_simulation.estimation.ObservationCollectionParser, float]
+         weights_per_observation_parser : dict[tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, float]
              A dictionary mapping observation parsers to constant weights.
      )doc" )
             .def( "set_constant_weight_per_observation_parser",
@@ -1386,7 +1366,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         weights_per_observation_parser : dict[tudatpy.numerical_simulation.estimation.ObservationCollectionParser, numpy.ndarray]
+         weights_per_observation_parser : dict[tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, numpy.ndarray]
              A dictionary mapping observation parsers to constant weight vectors.
      )doc" )
             .def( "set_tabulated_weights",
@@ -1401,7 +1381,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          ----------
          tabulated_weights : numpy.ndarray
              The vector of tabulated weights to set.
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, applying to all observation sets.
      )doc" )
             .def( "set_tabulated_weights",
@@ -1413,7 +1393,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         tabulated_weights : dict[tudatpy.numerical_simulation.estimation.ObservationCollectionParser, numpy.ndarray]
+         tabulated_weights : dict[tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, numpy.ndarray]
              A dictionary mapping observation parsers to tabulated weight vectors.
      )doc" )
             .def( "append",
@@ -1432,7 +1412,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_filters : dict[tudatpy.numerical_simulation.estimation.ObservationCollectionParser, tudatpy.numerical_simulation.estimation.ObservationFilterBase]
+         observation_filters : dict[tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, tudatpy.numerical_simulation.estimation.ObservationFilterBase]
              A dictionary mapping observation parsers to observation filters.
          save_filtered_observations : bool, optional
              If true, the filtered-out observations are saved within each observation set, by default True.
@@ -1453,7 +1433,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          ----------
          observation_filter : tudatpy.numerical_simulation.estimation.ObservationFilterBase
              The observation filter to apply.
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, applying to all observation sets.
          save_filtered_observations : bool, optional
              If true, the filtered-out observations are saved within each observation set, by default True.
@@ -1473,7 +1453,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          ----------
          observation_set_splitter : tudatpy.numerical_simulation.estimation.ObservationSetSplitterBase
              The splitter to use for splitting the observation sets.
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, applying to all observation sets.
      )doc" )
             .def( "get_single_observation_sets",
@@ -1486,7 +1466,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Object that is used to select a subset of the observation sets, by default an empty parser, retrieving all observation sets.
 
          Returns
@@ -1506,7 +1486,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
 
          Parameters
          ----------
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser
              Object that is used to select the subset of observation sets to remove.
      )doc" )
             .def( "set_reference_point",
@@ -1538,7 +1518,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Name of the spacecraft body.
          link_end_type : LinkEndType
              Link end type to which the reference point should be applied.
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Parser to select the observation sets to which the reference point should be applied.
      )doc" )
             .def( "set_reference_points",
@@ -1566,7 +1546,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Name of the spacecraft body.
          link_end_type : LinkEndType
              Link end type to which the reference points should be applied.
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Parser to select the observation sets.
      )doc" )
             .def( "set_reference_point",
@@ -1598,7 +1578,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Name of the spacecraft body.
          link_end_type : LinkEndType
              Link end type to which the reference point should be applied.
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Parser to select the observation sets.
      )doc" )
             .def( "set_transponder_delay",
@@ -1615,7 +1595,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Name of the spacecraft with the transponder.
          transponder_delay : float
              The transponder delay in seconds.
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Parser to select the observation sets.
      )doc" )
             .def( "remove_empty_observation_sets",
@@ -1634,12 +1614,12 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Settings for the dependent variable to add.
          bodies : tudatpy.numerical_simulation.environment.SystemOfBodies
              System of bodies containing the environment.
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Parser to select the observation sets to which the variable should be added.
          
          Returns
          -------
-         tudatpy.numerical_simulation.estimation.ObservationCollectionParser
+         tudatpy.estimation.observations.observations_processing.ObservationCollectionParser
              A parser that can be used to retrieve the added dependent variable.
      )doc" )
             .def( "dependent_variable",
@@ -1656,12 +1636,12 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Settings for the dependent variable to retrieve.
          first_compatible_settings : bool, optional
              If true, returns the first compatible variable found, by default False.
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Parser to select a subset of observation sets.
 
          Returns
          -------
-         tuple[list[numpy.ndarray], tudatpy.numerical_simulation.estimation.ObservationCollectionParser]
+         tuple[list[numpy.ndarray], tudatpy.estimation.observations.observations_processing.ObservationCollectionParser]
              A pair containing a list of matrices with the dependent variable values and the parser used.
      )doc" )
             .def( "concatenated_dependent_variable",
@@ -1678,12 +1658,12 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Settings for the dependent variable to retrieve.
          first_compatible_settings : bool, optional
              If true, returns the first compatible variable found, by default False.
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Parser to select a subset of observation sets.
 
          Returns
          -------
-         tuple[numpy.ndarray, tudatpy.numerical_simulation.estimation.ObservationCollectionParser]
+         tuple[numpy.ndarray, tudatpy.estimation.observations.observations_processing.ObservationCollectionParser]
              A pair containing a matrix with the concatenated dependent variable values and the parser used.
      )doc" )
             .def( "compatible_dependent_variable_settings",
@@ -1697,12 +1677,12 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          ----------
          dependent_variable_settings : tudatpy.numerical_simulation.estimation.ObservationDependentVariableSettings
              Settings for the dependent variable.
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Parser to select a subset of observation sets.
 
          Returns
          -------
-         tuple[list[list[tudatpy.numerical_simulation.estimation.ObservationDependentVariableSettings]], tudatpy.numerical_simulation.estimation.ObservationCollectionParser]
+         tuple[list[list[tudatpy.numerical_simulation.estimation.ObservationDependentVariableSettings]], tudatpy.estimation.observations.observations_processing.ObservationCollectionParser]
              A pair containing a list of lists of compatible settings and the parser used.
      )doc" )
             .def( "compatible_dependent_variables_list",
@@ -1716,12 +1696,12 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          ----------
          dependent_variable_settings : tudatpy.numerical_simulation.estimation.ObservationDependentVariableSettings
              Settings for the dependent variable.
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Parser to select a subset of observation sets.
 
          Returns
          -------
-         tuple[list[list[numpy.ndarray]], tudatpy.numerical_simulation.estimation.ObservationCollectionParser]
+         tuple[list[list[numpy.ndarray]], tudatpy.estimation.observations.observations_processing.ObservationCollectionParser]
              A pair containing a list of lists of dependent variable values and the parser used.
      )doc" )
             .def( "dependent_variable_history_per_set",
@@ -1738,7 +1718,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Settings for the dependent variable to retrieve.
          first_compatible_settings : bool, optional
              If true, returns the first compatible variable found, by default False.
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Parser to select a subset of observation sets.
 
          Returns
@@ -1760,7 +1740,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Settings for the dependent variable to retrieve.
          first_compatible_settings : bool, optional
              If true, returns the first compatible variable found, by default False.
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Parser to select a subset of observation sets.
 
          Returns
@@ -1782,7 +1762,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Settings for the dependent variable to retrieve.
          first_compatible_settings : bool, optional
              If true, returns the first compatible variable found, by default False.
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Parser to select a subset of observation sets.
 
          Returns
@@ -1804,7 +1784,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              Settings for the dependent variable to retrieve.
          first_compatible_settings : bool, optional
              If true, returns the first compatible variable found, by default False.
-         observation_parser : tudatpy.numerical_simulation.estimation.ObservationCollectionParser, optional
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Parser to select a subset of observation sets.
 
          Returns
@@ -1845,6 +1825,21 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
            py::arg( "observation_filter" ),
            py::arg( "save_filtered_observations" ) = false,
            R"doc(
+
+Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observation_set` instead.
+
+
+        )doc" );
+
+    m.def( "create_filtered_observation_set",
+           py::overload_cast< const std::shared_ptr< tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > >,
+                              const std::shared_ptr< tom::ObservationFilterBase >,
+                              const bool >( &tom::filterObservations< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::arg( "original_observation_set" ),
+           py::arg( "observation_filter" ),
+           py::arg( "save_filtered_observations" ) = false,
+           R"doc(
+
         Filters a single observation set and returns a new set containing the filtered observations.
 
         This function creates a copy of the input observation set and applies the given filter.
@@ -1989,6 +1984,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
            py::arg( "original_observation_collection" ),
            py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
            R"doc(
+
         Creates a new observation collection containing a subset of an existing collection.
 
         This function selects a subset of observation sets from an original collection using a parser

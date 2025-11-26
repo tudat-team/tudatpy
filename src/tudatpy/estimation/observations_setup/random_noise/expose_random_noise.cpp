@@ -106,7 +106,7 @@ void expose_random_noise( py::module& m )
  Function for adding a custom noise function to all existing observation simulation settings.
 
  Function for including a custom noise function to the simulation settings of all observables.
- The noise settings are added to all :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` object(s) in the `observation_simulation_settings`
+ The noise settings are added to all :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` object(s) in the ``observation_simulation_settings``
  list.
 
  Note: the :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` objects are modified in-place by this function,
@@ -146,7 +146,7 @@ void expose_random_noise( py::module& m )
  Function for adding a custom noise function to selected existing observation simulation settings of a given observable type.
 
  As :func:`~tudatpy.estimation.observations_setup.random_noise.add_noise_function_to_all`, except that the function only adds noise to entries of the
- `observation_simulation_settings` list that matches the specified `observable_type`.
+ ``observation_simulation_settings`` list that matches the specified `observable_type`.
 
 
  Parameters
@@ -187,7 +187,7 @@ void expose_random_noise( py::module& m )
  Function for adding a custom noise function to existing observation simulation settings of a given observable type and link definition.
 
  As :func:`~tudatpy.estimation.observations_setup.random_noise.add_noise_function_to_all`, except that the function only adds noise to entries of the
- `observation_simulation_settings` list that matches the specified `observable_type` and `link_definition`.
+ ``observation_simulation_settings`` list that matches the specified `observable_type` and `link_definition`.
 
 
  Parameters
@@ -227,7 +227,7 @@ void expose_random_noise( py::module& m )
  Function for adding gaussian noise function to all existing observation simulation settings.
 
  Function for including simple time-independent and time-uncorrelated Gaussian noise function to the simulation settings of one or more observable(s).
- The noise settings are added to all :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` object(s) in the `observation_simulation_settings`
+ The noise settings are added to all :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` object(s) in the ``observation_simulation_settings``
  list.
 
  Note: the :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` objects are modified in-place by this function,
@@ -265,7 +265,7 @@ void expose_random_noise( py::module& m )
  Function for adding gaussian noise function to existing observation simulation settings of a given observable type.
 
  As :func:`~tudatpy.estimation.observations_setup.random_noise.add_gaussian_noise_to_all`, except that the function only adds noise to entries of the
- `observation_simulation_settings` list that matches the specified `observable_type`.
+ ``observation_simulation_settings`` list that matches the specified `observable_type`.
 
 
  Parameters
@@ -304,7 +304,7 @@ void expose_random_noise( py::module& m )
  Function for adding gaussian noise function to existing observation simulation settings of a given observable type and link definition.
 
  As :func:`~tudatpy.estimation.observations_setup.random_noise.add_gaussian_noise_to_all`, except that the function only adds noise to entries of the
- `observation_simulation_settings` list that matches the specified `observable_type` and `link_definition`.
+ ``observation_simulation_settings`` list that matches the specified `observable_type` and `link_definition`.
 
 
  Parameters
