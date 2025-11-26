@@ -61,7 +61,7 @@ public:
      */
     NumericalIntegrator( const StateDerivativeFunction& stateDerivativeFunction ):
         stateDerivativeFunction_( stateDerivativeFunction ),
-        propagationTerminationFunction_( [ = ]( const double, const double, const Eigen::MatrixXd& ) { return false; } )
+        propagationTerminationFunction_( [ =, this ]( const double, const double, const Eigen::MatrixXd& ) { return false; } )
     { }
 
     //! Default virtual destructor.

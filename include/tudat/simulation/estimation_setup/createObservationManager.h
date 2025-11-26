@@ -379,7 +379,7 @@ void performTimeBiasPartialClosure(
     std::shared_ptr< propagators::SingleDependentVariableSaveSettings > totalAccelerationVariable =
             std::make_shared< propagators::SingleDependentVariableSaveSettings >( propagators::total_acceleration_dependent_variable,
                                                                                   bodyName );
-    std::function< Eigen::VectorXd( const double ) > accelerationPartialFunction = [ = ]( const double time ) {
+    std::function< Eigen::VectorXd( const double ) > accelerationPartialFunction = [ =, this ]( const double time ) {
         return dependentVariablesInterface->getSingleDependentVariable( totalAccelerationVariable, time );
     };
     if( std::dynamic_pointer_cast< estimatable_parameters::TimeBiasParameterBase >( timeBiasPartial ) != nullptr )

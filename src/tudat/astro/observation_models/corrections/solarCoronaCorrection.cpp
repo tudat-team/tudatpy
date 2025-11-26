@@ -48,7 +48,7 @@ double SolarCoronaCorrection::computeElectronDensityIntegralNumerically( const E
     // Fraction of the distance between the position of transmitter (fractionOfLOS = 0) and the position of the receiver
     // (fractionOfLOS = 1) is used as independent variable
 
-    std::function< double( double ) > electronDensityAlongLOS = [ = ]( const double fractionOfLOS ) {
+    std::function< double( double ) > electronDensityAlongLOS = [ =, this ]( const double fractionOfLOS ) {
         return computeElectronDensity( transmitterPositionWrtSun + fractionOfLOS * ( receiverPositionWrtSun - transmitterPositionWrtSun ),
                                        time );
     };
@@ -202,7 +202,7 @@ double InversePowerSeriesSolarCoronaCorrection::computeCosinePowerIntegral( cons
         }
         else
         {
-            std::function< double( double ) > indefiniteIntegral = [ = ]( const double x ) {
+            std::function< double( double ) > indefiniteIntegral = [ =, this ]( const double x ) {
                 return ( std::pow( std::cos( x ), positiveExponent - 1.0 ) * std::sin( x ) ) / positiveExponent;
             };
 

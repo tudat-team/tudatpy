@@ -741,7 +741,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                     std::vector< std::pair< int, int > > componentIndices = totalGravityFieldVariationSettings->componentIndices_;
                     unsigned int numberOfCoefficients = componentIndices.size( );
 
-                    variableFunction = [ = ]( ) {
+                    variableFunction = [ =, this ]( ) {
                         Eigen::VectorXd coefficientCorrections = Eigen::VectorXd::Zero( numberOfCoefficients );
                         for( unsigned int i = 0; i < numberOfCoefficients; i++ )
                         {
@@ -784,7 +784,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                     std::vector< std::pair< int, int > > componentIndices = totalGravityFieldVariationSettings->componentIndices_;
                     int numberOfCoefficients = componentIndices.size( );
 
-                    variableFunction = [ = ]( ) {
+                    variableFunction = [ =, this ]( ) {
                         Eigen::VectorXd coefficientCorrections = Eigen::VectorXd::Zero( numberOfCoefficients );
                         for( unsigned int i = 0; i < componentIndices.size( ); i++ )
                         {
@@ -1131,7 +1131,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                         std::bind( &simulation_setup::Body::getState, bodies.at( dependentVariableSettings->secondaryBody_ ) );
             }
 
-            std::function< Eigen::Matrix3d( ) > rotationFunction = [ = ]( ) {
+            std::function< Eigen::Matrix3d( ) > rotationFunction = [ =, this ]( ) {
                 return reference_frames::getRswSatelliteCenteredToInertialFrameRotationMatrix( vehicleStateFunction( ) -
                                                                                                centralBodyStateFunction( ) );
             };
@@ -1377,7 +1377,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
 
                 if( partialFunction.second == 0 )
                 {
-                    variableFunction = [ = ]( ) { return Eigen::VectorXd::Zero( 18 ); };
+                    variableFunction = [ =, this ]( ) { return Eigen::VectorXd::Zero( 18 ); };
                 }
                 else
                 {
@@ -1442,7 +1442,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                     }
                 }
 
-                variableFunction = [ = ]( ) {
+                variableFunction = [ =, this ]( ) {
                     Eigen::VectorXd variable = Eigen::VectorXd::Zero( 18 );
 
                     for( unsigned int i = 0; i < partialFunctions.size( ); i++ )
@@ -1514,7 +1514,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                             &simulation_setup::Body::getPosition, bodies.at( minimumDistanceDependentVariable->bodiesToCheck_.at( i ) ) ) );
                 }
 
-                variableFunction = [ = ]( ) {
+                variableFunction = [ =, this ]( ) {
                     return getConstellationMinimumVisibleDistance( stationPositionFunction,
                                                                    bodiesToCheckPositionFunctions,
                                                                    stationPointingAngleCalculator,
@@ -1534,7 +1534,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             else
             {
                 auto massProperties = bodies.at( bodyWithProperty )->getMassProperties( );
-                variableFunction = [ = ]( ) { return massProperties->getCurrentCenterOfMass( ); };
+                variableFunction = [ =, this ]( ) { return massProperties->getCurrentCenterOfMass( ); };
                 parameterSize = 3;
             }
             break;
@@ -1548,7 +1548,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             else
             {
                 auto massProperties = bodies.at( bodyWithProperty )->getMassProperties( );
-                variableFunction = [ = ]( ) {
+                variableFunction = [ =, this ]( ) {
                     return getVectorRepresentationForRotationMatrix( massProperties->getCurrentInertiaTensor( ) );
                 };
                 parameterSize = 9;
@@ -1578,7 +1578,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                         bodies.at( bodyWithProperty )->getVehicleSystems( )->getVehicleExteriorPanels( ).at( secondaryBody );
                 parameterSize = 3 * partPanels.size( );
 
-                variableFunction = [ = ]( ) {
+                variableFunction = [ =, this ]( ) {
                     Eigen::VectorXd partSurfaceNormals = Eigen::VectorXd::Zero( parameterSize );
                     Eigen::Quaterniond normalRotation = Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) );
                     if( secondaryBody != "" )
@@ -1637,7 +1637,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                                 radiationPressureAcceleration->getTargetModel( ) );
                 parameterSize = 3 * paneledTarget->getTotalNumberOfPanels( );
 
-                variableFunction = [ = ]( ) {
+                variableFunction = [ =, this ]( ) {
                     Eigen::VectorXd panelForces = Eigen::VectorXd::Zero( parameterSize );
                     std::vector< Eigen::Vector3d >& panelForceList = paneledTarget->getPanelForces( secondaryBody );
                     for( unsigned int i = 0; i < panelForceList.size( ); i++ )
@@ -1689,7 +1689,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                 {
                     paneledRadiationPressureAcceleration->enableSavePanellingIrradiance( );
                     parameterSize = paneledRadiationPressureAcceleration->getPaneledSourceModel( )->getNumberOfPanels( );
-                    variableFunction = [ = ]( ) {
+                    variableFunction = [ =, this ]( ) {
                         Eigen::VectorXd panelIrradiances = Eigen::VectorXd::Zero( parameterSize );
                         std::vector< double >& panelIrradianceList = paneledRadiationPressureAcceleration->getSavedPanelIrradiances( );
                         for( unsigned int i = 0; i < panelIrradianceList.size( ); i++ )
@@ -1704,7 +1704,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                 {
                     paneledRadiationPressureAcceleration->enableSavePanellingGeometry( );
                     parameterSize = 7 * paneledRadiationPressureAcceleration->getPaneledSourceModel( )->getNumberOfPanels( );
-                    variableFunction = [ = ]( ) {
+                    variableFunction = [ =, this ]( ) {
                         Eigen::VectorXd panelGeometries = Eigen::VectorXd::Zero( parameterSize );
                         std::vector< Eigen::Vector7d >& panelGeometriesList =
                                 paneledRadiationPressureAcceleration->getSavedPanelGeometries( );
@@ -1740,7 +1740,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             }
             auto atmosphereModel =
                     std::dynamic_pointer_cast< aerodynamics::NRLMSISE00Atmosphere >( bodies.at( centralBody )->getAtmosphereModel( ) );
-            variableFunction = [ = ]( ) {
+            variableFunction = [ =, this ]( ) {
                 atmosphereModel->setInputStruct( flightConditions->getCurrentAltitude( ),
                                                  flightConditions->getCurrentLongitude( ),
                                                  flightConditions->getCurrentGeodeticLatitude( ),
@@ -1762,7 +1762,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             }
             else
             {
-                variableFunction = [ = ]( ) {
+                variableFunction = [ =, this ]( ) {
                     Eigen::VectorXd customVariables = customVariableSettings->customDependentVariableFunction_( );
                     if( customVariables.rows( ) != customVariableSettings->dependentVariableSize_ )
                     {
@@ -1828,7 +1828,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
 
             parameterSize = indexes.size( );
 
-            variableFunction = [ = ]( ) {
+            variableFunction = [ =, this ]( ) {
                 Eigen::VectorXd illuminatedPanelFractions( indexes.size( ) );
                 std::vector< double > illuminatedPanelFractionsAll =
                         paneledRadiationPressureTargetModel->getIlluminatedPanelFractions( sourceBody );
@@ -1849,7 +1849,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
             }
             int totalNumberOfPanels = bodies.at( targetBody )->getVehicleSystems( )->getTotalNumberOfPanels( );
             parameterSize = 9 * totalNumberOfPanels;
-            variableFunction = [ = ]( ) {
+            variableFunction = [ =, this ]( ) {
                 Eigen::VectorXd fullBodyPaneledGeometry( parameterSize );
                 std::vector< std::shared_ptr< system_models::VehicleExteriorPanel > > allPanels =
                         bodies.at( targetBody )->getVehicleSystems( )->getAllPanels( );
@@ -1878,7 +1878,7 @@ std::pair< std::function< Eigen::VectorXd( ) >, int > getVectorDependentVariable
                     std::dynamic_pointer_cast< tudat::aerodynamics::AerodynamicAcceleration >( aerodynamicAccelerationList.front( ) );
 
             parameterSize = 3;
-            variableFunction = [ = ]( ) {
+            variableFunction = [ =, this ]( ) {
                 Eigen::Vector3d aerodynamicCoefficients = aerodynamicAcceleration->getCurrentForceCoefficientsInAerodynamicFrame( );
                 return aerodynamicCoefficients;
             };
@@ -2019,7 +2019,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                 auto radiationPressureAcceleration = std::dynamic_pointer_cast< electromagnetism::RadiationPressureAcceleration >(
                         radiationPressureAccelerationList.front( ) );
 
-                variableFunction = [ = ]( ) { return radiationPressureAcceleration->getCurrentRadiationPressure( ); };
+                variableFunction = [ =, this ]( ) { return radiationPressureAcceleration->getCurrentRadiationPressure( ); };
 
                 break;
             }
@@ -2455,7 +2455,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                 if( selectedAccelerationModelType == basic_astrodynamics::point_mass_gravity ||
                     selectedAccelerationModelType == basic_astrodynamics::third_body_point_mass_gravity )
                 {
-                    orientationFunctionOfCentralBody = [ = ]( ) { return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); };
+                    orientationFunctionOfCentralBody = [ =, this ]( ) { return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); };
                 }
                 // Else get orientation function
                 else
@@ -2479,7 +2479,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                                     selectedAccelerationModel );
 
                     sphericalHarmonicsAccelerationModel->resetUpdatePotential( true );
-                    variableFunction = [ = ]( ) { return sphericalHarmonicsAccelerationModel->getCurrentPotential( ); };
+                    variableFunction = [ =, this ]( ) { return sphericalHarmonicsAccelerationModel->getCurrentPotential( ); };
                 }
                 else if( selectedAccelerationModelType == basic_astrodynamics::third_body_spherical_harmonic_gravity )
                 {
@@ -2493,14 +2493,14 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                                     thirdBodySphericalHarmonicsAccelerationModel->getAccelerationModelForBodyUndergoingAcceleration( ) );
 
                     sphericalHarmonicsAccelerationModel->resetUpdatePotential( true );
-                    variableFunction = [ = ]( ) { return sphericalHarmonicsAccelerationModel->getCurrentPotential( ); };
+                    variableFunction = [ =, this ]( ) { return sphericalHarmonicsAccelerationModel->getCurrentPotential( ); };
                 }
                 else if( selectedAccelerationModelType == basic_astrodynamics::point_mass_gravity )
                 {
                     std::shared_ptr< gravitation::CentralGravitationalAccelerationModel3d > pointMassAccelerationModel =
                             std::dynamic_pointer_cast< gravitation::CentralGravitationalAccelerationModel3d >( selectedAccelerationModel );
                     pointMassAccelerationModel->resetUpdatePotential( true );
-                    variableFunction = [ = ]( ) { return pointMassAccelerationModel->getCurrentPotential( ); };
+                    variableFunction = [ =, this ]( ) { return pointMassAccelerationModel->getCurrentPotential( ); };
                 }
                 else if( selectedAccelerationModelType == basic_astrodynamics::third_body_point_mass_gravity )
                 {
@@ -2512,14 +2512,14 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                                     thirdBodyPointMassAccelerationModel->getAccelerationModelForBodyUndergoingAcceleration( ) );
 
                     pointMassAccelerationModel->resetUpdatePotential( true );
-                    variableFunction = [ = ]( ) { return pointMassAccelerationModel->getCurrentPotential( ); };
+                    variableFunction = [ =, this ]( ) { return pointMassAccelerationModel->getCurrentPotential( ); };
                 }
                 else if( selectedAccelerationModelType == basic_astrodynamics::polyhedron_gravity )
                 {
                     std::shared_ptr< gravitation::PolyhedronGravitationalAccelerationModel > polyhedronAccelerationModel =
                             std::dynamic_pointer_cast< gravitation::PolyhedronGravitationalAccelerationModel >( selectedAccelerationModel );
                     polyhedronAccelerationModel->resetUpdatePotential( true );
-                    variableFunction = [ = ]( ) { return polyhedronAccelerationModel->getCurrentPotential( ); };
+                    variableFunction = [ =, this ]( ) { return polyhedronAccelerationModel->getCurrentPotential( ); };
                 }
                 else if( selectedAccelerationModelType == basic_astrodynamics::third_body_polyhedron_gravity )
                 {
@@ -2532,14 +2532,14 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                                     thirdBodyPolyhedronAccelerationModel->getAccelerationModelForBodyUndergoingAcceleration( ) );
 
                     polyhedronAccelerationModel->resetUpdatePotential( true );
-                    variableFunction = [ = ]( ) { return polyhedronAccelerationModel->getCurrentPotential( ); };
+                    variableFunction = [ =, this ]( ) { return polyhedronAccelerationModel->getCurrentPotential( ); };
                 }
                 else if( selectedAccelerationModelType == basic_astrodynamics::ring_gravity )
                 {
                     std::shared_ptr< gravitation::RingGravitationalAccelerationModel > ringAccelerationModel =
                             std::dynamic_pointer_cast< gravitation::RingGravitationalAccelerationModel >( selectedAccelerationModel );
                     ringAccelerationModel->resetUpdatePotential( true );
-                    variableFunction = [ = ]( ) { return ringAccelerationModel->getCurrentPotential( ); };
+                    variableFunction = [ =, this ]( ) { return ringAccelerationModel->getCurrentPotential( ); };
                 }
                 else if( selectedAccelerationModelType == basic_astrodynamics::third_body_ring_gravity )
                 {
@@ -2552,7 +2552,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                                     thirdBodyRingAccelerationModel->getAccelerationModelForBodyUndergoingAcceleration( ) );
 
                     ringAccelerationModel->resetUpdatePotential( true );
-                    variableFunction = [ = ]( ) { return ringAccelerationModel->getCurrentPotential( ); };
+                    variableFunction = [ =, this ]( ) { return ringAccelerationModel->getCurrentPotential( ); };
                 }
                 else
                 {
@@ -2585,7 +2585,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                 if( selectedAccelerationModelType == basic_astrodynamics::point_mass_gravity ||
                     selectedAccelerationModelType == basic_astrodynamics::third_body_point_mass_gravity )
                 {
-                    orientationFunctionOfCentralBody = [ = ]( ) { return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); };
+                    orientationFunctionOfCentralBody = [ =, this ]( ) { return Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ); };
                 }
                 // Else get orientation function
                 else
@@ -2607,7 +2607,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                     std::shared_ptr< gravitation::PolyhedronGravitationalAccelerationModel > polyhedronAccelerationModel =
                             std::dynamic_pointer_cast< gravitation::PolyhedronGravitationalAccelerationModel >( selectedAccelerationModel );
                     polyhedronAccelerationModel->resetUpdateLaplacianOfPotential( true );
-                    variableFunction = [ = ]( ) { return polyhedronAccelerationModel->getCurrentLaplacianOfPotential( ); };
+                    variableFunction = [ =, this ]( ) { return polyhedronAccelerationModel->getCurrentLaplacianOfPotential( ); };
                 }
                 else if( selectedAccelerationModelType == basic_astrodynamics::third_body_polyhedron_gravity )
                 {
@@ -2620,7 +2620,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                                     thirdBodyPolyhedronAccelerationModel->getAccelerationModelForBodyUndergoingAcceleration( ) );
 
                     polyhedronAccelerationModel->resetUpdateLaplacianOfPotential( true );
-                    variableFunction = [ = ]( ) { return polyhedronAccelerationModel->getCurrentLaplacianOfPotential( ); };
+                    variableFunction = [ =, this ]( ) { return polyhedronAccelerationModel->getCurrentLaplacianOfPotential( ); };
                 }
                 else
                 {
@@ -2649,7 +2649,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                 auto radiationPressureAcceleration = std::dynamic_pointer_cast< electromagnetism::RadiationPressureAcceleration >(
                         radiationPressureAccelerationList.front( ) );
 
-                variableFunction = [ = ]( ) { return radiationPressureAcceleration->getReceivedIrradiance( ); };
+                variableFunction = [ =, this ]( ) { return radiationPressureAcceleration->getReceivedIrradiance( ); };
 
                 break;
             }
@@ -2678,7 +2678,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                             "variable" );
                 }
 
-                variableFunction = [ = ]( ) { return radiationPressureAcceleration->getSourceToTargetReceivedFraction( ); };
+                variableFunction = [ =, this ]( ) { return radiationPressureAcceleration->getSourceToTargetReceivedFraction( ); };
 
                 break;
             }
@@ -2719,10 +2719,10 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                 switch( dependentVariable )
                 {
                     case visible_and_emitting_source_panel_count:
-                        variableFunction = [ = ]( ) { return radiationPressureAcceleration->getVisibleAndEmittingSourcePanelCount( ); };
+                        variableFunction = [ =, this ]( ) { return radiationPressureAcceleration->getVisibleAndEmittingSourcePanelCount( ); };
                         break;
                     case visible_source_area:
-                        variableFunction = [ = ]( ) { return radiationPressureAcceleration->getVisibleSourceArea( ); };
+                        variableFunction = [ =, this ]( ) { return radiationPressureAcceleration->getVisibleSourceArea( ); };
                         break;
                     default:
                         break;
@@ -2742,7 +2742,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                 }
                 else
                 {
-                    variableFunction = [ = ]( ) {
+                    variableFunction = [ =, this ]( ) {
                         Eigen::VectorXd customVariables = customVariableSettings->customDependentVariableFunction_( );
                         if( customVariables.rows( ) != 1 )
                         {
@@ -2791,7 +2791,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                         panelAreas.push_back( allPanels[ i ]->getPanelArea( ) );
                     }
 
-                    variableFunction = [ = ]( ) {
+                    variableFunction = [ =, this ]( ) {
                         std::vector< double > surfacePanelCosine =
                                 panelledAerodynamicCoefficientInterface->getGasSurfaceInteractionModel( )->getSurfacePanelCosines( );
                         std::vector< double > illuminatedPanelFractions =
@@ -2836,7 +2836,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                         panelAreas.push_back( allPanels[ i ]->getPanelArea( ) );
                     }
 
-                    variableFunction = [ = ]( ) {
+                    variableFunction = [ =, this ]( ) {
                         std::vector< double > surfacePanelCosine =
                                 paneledRadiationPressureTargetModel->getSurfacePanelCosines( sourceBody );
                         std::vector< double > illuminatedPanelFractionsAll =
@@ -2906,7 +2906,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                         panelAreas.push_back( allPanels[ i ]->getPanelArea( ) );
                     }
 
-                    variableFunction = [ = ]( ) {
+                    variableFunction = [ =, this ]( ) {
                         std::vector< double > surfacePanelCosine =
                                 panelledAerodynamicCoefficientInterface->getGasSurfaceInteractionModel( )->getSurfacePanelCosines( );
                         std::vector< double > illuminatedPanelFractions =
@@ -2948,7 +2948,7 @@ std::function< double( ) > getDoubleDependentVariableFunction(
                         panelAreas.push_back( allPanels[ i ]->getPanelArea( ) );
                     }
 
-                    variableFunction = [ = ]( ) {
+                    variableFunction = [ =, this ]( ) {
                         std::vector< double > surfacePanelCosine =
                                 paneledRadiationPressureTargetModel->getSurfacePanelCosines( sourceBody );
                         std::vector< double > illuminatedPanelFractionsAll =

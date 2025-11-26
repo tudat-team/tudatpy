@@ -131,7 +131,7 @@ public:
 
     CustomThrustOrientationSettings( const std::function< Eigen::Matrix3d( const double ) > thrustOrientationFunction ):
         ThrustDirectionSettings( custom_thrust_orientation, "" ),
-        thrustOrientationFunction_( [ = ]( const double time ) { return Eigen::Quaterniond( thrustOrientationFunction( time ) ); } )
+        thrustOrientationFunction_( [ =, this ]( const double time ) { return Eigen::Quaterniond( thrustOrientationFunction( time ) ); } )
     {
         {
             utilities::printDeprecationError( "tudatpy.numerical_simulation.propagation_setup.thrust.CustomThrustOrientationSettings",
@@ -199,7 +199,7 @@ public:
 //            const std::string& centralBodyName,
 //            const Eigen::VectorXd constantCostates ):
 //            ThrustDirectionSettings(mee_costate_based_thrust_direction, centralBodyName ),
-//            vehicleName_( vehicleName ), costateFunction_( [ = ]( const double ){ return constantCostates; } ){ }
+//            vehicleName_( vehicleName ), costateFunction_( [ =, this ]( const double ){ return constantCostates; } ){ }
 
 //    // Destructor.
 //    ~MeeCostateBasedThrustDirectionSettings( ){ }
@@ -340,7 +340,7 @@ public:
                                    const double specificImpulse,
                                    const bool inputIsForce = true ):
         ThrustMagnitudeSettings( thrust_magnitude_from_time_function, "" ), thrustMagnitudeFunction_( thrustMagnitudeFunction ),
-        specificImpulseFunction_( [ = ]( const double ) { return specificImpulse; } ), specificImpulseIsConstant_( true ),
+        specificImpulseFunction_( [ =, this ]( const double ) { return specificImpulse; } ), specificImpulseIsConstant_( true ),
         inputIsForce_( inputIsForce )
     { }
 
@@ -445,7 +445,7 @@ public:
 //            const std::function< void( const double ) > customThrustResetFunction = std::function< void( const double ) >( ) ):
 //        ThrustMagnitudeSettings( bang_bang_thrust_magnitude_from_mee_costates, "" ),
 //        maximumThrustMagnitude_( thrustMagnitude ), specificImpulseFunction_( specificImpulseFunction ),
-//        costatesFunction_( [ = ]( const double ){ return constantCostates; } ),
+//        costatesFunction_( [ =, this ]( const double ){ return constantCostates; } ),
 //        vehicleName_( vehicleName ), centralBodyName_( centralBodyName ), bodyFixedThrustDirection_( bodyFixedThrustDirection ),
 //        customThrustResetFunction_( customThrustResetFunction ) { }
 
@@ -880,7 +880,7 @@ public:
         thrustMagnitudeFunction_( std::bind( &interpolators::Interpolator< double, double >::interpolate,
                                              thrustMagnitudeInterpolator,
                                              std::placeholders::_1 ) ),
-        specificImpulseFunction_( [ = ]( const std::vector< double >& ) { return constantSpecificImpulse; } ),
+        specificImpulseFunction_( [ =, this ]( const std::vector< double >& ) { return constantSpecificImpulse; } ),
         thrustIndependentVariables_( thrustIndependentVariables ), thrustGuidanceInputVariables_( thrustGuidanceInputVariables ),
         inputUpdateFunction_( inputUpdateFunction )
     {

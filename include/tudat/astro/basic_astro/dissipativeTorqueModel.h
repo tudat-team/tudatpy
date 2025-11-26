@@ -71,7 +71,7 @@ public:
      */
     void setDampingMatrixFunction( const Eigen::Matrix3d& dampingMatrix )
     {
-        dampingMatrixFunction_ = [ = ]( ) { return dampingMatrix; };
+        dampingMatrixFunction_ = [ =, this ]( ) { return dampingMatrix; };
     }
 
 protected:

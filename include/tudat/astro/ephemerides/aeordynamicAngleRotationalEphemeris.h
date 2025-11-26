@@ -84,7 +84,7 @@ public:
     {
         if( aerodynamicAngleFunction_ == nullptr )
         {
-            aerodynamicAngleFunction_ = [ = ]( const double time ) {
+            aerodynamicAngleFunction_ = [ =, this ]( const double time ) {
                 return ( Eigen::Vector3d( ) << 0.0, sideslipAndBankAngleFunction( time ) ).finished( );
             };
         }
@@ -92,7 +92,7 @@ public:
         {
             std::function< Eigen::Vector3d( const double ) > oldAerodynamicAngleFunction_ = aerodynamicAngleFunction_;
 
-            aerodynamicAngleFunction_ = [ = ]( const double time ) {
+            aerodynamicAngleFunction_ = [ =, this ]( const double time ) {
                 return ( Eigen::Vector3d( ) << oldAerodynamicAngleFunction_( time )( 0 ), sideslipAndBankAngleFunction( time ) )
                         .finished( );
             };

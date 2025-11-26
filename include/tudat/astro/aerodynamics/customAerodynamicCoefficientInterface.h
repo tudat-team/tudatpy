@@ -167,7 +167,7 @@ public:
             throw std::runtime_error(
                     "Error when setting constant aerodynamic coefficients, numberOfIndependentVariables_ is not equal to 0 " );
         }
-        coefficientFunction_ = [ = ]( const std::vector< double >& ) { return constantCoefficients; };
+        coefficientFunction_ = [ =, this ]( const std::vector< double >& ) { return constantCoefficients; };
     }
 
     //! Function to retrieve constant aerodynamic coefficients, only valid if coefficients are already constant
@@ -197,7 +197,7 @@ public:
     void setTimeDependentCoefficientClosure( std::function< Eigen::Vector6d( ) > coefficientFunction,
                                              std::function< void( const double ) > timeUpdateFunction )
     {
-        coefficientFunction_ = [ = ]( const std::vector< double >& ) { return coefficientFunction( ); };
+        coefficientFunction_ = [ =, this ]( const std::vector< double >& ) { return coefficientFunction( ); };
         timeUpdateFunction_ = timeUpdateFunction;
     }
 

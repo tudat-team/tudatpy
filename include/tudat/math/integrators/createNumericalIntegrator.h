@@ -192,7 +192,7 @@ inline std::shared_ptr< IntegratorStepSizeControlSettings > perBlockIntegratorSt
         const double maximumFactorDecreaseForNextStepSize = 4.0 )
 {
     return std::make_shared< PerBlockIntegratorStepSizeControlSettings< ToleranceType > >(
-            [ = ]( const int, const int ) { return blocksToCheck; },
+            [ =, this ]( const int, const int ) { return blocksToCheck; },
             relativeErrorTolerance,
             absoluteErrorTolerance,
             safetyFactorForNextStepSize,

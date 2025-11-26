@@ -176,7 +176,7 @@ int main( )
     double stepSize = timeOfFlight / static_cast< double >( numberOfSteps );
 
     // Define specific impulse function.
-    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double time ) { return specificImpulse; };
+    std::function< double( const double ) > specificImpulseFunction = [ =, this ]( const double time ) { return specificImpulse; };
 
     // Define integrator settings.
     std::shared_ptr< numerical_integrators::IntegratorSettings< double > > integratorSettings =

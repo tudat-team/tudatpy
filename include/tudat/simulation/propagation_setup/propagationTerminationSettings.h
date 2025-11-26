@@ -188,7 +188,7 @@ public:
      */
     PropagationCustomTerminationSettings( const std::function< bool( const double ) >& checkStopCondition ):
         PropagationTerminationSettings( custom_stopping_condition ),
-        checkStopCondition_( [ = ]( const double time, const Eigen::MatrixXd& ) { return checkStopCondition( time ); } )
+        checkStopCondition_( [ =, this ]( const double time, const Eigen::MatrixXd& ) { return checkStopCondition( time ); } )
     { }
 
     PropagationCustomTerminationSettings( const std::function< bool( const double, const Eigen::MatrixXd& ) >& checkStopCondition ):

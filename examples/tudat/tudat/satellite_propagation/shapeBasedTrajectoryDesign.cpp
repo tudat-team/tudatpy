@@ -96,7 +96,7 @@ int main( )
     double vehicleInitialMass = 2000.0;
     double specificImpulse = 3000.0;
 
-    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double ) { return specificImpulse; };
+    std::function< double( const double ) > specificImpulseFunction = [ =, this ]( const double ) { return specificImpulse; };
 
     // Retrieve cartesian state at departure and arrival.
     ephemerides::EphemerisPointer pointerToDepartureBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions >(
