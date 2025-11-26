@@ -147,6 +147,11 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
         const std::vector< double > librationFrequencies,
         const double ephemerisTime );
 
+std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrtPoleLibrationAmplitudes(
+        const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
+        const std::vector< double > librationFrequencies,
+        const double ephemerisTime );
+
 //! Function to calculate a partial of rotation matrix derivative from a body-fixed to inertial frame w.r.t.
 //! polar motion amplitudes.
 
@@ -583,7 +588,7 @@ public:
 
     std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter( const double time )
     {
-        throw std::runtime_error( "Error, rotation matrix derivative w.r.t. libration amplitudes not yet implemented" );
+        throw std::runtime_error( "Error, rotation matrix derivative w.r.t. longitudinal libration amplitudes not yet implemented" );
     }
 
 private:
@@ -591,6 +596,37 @@ private:
 
     std::vector< double > librationAngularFrequencies_;
 };
+
+
+class RotationMatrixPartialWrtPoleLibrationTermAmplitudes : public RotationMatrixPartial
+{
+public:
+  RotationMatrixPartialWrtPoleLibrationTermAmplitudes( const std::shared_ptr< ephemerides::IauRotationModel > bodyRotationModel,
+                                                       const std::vector< double >& librationAngularFrequencies ):
+      RotationMatrixPartial( bodyRotationModel ), bodyRotationModel_( bodyRotationModel ),
+      librationAngularFrequencies_( librationAngularFrequencies )
+  { }
+
+  ~RotationMatrixPartialWrtPoleLibrationTermAmplitudes( ) { }
+
+  std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixToBaseFrameWrParameter( const double time )
+  {
+    return calculatePartialOfRotationMatrixFromLocalFrameWrtPoleLibrationAmplitudes(
+            bodyRotationModel_, librationAngularFrequencies_, time );
+  }
+
+  std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixDerivativeToBaseFrameWrParameter( const double time )
+  {
+    throw std::runtime_error( "Error, rotation matrix derivative w.r.t. pole libration amplitudes not yet implemented" );
+  }
+
+private:
+  std::shared_ptr< ephemerides::IauRotationModel > bodyRotationModel_;
+
+  std::vector< double > librationAngularFrequencies_;
+};
+
+
 
 //! Class to calculate a rotation matrix from a body-fixed to inertial frame w.r.t. polar motion amplitudes.
 /*!
