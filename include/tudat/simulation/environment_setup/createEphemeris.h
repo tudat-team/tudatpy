@@ -185,7 +185,7 @@ class ScaledEphemerisSettings : public EphemerisSettings
 public:
     ScaledEphemerisSettings( const std::shared_ptr< EphemerisSettings > baseSettings, const double scaling, const bool isScalingAbsolute ):
         EphemerisSettings( scaled_ephemeris, baseSettings->getFrameOrigin( ), baseSettings->getFrameOrientation( ) ),
-        baseSettings_( baseSettings ), scaling_( [ = ]( const double ) { return Eigen::Vector6d::Constant( scaling ); } ),
+        baseSettings_( baseSettings ), scaling_( [ =, this ]( const double ) { return Eigen::Vector6d::Constant( scaling ); } ),
         isScalingAbsolute_( isScalingAbsolute )
     {}
 
@@ -193,7 +193,7 @@ public:
                              const Eigen::Vector6d scaling,
                              const bool isScalingAbsolute ):
         EphemerisSettings( scaled_ephemeris, baseSettings->getFrameOrigin( ), baseSettings->getFrameOrientation( ) ),
-        baseSettings_( baseSettings ), scaling_( [ = ]( const double ) { return scaling; } ), isScalingAbsolute_( isScalingAbsolute )
+        baseSettings_( baseSettings ), scaling_( [ =, this ]( const double ) { return scaling; } ), isScalingAbsolute_( isScalingAbsolute )
     {}
 
     ScaledEphemerisSettings( const std::shared_ptr< EphemerisSettings > baseSettings,
@@ -1298,7 +1298,7 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris( const std::shared
                 else
                 {
                     // Create ephemeris
-                    ephemeris = std::make_shared< ConstantEphemeris >( [ = ]( ) { return constantEphemerisSettings->getConstantState( ); },
+                    ephemeris = std::make_shared< ConstantEphemeris >( [ =, this ]( ) { return constantEphemerisSettings->getConstantState( ); },
                                                                        constantEphemerisSettings->getFrameOrigin( ),
                                                                        constantEphemerisSettings->getFrameOrientation( ) );
                 }

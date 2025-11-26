@@ -212,7 +212,7 @@ public:
             const bool isMutualAttractionUsed = false ):
         Base(
                 positionOfBodySubjectToAccelerationFunction,
-                [ = ]( ) { return aGravitationalParameter; },
+                [ =, this ]( ) { return aGravitationalParameter; },
                 positionOfBodyExertingAccelerationFunction,
                 isMutualAttractionUsed )
     { }

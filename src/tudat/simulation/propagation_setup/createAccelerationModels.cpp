@@ -1392,7 +1392,7 @@ std::shared_ptr< relativity::RelativisticAccelerationCorrection > createRelativi
             std::function< Eigen::Vector3d( ) > angularMomentumFunction;
             if( relativisticAccelerationSettings->calculateLenseThirringCorrection_ == true )
             {
-                angularMomentumFunction = [ = ]( ) { return relativisticAccelerationSettings->centralBodyAngularMomentum_; };
+                angularMomentumFunction = [ =, this ]( ) { return relativisticAccelerationSettings->centralBodyAngularMomentum_; };
             }
 
             if( relativisticAccelerationSettings->calculateDeSitterCorrection_ == true )

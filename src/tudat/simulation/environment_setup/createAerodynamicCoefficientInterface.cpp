@@ -184,8 +184,8 @@ std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createConstantC
     // Create coefficient interface
     std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > coefficientInterface =
             std::make_shared< aerodynamics::CustomAerodynamicCoefficientInterface >(
-                    [ = ]( const std::vector< double >& ) { return constantForceCoefficient; },
-                    [ = ]( const std::vector< double >& ) { return constantMomentCoefficient; },
+                    [ =, this ]( const std::vector< double >& ) { return constantForceCoefficient; },
+                    [ =, this ]( const std::vector< double >& ) { return constantMomentCoefficient; },
                     referenceLength,
                     referenceArea,
                     momentReferencePoint,
@@ -209,8 +209,8 @@ std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > createZeroParam
     // Create coefficient interface
     std::shared_ptr< aerodynamics::AerodynamicCoefficientInterface > coefficientInterface =
             std::make_shared< aerodynamics::CustomAerodynamicCoefficientInterface >(
-                    [ = ]( const std::vector< double >& ) { return constantForceCoefficientFunction( ); },
-                    [ = ]( const std::vector< double >& ) { return constantMomentCoefficientFunction( ); },
+                    [ =, this ]( const std::vector< double >& ) { return constantForceCoefficientFunction( ); },
+                    [ =, this ]( const std::vector< double >& ) { return constantMomentCoefficientFunction( ); },
                     referenceLength,
                     referenceArea,
                     momentReferencePoint,
@@ -291,11 +291,11 @@ std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > createMo
 
     if( forceCoefficientFrameId.first == momentCoefficientFrameId.first )
     {
-        coefficientRotationFunction = [ = ]( ) { return Eigen::Matrix3d::Identity( ); };
+        coefficientRotationFunction = [ =, this ]( ) { return Eigen::Matrix3d::Identity( ); };
     }
     else
     {
-        coefficientRotationFunction = [ = ]( ) {
+        coefficientRotationFunction = [ =, this ]( ) {
             return body->getFlightConditions( )->getAerodynamicAngleCalculator( )->getRotationMatrixBetweenFrames(
                     forceCoefficientFrameId.first, momentCoefficientFrameId.first );
         };
@@ -303,11 +303,11 @@ std::shared_ptr< aerodynamics::AerodynamicMomentContributionInterface > createMo
 
     if( momentCoefficientFrameId.first == reference_frames::body_frame )
     {
-        armRotationFunction = [ = ]( ) { return Eigen::Matrix3d::Identity( ); };
+        armRotationFunction = [ =, this ]( ) { return Eigen::Matrix3d::Identity( ); };
     }
     else
     {
-        armRotationFunction = [ = ]( ) {
+        armRotationFunction = [ =, this ]( ) {
             return body->getFlightConditions( )->getAerodynamicAngleCalculator( )->getRotationMatrixBetweenFrames(
                     reference_frames::body_frame, momentCoefficientFrameId.first );
         };

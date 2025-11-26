@@ -59,7 +59,7 @@ public:
                                                           const bool isMutualAttractionUsed,
                                                           const bool updateGravitationalPotential = false ):
         subjectPositionFunction( positionOfBodySubjectToAccelerationFunction ),
-        gravitationalParameterFunction( [ = ]( ) { return aGravitationalParameter; } ),
+        gravitationalParameterFunction( [ =, this ]( ) { return aGravitationalParameter; } ),
         sourcePositionFunction( positionOfBodyExertingAccelerationFunction ), isMutualAttractionUsed_( isMutualAttractionUsed ),
         currentPotential_( TUDAT_NAN ), updatePotential_( updateGravitationalPotential )
     { }

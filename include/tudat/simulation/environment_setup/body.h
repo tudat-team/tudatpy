@@ -530,7 +530,7 @@ public:
         bodyIsGlobalFrameOrigin_( -1 ), currentState_( state ), timeOfCurrentState_( TUDAT_NAN ),
         ephemerisFrameToBaseFrame_( std::make_shared< BaseStateInterfaceImplementation< double, double > >(
                 "",
-                [ = ]( const double ) { return Eigen::Vector6d::Zero( ); } ) ),
+                [ =, this ]( const double ) { return Eigen::Vector6d::Zero( ); } ) ),
         currentRotationToLocalFrame_( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
         currentRotationToGlobalFrame_( Eigen::Quaterniond( Eigen::Matrix3d::Identity( ) ) ),
         currentRotationToLocalFrameDerivative_( Eigen::Matrix3d::Zero( ) ),

@@ -44,11 +44,11 @@ int main( )
     ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions >(
             ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
 
-    std::function< Eigen::Vector6d( const double ) > departureStateFunction = [ = ]( const double currentTime ) {
+    std::function< Eigen::Vector6d( const double ) > departureStateFunction = [ =, this ]( const double currentTime ) {
         return pointerToDepartureBodyEphemeris->getCartesianState( currentTime );
     };
 
-    std::function< Eigen::Vector6d( const double ) > arrivalStateFunction = [ = ]( const double currentTime ) {
+    std::function< Eigen::Vector6d( const double ) > arrivalStateFunction = [ =, this ]( const double currentTime ) {
         return pointerToArrivalBodyEphemeris->getCartesianState( currentTime );
     };
 

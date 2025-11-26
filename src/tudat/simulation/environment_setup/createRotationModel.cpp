@@ -53,7 +53,7 @@ std::function< Eigen::Matrix3d( const double ) > getRotationFunctionFromSatellit
 
             if( ephemerides::isFrameInertial( centralBody ) )
             {
-                rotationToInertialFrameFunction = [ = ]( const double ) {
+                rotationToInertialFrameFunction = [ =, this ]( const double ) {
                     return reference_frames::getTnwToInertialRotation( bodies.at( body )->getState( ), true );
                 };
             }
@@ -64,7 +64,7 @@ std::function< Eigen::Matrix3d( const double ) > getRotationFunctionFromSatellit
                     throw std::runtime_error( "Error when getting rotation function from TNW, input central body " + centralBody +
                                               " not found" );
                 }
-                rotationToInertialFrameFunction = [ = ]( const double ) {
+                rotationToInertialFrameFunction = [ =, this ]( const double ) {
                     return reference_frames::getTnwToInertialRotation(
                             bodies.at( body )->getState( ) - bodies.at( centralBody )->getState( ), true );
                 };
@@ -79,7 +79,7 @@ std::function< Eigen::Matrix3d( const double ) > getRotationFunctionFromSatellit
 
             if( ephemerides::isFrameInertial( centralBody ) )
             {
-                rotationToInertialFrameFunction = [ = ]( const double ) {
+                rotationToInertialFrameFunction = [ =, this ]( const double ) {
                     return reference_frames::getRswSatelliteCenteredToInertialFrameRotationMatrix( bodies.at( body )->getState( ) );
                 };
             }
@@ -90,7 +90,7 @@ std::function< Eigen::Matrix3d( const double ) > getRotationFunctionFromSatellit
                     throw std::runtime_error( "Error when getting rotation function from TNW, input central body " + centralBody +
                                               " not found" );
                 }
-                rotationToInertialFrameFunction = [ = ]( const double ) {
+                rotationToInertialFrameFunction = [ =, this ]( const double ) {
                     return reference_frames::getRswSatelliteCenteredToInertialFrameRotationMatrix( bodies.at( body )->getState( ) -
                                                                                                    bodies.at( centralBody )->getState( ) );
                 };
@@ -178,7 +178,7 @@ void linkTrimmedConditions( const std::shared_ptr< aerodynamics::TrimOrientation
     std::function< std::map< std::string, std::vector< double > >( ) > untrimmedControlSurfaceIndependentVariableFunction = std::bind(
             &aerodynamics::AtmosphericFlightConditions::getControlSurfaceAerodynamicCoefficientIndependentVariables, flightConditions );
 
-    std::function< Eigen::Vector3d( const double ) > aerodynamicAngleFunction = [ = ]( const double currentTime ) {
+    std::function< Eigen::Vector3d( const double ) > aerodynamicAngleFunction = [ =, this ]( const double currentTime ) {
         Eigen::Vector2d sideslipBankAngles = Eigen::Vector2d::Zero( );
         if( sideslipAndBankAngleFunction != nullptr )
         {
@@ -760,7 +760,7 @@ std::shared_ptr< ephemerides::RotationalEphemeris > createRotationModel(
             }
             else
             {
-                std::function< Eigen::Quaterniond( const double ) > customOrientationFunction = [ = ]( const double time ) {
+                std::function< Eigen::Quaterniond( const double ) > customOrientationFunction = [ =, this ]( const double time ) {
                     return Eigen::Quaterniond( customRotationSettings->customOrientationFunction_( time ) );
                 };
 

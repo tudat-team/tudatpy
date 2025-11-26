@@ -333,7 +333,7 @@ public:
     void setTransponderTurnaroundRatio( std::map< std::pair< observation_models::FrequencyBands, observation_models::FrequencyBands >,
                                                   double >& transponderRatioPerUplinkAndDownlinkFrequencyBand )
     {
-        transponderTurnaroundRatio_ = [ = ]( observation_models::FrequencyBands uplinkBand,
+        transponderTurnaroundRatio_ = [ =, this ]( observation_models::FrequencyBands uplinkBand,
                                              observation_models::FrequencyBands downlinkBand ) {
             return transponderRatioPerUplinkAndDownlinkFrequencyBand.at( std::make_pair( uplinkBand, downlinkBand ) );
         };

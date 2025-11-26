@@ -83,11 +83,11 @@ Eigen::Vector3d HybridMethod::computeCurrentThrustForce(
     std::function< Eigen::Vector3d( ) > bodyFixedThrustDirection =
             simulation_setup::getBodyFixedThrustDirection( thrustMagnitudeSettings, bodies_, bodyToPropagate_ );
 
-    std::function< Eigen::Vector6d( ) > thrustingBodyStateFunction = [ = ]( ) { return computeCurrentStateVector( time ); };
+    std::function< Eigen::Vector6d( ) > thrustingBodyStateFunction = [ =, this ]( ) { return computeCurrentStateVector( time ); };
 
-    std::function< Eigen::Vector6d( ) > centralBodyStateFunction = [ = ]( ) { return Eigen::Vector6d::Zero( ); };
+    std::function< Eigen::Vector6d( ) > centralBodyStateFunction = [ =, this ]( ) { return Eigen::Vector6d::Zero( ); };
 
-    std::function< double( ) > centralBodyGravitationalParameterFunction = [ = ]( ) {
+    std::function< double( ) > centralBodyGravitationalParameterFunction = [ =, this ]( ) {
         return bodies_[ centralBody_ ]->getGravityFieldModel( )->getGravitationalParameter( );
     };
 
@@ -143,11 +143,11 @@ void HybridMethod::getThrustForceProfile( std::vector< double >& epochsVector,
 
         Eigen::Vector6d currentStateVector = trajectory[ epochsVector[ i ] ];
 
-        std::function< Eigen::Vector6d( ) > thrustingBodyStateFunction = [ = ]( ) { return currentStateVector; };
+        std::function< Eigen::Vector6d( ) > thrustingBodyStateFunction = [ =, this ]( ) { return currentStateVector; };
 
-        std::function< Eigen::Vector6d( ) > centralBodyStateFunction = [ = ]( ) { return Eigen::Vector6d::Zero( ); };
+        std::function< Eigen::Vector6d( ) > centralBodyStateFunction = [ =, this ]( ) { return Eigen::Vector6d::Zero( ); };
 
-        std::function< double( ) > centralBodyGravitationalParameterFunction = [ = ]( ) {
+        std::function< double( ) > centralBodyGravitationalParameterFunction = [ =, this ]( ) {
             return bodies_[ centralBody_ ]->getGravityFieldModel( )->getGravitationalParameter( );
         };
 

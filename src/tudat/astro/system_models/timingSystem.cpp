@@ -383,7 +383,7 @@ TimingSystem::TimingSystem( const std::vector< Time > arcTimes,
         }
         else
         {
-            clockErrorFunction_.push_back( [ = ]( const double ) { return 0.0; } );
+            clockErrorFunction_.push_back( [ =, this ]( const double ) { return 0.0; } );
         }
     }
 
@@ -412,7 +412,7 @@ TimingSystem::TimingSystem( const std::vector< Time > arcTimes,
         }
         else
         {
-            clockErrorFunction_.push_back( [ = ]( const double ) { return 0.0; } );
+            clockErrorFunction_.push_back( [ =, this ]( const double ) { return 0.0; } );
         }
         synchronizationTimes_.push_back( arcTimes[ i ] );
     }

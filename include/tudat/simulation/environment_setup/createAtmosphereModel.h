@@ -927,7 +927,7 @@ public:
     ScaledAtmosphereSettings( const std::shared_ptr< AtmosphereSettings > baseSettings,
                               const double scaling,
                               const bool isScalingAbsolute ):
-        AtmosphereSettings( scaled_atmosphere ), baseSettings_( baseSettings ), scaling_( [ = ]( const double ) { return scaling; } ),
+        AtmosphereSettings( scaled_atmosphere ), baseSettings_( baseSettings ), scaling_( [ =, this ]( const double ) { return scaling; } ),
         isScalingAbsolute_( isScalingAbsolute )
     { }
 
@@ -1024,7 +1024,7 @@ inline std::shared_ptr< AtmosphereSettings > customConstantTemperatureAtmosphere
         const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
         const double ratioOfSpecificHeats = 1.4 )
 {
-    DensityFunction fullDensityFunction = [ = ]( const double altitude, const double, const double, const double ) {
+    DensityFunction fullDensityFunction = [ =, this ]( const double altitude, const double, const double, const double ) {
         return densityFunction( altitude );
     };
     return std::make_shared< CustomConstantTemperatureAtmosphereSettings >(

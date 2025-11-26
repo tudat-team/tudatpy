@@ -52,7 +52,7 @@ protected:
 
         // Define constant 30 degree angle of attack
         double constantAngleOfAttack = 30.0 * tudat::mathematical_constants::PI / 180.0;
-        getBody( "Apollo" )->getFlightConditions( )->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions( [ = ]( ) {
+        getBody( "Apollo" )->getFlightConditions( )->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions( [ =, this ]( ) {
             return constantAngleOfAttack;
         } );
     }
