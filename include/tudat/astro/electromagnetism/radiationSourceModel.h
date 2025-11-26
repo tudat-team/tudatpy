@@ -279,6 +279,8 @@ public:
         PaneledRadiationSourceModel( nullptr, std::move( sourcePanelRadiosityModelUpdater ), sourceName )
     { }
 
+    ~PaneledRadiationSourceModel( ) override;
+
     IrradianceWithSourceList evaluateIrradianceAtPosition( const Eigen::Vector3d& targetPosition ) override;
 
     /*!
