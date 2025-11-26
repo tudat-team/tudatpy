@@ -36,8 +36,7 @@ namespace simulation_setup
 {
 inline std::shared_ptr< AtmosphereSettings > us76AtmosphereSettings( )
 {
-    std::string atmosphereTableFile =
-            paths::getAtmosphereTablesPath( ) + "/USSA1976Until100kmPer100mUntil1000kmPer1000m.dat";
+    std::string atmosphereTableFile = paths::getAtmosphereTablesPath( ) + "/USSA1976Until100kmPer100mUntil1000kmPer1000m.dat";
     return std::make_shared< TabulatedAtmosphereSettings >( atmosphereTableFile );
 }
 }  // namespace simulation_setup
@@ -51,13 +50,12 @@ namespace environment_setup
 namespace atmosphere
 {
 
-void expose_atmosphere_setup( py::module &m )
+void expose_atmosphere_setup( py::module& m )
 {
     // NRLMSISE00
-    py::class_< ta::NRLMSISE00Input, std::shared_ptr< ta::NRLMSISE00Input > >(
-            m,
-            "NRLMSISE00Input",
-            R"doc(Input for computation of NRLMSISE00 atmospheric
+    py::class_< ta::NRLMSISE00Input, std::shared_ptr< ta::NRLMSISE00Input > >( m,
+                                                                               "NRLMSISE00Input",
+                                                                               R"doc(Input for computation of NRLMSISE00 atmospheric
                           conditions at current time and position.
 
                           Input for computation of NRLMSISE00 atmospheric
@@ -76,16 +74,10 @@ void expose_atmosphere_setup( py::module &m )
                           day_of_year). :param ap_daily: Current daily magnetic
                           index :param ap_vector: Current magnetic index data
                           vector: \sa ap_array :param switches: List of
-                          NRLMSISE-specific flags: \sa nrlmsise_flags )doc" )
-            .def( py::init< int,
-                            int,
-                            double,
-                            double,
-                            double,
-                            double,
-                            double,
-                            std::vector< double >,
-                            std::vector< int > >( ),
+                          NRLMSISE-specific flags: \sa nrlmsise_flags
+
+)doc" )
+            .def( py::init< int, int, double, double, double, double, double, std::vector< double >, std::vector< int > >( ),
                   py::arg( "year" ) = 0,
                   py::arg( "day_of_year" ) = 0,
                   py::arg( "seconds_of_day" ) = 0.0,
@@ -96,10 +88,9 @@ void expose_atmosphere_setup( py::module &m )
                   py::arg( "ap_vector" ) = std::vector< double >( 7, 0.0 ),
                   py::arg( "switches" ) = std::vector< int >( ) );
 
-    py::class_< ta::NRLMSISE00Atmosphere, std::shared_ptr< ta::NRLMSISE00Atmosphere > >(
-            m,
-            "NRLMSISE00Atmosphere",
-            R"doc(NRLMSISE00 atmosphere model.
+    py::class_< ta::NRLMSISE00Atmosphere, std::shared_ptr< ta::NRLMSISE00Atmosphere > >( m,
+                                                                                         "NRLMSISE00Atmosphere",
+                                                                                         R"doc(NRLMSISE00 atmosphere model.
 
                          This class uses the NRLMSISE00 model to compute the atmospheric density and temperature. The GTD7 function is used: Neutral Atmosphere Empirical Model from the surface to the lower exosphere.
 
@@ -107,17 +98,18 @@ void expose_atmosphere_setup( py::module &m )
 
                          :param solar_activity_data: Solar activity data for a range of epochs as produced by tudatpy.io.read_solar_activity_data.
                          )doc" )
-            .def( py::init< const std::map<
-                          double,
-                          std::shared_ptr< tio::solar_activity::SolarActivityData > >, const bool, const bool, const bool >( ),
+            .def( py::init< const std::map< double, std::shared_ptr< tio::solar_activity::SolarActivityData > >,
+                            const bool,
+                            const bool,
+                            const bool >( ),
                   py::arg( "solar_activity_data" ),
                   py::arg( "use_ideal_gas_law" ) = true,
                   py::arg( "use_storm_conditions" ) = false,
                   py::arg( "use_anomalous_oxygen" ) = true )
-            .def( "set_use_geodetic_latitude", &ta::NRLMSISE00Atmosphere::setUseGeodeticLatitude)
-            .def( "get_use_geodetic_latitude", &ta::NRLMSISE00Atmosphere::getUseGeodeticLatitude)
-            .def( "set_use_utc", &ta::NRLMSISE00Atmosphere::setUseUtc)
-            .def( "get_use_utc", &ta::NRLMSISE00Atmosphere::getUseUtc)
+            .def( "set_use_geodetic_latitude", &ta::NRLMSISE00Atmosphere::setUseGeodeticLatitude )
+            .def( "get_use_geodetic_latitude", &ta::NRLMSISE00Atmosphere::getUseGeodeticLatitude )
+            .def( "set_use_utc", &ta::NRLMSISE00Atmosphere::setUseUtc )
+            .def( "get_use_utc", &ta::NRLMSISE00Atmosphere::getUseUtc )
             .def( "get_density",
                   &ta::NRLMSISE00Atmosphere::getDensity,
                   py::arg( "altitude" ),
@@ -138,25 +130,18 @@ void expose_atmosphere_setup( py::module &m )
 
     // END OF NRLMSISE00
     py::enum_< tss::AtmosphereDependentVariables >( m, "AtmosphereDependentVariables" )
-            .value( "tabulated_density",
-                    tss::AtmosphereDependentVariables::density_dependent_atmosphere )
-            .value( "tabulated_pressure",
-                    tss::AtmosphereDependentVariables::pressure_dependent_atmosphere )
-            .value( "tabulated_temperature",
-                    tss::AtmosphereDependentVariables::temperature_dependent_atmosphere )
-            .value( "tabulated_gas_constant",
-                    tss::AtmosphereDependentVariables::gas_constant_dependent_atmosphere )
-            .value( "tabulated_specific_heat_ratio",
-                    tss::AtmosphereDependentVariables::specific_heat_ratio_dependent_atmosphere )
-            .value( "tabulated_molar_mass",
-                    tss::AtmosphereDependentVariables::molar_mass_dependent_atmosphere )
+            .value( "tabulated_density", tss::AtmosphereDependentVariables::density_dependent_atmosphere )
+            .value( "tabulated_pressure", tss::AtmosphereDependentVariables::pressure_dependent_atmosphere )
+            .value( "tabulated_temperature", tss::AtmosphereDependentVariables::temperature_dependent_atmosphere )
+            .value( "tabulated_gas_constant", tss::AtmosphereDependentVariables::gas_constant_dependent_atmosphere )
+            .value( "tabulated_specific_heat_ratio", tss::AtmosphereDependentVariables::specific_heat_ratio_dependent_atmosphere )
+            .value( "tabulated_molar_mass", tss::AtmosphereDependentVariables::molar_mass_dependent_atmosphere )
             .export_values( );
 
     /////////////////////////////////////////////////////////////////////////////
-    py::class_< tss::WindModelSettings, std::shared_ptr< tss::WindModelSettings > >(
-            m,
-            "WindModelSettings",
-            R"doc(
+    py::class_< tss::WindModelSettings, std::shared_ptr< tss::WindModelSettings > >( m,
+                                                                                     "WindModelSettings",
+                                                                                     R"doc(
 
          Class for providing settings for wind model.
 
@@ -169,20 +154,15 @@ void expose_atmosphere_setup( py::module &m )
 
       )doc" );
 
-    py::class_< tss::ConstantWindModelSettings,
-                std::shared_ptr< tss::ConstantWindModelSettings >,
-                tss::WindModelSettings >(
+    py::class_< tss::ConstantWindModelSettings, std::shared_ptr< tss::ConstantWindModelSettings >, tss::WindModelSettings >(
             m, "ConstantWindModelSettings", R"doc(No documentation found.)doc" );
 
-    py::class_< tss::CustomWindModelSettings,
-                std::shared_ptr< tss::CustomWindModelSettings >,
-                tss::WindModelSettings >(
+    py::class_< tss::CustomWindModelSettings, std::shared_ptr< tss::CustomWindModelSettings >, tss::WindModelSettings >(
             m, "CustomWindModelSettings", R"doc(No documentation found.)doc" );
 
-    py::class_< tss::AtmosphereSettings, std::shared_ptr< tss::AtmosphereSettings > >(
-            m,
-            "AtmosphereSettings",
-            R"doc(
+    py::class_< tss::AtmosphereSettings, std::shared_ptr< tss::AtmosphereSettings > >( m,
+                                                                                       "AtmosphereSettings",
+                                                                                       R"doc(
 
          Base class for providing settings for atmosphere model.
 
@@ -206,11 +186,10 @@ void expose_atmosphere_setup( py::module &m )
          :type: WindModelSettings
       )doc" );
 
-    py::class_< tss::ExponentialAtmosphereSettings,
-                std::shared_ptr< tss::ExponentialAtmosphereSettings >,
-                tss::AtmosphereSettings >( m,
-                                           "ExponentialAtmosphereSettings",
-                                           R"doc(
+    py::class_< tss::ExponentialAtmosphereSettings, std::shared_ptr< tss::ExponentialAtmosphereSettings >, tss::AtmosphereSettings >(
+            m,
+            "ExponentialAtmosphereSettings",
+            R"doc(
 
          Class for providing settings for exponential atmosphere model.
 
@@ -223,12 +202,9 @@ void expose_atmosphere_setup( py::module &m )
 
     py::class_< tss::CustomConstantTemperatureAtmosphereSettings,
                 std::shared_ptr< tss::CustomConstantTemperatureAtmosphereSettings >,
-                tss::AtmosphereSettings >(
-            m, "CustomConstantTemperatureAtmosphereSettings", R"doc(No documentation found.)doc" );
+                tss::AtmosphereSettings >( m, "CustomConstantTemperatureAtmosphereSettings", R"doc(No documentation found.)doc" );
 
-    py::class_< tss::ScaledAtmosphereSettings,
-                std::shared_ptr< tss::ScaledAtmosphereSettings >,
-                tss::AtmosphereSettings >(
+    py::class_< tss::ScaledAtmosphereSettings, std::shared_ptr< tss::ScaledAtmosphereSettings >, tss::AtmosphereSettings >(
             m, "ScaledAtmosphereSettings", R"doc(No documentation found.)doc" );
 
     // unexposed this class, because there is no factory
@@ -348,7 +324,7 @@ void expose_atmosphere_setup( py::module &m )
      )doc" );
 
     m.def( "exponential_predefined",
-           py::overload_cast< const std::string & >( &tss::exponentialAtmosphereSettings ),
+           py::overload_cast< const std::string& >( &tss::exponentialAtmosphereSettings ),
            py::arg( "body_name" ),
            R"doc(
 
@@ -416,16 +392,11 @@ void expose_atmosphere_setup( py::module &m )
      )doc" );
 
     m.def( "exponential",
-           py::overload_cast< const double,
-                              const double,
-                              const double,
-                              const double,
-                              const double >( &tss::exponentialAtmosphereSettings ),
+           py::overload_cast< const double, const double, const double, const double, const double >( &tss::exponentialAtmosphereSettings ),
            py::arg( "scale_height" ),
            py::arg( "surface_density" ),
            py::arg( "constant_temperature" ) = 288.15,
-           py::arg( "specific_gas_constant" ) =
-                   tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+           py::arg( "specific_gas_constant" ) = tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
            py::arg( "ratio_specific_heats" ) = 1.4,
            R"doc(
 
@@ -479,11 +450,10 @@ void expose_atmosphere_setup( py::module &m )
 
     m.def( "nrlmsise00",
            &tss::nrlmsise00AtmosphereSettings,
-           py::arg( "space_weather_file" ) =
-                   tudat::paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt",
+           py::arg( "space_weather_file" ) = tudat::paths::getSpaceWeatherDataPath( ) + "/sw19571001.txt",
            py::arg( "use_storm_conditions" ) = false,
            py::arg( "use_anomalous_oxygen" ) = true,
-               R"doc(
+           R"doc(
 
 Function for creating NRLMSISE-00 atmospheric model settings.
 
@@ -526,9 +496,7 @@ using the NRLMSISE-00 global reference model:
            &tss::tabulatedAtmosphereSettings,
            py::arg( "atmosphere_data_file" ),
            py::arg( "dependent_variable_names" ) = std::vector< ta::AtmosphereDependentVariables >(
-                   { tss::density_dependent_atmosphere,
-                     tss::pressure_dependent_atmosphere,
-                     tss::temperature_dependent_atmosphere } ),
+                   { tss::density_dependent_atmosphere, tss::pressure_dependent_atmosphere, tss::temperature_dependent_atmosphere } ),
            py::arg( "specific_gas_constant" ) = tp::SPECIFIC_GAS_CONSTANT_AIR,
            py::arg( "ratio_of_specific_heats" ) = 1.4 );
 
@@ -567,14 +535,11 @@ using the NRLMSISE-00 global reference model:
      )doc" );
 
     m.def( "custom_constant_temperature",
-           py::overload_cast< const std::function< double( const double ) >,
-                              const double,
-                              const double,
-                              const double >( &tss::customConstantTemperatureAtmosphereSettings ),
+           py::overload_cast< const std::function< double( const double ) >, const double, const double, const double >(
+                   &tss::customConstantTemperatureAtmosphereSettings ),
            py::arg( "density_function" ),
            py::arg( "constant_temperature" ),
-           py::arg( "specific_gas_constant" ) =
-                   tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+           py::arg( "specific_gas_constant" ) = tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
            py::arg( "ratio_of_specific_heats" ) = 1.4,
            R"doc(
 
@@ -633,15 +598,13 @@ using the NRLMSISE-00 global reference model:
      )doc" );
 
     m.def( "custom_four_dimensional_constant_temperature",
-           py::overload_cast< const std::function< double(
-                                      const double, const double, const double, const double ) >,
+           py::overload_cast< const std::function< double( const double, const double, const double, const double ) >,
                               const double,
                               const double,
                               const double >( &tss::customConstantTemperatureAtmosphereSettings ),
            py::arg( "density_function" ),
            py::arg( "constant_temperature" ),
-           py::arg( "specific_gas_constant" ) =
-                   tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
+           py::arg( "specific_gas_constant" ) = tudat::physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
            py::arg( "ratio_of_specific_heats" ) = 1.4,
            R"doc(
 
@@ -700,9 +663,8 @@ using the NRLMSISE-00 global reference model:
      )doc" );
 
     m.def( "scaled_by_function",
-           py::overload_cast< const std::shared_ptr< tss::AtmosphereSettings >,
-                              const std::function< double( const double ) >,
-                              const bool >( &tss::scaledAtmosphereSettings ),
+           py::overload_cast< const std::shared_ptr< tss::AtmosphereSettings >, const std::function< double( const double ) >, const bool >(
+                   &tss::scaledAtmosphereSettings ),
            py::arg( "unscaled_atmosphere_settings" ),
            py::arg( "density_scaling_function" ),
            py::arg( "is_scaling_absolute" ) = false,
@@ -759,9 +721,8 @@ using the NRLMSISE-00 global reference model:
      )doc" );
 
     m.def( "scaled_by_constant",
-           py::overload_cast< const std::shared_ptr< tss::AtmosphereSettings >,
-                              const double,
-                              const bool >( &tss::scaledAtmosphereSettings ),
+           py::overload_cast< const std::shared_ptr< tss::AtmosphereSettings >, const double, const bool >(
+                   &tss::scaledAtmosphereSettings ),
            py::arg( "unscaled_atmosphere_settings" ),
            py::arg( "density_scaling" ),
            py::arg( "is_scaling_absolute" ) = false,
@@ -816,9 +777,55 @@ using the NRLMSISE-00 global reference model:
 
      )doc" );
 
-    m.def("mars_dtm",
-          &tss::marsDtmAtmosphereSettings,
-          R"doc(No documentation found.)doc" );
+    m.def( "mars_dtm",
+           &tss::marsDtmAtmosphereSettings,
+           R"doc(
+
+Function for creating Mars DTM atmospheric settings.
+
+Creates settings for the Mars DTM semiempirical thermosphere model, which is based on the DTM 
+algorithm originally developed for Earth's thermosphere and adapted for Mars by Bruinsma and 
+Lemoine (2002). The model reproduces observed densities with approximately 35% uncertainty 
+(1-σ) outside dust storm periods, with uncertainty increasing by roughly a factor of two 
+during dust storms.
+
+Bruinsma, S., and F. G. Lemoine (2002), "A preliminary semiempirical thermosphere model of 
+Mars: DTM-Mars", *Journal of Geophysical Research*, 107(E10), 5085, 
+doi:10.1029/2001JE001508.
+
+Parameters
+----------
+space_weather_file : str, default=""
+    Path to file containing space weather data for Mars. If an empty string is provided 
+    (default), the model uses the standard coefficients from Bruinsma & Lemoine (2002) 
+    without additional space weather corrections. Users can provide a custom file path 
+    to use updated or mission-specific space weather data.
+
+Returns
+-------
+AtmosphereSettings
+    Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` class
+
+Examples
+--------
+In this example, we create Mars DTM atmosphere settings with default coefficients:
+
+.. code-block:: python
+
+   # Create Mars DTM atmosphere using default Bruinsma & Lemoine (2002) coefficients
+   body_settings.get("Mars").atmosphere_settings = environment_setup.atmosphere.mars_dtm()
+
+In this example, we create Mars DTM atmosphere settings with a custom space weather file:
+
+.. code-block:: python
+
+   # Create Mars DTM atmosphere with custom space weather data
+   body_settings.get("Mars").atmosphere_settings = environment_setup.atmosphere.mars_dtm(
+       space_weather_file="path/to/custom_mars_space_weather.dat"
+   )
+
+
+)doc" );
 }
 
 }  // namespace atmosphere
