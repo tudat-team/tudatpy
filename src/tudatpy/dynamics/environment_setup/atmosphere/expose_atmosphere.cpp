@@ -680,7 +680,7 @@ using the NRLMSISE-00 global reference model:
  ----------
  unscaled_atmosphere_settings : AtmosphereSettings
      Sets base settings of atmosphere model to be scaled.
- density_scaling_function : Callable[[float], float]
+ density_scaling_function : callable[[float], float]
      Specifies air density scaling factor as a function of time.
  is_scaling_absolute : bool, default=false
      Boolean indicating whether density scaling is absolute. Setting this boolean to true will add the scaling value to the baseline density, instead of the default behaviour of multiplying the baseline density by the scaling value.
