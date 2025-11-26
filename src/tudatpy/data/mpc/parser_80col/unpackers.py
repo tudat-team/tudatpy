@@ -57,10 +57,10 @@ SURVEY_MAP = {'PLS': 'P-L', 'T1S': 'T-1', 'T2S': 'T-2', 'T3S': 'T-3'}
 PLANET_MAP = {'J': 'Jupiter', 'S': 'Saturn', 'U': 'Uranus', 'N': 'Neptune'}
 """ Mapping for packed designations: planet map. 
 Permanent designations for natural satellites are the Roman numerals. 
-A permanent natural-satellite packed designation starts with a letter indicating to which 
-planet the satellite belongs ("J" = Jupiter, "S" = Saturn, "U" = Uranus, "N" = Neptune), 
-followed by a three-character zero-padded right-justified string containing 
-the numerical representation of the Roman numeral, followed by "S". 
+A permanent natural-satellite packed designation starts with a letter indicating to which
+planet the satellite belongs ("J" = Jupiter, "S" = Saturn, "U" = Uranus, "N" = Neptune),
+followed by a three-character zero-padded right-justified string containing
+the numerical representation of the Roman numeral, followed by "S".
 E.g., Jupiter XIII is represented as "J013S", Saturn X as "S010S" and Neptune II as "N002S".
 """
 
@@ -68,10 +68,26 @@ OBS_TYPES_TO_DROP = ["x", "X", "V", "v", "W", "w", "R", "r", "Q", "q", "O"]
 """ Observation types to be ignored during parsing.
     See: https://minorplanetcenter.net/iau/info/OpticalObs.html (Note 2)
 """
+
+map_reason_to_drop = {
+    "x": "Replaced discovery observation (suppressed in residual blocks).",
+    "X": "Replaced discovery observation (suppressed in residual blocks).",
+    "V": "Roving Observer observation.",
+    "v": "Roving Observer observation.",
+    "W": "Roving Observer observation (converted from XML).",
+    "w": "Roving Observer observation (converted from XML).",
+    "R": "Radar observation.",
+    "r": "Radar observation.",
+    "Q": "Radar observation (converted from XML).",
+    "q": "Radar observation (converted from XML).",
+    "O": "Offset observation (natural satellites)."
+}
+
 # --- Unpacking Functions ---
 def unpack_permanent_minor_planet(packed: str) -> str:
     """
-    Unpacks a 5-character packed permanent minor planet designation.
+    Unpacks a 5-character packed permanent minor planet designation
+    according to Permanent Designations rules (see https://minorplanetcenter.net/iau/info/PackedDes.html#perm) .
 
     Parameters
     ----------
@@ -94,7 +110,10 @@ def unpack_permanent_minor_planet(packed: str) -> str:
 
     # Case 2: Numbers 100,000 to 619,999 (starts with a letter)
     if first_char.isalpha():
-        prefix_val = BASE62_MAP[first_char]
+        prefix_val = BASE62_MAP.get(first_char, 'Unknown Character')
+        if prefix_val == "Unknown Character":
+            raise ValueError(f"Unknown Character for {first_char} (not found in BASE62_MAP).")
+
         suffix_val = int(packed[1:])
         return str(prefix_val * 10000 + suffix_val)
 
@@ -184,5 +203,11 @@ def unpack_permanent_natural_satellite(packed: str) -> str:
         The unpacked permanent natural satellite designation.
     """
     planet_name = PLANET_MAP.get(packed[0], "Unknown Planet")
+
+    if planet_name == "Unknown Planet":
+        raise ValueError("Unknown planet with code " + packed[0] + " found in PLANET_MAP. "
+                         "Make sure your lines are compliant with the MPC format "
+                         "(https://minorplanetcenter.net/iau/info/OpticalObs.html), or update the PLANET_MAP."
+                        )
     number = int(packed[1:4])
     return f"{planet_name} {transform_integer_to_roman_number(number)}"
