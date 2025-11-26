@@ -96,7 +96,7 @@ public:
         accelerationComponents.block( 0, 0, 3, 1 ) = constantAcceleration;
         accelerationComponents.block( 0, 1, 3, 1 ) = sineAcceleration;
         accelerationComponents.block( 0, 2, 3, 1 ) = cosineAcceleration;
-        accelerationComponentsFunction_ = [ =, this ]( const double ) { return accelerationComponents; };
+        accelerationComponentsFunction_ = [ = ]( const double ) { return accelerationComponents; };
 
         updateAccelerationComponents( 0.0 );
         areAccelerationComponentsTimeDependent_ = 0;
@@ -202,7 +202,7 @@ public:
         }
 
         areAccelerationComponentsTimeDependent_ = 0;
-        accelerationComponentsFunction_ = [ =, this ]( const double ) { return newAccelerationComponents; };
+        accelerationComponentsFunction_ = [ = ]( const double ) { return newAccelerationComponents; };
     }
 
     //! Function to reset time-dependent empirical acceleration components

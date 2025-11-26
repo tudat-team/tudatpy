@@ -128,7 +128,7 @@ std::shared_ptr< electromagnetism::RadiationPressureInterface > createRadiationP
             }
             else
             {
-                radiatedPowerFunction = [ =, this ]( ) {
+                radiatedPowerFunction = [ = ]( ) {
                     return defaultRadiatedPowerValues.at( radiationPressureInterfaceSettings->getSourceBody( ) );
                 };
             }
@@ -222,7 +222,7 @@ std::shared_ptr< electromagnetism::RadiationPressureInterface > createRadiationP
             //        }
             //        else
             //        {
-            //            radiatedPowerFunction = [ =, this ]( ){ return defaultRadiatedPowerValues.at(
+            //            radiatedPowerFunction = [ = ]( ){ return defaultRadiatedPowerValues.at(
             //                            radiationPressureInterfaceSettings->getSourceBody( ) ); };
             //        }
             //
@@ -311,7 +311,7 @@ std::shared_ptr< electromagnetism::RadiationPressureInterface > createRadiationP
             //        }
             //        else
             //        {
-            //            radiatedPowerFunction = [ =, this ]( ){ return defaultRadiatedPowerValues.at(
+            //            radiatedPowerFunction = [ = ]( ){ return defaultRadiatedPowerValues.at(
             //            radiationPressureInterfaceSettings->getSourceBody( ) );};
             //        }
             //
@@ -355,7 +355,7 @@ std::function< double( const double ) > getOccultationFunction( const SystemOfBo
     double sourceBodyRadius = bodyMap.at( sourceBody )->getShapeModel( )->getAverageRadius( );
     double occultingBodyRadius = bodyMap.at( occultingBody )->getShapeModel( )->getAverageRadius( );
 
-    return [ =, this ]( const double ) {
+    return [ = ]( const double ) {
         return mission_geometry::computeShadowFunction( sourceBodyPositionFunction( ),
                                                         sourceBodyRadius,
                                                         occultingBodyPositionFunction( ),

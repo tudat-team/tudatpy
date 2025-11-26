@@ -67,7 +67,7 @@ public:
                                 const std::vector< std::string > occultingBodies = std::vector< std::string >( ) ):
         sourcePower_( sourcePower ), sourcePositionFunction_( sourcePositionFunction ), targetPositionFunction_( targetPositionFunction ),
         radiationPressureCoefficient_( radiationPressureCoefficient ),
-        radiationPressureCoefficientFunction_( [ =, this ]( const double ) { return radiationPressureCoefficient; } ), area_( area ),
+        radiationPressureCoefficientFunction_( [ = ]( const double ) { return radiationPressureCoefficient; } ), area_( area ),
         occultingBodyPositions_( occultingBodyPositions ), occultingBodyRadii_( occultingBodyRadii ), sourceRadius_( sourceRadius ),
         occultingBodies_( occultingBodies ), currentRadiationPressure_( TUDAT_NAN ), currentSolarVector_( Eigen::Vector3d::Zero( ) ),
         currentTime_( TUDAT_NAN )
@@ -141,7 +141,7 @@ public:
     void resetRadiationPressureCoefficient( const double radiationPressureCoefficient )
     {
         radiationPressureCoefficient_ = radiationPressureCoefficient;
-        radiationPressureCoefficientFunction_ = [ =, this ]( const double ) { return radiationPressureCoefficient; };
+        radiationPressureCoefficientFunction_ = [ = ]( const double ) { return radiationPressureCoefficient; };
     }
 
     //! Function to reset the function to obtain the radiation pressure coefficient of the target body.

@@ -113,9 +113,9 @@ public:
                         const DependentVector& initialStateVector,
                         const DependentMatrix& initialCovarianceMatrix,
                         const std::shared_ptr< IntegratorSettings > integratorSettings = nullptr ):
-        LinearKalmanFilter( [ =, this ]( ) { return stateTransitionMatrix; },
-                            [ =, this ]( ) { return controlMatrix; },
-                            [ =, this ]( ) { return measurementMatrix; },
+        LinearKalmanFilter( [ = ]( ) { return stateTransitionMatrix; },
+                            [ = ]( ) { return controlMatrix; },
+                            [ = ]( ) { return measurementMatrix; },
                             systemUncertainty,
                             measurementUncertainty,
                             filteringStepSize,

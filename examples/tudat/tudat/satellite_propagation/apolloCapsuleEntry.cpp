@@ -104,7 +104,7 @@ int main( )
 
     // Define constant 30 degree angle of attack
     double constantAngleOfAttack = 30.0 * mathematical_constants::PI / 180.0;
-    bodies.at( "Apollo" )->getFlightConditions( )->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions( [ =, this ]( ) {
+    bodies.at( "Apollo" )->getFlightConditions( )->getAerodynamicAngleCalculator( )->setOrientationAngleFunctions( [ = ]( ) {
         return constantAngleOfAttack;
     } );
 

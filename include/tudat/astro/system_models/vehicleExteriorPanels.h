@@ -36,11 +36,11 @@ public:
                           const double panelArea,
                           const double panelTemperature = 273.0,
                           const std::shared_ptr< electromagnetism::ReflectionLaw > reflectionLaw = nullptr ):
-        frameFixedSurfaceNormal_( [ =, this ]( ) { return frameFixedSurfaceNormal; } ),
-        frameFixedPositionVector_( [ =, this ]( ) { return frameFixedPositionVector; } ), panelArea_( panelArea ),
+        frameFixedSurfaceNormal_( [ = ]( ) { return frameFixedSurfaceNormal; } ),
+        frameFixedPositionVector_( [ = ]( ) { return frameFixedPositionVector; } ), panelArea_( panelArea ),
         panelTemperature_( panelTemperature ), trackedBody_( "" ), reflectionLaw_( reflectionLaw ),
         frameOrigin_( Eigen::Vector3d::Zero( ) ), geometryDefined_( false )
-    {}
+    { }
 
     VehicleExteriorPanel( const Eigen::Vector3d& frameFixedSurfaceNormal,
                           const Eigen::Vector3d& frameFixedPositionVector,
@@ -48,11 +48,11 @@ public:
                           const double panelTemperature = 273.0,
                           const std::string trackedBody = "",
                           const std::shared_ptr< electromagnetism::ReflectionLaw > reflectionLaw = nullptr ):
-        frameFixedSurfaceNormal_( [ =, this ]( ) { return frameFixedSurfaceNormal; } ),
-        frameFixedPositionVector_( [ =, this ]( ) { return frameFixedPositionVector; } ), panelArea_( panelArea ),
+        frameFixedSurfaceNormal_( [ = ]( ) { return frameFixedSurfaceNormal; } ),
+        frameFixedPositionVector_( [ = ]( ) { return frameFixedPositionVector; } ), panelArea_( panelArea ),
         panelTemperature_( panelTemperature ), trackedBody_( trackedBody ), reflectionLaw_( reflectionLaw ),
         frameOrigin_( Eigen::Vector3d::Zero( ) ), geometryDefined_( false )
-    {}
+    { }
 
     VehicleExteriorPanel( const std::function< Eigen::Vector3d( ) > frameFixedSurfaceNormal,
                           const std::function< Eigen::Vector3d( ) > frameFixedPositionVector,
@@ -63,35 +63,35 @@ public:
         frameFixedSurfaceNormal_( frameFixedSurfaceNormal ), frameFixedPositionVector_( frameFixedPositionVector ), panelArea_( panelArea ),
         panelTemperature_( panelTemperature ), trackedBody_( trackedBody ), reflectionLaw_( reflectionLaw ),
         frameOrigin_( Eigen::Vector3d::Zero( ) ), geometryDefined_( false )
-    {}
+    { }
 
     VehicleExteriorPanel( const double panelArea,
                           const Eigen::Vector3d& frameFixedSurfaceNormal,
                           const std::shared_ptr< electromagnetism::ReflectionLaw > reflectionLaw = nullptr ):
-        frameFixedSurfaceNormal_( [ =, this ]( ) { return frameFixedSurfaceNormal; } ),
-        frameFixedPositionVector_( [ =, this ]( ) { return Eigen::Vector3d::Constant( TUDAT_NAN ); } ), panelArea_( panelArea ),
+        frameFixedSurfaceNormal_( [ = ]( ) { return frameFixedSurfaceNormal; } ),
+        frameFixedPositionVector_( [ = ]( ) { return Eigen::Vector3d::Constant( TUDAT_NAN ); } ), panelArea_( panelArea ),
         panelTemperature_( TUDAT_NAN ), trackedBody_( "" ), reflectionLaw_( reflectionLaw ), frameOrigin_( Eigen::Vector3d::Zero( ) ),
         geometryDefined_( false )
-    {}
+    { }
 
     VehicleExteriorPanel( const Eigen::Vector3d& frameFixedSurfaceNormal,
                           const double panelArea,
                           const std::string trackedBody = "",
                           const std::shared_ptr< electromagnetism::ReflectionLaw > reflectionLaw = nullptr,
                           const Eigen::Vector3d& frameFixedPosition = Eigen::Vector3d::Constant( TUDAT_NAN ) ):
-        frameFixedSurfaceNormal_( [ =, this ]( ) { return frameFixedSurfaceNormal; } ),
-        frameFixedPositionVector_( [ =, this ]( ) { return frameFixedPosition; } ), panelArea_( panelArea ), panelTemperature_( TUDAT_NAN ),
+        frameFixedSurfaceNormal_( [ = ]( ) { return frameFixedSurfaceNormal; } ),
+        frameFixedPositionVector_( [ = ]( ) { return frameFixedPosition; } ), panelArea_( panelArea ), panelTemperature_( TUDAT_NAN ),
         trackedBody_( trackedBody ), reflectionLaw_( reflectionLaw ), frameOrigin_( Eigen::Vector3d::Zero( ) ), geometryDefined_( false )
-    {}
+    { }
 
     VehicleExteriorPanel( const std::function< Eigen::Vector3d( ) > frameFixedSurfaceNormal,
                           const double panelArea,
                           const std::string trackedBody = "",
                           const std::shared_ptr< electromagnetism::ReflectionLaw > reflectionLaw = nullptr ):
         frameFixedSurfaceNormal_( frameFixedSurfaceNormal ),
-        frameFixedPositionVector_( [ =, this ]( ) { return Eigen::Vector3d::Constant( TUDAT_NAN ); } ), panelArea_( panelArea ),
+        frameFixedPositionVector_( [ = ]( ) { return Eigen::Vector3d::Constant( TUDAT_NAN ); } ), panelArea_( panelArea ),
         trackedBody_( trackedBody ), reflectionLaw_( reflectionLaw ), frameOrigin_( Eigen::Vector3d::Zero( ) ), geometryDefined_( false )
-    {}
+    { }
 
     VehicleExteriorPanel( const std::function< Eigen::Vector3d( ) > frameFixedSurfaceNormal,
                           const std::function< Eigen::Vector3d( ) > frameFixedPositionVector,
@@ -121,8 +121,8 @@ public:
     // rotation update function
     void updatePanel( const Eigen::Quaterniond& currentOrientation_ )
     {
-        bodyFixedSurfaceNormal_ = [ =, this ]( ) { return currentOrientation_ * frameFixedSurfaceNormal_( ); };
-        bodyFixedPositionVector_ = [ =, this ]( ) {
+        bodyFixedSurfaceNormal_ = [ = ]( ) { return currentOrientation_ * frameFixedSurfaceNormal_( ); };
+        bodyFixedPositionVector_ = [ = ]( ) {
             Eigen::Vector3d frameFixedPositionRotated = currentOrientation_ * frameFixedPositionVector_( ) + frameOrigin_;
             return frameFixedPositionRotated;
         };
@@ -297,6 +297,7 @@ protected:
     double tangentialAccomodationCoefficient_;
 
     double normalVelocityAtWallRatio_;
+
 };
 
 }  // namespace system_models

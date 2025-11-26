@@ -63,10 +63,10 @@ void setLowThrustAcceleration( const std::shared_ptr< TransferLeg > transferLeg,
                                const std::string bodyName,
                                const std::string engineName )
 {
-    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction = [ =, this ]( const double time ) {
+    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction = [ = ]( const double time ) {
         return transferLeg->getThrustAccelerationAlongTrajectory( time ).normalized( );
     };
-    std::function< double( const double ) > thrustMagnitudeFunction = [ =, this ]( const double time ) {
+    std::function< double( const double ) > thrustMagnitudeFunction = [ = ]( const double time ) {
         return transferLeg->getThrustAccelerationAlongTrajectory( time ).norm( ) * bodyMap.at( bodyName )->getBodyMass( );
     };
     std::shared_ptr< system_models::EngineModel > engineModel =
@@ -500,7 +500,7 @@ void getMgaTransferTrajectorySettingsWithoutDsm( std::vector< std::shared_ptr< T
                                                  const std::pair< double, double > arrivalOrbit,
                                                  const std::map< std::string, double > minimumPericenterRadii )
 {
-    std::function< std::shared_ptr< TransferLegSettings >( int ) > unpoweredLegSettingsConstructor = [ =, this ]( int i ) {
+    std::function< std::shared_ptr< TransferLegSettings >( int ) > unpoweredLegSettingsConstructor = [ = ]( int i ) {
         return unpoweredLeg( );
     };
 
@@ -549,7 +549,7 @@ void getMgaTransferTrajectorySettingsWithPositionBasedDsm( std::vector< std::sha
                                                            const std::pair< double, double > arrivalOrbit,
                                                            const std::map< std::string, double > minimumPericenterRadii )
 {
-    std::function< std::shared_ptr< TransferLegSettings >( int ) > dsmPositionBasedLegSettingsConstructor = [ =, this ]( int i ) {
+    std::function< std::shared_ptr< TransferLegSettings >( int ) > dsmPositionBasedLegSettingsConstructor = [ = ]( int i ) {
         return dsmPositionBasedLeg( );
     };
 
@@ -598,7 +598,7 @@ void getMgaTransferTrajectorySettingsWithVelocityBasedDsm( std::vector< std::sha
                                                            const std::pair< double, double > arrivalOrbit,
                                                            const std::map< std::string, double > minimumPericenterRadii )
 {
-    std::function< std::shared_ptr< TransferLegSettings >( int ) > dsmVelocityBasedLegSettingsConstructor = [ =, this ]( int i ) {
+    std::function< std::shared_ptr< TransferLegSettings >( int ) > dsmVelocityBasedLegSettingsConstructor = [ = ]( int i ) {
         return dsmVelocityBasedLeg( );
     };
 
@@ -678,7 +678,7 @@ void getMgaTransferTrajectorySettingsWithSphericalShapingThrust(
         const double initialValueFreeCoefficient,
         const std::map< std::string, double > minimumPericenterRadii )
 {
-    std::function< std::shared_ptr< TransferLegSettings >( int ) > sphericalShapingLegSettingsConstructor = [ =, this ]( int i ) {
+    std::function< std::shared_ptr< TransferLegSettings >( int ) > sphericalShapingLegSettingsConstructor = [ = ]( int i ) {
         return sphericalShapingLeg( rootFinderSettings, lowerBoundFreeCoefficient, upperBoundFreeCoefficient, initialValueFreeCoefficient );
     };
 
@@ -702,7 +702,7 @@ void getMgaTransferTrajectorySettingsWithHodographicShapingThrust(
         const std::pair< double, double > arrivalOrbit,
         const std::map< std::string, double > minimumPericenterRadii )
 {
-    std::function< std::shared_ptr< TransferLegSettings >( int ) > hodographicShapingLegSettingsConstructor = [ =, this ]( int i ) {
+    std::function< std::shared_ptr< TransferLegSettings >( int ) > hodographicShapingLegSettingsConstructor = [ = ]( int i ) {
         return hodographicShapingLeg( radialVelocityFunctionComponentsPerLeg.at( i ),
                                       normalVelocityFunctionComponentsPerLeg.at( i ),
                                       axialVelocityFunctionComponentsPerLeg.at( i ) );

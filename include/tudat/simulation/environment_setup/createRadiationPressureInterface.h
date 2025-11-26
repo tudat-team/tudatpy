@@ -119,7 +119,7 @@ public:
                                                   const std::vector< std::string >& occultingBodies = std::vector< std::string >( ) ):
         RadiationPressureInterfaceSettings( cannon_ball_radiation_pressure_interface, sourceBody, occultingBodies ), area_( area ),
         radiationPressureCoefficient_( radiationPressureCoefficient ),
-        radiationPressureCoefficientFunction_( [ =, this ]( const double ) { return radiationPressureCoefficient; } )
+        radiationPressureCoefficientFunction_( [ = ]( const double ) { return radiationPressureCoefficient; } )
     { }
 
     CannonBallRadiationPressureInterfaceSettings( const std::string& sourceBody,

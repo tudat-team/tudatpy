@@ -26,7 +26,7 @@ void addEngineModel( const std::string& bodyName,
                      const Eigen::Vector3d bodyFixedThrustDirection )
 {
     addVariableDirectionEngineModel(
-            bodyName, engineName, thrustSettings, bodies, [ =, this ]( const double ) { return bodyFixedThrustDirection; } );
+            bodyName, engineName, thrustSettings, bodies, [ = ]( const double ) { return bodyFixedThrustDirection; } );
 }
 
 void addVariableDirectionEngineModel( const std::string& bodyName,
@@ -75,8 +75,8 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
 
     double panelArea = TUDAT_NAN;
     double panelTemperature = TUDAT_NAN;
-    std::function< Eigen::Vector3d( ) > localFrameSurfaceNormal = [ =, this ]( ) { return Eigen::Vector3d::Constant( TUDAT_NAN ); };
-    std::function< Eigen::Vector3d( ) > localFramePositionVector = [ =, this ]( ) { return Eigen::Vector3d::Constant( TUDAT_NAN ); };
+    std::function< Eigen::Vector3d( ) > localFrameSurfaceNormal = [ = ]( ) { return Eigen::Vector3d::Constant( TUDAT_NAN ); };
+    std::function< Eigen::Vector3d( ) > localFramePositionVector = [ = ]( ) { return Eigen::Vector3d::Constant( TUDAT_NAN ); };
     std::string trackedBodyName = "";
     bool geometry3dLoaded = false;
     system_models::Triangle3d triangle3d = system_models::Triangle3d( );
@@ -89,8 +89,8 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
         panelArea = fixedBodyPanelGeometrySettings->area_;
         panelTemperature = fixedBodyPanelGeometrySettings->panelTemperature_;
 
-        localFrameSurfaceNormal = [ =, this ]( ) { return fixedBodyPanelGeometrySettings->surfaceNormal_; };
-        localFramePositionVector = [ =, this ]( ) { return fixedBodyPanelGeometrySettings->positionVector_; };
+        localFrameSurfaceNormal = [ = ]( ) { return fixedBodyPanelGeometrySettings->surfaceNormal_; };
+        localFramePositionVector = [ = ]( ) { return fixedBodyPanelGeometrySettings->positionVector_; };
         // load 3d geometry
         geometry3dLoaded = ( fixedBodyPanelGeometrySettings->geometry3dLoaded_ == true );
         Eigen::Vector3d vertexA = fixedBodyPanelGeometrySettings->vertexA_;
@@ -123,7 +123,7 @@ std::pair< std::shared_ptr< system_models::VehicleExteriorPanel >, std::string >
             const auto sign = variableBodyPanelGeometrySettings->bodyToTrack_.second ? +1.0 : -1.0;
 
             // Construct surface normal function always pointing towards/away from tracked body
-            localFrameSurfaceNormal = [ =, this ]( ) {
+            localFrameSurfaceNormal = [ = ]( ) {
                 const Eigen::Quaterniond rotationFromPropagationToLocalFrame = targetBody->getCurrentRotationToLocalFrame( );
                 const Eigen::Vector3d relativeSourcePositionInPropagationFrame = bodyToTrack->getPosition( ) - targetBody->getPosition( );
                 const Eigen::Vector3d relativeSourcePositionInLocalFrame =

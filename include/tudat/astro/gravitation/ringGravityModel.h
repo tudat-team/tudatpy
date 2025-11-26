@@ -76,8 +76,8 @@ public:
             const bool isMutualAttractionUsed = 0,
             const bool updateGravitationalPotential = false ):
         subjectPositionFunction_( positionOfBodySubjectToAccelerationFunction ),
-        gravitationalParameterFunction_( [ =, this ]( ) { return aGravitationalParameter; } ),
-        ringRadiusFunction_( [ =, this ]( ) { return aRingRadius; } ), ellipticIntegralSFromDAndB_( ellipticIntegralSFromDAndB ),
+        gravitationalParameterFunction_( [ = ]( ) { return aGravitationalParameter; } ),
+        ringRadiusFunction_( [ = ]( ) { return aRingRadius; } ), ellipticIntegralSFromDAndB_( ellipticIntegralSFromDAndB ),
         sourcePositionFunction_( positionOfBodyExertingAccelerationFunction ),
         rotationFromBodyFixedToIntegrationFrameFunction_( rotationFromBodyFixedToIntegrationFrameFunction ),
         isMutualAttractionUsed_( isMutualAttractionUsed ),

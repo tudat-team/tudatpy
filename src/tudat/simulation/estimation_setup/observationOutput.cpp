@@ -190,7 +190,7 @@ ObservationDependentVariableFunction getStationObservationAngleFunction(
     if( variableSettings->variableType_ == station_elevation_angle )
     {
         outputFunction =
-                [ =, this ]( const std::vector< double > &linkEndTimes,
+                [ = ]( const std::vector< double > &linkEndTimes,
                        const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
                        const Eigen::VectorXd &observationValue,
                        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySimulationSettings ) {
@@ -202,7 +202,7 @@ ObservationDependentVariableFunction getStationObservationAngleFunction(
     else if( variableSettings->variableType_ == station_azimuth_angle )
     {
         outputFunction =
-                [ =, this ]( const std::vector< double > &linkEndTimes,
+                [ = ]( const std::vector< double > &linkEndTimes,
                        const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
                        const Eigen::VectorXd &observationValue,
                        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySimulationSettings ) {
@@ -237,7 +237,7 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
                 throw std::runtime_error(
                         "Error when parsing target range observation dependent variable, relative body must not be defined" );
             }
-            outputFunction = [ =, this ]( const std::vector< double > &linkEndTimes,
+            outputFunction = [ = ]( const std::vector< double > &linkEndTimes,
                                     const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
                                     const Eigen::VectorXd &observationValue,
                                     const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >
@@ -262,7 +262,7 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
                                           variableSettings->relativeBody_ + ", body has no ephemeris" );
             }
 
-            outputFunction = [ =, this ]( const std::vector< double > &linkEndTimes,
+            outputFunction = [ = ]( const std::vector< double > &linkEndTimes,
                                     const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
                                     const Eigen::VectorXd &observationValue,
                                     const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >
@@ -300,7 +300,7 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
                                           variableSettings->relativeBody_ + ", body has no ephemeris" );
             }
 
-            outputFunction = [ =, this ]( const std::vector< double > &linkEndTimes,
+            outputFunction = [ = ]( const std::vector< double > &linkEndTimes,
                                     const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
                                     const Eigen::VectorXd &observationValue,
                                     const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >
@@ -336,7 +336,7 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
                                           variableSettings->relativeBody_ + ", body has no shape model" );
             }
             auto shapeModel = bodies.at( variableSettings->relativeBody_ )->getShapeModel( );
-            outputFunction = [ =, this ]( const std::vector< double > &linkEndTimes,
+            outputFunction = [ = ]( const std::vector< double > &linkEndTimes,
                                     const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
                                     const Eigen::VectorXd &observationValue,
                                     const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >
@@ -366,7 +366,7 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
                                           variableSettings->relativeBody_ + ", body has no ephemeris" );
             }
 
-            outputFunction = [ =, this ]( const std::vector< double > &linkEndTimes,
+            outputFunction = [ = ]( const std::vector< double > &linkEndTimes,
                                     const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
                                     const Eigen::VectorXd &observationValue,
                                     const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >
@@ -485,7 +485,7 @@ ObservationDependentVariableFunction getObservationVectorDependentVariableFuncti
                                           observation_models::getObservableName( observableType, linkEnds.size( ) ) );
             }
 
-            outputFunction = [ =, this ]( const std::vector< double > &linkEndTimes,
+            outputFunction = [ = ]( const std::vector< double > &linkEndTimes,
                                     const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
                                     const Eigen::VectorXd &observationValue,
                                     const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >
@@ -503,7 +503,7 @@ ObservationDependentVariableFunction getObservationVectorDependentVariableFuncti
                                           observation_models::getObservableName( observableType, linkEnds.size( ) ) );
             }
 
-            outputFunction = [ =, this ]( const std::vector< double > &linkEndTimes,
+            outputFunction = [ = ]( const std::vector< double > &linkEndTimes,
                                     const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
                                     const Eigen::VectorXd &observationValue,
                                     const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >
@@ -689,7 +689,7 @@ void ObservationDependentVariableCalculator::addDependentVariableFunction(
 
     // Create function to compute dependent variable and add to existing list
     ObservationDependentVariableAddFunction dependentVariableAddFunction =
-            [ =, this ]( Eigen::VectorXd &dependentVariables,
+            [ = ]( Eigen::VectorXd &dependentVariables,
                    const std::vector< double > &linkEndTimes,
                    const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
                    const Eigen::VectorXd &observable,

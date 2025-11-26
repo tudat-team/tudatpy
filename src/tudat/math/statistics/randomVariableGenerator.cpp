@@ -26,24 +26,24 @@ std::function< Eigen::VectorXd( const double ) > getIndependentGaussianNoiseFunc
             statistics::normal_boost_distribution, { mean, standardDeviation }, seed );
     if( outputSize == 1 )
     {
-        return [ =, this ]( const double ) { return ( Eigen::VectorXd( outputSize ) << inputFreeNoiseFunction( ) ).finished( ); };
+        return [ = ]( const double ) { return ( Eigen::VectorXd( outputSize ) << inputFreeNoiseFunction( ) ).finished( ); };
     }
     else if( outputSize == 2 )
     {
-        return [ =, this ]( const double ) {
+        return [ = ]( const double ) {
             return ( Eigen::VectorXd( outputSize ) << inputFreeNoiseFunction( ), inputFreeNoiseFunction( ) ).finished( );
         };
     }
     else if( outputSize == 3 )
     {
-        return [ =, this ]( const double ) {
+        return [ = ]( const double ) {
             return ( Eigen::VectorXd( outputSize ) << inputFreeNoiseFunction( ), inputFreeNoiseFunction( ), inputFreeNoiseFunction( ) )
                     .finished( );
         };
     }
     else if( outputSize == 6 )
     {
-        return [ =, this ]( const double ) {
+        return [ = ]( const double ) {
             return ( Eigen::VectorXd( outputSize ) << inputFreeNoiseFunction( ),
                      inputFreeNoiseFunction( ),
                      inputFreeNoiseFunction( ),

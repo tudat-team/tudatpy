@@ -137,7 +137,7 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ObservationMo
             double constantIntegrationTime = getValue< double >( jsonObject, K::constantIntegrationTime );
 
             observationSettings = std::make_shared< OneWayDifferencedRangeRateObservationSettings >(
-                    [ =, this ]( const double ) { return constantIntegrationTime; }, lightTimeCorrectionsList, biasSettings );
+                    [ = ]( const double ) { return constantIntegrationTime; }, lightTimeCorrectionsList, biasSettings );
             return;
         }
         case n_way_range: {
@@ -153,7 +153,7 @@ void from_json( const nlohmann::json& jsonObject, std::shared_ptr< ObservationMo
                 std::vector< double > retransmissionTimes =
                         getValue< std::vector< double > >( jsonObject, K::retransmissionTimes, std::vector< double >( ) );
                 observationSettings = std::make_shared< NWayRangeObservationModelSettings >(
-                        oneWayRangeObservationSettings, [ =, this ]( const double ) { return retransmissionTimes; }, biasSettings );
+                        oneWayRangeObservationSettings, [ = ]( const double ) { return retransmissionTimes; }, biasSettings );
             }
             return;
         }

@@ -199,7 +199,7 @@ Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getZeroProperModeRotationalS
             std::make_shared< basic_astrodynamics::DissipativeTorqueModel >(
                     std::bind( &simulation_setup::Body::getCurrentAngularVelocityVectorInLocalFrame,
                                bodies.at( torqueModelMap.begin( )->first ) ),
-                    [ =, this ]( ) { return Eigen::Matrix3d::Zero( ); },
+                    [ = ]( ) { return Eigen::Matrix3d::Zero( ); },
                     bodyMeanRotationRate );
     torqueModelMap[ torqueModelMap.begin( )->first ][ torqueModelMap.begin( )->first ].push_back( dissipativeTorque );
     rotationPropagationSettings_->resetTorqueModelsMap( torqueModelMap );

@@ -45,7 +45,7 @@ std::shared_ptr< simulation_setup::ThrustAccelerationSettings > SimsFlanaganMode
         unsigned int indexSegment )
 {
     // Define (constant) thrust magnitude function.
-    std::function< double( const double ) > thrustMagnitudeFunction = [ =, this ]( const double currentTime ) {
+    std::function< double( const double ) > thrustMagnitudeFunction = [ = ]( const double currentTime ) {
         return maximumThrust_ * throttles_[ indexSegment ].norm( );
     };
 
@@ -54,7 +54,7 @@ std::shared_ptr< simulation_setup::ThrustAccelerationSettings > SimsFlanaganMode
             std::make_shared< simulation_setup::FromFunctionThrustMagnitudeSettings >( thrustMagnitudeFunction, specificImpulseFunction_ );
 
     // Define thrust direction function (constant over one leg segment).
-    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction = [ =, this ]( const double currentTime ) {
+    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction = [ = ]( const double currentTime ) {
         return throttles_[ indexSegment ].normalized( );
     };
 
@@ -99,7 +99,7 @@ std::shared_ptr< simulation_setup::ThrustAccelerationSettings > SimsFlanaganMode
         const simulation_setup::SystemOfBodies& bodies )
 {
     // Define thrust magnitude function.
-    std::function< double( const double ) > thrustMagnitudeFunction = [ =, this ]( const double currentTime ) {
+    std::function< double( const double ) > thrustMagnitudeFunction = [ = ]( const double currentTime ) {
         int indexSegment = convertTimeToLegSegment( currentTime );
         return maximumThrust_ * throttles_[ indexSegment ].norm( );
     };
@@ -109,7 +109,7 @@ std::shared_ptr< simulation_setup::ThrustAccelerationSettings > SimsFlanaganMode
             std::make_shared< simulation_setup::FromFunctionThrustMagnitudeSettings >( thrustMagnitudeFunction, specificImpulseFunction_ );
 
     // Define thrust direction function.
-    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction = [ =, this ]( const double currentTime ) {
+    std::function< Eigen::Vector3d( const double ) > thrustDirectionFunction = [ = ]( const double currentTime ) {
         int indexSegment = convertTimeToLegSegment( currentTime );
         return throttles_[ indexSegment ].normalized( );
     };
