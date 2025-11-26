@@ -1527,7 +1527,7 @@ HybridArcPropagatorSettings
 
  Parameters
  ----------
- custom_condition : callable[[astro.time_representation.Time], bool]
+ custom_condition : callable[[:class:`~tudatpy.astro.time_representation.Time`], bool]
      Function of time (independent variable) which is called during the propagation and returns a boolean value denoting whether the termination condition is verified.
  Returns
  -------

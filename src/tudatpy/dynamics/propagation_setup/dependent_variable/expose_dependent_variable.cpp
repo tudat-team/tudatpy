@@ -2274,7 +2274,7 @@ The type of the acceleration that is to be saved.
 
  Parameters
  ----------
- custom_function : Callable[[], numpy.ndarray].
+ custom_function : callable[[], numpy.ndarray].
      Function taking no input, and returning the custom dependent variable (as a numpy Nx1 array).
  variable_size : int
      Size N of the array returned by the ``custom_function``

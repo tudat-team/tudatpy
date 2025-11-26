@@ -56,7 +56,7 @@ Enumeration defining possible behaviours when :math:`\Delta t_{rec}<\Delta t_{\m
                     tni::MinimumIntegrationTimeStepHandling::throw_exception_below_minimum,
                     R"doc(
 
-The propagation is terminated and a :class:`tudatpy.exceptions.MinimumStepSizeViolatedError` is thrown.
+The propagation is terminated and a :class:`~tudatpy.exceptions.MinimumStepSizeViolatedError` is thrown.
 
 )doc" )
             .value( "set_to_minimum_step_silently",
@@ -917,7 +917,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
  Parameters
  ----------
- block_indices_function : Callable[[int,int],list[tuple[int,int,int,int]]]
+ block_indices_function : callable[[int,int],list[tuple[int,int,int,int]]]
      Function returning list of matrix blocks over which the norms are to be taken (with entries of the tuple denoting :math:`i,j,k,l`, in order, with number of rows and columns of propagated state as input.
  relative_error_tolerance : float
      Value of relative error tolerance :math:`\epsilon_{r}`.
@@ -961,7 +961,7 @@ Sequence for which :math:`n_{j}=2(j+1)` (2, 4, 6, 8, 10, 12, 14, ....)
 
  Parameters
  ----------
- block_indices_function : Callable[[int,int],list[tuple[int,int,int,int]]]
+ block_indices_function : callable[[int,int],list[tuple[int,int,int,int]]]
      Function returning list of matrix blocks over which the norms are to be taken (with entries of the tuple denoting :math:`i,j,k,l`, in order, with number of rows and columns of propagated state as input.
  relative_error_tolerance : numpy.ndarray[numpy.float64[m, 1]]
      Values of relative error tolerance :math:`\boldsymbol{\epsilon}_{r}`.
