@@ -3,11 +3,12 @@
 ``observations_dependent_variables``
 ====================================
 
-As is the case with the state propagation (see :ref:`dependent_variables`), you can define any number of so-called dependent variable to be computed along with the observations themselves. These include distances between link ends, angles between link ends, and a variety of other options. These quantities can be useful in understanding the behaviour of e.g. observation noise, tracking geometry or coverage.
+As is the case with the state propagation (see :ref:`dependent_variable`), you can define any number of so-called dependent variable to be computed along with the observations themselves. These include distances between link ends, angles between link ends, and a variety of other options. These quantities can be useful in understanding the behaviour of e.g. observation noise, tracking geometry or coverage.
 
 The functions in this module are used create objects of type :class:`~tudatpy.estimation.observations_setup.observations_dependent_variables.ObservationDependentVariableSettings` that contain settings for these observation dependent variables. The main interface with Tudat is that these objects are can be added to :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` objects, which are in turn used as input to observation simulation (see :ref:`observations_simulation_settings`). The dependent variable settings can be set in these objects directly using the :attr:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings.dependent_variable_settings_list` attribute, or by using the :func:`~tudatpy.estimation.observations_setup.observations_dependent_variables.add_dependent_variables_to_all`, :func:`~tudatpy.estimation.observations_setup.observations_dependent_variables.add_dependent_variables_to_observable` and :func:`~tudatpy.estimation.observations_setup.observations_dependent_variables.add_dependent_variables_check_to_observable_for_link_ends` functions (which are functions of convenience to add the same ancillary settings to a set of observation simulation settings)
 
-After observation simulation, the dependent variables can be extracted from the :class:`~tudatpy.estimation.observations.ObservationCollection` or :class:`~tudatpy.estimation.observations.SingleObservationSet` objects.
+After observation simulation, the dependent variables can be extracted from the :class:`~tudatpy.estimation.observations.ObservationCollection` or :class:`~tudatpy.estimation.observations.SingleObservationSet` objects. More details on adding dependent variable settings, and extracting dependent variables, can be found on our `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/dependent-variables.html>`_.
+
 
 Functions
 ---------
