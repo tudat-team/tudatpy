@@ -176,33 +176,37 @@ public:
     Eigen::VectorXd getParameterValue( )
     {
         std::map< double, std::pair< Eigen::Vector2d, double > > fullLibrations = rotationModel_->getPolePeriodicTerms( );
-        Eigen::MatrixXd parameters = Eigen::MatrixXd::Zero(getParameterSize( ), 2);
+        Eigen::VectorXd parameters = Eigen::VectorXd::Zero( getParameterSize( ) );
         for( unsigned int i = 0; i < angularFrequencies_.size( ); i++ )
         {
             Eigen::Vector2d pole_term = fullLibrations.at( angularFrequencies_.at( i ) ).first;
-            parameters.row(i) = pole_term.transpose();
+            parameters( 2*i ) = pole_term( 2*i );
+            parameters( 2*i + 1 ) = pole_term( 2*i + 1 );
         }
         return parameters;
     }
 
-    void setParameterValue( const Eigen::MatrixXd parameterValue )
+    void setParameterValue( const Eigen::VectorXd parameterValue )
     {
-        if ( parameterValue.cols() != 2 )
+        if ( parameterValue.size( ) != getParameterSize( ) )
         {
-            throw std::runtime_error("Parameter value to be set must be of shape (n, 2), is of shape ("  + std::to_string(parameterValue.rows()) + ", " +std::to_string(parameterValue.cols()) + ").");
+            throw std::runtime_error("Parameter value to be set must be of length " + std::to_string(getParameterSize( )) + ", is gives as legth "  + std::to_string(parameterValue.size()) + ".");
         }
 
         std::map< double, std::pair< Eigen::Vector2d, double > >  fullLibrations = rotationModel_->getPolePeriodicTerms( );
         for( unsigned int i = 0; i < angularFrequencies_.size( ); i++ )
         {
-            fullLibrations[ angularFrequencies_.at( i ) ].first = parameterValue.row(i).transpose();
+            Eigen::Vector2d pole_term;
+            pole_term(0) = pole_term( 2*i );
+            pole_term(1) = pole_term( 2*i + 1 );
+            fullLibrations[ angularFrequencies_.at( i ) ].first = pole_term;
         }
         rotationModel_->setPolePeriodicTerms( fullLibrations );
     }
 
     int getParameterSize( )
     {
-        return angularFrequencies_.size( );
+        return 2*angularFrequencies_.size( );
     }
 
     std::vector< double > getAngularFrequencies( )
