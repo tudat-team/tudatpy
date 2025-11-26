@@ -246,10 +246,7 @@ void expose_estimation_analysis( py::module& m )
                                                                                                    "CovarianceAnalysisInput",
                                                                                                    R"doc(
 
-         Class for defining all specific inputs to a covariance analysis.
-
-
-
+         Class for defining all inputs to a covariance analysis.
 
 
       )doc" )
@@ -562,8 +559,23 @@ void expose_estimation_analysis( py::module& m )
          * The consider partials matrix :math:`\mathbf{H}_{c}=\frac{\partial\mathbf{h}}{\partial\mathbf{p}_{c}}` of the observations w.r.t. the consider parameters (if any)
          * The contribution :math:`\Delta \mathbf{P}_{c}` of the consider parameters to the estimated parameter covariance
 
-         Each of these quantities can be retrieved in normalized or unnormalized form. The normalization is described in our `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/performing-estimation.html#normalization>`_
-         and is used to improve the stability of the inversion problem. When wanting to recreate the internal workings of the analysis, use the normalized quantities,
+         In the computation of the covariance  (see TODO), the columns of the :math:`H` matrices are normalized to reduce numerical instability
+         that can result from the partials w.r.t. different parameters being of a very different order of magnitude. The normalization is achieved
+         by computing a vector :math:`\mathbf{N}` (of the same size as the parameter vector :math:`\mathbf{p}`, such that for each column of the matrix :math:`\mathbf{H}`, we have:
+
+         .. math::
+
+             \max_{i}\left| \frac{H_{ij}}{N_{j}}\right|=1
+
+         That is, the entries of :math:`\mathbf{N}` are chosen such that they normalize the corresponding column of :math:`\mathbf{H}` to be
+         in the range :math:`[-1,1]`. We denote the normalized quantities with a tilde, so that:
+
+         .. math::
+
+             \tilde{H}_{ij}=\frac{H_{ij}}{N{j}}\\
+             \tilde{P}_{ij}=P_{ij}N_{i}N_{j}
+
+         When wanting to recreate the internal workings of the analysis, use the normalized quantities,
          when interested in the actual covariances, sensitivities, etc of the observations/parameters, use the unnormalized quantities.
 
       )doc" )

@@ -91,6 +91,9 @@ enum EstimatebleParametersEnum {
     drag_component_scaling_factor,
     side_component_scaling_factor,
     lift_component_scaling_factor,
+    arc_wise_drag_component_scaling_factor,
+    arc_wise_side_component_scaling_factor,
+    arc_wise_lift_component_scaling_factor,
     rtg_force_vector,
     rtg_force_vector_magnitude,
     area_to_mass_scaling_factor,
@@ -172,9 +175,9 @@ public:
                                        const basic_astrodynamics::AvailableAcceleration accelerationType ):
         bodyUndergoingAcceleration_( bodyUndergoingAcceleration ), bodyExertingAcceleration_( bodyExertingAcceleration ),
         accelerationType_( accelerationType )
-    { }
+    {}
 
-    virtual ~CustomAccelerationPartialSettings( ) { }
+    virtual ~CustomAccelerationPartialSettings( ) {}
 
     std::string bodyUndergoingAcceleration_;
 
@@ -203,7 +206,7 @@ public:
                     std::map< propagators::EnvironmentModelsToUpdate, std::vector< std::string > >( ) ):
         CustomAccelerationPartialSettings( bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType ),
         parameterPerturbation_( parameterPerturbation ), environmentUpdateSettings_( environmentUpdateSettings )
-    { }
+    {}
 
     Eigen::VectorXd parameterPerturbation_;
 
@@ -220,7 +223,7 @@ public:
             const basic_astrodynamics::AvailableAcceleration accelerationType ):
         CustomAccelerationPartialSettings( bodyUndergoingAcceleration, bodyExertingAcceleration, accelerationType ),
         accelerationPartialFunction_( accelerationPartialFunction )
-    { }
+    {}
 
     std::function< Eigen::MatrixXd( const double, const Eigen::Vector3d& ) > accelerationPartialFunction_;
 };
@@ -268,10 +271,10 @@ public:
                           const std::string& associatedBody,
                           const std::string& pointOnBodyId = "" ):
         parameterName_( std::make_pair( parameterName, std::make_pair( associatedBody, pointOnBodyId ) ) )
-    { }
+    {}
 
     //! Virtual destructor.
-    virtual ~EstimatableParameter( ) { }
+    virtual ~EstimatableParameter( ) {}
 
     //! Pure virtual function to retrieve the value of the parameter
     /*!
@@ -359,7 +362,7 @@ public:
         return Eigen::VectorXd::Zero( 0 );
     }
 
-    virtual void throwExceptionIfNotFullyDefined( ) { }
+    virtual void throwExceptionIfNotFullyDefined( ) {}
 
     std::vector< std::shared_ptr< CustomAccelerationPartialSettings > > getCustomPartialSettings( )
     {
@@ -438,10 +441,10 @@ public:
                                 const std::function< void( const Eigen::VectorXd& ) > setParameterFunction ):
         EstimatableParameter< Eigen::VectorXd >( custom_estimated_parameter, "", customId ), parameterSize_( parameterSize ),
         getParameterFunction_( getParameterFunction ), setParameterFunction_( setParameterFunction )
-    { }
+    {}
 
     //! Virtual destructor.
-    ~CustomEstimatableParameter( ) { }
+    ~CustomEstimatableParameter( ) {}
 
     //! Pure virtual function to retrieve the value of the parameter
     /*!
@@ -495,9 +498,9 @@ protected:
 class CustomAccelerationPartialCalculator
 {
 public:
-    CustomAccelerationPartialCalculator( ) { }
+    CustomAccelerationPartialCalculator( ) {}
 
-    virtual ~CustomAccelerationPartialCalculator( ) { }
+    virtual ~CustomAccelerationPartialCalculator( ) {}
 
     virtual Eigen::MatrixXd computePartial( const double currentTime,
                                             const Eigen::Vector3d& currentAcceleration,
@@ -596,7 +599,7 @@ public:
             const int parameterSize,
             const std::string parameterName ):
         accelerationPartialFunction_( accelerationPartialFunction ), parameterSize_( parameterSize ), parameterName_( parameterName )
-    { }
+    {}
 
     Eigen::MatrixXd computePartial( const double currentTime,
                                     const Eigen::Vector3d& currentAcceleration,
@@ -623,7 +626,7 @@ protected:
 class CustomSingleAccelerationPartialCalculatorSet
 {
 public:
-    CustomSingleAccelerationPartialCalculatorSet( ) { }
+    CustomSingleAccelerationPartialCalculatorSet( ) {}
 
     std::map< estimatable_parameters::EstimatebleParameterIdentifier,
               std::shared_ptr< estimatable_parameters::CustomAccelerationPartialCalculator > >

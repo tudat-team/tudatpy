@@ -331,6 +331,30 @@ public:
         }
     }
 
+    template< typename ParameterScalar >
+    void resetParameterValuesWithoutConsiderParameters( const Eigen::Matrix< ParameterScalar, Eigen::Dynamic, 1 >& newParameterValues )
+    {
+        resetParameterValues< ParameterScalar >( newParameterValues, false );
+    }
+
+    template< typename ParameterScalar >
+    Eigen::Matrix< ParameterScalar, Eigen::Dynamic, 1 > getFullParameterValuesWithoutConsiderParameters( )
+    {
+        return getFullParameterValues< ParameterScalar >( false );
+    }
+
+    template< typename ParameterScalar >
+    void resetParameterValuesWithConsiderParameters( const Eigen::Matrix< ParameterScalar, Eigen::Dynamic, 1 >& newParameterValues )
+    {
+        resetParameterValues< ParameterScalar >( newParameterValues, true );
+    }
+
+    template< typename ParameterScalar >
+    Eigen::Matrix< ParameterScalar, Eigen::Dynamic, 1 > getFullParameterValuesWithConsiderParameters( )
+    {
+        return getFullParameterValues< ParameterScalar >( true );
+    }
+
     //! Function to retrieve double parameter objects.
     /*!
      *  Function to retrieve double parameter objects.
