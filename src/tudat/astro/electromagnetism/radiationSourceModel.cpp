@@ -115,6 +115,8 @@ IrradianceWithSourceList PaneledRadiationSourceModel::evaluateIrradianceAtPositi
     return irradiances;
 }
 
+PaneledRadiationSourceModel::~PaneledRadiationSourceModel( ) = default;
+
 void StaticallyPaneledRadiationSourceModel::updateMembers_( double currentTime )
 {
     sourcePanelRadiosityModelUpdater_->updateMembers( currentTime );
