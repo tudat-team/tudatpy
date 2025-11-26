@@ -246,7 +246,7 @@ public:
         return returnVariable;
     }
 
-    bool operator==( const ObservationAncilliarySimulationSettings &rightSettings )
+    bool operator==( const ObservationAncilliarySimulationSettings &rightSettings ) const
     {
         return doubleData_ == rightSettings.doubleData_ && doubleVectorData_ == rightSettings.doubleVectorData_;
     }
