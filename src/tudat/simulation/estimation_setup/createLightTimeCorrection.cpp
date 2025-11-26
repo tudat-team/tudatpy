@@ -454,7 +454,7 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                 std::shared_ptr< input_output::solar_activity::SolarActivityContainer > solarActivityContainer =
                         std::make_shared< input_output::solar_activity::SolarActivityContainer >(
                                 ionosphericCorrectionSettings->getSolarActivityData( ) );
-                std::function< double( double ) > flux10p7Function = [ =, this ]( double time ) {
+                std::function< double( double ) > flux10p7Function = [ = ]( double time ) {
                     return solarActivityContainer->getSolarActivityData( time )->solarRadioFlux107Observed;
                 };
 
@@ -462,7 +462,7 @@ std::shared_ptr< LightTimeCorrection > createLightTimeCorrections( const std::sh
                 // In principle the elevation is defined wrt a body-centered inertial frame, but since this frame has the same
                 // z axis as the body-fixed frame we can use either of them to compute the elevation. This wouldn't be valid
                 // for computing the right ascension though.
-                std::function< double( double ) > sunElevationFunction = [ =, this ]( double time ) {
+                std::function< double( double ) > sunElevationFunction = [ = ]( double time ) {
                     Eigen::Vector3d bodyFixedCartesianRelativePosition =
                             bodies.getBody( groundStation.bodyName_ )->getRotationalEphemeris( )->getRotationMatrixToTargetFrame( time ) *
                             ( bodies.getBody( "Sun" )->getStateInBaseFrameFromEphemeris( time ) -
@@ -948,7 +948,7 @@ std::function< double( std::vector< FrequencyBands >, double ) > createLinkFrequ
     }
 
     std::function< double( std::vector< FrequencyBands >, double ) > linkFrequencyFunction =
-            [ =, this ]( const std::vector< FrequencyBands >& frequencyBands, const double time ) {
+            [ = ]( const std::vector< FrequencyBands >& frequencyBands, const double time ) {
                 double frequency = transmittedFrequencyCalculator->getTemplatedCurrentFrequency< double, double >( time );
 
                 if( frequencyBands.size( ) + 1 < turnaroundRatioFunctions.size( ) )

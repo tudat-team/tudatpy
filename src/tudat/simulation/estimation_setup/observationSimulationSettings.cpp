@@ -23,7 +23,7 @@ std::function< Eigen::VectorXd( const double ) > getNoiseFunctionForObservable(
     std::function< Eigen::VectorXd( const double ) > noiseFunction;
     if( observableSize != 1 )
     {
-        noiseFunction = [ =, this ]( const double time ) {
+        noiseFunction = [ = ]( const double time ) {
             Eigen::VectorXd noise = Eigen::VectorXd::Zero( observableSize );
             for( int i = 0; i < observableSize; i++ )
             {
@@ -34,7 +34,7 @@ std::function< Eigen::VectorXd( const double ) > getNoiseFunctionForObservable(
     }
     else
     {
-        noiseFunction = [ =, this ]( const double time ) { return ( Eigen::VectorXd( 1 ) << singleNoiseFunction( time ) ).finished( ); };
+        noiseFunction = [ = ]( const double time ) { return ( Eigen::VectorXd( 1 ) << singleNoiseFunction( time ) ).finished( ); };
     }
     return noiseFunction;
 }

@@ -420,9 +420,9 @@ inline std::shared_ptr< FullPanelledBodySettings > bodyWingPanelledGeometry( con
                       frameFixedPanelGeometry( Eigen::Vector3d::UnitZ( ), Eigen::Vector3d::UnitZ( ) * length / 2, length * width ),
                       frameFixedPanelGeometry( -Eigen::Vector3d::UnitZ( ), Eigen::Vector3d::UnitZ( ) * length / 2, length * width ),
                       bodyTrackingPanelGeometry(
-                              "Sun", true, [ =, this ]( ) { return -Eigen::Vector3d::UnitY( ) * width / 2; }, totalSolarArrayArea ),
+                              "Sun", true, [ = ]( ) { return -Eigen::Vector3d::UnitY( ) * width / 2; }, totalSolarArrayArea ),
                       bodyTrackingPanelGeometry(
-                              "Sun", false, [ =, this ]( ) { return Eigen::Vector3d::UnitY( ) * width / 2; }, totalSolarArrayArea ) } );
+                              "Sun", false, [ = ]( ) { return Eigen::Vector3d::UnitY( ) * width / 2; }, totalSolarArrayArea ) } );
     std::vector< std::shared_ptr< BodyPanelSettings > > panelSettings;
     for( unsigned int i = 0; i < 6; i++ )
     {

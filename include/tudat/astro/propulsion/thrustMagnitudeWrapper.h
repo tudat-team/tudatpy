@@ -202,7 +202,7 @@ public:
     { }
 
     CustomThrustMagnitudeWrapper( const std::function< double( const double ) > thrustMagnitudeFunction, const double specificImpulse ):
-        thrustMagnitudeFunction_( thrustMagnitudeFunction ), specificImpulseFunction_( [ =, this ]( const double ) { return specificImpulse; } ),
+        thrustMagnitudeFunction_( thrustMagnitudeFunction ), specificImpulseFunction_( [ = ]( const double ) { return specificImpulse; } ),
         currentThrustMagnitude_( TUDAT_NAN ), currentSpecificImpulse_( TUDAT_NAN ), isSpecificImpulseConstant_( true )
     { }
 
@@ -311,7 +311,7 @@ public:
     CustomThrustAccelerationMagnitudeWrapper( const std::function< double( const double ) > thrustAccelerationMagnitudeFunction,
                                               const double specificImpulse ):
         thrustAccelerationMagnitudeFunction_( thrustAccelerationMagnitudeFunction ),
-        specificImpulseFunction_( [ =, this ]( const double ) { return specificImpulse; } ), currentThrustAccelerationMagnitude_( TUDAT_NAN ),
+        specificImpulseFunction_( [ = ]( const double ) { return specificImpulse; } ), currentThrustAccelerationMagnitude_( TUDAT_NAN ),
         currentSpecificImpulse_( TUDAT_NAN ), isSpecificImpulseConstant_( true )
     { }
 

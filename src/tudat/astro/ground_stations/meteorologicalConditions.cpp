@@ -35,7 +35,7 @@ std::function< double( const double ) > getBeanAndDuttonWaterVaporPartialPressur
         std::function< double( const double time ) > relativeHumidity,
         std::function< double( const double time ) > temperature )
 {
-    return [ =, this ]( double time ) {
+    return [ = ]( double time ) {
         return calculateBeanAndDuttonWaterVaporPartialPressure( relativeHumidity( time ), temperature( time ) );
     };
 }

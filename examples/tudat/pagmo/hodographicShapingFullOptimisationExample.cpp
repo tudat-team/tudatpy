@@ -104,10 +104,10 @@ int main( )
     ephemerides::EphemerisPointer pointerToArrivalBodyEphemeris = std::make_shared< ephemerides::ApproximatePlanetPositions >(
             ephemerides::ApproximatePlanetPositionsBase::BodiesWithEphemerisData::mars );
 
-    std::function< Eigen::Vector6d( const double ) > departureStateFunction = [ =, this ]( const double currentTime ) {
+    std::function< Eigen::Vector6d( const double ) > departureStateFunction = [ = ]( const double currentTime ) {
         return pointerToDepartureBodyEphemeris->getCartesianState( currentTime );
     };
-    std::function< Eigen::Vector6d( const double ) > arrivalStateFunction = [ =, this ]( const double currentTime ) {
+    std::function< Eigen::Vector6d( const double ) > arrivalStateFunction = [ = ]( const double currentTime ) {
         return pointerToArrivalBodyEphemeris->getCartesianState( currentTime );
     };
 
@@ -258,12 +258,12 @@ int main( )
                 hodographicShaping->getMassProfile(
                         epochsToSaveResults,
                         hodographicShapingMassProfile,
-                        [ =, this ]( const double ) { return specificImpulse; },
+                        [ = ]( const double ) { return specificImpulse; },
                         integratorSettings );
                 hodographicShaping->getThrustForceProfile(
                         epochsToSaveResults,
                         hodographicShapingThrustProfile,
-                        [ =, this ]( const double ) { return specificImpulse; },
+                        [ = ]( const double ) { return specificImpulse; },
                         integratorSettings );
                 hodographicShaping->getCylindricalThrustAccelerationProfile( epochsToSaveResults, hodographicShapingThrustAcceleration );
 

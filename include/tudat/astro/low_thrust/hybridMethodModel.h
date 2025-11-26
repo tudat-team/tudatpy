@@ -45,7 +45,7 @@ public:
         initialSpacecraftMass_ = bodies_[ bodyToPropagate_ ]->getBodyMass( );
 
         // Define function returning the current MEE costates.
-        costatesFunction_ = [ =, this ]( const double currentTime ) {
+        costatesFunction_ = [ = ]( const double currentTime ) {
             Eigen::VectorXd currentCostates;
             currentCostates.resize( 5 );
 

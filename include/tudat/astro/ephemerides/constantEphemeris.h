@@ -52,7 +52,7 @@ public:
                        const std::string& referenceFrameOrientation = "ECLIPJ2000" ):
         Ephemeris( referenceFrameOrigin, referenceFrameOrientation )
     {
-        constantStateFunction_ = [ =, this ]( ) { return constantState; };
+        constantStateFunction_ = [ = ]( ) { return constantState; };
     }
 
     //! Get state from ephemeris.
@@ -74,7 +74,7 @@ public:
      */
     void updateConstantState( const Eigen::Vector6d& newState )
     {
-        constantStateFunction_ = [ =, this ]( ) { return newState; };
+        constantStateFunction_ = [ = ]( ) { return newState; };
     }
 
 private:

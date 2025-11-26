@@ -185,7 +185,7 @@ inline std::shared_ptr< LuminosityModelSettings > timeVariableIrradianceBasedLum
         const std::function< double( const double ) > irradianceAtDistanceFunction,
         double distance )
 {
-    return std::make_shared< TimeVariableLuminosityModelSettings >( [ =, this ]( const double time ) {
+    return std::make_shared< TimeVariableLuminosityModelSettings >( [ = ]( const double time ) {
         return electromagnetism::computeLuminosityFromIrradiance( irradianceAtDistanceFunction( time ), distance );
     } );
 }

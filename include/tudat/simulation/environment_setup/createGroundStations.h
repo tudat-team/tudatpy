@@ -109,7 +109,7 @@ public:
     //    customDisplacementModel_( customDisplacementModel ){ }
 
     CustomGroundStationMotionSettings( const std::function< Eigen::Vector3d( const double ) > customDisplacementModel ):
-        GroundStationMotionSettings( custom_station_motion ), customDisplacementModel_( [ =, this ]( const double time ) {
+        GroundStationMotionSettings( custom_station_motion ), customDisplacementModel_( [ = ]( const double time ) {
             return ( Eigen::Vector6d( ) << customDisplacementModel( time ), Eigen::Vector3d::Zero( ) ).finished( );
         } )
     { }

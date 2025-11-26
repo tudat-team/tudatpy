@@ -29,7 +29,7 @@ std::shared_ptr< simulation_setup::AccelerationSettings > HybridMethodModel::get
             std::make_shared< simulation_setup::MeeCostateBasedThrustDirectionSettings >(
                     bodyToPropagate_, centralBody_, costatesFunction_ );
 
-    std::function< double( const double ) > specificImpulseFunction = [ =, this ]( const double currentTime ) { return specificImpulse_; };
+    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double currentTime ) { return specificImpulse_; };
 
     // Define bang-bang thrust magnitude settings based on MEE co-states.
     std::shared_ptr< simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings > thrustMagnitudeSettings =
@@ -45,7 +45,7 @@ std::shared_ptr< simulation_setup::AccelerationSettings > HybridMethodModel::get
 
 std::shared_ptr< simulation_setup::ThrustMagnitudeSettings > HybridMethodModel::getMEEcostatesBasedThrustMagnitudeSettings( )
 {
-    std::function< double( const double ) > specificImpulseFunction = [ =, this ]( const double currentTime ) { return specificImpulse_; };
+    std::function< double( const double ) > specificImpulseFunction = [ = ]( const double currentTime ) { return specificImpulse_; };
 
     // Return bang-bang thrust magnitude settings based on MEE co-states.
     return std::make_shared< simulation_setup::FromMeeCostatesBangBangThrustMagnitudeSettings >(
@@ -227,7 +227,7 @@ double HybridMethodModel::computeDeltaV( )
 
     // Thrust acceleration function to use quadrature.
     // Define thrust acceleration as a function of time (to be integrated to compute the associated deltaV).
-    std::function< double( const double ) > thrustAcceleration = [ =, this ]( const double currentTime ) {
+    std::function< double( const double ) > thrustAcceleration = [ = ]( const double currentTime ) {
         // Compute current mass.
         double currentMass = initialSpacecraftMass_ + massRate * currentTime;
 

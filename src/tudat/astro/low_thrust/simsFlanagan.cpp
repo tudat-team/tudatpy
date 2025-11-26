@@ -89,7 +89,7 @@ std::function< Eigen::Vector3d( const double ) > getInitialGuessFunctionFromShap
     }
 
     // Define function returning Sims-Flanagan thrust vector as a function of time.
-    std::function< Eigen::Vector3d( const double ) > initialGuessThrustFromShaping = [ =, this ]( const double currentTime ) {
+    std::function< Eigen::Vector3d( const double ) > initialGuessThrustFromShaping = [ = ]( const double currentTime ) {
         // Compute index of the current segment, dependent on currentTime.
         int indexSegment;
 
