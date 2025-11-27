@@ -19,6 +19,7 @@ namespace ephemerides
 void MultiArcEphemeris::resetSingleArcEphemerides( const std::vector< std::shared_ptr< Ephemeris > >& singleArcEphemerides,
                                                    const std::vector< double >& arcStartTimes )
 {
+    std::cout<<"Setting multi-arc ephemeris "<<singleArcEphemerides.size( )<<std::endl;
     if( singleArcEphemerides.size( ) != arcStartTimes.size( ) )
     {
         throw std::runtime_error( "Error when updating multi-arc ephemeris, input is inconsistent" );
@@ -30,14 +31,19 @@ void MultiArcEphemeris::resetSingleArcEphemerides( const std::vector< std::share
 
     for( int i = 0; i < static_cast< int >( singleArcEphemerides_.size( ) ); i++ )
     {
+        std::cout<<"Iterating in loop "<<i<<std::endl;
         std::pair< double, double > safeInterval = getSafeEphemerisEvaluationInterval( singleArcEphemerides_.at( i ) );
+        std::cout<<"Safe interval "<<arcStartTimes_.at( i )<<" "<<safeInterval.first<<" "<<safeInterval.second<<std::endl;
+
         if( arcStartTimes_.at( i ) < safeInterval.first || i == 0 )
         {
             arcStartTimes_[ i ] = safeInterval.first;
         }
+        std::cout<<"Arc start time "<<arcStartTimes_.at( i )<<std::endl;
 
         if( static_cast< unsigned int >( i ) != singleArcEphemerides_.size( ) - 1 )
         {
+            std::cout<<"Not at the end "<<i<<" "<<arcStartTimes_.at( i + 1 )<<std::endl;
             if( safeInterval.second < arcStartTimes_.at( i + 1 ) )
             {
                 arcEndTimes_[ i ] = safeInterval.second;
@@ -49,9 +55,13 @@ void MultiArcEphemeris::resetSingleArcEphemerides( const std::vector< std::share
         }
         else
         {
+            std::cout<<"At the end "<<i<<std::endl;
             arcEndTimes_[ i ] = safeInterval.second;
         }
+        std::cout<<"End of loop "<<i<<" "<<arcStartTimes_[ i ]<<" "<<arcEndTimes_[ i ]<<std::endl;
     }
+
+
     // Create times at which the look up changes from one arc to the other.
     std::vector< double > arcSplitTimes = arcStartTimes_;
     arcSplitTimes.push_back( std::numeric_limits< double >::max( ) );
