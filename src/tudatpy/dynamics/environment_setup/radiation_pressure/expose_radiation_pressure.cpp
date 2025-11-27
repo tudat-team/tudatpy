@@ -229,7 +229,7 @@ void expose_radiation_pressure_setup( py::module& m )
 
  Parameters
  ----------
- luminosity_function : Callable[[astro.time_representation.Time], float]
+ luminosity_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float]
      Function returning source luminosity (in Watt) as a function of time (Time object)
  Returns
  -------
@@ -258,7 +258,7 @@ void expose_radiation_pressure_setup( py::module& m )
 
  Parameters
  ----------
- irradiance_function : Callable[[astro.time_representation.Time], float]
+ irradiance_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float]
      Function returning irradiance at reference distance from center of source (in :math:`W/m^{2}`) as a function of time (Time object)
  reference_distance : float
      Distance from center of source at which the irradiance is defined
@@ -477,7 +477,7 @@ void expose_radiation_pressure_setup( py::module& m )
 
  Parameters
  ----------
- custom_function : Callable[[float, float, astro.time_representation.Time], float]
+ custom_function : callable[[float, float, astro.time_representation.Time], float]
      Function providing surface property as a function of latitude, longitude and time (in that order, with time as a Time object).
  Returns
  -------
