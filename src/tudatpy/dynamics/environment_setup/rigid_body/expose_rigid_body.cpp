@@ -53,11 +53,9 @@ void expose_rigid_body_setup( py::module &m )
     //        get_docstring("RigidBodyPropertiesType.mass_dependent_mass_distribution_properties").c_str())
     //        .export_values();
     //
-    py::class_< tss::RigidBodyPropertiesSettings,
-                std::shared_ptr< tss::RigidBodyPropertiesSettings > >(
-            m,
-            "RigidBodyPropertiesSettings",
-            R"doc(
+    py::class_< tss::RigidBodyPropertiesSettings, std::shared_ptr< tss::RigidBodyPropertiesSettings > >( m,
+                                                                                                         "RigidBodyPropertiesSettings",
+                                                                                                         R"doc(
 
          Base class for providing settings for rigid body model creation.
 
