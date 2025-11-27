@@ -105,7 +105,7 @@ public:
     }
     std::map< double, std::pair< Eigen::Vector2d, double > > getPolePeriodicTermsReference( )
     {
-        return meridianPeriodicTerms_;
+        return polePeriodicTerms_;
     }
     void setPolePeriodicTerms( std::map< double, std::pair< Eigen::Vector2d, double > >& polePeriodicTerms )
     {
