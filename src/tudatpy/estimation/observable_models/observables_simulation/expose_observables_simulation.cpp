@@ -27,7 +27,6 @@ namespace observables_simulation
 
 void expose_observables_simulation( py::module& m )
 {
-
     py::class_< tom::ObservationViabilityCalculator, std::shared_ptr< tom::ObservationViabilityCalculator > >(
             m,
             "ObservationViabilityCalculator",
@@ -75,7 +74,6 @@ void expose_observables_simulation( py::module& m )
 
      )doc" );
 
-    
     py::class_< tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE > > >( m,
                                                                                                     "ObservationSimulator",
@@ -111,10 +109,9 @@ void expose_observables_simulation( py::module& m )
                 std::shared_ptr< tom::ObservationSimulator< 6, STATE_SCALAR_TYPE, TIME_TYPE > >,
                 tom::ObservationSimulatorBase< STATE_SCALAR_TYPE, TIME_TYPE > >(
             m, "ObservationSimulator_6", R"doc(No documentation found.)doc" );
-
 }
 
-}
-}
-}
-}
+}  // namespace observables_simulation
+}  // namespace observable_models
+}  // namespace estimation
+}  // namespace tudatpy

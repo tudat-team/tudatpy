@@ -34,8 +34,7 @@ namespace tudat
 namespace simulation_setup
 {
 
-inline std::shared_ptr< MassRateModelSettings > customMassRateDeprecated(
-        const std::function< double( const double ) > massRateFunction )
+inline std::shared_ptr< MassRateModelSettings > customMassRateDeprecated( const std::function< double( const double ) > massRateFunction )
 
 {
     static bool isWarningPrinted = false;
@@ -96,10 +95,9 @@ void expose_mass_rate_setup( py::module &m )
 
     // Classes
 
-    py::class_< tss::MassRateModelSettings, std::shared_ptr< tss::MassRateModelSettings > >(
-            m,
-            "MassRateModelSettings",
-            R"doc(
+    py::class_< tss::MassRateModelSettings, std::shared_ptr< tss::MassRateModelSettings > >( m,
+                                                                                             "MassRateModelSettings",
+                                                                                             R"doc(
 
          Functional base class to define settings for mass rates.
 
@@ -116,11 +114,10 @@ void expose_mass_rate_setup( py::module &m )
     //                tudat::basic_astrodynamics::AvailableMassRateModels>(),
     //                     py::arg("mass_rate_type"));
 
-    py::class_< tss::FromThrustMassRateSettings,
-                std::shared_ptr< tss::FromThrustMassRateSettings >,
-                tss::MassRateModelSettings >( m,
-                                              "FromThrustMassRateSettings",
-                                              R"doc(
+    py::class_< tss::FromThrustMassRateSettings, std::shared_ptr< tss::FromThrustMassRateSettings >, tss::MassRateModelSettings >(
+            m,
+            "FromThrustMassRateSettings",
+            R"doc(
 
          `MassRateModelSettings`-derived class to define settings for a mass rate model derived from a thrust model.
 
@@ -137,11 +134,10 @@ void expose_mass_rate_setup( py::module &m )
     //                     py::arg("associated_thrust_source") =
     //                     "");
 
-    py::class_< tss::CustomMassRateSettings,
-                std::shared_ptr< tss::CustomMassRateSettings >,
-                tss::MassRateModelSettings >( m,
-                                              "CustomMassRateSettings",
-                                              R"doc(
+    py::class_< tss::CustomMassRateSettings, std::shared_ptr< tss::CustomMassRateSettings >, tss::MassRateModelSettings >(
+            m,
+            "CustomMassRateSettings",
+            R"doc(
 
          `MassRateModelSettings`-derived class to define settings for a custom mass rate model.
 
