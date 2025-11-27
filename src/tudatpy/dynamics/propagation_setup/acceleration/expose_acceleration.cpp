@@ -1096,7 +1096,7 @@ The force enacted by the rtg emission is calculated as:
 
  Parameters
  ----------
- acceleration_function : callable[[astro.time_representation.Time], list]
+ acceleration_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], list]
      Custom acceleration function with time as an independent variable, returning the acceleration in an inertial frame (*e.g.* with global frame orientation) as a function of time.
  Returns
  -------

@@ -129,11 +129,11 @@ void expose_rigid_body_setup( py::module &m )
 
  Parameters
  ----------
- mass_function : Callable[[astro.time_representation.Time], float]
+ mass_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float]
      Function returning the mass as a function of time (Time object representing seconds since J2000 TDB) to ne used during the propagation
- center_of_mass_function : Callable[[astro.time_representation.Time], numpy.ndarray[numpy.float64[3, 1]]] = None
+ center_of_mass_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], numpy.ndarray[numpy.float64[3, 1]]] = None
      Function returning the center of mass as a function of time (Time object representing seconds since J2000 TDB) to be used during the propagation
- inertia_tensor_function : Callable[[astro.time_representation.Time], numpy.ndarray[numpy.float64[3, 3]]] = None
+ inertia_tensor_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], numpy.ndarray[numpy.float64[3, 3]]] = None
      Function returning the inertia tensor as a function of time (Time object representing seconds since J2000 TDB) to be used during the propagation
  Returns
  -------
@@ -162,11 +162,11 @@ void expose_rigid_body_setup( py::module &m )
 
  Parameters
  ----------
- mass : Callable[[float], float]
+ mass : callable[[float], float]
      Mass of the body (to be overridden during propagation if mass is propagated)
- center_of_mass_function : Callable[[float], numpy.ndarray[numpy.float64[3, 1]]] = None
+ center_of_mass_function : callable[[float], numpy.ndarray[numpy.float64[3, 1]]] = None
      Function returning the center of mass as a function of mass (to be used during the propagation)
- inertia_tensor_function : Callable[[float], numpy.ndarray[numpy.float64[3, 3]]] = None
+ inertia_tensor_function : callable[[float], numpy.ndarray[numpy.float64[3, 3]]] = None
      Function returning the inertia tensor as a function of mass (to be used during the propagation)
  Returns
  -------

@@ -99,7 +99,7 @@ void expose_simulator( py::module& m )
          by the numerical integration routine. Typically, this function is NOT used directly by users.
 
 
-         :type: Callable[[astro.time_representation.Time, numpy.ndarray], numpy.ndarray]
+         :type: callable[[astro.time_representation.Time, numpy.ndarray], numpy.ndarray]
       )doc" )
             .def_property_readonly( "environment_updater",
                                     &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::getEnvironmentUpdater,
