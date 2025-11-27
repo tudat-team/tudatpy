@@ -911,7 +911,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  body : str
      Name of the body, with whose gravitational model the estimatable parameters are associated.
 
- block_indices : List[ Tuple[int, int] ]
+ block_indices : List[ tuple[int, int] ]
      List of block indices. The length of this list can be arbitrary, as long as the pairs are unique.
      For each pair, the first value is the degree and the second the order of the coefficient to be included.
 
@@ -990,7 +990,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  body : str
      Name of the body, with whose gravitational model the estimatable parameters are associated.
 
- block_indices : List[ Tuple[int, int] ]
+ block_indices : List[ tuple[int, int] ]
      List of block indices. The length of this list can be arbitrary, as long as the pairs are unique.
      For each pair, the first value is the degree and the second the order of the coefficient to be included.
 
@@ -1329,7 +1329,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
  Parameters
  ----------
- link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, Tuple[str, str]
+ link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, tuple[str, str]
      Set of link ends that define the geometry of the biased observations.
 
  observable_type : ObservableType
@@ -1366,7 +1366,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
  Parameters
  ----------
- link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, Tuple[str, str]
+ link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, tuple[str, str]
      Set of link ends that define the geometry of the biased observations.
 
  observable_type : ObservableType
@@ -1417,7 +1417,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
  Parameters
  ----------
- link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, Tuple[str, str]
+ link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, tuple[str, str]
      Set of link ends that define the geometry of the biased observations.
 
  observable_type : ObservableType
@@ -1456,7 +1456,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
  Parameters
  ----------
- link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, Tuple[str, str]
+ link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, tuple[str, str]
      Set of link ends that define the geometry of the biased observations.
 
  observable_type : ObservableType
