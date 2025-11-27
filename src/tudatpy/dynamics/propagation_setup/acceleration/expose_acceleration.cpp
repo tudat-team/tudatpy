@@ -181,14 +181,12 @@ void expose_acceleration_setup( py::module &m )
       )doc" )
             .value( "direct_tidal_dissipation_in_central_body_"
                     "acceleration_type",
-                    tba::AvailableAcceleration::
-                            direct_tidal_dissipation_in_central_body_acceleration,
+                    tba::AvailableAcceleration::direct_tidal_dissipation_in_central_body_acceleration,
                     R"doc(
       )doc" )
             .value( "direct_tidal_dissipation_in_orbiting_body_"
                     "acceleration_type",
-                    tba::AvailableAcceleration::
-                            direct_tidal_dissipation_in_orbiting_body_acceleration,
+                    tba::AvailableAcceleration::direct_tidal_dissipation_in_orbiting_body_acceleration,
                     R"doc(
       )doc" )
             .value( "quasi_impulsive_shots_acceleration_type",
@@ -203,13 +201,13 @@ void expose_acceleration_setup( py::module &m )
                     tba::AvailableAcceleration::radiation_pressure,
                     R"doc(
       )doc" )
-        .value( "einstein_infeld_hoffmann_acceleration_type",
-                tba::AvailableAcceleration::einstein_infeld_hoffmann_acceleration,
-                R"doc(
+            .value( "einstein_infeld_hoffmann_acceleration_type",
+                    tba::AvailableAcceleration::einstein_infeld_hoffmann_acceleration,
+                    R"doc(
       )doc" )
-        .value( "yarkovsky_acceleration_type",
-                tba::AvailableAcceleration::yarkovsky_acceleration,
-                R"doc(
+            .value( "yarkovsky_acceleration_type",
+                    tba::AvailableAcceleration::yarkovsky_acceleration,
+                    R"doc(
       )doc" )
             .export_values( );
 
@@ -217,10 +215,9 @@ void expose_acceleration_setup( py::module &m )
     // accelerationSettings.h
     //////////////////////////////////////////////////////////////////////////////
 
-    py::class_< tss::AccelerationSettings, std::shared_ptr< tss::AccelerationSettings > >(
-            m,
-            "AccelerationSettings",
-            R"doc(
+    py::class_< tss::AccelerationSettings, std::shared_ptr< tss::AccelerationSettings > >( m,
+                                                                                           "AccelerationSettings",
+                                                                                           R"doc(
 
          Functional base class to define settings for accelerations.
 
@@ -280,11 +277,10 @@ void expose_acceleration_setup( py::module &m )
 
       )doc" );
 
-    py::class_< tss::EmpiricalAccelerationSettings,
-                std::shared_ptr< tss::EmpiricalAccelerationSettings >,
-                tss::AccelerationSettings >( m,
-                                             "EmpiricalAccelerationSettings",
-                                             R"doc(
+    py::class_< tss::EmpiricalAccelerationSettings, std::shared_ptr< tss::EmpiricalAccelerationSettings >, tss::AccelerationSettings >(
+            m,
+            "EmpiricalAccelerationSettings",
+            R"doc(
 
          `AccelerationSettings`-derived class to define settings for the empirical acceleration.
 
@@ -300,11 +296,10 @@ void expose_acceleration_setup( py::module &m )
 
       )doc" );
 
-    py::class_< tss::RTGAccelerationSettings,
-            std::shared_ptr< tss::RTGAccelerationSettings >,
-            tss::AccelerationSettings >( m,
-                                         "RTGAccelerationSettings",
-                                         R"doc(
+    py::class_< tss::RTGAccelerationSettings, std::shared_ptr< tss::RTGAccelerationSettings >, tss::AccelerationSettings >(
+            m,
+            "RTGAccelerationSettings",
+            R"doc(
 
          `AccelerationSettings`-derived class to define settings for acceleration from anisotropic RTG radiation.
 
@@ -332,11 +327,10 @@ void expose_acceleration_setup( py::module &m )
 
       )doc" );
 
-    py::class_< tss::CustomAccelerationSettings,
-                std::shared_ptr< tss::CustomAccelerationSettings >,
-                tss::AccelerationSettings >( m,
-                                             "CustomAccelerationSettings",
-                                             R"doc(
+    py::class_< tss::CustomAccelerationSettings, std::shared_ptr< tss::CustomAccelerationSettings >, tss::AccelerationSettings >(
+            m,
+            "CustomAccelerationSettings",
+            R"doc(
 
          `AccelerationSettings`-derived class to define settings for custom acceleration.
 
@@ -384,11 +378,10 @@ void expose_acceleration_setup( py::module &m )
 
       )doc" );
 
-    py::class_< tss::ThrustAccelerationSettings,
-                std::shared_ptr< tss::ThrustAccelerationSettings >,
-                tss::AccelerationSettings >( m,
-                                             "ThrustAccelerationSettings",
-                                             R"doc(
+    py::class_< tss::ThrustAccelerationSettings, std::shared_ptr< tss::ThrustAccelerationSettings >, tss::AccelerationSettings >(
+            m,
+            "ThrustAccelerationSettings",
+            R"doc(
 
          `AccelerationSettings`-derived class to define settings for thrust acceleration, listing the engine models that are to be used
 
@@ -399,12 +392,12 @@ void expose_acceleration_setup( py::module &m )
 
 
       )doc" )
-            .def_property_readonly( "direction_settings",
-                                    &tss::ThrustAccelerationSettings::printDeprecationError<
-                                            std::shared_ptr< tss::ThrustDirectionSettings > > )
-            .def_property_readonly( "magnitude_settings",
-                                    &tss::ThrustAccelerationSettings::printDeprecationError<
-                                            std::shared_ptr< tss::ThrustMagnitudeSettings > > );
+            .def_property_readonly(
+                    "direction_settings",
+                    &tss::ThrustAccelerationSettings::printDeprecationError< std::shared_ptr< tss::ThrustDirectionSettings > > )
+            .def_property_readonly(
+                    "magnitude_settings",
+                    &tss::ThrustAccelerationSettings::printDeprecationError< std::shared_ptr< tss::ThrustMagnitudeSettings > > );
 
     // Unified interface functions for acceleration settings
     //  m.def("acceleration", &tss::acceleration,
@@ -449,7 +442,8 @@ void expose_acceleration_setup( py::module &m )
 
      )doc" );
 
-    m.def( "einstein_infeld_hofmann", &tss::einsteinInfledHoffmannGravityAcceleration,
+    m.def( "einstein_infeld_hofmann",
+           &tss::einsteinInfledHoffmannGravityAcceleration,
            R"doc(
 
 Creates settings for the Einstein-Infeld-Hoffman acceleration.
@@ -581,8 +575,7 @@ AccelerationSettings
 
      )doc" );
 
-    m.def("cannonball_radiation_pressure",
-          &tss::cannonBallRadiationPressureAcceleration );
+    m.def( "cannonball_radiation_pressure", &tss::cannonBallRadiationPressureAcceleration );
 
     m.def( "spherical_harmonic_gravity",
            &tss::sphericalHarmonicAcceleration,
@@ -999,9 +992,7 @@ In this example, we define the relativistic correction acceleration for a Mars o
 
      )doc" );
 
-
-
-        m.def( "rtg",
+    m.def( "rtg",
            &tss::rtgAcceleration,
            py::arg( "reference_thrust_vector" ),
            py::arg( "decay_scale_factor" ),
@@ -1073,13 +1064,10 @@ The force enacted by the rtg emission is calculated as:
 
      )doc" );
 
-    m.def( "custom",
-           &tss::customAccelerationSettingsDeprecated,
-           py::arg( "acceleration_function" ) );
+    m.def( "custom", &tss::customAccelerationSettingsDeprecated, py::arg( "acceleration_function" ) );
 
     m.def( "custom_acceleration",
-           py::overload_cast< std::function< Eigen::Vector3d( const double ) > >(
-                   &tss::customAccelerationSettings ),
+           py::overload_cast< std::function< Eigen::Vector3d( const double ) > >( &tss::customAccelerationSettings ),
            py::arg( "acceleration_function" ),
            R"doc(
 

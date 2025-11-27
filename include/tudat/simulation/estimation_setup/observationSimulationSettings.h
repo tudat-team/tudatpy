@@ -208,15 +208,14 @@ public:
 
     void addDependentVariableSettings( const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList )
     {
-        observationDependentVariableBookkeeping_-> addDependentVariables( settingsList );
+        observationDependentVariableBookkeeping_->addDependentVariables( settingsList );
     }
 
     void setDependentVariableSettings( const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList )
     {
         observationDependentVariableBookkeeping_->clearSettings( );
-        observationDependentVariableBookkeeping_-> addDependentVariables( settingsList );
+        observationDependentVariableBookkeeping_->addDependentVariables( settingsList );
     }
-
 
     std::vector< std::shared_ptr< ObservationDependentVariableSettings > > getDependentVariableSettings( )
     {
@@ -227,7 +226,6 @@ public:
     {
         observationDependentVariableBookkeeping_->clearSettings( );
     }
-
 
 protected:
     // Type of observable to be simulated

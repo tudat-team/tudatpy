@@ -35,10 +35,9 @@ namespace vehicle_systems
 
 void expose_vehicle_systems_setup( py::module& m )
 {
-    py::class_< tss::BodyPanelGeometrySettings, std::shared_ptr< tss::BodyPanelGeometrySettings > >(
-            m,
-            "BodyPanelGeometrySettings",
-            R"doc(
+    py::class_< tss::BodyPanelGeometrySettings, std::shared_ptr< tss::BodyPanelGeometrySettings > >( m,
+                                                                                                     "BodyPanelGeometrySettings",
+                                                                                                     R"doc(
 
          Base class for defining the geometrical properties of a single panel on the vehicle's exterior.
          A derived class of this can be instantiated through the :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.frame_fixed_panel_geometry`, :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.time_varying_panel_geometry`, or :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.body_tracking_panel_geometry` functions.
@@ -46,59 +45,57 @@ void expose_vehicle_systems_setup( py::module& m )
 
       )doc" );
 
+    py::class_< tss::FrameFixedBodyPanelGeometrySettings,
+                tss::BodyPanelGeometrySettings,
+                std::shared_ptr< tss::FrameFixedBodyPanelGeometrySettings > >( m,
 
-      py::class_< tss::FrameFixedBodyPanelGeometrySettings,
-      tss::BodyPanelGeometrySettings,
-      std::shared_ptr< tss::FrameFixedBodyPanelGeometrySettings > >( m,
-
-      "FrameFixedBodyPanelGeometrySettings",
-        R"doc(
+                                                                               "FrameFixedBodyPanelGeometrySettings",
+                                                                               R"doc(
 
 Derived class for defining the geometrical properties of a single panel on the vehicle's exterior, with a fixed orientation in a given frame.
 This class is typically instantiated through the :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.frame_fixed_panel_geometry` function.
 )doc" )
-  .def_readwrite( "surface_normal",
-                  &tss::FrameFixedBodyPanelGeometrySettings::surfaceNormal_,
-                  R"doc(
+            .def_readwrite( "surface_normal",
+                            &tss::FrameFixedBodyPanelGeometrySettings::surfaceNormal_,
+                            R"doc(
 Panel outward surface normal vector (in specified frame)
 
 :type: np.array
 )doc" )
-  .def_readwrite( "area",
-                  &tss::FrameFixedBodyPanelGeometrySettings::area_,
-                  R"doc(
+            .def_readwrite( "area",
+                            &tss::FrameFixedBodyPanelGeometrySettings::area_,
+                            R"doc(
 Panel surface area
 
 :type: float
 )doc" );
 
-py::class_< tss::FrameVariableBodyPanelGeometrySettings,
-      tss::BodyPanelGeometrySettings,
-      std::shared_ptr< tss::FrameVariableBodyPanelGeometrySettings > >( m,
+    py::class_< tss::FrameVariableBodyPanelGeometrySettings,
+                tss::BodyPanelGeometrySettings,
+                std::shared_ptr< tss::FrameVariableBodyPanelGeometrySettings > >( m,
 
-    "FrameVariableBodyPanelGeometrySettings",
-    R"doc(
+                                                                                  "FrameVariableBodyPanelGeometrySettings",
+                                                                                  R"doc(
 Derived class for defining the geometrical properties of a single panel on the vehicle's exterior, with a time-variable orientation in a given frame.
 This class is typically instantiated through the :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.time_varying_panel_geometry` or :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.body_tracking_panel_geometry` functions.
 )doc" )
-  .def_readwrite( "surface_normal_function",
-                  &tss::FrameVariableBodyPanelGeometrySettings::surfaceNormalFunction_,
-                  R"doc(
+            .def_readwrite( "surface_normal_function",
+                            &tss::FrameVariableBodyPanelGeometrySettings::surfaceNormalFunction_,
+                            R"doc(
 Function which takes the current epoch as input (as Time object) and returns the panel outward surface normal vector (in specified frame).
 
 :type: callable[[:class:`~tudatpy.astro.time_representation.Time`], np.ndarray]
 )doc" )
-  .def_readwrite( "area",
-                  &tss::FrameVariableBodyPanelGeometrySettings::area_,
-                  R"doc(
+            .def_readwrite( "area",
+                            &tss::FrameVariableBodyPanelGeometrySettings::area_,
+                            R"doc(
 Panel surface area
 
 :type: float
 )doc" );
 
     m.def( "frame_fixed_panel_geometry",
-           py::overload_cast< const Eigen::Vector3d&, const double, const std::string& >(
-                   tss::frameFixedPanelGeometry ),
+           py::overload_cast< const Eigen::Vector3d&, const double, const std::string& >( tss::frameFixedPanelGeometry ),
            py::arg( "surface_normal" ),
            py::arg( "area" ),
            py::arg( "frame_orientation" ) = "",
@@ -141,8 +138,7 @@ Panel surface area
      )doc" );
 
     m.def( "body_tracking_panel_geometry",
-           py::overload_cast< const std::string&, const bool, const double, const std::string& >(
-                   &tss::bodyTrackingPanelGeometry ),
+           py::overload_cast< const std::string&, const bool, const double, const std::string& >( &tss::bodyTrackingPanelGeometry ),
            py::arg( "body_to_track" ),
            py::arg( "towards_tracked_body" ),
            py::arg( "area" ),
@@ -182,9 +178,8 @@ Panel surface area
      )doc" );
 
     m.def( "time_varying_panel_geometry",
-           py::overload_cast< const std::function< Eigen::Vector3d( ) >&,
-                              const double,
-                              const std::string& >( &tss::timeVaryingPanelGeometry ),
+           py::overload_cast< const std::function< Eigen::Vector3d( ) >&, const double, const std::string& >(
+                   &tss::timeVaryingPanelGeometry ),
            py::arg( "surface_normal_function" ),
            py::arg( "area" ),
            py::arg( "frame_orientation" ),
@@ -215,10 +210,9 @@ Panel surface area
 
      )doc" );
 
-    py::class_< tss::BodyPanelSettings, std::shared_ptr< tss::BodyPanelSettings > >(
-            m,
-            "BodyPanelSettings",
-            R"doc(
+    py::class_< tss::BodyPanelSettings, std::shared_ptr< tss::BodyPanelSettings > >( m,
+                                                                                     "BodyPanelSettings",
+                                                                                     R"doc(
 
          Class for defining the complete properties of a single panel on the vehicle's exterior.
          This class is typically instantiated through the :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.body_panel_settings` function.
@@ -228,7 +222,7 @@ Panel surface area
 
 
       )doc" )
-      .def_readwrite( "panel_geometry", &tss::BodyPanelSettings::panelGeometry_, R"doc(
+            .def_readwrite( "panel_geometry", &tss::BodyPanelSettings::panelGeometry_, R"doc(
         
         Geometric properties of the panel, including surface normal vector and area.
 
@@ -252,11 +246,10 @@ Panel surface area
         )doc" );
 
     m.def( "body_panel_settings",
-           py::overload_cast<
-                std::shared_ptr< tss::BodyPanelGeometrySettings >,
-                std::shared_ptr< tss::BodyPanelReflectionLawSettings >,
-                std::string,
-                std::shared_ptr< tss::MaterialProperties > >( &tss::bodyPanelSettings ),
+           py::overload_cast< std::shared_ptr< tss::BodyPanelGeometrySettings >,
+                              std::shared_ptr< tss::BodyPanelReflectionLawSettings >,
+                              std::string,
+                              std::shared_ptr< tss::MaterialProperties > >( &tss::bodyPanelSettings ),
            py::arg( "panel_geometry" ),
            py::arg( "panel_reflection_law" ),
            py::arg( "panel_type_id" ) = "",
@@ -292,10 +285,9 @@ Panel surface area
 
      )doc" );
 
-    py::class_< tss::FullPanelledBodySettings, std::shared_ptr< tss::FullPanelledBodySettings > >(
-            m,
-            "FullPanelledBodySettings",
-            R"doc(
+    py::class_< tss::FullPanelledBodySettings, std::shared_ptr< tss::FullPanelledBodySettings > >( m,
+                                                                                                   "FullPanelledBodySettings",
+                                                                                                   R"doc(
 
          Class for providing the complete settings for a panelled body exterior.
         
@@ -324,8 +316,7 @@ Panel surface area
     m.def( "full_panelled_body_settings",
            &tss::fullPanelledBodySettings,
            py::arg( "panel_settings" ),
-           py::arg( "part_rotation_model_settings" ) =
-                   std::map< std::string, std::shared_ptr< tss::RotationModelSettings > >( ),
+           py::arg( "part_rotation_model_settings" ) = std::map< std::string, std::shared_ptr< tss::RotationModelSettings > >( ),
            R"doc(
 
  Function for creating settings for a full panelled vehicle exterior.
@@ -421,14 +412,14 @@ Panel surface area
      )doc" );
 
     m.def( "body_panel_settings_list_from_dae",
-        &tss::bodyPanelSettingsListFromDae,
-        py::arg( "file_path" ),
-        py::arg( "frame_origin" ),
-        py::arg( "material_properties" ),
-        py::arg( "reradiation_settings" ),
-        py::arg( "input_unit" ) = "m",
-        py::arg( "frame_orientation" ) = "",
-        R"doc(
+           &tss::bodyPanelSettingsListFromDae,
+           py::arg( "file_path" ),
+           py::arg( "frame_origin" ),
+           py::arg( "material_properties" ),
+           py::arg( "reradiation_settings" ),
+           py::arg( "input_unit" ) = "m",
+           py::arg( "frame_orientation" ) = "",
+           R"doc(
 Function for creating list of panel body settings
         
 Function for creating list of panel body settings from a .dae (COLLADA) file containing the 3D geometry and the
@@ -455,9 +446,9 @@ list[BodyPanelSettings]
     )doc" );
 
     m.def( "merge_body_panel_setting_lists",
-       &tss::mergeBodyPanelSettingsLists,
-       py::arg( "list_of_lists_of_body_panel_settings" ),
-       R"doc(
+           &tss::mergeBodyPanelSettingsLists,
+           py::arg( "list_of_lists_of_body_panel_settings" ),
+           R"doc(
 Function for merging lists of panel body settings
 Parameters
 ----------
@@ -469,24 +460,23 @@ list[BodyPanelSettings]
     List of settings for body panels assembled from different parts, creating a coherent list of body panel settings.
     )doc" );
 
-    py::class_< tss::MaterialProperties, std::shared_ptr< tss::MaterialProperties > >(m, "MaterialProperties")
-        .def_readwrite("specular_reflectivity", &tss::MaterialProperties::specularReflectivity_)
-        .def_readwrite("diffuse_reflectivity", &tss::MaterialProperties::diffuseReflectivity_)
-        .def_readwrite("energy_accomodation_coefficient", &tss::MaterialProperties::energyAccomodationCoefficient_)
-        .def_readwrite("normal_accomodation_coefficient", &tss::MaterialProperties::normalAccomodationCoefficient_)
-        .def_readwrite("tangential_accomodation_coefficient", &tss::MaterialProperties::tangentialAccomodationCoefficient_)
-        .def_readwrite("normal_velocity_at_wall_ratio", &tss::MaterialProperties::normalVelocityAtWallRatio_);
+    py::class_< tss::MaterialProperties, std::shared_ptr< tss::MaterialProperties > >( m, "MaterialProperties" )
+            .def_readwrite( "specular_reflectivity", &tss::MaterialProperties::specularReflectivity_ )
+            .def_readwrite( "diffuse_reflectivity", &tss::MaterialProperties::diffuseReflectivity_ )
+            .def_readwrite( "energy_accomodation_coefficient", &tss::MaterialProperties::energyAccomodationCoefficient_ )
+            .def_readwrite( "normal_accomodation_coefficient", &tss::MaterialProperties::normalAccomodationCoefficient_ )
+            .def_readwrite( "tangential_accomodation_coefficient", &tss::MaterialProperties::tangentialAccomodationCoefficient_ )
+            .def_readwrite( "normal_velocity_at_wall_ratio", &tss::MaterialProperties::normalVelocityAtWallRatio_ );
 
     m.def( "material_properties",
-       &tss::materialProperties,
-       py::arg( "specular_reflectivity" ) = -1,
-       py::arg( "diffuse_reflectivity" ) = -1,
-       py::arg( "energy_accomodation_coefficient" ) = -1,
-       py::arg( "normal_accomodation_coefficient" ) = -1,
-       py::arg( "tangential_accomodation_coefficient" ) = -1,
-       py::arg( "normal_velocity_at_wall_ratio" ) = -1,
-       R"doc(No Documentation)doc" );
-    
+           &tss::materialProperties,
+           py::arg( "specular_reflectivity" ) = -1,
+           py::arg( "diffuse_reflectivity" ) = -1,
+           py::arg( "energy_accomodation_coefficient" ) = -1,
+           py::arg( "normal_accomodation_coefficient" ) = -1,
+           py::arg( "tangential_accomodation_coefficient" ) = -1,
+           py::arg( "normal_velocity_at_wall_ratio" ) = -1,
+           R"doc(No Documentation)doc" );
 }
 
 }  // namespace vehicle_systems
