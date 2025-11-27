@@ -86,7 +86,7 @@ This class is typically instantiated through the :func:`~tudatpy.dynamics.enviro
                   R"doc(
 Function which takes the current epoch as input (as Time object) and returns the panel outward surface normal vector (in specified frame).
 
-:type: Callable[[astro.time_representation.Time], np.ndarray]
+:type: callable[[:class:`~tudatpy.astro.time_representation.Time`], np.ndarray]
 )doc" )
   .def_readwrite( "area",
                   &tss::FrameVariableBodyPanelGeometrySettings::area_,
@@ -197,7 +197,7 @@ Panel surface area
 
  Parameters
  ----------
- surface_normal_function : Callable[[astro.time_representation.Time], np.ndarray]
+ surface_normal_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], np.ndarray]
     Function which takes the current epoch as input (as Time object) and returns the panel outward surface normal vector (in specified frame).
  area : float
      Panel surface area

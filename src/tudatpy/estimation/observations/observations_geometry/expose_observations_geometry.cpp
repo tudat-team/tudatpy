@@ -86,7 +86,7 @@ void expose_observations_geometry( py::module& m )
  target_body : str
      Name of body which is observed by ground station
 
- observation_times : list[astro.time_representation.Time]
+ observation_times : list[:class:`~tudatpy.astro.time_representation.Time`]
      List of times at which the ground station observations are to be analyzed
 
  is_station_transmitting : bool
@@ -135,7 +135,7 @@ void expose_observations_geometry( py::module& m )
  target_body : str
      Name of body which is observed by ground station
 
- observation_times : list[astro.time_representation.Time]
+ observation_times : list[:class:`~tudatpy.astro.time_representation.Time`]
      List of times at which the ground station observations are to be analyzed
 
  is_station_transmitting : bool
