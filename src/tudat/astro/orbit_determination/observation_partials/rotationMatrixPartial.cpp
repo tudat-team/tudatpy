@@ -323,7 +323,7 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
 
     for( unsigned int librationIndex = 0; librationIndex < librationFrequencies.size( ); librationIndex++ )
     {
-        std::pair< double, double > signature = librationTerms.at( librationFrequencies.at( librationIndex ) );
+        std::pair< Eigen::Vector2d, double > signature = librationTerms.at( librationFrequencies.at( librationIndex ) );
         double currentSineLibrationTerm = std::sin(
                 librationFrequencies.at( librationIndex ) * ( ephemerisTime - rotationModel->getReferenceEpoch( ) ) + signature.second );
         double currentCosineLibrationTerm = std::cos(
