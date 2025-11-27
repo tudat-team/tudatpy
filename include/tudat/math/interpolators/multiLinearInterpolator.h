@@ -79,6 +79,8 @@ public:
      *      specified range.
      *  \param defaultExtrapolationValue Vector of pairs of default values to be used for extrapolation, in case
      *      of use_default_value or use_default_value_with_warning as methods for boundaryHandling.
+     *  \param periods Vector of periods for periodic/angular interpolation, one per dimension. If periods[i] > 0,
+     *      dimension i uses shortest-path interpolation. If periods[i] = 0 (default), standard interpolation is used.
      */
     MultiLinearInterpolator( const std::vector< std::vector< IndependentVariableType > >& independentValues,
                              const boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions ) >& dependentData,
@@ -89,9 +91,12 @@ public:
                                      std::vector< std::pair< DependentVariableType, DependentVariableType > >(
                                              NumberOfDimensions,
                                              std::make_pair( IdentityElement::getAdditionIdentity< DependentVariableType >( ),
-                                                             IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ) ):
+                                                             IdentityElement::getAdditionIdentity< DependentVariableType >( ) ) ),
+                             const std::vector< IndependentVariableType >& periods =
+                                     std::vector< IndependentVariableType >( NumberOfDimensions, IndependentVariableType( 0 ) ) ):
         MultiDimensionalInterpolator< IndependentVariableType, DependentVariableType, NumberOfDimensions >( boundaryHandling,
-                                                                                                            defaultExtrapolationValue )
+                                                                                                            defaultExtrapolationValue,
+                                                                                                            periods )
     {
         // Save (in)dependent variables
         independentValues_ = independentValues;
@@ -140,20 +145,24 @@ public:
      *      specified range.
      *  \param defaultExtrapolationValue Default value to be used for extrapolation, in case of use_default_value
      *      or use_default_value_with_warning as methods for boundaryHandling.
+     *  \param periods Vector of periods for periodic/angular interpolation.
      */
     MultiLinearInterpolator(
             const std::vector< std::vector< IndependentVariableType > >& independentValues,
             const boost::multi_array< DependentVariableType, static_cast< size_t >( NumberOfDimensions ) >& dependentData,
             const AvailableLookupScheme selectedLookupScheme,
             const BoundaryInterpolationType boundaryHandling,
-            const DependentVariableType& defaultExtrapolationValue = IdentityElement::getAdditionIdentity< DependentVariableType >( ) ):
+            const DependentVariableType& defaultExtrapolationValue = IdentityElement::getAdditionIdentity< DependentVariableType >( ),
+            const std::vector< IndependentVariableType >& periods =
+                    std::vector< IndependentVariableType >( NumberOfDimensions, IndependentVariableType( 0 ) ) ):
         MultiLinearInterpolator( independentValues,
                                  dependentData,
                                  selectedLookupScheme,
                                  std::vector< BoundaryInterpolationType >( NumberOfDimensions, boundaryHandling ),
                                  std::vector< std::pair< DependentVariableType, DependentVariableType > >(
                                          NumberOfDimensions,
-                                         std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) ) )
+                                         std::make_pair( defaultExtrapolationValue, defaultExtrapolationValue ) ),
+                                 periods )
     { }
 
     //! Default destructor.
@@ -172,6 +181,7 @@ public:
         // 2D optimization: pre-computed fractions and indices
         IndependentVariableType tx, ty, one_minus_tx, one_minus_ty;
         unsigned int i0, i1;
+        unsigned int i0_next, i1_next;  // Next indices (may wrap to 0 for periodic)
     };
 
     //! Prepare interpolation state for batch operations (amortizes lookup cost)
@@ -218,9 +228,13 @@ public:
         {
             state.nearestLowerIndices[ i ] = lookUpSchemes_[ i ]->findNearestLowerNeighbour( state.localIndependentValues[ i ] );
 
+            // Handle last grid point: decrement for non-periodic, keep for periodic (will wrap in interpolation)
             if( state.nearestLowerIndices[ i ] == independentValues_[ i ].size( ) - 1 )
             {
-                state.nearestLowerIndices[ i ] -= 1;
+                if( !this->isPeriodic( i ) )
+                {
+                    state.nearestLowerIndices[ i ] -= 1;
+                }
             }
         }
 
@@ -230,11 +244,49 @@ public:
             state.i0 = state.nearestLowerIndices[ 0 ];
             state.i1 = state.nearestLowerIndices[ 1 ];
 
-            const IndependentVariableType dx = independentValues_[ 0 ][ state.i0 + 1 ] - independentValues_[ 0 ][ state.i0 ];
-            const IndependentVariableType dy = independentValues_[ 1 ][ state.i1 + 1 ] - independentValues_[ 1 ][ state.i1 ];
+            // Determine next indices with wrap-around for periodic dimensions
+            state.i0_next = state.i0 + 1;
+            state.i1_next = state.i1 + 1;
 
-            state.tx = ( state.localIndependentValues[ 0 ] - independentValues_[ 0 ][ state.i0 ] ) / dx;
-            state.ty = ( state.localIndependentValues[ 1 ] - independentValues_[ 1 ][ state.i1 ] ) / dy;
+            if( this->isPeriodic( 0 ) && state.i0 == independentValues_[ 0 ].size( ) - 1 )
+            {
+                state.i0_next = 0;  // Wrap to first grid point
+            }
+
+            if( this->isPeriodic( 1 ) && state.i1 == independentValues_[ 1 ].size( ) - 1 )
+            {
+                state.i1_next = 0;  // Wrap to first grid point
+            }
+
+            // Compute interpolation fractions using shortest distance for periodic dimensions
+            IndependentVariableType dx, dy;
+            if( this->isPeriodic( 0 ) )
+            {
+                IndependentVariableType x0 = independentValues_[ 0 ][ state.i0 ];
+                IndependentVariableType x1 = independentValues_[ 0 ][ state.i0_next ];
+                dx = this->getShortestDistance( 0, x0, x1 );
+                IndependentVariableType t_x = this->getShortestDistance( 0, x0, state.localIndependentValues[ 0 ] );
+                state.tx = static_cast< IndependentVariableType >( static_cast< double >( t_x ) / static_cast< double >( dx ) );
+            }
+            else
+            {
+                dx = independentValues_[ 0 ][ state.i0_next ] - independentValues_[ 0 ][ state.i0 ];
+                state.tx = ( state.localIndependentValues[ 0 ] - independentValues_[ 0 ][ state.i0 ] ) / dx;
+            }
+
+            if( this->isPeriodic( 1 ) )
+            {
+                IndependentVariableType y0 = independentValues_[ 1 ][ state.i1 ];
+                IndependentVariableType y1 = independentValues_[ 1 ][ state.i1_next ];
+                dy = this->getShortestDistance( 1, y0, y1 );
+                IndependentVariableType t_y = this->getShortestDistance( 1, y0, state.localIndependentValues[ 1 ] );
+                state.ty = static_cast< IndependentVariableType >( static_cast< double >( t_y ) / static_cast< double >( dy ) );
+            }
+            else
+            {
+                dy = independentValues_[ 1 ][ state.i1_next ] - independentValues_[ 1 ][ state.i1 ];
+                state.ty = ( state.localIndependentValues[ 1 ] - independentValues_[ 1 ][ state.i1 ] ) / dy;
+            }
 
             state.one_minus_tx = IndependentVariableType( 1 ) - state.tx;
             state.one_minus_ty = IndependentVariableType( 1 ) - state.ty;
@@ -261,23 +313,23 @@ public:
         // Use optimized 2D implementation if available
         if ( NumberOfDimensions == 2 )
         {
-            // Access the four corner values directly using pre-computed indices
+            // Access the four corner values directly using pre-computed indices (with wrap-around)
             boost::array< unsigned int, 2 > indices;
 
             indices[ 0 ] = state.i0;
             indices[ 1 ] = state.i1;
             const DependentVariableType v00 = dependentData_( indices );
 
-            indices[ 0 ] = state.i0 + 1;
+            indices[ 0 ] = state.i0_next;  // May be 0 for periodic wrap
             indices[ 1 ] = state.i1;
             const DependentVariableType v10 = dependentData_( indices );
 
             indices[ 0 ] = state.i0;
-            indices[ 1 ] = state.i1 + 1;
+            indices[ 1 ] = state.i1_next;  // May be 0 for periodic wrap
             const DependentVariableType v01 = dependentData_( indices );
 
-            indices[ 0 ] = state.i0 + 1;
-            indices[ 1 ] = state.i1 + 1;
+            indices[ 0 ] = state.i0_next;  // May be 0 for periodic wrap
+            indices[ 1 ] = state.i1_next;  // May be 0 for periodic wrap
             const DependentVariableType v11 = dependentData_( indices );
 
             // Perform bilinear interpolation using pre-computed fractions
@@ -316,15 +368,13 @@ public:
                     std::to_string( independentValuesToInterpolate.size( ) ) + ". Needed: " + std::to_string( NumberOfDimensions ) );
         }
 
-        // Create local copy of current independent variables
-        std::vector< IndependentVariableType > localIndependentValuesToInterpolate = independentValuesToInterpolate;
-
         // Check that independent variables are in range
         bool useValue = false;
         DependentVariableType currentDependentVariable;
         for( unsigned int i = 0; i < NumberOfDimensions; i++ )
         {
-            this->checkBoundaryCase( i, useValue, localIndependentValuesToInterpolate.at( i ), currentDependentVariable );
+            IndependentVariableType tempValue = independentValuesToInterpolate.at( i );
+            this->checkBoundaryCase( i, useValue, tempValue, currentDependentVariable );
             if( useValue )
             {
                 return currentDependentVariable;
@@ -336,20 +386,25 @@ public:
         nearestLowerIndices.resize( NumberOfDimensions );
         for( unsigned int i = 0; i < NumberOfDimensions; i++ )
         {
-            nearestLowerIndices[ i ] = lookUpSchemes_[ i ]->findNearestLowerNeighbour( localIndependentValuesToInterpolate[ i ] );
+            nearestLowerIndices[ i ] = lookUpSchemes_[ i ]->findNearestLowerNeighbour( independentValuesToInterpolate[ i ] );
 
-            // If newNearestLowerIndex is the last element of independentValues_, execute extrapolation with
-            // the last and second to last elements of independentValues_.
+            // If newNearestLowerIndex is the last element of independentValues_:
+            // - For non-periodic dimensions: execute extrapolation with the last and second to last elements
+            // - For periodic dimensions: keep at last index (will wrap to first in interpolation functions)
             if( nearestLowerIndices[ i ] == independentValues_[ i ].size( ) - 1 )
             {
-                nearestLowerIndices[ i ] -= 1;
+                if( !this->isPeriodic( i ) )
+                {
+                    nearestLowerIndices[ i ] -= 1;
+                }
+                // else: keep at last index for periodic wrap-around
             }
         }
 
         // Use optimized 2D implementation if available (avoids recursion overhead)
         if ( NumberOfDimensions == 2 )
         {
-            return interpolate2DOptimized( localIndependentValuesToInterpolate, nearestLowerIndices );
+            return interpolate2DOptimized( independentValuesToInterpolate, nearestLowerIndices );
         }
         else
         {
@@ -363,7 +418,7 @@ public:
             // Call first step of interpolation, this function calls itself at subsequent independent
             // variable dimensions to evaluate and properly scale dependent variable table values at
             // all 2^n grid edges.
-            return performRecursiveInterpolationStep( 0, localIndependentValuesToInterpolate, interpolationIndices, nearestLowerIndices );
+            return performRecursiveInterpolationStep( 0, independentValuesToInterpolate, interpolationIndices, nearestLowerIndices );
         }
     }
 
@@ -371,7 +426,8 @@ private:
     //! Optimized 2D bilinear interpolation (non-recursive implementation).
     /*!
      * This function performs bilinear interpolation for 2D case without recursion,
-     * reducing function call overhead and improving cache performance.
+     * reducing function call overhead and improving cache performance. Supports periodic
+     * interpolation for one or both dimensions.
      * \param independentValues Vector of independent variable values for interpolation
      * \param nearestLowerIndices Indices of nearest lower neighbors in each dimension
      * \return Interpolated value of dependent variable
@@ -384,32 +440,88 @@ private:
         const unsigned int i0 = nearestLowerIndices[ 0 ];
         const unsigned int i1 = nearestLowerIndices[ 1 ];
 
-        const IndependentVariableType dx = independentValues_[ 0 ][ i0 + 1 ] - independentValues_[ 0 ][ i0 ];
-        const IndependentVariableType dy = independentValues_[ 1 ][ i1 + 1 ] - independentValues_[ 1 ][ i1 ];
+        // For periodic dimensions at the last grid point, wrap around to first point
+        // For non-periodic dimensions, use the next point (already handled by caller)
+        unsigned int i0_next = i0 + 1;
+        unsigned int i1_next = i1 + 1;
 
-        const IndependentVariableType tx = ( independentValues[ 0 ] - independentValues_[ 0 ][ i0 ] ) / dx;
-        const IndependentVariableType ty = ( independentValues[ 1 ] - independentValues_[ 1 ][ i1 ] ) / dy;
+        // Handle wrap-around for periodic dimension 0
+        if( this->isPeriodic( 0 ) && i0 == independentValues_[ 0 ].size( ) - 1 )
+        {
+            i0_next = 0;  // Wrap to first grid point
+        }
+
+        // Handle wrap-around for periodic dimension 1
+        if( this->isPeriodic( 1 ) && i1 == independentValues_[ 1 ].size( ) - 1 )
+        {
+            i1_next = 0;  // Wrap to first grid point
+        }
+
+        // Dimension 0 (x-axis)
+        IndependentVariableType x0 = independentValues_[ 0 ][ i0 ];
+        IndependentVariableType x1 = independentValues_[ 0 ][ i0_next ];
+        IndependentVariableType x_target = independentValues[ 0 ];
+
+        IndependentVariableType dx, t_x;
+        IndependentVariableType tx;
+        if( this->isPeriodic( 0 ) )
+        {
+            dx = this->getShortestDistance( 0, x0, x1 );
+            t_x = this->getShortestDistance( 0, x0, x_target );
+            // Convert to double for division to handle custom types like Time
+            double txDouble = static_cast< double >( t_x ) / static_cast< double >( dx );
+            tx = static_cast< IndependentVariableType >( txDouble );
+        }
+        else
+        {
+            dx = x1 - x0;
+            t_x = x_target - x0;
+            tx = t_x / dx;
+        }
+
+        // Dimension 1 (y-axis)
+        IndependentVariableType y0 = independentValues_[ 1 ][ i1 ];
+        IndependentVariableType y1 = independentValues_[ 1 ][ i1_next ];
+        IndependentVariableType y_target = independentValues[ 1 ];
+
+        IndependentVariableType dy, t_y;
+        IndependentVariableType ty;
+        if( this->isPeriodic( 1 ) )
+        {
+            dy = this->getShortestDistance( 1, y0, y1 );
+            t_y = this->getShortestDistance( 1, y0, y_target );
+            // Convert to double for division to handle custom types like Time
+            double tyDouble = static_cast< double >( t_y ) / static_cast< double >( dy );
+            ty = static_cast< IndependentVariableType >( tyDouble );
+        }
+        else
+        {
+            dy = y1 - y0;
+            t_y = y_target - y0;
+            ty = t_y / dy;
+        }
 
         const IndependentVariableType one_minus_tx = IndependentVariableType( 1 ) - tx;
         const IndependentVariableType one_minus_ty = IndependentVariableType( 1 ) - ty;
 
         // Access the four corner values directly (avoids recursive calls)
+        // For periodic dimensions, indices wrap around automatically via i0_next and i1_next
         boost::array< unsigned int, 2 > indices;
 
         indices[ 0 ] = i0;
         indices[ 1 ] = i1;
         const DependentVariableType v00 = dependentData_( indices );
 
-        indices[ 0 ] = i0 + 1;
+        indices[ 0 ] = i0_next;
         indices[ 1 ] = i1;
         const DependentVariableType v10 = dependentData_( indices );
 
         indices[ 0 ] = i0;
-        indices[ 1 ] = i1 + 1;
+        indices[ 1 ] = i1_next;
         const DependentVariableType v01 = dependentData_( indices );
 
-        indices[ 0 ] = i0 + 1;
-        indices[ 1 ] = i1 + 1;
+        indices[ 0 ] = i0_next;
+        indices[ 1 ] = i1_next;
         const DependentVariableType v11 = dependentData_( indices );
 
         // Perform bilinear interpolation using the formula:
@@ -469,7 +581,7 @@ private:
      * in 2^{NumberOfDimensions} number of calls to the function at currentDimension =
      * NumberOfDimensions -1. As such, the complete series of calls, starting at currentDimension =
      * 0, retrieves the dependent variable values at all edges of the grid hyper-rectangle and
-     * properly scales them.
+     * properly scales them. For periodic dimensions, uses shortest-path interpolation.
      * \param currentDimension Dimension in which this interpolation step is to be performed.
      * \param independentValuesToInterpolate Vector of values of independent variables at which
      *          interpolation is to be performed.
@@ -489,23 +601,51 @@ private:
         IndependentVariableType upperFraction, lowerFraction;
         DependentVariableType upperContribution, lowerContribution;
 
-        // Calculate fractions of data points above and below independent
-        // variable value to be added to interpolated value.
-        upperFraction = ( independentValuesToInterpolate[ currentDimension ] -
-                          independentValues_[ currentDimension ][ nearestLowerIndices[ currentDimension ] ] ) /
-                ( independentValues_[ currentDimension ][ nearestLowerIndices[ currentDimension ] + 1 ] -
-                  independentValues_[ currentDimension ][ nearestLowerIndices[ currentDimension ] ] );
-        lowerFraction = -( independentValuesToInterpolate[ currentDimension ] -
-                           independentValues_[ currentDimension ][ nearestLowerIndices[ currentDimension ] + 1 ] ) /
-                ( independentValues_[ currentDimension ][ nearestLowerIndices[ currentDimension ] + 1 ] -
-                  independentValues_[ currentDimension ][ nearestLowerIndices[ currentDimension ] ] );
+        // Determine the upper index: wrap around for periodic dimensions at last grid point
+        unsigned int lowerIndex = nearestLowerIndices[ currentDimension ];
+        unsigned int upperIndex = lowerIndex + 1;
+
+        // Handle wrap-around for periodic dimensions
+        if( this->isPeriodic( currentDimension ) && lowerIndex == independentValues_[ currentDimension ].size( ) - 1 )
+        {
+            upperIndex = 0;  // Wrap to first grid point
+        }
+
+        // Calculate fractions of data points above and below independent variable value
+        // For periodic dimensions, use shortest angular distance; for non-periodic, use linear distance
+        IndependentVariableType x0 = independentValues_[ currentDimension ][ lowerIndex ];
+        IndependentVariableType x1 = independentValues_[ currentDimension ][ upperIndex ];
+        IndependentVariableType x_target = independentValuesToInterpolate[ currentDimension ];
+
+        IndependentVariableType dx;
+        IndependentVariableType t_x;
+
+        if( this->isPeriodic( currentDimension ) )
+        {
+            // Periodic interpolation: use shortest angular distance
+            dx = this->getShortestDistance( currentDimension, x0, x1 );
+            t_x = this->getShortestDistance( currentDimension, x0, x_target );
+
+            // Compute fraction - convert to double for division to handle custom types like Time
+            double fractionDouble = static_cast< double >( t_x ) / static_cast< double >( dx );
+            upperFraction = static_cast< IndependentVariableType >( fractionDouble );
+        }
+        else
+        {
+            // Non-periodic interpolation: standard linear distance
+            dx = x1 - x0;
+            t_x = x_target - x0;
+            upperFraction = t_x / dx;
+        }
+
+        lowerFraction = IndependentVariableType( 1 ) - upperFraction;
 
         // If at top dimension, call dependent variable data.
         if( currentDimension == NumberOfDimensions - 1 )
         {
-            currentArrayIndices[ NumberOfDimensions - 1 ] = nearestLowerIndices[ currentDimension ];
+            currentArrayIndices[ NumberOfDimensions - 1 ] = lowerIndex;
             lowerContribution = dependentData_( currentArrayIndices );
-            currentArrayIndices[ NumberOfDimensions - 1 ] = nearestLowerIndices[ currentDimension ] + 1;
+            currentArrayIndices[ NumberOfDimensions - 1 ] = upperIndex;
             upperContribution = dependentData_( currentArrayIndices );
         }
 
@@ -513,10 +653,10 @@ private:
         // currentDimension++.
         else
         {
-            currentArrayIndices[ currentDimension ] = nearestLowerIndices[ currentDimension ];
+            currentArrayIndices[ currentDimension ] = lowerIndex;
             lowerContribution = performRecursiveInterpolationStep(
                     currentDimension + 1, independentValuesToInterpolate, currentArrayIndices, nearestLowerIndices );
-            currentArrayIndices[ currentDimension ] = nearestLowerIndices[ currentDimension ] + 1;
+            currentArrayIndices[ currentDimension ] = upperIndex;
             upperContribution = performRecursiveInterpolationStep(
                     currentDimension + 1, independentValuesToInterpolate, currentArrayIndices, nearestLowerIndices );
         }

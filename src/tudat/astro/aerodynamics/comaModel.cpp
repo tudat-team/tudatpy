@@ -529,8 +529,7 @@ double ComaModel::calculateSolarLongitude( const double time ) const
     const Eigen::Vector3d sunDirectionBodyFixed = cachedRotationMatrix_.transpose() * sunDirection;
 
     // Calculate solar longitude (angle from X-axis in XY plane)
-    const double atan2Result = std::atan2( sunDirectionBodyFixed.y(), sunDirectionBodyFixed.x() );
-    cachedSolarLongitude_ = atan2Result;
+    cachedSolarLongitude_ = std::atan2( sunDirectionBodyFixed.y(), sunDirectionBodyFixed.x() );
 
     // Normalize to [0, 2π] range to match Stokes dataset storage convention
     // atan2 returns values in [-π, π], but Stokes datasets store longitudes in [0, 2π]
@@ -863,6 +862,13 @@ void ComaModel::initializeStokesInterpolators()
     independentGrids[0] = radiiGrid;     // Radius grid
     independentGrids[1] = longitudeGrid; // Solar longitude grid
 
+    // Set up periods for periodic interpolation
+    // Dimension 0 (radius): non-periodic (period = 0)
+    // Dimension 1 (solar longitude): periodic with period = 2π
+    std::vector<double> periods(2);
+    periods[0] = 0.0;  // Radius is non-periodic
+    periods[1] = 2.0 * mathematical_constants::PI;  // Solar longitude is periodic with period 2π
+
     // Initialize interpolators for each file
     for ( std::size_t fileIndex = 0; fileIndex < nFiles; ++fileIndex )
     {
@@ -889,17 +895,21 @@ void ComaModel::initializeStokesInterpolators()
                     }
                 }
 
-                // Create and store interpolators for this coefficient and file
+                // Create and store interpolators for this coefficient and file with periodic solar longitude
                 auto cosineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 2>>(
                     independentGrids, cosineGrid,
                     interpolators::huntingAlgorithm,
-                    interpolators::extrapolate_at_boundary
+                    std::vector<interpolators::BoundaryInterpolationType>(2, interpolators::extrapolate_at_boundary),
+                    std::vector<std::pair<double, double>>(2, std::make_pair(0.0, 0.0)),
+                    periods  // Enable periodic interpolation for solar longitude
                 );
 
                 auto sineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 2>>(
                     independentGrids, sineGrid,
                     interpolators::huntingAlgorithm,
-                    interpolators::extrapolate_at_boundary
+                    std::vector<interpolators::BoundaryInterpolationType>(2, interpolators::extrapolate_at_boundary),
+                    std::vector<std::pair<double, double>>(2, std::make_pair(0.0, 0.0)),
+                    periods  // Enable periodic interpolation for solar longitude
                 );
 
                 std::pair<int,int> degreeOrderPair = {degree, order};
@@ -911,6 +921,10 @@ void ComaModel::initializeStokesInterpolators()
         // These are 1D interpolators (solar longitude only)
         std::vector<std::vector<double>> reducedIndependentGrids(1);
         reducedIndependentGrids[0] = longitudeGrid; // Solar longitude grid only
+
+        // Set up periods for 1D periodic interpolation (solar longitude only)
+        std::vector<double> reducedPeriods(1);
+        reducedPeriods[0] = 2.0 * mathematical_constants::PI;  // Solar longitude is periodic with period 2π
 
         for ( int degree = 0; degree <= effectiveMaxDegree; ++degree )
         {
@@ -929,17 +943,21 @@ void ComaModel::initializeStokesInterpolators()
                     reducedSineGrid[longitudeIndex] = reducedCoeffs.second;   // Sine coefficient
                 }
 
-                // Create and store reduced interpolators for this coefficient and file
+                // Create and store reduced interpolators for this coefficient and file with periodic solar longitude
                 auto reducedCosineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 1>>(
                     reducedIndependentGrids, reducedCosineGrid,
                     interpolators::huntingAlgorithm,
-                    interpolators::extrapolate_at_boundary
+                    std::vector<interpolators::BoundaryInterpolationType>(1, interpolators::extrapolate_at_boundary),
+                    std::vector<std::pair<double, double>>(1, std::make_pair(0.0, 0.0)),
+                    reducedPeriods  // Enable periodic interpolation for solar longitude
                 );
 
                 auto reducedSineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 1>>(
                     reducedIndependentGrids, reducedSineGrid,
                     interpolators::huntingAlgorithm,
-                    interpolators::extrapolate_at_boundary
+                    std::vector<interpolators::BoundaryInterpolationType>(1, interpolators::extrapolate_at_boundary),
+                    std::vector<std::pair<double, double>>(1, std::make_pair(0.0, 0.0)),
+                    reducedPeriods  // Enable periodic interpolation for solar longitude
                 );
 
                 std::pair<int,int> degreeOrderPair = {degree, order};
@@ -992,6 +1010,13 @@ void ComaModel::initializeTemperatureStokesInterpolators()
     independentGrids[0] = radiiGrid;     // Radius grid
     independentGrids[1] = longitudeGrid; // Solar longitude grid
 
+    // Set up periods for periodic interpolation
+    // Dimension 0 (radius): non-periodic (period = 0)
+    // Dimension 1 (solar longitude): periodic with period = 2π
+    std::vector<double> periods(2);
+    periods[0] = 0.0;  // Radius is non-periodic
+    periods[1] = 2.0 * mathematical_constants::PI;  // Solar longitude is periodic with period 2π
+
     // Initialize interpolators for each file
     for ( std::size_t fileIndex = 0; fileIndex < nFiles; ++fileIndex )
     {
@@ -1018,17 +1043,21 @@ void ComaModel::initializeTemperatureStokesInterpolators()
                     }
                 }
 
-                // Create and store interpolators for this coefficient and file
+                // Create and store interpolators for this coefficient and file with periodic solar longitude
                 auto cosineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 2>>(
                     independentGrids, cosineGrid,
                     interpolators::huntingAlgorithm,
-                    interpolators::extrapolate_at_boundary
+                    std::vector<interpolators::BoundaryInterpolationType>(2, interpolators::extrapolate_at_boundary),
+                    std::vector<std::pair<double, double>>(2, std::make_pair(0.0, 0.0)),
+                    periods  // Enable periodic interpolation for solar longitude
                 );
 
                 auto sineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 2>>(
                     independentGrids, sineGrid,
                     interpolators::huntingAlgorithm,
-                    interpolators::extrapolate_at_boundary
+                    std::vector<interpolators::BoundaryInterpolationType>(2, interpolators::extrapolate_at_boundary),
+                    std::vector<std::pair<double, double>>(2, std::make_pair(0.0, 0.0)),
+                    periods  // Enable periodic interpolation for solar longitude
                 );
 
                 std::pair<int,int> degreeOrderPair = {degree, order};
@@ -1040,6 +1069,10 @@ void ComaModel::initializeTemperatureStokesInterpolators()
         // These are 1D interpolators (solar longitude only)
         std::vector<std::vector<double>> reducedIndependentGrids(1);
         reducedIndependentGrids[0] = longitudeGrid; // Solar longitude grid only
+
+        // Set up periods for 1D periodic interpolation (solar longitude only)
+        std::vector<double> reducedPeriods(1);
+        reducedPeriods[0] = 2.0 * mathematical_constants::PI;  // Solar longitude is periodic with period 2π
 
         for ( int degree = 0; degree <= effectiveMaxDegree; ++degree )
         {
@@ -1058,17 +1091,21 @@ void ComaModel::initializeTemperatureStokesInterpolators()
                     reducedSineGrid[longitudeIndex] = reducedCoeffs.second;   // Sine coefficient
                 }
 
-                // Create and store reduced interpolators for this coefficient and file
+                // Create and store reduced interpolators for this coefficient and file with periodic solar longitude
                 auto reducedCosineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 1>>(
                     reducedIndependentGrids, reducedCosineGrid,
                     interpolators::huntingAlgorithm,
-                    interpolators::extrapolate_at_boundary
+                    std::vector<interpolators::BoundaryInterpolationType>(1, interpolators::extrapolate_at_boundary),
+                    std::vector<std::pair<double, double>>(1, std::make_pair(0.0, 0.0)),
+                    reducedPeriods  // Enable periodic interpolation for solar longitude
                 );
 
                 auto reducedSineInterpolator = std::make_unique<interpolators::MultiLinearInterpolator<double, double, 1>>(
                     reducedIndependentGrids, reducedSineGrid,
                     interpolators::huntingAlgorithm,
-                    interpolators::extrapolate_at_boundary
+                    std::vector<interpolators::BoundaryInterpolationType>(1, interpolators::extrapolate_at_boundary),
+                    std::vector<std::pair<double, double>>(1, std::make_pair(0.0, 0.0)),
+                    reducedPeriods  // Enable periodic interpolation for solar longitude
                 );
 
                 std::pair<int,int> degreeOrderPair = {degree, order};
