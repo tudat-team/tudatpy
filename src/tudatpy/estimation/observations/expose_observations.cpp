@@ -40,7 +40,7 @@ std::shared_ptr< tom::SingleObservationSet< ObservationScalarType, TimeType > > 
         const tom::LinkEndType referenceLinkEnd,
         const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr )
 {
-    std::cerr<<"Function single_observation_set is deprecated. Use create_single_observation_set instead"<<std::endl;
+    std::cerr << "Function single_observation_set is deprecated. Use create_single_observation_set instead" << std::endl;
     return std::make_shared< tom::SingleObservationSet< ObservationScalarType, TimeType > >( observableType,
                                                                                              linkEnds,
                                                                                              observations,
