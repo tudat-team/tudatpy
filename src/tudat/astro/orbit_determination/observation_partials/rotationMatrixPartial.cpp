@@ -331,13 +331,13 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
 
         // Push back RA
         rotationMatrixPartials.push_back(
-            rotationModel->getCurrentMeridianRotationAboutZAxis( ) * rotationModel->getCurrentDeclinationRotationAboutXAxis( ) *
-                reference_frames::getDerivativeOfZAxisRotationWrtAngle( rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) )
+            (rotationModel->getCurrentMeridianRotationAboutZAxis( ) * rotationModel->getCurrentDeclinationRotationAboutXAxis( ) *
+                reference_frames::getDerivativeOfZAxisRotationWrtAngle( rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) ) )
                     .transpose( ) * currentSineLibrationTerm );
 
         // Push back DEC
         rotationMatrixPartials.push_back(
-            (- rotationModel->getCurrentMeridianRotationAboutZAxis( ) * reference_frames::getDerivativeOfZAxisRotationWrtAngle(
+            (-rotationModel->getCurrentMeridianRotationAboutZAxis( ) * reference_frames::getDerivativeOfXAxisRotationWrtAngle(
                 rotationModel->getCurrentDeclinationRotationAboutXAxis( ) ) * rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) )
                     .transpose( ) * currentCosineLibrationTerm );
 
