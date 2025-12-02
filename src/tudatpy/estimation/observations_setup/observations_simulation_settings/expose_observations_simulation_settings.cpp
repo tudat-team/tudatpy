@@ -57,9 +57,8 @@ void expose_observations_simulation_settings( py::module& m )
                            &tss::ObservationSimulationSettings< TIME_TYPE >::setAncilliarySettings,
                            R"doc( No documentation found
       )doc" )
-            .def_property( "ancillary_settings",
+            .def_property_readonly( "dependent_variable_bookkeeping",
                            &tss::ObservationSimulationSettings< TIME_TYPE >::getObservationDependentVariableBookkeeping,
-                           &tss::ObservationSimulationSettings< TIME_TYPE >::setAncilliarySettings,
                            R"doc( No documentation found
       )doc" )
             .def_property( "dependent_variable_settings_list",
