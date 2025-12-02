@@ -10,9 +10,10 @@ see our user guide page on `translational dynamics <https://docs.tudat.space/en/
 
 Mathematical model descriptions are provided either directly here per acceleration, and several accelerations are discusse in more detail
 on a dedicated page:
- * `Gravitational accelerations <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/third_body_acceleration.html>`_
- * `Thrust accelerations <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/thrust_models.html>`_
- * `Radiation pressure accelerations <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/radiation_pressure_acceleration.html>`_.
+
+* `Gravitational accelerations <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/third_body_acceleration.html>`_
+* `Thrust accelerations <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/thrust_models.html>`_
+* `Radiation pressure accelerations <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/radiation_pressure_acceleration.html>`_.
 
 The functions in this submodule create objects of type :class:`~AccelerationSettings` or (in case more information than only
 the type of acceleration is needed to create the acceleration), one of its derived classes.

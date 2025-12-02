@@ -18,11 +18,11 @@ be retrieved using the :attr:`~tudatpy.dynamics.environment.Body.radiation_press
 
 Note that, while a body can have only a
 single source model (which may include multiple contributions such as albedo and planetary radiation pressure), a body can have
-multiple target models, and the target model that is used can be specified when choosing the specific :func:`tudatpy.dynamics.propagation_setup.acceleration.radiation_pressure` acceleration
+multiple target models, and the target model that is used can be specified when choosing the specific :func:`~tudatpy.dynamics.propagation_setup.acceleration.radiation_pressure` acceleration
 
-For isotropic source models, the :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.isotropic_radiation_source` is used, which requires an input of type :class:`tudatpy.dynamics.environment_setup.radiation_pressure.LuminosityModelSettings` (or
+For isotropic source models, the :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.isotropic_radiation_source` is used, which requires an input of type :class:`~tudatpy.dynamics.environment_setup.radiation_pressure.LuminosityModelSettings` (or
 derived class) to define an irradiance model. For bodies with a variable emission over the surface (albedo, infrared), the :func:`~tudatpy.dynamics.environment_setup.radiation_pressure.panelled_extended_radiation_source` model is
-used, which requires a list of :class:`tudatpy.dynamics.environment_setup.radiation_pressure.PanelRadiosityModelSettings` (or derived classes) to define an irradiance model.
+used, which requires a list of :class:`~tudatpy.dynamics.environment_setup.radiation_pressure.PanelRadiosityModelSettings` (or derived classes) to define an irradiance model.
 
 More details on the link between different aspects of radiation pressure in Tudat are described on `a dedicated page <https://docs.tudat.space/en/latest/_src_user_guide/state_propagation/propagation_setup/translational/radiation_pressure_acceleration.html>`_. in the user guide.
 
