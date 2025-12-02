@@ -713,9 +713,9 @@ Enumeration of available integrated state types.
             :type: MultiArcPropagatorProcessingSettings
 
 )doc" )
-        .def_property_readonly( "initial_state_list",
-                                &tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getInitialStateList,
-                                R"doc(
+            .def_property_readonly( "initial_state_list",
+                                    &tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getInitialStateList,
+                                    R"doc(
             **read-only**
 
             List of initial states per arc (e.g. entry j of this list is the initial state for arc j).
@@ -724,9 +724,9 @@ Enumeration of available integrated state types.
 
 )doc" )
 
-        .def_property_readonly( "single_arc_settings",
-                                &tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getSingleArcSettings,
-                                R"doc(
+            .def_property_readonly( "single_arc_settings",
+                                    &tp::MultiArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >::getSingleArcSettings,
+                                    R"doc(
             **read-only**
 
             List of single arc settings (e.g. entry j of this list is the single-arc propagator setting for arc j).
@@ -734,10 +734,6 @@ Enumeration of available integrated state types.
             :type: list[SingleArcPropagatorSettings]
 
 )doc" );
-
-
-
-
 
     py::class_< tp::HybridArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
                 std::shared_ptr< tp::HybridArcPropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE > >,
@@ -1214,8 +1210,6 @@ Returns
 SingleArcPropagatorSettings
     Custom propagator settings object.
      )doc" );
-
-
 
     m.def( "multitype",
            &tp::multiTypePropagatorSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -1720,7 +1714,7 @@ HybridArcPropagatorSettings
 
      )doc" );
 
-     m.def( "get_integrated_type_and_body_list",
+    m.def( "get_integrated_type_and_body_list",
            &tp::getIntegratedTypeAndBodyList< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "propagator_settings" ) );
 
