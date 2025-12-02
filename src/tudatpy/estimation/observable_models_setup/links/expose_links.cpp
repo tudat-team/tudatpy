@@ -27,8 +27,7 @@ namespace links
 
 void expose_links( py::module& m )
 {
-    
-     // ################      Link Definition ################
+    // ################      Link Definition ################
 
     py::enum_< tom::LinkEndType >( m, "LinkEndType", R"doc(
 
@@ -66,7 +65,6 @@ Examples
             .value( "observer", tom::LinkEndType::observer )
             .value( "observed_body", tom::LinkEndType::observed_body )
             .export_values( );
-
 
     m.def( "one_way_downlink_link_ends",
            &tom::getOneWayDownlinkLinkEndsList,
@@ -128,7 +126,7 @@ Examples
 
      )doc" );
 
-     m.def( "one_way_uplink_link_ends",
+    m.def( "one_way_uplink_link_ends",
            &tom::getOneWayUplinkLinkEndsList,
            py::arg( "transmitters" ),
            py::arg( "receiver" ),
@@ -187,8 +185,7 @@ Examples
 
      )doc" );
 
-
-     m.def( "get_default_reference_link_end",
+    m.def( "get_default_reference_link_end",
            &tom::getDefaultReferenceLinkEndType,
            py::arg( "observabl_type" ),
            R"doc(
@@ -352,7 +349,7 @@ Examples
 
      )doc" );
 
-     m.def( "body_reference_point_link_end_id",
+    m.def( "body_reference_point_link_end_id",
            py::overload_cast< const std::string&, const std::string& >( &tom::linkEndId ),
            py::arg( "body_name" ),
            py::arg( "reference_point_id" ),
@@ -512,10 +509,9 @@ Examples
 
 
      )doc" );
-
 }
 
-}
-}
-}
-}
+}  // namespace links
+}  // namespace observable_models_setup
+}  // namespace estimation
+}  // namespace tudatpy
