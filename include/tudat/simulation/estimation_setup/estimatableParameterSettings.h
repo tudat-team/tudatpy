@@ -1150,6 +1150,7 @@ public:
     basic_astrodynamics::AvailableAcceleration accelerationType_;
 };
 
+
 inline std::shared_ptr< EstimatableParameterSettings > gravitationalParameter( const std::string bodyName )
 {
     return std::make_shared< EstimatableParameterSettings >( bodyName, gravitational_parameter );
@@ -1208,6 +1209,20 @@ inline std::shared_ptr< EstimatableParameterSettings > arcwiseLiftComponentScali
 {
     return std::make_shared< ArcWiseAerodynamicScalingCoefficientEstimatableParameterSettings >(
             arc_wise_lift_component_scaling_factor, bodyName, arcStartTimes );
+}
+
+// factory function parameter settings for ExponentialAtmosphereBaseDensity parameter
+inline std::shared_ptr< EstimatableParameterSettings > exponentialAtmosphereBaseDensity( const std::string& bodyUndergoingAcceleration,
+                                                                                         const std::string& bodyExertingAcceleration)
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyUndergoingAcceleration, exponential_atmosphere_base_density, bodyExertingAcceleration );
+}
+
+// factory function parameter settings for ExponentialAtmosphereScaleHeight parameter
+inline std::shared_ptr< EstimatableParameterSettings > exponentialAtmosphereScaleHeight( const std::string& bodyUndergoingAcceleration,
+                                                                                         const std::string& bodyExertingAcceleration)
+{
+    return std::make_shared< EstimatableParameterSettings >( bodyUndergoingAcceleration, exponential_atmosphere_scale_height, bodyExertingAcceleration );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > radiationPressureCoefficient( const std::string bodyName )
