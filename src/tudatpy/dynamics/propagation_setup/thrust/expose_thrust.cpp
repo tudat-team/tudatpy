@@ -44,21 +44,17 @@ void expose_thrust_setup( py::module &m )
 {
     py::enum_< tss::ThrustMagnitudeTypes >( m, "ThrustMagnitudeTypes" )
             //                                         get_docstring("ThrustMagnitudeTypes").c_str())
-            .value( "constant_thrust_magnitude",
-                    tss::ThrustMagnitudeTypes::constant_thrust_magnitude )
+            .value( "constant_thrust_magnitude", tss::ThrustMagnitudeTypes::constant_thrust_magnitude )
             //            .value("from_engine_properties_thrust_magnitude",
             //            tss::ThrustMagnitudeTypes::from_engine_properties_thrust_magnitude)
-            .value( "thrust_magnitude_from_time_function",
-                    tss::ThrustMagnitudeTypes::thrust_magnitude_from_time_function )
-            .value( "thrust_magnitude_from_dependent_variables",
-                    tss::ThrustMagnitudeTypes::thrust_magnitude_from_dependent_variables );
+            .value( "thrust_magnitude_from_time_function", tss::ThrustMagnitudeTypes::thrust_magnitude_from_time_function )
+            .value( "thrust_magnitude_from_dependent_variables", tss::ThrustMagnitudeTypes::thrust_magnitude_from_dependent_variables );
     //            .value("bang_bang_thrust_magnitude_from_mee_costates",
     //            tss::ThrustMagnitudeTypes::bang_bang_thrust_magnitude_from_mee_costates);
 
-    py::class_< tss::ThrustMagnitudeSettings, std::shared_ptr< tss::ThrustMagnitudeSettings > >(
-            m,
-            "ThrustMagnitudeSettings",
-            R"doc(
+    py::class_< tss::ThrustMagnitudeSettings, std::shared_ptr< tss::ThrustMagnitudeSettings > >( m,
+                                                                                                 "ThrustMagnitudeSettings",
+                                                                                                 R"doc(
 
          Functional base class to define settings for the thrust magnitude.
 
@@ -74,8 +70,7 @@ void expose_thrust_setup( py::module &m )
 
 
       )doc" )
-            .def_readonly( "thrust_magnitude_type",
-                           &tss::ThrustMagnitudeSettings::thrustMagnitudeType_ )
+            .def_readonly( "thrust_magnitude_type", &tss::ThrustMagnitudeSettings::thrustMagnitudeType_ )
             .def_readonly( "thrust_origin_id", &tss::ThrustMagnitudeSettings::thrustOriginId_ );
 
     py::class_< tss::ConstantThrustMagnitudeSettings,
@@ -101,16 +96,13 @@ void expose_thrust_setup( py::module &m )
 
 
       )doc" )
-            .def_readonly( "thrust_magnitude",
-                           &tss::ConstantThrustMagnitudeSettings::thrustMagnitude_ )
-            .def_readonly( "specific_impulse",
-                           &tss::ConstantThrustMagnitudeSettings::specificImpulse_ );
+            .def_readonly( "thrust_magnitude", &tss::ConstantThrustMagnitudeSettings::thrustMagnitude_ )
+            .def_readonly( "specific_impulse", &tss::ConstantThrustMagnitudeSettings::specificImpulse_ );
 
-    py::class_< tss::CustomThrustMagnitudeSettings,
-                std::shared_ptr< tss::CustomThrustMagnitudeSettings >,
-                tss::ThrustMagnitudeSettings >( m,
-                                                "CustomThrustMagnitudeSettings",
-                                                R"doc(
+    py::class_< tss::CustomThrustMagnitudeSettings, std::shared_ptr< tss::CustomThrustMagnitudeSettings >, tss::ThrustMagnitudeSettings >(
+            m,
+            "CustomThrustMagnitudeSettings",
+            R"doc(
 
          `ThrustMagnitudeSettings`-derived class to define settings for constant thrust magnitude.
 
@@ -123,14 +115,14 @@ void expose_thrust_setup( py::module &m )
 
       )doc" );
 
-//    m.def( "get_propulsion_input_variables",
-//           &tss::getPropulsionInputVariables,
-//           py::arg( "body_with_guidance" ) = std::shared_ptr< tss::Body >( ),
-//           py::arg( "independent_variables" ) =
-//                   std::vector< tudat::propulsion::ThrustIndependentVariables >( ),
-//           py::arg( "guidance_input_functions" ) =
-//                   std::vector< std::function< double( ) > >( ) );  //,
-//    //          get_docstring("get_propulsion_input_variables").c_str());
+    //    m.def( "get_propulsion_input_variables",
+    //           &tss::getPropulsionInputVariables,
+    //           py::arg( "body_with_guidance" ) = std::shared_ptr< tss::Body >( ),
+    //           py::arg( "independent_variables" ) =
+    //                   std::vector< tudat::propulsion::ThrustIndependentVariables >( ),
+    //           py::arg( "guidance_input_functions" ) =
+    //                   std::vector< std::function< double( ) > >( ) );  //,
+    //    //          get_docstring("get_propulsion_input_variables").c_str());
 
     // Thrust orientation factory functions
 
@@ -325,19 +317,15 @@ void expose_thrust_setup( py::module &m )
      * used
      */
 
-    py::enum_< tss::ThrustDirectionTypes >(
-            m, "ThrustDirectionGuidanceTypes", R"doc(No documentation found.)doc" )
+    py::enum_< tss::ThrustDirectionTypes >( m, "ThrustDirectionGuidanceTypes", R"doc(No documentation found.)doc" )
             .value( "colinear_with_state_segment_thrust_direction_type",
                     tss::ThrustDirectionTypes::colinear_with_state_segment_thrust_direction )
             .value( "thrust_direction_from_existing_body_orientation_"
                     "type",
                     tss::ThrustDirectionTypes::thrust_direction_from_existing_body_orientation )
-            .value( "custom_thrust_direction_type",
-                    tss::ThrustDirectionTypes::custom_thrust_direction )
-            .value( "custom_thrust_orientation_type",
-                    tss::ThrustDirectionTypes::custom_thrust_orientation )
-            .value( "mee_costate_based_thrust_direction_type",
-                    tss::ThrustDirectionTypes::mee_costate_based_thrust_direction );
+            .value( "custom_thrust_direction_type", tss::ThrustDirectionTypes::custom_thrust_direction )
+            .value( "custom_thrust_orientation_type", tss::ThrustDirectionTypes::custom_thrust_orientation )
+            .value( "mee_costate_based_thrust_direction_type", tss::ThrustDirectionTypes::mee_costate_based_thrust_direction );
 
     py::enum_< tss::ThrustFrames >( m, "ThrustFrames" )
             //                                 get_docstring("ThrustFrames").c_str())
@@ -348,33 +336,24 @@ void expose_thrust_setup( py::module &m )
 
     py::class_< tss::ThrustDirectionSettings, std::shared_ptr< tss::ThrustDirectionSettings > >(
             m, "ThrustDirectionSettings", R"doc(No documentation found.)doc" )
-            .def_readonly( "thrust_direction_type",
-                           &tss::ThrustDirectionSettings::thrustDirectionType_ )
+            .def_readonly( "thrust_direction_type", &tss::ThrustDirectionSettings::thrustDirectionType_ )
             .def_readonly( "relative_body", &tss::ThrustDirectionSettings::relativeBody_ );
 
     py::class_< tss::ThrustDirectionFromStateGuidanceSettings,
                 std::shared_ptr< tss::ThrustDirectionFromStateGuidanceSettings >,
-                tss::ThrustDirectionSettings >(
-            m, "ThrustDirectionFromStateGuidanceSettings", R"doc(No documentation found.)doc" )
-            .def_readonly( "is_colinear_with_velocity",
-                           &tss::ThrustDirectionFromStateGuidanceSettings::isColinearWithVelocity_ )
-            .def_readonly(
-                    "direction_is_opposite_to_vector",
-                    &tss::ThrustDirectionFromStateGuidanceSettings::directionIsOppositeToVector_ );
+                tss::ThrustDirectionSettings >( m, "ThrustDirectionFromStateGuidanceSettings", R"doc(No documentation found.)doc" )
+            .def_readonly( "is_colinear_with_velocity", &tss::ThrustDirectionFromStateGuidanceSettings::isColinearWithVelocity_ )
+            .def_readonly( "direction_is_opposite_to_vector",
+                           &tss::ThrustDirectionFromStateGuidanceSettings::directionIsOppositeToVector_ );
 
-    py::class_< tss::CustomThrustDirectionSettings,
-                std::shared_ptr< tss::CustomThrustDirectionSettings >,
-                tss::ThrustDirectionSettings >(
+    py::class_< tss::CustomThrustDirectionSettings, std::shared_ptr< tss::CustomThrustDirectionSettings >, tss::ThrustDirectionSettings >(
             m, "CustomThrustDirectionSettings", R"doc(No documentation found.)doc" )
-            .def_readonly( "thrust_direction_function",
-                           &tss::CustomThrustDirectionSettings::thrustDirectionFunction_ );
+            .def_readonly( "thrust_direction_function", &tss::CustomThrustDirectionSettings::thrustDirectionFunction_ );
 
     py::class_< tss::CustomThrustOrientationSettings,
                 std::shared_ptr< tss::CustomThrustOrientationSettings >,
-                tss::ThrustDirectionSettings >(
-            m, "CustomThrustOrientationSettings", R"doc(No documentation found.)doc" )
-            .def_readonly( "thrust_orientation_function",
-                           &tss::CustomThrustOrientationSettings::thrustOrientationFunction_ );
+                tss::ThrustDirectionSettings >( m, "CustomThrustOrientationSettings", R"doc(No documentation found.)doc" )
+            .def_readonly( "thrust_orientation_function", &tss::CustomThrustOrientationSettings::thrustOrientationFunction_ );
 
     m.def( "thrust_direction_from_state_guidance",
            &tss::thrustDirectionFromStateGuidanceSettings,
@@ -385,13 +364,10 @@ void expose_thrust_setup( py::module &m )
     m.def( "thrust_from_existing_body_orientation", &tss::thrustFromExistingBodyOrientation );
 
     m.def( "custom_thrust_orientation",
-           py::overload_cast< std::function< Eigen::Matrix3d( const double ) > >(
-                   &tss::customThrustOrientationSettings ),
+           py::overload_cast< std::function< Eigen::Matrix3d( const double ) > >( &tss::customThrustOrientationSettings ),
            py::arg( "thrust_orientation_function" ) );
 
-    m.def( "custom_thrust_direction",
-           &tss::customThrustDirectionSettings,
-           py::arg( "thrust_direction_function" ) );
+    m.def( "custom_thrust_direction", &tss::customThrustDirectionSettings, py::arg( "thrust_direction_function" ) );
 }
 
 }  // namespace thrust

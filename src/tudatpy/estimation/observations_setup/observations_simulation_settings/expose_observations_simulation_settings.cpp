@@ -63,14 +63,14 @@ void expose_observations_simulation_settings( py::module& m )
                            R"doc( No documentation found
       )doc" )
             .def_property( "dependent_variable_settings_list",
-                  &tss::ObservationSimulationSettings< TIME_TYPE >::getDependentVariableSettings,
-                  &tss::ObservationSimulationSettings< TIME_TYPE >::setDependentVariableSettings,
+                           &tss::ObservationSimulationSettings< TIME_TYPE >::getDependentVariableSettings,
+                           &tss::ObservationSimulationSettings< TIME_TYPE >::setDependentVariableSettings,
                            R"doc( No documentation found
 
       )doc" )
             .def( "add_dependent_variables",
-                           &tss::ObservationSimulationSettings< TIME_TYPE >::addDependentVariableSettings,
-                           R"doc( No documentation found
+                  &tss::ObservationSimulationSettings< TIME_TYPE >::addDependentVariableSettings,
+                  R"doc( No documentation found
       )doc" )
             .def( "clear_dependent_variables",
                   &tss::ObservationSimulationSettings< TIME_TYPE >::clearDependentVariableSettings,

@@ -78,10 +78,9 @@ void addGaussianNoiseFunctionToObservationSimulationSettingsPy(
             observationSimulationSettings, observationNoiseAmplitude, observableType, linkEnds );
 }
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
-
+}  // namespace tudat
 
 namespace tudatpy
 {
@@ -333,7 +332,7 @@ void expose_random_noise( py::module& m )
      )doc" );
 }
 
-}
-}
-}
-}
+}  // namespace random_noise
+}  // namespace observations_setup
+}  // namespace estimation
+}  // namespace tudatpy
