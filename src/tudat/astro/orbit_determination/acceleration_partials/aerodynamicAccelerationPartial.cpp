@@ -180,12 +180,22 @@ void AerodynamicAccelerationPartial::computeAccelerationPartialWrtCurrentDensity
 
 void AerodynamicAccelerationPartial::computeAccelerationPartialWrtExponentialAtmosphereBaseDensity( Eigen::MatrixXd& accelerationPartial )
 {
-    // dA/dRho:
-    this->computeAccelerationPartialWrtCurrentDensity(accelerationPartial);
-    // dRho/dRho_0
-    double partialCurrentDensityWrtBaseDensity = std::exp( -flightConditions_->getCurrentAltitude(  ) / exponentialAtmosphere_->getScaleHeight( ) );
 
-    accelerationPartial *= partialCurrentDensityWrtBaseDensity;
+    if (exponentialAtmosphere_ == nullptr)
+    {
+        throw std::runtime_error( "Error when computing partial w.r.t. exponential atmosphere base density - associated atmosphere model is not of type exponential." );
+
+    }
+    else
+    {
+        // dA/dRho:
+        this->computeAccelerationPartialWrtCurrentDensity(accelerationPartial);
+        // dRho/dRho_0
+        double partialCurrentDensityWrtBaseDensity = std::exp( -flightConditions_->getCurrentAltitude(  ) / exponentialAtmosphere_->getScaleHeight( ) );
+        accelerationPartial *= partialCurrentDensityWrtBaseDensity;
+
+    }
+
 }
 
 
@@ -197,15 +207,24 @@ void AerodynamicAccelerationPartial::computeAccelerationPartialWrtExponentialAtm
 
 void AerodynamicAccelerationPartial::computeAccelerationPartialWrtExponentialAtmosphereScaleHeight( Eigen::MatrixXd& accelerationPartial )
 {
-    // dA/dRho:
-    this->computeAccelerationPartialWrtCurrentDensity(accelerationPartial);
-    // dRho/dH
-    double scaleHeight = exponentialAtmosphere_->getScaleHeight( );
-    double expTerm = std::exp( -flightConditions_->getCurrentAltitude(  ) / scaleHeight );
-    double baseTerm = exponentialAtmosphere_->getBaseDensity( ) * flightConditions_->getCurrentAltitude(  ) / scaleHeight / scaleHeight;
-    double partialCurrentDensityWrtScaleHeight = baseTerm*expTerm;
 
-    accelerationPartial *= partialCurrentDensityWrtScaleHeight;
+    if (exponentialAtmosphere_ == nullptr)
+    {
+        throw std::runtime_error( "Error when computing partial w.r.t. exponential atmosphere scale height - associated atmosphere model is not of type exponential." );
+
+    }
+    else
+    {
+        // dA/dRho:
+        this->computeAccelerationPartialWrtCurrentDensity(accelerationPartial);
+        // dRho/dH
+        double scaleHeight = exponentialAtmosphere_->getScaleHeight( );
+        double expTerm = std::exp( -flightConditions_->getCurrentAltitude(  ) / scaleHeight );
+        double baseTerm = exponentialAtmosphere_->getBaseDensity( ) * flightConditions_->getCurrentAltitude(  ) / scaleHeight / scaleHeight;
+        double partialCurrentDensityWrtScaleHeight = baseTerm*expTerm;
+
+        accelerationPartial *= partialCurrentDensityWrtScaleHeight;
+    }
 }
 
 
