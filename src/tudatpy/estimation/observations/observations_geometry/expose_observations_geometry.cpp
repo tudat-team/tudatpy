@@ -55,9 +55,8 @@ namespace observations
 namespace observations_geometry
 {
 
-void expose_observations_geometry( py::module& m )
+void expose_observations_geometry( py::module &m )
 {
-
     m.def( "compute_target_angles_and_range_vectors",
            &tss::getTargetAnglesAndRangeVector,
            py::arg( "bodies" ),
@@ -103,10 +102,9 @@ void expose_observations_geometry( py::module& m )
 
 
 
-     )doc" );    
+     )doc" );
 
-
-     // observation geometry       
+    // observation geometry
     m.def( "compute_target_angles_and_range",
            &tss::getTargetAnglesAndRange,
            py::arg( "bodies" ),
@@ -153,7 +151,6 @@ void expose_observations_geometry( py::module& m )
 
 
      )doc" );
-
 }
 
 }  // namespace observations_geometry

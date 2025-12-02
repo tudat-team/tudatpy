@@ -59,7 +59,9 @@ public:
     {
         std::cerr << "setWeightsFromObservationCollection is deprecated: the weightsMatrixDiagonals_ vector is now by default defined by "
                      "the weights stored in the ObservationCollection object. "
-                     "(see https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights)."
+                     "(see "
+                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
+                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
                   << std::endl;
     }
 
@@ -78,7 +80,10 @@ public:
     {
         std::cerr << "Warning, function setConstantSingleObservableWeights is deprecated, "
                      "weights should preferably be defined at the observation collection level. "
-                     "(see https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights)."<<std::endl;
+                     "(see "
+                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
+                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
+                  << std::endl;
 
         std::map< observation_models::ObservableType, std::pair< int, int > > observationTypeStartAndSize =
                 observationCollection_->getObservationTypeStartAndSize( );
@@ -99,7 +104,10 @@ public:
     {
         std::cerr << "Warning, function setConstantSingleObservableVectorWeights is deprecated, "
                      "weights should preferably be defined at the observation collection level. "
-                     "(see https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights)."<<std::endl;
+                     "(see "
+                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
+                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
+                  << std::endl;
 
         std::map< observation_models::ObservableType, std::pair< int, int > > observationTypeStartAndSize =
                 observationCollection_->getObservationTypeStartAndSize( );
@@ -121,7 +129,10 @@ public:
     {
         std::cerr << "Warning, function setConstantSingleObservableAndLinkEndsWeights is deprecated, "
                      "weights should preferably be defined at the observation collection level. "
-                     "(see https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights)."<<std::endl;
+                     "(see "
+                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
+                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
+                  << std::endl;
         std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightsPerParser;
         std::shared_ptr< observation_models::ObservationCollectionParser > multiTypeParser =
                 observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
@@ -137,7 +148,10 @@ public:
     {
         std::cerr << "Warning, function setConstantSingleObservableAndLinkEndsVectorWeights is deprecated, "
                      "weights should preferably be defined at the observation collection level. "
-                     "(see https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights)."<<std::endl;
+                     "(see "
+                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
+                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
+                  << std::endl;
         std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, Eigen::VectorXd > weightsPerParser;
         std::shared_ptr< observation_models::ObservationCollectionParser > multiTypeParser =
                 observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
@@ -153,7 +167,10 @@ public:
     {
         std::cerr << "Warning, function setTabulatedSingleObservableAndLinkEndsWeights is deprecated, "
                      "weights should preferably be defined at the observation collection level. "
-                     "(see https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights)."<<std::endl;
+                     "(see "
+                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
+                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
+                  << std::endl;
         observationCollection_->setTabulatedWeights(
                 weight,
                 observationParser( std::vector< std::shared_ptr< observation_models::ObservationCollectionParser > >(
@@ -169,8 +186,11 @@ public:
     {
         std::cerr << "Warning, function setConstantPerObservableWeightsMatrix is deprecated, "
                      "weights should preferably be defined at the observation collection level "
-                     "(see https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights)."<<std::endl;
-        
+                     "(see "
+                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
+                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
+                  << std::endl;
+
         std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightsPerObservationParser;
         for( auto observableIt : weightPerObservable )
         {
@@ -184,7 +204,10 @@ public:
     {
         std::cerr << "Warning, function setConstantPerObservableVectorWeightsMatrix is deprecated, "
                      "weights should be defined at the observation collection level "
-                     "(see https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights)."<<std::endl;
+                     "(see "
+                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
+                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
+                  << std::endl;
         std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, Eigen::VectorXd > weightsPerObservationParser;
         for( auto observableIt : weightPerObservable )
         {
@@ -204,7 +227,10 @@ public:
     {
         std::cerr << "Warning, function setConstantPerObservableAndLinkEndsWeights is deprecated, "
                      "weights should preferably be defined at the observation collection level."
-                     "(see https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights)."<<std::endl;
+                     "(see "
+                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
+                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
+                  << std::endl;
         std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, double > weightPerObservationParser;
         for( auto observableIt : weightPerObservableAndLinkEnds )
         {
@@ -225,7 +251,10 @@ public:
     {
         std::cerr << "Warning, function setConstantPerObservableAndLinkEndsVectorWeights is deprecated, "
                      "weights should preferably be defined at the observation collection level."
-                     "(see https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights)."<<std::endl;
+                     "(see "
+                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
+                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
+                  << std::endl;
         std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, Eigen::VectorXd > weightPerObservationParser;
         for( auto observableIt : weightPerObservableAndLinkEnds )
         {
@@ -246,7 +275,10 @@ public:
     {
         std::cerr << "Warning, function setConstantPerObservableAndLinkEndsWeights is deprecated, "
                      "weights should preferably be defined at the observation collection level."
-                     "(see https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights)."<<std::endl;
+                     "(see "
+                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
+                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
+                  << std::endl;
         std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, double > > weightPerObservableAndLinkEnds;
         for( unsigned int i = 0; i < linkEnds.size( ); i++ )
         {
@@ -261,7 +293,10 @@ public:
     {
         std::cerr << "Warning, function setConstantPerObservableAndLinkEndsVectorWeights is deprecated, "
                      "weights should preferably be defined at the observation collection level."
-                     "(see https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights)."<<std::endl;
+                     "(see "
+                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
+                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
+                  << std::endl;
         std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, Eigen::VectorXd > >
                 weightPerObservableAndLinkEnds;
         for( unsigned int i = 0; i < linkEnds.size( ); i++ )
@@ -277,7 +312,10 @@ public:
     {
         std::cerr << "Warning, function setTabulatedPerObservableAndLinkEndsWeights is deprecated, "
                      "weights should preferably be defined at the observation collection level."
-                     "(see https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights)."<<std::endl;
+                     "(see "
+                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
+                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
+                  << std::endl;
         std::map< std::shared_ptr< observation_models::ObservationCollectionParser >, Eigen::VectorXd > weightPerObservableParser;
         for( auto observableIt : weightsPerObservableAndLinkEnds )
         {
@@ -298,7 +336,10 @@ public:
     {
         std::cerr << "Warning, function setTabulatedPerObservableAndLinkEndsWeights is deprecated, "
                      "weights should preferably be defined at the observation collection level."
-                     "(see https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/observation-collection-manipulation/modifying-collections.html#setting-weights)."<<std::endl;
+                     "(see "
+                     "https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/"
+                     "observation-collection-manipulation/modifying-collections.html#setting-weights)."
+                  << std::endl;
         std::map< observation_models::ObservableType, std::map< observation_models::LinkEnds, Eigen::VectorXd > >
                 weightsPerObservableAndLinkEnds;
         for( unsigned int i = 0; i < linkEnds.size( ); i++ )

@@ -23,7 +23,7 @@ namespace tudat
 namespace simulation_setup
 {
 
-    void addViabilityToObservationSimulationSettingsPy(
+void addViabilityToObservationSimulationSettingsPy(
         const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
         const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList )
 {
@@ -49,10 +49,9 @@ void addViabilityToObservationSimulationSettingsPy(
             observationSimulationSettings, viabilitySettingsList, observableType, linkEnds );
 }
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
-
+}  // namespace tudat
 
 namespace tudatpy
 {
@@ -97,7 +96,7 @@ void expose_viability( py::module& m )
 
       )doc" );
 
-      py::enum_< tom::ObservationViabilityType >( m, "ObservationViabilityType", R"doc(
+    py::enum_< tom::ObservationViabilityType >( m, "ObservationViabilityType", R"doc(
 
 Enumeration of observation viability criterion types.
 
@@ -123,7 +122,6 @@ Examples
             .value( "body_avoidance_angle", tom::ObservationViabilityType::body_avoidance_angle )
             .value( "body_occultation", tom::ObservationViabilityType::body_occultation )
             .export_values( );
-
 
     m.def( "elevation_angle_viability",
            py::overload_cast< const std::pair< std::string, std::string >, const double >( &tom::elevationAngleViabilitySettings ),
@@ -352,7 +350,7 @@ Examples
 
      )doc" );
 
-     m.def( "add_viability_check_to_all",
+    m.def( "add_viability_check_to_all",
            py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
                               const std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >& >(
                    &tss::addViabilityToObservationSimulationSettingsPy ),
@@ -472,7 +470,7 @@ tudatpy.estimation.observations_setup.observations_simulation_settings.Observati
      )doc" );
 }
 
-}
-}
-}
-}
+}  // namespace viability
+}  // namespace observations_setup
+}  // namespace estimation
+}  // namespace tudatpy
