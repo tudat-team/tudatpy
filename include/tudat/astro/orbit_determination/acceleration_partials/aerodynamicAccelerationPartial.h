@@ -56,8 +56,6 @@ public:
         vehicleStateGetFunction_( vehicleStateGetFunction ), vehicleStateSetFunction_( vehicleStateSetFunction )
     {
         bodyStatePerturbations_ << 10.0, 10.0, 10.0, 1.0E-2, 1.0E-2, 1.0E-2;
-        exponentialAtmosphere_ = std::dynamic_pointer_cast< aerodynamics::ExponentialAtmosphere >( flightConditions_->getAtmosphereModel() );
-
     }
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
@@ -294,16 +292,20 @@ protected:
     /*!
      * Function to compute the partial derivative of the acceleration w.r.t. the base density of the exponential atmosphere model
      * \param accelerationPartial Derivative of acceleration by reference.
+     * \param exponentialAtmosphereModel Atmosphere model associated with the partial, by reference.
      */
-    void computeAccelerationPartialWrtExponentialAtmosphereBaseDensity(Eigen::MatrixXd& accelerationPartial);
+    void computeAccelerationPartialWrtExponentialAtmosphereBaseDensity(
+      Eigen::MatrixXd& accelerationPartial, std::shared_ptr< aerodynamics::ExponentialAtmosphere >& exponentialAtmosphereModel);
 
 
     //! Function to compute the partial derivative of the acceleration w.r.t. the scale height of the exponential atmosphere model
     /*!
      * Function to compute the partial derivative of the acceleration w.r.t. the scale height of the exponential atmosphere model
      * \param accelerationPartial Derivative of acceleration by reference.
+     * \param exponentialAtmosphereModel Atmosphere model associated with the partial, by reference.
      */
-    void computeAccelerationPartialWrtExponentialAtmosphereScaleHeight(Eigen::MatrixXd& accelerationPartial);
+    void computeAccelerationPartialWrtExponentialAtmosphereScaleHeight(
+      Eigen::MatrixXd& accelerationPartial, std::shared_ptr< aerodynamics::ExponentialAtmosphere >& exponentialAtmosphereModel);
 
 
 
@@ -320,10 +322,6 @@ protected:
     //! Object that computes the current atmospheric and flight conditions, as well as associated angles, for the body undergoing
     //! acceleration
     std::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions_;
-
-    //! Object that is the exponential atmosphere model in case the dynamic cast of the associated atmosphere model succeeds,
-    //! else unassigned
-    std::shared_ptr< aerodynamics::ExponentialAtmosphere > exponentialAtmosphere_;
 
     //! Function to retrieve the state of the body undergoing the acceleration.
     std::function< Eigen::Vector6d( ) > vehicleStateGetFunction_;

@@ -176,25 +176,17 @@ void AerodynamicAccelerationPartial::computeAccelerationPartialWrtCurrentDensity
 /*!
  * Function to compute the partial derivative of the acceleration w.r.t. base density
  * \param accelerationPartial Derivative of acceleration w.r.t. base density (by reference)
+ * \param exponentialAtmosphereModel Atmosphere model associated with the partial, by reference.
  */
 
-void AerodynamicAccelerationPartial::computeAccelerationPartialWrtExponentialAtmosphereBaseDensity( Eigen::MatrixXd& accelerationPartial )
+void AerodynamicAccelerationPartial::computeAccelerationPartialWrtExponentialAtmosphereBaseDensity(
+    Eigen::MatrixXd& accelerationPartial, std::shared_ptr< aerodynamics::ExponentialAtmosphere >& exponentialAtmosphereModel)
 {
-
-    if (exponentialAtmosphere_ == nullptr)
-    {
-        throw std::runtime_error( "Error when computing partial w.r.t. exponential atmosphere base density - associated atmosphere model is not of type exponential." );
-
-    }
-    else
-    {
-        // dA/dRho:
-        this->computeAccelerationPartialWrtCurrentDensity(accelerationPartial);
-        // dRho/dRho_0
-        double partialCurrentDensityWrtBaseDensity = std::exp( -flightConditions_->getCurrentAltitude(  ) / exponentialAtmosphere_->getScaleHeight( ) );
-        accelerationPartial *= partialCurrentDensityWrtBaseDensity;
-
-    }
+    // dA/dRho:
+    this->computeAccelerationPartialWrtCurrentDensity(accelerationPartial);
+    // dRho/dRho_0
+    double partialCurrentDensityWrtBaseDensity = std::exp( -flightConditions_->getCurrentAltitude(  ) / exponentialAtmosphereModel->getScaleHeight( ) );
+    accelerationPartial *= partialCurrentDensityWrtBaseDensity;
 
 }
 
@@ -203,28 +195,21 @@ void AerodynamicAccelerationPartial::computeAccelerationPartialWrtExponentialAtm
 /*!
  * Function to compute the partial derivative of the acceleration w.r.t. scale height
  * \param accelerationPartial Derivative of acceleration w.r.t. scale height (by reference)
+ * \param exponentialAtmosphereModel Atmosphere model associated with the partial, by reference.
  */
 
-void AerodynamicAccelerationPartial::computeAccelerationPartialWrtExponentialAtmosphereScaleHeight( Eigen::MatrixXd& accelerationPartial )
+void AerodynamicAccelerationPartial::computeAccelerationPartialWrtExponentialAtmosphereScaleHeight(
+    Eigen::MatrixXd& accelerationPartial, std::shared_ptr< aerodynamics::ExponentialAtmosphere >& exponentialAtmosphereModel)
 {
+    // dA/dRho:
+    this->computeAccelerationPartialWrtCurrentDensity(accelerationPartial);
+    // dRho/dH
+    double scaleHeight = exponentialAtmosphereModel->getScaleHeight( );
+    double expTerm = std::exp( -flightConditions_->getCurrentAltitude(  ) / scaleHeight );
+    double baseTerm = exponentialAtmosphereModel->getBaseDensity( ) * flightConditions_->getCurrentAltitude(  ) / scaleHeight / scaleHeight;
+    double partialCurrentDensityWrtScaleHeight = baseTerm*expTerm;
 
-    if (exponentialAtmosphere_ == nullptr)
-    {
-        throw std::runtime_error( "Error when computing partial w.r.t. exponential atmosphere scale height - associated atmosphere model is not of type exponential." );
-
-    }
-    else
-    {
-        // dA/dRho:
-        this->computeAccelerationPartialWrtCurrentDensity(accelerationPartial);
-        // dRho/dH
-        double scaleHeight = exponentialAtmosphere_->getScaleHeight( );
-        double expTerm = std::exp( -flightConditions_->getCurrentAltitude(  ) / scaleHeight );
-        double baseTerm = exponentialAtmosphere_->getBaseDensity( ) * flightConditions_->getCurrentAltitude(  ) / scaleHeight / scaleHeight;
-        double partialCurrentDensityWrtScaleHeight = baseTerm*expTerm;
-
-        accelerationPartial *= partialCurrentDensityWrtScaleHeight;
-    }
+    accelerationPartial *= partialCurrentDensityWrtScaleHeight;
 }
 
 
@@ -316,6 +301,52 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > AerodynamicAccelerat
                 numberOfColumns = 1;
                 break;
             }
+
+            case estimatable_parameters::exponential_atmosphere_base_density: {
+                // cast to exponential atmosphere type, so that properties can be queried in partials function
+                std::shared_ptr< aerodynamics::ExponentialAtmosphere > exponentialAtmosphere =
+                    std::dynamic_pointer_cast< aerodynamics::ExponentialAtmosphere >( flightConditions_->getAtmosphereModel() );
+
+                // ensure atmosphere type is exponential as required
+                if (exponentialAtmosphere != nullptr)
+                {
+                    partialFunction =
+                            std::bind( &AerodynamicAccelerationPartial::computeAccelerationPartialWrtExponentialAtmosphereBaseDensity,
+                                       this,
+                                       std::placeholders::_1,
+                                       exponentialAtmosphere
+                                       );
+                    numberOfColumns = 1;
+                }
+                else
+                {
+                    throw std::runtime_error( "Error when computing partial w.r.t. exponential atmosphere base density - associated atmosphere model is not of type exponential." );
+                }
+                break;
+            }
+            case estimatable_parameters::exponential_atmosphere_scale_height: {
+                // cast to exponential atmosphere type, so that properties can be queried in partials function
+                std::shared_ptr< aerodynamics::ExponentialAtmosphere > exponentialAtmosphere =
+                    std::dynamic_pointer_cast< aerodynamics::ExponentialAtmosphere >( flightConditions_->getAtmosphereModel() );
+
+                // ensure atmosphere type is exponential as required
+                if (exponentialAtmosphere != nullptr)
+                {
+                    partialFunction =
+                            std::bind( &AerodynamicAccelerationPartial::computeAccelerationPartialWrtExponentialAtmosphereScaleHeight,
+                                       this,
+                                       std::placeholders::_1,
+                                       exponentialAtmosphere
+                                       );
+                    numberOfColumns = 1;
+                }
+                else
+                {
+                    throw std::runtime_error( "Error when computing partial w.r.t. exponential atmosphere scale height - associated atmosphere model is not of type exponential." );
+                }
+                break;
+            }
+
             default:
                 break;
         }
