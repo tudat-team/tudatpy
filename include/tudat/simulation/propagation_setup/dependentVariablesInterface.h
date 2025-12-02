@@ -57,12 +57,6 @@ public:
     virtual Eigen::VectorXd getSingleDependentVariable(
             const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
             const TimeType evaluationTime ) = 0;
-    //
-    //    //! Function to get the value of a single dependent variable at a given time, from the dependent variable ID.
-    //    virtual Eigen::VectorXd getSingleDependentVariable(
-    //        const std::string dependentVariableId,
-    //        const int dependentVariableSize,
-    //        const TimeType evaluationTime ) = 0;
 
 protected:
 };
@@ -211,26 +205,6 @@ public:
             throw std::runtime_error( "Error, dependent variable " + dependentVariableId + " not found when retrieving parameter." );
         }
     }
-
-    //    //! Function to get the value of a single dependent variable at a given time, from the dependent variable ID.
-    //    Eigen::VectorXd getSingleDependentVariable(
-    //        const std::string dependentVariableId,
-    //        const int dependentVariableSize,
-    //        const TimeType evaluationTime )
-    //    {
-    //        Eigen::VectorXd dependentVariable = Eigen::VectorXd( dependentVariableSize );
-    //
-    //        // Retrieve index of dependent variable of interest.
-    //        int dependentVariableIndex = dependentVariablesIdsAndIndices_.find( dependentVariableId )->second;
-    //
-    //        // Retrieve full vector of dependent variables at a given time.
-    //        Eigen::VectorXd fullDependentVariablesVector = getDependentVariables( evaluationTime );
-    //
-    //        dependentVariable =
-    //            fullDependentVariablesVector.segment( dependentVariableIndex, dependentVariableSize );
-    //
-    //        return dependentVariable;
-    //    }
 
     //! Function to get the size of the dependent variables
     /*!
@@ -483,7 +457,7 @@ public:
     {
         throw std::runtime_error(
                 "Error when retrieving interpolated dependent variables from hybrid-arc interface. This functionality is not supported as "
-                "the definition is ambiguous. Retreieve the single- or multi-arc interface, and retrieve the dependent variable from "
+                "the definition is ambiguous. Retrieve the single- or multi-arc interface, and retrieve the dependent variable from "
                 "there." );
         return Eigen::VectorXd::Zero( 0 );
     }
@@ -491,27 +465,23 @@ public:
     Eigen::VectorXd getSingleDependentVariable( const std::shared_ptr< SingleDependentVariableSaveSettings > dependentVariableSettings,
                                                 const TimeType evaluationTime )
     {
-        Eigen::VectorXd dependentVariables = Eigen::VectorXd::Zero( 0 );
+        throw std::runtime_error(
+                "Error when retrieving interpolated dependent variables from hybrid-arc interface. This functionality is not supported as "
+                "the definition is ambiguous. Retrieve the single- or multi-arc interface, and retrieve the dependent variable from "
+                "there." );
+        return Eigen::VectorXd::Zero( 0 );
+    }
 
-        // Get single-arc dependent variables.
-        Eigen::VectorXd singleArcDependentVariables =
-                singleArcInterface_->getSingleDependentVariable( dependentVariableSettings, evaluationTime );
+    //! Object to retrieve dependent variable for single arc component
+    std::shared_ptr< SingleArcDependentVariablesInterface< TimeType > > getSingleArcInterface( )
+    {
+        return singleArcInterface_;
+    }
 
-        // Get multi-arc dependent variables.
-        Eigen::VectorXd multiArcDependentVariables =
-                multiArcInterface_->getSingleDependentVariable( dependentVariableSettings, evaluationTime );
-
-        // Single-arc result takes preference over multi-arc result
-        if( singleArcDependentVariables.rows( ) > 0 )
-        {
-            dependentVariables = singleArcDependentVariables;
-        }
-        else if( multiArcDependentVariables.rows( ) > 0 )
-        {
-            dependentVariables = multiArcDependentVariables;
-        }
-
-        return dependentVariables;
+    //! Object to retrieve dependent variable for multi arc component
+    std::shared_ptr< MultiArcDependentVariablesInterface< TimeType > > getMultiArcInterface( )
+    {
+        return multiArcInterface_;
     }
 
 private:
