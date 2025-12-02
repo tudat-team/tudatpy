@@ -58,8 +58,8 @@ void expose_observations_simulation_settings( py::module& m )
                            R"doc( No documentation found
       )doc" )
             .def_property_readonly( "dependent_variable_bookkeeping",
-                           &tss::ObservationSimulationSettings< TIME_TYPE >::getObservationDependentVariableBookkeeping,
-                           R"doc( No documentation found
+                                    &tss::ObservationSimulationSettings< TIME_TYPE >::getObservationDependentVariableBookkeeping,
+                                    R"doc( No documentation found
       )doc" )
             .def_property( "dependent_variable_settings_list",
                            &tss::ObservationSimulationSettings< TIME_TYPE >::getDependentVariableSettings,
