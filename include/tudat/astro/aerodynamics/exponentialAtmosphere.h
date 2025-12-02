@@ -88,6 +88,16 @@ public:
         return scaleHeight_;
     }
 
+    //! Reset scale height.
+    /*!
+     * Sets the scale height (property of exponential atmosphere) in meters.
+     * \param newScaleHeight Scale height to be set in exponential atmosphere model.
+     */
+    void resetScaleHeight( double newScaleHeight )
+      {
+        scaleHeight_ = newScaleHeight;
+      }
+
     //! Get density at zero altitude.
     /*!
      * Returns the density at zero altitude (property of exponential atmosphere) in kg per meter^3.
@@ -97,6 +107,22 @@ public:
     {
         return densityAtZeroAltitude_;
     }
+
+    // alias
+    double getBaseDensity( )
+    {
+      return getDensityAtZeroAltitude( );
+    }
+
+    //! Reset base density.
+    /*!
+     * Sets the base density (property of exponential atmosphere) in kg per meter^3.
+     * \param newBaseDensity Base density to be set in exponential atmosphere model.
+     */
+    void resetBaseDensity( double newBaseDensity )
+      {
+        densityAtZeroAltitude_ = newBaseDensity;
+      }
 
     //! Get constant temperature.
     /*!
