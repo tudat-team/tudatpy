@@ -98,7 +98,9 @@ enum EstimatebleParametersEnum {
     rtg_force_vector,
     rtg_force_vector_magnitude,
     area_to_mass_scaling_factor,
-    full_acceleration_scaling_factor
+    full_acceleration_scaling_factor,
+    exponential_atmosphere_base_density,
+    exponential_atmosphere_decay_factor
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );
