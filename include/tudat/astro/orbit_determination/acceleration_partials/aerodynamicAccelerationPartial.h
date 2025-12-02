@@ -16,7 +16,7 @@
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantDragCoefficient.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/aerodynamicScalingCoefficient.h"
-#include "tudat/astro/orbit_determination/estimatable_parameters/exponentialAtmosphereParameters.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/exponentialAtmosphereParameter.h"
 
 #include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
 
