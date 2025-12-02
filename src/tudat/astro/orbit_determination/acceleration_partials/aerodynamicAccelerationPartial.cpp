@@ -146,6 +146,69 @@ void AerodynamicAccelerationPartial::computeAccelerationPartialWrtArcWiseAerodyn
     }
 }
 
+
+
+//! Function to compute the partial derivative of the acceleration w.r.t. the current atmospheric density
+/*!
+ * Function to compute the partial derivative of the acceleration w.r.t. the current atmospheric density
+ * \param accelerationPartial Derivative of acceleration by reference.
+ */
+void AerodynamicAccelerationPartial::computeAccelerationPartialWrtCurrentDensity( Eigen::MatrixXd& accelerationPartial )
+{
+
+    Eigen::Quaterniond rotationToInertialFrame = flightConditions_->getAerodynamicAngleCalculator( )->getRotationQuaternionBetweenFrames(
+        reference_frames::aerodynamic_frame, reference_frames::inertial_frame );
+
+    // retrieve from flight conditions
+    Eigen::Vector3d currentForceCoefficients = flightConditions_->getAerodynamicCoefficientInterface( )->getCurrentForceCoefficients(  );
+    double const currentAirspeed = flightConditions_->getCurrentAirspeed( );
+    double const referenceArea = flightConditions_->getAerodynamicCoefficientInterface( )->getReferenceArea( );
+    double const currentMass = aerodynamicAcceleration_->getCurrentMass( );
+
+    // 1/2 . Ci . V2 . A / M
+    accelerationPartial = rotationToInertialFrame * (0.5 * currentAirspeed * currentAirspeed * referenceArea / currentMass * currentForceCoefficients);
+
+}
+
+
+
+//! Function to compute the partial derivative of the acceleration w.r.t. base density
+/*!
+ * Function to compute the partial derivative of the acceleration w.r.t. base density
+ * \param accelerationPartial Derivative of acceleration w.r.t. base density (by reference)
+ */
+
+void AerodynamicAccelerationPartial::computeAccelerationPartialWrtExponentialAtmosphereBaseDensity( Eigen::MatrixXd& accelerationPartial )
+{
+    // dA/dRho:
+    this->computeAccelerationPartialWrtCurrentDensity(accelerationPartial);
+    // dRho/dRho_0
+    double partialCurrentDensityWrtBaseDensity = std::exp( -flightConditions_->getCurrentAltitude(  ) / exponentialAtmosphere_->getScaleHeight( ) );
+
+    accelerationPartial *= partialCurrentDensityWrtBaseDensity;
+}
+
+
+//! Function to compute the partial derivative of the acceleration w.r.t. scale height
+/*!
+ * Function to compute the partial derivative of the acceleration w.r.t. scale height
+ * \param accelerationPartial Derivative of acceleration w.r.t. scale height (by reference)
+ */
+
+void AerodynamicAccelerationPartial::computeAccelerationPartialWrtExponentialAtmosphereScaleHeight( Eigen::MatrixXd& accelerationPartial )
+{
+    // dA/dRho:
+    this->computeAccelerationPartialWrtCurrentDensity(accelerationPartial);
+    // dRho/dH
+    double scaleHeight = exponentialAtmosphere_->getScaleHeight( );
+    double expTerm = std::exp( -flightConditions_->getCurrentAltitude(  ) / scaleHeight );
+    double baseTerm = exponentialAtmosphere_->getBaseDensity( ) * flightConditions_->getCurrentAltitude(  ) / scaleHeight / scaleHeight;
+    double partialCurrentDensityWrtScaleHeight = baseTerm*expTerm;
+
+    accelerationPartial *= partialCurrentDensityWrtScaleHeight;
+}
+
+
 //! Function for updating partial w.r.t. the bodies' positions
 void AerodynamicAccelerationPartial::update( const double currentTime )
 {

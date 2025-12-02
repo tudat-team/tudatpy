@@ -16,6 +16,7 @@
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantDragCoefficient.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/aerodynamicScalingCoefficient.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/exponentialAtmosphereParameters.h"
 
 #include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
 
@@ -55,6 +56,8 @@ public:
         vehicleStateGetFunction_( vehicleStateGetFunction ), vehicleStateSetFunction_( vehicleStateSetFunction )
     {
         bodyStatePerturbations_ << 10.0, 10.0, 10.0, 1.0E-2, 1.0E-2, 1.0E-2;
+        exponentialAtmosphere_ = std::dynamic_pointer_cast< aerodynamics::ExponentialAtmosphere >( flightConditions_->getAtmosphereModel() );
+
     }
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
@@ -240,7 +243,7 @@ protected:
     /*!
      * Function to compute the partial derivative of the acceleration w.r.t. the arc-wise constant drag coefficient
      * \param accelerationPartial Derivative of acceleration w.r.t. arc-wise constant drag coefficient (returned by reference).
-     * \param parameter Parameter object containing information on arcwise drag coefficient that is to be estimated
+     * \param parameter Parameter object that is associated with the variable of differentiation
      */
     void computeAccelerationPartialWrtArcwiseDragCoefficient(
             Eigen::MatrixXd& accelerationPartial,
@@ -249,21 +252,21 @@ protected:
     //! Function to compute the partial derivative of the acceleration w.r.t. drag component scaling factor
     /*!
      * Function to compute the partial derivative of the acceleration w.r.t. drag component scaling factor
-     * \param accelerationPartial Derivative of acceleration w.r.t. drag component scaling factor (returned by reference).
+     * \param partial Derivative of acceleration by reference.
      */
     void computeAccelerationPartialWrtDragComponent( Eigen::MatrixXd& partial );
 
     //! Function to compute the partial derivative of the acceleration w.r.t. side component scaling factor
     /*!
      * Function to compute the partial derivative of the acceleration w.r.t. side component  scaling factor
-     * \param accelerationPartial Derivative of acceleration w.r.t. side component  scaling factor (returned by reference).
+     * \param partial Derivative of acceleration by reference.
      */
     void computeAccelerationPartialWrtSideComponent( Eigen::MatrixXd& partial );
 
     //! Function to compute the partial derivative of the acceleration w.r.t. lift component scaling factor
     /*!
      * Function to compute the partial derivative of the acceleration w.r.t. lift component scaling factor
-     * \param accelerationPartial Derivative of acceleration w.r.t. lift component scaling factor (returned by reference).
+     * \param partial Derivative of acceleration by reference.
      */
     void computeAccelerationPartialWrtLiftComponent( Eigen::MatrixXd& partial );
 
@@ -271,10 +274,38 @@ protected:
     /*!
      * Function to compute the partial derivative of the acceleration w.r.t. an aerodynamic component scaling factor
      * \param accelerationPartial Derivative of acceleration w.r.t. an aerodynamic component scaling factor (returned by reference).
+     * \param parameter Parameter object that is associated with the variable of differentiation
      */
     void computeAccelerationPartialWrtArcWiseAerodynamicScalingCofficient(
             Eigen::MatrixXd& accelerationPartial,
             std::shared_ptr< estimatable_parameters::ArcWiseAerodynamicScalingFactor > parameter );
+
+
+    //! Function to compute the partial derivative of the acceleration w.r.t. the current atmospheric density
+    /*!
+     * Function to compute the partial derivative of the acceleration w.r.t. the current atmospheric density
+     * \param accelerationPartial Derivative of acceleration by reference.
+     */
+    void computeAccelerationPartialWrtCurrentDensity(Eigen::MatrixXd& accelerationPartial);
+
+
+
+    //! Function to compute the partial derivative of the acceleration w.r.t. the base density of the exponential atmosphere model
+    /*!
+     * Function to compute the partial derivative of the acceleration w.r.t. the base density of the exponential atmosphere model
+     * \param accelerationPartial Derivative of acceleration by reference.
+     */
+    void computeAccelerationPartialWrtExponentialAtmosphereBaseDensity(Eigen::MatrixXd& accelerationPartial);
+
+
+    //! Function to compute the partial derivative of the acceleration w.r.t. the scale height of the exponential atmosphere model
+    /*!
+     * Function to compute the partial derivative of the acceleration w.r.t. the scale height of the exponential atmosphere model
+     * \param accelerationPartial Derivative of acceleration by reference.
+     */
+    void computeAccelerationPartialWrtExponentialAtmosphereScaleHeight(Eigen::MatrixXd& accelerationPartial);
+
+
 
     //! Perturbations of Cartesian state used in the numerical (central difference) computation of
     //! currentAccelerationStatePartials_
@@ -289,6 +320,10 @@ protected:
     //! Object that computes the current atmospheric and flight conditions, as well as associated angles, for the body undergoing
     //! acceleration
     std::shared_ptr< aerodynamics::AtmosphericFlightConditions > flightConditions_;
+
+    //! Object that is the exponential atmosphere model in case the dynamic cast of the associated atmosphere model succeeds,
+    //! else unassigned
+    std::shared_ptr< aerodynamics::ExponentialAtmosphere > exponentialAtmosphere_;
 
     //! Function to retrieve the state of the body undergoing the acceleration.
     std::function< Eigen::Vector6d( ) > vehicleStateGetFunction_;
