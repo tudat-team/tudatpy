@@ -219,8 +219,8 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case exponential_atmosphere_base_density:
             parameterDescription = "base density of exponential atmosphere model ";
             break;
-        case exponential_atmosphere_decay_factor:
-            parameterDescription = "decay factor of exponential atmosphere model ";
+        case exponential_atmosphere_scale_height:
+            parameterDescription = "scale height of exponential atmosphere model ";
             break;
         default:
             std::string errorMessage =
@@ -442,7 +442,7 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         case exponential_atmosphere_base_density:
             isDoubleParameter = true;
         break;
-        case exponential_atmosphere_decay_factor:
+        case exponential_atmosphere_scale_height:
             isDoubleParameter = true;
         break;
         default:
