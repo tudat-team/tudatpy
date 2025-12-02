@@ -95,7 +95,7 @@ void expose_parameters_setup( py::module& m )
             .value( "rtg_force_vector_type", tep::EstimatebleParametersEnum::rtg_force_vector )
             .value( "rtg_force_vector_magnitude_type", tep::EstimatebleParametersEnum::rtg_force_vector_magnitude )
             .value( "iau_rotation_pole_position_type", tep::EstimatebleParametersEnum::nominal_rotation_pole_position )
-            .value( "iau_pole_drift_type", tep::EstimatebleParametersEnum::rotation_pole_position_rate )
+            .value( "iau_pole_position_rate_type", tep::EstimatebleParametersEnum::rotation_pole_position_rate )
             .value( "iau_pole_libration_type", tep::EstimatebleParametersEnum::rotation_pole_libration_terms )
             .value( "iau_longitudinal_libration_type", tep::EstimatebleParametersEnum::rotation_longitudinal_libration_terms )
 
