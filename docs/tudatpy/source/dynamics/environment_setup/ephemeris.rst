@@ -13,6 +13,26 @@ attribute  (of type :class:`~tudatpy.dynamics.environment_setup.ephemeris.Epheme
 and added to the associated :class:`~tudatpy.dynamics.environment.Body` object based on the settings object, which can
 be retrieved using the :attr:`~tudatpy.dynamics.environment.Body.ephemeris` attribute.
 
+The following code block gives an overview of the steps to define, create, and extract an ephemeris model, for the specific example of ephemeris of the Earth from Spice, with the Sun as ephemeris origin (and J2000 frame orientation).
+
+.. code-block:: python
+
+  from tudatpy.dynamics import environment_setup
+
+  # Create body settings
+  body_settings =  environment_setup.get_default_body_settings( ... ) # Typical way to instantiate body settings
+
+  # Modify ephemeris model settings (base class type EphemerisSettings)
+  body_settings.get( 'Earth' ).ephemeris_settings = environment_setup.ephemeris.direct_spice(
+      frame_origin = 'Sun',
+      frame_orientation = 'J2000' )
+
+  # Create bodies
+  bodies = environment_setup.create_system_of_bodies(body_settings)
+
+  # Extract ephemeris model (base class type Ephemeris) from Earth
+  earth_ephemeris_model = bodies.get( 'Earth' ).ephemeris
+
 Below a short
 overview of aspects of some of the ephemeris models in order to aid in
 properly selecting an choosing a model.

@@ -367,7 +367,7 @@ void expose_ground_station_setup( py::module& m )
 
  Parameters
  ----------
- custom_displacement_function : Callable[[astro.time_representation.Time],numpy.ndarray([3,1])]
+ custom_displacement_function : callable[[:class:`~tudatpy.astro.time_representation.Time`],numpy.ndarray([3,1])]
      Function returning :math:`\Delta\mathbf{r}`, with the time :math:`t` (as Time object) as input.
  Returns
  -------

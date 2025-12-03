@@ -901,7 +901,7 @@ void expose_environment_setup( py::module &m )
      Settings for computing the thrust magnitude (and specific impulse) as a function of time
  bodies : SystemOfBodies
      Object defining the physical environment, with all properties of artificial and natural bodies.
- body_fixed_thrust_direction_function : Callable[[float], numpy.ndarray[numpy.float64[3, 1]]]
+ body_fixed_thrust_direction_function : callable[[float], numpy.ndarray[numpy.float64[3, 1]]]
      Function returning a unit vector, as a function of time, along which the thrust from the engine will point in a body-fixed frame
 
 
