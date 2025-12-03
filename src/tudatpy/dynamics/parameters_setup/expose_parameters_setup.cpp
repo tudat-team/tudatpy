@@ -1315,12 +1315,11 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
      )doc" );
 
-
     m.def( "iau_rotation_model_pole_librations",
-       &tep::iauRotationModelPoleLibrationParameterSettings,
-       py::arg( "body" ),
-       py::arg( "libration_angular_frequencies" ),
-       R"doc(
+           &tep::iauRotationModelPoleLibrationParameterSettings,
+           py::arg( "body" ),
+           py::arg( "libration_angular_frequencies" ),
+           R"doc(
 
  Function for creating parameter settings for a body's pole libration amplitudes in an IAU rotation model
 

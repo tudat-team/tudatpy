@@ -255,7 +255,6 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
     return rotationMatrixPartials;
 }
 
-
 //! Function to calculate a partial of rotation matrix from a body-fixed to inertial frame w.r.t.
 //! pole position rate.
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrtPolePositionRate(
@@ -277,7 +276,6 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
                     .transpose( ) );
     return rotationMatrixPartials;
 }
-
 
 //! Function to calculate a partial of rotation matrix from a body-fixed to inertial frame w.r.t.
 //! longitudinal librations amplitude.
@@ -307,7 +305,6 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
     return rotationMatrixPartials;
 }
 
-
 //! Function to calculate a partial of rotation matrix from a body-fixed to inertial frame w.r.t.
 //! pole librations amplitude.
 std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrtPoleLibrationAmplitudes(
@@ -327,20 +324,22 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
         double currentSineLibrationTerm = std::sin(
                 librationFrequencies.at( librationIndex ) * ( ephemerisTime - rotationModel->getReferenceEpoch( ) ) + signature.second );
         double currentCosineLibrationTerm = std::cos(
-        librationFrequencies.at( librationIndex ) * ( ephemerisTime - rotationModel->getReferenceEpoch( ) ) + signature.second );
+                librationFrequencies.at( librationIndex ) * ( ephemerisTime - rotationModel->getReferenceEpoch( ) ) + signature.second );
 
         // Push back RA
         rotationMatrixPartials.push_back(
-            (rotationModel->getCurrentMeridianRotationAboutZAxis( ) * rotationModel->getCurrentDeclinationRotationAboutXAxis( ) *
-                reference_frames::getDerivativeOfZAxisRotationWrtAngle( rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) ) )
-                    .transpose( ) * currentSineLibrationTerm );
+                ( rotationModel->getCurrentMeridianRotationAboutZAxis( ) * rotationModel->getCurrentDeclinationRotationAboutXAxis( ) *
+                  reference_frames::getDerivativeOfZAxisRotationWrtAngle( rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) ) )
+                        .transpose( ) *
+                currentSineLibrationTerm );
 
         // Push back DEC
         rotationMatrixPartials.push_back(
-            (-rotationModel->getCurrentMeridianRotationAboutZAxis( ) * reference_frames::getDerivativeOfXAxisRotationWrtAngle(
-                rotationModel->getCurrentDeclinationRotationAboutXAxis( ) ) * rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) )
-                    .transpose( ) * currentCosineLibrationTerm );
-
+                ( -rotationModel->getCurrentMeridianRotationAboutZAxis( ) *
+                  reference_frames::getDerivativeOfXAxisRotationWrtAngle( rotationModel->getCurrentDeclinationRotationAboutXAxis( ) ) *
+                  rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) )
+                        .transpose( ) *
+                currentCosineLibrationTerm );
     }
     return rotationMatrixPartials;
 }
