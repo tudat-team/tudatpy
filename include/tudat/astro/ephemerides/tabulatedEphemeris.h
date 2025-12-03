@@ -61,7 +61,9 @@ public:
                                  const std::string referenceFrameOrigin = "SSB",
                                  const std::string referenceFrameOrientation = "ECLIPJ2000" ):
         Ephemeris( referenceFrameOrigin, referenceFrameOrientation ), interpolator_( interpolator )
-    {}
+    {
+        std::cout<<"Creating tabulated ephemeris A "<<this<<" "<<interpolator_<<std::endl;
+    }
 
     TabulatedCartesianEphemeris( const VariableStateInterpolatorPointer interpolator,
                                  const std::string referenceFrameOrigin = "SSB",
@@ -71,6 +73,8 @@ public:
         interpolator_ =
                 interpolators::convertBetweenStaticDynamicEigenTypeInterpolators< TimeType, StateScalarType, Eigen::Dynamic, 1, 6, 1 >(
                         interpolator );
+        std::cout<<"Creating tabulated ephemeris B "<<this<<" "<<interpolator_<<std::endl;
+
     }
 
     //! Destructor
@@ -158,6 +162,7 @@ public:
      */
     std::pair< double, double > getSafeInterpolationInterval( const bool acceptUserDefinedRisk = true )
     {
+        std::cout<<"Getting safe interpolation interval "<<this<<" "<<interpolator_<<std::endl;
         if( interpolator_ == nullptr )
         {
             return std::make_pair( 0.0, 0.0 );

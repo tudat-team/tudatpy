@@ -335,6 +335,7 @@ public:
 
     std::pair< IndependentVariableType, IndependentVariableType > getValidInterpolationInterval( const bool acceptUserDefinedRisk )
     {
+        std::cout<<"Valid lagrange interpolator interval"<<std::endl;
         std::pair< IndependentVariableType, IndependentVariableType > validInterval =
                 OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::getValidInterpolationInterval(
                         acceptUserDefinedRisk );
@@ -356,6 +357,9 @@ public:
                                                 independentValues_.at( numberOfIndependentValues_ - ( numberOfStages_ / 2 ) ) );
                 break;
         }
+
+        std::cout<<"Valid lagrange interpolator interval "<<validInterval.first<<" "<<validInterval.second<<std::endl;
+
 
         return validInterval;
     }

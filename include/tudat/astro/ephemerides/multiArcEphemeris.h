@@ -103,6 +103,10 @@ public:
      */
     void resetSingleArcEphemerides( const std::map< double, std::shared_ptr< Ephemeris > >& singleArcEphemerides )
     {
+        for( auto it : singleArcEphemerides )
+        {
+            std::cout<<"Resetting single arc ephemerides "<<it.first<<std::endl;
+        }
         resetSingleArcEphemerides( utilities::createVectorFromMapValues( singleArcEphemerides ),
                                    utilities::createVectorFromMapKeys( singleArcEphemerides ) );
     }

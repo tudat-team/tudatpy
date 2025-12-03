@@ -188,11 +188,13 @@ std::pair< double, double > getSafeEphemerisEvaluationInterval( const std::share
     // Check if model is tabulated, and retrieve safe interval from model
     if( isTabulatedEphemeris( ephemerisModel ) )
     {
+        std::cout<<"Get tabulated safe interval"<<std::endl;
         safeInterval = getTabulatedEphemerisSafeInterval( ephemerisModel );
     }
     // Check if model is multi-arc, and retrieve safe intervals from first and last arc.
     else if( std::dynamic_pointer_cast< ephemerides::MultiArcEphemeris >( ephemerisModel ) != nullptr )
     {
+        std::cout<<"Get non-tabulated safe interval"<<std::endl;
         std::shared_ptr< ephemerides::MultiArcEphemeris > multiArcEphemerisModel =
                 std::dynamic_pointer_cast< ephemerides::MultiArcEphemeris >( ephemerisModel );
         safeInterval.first = getSafeEphemerisEvaluationInterval( multiArcEphemerisModel->getSingleArcEphemerides( ).at( 0 ) ).first;

@@ -1142,6 +1142,9 @@ template< typename StateScalarType = double, typename TimeType = double >
 std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris( const std::shared_ptr< EphemerisSettings > ephemerisSettings,
                                                                const std::string& bodyName )
 {
+    std::cout<<"Create body ephemeris "<<bodyName<<" "<<ephemerisSettings->getMakeMultiArcEphemeris( )<<" "<<
+            ephemerisSettings->getEphemerisType( )<<std::endl;
+
     using namespace ephemerides;
     // Declare return object.
     std::shared_ptr< ephemerides::Ephemeris > ephemeris;
@@ -1247,6 +1250,8 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris( const std::shared
                         {
                             templatedStateHistory[ stateIterator->first ] = stateIterator->second.cast< StateScalarType >( );
                         }
+                        std::cout<<"Creating tabulated ephemeris "<<bodyName<<" "<<templatedStateHistory.begin( )->first<<" "<<
+                                templatedStateHistory.rbegin( )->first<<std::endl;
                         ephemeris = std::make_shared< TabulatedCartesianEphemeris< StateScalarType, TimeType > >(
                                 std::make_shared< interpolators::LagrangeInterpolator< TimeType, Eigen::Matrix< StateScalarType, 6, 1 > > >(
                                         templatedStateHistory,
