@@ -166,7 +166,7 @@ void AerodynamicAccelerationPartial::computeAccelerationPartialWrtCurrentDensity
     double const currentMass = aerodynamicAcceleration_->getCurrentMass( );
 
     // 1/2 . Ci . V2 . A / M
-    accelerationPartial = rotationToInertialFrame * (0.5 * currentAirspeed * currentAirspeed * referenceArea / currentMass * currentForceCoefficients);
+    accelerationPartial = rotationToInertialFrame * (- 0.5 * currentAirspeed * currentAirspeed * referenceArea / currentMass * currentForceCoefficients);
 
 }
 
