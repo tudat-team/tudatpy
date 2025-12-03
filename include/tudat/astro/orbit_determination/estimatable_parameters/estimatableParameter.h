@@ -88,6 +88,7 @@ enum EstimatebleParametersEnum {
     nominal_rotation_pole_position,
     rotation_pole_position_rate,
     rotation_longitudinal_libration_terms,
+    rotation_pole_libration_terms,
     drag_component_scaling_factor,
     side_component_scaling_factor,
     lift_component_scaling_factor,
