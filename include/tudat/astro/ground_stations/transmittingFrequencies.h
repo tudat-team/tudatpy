@@ -175,6 +175,11 @@ public:
         StationFrequencyInterpolator( ), startTimes_( startTimes ), endTimes_( endTimes ), rampRates_( rampRates ),
         startFrequencies_( startFrequency )
     {
+        initialize( );
+    }
+
+    void initialize( )
+    {
         // Check if dimensions of all vectors are consistent
         if( startTimes_.size( ) != endTimes_.size( ) || startTimes_.size( ) != rampRates_.size( ) ||
             startTimes_.size( ) != startFrequencies_.size( ) )
@@ -220,7 +225,6 @@ public:
                     std::make_shared< interpolators::BinarySearchLookupScheme< Time > >( invalidTimeBlocksStartTimes_ );
         }
     }
-
     /*! Templated function to compute the transmitted frequency at the specified time.
      *
      * Templated function to compute the transmitted frequency at the specified time. Frequency is computed according to
@@ -375,6 +379,40 @@ public:
     std::vector< double > getStartFrequencies( )
     {
         return startFrequencies_;
+    }
+
+    void addFrequencyInterpolator( const std::shared_ptr< PiecewiseLinearFrequencyInterpolator > rampsToAdd )
+    {
+        std::vector< Time > startTimesToAdd = rampsToAdd->getStartTimes( );
+        std::vector< Time > endTimesToAdd = rampsToAdd->getEndTimes( );
+        std::vector< double > rampRatesToAdd = rampsToAdd->getRampRates( );
+        std::vector< double > startFrequenciesToAdd = rampsToAdd->getStartFrequencies( );
+
+        std::map< Time, Time > endTimesMap;
+        std::map< Time, double > rampRatesMap;
+        std::map< Time, double > startFrequenciesMap;
+
+        for( unsigned int i = 0; i < startTimes_.size( ); i++ )
+        {
+            endTimesMap[ startTimes_.at( i ) ] = endTimes_.at( i );
+            rampRatesMap[ startTimes_.at( i ) ] = rampRates_.at( i );
+            startFrequenciesMap[ startTimes_.at( i ) ] = startFrequencies_.at( i );
+        }
+
+        for( unsigned int i = 0; i < startTimesToAdd.size( ); i++ )
+        {
+            endTimesMap[ startTimesToAdd.at( i ) ] = endTimesToAdd.at( i );
+            rampRatesMap[ startTimesToAdd.at( i ) ] = rampRatesToAdd.at( i );
+            startFrequenciesMap[ startTimesToAdd.at( i ) ] = startFrequenciesToAdd.at( i );
+        }
+
+        startTimes_ = utilities::createVectorFromMapKeys( endTimesMap );
+        endTimes_ = utilities::createVectorFromMapValues( endTimesMap );
+        rampRates_ = utilities::createVectorFromMapValues( rampRatesMap );
+        startFrequencies_ = utilities::createVectorFromMapValues( startFrequenciesMap );
+
+        initialize( );
+        
     }
 
 private:
