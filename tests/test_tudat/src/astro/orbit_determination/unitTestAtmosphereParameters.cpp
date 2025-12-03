@@ -20,13 +20,14 @@
 
 #include "tudat/basics/testMacros.h"
 #include "tudat/simulation/estimation.h"
-#include "tudat/astro/orbit_determination/estimatable_parameters/directTidalTimeLag.h"
+
+#include <tudat/astro/orbit_determination/acceleration_partials/numericalAccelerationPartial.h>
 
 namespace tudat
 {
 namespace unit_tests
 {
-BOOST_AUTO_TEST_SUITE( test_arcwise_environment )
+BOOST_AUTO_TEST_SUITE( test_atmosphere_parameters )
 
 // Using declarations.
 using namespace tudat::observation_models;
@@ -44,260 +45,168 @@ using namespace tudat::coordinate_conversions;
 using namespace tudat::ground_stations;
 using namespace tudat::observation_models;
 
-//! Unit test to check if tidal time lag parameters are estimated correctly
-BOOST_AUTO_TEST_CASE( test_ArcwiseEnvironmentParameters )
+
+void updateFlightConditionsWithPerturbedState( const std::shared_ptr< aerodynamics::FlightConditions > flightConditions,
+                                                const double timeToUpdate )
 {
+    flightConditions->resetCurrentTime( );
+    flightConditions->updateConditions( timeToUpdate );
+}
+
+//! Unit test to check if tidal time lag parameters are estimated correctly
+BOOST_AUTO_TEST_CASE( test_ExponentialAtmosphereParameters )
+{
+
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
 
-    // Define bodies in simulation
-    std::vector< std::string > bodyNames;
-    bodyNames.push_back( "Earth" );
-    bodyNames.push_back( "Sun" );
+    using namespace tudat;
+    // Create Titan object
+    BodyListSettings defaultBodySettings = getDefaultBodySettings( { "Titan" } );
+    defaultBodySettings.at( "Titan" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >( Eigen::Vector6d::Zero( ) );
+    SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
 
-    // Specify initial time
-    double initialEphemerisTime = double( 1.0E7 );
-    double finalEphemerisTime = initialEphemerisTime + 1.0 * 86400.0;
 
-    // Create bodies needed in simulation
-    BodyListSettings bodySettings = getDefaultBodySettings( bodyNames );
+    bodies.at( "Titan" )->setAtmosphereModel(
+        createAtmosphereModel( std::make_shared< ExponentialAtmosphereSettings >( 7.58e04, 175, 3.0553447e-04 ), "Titan" ));
+    std::shared_ptr< aerodynamics::ExponentialAtmosphere > retrievedAtmosphere =
+        std::dynamic_pointer_cast< aerodynamics::ExponentialAtmosphere >(bodies.at( "Titan" )->getAtmosphereModel( ) );
 
-    SystemOfBodies bodies = createSystemOfBodies( bodySettings );
+
+    // Create vehicle objects.
+    double vehicleMass = 2.0E3;
     bodies.createEmptyBody( "Vehicle" );
-    bodies.at( "Vehicle" )->setConstantBodyMass( 400.0 );
+    bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
+
 
     // Create aerodynamic coefficient interface settings.
-    double referenceArea = 4.0;
+    double referenceArea = 22.0;
     double aerodynamicCoefficient = 1.2;
     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
             std::make_shared< ConstantAerodynamicCoefficientSettings >(
                     referenceArea,
                     aerodynamicCoefficient * ( Eigen::Vector3d( ) << 1.2, -0.01, 0.1 ).finished( ),
                     negative_aerodynamic_frame_coefficients );
-
-    // Create and set aerodynamic coefficients object
+    // TODO: Isse here with the aero frame - analytical partial does not respond
     bodies.at( "Vehicle" )
             ->setAerodynamicCoefficientInterface(
                     createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle", bodies ) );
 
-    // Create radiation pressure settings
-    double referenceAreaRadiation = 4.0;
-    double radiationPressureCoefficient = 1.2;
-    std::vector< std::string > occultingBodies;
-    occultingBodies.push_back( "Earth" );
-    std::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
-            std::make_shared< CannonBallRadiationPressureInterfaceSettings >(
-                    "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
 
-    // Create and set radiation pressure settings
-    bodies.at( "Vehicle" )
-            ->setRadiationPressureInterface( "Sun",
-                                             createRadiationPressureInterface( asterixRadiationPressureSettings, "Vehicle", bodies ) );
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
+    ///////////////////////       CREATE ACCELERATION, PARTIAL, PARAMETERS           //////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // Set accelerations on Vehicle that are to be taken into account.
-    SelectedAccelerationMap accelerationMap;
-    std::map< std::string, std::vector< std::shared_ptr< AccelerationSettings > > > accelerationsOfVehicle;
-    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::point_mass_gravity ) );
-    accelerationsOfVehicle[ "Sun" ].push_back(
-            std::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
-    accelerationsOfVehicle[ "Earth" ].push_back( std::make_shared< AccelerationSettings >( basic_astrodynamics::aerodynamic ) );
-    accelerationMap[ "Vehicle" ] = accelerationsOfVehicle;
 
-    // Set bodies for which initial state is to be estimated and integrated.
-    std::vector< std::string > bodiesToIntegrate;
-    std::vector< std::string > centralBodies;
-    bodiesToIntegrate.push_back( "Vehicle" );
-    centralBodies.push_back( "Earth" );
+    std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel =
+            simulation_setup::createAerodynamicAcceleratioModel( bodies.at( "Vehicle" ), bodies.at( "Titan" ), "Vehicle", "Titan" );
 
-    // Create acceleration models
-    AccelerationMap accelerationModelMap = createAccelerationModelsMap( bodies, accelerationMap, bodiesToIntegrate, centralBodies );
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    double testTime0 = 2.205694765899772644e+08;
+    Eigen::Vector6d vehicleInitialState0;
+    vehicleInitialState0 << -6.566106067480740137e+06, -6.894041365884457715e+06, 1.398789723666163161e+07, 3.329983483136099039e+03, 2.298663138859752053e+03, -3.904458109255926956e+03;
 
-    // Set Keplerian elements for Asterix.
-    Eigen::Vector6d asterixInitialStateInKeplerianElements;
-    asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 7200.0E3;
-    asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.05;
-    asterixInitialStateInKeplerianElements( inclinationIndex ) = unit_conversions::convertDegreesToRadians( 85.3 );
-    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = unit_conversions::convertDegreesToRadians( 235.7 );
-    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = unit_conversions::convertDegreesToRadians( 23.4 );
-    asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = unit_conversions::convertDegreesToRadians( 139.87 );
+    double testTime1 = 2.205723865899772644e+08;
+    Eigen::Vector6d vehicleInitialState1;
+    vehicleInitialState1 << 3.142204805038403720e+06, -6.317878925963304937e+04, 2.261319995938756503e+06, 3.190984327192136789e+03, 2.437742656628870009e+03, -4.367135216475068773e+03;
 
-    double earthGravitationalParameter = bodies.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
 
-    // Set (perturbed) initial state.
-    Eigen::Matrix< double, 6, 1 > systemInitialState =
-            convertKeplerianToCartesianElements( asterixInitialStateInKeplerianElements, earthGravitationalParameter );
+    std::shared_ptr< acceleration_partials::AccelerationPartial > aerodynamicAccelerationPartial =
+            createAnalyticalAccelerationPartial( accelerationModel,
+                                                 std::make_pair( "Vehicle", bodies.at( "Vehicle" ) ),
+                                                 std::make_pair( "Titan", bodies.at( "Titan" ) ),
+                                                 bodies );
 
-    // Create propagator settings
-    std::vector< std::shared_ptr< SingleDependentVariableSaveSettings > > dependentVariables;
-    dependentVariables.push_back( std::make_shared< SingleDependentVariableSaveSettings >(
-            aerodynamic_force_coefficients_dependent_variable, "Vehicle", "Earth" ) );
-    dependentVariables.push_back( std::make_shared< SingleDependentVariableSaveSettings >(
-            radiation_pressure_coefficient_dependent_variable, "Vehicle", "Sun" ) );
+    // atmosphere base density parameter
+    std::shared_ptr< EstimatableParameter< double > > baseDensityAtmosphericParameter =
+            std::make_shared< ExponentialAtmosphereParameter >( std::dynamic_pointer_cast< aerodynamics::ExponentialAtmosphere >(
+                                                                 bodies.at( "Titan" )->getAtmosphereModel( ) ),
+                                                                 estimatable_parameters::exponential_atmosphere_base_density,
+                                                                 "Vehicle");
 
-    // Create integrator settings
-    std::shared_ptr< IntegratorSettings< double > > integratorSettings =
-            std::make_shared< RungeKuttaVariableStepSizeSettingsScalarTolerances< double > >(
-                    double( initialEphemerisTime ), 90.0, CoefficientSets::rungeKuttaFehlberg78, 90.0, 90.0, 1.0, 1.0 );
+    // atmosphere scale height parameter
+    std::shared_ptr< EstimatableParameter< double > > scaleHeightAtmosphericParameter =
+            std::make_shared< ExponentialAtmosphereParameter >( std::dynamic_pointer_cast< aerodynamics::ExponentialAtmosphere >(
+                                                                 bodies.at( "Titan" )->getAtmosphereModel( ) ),
+                                                                 estimatable_parameters::exponential_atmosphere_scale_height,
+                                                                 "Vehicle");
 
-    std::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
-            std::make_shared< TranslationalStatePropagatorSettings< double > >(
-                    centralBodies,
-                    accelerationModelMap,
-                    bodiesToIntegrate,
-                    systemInitialState,
-                    initialEphemerisTime,
-                    integratorSettings,
-                    std::make_shared< PropagationTimeTerminationSettings >( finalEphemerisTime ),
-                    cowell,
-                    dependentVariables );
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////             CREATE OBSERVATION SETTINGS            ////////////////////////////////////////////
+    ///////////////////////       EVALUATE PARTIALS                                  //////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    LinkDefinition linkEnds;
-    linkEnds[ observed_body ] = std::make_pair< std::string, std::string >( "Vehicle", "" );
-    std::vector< std::shared_ptr< ObservationModelSettings > > observationSettingsList;
-    observationSettingsList.push_back( std::make_shared< ObservationModelSettings >( position_observable, linkEnds ) );
+    /*
+    bodies.at( "Titan" )->setStateFromEphemeris( testTime0 );
+    bodies.at( "Titan" )->setCurrentRotationToLocalFrameFromEphemeris( testTime0 );
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////    DEFINE PARAMETERS THAT ARE TO BE ESTIMATED      ////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    bodies.at( "Vehicle" )->setState( vehicleInitialState0 );
+    bodies.at( "Vehicle" )->getFlightConditions( )->updateConditions( testTime0 );
 
-    // Define list of parameters to estimate.
-    std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
-    parameterNames = getInitialStateParameterSettings< double >( propagatorSettings, bodies );
+    accelerationModel->updateMembers( testTime0 );
+    std::cout << "acceleration: " << accelerationModel->getUnscaledAcceleration(  ) << std::endl << std::flush;
 
-    std::vector< double > arcStartTimeList = { initialEphemerisTime,
-                                               initialEphemerisTime + 0.33 * 86400.0,
-                                               initialEphemerisTime + 0.66 * 86400.0 };
-    parameterNames.push_back( std::make_shared< ArcWiseDragCoefficientEstimatableParameterSettings >( "Vehicle", arcStartTimeList ) );
-    parameterNames.push_back(
-            std::make_shared< ArcWiseRadiationPressureCoefficientEstimatableParameterSettings >( "Vehicle", arcStartTimeList ) );
+    std::shared_ptr< AtmosphericFlightConditions > currentAtmFlightConditions = std::dynamic_pointer_cast< AtmosphericFlightConditions >( bodies.at( "Vehicle" )->getFlightConditions( ) );
+    std::cout << "Current Altitude: " << currentAtmFlightConditions->getCurrentAltitude( ) << std::endl << std::flush;
+    std::cout << "Current Density: " << currentAtmFlightConditions->getCurrentDensity( ) << std::endl << std::flush;
 
-    // Create parameters
-    std::shared_ptr< estimatable_parameters::EstimatableParameterSet< double > > parametersToEstimate =
-            createParametersToEstimate( parameterNames, bodies );
+    // Analytically
+    Eigen::Vector3d partialWrtBaseDensity = aerodynamicAccelerationPartial->wrtParameter( baseDensityAtmosphericParameter );
+    Eigen::Vector3d partialWrtScaleHeight = aerodynamicAccelerationPartial->wrtParameter( scaleHeightAtmosphericParameter );
 
-    // Print identifiers and indices of parameters to terminal.
-    printEstimatableParameterEntries( parametersToEstimate );
+    // Numerically
+    Eigen::Vector3d testPartialWrtBaseDensity =
+            acceleration_partials::calculateAccelerationWrtParameterPartials( baseDensityAtmosphericParameter, accelerationModel, 1.0E-8 );
+    Eigen::Vector3d testPartialWrtScaleHeight =
+            acceleration_partials::calculateAccelerationWrtParameterPartials( scaleHeightAtmosphericParameter, accelerationModel, 10 );
 
-    Eigen::VectorXd truthParameters = parametersToEstimate->getFullParameterValues< double >( );
-    truthParameters( 7 ) += 0.1;
-    truthParameters( 8 ) += 0.2;
 
-    truthParameters( 10 ) += 0.1;
-    truthParameters( 11 ) += 0.2;
+    std::cout << "Base Density:" << std::endl << "\t Analytical: " << std::endl << partialWrtBaseDensity.transpose(  ) << std::endl << "\t Numerically: " << std::endl << testPartialWrtBaseDensity.transpose(  ) << std::endl;
+    std::cout << "Scale Height:" << std::endl << "\t Analytical: " << std::endl << partialWrtScaleHeight.transpose(  ) << std::endl << "\t Numerically: " << std::endl << testPartialWrtScaleHeight.transpose(  ) << std::endl;
 
-    parametersToEstimate->resetParameterValues( truthParameters );
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////          INITIALIZE ORBIT DETERMINATION OBJECT     ////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // Create orbit determination object (propagate orbit, create observation models)
-    OrbitDeterminationManager< double, double > orbitDeterminationManager =
-            OrbitDeterminationManager< double, double >( bodies, parametersToEstimate, observationSettingsList, propagatorSettings );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtBaseDensity, testPartialWrtBaseDensity, 1.0E-8 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtScaleHeight, testPartialWrtScaleHeight, 1.0E-8 );
 
-    std::map< double, Eigen::VectorXd > dependentVariableData = orbitDeterminationManager.getVariationalEquationsSolver( )
-                                                                        ->getDynamicsSimulatorBase( )
-                                                                        ->getDependentVariableNumericalSolutionBase( )[ 0 ];
+    */
 
-    // Test whether arc-wise coefficients are correctly used.
-    double testDragCoefficient = 0.0;
-    double testRadiationPressureCoefficient = 0.0;
-    for( auto variableIterator: dependentVariableData )
-    {
-        double currentTime = variableIterator.first;
 
-        if( currentTime < arcStartTimeList.at( 1 ) )
-        {
-            testDragCoefficient = truthParameters( 6 );
-            testRadiationPressureCoefficient = truthParameters( 9 );
-        }
-        else if( currentTime < arcStartTimeList.at( 2 ) )
-        {
-            testDragCoefficient = truthParameters( 7 );
-            testRadiationPressureCoefficient = truthParameters( 10 );
-        }
-        else
-        {
-            testDragCoefficient = truthParameters( 8 );
-            testRadiationPressureCoefficient = truthParameters( 11 );
-        }
+    bodies.at( "Titan" )->setStateFromEphemeris( testTime1 );
+    bodies.at( "Titan" )->setCurrentRotationToLocalFrameFromEphemeris( testTime1 );
 
-        BOOST_CHECK_EQUAL( testDragCoefficient, variableIterator.second( 0 ) );
-        BOOST_CHECK_EQUAL( aerodynamicCoefficient * -0.01, variableIterator.second( 1 ) );
-        BOOST_CHECK_EQUAL( aerodynamicCoefficient * 0.1, variableIterator.second( 2 ) );
-        BOOST_CHECK_EQUAL( testRadiationPressureCoefficient, variableIterator.second( 3 ) );
-    }
+    bodies.at( "Vehicle" )->setState( vehicleInitialState1 );
+    bodies.at( "Vehicle" )->getFlightConditions( )->updateConditions( testTime1 );
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ///////////////////////          SIMULATE OBSERVATIONS                     ////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    std::shared_ptr< AtmosphericFlightConditions > currentAtmFlightConditions = std::dynamic_pointer_cast< AtmosphericFlightConditions >( bodies.at( "Vehicle" )->getFlightConditions( ) );
+    std::cout << "Current Altitude: " << currentAtmFlightConditions->getCurrentAltitude( ) << std::endl << std::flush;
+    std::cout << "Current Density: " << currentAtmFlightConditions->getCurrentDensity( ) << std::endl << std::flush;
 
-    // Define time of first observation
-    double observationTimeStart = initialEphemerisTime + 1000.0;
+    accelerationModel->updateMembers( testTime1 );
+    accelerationModel->getUnscaledAcceleration(  );
+    std::cout << "acceleration: " << accelerationModel->getUnscaledAcceleration(  ) << std::endl << std::flush;
 
-    // Define time between two observations
-    double observationInterval = 30.0;
 
-    // Simulate observations for 3 days
-    std::vector< double > baseTimeList;
-    double currentTime = initialEphemerisTime + 3600.0;
-    while( currentTime < finalEphemerisTime - 3600.0 )
-    {
-        baseTimeList.push_back( currentTime );
-        currentTime += observationInterval;
-    }
+    // Analytically
+    Eigen::Vector3d partialWrtBaseDensity = aerodynamicAccelerationPartial->wrtParameter( baseDensityAtmosphericParameter );
+    Eigen::Vector3d partialWrtScaleHeight = aerodynamicAccelerationPartial->wrtParameter( scaleHeightAtmosphericParameter );
 
-    // Create measureement simulation input
-    std::vector< std::shared_ptr< ObservationSimulationSettings< double > > > measurementSimulationInput;
-    measurementSimulationInput.push_back(
-            std::make_shared< TabulatedObservationSimulationSettings<> >( position_observable, linkEnds, baseTimeList, observed_body ) );
+    std::function< void( ) > environmentUpdateFunction =
+        std::bind( &updateFlightConditionsWithPerturbedState, bodies.at( "Vehicle" )->getFlightConditions( ), 0.0 );
 
-    // Simulate observations
-    std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< double, double >(
-            measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+    // Numerically
+    Eigen::Vector3d testPartialWrtBaseDensity =
+            acceleration_partials::calculateAccelerationWrtParameterPartials( baseDensityAtmosphericParameter, accelerationModel, 1.0E-8, environmentUpdateFunction);
+    Eigen::Vector3d testPartialWrtScaleHeight =
+            acceleration_partials::calculateAccelerationWrtParameterPartials( scaleHeightAtmosphericParameter, accelerationModel, 10, environmentUpdateFunction );
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //////////////////    PERTURB PARAMETER VECTOR AND ESTIMATE PARAMETERS     ////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    std::cout << "Base Density:" << std::endl << "\t Analytical: " << std::endl << partialWrtBaseDensity.transpose(  ) << std::endl << "\t Numerically: " << std::endl << testPartialWrtBaseDensity.transpose(  ) << std::endl;
+    std::cout << "Scale Height:" << std::endl << "\t Analytical: " << std::endl << partialWrtScaleHeight.transpose(  ) << std::endl << "\t Numerically: " << std::endl << testPartialWrtScaleHeight.transpose(  ) << std::endl;
 
-    // Perturb parameter estimate
-    Eigen::Matrix< double, Eigen::Dynamic, 1 > parameterPerturbation =
-            Eigen::Matrix< double, Eigen::Dynamic, 1 >::Zero( truthParameters.rows( ) );
-    parameterPerturbation.segment( 0, 3 ) = Eigen::Vector3d::Constant( 10.0 );
-    parameterPerturbation.segment( 3, 3 ) = Eigen::Vector3d::Constant( 1.0E-2 );
-    parameterPerturbation.segment( 6, 6 ) = Eigen::VectorXd::Constant( 6, 1.0 );
-    Eigen::Matrix< double, Eigen::Dynamic, 1 > initialParameterEstimate = truthParameters;
-    initialParameterEstimate += parameterPerturbation;
-    parametersToEstimate->resetParameterValues( initialParameterEstimate );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtBaseDensity, testPartialWrtBaseDensity, 1.0E-8 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtScaleHeight, testPartialWrtScaleHeight, 1.0E-6 );
 
-    // Define estimation input
-    std::shared_ptr< EstimationInput< double, double > > estimationInput =
-            std::make_shared< EstimationInput< double, double > >( observationsAndTimes );
-    estimationInput->defineEstimationSettings( true, true, false, true );
-    estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( 4 ) );
-
-    // Perform estimation
-    std::shared_ptr< EstimationOutput< double > > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
-    Eigen::VectorXd parameterEstimate = estimationOutput->parameterEstimate_ - truthParameters;
-
-    for( int i = 0; i < 3; i++ )
-    {
-        BOOST_CHECK_SMALL( std::fabs( parameterEstimate( i ) ), 1.0E-2 );
-        BOOST_CHECK_SMALL( std::fabs( parameterEstimate( i + 3 ) ), 1.0E-4 );
-        BOOST_CHECK_SMALL( std::fabs( parameterEstimate( i + 6 ) ), 1.1E-5 );
-        BOOST_CHECK_SMALL( std::fabs( parameterEstimate( i + 9 ) ), 1.0E-4 );
-    }
 }
 
 BOOST_AUTO_TEST_SUITE_END( )
