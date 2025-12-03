@@ -1326,7 +1326,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
 
                 // check there is an exponential atmosphere associated
                 std::shared_ptr< Body > exertingBody = bodies.at( doubleParameterName->parameterType_.second.second );
-                std::shared_ptr< ExponentialAtmosphere > associatedAtmosphereModel = std::dynamic_pointer_cast< ExponentialAtmosphere >( exertingBody->getAtmosphereModel( ) );
+                std::shared_ptr< aerodynamics::ExponentialAtmosphere > associatedAtmosphereModel = std::dynamic_pointer_cast< aerodynamics::ExponentialAtmosphere >( exertingBody->getAtmosphereModel( ) );
                 if( associatedAtmosphereModel == nullptr )
                 {
                     throw std::runtime_error(
