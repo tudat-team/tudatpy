@@ -1126,12 +1126,10 @@ public:
     std::vector< double > librationAngularFrequencies_;
 };
 
-
 class PoleLibrationTermsParameterSettings : public EstimatableParameterSettings
 {
 public:
-    PoleLibrationTermsParameterSettings( const std::string& associatedBody,
-                                         const std::vector< double > librationAngularFrequencies ):
+    PoleLibrationTermsParameterSettings( const std::string& associatedBody, const std::vector< double > librationAngularFrequencies ):
         EstimatableParameterSettings( associatedBody, rotation_pole_libration_terms ),
         librationAngularFrequencies_( librationAngularFrequencies )
     {}

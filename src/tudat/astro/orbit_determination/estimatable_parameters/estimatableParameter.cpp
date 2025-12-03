@@ -410,7 +410,7 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
             break;
         case rotation_pole_libration_terms:
             isDoubleParameter = false;
-        break;
+            break;
         case drag_component_scaling_factor:
         case side_component_scaling_factor:
         case lift_component_scaling_factor:
