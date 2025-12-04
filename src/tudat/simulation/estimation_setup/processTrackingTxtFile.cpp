@@ -100,7 +100,7 @@ void setStationFrequenciesFromTrackingData(
         {
             throw std::runtime_error( "Error when setting frequencies for station " + it->first + ", station not found." );
         }
-        if( bodies.at( "Earth" )->getGroundStation( it->first )->getTransmittingFrequencyCalculator( ) == nullptr )
+        if( !bodies.at( "Earth" )->getGroundStation( it->first )->hasFrequencyCalculator( ) )
         {
             bodies.at( "Earth" )->getGroundStation( it->first )->setTransmittingFrequencyCalculator( it->second );
         }

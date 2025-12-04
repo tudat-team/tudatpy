@@ -412,7 +412,7 @@ public:
         startFrequencies_ = utilities::createVectorFromMapValues( startFrequenciesMap );
 
         initialize( );
-        
+
     }
 
 private:
