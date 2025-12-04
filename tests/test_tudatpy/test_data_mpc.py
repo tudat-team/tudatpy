@@ -8,7 +8,13 @@ import pytest
 from tudatpy.astro.time_representation import DateTime
 import pandas as pd
 import os
-from tudatpy.data.mpc.parser_80col.parsers import parse_80cols_identification_fields, parse_80cols_file
+from tudatpy.data.mpc.parser_80col.parsers import (
+    parse_80cols_identification_fields,
+    parse_80cols_file,
+    parse_80cols_time_field,
+    parse_80cols_magnitude_field,
+    get_80cols_line_length,
+    parse_80cols_radec_field)
 from tudatpy.data import get_ephemeris_path
 
 spice.load_standard_kernels()
@@ -281,10 +287,25 @@ def test_80cols_line_parser():
     line_eros = '00433         A1893 10 29.4132  06 08 59.32 +53 39 04.2                 HA053802' # Asteroid/Minor Planet
     line_charon = 'D4341J79M00A*4A1979 06 25.66181 20 27 06.64 -15 37 11.5          19.0   M4986413' # Natural Satellite
     line_2025FA22 = '     K25F22A  C2025 10 13.24277 00 20 45.76 +25 53 06.1          18.3 RrET147718'
+    invalid_length_line = '    K25F22A  C2025 10 13.24277 00 20 45.76 +25 53 06.1          18.3 RrET147718' # wrong line length
+    invalid_magnitude_line = '     K25F22A  C2025 10 13.24277 00 20 45.76 +25 53 06.1          183 RrET147718' # wrong digit position for the magnitude
+    invalid_radec_line =  '      K25F22A  C2025 10 13.24277 00 20 4576 +25 53 06.1          18.3 RrET147718' # wrong digit position for the dec value (omitted .)
+
     parsed_line_atlas = parse_80cols_identification_fields(line_atlas)
     parsed_line_eros = parse_80cols_identification_fields(line_eros)
     parsed_line_charon = parse_80cols_identification_fields(line_charon)
     parsed_line_2025FA22 = parse_80cols_identification_fields(line_2025FA22)
+
+    assert(get_80cols_line_length(invalid_length_line) != 80)
+
+    with pytest.raises(ValueError):
+
+        assert(get_80cols_line_length(invalid_radec_line) == 80) # wont fail because the line is constructed to be exactly 80 (mocking hard to spot format error)
+        assert(parse_80cols_magnitude_field(invalid_magnitude_line))  # tests for failure
+
+    with pytest.raises(ValueError):
+        assert(get_80cols_line_length(invalid_radec_line) == 80) # wont fail because the line is constructed to be exactly 80 (mocking hard to spot format error)
+        assert(parse_80cols_radec_field(invalid_radec_line)) # tests for failure
 
     assert(parsed_line_atlas['number'] == batch.MPC_objects[0])
     assert(parsed_line_eros['number'] == batch.MPC_objects[1])
@@ -306,3 +327,5 @@ def test_parse_80cols_file():
 
     tol = 5e-5 # not completely sure why some are zero and some are not.
     assert not (diff_seconds > tol).any()
+
+test_80cols_line_parser()
