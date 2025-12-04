@@ -22,10 +22,6 @@ def parse_packed_permanent_designation(packed_perm_num: str) -> dict[str,str]:
         A dictionary containing parsed identification data, such as 'type', 'name', 'number', and 'comettype'.
     """
     ident_data = {}
-    packed_perm_num = packed_perm_num.strip()
-
-    if not packed_perm_num:
-        raise ValueError("Permanent designation string is empty.")
 
     # Rule for Natural Satellites (e.g., J013S)
     if re.match(r"^[JSUND]\d{3}S$", packed_perm_num):
@@ -104,6 +100,78 @@ def parse_80cols_identification_fields(line: str) -> dict[str,str]:
 
     return ident_data
 
+def validate_fractional_second(field: str, name: str):
+    """
+    Validates a seconds field of the form SS.sss
+    Rules:
+      - Must contain exactly 1 decimal point
+      - Integer part must be between 0 and 59 inclusive
+      - Fractional part can be arbitrary digits
+    """
+    parts = field.split('.')
+
+    if len(parts) != 2:
+        raise ValueError(f"Invalid {name}: '{field}' must contain exactly one decimal point")
+
+    sec_int_str, sec_frac_str = parts
+
+    # Integer part must be an integer 0–59
+    try:
+        sec_int = int(sec_int_str)
+    except ValueError:
+        raise ValueError(f"Invalid {name}: integer part '{sec_int_str}' is not a number")
+
+    if not (0 <= sec_int <= 59):
+        raise ValueError(f"Invalid {name}: integer part '{sec_int}' must be 0–59")
+
+    # Fractional part must be numeric
+    if not sec_frac_str.isdigit():
+        raise ValueError(f"Invalid {name}: fractional part '{sec_frac_str}' must be digits")
+
+    return
+
+def parse_80cols_time_field(line: str):
+
+    year = int(line[15:19])
+    month = int(line[20:22])
+    day_str = line[23:32]
+    full_day_float = float(day_str)
+    day_int = int(full_day_float)
+    day_frac = full_day_float - day_int
+
+    base_dt = datetime(year, month, day_int)
+    obs_time_utc = base_dt + timedelta(days=day_frac)
+    dt_object = DateTime.from_python_datetime(obs_time_utc)
+
+    return  obs_time_utc, dt_object
+
+def parse_80cols_radec_field(line: str):
+
+    # Extract strings
+    ra_h_str, ra_m_str, ra_s_str = line[32:34], line[35:37], line[38:44]
+    dec_sign, dec_d_str, dec_m_str, dec_s_str = line[44], line[45:47], line[48:50], line[51:56]
+
+    # Validate fractional seconds properly
+    validate_fractional_second(ra_s_str, "RA seconds")
+    validate_fractional_second(dec_s_str, "DEC seconds")
+
+    # Convert RA
+    ra_deg = (int(ra_h_str) + int(ra_m_str)/60.0 + float(ra_s_str)/3600.0) * 15.0
+    ra_rad = np.deg2rad(ra_deg)
+
+    # Convert DEC
+    dec_deg_abs = int(dec_d_str) + int(dec_m_str)/60.0 + float(dec_s_str)/3600.0
+    dec_deg = -dec_deg_abs if dec_sign == '-' else dec_deg_abs
+    dec_rad = np.deg2rad(dec_deg)
+
+    return ra_rad, dec_rad
+def parse_80cols_magnitude_field(line:str):
+    mag_str = line[65:70].strip()
+    mag_val = float(mag_str) if mag_str else None
+    return mag_val
+
+def get_80cols_line_length(line:str):
+    return len(line)
 
 def parse_80cols_file(filename: str) -> Table:
     """
@@ -133,86 +201,65 @@ def parse_80cols_file(filename: str) -> Table:
                 continue
 
             # Validate line length
-            if len(line) != 80:
+            if get_80cols_line_length(line) != 80:
                 print(f'Warning: Line {line_num}: Wrong length ({len(line)} != 80) - skipping')
                 skipped_lines['length'] += 1
                 continue
 
+            # Check observation type filter
+            note_2 = line[14].strip()
+            if note_2 in unpackers.OBS_TYPES_TO_DROP:
+                reason = unpackers.map_reason_to_drop.get(note_2, "Flag listed in drop list")
+                print(f"Line {line_num}: Skipped - {reason} (Flag: '{note_2}')")
+                skipped_lines['obs_type'] += 1
+                continue
+
+            # Parse identification fields
+            ident_data = parse_80cols_identification_fields(line)
+
+            # Parse time fields
             try:
-                # Parse identification fields
-                ident_data = parse_80cols_identification_fields(line)
-
-                # Check observation type filter
-                note_2 = line[14].strip()
-                if note_2 in unpackers.OBS_TYPES_TO_DROP:
-                    reason = unpackers.map_reason_to_drop.get(note_2, "Flag listed in drop list")
-                    print(f"Line {line_num}: Skipped - {reason} (Flag: '{note_2}')")
-                    skipped_lines['obs_type'] += 1
-                    continue
-
-                # Parse time fields
-                try:
-                    year = int(line[15:19])
-                    month = int(line[20:22])
-                    day_str = line[23:32]
-                    full_day_float = float(day_str)
-                    day_int = int(full_day_float)
-                    day_frac = full_day_float - day_int
-
-                    base_dt = datetime(year, month, day_int)
-                    obs_time_utc = base_dt + timedelta(days=day_frac)
-                    dt_object = DateTime.from_python_datetime(obs_time_utc)
-
-                except (ValueError, OverflowError) as e:
+                obs_time_utc,dt_object = parse_80cols_time_field(line)
+            except (ValueError) as e:
                     print(f"Line {line_num}: Invalid date '{line[15:32]}' - {e} - skipping")
                     skipped_lines['date'] += 1
                     continue
 
-                # Parse coordinates and magnitude
-                try:
-                    ra_h_str, ra_m_str, ra_s_str = line[32:34], line[35:37], line[38:44]
-                    dec_sign, dec_d_str, dec_m_str, dec_s_str = line[44], line[45:47], line[48:50], line[51:56]
-                    mag_str = line[65:70].strip()
-
-                    ra_deg = (int(ra_h_str) + int(ra_m_str)/60.0 + float(ra_s_str)/3600.0) * 15.0
-                    ra_rad = np.deg2rad(ra_deg)
-
-                    dec_deg_abs = int(dec_d_str) + int(dec_m_str)/60.0 + float(dec_s_str)/3600.0
-                    dec_deg = -dec_deg_abs if dec_sign == '-' else dec_deg_abs
-                    dec_rad = np.deg2rad(dec_deg)
-
-                    mag_val = float(mag_str) if mag_str else None
-
-                except (ValueError, IndexError) as e:
-                    print(f"Line {line_num}: Invalid coordinate/magnitude data - {e} - skipping")
-                    skipped_lines['coordinate'] += 1
-                    continue
-
-                # Build final data dictionary
-                final_data = {
-                    "number": ident_data.get('number'),
-                    "provisional_designation": ident_data.get('desig'),
-                    "discovery": ident_data.get('discovery', False),
-                    "epoch": dt_object.to_julian_day(),
-                    "epoch_utc": obs_time_utc,
-                    "epoch_seconds": dt_object.to_epoch(),
-                    "RA": ra_rad,
-                    "DEC": dec_rad,
-                    "observatory": line[77:80].strip(),
-                    "magnitude": mag_val,
-                    "band": line[70].strip() or None,
-                    "note1": line[13].strip() or None,
-                    "note2": line[14].strip() or None,
-                    "catalog": None
-                }
-
-                parsed_observations.append(final_data)
-
-            except Exception as e:
-                # Catch-all for unexpected errors
-                print(f"Line {line_num}: Unexpected error - {type(e).__name__}: {e} - skipping")
-                skipped_lines['other'] += 1
+            # Parse coordinates
+            try:
+                ra_rad, dec_rad = parse_80cols_radec_field(line)
+            except (ValueError, IndexError) as e:
+                print(f"Line {line_num}: Invalid coordinate data - {e} - skipping")
+                skipped_lines['coordinate'] += 1
                 continue
+
+            # Parse magnitude
+            try:
+                mag_val = parse_80cols_magnitude_field(line)
+            except (ValueError, IndexError) as e:
+                print(f"Line {line_num}: Invalid magnitude data - {e} - skipping")
+                skipped_lines['magnitude'] += 1
+                continue
+
+            # Build final data dictionary
+            final_data = {
+                "number": ident_data.get('number'),
+                "provisional_designation": ident_data.get('desig'),
+                "discovery": ident_data.get('discovery', False),
+                "epoch": dt_object.to_julian_day(),
+                "epoch_utc": obs_time_utc,
+                "epoch_seconds": dt_object.to_epoch(),
+                "RA": ra_rad,
+                "DEC": dec_rad,
+                "observatory": line[77:80].strip(),
+                "magnitude": mag_val,
+                "band": line[70].strip() or None,
+                "note1": line[13].strip() or None,
+                "note2": line[14].strip() or None,
+                "catalog": None
+            }
+
+            parsed_observations.append(final_data)
 
     # Summary if successful
     total_skipped = sum(skipped_lines.values())

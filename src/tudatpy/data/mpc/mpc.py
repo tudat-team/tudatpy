@@ -966,6 +966,8 @@ class BatchMPC:
                     valid_numbers = obs['number'].dropna().astype(str).replace('<NA>', np.nan).dropna()
                     if not valid_numbers.empty:
                         potential_id = valid_numbers.iloc[0]
+                        if potential_id.isdigit() and len(potential_id) < 5:
+                            potential_id = potential_id.zfill(5) # mpc unpacking rule: must be 5 chars long
                         identifier = unpackers.unpack_permanent_minor_planet(potential_id)
                 if identifier is None and 'desig' in obs.columns and pd.notna(obs['desig'].iloc[0]):
                     identifier = str(obs['desig'].iloc[0])
@@ -1006,6 +1008,8 @@ class BatchMPC:
              The table to validate.
          frame : str
              The reference frame to check.
+
+         Note to users: empty tables will raise a ValueError.
          """
         if frame != "J2000":
             raise NotImplementedError("Only observations in J2000 are supported currently")
@@ -1013,13 +1017,18 @@ class BatchMPC:
         # Get column names depending on table type
         if isinstance(table, (astropy.table.QTable, astropy.table.Table)):
             colnames = table.colnames
+            nrows = len(table)
         elif isinstance(table, pd.DataFrame):
             colnames = table.columns
+            nrows = len(table)
         else:
             raise TypeError(f"Unsupported table type: {type(table).__name__}")
 
         if not set(self._req_cols).issubset(set(colnames)):
             raise ValueError(f"Table must include a set of mandatory columns: {self._req_cols}")
+
+        if nrows == 0:
+            raise ValueError("Table contains zero rows: no valid observations were parsed.")
 
     def from_astropy(self, table: astropy.table.QTable | astropy.table.Table, in_degrees: bool = True, frame: str = "J2000") -> None:
         """Loads observations from an Astropy Table into the BatchMPC object.

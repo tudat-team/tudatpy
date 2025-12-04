@@ -86,39 +86,58 @@ map_reason_to_drop = {
 # --- Unpacking Functions ---
 def unpack_permanent_minor_planet(packed: str) -> str:
     """
-    Unpacks a 5-character packed permanent minor planet designation
-    according to Permanent Designations rules (see https://minorplanetcenter.net/iau/info/PackedDes.html#perm) .
+    Unpacks a 5-character packed permanent minor planet designation.
+    Ref: https://minorplanetcenter.net/iau/info/PackedDes.html#perm
 
-    Parameters
-    ----------
-    packed : str
-        The 5-character packed permanent minor planet designation.
-
-    Returns
-    -------
-    str
-        The unpacked permanent minor planet designation.
+    Format Rules:
+    1. 00001 - 99999 : Straight digits (0-9)
+    2. A0000 - z9999 : Base62 char + 4 digits (100,000 - 619,999)
+    3. ~0000 - ~zzzz : Tilde + 4 Base62 chars (620,000 +)
     """
+
+    # 1. Validation: Length Check
+    if len(packed) != 5:
+        raise ValueError(f"Invalid packed length: '{packed}'. Must be exactly 5 characters.")
+
     first_char = packed[0]
 
-    # Case 1: Numbers >= 620,000 (starts with '~')
+    # --- Case 1: Extended Range (> 620,000) ---
+    # Format: ~ + 4 Base62 characters
     if first_char == '~':
         value = 0
-        for char in packed[1:]:
-            value = value * 62 + BASE62_MAP[char]
+        try:
+            # Decode base62 for the last 4 chars
+            for char in packed[1:]:
+                value = value * 62 + BASE62_MAP[char]
+        except KeyError as e:
+            raise ValueError(f"Invalid Base62 character '{e.args[0]}' in extended packed designation '{packed}'.")
+
         return str(value + 620000)
 
-    # Case 2: Numbers 100,000 to 619,999 (starts with a letter)
-    if first_char.isalpha():
-        prefix_val = BASE62_MAP.get(first_char, 'Unknown Character')
-        if prefix_val == "Unknown Character":
-            raise ValueError(f"Unknown Character for {first_char} (not found in BASE62_MAP).")
+    # --- Case 2: Standard Range (100,000 - 619,999) ---
+    # Format: Base62 char (A-z) + 4 Digits
+    elif first_char.isalpha():
+        # Validate suffix is numeric
+        if not packed[1:].isdigit():
+            raise ValueError(f"Invalid format for range 100k+: '{packed}'. Suffix must be numeric digits.")
 
+        prefix_val = BASE62_MAP[first_char] # Guaranteed to exist if isalpha() is True
         suffix_val = int(packed[1:])
+
         return str(prefix_val * 10000 + suffix_val)
 
-    # Case 3: Numbers < 100,000 (starts with a digit)
-    return str(int(packed))
+    # --- Case 3: Basic Range (0 - 99,999) ---
+    # Format: 5 Digits
+    elif first_char.isdigit():
+        # Validate entire string is numeric
+        if not packed.isdigit():
+            raise ValueError(f"Invalid format for basic range: '{packed}'. Must be all digits.")
+
+        return str(int(packed))
+
+    # --- Case 4: Invalid Start Character ---
+    else:
+        raise ValueError(f"Invalid start character '{first_char}' in packed designation '{packed}'. Expected digit, letter, or '~'.")
 
 
 def unpack_provisional_minor_planet(packed: str) -> str:
@@ -135,6 +154,10 @@ def unpack_provisional_minor_planet(packed: str) -> str:
     str
         The unpacked provisional minor planet designation.
     """
+    # 1. Validation: Length Check
+    if len(packed) != 7:
+        raise ValueError(f"Invalid packed length: '{packed}'. Must be exactly 7 characters.")
+
     # Case 1: Survey designations (e.g., PLS2040 for 2040 P-L)
     if packed[0:3] in SURVEY_MAP:
         number = int(packed[3:])
@@ -202,6 +225,9 @@ def unpack_permanent_natural_satellite(packed: str) -> str:
     str
         The unpacked permanent natural satellite designation.
     """
+    if len(packed) != 5:
+        raise ValueError(f"Invalid packed length: '{packed}'. Must be exactly 5 characters.")
+
     planet_name = PLANET_MAP.get(packed[0], "Unknown Planet")
 
     if planet_name == "Unknown Planet":
