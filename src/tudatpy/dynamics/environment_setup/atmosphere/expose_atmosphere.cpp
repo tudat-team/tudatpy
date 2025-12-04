@@ -679,7 +679,7 @@ using the NRLMSISE-00 global reference model:
  ----------
  unscaled_atmosphere_settings : AtmosphereSettings
      Sets base settings of atmosphere model to be scaled.
- density_scaling_function : Callable[[float], float]
+ density_scaling_function : callable[[float], float]
      Specifies air density scaling factor as a function of time.
  is_scaling_absolute : bool, default=false
      Boolean indicating whether density scaling is absolute. Setting this boolean to true will add the scaling value to the baseline density, instead of the default behaviour of multiplying the baseline density by the scaling value.
@@ -776,9 +776,57 @@ using the NRLMSISE-00 global reference model:
 
      )doc" );
 
-    m.def( "mars_dtm", &tss::marsDtmAtmosphereSettings, R"doc(No documentation found.)doc" );
+    def( "mars_dtm",
+         &tss::marsDtmAtmosphereSettings,
+         R"doc(
 
-#if TUDAT_BUILD_WITH_MCD
+Function for creating Mars DTM atmospheric settings.
+
+Creates settings for the Mars DTM semiempirical thermosphere model, which is based on the DTM 
+algorithm originally developed for Earth's thermosphere and adapted for Mars by Bruinsma and 
+Lemoine (2002). The model reproduces observed densities with approximately 35% uncertainty 
+(1-σ) outside dust storm periods, with uncertainty increasing by roughly a factor of two 
+during dust storms.
+
+Bruinsma, S., and F. G. Lemoine (2002), "A preliminary semiempirical thermosphere model of 
+Mars: DTM-Mars", *Journal of Geophysical Research*, 107(E10), 5085, 
+doi:10.1029/2001JE001508.
+
+Parameters
+----------
+space_weather_file : str, default=""
+    Path to file containing space weather data for Mars. If an empty string is provided 
+    (default), the model uses the standard coefficients from Bruinsma & Lemoine (2002) 
+    without additional space weather corrections. Users can provide a custom file path 
+    to use updated or mission-specific space weather data.
+
+Returns
+-------
+AtmosphereSettings
+    Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` class
+
+Examples
+--------
+In this example, we create Mars DTM atmosphere settings with default coefficients:
+
+.. code-block:: python
+
+   # Create Mars DTM atmosphere using default Bruinsma & Lemoine (2002) coefficients
+   body_settings.get("Mars").atmosphere_settings = environment_setup.atmosphere.mars_dtm()
+
+In this example, we create Mars DTM atmosphere settings with a custom space weather file:
+
+.. code-block:: python
+
+   # Create Mars DTM atmosphere with custom space weather data
+   body_settings.get("Mars").atmosphere_settings = environment_setup.atmosphere.mars_dtm(
+       space_weather_file="path/to/custom_mars_space_weather.dat"
+   )
+
+
+)doc" );
+
+    TUDAT_BUILD_WITH_MCD
     // Factory function for MCD atmosphere
     m.def( "mcd_atmosphere",
            &tss::mcdAtmosphereSettings,

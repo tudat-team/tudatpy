@@ -32,11 +32,9 @@ namespace parameters
 
 void expose_parameters( py::module& m )
 {
- 
     // ESTIMATABLE PARAMETER SET CLASS
 
-    py::class_< tep::EstimatableParameterSet< STATE_SCALAR_TYPE >,
-                std::shared_ptr< tep::EstimatableParameterSet< STATE_SCALAR_TYPE > > >(
+    py::class_< tep::EstimatableParameterSet< STATE_SCALAR_TYPE >, std::shared_ptr< tep::EstimatableParameterSet< STATE_SCALAR_TYPE > > >(
             m,
             "EstimatableParameterSet",
             R"doc(
@@ -52,8 +50,7 @@ void expose_parameters( py::module& m )
 
       )doc" )
             .def_property_readonly( "parameter_set_size",
-                                    &tep::EstimatableParameterSet<
-                                            STATE_SCALAR_TYPE >::getEstimatedParameterSetSize,
+                                    &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getEstimatedParameterSetSize,
                                     R"doc(
 
          **read-only**
@@ -62,11 +59,9 @@ void expose_parameters( py::module& m )
 
          :type: int
       )doc" )
-            .def_property_readonly(
-                    "initial_states_size",
-                    &tep::EstimatableParameterSet<
-                            STATE_SCALAR_TYPE >::getInitialDynamicalStateParameterSize,
-                    R"doc(
+            .def_property_readonly( "initial_states_size",
+                                    &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getInitialDynamicalStateParameterSize,
+                                    R"doc(
 
          **read-only**
 
@@ -74,11 +69,9 @@ void expose_parameters( py::module& m )
 
          :type: int
       )doc" )
-            .def_property_readonly(
-                    "initial_single_arc_states_size",
-                    &tep::EstimatableParameterSet<
-                            STATE_SCALAR_TYPE >::getInitialDynamicalSingleArcStateParameterSize,
-                    R"doc(
+            .def_property_readonly( "initial_single_arc_states_size",
+                                    &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getInitialDynamicalSingleArcStateParameterSize,
+                                    R"doc(
 
          **read-only**
 
@@ -86,11 +79,9 @@ void expose_parameters( py::module& m )
 
          :type: int
       )doc" )
-            .def_property_readonly(
-                    "initial_multi_arc_states_size",
-                    &tep::EstimatableParameterSet<
-                            STATE_SCALAR_TYPE >::getInitialDynamicalMultiArcStateParameterSize,
-                    R"doc(
+            .def_property_readonly( "initial_multi_arc_states_size",
+                                    &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getInitialDynamicalMultiArcStateParameterSize,
+                                    R"doc(
 
          **read-only**
 
@@ -98,10 +89,9 @@ void expose_parameters( py::module& m )
 
          :type: int
       )doc" )
-            .def_property_readonly(
-                    "constraints_size",
-                    &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getConstraintSize,
-                    R"doc(
+            .def_property_readonly( "constraints_size",
+                                    &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getConstraintSize,
+                                    R"doc(
 
          **read-only**
 
@@ -110,20 +100,26 @@ void expose_parameters( py::module& m )
          :type: int
       )doc" )
             .def_property( "parameter_vector",
-                           &tep::EstimatableParameterSet<
-                                   STATE_SCALAR_TYPE >::getFullParameterValues< double >,
-                           &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::resetParameterValues<
-                                   double >,
+                           &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getFullParameterValuesWithoutConsiderParameters< double >,
+                           &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::resetParameterValuesWithoutConsiderParameters< double >,
                            R"doc(
 
-         Vector containing the parameter values of all parameters in the set.
+         Vector containing the parameter values of all parameters in the set (excluding consider parameters).
 
          :type: numpy.ndarray[numpy.float64[m, 1]]
       )doc" )
-            .def_property_readonly("consider_parameters",
-                                   &tep::EstimatableParameterSet<
-                                           STATE_SCALAR_TYPE >::getConsiderParameters,
-                                   R"doc(
+            .def_property( "estimated_and_consider_parameter_vector",
+                           &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getFullParameterValuesWithConsiderParameters< double >,
+                           &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::resetParameterValuesWithConsiderParameters< double >,
+                           R"doc(
+
+         Vector containing the parameter values of all parameters in the set (including consider parameters; concatenated after estimated parameters).
+
+         :type: numpy.ndarray[numpy.float64[m, 1]]
+      )doc" )
+            .def_property_readonly( "consider_parameters",
+                                    &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getConsiderParameters,
+                                    R"doc(
                                    
         **read-only**
 
@@ -131,7 +127,7 @@ void expose_parameters( py::module& m )
 
         :type: :class:`~tudatpy.dynamics.parameters.EstimatableParameterSet`
 
-                                   )doc")
+                                   )doc" )
             .def( "indices_for_parameter_type",
                   &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getIndicesForParameterType,
                   py::arg( "parameter_type" ),
@@ -145,18 +141,18 @@ void expose_parameters( py::module& m )
 
          Parameters
          ----------
-         parameter_type : Tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, Tuple[str, str] ]
+         parameter_type : tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, tuple[str, str] ]
              Parameter identifier for which the indices are retrieved. The first element of the tuple is the parameter type, the second element is a tuple containing the body name and, if applicable, a secondary identifier (e.g., station name), else this is an empty string.
          Returns
          -------
-         List[ Tuple[int, int] ]
+         List[ tuple[int, int] ]
              Indices of the parameters corresponding to the description. The first element of the tuple is the start index, the second element is the size of the parameter.
 
      )doc" )
-        .def("indices_for_parameter_description",
-                 &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getIndicesForParameterDescription,
-                 py::arg("parameter_description"),
-                 R"doc(
+            .def( "indices_for_parameter_description",
+                  &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getIndicesForParameterDescription,
+                  py::arg( "parameter_description" ),
+                  R"doc(
 
          Function to retrieve the indices of a given type of parameter.
 
@@ -172,10 +168,10 @@ void expose_parameters( py::module& m )
 
          Returns
          -------
-         List[ Tuple[int, int] ]
+         List[ tuple[int, int] ]
              Indices of the parameters corresponding to the description. The first element of the tuple is the start index, the second element is the size of the parameter.
 
-     )doc")
+     )doc" )
             .def( "get_parameter_descriptions",
                   &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getParametersDescriptions,
                   R"doc(
@@ -188,7 +184,7 @@ void expose_parameters( py::module& m )
              List of parameter descriptions formatted as strings.
 
 
-         )doc")
+         )doc" )
             .def( "get_parameter_identifiers",
                   &tep::EstimatableParameterSet< STATE_SCALAR_TYPE >::getParametersIdentifiers,
                   R"doc(
@@ -197,14 +193,12 @@ void expose_parameters( py::module& m )
 
          Returns
          -------
-         Tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, Tuple[str, str] ]
+         tuple[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterTypes`, tuple[str, str] ]
              List of parameter identifiers. The first element of the tuple is the parameter type, the second element is a tuple containing the body name and, if applicable, a secondary identifier (e.g., station name), else this is an empty string.
 
 
-         )doc");
+         )doc" );
 
-
-     
     m.def( "print_parameter_names",
            &tep::printEstimatableParameterEntries< double >,
            py::arg( "parameter_set" ),

@@ -27,8 +27,7 @@ namespace links
 
 void expose_links( py::module& m )
 {
-    
-     // ################      Link Definition ################
+    // ################      Link Definition ################
 
     py::enum_< tom::LinkEndType >( m, "LinkEndType", R"doc(
 
@@ -67,7 +66,6 @@ Examples
             .value( "observed_body", tom::LinkEndType::observed_body )
             .export_values( );
 
-
     m.def( "one_way_downlink_link_ends",
            &tom::getOneWayDownlinkLinkEndsList,
            py::arg( "transmitter" ),
@@ -83,10 +81,10 @@ Examples
 
  Parameters
  ----------
- transmitter : Tuple[str, str]
+ transmitter : tuple[str, str]
      List of :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` types (tuple of strings), where, for each tuple, the first entry identifies the body and the second entry reference point of the single transmitter link end(s).
 
- receivers : List[ Tuple[str, str] ]
+ receivers : List[ tuple[str, str] ]
      List of :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` types (tuple of strings), where for each tuple the first entrance identifies the body and the second entry the reference point of the receiver link end(s).
 
  Returns
@@ -128,7 +126,7 @@ Examples
 
      )doc" );
 
-     m.def( "one_way_uplink_link_ends",
+    m.def( "one_way_uplink_link_ends",
            &tom::getOneWayUplinkLinkEndsList,
            py::arg( "transmitters" ),
            py::arg( "receiver" ),
@@ -143,10 +141,10 @@ Examples
 
  Parameters
  ----------
- transmitters : List[ Tuple[str, str] ]
+ transmitters : List[ tuple[str, str] ]
      List of :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` types (tuple of strings), where, for each tuple, the first entry identifies the body and the second entry the reference point of the transmitter link end(s).
 
- receivers : Tuple[str, str]
+ receivers : tuple[str, str]
      List of :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` types (tuple of strings), where, for each tuple, the first entry identifies the body and the second entry the reference point of the single receiver link end(s).
 
  Returns
@@ -187,8 +185,7 @@ Examples
 
      )doc" );
 
-
-     m.def( "get_default_reference_link_end",
+    m.def( "get_default_reference_link_end",
            &tom::getDefaultReferenceLinkEndType,
            py::arg( "observabl_type" ),
            R"doc(
@@ -352,7 +349,7 @@ Examples
 
      )doc" );
 
-     m.def( "body_reference_point_link_end_id",
+    m.def( "body_reference_point_link_end_id",
            py::overload_cast< const std::string&, const std::string& >( &tom::linkEndId ),
            py::arg( "body_name" ),
            py::arg( "reference_point_id" ),
@@ -512,10 +509,9 @@ Examples
 
 
      )doc" );
-
 }
 
-}
-}
-}
-}
+}  // namespace links
+}  // namespace observable_models_setup
+}  // namespace estimation
+}  // namespace tudatpy
