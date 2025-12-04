@@ -776,9 +776,9 @@ using the NRLMSISE-00 global reference model:
 
      )doc" );
 
-    def( "mars_dtm",
-         &tss::marsDtmAtmosphereSettings,
-         R"doc(
+    m.def( "mars_dtm",
+           &tss::marsDtmAtmosphereSettings,
+           R"doc(
 
 Function for creating Mars DTM atmospheric settings.
 
@@ -826,9 +826,9 @@ In this example, we create Mars DTM atmosphere settings with a custom space weat
 
 )doc" );
 
-    TUDAT_BUILD_WITH_MCD
+#if TUDAT_BUILD_WITH_MCD
     // Factory function for MCD atmosphere
-    m.def( "mcd_atmosphere",
+    m.def( "mcd",
            &tss::mcdAtmosphereSettings,
            py::arg( "mcd_data_path" ) = "",
            py::arg( "dust_scenario" ) = 1,
@@ -843,63 +843,144 @@ In this example, we create Mars DTM atmosphere settings with a custom space weat
  Function for settings object, defining atmosphere model using the Mars Climate Database (MCD).
  The MCD provides realistic atmospheric conditions for Mars based on GCM simulations.
 
+ .. note:: **Altitude Convention**: The MCD model expects altitude as "height above areoid" (MOLA zero datum).
+           Tudat's flight conditions compute altitude as "height above the shape model surface", which for Mars
+           is typically an oblate spheroid that closely approximates the areoid. The difference between these
+           definitions is typically less than 0.1%, which is negligible compared to atmospheric variability.
+
+           When ``high_resolution_mode=1``, MCD uses high-resolution MOLA topography to provide more accurate
+           atmospheric properties at locations with significant terrain variations.
+
 
  Parameters
  ----------
  mcd_data_path : str, default = ""
-     Path to MCD data files. If empty, uses default path.
+     Path to MCD data files directory (must end with '/'). If empty string (default), 
+     uses the compile-time default path set during CMake configuration. The directory 
+     should contain subdirectories like 'clim_aveEUV/', 'dust_high_resol/', etc.
 
  dust_scenario : int, default = 1
-     Dust and solar EUV scenario:
+     Dust and solar EUV scenario (controls atmospheric opacity and solar forcing):
      
-     - 1: Climatology, typical Mars year, average solar EUV
-     - 2: Climatology, typical Mars year, minimum solar EUV
-     - 3: Climatology, typical Mars year, maximum solar EUV
-     - 4: Dust storm, constant opacity=4, min solar EUV
-     - 5: Dust storm, constant opacity=4, ave solar EUV
-     - 6: Dust storm, constant opacity=4, max solar EUV
-     - 7: Warm scenario, dustier than MY24, max solar EUV
-     - 8: Cold scenario, clearer than MY24, min solar EUV
+     **Climatology scenarios (typical Mars year):**
+     
+     - 1: Climatology, average solar EUV
+     - 2: Climatology, minimum solar EUV  
+     - 3: Climatology, maximum solar EUV
+     
+     **Dust storm scenarios (constant opacity=4):**
+     
+     - 4: Dust storm, minimum solar EUV
+     - 5: Dust storm, average solar EUV
+     - 6: Dust storm, maximum solar EUV
+     
+     **Extreme scenarios:**
+     
+     - 7: Warm scenario (dustier than MY24, maximum solar EUV)
+     - 8: Cold scenario (clearer than MY24, minimum solar EUV)
+     
+     **Mars Year-specific scenarios (with associated solar EUV):**
+     
+     - 24-35: Mars Years 24 through 35
 
  perturbation_key : int, default = 0
-     Perturbation type:
+     Type of atmospheric perturbations to apply:
      
-     - 0: None
-     - 1: Large scale
-     - 2: Small scale
-     - 3: Small + large scale (requires gravity_wave_length)
-     - 4: Small + large scale (requires gravity_wave_length)
-     - 5: n-sigma (perturbation_seed used as multiplier)
+     - 0: None (mean atmospheric state only)
+     - 1: Large scale perturbations only (requires ``perturbation_seed``)
+     - 2: Small scale (gravity wave) perturbations only (requires ``perturbation_seed`` and ``gravity_wave_length``)
+     - 3: Both large and small scale perturbations (requires ``perturbation_seed`` and ``gravity_wave_length``)
+     - 4: Both large and small scale perturbations (requires ``perturbation_seed`` and ``gravity_wave_length``)
+     - 5: Add n-sigma perturbations, where ``perturbation_seed`` is the multiplier for standard deviations
+     
+     .. warning:: Perturbations introduce stochastic variability. For reproducible results, use the same
+                  ``perturbation_seed`` value. Changing the seed between calls triggers regeneration of
+                  perturbation fields.
 
  perturbation_seed : float, default = 0.0
-     Random seed for perturbations (if perturbation_key=1,2,3,4) or 
-     coefficient to multiply std. dev. by (if perturbation_key=5).
+     Random seed or scaling factor for perturbations (interpretation depends on ``perturbation_key``):
+     
+     - For ``perturbation_key`` in {1, 2, 3, 4}: Random seed for stochastic perturbations. 
+       Changing this value between calls triggers regeneration of perturbation fields.
+     - For ``perturbation_key=5``: Multiplier for standard deviations (must be in [-4, 4]).
+       Atmospheric properties will be mean ± (``perturbation_seed`` × standard_deviation).
 
  gravity_wave_length : float, default = 0.0
-     Gravity wave wavelength [m] (needed if perturbation_key=3 or 4).
+     Vertical wavelength λ of gravity wave perturbations in meters (required if ``perturbation_key`` 
+     in {2, 3, 4}). The horizontal wavelength is automatically set to 10×λ. If set to 0.0, MCD uses 
+     its default value of 16000 m. Typical range: 5000-30000 m.
 
  high_resolution_mode : int, default = 0
-     High resolution topography flag (0: off, 1: on).
+     Flag to enable high-resolution topography from MOLA data:
+     
+     - 0: Use GCM grid resolution (~5.6° × 5.6°)
+     - 1: Use high-resolution MOLA topography for improved accuracy near terrain features
+     
+     .. note:: High-resolution mode is recommended for low-altitude flight near mountains, craters, 
+               or other significant terrain features (e.g., Olympus Mons, Valles Marineris).
 
  Returns
  -------
- McdAtmosphereSettings
-     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` 
-     derived :class:`~tudatpy.dynamics.environment_setup.atmosphere.McdAtmosphereSettings` class
+ AtmosphereSettings
+     Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` class
 
 
  Examples
  --------
- In this example, we create :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` 
- for Mars using the MCD with a dust storm scenario:
+ **Example 1**: Basic MCD atmosphere with default settings (climatology, no perturbations):
 
  .. code-block:: python
 
-    # Create MCD atmosphere settings with dust storm scenario
+    # Create default MCD atmosphere for Mars
+    body_settings.get("Mars").atmosphere_settings = environment_setup.atmosphere.mcd()
+
+ **Example 2**: Dust storm scenario with high-resolution topography:
+
+ .. code-block:: python
+
+    # Create MCD atmosphere with dust storm conditions
     body_settings.get("Mars").atmosphere_settings = environment_setup.atmosphere.mcd(
-        dust_scenario=5,  # Dust storm with average solar EUV
-        high_resolution_mode=1  # Use high resolution topography
+        dust_scenario=5,           # Dust storm with average solar EUV
+        high_resolution_mode=1     # Enable high-res MOLA topography
     )
+
+ **Example 3**: Mars Year 32 with stochastic perturbations:
+
+ .. code-block:: python
+
+    # Create MCD atmosphere for Mars Year 32 with gravity wave perturbations
+    body_settings.get("Mars").atmosphere_settings = environment_setup.atmosphere.mcd(
+        dust_scenario=32,           # Mars Year 32 data
+        perturbation_key=3,         # Large + small scale perturbations
+        perturbation_seed=42.0,     # Fixed seed for reproducibility
+        gravity_wave_length=16000.0 # 16 km vertical wavelength
+    )
+
+ **Example 4**: Custom data path and n-sigma perturbations:
+
+ .. code-block:: python
+
+    # Use custom MCD data location and add 2-sigma perturbations
+    body_settings.get("Mars").atmosphere_settings = environment_setup.atmosphere.mcd(
+        mcd_data_path="/path/to/mcd/data/",
+        dust_scenario=1,
+        perturbation_key=5,         # n-sigma perturbations
+        perturbation_seed=2.0       # Add 2× standard deviation
+    )
+
+
+ See Also
+ --------
+ :func:`~tudatpy.dynamics.environment_setup.atmosphere.mars_dtm` : Alternative Mars atmosphere model (thermosphere only)
+ :func:`~tudatpy.dynamics.environment_setup.atmosphere.exponential_predefined` : Simple exponential Mars atmosphere
+
+
+ References
+ ----------
+ .. [1] Millour, E., et al. (2015). "The Mars Climate Database (MCD version 5.2)."
+        European Planetary Science Congress, Vol. 10, EPSC2015-438.
+ .. [2] Forget, F., et al. (1999). "Improved general circulation models of the Martian atmosphere 
+        from the surface to above 80 km." Journal of Geophysical Research, 104(E10), 24155-24175.
 
 
      )doc" );
