@@ -94,6 +94,8 @@ void expose_parameters_setup( py::module& m )
             .value( "arc_wise_lift_component_scaling_factor_type", tep::EstimatebleParametersEnum::arc_wise_lift_component_scaling_factor )
             .value( "rtg_force_vector_type", tep::EstimatebleParametersEnum::rtg_force_vector )
             .value( "rtg_force_vector_magnitude_type", tep::EstimatebleParametersEnum::rtg_force_vector_magnitude )
+            .value( "exponential_atmosphere_base_density_type", tep::EstimatebleParametersEnum::exponential_atmosphere_base_density )
+            .value( "exponential_atmosphere_scale_height_type", tep::EstimatebleParametersEnum::exponential_atmosphere_scale_height )
 
             .export_values( );
 
