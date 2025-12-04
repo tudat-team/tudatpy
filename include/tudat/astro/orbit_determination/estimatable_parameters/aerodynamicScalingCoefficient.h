@@ -135,14 +135,14 @@ public:
         {
             if( std::isnan( aerodynamicAccelerations_.at( i )->getComponentScaling( parameterIndex_ ) ) )
             {
-                throw std::runtime_error( "Error when creating estimated arcwise Cr coefficient for " + associatedBody +
-                                          ", current Cr not initialized" );
+                throw std::runtime_error( "Error when creating arc-wise estimated aerodynamic component scaling coefficient for " + associatedBody +
+                                          ", current scaling coefficient not initialized" );
             }
 
             if( aerodynamicAccelerations_.at( i )->getComponentScalingFunction( parameterIndex_ ) != nullptr )
             {
-                throw std::runtime_error( "Error when creating estimated arcwise Cr coefficient for " + associatedBody +
-                                          ", time-variable Cr function defined" );
+                throw std::runtime_error( "Error when creating arc-wise estimated aerodynamic component scaling coefficient for " + associatedBody +
+                                          ", time-varying scaling coefficient function is already defined" );
             }
         }
 
