@@ -7,6 +7,7 @@ import numpy as np
 from tudatpy.dynamics import environment, environment_setup, propagation_setup
 from datetime import datetime, timedelta
 import math
+from tudatpy.data import get_resource_path
 
 class SpaceTrackQuery:
     """
@@ -14,7 +15,7 @@ class SpaceTrackQuery:
     It manages authentication, session persistence, and local caching of TLE files to minimize API usage.
     """
 
-    def __init__(self, username: str | None = None, password: str | None = None, tle_data_folder: str = "tle_data") -> None:
+    def __init__(self, username: str | None = None, password: str | None = None, tle_data_folder: str = get_resource_path() + "/tle_data") -> None:
         """
         Initializes the query client.
 
