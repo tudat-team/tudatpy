@@ -72,38 +72,47 @@ void TrackingTxtFileContents::addLineToRawDataMap( std::string& rawLine )
     }
 }
 
+
 bool TrackingTxtFileContents::validateCurrentLineProcessing( const TrackingTxtFileReadFilterType dataFilterMethod,
                                                              const std::vector< std::string >& rawVector )
 {
     bool addLine = true;
-
-    if( dataFilterMethod == ifms_tracking_txt_file_filter )
-    {
-        for( unsigned int i = 0; i < rawVector.size( ); i++ )
-        {
-            bool currentEntryIsValid = false;
-            if( rawVector.at( 0 ) != "-" )
-            {
-                currentEntryIsValid = true;
-            }
-            else
-            {
-                for( unsigned int j = 1; j < rawVector.at( j ).size( ); j++ )
-                {
-                    if( ( rawVector.at( j ) != "9" ) && ( rawVector.at( j ) != "." ) )
-                    {
-                        currentEntryIsValid = true;
-                        break;
-                    }
-                }
-            }
-            if( currentEntryIsValid == false )
-            {
-                addLine = false;
-                break;
-            }
-        }
-    }
+//
+//    if( dataFilterMethod == ifms_tracking_txt_file_filter )
+//    {
+//        for( unsigned int i = 0; i < rawVector.size( ); i++ )
+//        {
+//            if( rawVector.at( 0 ) == "-" )
+//            {
+//                addLine = false;
+//            }
+//            else
+//            {
+//
+//                if( ( i == 6 ) || ( i == 7 ) || ( i == 8 ) || ( i == 10 ) )
+//                {
+//                    bool seenDigit = false, seenDot = false;
+//                    std::string currentLine = rawVector.at( i );
+//                    for( std::size_t j = ( currentLine[0] == '+' || currentLine[0] == '-' ); j < currentLine.size(); ++j )
+//                    {
+//                        if( currentLine[j] == '.' )
+//                        {
+//                            if( seenDot ) return false;
+//                            seenDot = true;
+//                        }
+//                        else if( currentLine[j] == '9' )
+//                        {
+//                            seenDigit = true;
+//                        }
+//                        else
+//                        {
+//                            return false;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     return addLine;
 }

@@ -191,6 +191,22 @@ public:
                     std::to_string( rampRates_.size( ) ) + "), start frequencies (" + std::to_string( startFrequencies_.size( ) ) + ")." );
         }
 
+        std::map< Time, Time > endTimesMap;
+        std::map< Time, double > rampRatesMap;
+        std::map< Time, double > startFrequenciesMap;
+
+        for( unsigned int i = 0; i < startTimes_.size( ); i++ )
+        {
+            endTimesMap[ startTimes_.at( i ) ] = endTimes_.at( i );
+            rampRatesMap[ startTimes_.at( i ) ] = rampRates_.at( i );
+            startFrequenciesMap[ startTimes_.at( i ) ] = startFrequencies_.at( i );
+        }
+
+        startTimes_ = utilities::createVectorFromMapKeys( endTimesMap );
+        endTimes_ = utilities::createVectorFromMapValues( endTimesMap );
+        rampRates_ = utilities::createVectorFromMapValues( rampRatesMap );
+        startFrequencies_ = utilities::createVectorFromMapValues( startFrequenciesMap );
+
         // Check if there are no discontinuities between end times and subsequent start times
         for( unsigned int i = 1; i < startTimes_.size( ); ++i )
         {

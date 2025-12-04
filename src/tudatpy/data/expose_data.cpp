@@ -321,6 +321,12 @@ void expose_data( py::module& m )
             .value( "scan_nr", tudat::input_output::TrackingDataType::scan_nr )
             .export_values( );
 
+    py::enum_< tudat::input_output::TrackingTxtFileReadFilterType >( m, "TrackingTxtFileReadFilterType", R"doc(No documentation available.)doc" )
+            .value( "no_tracking_txt_file_filter", tudat::input_output::TrackingTxtFileReadFilterType::no_tracking_txt_file_filter, R"doc(No documentation available.)doc" )
+            .value( "ifms_tracking_txt_file_filter", tudat::input_output::TrackingTxtFileReadFilterType::ifms_tracking_txt_file_filter, R"doc(No documentation available.)doc" )
+            .export_values( );
+
+
     py::class_< tio::solar_activity::SolarActivityData, std::shared_ptr< tio::solar_activity::SolarActivityData > >(
             m, "SolarActivityData", R"doc(No documentation available.)doc" )
             .def_readonly( "solar_radio_flux_107_observed", &tio::solar_activity::SolarActivityData::solarRadioFlux107Observed );
@@ -520,7 +526,8 @@ void expose_data( py::module& m )
            py::arg( "column_types" ),
            py::arg( "comment_symbol" ) = '#',
            py::arg( "value_separators" ) = ",:\t ",
-           py::arg( "ignore_omitted_columns" ) = false );
+           py::arg( "ignore_omitted_columns" ) = false,
+           py::arg( "data_filter_method" ) = tio::no_tracking_txt_file_filter);
 
     m.def( "grail_antenna_file_reader", &tio::grailAntennaFileReader, py::arg( "file_name" ), R"doc(No documentation available.)doc" );
     m.def( "grail_mass_level_0_file_reader",
