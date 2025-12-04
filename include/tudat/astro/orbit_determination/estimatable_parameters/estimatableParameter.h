@@ -100,7 +100,9 @@ enum EstimatebleParametersEnum {
     area_to_mass_scaling_factor,
     full_acceleration_scaling_factor,
     exponential_atmosphere_base_density,
-    exponential_atmosphere_scale_height
+    exponential_atmosphere_scale_height,
+    arc_wise_exponential_atmosphere_base_density,
+    arc_wise_exponential_atmosphere_scale_height
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );
