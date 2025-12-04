@@ -31,16 +31,12 @@ namespace aerodynamics
  *
  * ALTITUDE CONVENTION:
  * --------------------
- * Input altitude is expected as "height above local surface" (matching Tudat convention).
- * Internally converted to radial distance: radial_distance = MARS_MEAN_RADIUS + altitude
- * where MARS_MEAN_RADIUS = 3396200.0 m (IAU 2015).
+ * Input altitude is "height above local surface" (matching Tudat convention).
+ * Internally uses MCD's zkey=3 mode, which allows MCD to handle the conversion
+ * to radial distance using its own areoid and topography models.
  *
- * LIMITATION: This simplified conversion does not account for:
- *   - Local areoid variations (Mars oblate shape)
- *   - Local MOLA topography (when highResolutionMode=1)
- * This causes ~10-15% systematic differences vs. MCD reference outputs.
- *
- * TODO: Enhance to use proper Body shape model + MOLA topography corrections.
+ * When highResolutionMode=1, MCD uses MOLA topography for accurate surface height.
+ * When highResolutionMode=0, MCD uses GCM resolution topography.
  *
  * PARAMETERS:
  * -----------
@@ -77,9 +73,6 @@ public:
     //! Get local density
     /*!
      * Returns the local density of the atmosphere in kg/m^3.
-     * Note: Internally uses zkey=1 (radial distance from center). The input altitude
-     *       is converted to radial distance using a fixed Mars mean radius (3396.2 km).
-     *       TODO: Should be improved to use the actual Body shape model.
      * \param altitude Altitude above local surface (m) - as computed by Tudat
      * \param longitude East longitude (radians)
      * \param latitude Latitude (radians)
@@ -91,9 +84,6 @@ public:
     //! Get local pressure
     /*!
      * Returns the local pressure of the atmosphere in Pa.
-     * Note: Internally uses zkey=1 (radial distance from center). The input altitude
-     *       is converted to radial distance using a fixed Mars mean radius (3396.2 km).
-     *       TODO: Should be improved to use the actual Body shape model.
      * \param altitude Altitude above local surface (m) - as computed by Tudat
      * \param longitude East longitude (radians)
      * \param latitude Latitude (radians)
@@ -105,9 +95,6 @@ public:
     //! Get local temperature
     /*!
      * Returns the local temperature of the atmosphere in K.
-     * Note: Internally uses zkey=1 (radial distance from center). The input altitude
-     *       is converted to radial distance using a fixed Mars mean radius (3396.2 km).
-     *       TODO: Should be improved to use the actual Body shape model.
      * \param altitude Altitude above local surface (m) - as computed by Tudat
      * \param longitude East longitude (radians)
      * \param latitude Latitude (radians)
@@ -119,9 +106,6 @@ public:
     //! Get local speed of sound
     /*!
      * Returns the local speed of sound of the atmosphere in m/s.
-     * Note: Internally uses zkey=1 (radial distance from center). The input altitude
-     *       is converted to radial distance using a fixed Mars mean radius (3396.2 km).
-     *       TODO: Should be improved to use the actual Body shape model.
      * \param altitude Altitude above local surface (m) - as computed by Tudat
      * \param longitude East longitude (radians)
      * \param latitude Latitude (radians)
