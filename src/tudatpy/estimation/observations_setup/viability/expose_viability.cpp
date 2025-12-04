@@ -23,7 +23,7 @@ namespace tudat
 namespace simulation_setup
 {
 
-    void addViabilityToObservationSimulationSettingsPy(
+void addViabilityToObservationSimulationSettingsPy(
         const std::vector< std::shared_ptr< ObservationSimulationSettings< TIME_TYPE > > >& observationSimulationSettings,
         const std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >& viabilitySettingsList )
 {
@@ -49,10 +49,9 @@ void addViabilityToObservationSimulationSettingsPy(
             observationSimulationSettings, viabilitySettingsList, observableType, linkEnds );
 }
 
-} // namespace simulation_setup
+}  // namespace simulation_setup
 
-} // namespace tudat
-
+}  // namespace tudat
 
 namespace tudatpy
 {
@@ -97,7 +96,7 @@ void expose_viability( py::module& m )
 
       )doc" );
 
-      py::enum_< tom::ObservationViabilityType >( m, "ObservationViabilityType", R"doc(
+    py::enum_< tom::ObservationViabilityType >( m, "ObservationViabilityType", R"doc(
 
 Enumeration of observation viability criterion types.
 
@@ -124,7 +123,6 @@ Examples
             .value( "body_occultation", tom::ObservationViabilityType::body_occultation )
             .export_values( );
 
-
     m.def( "elevation_angle_viability",
            py::overload_cast< const std::pair< std::string, std::string >, const double >( &tom::elevationAngleViabilitySettings ),
            py::arg( "link_end_id" ),
@@ -134,12 +132,19 @@ Examples
  Function for defining single elevation angle viability setting.
 
  Function for defining elevation angle viability settings for single link end.
- When simulating observations, this setting ensures that any applicable observations, for which the local elevation angle at link end is less than some limit value, will be omitted.
+ When simulating observations, this setting ensures that any applicable observations for which the local elevation angle at link end
+ ``link_end_id`` is less than some limit value, will be omitted. Note that for (for instance) a two-way observable where the given ``link_end_id``
+ acts as both receiver and transmitter, the check will be performed both at reception and transmission time, and the observation will only
+ be accepted if the elevation angle is sufficient at both epochs.
+
+ The elevation angle used by this functionality can also be computed manually using this :meth:`~tudatpy.dynamics.environment.PointingAnglesCalculator.calculate_elevation_angle`
+ function of the :class:~tudatpy.dynamics.environment.PointingAnglesCalculator` class, which can be extracted from a
+ :class:`~tudatpy.dynamics.environment.GroundStation` object using :func:`~tudatpy.dynamics.environment.GroundStation.pointing_angles_calculator`
 
 
  Parameters
  ----------
- link_end_id : Tuple[str,str]
+ link_end_id : tuple[str,str]
      Link end (as defined by body/reference point pair, see :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId`), for which the elevation angle viability setting is to be created.
      To apply these settings to *all* ground station on a given body (such as "Earth"), use ["Earth", ""].
 
@@ -151,11 +156,6 @@ Examples
  -------
  :class:`ObservationViabilitySettings`
      Instance of the :class:`~tudatpy.estimation.observations_setup.viability.ObservationViabilitySettings` class, defining the settings for observation viability
-
-
-
-
-
 
      )doc" );
 
@@ -179,10 +179,12 @@ Examples
  This constraint is typically used to prevent the Sun from being too close to the field-of-view of the telescope(s), as defined by
  a so-called 'SPE' (Sun-Probe-Earth) angle constraint. The present viability setting generalizes this constraint.
 
+ The epoch at which the avoided body is evaluated is computed in an identical way as the epoch at which the occulted body is evaluated
+ (see :func:`~body_occultation_viability`)
 
  Parameters
  ----------
- link_end_id : Tuple[str,str]
+ link_end_id : tuple[str,str]
      Link end (as defined by body/reference point pair, see :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId` ), for which the viability settings are to be created.
      To apply these settings to *all* ground station on a given body (such as "Earth"), use ["Earth", ""] is entry in this list.
      For each link end included in this list, it will be checked if a signal received by and/or transmitted (or reflected) by this
@@ -201,10 +203,6 @@ Examples
      Instance of the :class:`~tudatpy.estimation.observations_setup.viability.ObservationViabilitySettings`, defining the settings for observation viability.
 
 
-
-
-
-
      )doc" );
 
     m.def( "body_occultation_viability",
@@ -217,12 +215,21 @@ Examples
 
  Function for defining body occultation viability settings for single link ends.
  When simulating observations, this setting ensures that any applicable observations, for which the signal path is occulted by a given body, will be omitted.
- The occultation is computed using the shape model of the specified body.
+ The occultation is computed using the shape model of the specified body, using a spherical body approximation
+ (using :attr:`~tudatpy.dynamics.environment.BodyShapeModel.average_radius` attribute of the shape model).
 
+ The epoch :math:`t_{\text{occ}}` a which the ephemeris :math:`\mathbf{r}_{\text{occ}}` of the ``occulting_body`` is evaluated to compute the occultation is defined as follows:
+
+ .. math::
+   {r}_{\text{occ},1}&=||r_{\text{occ}}(t_{1})-\mathbf{r}_{1}(t_{1})||\\
+   {r}_{\text{occ},2}&=||r_{\text{occ}}(t_{2})-\mathbf{r}_{2}(t_{2})||\\
+   t_{\text{occ}}&=t_{1}\frac{{r}_{\text{occ},2}}{{r}_{\text{occ},1}+{r}_{\text{occ},2}}+t_{2}\frac{{r}_{\text{occ},1}}{{r}_{\text{occ},1}+{r}_{\text{occ},2}}
+
+ for a link between link ends 1 and 2 (and transmission/reception epochs :math:`t_{1}` and :math:`t_{2}`)
 
  Parameters
  ----------
- link_end_id : Tuple[str,str]
+ link_end_id : tuple[str,str]
      Link end (as defined by body/reference point pair, see :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId`), for which the viability settings are to be created.
      To apply these settings to *all* ground station on a given body (such as "Earth"), use ["Earth", ""] is entry in this list.
 
@@ -248,16 +255,11 @@ Examples
            py::arg( "elevation_angle" ),
            R"doc(
 
- Function for defining list of elevation angle viability settings.
-
- Function for defining elevation angle viability settings for multiple link ends.
- Each entry in the returned list contains the observation viability settings for one link end.
- When simulating observations, these settings ensure that any applicable observations, for which the local elevation angle at a link end is less than some limit value, will be omitted.
-
+ Function for defining list of elevation angle viability settings, equivalent to a series of calls to :func:`~elevation_angle_viability`.
 
  Parameters
  ----------
- link_end_ids : List[ Tuple[str,str] ]
+ link_end_ids : List[ tuple[str,str] ]
      List of individual link ends (as defined by body/reference point pair, see :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId`), for which the elevation angle viability setting is to be created.
      To apply these settings to *all* ground station on a given body (such as "Earth"), use ["Earth", ""].
      For each link end included in this list, it will be checked if a signal received by and/or transmitted (or reflected) by this
@@ -287,23 +289,12 @@ Examples
            py::arg( "avoidance_angle" ),
            R"doc(
 
- Function for defining list of body avoidance viability settings.
-
- Function for defining body avoidance viability settings for multiple link ends.
- Each entry in the returned list contains the observation viability settings for one link end.
- When simulating observations, these settings ensure that any applicable observations, for which the signal path passes 'too close' to a body, will be omitted.
- The definition of 'too close' is computed as the angle between:
-
- * The line-of-sight vector from a link end to a given third body
- * The line-of-sight between two link ends
-
- This constraint is typically used to prevent the Sun from being too close to the field-of-view of the telescope(s), as defined by
- a so-called 'SPE' (Sun-Probe-Earth) angle constraint. The present viability setting generalizes this constraint.
+ Function for defining list of body avoidance viability settings, equivalent to a series of calls to :func:`~body_avoidance_viability`.
 
 
  Parameters
  ----------
- link_end_ids : List[ Tuple[str,str] ]
+ link_end_ids : List[ tuple[str,str] ]
      List of individual link ends (as defined by body/reference point pair, see :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId`), for which the elevation angle viability setting is to be created.
      To apply these settings to *all* ground station on a given body (such as "Earth"), use ["Earth", ""].
 
@@ -333,17 +324,12 @@ Examples
            py::arg( "occulting_body" ),
            R"doc(
 
- Function for defining body occultation viability settings.
-
- Function for defining body occultation viability settings for multiple link ends.
- Each entry in the returned list contains the observation viability settings for one link end.
- When simulating observations, these settings ensure that any applicable observations, for which the signal path is occulted by a given body, will be omitted.
- The occultation is computed using the shape model of the specified body.
+ Function for defining body occultation viability settingsFunction for defining list of body avoidance viability settings, equivalent to a series of calls to :func:`~body_occultation_viability`.
 
 
  Parameters
  ----------
- link_end_ids : List[ Tuple[str,str] ]
+ link_end_ids : List[ tuple[str,str] ]
      List of individual link ends (as defined by body/reference point pair, see :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndId`), for which the viability settings are to be created.
      To apply these settings to *all* ground station on a given body (such as "Earth"), use ["Earth", ""] is entry in this list.
      For each link end included in this list, it will be checked if a signal received by and/or transmitted (or reflected) by this
@@ -364,7 +350,7 @@ Examples
 
      )doc" );
 
-     m.def( "add_viability_check_to_all",
+    m.def( "add_viability_check_to_all",
            py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
                               const std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >& >(
                    &tss::addViabilityToObservationSimulationSettingsPy ),
@@ -375,23 +361,23 @@ Examples
  Function for including viability checks into existing observation simulation settings.
 
  Function for adding viability checks to the observation simulation settings, such that only observations meeting certain conditions are retained.
- The noise settings are added to all :class:`~tudatpy.estimation.observations_setup.viability.ObservationSimulationSettings` object(s) in the `observation_simulation_settings`
+ The noise settings are added to all :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` object(s) in the ``observation_simulation_settings``
  list.
- Note: the :class:`~tudatpy.estimation.observations_setup.viability.ObservationSimulationSettings` objects are modified in-place by this function,
+ Note: the :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` objects are modified in-place by this function,
  and thus the function does not return anything.
 
 
  Parameters
  ----------
- observation_simulation_settings : List[ :class:`~tudatpy.estimation.observations_setup.viability.ObservationSimulationSettings` ]
-     Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.estimation.observations_setup.viability.ObservationSimulationSettings` objects.
+ observation_simulation_settings : List[ :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` ]
+     Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` objects.
  viability_settings : List[ :class:`~tudatpy.estimation.observations_setup.viability.ObservationViabilitySettings` ]
      List of one or more :class:`~tudatpy.estimation.observations_setup.viability.ObservationViabilitySettings` objects, defining the viability checks to be included.
 
  Returns
  -------
  None
-     The :class:`~tudatpy.estimation.observations_setup.viability.ObservationSimulationSettings` object(s) are changed in-place.
+     The :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` object(s) are changed in-place.
 
 
 
@@ -412,14 +398,16 @@ Examples
 
  Function for including viability checks into existing observation simulation settings.
 
- As :func:`~tudatpy.estimation.observations_setup.viability.add_viability_check_to_all`, except that the function only adds viabilitt settings to entries of the
- `observation_simulation_settings` list that matches the specified `observable_type`.
+ As :func:`~tudatpy.estimation.observations_setup.viability.add_viability_check_to_all`, except that the function only adds viability settings to entries of the
+ ``observation_simulation_settings`` list that matches the specified `observable_type`.
 
+
+tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings
 
  Parameters
  ----------
- observation_simulation_settings : List[ :class:`~tudatpy.estimation.observations_setup.viability.ObservationSimulationSettings` ]
-     Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.estimation.observations_setup.viability.ObservationSimulationSettings` objects.
+ observation_simulation_settings : List[ :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` ]
+     Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` objects.
  viability_settings : List[ :class:`~tudatpy.estimation.observations_setup.viability.ObservationViabilitySettings` ]
      List of one or more :class:`~tudatpy.estimation.observations_setup.viability.ObservationViabilitySettings` objects, defining the viability checks to be included.
 
@@ -429,7 +417,7 @@ Examples
  Returns
  -------
  None
-     The :class:`~tudatpy.estimation.observations_setup.viability.ObservationSimulationSettings` object(s) are changed in-place.
+     The :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` object(s) are changed in-place.
 
 
 
@@ -453,13 +441,13 @@ Examples
  Function for including viability checks into existing observation simulation settings.
 
  As :func:`~tudatpy.estimation.observations_setup.viability.add_viability_check_to_all`, except that the function only adds noise to entries of the
- `observation_simulation_settings` list that matches the specified `observable_type` and `link_definition`.
+ ``observation_simulation_settings`` list that matches the specified `observable_type` and `link_definition`.
 
 
  Parameters
  ----------
- observation_simulation_settings : List[ :class:`~tudatpy.estimation.observations_setup.viability.ObservationSimulationSettings` ]
-     Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.estimation.observations_setup.viability.ObservationSimulationSettings` objects.
+ observation_simulation_settings : List[ :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` ]
+     Observation simulation settings, given by a list of one or more existing :class:`~tudatpy.estimation.observations_setup.observations_simulation_settings.ObservationSimulationSettings` objects.
  viability_settings : List[ :class:`~tudatpy.estimation.observations_setup.viability.ObservationViabilitySettings` ]
      List of one or more :class:`~tudatpy.estimation.observations_setup.viability.ObservationViabilitySettings` objects, defining the viability checks to be included.
 
@@ -482,7 +470,7 @@ Examples
      )doc" );
 }
 
-}
-}
-}
-}
+}  // namespace viability
+}  // namespace observations_setup
+}  // namespace estimation
+}  // namespace tudatpy

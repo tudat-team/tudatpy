@@ -33,13 +33,10 @@ namespace tudat
 namespace simulation_setup
 {
 //! @get_docstring(customAerodynamicCoefficientSettings)
-inline std::shared_ptr< AerodynamicCoefficientSettings >
-customAerodynamicCoefficientSettingsDeprecatedPy(
-        const std::function< Eigen::Vector3d( const std::vector< double > & ) >
-                forceCoefficientFunction,
+inline std::shared_ptr< AerodynamicCoefficientSettings > customAerodynamicCoefficientSettingsDeprecatedPy(
+        const std::function< Eigen::Vector3d( const std::vector< double > & ) > forceCoefficientFunction,
         const double referenceArea,
-        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables >
-                independentVariableNames,
+        const std::vector< aerodynamics::AerodynamicCoefficientsIndependentVariables > independentVariableNames,
         const bool areCoefficientsInAerodynamicFrame = true,
         const bool areCoefficientsInNegativeAxisDirection = true )
 {
@@ -76,10 +73,9 @@ namespace aerodynamic_coefficients
 
 void expose_aerodynamic_coefficient_setup( py::module &m )
 {
-    py::enum_< ta::AerodynamicCoefficientsIndependentVariables >(
-        m,
-        "AerodynamicCoefficientsIndependentVariables",
-        R"doc(
+    py::enum_< ta::AerodynamicCoefficientsIndependentVariables >( m,
+                                                                  "AerodynamicCoefficientsIndependentVariables",
+                                                                  R"doc(
 
 Enumeration of the independent variables that can be used to compute aerodynamic coefficients. Each aerodynamic
 coefficient model is a function of any number of independent variables (for some models: of zero independent variables, e.g. constant coefficients).
@@ -89,80 +85,78 @@ only needs to provide (for coefficient models that provide this freedom) the phy
 
 
       )doc" )
-        .value( "mach_number_dependent",
-                ta::AerodynamicCoefficientsIndependentVariables::mach_number_dependent,
-                R"doc(
+            .value( "mach_number_dependent",
+                    ta::AerodynamicCoefficientsIndependentVariables::mach_number_dependent,
+                    R"doc(
       )doc" )
-        .value( "angle_of_attack_dependent",
-                ta::AerodynamicCoefficientsIndependentVariables::angle_of_attack_dependent,
-                R"doc(
+            .value( "angle_of_attack_dependent",
+                    ta::AerodynamicCoefficientsIndependentVariables::angle_of_attack_dependent,
+                    R"doc(
       )doc" )
-        .value( "sideslip_angle_dependent",
-                ta::AerodynamicCoefficientsIndependentVariables::angle_of_sideslip_dependent,
-                R"doc(
+            .value( "sideslip_angle_dependent",
+                    ta::AerodynamicCoefficientsIndependentVariables::angle_of_sideslip_dependent,
+                    R"doc(
       )doc" )
-        .value( "altitude_dependent",
-                ta::AerodynamicCoefficientsIndependentVariables::altitude_dependent,
-                R"doc(
+            .value( "altitude_dependent",
+                    ta::AerodynamicCoefficientsIndependentVariables::altitude_dependent,
+                    R"doc(
       )doc" )
-        .value( "time_dependent",
-                ta::AerodynamicCoefficientsIndependentVariables::time_dependent,
-                R"doc(
+            .value( "time_dependent",
+                    ta::AerodynamicCoefficientsIndependentVariables::time_dependent,
+                    R"doc(
       )doc" )
-        .value( "temperature_dependent",
-                ta::AerodynamicCoefficientsIndependentVariables::temperature_dependent,
-                R"doc(
+            .value( "temperature_dependent",
+                    ta::AerodynamicCoefficientsIndependentVariables::temperature_dependent,
+                    R"doc(
       )doc" )
-        .value( "velocity_dependent",
-                ta::AerodynamicCoefficientsIndependentVariables::velocity_dependent,
-                R"doc(
+            .value( "velocity_dependent",
+                    ta::AerodynamicCoefficientsIndependentVariables::velocity_dependent,
+                    R"doc(
       )doc" )
-        .value( "he_number_density_dependent",
-                ta::AerodynamicCoefficientsIndependentVariables::he_number_density_dependent,
-                R"doc(
+            .value( "he_number_density_dependent",
+                    ta::AerodynamicCoefficientsIndependentVariables::he_number_density_dependent,
+                    R"doc(
       )doc" )
-        .value( "o_number_density_dependent",
-                ta::AerodynamicCoefficientsIndependentVariables::o_number_density_dependent,
-                R"doc(
+            .value( "o_number_density_dependent",
+                    ta::AerodynamicCoefficientsIndependentVariables::o_number_density_dependent,
+                    R"doc(
       )doc" )
-        .value( "n2_number_density_dependent",
-                ta::AerodynamicCoefficientsIndependentVariables::n2_number_density_dependent,
-                R"doc(
+            .value( "n2_number_density_dependent",
+                    ta::AerodynamicCoefficientsIndependentVariables::n2_number_density_dependent,
+                    R"doc(
       )doc" )
-        .value( "o2_number_density_dependent",
-                ta::AerodynamicCoefficientsIndependentVariables::o2_number_density_dependent,
-                R"doc(
+            .value( "o2_number_density_dependent",
+                    ta::AerodynamicCoefficientsIndependentVariables::o2_number_density_dependent,
+                    R"doc(
       )doc" )
-        .value( "ar_number_density_dependent",
-                ta::AerodynamicCoefficientsIndependentVariables::ar_number_density_dependent,
-                R"doc(
+            .value( "ar_number_density_dependent",
+                    ta::AerodynamicCoefficientsIndependentVariables::ar_number_density_dependent,
+                    R"doc(
       )doc" )
-        .value( "h_number_density_dependent",
-                ta::AerodynamicCoefficientsIndependentVariables::h_number_density_dependent,
-                R"doc(
+            .value( "h_number_density_dependent",
+                    ta::AerodynamicCoefficientsIndependentVariables::h_number_density_dependent,
+                    R"doc(
       )doc" )
-        .value( "n_number_density_dependent",
-                ta::AerodynamicCoefficientsIndependentVariables::n_number_density_dependent,
-                R"doc(
+            .value( "n_number_density_dependent",
+                    ta::AerodynamicCoefficientsIndependentVariables::n_number_density_dependent,
+                    R"doc(
       )doc" )
-        .value( "anomalous_o_number_density_dependent",
-                ta::AerodynamicCoefficientsIndependentVariables::
-                anomalous_o_number_density_dependent,
-                R"doc(
+            .value( "anomalous_o_number_density_dependent",
+                    ta::AerodynamicCoefficientsIndependentVariables::anomalous_o_number_density_dependent,
+                    R"doc(
       )doc" )
-        .value( "control_surface_deflection_dependent",
-                ta::AerodynamicCoefficientsIndependentVariables::
-                control_surface_deflection_dependent,
-                R"doc(
+            .value( "control_surface_deflection_dependent",
+                    ta::AerodynamicCoefficientsIndependentVariables::control_surface_deflection_dependent,
+                    R"doc(
       )doc" )
-        .value( "undefined_independent_variable",
-                ta::AerodynamicCoefficientsIndependentVariables::undefined_independent_variable,
-                R"doc(
+            .value( "undefined_independent_variable",
+                    ta::AerodynamicCoefficientsIndependentVariables::undefined_independent_variable,
+                    R"doc(
 
 Can be used for a custom coefficient interface with other variables, at the expense of being able to use the FlightConditions class to automatically updates the aerodynamic coefficients during propagation.
 
 )doc" )
-        .export_values( );
+            .export_values( );
 
     py::enum_< ta::AerodynamicCoefficientFrames >( m,
                                                    "AerodynamicCoefficientFrames",
@@ -176,66 +170,48 @@ frames (which are typically used for aerodynamic coefficient definition), and a 
 force coefficients are often defined positive along *negative* axes of the aerodynamic frame (drag, side force and lift coefficients)
 
       )doc" )
-        .value( "positive_body_fixed_frame_coefficients",
-                ta::AerodynamicCoefficientFrames::body_fixed_frame_coefficients,
-                R"doc(
+            .value( "positive_body_fixed_frame_coefficients",
+                    ta::AerodynamicCoefficientFrames::body_fixed_frame_coefficients,
+                    R"doc(
 
 The coefficients are defined in the body-fixed frame, with the directions the same as the body-fixed axes. For aerodynamic forces and moments, this results in the typical :math:`C_{x}, C_{y}, C_{y}` (force) and :math:`C_{l}, C_{m}, C_{n}` (moment) coefficients
 
 )doc" )
-        .value( "negative_body_fixed_frame_coefficients",
-                ta::AerodynamicCoefficientFrames::negative_body_fixed_frame_coefficients,
-                R"doc(
+            .value( "negative_body_fixed_frame_coefficients",
+                    ta::AerodynamicCoefficientFrames::negative_body_fixed_frame_coefficients,
+                    R"doc(
 
 Same as ``positive_body_fixed_frame_coefficients``, but opposite in direction (so axes along negative body-fixed frame axes)
 
 )doc" )
-        .value( "positive_aerodynamic_frame_coefficients",
-                ta::AerodynamicCoefficientFrames::positive_aerodynamic_frame_coefficients,
-                R"doc(
+            .value( "positive_aerodynamic_frame_coefficients",
+                    ta::AerodynamicCoefficientFrames::positive_aerodynamic_frame_coefficients,
+                    R"doc(
 
 Same as ``negative_aerodynamic_frame_coefficients``, but opposite in direction (so axes along positive aerodynamic frame axes)
 
 )doc" )
-        .value( "negative_aerodynamic_frame_coefficients",
-                ta::AerodynamicCoefficientFrames::negative_aerodynamic_frame_coefficients,
-                R"doc(
+            .value( "negative_aerodynamic_frame_coefficients",
+                    ta::AerodynamicCoefficientFrames::negative_aerodynamic_frame_coefficients,
+                    R"doc(
 
 The coefficients are defined in aerodynamic frame, with the directions the same as the negative axes. For aerodynamic forces, this results in the typical :math:`C_{D}, C_{S}, C_{D}` force coefficients
 
 )doc" )
-        .export_values( );
+            .export_values( );
 
-    py::enum_< ta::AtmosphericCompositionSpecies >(
-        m, "AtmosphericCompositionSpecies", R"doc(No documentation found.)doc" )
-        .value( "o_species",
-                ta::AtmosphericCompositionSpecies::o_species,
-                R"doc(No documentation found.)doc" )
-        .value( "o2_species",
-                ta::AtmosphericCompositionSpecies::o2_species,
-                R"doc(No documentation found.)doc" )
-        .value( "n2_species",
-                ta::AtmosphericCompositionSpecies::n2_species,
-                R"doc(No documentation found.)doc" )
-        .value( "he_species",
-                ta::AtmosphericCompositionSpecies::he_species,
-                R"doc(No documentation found.)doc" )
-        .value( "h_species",
-                ta::AtmosphericCompositionSpecies::h_species,
-                R"doc(No documentation found.)doc" )
-        .value( "ar_species",
-                ta::AtmosphericCompositionSpecies::ar_species,
-                R"doc(No documentation found.)doc" )
-        .value( "n_species",
-                ta::AtmosphericCompositionSpecies::n_species,
-                R"doc(No documentation found.)doc" )
-        .value( "anomalous_o_species",
-                ta::AtmosphericCompositionSpecies::anomalous_o_species,
-                R"doc(No documentation found.)doc" )
-        .export_values( );
+    py::enum_< ta::AtmosphericCompositionSpecies >( m, "AtmosphericCompositionSpecies", R"doc(No documentation found.)doc" )
+            .value( "o_species", ta::AtmosphericCompositionSpecies::o_species, R"doc(No documentation found.)doc" )
+            .value( "o2_species", ta::AtmosphericCompositionSpecies::o2_species, R"doc(No documentation found.)doc" )
+            .value( "n2_species", ta::AtmosphericCompositionSpecies::n2_species, R"doc(No documentation found.)doc" )
+            .value( "he_species", ta::AtmosphericCompositionSpecies::he_species, R"doc(No documentation found.)doc" )
+            .value( "h_species", ta::AtmosphericCompositionSpecies::h_species, R"doc(No documentation found.)doc" )
+            .value( "ar_species", ta::AtmosphericCompositionSpecies::ar_species, R"doc(No documentation found.)doc" )
+            .value( "n_species", ta::AtmosphericCompositionSpecies::n_species, R"doc(No documentation found.)doc" )
+            .value( "anomalous_o_species", ta::AtmosphericCompositionSpecies::anomalous_o_species, R"doc(No documentation found.)doc" )
+            .export_values( );
 
-    py::enum_< trf::AerodynamicsReferenceFrameAngles >(
-        m, "AerodynamicsReferenceFrameAngles", R"doc(
+    py::enum_< trf::AerodynamicsReferenceFrameAngles >( m, "AerodynamicsReferenceFrameAngles", R"doc(
 
 Enumeration of angles typical for (atmospheric) flight dynamics and aerodynamic calculations.
 
@@ -243,49 +219,56 @@ Enumeration of angles typical for (atmospheric) flight dynamics and aerodynamic 
 frames of a body (see :class:`~AerodynamicsReferenceFrames`) and its central body with the details given by Mooij (1994).
 
 )doc" )
-        .value( "latitude_angle", trf::AerodynamicsReferenceFrameAngles::latitude_angle,
-                R"doc(
+            .value( "latitude_angle",
+                    trf::AerodynamicsReferenceFrameAngles::latitude_angle,
+                    R"doc(
 
 Geocentric latitude angle in the central body-fixed frame where the body is located
 
                 )doc" )
-        .value( "longitude_angle", trf::AerodynamicsReferenceFrameAngles::longitude_angle,
-                R"doc(
+            .value( "longitude_angle",
+                    trf::AerodynamicsReferenceFrameAngles::longitude_angle,
+                    R"doc(
 
 Longitude angle in the central body-fixed frame where the body is located
 
                 )doc" )
-        .value( "heading_angle", trf::AerodynamicsReferenceFrameAngles::heading_angle,
-                R"doc(
+            .value( "heading_angle",
+                    trf::AerodynamicsReferenceFrameAngles::heading_angle,
+                    R"doc(
 
 Heading angle: between north direction and the local horizontal (in xy-plane of the vertical frame) component of the airspeed-based velocity vector
 
                 )doc" )
-        .value( "flight_path_angle", trf::AerodynamicsReferenceFrameAngles::flight_path_angle,
-                R"doc(
+            .value( "flight_path_angle",
+                    trf::AerodynamicsReferenceFrameAngles::flight_path_angle,
+                    R"doc(
 
 Flight path angle: between the local horizontal plane (xy-plane of the vertical frame) and the airspeed-based velocity vector
 
                 )doc" )
-        .value( "angle_of_attack", trf::AerodynamicsReferenceFrameAngles::angle_of_attack,
-                R"doc(
+            .value( "angle_of_attack",
+                    trf::AerodynamicsReferenceFrameAngles::angle_of_attack,
+                    R"doc(
 
 Angle of attack: rotation angle about the body-fixed y-axis w.r.t. the xy-plane of the aerodynamic frame
 
                 )doc" )
-        .value( "angle_of_sideslip", trf::AerodynamicsReferenceFrameAngles::angle_of_sideslip,
-                R"doc(
+            .value( "angle_of_sideslip",
+                    trf::AerodynamicsReferenceFrameAngles::angle_of_sideslip,
+                    R"doc(
 
 Sideslip angle: rotation angle about the body-fixed z-axis w.r.t. the xz-plane of the aerodynamic frame
 
                 )doc" )
-        .value( "bank_angle", trf::AerodynamicsReferenceFrameAngles::bank_angle,
-                R"doc(
+            .value( "bank_angle",
+                    trf::AerodynamicsReferenceFrameAngles::bank_angle,
+                    R"doc(
 
 Bank angle: between the horizontal (xy-plane) of the vertical frame and the xy-plane of the vertical frame
 
                 )doc" )
-        .export_values( );
+            .export_values( );
 
     py::enum_< trf::AerodynamicsReferenceFrames >( m,
                                                    "AerodynamicsReferenceFrames",
@@ -300,55 +283,54 @@ central body (corotating), to the vertical frame (defined by the body's relative
 (defined by the body's relative velocity) and finally the body's own body-fixed frame.
 
       )doc" )
-        .value( "inertial_frame",
-                trf::AerodynamicsReferenceFrames::inertial_frame,
-                R"doc(
+            .value( "inertial_frame",
+                    trf::AerodynamicsReferenceFrames::inertial_frame,
+                    R"doc(
 
 The global orientation (which is by definition inertial).
 
 )doc" )
-        .value( "corotating_frame",
-                trf::AerodynamicsReferenceFrames::corotating_frame,
-                R"doc(
+            .value( "corotating_frame",
+                    trf::AerodynamicsReferenceFrames::corotating_frame,
+                    R"doc(
 
 The body-fixed frame of the central body.
 
 )doc" )
-        .value( "vertical_frame",
-                trf::AerodynamicsReferenceFrames::vertical_frame,
-                R"doc(
+            .value( "vertical_frame",
+                    trf::AerodynamicsReferenceFrames::vertical_frame,
+                    R"doc(
 
 Frame with z-axis pointing towards origin of central body, the x-axis lies in the meridian plane and points towards the central-body-fixed z-axis (the y-axis completes the frame).
 
 )doc" )
-        .value( "trajectory_frame",
-                trf::AerodynamicsReferenceFrames::trajectory_frame,
-                R"doc(
+            .value( "trajectory_frame",
+                    trf::AerodynamicsReferenceFrames::trajectory_frame,
+                    R"doc(
 
 The (airspeed-based) trajectory frame has the x-axis in the direction of the velocity vector relative to the atmosphere (airspeed-based velocity vector), z-axis lies in the vertical plane and points downwards (the y-axis completes the frame).
 
 )doc" )
-        .value( "aerodynamic_frame",
-                trf::AerodynamicsReferenceFrames::aerodynamic_frame,
-                R"doc(
+            .value( "aerodynamic_frame",
+                    trf::AerodynamicsReferenceFrames::aerodynamic_frame,
+                    R"doc(
 
 The (airspeed-based) aerodynamic frame has the x-axis in the direction of the velocity vector relative to the atmosphere (airspeed-based velocity vector), z-axis co-linear with the aerodynamic lift vector, pointing in the opposite direction (the y-axis completes the frame)..
 
 )doc" )
-        .value( "body_frame",
-                trf::AerodynamicsReferenceFrames::body_frame,
-                R"doc(
+            .value( "body_frame",
+                    trf::AerodynamicsReferenceFrames::body_frame,
+                    R"doc(
 
 The body-fixed frame of the body itself.
 
 )doc" )
-        .export_values( );
+            .export_values( );
 
     /////////////////////////////////////////////////////////////////////////////
     // createAerodynamicCoefficientInterface.h
     /////////////////////////////////////////////////////////////////////////////
-    py::class_< tss::AerodynamicCoefficientSettings,
-                std::shared_ptr< tss::AerodynamicCoefficientSettings > >(
+    py::class_< tss::AerodynamicCoefficientSettings, std::shared_ptr< tss::AerodynamicCoefficientSettings > >(
             m,
             "AerodynamicCoefficientSettings",
             R"doc(
@@ -434,44 +416,43 @@ The body-fixed frame of the body itself.
 
     py::class_< tss::CustomAerodynamicCoefficientSettings,
                 std::shared_ptr< tss::CustomAerodynamicCoefficientSettings >,
-                tss::AerodynamicCoefficientSettings >(
-            m, "CustomAerodynamicCoefficientSettings", R"doc(No documentation found.)doc" );
+                tss::AerodynamicCoefficientSettings >( m, "CustomAerodynamicCoefficientSettings", R"doc(No documentation found.)doc" );
 
     py::class_< tss::ScaledAerodynamicCoefficientInterfaceSettings,
                 std::shared_ptr< tss::ScaledAerodynamicCoefficientInterfaceSettings >,
                 tss::AerodynamicCoefficientSettings >(
-            m,
-            "ScaledAerodynamicCoefficientInterfaceSettings",
-            R"doc(No documentation found.)doc" );
+            m, "ScaledAerodynamicCoefficientInterfaceSettings", R"doc(No documentation found.)doc" );
 
     py::class_< tss::ControlSurfaceIncrementAerodynamicCoefficientSettings,
                 std::shared_ptr< tss::ControlSurfaceIncrementAerodynamicCoefficientSettings > >(
-            m,
-            "ControlSurfaceIncrementAerodynamicCoefficientSettings",
-            R"doc(No documentation found.)doc" );
+            m, "ControlSurfaceIncrementAerodynamicCoefficientSettings", R"doc(No documentation found.)doc" );
 
     py::class_< tss::CustomControlSurfaceIncrementAerodynamicCoefficientSettings,
                 std::shared_ptr< tss::CustomControlSurfaceIncrementAerodynamicCoefficientSettings >,
-                tss::ControlSurfaceIncrementAerodynamicCoefficientSettings >(
-            m,
-            "CustomControlSurfaceIncrementAerodynamicCoefficientSet"
-            "tings",
-            R"doc(No documentation found.)doc" );
+                tss::ControlSurfaceIncrementAerodynamicCoefficientSettings >( m,
+                                                                              "CustomControlSurfaceIncrementAerodynamicCoefficientSet"
+                                                                              "tings",
+                                                                              R"doc(No documentation found.)doc" );
 
-    py::enum_< ta::GasSurfaceInteractionModelType >(m, "GasSurfaceInteractionModelType",
-            R"doc(
+    py::enum_< ta::GasSurfaceInteractionModelType >( m,
+                                                     "GasSurfaceInteractionModelType",
+                                                     R"doc(
+
         Enum defining Gas-Surface Interaction Model (GSIM) for panelled aerodynamic force
+
 .)doc" )
-        .value( "newton", ta::newton,
-            R"doc(
+            .value( "newton",
+                    ta::newton,
+                    R"doc(
         Newtonian GSIM, for which
 
          .. math::
              C_{p} &= 2 \cos^{2} \delta \\
              C_{\tau} &= 0 .
 )doc" )
-        .value( "storch", ta::storch,
-            R"doc(
+            .value( "storch",
+                    ta::storch,
+                    R"doc(
         Storch GSIM, for which
 
          .. math::
@@ -479,20 +460,17 @@ The body-fixed frame of the body itself.
              C_{\tau} &= 2 \sigma_{T} \sin \delta \cos \delta
 )doc" )
 
-        .value( "sentman", ta::sentman )
-        .value( "cook", ta::cook );
+            .value( "sentman", ta::sentman )
+            .value( "cook", ta::cook );
 
     m.def( "panelled",
-            py::overload_cast< const ta::GasSurfaceInteractionModelType,
-                               const double,
-                               const int,
-                               const bool >(
+           py::overload_cast< const ta::GasSurfaceInteractionModelType, const double, const int, const bool >(
                    &tss::panelledAerodynamicCoefficientSettings ),
            py::arg( "gas_surface_interaction_model" ),
            py::arg( "reference_area" ),
            py::arg( "maximum_number_of_pixels" ) = 0,
            py::arg( "only_drag_component" ) = false,
-            R"doc(
+           R"doc(
  Function for creating settings for a paneled aerodynamic coefficient interface model
 
  Function for creating settings for a aerodynamic coefficient interface model.
@@ -531,16 +509,14 @@ The body-fixed frame of the body itself.
     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` class
 
  )doc" );
-    
+
     m.def( "constant_variable_cross_section",
-            py::overload_cast< const Eigen::Vector3d &,
-                               const int,
-                               const ta::AerodynamicCoefficientFrames >(
+           py::overload_cast< const Eigen::Vector3d &, const int, const ta::AerodynamicCoefficientFrames >(
                    &tss::panelledConstantAerodynamicCoefficientSettings ),
            py::arg( "constant_force_coefficient" ),
            py::arg( "maximum_number_of_pixels" ) = 0,
            py::arg( "force_coefficients_frame" ) = ta::negative_aerodynamic_frame_coefficients,
-            R"doc(
+           R"doc(
  Function for creating settings for a aerodynamic coefficient computations based on the body's projected area to the flow.
 
  Function for creating settings for a aerodynamic coefficient computations based on the body's projected area to the flow,
@@ -568,11 +544,9 @@ The body-fixed frame of the body itself.
     Instance of the :class:`~tudatpy.dynamics.environment_setup.aerodynamic_coefficients.AerodynamicCoefficientSettings` class
 
  )doc" );
-            
+
     m.def( "constant",
-           py::overload_cast< const double,
-                              const Eigen::Vector3d &,
-                              const ta::AerodynamicCoefficientFrames >(
+           py::overload_cast< const double, const Eigen::Vector3d &, const ta::AerodynamicCoefficientFrames >(
                    &tss::constantAerodynamicCoefficientSettings ),
            py::arg( "reference_area" ),
            py::arg( "constant_force_coefficient" ),
@@ -692,12 +666,10 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
      )doc" );
 
     m.def( "custom_aerodynamic_force_coefficients",
-           py::overload_cast<
-                   const std::function< Eigen::Vector3d( const std::vector< double > & ) >,
-                   const double,
-                   const std::vector< ta::AerodynamicCoefficientsIndependentVariables >,
-                   const ta::AerodynamicCoefficientFrames >(
-                   &tss::customAerodynamicCoefficientSettings ),
+           py::overload_cast< const std::function< Eigen::Vector3d( const std::vector< double > & ) >,
+                              const double,
+                              const std::vector< ta::AerodynamicCoefficientsIndependentVariables >,
+                              const ta::AerodynamicCoefficientFrames >( &tss::customAerodynamicCoefficientSettings ),
            py::arg( "force_coefficient_function" ),
            py::arg( "reference_area" ),
            py::arg( "independent_variable_names" ),
@@ -767,15 +739,14 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
      )doc" );
 
     m.def( "custom_aerodynamic_force_and_moment_coefficients",
-           py::overload_cast<
-                   const std::function< Eigen::Vector3d( const std::vector< double > & ) >,
-                   const std::function< Eigen::Vector3d( const std::vector< double > & ) >,
-                   const double,
-                   const double,
-                   const std::vector< ta::AerodynamicCoefficientsIndependentVariables >,
-                   const ta::AerodynamicCoefficientFrames,
-                   const ta::AerodynamicCoefficientFrames,
-                   const Eigen::Vector3d & >( &tss::customAerodynamicCoefficientSettings ),
+           py::overload_cast< const std::function< Eigen::Vector3d( const std::vector< double > & ) >,
+                              const std::function< Eigen::Vector3d( const std::vector< double > & ) >,
+                              const double,
+                              const double,
+                              const std::vector< ta::AerodynamicCoefficientsIndependentVariables >,
+                              const ta::AerodynamicCoefficientFrames,
+                              const ta::AerodynamicCoefficientFrames,
+                              const Eigen::Vector3d & >( &tss::customAerodynamicCoefficientSettings ),
            py::arg( "force_coefficient_function" ),
            py::arg( "moment_coefficient_function" ),
            py::arg( "reference_length" ),
@@ -952,7 +923,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
            py::arg( "reference_area" ),
            py::arg( "independent_variable_name" ),
            py::arg( "force_coefficients_frame" ) = ta::negative_aerodynamic_frame_coefficients,
-           py::arg( "interpolator_settings" ) = ti::linearInterpolation(),
+           py::arg( "interpolator_settings" ) = ti::linearInterpolation( ),
            R"doc(
 
  Function for creating aerodynamic interface model settings from user-defined, 1-d tabulated force coefficients.
@@ -974,7 +945,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
  force_coefficients_frame : AerodynamicCoefficientFrames, default = negative_aerodynamic_frame_coefficients
      Variable defining the frame in which the force coefficients are defined. By default, this is the negative aerodynamic
      frame, so that the coefficients are for drag, side force and lift (:math:`C_{D}, C_{S}, C_{L}`)
- interpolator_settings : math.interpolators.InterpolatorSettings, default = :func:`tudatpy.math.interpolators.linear_interpolation`
+ interpolator_settings : math.interpolators.InterpolatorSettings, default = :func:`~tudatpy.math.interpolators.linear_interpolation`
      Interpolator settings object, where the conditions for interpolation of tabulated inputs are saved.
      Pointer to an interpolator settings object where the conditions for interpolation of tabulated inputs are saved.
 
@@ -1019,8 +990,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
                               const double,
                               const std::vector< ta::AerodynamicCoefficientsIndependentVariables >,
                               const ta::AerodynamicCoefficientFrames,
-                              const std::shared_ptr< ti::InterpolatorSettings > >(
-                   &tss::readTabulatedAerodynamicCoefficientsFromFiles ),
+                              const std::shared_ptr< ti::InterpolatorSettings > >( &tss::readTabulatedAerodynamicCoefficientsFromFiles ),
            py::arg( "force_coefficient_files" ),
            py::arg( "reference_area" ),
            py::arg( "independent_variable_names" ),
@@ -1090,8 +1060,7 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
                               const ta::AerodynamicCoefficientFrames,
                               const ta::AerodynamicCoefficientFrames,
                               const Eigen::Vector3d &,
-                              const std::shared_ptr< ti::InterpolatorSettings > >(
-                   &tss::readTabulatedAerodynamicCoefficientsFromFiles ),
+                              const std::shared_ptr< ti::InterpolatorSettings > >( &tss::readTabulatedAerodynamicCoefficientsFromFiles ),
            py::arg( "force_coefficient_files" ),
            py::arg( "moment_coefficient_files" ),
            py::arg( "reference_length" ),
@@ -1172,10 +1141,8 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
      )doc" );
 
     m.def( "scaled_by_constant",
-           py::overload_cast< const std::shared_ptr< tss::AerodynamicCoefficientSettings >,
-                              const double,
-                              const double,
-                              const bool >( &tss::scaledAerodynamicCoefficientSettings ),
+           py::overload_cast< const std::shared_ptr< tss::AerodynamicCoefficientSettings >, const double, const double, const bool >(
+                   &tss::scaledAerodynamicCoefficientSettings ),
            py::arg( "unscaled_coefficient_settings" ),
            py::arg( "force_scaling_constant" ),
            py::arg( "moment_scaling_constant" ),
@@ -1460,10 +1427,9 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
      )doc" );
 
     m.def( "tabulated_from_files_control_surface",
-           py::overload_cast<
-                   const std::map< int, std::string >,
-                   const std::map< int, std::string >,
-                   const std::vector< ta::AerodynamicCoefficientsIndependentVariables > >(
+           py::overload_cast< const std::map< int, std::string >,
+                              const std::map< int, std::string >,
+                              const std::vector< ta::AerodynamicCoefficientsIndependentVariables > >(
                    &tss::readTabulatedControlIncrementAerodynamicCoefficientsFromFiles ),
            py::arg( "force_coefficient_files" ),
            py::arg( "moment_coefficient_files" ),
@@ -1483,7 +1449,6 @@ In this example, we create :class:`~tudatpy.dynamics.environment_setup.aerodynam
 
 
      )doc" );
-
 }
 
 }  // namespace aerodynamic_coefficients

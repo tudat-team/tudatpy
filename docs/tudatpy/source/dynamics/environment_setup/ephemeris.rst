@@ -6,12 +6,32 @@ This module contains a set of factory functions for setting up the
 ephemeris models of celestial bodies in an environment.
 
 The main interfaces with Tudat is the :attr:`~tudatpy.dynamics.environment_setup.BodySettings.ephemeris_settings`
-attribute  (of type :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings` of the body settings, which defines settings for the ephemeris of a body.
-The functions in this submodule are used to create this settings objects. When creating a body (typically using the
+attribute  (of type :class:`~tudatpy.dynamics.environment_setup.ephemeris.EphemerisSettings`) of the body settings, which defines settings for the ephemeris of a body.
+**The functions in this submodule are used to create these settings objects.** When creating a body (typically using the
 :func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies` function), an object of type
 :class:`~tudatpy.dynamics.environment.Ephemeris` (or a derived class) is created
 and added to the associated :class:`~tudatpy.dynamics.environment.Body` object based on the settings object, which can
 be retrieved using the :attr:`~tudatpy.dynamics.environment.Body.ephemeris` attribute.
+
+The following code block gives an overview of the steps to define, create, and extract an ephemeris model, for the specific example of ephemeris of the Earth from Spice, with the Sun as ephemeris origin (and J2000 frame orientation).
+
+.. code-block:: python
+
+  from tudatpy.dynamics import environment_setup
+
+  # Create body settings
+  body_settings =  environment_setup.get_default_body_settings( ... ) # Typical way to instantiate body settings
+
+  # Modify ephemeris model settings (base class type EphemerisSettings)
+  body_settings.get( 'Earth' ).ephemeris_settings = environment_setup.ephemeris.direct_spice(
+      frame_origin = 'Sun',
+      frame_orientation = 'J2000' )
+
+  # Create bodies
+  bodies = environment_setup.create_system_of_bodies(body_settings)
+
+  # Extract ephemeris model (base class type Ephemeris) from Earth
+  earth_ephemeris_model = bodies.get( 'Earth' ).ephemeris
 
 Below a short
 overview of aspects of some of the ephemeris models in order to aid in

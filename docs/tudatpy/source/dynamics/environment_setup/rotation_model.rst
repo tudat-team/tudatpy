@@ -2,10 +2,43 @@
 
 ``rotation_model``
 ==================
+
 This module contains a set of factory functions for setting up the
-rotation models of celestial bodies in an environment. Below a short
-overview of aspects of some of the rotation models in order to aid in
-properly selecting an choosing a model.
+rotation models of bodies in an environment.
+
+The main interfaces with Tudat is the :attr:`~tudatpy.dynamics.environment_setup.BodySettings.rotation_model_settings`
+attribute  (of type :class:`~tudatpy.dynamics.environment_setup.rotation_model.RotationModelSettings`) of the body settings, which defines settings for the rotation model of a body.
+**The functions in this submodule are used to create these settings objects.** When creating a body (typically using the
+:func:`~tudatpy.dynamics.environment_setup.create_system_of_bodies` function), an object of type
+:class:`~tudatpy.dynamics.environment.RotationalEphemeris` (or a derived class) is created
+and added to the associated :class:`~tudatpy.dynamics.environment.Body` object based on the settings object, which can
+be retrieved using the :attr:`~tudatpy.dynamics.environment.Body.rotation_model` attribute.
+
+The following code block gives an overview of the steps to define, create, and extract a rotation model, for the specific example of a simple rotation model
+  (constant rotation rate and pole orientation), extracted from the Earth's pole and rotation rate according to the SPICE ``IAU_Earth`` frame at the given reference epoch. The resulting rotation model has ``J2000`` as inertial frame, and the identifier ``IAU_Earth_simplified`` as Earth-fixed frame.
+
+.. code-block:: python
+
+  from tudatpy.dynamics import environment_setup
+  from tudatpy.astro import time_representation
+
+  # Create body settings
+  body_settings =  environment_setup.get_default_body_settings( ... ) # Typical way to instantiate body settings
+
+  # Modify rotation model settings (base class type RotationModelSettings)
+  body_settings.get( 'Earth' ).rotation_model_settings = environment_setup.rotation_model.simple_from_spice(
+      base_frame = 'J2000',
+      target_frame = 'IAU_Earth',
+      target_frame_spice = 'IAU_Earth_simplified',
+      initial_time = time_representation.DateTime.from_iso_string( '2020-09-08T14:00:00.0' ).to_epoch( ) )
+
+  # Create bodies
+  bodies = environment_setup.create_system_of_bodies(body_settings)
+
+  # Extract rotation model (base class type RotationalEphemeris) from Earth
+  earth_rotation_model = bodies.get( 'Earth' ).rotation_model
+
+
 
 Tudat has a broad range of rotation models available. In principle, these models can be assigned to both celestial bodies and natural bodies. 
 However, a subset of these models is typically only applied to natural *or* artificial bodies. Rotation models have a wide range of,
