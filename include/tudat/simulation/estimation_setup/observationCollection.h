@@ -1098,6 +1098,10 @@ public:
                 }
             }
         }
+
+        // Reset observation set indices and concatenated observations and times
+        setObservationSetIndices( );
+        setConcatenatedObservationsAndTimes( );
     }
 
     void filterObservations(
@@ -1605,6 +1609,7 @@ public:
                                 {
                                     isInTimeBounds = true;
                                 }
+
                                 if( ( isInTimeBounds && ( !observationParser->useOppositeCondition( ) ) ) ||
                                     ( !isInTimeBounds && ( observationParser->useOppositeCondition( ) ) ) )
                                 {

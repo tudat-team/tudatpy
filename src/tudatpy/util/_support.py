@@ -404,65 +404,28 @@ def vector2matrix(flat_matrix: np.ndarray):
     """
     return flat_matrix.reshape(3, 3)
 
-def get_orbital_regime(json_dict) -> tuple[str, dict[str, any]]:
-    """
-    Queries Space-Track for a NORAD ID and classifies its orbital regime.
+def transform_integer_to_roman_number(num: int) -> str:
+    """Converts an integer to a Roman numeral string.
 
     Parameters
     ----------
-    json_dict: OMM json dict object (e.g. as a result of Space-Track.org query)
+    num : int
+        The integer to convert.
 
     Returns
     -------
-    tuple[str, dict[str, any]]
-        - orbital_regime (str): The name of the regime (e.g., "LEO_REGIME").
-        - regime_definition (dict): The dictionary of thresholds for that regime.
+    str
+        The Roman numeral representation of the integer.
 
-    Raises
-    ------
-    ValueError
-        If no data is found for the given json_dict or the object is not Earth-orbiting.
     """
-
-    central_body_name = json_dict.get("CENTER_NAME")
-    if central_body_name != 'EARTH':
-        raise ValueError(f'Central body must be "EARTH" (found {central_body_name}).')
-
-    try:
-        rp_object = float(json_dict.get('PERIAPSIS'))  # km above surface
-        ra_object = float(json_dict.get('APOAPSIS'))   # km above surface
-        ecc = float(json_dict.get('ECCENTRICITY'))
-        inc = float(json_dict.get('INCLINATION'))
-    except TypeError:
-        raise ValueError(f"Orbit data is incomplete (contains None values).")
-
-    orbital_regime = "OTHER"
-
-    # Loop through defined regimes
-    for regime, thresholds in REGIME_THRESHOLDS.items():
-        rp_min, rp_max = thresholds["rp"]
-        ra_min, ra_max = thresholds["ra"]
-
-        if not (rp_min <= rp_object <= rp_max and ra_min <= ra_object <= ra_max):
-            continue
-
-        # Check eccentricity and inclination if required
-        ecc_range = thresholds.get("ecc")
-        inc_range = thresholds.get("inc")
-
-        if ecc_range and (not ecc_range[0] <= ecc <= ecc_range[1]):
-            continue
-        if inc_range and (not inc_range[0] <= inc <= inc_range[1]):
-            continue
-
-        # All checks passed
-        orbital_regime = regime
-        break
-
-    # 4. Return only name and definition
-    if orbital_regime != "OTHER":
-        regime_definition = REGIME_THRESHOLDS[orbital_regime]
-    else:
-        regime_definition = DEFAULT_OTHER_REGIME
-
-    return orbital_regime, regime_definition
+    # For converting integers to Roman numerals
+    _ROMAN_NUMERAL_MAP = {
+        1000: 'M', 900: 'CM', 500: 'D', 400: 'CD', 100: 'C', 90: 'XC',
+        50: 'L', 40: 'XL', 10: 'X', 9: 'IX', 5: 'V', 4: 'IV', 1: 'I'
+    }
+    roman_num = ''
+    for val, syb in _ROMAN_NUMERAL_MAP.items():
+        while num >= val:
+            roman_num += syb
+            num -= val
+    return roman_num

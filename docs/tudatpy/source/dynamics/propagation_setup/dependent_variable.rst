@@ -2,21 +2,32 @@
 
 ``dependent_variable``
 ======================
-This module provides the functionality for creating dependent variable
-settings. Note that *all* output is in SI units (meters, radians, seconds). All epochs are provided in seconds since J2000.
+This module provides the functionality for creating dependent variable settings. Dependent variables are quantities
+other than the propagated states that are saved when doing a propagation.
+
+Each dependent variable is created via a dedicated function, the settings for each of which is defined by an object of type :class:`~tudatpy.dynamics.propagation_setup.dependent_variable.SingleDependentVariableSaveSettings`.  **The functions in this submodule are used to create these settings objects.** After propagation, the computed dependent variables can be extracted from the :attr:`~tudatpy.dynamics.propagation.SingleArcSimulationResults.dependent_variable_history` attribute of the :class:`~tudatpy.dynamics.propagation.SingleArcSimulationResults`. AN object of this type (which saves all propagation results) is extracted from the dynamics simulator using the  :attr:`~tudatpy.dynamics.simulator.SingleArcSimulator.propagation_results` attribute.
+
+See the example below for the definition of four separate dependent variables:
+
+.. code-block:: python
+
+    dependent_variables_to_save = [
+        propagation_setup.dependent_variable.total_acceleration( "Delfi-C3" ),
+        propagation_setup.dependent_variable.keplerian_state( "Delfi-C3", "Earth" ),
+        propagation_setup.dependent_variable.latitude( "Delfi-C3", "Earth" ),
+        propagation_setup.dependent_variable.longitude( "Delfi-C3", "Earth" )
+    ]
+
+
+This list can then be added to the propagation settings by adding them as input argument to the propagator settings functions in the :ref:`propagator` module (such as :func:`~tudatpy.dynamics.propagation_setup.propagator.translational`, :func:`~tudatpy.dynamics.propagation_setup.propagator.rotational` and
+:func:`~tudatpy.dynamics.propagation_setup.propagator.multitype`).
+
+Note that *all* dependent variables output is in SI units (meters, radians, seconds). All epochs are provided in seconds since J2000.
 
 
 
 
 
-
-
-
-.. References
-.. ----------
-.. .. [1] Mooij, E. The motion of a vehicle in a planetary atmosphere.
-..        Delft University of Technology, Faculty of Aerospace Engineering,
-..        Report LR-768 (1994).
 
 
 
