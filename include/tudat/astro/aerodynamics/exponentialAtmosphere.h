@@ -28,6 +28,8 @@
 #include "tudat/astro/aerodynamics/standardAtmosphere.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
 
+#include <tudat/astro/orbit_determination/estimatable_parameters/estimatableParameter.h>
+
 namespace tudat
 {
 
@@ -66,7 +68,7 @@ public:
                            const double densityAtZeroAltitude,
                            const double specificGasConstant = physical_constants::SPECIFIC_GAS_CONSTANT_AIR,
                            const double ratioOfSpecificHeats = 1.4 ):
-        scaleHeight_( scaleHeight ), constantTemperature_( constantTemperature ), densityAtZeroAltitude_( densityAtZeroAltitude ),
+        scaleHeight_( scaleHeight ), constantTemperature_( constantTemperature ), baseDensity_( densityAtZeroAltitude ),
         specificGasConstant_( specificGasConstant ), ratioOfSpecificHeats_( ratioOfSpecificHeats )
     { }
 
@@ -94,25 +96,27 @@ public:
      * \param newScaleHeight Scale height to be set in exponential atmosphere model.
      */
     void resetScaleHeight( double newScaleHeight )
-      {
+    {
         scaleHeight_ = newScaleHeight;
-      }
+    }
+
 
     //! Get density at zero altitude.
     /*!
      * Returns the density at zero altitude (property of exponential atmosphere) in kg per meter^3.
      * \return densityAtZeroAltitude Atmospheric density at zero altitude.
      */
-    double getDensityAtZeroAltitude( )
-    {
-        return densityAtZeroAltitude_;
-    }
-
-    // alias
     double getBaseDensity( )
     {
-      return getDensityAtZeroAltitude( );
+        return baseDensity_;
     }
+
+    // alias for backwards compatibility
+    double getDensityAtZeroAltitude( )
+    {
+        return getBaseDensity( );
+    }
+
 
     //! Reset base density.
     /*!
@@ -121,7 +125,7 @@ public:
      */
     void resetBaseDensity( double newBaseDensity )
       {
-        densityAtZeroAltitude_ = newBaseDensity;
+        baseDensity_ = newBaseDensity;
       }
 
     //! Get constant temperature.
@@ -174,7 +178,26 @@ public:
         TUDAT_UNUSED_PARAMETER( longitude );
         TUDAT_UNUSED_PARAMETER( latitude );
         TUDAT_UNUSED_PARAMETER( time );
-        return densityAtZeroAltitude_ * std::exp( -altitude / scaleHeight_ );
+
+      /*
+       *             // if scalings are defined via functions (--> arc-wise!) update the scaling factor to current time
+          if( ( dragComponentScalingFunction_ != nullptr ) )
+          {
+              dragComponentScaling_ = dragComponentScalingFunction_( currentTime_ );
+          }
+          if( ( sideComponentScalingFunction_ != nullptr ) )
+          {
+              sideComponentScaling_ = sideComponentScalingFunction_( currentTime_ );
+          }
+          if( ( liftComponentScalingFunction_ != nullptr ) )
+          {
+              liftComponentScaling_ = liftComponentScalingFunction_( currentTime_ );
+          }
+
+      */
+
+
+        return baseDensity_ * std::exp( -altitude / scaleHeight_ );
     }
 
     //! Get local pressure.
@@ -259,6 +282,51 @@ public:
         return computeSpeedOfSound( getTemperature( altitude, longitude, latitude, time ), ratioOfSpecificHeats_, specificGasConstant_ );
     }
 
+
+    // Interface for ArcWiseExponentialAtmosphereParameter
+
+    std::function< double( double ) > getBaseDensityFunction( )
+    {
+        return baseDensityFunction_;
+    }
+
+    std::function< double( double ) > getScaleHeightFunction( )
+    {
+      return scaleHeightFunction_;
+    }
+
+    void resetBaseDensityFunction( std::function< double( double ) > newBaseDensityFunction )
+    {
+        baseDensityFunction_ = newBaseDensityFunction;
+    }
+
+    void resetScaleHeightFunction( std::function< double( double ) > newScaleHeightFunction )
+    {
+        scaleHeightFunction_ = newScaleHeightFunction;
+    }
+
+
+    void setParameterFunction( std::function< double( double ) > newParameterFunction, const estimatable_parameters::EstimatebleParametersEnum parameterType )
+    {
+        switch( parameterType )
+        {
+
+            case estimatable_parameters::arc_wise_exponential_atmosphere_base_density:
+                resetBaseDensityFunction( newParameterFunction );
+                break;
+
+            case estimatable_parameters::arc_wise_exponential_atmosphere_scale_height:
+                resetScaleHeightFunction( newParameterFunction );
+                break;
+
+            default:
+                throw std::runtime_error( "Error when setting atmospheric parameter function, parameterType not supported" +
+                  std::to_string( parameterType ) );
+        }
+    }
+
+
+
 protected:
 private:
     //! Scale altitude.
@@ -266,6 +334,7 @@ private:
      * Scale altitude (property of exponential atmosphere) in meters.
      */
     double scaleHeight_;
+    std::function< double( double ) > scaleHeightFunction_;
 
     //! Constant temperature.
     /*!
@@ -277,7 +346,8 @@ private:
     /*!
      * Density at zero altitude (property of exponential atmosphere) in kg per meter^3.
      */
-    double densityAtZeroAltitude_;
+    double baseDensity_;
+    std::function< double( double ) > baseDensityFunction_;
 
     //! Specific gas constant.
     /*!
