@@ -157,17 +157,12 @@ void McdAtmosphereModel::computeProperties( const double altitude, const double 
     float longitudeDeg = static_cast< float >( unit_conversions::convertRadiansToDegrees( longitude ) );
     float latitudeDeg = static_cast< float >( unit_conversions::convertRadiansToDegrees( latitude ) );
 
-    // Use zkey=1: radial distance from center of planet (meters)
-    // Tudat provides altitude above local surface, so we need to convert to radial distance
-    // For now, we use a fixed Mars mean radius.
-    // TODO: This should be improved to use the actual shape model (e.g., oblate spheroid or MOLA)
-    //       defined by the user in the Body object. The conversion should account for:
-    //       - Local areoid radius at the given latitude/longitude
-    //       - Local topography (MOLA) if high-resolution mode is enabled
-    const double MARS_MEAN_RADIUS = 3396200.0;  // meters (IAU 2015 value)
-
-    int zkey = 1;  // radial distance from planet center
-    float radialDistance = static_cast< float >( MARS_MEAN_RADIUS + altitude );
+    // Use zkey=2: height above areoid (meters)
+    // Tudat's altitude is typically height above the reference ellipsoid (oblate spheroid).
+    // The Areoid is the closest approximation to this reference surface in MCD.
+    // Using zkey=3 would incorrectly add local topography height to the input altitude.
+    int zkey = 2;  // height above areoid
+    float altitudeAboveSurface = static_cast< float >( altitude );
 
     // Prepare extra variable flags (enable all for comprehensive output)
     int extvarkeys[ 100 ];
@@ -195,7 +190,7 @@ void McdAtmosphereModel::computeProperties( const double altitude, const double 
 
     // Call MCD Fortran routine directly
     __mcd_MOD_call_mcd( &zkey,
-                        &radialDistance,
+                        &altitudeAboveSurface,
                         &longitudeDeg,
                         &latitudeDeg,
                         &highResolutionMode,
