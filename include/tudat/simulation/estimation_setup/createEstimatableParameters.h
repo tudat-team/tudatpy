@@ -2179,8 +2179,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 if( empiricalAccelerationSettings == nullptr )
                 {
                     throw std::runtime_error(
-                            "Error when trying to make constant empirical acceleration coefficients parameter, settings type "
-                            "inconsistent" );
+                            "Error when trying to make constant empirical acceleration coefficients parameter, settings type is inconsistent" );
                 }
                 else
                 {
@@ -2335,8 +2334,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 if( scalingCoefficientSettings == nullptr )
                 {
                     throw std::runtime_error(
-                            "Error when trying to make arc-wise aerodynamic component scaling coefficients parameter, settings type "
-                            "inconsistent" );
+                            "Error when trying to make arc-wise aerodynamic component scaling coefficients parameter, settings type is inconsistent" );
                 }
 
                 std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > associatedAccelerationModels =
@@ -2346,8 +2344,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 if( associatedAccelerationModels.size( ) == 0 )
                 {
                     throw std::runtime_error(
-                            "Error when creating aerodynamic scaling parameter, number of compatible acceleration models is not 1, but " +
-                            std::to_string( associatedAccelerationModels.size( ) ) );
+                            "Error when creating aerodynamic scaling parameter, found no compatible acceleration models");
                 }
 
                 std::vector< std::shared_ptr< aerodynamics::AerodynamicAcceleration > > associateAerodynamicAccelerationModels;
