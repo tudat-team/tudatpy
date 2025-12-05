@@ -52,6 +52,7 @@ void AerodynamicAccelerationPartial::computeAccelerationPartialWrtArcwiseDragCoe
     // Retrieve current arc
     std::shared_ptr< interpolators::LookUpScheme< double > > currentArcIndexLookUp = parameter->getArcTimeLookupScheme( );
     accelerationPartial.setZero( 3, parameter->getNumberOfArcs( ) );
+
     if( currentArcIndexLookUp->getMinimumValue( ) <= currentTime_ )
     {
         int currentArc = currentArcIndexLookUp->findNearestLowerNeighbour( currentTime_ );
@@ -103,6 +104,8 @@ void AerodynamicAccelerationPartial::computeAccelerationPartialWrtLiftComponent(
 /*!
  * Function to compute the partial derivative of the acceleration w.r.t. an aerodynamic component scaling factor
  * \param accelerationPartial Derivative of acceleration w.r.t. an aerodynamic component scaling factor (returned by reference).
+ * \param parameter Parameter object that is associated with the variable of differentiation
+
  */
 void AerodynamicAccelerationPartial::computeAccelerationPartialWrtArcWiseAerodynamicScalingCofficient(
         Eigen::MatrixXd& accelerationPartial,
@@ -188,6 +191,7 @@ void AerodynamicAccelerationPartial::computeAccelerationPartialWrtExponentialAtm
     double partialCurrentDensityWrtBaseDensity = std::exp( -flightConditions_->getCurrentAltitude(  ) / exponentialAtmosphereModel->getScaleHeight( ) );
     accelerationPartial *= partialCurrentDensityWrtBaseDensity;
 
+
 }
 
 
@@ -211,6 +215,58 @@ void AerodynamicAccelerationPartial::computeAccelerationPartialWrtExponentialAtm
 
     accelerationPartial *= partialCurrentDensityWrtScaleHeight;
 }
+
+
+//! Function to compute the partial derivative of the acceleration w.r.t. an arc-wise exponential atmosphere parameter
+/*!
+ * Function to compute the partial derivative of the acceleration w.r.t. an arc-wise exponential atmosphere parameter
+ * \param accelerationPartial Derivative of acceleration w.r.t. arc-wise exponential atmosphere parameter atmosphere parameter (returned by reference).
+ * \param parameter Parameter object that is associated with the variable of differentiation
+ */
+void AerodynamicAccelerationPartial::computeAccelerationPartialWrtArcWiseExponentialAtmosphereParameter(
+        Eigen::MatrixXd& accelerationPartial,
+        const std::shared_ptr< estimatable_parameters::ArcWiseExponentialAtmosphereParameter > parameter )
+{
+    // Get partial w.r.t. aerodynamic component coefficient
+    Eigen::MatrixXd partialWrtSingleParameter = Eigen::Vector3d::Zero( );
+
+    // cast to exponential atmosphere type, so that properties can be queried in partials function
+    std::shared_ptr< aerodynamics::ExponentialAtmosphere > exponentialAtmosphere =
+        std::dynamic_pointer_cast< aerodynamics::ExponentialAtmosphere >( flightConditions_->getAtmosphereModel() );
+
+    switch( parameter->getParameterName( ).first )
+    {
+        case estimatable_parameters::arc_wise_exponential_atmosphere_base_density: {
+            this->computeAccelerationPartialWrtExponentialAtmosphereBaseDensity( partialWrtSingleParameter, exponentialAtmosphere );
+            break;
+        }
+        case estimatable_parameters::arc_wise_exponential_atmosphere_scale_height: {
+            this->computeAccelerationPartialWrtExponentialAtmosphereScaleHeight( partialWrtSingleParameter, exponentialAtmosphere );
+            break;
+        }
+        default:
+            break;
+    }
+
+    // Retrieve current arc
+    std::shared_ptr< interpolators::LookUpScheme< double > > currentArcIndexLookUp = parameter->getArcTimeLookupScheme( );
+    accelerationPartial.setZero( 3, parameter->getNumberOfArcs( ) );
+
+    if( currentArcIndexLookUp->getMinimumValue( ) <= currentTime_ )
+    {
+        int currentArc = currentArcIndexLookUp->findNearestLowerNeighbour( currentTime_ );
+
+        if( currentArc >= accelerationPartial.cols( ) )
+        {
+            throw std::runtime_error( "Error when getting arc-wise atmosphere parameter partials, data not consistent" );
+        }
+
+        // Set partial
+        accelerationPartial.block( 0, currentArc, 3, 1 ) = partialWrtSingleParameter;
+
+    }
+}
+
 
 
 //! Function for updating partial w.r.t. the bodies' positions
@@ -397,6 +453,24 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > AerodynamicAccelerat
                 else
                 {
                     throw std::runtime_error( "Error when making radiation drag, arcwise drag parameter not consistent" );
+                }
+                break;
+            }
+            case estimatable_parameters::arc_wise_exponential_atmosphere_base_density:
+            case estimatable_parameters::arc_wise_exponential_atmosphere_scale_height:
+            {
+                if( std::dynamic_pointer_cast< estimatable_parameters::ArcWiseExponentialAtmosphereParameter >( parameter ) != nullptr )
+                {
+                    partialFunction =
+                            std::bind( &AerodynamicAccelerationPartial::computeAccelerationPartialWrtArcWiseExponentialAtmosphereParameter,
+                                       this,
+                                       std::placeholders::_1,
+                                       std::dynamic_pointer_cast< estimatable_parameters::ArcWiseExponentialAtmosphereParameter >( parameter ) );
+                    numberOfColumns = parameter->getParameterSize( );
+                }
+                else
+                {
+                    throw std::runtime_error( "Error when making arcwise atmosphere parameter partial function, parameter type not consistent" );
                 }
                 break;
             }
