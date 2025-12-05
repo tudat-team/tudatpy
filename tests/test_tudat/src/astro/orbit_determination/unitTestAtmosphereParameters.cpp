@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE( test_ExponentialAtmosphereParameters )
     ///////////////////////       EVALUATE PARTIALS                                  //////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    /*
+
     bodies.at( "Titan" )->setStateFromEphemeris( testTime0 );
     bodies.at( "Titan" )->setCurrentRotationToLocalFrameFromEphemeris( testTime0 );
 
@@ -170,7 +170,6 @@ BOOST_AUTO_TEST_CASE( test_ExponentialAtmosphereParameters )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtBaseDensity, testPartialWrtBaseDensity, 1.0E-8 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtScaleHeight, testPartialWrtScaleHeight, 1.0E-8 );
 
-    */
 
 
     bodies.at( "Titan" )->setStateFromEphemeris( testTime1 );
@@ -179,7 +178,7 @@ BOOST_AUTO_TEST_CASE( test_ExponentialAtmosphereParameters )
     bodies.at( "Vehicle" )->setState( vehicleInitialState1 );
     bodies.at( "Vehicle" )->getFlightConditions( )->updateConditions( testTime1 );
 
-    std::shared_ptr< AtmosphericFlightConditions > currentAtmFlightConditions = std::dynamic_pointer_cast< AtmosphericFlightConditions >( bodies.at( "Vehicle" )->getFlightConditions( ) );
+    currentAtmFlightConditions = std::dynamic_pointer_cast< AtmosphericFlightConditions >( bodies.at( "Vehicle" )->getFlightConditions( ) );
     std::cout << "Current Altitude: " << currentAtmFlightConditions->getCurrentAltitude( ) << std::endl << std::flush;
     std::cout << "Current Density: " << currentAtmFlightConditions->getCurrentDensity( ) << std::endl << std::flush;
 
@@ -189,16 +188,16 @@ BOOST_AUTO_TEST_CASE( test_ExponentialAtmosphereParameters )
 
 
     // Analytically
-    Eigen::Vector3d partialWrtBaseDensity = aerodynamicAccelerationPartial->wrtParameter( baseDensityAtmosphericParameter );
-    Eigen::Vector3d partialWrtScaleHeight = aerodynamicAccelerationPartial->wrtParameter( scaleHeightAtmosphericParameter );
+    partialWrtBaseDensity = aerodynamicAccelerationPartial->wrtParameter( baseDensityAtmosphericParameter );
+    partialWrtScaleHeight = aerodynamicAccelerationPartial->wrtParameter( scaleHeightAtmosphericParameter );
 
     std::function< void( ) > environmentUpdateFunction =
         std::bind( &updateFlightConditionsWithPerturbedState, bodies.at( "Vehicle" )->getFlightConditions( ), 0.0 );
 
     // Numerically
-    Eigen::Vector3d testPartialWrtBaseDensity =
+    testPartialWrtBaseDensity =
             acceleration_partials::calculateAccelerationWrtParameterPartials( baseDensityAtmosphericParameter, accelerationModel, 1.0E-8, environmentUpdateFunction);
-    Eigen::Vector3d testPartialWrtScaleHeight =
+    testPartialWrtScaleHeight =
             acceleration_partials::calculateAccelerationWrtParameterPartials( scaleHeightAtmosphericParameter, accelerationModel, 10, environmentUpdateFunction );
 
     std::cout << "Base Density:" << std::endl << "\t Analytical: " << std::endl << partialWrtBaseDensity.transpose(  ) << std::endl << "\t Numerically: " << std::endl << testPartialWrtBaseDensity.transpose(  ) << std::endl;
