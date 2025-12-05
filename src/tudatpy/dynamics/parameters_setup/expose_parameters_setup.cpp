@@ -62,8 +62,7 @@ void expose_parameters_setup( py::module& m )
             .value( "equivalence_principle_lpi_violation_parameter_type",
                     tep::EstimatebleParametersEnum::equivalence_principle_lpi_violation_parameter )
             .value( "empirical_acceleration_coefficients_type",
-                    tep::EstimatebleParametersEnum::empirical_acceleration_coefficients )  // TO
-                                                                                           // EXPOSE
+                    tep::EstimatebleParametersEnum::empirical_acceleration_coefficients )  // TO EXPOSE
             .value( "arc_wise_empirical_acceleration_coefficients_type",
                     tep::EstimatebleParametersEnum::arc_wise_empirical_acceleration_coefficients )  // TO EXPOSE
             .value( "full_degree_tidal_love_number_type",
@@ -95,6 +94,10 @@ void expose_parameters_setup( py::module& m )
             .value( "arc_wise_lift_component_scaling_factor_type", tep::EstimatebleParametersEnum::arc_wise_lift_component_scaling_factor )
             .value( "rtg_force_vector_type", tep::EstimatebleParametersEnum::rtg_force_vector )
             .value( "rtg_force_vector_magnitude_type", tep::EstimatebleParametersEnum::rtg_force_vector_magnitude )
+            .value( "iau_rotation_pole_position_type", tep::EstimatebleParametersEnum::nominal_rotation_pole_position )
+            .value( "iau_pole_position_rate_type", tep::EstimatebleParametersEnum::rotation_pole_position_rate )
+            .value( "iau_pole_libration_type", tep::EstimatebleParametersEnum::rotation_pole_libration_terms )
+            .value( "iau_longitudinal_libration_type", tep::EstimatebleParametersEnum::rotation_longitudinal_libration_terms )
 
             .export_values( );
 
@@ -911,7 +914,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  body : str
      Name of the body, with whose gravitational model the estimatable parameters are associated.
 
- block_indices : List[ Tuple[int, int] ]
+ block_indices : List[ tuple[int, int] ]
      List of block indices. The length of this list can be arbitrary, as long as the pairs are unique.
      For each pair, the first value is the degree and the second the order of the coefficient to be included.
 
@@ -990,7 +993,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  body : str
      Name of the body, with whose gravitational model the estimatable parameters are associated.
 
- block_indices : List[ Tuple[int, int] ]
+ block_indices : List[ tuple[int, int] ]
      List of block indices. The length of this list can be arbitrary, as long as the pairs are unique.
      For each pair, the first value is the degree and the second the order of the coefficient to be included.
 
@@ -1301,6 +1304,42 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  ----------
  body : str
      Name of the body, with whose rotation model the estimatable parameter is associated.
+ libration_angular_frequencies : List[ float ]
+     List of angular frequencies (:math:`\omega_{W_i}`) at which longitudinal libration amplitudes (:math:`W_{i}`) are to be included in estimatable parameter.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's property
+
+     )doc" );
+
+    m.def( "iau_rotation_model_pole_librations",
+           &tep::iauRotationModelPoleLibrationParameterSettings,
+           py::arg( "body" ),
+           py::arg( "libration_angular_frequencies" ),
+           R"doc(
+
+ Function for creating parameter settings for a body's pole libration amplitudes in an IAU rotation model
+
+ Function for creating parameter settings for a body's pole libration amplitudes in an IAU rotation model
+ Using this requires:
+
+ * A :func:`~tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model` rotation model specified by the ``body`` parameter
+ * Any dynamical or observational model to depend on the rotation model of the body specified by the ``body`` parameter
+
+ This parameter estimates the libration amplitude :math:`\alpha_{i}` and :math:`\delta_{i}` variables of the :func:`~tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model` rotation model.
+ The values of :math:`i` for which the amplitudes is estimated is defined by the ``libration_angular_frequencies`` input, which defines the
+ corresponding :math:`\omega_{alpha_i}` (:math:`=\omega_{\delta_i}`) values for which the amplitudes are to be estimated.
+ Note that the parameters are ordered [:math:`\alpha_{i}`, :math:`\delta_{i}`, :math:`\alpha_{i+1}`, :math:`\alpha_{i+1}`, ...], where the index :math:`i` follows the order of the frequency terms provided in the ``libration_angular_frequencies`` input argument.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body, with whose rotation model the estimatable parameter is associated.
+ libration_angular_frequencies : List[ float ]
+     List of angular frequencies (:math:`\omega_{alpha_i}` (:math:`=\omega_{\delta_i}`)) at which pole libration amplitudes (:math:`\alpha_{i}`, :math:`\delta_{i}`) are to be included in estimatable parameter.
 
  Returns
  -------
@@ -1329,7 +1368,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
  Parameters
  ----------
- link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, Tuple[str, str]
+ link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, tuple[str, str]
      Set of link ends that define the geometry of the biased observations.
 
  observable_type : ObservableType
@@ -1366,7 +1405,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
  Parameters
  ----------
- link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, Tuple[str, str]
+ link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, tuple[str, str]
      Set of link ends that define the geometry of the biased observations.
 
  observable_type : ObservableType
@@ -1417,7 +1456,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
  Parameters
  ----------
- link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, Tuple[str, str]
+ link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, tuple[str, str]
      Set of link ends that define the geometry of the biased observations.
 
  observable_type : ObservableType
@@ -1456,7 +1495,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
  Parameters
  ----------
- link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, Tuple[str, str]
+ link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, tuple[str, str]
      Set of link ends that define the geometry of the biased observations.
 
  observable_type : ObservableType

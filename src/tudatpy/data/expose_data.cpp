@@ -321,6 +321,16 @@ void expose_data( py::module& m )
             .value( "scan_nr", tudat::input_output::TrackingDataType::scan_nr )
             .export_values( );
 
+    py::enum_< tudat::input_output::TrackingTxtFileReadFilterType >(
+            m, "TrackingTxtFileReadFilterType", R"doc(No documentation available.)doc" )
+            .value( "no_tracking_txt_file_filter",
+                    tudat::input_output::TrackingTxtFileReadFilterType::no_tracking_txt_file_filter,
+                    R"doc(No documentation available.)doc" )
+            .value( "ifms_tracking_txt_file_filter",
+                    tudat::input_output::TrackingTxtFileReadFilterType::ifms_tracking_txt_file_filter,
+                    R"doc(No documentation available.)doc" )
+            .export_values( );
+
     py::class_< tio::solar_activity::SolarActivityData, std::shared_ptr< tio::solar_activity::SolarActivityData > >(
             m, "SolarActivityData", R"doc(No documentation available.)doc" )
             .def_readonly( "solar_radio_flux_107_observed", &tio::solar_activity::SolarActivityData::solarRadioFlux107Observed );
@@ -520,7 +530,8 @@ void expose_data( py::module& m )
            py::arg( "column_types" ),
            py::arg( "comment_symbol" ) = '#',
            py::arg( "value_separators" ) = ",:\t ",
-           py::arg( "ignore_omitted_columns" ) = false );
+           py::arg( "ignore_omitted_columns" ) = false,
+           py::arg( "data_filter_method" ) = tio::no_tracking_txt_file_filter );
 
     m.def( "grail_antenna_file_reader", &tio::grailAntennaFileReader, py::arg( "file_name" ), R"doc(No documentation available.)doc" );
     m.def( "grail_mass_level_0_file_reader",
@@ -537,6 +548,7 @@ void expose_data( py::module& m )
            &tio::readIfmsFile,
            py::arg( "file_name" ),
            py::arg( "apply_tropospheric_correction" ) = true,
+           py::arg( "remove_invalid_lines" ) = true,
            R"doc(Load contents of IFMS file into object
 
            The keys of the dictionary represent the different columns of the IFMS file, and their values are lists with all the values in the associated column as strings.
@@ -545,6 +557,8 @@ void expose_data( py::module& m )
 
            :param file_name: String representing the path to the file to be loaded
            :param apply_tropospheric_correction: Whether to modify the averaged Doppler frequency as described above (Default: True)
+           :param remove_invalid_lines: Boolean defining whether a line is skipped if the transmit frequency, osberved frequency, or troposphere correction is undefined (Default: True)
+
            :return ifms_contents: Dictionary with contents of the IFMS file as lists of strings
            )doc" );
     m.def( "set_estrack_weather_data_in_ground_stations",

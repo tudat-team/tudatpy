@@ -183,6 +183,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case rotation_longitudinal_libration_terms:
             parameterDescription = "longitudinal libration terms ";
             break;
+        case rotation_pole_libration_terms:
+            parameterDescription = "rotation pole libration terms ";
+            break;
         case drag_component_scaling_factor:
             parameterDescription = "drag component scaling factor ";
             break;
@@ -405,6 +408,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         case rotation_longitudinal_libration_terms:
             isDoubleParameter = false;
             break;
+        case rotation_pole_libration_terms:
+            isDoubleParameter = false;
+            break;
         case drag_component_scaling_factor:
         case side_component_scaling_factor:
         case lift_component_scaling_factor:
@@ -471,6 +477,9 @@ bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum paramete
             flag = true;
             break;
         case rotation_longitudinal_libration_terms:
+            flag = true;
+            break;
+        case rotation_pole_libration_terms:
             flag = true;
             break;
         default:

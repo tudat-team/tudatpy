@@ -1122,7 +1122,7 @@ void expose_ephemeris_setup( py::module& m )
 
  Parameters
  ----------
- custom_state_function : Callable[[float], numpy.ndarray[numpy.float64[6, 1]]]
+ custom_state_function : callable[[float], numpy.ndarray[numpy.float64[6, 1]]]
      Function returning the state as a function of time.
  frame_origin : str, default="SSB"
      Origin of frame in which ephemeris data is defined.
