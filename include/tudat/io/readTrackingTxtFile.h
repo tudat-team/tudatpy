@@ -296,13 +296,13 @@ private:
      * Read out the raw data map from a filestream
      * @param dataFile filestream
      */
-    void readRawDataMap( std::ifstream& dataFile );
+    void readRawDataMap( std::ifstream& dataFile, const TrackingTxtFileReadFilterType dataFilterMethod = no_tracking_txt_file_filter );
 
     /*!
      * Process a single raw line from the file and add it to the data maps
      * @param rawLine single line from the file as a string
      */
-    void addLineToRawDataMap( std::string& rawLine );
+    void addLineToRawDataMap( std::string& rawLine, const TrackingTxtFileReadFilterType dataFilterMethod = no_tracking_txt_file_filter );
 
     bool validateCurrentLineProcessing( const TrackingTxtFileReadFilterType dataFilterMethod, const std::vector< std::string >& rawVector );
 
