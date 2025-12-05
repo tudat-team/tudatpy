@@ -40,69 +40,50 @@ void expose_radiation_pressure_setup( py::module& m )
     /////////////////////////////////////////////////////////////////////////////
 
     // DEPRECATED //
-    py::enum_< tss::RadiationPressureType >(
-            m, "RadiationPressureType" )
-            .value( "cannonball_radiation_pressure_interface",
-                    tss::RadiationPressureType::cannon_ball_radiation_pressure_interface )
+    py::enum_< tss::RadiationPressureType >( m, "RadiationPressureType" )
+            .value( "cannonball_radiation_pressure_interface", tss::RadiationPressureType::cannon_ball_radiation_pressure_interface )
             .export_values( );
 
-    py::enum_< tss::RadiationPressureTargetModelType >(
-            m, "RadiationPressureTargetModelType", R"doc(
+    py::enum_< tss::RadiationPressureTargetModelType >( m, "RadiationPressureTargetModelType", R"doc(
                 Enum defining the type of a radiation pressure target. This enum is not used when creating a target model, but is instead used
                 in other parts of the code to identify a specific type of target
 )doc" )
-            .value( "cannonball_target",
-                    tss::RadiationPressureTargetModelType::cannonball_target )
-            .value( "paneled_target",
-                    tss::RadiationPressureTargetModelType::paneled_target )
-            .value( "multi_type_target",
-                    tss::RadiationPressureTargetModelType::multi_type_target )
-            .value( "undefined_target",
-                    tss::RadiationPressureTargetModelType::undefined_target )
+            .value( "cannonball_target", tss::RadiationPressureTargetModelType::cannonball_target )
+            .value( "paneled_target", tss::RadiationPressureTargetModelType::paneled_target )
+            .value( "multi_type_target", tss::RadiationPressureTargetModelType::multi_type_target )
+            .value( "undefined_target", tss::RadiationPressureTargetModelType::undefined_target )
             .export_values( );
 
-        // DEPRECATED //
-    py::class_< tss::RadiationPressureInterfaceSettings,
-                std::shared_ptr< tss::RadiationPressureInterfaceSettings > >(
+    // DEPRECATED //
+    py::class_< tss::RadiationPressureInterfaceSettings, std::shared_ptr< tss::RadiationPressureInterfaceSettings > >(
             m, "RadiationPressureInterfaceSettings" );
 
-        // DEPRECATED //
+    // DEPRECATED //
     py::class_< tss::CannonBallRadiationPressureInterfaceSettings,
                 std::shared_ptr< tss::CannonBallRadiationPressureInterfaceSettings >,
-                tss::RadiationPressureInterfaceSettings >(
-            m, "CannonBallRadiationPressureInterfaceSettings" );
+                tss::RadiationPressureInterfaceSettings >( m, "CannonBallRadiationPressureInterfaceSettings" );
 
-
-        // DEPRECATED //
+    // DEPRECATED //
     m.def( "cannonball",
-           py::overload_cast< const std::string&,
-                              const double,
-                              const double,
-                              const std::vector< std::string >& >(
+           py::overload_cast< const std::string&, const double, const double, const std::vector< std::string >& >(
                    &tss::cannonBallRadiationPressureSettings ),
            py::arg( "source_body" ),
            py::arg( "reference_area" ),
            py::arg( "radiation_pressure_coefficient" ),
            py::arg( "occulting_bodies" ) = std::vector< std::string >( ) );
 
-
     ///////////////////////////////////////////////////////////
     ///////////   ENUMS
     ///////////////////////////////////////////////////////////
 
-    py::enum_< tss::KnockeTypeSurfacePropertyDistributionModel >(
-            m, "KnockeTypeSurfacePropertyDistributionModel" )
+    py::enum_< tss::KnockeTypeSurfacePropertyDistributionModel >( m, "KnockeTypeSurfacePropertyDistributionModel" )
             .value( "custom", tss::KnockeTypeSurfacePropertyDistributionModel::custom )
-            .value( "albedo_knocke",
-                    tss::KnockeTypeSurfacePropertyDistributionModel::albedo_knocke )
-            .value( "emissivity_knocke",
-                    tss::KnockeTypeSurfacePropertyDistributionModel::emissivity_knocke )
+            .value( "albedo_knocke", tss::KnockeTypeSurfacePropertyDistributionModel::albedo_knocke )
+            .value( "emissivity_knocke", tss::KnockeTypeSurfacePropertyDistributionModel::emissivity_knocke )
             .export_values( );
 
-    py::enum_< tss::SphericalHarmonicsSurfacePropertyDistributionModel >(
-            m, "SphericalHarmonicsSurfacePropertyDistributionModel" )
-            .value( "albedo_dlam1",
-                    tss::SphericalHarmonicsSurfacePropertyDistributionModel::albedo_dlam1 )
+    py::enum_< tss::SphericalHarmonicsSurfacePropertyDistributionModel >( m, "SphericalHarmonicsSurfacePropertyDistributionModel" )
+            .value( "albedo_dlam1", tss::SphericalHarmonicsSurfacePropertyDistributionModel::albedo_dlam1 )
             .export_values( );
 
     enum class SphericalHarmonicsSurfacePropertyDistributionModel {
@@ -119,10 +100,9 @@ void expose_radiation_pressure_setup( py::module& m )
     ///////////   LUMINOSITY MODELS
     ///////////////////////////////////////////////////////////
 
-    py::class_< tss::LuminosityModelSettings, std::shared_ptr< tss::LuminosityModelSettings > >(
-            m,
-            "LuminosityModelSettings",
-            R"doc(
+    py::class_< tss::LuminosityModelSettings, std::shared_ptr< tss::LuminosityModelSettings > >( m,
+                                                                                                 "LuminosityModelSettings",
+                                                                                                 R"doc(
 
          Base class for providing settings for body source luminosity settings, to be used (typically but not necessarily) for defining the Sun's luminosity.
 
@@ -229,7 +209,7 @@ void expose_radiation_pressure_setup( py::module& m )
 
  Parameters
  ----------
- luminosity_function : Callable[[astro.time_representation.Time], float]
+ luminosity_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float]
      Function returning source luminosity (in Watt) as a function of time (Time object)
  Returns
  -------
@@ -258,7 +238,7 @@ void expose_radiation_pressure_setup( py::module& m )
 
  Parameters
  ----------
- irradiance_function : Callable[[astro.time_representation.Time], float]
+ irradiance_function : callable[[:class:`~tudatpy.astro.time_representation.Time`], float]
      Function returning irradiance at reference distance from center of source (in :math:`W/m^{2}`) as a function of time (Time object)
  reference_distance : float
      Distance from center of source at which the irradiance is defined
@@ -278,8 +258,7 @@ void expose_radiation_pressure_setup( py::module& m )
     ///////////   SURFACE PROPERTY MODELS
     ///////////////////////////////////////////////////////////
 
-    py::class_< tss::SurfacePropertyDistributionSettings,
-                std::shared_ptr< tss::SurfacePropertyDistributionSettings > >(
+    py::class_< tss::SurfacePropertyDistributionSettings, std::shared_ptr< tss::SurfacePropertyDistributionSettings > >(
             m,
             "SurfacePropertyDistributionSettings",
             R"doc(
@@ -477,7 +456,7 @@ void expose_radiation_pressure_setup( py::module& m )
 
  Parameters
  ----------
- custom_function : Callable[[float, float, astro.time_representation.Time], float]
+ custom_function : callable[[float, float, astro.time_representation.Time], float]
      Function providing surface property as a function of latitude, longitude and time (in that order, with time as a Time object).
  Returns
  -------
@@ -495,11 +474,9 @@ void expose_radiation_pressure_setup( py::module& m )
     ///////////   PANEL RADIOSITY MODELS
     ///////////////////////////////////////////////////////////
 
-    py::class_< tss::PanelRadiosityModelSettings,
-                std::shared_ptr< tss::PanelRadiosityModelSettings > >(
-            m,
-            "PanelRadiosityModelSettings",
-            R"doc(
+    py::class_< tss::PanelRadiosityModelSettings, std::shared_ptr< tss::PanelRadiosityModelSettings > >( m,
+                                                                                                         "PanelRadiosityModelSettings",
+                                                                                                         R"doc(
 
          Base class for providing settings for body panel radiosity models, to be used (typically but not necessarily) for defining surface radiosity of a panelled solar system body as a result of albedo and/or planetary radiation pressure
 
@@ -543,8 +520,7 @@ void expose_radiation_pressure_setup( py::module& m )
      )doc" );
 
     m.def( "constant_albedo_surface_radiosity",
-           py::overload_cast< double, const std::string& >(
-                   &tss::albedoPanelRadiosityModelSettings ),
+           py::overload_cast< double, const std::string& >( &tss::albedoPanelRadiosityModelSettings ),
            py::arg( "constant_albedo" ),
            py::arg( "original_source_name" ),
            R"doc(
@@ -612,8 +588,7 @@ void expose_radiation_pressure_setup( py::module& m )
      )doc" );
 
     m.def( "thermal_emission_blackbody_constant_emissivity",
-           py::overload_cast< double, const std::string& >(
-                   &tss::delayedThermalPanelRadiosityModelSettings ),
+           py::overload_cast< double, const std::string& >( &tss::delayedThermalPanelRadiosityModelSettings ),
            py::arg( "constant_emissivity" ),
            py::arg( "original_source_name" ),
            R"doc(
@@ -740,8 +715,7 @@ void expose_radiation_pressure_setup( py::module& m )
     ///////////   PANEL REFLECTION MODELS
     ///////////////////////////////////////////////////////////
 
-    py::class_< tss::BodyPanelReflectionLawSettings,
-                std::shared_ptr< tss::BodyPanelReflectionLawSettings > >(
+    py::class_< tss::BodyPanelReflectionLawSettings, std::shared_ptr< tss::BodyPanelReflectionLawSettings > >(
             m,
             "BodyPanelReflectionLawSettings",
             R"doc(
@@ -833,11 +807,9 @@ void expose_radiation_pressure_setup( py::module& m )
     ///////////   RADIATION SOURCE MODELS
     ///////////////////////////////////////////////////////////
 
-    py::class_< tss::RadiationSourceModelSettings,
-                std::shared_ptr< tss::RadiationSourceModelSettings > >(
-            m,
-            "RadiationSourceModelSettings",
-            R"doc(
+    py::class_< tss::RadiationSourceModelSettings, std::shared_ptr< tss::RadiationSourceModelSettings > >( m,
+                                                                                                           "RadiationSourceModelSettings",
+                                                                                                           R"doc(
 
          Base class for providing settings for properties of a radiation source (e.g. Sun), to be used in the context of (for instance) calculation of radiation pressure on spacecraft
 
@@ -907,8 +879,7 @@ void expose_radiation_pressure_setup( py::module& m )
            &tss::extendedRadiationSourceModelSettingsWithOccultationMap,
            py::arg( "panel_radiosity_settings" ),
            py::arg( "number_of_panels_per_ring" ),
-           py::arg( "original_source_occulting_bodies" ) =
-                   std::map< std::string, std::vector< std::string > >( ),
+           py::arg( "original_source_occulting_bodies" ) = std::map< std::string, std::vector< std::string > >( ),
            R"doc(
 
  Function for creating settings for a dynamically panelled extended radiation source
@@ -949,8 +920,7 @@ void expose_radiation_pressure_setup( py::module& m )
     ///////////   RADIATION TARGET MODELS
     ///////////////////////////////////////////////////////////
 
-    py::class_< tss::RadiationPressureTargetModelSettings,
-                std::shared_ptr< tss::RadiationPressureTargetModelSettings > >(
+    py::class_< tss::RadiationPressureTargetModelSettings, std::shared_ptr< tss::RadiationPressureTargetModelSettings > >(
             m,
             "RadiationPressureTargetModelSettings",
             R"doc(
@@ -967,8 +937,7 @@ void expose_radiation_pressure_setup( py::module& m )
            &tss::cannonballRadiationPressureTargetModelSettingsWithOccultationMap,
            py::arg( "reference_area" ),
            py::arg( "radiation_pressure_coefficient" ),
-           py::arg( "per_source_occulting_bodies" ) =
-                   std::map< std::string, std::vector< std::string > >( ),
+           py::arg( "per_source_occulting_bodies" ) = std::map< std::string, std::vector< std::string > >( ),
            R"doc(
 
  Function for create settings for a cannonball radiation pressure target

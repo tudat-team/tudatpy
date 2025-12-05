@@ -1126,6 +1126,17 @@ public:
     std::vector< double > librationAngularFrequencies_;
 };
 
+class PoleLibrationTermsParameterSettings : public EstimatableParameterSettings
+{
+public:
+    PoleLibrationTermsParameterSettings( const std::string& associatedBody, const std::vector< double > librationAngularFrequencies ):
+        EstimatableParameterSettings( associatedBody, rotation_pole_libration_terms ),
+        librationAngularFrequencies_( librationAngularFrequencies )
+    {}
+
+    std::vector< double > librationAngularFrequencies_;
+};
+
 class FullAccelerationScalingFactorParameterSettings : public EstimatableParameterSettings
 {
 public:
@@ -1683,6 +1694,13 @@ inline std::shared_ptr< EstimatableParameterSettings > iauRotationModelLongitudi
         const std::vector< double >& librationAngularFrequencies )
 {
     return std::make_shared< LongitdinalLibrationTermsParameterSettings >( bodyName, librationAngularFrequencies );
+}
+
+inline std::shared_ptr< EstimatableParameterSettings > iauRotationModelPoleLibrationParameterSettings(
+        const std::string& bodyName,
+        const std::vector< double >& librationAngularFrequencies )
+{
+    return std::make_shared< PoleLibrationTermsParameterSettings >( bodyName, librationAngularFrequencies );
 }
 
 }  // namespace estimatable_parameters
