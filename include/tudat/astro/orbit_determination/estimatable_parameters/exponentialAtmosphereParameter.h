@@ -349,8 +349,6 @@ private:
     //! Original <double> parameter value;
     double originalParameterValue_;
 
-    //! Number of rtg acceleration components that are to be estimated.
-    int parameterSize_;
 
     //! List of component indices in rtg accelerations that are to be estimated.
     Eigen::Vector3i accelerationIndices_;
