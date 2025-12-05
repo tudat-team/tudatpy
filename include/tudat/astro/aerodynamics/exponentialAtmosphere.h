@@ -177,25 +177,20 @@ public:
     {
         TUDAT_UNUSED_PARAMETER( longitude );
         TUDAT_UNUSED_PARAMETER( latitude );
-        TUDAT_UNUSED_PARAMETER( time );
 
-      /*
-       *             // if scalings are defined via functions (--> arc-wise!) update the scaling factor to current time
-          if( ( dragComponentScalingFunction_ != nullptr ) )
-          {
-              dragComponentScaling_ = dragComponentScalingFunction_( currentTime_ );
-          }
-          if( ( sideComponentScalingFunction_ != nullptr ) )
-          {
-              sideComponentScaling_ = sideComponentScalingFunction_( currentTime_ );
-          }
-          if( ( liftComponentScalingFunction_ != nullptr ) )
-          {
-              liftComponentScaling_ = liftComponentScalingFunction_( currentTime_ );
-          }
-
-      */
-
+        // if density profile parameters are defined via functions (--> arc-wise!) update the values to current time
+        if( ( baseDensityFunction_ != nullptr ) )
+        {
+            baseDensity_ = baseDensityFunction_( time );
+        }
+        if( ( scaleHeightFunction_ != nullptr ) )
+        {
+            scaleHeight_ = scaleHeightFunction_( time );
+        }
+        if( ( baseDensityFunction_ == nullptr ) && ( scaleHeightFunction_ == nullptr ))
+        {
+          TUDAT_UNUSED_PARAMETER( time ); // is this needed?
+        }
 
         return baseDensity_ * std::exp( -altitude / scaleHeight_ );
     }
@@ -285,6 +280,7 @@ public:
 
     // Interface for ArcWiseExponentialAtmosphereParameter
 
+
     std::function< double( double ) > getBaseDensityFunction( )
     {
         return baseDensityFunction_;
@@ -310,7 +306,6 @@ public:
     {
         switch( parameterType )
         {
-
             case estimatable_parameters::arc_wise_exponential_atmosphere_base_density:
                 resetBaseDensityFunction( newParameterFunction );
                 break;
