@@ -118,7 +118,7 @@ public:
 
     bool hasFrequencyCalculator( )
     {
-        return ( !( transmittingFrequencyCalculator_ == nullptr  ) ) ;
+        return ( !( transmittingFrequencyCalculator_ == nullptr ) );
     }
 
     //! Function to set the object used to compute the ground station's transmitting frequency at a given time

@@ -107,7 +107,7 @@ public:
      * Constructor
      * @param trackingDataType the SI data type of the double representation
      */
-    explicit TrackingFileFieldConverter( TrackingDataType trackingDataType ): doubleDataType_( trackingDataType ) { }
+    explicit TrackingFileFieldConverter( TrackingDataType trackingDataType ): doubleDataType_( trackingDataType ) {}
 
     //! Destructor
     virtual ~TrackingFileFieldConverter( ) = default;
@@ -149,7 +149,7 @@ public:
      * Constructor
      * @param trackingDataType Data type of the double representation (SI)
      */
-    TrackingFileMonthFieldConverter( TrackingDataType trackingDataType ): TrackingFileFieldConverter( trackingDataType ) { }
+    TrackingFileMonthFieldConverter( TrackingDataType trackingDataType ): TrackingFileFieldConverter( trackingDataType ) {}
 
     /*!
      * Implementation to convert the months in three letter string to their double representation
@@ -177,7 +177,7 @@ public:
      */
     TrackingFileFieldMultiplyingConverter( TrackingDataType trackingDataType, double multiplier ):
         TrackingFileFieldConverter( trackingDataType ), multiplier_( multiplier )
-    { }
+    {}
 
     /*!
      * Convert string to double and apply given multiplication factor.
@@ -199,7 +199,7 @@ class TrackingFileFieldUTCTimeConverter : public TrackingFileFieldConverter
 public:
     TrackingFileFieldUTCTimeConverter( TrackingDataType trackingDataType = TrackingDataType::utc_reception_time_j2000 ):
         TrackingFileFieldConverter( trackingDataType )
-    { }
+    {}
     double toDouble( std::string& rawField ) const
     {
         return basic_astrodynamics::DateTime::fromIsoString( rawField ).epoch< double >( );
@@ -350,7 +350,7 @@ public:
     const std::vector< TrackingDataType >& getDataColumnTypes( )
     {
         columnDataTypes_.clear( );
-        for( auto& pair: doubleDataMap_ )
+        for( auto& pair : doubleDataMap_ )
         {
             columnDataTypes_.push_back( pair.first );
         }
@@ -443,17 +443,20 @@ private:
  * @param valueSeparators String of characters that separate columns. E.g. ",:" means that every , and : in the file will create a new column
  * @return TrackingFileContents
  */
-static inline std::shared_ptr< TrackingTxtFileContents > createTrackingTxtFileContents( const std::string& fileName,
-                                                                                        const std::vector< std::string >& columnTypes,
-                                                                                        char commentSymbol = '#',
-                                                                                        const std::string& valueSeparators = ",: \t",
-                                                                                        const bool ignoreOmittedColumns = false,
-                                                                                        const TrackingTxtFileReadFilterType dataFilterMethod = no_tracking_txt_file_filter )
+static inline std::shared_ptr< TrackingTxtFileContents > createTrackingTxtFileContents(
+        const std::string& fileName,
+        const std::vector< std::string >& columnTypes,
+        char commentSymbol = '#',
+        const std::string& valueSeparators = ",: \t",
+        const bool ignoreOmittedColumns = false,
+        const TrackingTxtFileReadFilterType dataFilterMethod = no_tracking_txt_file_filter )
 {
-    return std::make_shared< TrackingTxtFileContents >( fileName, columnTypes, commentSymbol, valueSeparators, ignoreOmittedColumns, dataFilterMethod );
+    return std::make_shared< TrackingTxtFileContents >(
+            fileName, columnTypes, commentSymbol, valueSeparators, ignoreOmittedColumns, dataFilterMethod );
 }
 
-inline std::shared_ptr< TrackingTxtFileContents > readIfmsFile( const std::string& fileName, const bool applyTroposphereCorrection = true,
+inline std::shared_ptr< TrackingTxtFileContents > readIfmsFile( const std::string& fileName,
+                                                                const bool applyTroposphereCorrection = true,
                                                                 const bool filterInvalidLines = true )
 {
     std::vector< std::string > columnTypes( { "sample_number",
@@ -469,8 +472,8 @@ inline std::shared_ptr< TrackingTxtFileContents > readIfmsFile( const std::strin
                                               "doppler_troposphere_correction",
                                               "doppler_noise_hz" } );
 
-    auto rawFileContents = createTrackingTxtFileContents( fileName, columnTypes, '#', ", \t", true,
-                                                          filterInvalidLines ? ifms_tracking_txt_file_filter : no_tracking_txt_file_filter );
+    auto rawFileContents = createTrackingTxtFileContents(
+            fileName, columnTypes, '#', ", \t", true, filterInvalidLines ? ifms_tracking_txt_file_filter : no_tracking_txt_file_filter );
     rawFileContents->addMetaData( TrackingDataType::file_name, fileName );
     if( applyTroposphereCorrection )
     {
