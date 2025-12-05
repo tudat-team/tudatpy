@@ -453,7 +453,8 @@ static inline std::shared_ptr< TrackingTxtFileContents > createTrackingTxtFileCo
     return std::make_shared< TrackingTxtFileContents >( fileName, columnTypes, commentSymbol, valueSeparators, ignoreOmittedColumns, dataFilterMethod );
 }
 
-inline std::shared_ptr< TrackingTxtFileContents > readIfmsFile( const std::string& fileName, const bool applyTroposphereCorrection = true )
+inline std::shared_ptr< TrackingTxtFileContents > readIfmsFile( const std::string& fileName, const bool applyTroposphereCorrection = true,
+                                                                const bool filterInvalidLines = true )
 {
     std::vector< std::string > columnTypes( { "sample_number",
                                               "utc_datetime_string",
@@ -468,7 +469,8 @@ inline std::shared_ptr< TrackingTxtFileContents > readIfmsFile( const std::strin
                                               "doppler_troposphere_correction",
                                               "doppler_noise_hz" } );
 
-    auto rawFileContents = createTrackingTxtFileContents( fileName, columnTypes, '#', ", \t", true, ifms_tracking_txt_file_filter );
+    auto rawFileContents = createTrackingTxtFileContents( fileName, columnTypes, '#', ", \t", true,
+                                                          filterInvalidLines ? ifms_tracking_txt_file_filter : no_tracking_txt_file_filter );
     rawFileContents->addMetaData( TrackingDataType::file_name, fileName );
     if( applyTroposphereCorrection )
     {

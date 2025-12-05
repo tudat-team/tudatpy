@@ -40,7 +40,7 @@ void TrackingTxtFileContents::readRawDataMap( std::ifstream& dataFile, const Tra
 }
 
 
-bool isIfmsEntryInvalid( const std::string ifmsFileEntry )
+bool isIfmsEntryValid( const std::string ifmsFileEntry )
 {
     if( ifmsFileEntry.size( ) == 0 )
     {
@@ -82,7 +82,7 @@ bool TrackingTxtFileContents::validateCurrentLineProcessing( const TrackingTxtFi
         {
             if( ( i == 6 ) || ( i == 8 ) || ( i == 10 ) )
             {
-                addLine = isIfmsEntryInvalid( rawVector.at( i ) );
+                addLine = isIfmsEntryValid( rawVector.at( i ) );
                 if( !addLine )
                 {
                     return addLine;

@@ -768,7 +768,8 @@ createMultiStationIfmsObservedObservationCollectionFromFiles(
         const FrequencyBands& transmissionBand,
         const bool applyTroposphereCorrection = true,
         const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
-                simulation_setup::getCombinedApproximateGroundStationPositions( ) )
+                simulation_setup::getCombinedApproximateGroundStationPositions( ),
+        const bool filterInvalidLines = true )
 {
     if( groundStationNames.size( ) != ifmsFileNames.size( ) )
     {
@@ -778,7 +779,7 @@ createMultiStationIfmsObservedObservationCollectionFromFiles(
 
     for( std::string ifmsFileName: ifmsFileNames )
     {
-        rawIfmsDataList.push_back( input_output::readIfmsFile( ifmsFileName, applyTroposphereCorrection ) );
+        rawIfmsDataList.push_back( input_output::readIfmsFile( ifmsFileName, applyTroposphereCorrection, filterInvalidLines ) );
     }
 
     std::vector< std::shared_ptr< ProcessedTrackingTxtFileContents< ObservationScalarType, TimeType > > > processedIfmsFiles;
@@ -813,7 +814,8 @@ createIfmsObservedObservationCollectionFromFiles( const std::vector< std::string
                                                   const FrequencyBands& transmissionBand,
                                                   const bool applyTroposphereCorrection = true,
                                                   const std::map< std::string, Eigen::Vector3d >& earthFixedGroundStationPositions =
-                                                          simulation_setup::getCombinedApproximateGroundStationPositions( ) )
+                                                          simulation_setup::getCombinedApproximateGroundStationPositions( ),
+                                                  const bool filterInvalidLines = true )
 {
     std::vector< std::string > groundStationNameList( ifmsFileNames.size( ), groundStationName );
 
@@ -825,7 +827,8 @@ createIfmsObservedObservationCollectionFromFiles( const std::vector< std::string
             receptionBand,
             transmissionBand,
             applyTroposphereCorrection,
-            earthFixedGroundStationPositions );
+            earthFixedGroundStationPositions,
+            filterInvalidLines );
 }
 
 template< typename ObservationScalarType = double, typename TimeType = Time >

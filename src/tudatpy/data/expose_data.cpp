@@ -544,6 +544,7 @@ void expose_data( py::module& m )
            &tio::readIfmsFile,
            py::arg( "file_name" ),
            py::arg( "apply_tropospheric_correction" ) = true,
+           py::arg( "remove_invalid_lines" ) = true,
            R"doc(Load contents of IFMS file into object
 
            The keys of the dictionary represent the different columns of the IFMS file, and their values are lists with all the values in the associated column as strings.
@@ -552,6 +553,8 @@ void expose_data( py::module& m )
 
            :param file_name: String representing the path to the file to be loaded
            :param apply_tropospheric_correction: Whether to modify the averaged Doppler frequency as described above (Default: True)
+           :param remove_invalid_lines: Boolean defining whether a line is skipped if the transmit frequency, osberved frequency, or troposphere correction is undefined (Default: True)
+
            :return ifms_contents: Dictionary with contents of the IFMS file as lists of strings
            )doc" );
     m.def( "set_estrack_weather_data_in_ground_stations",
