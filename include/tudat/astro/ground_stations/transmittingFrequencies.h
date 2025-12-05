@@ -175,51 +175,10 @@ public:
         StationFrequencyInterpolator( ), startTimes_( startTimes ), endTimes_( endTimes ), rampRates_( rampRates ),
         startFrequencies_( startFrequency )
     {
-        // Check if dimensions of all vectors are consistent
-        if( startTimes_.size( ) != endTimes_.size( ) || startTimes_.size( ) != rampRates_.size( ) ||
-            startTimes_.size( ) != startFrequencies_.size( ) )
-        {
-            throw std::runtime_error(
-                    "Error when creating piecewise linear frequency interpolator: the dimensions of the specified vectors "
-                    "are not consistent: start times (" +
-                    std::to_string( startTimes_.size( ) ) + "), end times (" + std::to_string( endTimes_.size( ) ) + "), ramp rates (" +
-                    std::to_string( rampRates_.size( ) ) + "), start frequencies (" + std::to_string( startFrequencies_.size( ) ) + ")." );
-        }
-
-        // Check if there are no discontinuities between end times and subsequent start times
-        for( unsigned int i = 1; i < startTimes_.size( ); ++i )
-        {
-            // If there are discontinuities
-            if( startTimes_.at( i ) != endTimes_.at( i - 1 ) )
-            {
-                //                // If the start and end times are inconsistent throw error
-                //                if ( endTimes_.at( i - 1 ) > startTimes_.at( i ) )
-                //                {
-                //                    throw std::runtime_error(
-                //                            "Error when creating piecewise linear frequency interpolator: inconsistency between ramp end "
-                //                            "time (" + std::to_string( double( endTimes_.at( i - 1 ) ) ) + ";" +
-                //                            basic_astrodynamics::getCalendarDateFromTime( endTimes_.at( i - 1 ) ).isoString( ) + ") and
-                //                            start time of the following ramp (" + std::to_string( double( startTimes_.at( i ) ) ) + ";" +
-                //                            basic_astrodynamics::getCalendarDateFromTime( startTimes_.at( i ) ).isoString( ) +
-                //                            "); the end is smaller than the start time." );
-                //                }
-                //                // If there are gaps in the data save that information
-                //                else
-                //                {
-                //                    invalidTimeBlocksStartTimes_.push_back( endTimes_.at( i - 1 ) );
-                //                    invalidTimeBlocksEndTimes_.push_back( startTimes_.at( i ) );
-                //                }
-            }
-        }
-
-        startTimeLookupScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< Time > >( startTimes_ );
-
-        if( !invalidTimeBlocksStartTimes_.empty( ) )
-        {
-            invalidStartTimeLookupScheme_ =
-                    std::make_shared< interpolators::BinarySearchLookupScheme< Time > >( invalidTimeBlocksStartTimes_ );
-        }
+        initialize( );
     }
+
+    void initialize( );
 
     /*! Templated function to compute the transmitted frequency at the specified time.
      *
@@ -376,6 +335,8 @@ public:
     {
         return startFrequencies_;
     }
+
+    void addFrequencyInterpolator( const std::shared_ptr< PiecewiseLinearFrequencyInterpolator > rampsToAdd );
 
 private:
     //! Get frequency (with long double as observation scalar type and double as time type).

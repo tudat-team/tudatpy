@@ -296,13 +296,13 @@ private:
      * Read out the raw data map from a filestream
      * @param dataFile filestream
      */
-    void readRawDataMap( std::ifstream& dataFile );
+    void readRawDataMap( std::ifstream& dataFile, const TrackingTxtFileReadFilterType dataFilterMethod = no_tracking_txt_file_filter );
 
     /*!
      * Process a single raw line from the file and add it to the data maps
      * @param rawLine single line from the file as a string
      */
-    void addLineToRawDataMap( std::string& rawLine );
+    void addLineToRawDataMap( std::string& rawLine, const TrackingTxtFileReadFilterType dataFilterMethod = no_tracking_txt_file_filter );
 
     bool validateCurrentLineProcessing( const TrackingTxtFileReadFilterType dataFilterMethod, const std::vector< std::string >& rawVector );
 
@@ -447,12 +447,14 @@ static inline std::shared_ptr< TrackingTxtFileContents > createTrackingTxtFileCo
                                                                                         const std::vector< std::string >& columnTypes,
                                                                                         char commentSymbol = '#',
                                                                                         const std::string& valueSeparators = ",: \t",
-                                                                                        const bool ignoreOmittedColumns = false )
+                                                                                        const bool ignoreOmittedColumns = false,
+                                                                                        const TrackingTxtFileReadFilterType dataFilterMethod = no_tracking_txt_file_filter )
 {
-    return std::make_shared< TrackingTxtFileContents >( fileName, columnTypes, commentSymbol, valueSeparators, ignoreOmittedColumns );
+    return std::make_shared< TrackingTxtFileContents >( fileName, columnTypes, commentSymbol, valueSeparators, ignoreOmittedColumns, dataFilterMethod );
 }
 
-inline std::shared_ptr< TrackingTxtFileContents > readIfmsFile( const std::string& fileName, const bool applyTroposphereCorrection = true )
+inline std::shared_ptr< TrackingTxtFileContents > readIfmsFile( const std::string& fileName, const bool applyTroposphereCorrection = true,
+                                                                const bool filterInvalidLines = true )
 {
     std::vector< std::string > columnTypes( { "sample_number",
                                               "utc_datetime_string",
@@ -467,7 +469,8 @@ inline std::shared_ptr< TrackingTxtFileContents > readIfmsFile( const std::strin
                                               "doppler_troposphere_correction",
                                               "doppler_noise_hz" } );
 
-    auto rawFileContents = createTrackingTxtFileContents( fileName, columnTypes, '#', ", \t", true );
+    auto rawFileContents = createTrackingTxtFileContents( fileName, columnTypes, '#', ", \t", true,
+                                                          filterInvalidLines ? ifms_tracking_txt_file_filter : no_tracking_txt_file_filter );
     rawFileContents->addMetaData( TrackingDataType::file_name, fileName );
     if( applyTroposphereCorrection )
     {
