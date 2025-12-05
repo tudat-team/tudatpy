@@ -536,6 +536,16 @@ public:
         momentContributionInterface_ = momentContributionInterface;
     }
 
+    void setRotationToAerodynamicFrame( const Eigen::Quaterniond rotationToAerodynamicFrame )
+    {
+        rotationToAerodynamicFrame_ = rotationToAerodynamicFrame;
+    }
+
+    Eigen::Quaterniond getRotationToAerodynamicFrame( ) const
+    {
+        return rotationToAerodynamicFrame_;
+    }
+
 protected:
     //! Compute the aerodynamic coefficients for a single control surface, and add to full configuration coefficients.
     /*!
@@ -630,6 +640,8 @@ protected:
 
     //! Explicit list of control surface names, in same order as iterator over controlSurfaceIncrementInterfaces_
     std::vector< std::string > controlSurfaceNames_;
+
+    Eigen::Quaterniond rotationToAerodynamicFrame_;
 
 private:
 };
