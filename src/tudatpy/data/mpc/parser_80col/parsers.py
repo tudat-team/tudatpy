@@ -6,7 +6,19 @@ from tudatpy.astro.time_representation import DateTime
 from tudatpy.data.mpc.parser_80col import unpackers
 import os
 def get_first_failure_reason(row: pd.Series) -> str:
-    """Returns ONLY the first reason why a row failed validation."""
+    """
+    Returns ONLY the first reason why a row failed validation.
+
+    Parameters
+    ----------
+    row : pd.Series
+        A row from the DataFrame representing a single observation line.
+
+    Returns
+    -------
+    str
+        A descriptive error message indicating the specific validation failure.
+    """
 
     # 1. Check Mandatory Internal Separators (RA/DEC internals)
     sep_checks = {
