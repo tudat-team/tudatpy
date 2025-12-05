@@ -22,11 +22,11 @@ void TrackingTxtFileContents::parseData( const TrackingTxtFileReadFilterType dat
     {
         throw std::runtime_error( "Error when opening Tracking txt file: file " + fileName_ + " could not be opened." );
     }
-    readRawDataMap( dataFile );
+    readRawDataMap( dataFile, dataFilterMethod );
     convertDataMap( dataFilterMethod );
 }
 
-void TrackingTxtFileContents::readRawDataMap( std::ifstream& dataFile )
+void TrackingTxtFileContents::readRawDataMap( std::ifstream& dataFile, const TrackingTxtFileReadFilterType dataFilterMethod  )
 {
     std::string currentLine;
 
@@ -34,12 +34,67 @@ void TrackingTxtFileContents::readRawDataMap( std::ifstream& dataFile )
     {
         if( !currentLine.empty( ) && currentLine.at( 0 ) != commentSymbol_ )
         {
-            addLineToRawDataMap( currentLine );
+            addLineToRawDataMap( currentLine, dataFilterMethod );
         }
     }
 }
 
-void TrackingTxtFileContents::addLineToRawDataMap( std::string& rawLine )
+
+bool isIfmsEntryInvalid( const std::string ifmsFileEntry )
+{
+    if( ifmsFileEntry.size( ) == 0 )
+    {
+        return false;
+    }
+    else
+    {
+        if( ifmsFileEntry.at( 0 ) != '-' )
+        {
+            return true;
+        }
+        else
+        {
+            bool seenNonNine = false; bool seenDot = false;
+            for( unsigned int i = 1; i < ifmsFileEntry.size( ); i++ )
+            {
+                if( ifmsFileEntry.at( i ) == '.' )
+                {
+                    seenDot = true;
+                }
+                else if( ifmsFileEntry.at( i ) != '9' )
+                {
+                    seenNonNine = true;
+                }
+            }
+            return !( seenDot == true && seenNonNine == false );
+        }
+    }
+}
+
+bool TrackingTxtFileContents::validateCurrentLineProcessing( const TrackingTxtFileReadFilterType dataFilterMethod,
+                                                             const std::vector< std::string >& rawVector )
+{
+    bool addLine = true;
+
+    if( dataFilterMethod == ifms_tracking_txt_file_filter )
+    {
+        for( unsigned int i = 0; i < rawVector.size( ); i++ )
+        {
+            if( ( i == 6 ) || ( i == 8 ) || ( i == 10 ) )
+            {
+                addLine = isIfmsEntryInvalid( rawVector.at( i ) );
+                if( !addLine )
+                {
+                    return addLine;
+                }
+            }
+        }
+    }
+
+    return addLine;
+}
+
+void TrackingTxtFileContents::addLineToRawDataMap( std::string& rawLine, const TrackingTxtFileReadFilterType dataFilterMethod )
 {
     size_t numberOfColumns = getNumColumns( );
     std::vector< std::string > currentSplitRawLine_;
@@ -63,49 +118,18 @@ void TrackingTxtFileContents::addLineToRawDataMap( std::string& rawLine )
         }
     }
 
+
+
     // Populate the dataMap_ with a new row on each of the vectors
-    for( std::size_t i = 0; i < numberOfColumns; ++i )
+    if( validateCurrentLineProcessing( dataFilterMethod, currentSplitRawLine_ ) )
     {
-        std::string currentFieldType = columnFieldTypes_.at( i );
-        std::string currentValue = currentSplitRawLine_.at( i );
-        rawDataMap_[ currentFieldType ].push_back( currentValue );
-    }
-}
-
-bool TrackingTxtFileContents::validateCurrentLineProcessing( const TrackingTxtFileReadFilterType dataFilterMethod,
-                                                             const std::vector< std::string >& rawVector )
-{
-    bool addLine = true;
-
-    if( dataFilterMethod == ifms_tracking_txt_file_filter )
-    {
-        for( unsigned int i = 0; i < rawVector.size( ); i++ )
+        for( std::size_t i = 0; i < numberOfColumns; ++i )
         {
-            bool currentEntryIsValid = false;
-            if( rawVector.at( 0 ) != "-" )
-            {
-                currentEntryIsValid = true;
-            }
-            else
-            {
-                for( unsigned int j = 1; j < rawVector.at( j ).size( ); j++ )
-                {
-                    if( ( rawVector.at( j ) != "9" ) && ( rawVector.at( j ) != "." ) )
-                    {
-                        currentEntryIsValid = true;
-                        break;
-                    }
-                }
-            }
-            if( currentEntryIsValid == false )
-            {
-                addLine = false;
-                break;
-            }
+            std::string currentFieldType = columnFieldTypes_.at( i );
+            std::string currentValue = currentSplitRawLine_.at( i );
+            rawDataMap_[ currentFieldType ].push_back( currentValue );
         }
     }
-
-    return addLine;
 }
 
 void TrackingTxtFileContents::convertDataMap( const TrackingTxtFileReadFilterType dataFilterMethod )
@@ -128,15 +152,12 @@ void TrackingTxtFileContents::convertDataMap( const TrackingTxtFileReadFilterTyp
         const TrackingDataType& dataType = converter->getTrackingDataType( );
 
         // Convert and store double vector
-        if( validateCurrentLineProcessing( dataFilterMethod, rawVector ) )
+        std::vector< double > dataVector;
+        for( std::string rawValue: rawVector )
         {
-            std::vector< double > dataVector;
-            for( std::string rawValue: rawVector )
-            {
-                dataVector.push_back( converter->toDouble( rawValue ) );
-            }
-            doubleDataMap_[ dataType ] = dataVector;
+            dataVector.push_back( converter->toDouble( rawValue ) );
         }
+        doubleDataMap_[ dataType ] = dataVector;
     }
 }
 

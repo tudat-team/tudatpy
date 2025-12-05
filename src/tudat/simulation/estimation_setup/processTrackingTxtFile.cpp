@@ -82,14 +82,7 @@ void setStationFrequenciesFromTrackingData(
                 throw std::runtime_error( "Error when reading IFMS transmitter frequencies, only unramped data currently supported." );
             }
         }
-        rampStartTimes[ 0 ] -= 1.0;
-        for( unsigned int i = 0; i < rampStartTimes.size( ) - 1; i++ )
-        {
-            double timeDifference = rampStartTimes.at( i + 1 ) - rampEndTimes.at( i );
-            rampStartTimes[ i + 1 ] -= timeDifference / 2.0;
-            rampEndTimes[ i ] += timeDifference / 2.0;
-        }
-        rampEndTimes[ rampEndTimes.size( ) - 1 ] += 1.0;
+
         rampInterpolators[ it.first ] = std::make_shared< ground_stations::PiecewiseLinearFrequencyInterpolator >(
                 rampStartTimes, rampEndTimes, rampRates, rampStartFrequencies );
     }
@@ -100,7 +93,22 @@ void setStationFrequenciesFromTrackingData(
         {
             throw std::runtime_error( "Error when setting frequencies for station " + it->first + ", station not found." );
         }
-        bodies.at( "Earth" )->getGroundStation( it->first )->setTransmittingFrequencyCalculator( it->second );
+        if( !bodies.at( "Earth" )->getGroundStation( it->first )->hasFrequencyCalculator( ) )
+        {
+            bodies.at( "Earth" )->getGroundStation( it->first )->setTransmittingFrequencyCalculator( it->second );
+        }
+        else if( std::dynamic_pointer_cast< ground_stations::PiecewiseLinearFrequencyInterpolator >(
+                         bodies.at( "Earth" )->getGroundStation( it->first )->getTransmittingFrequencyCalculator( ) ) != nullptr )
+        {
+            std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > existingFrequencyInterpolator =
+                std::dynamic_pointer_cast< ground_stations::PiecewiseLinearFrequencyInterpolator >(
+                    bodies.at( "Earth" )->getGroundStation( it->first )->getTransmittingFrequencyCalculator( ) );
+            existingFrequencyInterpolator->addFrequencyInterpolator( it->second );
+        }
+        else
+        {
+            throw std::runtime_error( "Error when adding ramp tables for station " + it->first + ", existing frequency calculator implemented, but not of correct type" );
+        }
     }
 }
 
