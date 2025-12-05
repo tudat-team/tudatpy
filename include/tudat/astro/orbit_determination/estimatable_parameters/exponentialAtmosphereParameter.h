@@ -272,11 +272,11 @@ public:
     {
         switch( parameterName_.first )
         {
-            case exponential_atmosphere_base_density: {
+            case arc_wise_exponential_atmosphere_base_density: {
                 exponentialAtmosphereModel_->resetBaseDensity( newParameterValue );
                 break;
             }
-            case exponential_atmosphere_scale_height: {
+            case arc_wise_exponential_atmosphere_scale_height: {
                 exponentialAtmosphereModel_->resetScaleHeight( newParameterValue );
                 break;
             }
@@ -292,7 +292,6 @@ public:
         {
             throw std::runtime_error( "Error when resetting values of arc-wise atmosphere parameters, sizes are incompatible" );
         }
-
         parameterValues_ = utilities::convertEigenVectorToStlVector( newParameterValues );
         for( unsigned int i = 0; i < parameterValues_.size( ); i++ )
         {
@@ -309,11 +308,11 @@ public:
         std::string parameterDescription;
         switch( parameterName_.first )
         {
-            case exponential_atmosphere_base_density: {
+            case arc_wise_exponential_atmosphere_base_density: {
                 parameterDescription = "Base density of exponential atmosphere model";
                 break;
             }
-            case exponential_atmosphere_scale_height: {
+            case arc_wise_exponential_atmosphere_scale_height: {
                 parameterDescription = "Scale height of exponential atmosphere model";
                 break;
             }

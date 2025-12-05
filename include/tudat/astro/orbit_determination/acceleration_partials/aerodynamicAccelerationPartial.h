@@ -308,6 +308,14 @@ protected:
       Eigen::MatrixXd& accelerationPartial, std::shared_ptr< aerodynamics::ExponentialAtmosphere >& exponentialAtmosphereModel);
 
 
+    //! Function to compute the partial derivative of the acceleration w.r.t. an arc-wise exponential atmosphere parameter
+    /*!
+     * Function to compute the partial derivative of the acceleration w.r.t. an arc-wise exponential atmosphere parameter
+     * \param accelerationPartial Derivative of acceleration w.r.t. arc-wise exponential atmosphere parameter atmosphere parameter (returned by reference).
+     */
+    void computeAccelerationPartialWrtArcWiseExponentialAtmosphereParameter(
+            Eigen::MatrixXd& accelerationPartial,
+            const std::shared_ptr< estimatable_parameters::ArcWiseExponentialAtmosphereParameter > parameter );
 
     //! Perturbations of Cartesian state used in the numerical (central difference) computation of
     //! currentAccelerationStatePartials_
