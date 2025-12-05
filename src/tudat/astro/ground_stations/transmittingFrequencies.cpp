@@ -94,18 +94,16 @@ void PiecewiseLinearFrequencyInterpolator::initialize( )
     rampRates_ = utilities::createVectorFromMapValues( rampRatesMap );
     startFrequencies_ = utilities::createVectorFromMapValues( startFrequenciesMap );
 
-
     startTimeLookupScheme_ = std::make_shared< interpolators::HuntingAlgorithmLookupScheme< Time > >( startTimes_ );
 
     if( !invalidTimeBlocksStartTimes_.empty( ) )
     {
-        invalidStartTimeLookupScheme_ =
-                std::make_shared< interpolators::BinarySearchLookupScheme< Time > >( invalidTimeBlocksStartTimes_ );
+        invalidStartTimeLookupScheme_ = std::make_shared< interpolators::BinarySearchLookupScheme< Time > >( invalidTimeBlocksStartTimes_ );
     }
 }
 
-
-void PiecewiseLinearFrequencyInterpolator::addFrequencyInterpolator( const std::shared_ptr< PiecewiseLinearFrequencyInterpolator > rampsToAdd )
+void PiecewiseLinearFrequencyInterpolator::addFrequencyInterpolator(
+        const std::shared_ptr< PiecewiseLinearFrequencyInterpolator > rampsToAdd )
 {
     std::vector< Time > startTimesToAdd = rampsToAdd->getStartTimes( );
     std::vector< Time > endTimesToAdd = rampsToAdd->getEndTimes( );
@@ -136,7 +134,6 @@ void PiecewiseLinearFrequencyInterpolator::addFrequencyInterpolator( const std::
     startFrequencies_ = utilities::createVectorFromMapValues( startFrequenciesMap );
 
     initialize( );
-
 }
 
 }  // namespace ground_stations

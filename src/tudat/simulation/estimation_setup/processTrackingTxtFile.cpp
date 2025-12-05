@@ -23,7 +23,7 @@ std::vector< ObservableType > findAvailableObservableTypes( const std::vector< i
     std::vector< ObservableType > availableObservableTypes;
 
     // Loop over map with observables and their required data types. Add observabletype to vector if those data types are present
-    for( const auto& pair: observableRequiredDataTypesMap )
+    for( const auto& pair : observableRequiredDataTypesMap )
     {
         std::vector< input_output::TrackingDataType > requiredDataTypeSet = pair.second;
         if( utilities::containsAll( availableDataTypes, requiredDataTypeSet ) )
@@ -41,7 +41,7 @@ void setStationFrequenciesFromTrackingData(
 {
     std::map< std::string, std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > > rampInterpolators;
 
-    for( auto it: rampInformation )
+    for( auto it : rampInformation )
     {
         std::vector< Time > rampStartTimes;
         std::vector< Time > rampEndTimes;
@@ -101,13 +101,14 @@ void setStationFrequenciesFromTrackingData(
                          bodies.at( "Earth" )->getGroundStation( it->first )->getTransmittingFrequencyCalculator( ) ) != nullptr )
         {
             std::shared_ptr< ground_stations::PiecewiseLinearFrequencyInterpolator > existingFrequencyInterpolator =
-                std::dynamic_pointer_cast< ground_stations::PiecewiseLinearFrequencyInterpolator >(
-                    bodies.at( "Earth" )->getGroundStation( it->first )->getTransmittingFrequencyCalculator( ) );
+                    std::dynamic_pointer_cast< ground_stations::PiecewiseLinearFrequencyInterpolator >(
+                            bodies.at( "Earth" )->getGroundStation( it->first )->getTransmittingFrequencyCalculator( ) );
             existingFrequencyInterpolator->addFrequencyInterpolator( it->second );
         }
         else
         {
-            throw std::runtime_error( "Error when adding ramp tables for station " + it->first + ", existing frequency calculator implemented, but not of correct type" );
+            throw std::runtime_error( "Error when adding ramp tables for station " + it->first +
+                                      ", existing frequency calculator implemented, but not of correct type" );
         }
     }
 }

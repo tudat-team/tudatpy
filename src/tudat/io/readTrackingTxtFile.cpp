@@ -26,7 +26,7 @@ void TrackingTxtFileContents::parseData( const TrackingTxtFileReadFilterType dat
     convertDataMap( dataFilterMethod );
 }
 
-void TrackingTxtFileContents::readRawDataMap( std::ifstream& dataFile, const TrackingTxtFileReadFilterType dataFilterMethod  )
+void TrackingTxtFileContents::readRawDataMap( std::ifstream& dataFile, const TrackingTxtFileReadFilterType dataFilterMethod )
 {
     std::string currentLine;
 
@@ -38,7 +38,6 @@ void TrackingTxtFileContents::readRawDataMap( std::ifstream& dataFile, const Tra
         }
     }
 }
-
 
 bool isIfmsEntryValid( const std::string ifmsFileEntry )
 {
@@ -54,7 +53,8 @@ bool isIfmsEntryValid( const std::string ifmsFileEntry )
         }
         else
         {
-            bool seenNonNine = false; bool seenDot = false;
+            bool seenNonNine = false;
+            bool seenDot = false;
             for( unsigned int i = 1; i < ifmsFileEntry.size( ); i++ )
             {
                 if( ifmsFileEntry.at( i ) == '.' )
@@ -109,7 +109,7 @@ void TrackingTxtFileContents::addLineToRawDataMap( std::string& rawLine, const T
         if( !( currentSplitRawLine_.size( ) > numberOfColumns && ignoreOmittedColumns_ ) )
         {
             unsigned int columnsFound = currentSplitRawLine_.size( );
-            for( auto a: currentSplitRawLine_ )
+            for( auto a : currentSplitRawLine_ )
             {
                 std::cout << a << "\n";
             }
@@ -117,8 +117,6 @@ void TrackingTxtFileContents::addLineToRawDataMap( std::string& rawLine, const T
                                       std::to_string( numberOfColumns ) + " columns were expected.\nRaw line:" + rawLine );
         }
     }
-
-
 
     // Populate the dataMap_ with a new row on each of the vectors
     if( validateCurrentLineProcessing( dataFilterMethod, currentSplitRawLine_ ) )
@@ -135,7 +133,7 @@ void TrackingTxtFileContents::addLineToRawDataMap( std::string& rawLine, const T
 void TrackingTxtFileContents::convertDataMap( const TrackingTxtFileReadFilterType dataFilterMethod )
 {
     // Loop over all the column types to convert them to doubles
-    for( std::string columnType: columnFieldTypes_ )
+    for( std::string columnType : columnFieldTypes_ )
     {
         // If the columnType (requested by the user) does not have a known converter in tudat, it is skipped here and only stored as raw
         // string
@@ -153,7 +151,7 @@ void TrackingTxtFileContents::convertDataMap( const TrackingTxtFileReadFilterTyp
 
         // Convert and store double vector
         std::vector< double > dataVector;
-        for( std::string rawValue: rawVector )
+        for( std::string rawValue : rawVector )
         {
             dataVector.push_back( converter->toDouble( rawValue ) );
         }
@@ -192,12 +190,12 @@ const std::vector< TrackingDataType > TrackingTxtFileContents::getMetaDataTypes(
 {
     std::vector< TrackingDataType > metaDataTypes;
 
-    for( const auto& pair: metaDataMapDouble_ )
+    for( const auto& pair : metaDataMapDouble_ )
     {
         metaDataTypes.push_back( pair.first );
     }
 
-    for( const auto& pair: metaDataMapStr_ )
+    for( const auto& pair : metaDataMapStr_ )
     {
         metaDataTypes.push_back( pair.first );
     }

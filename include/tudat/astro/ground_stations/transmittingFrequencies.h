@@ -29,10 +29,10 @@ class StationFrequencyInterpolator
 {
 public:
     //! Constructor
-    StationFrequencyInterpolator( ) { }
+    StationFrequencyInterpolator( ) {}
 
     //! Destructor
-    virtual ~StationFrequencyInterpolator( ) { }
+    virtual ~StationFrequencyInterpolator( ) {}
 
     /*! Templated function to compute the transmitted frequency at the specified time.
      *
@@ -85,10 +85,10 @@ class ConstantFrequencyInterpolator : public StationFrequencyInterpolator
 {
 public:
     //! Constructor
-    ConstantFrequencyInterpolator( double frequency ): StationFrequencyInterpolator( ), frequency_( frequency ) { }
+    ConstantFrequencyInterpolator( double frequency ): StationFrequencyInterpolator( ), frequency_( frequency ) {}
 
     //! Destructor
-    ~ConstantFrequencyInterpolator( ) { }
+    ~ConstantFrequencyInterpolator( ) {}
 
     template< typename ObservationScalarType = double, typename TimeType = Time >
     ObservationScalarType computeCurrentFrequency( const TimeType lookupTime )
@@ -250,8 +250,10 @@ public:
 
         ObservationScalarType integral = 0;
 
-        int startTimeLowestNearestNeighbour = - 1; startTimeLookupScheme_->findNearestLowerNeighbour( quadratureStartTime );
-        int endTimeLowestNearestNeighbour = -1; startTimeLookupScheme_->findNearestLowerNeighbour( quadratureEndTime );
+        int startTimeLowestNearestNeighbour = -1;
+        startTimeLookupScheme_->findNearestLowerNeighbour( quadratureStartTime );
+        int endTimeLowestNearestNeighbour = -1;
+        startTimeLookupScheme_->findNearestLowerNeighbour( quadratureEndTime );
         try
         {
             startTimeLowestNearestNeighbour = startTimeLookupScheme_->findNearestLowerNeighbour( quadratureStartTime );
@@ -259,9 +261,10 @@ public:
         }
         catch( std::runtime_error& caughtException )
         {
-            throw std::runtime_error( "Error when determining current ramp in frequency integral: " +
-                                      std::string( caughtException.what( ) ) + ", possibly the ground station does not have data"
-                                                                               "defined at the requested time." );
+            throw std::runtime_error(
+                    "Error when determining current ramp in frequency integral: " + std::string( caughtException.what( ) ) +
+                    ", possibly the ground station does not have data"
+                    "defined at the requested time." );
         }
 
         if( startTimeLowestNearestNeighbour == endTimeLowestNearestNeighbour )

@@ -217,7 +217,7 @@ public:
         // Update the observableTypes that one can expect to process
         observationMap_.clear( );
 
-        for( const ObservableType observableType: observableTypes_ )
+        for( const ObservableType observableType : observableTypes_ )
         {
             std::vector< ObservationScalarType > observableValues;
 
@@ -302,7 +302,7 @@ public:
 
         // Ge a vector of ground station positions
         std::vector< Eigen::Vector3d > groundStationPositions;
-        for( const auto& linkEnds: linkEndsVector_ )
+        for( const auto& linkEnds : linkEndsVector_ )
         {
             try
             {
@@ -589,7 +589,7 @@ createTrackingTxtFileObservationSets(
         LinkEnds& currentLinkEnds = linkEndsVector[ i ];
 
         // Loop over the available observable types
-        for( const ObservableType& currentObservableType: observableTypesToProcess )
+        for( const ObservableType& currentObservableType : observableTypesToProcess )
         {
             // Prepare a container to store the data columns
             Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > currentObservable( 1 );
@@ -602,9 +602,9 @@ createTrackingTxtFileObservationSets(
     }
 
     // Fill the observation collection
-    for( ObservableType& currentObservableType: observableTypesToProcess )
+    for( ObservableType& currentObservableType : observableTypesToProcess )
     {
-        for( const LinkEnds& currentLinkEnds: linkEndsSet )
+        for( const LinkEnds& currentLinkEnds : linkEndsSet )
         {
             observationSets[ currentObservableType ][ currentLinkEnds ].push_back(
                     std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
@@ -639,9 +639,9 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
                   std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > >
                 processedObervationSet = createTrackingTxtFileObservationSets< ObservationScalarType, TimeType >(
                         processedTrackingTxtFileContents.at( i ), observableTypesToProcess, ancillarySettings );
-        for( auto it: processedObervationSet )
+        for( auto it : processedObervationSet )
         {
-            for( auto it2: it.second )
+            for( auto it2 : it.second )
             {
                 for( unsigned int j = 0; j < it2.second.size( ); j++ )
                 {
@@ -777,7 +777,7 @@ createMultiStationIfmsObservedObservationCollectionFromFiles(
     }
     std::vector< std::shared_ptr< input_output::TrackingTxtFileContents > > rawIfmsDataList;
 
-    for( std::string ifmsFileName: ifmsFileNames )
+    for( std::string ifmsFileName : ifmsFileNames )
     {
         rawIfmsDataList.push_back( input_output::readIfmsFile( ifmsFileName, applyTroposphereCorrection, filterInvalidLines ) );
     }
