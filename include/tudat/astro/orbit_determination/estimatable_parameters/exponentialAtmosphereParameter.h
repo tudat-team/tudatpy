@@ -243,49 +243,24 @@ public:
 
 
 
-
-    //! Function to ask for values from acceleration model (only for initialization)
-    double getParameterValueFromAtmosphereModel( )
+    //! Get arc-wise values of atmosphere parameter
+    /*!
+     *  Get values of atmosphere parameter
+     *  \return Arc-wise values of atmosphere parameter
+     */
+    Eigen::VectorXd getParameterValue( )
     {
-        double parameterValue = exponentialAtmosphereModel_->get( parameterIndex_ );
-        for( unsigned int i = 1; i < aerodynamicAccelerations_.size( ); i++ )
-        {
-            if( aerodynamicAccelerations_.at( i )->getComponentScaling( parameterIndex_ ) != parameterValue )
-            {
-                std::cerr << "Warning when retrieving aerodynamic acceleration scaling factor from list. List entries are not equal, "
-                             "returning first entry"
-                          << std::endl;
-                break;
-            }
-        }
-        return parameterValue;
+        return utilities::convertStlVectorToEigenVector( parameterValues_ );
     }
 
-
-
-    //! Get value of atmosphere parameter
-    /*!
-     *  Get value of atmosphere parameter
-     *  \return Value of atmosphere parameter
-     */
-    double getParameterValue( )
+    int getParameterSize( )
     {
-        double parameterValue;
-        switch( parameterName_.first )
-        {
-            case exponential_atmosphere_base_density: {
-                parameterValue = exponentialAtmosphereModel_->getBaseDensity( );
-                break;
-            }
-            case exponential_atmosphere_scale_height: {
-                parameterValue = exponentialAtmosphereModel_->getScaleHeight( );
-                break;
-            }
-            default:
-                throw std::runtime_error( "Error when creating exponential atmosphere parameter, type is inconsistent: " +
-                          std::to_string( parameterName_.first ) );
-        }
-        return parameterValue;
+        return parameterValues_.size( );
+    }
+
+    int getNumberOfArcs( )
+    {
+        return getParameterSize( );
     }
 
     //! Reset value of atmosphere parameter
@@ -293,7 +268,7 @@ public:
      *  Reset value of atmosphere parameter
      *  \param parameterValue New value of atmosphere parameter
      */
-    void setParameterValue( double newParameterValue)
+    void setParameterValue( double newParameterValue, const estimatable_parameters::EstimatebleParametersEnum parameterType)
     {
         switch( parameterName_.first )
         {
@@ -311,12 +286,23 @@ public:
         }
     }
 
-    //! Function to retrieve the size of the rtg force vector parameter (always 3)
-
-    int getParameterSize( )
+    void setParameterValue( Eigen::VectorXd newParameterValues )
     {
-        return parameterSize_;
+        if( static_cast< int >( parameterValues_.size( ) ) != static_cast< int >( newParameterValues.rows( ) ) )
+        {
+            throw std::runtime_error( "Error when resetting values of arc-wise atmosphere parameters, sizes are incompatible" );
+        }
+
+        parameterValues_ = utilities::convertEigenVectorToStlVector( newParameterValues );
+        for( unsigned int i = 0; i < parameterValues_.size( ); i++ )
+        {
+            fullParameterValues_[ i ] = parameterValues_[ i ];
+        }
+        fullParameterValues_[ parameterValues_.size( ) ] =
+                parameterValues_.at( parameterValues_.size( ) - 1 );
+        parameterInterpolator_->resetDependentValues( fullParameterValues_ );
     }
+
 
     std::string getParameterDescription( )
     {
@@ -341,6 +327,11 @@ public:
     Eigen::Vector3i getIndices( )
     {
         return accelerationIndices_;
+    }
+
+    std::shared_ptr< interpolators::LookUpScheme< double > > getArcTimeLookupScheme( )
+    {
+        return parameterInterpolator_->getLookUpScheme( );
     }
 
 protected:
