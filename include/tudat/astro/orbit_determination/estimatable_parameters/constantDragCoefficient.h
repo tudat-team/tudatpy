@@ -52,7 +52,8 @@ public:
      */
     double getParameterValue( )
     {
-        return coefficientInterface_->getConstantCoefficients( )( 0 );
+        return ( coefficientInterface_->getRotationToAerodynamicFrame( ) * 
+                    coefficientInterface_->getConstantCoefficients( ).head<3>( ) )( 0 );
     }
 
     //! Function to reset the value of the constant drag coefficient that is to be estimated.
@@ -63,7 +64,9 @@ public:
     void setParameterValue( double parameterValue )
     {
         Eigen::Vector6d currentCoefficientSet = coefficientInterface_->getCurrentAerodynamicCoefficients( );
-        currentCoefficientSet( 0 ) = parameterValue;
+        Eigen::Vector3d currentForceCoefficientSet = coefficientInterface_->getRotationToAerodynamicFrame( ) * currentCoefficientSet.head<3>( );
+        currentForceCoefficientSet( 0 ) = parameterValue;
+        currentCoefficientSet.head<3>( ) = coefficientInterface_->getRotationToAerodynamicFrame( ).inverse( ) * currentForceCoefficientSet;
         coefficientInterface_->resetConstantCoefficients( currentCoefficientSet );
     }
 
@@ -103,6 +106,11 @@ public:
         if( coefficientInterface->getNumberOfIndependentVariables( ) != 0 )
         {
             throw std::runtime_error( "Error when making ArcWiseConstantDragCoefficient, coefficient interface is inconsistent" );
+        }
+
+        if ( coefficientInterface->getForceCoefficientsFrame( ) != aerodynamics::negative_aerodynamic_frame_coefficients )
+        {
+            throw std::runtime_error( "Error, arcwise constant drag coefficient is only available for coefficients defined in the negative aerodynamic frame!" );
         }
 
         Eigen::Vector6d aerodynamicCoefficients = coefficientInterface->getConstantCoefficients( );
