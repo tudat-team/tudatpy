@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from astropy.table import Table
 from tudatpy.astro.time_representation import DateTime
-from . import unpackers
+from tudatpy.data.mpc.parser_80col import unpackers
 import os
 def get_first_failure_reason(row: pd.Series) -> str:
     """Returns ONLY the first reason why a row failed validation."""
