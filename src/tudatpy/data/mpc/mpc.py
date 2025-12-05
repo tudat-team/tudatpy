@@ -960,15 +960,31 @@ class BatchMPC:
                 if drop_misc_observations:
                     obs = obs.query("note2 not in @OBS_TYPES_TO_DROP")
 
-                identifier = None
-                if 'number' in obs.columns:
-                    pd.set_option('future.no_silent_downcasting', True)
-                    valid_numbers = obs['number'].dropna().astype(str).replace('<NA>', np.nan).dropna()
-                    if not valid_numbers.empty:
-                        potential_id = valid_numbers.iloc[0]
-                        if potential_id.isdigit() and len(potential_id) < 5:
-                            potential_id = potential_id.zfill(5) # mpc unpacking rule: must be 5 chars long
-                        identifier = unpackers.unpack_permanent_minor_planet(potential_id)
+                    identifier = None
+
+                    # Check for Comets/Interstellars (Astroquery returns 'comet_type' or 'comettype')
+                    # If we have a number and a type, combine them (e.g., 3 + I = 3I)
+                    type_col = None
+                    if 'comet_type' in obs.columns: type_col = 'comet_type'
+                    elif 'comettype' in obs.columns: type_col = 'comettype'
+
+                    if type_col and pd.notna(obs[type_col].iloc[0]):
+                        # It is a comet or interstellar object
+                        number_part = str(obs['number'].iloc[0])
+                        type_part = str(obs[type_col].iloc[0])
+                        identifier = f"{number_part}{type_part}" # Result: "3I"
+
+                    # Fallback to Minor Planet Logic (Your existing code)
+                    elif 'number' in obs.columns:
+                        pd.set_option('future.no_silent_downcasting', True)
+                        valid_numbers = obs['number'].dropna().astype(str).replace('<NA>', np.nan).dropna()
+                        if not valid_numbers.empty:
+                            potential_id = valid_numbers.iloc[0]
+                            # Only pad and unpack if it looks like a simple asteroid number
+                            if potential_id.isdigit():
+                                if len(potential_id) < 5:
+                                    potential_id = potential_id.zfill(5)
+                                identifier = unpackers.unpack_permanent_minor_planet(potential_id)
                 if identifier is None and 'desig' in obs.columns and pd.notna(obs['desig'].iloc[0]):
                     identifier = str(obs['desig'].iloc[0])
 
@@ -1008,8 +1024,6 @@ class BatchMPC:
              The table to validate.
          frame : str
              The reference frame to check.
-
-         Note to users: empty tables will raise a ValueError.
          """
         if frame != "J2000":
             raise NotImplementedError("Only observations in J2000 are supported currently")
