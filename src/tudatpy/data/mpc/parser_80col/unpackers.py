@@ -165,6 +165,8 @@ def unpack_provisional_minor_planet(packed: str) -> str:
         return f"{number} {survey_type}"
 
     # Case 2: Standard provisional designations (e.g., K07Tf8A for 2007 TA418)
+    if CENTURY_MAP.get(packed[0], '??') == '??':
+        raise ValueError(f'Invalid letter {packed[0]} does not exist in CENTURY MAP: {CENTURY_MAP}.')
     year = CENTURY_MAP.get(packed[0], '??') + packed[1:3]
     half_month_1 = packed[3]
     half_month_2 = packed[6]
@@ -199,7 +201,9 @@ def unpack_provisional_comet_or_satellite(packed: str) -> str:
     str
         The unpacked provisional comet or satellite designation.
     """
-    
+
+    if CENTURY_MAP.get(packed[0], '??') == '??':
+        raise ValueError(f'Invalid letter {packed[0]} does not exist in CENTURY MAP: {CENTURY_MAP}.')
     year = CENTURY_MAP.get(packed[0], '??') + packed[1:3]
     half_month = packed[3]
     order = int(packed[4:6])
@@ -228,7 +232,10 @@ def unpack_permanent_natural_satellite(packed: str) -> str:
     if len(packed) != 5:
         raise ValueError(f"Invalid packed length: '{packed}'. Must be exactly 5 characters.")
 
+    if PLANET_MAP.get(packed[0], 'Unknown Planet') == 'Unknown Planet':
+        raise ValueError(f'Invalid planet code {packed[0]} does not exist in PLANET MAP: {PLANET_MAP}.')
     planet_name = PLANET_MAP.get(packed[0], "Unknown Planet")
+
 
     if planet_name == "Unknown Planet":
         raise ValueError("Unknown planet with code " + packed[0] + " found in PLANET_MAP. "
