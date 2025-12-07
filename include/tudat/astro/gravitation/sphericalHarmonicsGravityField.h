@@ -159,7 +159,8 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
         std::map< std::pair< int, int >, Eigen::Vector3d >& accelerationPerTerm,
         const bool saveSeparateTerms = 0,
         const Eigen::Matrix3d& accelerationRotation = Eigen::Matrix3d::Identity( ),
-        const bool checkSphericalHarmonicsConsistency = true )
+        const bool checkSphericalHarmonicsConsistency = true,
+        const double colatitudeCutoffForBoschFormulation = 1.0E-6 )
 {
     // Set highest degree and order.
     const int highestDegree = cosineHarmonicCoefficients.rows( );
@@ -214,8 +215,7 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
             }
 
             // Compute the potential gradient of a single spherical harmonic term.
-            double latitudeTolerance = 1.0E-9;
-            bool isCloseToPole = std::fabs( mathematical_constants::PI / 2.0 - sphericalpositionOfBodySubjectToAcceleration( basic_mathematics::latitudeIndex ) ) < latitudeTolerance;
+            bool isCloseToPole = std::fabs( mathematical_constants::PI / 2.0 - sphericalpositionOfBodySubjectToAcceleration( basic_mathematics::latitudeIndex ) ) < colatitudeCutoffForBoschFormulation;
             if( saveSeparateTerms )
             {
                 if( !isCloseToPole )

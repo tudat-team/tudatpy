@@ -109,7 +109,8 @@ void LegendreCache::update( const double polynomialParameter, const bool checkCo
                                     currentOneOverPolynomialParameterComplement_,
                                     legendreValues_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
                                     legendreValues_[ i * ( maximumOrder_ + 1 ) + j ],
-                                    derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ] );
+                                    derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + ( j - 1 ) ],
+                                    throwExceptionForSingularDerivative_ );
                         }
                         else
                         {
@@ -133,7 +134,8 @@ void LegendreCache::update( const double polynomialParameter, const bool checkCo
                                                                             currentOneOverPolynomialParameterComplement_,
                                                                             legendreValues_[ i * ( maximumOrder_ + 1 ) + jMax ],
                                                                             0.0,
-                                                                            derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + jMax ] );
+                                                                            derivativeNormalizations_[ i * ( maximumOrder_ + 1 ) + jMax ],
+                                                                            throwExceptionForSingularDerivative_ );
                     }
                     else
                     {
@@ -522,14 +524,15 @@ double computeGeodesyLegendrePolynomialDerivative( const int order,
                                                    const double oneOverPolynomialParameterComplement,
                                                    const double currentLegendrePolynomial,
                                                    const double incrementedLegendrePolynomial,
-                                                   const double normalizationCorrection )
+                                                   const double normalizationCorrection,
+                                                   const bool throwExceptionForSingularDerivative )
 {
-    if( !std::isfinite( oneOverPolynomialParameterComplement ) )
+    if( !std::isfinite( oneOverPolynomialParameterComplement ) && throwExceptionForSingularDerivative )
     {
-        throw std::runtime_error(
-                "Error when computing derivative of normalized associated Legendre polynomial, found NaN/Inf value. This may be caused by "
-                "evaluating at the poles, where a singularity occurs" );
+        throw std::runtime_error( "Errrwhen computing derivative of normalized associated Legendre polynomial, found NaN/Inf value. This may be caused by "
+                     "evaluating at the poles, where a singularity occurs." );
     }
+
     // Return polynomial derivative.
     return normalizationCorrection * incrementedLegendrePolynomial * oneOverPolynomialParameterComplement -
             static_cast< double >( order ) * polynomialParameter * oneOverPolynomialParameterComplement *
@@ -541,7 +544,8 @@ double computeGeodesyLegendrePolynomialDerivative( const int degree,
                                                    const int order,
                                                    const double polynomialParameter,
                                                    const double currentLegendrePolynomial,
-                                                   const double incrementedLegendrePolynomial )
+                                                   const double incrementedLegendrePolynomial,
+                                                   const bool throwExceptionForSingularDerivative )
 {
     // Compute normalization correction factor.
     double normalizationCorrection =
@@ -560,7 +564,8 @@ double computeGeodesyLegendrePolynomialDerivative( const int degree,
                                                        oneOverPolynomialParameterComplement,
                                                        currentLegendrePolynomial,
                                                        incrementedLegendrePolynomial,
-                                                       normalizationCorrection );
+                                                       normalizationCorrection,
+                                                       throwExceptionForSingularDerivative );
 }
 
 //! Compute second derivative of geodesy-normalized associated Legendre polynomial.
