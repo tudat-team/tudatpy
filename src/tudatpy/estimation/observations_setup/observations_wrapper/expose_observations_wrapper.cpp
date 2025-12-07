@@ -257,6 +257,7 @@ void expose_observations_wrapper( py::module &m )
            py::arg( "transmission_band" ),
            py::arg( "apply_troposphere_correction" ) = true,
            py::arg( "earth_fixed_station_positions" ) = tss::getCombinedApproximateGroundStationPositions( ),
+           py::arg( "remove_invalid_lines" ) = true,
            R"doc(
         Create an observation collection from IFMS files for a single station.
 
@@ -280,6 +281,8 @@ void expose_observations_wrapper( py::module &m )
             Whether to apply troposphere correction, by default True.
         earth_fixed_station_positions : dict[str, numpy.ndarray[3]], optional
             Map with approximate positions of ground stations in Earth-fixed frame.
+        remove_invalid_lines : bool, optional
+            Boolean (default true) defining whether a line is skipped if the transmit frequency, osberved frequency, or troposphere correction is undefined
 
         Returns
         -------
@@ -297,6 +300,7 @@ void expose_observations_wrapper( py::module &m )
            py::arg( "transmission_band" ),
            py::arg( "apply_troposphere_correction" ) = true,
            py::arg( "earth_fixed_station_positions" ) = tss::getCombinedApproximateGroundStationPositions( ),
+           py::arg( "remove_invalid_lines" ) = true,
            R"doc(
         Create an observation collection from IFMS files for multiple stations.
 
@@ -320,6 +324,8 @@ void expose_observations_wrapper( py::module &m )
             Whether to apply troposphere correction, by default True.
         earth_fixed_station_positions : dict[str, numpy.ndarray[3]], optional
             Map with approximate positions of ground stations in Earth-fixed frame.
+        remove_invalid_lines : bool, optional
+            Boolean (default true) defining whether a line is skipped if the transmit frequency, osberved frequency, or troposphere correction is undefined
 
         Returns
         -------
