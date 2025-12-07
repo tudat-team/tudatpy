@@ -199,6 +199,11 @@ public:
 
     double getVerticalLegendreValuesComputationMultipliersTwo( const int degree, const int order );
 
+    void setthrowExceptionForSingularDerivative( const bool throwExceptionForSingularDerivative )
+    {
+        throwExceptionForSingularDerivative_ = throwExceptionForSingularDerivative;
+    }
+
 private:
     //! Maximum degree of cache.
     int maximumDegree_;
@@ -259,6 +264,8 @@ private:
     //! Boolean denoting whether the second derivatives of the Legendre polynomials are to be computed when calling
     //! update function.
     bool computeSecondDerivatives_;
+
+    bool throwExceptionForSingularDerivative_ = true;
 };
 
 //! Compute unnormalized associated Legendre polynomial.
@@ -445,7 +452,8 @@ double computeGeodesyLegendrePolynomialDerivative( const int order,
                                                    const double oneOverPolynomialParameterComplement,
                                                    const double currentLegendrePolynomial,
                                                    const double incrementedLegendrePolynomial,
-                                                   const double normalizationCorrection );
+                                                   const double normalizationCorrection,
+                                                   const bool throwExceptionForSingularDerivative = true );
 
 //! Compute derivative of geodesy-normalized Legendre polynomial.
 /*!
@@ -472,7 +480,8 @@ double computeGeodesyLegendrePolynomialDerivative( const int degree,
                                                    const int order,
                                                    const double polynomialParameter,
                                                    const double currentLegendrePolynomial,
-                                                   const double incrementedLegendrePolynomial );
+                                                   const double incrementedLegendrePolynomial,
+                                                   const bool throwExceptionForSingularDerivative = true );
 
 //! Compute second derivative of geodesy-normalized associated Legendre polynomial.
 /*!
