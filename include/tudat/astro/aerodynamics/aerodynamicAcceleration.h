@@ -98,10 +98,7 @@ public:
             currentTime_ = currentTime;
             Eigen::Quaterniond rotationToAerodynamicFrame = flightConditions_->getAerodynamicAngleCalculator()->getRotationQuaternionBetweenFrames(
                 aerodynamicCompleteCoefficientFrame_, reference_frames::aerodynamic_frame );
-            if (coefficientMultiplier_ == -1.0)
-            {
-                rotationToAerodynamicFrame.coeffs() *= -1.0;  
-            }
+            rotationToAerodynamicFrame.coeffs() *= coefficientMultiplier_;  
             coefficientInterface_->setRotationToAerodynamicFrame(rotationToAerodynamicFrame);;
             currentForceCoefficients_ = coefficientInterface_->getCurrentForceCoefficients( );
             currentForceCoefficients_ = coefficientMultiplier_ *
