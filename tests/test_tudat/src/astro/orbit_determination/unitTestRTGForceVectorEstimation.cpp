@@ -226,14 +226,14 @@ BOOST_AUTO_TEST_CASE( test_RTGForceVectorEstimation )
         // Define parameters to be estimated.
         std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
                 getInitialStateParameterSettings< double >( propagatorSettings, bodies );
-        int parameter_size;
+        int parameterSize;
         if (i==0){
             parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", rtg_force_vector ) );
-            parameter_size=3;
+            parameterSize=3;
         }
         else if (i==1){
             parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Vehicle", rtg_force_vector_magnitude ) );
-            parameter_size=1;
+            parameterSize=1;
         }
 
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( "Earth", rotation_pole_position ) );
@@ -315,7 +315,7 @@ BOOST_AUTO_TEST_CASE( test_RTGForceVectorEstimation )
         parameterPerturbation.segment( 3, 3 ) = Eigen::Vector3d::Constant( 1.E-3 );
 
         // Perturb deltaVs estimate.
-        for( unsigned int i = 6; i < 6 + parameter_size; i++ )
+        for( int i = 6; i < 6 + parameterSize; i++ )
         {
             parameterPerturbation[ i ] = 1.0e-6;
         }
@@ -350,19 +350,19 @@ BOOST_AUTO_TEST_CASE( test_RTGForceVectorEstimation )
         //BOOST_CHECK_SMALL( std::fabs( truthParameters( 7 ) - estimationOutput->parameterEstimate_( 7 ) ), 1.0e-4 );
 
         // rtg parameter values.
-        for( unsigned int i = 6; i < 6 + parameter_size; i++ )
+        for( int i = 6; i < 6 + parameterSize; i++ )
         {
             BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - estimationOutput->parameterEstimate_( i ) ), 1.0E-9 );
         }
 
         // Earth pole position.
-        for( unsigned int i = 6 + parameter_size; i < 8+parameter_size; i++ )
+        for( int i = 6 + parameterSize; i < 8+parameterSize; i++ )
         {
             BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - estimationOutput->parameterEstimate_( i ) ), 1.0E-12 );
         }
 
         // Ground station position.
-        for( unsigned int i = 8+parameter_size; i < 11+parameter_size; i++ )
+        for( int i = 8+parameterSize; i < 11+parameterSize; i++ )
         {
             BOOST_CHECK_SMALL( std::fabs( truthParameters( i ) - estimationOutput->parameterEstimate_( i ) ), 1.0E-6 );
         }
