@@ -458,7 +458,6 @@ public:
         colatitudeCutoffForBoschFormulation_ = colatitudeCutoffForBoschFormulation;
     }
 
-
 protected:
 private:
     //! Equatorial radius [m].

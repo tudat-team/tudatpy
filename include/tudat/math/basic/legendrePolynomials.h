@@ -71,7 +71,7 @@ public:
      */
     LegendreCache( const int maximumDegree, const int maximumOrder, const bool useGeodesyNormalization = 1 );
 
-    ~LegendreCache( ) { }
+    ~LegendreCache( ) {}
     //! Update maximum degree and order of cache
     /*!
      * Update maximum degree and order of cache

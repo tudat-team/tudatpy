@@ -418,7 +418,6 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsGravitationalPotentialWrapperClass 
     BOOST_CHECK_EQUAL( expectedPotential, potential );
 }
 
-
 BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsAccelerationNearPole )
 {
     using namespace gravitation;
@@ -429,23 +428,81 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsAccelerationNearPole )
     const double tolerance = 1.0e-13;
 
     // Same low-degree model as in existing test
-    Eigen::MatrixXd cosineCoefficients = ( Eigen::MatrixXd( 6, 6 ) <<
-                                                   1.0, 0, 0, 0, 0, 0,
-                                           0, 0, 0, 0, 0, 0,
-                                           -4.841651437908150e-4, -2.066155090741760e-10,  2.439383573283130e-6, 0, 0, 0,
-                                           9.571612070934730e-7,  2.030462010478640e-6,  9.047878948095281e-7,  7.213217571215680e-7, 0, 0,
-                                           5.399658666389910e-7, -5.361573893888670e-7,  3.505016239626490e-7,  9.908567666723210e-7, -1.885196330230330e-7, 0,
-                                           6.867029137366810e-8, -6.292119230425290e-8,  6.520780431761640e-7, -4.518471523288430e-7, -2.953287611756290e-7, 1.748117954960020e-7
-                                           ).finished();
+    Eigen::MatrixXd cosineCoefficients = ( Eigen::MatrixXd( 6, 6 ) << 1.0,
+                                           0,
+                                           0,
+                                           0,
+                                           0,
+                                           0,
+                                           0,
+                                           0,
+                                           0,
+                                           0,
+                                           0,
+                                           0,
+                                           -4.841651437908150e-4,
+                                           -2.066155090741760e-10,
+                                           2.439383573283130e-6,
+                                           0,
+                                           0,
+                                           0,
+                                           9.571612070934730e-7,
+                                           2.030462010478640e-6,
+                                           9.047878948095281e-7,
+                                           7.213217571215680e-7,
+                                           0,
+                                           0,
+                                           5.399658666389910e-7,
+                                           -5.361573893888670e-7,
+                                           3.505016239626490e-7,
+                                           9.908567666723210e-7,
+                                           -1.885196330230330e-7,
+                                           0,
+                                           6.867029137366810e-8,
+                                           -6.292119230425290e-8,
+                                           6.520780431761640e-7,
+                                           -4.518471523288430e-7,
+                                           -2.953287611756290e-7,
+                                           1.748117954960020e-7 )
+                                                 .finished( );
 
-    Eigen::MatrixXd sineCoefficients = ( Eigen::MatrixXd( 6, 6 ) <<
-                                                 0, 0, 0, 0, 0, 0,
-                                         0, 0, 0, 0, 0, 0,
-                                         0,  1.384413891379790e-9, -1.400273703859340e-6, 0, 0, 0,
-                                         0,  2.482004158568720e-7, -6.190054751776180e-7,  1.414349261929410e-6, 0, 0,
-                                         0, -4.735673465180860e-7,  6.624800262758290e-7, -2.009567235674520e-7,  3.088038821491940e-7, 0,
-                                         0, -9.436980733957690e-8, -3.233531925405220e-7, -2.149554083060460e-7,  4.980705501023510e-8, -6.693799351801650e-7
-                                         ).finished();
+    Eigen::MatrixXd sineCoefficients = ( Eigen::MatrixXd( 6, 6 ) << 0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         1.384413891379790e-9,
+                                         -1.400273703859340e-6,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         2.482004158568720e-7,
+                                         -6.190054751776180e-7,
+                                         1.414349261929410e-6,
+                                         0,
+                                         0,
+                                         0,
+                                         -4.735673465180860e-7,
+                                         6.624800262758290e-7,
+                                         -2.009567235674520e-7,
+                                         3.088038821491940e-7,
+                                         0,
+                                         0,
+                                         -9.436980733957690e-8,
+                                         -3.233531925405220e-7,
+                                         -2.149554083060460e-7,
+                                         4.980705501023510e-8,
+                                         -6.693799351801650e-7 )
+                                               .finished( );
     const double radius = 7.5e6;
 
     // Test for saving SH accelerations and not
@@ -456,42 +513,46 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsAccelerationNearPole )
         {
             const double longitude = static_cast< double >( j ) * 0.3;
 
-            Eigen::Vector3d previousAcceleration = Eigen::Vector3d::Zero();
+            Eigen::Vector3d previousAcceleration = Eigen::Vector3d::Zero( );
             std::vector< Eigen::Vector3d > firstNumericalDerivatives;
 
             // Test for difference co-latitudes (cut-off for model is at 1E-6)
-            std::vector<double> colatitudes = { 0.8E-6, 0.9E-6, 1.0E-6, 1.1E-6, 1.2E-6 };
-            for( size_t i = 0; i < colatitudes.size(); ++i )
+            std::vector< double > colatitudes = { 0.8E-6, 0.9E-6, 1.0E-6, 1.1E-6, 1.2E-6 };
+            for( size_t i = 0; i < colatitudes.size( ); ++i )
             {
                 const double latitude = mathematical_constants::PI / 2.0 - colatitudes.at( i );
-                const Eigen::Vector3d position(
-                        radius * std::cos( latitude ) * std::cos( longitude ),
-                        radius * std::cos( latitude ) * std::sin( longitude ),
-                        radius * std::sin( latitude ) );
+                const Eigen::Vector3d position( radius * std::cos( latitude ) * std::cos( longitude ),
+                                                radius * std::cos( latitude ) * std::sin( longitude ),
+                                                radius * std::sin( latitude ) );
 
                 // Compute acceleration
                 SphericalHarmonicsGravitationalAccelerationModelPointer earthGravity =
-                        std::make_shared< SphericalHarmonicsGravitationalAccelerationModel >(
-                                [ & ]( Eigen::Vector3d& x ){ x = position; },
-                                gravitationalParameter, planetaryRadius, cosineCoefficients, sineCoefficients );
+                        std::make_shared< SphericalHarmonicsGravitationalAccelerationModel >( [ & ]( Eigen::Vector3d& x ) { x = position; },
+                                                                                              gravitationalParameter,
+                                                                                              planetaryRadius,
+                                                                                              cosineCoefficients,
+                                                                                              sineCoefficients );
                 if( test == 1 )
                 {
                     earthGravity->setSaveSphericalHarmonicTermsSeparately( true );
                 }
-                earthGravity->updateMembers();
-                const Eigen::Vector3d acceleration = earthGravity->getAcceleration();
+                earthGravity->updateMembers( );
+                const Eigen::Vector3d acceleration = earthGravity->getAcceleration( );
 
                 // Compute acceleration without Bosch method
                 SphericalHarmonicsGravitationalAccelerationModelPointer earthGravityTightCutoff =
-                        std::make_shared< SphericalHarmonicsGravitationalAccelerationModel >(
-                                [ & ]( Eigen::Vector3d& x ){ x = position; },
-                                gravitationalParameter, planetaryRadius, cosineCoefficients, sineCoefficients );
+                        std::make_shared< SphericalHarmonicsGravitationalAccelerationModel >( [ & ]( Eigen::Vector3d& x ) { x = position; },
+                                                                                              gravitationalParameter,
+                                                                                              planetaryRadius,
+                                                                                              cosineCoefficients,
+                                                                                              sineCoefficients );
                 earthGravityTightCutoff->setColatitudeCutoffForBoschFormulation( 0.0 );
-                earthGravityTightCutoff->updateMembers();
-                const Eigen::Vector3d accelerationTightCutoff = earthGravityTightCutoff->getAcceleration();
+                earthGravityTightCutoff->updateMembers( );
+                const Eigen::Vector3d accelerationTightCutoff = earthGravityTightCutoff->getAcceleration( );
 
                 // Test near-equivalence of both methods
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION( accelerationTightCutoff, acceleration, ( 10.0 * std::numeric_limits< double >::epsilon( ) ) )
+                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                        accelerationTightCutoff, acceleration, ( 10.0 * std::numeric_limits< double >::epsilon( ) ) )
 
                 // Compute numerical derivative
                 if( i > 0 )
@@ -509,7 +570,6 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsAccelerationNearPole )
                 BOOST_CHECK_SMALL( std::fabs( accelerationDifference( 0 ) ), 5.0E-9 );
                 BOOST_CHECK_SMALL( std::fabs( accelerationDifference( 1 ) ), 5.0E-9 );
                 BOOST_CHECK_SMALL( std::fabs( accelerationDifference( 2 ) ), 1.0E-13 );
-
             }
         }
     }

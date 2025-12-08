@@ -103,9 +103,9 @@ Eigen::Matrix< ScalarType, 3, 1 > convertCartesianToSpherical( const Eigen::Matr
     // Else compute coordinates using trigonometric relationships.
     else
     {
-        convertedSphericalCoordinates_( 1 ) = std::atan2( std::sqrt( cartesianCoordinates( 0 ) * cartesianCoordinates( 0 ) +
-                                                                     cartesianCoordinates( 1 ) * cartesianCoordinates( 1  ) ),
-                                                          cartesianCoordinates( 2 ) );
+        convertedSphericalCoordinates_( 1 ) = std::atan2(
+                std::sqrt( cartesianCoordinates( 0 ) * cartesianCoordinates( 0 ) + cartesianCoordinates( 1 ) * cartesianCoordinates( 1 ) ),
+                cartesianCoordinates( 2 ) );
         convertedSphericalCoordinates_( 2 ) = std::atan2( cartesianCoordinates( 1 ), cartesianCoordinates( 0 ) );
     }
 
