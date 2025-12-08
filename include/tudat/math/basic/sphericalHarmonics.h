@@ -91,8 +91,6 @@ public:
         updateRadiusPowers( referenceRadius / radius );
     }
 
-
-
     //! Function to retrieve the current sine of m times the longitude.
     /*!
      * Function to retrieve the current sine of order times the longitude.
@@ -254,14 +252,13 @@ private:
 //! Spherical coordinate indices.
 enum SphericalCoordinatesIndices { radiusIndex, latitudeIndex, longitudeIndex };
 
-Eigen::Vector3d computePotentialGradientNearPole(
-        const Eigen::Vector3d& sphericalPosition,
-        const double preMultiplier,
-        const int degree,
-        const int order,
-        const double cosineHarmonicCoefficient,
-        const double sineHarmonicCoefficient,
-        const SphericalHarmonicsCache& sphericalHarmonicsCache );
+Eigen::Vector3d computePotentialGradientNearPole( const Eigen::Vector3d& sphericalPosition,
+                                                  const double preMultiplier,
+                                                  const int degree,
+                                                  const int order,
+                                                  const double cosineHarmonicCoefficient,
+                                                  const double sineHarmonicCoefficient,
+                                                  const SphericalHarmonicsCache& sphericalHarmonicsCache );
 
 //! Compute the gradient of a single term of a spherical harmonics potential field.
 /*!
