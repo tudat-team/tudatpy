@@ -665,11 +665,12 @@ public:
     {
         // Override default values for dry and wet zenith corrections
         // TRK-2-23 (2008), section 3.2.2
-        dryZenithRangeCorrectionFunction_ = [ =, this ]( double time ) {
+        // Capture only this to stay C++17-compatible
+        dryZenithRangeCorrectionFunction_ = [ this ]( double time ) {
             return seasonalModelDryZenithCorrectionCalculator_->computeMediaCorrection( time ) +
                     dryZenithCorrectionAdjustmentCalculator_->computeMediaCorrection( time );
         };
-        wetZenithRangeCorrectionFunction_ = [ =, this ]( double time ) {
+        wetZenithRangeCorrectionFunction_ = [ this ]( double time ) {
             return seasonalModelWetZenithCorrectionCalculator_->computeMediaCorrection( time ) +
                     wetZenithCorrectionAdjustmentCalculator_->computeMediaCorrection( time );
         };
