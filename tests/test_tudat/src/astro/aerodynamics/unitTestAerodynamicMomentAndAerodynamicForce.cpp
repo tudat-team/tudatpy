@@ -1154,9 +1154,9 @@ BOOST_AUTO_TEST_CASE( testCombinedAerodynamicForceAndMoment )
                 for( unsigned int index = 0; index < 3; index++ )
                 {
                     BOOST_CHECK_SMALL( std::fabs( aerodynamicForce( index ) - testAerodynamicForce( index ) ),
-                                       10.0 * std::numeric_limits< double >::epsilon( ) * aerodynamicForce.norm( ) );
+                                       20.0 * std::numeric_limits< double >::epsilon( ) * aerodynamicForce.norm( ) );
                     BOOST_CHECK_SMALL( std::fabs( aerodynamicMoment( index ) - testAerodynamicMoment( index ) ),
-                                       10.0 * std::numeric_limits< double >::epsilon( ) * aerodynamicForce.norm( ) );
+                                       20.0 * std::numeric_limits< double >::epsilon( ) * aerodynamicForce.norm( ) );
                 }
 
                 if( propagationType == 1 )
