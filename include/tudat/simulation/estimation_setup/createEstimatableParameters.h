@@ -428,14 +428,15 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
         case arc_wise_exponential_atmosphere_base_density:
         case arc_wise_exponential_atmosphere_scale_height:
         {
-            // check that acceleration on body undergoing exists
-            if( accelerationModelMap.count( parameterSettings->parameterType_.second.first ) != 0 )
+            // over all accelerated bodies:
+            for (const auto& kv : accelerationModelMap)
             {
-                // check that acceleration from body exerting exists
-                if( accelerationModelMap.at( parameterSettings->parameterType_.second.first )
-                        .count( parameterSettings->parameterType_.second.second ) != 0 )
-                {
+                // kv.first : accelerated body
+                // kv.second : basic_astrodynamics::SingleBodyAccelerationMap accelerationModelsOnCurrentBody
 
+                // check that for one of the accelerated bodies there exists an acceleration exerted by the associated body
+                if( kv.second.count( parameterSettings->parameterType_.second.first ) != 0 )
+                {
                     // Retrieve acceleration model.
                     basic_astrodynamics::SingleBodyAccelerationMap accelerationModelListToCheck =
                             accelerationModelMap.at( parameterSettings->parameterType_.second.first );
@@ -450,24 +451,17 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
                             }
                         }
                     }
-
-                }
-                else
-                {
-                    throw std::runtime_error( "Error, trying to setup ExponentialAtmosphere estimatable parameter. Parameter settings call for acceleration on body " +
-                      parameterSettings->parameterType_.second.first + ", exerted by body " + parameterSettings->parameterType_.second.second +
-                      ", but no such acceleration can be found (missing exerting)" );
                 }
             }
-            else
+            if( accelerationModelList.empty() )
             {
-                throw std::runtime_error( "Error, trying to setup ExponentialAtmosphere estimatable parameter. Parameter settings call for acceleration on body " +
-                  parameterSettings->parameterType_.second.first + ", exerted by body " + parameterSettings->parameterType_.second.second +
-                  ", but no such acceleration can be found (missing undergoing)" );
+                throw std::runtime_error( "Error, trying to setup estimatable parameter associated with atmosphere of body " +
+                                          parameterSettings->parameterType_.second.first +
+                                          " but no compatible accelerations are defined." );
             }
+
             break;
         }
-
         default:
             break;
     }
@@ -1248,29 +1242,22 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                         getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings,
                                                                                                                doubleParameterName );
                 // check there is an acceleration model associated
-                if( associatedAccelerationModels.size( ) == 0 )
+                if( associatedAccelerationModels.empty() )
                 {
                     throw std::runtime_error(
-                            "Error when creating ExponentialAtmosphere estimatable parameter, no compatible (aerodynamic) acceleration models" );
-                }
-                // check there is an aero interface associated
-                if( currentBody->getAerodynamicCoefficientInterface( ) == nullptr )
-                {
-                    std::string errorMessage = "Error, no aerodynamic coefficient interfaces found in body " + currentBodyName +
-                            " when making ExponentialAtmosphere estimatable parameter.";
-                    throw std::runtime_error( errorMessage );
+                            "Error when creating exponential atmosphere estimatable parameter, given no compatible (aerodynamic) acceleration models." );
                 }
 
                 // usually associated acceleration models are established here to prepare the construction of the parameter
                 // but in this case we just do it to ensure they are present (as safety check)
-                std::vector< std::shared_ptr< aerodynamics::AerodynamicAcceleration > > associateAerodynamicAccelerationModels;
+                std::vector< std::shared_ptr< aerodynamics::AerodynamicAcceleration > > associatedAerodynamicAccelerationModels;
                 for( unsigned int i = 0; i < associatedAccelerationModels.size( ); i++ )
                 {
                     // Create parameter object
                     if( std::dynamic_pointer_cast< aerodynamics::AerodynamicAcceleration >( associatedAccelerationModels.at( i ) ) !=
                         nullptr )
                     {
-                        associateAerodynamicAccelerationModels.push_back(
+                        associatedAerodynamicAccelerationModels.push_back(
                                 std::dynamic_pointer_cast< aerodynamics::AerodynamicAcceleration >(
                                         associatedAccelerationModels.at( i ) ) );
                     }
@@ -1282,17 +1269,18 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                 }
 
                 // check there is an exponential atmosphere associated
-                std::shared_ptr< Body > exertingBody = bodies.at( doubleParameterName->parameterType_.second.second );
-                std::shared_ptr< aerodynamics::ExponentialAtmosphere > associatedAtmosphereModel = std::dynamic_pointer_cast< aerodynamics::ExponentialAtmosphere >( exertingBody->getAtmosphereModel( ) );
+                string associatedBodyName = doubleParameterName->parameterType_.second.first;
+                std::shared_ptr< Body > associatedBody = bodies.at( associatedBodyName );
+                std::shared_ptr< aerodynamics::ExponentialAtmosphere > associatedAtmosphereModel = std::dynamic_pointer_cast< aerodynamics::ExponentialAtmosphere >( associatedBody->getAtmosphereModel( ) );
                 if( associatedAtmosphereModel == nullptr )
                 {
                     throw std::runtime_error(
-                            "Error, body " + doubleParameterName->parameterType_.second.second + "does not have ExponentialAtmosphereModel." );
+                            "Error, body " + associatedBodyName + "does not have ExponentialAtmosphereModel." );
                 }
 
                 // the parameter at hand does not need the acceleration, but atmosphere model for construction
                 doubleParameterToEstimate = std::make_shared< ExponentialAtmosphereParameter >(
-                        associatedAtmosphereModel, doubleParameterName->parameterType_.first, currentBodyName );
+                        associatedAtmosphereModel, doubleParameterName->parameterType_.first, associatedBodyName );
                 break;
             }
 
@@ -2348,17 +2336,10 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                         getAccelerationModelsListForParametersFromBase< InitialStateParameterType, TimeType >( propagatorSettings,
                                                                                                                vectorParameterName );
                 // check there is an acceleration model associated
-                if( associatedAccelerationModels.size( ) == 0 )
+                if( associatedAccelerationModels.empty() )
                 {
                     throw std::runtime_error(
                             "Error when creating ExponentialAtmosphere estimatable parameter, no compatible (aerodynamic) acceleration models" );
-                }
-                // check there is an aero interface associated
-                if( currentBody->getAerodynamicCoefficientInterface( ) == nullptr )
-                {
-                    std::string errorMessage = "Error, no aerodynamic coefficient interfaces found in body " + currentBodyName +
-                            " when making ExponentialAtmosphere estimatable parameter.";
-                    throw std::runtime_error( errorMessage );
                 }
 
                 // usually associated acceleration models are established here to prepare the construction of the parameter
@@ -2382,12 +2363,21 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                 }
 
                 // check there is an exponential atmosphere associated
-                std::shared_ptr< Body > exertingBody = bodies.at( vectorParameterName->parameterType_.second.second );
-                std::shared_ptr< aerodynamics::ExponentialAtmosphere > associatedAtmosphereModel = std::dynamic_pointer_cast< aerodynamics::ExponentialAtmosphere >( exertingBody->getAtmosphereModel( ) );
+                string associatedBodyName = vectorParameterName->parameterType_.second.first;
+                std::shared_ptr< Body > associatedBody = bodies.at( associatedBodyName );
+                std::shared_ptr< aerodynamics::ExponentialAtmosphere > associatedAtmosphereModel = std::dynamic_pointer_cast< aerodynamics::ExponentialAtmosphere >( associatedBody->getAtmosphereModel( ) );
                 if( associatedAtmosphereModel == nullptr )
                 {
                     throw std::runtime_error(
-                            "Error, body " + vectorParameterName->parameterType_.second.second + "does not have ExponentialAtmosphereModel." );
+                            "Error, body " + associatedBodyName + "does not have ExponentialAtmosphereModel." );
+                }
+
+                // check for non-empty list of arc times
+                if (exponentialAtmosphereParameterSettings->arcStartTimeList_.empty() )
+                {
+                    throw std::runtime_error(
+                        "Error when creating arc-wise exponential atmosphere estimatable parameter - list of arc start times is empty");
+
                 }
 
                 // the parameter at hand does not need the acceleration, but atmosphere model for construction
@@ -2395,6 +2385,7 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd >
                         associatedAtmosphereModel, vectorParameterName->parameterType_.first, exponentialAtmosphereParameterSettings->arcStartTimeList_, currentBodyName );
                 break;
             }
+
 
             case arc_wise_empirical_acceleration_coefficients: {
                 if( propagatorSettings == nullptr )
