@@ -190,8 +190,6 @@ void AerodynamicAccelerationPartial::computeAccelerationPartialWrtExponentialAtm
     // dRho/dRho_0
     double partialCurrentDensityWrtBaseDensity = std::exp( -flightConditions_->getCurrentAltitude(  ) / exponentialAtmosphereModel->getScaleHeight( ) );
     accelerationPartial *= partialCurrentDensityWrtBaseDensity;
-
-
 }
 
 
