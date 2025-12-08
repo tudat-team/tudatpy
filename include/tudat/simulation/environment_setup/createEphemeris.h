@@ -868,6 +868,7 @@ createStateInterpolatorFromSpice( const std::string& body,
         currentTime += timeStep;
     }
 
+    std::cout<<"Creating interpolated ephemeris "<<body<<" "<<timeHistoryOfState.begin( )->first<<" "<<timeHistoryOfState.rbegin( )->second<<std::endl;
     // Create interpolator.
     return interpolators::createOneDimensionalInterpolator( timeHistoryOfState, interpolatorSettings );
 }
@@ -1215,6 +1216,8 @@ std::shared_ptr< ephemerides::Ephemeris > createBodyEphemeris( const std::shared
                         throw std::runtime_error( "Error when creating direct spice ephemeris, frame origin and body ID are identical" );
                     }
 
+                    std::cout<<"Creating tabulated spice ephemeris "<<interpolatedEphemerisSettings->getInitialTime( )<<" "<<
+                            interpolatedEphemerisSettings->getFinalTime( )<<std::endl;
                     ephemeris = createTabulatedEphemerisFromSpice< StateScalarType, TimeType >(
                             inputName,
                             interpolatedEphemerisSettings->getInitialTime( ),

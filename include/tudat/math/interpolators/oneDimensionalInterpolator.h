@@ -196,6 +196,7 @@ public:
 
     virtual std::pair< IndependentVariableType, IndependentVariableType > getValidInterpolationInterval( const bool acceptUserDefinedRisk )
     {
+        std::cout<<"Getting base default interval "<<this<<" "<<boundaryHandling_<<" "<<acceptUserDefinedRisk<<std::endl;
         std::pair< IndependentVariableType, IndependentVariableType > validRange;
         switch( boundaryHandling_ )
         {
@@ -222,6 +223,7 @@ public:
                 break;
             }
         }
+        std::cout<<"Base default interval "<<validRange.first<<" "<<validRange.second<<std::endl;
         return validRange;
     }
 

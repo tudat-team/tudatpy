@@ -94,6 +94,8 @@ public:
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling, defaultExtrapolationValue ),
         numberOfStages_( numberOfStages ), lagrangeBoundaryHandling_( lagrangeBoundaryHandling )
     {
+        std::cout<<"Creating Lagrange interpolator A "<<this<<" "<<numberOfStages_<<" "<<
+                independentVariables.at( 0 )<<" "<<independentVariables.at( independentVariables.size( ) - 1 )<<std::endl;
         if( numberOfStages_ % 2 != 0 )
         {
             throw std::runtime_error( "Error: Lagrange interpolator currently only handles even orders." );
@@ -172,6 +174,8 @@ public:
         OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >( boundaryHandling, defaultExtrapolationValue ),
         numberOfStages_( numberOfStages ), lagrangeBoundaryHandling_( lagrangeBoundaryHandling )
     {
+        std::cout<<"Creating Lagrange interpolator B "<<this<<" "<<numberOfStages_<<" "<<
+                dataMap.begin( )->first<<" "<<dataMap.rbegin( )->first<<std::endl;
         if( numberOfStages_ % 2 != 0 )
         {
             throw std::runtime_error( "Error: Lagrange interpolator currently only handles even orders." );
@@ -335,7 +339,11 @@ public:
 
     std::pair< IndependentVariableType, IndependentVariableType > getValidInterpolationInterval( const bool acceptUserDefinedRisk )
     {
-        std::cout<<"Valid lagrange interpolator interval"<<std::endl;
+        std::cout<<"Valid lagrange interpolator interval "<<this<<" "<<lagrangeBoundaryHandling_<<" "<<acceptUserDefinedRisk<<" "<<independentValues_.size( )<<std::endl;
+        if( independentValues_.size( ) > 0 )
+        {
+            std::cout<<"First and last "<<independentValues_.at( 0 )<<" "<<independentValues_.at( independentValues_.size( ) - 1 )<<std::endl;
+        }
         std::pair< IndependentVariableType, IndependentVariableType > validInterval =
                 OneDimensionalInterpolator< IndependentVariableType, DependentVariableType >::getValidInterpolationInterval(
                         acceptUserDefinedRisk );
@@ -348,6 +356,8 @@ public:
                 {
                     validInterval = std::make_pair( independentValues_.at( numberOfStages_ / 2 - 1 ),
                                                     independentValues_.at( numberOfIndependentValues_ - ( numberOfStages_ / 2 ) ) );
+                    std::cout<<"Setting bounds A"<<" "<<independentValues_.at( numberOfStages_ / 2 - 1 )<<" "<<
+                            independentValues_.at( numberOfIndependentValues_ - ( numberOfStages_ / 2 ) )<<std::endl;
                 }
                 break;
             case lagrange_boundary_nan_interpolation:
@@ -355,6 +365,8 @@ public:
             case lagrange_no_boundary_interpolation:
                 validInterval = std::make_pair( independentValues_.at( numberOfStages_ / 2 - 1 ),
                                                 independentValues_.at( numberOfIndependentValues_ - ( numberOfStages_ / 2 ) ) );
+                std::cout<<"Setting bounds B"<<" "<<independentValues_.at( numberOfStages_ / 2 - 1 )<<" "<<
+                        independentValues_.at( numberOfIndependentValues_ - ( numberOfStages_ / 2 ) )<<std::endl;
                 break;
         }
 
