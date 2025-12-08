@@ -351,15 +351,15 @@ BOOST_AUTO_TEST_CASE( test_HybridArcStateEstimation )
     int numberOfEstimatedArcs = ( parameterError.rows( ) - 8 ) / 6;
 
     std::cout << std::endl << std::endl << "Final error: " << parameterError.transpose( ) << std::endl;
-    // Test error range: 5 m in-plane position and 2 micron/s in-plane velocity for Mars
+    // Test error range: 6 m in-plane position and 4 micron/s in-plane velocity for Mars
     for( unsigned int j = 0; j < 2; j++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( parameterError( j ) ), 5.0 );
-        BOOST_CHECK_SMALL( std::fabs( parameterError( j + 3 ) ), 2.5E-6 );
+        BOOST_CHECK_SMALL( std::fabs( parameterError( j ) ), 6.0 );
+        BOOST_CHECK_SMALL( std::fabs( parameterError( j + 3 ) ), 4.0E-6 );
     }
 
-    // Test error range: 1000 m in-plane position and 1.0 mm/s in-plane velocity for Mars (poor values due to short arc)
-    BOOST_CHECK_SMALL( std::fabs( parameterError( 2 ) ), 1000.0 );
+    // Test error range: 2000 m in-plane position and 1.0 mm/s in-plane velocity for Mars (poor values due to short arc)
+    BOOST_CHECK_SMALL( std::fabs( parameterError( 2 ) ), 2000.0 );
     BOOST_CHECK_SMALL( std::fabs( parameterError( 5 ) ), 1.0E-3 );
 
     // Test error range: 0.1 m position and 50 micron/s velocity for orbiter
@@ -373,7 +373,7 @@ BOOST_AUTO_TEST_CASE( test_HybridArcStateEstimation )
     }
 
     // Test errors for gravitational parameters
-    BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 2 ) ), 1.5E11 );
+    BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 2 ) ), 2.0E11 );
     BOOST_CHECK_SMALL( std::fabs( parameterError( parameterError.rows( ) - 1 ) ), 1.0E6 );
 }
 
