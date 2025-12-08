@@ -436,7 +436,7 @@ public:
             if( ( currentArcsDefinedByEachBody[ i ] != currentArcsDefinedByEachBody[ 0 ] ) && ( currentArcsDefinedByEachBody[ i ] != -1 ) &&
                 ( currentArcsDefinedByEachBody[ 0 ] != -1 ) )
             {
-                std::runtime_error( "Error when getting current arc, different definitions for bodies " + arcDefiningBodies.at( i ) +
+                throw std::runtime_error( "Error when getting current arc, different definitions for bodies " + arcDefiningBodies.at( i ) +
                                     " & " + arcDefiningBodies.at( 0 ) + "." );
             }
             if( currentArcsDefinedByEachBody[ i ] != -1 )
@@ -961,7 +961,7 @@ public:
             if( ( currentArcsDefinedByEachBody[ i ] != currentArcsDefinedByEachBody[ 0 ] ) &&
                 ( currentArcsDefinedByEachBody[ i ].first != -1 ) && ( currentArcsDefinedByEachBody[ 0 ].first != -1 ) )
             {
-                std::runtime_error( "Error when getting current arc, different definitions for bodies " + arcDefiningBodies.at( i ) +
+                throw std::runtime_error( "Error when getting current arc, different definitions for bodies " + arcDefiningBodies.at( i ) +
                                     " & " + arcDefiningBodies.at( 0 ) + "." );
             }
             if( currentArcsDefinedByEachBody[ i ].first != -1 )

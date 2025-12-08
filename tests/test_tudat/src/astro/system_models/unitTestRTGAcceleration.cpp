@@ -267,7 +267,7 @@ BOOST_AUTO_TEST_CASE( testRTGAcceleration )
 
 
     Eigen::Vector3d test_acceleration;
-    double matchedEpoch;
+    double matchedEpoch = TUDAT_NAN;
     for( std::map< double, Eigen::VectorXd >::iterator variableIterator = dependentVariableSolution.begin( );
      variableIterator != dependentVariableSolution.end( );
      variableIterator++ )
