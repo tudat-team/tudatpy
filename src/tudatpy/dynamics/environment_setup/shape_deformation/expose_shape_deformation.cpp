@@ -166,9 +166,9 @@ void expose_shape_deformation_setup( py::module &m )
            &tss::iers2010TidalBodyShapeDeformation,
            R"doc(
 
- Function for creating full IERS 2010 shape deformation model
+ Function for creating full IERS 2010 solid Earth tide shape deformation model
 
- Function for creating full IERS 2010 shape deformation model, computing the tidal shape variation due to the full model defined in
+ Function for creating full IERS 2010 solid Earth tide shape deformation model, computing the tidal shape variation due to the full model defined in
  Section 7.1.1 of the IERS Conventions 2010, implementing Eqs. (7.5)-(7.13), including all terms from Tables 7.3a and 7.3b. At present, none of the input parameters of the model can be varied.
 
  Returns
@@ -178,13 +178,44 @@ void expose_shape_deformation_setup( py::module &m )
 
      )doc" );
 
-    m.def( "pole_tidal", &tss::poleTideBodyShapeDeformation, R"doc(No documentation found.)doc" );
+    m.def( "pole_tidal", &tss::poleTideBodyShapeDeformation, R"doc(
+
+Function for creating IERS 2010 pole tide deformation model
+
+Function for creating IERS 2010  2010 pole tide deformation model, computing the shape variation as a result of polar-motion induced
+rotational variation, as described ion Section 7.1.4 of the IERS Conventions 2010
+
+Returns
+-------
+BodyDeformationSettings
+    Instance of the :class:`~tudatpy.dynamics.environment_setup.shape_deformation.BodyDeformationSettings` derived class
+
+)doc" );
 
     m.def( "ocean_tidal",
            &tss::oceanTideBodyShapeDeformation,
            py::arg( "blq_files" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+
+Function for creating IERS 2010 ocean tide deformation model
+
+Function for creating IERS 2010 ocean tide deformation model, implementing the 11 main tidal modes, as described ion Section 7.1.2
+(Equation 7.16 specifically) of the IERS Conventions 2010. This function requires BLQ files for the stations under consideration, which can
+be queried on the `Ocean Loading Provider <https://barre.oso.chalmers.se/loading/l.php>`_
+
+Parameters
+----------
+blq_files : list[ string ]
+    List of blq files defining ocean tide amplitudes and phases for the requested stations
+
+Returns
+-------
+BodyDeformationSettings
+    Instance of the :class:`~tudatpy.dynamics.environment_setup.shape_deformation.BodyDeformationSettings` derived class
+
+)doc" );
 }
+
 
 }  // namespace shape_deformation
 }  // namespace environment_setup
