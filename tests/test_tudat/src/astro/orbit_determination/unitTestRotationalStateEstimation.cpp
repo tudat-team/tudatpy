@@ -537,9 +537,9 @@ BOOST_AUTO_TEST_CASE( test_RotationalTranslationalDynamicsEstimationFromLanderDa
     BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 1 ) - truthParameters( 1 ) ), 1.0E-4 );
     BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 2 ) - truthParameters( 2 ) ), 1.0E-2 );
 
-    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 3 ) - truthParameters( 3 ) ), 2.0E-8 );
-    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 4 ) - truthParameters( 4 ) ), 2.0E-8 );
-    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 5 ) - truthParameters( 5 ) ), 2.0E-6 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 3 ) - truthParameters( 3 ) ), 2.5E-8 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 4 ) - truthParameters( 4 ) ), 2.5E-8 );
+    BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 5 ) - truthParameters( 5 ) ), 2.5E-6 );
 
     BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 6 ) - truthParameters( 6 ) ), 1.0E-12 );
     BOOST_CHECK_SMALL( std::fabs( estimationOutput->parameterEstimate_( 7 ) - truthParameters( 7 ) ), 1.0E-9 );

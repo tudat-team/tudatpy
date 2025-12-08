@@ -973,7 +973,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
 
     Eigen::Vector6d systemStateUpdate = { 1000, -1000, 100, 100, -100, 10 };
 
-    for( int i = 0; i < arcTimes.size( ); i++ )
+    for( unsigned int i = 0; i < arcTimes.size( ); i++ )
     {
         currentTime = arcTimes.at( i );
 
