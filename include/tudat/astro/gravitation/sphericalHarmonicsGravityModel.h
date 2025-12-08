@@ -105,6 +105,7 @@ public:
         sphericalHarmonicsCache_.resetMaximumDegreeAndOrder(
                 std::max< int >( maximumDegree_, sphericalHarmonicsCache_.getMaximumDegree( ) ) + 1,
                 std::max< int >( maximumOrder_, sphericalHarmonicsCache_.getMaximumOrder( ) ) + 1 );
+        sphericalHarmonicsCache_.getLegendreCache( ).setthrowExceptionForSingularDerivative( false );
     }
 
     //! Constructor taking functions for position of bodies, and parameters of spherical harmonics
@@ -161,6 +162,7 @@ public:
         sphericalHarmonicsCache_.resetMaximumDegreeAndOrder(
                 std::max< int >( maximumDegree_ + 1, sphericalHarmonicsCache_.getMaximumDegree( ) ),
                 std::max< int >( maximumOrder_ + 1, sphericalHarmonicsCache_.getMaximumOrder( ) ) + 1 );
+        sphericalHarmonicsCache_.getLegendreCache( ).setthrowExceptionForSingularDerivative( false );
     }
 
     //! Get gravitational acceleration in body-fixed frame of body undergoing acceleration.
@@ -203,7 +205,8 @@ public:
                                                                                          accelerationPerTerm_,
                                                                                          saveSphericalHarmonicTermsSeparately_,
                                                                                          rotationToIntegrationFrame_.toRotationMatrix( ),
-                                                                                         false );
+                                                                                         false,
+                                                                                         colatitudeCutoffForBoschFormulation_ );
             currentAccelerationInBodyFixedFrame_ = rotationToIntegrationFrame_.inverse( ) * currentAcceleration_;
 
             if( this->updatePotential_ )
@@ -240,7 +243,8 @@ public:
                                                                      dummy,
                                                                      false,
                                                                      rotationToIntegrationFrame_.toRotationMatrix( ),
-                                                                     false );
+                                                                     false,
+                                                                     colatitudeCutoffForBoschFormulation_ );
     }
 
     //! Function to retrieve spherical harmonic acceleration in inertial frame, with alternative coefficients, per term
@@ -267,7 +271,8 @@ public:
                                                               accelerationPerTerm,
                                                               true,
                                                               rotationToIntegrationFrame_.toRotationMatrix( ),
-                                                              true );
+                                                              true,
+                                                              colatitudeCutoffForBoschFormulation_ );
 
         Eigen::VectorXd returnVector = Eigen::VectorXd( 3 * coefficientIndices.size( ) );
         for( unsigned int i = 0; i < coefficientIndices.size( ); i++ )
@@ -448,6 +453,12 @@ public:
         return maximumOrder_;
     }
 
+    void setColatitudeCutoffForBoschFormulation( const double colatitudeCutoffForBoschFormulation )
+    {
+        colatitudeCutoffForBoschFormulation_ = colatitudeCutoffForBoschFormulation;
+    }
+
+
 protected:
 private:
     //! Equatorial radius [m].
@@ -512,6 +523,8 @@ private:
 
     //! Maximum order of gravity field expansion
     int maximumOrder_;
+
+    double colatitudeCutoffForBoschFormulation_ = 1.0E-6;
 };
 
 //! Typedef for shared-pointer to SphericalHarmonicsGravitationalAccelerationModel.

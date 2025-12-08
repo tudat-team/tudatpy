@@ -38,35 +38,116 @@ void SphericalHarmonicsCache::resetMaximumDegreeAndOrder( const int maximumDegre
     referenceRadiusRatioPowers_.resize( maximumDegree_ + 2 );
 }
 
+
+
 //! Compute the gradient of a single term of a spherical harmonics potential field.
-Eigen::Vector3d computePotentialGradient( const double distance,
-                                          const double radiusPowerTerm,
-                                          const double cosineOfOrderLongitude,
-                                          const double sineOfOrderLongitude,
-                                          const double cosineOfLatitude,
-                                          const double preMultiplier,
-                                          const int degree,
-                                          const int order,
-                                          const double cosineHarmonicCoefficient,
-                                          const double sineHarmonicCoefficient,
-                                          const double legendrePolynomial,
-                                          const double legendrePolynomialDerivative )
+Eigen::Vector3d computePotentialGradientFromLatitudeDerivative(
+        const double distance, const double radiusPowerTerm,
+        const double cosineOfOrderLongitude, const double sineOfOrderLongitude,
+        const double preMultiplier, const int degree, const int order,
+        const double cosineHarmonicCoefficient, const double sineHarmonicCoefficient,
+        const double legendrePolynomial, const double legendrePolynomialDerivativeWrLatitude )
 {
-    // Return result.
-    const double harmonicSum = cosineHarmonicCoefficient * cosineOfOrderLongitude + sineHarmonicCoefficient * sineOfOrderLongitude;
-
-    const double harmonicDifference = sineHarmonicCoefficient * cosineOfOrderLongitude - cosineHarmonicCoefficient * sineOfOrderLongitude;
-
+    const double harmonicSum = cosineHarmonicCoefficient * cosineOfOrderLongitude +
+            sineHarmonicCoefficient * sineOfOrderLongitude;
+    const double harmonicDifference = sineHarmonicCoefficient * cosineOfOrderLongitude -
+            cosineHarmonicCoefficient * sineOfOrderLongitude;
     const double factor = preMultiplier * radiusPowerTerm;
-
     const double degreePlusOne = static_cast< double >( degree ) + 1.0;
     const double orderDouble = static_cast< double >( order );
 
     Eigen::Vector3d gradient;
     gradient.x( ) = -1.0 / distance * degreePlusOne * legendrePolynomial * harmonicSum;
-    gradient.y( ) = legendrePolynomialDerivative * cosineOfLatitude * harmonicSum;
+    gradient.y( ) = legendrePolynomialDerivativeWrLatitude * harmonicSum;
     gradient.z( ) = orderDouble * legendrePolynomial * harmonicDifference;
     return factor * gradient;
+}
+
+//! Compute the gradient of a single term of a spherical harmonics potential field.
+Eigen::Vector3d computePotentialGradient(
+        const double distance, const double radiusPowerTerm,
+        const double cosineOfOrderLongitude, const double sineOfOrderLongitude,
+        const double cosineOfLatitude, const double preMultiplier,
+        const int degree, const int order,
+        const double cosineHarmonicCoefficient, const double sineHarmonicCoefficient,
+        const double legendrePolynomial, const double legendrePolynomialDerivative )
+{
+    return computePotentialGradientFromLatitudeDerivative(
+            distance, radiusPowerTerm, cosineOfOrderLongitude, sineOfOrderLongitude, preMultiplier,
+            degree, order, cosineHarmonicCoefficient, sineHarmonicCoefficient,
+            legendrePolynomial, legendrePolynomialDerivative * cosineOfLatitude );
+}
+
+//! Compute the gradient of a single term of a spherical harmonics potential field at the poles.
+Eigen::Vector3d computePotentialGradientNearPole(
+        const Eigen::Vector3d& sphericalPosition, const double preMultiplier,
+        const int degree, const int order,
+        const double cosineHarmonicCoefficient, const double sineHarmonicCoefficient,
+        const SphericalHarmonicsCache& sphericalHarmonicsCache )
+{
+    double legendrePolynomialDerivativeWithRespectToColatitude = 0.0;
+
+    if( order == 0 )
+    {
+        const double incrementedOrderLegendrePolynomial =
+                sphericalHarmonicsCache.getLegendreCacheConst().getLegendrePolynomial( degree, 1 );
+        legendrePolynomialDerivativeWithRespectToColatitude =
+                -std::sqrt( static_cast< double >( degree ) *
+                            ( static_cast< double >( degree ) + 1.0 ) / 2.0 ) *
+                incrementedOrderLegendrePolynomial;
+    }
+    else if( order == degree )
+    {
+        const double decrementedOrderLegendrePolynomial =
+                sphericalHarmonicsCache.getLegendreCacheConst().getLegendrePolynomial( degree, degree - 1 );
+        legendrePolynomialDerivativeWithRespectToColatitude =
+                std::sqrt( static_cast< double >( degree ) / 2.0 ) * decrementedOrderLegendrePolynomial;
+        if( degree == 1 )
+        {
+            legendrePolynomialDerivativeWithRespectToColatitude *= sqrt( 2.0 );
+        }
+    }
+    else
+    {
+        const double decrementedOrderLegendrePolynomial =
+                sphericalHarmonicsCache.getLegendreCacheConst().getLegendrePolynomial( degree, order - 1 );
+        const double incrementedOrderLegendrePolynomial =
+                sphericalHarmonicsCache.getLegendreCacheConst().getLegendrePolynomial( degree, order + 1 );
+        double persistenceTerm = TUDAT_NAN;
+        double decayTerm = TUDAT_NAN;
+
+        if( order == 1 )
+        {
+            persistenceTerm = std::sqrt( 2.0 * static_cast< double >( degree ) *
+                                         ( static_cast< double >( degree ) + 1.0 ) );
+            decayTerm = std::sqrt( static_cast< double >( degree - 1 ) *
+                                   static_cast< double >( degree + 2 ) );
+        }
+        else
+        {
+            persistenceTerm = std::sqrt( static_cast< double >( degree + order ) *
+                                         static_cast< double >( degree - order + 1 ) );
+            decayTerm = std::sqrt( static_cast< double >( degree + order + 1 ) *
+                                   static_cast< double >( degree - order ) );
+        }
+
+        legendrePolynomialDerivativeWithRespectToColatitude =
+                0.5 * ( persistenceTerm * decrementedOrderLegendrePolynomial -
+                        decayTerm       * incrementedOrderLegendrePolynomial );
+    }
+
+    const double distance = sphericalPosition( radiusIndex );
+    const double radiusPowerTerm = sphericalHarmonicsCache.getReferenceRadiusRatioPowers( degree + 1 );
+    const double cosineOfOrderLongitude = sphericalHarmonicsCache.getCosineOfMultipleLongitude( order );
+    const double sineOfOrderLongitude = sphericalHarmonicsCache.getSineOfMultipleLongitude( order );
+    const double legendrePolynomial =
+            sphericalHarmonicsCache.getLegendreCacheConst().getLegendrePolynomial( degree, order );
+
+    return computePotentialGradientFromLatitudeDerivative(
+            distance, radiusPowerTerm, cosineOfOrderLongitude, sineOfOrderLongitude,
+            preMultiplier, degree, order, cosineHarmonicCoefficient,
+            sineHarmonicCoefficient, legendrePolynomial,
+            -legendrePolynomialDerivativeWithRespectToColatitude );
 }
 
 //! Compute the gradient of a single term of a spherical harmonics potential field.
