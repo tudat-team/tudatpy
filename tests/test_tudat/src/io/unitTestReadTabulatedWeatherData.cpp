@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( compareDsnAndWmfWeatherData )
             std::vector< std::string >( { paths::getTudatTestDataPath( ) + "y2017.vmf3_r.txt" } ), true, false, bodies2, false, true );
 
     std::vector< std::string > complex10GroundStations = { "DSS-13", "DSS-14", "DSS-15", "DSS-24", "DSS-25", "DSS-26" };
-    for( std::string groundStation: complex10GroundStations )
+    for( std::string groundStation : complex10GroundStations )
     {
         std::shared_ptr< ground_stations::GroundStation > gs = bodies.getBody( "Earth" )->getGroundStation( groundStation );
         std::shared_ptr< ground_stations::GroundStation > gs2 = bodies2.getBody( "Earth" )->getGroundStation( groundStation );
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE( setDsnWeatherData )
     simulation_setup::SystemOfBodies bodies2 = createSystemOfBodies( bodySettings );
 
     std::vector< std::string > complex10GroundStations = { "DSS-13", "DSS-14", "DSS-15", "DSS-24", "DSS-25", "DSS-26" };
-    for( std::string groundStation: complex10GroundStations )
+    for( std::string groundStation : complex10GroundStations )
     {
         std::shared_ptr< ground_stations::GroundStation > gs = bodies.getBody( "Earth" )->getGroundStation( groundStation );
         // DATE: 170101 DOY: 001 DSS 10, TIME 0000

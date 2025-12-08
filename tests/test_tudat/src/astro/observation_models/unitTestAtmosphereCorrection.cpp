@@ -718,9 +718,9 @@ BOOST_AUTO_TEST_CASE( testMediaCorrectionDerivatives )
         double maxError = 0.0;
         double minError = 1.0E100;
         double maxErrorElevation = TUDAT_NAN;
-//        double minErrorElevation = TUDAT_NAN;
+        //        double minErrorElevation = TUDAT_NAN;
         double maxErrorRelative = TUDAT_NAN;
-//        double minErrorRelative = TUDAT_NAN;
+        //        double minErrorRelative = TUDAT_NAN;
 
         std::vector< double > numericalDerivativesWrtTime;
         std::vector< double > reconstructedDerivativesWrtTime;
@@ -753,8 +753,8 @@ BOOST_AUTO_TEST_CASE( testMediaCorrectionDerivatives )
                 if( absoluteError < minError )
                 {
                     minError = absoluteError;
-//                    minErrorRelative = relativeError;
-//                    minErrorElevation = elevationAngles.at( i );
+                    //                    minErrorRelative = relativeError;
+                    //                    minErrorElevation = elevationAngles.at( i );
                 }
                 counter++;
             }
