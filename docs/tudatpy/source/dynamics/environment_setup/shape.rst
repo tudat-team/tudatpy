@@ -57,6 +57,8 @@ Functions
 
    oblate_spherical
 
+   oblate_spherical_spice
+
    polyhedron
 
    hybrid
@@ -68,6 +70,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.shape.spherical_spice
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape.oblate_spherical
+
+.. autofunction:: tudatpy.dynamics.environment_setup.shape.oblate_spherical_spice
 
 .. autofunction:: tudatpy.dynamics.environment_setup.shape.polyhedron
 
