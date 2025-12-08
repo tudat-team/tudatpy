@@ -781,17 +781,15 @@ public:
     //! Constructor
     /*!
      * Constructor
-     * \param parameterType type of parameter ,
-     * \param bodyUndergoing Name of body undergoing aerodynamic acceleration by (exponential) atmosphere
-     * \param bodyExerting Name of body exerting aerodynamic acceleration by its (exponential) atmosphere
+     * \param parameterType Type of exponential atmosphere parameter
+     * \param associatedBody Name of body associated with the (exponential) atmosphere
      * \param arcStartTimeList List of times at which drag coefficient arcs are to start
      */
 
-    ArcWiseExponentialAtmosphereParameterSettings(const std::string& bodyUndergoing,
-                                                                     const std::string& bodyExerting,
-                                                                     const EstimatebleParametersEnum parameterType,
-                                                                     const std::vector< double > arcStartTimeList ):
-        EstimatableParameterSettings( bodyUndergoing, parameterType, bodyExerting),
+    ArcWiseExponentialAtmosphereParameterSettings(const EstimatebleParametersEnum parameterType,
+                                                  const std::string& associatedBody,
+                                                  const std::vector< double > arcStartTimeList ):
+        EstimatableParameterSettings( associatedBody, parameterType),
         arcStartTimeList_( arcStartTimeList )
     {}
 
@@ -1239,33 +1237,29 @@ inline std::shared_ptr< EstimatableParameterSettings > arcwiseLiftComponentScali
 }
 
 // factory function parameter settings for arcwise ExponentialAtmosphereBaseDensity parameter
-inline std::shared_ptr< EstimatableParameterSettings > arcwiseExponentialAtmosphereBaseDensity( const std::string& bodyUndergoing,
-                                                                                                const std::string& bodyExerting,
+inline std::shared_ptr< EstimatableParameterSettings > arcwiseExponentialAtmosphereBaseDensity( const std::string& associatedBody,
                                                                                                 const std::vector< double > arcStartTimes )
 {
-    return std::make_shared< ArcWiseExponentialAtmosphereParameterSettings >( bodyUndergoing, bodyExerting, arc_wise_exponential_atmosphere_base_density, arcStartTimes );
+    return std::make_shared< ArcWiseExponentialAtmosphereParameterSettings >( arc_wise_exponential_atmosphere_base_density, associatedBody, arcStartTimes );
 }
 
 // factory function parameter settings for arcwise ExponentialAtmosphereScaleHeight parameter
-inline std::shared_ptr< EstimatableParameterSettings > arcwiseExponentialAtmosphereScaleHeight( const std::string& bodyUndergoing,
-                                                                                                const std::string& bodyExerting,
+inline std::shared_ptr< EstimatableParameterSettings > arcwiseExponentialAtmosphereScaleHeight( const std::string& associatedBody,
                                                                                                 const std::vector< double > arcStartTimes )
 {
-    return std::make_shared< ArcWiseExponentialAtmosphereParameterSettings >( bodyUndergoing, bodyExerting, arc_wise_exponential_atmosphere_scale_height, arcStartTimes );
+    return std::make_shared< ArcWiseExponentialAtmosphereParameterSettings >( arc_wise_exponential_atmosphere_scale_height, associatedBody, arcStartTimes );
 }
 
 // factory function parameter settings for ExponentialAtmosphereBaseDensity parameter
-inline std::shared_ptr< EstimatableParameterSettings > exponentialAtmosphereBaseDensity( const std::string& bodyUndergoingAcceleration,
-                                                                                         const std::string& bodyExertingAcceleration)
+inline std::shared_ptr< EstimatableParameterSettings > exponentialAtmosphereBaseDensity( const std::string& associatedBody )
 {
-    return std::make_shared< EstimatableParameterSettings >( bodyUndergoingAcceleration, exponential_atmosphere_base_density, bodyExertingAcceleration );
+    return std::make_shared< EstimatableParameterSettings >( associatedBody, exponential_atmosphere_base_density );
 }
 
 // factory function parameter settings for ExponentialAtmosphereScaleHeight parameter
-inline std::shared_ptr< EstimatableParameterSettings > exponentialAtmosphereScaleHeight( const std::string& bodyUndergoingAcceleration,
-                                                                                         const std::string& bodyExertingAcceleration)
+inline std::shared_ptr< EstimatableParameterSettings > exponentialAtmosphereScaleHeight( const std::string& associatedBody )
 {
-    return std::make_shared< EstimatableParameterSettings >( bodyUndergoingAcceleration, exponential_atmosphere_scale_height, bodyExertingAcceleration );
+    return std::make_shared< EstimatableParameterSettings >( associatedBody, exponential_atmosphere_scale_height );
 }
 
 inline std::shared_ptr< EstimatableParameterSettings > radiationPressureCoefficient( const std::string bodyName )
