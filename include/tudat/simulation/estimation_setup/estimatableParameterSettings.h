@@ -1239,7 +1239,7 @@ inline std::shared_ptr< EstimatableParameterSettings > arcwiseLiftComponentScali
 }
 
 // factory function parameter settings for arcwise ExponentialAtmosphereBaseDensity parameter
-inline std::shared_ptr< EstimatableParameterSettings > arcwiseexponentialAtmosphereBaseDensity( const std::string& bodyUndergoing,
+inline std::shared_ptr< EstimatableParameterSettings > arcwiseExponentialAtmosphereBaseDensity( const std::string& bodyUndergoing,
                                                                                                 const std::string& bodyExerting,
                                                                                                 const std::vector< double > arcStartTimes )
 {
@@ -1247,7 +1247,7 @@ inline std::shared_ptr< EstimatableParameterSettings > arcwiseexponentialAtmosph
 }
 
 // factory function parameter settings for arcwise ExponentialAtmosphereScaleHeight parameter
-inline std::shared_ptr< EstimatableParameterSettings > arcwiseexponentialAtmosphereScaleHeight( const std::string& bodyUndergoing,
+inline std::shared_ptr< EstimatableParameterSettings > arcwiseExponentialAtmosphereScaleHeight( const std::string& bodyUndergoing,
                                                                                                 const std::string& bodyExerting,
                                                                                                 const std::vector< double > arcStartTimes )
 {
