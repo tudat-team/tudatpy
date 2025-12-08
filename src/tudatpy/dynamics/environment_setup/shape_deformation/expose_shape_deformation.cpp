@@ -31,10 +31,9 @@ namespace shape_deformation
 
 void expose_shape_deformation_setup( py::module &m )
 {
-    py::class_< tss::BodyDeformationSettings, std::shared_ptr< tss::BodyDeformationSettings > >(
-            m,
-            "BodyDeformationSettings",
-            R"doc(
+    py::class_< tss::BodyDeformationSettings, std::shared_ptr< tss::BodyDeformationSettings > >( m,
+                                                                                                 "BodyDeformationSettings",
+                                                                                                 R"doc(
 
          Base class for providing settings for body shape deformation model.
 
@@ -215,7 +214,6 @@ BodyDeformationSettings
 
 )doc" );
 }
-
 
 }  // namespace shape_deformation
 }  // namespace environment_setup

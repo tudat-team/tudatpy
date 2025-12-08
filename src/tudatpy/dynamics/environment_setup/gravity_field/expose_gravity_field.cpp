@@ -40,24 +40,16 @@ inline std::shared_ptr< GravityFieldSettings > fromFileSphericalHarmonicsGravity
         const int referenceRadiusIndex = 1 )
 {
     return std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >(
-            filePath,
-            associatedReferenceFrame,
-            maximumDegree,
-            maximumOrder,
-            gravitationalParameterIndex,
-            referenceRadiusIndex );
+            filePath, associatedReferenceFrame, maximumDegree, maximumOrder, gravitationalParameterIndex, referenceRadiusIndex );
 }
 
-inline std::shared_ptr< GravityFieldSettings > predefinedSphericalHarmonic(
-        const SphericalHarmonicsModel sphericalHarmonicsModel,
-        const int maximumDegree = -1 )
+inline std::shared_ptr< GravityFieldSettings > predefinedSphericalHarmonic( const SphericalHarmonicsModel sphericalHarmonicsModel,
+                                                                            const int maximumDegree = -1 )
 {
-    return std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >(
-            sphericalHarmonicsModel, maximumDegree );
+    return std::make_shared< FromFileSphericalHarmonicsGravityFieldSettings >( sphericalHarmonicsModel, maximumDegree );
 }
 
-inline std::shared_ptr< GravityFieldSettings >
-createHomogeneousTriAxialEllipsoidGravitySettingsDeprecated(
+inline std::shared_ptr< GravityFieldSettings > createHomogeneousTriAxialEllipsoidGravitySettingsDeprecated(
         const double axisA,
         const double axisB,
         const double axisC,
@@ -78,14 +70,8 @@ createHomogeneousTriAxialEllipsoidGravitySettingsDeprecated(
         isWarningPrinted = true;
     }
 
-    return createHomogeneousTriAxialEllipsoidGravitySettings( axisA,
-                                                              axisB,
-                                                              axisC,
-                                                              ellipsoidDensity,
-                                                              maximumDegree,
-                                                              maximumOrder,
-                                                              associatedReferenceFrame,
-                                                              gravitationalConstant );
+    return createHomogeneousTriAxialEllipsoidGravitySettings(
+            axisA, axisB, axisC, ellipsoidDensity, maximumDegree, maximumOrder, associatedReferenceFrame, gravitationalConstant );
 }
 
 }  // namespace simulation_setup
@@ -198,10 +184,9 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 )doc" )
             .export_values( );
 
-    py::class_< tss::GravityFieldSettings, std::shared_ptr< tss::GravityFieldSettings > >(
-            m,
-            "GravityFieldSettings",
-            R"doc(
+    py::class_< tss::GravityFieldSettings, std::shared_ptr< tss::GravityFieldSettings > >( m,
+                                                                                           "GravityFieldSettings",
+                                                                                           R"doc(
 
          Base class for providing settings for automatic gravity field model creation.
 
@@ -227,11 +212,10 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
          :type: GravityFieldType
       )doc" );
 
-    py::class_< tss::CentralGravityFieldSettings,
-                std::shared_ptr< tss::CentralGravityFieldSettings >,
-                tss::GravityFieldSettings >( m,
-                                             "CentralGravityFieldSettings",
-                                             R"doc(
+    py::class_< tss::CentralGravityFieldSettings, std::shared_ptr< tss::CentralGravityFieldSettings >, tss::GravityFieldSettings >(
+            m,
+            "CentralGravityFieldSettings",
+            R"doc(
 
          `GravityFieldSettings` derived class defining settings of point mass gravity field.
 
@@ -343,15 +327,12 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
     py::class_< tss::FromFileSphericalHarmonicsGravityFieldSettings,
                 std::shared_ptr< tss::FromFileSphericalHarmonicsGravityFieldSettings >,
                 tss::SphericalHarmonicsGravityFieldSettings >(
-            m,
-            "FromFileSphericalHarmonicsGravityFieldSettings",
-            R"doc(No documentation found.)doc" );
+            m, "FromFileSphericalHarmonicsGravityFieldSettings", R"doc(No documentation found.)doc" );
 
-    py::class_< tss::PolyhedronGravityFieldSettings,
-                std::shared_ptr< tss::PolyhedronGravityFieldSettings >,
-                tss::GravityFieldSettings >( m,
-                                             "PolyhedronGravityFieldSettings",
-                                             R"doc(
+    py::class_< tss::PolyhedronGravityFieldSettings, std::shared_ptr< tss::PolyhedronGravityFieldSettings >, tss::GravityFieldSettings >(
+            m,
+            "PolyhedronGravityFieldSettings",
+            R"doc(
 
          `GravityFieldSettings` derived class defining settings of a polyhedron gravity field representation.
 
@@ -399,10 +380,9 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
          :type: numpy.ndarray
       )doc" )
-            .def_property_readonly(
-                    "vertices_defining_each_facet",
-                    &tss::PolyhedronGravityFieldSettings::getVerticesDefiningEachFacet,
-                    R"doc(
+            .def_property_readonly( "vertices_defining_each_facet",
+                                    &tss::PolyhedronGravityFieldSettings::getVerticesDefiningEachFacet,
+                                    R"doc(
 
          Index (0 based) of the vertices constituting each facet. Entry (i,j) denotes facet i, and the jth vertex of
          the facet (one row per facet, 3 columns). In each row, the vertices' indices should be ordered counterclockwise
@@ -490,11 +470,8 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
      )doc" );
 
     m.def( "spherical_harmonic",
-           py::overload_cast< const double,
-                              const double,
-                              const Eigen::MatrixXd,
-                              const Eigen::MatrixXd,
-                              const std::string& >( &tss::sphericalHarmonicsGravitySettings ),
+           py::overload_cast< const double, const double, const Eigen::MatrixXd, const Eigen::MatrixXd, const std::string& >(
+                   &tss::sphericalHarmonicsGravitySettings ),
            py::arg( "gravitational_parameter" ),
            py::arg( "reference_radius" ),
            py::arg( "normalized_cosine_coefficients" ),
@@ -704,11 +681,8 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
      )doc" );
 
     m.def( "polyhedron_from_mu",
-           py::overload_cast< const double,
-                              const Eigen::MatrixXd,
-                              const Eigen::MatrixXi,
-                              const std::string&,
-                              const double >( &tss::polyhedronGravitySettingsFromMu ),
+           py::overload_cast< const double, const Eigen::MatrixXd, const Eigen::MatrixXi, const std::string&, const double >(
+                   &tss::polyhedronGravitySettingsFromMu ),
            py::arg( "gravitational_parameter" ),
            py::arg( "vertices_coordinates" ),
            py::arg( "vertices_defining_each_facet" ),
@@ -763,11 +737,8 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
      )doc" );
 
     m.def( "polyhedron_from_density",
-           py::overload_cast< const double,
-                              const Eigen::MatrixXd,
-                              const Eigen::MatrixXi,
-                              const std::string&,
-                              const double >( &tss::polyhedronGravitySettings ),
+           py::overload_cast< const double, const Eigen::MatrixXd, const Eigen::MatrixXi, const std::string&, const double >(
+                   &tss::polyhedronGravitySettings ),
            py::arg( "density" ),
            py::arg( "vertices_coordinates" ),
            py::arg( "vertices_defining_each_facet" ),
@@ -828,8 +799,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
                               const int,
                               const int,
                               const std::string&,
-                              const double >(
-                   &tss::createHomogeneousTriAxialEllipsoidGravitySettings ),
+                              const double >( &tss::createHomogeneousTriAxialEllipsoidGravitySettings ),
            py::arg( "axis_a" ),
            py::arg( "axis_b" ),
            py::arg( "axis_c" ),
@@ -896,13 +866,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
 
     // Triaxial ellipsoid: overload 2
     m.def( "sh_triaxial_ellipsoid_from_gravitational_parameter",
-           py::overload_cast< const double,
-                              const double,
-                              const double,
-                              const int,
-                              const int,
-                              const std::string&,
-                              const double >(
+           py::overload_cast< const double, const double, const double, const int, const int, const std::string&, const double >(
                    &tss::createHomogeneousTriAxialEllipsoidGravitySettings ),
            py::arg( "axis_a" ),
            py::arg( "axis_b" ),
@@ -959,8 +923,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
                               const int,
                               const int,
                               const std::string&,
-                              const double >(
-                   &tss::createHomogeneousTriAxialEllipsoidGravitySettingsDeprecated ),
+                              const double >( &tss::createHomogeneousTriAxialEllipsoidGravitySettingsDeprecated ),
            py::arg( "axis_a" ),
            py::arg( "axis_b" ),
            py::arg( "axis_c" ),
@@ -968,8 +931,7 @@ Coefficients for the SHGJ180U Moon gravity field up to degree and order 180, (se
            py::arg( "maximum_degree" ),
            py::arg( "maximum_order" ),
            py::arg( "associated_reference_frame" ),
-           py::arg( "gravitational_constant" ) =
-                   tudat::physical_constants::GRAVITATIONAL_CONSTANT );
+           py::arg( "gravitational_constant" ) = tudat::physical_constants::GRAVITATIONAL_CONSTANT );
 
     m.def( "ring_model",
            &tss::ringGravitySettings,
