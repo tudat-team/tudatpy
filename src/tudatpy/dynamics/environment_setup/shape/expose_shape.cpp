@@ -256,8 +256,6 @@ void expose_shape_setup( py::module &m )
 
 
 
-
-
  Examples
  --------
  In this example, we create a :class:`~tudatpy.dynamics.environment_setup.shape.BodyShapeSettings` using a perfectly spherical shape model and data from Spice:
@@ -313,7 +311,15 @@ void expose_shape_setup( py::module &m )
 
     m.def( "oblate_spherical_spice",
            &tss::fromSpiceOblateSphericalBodyShapeSettings,
-           R"doc(No documentation found.)doc" );
+           R"doc(
+Function for creating oblate spherical body shape model settings entirely from spice.
+Returns
+-------
+BodyShapeSettings
+    Instance of :class:`~tudatpy.dynamics.environment_setup.shape.BodyShapeSettings` class
+
+
+)doc" );
 
     m.def( "polyhedron",
            &tss::polyhedronBodyShapeSettings,

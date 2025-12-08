@@ -119,17 +119,11 @@ void expose_gravity_field_setup( py::module& m )
 
 
       )doc" )
-            .value( "central_gravity", tss::GravityFieldType::central, R"doc(
-      )doc" )
-            .value( "central_spice_gravity", tss::GravityFieldType::central_spice, R"doc(
-      )doc" )
-            .value( "spherical_harmonic_gravity", tss::GravityFieldType::spherical_harmonic, R"doc(
-      )doc" )
-            .value( "polyhedron_gravity", tss::GravityFieldType::polyhedron, R"doc(
-      )doc" )
-            .value( "ring_gravity",
-                    tss::GravityFieldType::one_dimensional_ring,
-                    R"doc(No documentation found.)doc" )
+            .value( "central_gravity", tss::GravityFieldType::central )
+            .value( "central_spice_gravity", tss::GravityFieldType::central_spice )
+            .value( "spherical_harmonic_gravity", tss::GravityFieldType::spherical_harmonic )
+            .value( "polyhedron_gravity", tss::GravityFieldType::polyhedron )
+            .value( "ring_gravity", tss::GravityFieldType::one_dimensional_ring )
             .export_values( );
 
     py::enum_< tss::SphericalHarmonicsModel >( m,
