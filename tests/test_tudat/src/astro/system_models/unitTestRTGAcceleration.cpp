@@ -44,18 +44,18 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_rtg_acceleration )
 
-
 // Test case 1: simple setup of rtgAccelerationModel, Vehicle body with rotation ephemeris and mass function.
-// Updating vehicle environment sequentially to isolate effects from environment, then calling updateMembers on Acceleration Model and comparing with expected values.
-// First (1a): evaluate acceleration vector at acceleration model referenceTime, then testTime to check correct modelling of decay process.
-// Second (1b): update vehicle mass at testTime to follow vehicle mass function, re-evaluate acceleration model current acceleration to check correct interfacing with vehicle mass function.
-// Third (1c): update vehicle rotational state at testTime to match rotational ephemeris, re-evaluate acceleration model current acceleration to check correct interfacing with vehicle rotation state.
+// Updating vehicle environment sequentially to isolate effects from environment, then calling updateMembers on Acceleration Model and
+// comparing with expected values. First (1a): evaluate acceleration vector at acceleration model referenceTime, then testTime to check
+// correct modelling of decay process. Second (1b): update vehicle mass at testTime to follow vehicle mass function, re-evaluate
+// acceleration model current acceleration to check correct interfacing with vehicle mass function. Third (1c): update vehicle rotational
+// state at testTime to match rotational ephemeris, re-evaluate acceleration model current acceleration to check correct interfacing with
+// vehicle rotation state.
 
 // Test case 2: Acceleration model and environment setup described above is embedded into a numerical integration and propagated for 24h.
 //              First environment dependencies vehicle mass, rotation state) are reset to inital state.
 //              Then acceleration model with all dependencies (decay, mass function and rotation ephemeris effects included) are propagated.
 //              RTG acceleration is recovered from propagation through dependent variable and compared to expected value.
-
 
 BOOST_AUTO_TEST_CASE( testRTGAcceleration )
 {
@@ -82,37 +82,37 @@ BOOST_AUTO_TEST_CASE( testRTGAcceleration )
     double testTime = 500;
 
     // Define function describing rotational ephemeris of vehicle
-    std::function<Eigen::Matrix3d(double)> timeDependentRotationFunction =
-    [](double epoch) {
-        double angleRad = 1/7. * epoch * mathematical_constants::PI / 180.0;
-        return Eigen::AngleAxisd(angleRad, Eigen::Vector3d::UnitZ()).toRotationMatrix();
+    std::function< Eigen::Matrix3d( double ) > timeDependentRotationFunction = []( double epoch ) {
+        double angleRad = 1 / 7. * epoch * mathematical_constants::PI / 180.0;
+        return Eigen::AngleAxisd( angleRad, Eigen::Vector3d::UnitZ( ) ).toRotationMatrix( );
     };
 
     // Assign and update
     bodies.at( "Vehicle" )
-            ->setRotationalEphemeris( createRotationModel( std::make_shared< CustomRotationModelSettings >(
-                                                                   "ECLIPJ2000",
-                                                                   "VehicleFixed",
-                                                                   timeDependentRotationFunction,
-                                                                   1.0 ),
-                                                           "Vehicle",
-                                                           bodies ) );
+            ->setRotationalEphemeris( createRotationModel(
+                    std::make_shared< CustomRotationModelSettings >( "ECLIPJ2000", "VehicleFixed", timeDependentRotationFunction, 1.0 ),
+                    "Vehicle",
+                    bodies ) );
     bodies.at( "Vehicle" )->setCurrentRotationalStateToLocalFrameFromEphemeris( referenceEpoch );
 
     // Define function describing mass function of vehicle
     double initialVehicleMass = 5000;
 
-    std::function<double(double)> vehicleMassFunction =
-        [=](double epoch) {
-            //double delta_epoch = epoch - referenceEpoch;
-            double delta_test = epoch - testTime;
-            if (delta_test > -100. && delta_test <= 200.) {
-                return initialVehicleMass - (delta_test+100.);
-            } else if (delta_test <= -100.) {
-                return initialVehicleMass;
-            } else {
-                return initialVehicleMass - 100.;
-            }
+    std::function< double( double ) > vehicleMassFunction = [ = ]( double epoch ) {
+        // double delta_epoch = epoch - referenceEpoch;
+        double delta_test = epoch - testTime;
+        if( delta_test > -100. && delta_test <= 200. )
+        {
+            return initialVehicleMass - ( delta_test + 100. );
+        }
+        else if( delta_test <= -100. )
+        {
+            return initialVehicleMass;
+        }
+        else
+        {
+            return initialVehicleMass - 100.;
+        }
     };
 
     // Assign and Update
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE( testRTGAcceleration )
 
     Eigen::Vector3d rtgForceVector;
     rtgForceVector << 0.5E-5, 0.5E-5, 0.5E-5;
-    double decayScaleFactor = 1.5e-05;       // corresponding to a half-life of roughly half a day
+    double decayScaleFactor = 1.5e-05;  // corresponding to a half-life of roughly half a day
 
     // Define origin of integration
     std::vector< std::string > bodiesToPropagate;
@@ -133,20 +133,18 @@ BOOST_AUTO_TEST_CASE( testRTGAcceleration )
     bodiesToPropagate.push_back( "Vehicle" );
     centralBodies.push_back( "Earth" );
 
-
     // Alternative: Create Settings object directly via class constructor
-    //accelerationSettingsMap[ "Vehicle" ][ "Vehicle" ].push_back(
+    // accelerationSettingsMap[ "Vehicle" ][ "Vehicle" ].push_back(
     //                    std::make_shared< RTGAccelerationSettings >(rtgForceVector, decayScaleFactor, referenceEpoch));
 
     //  Create Settings object directly via factory function
-    accelerationSettingsMap[ "Vehicle" ][ "Vehicle" ].push_back( rtgAcceleration(rtgForceVector, decayScaleFactor, referenceEpoch) );
-
+    accelerationSettingsMap[ "Vehicle" ][ "Vehicle" ].push_back( rtgAcceleration( rtgForceVector, decayScaleFactor, referenceEpoch ) );
 
     // Create accelerations
-    basic_astrodynamics::AccelerationMap accelerationsMap = createAccelerationModelsMap( bodies, accelerationSettingsMap, bodiesToPropagate, centralBodies );
-    //std::shared_ptr< basic_astrodynamics::AccelerationModel3d > rtgAccelerationModel = accelerationsMap[ "Vehicle"] ["Vehicle"][ 0 ];
-    std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel = accelerationsMap[ "Vehicle"] ["Vehicle"][ 0 ];
-
+    basic_astrodynamics::AccelerationMap accelerationsMap =
+            createAccelerationModelsMap( bodies, accelerationSettingsMap, bodiesToPropagate, centralBodies );
+    // std::shared_ptr< basic_astrodynamics::AccelerationModel3d > rtgAccelerationModel = accelerationsMap[ "Vehicle"] ["Vehicle"][ 0 ];
+    std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel = accelerationsMap[ "Vehicle" ][ "Vehicle" ][ 0 ];
 
     // Dynamic cast acceleration settings to required type and check consistency.
     std::shared_ptr< system_models::RTGAccelerationModel > rtgAccelerationModel =
@@ -155,32 +153,31 @@ BOOST_AUTO_TEST_CASE( testRTGAcceleration )
     // Test Successful Construction
     BOOST_CHECK_EQUAL( rtgAccelerationModel != nullptr, true );
 
-
     ////////////////////////////////////////////////////////////////
     ///       Test 1                                             ///
     ////////////////////////////////////////////////////////////////
-
 
     ///////   Test 1a)  ////////////////////////////////////////////
 
     rtgAccelerationModel->updateMembers( referenceEpoch );
     Eigen::Vector3d expectedAcceleration = rtgForceVector / initialVehicleMass;
 
-    for (int i = 0; i < 3; ++i)
+    for( int i = 0; i < 3; ++i )
     {
-        BOOST_CHECK_CLOSE(expectedAcceleration[i], rtgAccelerationModel->getAcceleration( )[i], 1e-10);  //
+        BOOST_CHECK_CLOSE( expectedAcceleration[ i ], rtgAccelerationModel->getAcceleration( )[ i ], 1e-10 );  //
     }
 
-    // re-evaluate current acceleration at testTime, without updating mass or rotational state of vehicle --> isolated effect of modelled decay process
+    // re-evaluate current acceleration at testTime, without updating mass or rotational state of vehicle --> isolated effect of modelled
+    // decay process
     rtgAccelerationModel->updateMembers( testTime );
 
     // check acceleration equivalence on test epoch values
-    double expectedDecay = std::exp(-decayScaleFactor*(testTime-referenceEpoch));
-    expectedAcceleration = (rtgForceVector  / initialVehicleMass) * expectedDecay;
+    double expectedDecay = std::exp( -decayScaleFactor * ( testTime - referenceEpoch ) );
+    expectedAcceleration = ( rtgForceVector / initialVehicleMass ) * expectedDecay;
 
-    for (int i = 0; i < 3; ++i)
+    for( int i = 0; i < 3; ++i )
     {
-        BOOST_CHECK_CLOSE(expectedAcceleration[i], rtgAccelerationModel->getAcceleration( )[i], 1e-10);  //
+        BOOST_CHECK_CLOSE( expectedAcceleration[ i ], rtgAccelerationModel->getAcceleration( )[ i ], 1e-10 );  //
     }
 
     ///////   Test 1b)  ////////////////////////////////////////////
@@ -189,26 +186,26 @@ BOOST_AUTO_TEST_CASE( testRTGAcceleration )
     // re-evaluate current acceleration at testTime, after updating mass of vehicle --> effect of modelled decay process + mass decrease
     rtgAccelerationModel->updateMembers( testTime );
 
-    expectedAcceleration *= initialVehicleMass / bodies.at( "Vehicle" )->getBodyMass(  );
+    expectedAcceleration *= initialVehicleMass / bodies.at( "Vehicle" )->getBodyMass( );
 
-    for (int i = 0; i < 3; ++i)
+    for( int i = 0; i < 3; ++i )
     {
-        BOOST_CHECK_CLOSE(expectedAcceleration[i], rtgAccelerationModel->getAcceleration( )[i], 1e-10);  //
+        BOOST_CHECK_CLOSE( expectedAcceleration[ i ], rtgAccelerationModel->getAcceleration( )[ i ], 1e-10 );  //
     }
-
 
     ///////   Test 1c)  ////////////////////////////////////////////
 
-    // re-evaluate current acceleration at testTime, after updating rotational state of vehicle --> effect of modelled decay process + mass decrease + rotation
+    // re-evaluate current acceleration at testTime, after updating rotational state of vehicle --> effect of modelled decay process + mass
+    // decrease + rotation
     bodies.at( "Vehicle" )->setCurrentRotationalStateToLocalFrameFromEphemeris( testTime );
     rtgAccelerationModel->updateMembers( testTime );
 
     Eigen::Matrix3d rotationMatrixFromFunction = timeDependentRotationFunction( testTime );
     expectedAcceleration = rotationMatrixFromFunction * expectedAcceleration;
 
-    for (int i = 0; i < 3; ++i)
+    for( int i = 0; i < 3; ++i )
     {
-        BOOST_CHECK_CLOSE(expectedAcceleration[i], rtgAccelerationModel->getAcceleration( )[i], 1e-10);  //
+        BOOST_CHECK_CLOSE( expectedAcceleration[ i ], rtgAccelerationModel->getAcceleration( )[ i ], 1e-10 );  //
     }
 
     double newTestTime = -500;
@@ -217,15 +214,14 @@ BOOST_AUTO_TEST_CASE( testRTGAcceleration )
     rtgAccelerationModel->updateMembers( newTestTime );
 
     rotationMatrixFromFunction = timeDependentRotationFunction( newTestTime );
-    std::exp(-decayScaleFactor*(newTestTime-referenceEpoch));
-    expectedAcceleration = rtgForceVector * std::exp(-decayScaleFactor*(newTestTime-referenceEpoch));
+    std::exp( -decayScaleFactor * ( newTestTime - referenceEpoch ) );
+    expectedAcceleration = rtgForceVector * std::exp( -decayScaleFactor * ( newTestTime - referenceEpoch ) );
     expectedAcceleration = rotationMatrixFromFunction * expectedAcceleration / initialVehicleMass;
 
-    for (int i = 0; i < 3; ++i)
+    for( int i = 0; i < 3; ++i )
     {
-        BOOST_CHECK_CLOSE(expectedAcceleration[i], rtgAccelerationModel->getAcceleration( )[i], 1e-10);  //
+        BOOST_CHECK_CLOSE( expectedAcceleration[ i ], rtgAccelerationModel->getAcceleration( )[ i ], 1e-10 );  //
     }
-
 
     ////////////////////////////////////////////////////////////////
     ///       Test 2                                             ///
@@ -235,28 +231,31 @@ BOOST_AUTO_TEST_CASE( testRTGAcceleration )
     bodies.at( "Vehicle" )->setCurrentRotationalStateToLocalFrameFromEphemeris( referenceEpoch );
     bodies.at( "Vehicle" )->updateMass( referenceEpoch );
 
-
     Eigen::Vector6d systemInitialState = Eigen::Vector6d::Zero( );
     systemInitialState( 0 ) = 8.0E6;
     systemInitialState( 4 ) = 7.5E3;
 
     std::vector< std::shared_ptr< propagators::SingleDependentVariableSaveSettings > > dependentVariables;
-    dependentVariables.push_back(std::make_shared< propagators::SingleAccelerationDependentVariableSaveSettings >(
-        basic_astrodynamics::rtg_acceleration, "Vehicle", "Vehicle", 0 ) );
-
+    dependentVariables.push_back( std::make_shared< propagators::SingleAccelerationDependentVariableSaveSettings >(
+            basic_astrodynamics::rtg_acceleration, "Vehicle", "Vehicle", 0 ) );
 
     // Create Propagator, Integrator objects
     std::shared_ptr< propagators::PropagationTimeTerminationSettings > terminationSettings =
-        std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000. );
+            std::make_shared< propagators::PropagationTimeTerminationSettings >( 1000. );
     std::shared_ptr< propagators::TranslationalStatePropagatorSettings< double > > translationalPropagatorSettings =
-            std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >(
-                    centralBodies, accelerationsMap, bodiesToPropagate, systemInitialState, terminationSettings, propagators::cowell, dependentVariables );
-    std::shared_ptr< numerical_integrators::IntegratorSettings<> > integratorSettings = std::make_shared< numerical_integrators::IntegratorSettings<> >( numerical_integrators::rungeKutta4, 0.0, 0.1 );
-
+            std::make_shared< propagators::TranslationalStatePropagatorSettings< double > >( centralBodies,
+                                                                                             accelerationsMap,
+                                                                                             bodiesToPropagate,
+                                                                                             systemInitialState,
+                                                                                             terminationSettings,
+                                                                                             propagators::cowell,
+                                                                                             dependentVariables );
+    std::shared_ptr< numerical_integrators::IntegratorSettings<> > integratorSettings =
+            std::make_shared< numerical_integrators::IntegratorSettings<> >( numerical_integrators::rungeKutta4, 0.0, 0.1 );
 
     // Create simulation object and propagate dynamics.
-    propagators::SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, translationalPropagatorSettings, true, false, false );
-
+    propagators::SingleArcDynamicsSimulator<> dynamicsSimulator(
+            bodies, integratorSettings, translationalPropagatorSettings, true, false, false );
 
     // Retrieve numerical solutions for state and dependent variables
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > numericalSolution =
@@ -265,17 +264,16 @@ BOOST_AUTO_TEST_CASE( testRTGAcceleration )
     std::map< double, Eigen::Matrix< double, Eigen::Dynamic, 1 > > dependentVariableSolution =
             dynamicsSimulator.getDependentVariableHistory( );
 
-
     Eigen::Vector3d test_acceleration;
     double matchedEpoch = TUDAT_NAN;
     for( std::map< double, Eigen::VectorXd >::iterator variableIterator = dependentVariableSolution.begin( );
-     variableIterator != dependentVariableSolution.end( );
-     variableIterator++ )
+         variableIterator != dependentVariableSolution.end( );
+         variableIterator++ )
     {
         // Retrieve data at test epoch from dependent variables/propagated dynamics
 
         const double tolerance = 1.0e-5;
-        if (std::abs(variableIterator->first - testTime) < tolerance)
+        if( std::abs( variableIterator->first - testTime ) < tolerance )
         {
             // Retrieve data at test epoch from dependent variables/propagated dynamics
 
@@ -285,24 +283,23 @@ BOOST_AUTO_TEST_CASE( testRTGAcceleration )
     }
 
     // Match of testEpoch and keys in dependentVariablesHistory is only good to order 1e-7
-    // So in order to assert similarity of acceleration at the usual level of 1e-10, we recompute the expected acceleration at the epoch from the dependentVariablesHistory
+    // So in order to assert similarity of acceleration at the usual level of 1e-10, we recompute the expected acceleration at the epoch
+    // from the dependentVariablesHistory
 
     double testVehicleMass = vehicleMassFunction( matchedEpoch );
     Eigen::Matrix3d rotationMatrix = timeDependentRotationFunction( matchedEpoch );
-    Eigen::Vector3d expectedAccelerationAtMatchedEpoch = (rotationMatrix*rtgForceVector * std::exp(-decayScaleFactor * (matchedEpoch-referenceEpoch)));
+    Eigen::Vector3d expectedAccelerationAtMatchedEpoch =
+            ( rotationMatrix * rtgForceVector * std::exp( -decayScaleFactor * ( matchedEpoch - referenceEpoch ) ) );
     expectedAccelerationAtMatchedEpoch = expectedAccelerationAtMatchedEpoch / testVehicleMass;
 
-    for (int i = 0; i < 3; ++i)
+    for( int i = 0; i < 3; ++i )
     {
-        BOOST_CHECK_CLOSE(expectedAccelerationAtMatchedEpoch[i], test_acceleration[i], 1e-10);  //
+        BOOST_CHECK_CLOSE( expectedAccelerationAtMatchedEpoch[ i ], test_acceleration[ i ], 1e-10 );  //
     }
-
 }
 
-BOOST_AUTO_TEST_SUITE_END(  )
-    }  // namespace unit_tests
+BOOST_AUTO_TEST_SUITE_END( )
+}  // namespace unit_tests
 
 // namespace tudat
-}
-
-
+}  // namespace tudat

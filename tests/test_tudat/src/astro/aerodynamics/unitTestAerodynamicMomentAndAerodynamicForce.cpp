@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
         std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
                 std::make_shared< ConstantAerodynamicCoefficientSettings >(
                         referenceArea, forceCoefficients, positive_aerodynamic_frame_coefficients );
-        
+
         // Set constant density and constant rotation models to TreasurePlanet
         DensityFunction densityFunction = [ = ]( double a, double b, double c, double d ) { return density; };
         bodies.at( "TreasurePlanet" )
@@ -277,7 +277,6 @@ BOOST_AUTO_TEST_CASE( testAerodynamicForceAndAcceleration )
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( expectedForce, force, tolerance );
     }
-
 }
 
 //! Test implementation of aerodynamic moment and rotational acceleration models.
@@ -815,7 +814,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicTrimWithFreeAngles )
     std::shared_ptr< tudat::aerodynamics::AerodynamicCoefficientInterface > aerodynamicCoefficientInterface =
             bodies.at( "Apollo" )->getAerodynamicCoefficientInterface( );
 
-    for( auto it: dependentVariableOutput )
+    for( auto it : dependentVariableOutput )
     {
         double machNumber = it.second( 0 );
         double angleOfAttack = it.second( 1 );
@@ -1082,7 +1081,7 @@ BOOST_AUTO_TEST_CASE( testCombinedAerodynamicForceAndMoment )
             std::shared_ptr< tudat::aerodynamics::AerodynamicCoefficientInterface > aerodynamicCoefficientInterface =
                     bodies.at( "Apollo" )->getAerodynamicCoefficientInterface( );
 
-            for( auto it: dependentVariableOutput )
+            for( auto it : dependentVariableOutput )
             {
                 // Extract data from dependent variables
                 double mass = propagationType == 0 ? 5000.0 : stateOutput.at( it.first )( 13 );
@@ -1510,7 +1509,7 @@ BOOST_AUTO_TEST_CASE( test_panelled_coefficients_propagation )
     // check dependent variables (aerodynamic coefficients)
     Eigen::Vector3d incomingDirection, bodyFixedAirspeed, aerodynamicCoefficients, actualAerodynamicCoefficients, panelNormal;
     double cosineDelta, Cp;
-    for( auto it: dependentVariableOutput )
+    for( auto it : dependentVariableOutput )
     {
         bodyFixedAirspeed = it.second.segment( 0, 3 );
         aerodynamicCoefficients = it.second.segment( 3, 3 );
