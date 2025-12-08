@@ -327,7 +327,7 @@ BOOST_AUTO_TEST_CASE( setEstrackWeatherData )
 
             BOOST_CHECK_EQUAL( currentTimes.size( ), fullTimes.size( ) );
 
-            for( int i = 0; i < currentTimes.size( ); i++ )
+            for( unsigned int i = 0; i < currentTimes.size( ); i++ )
             {
                 BOOST_CHECK_EQUAL( currentTimes.at( i ), fullTimes.at( i ) );
                 BOOST_CHECK_EQUAL( currentMeteo.at( i )( 0 ), fullMeteo.at( i )( 0 ) );
