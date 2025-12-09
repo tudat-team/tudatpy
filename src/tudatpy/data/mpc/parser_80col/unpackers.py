@@ -105,12 +105,10 @@ def unpack_permanent_minor_planet(packed: str) -> str:
     # Format: ~ + 4 Base62 characters
     if first_char == '~':
         value = 0
-        try:
-            # Decode base62 for the last 4 chars
-            for char in packed[1:]:
-                value = value * 62 + BASE62_MAP[char]
-        except KeyError as e:
-            raise ValueError(f"Invalid Base62 character '{e.args[0]}' in extended packed designation '{packed}'.")
+        for char in packed[1:]:
+            if char not in BASE62_MAP:
+                raise ValueError(f"Invalid Base62 character '{char}' in extended packed designation '{packed}'.")
+            value = value * 62 + BASE62_MAP[char]
 
         return str(value + 620000)
 
@@ -121,7 +119,7 @@ def unpack_permanent_minor_planet(packed: str) -> str:
         if not packed[1:].isdigit():
             raise ValueError(f"Invalid format for range 100k+: '{packed}'. Suffix must be numeric digits.")
 
-        prefix_val = BASE62_MAP[first_char] # Guaranteed to exist if isalpha() is True
+        prefix_val = BASE62_MAP[first_char]
         suffix_val = int(packed[1:])
 
         return str(prefix_val * 10000 + suffix_val)
