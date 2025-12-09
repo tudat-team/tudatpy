@@ -43,7 +43,7 @@ TUDAT_ADD_TEST_CASE(HybridArcStateEstimation
 #         ${Tudat_ESTIMATION_LIBRARIES}
 #         )
 
-TUDAT_ADD_TEST_CASE(MultiArcStateEstimation
+TUDAT_ADD_TEST_CASE2(MultiArcStateEstimation
     PRIVATE_LINKS
     ${Tudat_ESTIMATION_LIBRARIES}
     )
