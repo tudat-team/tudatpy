@@ -433,22 +433,23 @@ std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > > getAc
             {
                 // kv.first : accelerated body
                 // kv.second : basic_astrodynamics::SingleBodyAccelerationMap accelerationModelsOnCurrentBody
+                //std::cout << "key: " << kv.first << std::endl;
+
+                string associatedBodyName = parameterSettings->parameterType_.second.first;
 
                 // check that for one of the accelerated bodies there exists an acceleration exerted by the associated body
-                if( kv.second.count( parameterSettings->parameterType_.second.first ) != 0 )
-                {
-                    // Retrieve acceleration model.
-                    basic_astrodynamics::SingleBodyAccelerationMap accelerationModelListToCheck =
-                            accelerationModelMap.at( parameterSettings->parameterType_.second.first );
+                //std::cout << "Of which " << parameterSettings->parameterType_.second.first << " :  " << kv.second.count( parameterSettings->parameterType_.second.first ) << std::endl;
 
-                    for( const auto& it : accelerationModelListToCheck )
+                if( kv.second.count( associatedBodyName ) != 0 )
+                {
+                    std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > > accelerationModelListToCheck =
+                        kv.second.at(associatedBodyName);
+
+                    for( const auto& accelerationModel : accelerationModelListToCheck )
                     {
-                        for( const auto& accelerationModel : it.second )
+                        if( basic_astrodynamics::getAccelerationModelType( accelerationModel ) == basic_astrodynamics::aerodynamic )
                         {
-                            if( basic_astrodynamics::getAccelerationModelType( accelerationModel ) == basic_astrodynamics::aerodynamic )
-                            {
-                                accelerationModelList.push_back( accelerationModel );
-                            }
+                            accelerationModelList.push_back( accelerationModel );
                         }
                     }
                 }

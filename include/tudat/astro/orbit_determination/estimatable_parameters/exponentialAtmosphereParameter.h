@@ -133,6 +133,12 @@ public:
         return accelerationIndices_;
     }
 
+    //! Getter interface for associated atmosphere model
+    std::shared_ptr< aerodynamics::ExponentialAtmosphere > getAssociatedAtmosphereModel( )
+    {
+        return exponentialAtmosphereModel_;
+    }
+
 protected:
 private:
     //! Class defining properties of atmosphere model
@@ -331,6 +337,13 @@ public:
     std::shared_ptr< interpolators::LookUpScheme< double > > getArcTimeLookupScheme( )
     {
         return parameterInterpolator_->getLookUpScheme( );
+    }
+
+
+    //! Getter interface for associated atmosphere model
+    std::shared_ptr< aerodynamics::ExponentialAtmosphere > getAssociatedAtmosphereModel( )
+    {
+        return exponentialAtmosphereModel_;
     }
 
 protected:
