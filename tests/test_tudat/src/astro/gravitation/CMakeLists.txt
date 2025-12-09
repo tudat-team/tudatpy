@@ -43,7 +43,7 @@ TUDAT_ADD_TEST_CASE(LibrationPoints
     PRIVATE_LINKS
     tudat_ephemerides tudat_root_finders tudat_gravitation tudat_input_output )
 
-TUDAT_ADD_TEST_CASE(SphericalHarmonicsGravityModel
+TUDAT_ADD_TEST_CASE2(SphericalHarmonicsGravityModel
     PRIVATE_LINKS
     tudat_gravitation tudat_basic_astrodynamics tudat_basic_mathematics)
 
