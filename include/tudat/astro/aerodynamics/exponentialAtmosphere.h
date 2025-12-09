@@ -70,7 +70,7 @@ public:
                            const double ratioOfSpecificHeats = 1.4 ):
         scaleHeight_( scaleHeight ), constantTemperature_( constantTemperature ), baseDensity_( densityAtZeroAltitude ),
         specificGasConstant_( specificGasConstant ), ratioOfSpecificHeats_( ratioOfSpecificHeats )
-    { }
+    {}
 
     //! Constructor from default atmospheric settings.
     /*!
@@ -100,7 +100,6 @@ public:
         scaleHeight_ = newScaleHeight;
     }
 
-
     //! Get density at zero altitude.
     /*!
      * Returns the density at zero altitude (property of exponential atmosphere) in kg per meter^3.
@@ -117,16 +116,15 @@ public:
         return getBaseDensity( );
     }
 
-
     //! Reset base density.
     /*!
      * Sets the base density (property of exponential atmosphere) in kg per meter^3.
      * \param newBaseDensity Base density to be set in exponential atmosphere model.
      */
     void resetBaseDensity( double newBaseDensity )
-      {
+    {
         baseDensity_ = newBaseDensity;
-      }
+    }
 
     //! Get constant temperature.
     /*!
@@ -187,9 +185,9 @@ public:
         {
             scaleHeight_ = scaleHeightFunction_( time );
         }
-        if( ( baseDensityFunction_ == nullptr ) && ( scaleHeightFunction_ == nullptr ))
+        if( ( baseDensityFunction_ == nullptr ) && ( scaleHeightFunction_ == nullptr ) )
         {
-          TUDAT_UNUSED_PARAMETER( time ); // is this needed?
+            TUDAT_UNUSED_PARAMETER( time );  // is this needed?
         }
 
         return baseDensity_ * std::exp( -altitude / scaleHeight_ );
@@ -277,9 +275,7 @@ public:
         return computeSpeedOfSound( getTemperature( altitude, longitude, latitude, time ), ratioOfSpecificHeats_, specificGasConstant_ );
     }
 
-
     // Interface for ArcWiseExponentialAtmosphereParameter
-
 
     std::function< double( double ) > getBaseDensityFunction( )
     {
@@ -288,7 +284,7 @@ public:
 
     std::function< double( double ) > getScaleHeightFunction( )
     {
-      return scaleHeightFunction_;
+        return scaleHeightFunction_;
     }
 
     void resetBaseDensityFunction( std::function< double( double ) > newBaseDensityFunction )
@@ -301,8 +297,8 @@ public:
         scaleHeightFunction_ = newScaleHeightFunction;
     }
 
-
-    void setParameterFunction( std::function< double( double ) > newParameterFunction, const estimatable_parameters::EstimatebleParametersEnum parameterType )
+    void setParameterFunction( std::function< double( double ) > newParameterFunction,
+                               const estimatable_parameters::EstimatebleParametersEnum parameterType )
     {
         switch( parameterType )
         {
@@ -316,11 +312,9 @@ public:
 
             default:
                 throw std::runtime_error( "Error when setting atmospheric parameter function, parameterType not supported" +
-                  std::to_string( parameterType ) );
+                                          std::to_string( parameterType ) );
         }
     }
-
-
 
 protected:
 private:

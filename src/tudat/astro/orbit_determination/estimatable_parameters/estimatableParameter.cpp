@@ -447,7 +447,7 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
             break;
         case exponential_atmosphere_base_density:
             isDoubleParameter = true;
-        break;
+            break;
         case exponential_atmosphere_scale_height:
             isDoubleParameter = true;
             break;

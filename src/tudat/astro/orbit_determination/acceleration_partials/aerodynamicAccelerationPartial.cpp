@@ -149,8 +149,6 @@ void AerodynamicAccelerationPartial::computeAccelerationPartialWrtArcWiseAerodyn
     }
 }
 
-
-
 //! Function to compute the partial derivative of the acceleration w.r.t. the current atmospheric density
 /*!
  * Function to compute the partial derivative of the acceleration w.r.t. the current atmospheric density
@@ -161,12 +159,14 @@ void AerodynamicAccelerationPartial::computeAccelerationPartialWrtCurrentDensity
     // Full computation for (near-)zero density
     if( flightConditions_->getCurrentDensity( ) < 1.0E-30 )
     {
-        Eigen::Vector3d currentForceCoefficients = flightConditions_->getAerodynamicCoefficientInterface( )->getCurrentForceCoefficients(  );
+        Eigen::Vector3d currentForceCoefficients = flightConditions_->getAerodynamicCoefficientInterface( )->getCurrentForceCoefficients( );
         std::pair< reference_frames::AerodynamicsReferenceFrames, double > coefficientsFrameAndSign =
-                aerodynamics::convertCoefficientFrameToGeneralAerodynamicFrame( flightConditions_->getAerodynamicCoefficientInterface(  )->getForceCoefficientsFrame(  ) );
+                aerodynamics::convertCoefficientFrameToGeneralAerodynamicFrame(
+                        flightConditions_->getAerodynamicCoefficientInterface( )->getForceCoefficientsFrame( ) );
         currentForceCoefficients = coefficientsFrameAndSign.second *
                 ( flightConditions_->getAerodynamicAngleCalculator( )->getRotationQuaternionBetweenFrames(
-                          coefficientsFrameAndSign.first, reference_frames::inertial_frame ) * currentForceCoefficients );
+                          coefficientsFrameAndSign.first, reference_frames::inertial_frame ) *
+                  currentForceCoefficients );
 
         // other quantities from flight conditions
         double const currentAirspeed = flightConditions_->getCurrentAirspeed( );
@@ -174,16 +174,13 @@ void AerodynamicAccelerationPartial::computeAccelerationPartialWrtCurrentDensity
         double const currentMass = aerodynamicAcceleration_->getCurrentMass( );
 
         // 1/2 . Ci . V2 . A / M
-        accelerationPartial = (0.5 * currentAirspeed * currentAirspeed * referenceArea / currentMass) * currentForceCoefficients;
-
+        accelerationPartial = ( 0.5 * currentAirspeed * currentAirspeed * referenceArea / currentMass ) * currentForceCoefficients;
     }
     else
     {
         accelerationPartial = aerodynamicAcceleration_->getAcceleration( ) / flightConditions_->getCurrentDensity( );
     }
 }
-
-
 
 //! Function to compute the partial derivative of the acceleration w.r.t. base density
 /*!
@@ -193,21 +190,20 @@ void AerodynamicAccelerationPartial::computeAccelerationPartialWrtCurrentDensity
  */
 
 void AerodynamicAccelerationPartial::computeAccelerationPartialWrtExponentialAtmosphereBaseDensity(
-    Eigen::MatrixXd& accelerationPartial, std::shared_ptr< aerodynamics::ExponentialAtmosphere >& exponentialAtmosphereModel)
+        Eigen::MatrixXd& accelerationPartial,
+        std::shared_ptr< aerodynamics::ExponentialAtmosphere >& exponentialAtmosphereModel )
 {
-
-    //std::cout << "Acceleration: " << aerodynamicAcceleration_->getCurrentUnscaledAcceleration(  ) << std::endl;;
+    // std::cout << "Acceleration: " << aerodynamicAcceleration_->getCurrentUnscaledAcceleration(  ) << std::endl;;
 
     // dA/dRho:
-    this->computeAccelerationPartialWrtCurrentDensity(accelerationPartial);
-    //std::cout << "partial1: " << accelerationPartial << std::endl;
-    // dRho/dRho_0
-    double partialCurrentDensityWrtBaseDensity = std::exp( -flightConditions_->getCurrentAltitude(  ) / exponentialAtmosphereModel->getScaleHeight( ) );
+    this->computeAccelerationPartialWrtCurrentDensity( accelerationPartial );
+    // std::cout << "partial1: " << accelerationPartial << std::endl;
+    //  dRho/dRho_0
+    double partialCurrentDensityWrtBaseDensity =
+            std::exp( -flightConditions_->getCurrentAltitude( ) / exponentialAtmosphereModel->getScaleHeight( ) );
     accelerationPartial *= partialCurrentDensityWrtBaseDensity;
-    //std::cout << "partial2 " << accelerationPartial << std::endl;
-
+    // std::cout << "partial2 " << accelerationPartial << std::endl;
 }
-
 
 //! Function to compute the partial derivative of the acceleration w.r.t. scale height
 /*!
@@ -217,25 +213,25 @@ void AerodynamicAccelerationPartial::computeAccelerationPartialWrtExponentialAtm
  */
 
 void AerodynamicAccelerationPartial::computeAccelerationPartialWrtExponentialAtmosphereScaleHeight(
-    Eigen::MatrixXd& accelerationPartial, std::shared_ptr< aerodynamics::ExponentialAtmosphere >& exponentialAtmosphereModel)
+        Eigen::MatrixXd& accelerationPartial,
+        std::shared_ptr< aerodynamics::ExponentialAtmosphere >& exponentialAtmosphereModel )
 {
     // dA/dRho:
-    this->computeAccelerationPartialWrtCurrentDensity(accelerationPartial);
+    this->computeAccelerationPartialWrtCurrentDensity( accelerationPartial );
     // dRho/dH
     double scaleHeight = exponentialAtmosphereModel->getScaleHeight( );
-    double expTerm = std::exp( -flightConditions_->getCurrentAltitude(  ) / scaleHeight );
-    double baseTerm = exponentialAtmosphereModel->getBaseDensity( ) * flightConditions_->getCurrentAltitude(  ) / scaleHeight / scaleHeight;
-    double partialCurrentDensityWrtScaleHeight = baseTerm*expTerm;
+    double expTerm = std::exp( -flightConditions_->getCurrentAltitude( ) / scaleHeight );
+    double baseTerm = exponentialAtmosphereModel->getBaseDensity( ) * flightConditions_->getCurrentAltitude( ) / scaleHeight / scaleHeight;
+    double partialCurrentDensityWrtScaleHeight = baseTerm * expTerm;
 
     accelerationPartial *= partialCurrentDensityWrtScaleHeight;
 }
 
-
 //! Function to compute the partial derivative of the acceleration w.r.t. an arc-wise exponential atmosphere parameter
 /*!
  * Function to compute the partial derivative of the acceleration w.r.t. an arc-wise exponential atmosphere parameter
- * \param accelerationPartial Derivative of acceleration w.r.t. arc-wise exponential atmosphere parameter atmosphere parameter (returned by reference).
- * \param parameter Parameter object that is associated with the variable of differentiation
+ * \param accelerationPartial Derivative of acceleration w.r.t. arc-wise exponential atmosphere parameter atmosphere parameter (returned by
+ * reference). \param parameter Parameter object that is associated with the variable of differentiation
  */
 void AerodynamicAccelerationPartial::computeAccelerationPartialWrtArcWiseExponentialAtmosphereParameter(
         Eigen::MatrixXd& accelerationPartial,
@@ -244,7 +240,7 @@ void AerodynamicAccelerationPartial::computeAccelerationPartialWrtArcWiseExponen
     // Get partial w.r.t. aerodynamic component coefficient
     Eigen::MatrixXd partialWrtSingleParameter = Eigen::Vector3d::Zero( );
 
-    std::shared_ptr< aerodynamics::ExponentialAtmosphere > exponentialAtmosphere = parameter->getAssociatedAtmosphereModel(  );
+    std::shared_ptr< aerodynamics::ExponentialAtmosphere > exponentialAtmosphere = parameter->getAssociatedAtmosphereModel( );
 
     switch( parameter->getParameterName( ).first )
     {
@@ -275,11 +271,8 @@ void AerodynamicAccelerationPartial::computeAccelerationPartialWrtArcWiseExponen
 
         // Set partial
         accelerationPartial.block( 0, currentArc, 3, 1 ) = partialWrtSingleParameter;
-
     }
 }
-
-
 
 //! Function for updating partial w.r.t. the bodies' positions
 void AerodynamicAccelerationPartial::update( const double currentTime )
@@ -379,66 +372,72 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > AerodynamicAccelerat
     {
         switch( parameter->getParameterName( ).first )
         {
-            case estimatable_parameters::exponential_atmosphere_base_density:{
-
+            case estimatable_parameters::exponential_atmosphere_base_density: {
                 std::shared_ptr< estimatable_parameters::ExponentialAtmosphereParameter > exponentialAtmosphereParameter =
-                    std::dynamic_pointer_cast< estimatable_parameters::ExponentialAtmosphereParameter >( parameter );
+                        std::dynamic_pointer_cast< estimatable_parameters::ExponentialAtmosphereParameter >( parameter );
 
-                if (exponentialAtmosphereParameter != nullptr)
+                if( exponentialAtmosphereParameter != nullptr )
                 {
-                    std::shared_ptr< aerodynamics::ExponentialAtmosphere > exponentialAtmosphere = exponentialAtmosphereParameter->getAssociatedAtmosphereModel(  );
+                    std::shared_ptr< aerodynamics::ExponentialAtmosphere > exponentialAtmosphere =
+                            exponentialAtmosphereParameter->getAssociatedAtmosphereModel( );
 
                     // ensure atmosphere type is exponential as required
-                    if (exponentialAtmosphere != nullptr)
+                    if( exponentialAtmosphere != nullptr )
                     {
                         partialFunction =
                                 std::bind( &AerodynamicAccelerationPartial::computeAccelerationPartialWrtExponentialAtmosphereBaseDensity,
                                            this,
                                            std::placeholders::_1,
-                                           exponentialAtmosphere
-                                           );
+                                           exponentialAtmosphere );
                         numberOfColumns = 1;
                     }
                     else
                     {
-                        throw std::runtime_error( "Error when computing partial w.r.t. exponential atmosphere base density - associated atmosphere model is not of correct type." );
+                        throw std::runtime_error(
+                                "Error when computing partial w.r.t. exponential atmosphere base density - associated atmosphere model is "
+                                "not of correct type." );
                     }
                 }
                 else
                 {
-                    throw std::runtime_error( "Error when computing partial w.r.t. exponential atmosphere base density - associated parameter type is inconsistent." );
+                    throw std::runtime_error(
+                            "Error when computing partial w.r.t. exponential atmosphere base density - associated parameter type is "
+                            "inconsistent." );
                 }
                 break;
-
             }
 
             case estimatable_parameters::exponential_atmosphere_scale_height: {
                 std::shared_ptr< estimatable_parameters::ExponentialAtmosphereParameter > exponentialAtmosphereParameter =
-                    std::dynamic_pointer_cast< estimatable_parameters::ExponentialAtmosphereParameter >( parameter );
+                        std::dynamic_pointer_cast< estimatable_parameters::ExponentialAtmosphereParameter >( parameter );
 
-                if (exponentialAtmosphereParameter != nullptr)
+                if( exponentialAtmosphereParameter != nullptr )
                 {
-                    std::shared_ptr< aerodynamics::ExponentialAtmosphere > exponentialAtmosphere = exponentialAtmosphereParameter->getAssociatedAtmosphereModel(  );
+                    std::shared_ptr< aerodynamics::ExponentialAtmosphere > exponentialAtmosphere =
+                            exponentialAtmosphereParameter->getAssociatedAtmosphereModel( );
 
                     // ensure atmosphere type is exponential as required
-                    if (exponentialAtmosphere != nullptr)
+                    if( exponentialAtmosphere != nullptr )
                     {
                         partialFunction =
                                 std::bind( &AerodynamicAccelerationPartial::computeAccelerationPartialWrtExponentialAtmosphereScaleHeight,
                                            this,
                                            std::placeholders::_1,
-                                           exponentialAtmosphere
-                                           );
+                                           exponentialAtmosphere );
                         numberOfColumns = 1;
                     }
                     else
                     {
-                        throw std::runtime_error( "Error when computing partial w.r.t. exponential atmosphere scale height - associated atmosphere model is not of correct type." );
+                        throw std::runtime_error(
+                                "Error when computing partial w.r.t. exponential atmosphere scale height - associated atmosphere model is "
+                                "not of correct type." );
                     }
                 }
                 else
                 {
-                    throw std::runtime_error( "Error when computing partial w.r.t. exponential atmosphere scale height - associated parameter type is inconsistent." );
+                    throw std::runtime_error(
+                            "Error when computing partial w.r.t. exponential atmosphere scale height - associated parameter type is "
+                            "inconsistent." );
                 }
                 break;
             }
@@ -499,28 +498,27 @@ std::pair< std::function< void( Eigen::MatrixXd& ) >, int > AerodynamicAccelerat
             default:
                 break;
         }
-
     }
 
     if( parameter->getParameterName( ).second.first == acceleratingBody_ )
     {
-        switch( parameter->getParameterName( ).first ){
-
+        switch( parameter->getParameterName( ).first )
+        {
             case estimatable_parameters::arc_wise_exponential_atmosphere_base_density:
-            case estimatable_parameters::arc_wise_exponential_atmosphere_scale_height:{
-
+            case estimatable_parameters::arc_wise_exponential_atmosphere_scale_height: {
                 if( std::dynamic_pointer_cast< estimatable_parameters::ArcWiseExponentialAtmosphereParameter >( parameter ) != nullptr )
                 {
-                    partialFunction =
-                            std::bind( &AerodynamicAccelerationPartial::computeAccelerationPartialWrtArcWiseExponentialAtmosphereParameter,
-                                       this,
-                                       std::placeholders::_1,
-                                       std::dynamic_pointer_cast< estimatable_parameters::ArcWiseExponentialAtmosphereParameter >( parameter ) );
+                    partialFunction = std::bind(
+                            &AerodynamicAccelerationPartial::computeAccelerationPartialWrtArcWiseExponentialAtmosphereParameter,
+                            this,
+                            std::placeholders::_1,
+                            std::dynamic_pointer_cast< estimatable_parameters::ArcWiseExponentialAtmosphereParameter >( parameter ) );
                     numberOfColumns = parameter->getParameterSize( );
                 }
                 else
                 {
-                    throw std::runtime_error( "Error when making arcwise atmosphere parameter partial function, parameter type not consistent" );
+                    throw std::runtime_error(
+                            "Error when making arcwise atmosphere parameter partial function, parameter type not consistent" );
                 }
                 break;
             }

@@ -278,15 +278,12 @@ protected:
             Eigen::MatrixXd& accelerationPartial,
             std::shared_ptr< estimatable_parameters::ArcWiseAerodynamicScalingFactor > parameter );
 
-
     //! Function to compute the partial derivative of the acceleration w.r.t. the current atmospheric density
     /*!
      * Function to compute the partial derivative of the acceleration w.r.t. the current atmospheric density
      * \param accelerationPartial Derivative of acceleration by reference.
      */
-    void computeAccelerationPartialWrtCurrentDensity(Eigen::MatrixXd& accelerationPartial);
-
-
+    void computeAccelerationPartialWrtCurrentDensity( Eigen::MatrixXd& accelerationPartial );
 
     //! Function to compute the partial derivative of the acceleration w.r.t. the base density of the exponential atmosphere model
     /*!
@@ -295,8 +292,8 @@ protected:
      * \param exponentialAtmosphereModel Atmosphere model associated with the partial, by reference.
      */
     void computeAccelerationPartialWrtExponentialAtmosphereBaseDensity(
-      Eigen::MatrixXd& accelerationPartial, std::shared_ptr< aerodynamics::ExponentialAtmosphere >& exponentialAtmosphereModel);
-
+            Eigen::MatrixXd& accelerationPartial,
+            std::shared_ptr< aerodynamics::ExponentialAtmosphere >& exponentialAtmosphereModel );
 
     //! Function to compute the partial derivative of the acceleration w.r.t. the scale height of the exponential atmosphere model
     /*!
@@ -305,13 +302,14 @@ protected:
      * \param exponentialAtmosphereModel Atmosphere model associated with the partial, by reference.
      */
     void computeAccelerationPartialWrtExponentialAtmosphereScaleHeight(
-      Eigen::MatrixXd& accelerationPartial, std::shared_ptr< aerodynamics::ExponentialAtmosphere >& exponentialAtmosphereModel);
-
+            Eigen::MatrixXd& accelerationPartial,
+            std::shared_ptr< aerodynamics::ExponentialAtmosphere >& exponentialAtmosphereModel );
 
     //! Function to compute the partial derivative of the acceleration w.r.t. an arc-wise exponential atmosphere parameter
     /*!
      * Function to compute the partial derivative of the acceleration w.r.t. an arc-wise exponential atmosphere parameter
-     * \param accelerationPartial Derivative of acceleration w.r.t. arc-wise exponential atmosphere parameter atmosphere parameter (returned by reference).
+     * \param accelerationPartial Derivative of acceleration w.r.t. arc-wise exponential atmosphere parameter atmosphere parameter (returned
+     * by reference).
      */
     void computeAccelerationPartialWrtArcWiseExponentialAtmosphereParameter(
             Eigen::MatrixXd& accelerationPartial,
