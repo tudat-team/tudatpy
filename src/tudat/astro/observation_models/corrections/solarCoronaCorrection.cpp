@@ -50,9 +50,9 @@ double SolarCoronaCorrection::computeElectronDensityIntegralNumerically( const E
 
     std::function< double( double ) > electronDensityAlongLOS =
             [ this, transmitterPositionWrtSun, receiverPositionWrtSun, time ]( const double fractionOfLOS ) {
-        return computeElectronDensity( transmitterPositionWrtSun + fractionOfLOS * ( receiverPositionWrtSun - transmitterPositionWrtSun ),
-                                       time );
-    };
+                return computeElectronDensity(
+                        transmitterPositionWrtSun + fractionOfLOS * ( receiverPositionWrtSun - transmitterPositionWrtSun ), time );
+            };
 
     numerical_quadrature::GaussianQuadrature< double, double > quadrature =
             numerical_quadrature::GaussianQuadrature< double, double >( electronDensityAlongLOS, 0.0, 1.0, 50 );

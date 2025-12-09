@@ -57,7 +57,7 @@ typedef std::vector< std::pair< double, Eigen::Vector3d > > IrradianceWithSource
 class RadiationSourceModel
 {
 public:
-    explicit RadiationSourceModel( const std::string& sourceName = "" ): sourceName_( sourceName ) { }
+    explicit RadiationSourceModel( const std::string& sourceName = "" ): sourceName_( sourceName ) {}
 
     virtual ~RadiationSourceModel( ) = default;
 
@@ -93,7 +93,7 @@ public:
     }
 
 protected:
-    virtual void updateMembers_( const double currentTime ) { };
+    virtual void updateMembers_( const double currentTime ) {};
 
     double currentTime_{ TUDAT_NAN };
 
@@ -121,7 +121,7 @@ public:
     explicit IsotropicPointRadiationSourceModel( const std::shared_ptr< LuminosityModel >& luminosityModel,
                                                  const std::string& sourceName = "" ):
         RadiationSourceModel( sourceName ), luminosityModel_( luminosityModel )
-    { }
+    {}
 
     IrradianceWithSourceList evaluateIrradianceAtPosition( const Eigen::Vector3d& targetPosition ) override;
 
@@ -265,7 +265,7 @@ public:
         originalSourcePositionFunctions_( originalSourcePositionFunctions ),
         originalSourceToSourceOccultationModels_( originalSourceToSourceOccultationModels )
     {
-        for( const auto& kv: originalSourceToSourceOccultationModels_ )
+        for( const auto& kv : originalSourceToSourceOccultationModels_ )
         {
             auto originalSourceBodyName = kv.first;
             originalSourceBodyNames_.push_back( originalSourceBodyName );
@@ -339,7 +339,7 @@ public:
                                           const std::string& sourceName = "" ):
         RadiationSourceModel( sourceName ), sourceBodyShapeModel_( sourceBodyShapeModel ),
         sourcePanelRadiosityModelUpdater_( std::move( sourcePanelRadiosityModelUpdater ) )
-    { }
+    {}
 
     /*!
      * Constructor for shape-oblivious paneled source. No knowledge of shape necessary if panels are given manually.
@@ -347,7 +347,7 @@ public:
     explicit PaneledRadiationSourceModel( std::unique_ptr< SourcePanelRadiosityModelUpdater > sourcePanelRadiosityModelUpdater,
                                           const std::string& sourceName = "" ):
         PaneledRadiationSourceModel( nullptr, std::move( sourcePanelRadiosityModelUpdater ), sourceName )
-    { }
+    {}
 
     ~PaneledRadiationSourceModel( ) override;
 
@@ -414,7 +414,7 @@ public:
                                                     const std::string& sourceName = "" ):
         PaneledRadiationSourceModel( std::move( sourcePanelRadiosityModelUpdater ) ), numberOfPanels( panels.size( ) ),
         panels_( std::move( panels ) )
-    { }
+    {}
 
     /*!
      * Constructor for automatic generation of panels.
