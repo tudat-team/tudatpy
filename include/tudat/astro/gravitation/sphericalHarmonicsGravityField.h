@@ -43,11 +43,11 @@ public:
     SphericalHarmonicsBlock( const std::function< Eigen::MatrixXd&( ) > matrixUpdateFunction, const int rows, const int columns ):
         matrixUpdateFunction_( matrixUpdateFunction ), matrix_( &matrixUpdateFunction_( ) ), enablePointMass_( true ), rows_( rows ),
         columns_( columns )
-    { }
+    {}
 
     SphericalHarmonicsBlock( Eigen::MatrixXd& matrix ):
         matrixUpdateFunction_( nullptr ), matrix_( &matrix ), enablePointMass_( true ), rows_( matrix.rows( ) ), columns_( matrix.cols( ) )
-    { }
+    {}
 
     inline double operator( )( int i, int j ) const
     {
@@ -159,7 +159,8 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
         std::map< std::pair< int, int >, Eigen::Vector3d >& accelerationPerTerm,
         const bool saveSeparateTerms = 0,
         const Eigen::Matrix3d& accelerationRotation = Eigen::Matrix3d::Identity( ),
-        const bool checkSphericalHarmonicsConsistency = true )
+        const bool checkSphericalHarmonicsConsistency = true,
+        const double colatitudeCutoffForBoschFormulation = 1.0E-6 )
 {
     // Set highest degree and order.
     const int highestDegree = cosineHarmonicCoefficients.rows( );
@@ -214,18 +215,35 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
             }
 
             // Compute the potential gradient of a single spherical harmonic term.
+            bool isCloseToPole = std::fabs( mathematical_constants::PI / 2.0 -
+                                            sphericalpositionOfBodySubjectToAcceleration( basic_mathematics::latitudeIndex ) ) <
+                    colatitudeCutoffForBoschFormulation;
             if( saveSeparateTerms )
             {
-                accelerationPerTerm[ std::make_pair( degree, order ) ] =
-                        basic_mathematics::computePotentialGradient( sphericalpositionOfBodySubjectToAcceleration,
-                                                                     preMultiplier,
-                                                                     degree,
-                                                                     order,
-                                                                     cosineHarmonicCoefficients( degree, order ),
-                                                                     sineHarmonicCoefficients( degree, order ),
-                                                                     legendrePolynomial,
-                                                                     legendrePolynomialDerivative,
-                                                                     sphericalHarmonicsCache );
+                if( !isCloseToPole )
+                {
+                    accelerationPerTerm[ std::make_pair( degree, order ) ] =
+                            basic_mathematics::computePotentialGradient( sphericalpositionOfBodySubjectToAcceleration,
+                                                                         preMultiplier,
+                                                                         degree,
+                                                                         order,
+                                                                         cosineHarmonicCoefficients( degree, order ),
+                                                                         sineHarmonicCoefficients( degree, order ),
+                                                                         legendrePolynomial,
+                                                                         legendrePolynomialDerivative,
+                                                                         sphericalHarmonicsCache );
+                }
+                else
+                {
+                    accelerationPerTerm[ std::make_pair( degree, order ) ] =
+                            basic_mathematics::computePotentialGradientNearPole( sphericalpositionOfBodySubjectToAcceleration,
+                                                                                 preMultiplier,
+                                                                                 degree,
+                                                                                 order,
+                                                                                 cosineHarmonicCoefficients( degree, order ),
+                                                                                 sineHarmonicCoefficients( degree, order ),
+                                                                                 sphericalHarmonicsCache );
+                }
                 sphericalGradient += accelerationPerTerm[ std::make_pair( degree, order ) ];
                 accelerationPerTerm[ std::make_pair( degree, order ) ] = accelerationRotation *
                         ( transformationToCartesianCoordinates * accelerationPerTerm[ std::make_pair( degree, order ) ] );
@@ -233,15 +251,28 @@ Eigen::Vector3d computeGeodesyNormalizedGravitationalAccelerationSum(
             else
             {
                 // Compute the potential gradient of a single spherical harmonic term.
-                sphericalGradient += basic_mathematics::computePotentialGradient( sphericalpositionOfBodySubjectToAcceleration,
-                                                                                  preMultiplier,
-                                                                                  degree,
-                                                                                  order,
-                                                                                  cosineHarmonicCoefficients( degree, order ),
-                                                                                  sineHarmonicCoefficients( degree, order ),
-                                                                                  legendrePolynomial,
-                                                                                  legendrePolynomialDerivative,
-                                                                                  sphericalHarmonicsCache );
+                if( !isCloseToPole )
+                {
+                    sphericalGradient += basic_mathematics::computePotentialGradient( sphericalpositionOfBodySubjectToAcceleration,
+                                                                                      preMultiplier,
+                                                                                      degree,
+                                                                                      order,
+                                                                                      cosineHarmonicCoefficients( degree, order ),
+                                                                                      sineHarmonicCoefficients( degree, order ),
+                                                                                      legendrePolynomial,
+                                                                                      legendrePolynomialDerivative,
+                                                                                      sphericalHarmonicsCache );
+                }
+                else
+                {
+                    sphericalGradient += basic_mathematics::computePotentialGradientNearPole( sphericalpositionOfBodySubjectToAcceleration,
+                                                                                              preMultiplier,
+                                                                                              degree,
+                                                                                              order,
+                                                                                              cosineHarmonicCoefficients( degree, order ),
+                                                                                              sineHarmonicCoefficients( degree, order ),
+                                                                                              sphericalHarmonicsCache );
+                }
             }
         }
     }
@@ -428,7 +459,7 @@ public:
     /*!
      *  Virtual destructor.
      */
-    virtual ~SphericalHarmonicsGravityField( ) { }
+    virtual ~SphericalHarmonicsGravityField( ) {}
 
     //! Function to get the reference radius.
     /*!
