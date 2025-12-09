@@ -73,6 +73,11 @@ TUDAT_ADD_TEST_CASE(ArcwiseEnvironmentParameters
     ${Tudat_ESTIMATION_LIBRARIES}
     )
 
+TUDAT_ADD_TEST_CASE(EstimationArcWiseAtmosphereParameters
+     PRIVATE_LINKS
+     ${Tudat_ESTIMATION_LIBRARIES}
+)
+
 TUDAT_ADD_TEST_CASE(DesaturationDeltaVsEstimation
     PRIVATE_LINKS
     ${Tudat_ESTIMATION_LIBRARIES}
