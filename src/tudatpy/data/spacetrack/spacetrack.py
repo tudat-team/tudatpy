@@ -542,9 +542,7 @@ class SpaceTrackQuery:
                     existing_creation_date = datetime.fromisoformat(filtered[epoch]['CREATION_DATE'])
                     if creation_date > existing_creation_date:
                         filtered[epoch] = object_
-
-            # NOTE: This function no longer saves to "temp_filtered_tles.json".
-            # It simply returns the filtered values for the parent to save properly.
+                        
             return filtered.values()
 
         def get_tles(self, json_dict: list[dict[str, any]] | dict[str, any]) -> dict[str, tuple[str, str]]:
