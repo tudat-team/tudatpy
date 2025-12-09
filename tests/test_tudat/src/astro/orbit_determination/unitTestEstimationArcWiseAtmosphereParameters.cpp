@@ -24,7 +24,6 @@
 #include <tudat/astro/orbit_determination/acceleration_partials/numericalAccelerationPartial.h>
 #include "tudat/simulation/estimation_setup/fitOrbitToEphemeris.h"
 
-
 namespace tudat
 {
 namespace unit_tests
@@ -47,22 +46,31 @@ using namespace tudat::coordinate_conversions;
 using namespace tudat::ground_stations;
 using namespace tudat::observation_models;
 
-
 //! Unit test to check if atmosphere parameters can be re-estimated after pertubed
 BOOST_AUTO_TEST_CASE( test_EstimateArcwiseExponentialAtmosphereParameters )
 {
     spice_interface::loadStandardSpiceKernels( );
 
-    std::vector <double> arcStartTimes;
-    std::vector <Eigen::Vector6d> arcInitialStates;
+    std::vector< double > arcStartTimes;
+    std::vector< Eigen::Vector6d > arcInitialStates;
 
     // arc1 (Cassini T022, c/a-5min)
     arcStartTimes.push_back( 2.205723865899772644e+08 );
-    arcInitialStates.push_back( Eigen::Vector6d{2.166092477145108860e+06, -7.925218812290439382e+05, 3.553645666049534921e+06, 3.304561684998871897e+03, 2.420278071381293103e+03, -4.244915762044645817e+03} );
+    arcInitialStates.push_back( Eigen::Vector6d{ 2.166092477145108860e+06,
+                                                 -7.925218812290439382e+05,
+                                                 3.553645666049534921e+06,
+                                                 3.304561684998871897e+03,
+                                                 2.420278071381293103e+03,
+                                                 -4.244915762044645817e+03 } );
 
     // arc 1 (Cassini T068 c/a -5min)
     arcStartTimes.push_back( 3.275976261739959717e+08 );
-    arcInitialStates.push_back( Eigen::Vector6d{-3.091501373934821691e+06, 9.134845736499809427e+05, -2.880028589145255741e+06, 4.617009140001175183e+03, 3.555047142774454642e+03, -4.711669772164187862e+02} );
+    arcInitialStates.push_back( Eigen::Vector6d{ -3.091501373934821691e+06,
+                                                 9.134845736499809427e+05,
+                                                 -2.880028589145255741e+06,
+                                                 4.617009140001175183e+03,
+                                                 3.555047142774454642e+03,
+                                                 -4.711669772164187862e+02 } );
 
     std::vector< std::string > bodyNames;
     bodyNames.push_back( "Titan" );
@@ -73,8 +81,7 @@ BOOST_AUTO_TEST_CASE( test_EstimateArcwiseExponentialAtmosphereParameters )
     bodySettings.addSettings( "Cassini" );
 
     std::map< double, Eigen::Vector6d > emptyMap;
-    bodySettings.at( "Cassini" )->ephemerisSettings =
-        std::make_shared< TabulatedEphemerisSettings >( emptyMap, "Titan", "ECLIPJ2000" );
+    bodySettings.at( "Cassini" )->ephemerisSettings = std::make_shared< TabulatedEphemerisSettings >( emptyMap, "Titan", "ECLIPJ2000" );
     bodySettings.at( "Cassini" )->ephemerisSettings->resetMakeMultiArcEphemeris( true );
 
     // Create bodies needed in simulation
@@ -87,11 +94,12 @@ BOOST_AUTO_TEST_CASE( test_EstimateArcwiseExponentialAtmosphereParameters )
     std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
             std::make_shared< ConstantAerodynamicCoefficientSettings >(
                     20.0, forceCoefficients, aerodynamics::negative_aerodynamic_frame_coefficients );
-    bodies.at( "Cassini" )->setAerodynamicCoefficientInterface(
-            createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Cassini", bodies ) );
+    bodies.at( "Cassini" )
+            ->setAerodynamicCoefficientInterface(
+                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Cassini", bodies ) );
 
     bodies.at( "Titan" )->setAtmosphereModel(
-        createAtmosphereModel( std::make_shared< ExponentialAtmosphereSettings >( 7.58e04, 175, 3.0553447e-04 ), "Titan" ));
+            createAtmosphereModel( std::make_shared< ExponentialAtmosphereSettings >( 7.58e04, 175, 3.0553447e-04 ), "Titan" ) );
 
     // Set accelerations between bodies that are to be taken into account.
     SelectedAccelerationMap accelerationMap;
@@ -116,11 +124,10 @@ BOOST_AUTO_TEST_CASE( test_EstimateArcwiseExponentialAtmosphereParameters )
     std::vector< double > integrationArcStartTimes = arcStartTimes;
     std::vector< double > integrationArcEndTimes;
 
-
     std::vector< std::shared_ptr< SingleArcPropagatorSettings< double > > > propagatorSettingsList;
     for( unsigned int j = 0; j < integrationArcStartTimes.size( ); j++ )
     {
-        integrationArcEndTimes.push_back( integrationArcStartTimes.at( j ) + 10*60);
+        integrationArcEndTimes.push_back( integrationArcStartTimes.at( j ) + 10 * 60 );
         Eigen::Matrix< double, Eigen::Dynamic, 1 > currentInitialState = arcInitialStates.at( j );
 
         propagatorSettingsList.push_back( std::make_shared< TranslationalStatePropagatorSettings< double > >(
@@ -135,17 +142,15 @@ BOOST_AUTO_TEST_CASE( test_EstimateArcwiseExponentialAtmosphereParameters )
                 dependentVariablesList ) );
     }
 
-    std::shared_ptr< MultiArcPropagatorSettings< double > > propagatorSettings =
-            std::make_shared< MultiArcPropagatorSettings< double > >(
-                    propagatorSettingsList, false, std::make_shared< MultiArcPropagatorProcessingSettings >( false, true ) );
-
+    std::shared_ptr< MultiArcPropagatorSettings< double > > propagatorSettings = std::make_shared< MultiArcPropagatorSettings< double > >(
+            propagatorSettingsList, false, std::make_shared< MultiArcPropagatorProcessingSettings >( false, true ) );
 
     std::cout << "************************************* RUNNING TEST  *************************" << std::endl;
 
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
             getInitialMultiArcParameterSettings< double >( propagatorSettings, bodies, integrationArcStartTimes );
 
-    additionalParameterNames.push_back( estimatable_parameters::arcwiseExponentialAtmosphereBaseDensity( "Titan" , arcStartTimes ) );
+    additionalParameterNames.push_back( estimatable_parameters::arcwiseExponentialAtmosphereBaseDensity( "Titan", arcStartTimes ) );
     additionalParameterNames.push_back( estimatable_parameters::arcwiseExponentialAtmosphereScaleHeight( "Titan", arcStartTimes ) );
 
     parameterNames.insert( parameterNames.end( ), additionalParameterNames.begin( ), additionalParameterNames.end( ) );
@@ -172,8 +177,7 @@ BOOST_AUTO_TEST_CASE( test_EstimateArcwiseExponentialAtmosphereParameters )
 
     std::pair< std::vector< std::shared_ptr< observation_models::ObservationModelSettings > >,
                std::shared_ptr< observation_models::ObservationCollection< double > > >
-            observationCollectionAndModelSettings =
-                    simulatePseudoObservations( bodies, bodiesToEstimate, centralBodies, observationTimes );
+            observationCollectionAndModelSettings = simulatePseudoObservations( bodies, bodiesToEstimate, centralBodies, observationTimes );
     std::shared_ptr< observation_models::ObservationCollection< double > > observationCollection =
             observationCollectionAndModelSettings.second;
 
@@ -190,12 +194,10 @@ BOOST_AUTO_TEST_CASE( test_EstimateArcwiseExponentialAtmosphereParameters )
     paramVector.tail( perturbation1.size( ) ) += perturbation1;
     parametersToEstimate->resetParameterValues( paramVector );
 
-
     OrbitDeterminationManager< double > orbitDeterminationManager =
             OrbitDeterminationManager< double >( bodies, parametersToEstimate, observationModelSettingsList, propagatorSettings );
 
-    std::shared_ptr< EstimationInput< double > > estimationInput =
-            std::make_shared< EstimationInput< double > >( observationCollection );
+    std::shared_ptr< EstimationInput< double > > estimationInput = std::make_shared< EstimationInput< double > >( observationCollection );
     estimationInput->defineEstimationSettings( 0, 1, 0, 1, 1, 1 );
 
     std::shared_ptr< EstimationOutput<> > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
@@ -215,13 +217,11 @@ BOOST_AUTO_TEST_CASE( test_EstimateArcwiseExponentialAtmosphereParameters )
 
     // NOTE: Estimation of atmospheric parameters is may not be particularly stable, because highly correlated...
     // global aerodynamic parameters.
-    BOOST_CHECK_SMALL( std::fabs( truthParameters( 12 ) - estimatedParametervalues( 12 ) ) / std::fabs(truthParameters( 12 )), 1.0e-5 );
-    BOOST_CHECK_SMALL( std::fabs( truthParameters( 13 ) - estimatedParametervalues( 13 ) ) / std::fabs(truthParameters( 13 )), 1.0e-5 );
-    BOOST_CHECK_SMALL( std::fabs( truthParameters( 14 ) - estimatedParametervalues( 14 ) ) / std::fabs(truthParameters( 14 )), 1.0e-5 );
-    BOOST_CHECK_SMALL( std::fabs( truthParameters( 15 ) - estimatedParametervalues( 15 ) ) / std::fabs(truthParameters( 15 )), 1.0e-5 );
-
+    BOOST_CHECK_SMALL( std::fabs( truthParameters( 12 ) - estimatedParametervalues( 12 ) ) / std::fabs( truthParameters( 12 ) ), 1.0e-5 );
+    BOOST_CHECK_SMALL( std::fabs( truthParameters( 13 ) - estimatedParametervalues( 13 ) ) / std::fabs( truthParameters( 13 ) ), 1.0e-5 );
+    BOOST_CHECK_SMALL( std::fabs( truthParameters( 14 ) - estimatedParametervalues( 14 ) ) / std::fabs( truthParameters( 14 ) ), 1.0e-5 );
+    BOOST_CHECK_SMALL( std::fabs( truthParameters( 15 ) - estimatedParametervalues( 15 ) ) / std::fabs( truthParameters( 15 ) ), 1.0e-5 );
 }
-
 
 BOOST_AUTO_TEST_SUITE_END( )
 

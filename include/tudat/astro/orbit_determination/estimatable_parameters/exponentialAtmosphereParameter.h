@@ -47,7 +47,6 @@ public:
             throw std::runtime_error( "Error when creating exponential atmosphere parameter, type is inconsistent: " +
                                       std::to_string( parameterType ) );
         }
-
     }
 
     //! Destructor
@@ -73,7 +72,7 @@ public:
             }
             default:
                 throw std::runtime_error( "Error when creating exponential atmosphere parameter, type is inconsistent: " +
-                          std::to_string( parameterName_.first ) );
+                                          std::to_string( parameterName_.first ) );
         }
         return parameterValue;
     }
@@ -83,7 +82,7 @@ public:
      *  Reset value of atmosphere parameter
      *  \param parameterValue New value of atmosphere parameter
      */
-    void setParameterValue( double newParameterValue)
+    void setParameterValue( double newParameterValue )
     {
         switch( parameterName_.first )
         {
@@ -97,7 +96,7 @@ public:
             }
             default:
                 throw std::runtime_error( "Error when creating exponential atmosphere parameter, type is inconsistent: " +
-                    std::to_string( parameterName_.first ) );
+                                          std::to_string( parameterName_.first ) );
         }
     }
 
@@ -151,8 +150,6 @@ private:
     Eigen::Vector3i accelerationIndices_;
 };
 
-
-
 //! Interface class for arc-wise estimation the base density of a body's exponential atmosphere model
 /*!
  * Interface class for arc-wise estimation the base density of a body's exponential atmosphere model
@@ -167,13 +164,12 @@ public:
      *  \param associatedBody Body associated with atmosphere mdoel.
      */
     ArcWiseExponentialAtmosphereParameter( const std::shared_ptr< aerodynamics::ExponentialAtmosphere >& exponentialAtmosphereModel,
-                                    const estimatable_parameters::EstimatebleParametersEnum parameterType,
-                                    const std::vector< double > timeLimits,
-                                    const std::string& associatedBody ):
+                                           const estimatable_parameters::EstimatebleParametersEnum parameterType,
+                                           const std::vector< double > timeLimits,
+                                           const std::string& associatedBody ):
         EstimatableParameter< Eigen::VectorXd >( parameterType, associatedBody ), exponentialAtmosphereModel_( exponentialAtmosphereModel ),
         timeLimits_( timeLimits )
     {
-
         // setup of arcwise parameter object
         switch( parameterType )
         {
@@ -181,13 +177,13 @@ public:
 
                 if( std::isnan( exponentialAtmosphereModel_->getBaseDensity( ) ) )
                 {
-                    throw std::runtime_error( "Error when creating arc-wise estimated atmospheric base density parameter for " + associatedBody +
-                                              ", current base density parameter not initialized" );
+                    throw std::runtime_error( "Error when creating arc-wise estimated atmospheric base density parameter for " +
+                                              associatedBody + ", current base density parameter not initialized" );
                 }
                 if( exponentialAtmosphereModel_->getBaseDensityFunction( ) != nullptr )
                 {
-                    throw std::runtime_error( "Error when creating arc-wise estimated atmospheric base density parameter for " + associatedBody +
-                                              ", time-varying scaling coefficient function already defined" );
+                    throw std::runtime_error( "Error when creating arc-wise estimated atmospheric base density parameter for " +
+                                              associatedBody + ", time-varying scaling coefficient function already defined" );
                 }
 
                 originalParameterValue_ = exponentialAtmosphereModel_->getBaseDensity( );
@@ -202,13 +198,13 @@ public:
 
                 if( std::isnan( exponentialAtmosphereModel_->getScaleHeight( ) ) )
                 {
-                    throw std::runtime_error( "Error when creating arc-wise estimated atmospheric scale height parameter for " + associatedBody +
-                                              ", current base density parameter not initialized" );
+                    throw std::runtime_error( "Error when creating arc-wise estimated atmospheric scale height parameter for " +
+                                              associatedBody + ", current base density parameter not initialized" );
                 }
                 if( exponentialAtmosphereModel_->getScaleHeightFunction( ) != nullptr )
                 {
-                    throw std::runtime_error( "Error when creating arc-wise estimated atmospheric scale height parameter for " + associatedBody +
-                                              ", time-varying scaling coefficient function already defined" );
+                    throw std::runtime_error( "Error when creating arc-wise estimated atmospheric scale height parameter for " +
+                                              associatedBody + ", time-varying scaling coefficient function already defined" );
                 }
 
                 originalParameterValue_ = exponentialAtmosphereModel_->getScaleHeight( );
@@ -219,20 +215,17 @@ public:
 
                 break;
 
-
-
             default:
                 throw std::runtime_error( "Error when creating arc-wise exponential atmosphere parameter, type is inconsistent: " +
-                          std::to_string( parameterType ) );
+                                          std::to_string( parameterType ) );
         }
-
 
         timeLimits_.push_back( std::numeric_limits< double >::max( ) );
         fullParameterValues_ = parameterValues_;
         fullParameterValues_.push_back( originalParameterValue_ );
 
-        parameterInterpolator_ = std::make_shared< interpolators::PiecewiseConstantInterpolator< double, double > >(
-                timeLimits_, fullParameterValues_ );
+        parameterInterpolator_ =
+                std::make_shared< interpolators::PiecewiseConstantInterpolator< double, double > >( timeLimits_, fullParameterValues_ );
 
         typedef interpolators::OneDimensionalInterpolator< double, double > LocalInterpolator;
 
@@ -241,13 +234,10 @@ public:
                            parameterInterpolator_,
                            std::placeholders::_1 ),
                 parameterType );
-
     }
 
     //! Destructor
     ~ArcWiseExponentialAtmosphereParameter( ) {}
-
-
 
     //! Get arc-wise values of atmosphere parameter
     /*!
@@ -274,7 +264,7 @@ public:
      *  Reset value of atmosphere parameter
      *  \param parameterValue New value of atmosphere parameter
      */
-    void setParameterValue( double newParameterValue, const estimatable_parameters::EstimatebleParametersEnum parameterType)
+    void setParameterValue( double newParameterValue, const estimatable_parameters::EstimatebleParametersEnum parameterType )
     {
         switch( parameterName_.first )
         {
@@ -288,7 +278,7 @@ public:
             }
             default:
                 throw std::runtime_error( "Error when creating exponential atmosphere parameter, type is inconsistent: " +
-                    std::to_string( parameterName_.first ) );
+                                          std::to_string( parameterName_.first ) );
         }
     }
 
@@ -303,11 +293,9 @@ public:
         {
             fullParameterValues_[ i ] = parameterValues_[ i ];
         }
-        fullParameterValues_[ parameterValues_.size( ) ] =
-                parameterValues_.at( parameterValues_.size( ) - 1 );
+        fullParameterValues_[ parameterValues_.size( ) ] = parameterValues_.at( parameterValues_.size( ) - 1 );
         parameterInterpolator_->resetDependentValues( fullParameterValues_ );
     }
-
 
     std::string getParameterDescription( )
     {
@@ -339,7 +327,6 @@ public:
         return parameterInterpolator_->getLookUpScheme( );
     }
 
-
     //! Getter interface for associated atmosphere model
     std::shared_ptr< aerodynamics::ExponentialAtmosphere > getAssociatedAtmosphereModel( )
     {
@@ -361,14 +348,12 @@ private:
     //! Original <double> parameter value;
     double originalParameterValue_;
 
-
     //! List of component indices in rtg accelerations that are to be estimated.
     Eigen::Vector3i accelerationIndices_;
 
     //! Interpolator that returns the atmosphere parameter as a function of time.
     std::shared_ptr< interpolators::PiecewiseConstantInterpolator< double, double > > parameterInterpolator_;
 };
-
 
 }  // namespace estimatable_parameters
 
