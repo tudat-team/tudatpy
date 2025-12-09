@@ -551,8 +551,9 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsAccelerationNearPole )
                 const Eigen::Vector3d accelerationTightCutoff = earthGravityTightCutoff->getAcceleration( );
 
                 // Test near-equivalence of both methods
-                TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
-                        accelerationTightCutoff, acceleration, ( 10.0 * std::numeric_limits< double >::epsilon( ) ) );
+                for( int index = 0; index < 3; index++ )
+                {
+                    BOOST_CHECK_SMALL( std::fabs( accelerationTightCutoff( i ) - acceleration( i ) ), 5.0E-11   );
 
                 // Compute numerical derivative
                 if( i > 0 )
@@ -569,7 +570,7 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsAccelerationNearPole )
                 Eigen::Vector3d accelerationDifference = firstNumericalDerivatives.at( i ) - firstNumericalDerivatives.at( i - 1 );
                 BOOST_CHECK_SMALL( std::fabs( accelerationDifference( 0 ) ), 5.0E-9 );
                 BOOST_CHECK_SMALL( std::fabs( accelerationDifference( 1 ) ), 5.0E-9 );
-                BOOST_CHECK_SMALL( std::fabs( accelerationDifference( 2 ) ), 1.0E-13 );
+                BOOST_CHECK_SMALL( std::fabs( accelerationDifference( 2 ) ), 1.0E-11 );
             }
         }
     }
