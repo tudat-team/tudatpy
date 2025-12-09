@@ -523,7 +523,7 @@ private:
     //! Maximum order of gravity field expansion
     int maximumOrder_;
 
-    double colatitudeCutoffForBoschFormulation_ = 1.0E-6;
+    double colatitudeCutoffForBoschFormulation_ = 1.0E-5;
 };
 
 //! Typedef for shared-pointer to SphericalHarmonicsGravitationalAccelerationModel.
