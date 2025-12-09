@@ -94,10 +94,10 @@ void expose_parameters_setup( py::module& m )
             .value( "arc_wise_lift_component_scaling_factor_type", tep::EstimatebleParametersEnum::arc_wise_lift_component_scaling_factor )
             .value( "rtg_force_vector_type", tep::EstimatebleParametersEnum::rtg_force_vector )
             .value( "rtg_force_vector_magnitude_type", tep::EstimatebleParametersEnum::rtg_force_vector_magnitude )
-            .value( "iau_rotation_pole_position_type", tep::EstimatebleParametersEnum::nominal_rotation_pole_position )
-            .value( "iau_pole_position_rate_type", tep::EstimatebleParametersEnum::rotation_pole_position_rate )
-            .value( "iau_pole_libration_type", tep::EstimatebleParametersEnum::rotation_pole_libration_terms )
-            .value( "iau_longitudinal_libration_type", tep::EstimatebleParametersEnum::rotation_longitudinal_libration_terms )
+            .value( "exponential_atmosphere_base_density_type", tep::EstimatebleParametersEnum::exponential_atmosphere_base_density )
+            .value( "exponential_atmosphere_scale_height_type", tep::EstimatebleParametersEnum::exponential_atmosphere_scale_height )
+            .value( "arc_wise_exponential_atmosphere_base_density_type", tep::EstimatebleParametersEnum::arc_wise_exponential_atmosphere_base_density )
+            .value( "arc_wise_exponential_atmosphere_scale_height_type", tep::EstimatebleParametersEnum::arc_wise_exponential_atmosphere_scale_height )
 
             .export_values( );
 
@@ -1897,6 +1897,29 @@ Returns
            &tep::rtgForceVectorMagnitude,
            py::arg( "body_name" ),
            R"doc(Force model parameter associated with the RTG radiation acceleration. This parameter allows for estimation of RTG force magnitude at the acceleration model reference epoch.)doc" );
+
+    m.def( "exponential_atmosphere_base_density",
+           &tep::exponentialAtmosphereBaseDensity,
+           py::arg( "body_name" ),
+           R"doc(Environment model parameter associated with the exponential atmosphere model of given body. This parameter allows for estimation of the base density in an exponential atmosphere model of the given body.)doc" );
+
+    m.def( "exponential_atmosphere_scale_height",
+           &tep::exponentialAtmosphereScaleHeight,
+           py::arg( "body_name" ),
+           R"doc(Environment model parameter associated with the exponential atmosphere model of given body. This parameter allows for estimation of the scale height in an exponential atmosphere model of the given body.)doc" );
+
+    m.def( "arcwise_exponential_atmosphere_base_density",
+       &tep::arcwiseExponentialAtmosphereBaseDensity,
+       py::arg( "body_name" ),
+       py::arg( "arc_start_times" ),
+       R"doc(Environment model parameter associated with the exponential atmosphere model of given body. This parameter allows for arc-wise estimation of the base density in an exponential atmosphere model of the given body.)doc" );
+
+    m.def( "arcwise_exponential_atmosphere_scale_height",
+           &tep::arcwiseExponentialAtmosphereScaleHeight,
+           py::arg( "body_name" ),
+           py::arg( "arc_start_times" ),
+           R"doc(Environment model parameter associated with the exponential atmosphere model of given body. This parameter allows for arc-wise estimation of the scale height in an exponential atmosphere model of the given body.)doc" );
+
 
     m.def( "area_to_mass_ratio_scaling_parameter",
            &tep::areaToMassScaling,
