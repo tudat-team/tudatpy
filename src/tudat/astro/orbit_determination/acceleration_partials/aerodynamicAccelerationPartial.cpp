@@ -158,23 +158,29 @@ void AerodynamicAccelerationPartial::computeAccelerationPartialWrtArcWiseAerodyn
  */
 void AerodynamicAccelerationPartial::computeAccelerationPartialWrtCurrentDensity( Eigen::MatrixXd& accelerationPartial )
 {
+    // Full computation for (near-)zero density
+    if( flightConditions_->getCurrentDensity( ) < 1.0E-30 )
+    {
+        Eigen::Vector3d currentForceCoefficients = flightConditions_->getAerodynamicCoefficientInterface( )->getCurrentForceCoefficients(  );
+        std::pair< reference_frames::AerodynamicsReferenceFrames, double > coefficientsFrameAndSign =
+                aerodynamics::convertCoefficientFrameToGeneralAerodynamicFrame( flightConditions_->getAerodynamicCoefficientInterface(  )->getForceCoefficientsFrame(  ) );
+        currentForceCoefficients = coefficientsFrameAndSign.second *
+                ( flightConditions_->getAerodynamicAngleCalculator( )->getRotationQuaternionBetweenFrames(
+                          coefficientsFrameAndSign.first, reference_frames::inertial_frame ) * currentForceCoefficients );
 
-    // robust way of handling frames and orientations
-    Eigen::Vector3d currentForceCoefficients = flightConditions_->getAerodynamicCoefficientInterface( )->getCurrentForceCoefficients(  );
-    std::pair< reference_frames::AerodynamicsReferenceFrames, double > coefficientsFrameAndSign =
-        aerodynamics::convertCoefficientFrameToGeneralAerodynamicFrame( flightConditions_->getAerodynamicCoefficientInterface(  )->getForceCoefficientsFrame(  ) );
-    currentForceCoefficients = coefficientsFrameAndSign.second *
-        ( flightConditions_->getAerodynamicAngleCalculator( )->getRotationQuaternionBetweenFrames(
-                  coefficientsFrameAndSign.first, reference_frames::inertial_frame ) * currentForceCoefficients );
+        // other quantities from flight conditions
+        double const currentAirspeed = flightConditions_->getCurrentAirspeed( );
+        double const referenceArea = flightConditions_->getAerodynamicCoefficientInterface( )->getReferenceArea( );
+        double const currentMass = aerodynamicAcceleration_->getCurrentMass( );
 
-    // other quantities from flight conditions
-    double const currentAirspeed = flightConditions_->getCurrentAirspeed( );
-    double const referenceArea = flightConditions_->getAerodynamicCoefficientInterface( )->getReferenceArea( );
-    double const currentMass = aerodynamicAcceleration_->getCurrentMass( );
+        // 1/2 . Ci . V2 . A / M
+        accelerationPartial = (0.5 * currentAirspeed * currentAirspeed * referenceArea / currentMass) * currentForceCoefficients;
 
-    // 1/2 . Ci . V2 . A / M
-    accelerationPartial = (0.5 * currentAirspeed * currentAirspeed * referenceArea / currentMass) * currentForceCoefficients;
-
+    }
+    else
+    {
+        accelerationPartial = aerodynamicAcceleration_->getAcceleration( ) / flightConditions_->getCurrentDensity( );
+    }
 }
 
 
