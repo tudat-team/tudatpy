@@ -49,7 +49,7 @@ using namespace tudat::observation_models;
 
 
 void updateFlightConditionsWithPerturbedState( const std::shared_ptr< aerodynamics::FlightConditions > flightConditions,
-                                                const double timeToUpdate )
+    const double timeToUpdate )
 {
     flightConditions->resetCurrentTime( );
     flightConditions->updateConditions( timeToUpdate );
@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE( test_ExponentialAtmosphereParameters )
             std::make_shared< ExponentialAtmosphereParameter >( std::dynamic_pointer_cast< aerodynamics::ExponentialAtmosphere >(
                                                                         bodies.at( "Titan" )->getAtmosphereModel( ) ),
                                                                         estimatable_parameters::exponential_atmosphere_base_density,
-                                                                        "Vehicle");
+                                                                        "Titan");
 
 
     // atmosphere scale height parameter
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE( test_ExponentialAtmosphereParameters )
             std::make_shared< ExponentialAtmosphereParameter >( std::dynamic_pointer_cast< aerodynamics::ExponentialAtmosphere >(
                                             bodies.at( "Titan" )->getAtmosphereModel( ) ),
                                                                  estimatable_parameters::exponential_atmosphere_scale_height,
-                                                                 "Vehicle");
+                                                                 "Titan");
 
 
 
@@ -183,8 +183,6 @@ BOOST_AUTO_TEST_CASE( test_ExponentialAtmosphereParameters )
 
     }
 
-
-
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////       TEST RESULTS OF SIMPLE PARAMETERS                    ////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -222,7 +220,7 @@ BOOST_AUTO_TEST_CASE( test_ExponentialAtmosphereParameters )
                                                                         bodies.at( "Titan" )->getAtmosphereModel( ) ),
                                                                         estimatable_parameters::arc_wise_exponential_atmosphere_base_density,
                                                                         arcStartTimes,
-                                                                        "Vehicle");
+                                                                        "Titan");
 
     // atmosphere scale height parameter
     std::shared_ptr< ArcWiseExponentialAtmosphereParameter > arcwiseScaleHeightAtmosphericParameter =
@@ -230,7 +228,7 @@ BOOST_AUTO_TEST_CASE( test_ExponentialAtmosphereParameters )
                                                                         bodies.at( "Titan" )->getAtmosphereModel( ) ),
                                                                         estimatable_parameters::arc_wise_exponential_atmosphere_scale_height,
                                                                         arcStartTimes,
-                                                                        "Vehicle");
+                                                                        "Titan");
 
 
 
@@ -378,8 +376,8 @@ BOOST_AUTO_TEST_CASE( test_EstimateArcwiseExponentialAtmosphereParameters )
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames =
             getInitialMultiArcParameterSettings< double >( propagatorSettings, bodies, integrationArcStartTimes );
 
-    additionalParameterNames.push_back( estimatable_parameters::arcwiseExponentialAtmosphereBaseDensity( "Cassini", "Titan" , arcStartTimes ) );
-    additionalParameterNames.push_back( estimatable_parameters::arcwiseExponentialAtmosphereScaleHeight( "Cassini", "Titan", arcStartTimes ) );
+    additionalParameterNames.push_back( estimatable_parameters::arcwiseExponentialAtmosphereBaseDensity( "Titan" , arcStartTimes ) );
+    additionalParameterNames.push_back( estimatable_parameters::arcwiseExponentialAtmosphereScaleHeight( "Titan", arcStartTimes ) );
 
     parameterNames.insert( parameterNames.end( ), additionalParameterNames.begin( ), additionalParameterNames.end( ) );
 
