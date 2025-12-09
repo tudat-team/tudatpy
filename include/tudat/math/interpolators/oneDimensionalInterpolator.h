@@ -213,7 +213,7 @@ public:
                 if( acceptUserDefinedRisk )
                 {
                     validRange = std::make_pair( IndependentVariableType( -1.0E-12 ),
-                                                 IndependentVariableType( 1.0E12 );
+                                                 IndependentVariableType( 1.0E12 ) );
                 }
                 else
                 {
