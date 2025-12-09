@@ -913,7 +913,7 @@ class BatchMPC:
         Parameters
         ----------
         MPCcodes : list[str | int] 
-            List of integer MPC object codes for minor planets or comets.
+            List of integer or str MPC object codes for minor planets or comets.
         id_types : list[str | None] | None, default None
             A list of identification types ('asteroid_number', 'comet_number', 'comet_designation') corresponding to each MPCcode.
             If an element is None, the type is considered unknown. If the entire list is None,
@@ -980,11 +980,19 @@ class BatchMPC:
                         valid_numbers = obs['number'].dropna().astype(str).replace('<NA>', np.nan).dropna()
                         if not valid_numbers.empty:
                             potential_id = valid_numbers.iloc[0]
-                            # Only pad and unpack if it looks like a simple asteroid number
-                            if potential_id.isdigit():
-                                if len(potential_id) < 5:
-                                    potential_id = potential_id.zfill(5)
+                            # We allow alphanumeric strings now (to support packed numbers like D4341)
+                            # We only pad if it is a short digit string (e.g. '1' -> '00001')
+                            # Packed strings are always 5 chars long, so they won't be affected by zfill(5)
+                            if len(potential_id) < 5:
+                                potential_id = potential_id.zfill(5)
+
+                            try:
+                                # Try to unpack it. This handles '00001' and 'D4341'.
                                 identifier = unpackers.unpack_permanent_minor_planet(potential_id)
+                            except Exception:
+                                # If unpacking fails (e.g. it was already unpacked or invalid),
+                                # we keep the potential_id as is.
+                                identifier = potential_id
                 if identifier is None and 'desig' in obs.columns and pd.notna(obs['desig'].iloc[0]):
                     identifier = str(obs['desig'].iloc[0])
 
