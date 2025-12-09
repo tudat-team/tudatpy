@@ -510,29 +510,29 @@ message(
 # +============================================================================
 # Tudatpy specific configuration
 # +============================================================================
-#
-#message(STATUS Tudat: [Tudat_PROPAGATION_LIBRARIES] ${Tudat_PROPAGATION_LIBRARIES})
-#message(STATUS Tudat: [Tudat_INCLUDE_DIRS] ${Tudat_INCLUDE_DIRS})
-#
-## Pybind11 dependency
-#include(YACMAPythonSetup)
-#set(PYBIND11_FINDPYTHON ON)
-#find_package(pybind11 CONFIG REQUIRED)
-#set(pybind11_INCLUDE_DIRS ${pybind11_BUILD_INCLUDE_DIRS}) # TODO: Check
-#set(pybind11_INCLUDE_DIR ${pybind11_BUILD_INCLUDE_DIRS})  # TODO: Check
-#
-## Source directory for tudatpy
-#set(TUDATPY_SOURCE_DIR ${BASE_DIRECTORY}/src/tudatpy)
-#
-## Add docs to build directory
-#file(
-#    COPY ${BASE_DIRECTORY}/docs/tudatpy
-#    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/docs
-#)
-#
-## Include tudatpy CMake configuration
-#include_directories(include/tudatpy)
-#add_subdirectory(src/tudatpy)
+
+message(STATUS Tudat: [Tudat_PROPAGATION_LIBRARIES] ${Tudat_PROPAGATION_LIBRARIES})
+message(STATUS Tudat: [Tudat_INCLUDE_DIRS] ${Tudat_INCLUDE_DIRS})
+
+# Pybind11 dependency
+include(YACMAPythonSetup)
+set(PYBIND11_FINDPYTHON ON)
+find_package(pybind11 CONFIG REQUIRED)
+set(pybind11_INCLUDE_DIRS ${pybind11_BUILD_INCLUDE_DIRS}) # TODO: Check
+set(pybind11_INCLUDE_DIR ${pybind11_BUILD_INCLUDE_DIRS})  # TODO: Check
+
+# Source directory for tudatpy
+set(TUDATPY_SOURCE_DIR ${BASE_DIRECTORY}/src/tudatpy)
+
+# Add docs to build directory
+file(
+    COPY ${BASE_DIRECTORY}/docs/tudatpy
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/docs
+)
+
+# Include tudatpy CMake configuration
+include_directories(include/tudatpy)
+add_subdirectory(src/tudatpy)
 
 # +============================================================================
 # CLEAN UP (Project name independent)
