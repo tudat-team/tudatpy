@@ -553,7 +553,8 @@ BOOST_AUTO_TEST_CASE( test_SphericalHarmonicsAccelerationNearPole )
                 // Test near-equivalence of both methods
                 for( int index = 0; index < 3; index++ )
                 {
-                    BOOST_CHECK_SMALL( std::fabs( accelerationTightCutoff( i ) - acceleration( i ) ), 5.0E-11   );
+                    BOOST_CHECK_SMALL( std::fabs( accelerationTightCutoff( i ) - acceleration( i ) ), 5.0E-11 );
+                }
 
                 // Compute numerical derivative
                 if( i > 0 )
