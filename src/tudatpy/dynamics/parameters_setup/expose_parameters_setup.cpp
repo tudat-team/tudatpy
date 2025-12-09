@@ -96,6 +96,8 @@ void expose_parameters_setup( py::module& m )
             .value( "rtg_force_vector_magnitude_type", tep::EstimatebleParametersEnum::rtg_force_vector_magnitude )
             .value( "exponential_atmosphere_base_density_type", tep::EstimatebleParametersEnum::exponential_atmosphere_base_density )
             .value( "exponential_atmosphere_scale_height_type", tep::EstimatebleParametersEnum::exponential_atmosphere_scale_height )
+            .value( "arc_wise_exponential_atmosphere_base_density_type", tep::EstimatebleParametersEnum::arc_wise_exponential_atmosphere_base_density )
+            .value( "arc_wise_exponential_atmosphere_scale_height_type", tep::EstimatebleParametersEnum::arc_wise_exponential_atmosphere_scale_height )
 
             .export_values( );
 
@@ -1898,15 +1900,25 @@ Returns
 
     m.def( "exponential_atmosphere_base_density",
            &tep::exponentialAtmosphereBaseDensity,
-           py::arg( "undergoing_body_name" ),
-           py::arg( "exerting_body_name" ),
-           R"doc(Environment model parameter associated with the exponential atmosphere model of (exerting) body. This parameter allows for estimation of the base density in an exponential atmosphere model of the exerting body. It requires another body undergoing aerodynamic acceleration by this atmosphere.)doc" );
+           py::arg( "body_name" ),
+           R"doc(Environment model parameter associated with the exponential atmosphere model of given body. This parameter allows for estimation of the base density in an exponential atmosphere model of the given body.)doc" );
 
     m.def( "exponential_atmosphere_scale_height",
            &tep::exponentialAtmosphereScaleHeight,
-           py::arg( "undergoing_body_name" ),
-           py::arg( "exerting_body_name" ),
-           R"doc(Environment model parameter associated with the exponential atmosphere model of (exerting) body. This parameter allows for estimation of the scale height in an exponential atmosphere model of the exerting body. It requires another body undergoing aerodynamic acceleration by this atmosphere.)doc" );
+           py::arg( "body_name" ),
+           R"doc(Environment model parameter associated with the exponential atmosphere model of given body. This parameter allows for estimation of the scale height in an exponential atmosphere model of the given body.)doc" );
+
+    m.def( "arcwise_exponential_atmosphere_base_density",
+       &tep::arcwiseExponentialAtmosphereBaseDensity,
+       py::arg( "body_name" ),
+       py::arg( "arc_start_times" ),
+       R"doc(Environment model parameter associated with the exponential atmosphere model of given body. This parameter allows for arc-wise estimation of the base density in an exponential atmosphere model of the given body.)doc" );
+
+    m.def( "arcwise_exponential_atmosphere_scale_height",
+           &tep::arcwiseExponentialAtmosphereScaleHeight,
+           py::arg( "body_name" ),
+           py::arg( "arc_start_times" ),
+           R"doc(Environment model parameter associated with the exponential atmosphere model of given body. This parameter allows for arc-wise estimation of the scale height in an exponential atmosphere model of the given body.)doc" );
 
 
     m.def( "area_to_mass_ratio_scaling_parameter",
