@@ -277,12 +277,7 @@ BOOST_AUTO_TEST_CASE( test_ExponentialAtmosphereParameters )
 //! Unit test to check if atmosphere parameters can be re-estimated after pertubed
 BOOST_AUTO_TEST_CASE( test_EstimateArcwiseExponentialAtmosphereParameters )
 {
-    std::vector< double > residuals;
-    std::vector< double > parameterEstimateList;
     spice_interface::loadStandardSpiceKernels( );
-
-    //spice_interface::loadSpiceKernelInTudat( paths::getTudatTestDataPath( ) +
-    //                                         "/dsn_n_way_doppler_observation_model/mgs_map1_ipng_mgs95j.bsp" );
 
     std::vector <double> arcStartTimes;
     std::vector <Eigen::Vector6d> arcInitialStates;
@@ -421,9 +416,7 @@ BOOST_AUTO_TEST_CASE( test_EstimateArcwiseExponentialAtmosphereParameters )
     paramVector.tail( perturbation1.size( ) ) += perturbation1;
     parametersToEstimate->resetParameterValues( paramVector );
 
-    Eigen::VectorXd perturbedVector = parametersToEstimate->getFullParameterValues< double >( );
 
-    // parametersToEstimate->getFullParameterValues< double >( )
     OrbitDeterminationManager< double > orbitDeterminationManager =
             OrbitDeterminationManager< double >( bodies, parametersToEstimate, observationModelSettingsList, propagatorSettings );
 
@@ -433,32 +426,25 @@ BOOST_AUTO_TEST_CASE( test_EstimateArcwiseExponentialAtmosphereParameters )
 
     std::shared_ptr< EstimationOutput<> > estimationOutput = orbitDeterminationManager.estimateParameters( estimationInput );
 
-    Eigen::MatrixXd corrMatrix = estimationOutput->getCorrelationMatrix(  );
-    std::cout << " " << std::endl;
-    std::cout << corrMatrix << std::endl;
-
-    residuals.push_back( estimationOutput->residualStandardDeviation_ );
-    parameterEstimateList.push_back( estimationOutput->parameterHistory_.at( estimationOutput->parameterHistory_.size( ) - 1 )( 6 ) );
-
     // Check if parameters are correctly estimated
     Eigen::VectorXd estimatedParametervalues = estimationOutput->parameterEstimate_;
 
     // Initial states (2 arcs).
     for( unsigned int l = 0; l < 3; l++ )
     {
-        BOOST_CHECK_SMALL( std::fabs( truthParameters( l ) - estimationOutput->parameterEstimate_( l ) ), 0.1 );
-        BOOST_CHECK_SMALL( std::fabs( truthParameters( l + 6 ) - estimationOutput->parameterEstimate_( l + 6 ) ), 0.1 );
+        BOOST_CHECK_SMALL( std::fabs( truthParameters( l ) - estimatedParametervalues( l ) ), 0.1 );
+        BOOST_CHECK_SMALL( std::fabs( truthParameters( l + 6 ) - estimatedParametervalues( l + 6 ) ), 0.1 );
 
-        BOOST_CHECK_SMALL( std::fabs( truthParameters( l + 3 ) - estimationOutput->parameterEstimate_( l + 3 ) ), 1.0E-6 );
-        BOOST_CHECK_SMALL( std::fabs( truthParameters( l + 9 ) - estimationOutput->parameterEstimate_( l + 9 ) ), 1.0E-6 );
+        BOOST_CHECK_SMALL( std::fabs( truthParameters( l + 3 ) - estimatedParametervalues( l + 3 ) ), 1.0E-6 );
+        BOOST_CHECK_SMALL( std::fabs( truthParameters( l + 9 ) - estimatedParametervalues( l + 9 ) ), 1.0E-6 );
     }
 
     // NOTE: Estimation of atmospheric parameters is may not be particularly stable, because highly correlated...
     // global aerodynamic parameters.
-    BOOST_CHECK_SMALL( std::fabs( truthParameters( 12 ) - estimationOutput->parameterEstimate_( 12 ) ) / std::fabs(truthParameters( 12 )), 1.0e-5 );
-    BOOST_CHECK_SMALL( std::fabs( truthParameters( 13 ) - estimationOutput->parameterEstimate_( 13 ) ) / std::fabs(truthParameters( 13 )), 1.0e-5 );
-    BOOST_CHECK_SMALL( std::fabs( truthParameters( 14 ) - estimationOutput->parameterEstimate_( 14 ) ) / std::fabs(truthParameters( 14 )), 1.0e-5 );
-    BOOST_CHECK_SMALL( std::fabs( truthParameters( 15 ) - estimationOutput->parameterEstimate_( 15 ) ) / std::fabs(truthParameters( 15 )), 1.0e-5 );
+    BOOST_CHECK_SMALL( std::fabs( truthParameters( 12 ) - estimatedParametervalues( 12 ) ) / std::fabs(truthParameters( 12 )), 1.0e-5 );
+    BOOST_CHECK_SMALL( std::fabs( truthParameters( 13 ) - estimatedParametervalues( 13 ) ) / std::fabs(truthParameters( 13 )), 1.0e-5 );
+    BOOST_CHECK_SMALL( std::fabs( truthParameters( 14 ) - estimatedParametervalues( 14 ) ) / std::fabs(truthParameters( 14 )), 1.0e-5 );
+    BOOST_CHECK_SMALL( std::fabs( truthParameters( 15 ) - estimatedParametervalues( 15 ) ) / std::fabs(truthParameters( 15 )), 1.0e-5 );
 
 }
 

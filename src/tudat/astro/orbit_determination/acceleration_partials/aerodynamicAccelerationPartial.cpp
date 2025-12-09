@@ -159,17 +159,21 @@ void AerodynamicAccelerationPartial::computeAccelerationPartialWrtArcWiseAerodyn
 void AerodynamicAccelerationPartial::computeAccelerationPartialWrtCurrentDensity( Eigen::MatrixXd& accelerationPartial )
 {
 
-    Eigen::Quaterniond rotationToInertialFrame = flightConditions_->getAerodynamicAngleCalculator( )->getRotationQuaternionBetweenFrames(
-        reference_frames::aerodynamic_frame, reference_frames::inertial_frame );
-
-    // retrieve from flight conditions
+    // robust way of handling frames and orientations
     Eigen::Vector3d currentForceCoefficients = flightConditions_->getAerodynamicCoefficientInterface( )->getCurrentForceCoefficients(  );
+    std::pair< reference_frames::AerodynamicsReferenceFrames, double > coefficientsFrameAndSign =
+        aerodynamics::convertCoefficientFrameToGeneralAerodynamicFrame( flightConditions_->getAerodynamicCoefficientInterface(  )->getForceCoefficientsFrame(  ) );
+    currentForceCoefficients = coefficientsFrameAndSign.second *
+        ( flightConditions_->getAerodynamicAngleCalculator( )->getRotationQuaternionBetweenFrames(
+                  coefficientsFrameAndSign.first, reference_frames::inertial_frame ) * currentForceCoefficients );
+
+    // other quantities from flight conditions
     double const currentAirspeed = flightConditions_->getCurrentAirspeed( );
     double const referenceArea = flightConditions_->getAerodynamicCoefficientInterface( )->getReferenceArea( );
     double const currentMass = aerodynamicAcceleration_->getCurrentMass( );
 
     // 1/2 . Ci . V2 . A / M
-    accelerationPartial = rotationToInertialFrame * (- 0.5 * currentAirspeed * currentAirspeed * referenceArea / currentMass * currentForceCoefficients);
+    accelerationPartial = (0.5 * currentAirspeed * currentAirspeed * referenceArea / currentMass) * currentForceCoefficients;
 
 }
 
