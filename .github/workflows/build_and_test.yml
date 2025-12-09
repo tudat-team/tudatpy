@@ -40,16 +40,19 @@ jobs:
             cpp_compiler: cl
             label: win-64
             path_conda_env: C:\Miniconda\envs\tudat
+            build_jobs: 3
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
             label: linux-64
             path_conda_env: /usr/share/miniconda/envs/tudat
+            build_jobs: 3
           - os: macos-latest
             c_compiler: clang
             cpp_compiler: clang++
             label: osx-64
             path_conda_env: /Users/runner/miniconda3/envs/tudat
+            build_jobs: 2
         exclude:
           - os: windows-latest
             c_compiler: gcc
@@ -150,7 +153,7 @@ jobs:
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator). Use multiple cpu cores available in the runner.
       shell: bash -l {0}
-      run: cmake --build "${{ github.workspace }}/build" --config "${{ matrix.build_type }}" -j3
+      run: cmake --build "${{ github.workspace }}/build" --config "${{ matrix.build_type }}" -j${{ matrix.build_jobs }}
 
 
     - name: Test
