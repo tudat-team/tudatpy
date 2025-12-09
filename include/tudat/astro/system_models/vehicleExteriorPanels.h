@@ -121,8 +121,8 @@ public:
     // rotation update function
     void updatePanel( const Eigen::Quaterniond& currentOrientation_ )
     {
-        bodyFixedSurfaceNormal_ = [ = ]( ) { return currentOrientation_ * frameFixedSurfaceNormal_( ); };
-        bodyFixedPositionVector_ = [ = ]( ) {
+        bodyFixedSurfaceNormal_ = [ this, currentOrientation_ ]( ) { return currentOrientation_ * frameFixedSurfaceNormal_( ); };
+        bodyFixedPositionVector_ = [ this, currentOrientation_ ]( ) {
             Eigen::Vector3d frameFixedPositionRotated = currentOrientation_ * frameFixedPositionVector_( ) + frameOrigin_;
             return frameFixedPositionRotated;
         };
