@@ -216,6 +216,18 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case full_acceleration_scaling_factor:
             parameterDescription = "full acceleration scaling factor ";
             break;
+        case exponential_atmosphere_base_density:
+            parameterDescription = "base density of exponential atmosphere model ";
+            break;
+        case exponential_atmosphere_scale_height:
+            parameterDescription = "scale height of exponential atmosphere model ";
+            break;
+        case arc_wise_exponential_atmosphere_base_density:
+            parameterDescription = "arc-wise base density of exponential atmosphere model ";
+            break;
+        case arc_wise_exponential_atmosphere_scale_height:
+            parameterDescription = "arc-wise scale height of exponential atmosphere model ";
+            break;
         default:
             std::string errorMessage =
                     "Error when getting parameter string, did not recognize parameter " + std::to_string( parameterType );
@@ -432,6 +444,18 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
             break;
         case full_acceleration_scaling_factor:
             isDoubleParameter = true;
+            break;
+        case exponential_atmosphere_base_density:
+            isDoubleParameter = true;
+            break;
+        case exponential_atmosphere_scale_height:
+            isDoubleParameter = true;
+            break;
+        case arc_wise_exponential_atmosphere_base_density:
+            isDoubleParameter = false;
+            break;
+        case arc_wise_exponential_atmosphere_scale_height:
+            isDoubleParameter = false;
             break;
         default:
             throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +

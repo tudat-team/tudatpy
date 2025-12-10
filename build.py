@@ -89,7 +89,7 @@ class BuildParser(argparse.ArgumentParser):
         cmake_group.add_argument(
             "--cxx-standard",
             metavar="<std>",
-            default="14",
+            default="17",
             help="C++ standard to use",
         )
         cmake_group.add_argument(

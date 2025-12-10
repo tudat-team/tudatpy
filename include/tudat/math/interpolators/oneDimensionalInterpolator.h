@@ -212,8 +212,7 @@ public:
             case use_default_value_with_warning: {
                 if( acceptUserDefinedRisk )
                 {
-                    validRange = std::make_pair( IndependentVariableType( -1.0E12 ),
-                                                IndependentVariableType( 1.0E12 ) );
+                    validRange = std::make_pair( IndependentVariableType( -1.0E12 ), IndependentVariableType( 1.0E12 ) );
                 }
                 else
                 {

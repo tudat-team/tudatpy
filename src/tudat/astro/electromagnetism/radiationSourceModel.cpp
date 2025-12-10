@@ -45,7 +45,7 @@ double RadiationSourceModel::evaluateTotalIrradianceAtPosition( const Eigen::Vec
 
     // Sum contributions of all sub-sources
     double totalIrradiance = 0;
-    for( auto& e: irradiances )
+    for( auto& e : irradiances )
     {
         totalIrradiance += std::get< 0 >( e );
     }
@@ -84,7 +84,7 @@ IrradianceWithSourceList PaneledRadiationSourceModel::evaluateIrradianceAtPositi
     IrradianceWithSourceList irradiances{ };
 
     visibleArea = 0;
-    for( const auto& panel: getPanels( ) )
+    for( const auto& panel : getPanels( ) )
     {
         const Eigen::Vector3d targetPositionRelativeToPanel = targetPosition - panel.getRelativeCenter( );
         if( targetPositionRelativeToPanel.dot( panel.getSurfaceNormal( ) ) <= 0 )
@@ -98,7 +98,7 @@ IrradianceWithSourceList PaneledRadiationSourceModel::evaluateIrradianceAtPositi
 
         // The irradiance from a panel is the sum of the irradiances from all of its radiosity models
         double irradiance = 0;
-        for( auto& radiosityModel: panel.getRadiosityModels( ) )
+        for( auto& radiosityModel : panel.getRadiosityModels( ) )
         {
             irradiance += radiosityModel->evaluateIrradianceAtPosition(
                     panel.getArea( ), panel.getSurfaceNormal( ), targetPositionRelativeToPanel );
@@ -115,10 +115,12 @@ IrradianceWithSourceList PaneledRadiationSourceModel::evaluateIrradianceAtPositi
     return irradiances;
 }
 
+PaneledRadiationSourceModel::~PaneledRadiationSourceModel( ) = default;
+
 void StaticallyPaneledRadiationSourceModel::updateMembers_( double currentTime )
 {
     sourcePanelRadiosityModelUpdater_->updateMembers( currentTime );
-    for( auto& panel: panels_ )
+    for( auto& panel : panels_ )
     {
         panel.updateMembers( currentTime );
         sourcePanelRadiosityModelUpdater_->updatePanel( panel );
@@ -154,7 +156,7 @@ void StaticallyPaneledRadiationSourceModel::generatePanels(
 
         // Create radiosity models for panel
         std::vector< std::unique_ptr< SourcePanelRadiosityModel > > radiosityModels;
-        for( auto& baseRadiosityModel: baseRadiosityModels )
+        for( auto& baseRadiosityModel : baseRadiosityModels )
         {
             // Radiosity models are cloned such that they share their albedo/emissivity distribution
             radiosityModels.push_back( baseRadiosityModel->clone( ) );
@@ -178,7 +180,7 @@ DynamicallyPaneledRadiationSourceModel::DynamicallyPaneledRadiationSourceModel(
         throw std::runtime_error( "Error when creating dynamically panelled radiation source model; no shape model defined" );
     }
     numberOfPanels = 1;
-    for( const auto& numberOfPanelsInCurrentRing: numberOfPanelsPerRing )
+    for( const auto& numberOfPanelsInCurrentRing : numberOfPanelsPerRing )
     {
         numberOfPanels += numberOfPanelsInCurrentRing;
     }
@@ -187,7 +189,7 @@ DynamicallyPaneledRadiationSourceModel::DynamicallyPaneledRadiationSourceModel(
     {
         // Create radiosity models for panel
         std::vector< std::unique_ptr< SourcePanelRadiosityModel > > radiosityModels;
-        for( auto& baseRadiosityModel: baseRadiosityModels )
+        for( auto& baseRadiosityModel : baseRadiosityModels )
         {
             // Radiosity models are cloned such that they share their albedo/emissivity distribution
             radiosityModels.push_back( baseRadiosityModel->clone( ) );
@@ -253,7 +255,7 @@ void DynamicallyPaneledRadiationSourceModel::updateMembers_( double currentTime 
 
 void RadiationSourcePanel::updateMembers( double currentTime )
 {
-    for( const auto& radiosityModel: radiosityModels_ )
+    for( const auto& radiosityModel : radiosityModels_ )
     {
         radiosityModel->updateMembers( latitude_, longitude_, currentTime );
     }
@@ -273,7 +275,7 @@ void SourcePanelRadiosityModelUpdater::updateMembers( const double currentTime )
         Eigen::Quaterniond sourceRotationFromLocalToGlobalFrame = sourceRotationFromLocalToGlobalFrameFunction_( );
         Eigen::Quaterniond sourceRotationFromGlobalToLocalFrame = sourceRotationFromLocalToGlobalFrame.inverse( );
 
-        for( const auto& kv: originalSourcePositionFunctions_ )
+        for( const auto& kv : originalSourcePositionFunctions_ )
         {
             auto originalSourceName = kv.first;
             auto originalSourcePositionFunction = kv.second;
@@ -304,7 +306,7 @@ void SourcePanelRadiosityModelUpdater::updatePanel( RadiationSourcePanel& panel 
     Eigen::Vector3d sourceCenterPositionInGlobalFrame = sourcePositionFunction_( );  // position of center of source (e.g. planet)
     Eigen::Quaterniond sourceRotationFromLocalToGlobalFrame = sourceRotationFromLocalToGlobalFrameFunction_( );
 
-    for( auto& radiosityModel: panel.getRadiosityModels( ) )
+    for( auto& radiosityModel : panel.getRadiosityModels( ) )
     {
         if( !radiosityModel->dependsOnOriginalSource( ) )
         {
@@ -509,7 +511,7 @@ generatePaneledSphericalCap_EqualProjectedAttenuatedArea( const Eigen::Vector3d&
 
     const auto numberOfRings = numberOfPanelsPerRing.size( );
     int N = 1;
-    for( const auto& N_s: numberOfPanelsPerRing )
+    for( const auto& N_s : numberOfPanelsPerRing )
     {
         N += N_s;
     }
@@ -523,7 +525,7 @@ generatePaneledSphericalCap_EqualProjectedAttenuatedArea( const Eigen::Vector3d&
     betas.push_back( gamma_1 - zeta_1 );
 
     int k = 1;
-    for( const auto& N_s: numberOfPanelsPerRing )
+    for( const auto& N_s : numberOfPanelsPerRing )
     {
         k += N_s;
         auto zeta_i = acos( k * cos( zeta_1 ) - k + 1 );
