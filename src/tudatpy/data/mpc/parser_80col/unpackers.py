@@ -5,8 +5,12 @@ https://minorplanetcenter.net/iau/info/OpticalObs.html
 for info about the designation format for Optical Astrometric Observations Of Comets,
 Minor Planets and Natural Satellites.
 
+-----------
+Lingo
+-----------
 Packing:
 Converting a long, human-readable designation into a short, coded version that fits the 80-column space.
+
 Unpacking:
 Converting the short, packed form back into a human-readable designation.
 """
@@ -88,11 +92,20 @@ def unpack_permanent_minor_planet(packed: str) -> str:
     """
     Unpacks a 5-character packed permanent minor planet designation.
     Ref: https://minorplanetcenter.net/iau/info/PackedDes.html#perm
-
     Format Rules:
     1. 00001 - 99999 : Straight digits (0-9)
     2. A0000 - z9999 : Base62 char + 4 digits (100,000 - 619,999)
     3. ~0000 - ~zzzz : Tilde + 4 Base62 chars (620,000 +)
+
+    Parameters
+    ----------
+    packed : str
+        The 7-character packed provisional minor planet designation.
+
+    Returns
+    -------
+    str
+        The unpacked provisional minor planet designation.
     """
 
     # 1. Validation: Length Check
