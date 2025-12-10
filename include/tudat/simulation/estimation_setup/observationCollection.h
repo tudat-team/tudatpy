@@ -2024,8 +2024,7 @@ public:
 
         for( auto set : singleSets )
         {
-            std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings =
-                    set->getAncilliarySettings( );
+            std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = set->getAncilliarySettings( );
 
             if( ancilliarySettings != nullptr )
             {
