@@ -48,10 +48,11 @@ double SolarCoronaCorrection::computeElectronDensityIntegralNumerically( const E
     // Fraction of the distance between the position of transmitter (fractionOfLOS = 0) and the position of the receiver
     // (fractionOfLOS = 1) is used as independent variable
 
-    std::function< double( double ) > electronDensityAlongLOS = [ = ]( const double fractionOfLOS ) {
-        return computeElectronDensity( transmitterPositionWrtSun + fractionOfLOS * ( receiverPositionWrtSun - transmitterPositionWrtSun ),
-                                       time );
-    };
+    std::function< double( double ) > electronDensityAlongLOS =
+            [ this, transmitterPositionWrtSun, receiverPositionWrtSun, time ]( const double fractionOfLOS ) {
+                return computeElectronDensity(
+                        transmitterPositionWrtSun + fractionOfLOS * ( receiverPositionWrtSun - transmitterPositionWrtSun ), time );
+            };
 
     numerical_quadrature::GaussianQuadrature< double, double > quadrature =
             numerical_quadrature::GaussianQuadrature< double, double >( electronDensityAlongLOS, 0.0, 1.0, 50 );

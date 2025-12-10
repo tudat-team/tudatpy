@@ -55,7 +55,7 @@ static constexpr int J2000_JULIAN_DAY_IN_FULL_PERIODS = physical_constants::JULI
 class Time
 {
 public:
-    constexpr Time( ): fullPeriods_( 0 ), secondsIntoFullPeriod_( 0.0L ), daysToAdd( 0 ) { }
+    constexpr Time( ): fullPeriods_( 0 ), secondsIntoFullPeriod_( 0.0L ), daysToAdd( 0 ) {}
 
     //! Constructor, sets current hour and time into current hour directly
     /*!
@@ -78,11 +78,14 @@ public:
      */
     constexpr Time( const long double numberOfSeconds ): fullPeriods_( 0 ), secondsIntoFullPeriod_( numberOfSeconds ), daysToAdd( 0 )
     {
-        if( numberOfSeconds / TIME_NORMALIZATION_TERM >= std::numeric_limits< int >::max( ) ||
-            numberOfSeconds / TIME_NORMALIZATION_TERM <= std::numeric_limits< int >::max( ) )
+        constexpr long double maxSeconds = static_cast< long double >( std::numeric_limits< int >::max( ) ) * TIME_NORMALIZATION_TERM;
+        constexpr long double minSeconds = static_cast< long double >( std::numeric_limits< int >::min( ) ) * TIME_NORMALIZATION_TERM;
+
+        if( numberOfSeconds >= maxSeconds || numberOfSeconds <= minSeconds )
         {
-            throw std::overflow_error( "Error when creating Time class, input in seconds: " + std::to_string( numberOfSeconds ) +  " is outside valid limits." );
+            throw std::overflow_error( "Error when creating Time class, input in seconds is outside valid limits." );
         }
+
         normalizeMembers( );
     }
 
@@ -119,15 +122,15 @@ public:
         normalizeMembers( );
     }
 
-    std::size_t hash() const
+    std::size_t hash( ) const
     {
-        std::size_t h1 = std::hash<int>{}(fullPeriods_);
+        std::size_t h1 = std::hash< int >{ }( fullPeriods_ );
 
         // Quantize to microseconds to avoid floating point instability
-        long long quantized_seconds = static_cast<long long>(secondsIntoFullPeriod_ * 1e12);
-        std::size_t h2 = std::hash<long long>{}(quantized_seconds);
+        long long quantized_seconds = static_cast< long long >( secondsIntoFullPeriod_ * 1e12 );
+        std::size_t h2 = std::hash< long long >{ }( quantized_seconds );
 
-        return h1 ^ (h2 << 1);  // Combine the two hashes
+        return h1 ^ ( h2 << 1 );  // Combine the two hashes
     }
 
     //! Definition of = operator for Time type

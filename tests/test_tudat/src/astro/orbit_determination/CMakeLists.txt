@@ -43,7 +43,7 @@ TUDAT_ADD_TEST_CASE(HybridArcStateEstimation
 #         ${Tudat_ESTIMATION_LIBRARIES}
 #         )
 
-TUDAT_ADD_TEST_CASE2(MultiArcStateEstimation
+TUDAT_ADD_TEST_CASE(MultiArcStateEstimation
     PRIVATE_LINKS
     ${Tudat_ESTIMATION_LIBRARIES}
     )
@@ -72,6 +72,11 @@ TUDAT_ADD_TEST_CASE(ArcwiseEnvironmentParameters
     PRIVATE_LINKS
     ${Tudat_ESTIMATION_LIBRARIES}
     )
+
+TUDAT_ADD_TEST_CASE(EstimationArcWiseAtmosphereParameters
+     PRIVATE_LINKS
+     ${Tudat_ESTIMATION_LIBRARIES}
+)
 
 TUDAT_ADD_TEST_CASE(DesaturationDeltaVsEstimation
     PRIVATE_LINKS
