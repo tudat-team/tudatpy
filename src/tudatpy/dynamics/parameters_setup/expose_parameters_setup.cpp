@@ -35,10 +35,6 @@ void expose_parameters_setup( py::module& m )
          Note that not all of the listed types might be accessible via functions in the python interface yet.
 
 
-
-
-
-
       )doc" )
             .value( "arc_wise_initial_body_state_type", tep::EstimatebleParametersEnum::arc_wise_initial_body_state )
             .value( "initial_body_state_type", tep::EstimatebleParametersEnum::initial_body_state )
@@ -66,8 +62,7 @@ void expose_parameters_setup( py::module& m )
             .value( "equivalence_principle_lpi_violation_parameter_type",
                     tep::EstimatebleParametersEnum::equivalence_principle_lpi_violation_parameter )
             .value( "empirical_acceleration_coefficients_type",
-                    tep::EstimatebleParametersEnum::empirical_acceleration_coefficients )  // TO
-                                                                                           // EXPOSE
+                    tep::EstimatebleParametersEnum::empirical_acceleration_coefficients )  // TO EXPOSE
             .value( "arc_wise_empirical_acceleration_coefficients_type",
                     tep::EstimatebleParametersEnum::arc_wise_empirical_acceleration_coefficients )  // TO EXPOSE
             .value( "full_degree_tidal_love_number_type",
@@ -94,8 +89,17 @@ void expose_parameters_setup( py::module& m )
             .value( "drag_component_scaling_factor_type", tep::EstimatebleParametersEnum::drag_component_scaling_factor )
             .value( "side_component_scaling_factor_type", tep::EstimatebleParametersEnum::side_component_scaling_factor )
             .value( "lift_component_scaling_factor_type", tep::EstimatebleParametersEnum::lift_component_scaling_factor )
+            .value( "arc_wise_drag_component_scaling_factor_type", tep::EstimatebleParametersEnum::arc_wise_drag_component_scaling_factor )
+            .value( "arc_wise_side_component_scaling_factor_type", tep::EstimatebleParametersEnum::arc_wise_side_component_scaling_factor )
+            .value( "arc_wise_lift_component_scaling_factor_type", tep::EstimatebleParametersEnum::arc_wise_lift_component_scaling_factor )
             .value( "rtg_force_vector_type", tep::EstimatebleParametersEnum::rtg_force_vector )
             .value( "rtg_force_vector_magnitude_type", tep::EstimatebleParametersEnum::rtg_force_vector_magnitude )
+            .value( "exponential_atmosphere_base_density_type", tep::EstimatebleParametersEnum::exponential_atmosphere_base_density )
+            .value( "exponential_atmosphere_scale_height_type", tep::EstimatebleParametersEnum::exponential_atmosphere_scale_height )
+            .value( "arc_wise_exponential_atmosphere_base_density_type",
+                    tep::EstimatebleParametersEnum::arc_wise_exponential_atmosphere_base_density )
+            .value( "arc_wise_exponential_atmosphere_scale_height_type",
+                    tep::EstimatebleParametersEnum::arc_wise_exponential_atmosphere_scale_height )
 
             .export_values( );
 
@@ -162,6 +166,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
            py::arg( "bodies" ),
            py::arg( "propagator_settings" ) = nullptr,
            py::arg( "consider_parameters_names" ) = std::vector< std::shared_ptr< tep::EstimatableParameterSettings > >( ),
+           py::arg( "print_parameter_order_warning" ) = true,
            R"doc(
 
  Function for creating a consolidated parameter from the given estimatable parameter settings.
@@ -173,13 +178,21 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  Parameters
  ----------
  parameter_settings : list( :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` )
-     List of objects that define the settings for the parameters that are to be created. Each entry in this list is typically created by a call to a function in the :ref:`parameters_setup` module
+     List of objects that define the settings for the parameters that are to be created. Each entry in this list is typically created by a call to a function in the :ref:`parameters_setup` module.
 
  bodies : :class:`~tudatpy.dynamics.environment.SystemOfBodies`
      Object consolidating all bodies and environment models, including ground station models, that constitute the physical environment.
 
  propagator_settings : :class:`~tudatpy.dynamics.propagation_setup.propagator.PropagatorSettings`
      Object containing the consolidated propagation settings of the simulation.
+
+ consider_parameters_names : list( :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` ) = []
+     List of objects that define the settings for the considered parameters that are to be created. Each entry in this list is typically created by a call to a function in the :ref:`parameters_setup` module.
+
+ print_parameter_order_warning : bool = True
+     Flag to determine whether a warning is printed to the console if there are both scalar and vector parameters found.
+
+
 
  Returns
  -------
@@ -255,11 +268,6 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  -------
  List[ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` ]
      List of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` objects, one per component of each initial state in the simulation.
-
-
-
-
-
 
 
      )doc" );
@@ -338,7 +346,9 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
      )doc" );
 
-    m.def( "drag_component_scaling", &tep::dragComponentScaling, py::arg( "body" ),
+    m.def( "drag_component_scaling",
+           &tep::dragComponentScaling,
+           py::arg( "body" ),
            R"doc(
 
  Function for creating parameter settings for aerodynamic drag scaling factor
@@ -364,7 +374,42 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class that define the settings. )doc" );
 
-    m.def( "side_component_scaling", &tep::sideComponentScaling, py::arg( "body" ),
+    m.def( "arcwise_drag_component_scaling",
+           &tep::arcwiseDragComponentScaling,
+           py::arg( "body" ),
+           py::arg( "arc_initial_times" ),
+           R"doc(
+
+ Function for creating parameter settings for arc-wise aerodynamic drag scaling factor
+
+ Function for creating parameter settings object for an arcwise scaling factor :math:`K` (initialized to 1.0) for the aerodynamic force along the drag direction
+ (effectively scaling the drag coefficient :math:`C_{D}` (see :func:`~tudatpy.dynamics.propagation_setup.acceleration.aerodynamic` )
+
+ Using the arc-wise drag component scaling as an estimatable parameter requires:
+
+ * The body specified by the ``body`` parameter to undergo :func:`~tudatpy.dynamics.propagation_setup.acceleration.aerodynamic` acceleration
+
+ Note that, unlike the :func:`constant_drag_coefficient` parameter, this parameter does not modify the drag coefficient itself, but works
+ regardless of the type of aerodynamic coefficients (in any frame, and with any dependencies). Using this parameter, the aerodynamic
+ force along the drag directon is scaled (multiplied) by the factor :math:`K` during each function evaluation.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body, with whose aerodynamic acceleration model the estimatable parameter is associated.
+
+ arc_initial_times : List[ float ]
+     Ordered list of starting times over which the component scaling parameters are to be applied.
+
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings` class that define the settings. )doc" );
+
+    m.def( "side_component_scaling",
+           &tep::sideComponentScaling,
+           py::arg( "body" ),
            R"doc(
 
  Function for creating parameter settings for aerodynamic side force scaling factor
@@ -381,7 +426,33 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class that define the settings. )doc" );
 
-    m.def( "lift_component_scaling", &tep::liftComponentScaling, py::arg( "body" ),
+    m.def( "arcwise_side_component_scaling",
+           &tep::arcwiseSideComponentScaling,
+           py::arg( "body" ),
+           py::arg( "arc_initial_times" ),
+           R"doc(
+
+ Function for creating parameter settings for arc-wise aerodynamic side force scaling factor
+
+ As :func:`~arcwise_drag_component_scaling`, but scales the force along the :math:`C_{S}` direction rather than the :math:`C_{D}` direction
+
+ Parameters
+ ----------
+ body : str
+     Name of the body, with whose aerodynamic acceleration model the estimatable parameter is associated.
+
+ arc_initial_times : List[ float ]
+     Ordered list of starting times over which the component scaling parameters are to be applied.
+
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings` class that define the settings. )doc" );
+
+    m.def( "lift_component_scaling",
+           &tep::liftComponentScaling,
+           py::arg( "body" ),
            R"doc(
 
  Function for creating parameter settings for aerodynamic lift force scaling factor
@@ -397,6 +468,30 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  -------
  :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
      Instance of :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` class that define the settings. )doc" );
+
+    m.def( "arcwise_lift_component_scaling",
+           &tep::arcwiseLiftComponentScaling,
+           py::arg( "body" ),
+           py::arg( "arc_initial_times" ),
+           R"doc(
+
+ Function for creating parameter settings for arc-wise aerodynamic lift force scaling factor
+
+ As :func:`~arcwise_drag_component_scaling`, but scales the force along the :math:`C_{L}` direction rather than the :math:`C_{D}` direction
+
+ Parameters
+ ----------
+ body : str
+     Name of the body, with whose aerodynamic acceleration model the estimatable parameter is associated.
+
+ arc_initial_times : List[ float ]
+     Ordered list of starting times over which the component scaling parameters are to be applied.
+
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings`
+     Instance of :class:`~tudatpy.dynamics.parameters_setup.ArcWiseEstimatableParameterSettings` class that define the settings. )doc" );
 
     m.def( "radiation_pressure_coefficient",
            &tep::radiationPressureCoefficient,
@@ -821,7 +916,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  body : str
      Name of the body, with whose gravitational model the estimatable parameters are associated.
 
- block_indices : List[ Tuple[int, int] ]
+ block_indices : List[ tuple[int, int] ]
      List of block indices. The length of this list can be arbitrary, as long as the pairs are unique.
      For each pair, the first value is the degree and the second the order of the coefficient to be included.
 
@@ -900,7 +995,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  body : str
      Name of the body, with whose gravitational model the estimatable parameters are associated.
 
- block_indices : List[ Tuple[int, int] ]
+ block_indices : List[ tuple[int, int] ]
      List of block indices. The length of this list can be arbitrary, as long as the pairs are unique.
      For each pair, the first value is the degree and the second the order of the coefficient to be included.
 
@@ -1132,7 +1227,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
      :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's polar motion amplitudes.
      )doc" );
 
-        m.def( "iau_rotation_model_pole",
+    m.def( "iau_rotation_model_pole",
            &tep::iauRotationModelNominalPoleParameterSettings,
            py::arg( "body" ),
            R"doc(
@@ -1160,8 +1255,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
      )doc" );
 
-
-        m.def( "iau_rotation_model_pole_rate",
+    m.def( "iau_rotation_model_pole_rate",
            &tep::iauRotationModelPoleRateParameterSettings,
            py::arg( "body" ),
            R"doc(
@@ -1189,7 +1283,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
      )doc" );
 
-        m.def( "iau_rotation_model_longitudinal_librations",
+    m.def( "iau_rotation_model_longitudinal_librations",
            &tep::iauRotationModelLongitudinalLibrationParameterSettings,
            py::arg( "body" ),
            py::arg( "libration_angular_frequencies" ),
@@ -1212,6 +1306,8 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  ----------
  body : str
      Name of the body, with whose rotation model the estimatable parameter is associated.
+ libration_angular_frequencies : List[ float ]
+     List of angular frequencies (:math:`\omega_{W_i}`) at which longitudinal libration amplitudes (:math:`W_{i}`) are to be included in estimatable parameter.
 
  Returns
  -------
@@ -1221,7 +1317,39 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
      )doc" );
 
+    m.def( "iau_rotation_model_pole_librations",
+           &tep::iauRotationModelPoleLibrationParameterSettings,
+           py::arg( "body" ),
+           py::arg( "libration_angular_frequencies" ),
+           R"doc(
 
+ Function for creating parameter settings for a body's pole libration amplitudes in an IAU rotation model
+
+ Function for creating parameter settings for a body's pole libration amplitudes in an IAU rotation model
+ Using this requires:
+
+ * A :func:`~tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model` rotation model specified by the ``body`` parameter
+ * Any dynamical or observational model to depend on the rotation model of the body specified by the ``body`` parameter
+
+ This parameter estimates the libration amplitude :math:`\alpha_{i}` and :math:`\delta_{i}` variables of the :func:`~tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model` rotation model.
+ The values of :math:`i` for which the amplitudes is estimated is defined by the ``libration_angular_frequencies`` input, which defines the
+ corresponding :math:`\omega_{alpha_i}` (:math:`=\omega_{\delta_i}`) values for which the amplitudes are to be estimated.
+ Note that the parameters are ordered [:math:`\alpha_{i}`, :math:`\delta_{i}`, :math:`\alpha_{i+1}`, :math:`\alpha_{i+1}`, ...], where the index :math:`i` follows the order of the frequency terms provided in the ``libration_angular_frequencies`` input argument.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body, with whose rotation model the estimatable parameter is associated.
+ libration_angular_frequencies : List[ float ]
+     List of angular frequencies (:math:`\omega_{alpha_i}` (:math:`=\omega_{\delta_i}`)) at which pole libration amplitudes (:math:`\alpha_{i}`, :math:`\delta_{i}`) are to be included in estimatable parameter.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's property
+
+     )doc" );
 
     // ###############   Observation Model Parameters
     // ################################
@@ -1242,7 +1370,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
  Parameters
  ----------
- link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, Tuple[str, str]
+ link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, tuple[str, str]
      Set of link ends that define the geometry of the biased observations.
 
  observable_type : ObservableType
@@ -1279,7 +1407,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
  Parameters
  ----------
- link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, Tuple[str, str]
+ link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, tuple[str, str]
      Set of link ends that define the geometry of the biased observations.
 
  observable_type : ObservableType
@@ -1330,7 +1458,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
  Parameters
  ----------
- link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, Tuple[str, str]
+ link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, tuple[str, str]
      Set of link ends that define the geometry of the biased observations.
 
  observable_type : ObservableType
@@ -1369,7 +1497,7 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
 
  Parameters
  ----------
- link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, Tuple[str, str]
+ link_ends : Dict[:class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType`, tuple[str, str]
      Set of link ends that define the geometry of the biased observations.
 
  observable_type : ObservableType
@@ -1771,6 +1899,28 @@ Returns
            &tep::rtgForceVectorMagnitude,
            py::arg( "body_name" ),
            R"doc(Force model parameter associated with the RTG radiation acceleration. This parameter allows for estimation of RTG force magnitude at the acceleration model reference epoch.)doc" );
+
+    m.def( "exponential_atmosphere_base_density",
+           &tep::exponentialAtmosphereBaseDensity,
+           py::arg( "body_name" ),
+           R"doc(Environment model parameter associated with the exponential atmosphere model of given body. This parameter allows for estimation of the base density in an exponential atmosphere model of the given body.)doc" );
+
+    m.def( "exponential_atmosphere_scale_height",
+           &tep::exponentialAtmosphereScaleHeight,
+           py::arg( "body_name" ),
+           R"doc(Environment model parameter associated with the exponential atmosphere model of given body. This parameter allows for estimation of the scale height in an exponential atmosphere model of the given body.)doc" );
+
+    m.def( "arcwise_exponential_atmosphere_base_density",
+           &tep::arcwiseExponentialAtmosphereBaseDensity,
+           py::arg( "body_name" ),
+           py::arg( "arc_start_times" ),
+           R"doc(Environment model parameter associated with the exponential atmosphere model of given body. This parameter allows for arc-wise estimation of the base density in an exponential atmosphere model of the given body.)doc" );
+
+    m.def( "arcwise_exponential_atmosphere_scale_height",
+           &tep::arcwiseExponentialAtmosphereScaleHeight,
+           py::arg( "body_name" ),
+           py::arg( "arc_start_times" ),
+           R"doc(Environment model parameter associated with the exponential atmosphere model of given body. This parameter allows for arc-wise estimation of the scale height in an exponential atmosphere model of the given body.)doc" );
 
     m.def( "area_to_mass_ratio_scaling_parameter",
            &tep::areaToMassScaling,

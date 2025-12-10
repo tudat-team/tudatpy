@@ -2037,7 +2037,7 @@ inside a `Body` instance and used in observation corrections or environmental qu
              Cartesian position of the station at the current epoch, in a body-centered, body-fixed frame
 
      )doc" )
-            .def_property_readonly( "cartesian_positon_at_reference_epoch",
+            .def_property_readonly( "cartesian_position_at_reference_epoch",
                                     &tgs::GroundStationState::getNominalCartesianPosition,
                                     R"doc(
 
@@ -2049,7 +2049,7 @@ inside a `Body` instance and used in observation corrections or environmental qu
          :type: numpy.ndarray[numpy.float64[3, 1]]
 
      )doc" )
-            .def_property_readonly( "spherical_positon_at_reference_epoch",
+            .def_property_readonly( "spherical_position_at_reference_epoch",
                                     &tgs::GroundStationState::getNominalSphericalPosition,
                                     R"doc(
 
@@ -2122,14 +2122,14 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
          Function that provides the local temperature at the ground station (typically use for media corrections) as a function of time
 
-         :type: :type: Callable[[float], float]
+         :type: :type: callable[[float], float]
 
      )doc" )
             .def_property_readonly( "pressure_function", &tgs::GroundStation::getPressureFunction, R"doc(
 
          Function that provides the local pressure at the ground station (typically use for media corrections) as a function of time
 
-         :type: :type: Callable[[float], float]
+         :type: :type: callable[[float], float]
 
      )doc" )
             .def_property_readonly( "relative_humidity_function",
@@ -2138,7 +2138,7 @@ inside a `Body` instance and used in observation corrections or environmental qu
 
          Function that provides the local relative humidity at the ground station (typically use for media corrections) as a function of time
 
-         :type: :type: Callable[[float], float]
+         :type: :type: callable[[float], float]
 
      )doc" )
             .def_property_readonly( "pointing_angles_calculator",

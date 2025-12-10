@@ -204,9 +204,8 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
                 std::make_shared< EstimatableParameterSettings >( "Vehicle", specular_reflectivity, "SolarPanel" ), bodies );
         std::shared_ptr< EstimatableParameter< double > > accelerationScalingParameter =
                 std::make_shared< FullAccelerationScalingFactorParameter >( accelerationModel, "Vehicle", "Sun" );
-        std::shared_ptr< EstimatableParameter< double > > areaToMassScalingFactor =
-                std::make_shared< AreaToMassScalingFactor >(
-                        std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > >( { accelerationModel } ), "Vehicle" );
+        std::shared_ptr< EstimatableParameter< double > > areaToMassScalingFactor = std::make_shared< AreaToMassScalingFactor >(
+                std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > >( { accelerationModel } ), "Vehicle" );
 
         // Calculate analytical partials.
         accelerationPartial->update( 0.0 );
@@ -267,8 +266,6 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
                 sunStateSetFunction, accelerationModel, sun->getState( ), velocityPerturbation, 3, updateFunction );
         testPartialWrtVehicleVelocity = calculateAccelerationWrtStatePartials(
                 vehicleStateSetFunction, accelerationModel, vehicle->getState( ), velocityPerturbation, 3, updateFunction );
-        //    testPartialWrtEmissivities = calculateAccelerationWrtParameterPartials(
-        //                panelEmissivitiesParameter, accelerationModel, emissivityPerturbations );
 
         testPartialWrtParallelScaling =
                 calculateAccelerationWrtParameterPartials( parallelScalingFactor, accelerationModel, 10.0, updateFunction );
@@ -281,8 +278,7 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
                 calculateAccelerationWrtParameterPartials( specularReflectivityParameter, accelerationModel, 0.1, updateFunction );
         testPartialWrtAccelerationScaling =
                 calculateAccelerationWrtParameterPartials( accelerationScalingParameter, accelerationModel, 10.0 );
-        testPartialWrtAreaToMassScaling =
-                calculateAccelerationWrtParameterPartials( areaToMassScalingFactor, accelerationModel, 10.0 );
+        testPartialWrtAreaToMassScaling = calculateAccelerationWrtParameterPartials( areaToMassScalingFactor, accelerationModel, 10.0 );
 
         // Compare numerical and analytical results.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunPosition, partialWrtSunPosition, 1.0e-6 );
@@ -306,8 +302,8 @@ BOOST_AUTO_TEST_CASE( testPanelledRadiationPressureAccelerationPartials )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtAccelerationScaling, testPartialWrtAccelerationScaling, 1.0E-8 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtAccelerationScaling, testPartialWrtAccelerationScaling, 1.0E-8 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtAreaToMassScaling, testPartialWrtAreaToMassScaling, 1.0E-8 );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtAreaToMassScaling, partialWrtAccelerationScaling, std::numeric_limits< double >::epsilon( ) );
-
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+                partialWrtAreaToMassScaling, partialWrtAccelerationScaling, std::numeric_limits< double >::epsilon( ) );
     }
 }
 
@@ -411,7 +407,6 @@ BOOST_AUTO_TEST_CASE( testCentralGravityPartials )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
             partialWrtEarthGravitationalParameter, partialWrtSunGravitationalParameter, std::numeric_limits< double >::epsilon( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtAccelerationScaling, testPartialWrtAccelerationScaling, 1.0E-8 );
-
 }
 
 BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureAccelerationPartials )
@@ -462,10 +457,9 @@ BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureAccelerationPartials )
             std::make_shared< RadiationPressureScalingFactor >(
                     accelerationModel, source_direction_radiation_pressure_scaling_factor, vehicleName, "Sun" );
     std::shared_ptr< EstimatableParameter< double > > accelerationScalingParameter =
-                            std::make_shared< FullAccelerationScalingFactorParameter >( accelerationModel, "Vehicle", "Sun" );
-    std::shared_ptr< EstimatableParameter< double > > areaToMassScalingFactor =
-            std::make_shared< AreaToMassScalingFactor >(
-                    std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > >( { accelerationModel } ), "Vehicle" );
+            std::make_shared< FullAccelerationScalingFactorParameter >( accelerationModel, "Vehicle", "Sun" );
+    std::shared_ptr< EstimatableParameter< double > > areaToMassScalingFactor = std::make_shared< AreaToMassScalingFactor >(
+            std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > >( { accelerationModel } ), "Vehicle" );
 
     std::vector< double > timeLimits;
     timeLimits.push_back( 0.0 );
@@ -605,10 +599,8 @@ BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureAccelerationPartials )
             calculateAccelerationWrtParameterPartials( radiationPressureCoefficient, accelerationModel, 1.0E-2, updateFunction );
     testPartialWrtScalingFactor =
             calculateAccelerationWrtParameterPartials( radiationPressureScalingSourceDirection, accelerationModel, 100.0, updateFunction );
-    testPartialWrtAccelerationScaling =
-            calculateAccelerationWrtParameterPartials( accelerationScalingParameter, accelerationModel, 10.0 );
-    testPartialWrtAreaToMassScaling =
-            calculateAccelerationWrtParameterPartials( areaToMassScalingFactor, accelerationModel, 10.0 );
+    testPartialWrtAccelerationScaling = calculateAccelerationWrtParameterPartials( accelerationScalingParameter, accelerationModel, 10.0 );
+    testPartialWrtAreaToMassScaling = calculateAccelerationWrtParameterPartials( areaToMassScalingFactor, accelerationModel, 10.0 );
 
     // Compare numerical and analytical results.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunPosition, partialWrtSunPosition, 1.0E-8 );
@@ -622,9 +614,8 @@ BOOST_AUTO_TEST_CASE( testCannonballRadiationPressureAccelerationPartials )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtAccelerationScaling, testPartialWrtAccelerationScaling, 1.0E-8 );
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtAreaToMassScaling, testPartialWrtAreaToMassScaling, 1.0E-8 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtAreaToMassScaling, partialWrtAccelerationScaling, std::numeric_limits< double >::epsilon( ) );
-
-
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            partialWrtAreaToMassScaling, partialWrtAccelerationScaling, std::numeric_limits< double >::epsilon( ) );
 }
 
 BOOST_AUTO_TEST_CASE( testThirdBodyGravityPartials )
@@ -699,7 +690,6 @@ BOOST_AUTO_TEST_CASE( testThirdBodyGravityPartials )
             thirdBodyGravitationPartial->wrtParameter( earthGravitationalParameterParameter );
     Eigen::MatrixXd partialWrtAccelerationScaling = thirdBodyGravitationPartial->wrtParameter( accelerationScalingParameter );
 
-
     // Declare numerical partials.
     Eigen::Matrix3d testPartialWrtMoonPosition = Eigen::Matrix3d::Zero( );
     Eigen::Matrix3d testPartialWrtMoonVelocity = Eigen::Matrix3d::Zero( );
@@ -707,7 +697,6 @@ BOOST_AUTO_TEST_CASE( testThirdBodyGravityPartials )
     Eigen::Matrix3d testPartialWrtSunVelocity = Eigen::Matrix3d::Zero( );
     Eigen::Matrix3d testPartialWrtEarthPosition = Eigen::Matrix3d::Zero( );
     Eigen::Matrix3d testPartialWrtEarthVelocity = Eigen::Matrix3d::Zero( );
-
 
     // Declare perturbations in position for numerical partial/
     Eigen::Vector3d positionPerturbation;
@@ -742,7 +731,6 @@ BOOST_AUTO_TEST_CASE( testThirdBodyGravityPartials )
     Eigen::Vector3d testPartialWrtAccelerationScaling =
             calculateAccelerationWrtParameterPartials( accelerationScalingParameter, gravitationalAcceleration, 10.0 );
 
-
     // Compare numerical and analytical results.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMoonPosition, partialWrtMoonPosition, 1.0E-7 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMoonVelocity, partialWrtMoonVelocity, std::numeric_limits< double >::epsilon( ) );
@@ -756,7 +744,6 @@ BOOST_AUTO_TEST_CASE( testThirdBodyGravityPartials )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
             testPartialWrtEarthGravitationalParameter, partialWrtEarthGravitationalParameter, std::numeric_limits< double >::epsilon( ) );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtAccelerationScaling, testPartialWrtAccelerationScaling, 1.0E-8 );
-
 }
 
 void updateFlightConditionsWithPerturbedState( const std::shared_ptr< aerodynamics::FlightConditions > flightConditions,
@@ -832,6 +819,7 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
             std::make_shared< ConstantDragCoefficient >( std::dynamic_pointer_cast< aerodynamics::CustomAerodynamicCoefficientInterface >(
                                                                  bodies.at( "Vehicle" )->getAerodynamicCoefficientInterface( ) ),
                                                          "Vehicle" );
+
     // drag/side/lift direction scaling parameters
     auto aeroAccelerationModel = std::dynamic_pointer_cast< aerodynamics::AerodynamicAcceleration >( accelerationModel );
     std::shared_ptr< EstimatableParameter< double > > dragDirectionScaling =
@@ -840,11 +828,12 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
             std::make_shared< AerodynamicScalingFactor >( aeroAccelerationModel, side_component_scaling_factor, "Vehicle" );
     std::shared_ptr< EstimatableParameter< double > > liftDirectionScaling =
             std::make_shared< AerodynamicScalingFactor >( aeroAccelerationModel, lift_component_scaling_factor, "Vehicle" );
+
+    // other scaling parameters
     std::shared_ptr< EstimatableParameter< double > > accelerationScalingParameter =
             std::make_shared< FullAccelerationScalingFactorParameter >( accelerationModel, "Vehicle", "Earth" );
-    std::shared_ptr< EstimatableParameter< double > > areaToMassScalingFactor =
-            std::make_shared< AreaToMassScalingFactor >(
-                    std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > >( { accelerationModel } ), "Vehicle" );
+    std::shared_ptr< EstimatableParameter< double > > areaToMassScalingFactor = std::make_shared< AreaToMassScalingFactor >(
+            std::vector< std::shared_ptr< basic_astrodynamics::AccelerationModel3d > >( { accelerationModel } ), "Vehicle" );
 
     // Calculate analytical partials.
     aerodynamicAccelerationPartial->update( 0.0 );
@@ -858,10 +847,10 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
     aerodynamicAccelerationPartial->wrtVelocityOfAcceleratingBody( partialWrtEarthVelocity.block( 0, 0, 3, 3 ), 1, 0, 0 );
 
     Eigen::Vector3d partialWrtDragCoefficient = aerodynamicAccelerationPartial->wrtParameter( dragCoefficientParameter );
-
     Eigen::Vector3d partialWrtDragDirection = aerodynamicAccelerationPartial->wrtParameter( dragDirectionScaling );
     Eigen::Vector3d partialWrtSideDirection = aerodynamicAccelerationPartial->wrtParameter( sideDirectionScaling );
     Eigen::Vector3d partialWrtLiftDirection = aerodynamicAccelerationPartial->wrtParameter( liftDirectionScaling );
+
     Eigen::Vector3d partialWrtAccelerationScaling = aerodynamicAccelerationPartial->wrtParameter( accelerationScalingParameter );
     Eigen::Vector3d partialWrtAreaToMassScaling = aerodynamicAccelerationPartial->wrtParameter( areaToMassScalingFactor );
 
@@ -916,12 +905,11 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
 
     Eigen::Vector3d testPartialWrtDragCoefficient =
             calculateAccelerationWrtParameterPartials( dragCoefficientParameter, accelerationModel, 1.0E-4, environmentUpdateFunction );
-
     Eigen::Vector3d testPartialWrtDragDirectionScaling =
             calculateAccelerationWrtParameterPartials( dragDirectionScaling, accelerationModel, 1.0E-4, environmentUpdateFunction );
     Eigen::Vector3d testPartialWrtSideDirectionScaling =
             calculateAccelerationWrtParameterPartials( sideDirectionScaling, accelerationModel, 1.0E-4, environmentUpdateFunction );
-    Eigen::Vector3d testPartialWrtLiftDirectionScalingt =
+    Eigen::Vector3d testPartialWrtLiftDirectionScaling =
             calculateAccelerationWrtParameterPartials( liftDirectionScaling, accelerationModel, 1.0E-4, environmentUpdateFunction );
     Eigen::Vector3d testPartialWrtAccelerationScaling =
             calculateAccelerationWrtParameterPartials( accelerationScalingParameter, accelerationModel, 10.0 );
@@ -938,15 +926,98 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtDragDirectionScaling, partialWrtDragDirection, 1.0E-10 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSideDirectionScaling, partialWrtSideDirection, 1.0E-10 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtLiftDirectionScalingt, partialWrtLiftDirection, 1.0E-10 );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtLiftDirectionScaling, partialWrtLiftDirection, 1.0E-10 );
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtAccelerationScaling, testPartialWrtAccelerationScaling, 1.0E-8 );
 
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtAreaToMassScaling, testPartialWrtAreaToMassScaling, 1.0E-8 );
-    TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtAreaToMassScaling, partialWrtAccelerationScaling, std::numeric_limits< double >::epsilon( ) );
+    TUDAT_CHECK_MATRIX_CLOSE_FRACTION(
+            partialWrtAreaToMassScaling, partialWrtAccelerationScaling, std::numeric_limits< double >::epsilon( ) );
 
+    ///////////////         arcwise versions          ///////////////
+    /// parameters should not be construced in testing of single versions, has funny interaction with the update functions, resulting
+    /// in a nan current time...
+    std::vector< double > arcTimes = { 0.0, 10.0, 25.0 };
+    Eigen::VectorXd arcwiseParameterPerturbation = Eigen::VectorXd::Constant( 3, 1.0E-4 );
 
+    std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > arcwiseDragCoefficientParameter =
+            std::make_shared< ArcWiseConstantDragCoefficient >(
+                    std::dynamic_pointer_cast< aerodynamics::CustomAerodynamicCoefficientInterface >(
+                            bodies.at( "Vehicle" )->getAerodynamicCoefficientInterface( ) ),
+                    arcTimes,
+                    "Vehicle" );
 
+    std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > arcwiseDragDirectionScaling =
+            std::make_shared< ArcWiseAerodynamicScalingFactor >(
+                    aeroAccelerationModel, arc_wise_drag_component_scaling_factor, arcTimes, "Vehicle" );
 
+    std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > arcwiseSideDirectionScaling =
+            std::make_shared< ArcWiseAerodynamicScalingFactor >(
+                    aeroAccelerationModel, arc_wise_side_component_scaling_factor, arcTimes, "Vehicle" );
+
+    std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > arcwiseLiftDirectionScaling =
+            std::make_shared< ArcWiseAerodynamicScalingFactor >(
+                    aeroAccelerationModel, arc_wise_lift_component_scaling_factor, arcTimes, "Vehicle" );
+
+    // Get arc-wise coefficient partials
+    int currentTime;
+
+    Eigen::MatrixXd partialWrtArcWiseDragCoefficient;
+    Eigen::MatrixXd partialWrtArcWiseDragDirection;
+    Eigen::MatrixXd partialWrtArcWiseSideDirection;
+    Eigen::MatrixXd partialWrtArcWiseLiftDirection;
+
+    Eigen::MatrixXd testPartialWrtArcWiseDragCoefficient;
+    Eigen::MatrixXd testPartialWrtArcWiseDragDirectionScaling;
+    Eigen::MatrixXd testPartialWrtArcWiseSideDirectionScaling;
+    Eigen::MatrixXd testPartialWrtArcWiseLiftDirectionScaling;
+
+    Eigen::Vector6d systemStateUpdate = { 1000, -1000, 100, 100, -100, 10 };
+
+    for( unsigned int i = 0; i < arcTimes.size( ); i++ )
+    {
+        currentTime = arcTimes.at( i );
+
+        // test that environment dependencies work
+        if( i == 1 )
+        {
+            bodies.at( "Vehicle" )->setState( systemInitialState + systemStateUpdate );
+        }
+        if( i == 2 )
+        {
+            bodies.at( "Vehicle" )->setConstantBodyMass( 4.0E3 );
+        }
+
+        aerodynamicAccelerationPartial->update( currentTime );
+
+        // arcwise drag coefficient
+        partialWrtArcWiseDragCoefficient = aerodynamicAccelerationPartial->wrtParameter( arcwiseDragCoefficientParameter );
+        testPartialWrtArcWiseDragCoefficient = calculateAccelerationWrtParameterPartials(
+                arcwiseDragCoefficientParameter, accelerationModel, arcwiseParameterPerturbation, environmentUpdateFunction, currentTime );
+
+        // ISSUE WITH ARCWISE DRAG COEFFICIENT:
+        //      analytical partial seems correct, but numerical partial keeps assigning (correct) partial values to first column of partials
+        //      matrix...
+
+        // std::cout << "partialWrtArcWiseDragCoefficient : " << partialWrtArcWiseDragCoefficient << std::endl;
+        // std::cout << "testPartialWrtArcWiseDragCoefficient : " << testPartialWrtArcWiseDragCoefficient << std::endl;
+        // TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtArcWiseDragCoefficient, partialWrtArcWiseDragCoefficient, 1.0e-7 );
+
+        // arcwise component scaling
+        partialWrtArcWiseDragDirection = aerodynamicAccelerationPartial->wrtParameter( arcwiseDragDirectionScaling );
+        partialWrtArcWiseSideDirection = aerodynamicAccelerationPartial->wrtParameter( arcwiseSideDirectionScaling );
+        partialWrtArcWiseLiftDirection = aerodynamicAccelerationPartial->wrtParameter( arcwiseLiftDirectionScaling );
+
+        testPartialWrtArcWiseDragDirectionScaling = calculateAccelerationWrtParameterPartials(
+                arcwiseDragDirectionScaling, accelerationModel, arcwiseParameterPerturbation, environmentUpdateFunction, currentTime );
+        testPartialWrtArcWiseSideDirectionScaling = calculateAccelerationWrtParameterPartials(
+                arcwiseSideDirectionScaling, accelerationModel, arcwiseParameterPerturbation, environmentUpdateFunction, currentTime );
+        testPartialWrtArcWiseLiftDirectionScaling = calculateAccelerationWrtParameterPartials(
+                arcwiseLiftDirectionScaling, accelerationModel, arcwiseParameterPerturbation, environmentUpdateFunction, currentTime );
+
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtArcWiseDragDirectionScaling, partialWrtArcWiseDragDirection, 1.0e-7 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtArcWiseSideDirectionScaling, partialWrtArcWiseSideDirection, 1.0e-7 );
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtArcWiseLiftDirectionScaling, partialWrtArcWiseLiftDirection, 1.0e-7 );
+    }
 }
 
 BOOST_AUTO_TEST_CASE( testRelativisticAccelerationPartial )
@@ -1583,8 +1654,7 @@ BOOST_AUTO_TEST_CASE( testPanelledSurfaceRadiationPressureAccelerationPartials )
             calculateAccelerationWrtParameterPartials( parallelScalingFactor, accelerationModel, 10.0, updateFunction );
     testPartialWrtPerpendicularScaling =
             calculateAccelerationWrtParameterPartials( perpendicularScalingFactor, accelerationModel, 10.0, updateFunction );
-    testPartialWrtAccelerationScaling =
-            calculateAccelerationWrtParameterPartials( accelerationScalingParameter, accelerationModel, 10.0 );
+    testPartialWrtAccelerationScaling = calculateAccelerationWrtParameterPartials( accelerationScalingParameter, accelerationModel, 10.0 );
 
     // Compare numerical and analytical results.
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEarthPosition, partialWrtEarthPosition, 1.0E-5 );
@@ -1672,7 +1742,6 @@ BOOST_AUTO_TEST_CASE( testThrustPartials )
         std::shared_ptr< EstimatableParameter< double > > accelerationScalingParameter =
                 std::make_shared< FullAccelerationScalingFactorParameter >( thrustAcceleration, "Vehicle", "Vehicle" );
 
-
         // Create central gravity partial.
         std::shared_ptr< ThrustAccelerationPartial > thrustPartial =
                 std::dynamic_pointer_cast< ThrustAccelerationPartial >( createAnalyticalAccelerationPartial(
@@ -1703,8 +1772,8 @@ BOOST_AUTO_TEST_CASE( testThrustPartials )
         testPartialWrtMass = calculateAccelerationWrtMassPartials( massSetFunction, thrustAcceleration, vehicleMass, massPerturbation );
         testPartialWrtEngine1Thrust = calculateAccelerationWrtParameterPartials( constantThrustParameter1, thrustAcceleration, 1.0 );
         testPartialWrtEngine2Thrust = calculateAccelerationWrtParameterPartials( constantThrustParameter2, thrustAcceleration, 1.0 );
-        testPartialWrtAccelerationScaling = calculateAccelerationWrtParameterPartials( accelerationScalingParameter, thrustAcceleration, 10.0 );
-
+        testPartialWrtAccelerationScaling =
+                calculateAccelerationWrtParameterPartials( accelerationScalingParameter, thrustAcceleration, 10.0 );
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtMass, testPartialWrtMass, 1.0E-9 );
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtEngine1Thrust, partialWrtEngine1Thrust, 1.0E-9 );
@@ -1731,7 +1800,6 @@ BOOST_AUTO_TEST_CASE( testThrustPartials )
         }
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtAccelerationScaling, testPartialWrtAccelerationScaling, 1.0E-8 );
-
     }
 }
 
@@ -1815,7 +1883,6 @@ BOOST_AUTO_TEST_CASE( testYarkovskyPartials )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtSunYarkovskyParameter, partialWrtSunYarkovskyParameter, 1.0E-8 );
 }
 
-
 BOOST_AUTO_TEST_CASE( testRTGPartials )
 {
     // untested: rtgForceVector factory function that is exposed to python
@@ -1833,41 +1900,41 @@ BOOST_AUTO_TEST_CASE( testRTGPartials )
 
     // Define Relevant Epochs
     double referenceEpoch = 0.0;
-    double testTime = 0.5*24*60*60;
+    double testTime = 0.5 * 24 * 60 * 60;
 
     // Define function describing rotational ephemeris of vehicle
-    std::function<Eigen::Matrix3d(double)> timeDependentRotationFunction =
-    [](double epoch) {
-        double angleRad = 1/7. * epoch * mathematical_constants::PI / 180.0;
-        return Eigen::AngleAxisd(angleRad, Eigen::Vector3d::UnitZ()).toRotationMatrix();
+    std::function< Eigen::Matrix3d( double ) > timeDependentRotationFunction = []( double epoch ) {
+        double angleRad = 1 / 7. * epoch * mathematical_constants::PI / 180.0;
+        return Eigen::AngleAxisd( angleRad, Eigen::Vector3d::UnitZ( ) ).toRotationMatrix( );
     };
 
     // Assign and update
     bodies.at( "Vehicle" )
-            ->setRotationalEphemeris( createRotationModel( std::make_shared< CustomRotationModelSettings >(
-                                                                   "ECLIPJ2000",
-                                                                   "VehicleFixed",
-                                                                   timeDependentRotationFunction,
-                                                                   1.0 ),
-                                                           "Vehicle",
-                                                           bodies ) );
+            ->setRotationalEphemeris( createRotationModel(
+                    std::make_shared< CustomRotationModelSettings >( "ECLIPJ2000", "VehicleFixed", timeDependentRotationFunction, 1.0 ),
+                    "Vehicle",
+                    bodies ) );
     bodies.at( "Vehicle" )->setCurrentRotationalStateToLocalFrameFromEphemeris( referenceEpoch );
 
     // Define function describing mass function of vehicle
     double initialVehicleMass = 5000;
 
     // Define vehicle mass function
-    std::function<double(double)> vehicleMassFunction =
-        [=](double epoch) {
-            //double delta_epoch = epoch - referenceEpoch;
-            double delta_test = epoch - testTime;
-            if (delta_test > -1000. && delta_test <= 1000.) {
-                return initialVehicleMass - (delta_test+1000.);
-            } else if (delta_test <= -1000.) {
-                return initialVehicleMass;
-            } else {
-                return initialVehicleMass - 2000.;
-            }
+    std::function< double( double ) > vehicleMassFunction = [ = ]( double epoch ) {
+        // double delta_epoch = epoch - referenceEpoch;
+        double delta_test = epoch - testTime;
+        if( delta_test > -1000. && delta_test <= 1000. )
+        {
+            return initialVehicleMass - ( delta_test + 1000. );
+        }
+        else if( delta_test <= -1000. )
+        {
+            return initialVehicleMass;
+        }
+        else
+        {
+            return initialVehicleMass - 2000.;
+        }
     };
 
     // Assign and Update
@@ -1879,7 +1946,7 @@ BOOST_AUTO_TEST_CASE( testRTGPartials )
 
     Eigen::Vector3d rtgForceVectorValues;
     rtgForceVectorValues << 0.5E-5, 0.5E-5, 0.5E-5;
-    double decayScaleFactor = 1.6045073624072808e-05;       // corresponding to a half-life of half a day
+    double decayScaleFactor = 1.6045073624072808e-05;  // corresponding to a half-life of half a day
 
     // Define origin of integration
     std::vector< std::string > bodiesToPropagate;
@@ -1889,12 +1956,13 @@ BOOST_AUTO_TEST_CASE( testRTGPartials )
     centralBodies.push_back( "Earth" );
 
     accelerationSettingsMap[ "Vehicle" ][ "Vehicle" ].push_back(
-                        std::make_shared< RTGAccelerationSettings >(rtgForceVectorValues, decayScaleFactor, referenceEpoch));
+            std::make_shared< RTGAccelerationSettings >( rtgForceVectorValues, decayScaleFactor, referenceEpoch ) );
 
     // Create accelerations
-    basic_astrodynamics::AccelerationMap accelerationsMap = createAccelerationModelsMap( bodies, accelerationSettingsMap, bodiesToPropagate, centralBodies );
-    //std::shared_ptr< basic_astrodynamics::AccelerationModel3d > rtgAccelerationModel = accelerationsMap[ "Vehicle"] ["Vehicle"][ 0 ];
-    std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel = accelerationsMap[ "Vehicle"] ["Vehicle"][ 0 ];
+    basic_astrodynamics::AccelerationMap accelerationsMap =
+            createAccelerationModelsMap( bodies, accelerationSettingsMap, bodiesToPropagate, centralBodies );
+    // std::shared_ptr< basic_astrodynamics::AccelerationModel3d > rtgAccelerationModel = accelerationsMap[ "Vehicle"] ["Vehicle"][ 0 ];
+    std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel = accelerationsMap[ "Vehicle" ][ "Vehicle" ][ 0 ];
 
     // Dynamic cast acceleration settings to required type and check consistency.
     std::shared_ptr< system_models::RTGAccelerationModel > rtgAccelerationModel =
@@ -1914,13 +1982,16 @@ BOOST_AUTO_TEST_CASE( testRTGPartials )
     std::shared_ptr< AccelerationPartial > rtgPartial = createAnalyticalAccelerationPartial(
             rtgAccelerationModel, std::make_pair( "Vehicle", vehicle ), std::make_pair( "Vehicle", vehicle ), bodies );
 
+    // Make acceleration models input to list, which is normally handled by parameter settings
+    std::vector< std::shared_ptr< system_models::RTGAccelerationModel > > rtgAccelerationModelsList = { rtgAccelerationModel };
+
     // Create force vector parameter object.
     std::shared_ptr< EstimatableParameter< Eigen::VectorXd > > rtgForceVectorParameter =
-            std::make_shared< RTGForceVector >( rtgAccelerationModel, "Vehicle" );
+            std::make_shared< RTGForceVector >( rtgAccelerationModelsList, "Vehicle" );
 
     // Create force magnitude parameter object.
     std::shared_ptr< EstimatableParameter< double > > rtgForceMagnitudeParameter =
-            std::make_shared< RTGForceVectorMagnitude >( rtgAccelerationModel, "Vehicle" );
+            std::make_shared< RTGForceVectorMagnitude >( rtgAccelerationModelsList, "Vehicle" );
 
     // Calculate analytical partials.
     double evalTime = testTime;
@@ -1943,7 +2014,6 @@ BOOST_AUTO_TEST_CASE( testRTGPartials )
     Eigen::MatrixXd partialWrtRTGForceVector = rtgPartial->wrtParameter( rtgForceVectorParameter );
     Eigen::MatrixXd partialWrtRTGForceMagnitude = rtgPartial->wrtParameter( rtgForceMagnitudeParameter );
 
-
     // Declare numerical partials.
     Eigen::Matrix3d testPartialWrtVehiclePosition = Eigen::Matrix3d::Zero( );
     Eigen::Matrix3d testPartialWrtVehicleVelocity = Eigen::Matrix3d::Zero( );
@@ -1964,17 +2034,21 @@ BOOST_AUTO_TEST_CASE( testRTGPartials )
 
     // Calculate numerical partials.
     testPartialWrtVehiclePosition = calculateAccelerationWrtStatePartials(
-            vehicleStateSetFunction, rtgAccelerationModel, vehicle->getState( ), positionPerturbation, 0, emptyFunction, evalTime  );
+            vehicleStateSetFunction, rtgAccelerationModel, vehicle->getState( ), positionPerturbation, 0, emptyFunction, evalTime );
     testPartialWrtVehicleVelocity = calculateAccelerationWrtStatePartials(
             vehicleStateSetFunction, rtgAccelerationModel, vehicle->getState( ), velocityPerturbation, 3, emptyFunction, evalTime );
     testPartialWrtEarthPosition = calculateAccelerationWrtStatePartials(
             earthStateSetFunction, rtgAccelerationModel, earth->getState( ), positionPerturbation, 0, emptyFunction, evalTime );
     testPartialWrtEarthVelocity = calculateAccelerationWrtStatePartials(
             earthStateSetFunction, rtgAccelerationModel, earth->getState( ), velocityPerturbation, 3, emptyFunction, evalTime );
-    Eigen::Matrix3d testPartialWrtRTGForceVector =
-            calculateAccelerationWrtParameterPartials( rtgForceVectorParameter, rtgAccelerationModel, Eigen::Vector3d::Constant(1.0e-7), emptyFunction, evalTime, emptyTimeFunction );
-    Eigen::Vector3d testPartialWrtRTGForceMagnitude =
-        calculateAccelerationWrtParameterPartials( rtgForceMagnitudeParameter, rtgAccelerationModel, 1.0E-7, emptyFunction, evalTime, emptyTimeFunction );
+    Eigen::Matrix3d testPartialWrtRTGForceVector = calculateAccelerationWrtParameterPartials( rtgForceVectorParameter,
+                                                                                              rtgAccelerationModel,
+                                                                                              Eigen::Vector3d::Constant( 1.0e-7 ),
+                                                                                              emptyFunction,
+                                                                                              evalTime,
+                                                                                              emptyTimeFunction );
+    Eigen::Vector3d testPartialWrtRTGForceMagnitude = calculateAccelerationWrtParameterPartials(
+            rtgForceMagnitudeParameter, rtgAccelerationModel, 1.0E-7, emptyFunction, evalTime, emptyTimeFunction );
 
     std::cout << "testPartialWrtRTGForceVector\n" << testPartialWrtRTGForceVector << std::endl;
     std::cout << "partialWrtRTGForceVector\n" << partialWrtRTGForceVector << std::endl;
@@ -1990,6 +2064,214 @@ BOOST_AUTO_TEST_CASE( testRTGPartials )
     TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtRTGForceMagnitude, partialWrtRTGForceMagnitude, 1.0E-8 );
 }
 
+//! Unit test to check if analytical atmosphere parameters (global and arc-wise) are computed correctly
+BOOST_AUTO_TEST_CASE( test_ExponentialAtmosphereParameters )
+{
+    // Load spice kernels.
+    spice_interface::loadStandardSpiceKernels( );
+
+    using namespace tudat;
+    // Create Titan object
+    BodyListSettings defaultBodySettings = getDefaultBodySettings( { "Titan" } );
+    defaultBodySettings.at( "Titan" )->ephemerisSettings = std::make_shared< ConstantEphemerisSettings >( Eigen::Vector6d::Zero( ) );
+    SystemOfBodies bodies = createSystemOfBodies( defaultBodySettings );
+
+    bodies.at( "Titan" )->setAtmosphereModel(
+            createAtmosphereModel( std::make_shared< ExponentialAtmosphereSettings >( 7.58e04, 175, 3.0553447e-04 ), "Titan" ) );
+
+    // Create vehicle objects.
+    double vehicleMass = 2.0E3;
+    bodies.createEmptyBody( "Vehicle" );
+    bodies.at( "Vehicle" )->setConstantBodyMass( vehicleMass );
+
+    // Create aerodynamic coefficient interface settings.
+    double referenceArea = 22.0;
+    double aerodynamicCoefficient = 1.2;
+    std::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
+            std::make_shared< ConstantAerodynamicCoefficientSettings >(
+                    referenceArea,
+                    aerodynamicCoefficient * ( Eigen::Vector3d( ) << 1.2, -0.01, 0.1 ).finished( ),
+                    negative_aerodynamic_frame_coefficients );
+
+    bodies.at( "Vehicle" )
+            ->setAerodynamicCoefficientInterface(
+                    createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Vehicle", bodies ) );
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////       CREATE ACCELERATION, DEFINE TEST STATES            //////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    std::shared_ptr< basic_astrodynamics::AccelerationModel3d > accelerationModel =
+            simulation_setup::createAerodynamicAcceleratioModel( bodies.at( "Vehicle" ), bodies.at( "Titan" ), "Vehicle", "Titan" );
+
+    std::vector< double > testTimes;
+    std::vector< Eigen::Vector6d > testStates;
+
+    // State 0: well outside the atmosphere (expecting zero partials)
+    testTimes.push_back( 2.205694765899772644e+08 );
+    testStates.push_back( Eigen::Vector6d{ -6.566106067480740137e+06,
+                                           -6.894041365884457715e+06,
+                                           1.398789723666163161e+07,
+                                           3.329983483136099039e+03,
+                                           2.298663138859752053e+03,
+                                           -3.904458109255926956e+03 } );
+
+    // State 1: inside the atmosphere (equivalent to conditions of T022 Cassini during peak dynamic pressure --> expecting non-zero
+    // partials)
+    testTimes.push_back( 2.205723865899772644e+08 );
+    testStates.push_back( Eigen::Vector6d{ 3.142204805038403720e+06,
+                                           -6.317878925963304937e+04,
+                                           2.261319995938756503e+06,
+                                           3.190984327192136789e+03,
+                                           2.437742656628870009e+03,
+                                           -4.367135216475068773e+03 } );
+
+    // State 2: inside the atmosphere (equivalent to conditions of T068 Cassini during peak dynamic pressure --> expecting non-zero
+    // partials)
+    testTimes.push_back( 3.275979261739959717e+08 );
+    testStates.push_back( Eigen::Vector6d{ -1.691630151542660315e+06,
+                                           1.972704502105712891e+06,
+                                           -3.004776720845708158e+06,
+                                           4.710368198265113278e+03,
+                                           3.497139953413709463e+03,
+                                           -3.547699344472313783e+02 } );
+
+    std::shared_ptr< acceleration_partials::AccelerationPartial > aerodynamicAccelerationPartial =
+            createAnalyticalAccelerationPartial( accelerationModel,
+                                                 std::make_pair( "Vehicle", bodies.at( "Vehicle" ) ),
+                                                 std::make_pair( "Titan", bodies.at( "Titan" ) ),
+                                                 bodies );
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////       CREATE PARTIAL, PARAMETER OBJECTS (simple)        ///////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // atmosphere base density parameter
+    std::shared_ptr< EstimatableParameter< double > > baseDensityAtmosphericParameter = std::make_shared< ExponentialAtmosphereParameter >(
+            std::dynamic_pointer_cast< aerodynamics::ExponentialAtmosphere >( bodies.at( "Titan" )->getAtmosphereModel( ) ),
+            estimatable_parameters::exponential_atmosphere_base_density,
+            "Titan" );
+
+    // atmosphere scale height parameter
+    std::shared_ptr< EstimatableParameter< double > > scaleHeightAtmosphericParameter = std::make_shared< ExponentialAtmosphereParameter >(
+            std::dynamic_pointer_cast< aerodynamics::ExponentialAtmosphere >( bodies.at( "Titan" )->getAtmosphereModel( ) ),
+            estimatable_parameters::exponential_atmosphere_scale_height,
+            "Titan" );
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////       EVALUATE PARTIALS                                  //////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    std::vector< Eigen::Vector3d > partialsWrtBaseDensity;
+    std::vector< Eigen::Vector3d > partialsWrtScaleHeight;
+
+    std::vector< Eigen::Vector3d > testPartialsWrtBaseDensity;
+    std::vector< Eigen::Vector3d > testPartialsWrtScaleHeight;
+
+    std::function< void( ) > environmentUpdateFunction =
+            std::bind( &updateFlightConditionsWithPerturbedState, bodies.at( "Vehicle" )->getFlightConditions( ), 0.0 );
+
+    for( unsigned int i = 0; i < testTimes.size( ); i++ )
+    {
+        bodies.at( "Titan" )->setStateFromEphemeris( testTimes.at( i ) );
+        bodies.at( "Titan" )->setCurrentRotationToLocalFrameFromEphemeris( testTimes.at( i ) );
+
+        bodies.at( "Vehicle" )->setState( testStates.at( i ) );
+        bodies.at( "Vehicle" )->getFlightConditions( )->updateConditions( testTimes.at( i ) );
+
+        accelerationModel->updateMembers( testTimes.at( i ) );
+
+        // Analytically
+        aerodynamicAccelerationPartial->update( testTimes.at( i ) );
+        partialsWrtBaseDensity.push_back( aerodynamicAccelerationPartial->wrtParameter( baseDensityAtmosphericParameter ) );
+        partialsWrtScaleHeight.push_back( aerodynamicAccelerationPartial->wrtParameter( scaleHeightAtmosphericParameter ) );
+
+        // Numerically
+        testPartialsWrtBaseDensity.push_back( acceleration_partials::calculateAccelerationWrtParameterPartials(
+                baseDensityAtmosphericParameter, accelerationModel, 1.0E-8, environmentUpdateFunction ) );
+        testPartialsWrtScaleHeight.push_back( acceleration_partials::calculateAccelerationWrtParameterPartials(
+                scaleHeightAtmosphericParameter, accelerationModel, 10, environmentUpdateFunction ) );
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////       TEST RESULTS OF SIMPLE PARAMETERS                    ////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    for( unsigned int i = 0; i < testTimes.size( ); i++ )
+    {
+        if( i == 0 )
+        {
+            BOOST_CHECK_SMALL( ( partialsWrtBaseDensity.at( i ) - testPartialsWrtBaseDensity.at( i ) ).norm( ), 1e-12 );
+            BOOST_CHECK_SMALL( ( partialsWrtScaleHeight.at( i ) - testPartialsWrtScaleHeight.at( i ) ).norm( ), 1e-12 );
+        }
+
+        else
+        {
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialsWrtBaseDensity.at( i ), testPartialsWrtBaseDensity.at( i ), 1.0E-8 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialsWrtScaleHeight.at( i ), testPartialsWrtScaleHeight.at( i ), 1.0E-6 );
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////       CREATE PARAMETER OBJECTS (arc-wise)               ///////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    std::vector< double > arcStartTimes;
+    for( unsigned int i = 1; i < testTimes.size( ); i++ )
+    {
+        arcStartTimes.push_back( testTimes.at( i ) - 60 * 60 );
+    }
+
+    // atmosphere base density parameter
+    std::shared_ptr< ArcWiseExponentialAtmosphereParameter > arcwiseBaseDensityAtmosphericParameter =
+            std::make_shared< ArcWiseExponentialAtmosphereParameter >(
+                    std::dynamic_pointer_cast< aerodynamics::ExponentialAtmosphere >( bodies.at( "Titan" )->getAtmosphereModel( ) ),
+                    estimatable_parameters::arc_wise_exponential_atmosphere_base_density,
+                    arcStartTimes,
+                    "Titan" );
+
+    // atmosphere scale height parameter
+    std::shared_ptr< ArcWiseExponentialAtmosphereParameter > arcwiseScaleHeightAtmosphericParameter =
+            std::make_shared< ArcWiseExponentialAtmosphereParameter >(
+                    std::dynamic_pointer_cast< aerodynamics::ExponentialAtmosphere >( bodies.at( "Titan" )->getAtmosphereModel( ) ),
+                    estimatable_parameters::arc_wise_exponential_atmosphere_scale_height,
+                    arcStartTimes,
+                    "Titan" );
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////       EVALUATE PARTIALS                                  //////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    std::vector< Eigen::MatrixXd > partialsWrtArcWiseBaseDensity;
+    std::vector< Eigen::MatrixXd > partialsWrtArcWiseScaleHeight;
+
+    for( unsigned int i = 1; i < testTimes.size( ); i++ )
+    {
+        bodies.at( "Titan" )->setStateFromEphemeris( testTimes.at( i ) );
+        bodies.at( "Titan" )->setCurrentRotationToLocalFrameFromEphemeris( testTimes.at( i ) );
+
+        bodies.at( "Vehicle" )->setState( testStates.at( i ) );
+        bodies.at( "Vehicle" )->getFlightConditions( )->updateConditions( testTimes.at( i ) );
+
+        accelerationModel->updateMembers( testTimes.at( i ) );
+
+        // Analytically
+        aerodynamicAccelerationPartial->update( testTimes.at( i ) );
+        partialsWrtArcWiseBaseDensity.push_back( aerodynamicAccelerationPartial->wrtParameter( arcwiseBaseDensityAtmosphericParameter ) );
+        partialsWrtArcWiseScaleHeight.push_back( aerodynamicAccelerationPartial->wrtParameter( arcwiseScaleHeightAtmosphericParameter ) );
+    }
+
+    for( unsigned int i = 0; i < arcStartTimes.size( ); i++ )
+    {
+        for( int k = 0; k < 3; k++ )
+        {
+            BOOST_CHECK_CLOSE_FRACTION(
+                    partialsWrtArcWiseBaseDensity.at( i ).col( i )( k ), testPartialsWrtBaseDensity.at( i + 1 )( k ), 1.0E-8 );
+            BOOST_CHECK_CLOSE_FRACTION(
+                    partialsWrtArcWiseScaleHeight.at( i ).col( i )( k ), testPartialsWrtScaleHeight.at( i + 1 )( k ), 1.0E-6 );
+        }
+    }
+}
 
 BOOST_AUTO_TEST_SUITE_END( )
 

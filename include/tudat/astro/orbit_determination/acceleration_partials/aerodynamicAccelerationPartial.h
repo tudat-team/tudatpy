@@ -15,6 +15,8 @@
 #include "tudat/astro/aerodynamics/flightConditions.h"
 #include "tudat/astro/reference_frames/aerodynamicAngleCalculator.h"
 #include "tudat/astro/orbit_determination/estimatable_parameters/constantDragCoefficient.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/aerodynamicScalingCoefficient.h"
+#include "tudat/astro/orbit_determination/estimatable_parameters/exponentialAtmosphereParameter.h"
 
 #include "tudat/astro/orbit_determination/acceleration_partials/accelerationPartial.h"
 
@@ -55,16 +57,6 @@ public:
     {
         bodyStatePerturbations_ << 10.0, 10.0, 10.0, 1.0E-2, 1.0E-2, 1.0E-2;
     }
-
-    void computeAerodynamicAccelerationWrtDragComponent(
-        Eigen::MatrixXd& partial );
-
-    void computeAerodynamicAccelerationWrtSideComponent(
-        Eigen::MatrixXd& partial );
-
-    void computeAerodynamicAccelerationWrtLiftComponent(
-        Eigen::MatrixXd& partial );
-
 
     //! Function for calculating the partial of the acceleration w.r.t. the position of body undergoing acceleration..
     /*!
@@ -227,35 +219,7 @@ public:
      *  \return Pair of parameter partial function and number of columns in partial (0 for no dependency).
      */
     std::pair< std::function< void( Eigen::MatrixXd& ) >, int > getParameterPartialFunctionDerivedAcceleration(
-            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter )
-    {
-        std::function< void( Eigen::MatrixXd& ) > partialFunction;
-        int numberOfColumns = 0;
-
-        // Check if parameter is arc-wise constant drag coefficient
-        if( parameter->getParameterName( ).first == estimatable_parameters::arc_wise_constant_drag_coefficient )
-        {
-            // Check if parameter body is accelerated body,
-            if( parameter->getParameterName( ).second.first == acceleratedBody_ )
-            {
-                if( std::dynamic_pointer_cast< estimatable_parameters::ArcWiseConstantDragCoefficient >( parameter ) != nullptr )
-                {
-                    partialFunction =
-                            std::bind( &AerodynamicAccelerationPartial::computeAccelerationPartialWrtArcwiseDragCoefficient,
-                                       this,
-                                       std::placeholders::_1,
-                                       std::dynamic_pointer_cast< estimatable_parameters::ArcWiseConstantDragCoefficient >( parameter ) );
-                    numberOfColumns = parameter->getParameterSize( );
-                }
-                else
-                {
-                    throw std::runtime_error( "Error when making radiation drag, arcwise drag parameter not consistent" );
-                }
-            }
-        }
-
-        return std::make_pair( partialFunction, numberOfColumns );
-    }
+            std::shared_ptr< estimatable_parameters::EstimatableParameter< Eigen::VectorXd > > parameter );
 
     //! Function for updating partial w.r.t. the bodies' positions
     /*!
@@ -271,49 +235,85 @@ protected:
      * Function to compute the partial derivative of the acceleration w.r.t. the drag coefficient
      * \param accelerationPartial Derivative of acceleration w.r.t. drag coefficient (returned by reference).
      */
-    void computeAccelerationPartialWrtCurrentDragCoefficient( Eigen::MatrixXd& accelerationPartial )
-    {
-        Eigen::Quaterniond rotationToInertialFrame =
-                flightConditions_->getAerodynamicAngleCalculator( )->getRotationQuaternionBetweenFrames(
-                        reference_frames::aerodynamic_frame, reference_frames::inertial_frame );
-
-        double currentAirspeed = flightConditions_->getCurrentAirspeed( );
-        accelerationPartial = rotationToInertialFrame * Eigen::Vector3d::UnitX( ) *
-                ( -0.5 * flightConditions_->getCurrentDensity( ) * currentAirspeed * currentAirspeed *
-                  flightConditions_->getAerodynamicCoefficientInterface( )->getReferenceArea( ) ) /
-                aerodynamicAcceleration_->getCurrentMass( );
-    }
+    void computeAccelerationPartialWrtCurrentDragCoefficient( Eigen::MatrixXd& accelerationPartial );
 
     //! Function to compute the partial derivative of the acceleration w.r.t. the arc-wise constant drag coefficient
     /*!
      * Function to compute the partial derivative of the acceleration w.r.t. the arc-wise constant drag coefficient
      * \param accelerationPartial Derivative of acceleration w.r.t. arc-wise constant drag coefficient (returned by reference).
-     * \param parameter Parameter object containing information on arcwise drag coefficient that is to be estimated
+     * \param parameter Parameter object that is associated with the variable of differentiation
      */
     void computeAccelerationPartialWrtArcwiseDragCoefficient(
             Eigen::MatrixXd& accelerationPartial,
-            const std::shared_ptr< estimatable_parameters::ArcWiseConstantDragCoefficient > parameter )
-    {
-        // Get partial w.r.t. rdrag coefficient
-        Eigen::MatrixXd partialWrtSingleParameter = Eigen::Vector3d::Zero( );
-        this->computeAccelerationPartialWrtCurrentDragCoefficient( partialWrtSingleParameter );
+            std::shared_ptr< estimatable_parameters::ArcWiseConstantDragCoefficient > parameter );
 
-        // Retrieve current arc
-        std::shared_ptr< interpolators::LookUpScheme< double > > currentArcIndexLookUp = parameter->getArcTimeLookupScheme( );
-        accelerationPartial.setZero( 3, parameter->getNumberOfArcs( ) );
-        if( currentArcIndexLookUp->getMinimumValue( ) <= currentTime_ )
-        {
-            int currentArc = currentArcIndexLookUp->findNearestLowerNeighbour( currentTime_ );
+    //! Function to compute the partial derivative of the acceleration w.r.t. drag component scaling factor
+    /*!
+     * Function to compute the partial derivative of the acceleration w.r.t. drag component scaling factor
+     * \param partial Derivative of acceleration by reference.
+     */
+    void computeAccelerationPartialWrtDragComponent( Eigen::MatrixXd& partial );
 
-            if( currentArc >= accelerationPartial.cols( ) )
-            {
-                throw std::runtime_error( "Error when getting arc-wise radiation pressure coefficient partials, data not consistent" );
-            }
+    //! Function to compute the partial derivative of the acceleration w.r.t. side component scaling factor
+    /*!
+     * Function to compute the partial derivative of the acceleration w.r.t. side component  scaling factor
+     * \param partial Derivative of acceleration by reference.
+     */
+    void computeAccelerationPartialWrtSideComponent( Eigen::MatrixXd& partial );
 
-            // Set partial
-            accelerationPartial.block( 0, currentArc, 3, 1 ) = partialWrtSingleParameter;
-        }
-    }
+    //! Function to compute the partial derivative of the acceleration w.r.t. lift component scaling factor
+    /*!
+     * Function to compute the partial derivative of the acceleration w.r.t. lift component scaling factor
+     * \param partial Derivative of acceleration by reference.
+     */
+    void computeAccelerationPartialWrtLiftComponent( Eigen::MatrixXd& partial );
+
+    //! Function to compute the partial derivative of the acceleration w.r.t. an aerodynamic component scaling factor
+    /*!
+     * Function to compute the partial derivative of the acceleration w.r.t. an aerodynamic component scaling factor
+     * \param accelerationPartial Derivative of acceleration w.r.t. an aerodynamic component scaling factor (returned by reference).
+     * \param parameter Parameter object that is associated with the variable of differentiation
+     */
+    void computeAccelerationPartialWrtArcWiseAerodynamicScalingCofficient(
+            Eigen::MatrixXd& accelerationPartial,
+            std::shared_ptr< estimatable_parameters::ArcWiseAerodynamicScalingFactor > parameter );
+
+    //! Function to compute the partial derivative of the acceleration w.r.t. the current atmospheric density
+    /*!
+     * Function to compute the partial derivative of the acceleration w.r.t. the current atmospheric density
+     * \param accelerationPartial Derivative of acceleration by reference.
+     */
+    void computeAccelerationPartialWrtCurrentDensity( Eigen::MatrixXd& accelerationPartial );
+
+    //! Function to compute the partial derivative of the acceleration w.r.t. the base density of the exponential atmosphere model
+    /*!
+     * Function to compute the partial derivative of the acceleration w.r.t. the base density of the exponential atmosphere model
+     * \param accelerationPartial Derivative of acceleration by reference.
+     * \param exponentialAtmosphereModel Atmosphere model associated with the partial, by reference.
+     */
+    void computeAccelerationPartialWrtExponentialAtmosphereBaseDensity(
+            Eigen::MatrixXd& accelerationPartial,
+            std::shared_ptr< aerodynamics::ExponentialAtmosphere >& exponentialAtmosphereModel );
+
+    //! Function to compute the partial derivative of the acceleration w.r.t. the scale height of the exponential atmosphere model
+    /*!
+     * Function to compute the partial derivative of the acceleration w.r.t. the scale height of the exponential atmosphere model
+     * \param accelerationPartial Derivative of acceleration by reference.
+     * \param exponentialAtmosphereModel Atmosphere model associated with the partial, by reference.
+     */
+    void computeAccelerationPartialWrtExponentialAtmosphereScaleHeight(
+            Eigen::MatrixXd& accelerationPartial,
+            std::shared_ptr< aerodynamics::ExponentialAtmosphere >& exponentialAtmosphereModel );
+
+    //! Function to compute the partial derivative of the acceleration w.r.t. an arc-wise exponential atmosphere parameter
+    /*!
+     * Function to compute the partial derivative of the acceleration w.r.t. an arc-wise exponential atmosphere parameter
+     * \param accelerationPartial Derivative of acceleration w.r.t. arc-wise exponential atmosphere parameter atmosphere parameter (returned
+     * by reference).
+     */
+    void computeAccelerationPartialWrtArcWiseExponentialAtmosphereParameter(
+            Eigen::MatrixXd& accelerationPartial,
+            const std::shared_ptr< estimatable_parameters::ArcWiseExponentialAtmosphereParameter > parameter );
 
     //! Perturbations of Cartesian state used in the numerical (central difference) computation of
     //! currentAccelerationStatePartials_

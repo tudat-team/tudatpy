@@ -100,14 +100,16 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::Vector
 
     // Get range over which observations are to be simulated.
     std::pair< double, double > dataTimeInterval =
-            getTabulatedEphemerisSafeInterval( bodies.at( observedBodies.at( 0 ) )->getEphemeris( ) );
+            getTabulatedEphemerisSafeInterval( bodies.at( observedBodies.at( 0 ) )->getEphemeris( ), false );
     double startTime = dataTimeInterval.first;
     double endTime = dataTimeInterval.second;
 
     // Define list of times at which observations are to be simulated
     std::vector< TimeType > baseTimeList;
-    double currentTime = startTime;
-    while( currentTime < endTime )
+
+    // Add buffer in case variable time step integrator changes valid domain after first iteration
+    double currentTime = startTime + integratorSettings->initialTimeStep_;
+    while( currentTime < endTime - integratorSettings->initialTimeStep_ )
     {
         baseTimeList.push_back( currentTime );
         currentTime += simulatedObservationInterval;
@@ -122,6 +124,7 @@ std::pair< std::shared_ptr< EstimationOutput< StateScalarType > >, Eigen::Vector
     // Simulate ideal observations
     std::shared_ptr< ObservationCollection<> > observationsAndTimes = simulateObservations< StateScalarType, TimeType >(
             measurementSimulationInput, orbitDeterminationManager.getObservationSimulators( ), bodies );
+
     // input_output::writeMatrixToFile( observationsAndTimes.begin( )->second.begin( )->second.first, "preFitObservations.dat" );
 
     // Define estimation input

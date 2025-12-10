@@ -28,7 +28,6 @@ namespace biases
 
 void expose_biases( py::module& m )
 {
-    
     py::class_< tom::ObservationBiasSettings, std::shared_ptr< tom::ObservationBiasSettings > >( m, "ObservationBiasSettings", R"doc(
 
          Base class to defining observation bias settings.
@@ -61,11 +60,27 @@ void expose_biases( py::module& m )
              print(relative_bias_settings)
       )doc" );
 
-      m.def( "clock_induced_bias",
+    m.def( "clock_induced_bias",
            &tom::clockInducedBias,
            py::arg( "body_name" ),
            py::arg( "station_name" ),
-           R"doc(No documentation found.)doc" );
+           R"doc(
+        Function for creating settings for a clock-induced observation bias.
+
+        This function creates settings for a bias that is induced by the clock of a specific timing system associated with a body or ground station.
+
+        Parameters
+        ----------
+        body_name : str
+            Name of the body where the timing system is located.
+        station_name : str
+            Name of the station (if any) where the timing system is located.
+
+        Returns
+        -------
+        tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings
+            Instance of the ObservationBiasSettings class for a clock-induced bias.
+        )doc" );
 
     m.def( "absolute_bias",
            &tom::constantAbsoluteBias,
@@ -177,10 +192,10 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- arc_start_times : List[ astro.time_representation.Time ]
+ arc_start_times : list[ astro.time_representation.Time ]
      List containing starting times for each arc.
 
- bias_values : List[ numpy.ndarray ]
+ bias_values : list[ numpy.ndarray ]
      List of arc-wise bias vectors that are to be applied to the given observable. The vectors should be the same size as the observable to which it is
      applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
 
@@ -246,9 +261,9 @@ void expose_biases( py::module& m )
  --------
  .. code-block:: python
 
- # Code Snippet to showcase the use of the arcwise_absolute_bias function
- from tudatpy.estimation.observable_models_setup import biases
- import numpy as np
+     # Code Snippet to showcase the use of the arcwise_absolute_bias function
+     from tudatpy.estimation.observable_models_setup import biases
+     import numpy as np
 
      # The function arcwise_absolute_bias_settings_per_time() requires:
      # 1) a dictionary with times as keys and bias values as values ,2) a reference_link_end_type
@@ -283,10 +298,10 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- arc_start_times : List[ astro.time_representation.Time ]
+ arc_start_times : list[ astro.time_representation.Time ]
      List containing starting times for each arc.
 
- bias_values : List[ numpy.ndarray ]
+ bias_values : list[ numpy.ndarray ]
      List of arc-wise bias vectors that are to be applied to the given observable. The vectors should be the same size as the observable to which it is
      applied (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
 
@@ -458,13 +473,13 @@ void expose_biases( py::module& m )
      Constant time drift bias that is to be considered for the observation time. This vector should be the same size as the observable to which it is
      assigned (*e.g.* size 1 for a range observable, size 2 for angular position, *etc*.)
 
- arc_start_times : List[ astro.time_representation.Time ]
+ arc_start_times : list[ astro.time_representation.Time ]
      List containing starting times for each arc.
 
  time_link_end : :class:`LinkEndType`
      Defines the link end (via the :class:`LinkEndType`) which is used the current time.
 
- ref_epochs : List[ astro.time_representation.Time ]
+ ref_epochs : list[ astro.time_representation.Time ]
      List containing the arc-wise reference epochs at which the effect of the arc-wise time drift is initialised.
 
  Returns
@@ -519,7 +534,7 @@ void expose_biases( py::module& m )
  time_link_end : :class:`LinkEndType`
      Defines the link end (via the :class:`LinkEndType`) which is used the current time.
 
- ref_epochs : List[ astro.time_representation.Time ]
+ ref_epochs : list[ astro.time_representation.Time ]
      List containing the arc-wise reference epochs at which the effect of the arc-wise time drift is initialised.
 
  Returns
@@ -553,7 +568,10 @@ void expose_biases( py::module& m )
 
      )doc" );
 
-    m.def( "time_bias", &tom::constantTimeBias, py::arg( "time_bias" ), py::arg( "associated_link_end" ),
+    m.def( "time_bias",
+           &tom::constantTimeBias,
+           py::arg( "time_bias" ),
+           py::arg( "associated_link_end" ),
 
            R"doc(
 
@@ -630,7 +648,7 @@ void expose_biases( py::module& m )
 
  Parameters
  ----------
- bias_list : List[:class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`]
+ bias_list : list[:class:`~tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings`]
      A list containing the bias settings that are to be applied to the observable.
 
  Returns
@@ -671,11 +689,19 @@ void expose_biases( py::module& m )
 
      )doc" );
 
-    m.def( "two_way_time_scale_range_bias", &tom::twoWayTimeScaleRangeBias, R"doc(No documentation found.)doc" );
+    m.def( "two_way_time_scale_range_bias", &tom::twoWayTimeScaleRangeBias, R"doc(
+        Function for creating settings for a two-way range time scale bias.
 
+        This bias accounts for the difference in time scales (e.g., TDB and TCB) in the computation of two-way range observables.
+
+        Returns
+        -------
+        tudatpy.estimation.observable_models_setup.biases.ObservationBiasSettings
+            Instance of the ObservationBiasSettings class for a two-way range time scale bias.
+        )doc" );
 }
 
-}
-}
-}
-}
+}  // namespace biases
+}  // namespace observable_models_setup
+}  // namespace estimation
+}  // namespace tudatpy

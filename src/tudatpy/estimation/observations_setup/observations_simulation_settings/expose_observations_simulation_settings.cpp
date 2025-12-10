@@ -49,8 +49,31 @@ void expose_observations_simulation_settings( py::module& m )
                            py::overload_cast< const std::function< double( const double ) >& >(
                                    &tss::ObservationSimulationSettings< TIME_TYPE >::setObservationNoiseFunction ),
                            R"doc(
-         noise_function : Callable[ [float], numpy.ndarray[numpy.float64[m, 1]] ], default = None -
+         noise_function : callable[ [float], numpy.ndarray[numpy.float64[m, 1]] ], default = None -
          Function providing the observation noise as a function of observation time (can be constant or time-dependent), default is None.
+      )doc" )
+            .def_property( "ancillary_settings",
+                           &tss::ObservationSimulationSettings< TIME_TYPE >::getAncilliarySettings,
+                           &tss::ObservationSimulationSettings< TIME_TYPE >::setAncilliarySettings,
+                           R"doc( No documentation found
+      )doc" )
+            .def_property_readonly( "dependent_variable_bookkeeping",
+                                    &tss::ObservationSimulationSettings< TIME_TYPE >::getObservationDependentVariableBookkeeping,
+                                    R"doc( No documentation found
+      )doc" )
+            .def_property( "dependent_variable_settings_list",
+                           &tss::ObservationSimulationSettings< TIME_TYPE >::getDependentVariableSettings,
+                           &tss::ObservationSimulationSettings< TIME_TYPE >::setDependentVariableSettings,
+                           R"doc( No documentation found
+
+      )doc" )
+            .def( "add_dependent_variables",
+                  &tss::ObservationSimulationSettings< TIME_TYPE >::addDependentVariableSettings,
+                  R"doc( No documentation found
+      )doc" )
+            .def( "clear_dependent_variables",
+                  &tss::ObservationSimulationSettings< TIME_TYPE >::clearDependentVariableSettings,
+                  R"doc( No documentation found
       )doc" );
     //            .def_property("observable_type",
     //                         &tss::ObservationSimulationSettings<double>::getObservableType,
@@ -116,8 +139,10 @@ void expose_observations_simulation_settings( py::module& m )
 
 
 
-      )doc" );
-    
+      )doc" )
+            .def_property( "simulation_times",
+                           &tss::TabulatedObservationSimulationSettings< TIME_TYPE >::getSimulationTimes,
+                           &tss::TabulatedObservationSimulationSettings< TIME_TYPE >::setSimulationTimes );
 
     m.def( "tabulated_simulation_settings",
            &tss::tabulatedObservationSimulationSettings< TIME_TYPE >,
@@ -144,14 +169,14 @@ void expose_observations_simulation_settings( py::module& m )
      Observable type of which observations are to be simulated.
  link_ends : LinkDefinition
      Link ends for which observations are to be simulated.
- simulation_times : List[astro.time_representation.Time]
+ simulation_times : List[:class:`~tudatpy.astro.time_representation.Time`]
      List of times at which to perform the observation simulation.
  reference_link_end_type : :class:`LinkEndType`, default = :class:`LinkEndType.receiver`
      Defines the link end (via the :class:`LinkEndType`) which is used as a reference time for the observation.
  viability_settings : List[ :class:`ObservationViabilitySettings` ], default = [ ]
      Settings for the creation of the viability criteria calculators, which conduct viability checks on the simulated observations.
 
- noise_function : Callable[ [astro.time_representation.Time], numpy.ndarray[numpy.float64[m, 1]] ], default = None
+ noise_function : callable[ [:class:`~tudatpy.astro.time_representation.Time`], numpy.ndarray[numpy.float64[m, 1]] ], default = None
      Function providing the observation noise factors as a function of observation time.
  Returns
  -------
@@ -269,7 +294,7 @@ void expose_observations_simulation_settings( py::module& m )
      Settings for the creation of the viability criteria calculators, which conduct viability checks on the simulated observations.
      These settings are *not* used to determine whether an arc is to be terminated, but are instead applied after the arcs have been computed.
 
- noise_function : Callable[ [astro.time_representation.Time], numpy.ndarray[numpy.float64[m, 1]] ], default = None
+ noise_function : callable[ [:class:`~tudatpy.astro.time_representation.Time`], numpy.ndarray[numpy.float64[m, 1]] ], default = None
      Function providing the observation noise factors as a function of observation time.
  Returns
  -------
@@ -341,13 +366,13 @@ void expose_observations_simulation_settings( py::module& m )
 
      )doc" );
 
-     m.def( "observation_settings_from_collection",
+    m.def( "observation_settings_from_collection",
            &tss::getObservationSimulationSettingsFromObservations< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "observation_collection" ),
            py::arg( "bodies" ),
            R"doc(No documentation found.)doc" );
 
-           m.def( "change_simulation_settings_observable_types",
+    m.def( "change_simulation_settings_observable_types",
            &tom::changeObservableTypesOfObservationSimulationSettings< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "observation_simulation_settings" ),
            py::arg( "replacement_observable_types" ) =
@@ -363,13 +388,10 @@ void expose_observations_simulation_settings( py::module& m )
     //          get_docstring("create_odf_observation_simulation_settings_list").c_str()
     //          );
 
-
     // #   Observation Model Settings --> Observation Simulator #
     m.def( "create_observation_simulators",
-           py::overload_cast<
-               const std::vector< std::shared_ptr< tom::ObservationModelSettings > >&,
-               const tss::SystemOfBodies& >(
-               &tom::createObservationSimulators< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::overload_cast< const std::vector< std::shared_ptr< tom::ObservationModelSettings > >&, const tss::SystemOfBodies& >(
+                   &tom::createObservationSimulators< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "observation_settings" ),
            py::arg( "bodies" ),
            R"doc(
@@ -411,10 +433,9 @@ void expose_observations_simulation_settings( py::module& m )
 
 
      )doc" );
-
 }
 
-}
-}
-}
-}
+}  // namespace observations_simulation_settings
+}  // namespace observations_setup
+}  // namespace estimation
+}  // namespace tudatpy

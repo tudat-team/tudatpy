@@ -62,14 +62,84 @@ ObservationDependentVariableFunction getObservationVectorDependentVariableFuncti
         const observation_models::ObservableType observableType,
         const observation_models::LinkDefinition linkEnds );
 
+class ObservationDependentVariableBookkeeping
+{
+public:
+    ObservationDependentVariableBookkeeping( const observation_models::ObservableType observableType,
+                                             const observation_models::LinkDefinition& linkEnds ):
+        observableType_( observableType ), linkEnds_( linkEnds )
+    {
+        totalDependentVariableSize_ = 0;
+    }
+
+    std::pair< int, int > addDependentVariable( const std::shared_ptr< ObservationDependentVariableSettings > settings );
+
+    void addDependentVariables( const std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList );
+
+    std::pair< int, int > getDependentVariableIndices( const std::shared_ptr< ObservationDependentVariableSettings > dependentVariables );
+
+    observation_models::ObservableType getObservableType( )
+    {
+        return observableType_;
+    }
+
+    observation_models::LinkDefinition getLinkEnds( )
+    {
+        return linkEnds_;
+    }
+
+    std::map< std::pair< int, int >, std::shared_ptr< ObservationDependentVariableSettings > > getSettingsIndicesAndSizes( ) const;
+
+    std::vector< std::shared_ptr< ObservationDependentVariableSettings > > getDependentVariableSettings( ) const
+    {
+        return settingsList_;
+    }
+
+    int getTotalDependentVariableSize( ) const
+    {
+        return totalDependentVariableSize_;
+    }
+
+    void clearSettings( )
+    {
+        settingsList_.clear( );
+        dependentVariableStartIndices_.clear( );
+        dependentVariableSizes_.clear( );
+        totalDependentVariableSize_ = 0;
+    }
+
+private:
+    observation_models::ObservableType observableType_;
+
+    observation_models::LinkDefinition linkEnds_;
+
+    std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList_;
+
+    std::vector< int > dependentVariableStartIndices_;
+
+    std::vector< int > dependentVariableSizes_;
+
+    int totalDependentVariableSize_;
+};
+
 class ObservationDependentVariableCalculator
 {
 public:
     ObservationDependentVariableCalculator( const observation_models::ObservableType observableType,
                                             const observation_models::LinkDefinition& linkEnds ):
-        observableType_( observableType ), linkEnds_( linkEnds )
+        dependentVariableBookkeeping_( std::make_shared< ObservationDependentVariableBookkeeping >( observableType, linkEnds ) )
+    {}
+
+    ObservationDependentVariableCalculator( const std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping,
+                                            const SystemOfBodies& bodies ): dependentVariableBookkeeping_( dependentVariableBookkeeping )
     {
-        totalDependentVariableSize_ = 0;
+        for( unsigned int i = 0; i < dependentVariableBookkeeping_->getDependentVariableSettings( ).size( ); i++ )
+        {
+            std::pair< int, int > indices = dependentVariableBookkeeping_->getDependentVariableIndices(
+                    dependentVariableBookkeeping_->getDependentVariableSettings( ).at( i ) );
+            addDependentVariableFunction(
+                    dependentVariableBookkeeping_->getDependentVariableSettings( ).at( i ), bodies, indices.first, indices.second );
+        }
     }
 
     Eigen::VectorXd calculateDependentVariables( const std::vector< double >& linkEndTimes,
@@ -84,43 +154,18 @@ public:
 
     std::pair< int, int > getDependentVariableIndices( const std::shared_ptr< ObservationDependentVariableSettings > dependentVariables );
 
-    observation_models::ObservableType getObservableType( )
+    std::shared_ptr< ObservationDependentVariableBookkeeping > getDependentVariableBookkeeping( )
     {
-        return observableType_;
-    }
-
-    observation_models::LinkDefinition getLinkEnds( )
-    {
-        return linkEnds_;
-    }
-
-    std::map< std::pair< int, int >, std::shared_ptr< ObservationDependentVariableSettings > > getSettingsIndicesAndSizes( ) const
-    {
-        std::map< std::pair< int, int >, std::shared_ptr< ObservationDependentVariableSettings > > settingsStartIndices;
-        for( unsigned int i = 0; i < dependentVariableStartIndices_.size( ); i++ )
-        {
-            settingsStartIndices[ std::make_pair( dependentVariableStartIndices_[ i ], dependentVariableSizes_[ i ] ) ] =
-                    settingsList_[ i ];
-        }
-        return settingsStartIndices;
-    }
-
-    std::vector< std::shared_ptr< ObservationDependentVariableSettings > > getDependentVariableSettings( ) const
-    {
-        return settingsList_;
-    }
-
-    int getTotalDependentVariableSize( ) const
-    {
-        return totalDependentVariableSize_;
+        return dependentVariableBookkeeping_;
     }
 
 private:
-    observation_models::ObservableType observableType_;
+    void addDependentVariableFunction( const std::shared_ptr< ObservationDependentVariableSettings > variableSettings,
+                                       const SystemOfBodies& bodies,
+                                       const int currentIndex,
+                                       const int parameterSize );
 
-    observation_models::LinkDefinition linkEnds_;
-
-    std::vector< std::shared_ptr< ObservationDependentVariableSettings > > settingsList_;
+    std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping_;
 
     std::vector< std::function< void( Eigen::VectorXd&,
                                       const std::vector< double >&,
@@ -128,12 +173,6 @@ private:
                                       const Eigen::VectorXd&,
                                       const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) > >
             dependentVariableAddFunctions_;
-
-    std::vector< int > dependentVariableStartIndices_;
-
-    std::vector< int > dependentVariableSizes_;
-
-    int totalDependentVariableSize_;
 };
 
 }  // namespace simulation_setup

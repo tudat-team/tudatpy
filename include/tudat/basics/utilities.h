@@ -20,6 +20,7 @@
 #include <sstream>
 #include <fstream>
 #include <iomanip>
+#include <unordered_set>
 
 #include <functional>
 #include <boost/multi_array.hpp>
@@ -606,7 +607,7 @@ std::map< MapKey, Eigen::Array< ScalarType, Eigen::Dynamic, 1 > > convertStlVect
         std::map< MapKey, std::vector< ScalarType > > stlVectorMap )
 {
     std::map< MapKey, Eigen::Array< ScalarType, Eigen::Dynamic, 1 > > eigenMap;
-    for( auto ent: stlVectorMap )
+    for( auto ent : stlVectorMap )
     {
         Eigen::Array< ScalarType, Eigen::Dynamic, 1 > array( ent.second.size( ) );
         for( int i = 0; i < array.rows( ); i++ )
@@ -659,7 +660,7 @@ template< typename KeyType, typename ScalarType, int FixedSize >
 void castDynamicToFixedSizeEigenVectorMap( std::map< KeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > >& originalMap,
                                            std::map< KeyType, Eigen::Matrix< ScalarType, FixedSize, 1 > >& fixedSizeMap )
 {
-    for( auto mapIterator: originalMap )
+    for( auto mapIterator : originalMap )
     {
         fixedSizeMap[ mapIterator.first ] = mapIterator.second;
     }
@@ -713,7 +714,7 @@ std::map< NewKeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > > sliceMatr
 {
     std::map< NewKeyType, Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > > slicedHistory;
 
-    for( auto mapIterator: fullHistory )
+    for( auto mapIterator : fullHistory )
     {
         slicedHistory[ static_cast< NewKeyType >( mapIterator.first ) ] =
                 mapIterator.second.segment( sliceStartIndexAndSize.first, sliceStartIndexAndSize.second );
@@ -734,7 +735,7 @@ Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > convertVectorHistory
     Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic > concatenatedMatrix =
             Eigen::Matrix< ScalarType, Eigen::Dynamic, Eigen::Dynamic >::Zero( numberOfRows, numberOfColumns );
     int counter = 0;
-    for( auto it: vectorHistory )
+    for( auto it : vectorHistory )
     {
         Eigen::Matrix< ScalarType, Eigen::Dynamic, 1 > currentVector = it.second;
         if( currentVector.rows( ) != numberOfColumns )
@@ -781,7 +782,7 @@ std::map< KeyType, ScalarType > getSingleVectorEntryHistory(
         int vectorEntry )
 {
     std::map< KeyType, ScalarType > extractedMap;
-    for( auto mapIterator: originalMap )
+    for( auto mapIterator : originalMap )
     {
         extractedMap[ mapIterator.first ] = mapIterator.second( vectorEntry );
     }
@@ -885,13 +886,41 @@ std::string paddedZeroIntString( const IntType valueToConvert, const int numberO
 }
 
 template< typename T >
-std::string to_string_with_precision( const T a_value, const int n = 6 )
+std::pair< std::string, bool > to_string_with_precision( const T a_value, const int n = 6 )
 {
+    static_assert( std::is_floating_point< T >::value, "to_string_with_precision requires a floating point type" );
+
+    bool roundedUpByOne = false;
+
+    // 10^n as T (no long double)
+    T power10 = static_cast< T >( 1 );
+    for( int i = 0; i < n; ++i )
+    {
+        power10 *= static_cast< T >( 10 );
+    }
+
+    // Manually do the rounding that the stream will do
+    T scaled = a_value * power10;
+    T roundedScaled = std::round( scaled );
+    T roundedValue = roundedScaled / power10;
+
+    // Detect if rounding crossed an integer boundary (off by 1 in "seconds" sense)
+    // This happens when roundedValue and a_value are in different integer bins,
+    // but the difference is consistent with normal rounding at this precision.
+    const T diff = roundedValue - a_value;
+
+    if( std::floor( a_value ) != std::floor( roundedValue ) &&
+        std::fabs( diff ) <= static_cast< T >( 0.5 ) / power10 + std::numeric_limits< T >::epsilon( ) )
+    {
+        roundedUpByOne = true;
+    }
+
     std::ostringstream out;
     out.precision( n );
-    out << std::fixed << a_value;
-    return std::move( out ).str( );
+    out << std::fixed << roundedValue;
+    return std::make_pair( out.str( ), roundedUpByOne );
 }
+
 template< typename T >
 std::vector< T > getStlVectorSegment( const std::vector< T > originalVector, const int startIndex, const int size )
 {
@@ -915,7 +944,7 @@ template< typename T, typename S, typename U >
 std::map< T, U > staticCastMapKeys( const std::map< S, U >& originalMap )
 {
     std::map< T, U > castMap;
-    for( auto it: originalMap )
+    for( auto it : originalMap )
     {
         castMap[ static_cast< T >( it.first ) ] = it.second;
     }
@@ -959,7 +988,7 @@ int countNumberOfOccurencesInVector( const std::vector< T >& vector, const T& va
 template< typename T, typename U >
 bool containsAll( const T& referenceArray, const U searchArray )
 {
-    for( auto search_element: searchArray )
+    for( auto search_element : searchArray )
     {
         if( std::find( referenceArray.begin( ), referenceArray.end( ), search_element ) == referenceArray.end( ) )
         {
@@ -974,7 +1003,7 @@ template< typename T >
 std::set< T > vectorToSet( std::vector< T > vector )
 {
     std::set< T > set;
-    for( T& elem: vector )
+    for( T& elem : vector )
     {
         set.insert( elem );
     }
@@ -1167,6 +1196,13 @@ std::vector< std::map< S, T > > mergeMaps( const std::vector< std::map< S, T > >
 
         return mergedData;
     }
+}
+
+template< typename T >
+void removeDuplicates( std::vector< T >& input )
+{
+    std::sort( input.begin( ), input.end( ) );
+    input.erase( std::unique( input.begin( ), input.end( ) ), input.end( ) );
 }
 
 }  // namespace utilities

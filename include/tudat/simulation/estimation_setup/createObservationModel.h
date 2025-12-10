@@ -32,6 +32,7 @@
 #include "tudat/astro/observation_models/relativePositionObservationModel.h"
 #include "tudat/astro/observation_models/twoWayDopplerObservationModel.h"
 #include "tudat/astro/observation_models/velocityObservationModel.h"
+#include "tudat/astro/observation_models/differencedTimeOfArrivalObservationModel.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCalculator.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"
@@ -1008,6 +1009,30 @@ public:
     std::shared_ptr< LightTimeConvergenceCriteria > multiLegLightTimeConvergenceCriteria_;
 };
 
+class DifferencedTimeOfArrivalObservationSettings: public ObservationModelSettings
+{
+public:
+    //! Constructor
+    /*!
+     * Constructor (single light-time correction)
+     * \param observableType Type of observation model that is to be created
+     * \param lightTimeCorrections Settings for a single light-time correction that is to be used
+     * for the observation model (nullptr if none) \param biasSettings Settings for the observation
+     * bias model that is to be used (default none: nullptr)
+     */
+    DifferencedTimeOfArrivalObservationSettings(
+                              const LinkDefinition linkEnds,
+                              const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrections,
+                              const basic_astrodynamics::TimeScales differencedTimeScale = basic_astrodynamics::tdb_scale,
+                              const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+                              const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
+                                      std::make_shared< LightTimeConvergenceCriteria >( ) ):
+        ObservationModelSettings( differenced_time_of_arrival, linkEnds, lightTimeCorrections, biasSettings, lightTimeConvergenceCriteria ),
+        differencedTimeScale_( differencedTimeScale ){}
+
+    basic_astrodynamics::TimeScales differencedTimeScale_;
+};
+
 inline std::shared_ptr< ObservationModelSettings > oneWayRangeSettings(
         const LinkDefinition& linkEnds,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
@@ -1313,6 +1338,18 @@ inline std::shared_ptr< ObservationModelSettings > nWayRangeSimple(
 {
     return std::make_shared< NWayRangeObservationModelSettings >(
             linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria );
+}
+
+inline std::shared_ptr< ObservationModelSettings > differencedTimeOfArrivalObservationSettings(
+        const LinkDefinition linkEnds,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrections,
+        const basic_astrodynamics::TimeScales differencedTimeScale = basic_astrodynamics::tdb_scale,
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
+                std::make_shared< LightTimeConvergenceCriteria >( ) )
+{
+    return std::make_shared< DifferencedTimeOfArrivalObservationSettings >(
+            linkEnds, lightTimeCorrections, differencedTimeScale, biasSettings, lightTimeConvergenceCriteria );
 }
 
 inline std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria(
@@ -2443,10 +2480,6 @@ public:
                     }
                 }
 
-                std::shared_ptr< ground_stations::GroundStationState > receivingStationState =
-                        bodies.at( linkEnds.at( receiver ).bodyName_ )
-                                ->getGroundStation( linkEnds.at( receiver ).stationName_ )
-                                ->getNominalStationState( );
                 observationModel = std::make_shared< DsnNWayAveragedDopplerObservationModel< ObservationScalarType, TimeType > >(
                         linkEnds,
                         arcStartObservationModel,
@@ -2650,6 +2683,98 @@ public:
                         stationStates );
 
                 break;
+            }
+            case differenced_time_of_arrival: {
+                std::shared_ptr< DifferencedTimeOfArrivalObservationSettings > differencedTimeObservationSettings =
+                    std::dynamic_pointer_cast< DifferencedTimeOfArrivalObservationSettings >(  observationSettings );
+                if( differencedTimeObservationSettings == nullptr )
+                {
+                    throw std::runtime_error( "Error when making differenced_time_of_arrival observable, input is incompatible " );
+                }
+                else
+                {
+                    if( linkEnds.size( ) != 3 )
+                    {
+                        std::string errorMessage =
+                                "Error when making differenced time of arrival, " + std::to_string( linkEnds.size( ) ) + " link ends found";
+                        throw std::runtime_error( errorMessage );
+                    }
+                    if( linkEnds.count( receiver ) == 0 )
+                    {
+                        throw std::runtime_error( "Error when making differenced time of arrival, no receiver found" );
+                    }
+                    if( linkEnds.count( transmitter ) == 0 )
+                    {
+                        throw std::runtime_error( "Error when making differenced time of arrival, no transmitter found" );
+                    }
+                    if( linkEnds.count( receiver2 ) == 0 )
+                    {
+                        throw std::runtime_error( "Error when making differenced time of arrival, no second receiver found" );
+                    }
+
+                    std::shared_ptr< ObservationBias< 1 > > observationBias;
+                    if( observationSettings->biasSettings_ != nullptr )
+                    {
+                        observationBias = createObservationBiasCalculator(
+                                linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
+                    }
+
+                    std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates;
+                    basic_astrodynamics::TimeScales observableTimeScale = differencedTimeObservationSettings->differencedTimeScale_;
+
+                    if( observableTimeScale == basic_astrodynamics::utc_scale )
+                    {
+                        for( auto it : linkEnds )
+                        {
+                            if( bodies.at( linkEnds.at( it.first ).bodyName_ )
+                                        ->getGroundStationMap( )
+                                        .count( linkEnds.at( it.first ).stationName_ ) > 0 )
+                            {
+                                stationStates[ it.first ] = bodies.at( linkEnds.at( it.first ).bodyName_ )
+                                                                    ->getGroundStation( linkEnds.at( it.first ).stationName_ )
+                                                                    ->getNominalStationState( );
+                            }
+                        }
+                    }
+
+                    // Create observation model
+                    std::shared_ptr< OneWayDifferencedTimeOfArrivalObservationModel< ObservationScalarType, TimeType > >
+                            differencedTimeOfArrivalModel =
+                                    std::make_shared< OneWayDifferencedTimeOfArrivalObservationModel< ObservationScalarType, TimeType > >(
+                                            linkEnds,
+                                            createLightTimeCalculator< ObservationScalarType, TimeType >(
+                                                    linkEnds,
+                                                    transmitter,
+                                                    receiver,
+                                                    bodies,
+                                                    topLevelObservableType,
+                                                    observationSettings->lightTimeCorrectionsList_,
+                                                    observationSettings->lightTimeConvergenceCriteria_ ),
+                                            createLightTimeCalculator< ObservationScalarType, TimeType >(
+                                                    linkEnds,
+                                                    transmitter,
+                                                    receiver2,
+                                                    bodies,
+                                                    topLevelObservableType,
+                                                    observationSettings->lightTimeCorrectionsList_,
+                                                    observationSettings->lightTimeConvergenceCriteria_ ),
+                                            observationBias,
+                                            stationStates,
+                                            observableTimeScale );
+
+                    if( differencedTimeOfArrivalModel->getFirstReceiverLightTimeCalculator( )->doCorrectionsNeedFrequency( ) ||
+                        differencedTimeOfArrivalModel->getSecondReceiverLightTimeCalculator( )->doCorrectionsNeedFrequency( ) )
+                    {
+                        differencedTimeOfArrivalModel->setFrequencyInterpolator( getTransmittingFrequencyInterpolator( bodies, linkEnds ) );
+                    }
+                    else
+                    {
+                        differencedTimeOfArrivalModel->setTimeScaleConverter( );
+                    }
+
+                    observationModel = differencedTimeOfArrivalModel;
+                    break;
+                }
             }
             default:
                 std::string errorMessage = "Error, observable " + std::to_string( observationSettings->observableType_ ) +
@@ -3163,6 +3288,18 @@ std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrecti
 
             break;
         }
+        case observation_models::differenced_time_of_arrival: {
+            std::shared_ptr< observation_models::OneWayDifferencedTimeOfArrivalObservationModel< ObservationScalarType, TimeType > >
+                    differencedTimeOfArrivalObservationModel = std::dynamic_pointer_cast<
+                            observation_models::OneWayDifferencedTimeOfArrivalObservationModel< ObservationScalarType, TimeType > >(
+                            observationModel );
+            currentLightTimeCorrections.push_back(
+                    differencedTimeOfArrivalObservationModel->getFirstReceiverLightTimeCalculator( )->getLightTimeCorrection( ) );
+            currentLightTimeCorrections.push_back(
+                    differencedTimeOfArrivalObservationModel->getSecondReceiverLightTimeCalculator( )->getLightTimeCorrection( ) );
+
+            break;
+        }
         case observation_models::n_way_range: {
             std::shared_ptr< observation_models::NWayRangeObservationModel< ObservationScalarType, TimeType > > nWayRangeObservationModel =
                     std::dynamic_pointer_cast< observation_models::NWayRangeObservationModel< ObservationScalarType, TimeType > >(
@@ -3325,6 +3462,31 @@ public:
                 throw std::runtime_error(
                         "Error when extract undifferenced observation model. Doppler Measured "
                         "Frequency model not implemented." );
+            }
+            case observation_models::differenced_time_of_arrival: {
+                std::shared_ptr< observation_models::OneWayDifferencedTimeOfArrivalObservationModel< ObservationScalarType, TimeType > >
+                        differencedTimeOfArrivalModel = std::dynamic_pointer_cast<
+                                observation_models::OneWayDifferencedTimeOfArrivalObservationModel< ObservationScalarType, TimeType > >(
+                                differencedObservationModel );
+                LinkEnds fullLinkEnds = differencedTimeOfArrivalModel->getLinkEnds( );
+                LinkEnds firstLinkEnds;
+                firstLinkEnds[ receiver ] = fullLinkEnds[ receiver ];
+                firstLinkEnds[ transmitter ] = fullLinkEnds[ transmitter ];
+
+                firstObservationModel =
+                        std::make_shared< observation_models::OneWayRangeObservationModel< ObservationScalarType, TimeType > >(
+                                firstLinkEnds,
+                                differencedTimeOfArrivalModel->getFirstReceiverLightTimeCalculator() );
+
+                LinkEnds secondLinkEnds;
+                secondLinkEnds[ receiver ] = fullLinkEnds[ receiver2 ];
+                secondLinkEnds[ transmitter ] = fullLinkEnds[ transmitter ];
+
+                secondObservationModel =
+                        std::make_shared< observation_models::OneWayRangeObservationModel< ObservationScalarType, TimeType > >(
+                                secondLinkEnds,
+                                differencedTimeOfArrivalModel->getSecondReceiverLightTimeCalculator( ) );
+                break;
             }
             default:
                 std::string errorMessage =

@@ -29,6 +29,7 @@ set(ephemerides_SOURCES
         "tleEphemeris.cpp"
         "aeordynamicAngleRotationalEphemeris.cpp"
         "directionBasedRotationalEphemeris.cpp"
+        "multiArcEphemeris.cpp"
         )
 
 # Set the header files.

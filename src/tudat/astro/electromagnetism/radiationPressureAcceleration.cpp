@@ -103,7 +103,7 @@ void PaneledSourceRadiationPressureAcceleration::computeAcceleration( )
     Eigen::Vector3d totalForceInTargetFrame = Eigen::Vector3d::Zero( );
     targetModel_->resetComputations( sourceName_ );
     int counter = 0;
-    for( auto sourceIrradianceAndPosition: sourceIrradiancesAndPositions )
+    for( auto sourceIrradianceAndPosition : sourceIrradiancesAndPositions )
     {
         double sourceIrradiance = std::get< 0 >( sourceIrradianceAndPosition );
         Eigen::Vector3d sourcePositionInSourceFrame = std::get< 1 >( sourceIrradianceAndPosition );  // position of sub-source (e.g. panel)
@@ -125,6 +125,20 @@ void PaneledSourceRadiationPressureAcceleration::computeAcceleration( )
 
             totalReceivedIrradiance += occultedSourceIrradiance;
             visibleAndEmittingSourcePanelCounter += 1;
+
+            if( saveForcingQuantities_ )
+            {
+                savedPanelOccultedIrradiances_[ counter ] = occultedSourceIrradiance;
+                savedPanelRelativePositions_[ counter ] = sourceToTargetDirectionInTargetFrame;
+            }
+        }
+        else
+        {
+            if( saveForcingQuantities_ )
+            {
+                savedPanelOccultedIrradiances_[ counter ] = 0.0;
+                savedPanelRelativePositions_[ counter ] = Eigen::Vector3d::Constant( std::numeric_limits< double >::infinity( ) );
+            }
         }
         if( savePanellingIrradiance_ )
         {
