@@ -178,8 +178,8 @@ public:
         for( unsigned int i = 0; i < angularFrequencies_.size( ); i++ )
         {
             Eigen::Vector2d pole_term = fullLibrations.at( angularFrequencies_.at( i ) ).first;
-            parameters( 2 * i ) = pole_term( 2 * i );
-            parameters( 2 * i + 1 ) = pole_term( 2 * i + 1 );
+            parameters( 2 * i ) = pole_term( 0 );
+            parameters( 2 * i + 1 ) = pole_term( 1 );
         }
         return parameters;
     }
@@ -196,8 +196,8 @@ public:
         for( unsigned int i = 0; i < angularFrequencies_.size( ); i++ )
         {
             Eigen::Vector2d pole_term;
-            pole_term( 0 ) = pole_term( 2 * i );
-            pole_term( 1 ) = pole_term( 2 * i + 1 );
+            pole_term( 0 ) = parameterValue( 2 * i );
+            pole_term( 1 ) = parameterValue( 2 * i + 1 );
             fullLibrations[ angularFrequencies_.at( i ) ].first = pole_term;
         }
         rotationModel_->setPolePeriodicTerms( fullLibrations );
