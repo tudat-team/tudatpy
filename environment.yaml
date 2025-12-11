@@ -1,4 +1,4 @@
-name: tudatpy-dev-test
+name: tudatpy-dev
 channels:
   - conda-forge
   - tudat-team
