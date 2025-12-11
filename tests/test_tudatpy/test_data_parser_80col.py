@@ -20,12 +20,12 @@ from tudatpy.data.mpc.parser_80col.unpackers import (
 
 # --- 1. Permanent Minor Planet Tests (Asteroids) ---
 @pytest.mark.parametrize("packed_input, expected_output", [
-    # Case 3: Basic Range (0 - 99,999) - Straight numeric conversion
+    # Case: Basic Range (0 - 99,999) - Straight numeric conversion
     ("00001", "1"),
     ("00433", "433"),
     ("99999", "99999"),
 
-    # Case 2: Standard Range (100,000 - 619,999) - Single char prefix + 4 digits
+    # Case: Standard Range (100,000 - 619,999) - Single char prefix + 4 digits
     # A0000 = 10 * 10000 + 0 = 100,000
     ("A0000", "100000"),
     ("A0001", "100001"),
@@ -33,11 +33,12 @@ from tudatpy.data.mpc.parser_80col.unpackers import (
     ("a0000", "360000"), # a=36
     ("z9999", "619999"), # z=61
 
-    # Case 1: Extended Range (> 620,000) - Tilde prefix + Base62 chars
+    # Case: Extended Range (> 620,000) - Tilde prefix + Base62 chars
     ("~0000", "620000"),
     ("~0001", "620001"),
     ("~AZaz", "3140113"), # Complex Base62 check
 ])
+
 def test_unpack_permanent_minor_planet_success(packed_input, expected_output):
     """Verifies unpacking of permanent minor planet IDs (Asteroid Numbers)."""
     assert unpack_permanent_minor_planet(packed_input) == expected_output
@@ -52,7 +53,6 @@ def test_unpack_permanent_minor_planet_errors(invalid_input, error_msg):
     """Ensures invalid formats raise appropriate ValueError."""
     with pytest.raises(ValueError, match=error_msg):
         unpack_permanent_minor_planet(invalid_input)
-
 
 # --- 2. Provisional Minor Planet Tests ---
 @pytest.mark.parametrize("packed_input, expected_output", [
@@ -262,13 +262,9 @@ def test_batch_mpc_vs_parser_consistency():
     # - 134341: High-numbered Asteroid (Pluto/Charon) requiring packed conversion
     # - '2025 FA22': Provisional Designation (String input)
     target_objects = ['3I', 134341, '2025 FA22', 433]
-    target_types = ['comet_number', 'asteroid_number', 'asteroid_designation', 'asteroid_number']
+    target_types = ['comet_number', 'asteroid_number', None, 'asteroid_number']
 
-    try:
-        # Fetch expected names from MPC (The Source of Truth)
-        batch.get_observations(target_objects, id_types=target_types)
-    except Exception as e:
-        pytest.skip(f"Skipping online integration test: {e}")
+    batch.get_observations(target_objects, id_types=target_types)
 
     # Raw lines matching the query above
     lines_main = [
