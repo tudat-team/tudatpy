@@ -978,21 +978,27 @@ class BatchMPC:
                     elif 'number' in obs.columns:
                         pd.set_option('future.no_silent_downcasting', True)
                         valid_numbers = obs['number'].dropna().astype(str).replace('<NA>', np.nan).dropna()
+
                         if not valid_numbers.empty:
                             potential_id = valid_numbers.iloc[0]
-                            # We allow alphanumeric strings now (to support packed numbers like D4341)
-                            # We only pad if it is a short digit string (e.g. '1' -> '00001')
-                            # Packed strings are always 5 chars long, so they won't be affected by zfill(5)
-                            if len(potential_id) < 5:
-                                potential_id = potential_id.zfill(5)
+                        else:
+                            # fallback to designation if no number has been assigned yet
+                            valid_designations = obs['desig'].dropna().astype(str).replace('<NA>', np.nan).dropna()
+                            potential_id = valid_designations.iloc[0]
 
-                            try:
-                                # Try to unpack it. This handles '00001' and 'D4341'.
-                                identifier = unpackers.unpack_permanent_minor_planet(potential_id)
-                            except Exception:
-                                # If unpacking fails (e.g. it was already unpacked or invalid),
-                                # we keep the potential_id as is.
-                                identifier = potential_id
+                        # We allow alphanumeric strings now (to support packed numbers like D4341)
+                        # We only pad if it is a short digit string (e.g. '1' -> '00001')
+                        # Packed strings are always 5 chars long, so they won't be affected by zfill(5)
+                        if len(potential_id) < 5:
+                            potential_id = potential_id.zfill(5)
+
+                        try:
+                            # Try to unpack it. This handles '00001' and 'D4341'.
+                            identifier = unpackers.unpack_permanent_minor_planet(potential_id)
+                        except Exception:
+                            # If unpacking fails (e.g. it was already unpacked or invalid),
+                            # we keep the potential_id as is.
+                            identifier = potential_id
                 if identifier is None and 'desig' in obs.columns and pd.notna(obs['desig'].iloc[0]):
                     identifier = str(obs['desig'].iloc[0])
 
