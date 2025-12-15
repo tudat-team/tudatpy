@@ -199,6 +199,7 @@ public:
     {
         numberOfIndependentVariables_ = static_cast< unsigned int >( independentVariableNames.size( ) );
         referenceLengths_ = Eigen::Vector3d::Constant( referenceLength_ );
+        rotationToAerodynamicFrame_ = Eigen::Quaterniond::Identity( );
     }
 
     //! Default destructor.
@@ -642,6 +643,8 @@ protected:
     std::vector< std::string > controlSurfaceNames_;
 
     Eigen::Quaterniond rotationToAerodynamicFrame_;
+
+    double coefficientMultiplier_;
 
 private:
 };
