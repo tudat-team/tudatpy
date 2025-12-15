@@ -2006,36 +2006,6 @@ public:
         setConcatenatedObservationsAndTimes( );
     }
 
-    void setTransponderDelay( const std::string &spacecraftName,
-                              const double transponderDelay,
-                              const std::shared_ptr< ObservationCollectionParser > inputObservationParser =
-                                      std::make_shared< ObservationCollectionParser >( ) )
-    {
-        // Create observation parser with the spacecraft name
-        std::shared_ptr< ObservationCollectionParser > spacecraftParser = observationParser( spacecraftName );
-
-        // Create combined observation parser
-        std::shared_ptr< ObservationCollectionMultiTypeParser > jointParser = std::make_shared< ObservationCollectionMultiTypeParser >(
-                std::vector< std::shared_ptr< ObservationCollectionParser > >( { spacecraftParser, inputObservationParser } ), true );
-
-        // Set transponder delay
-        std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleSets =
-                getSingleObservationSets( jointParser );
-
-        for( auto set : singleSets )
-        {
-            std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings =
-                    set->getAncilliarySettings( );
-
-            if( ancilliarySettings != nullptr )
-            {
-                std::vector< double > linkEndsDelays_ = ancilliarySettings->getAncilliaryDoubleVectorData( link_ends_delays, false );
-                linkEndsDelays_[ 1 ] = transponderDelay;
-                ancilliarySettings->setAncilliaryDoubleVectorData( link_ends_delays, linkEndsDelays_ );
-            }
-        }
-    }
-
     // Function to add an observation dependent variable to (a subset of) the single observation
     // sets
     std::shared_ptr< ObservationCollectionParser > addDependentVariable(
@@ -2754,7 +2724,104 @@ std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > merg
     return std::make_shared< ObservationCollection< ObservationScalarType, TimeType > >( combinedObservationSets );
 }
 
+template< typename ObservationScalarType = double, typename TimeType = double >
+void setTransponderDelay(
+    const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
+    const std::string &spacecraftName,
+    const double transponderDelay,
+    const SystemOfBodies& bodies,
+    const std::shared_ptr< ObservationCollectionParser > inputObservationParser =
+          std::make_shared< ObservationCollectionParser >( ) )
+    {
+        std::shared_ptr< system_models::VehicleSystems > vehicleSystems = bodies.getBody( spacecraftName )->getVehicleSystems(  );
+        vehicleSystems->resetTransponderDelay( transponderDelay );
+
+        // Create observation parser with the spacecraft name
+        std::shared_ptr< ObservationCollectionParser > spacecraftParser = observationParser( spacecraftName );
+
+        // Create combined observation parser
+        std::shared_ptr< ObservationCollectionMultiTypeParser > jointParser = std::make_shared< ObservationCollectionMultiTypeParser >(
+                std::vector< std::shared_ptr< ObservationCollectionParser > >( { spacecraftParser, inputObservationParser } ), true );
+
+        // Set transponder delay
+        std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleSets =
+                observationCollection->getSingleObservationSets( jointParser );
+
+        for( auto set : singleSets )
+        {
+            LinkDefinition currentLinkDefinition = set->getLinkEnds( );
+            if( currentLinkDefinition.getLinkEnds( ).count( retransmitter ) != 0 )
+            {
+                if( currentLinkDefinition.getLinkEnds( ).at( retransmitter ).bodyName_ == spacecraftName )
+                {
+                    std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = set->getAncilliarySettings( );
+                    if( ancilliarySettings != nullptr )
+                    {
+                        set->setAncilliarySettings( std::make_shared< ObservationAncilliarySimulationSettings >( ) );
+                        ancilliarySettings = set->getAncilliarySettings( );
+                    }
+
+                    std::function< void( const double ) > delayUpdateFunction = ancilliarySettings->setTransponderDelay( transponderDelay );
+                    vehicleSystems->addTransponderDelayUpdate( delayUpdateFunction );
+                }
+            }
+        }
+    }
+
+template< typename AncillarySettingContainer >
+void setTransponderDelay(
+    const SystemOfBodies& bodies,
+    const std::shared_ptr< AncillarySettingContainer > settingContainer,
+    const bool setUpdateFunction )
+    {
+        LinkDefinition linkDefinition = settingContainer->getLinkEnds( );
+        if( linkDefinition.getLinkEnds( ).count( retransmitter ) != 0 )
+        {
+            std::string spacecraftName = linkDefinition.getLinkEnds( ).at( retransmitter  ).bodyName_;
+
+            if( bodies.at( spacecraftName )->getVehicleSystems(  )->hasTransponderDelay( ) )
+            {
+                double transponderDelay = bodies.at( spacecraftName )->getVehicleSystems(  )->getTransponderDelay(  );
+
+                // Create observation parser with the spacecraft name
+
+                std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings =
+                    settingContainer->getAncilliarySettings( );
+                if( ancilliarySettings == nullptr )
+                {
+                    settingContainer->setAncilliarySettings( std::make_shared< ObservationAncilliarySimulationSettings >( ) );
+                    ancilliarySettings = settingContainer->getAncilliarySettings( );
+                }
+
+                if( setUpdateFunction )
+                {
+                    std::function< void( const double ) > delayUpdateFunction = ancilliarySettings->setTransponderDelay( transponderDelay );
+                    bodies.at( spacecraftName )->getVehicleSystems(  )->addTransponderDelayUpdate( delayUpdateFunction );
+                }
+            }
+        }
+    }
+
+template< typename ObservationScalarType = double, typename TimeType = double >
+void setTransponderDelay(
+    const std::shared_ptr< ObservationCollection< ObservationScalarType, TimeType > > observationCollection,
+    const SystemOfBodies& bodies,
+    const std::shared_ptr< ObservationCollectionParser > inputObservationParser =
+          std::make_shared< ObservationCollectionParser >( ) )
+{
+    // Set transponder delay
+    std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > singleSets =
+            observationCollection->getSingleObservationSets( inputObservationParser );
+
+    for( unsigned int i = 0; i < singleSets.size( ); i++ )
+    {
+        setTransponderDelay< SingleObservationSet< ObservationScalarType, TimeType > >(
+            bodies, singleSets.at( i ), true );
+    }
+}
+
 }  // namespace observation_models
+
 
 }  // namespace tudat
 

@@ -428,6 +428,31 @@ public:
         transmittedFrequencyCalculator_ = transmittedFrequencyCalculator;
     }
 
+    void addTransponderDelayUpdate( std::function< void( const double ) > transponderDelayUpdateFunction )
+    {
+        transponderDelayUpdateFunctions_.push_back( transponderDelayUpdateFunction );
+    }
+
+    void resetTransponderDelay( const double transponderDelay )
+    {
+        transponderDelay_ = transponderDelay;
+        hasTransponderDelay_ = true;
+        for( unsigned int i = 0; i < transponderDelayUpdateFunctions_.size( ); i++ )
+        {
+            transponderDelayUpdateFunctions_.at( i )( transponderDelay );
+        }
+    }
+
+    bool hasTransponderDelay( )
+    {
+        return hasTransponderDelay_;
+    }
+
+    double getTransponderDelay( )
+    {
+        return transponderDelay_;
+    }
+
 private:
     std::map< std::string, std::shared_ptr< ephemerides::Ephemeris > > referencePoints_;
 
@@ -466,6 +491,12 @@ private:
             transponderTurnaroundRatio_;
 
     std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittedFrequencyCalculator_;
+
+    double transponderDelay_ = 0.0;
+
+    bool hasTransponderDelay_ = false;
+
+    std::vector< std::function< void( const double ) > > transponderDelayUpdateFunctions_;
 };
 
 }  // namespace system_models

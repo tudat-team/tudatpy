@@ -468,6 +468,11 @@ public:
         return ancilliarySettings_;
     }
 
+    void setAncilliarySettings( const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings )
+    {
+        ancilliarySettings_ = ancilliarySettings;
+    }
+
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getWeights( ) const
     {
         return weights_;

@@ -1581,23 +1581,6 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
          observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Parser to select the observation sets.
      )doc" )
-            .def( "set_transponder_delay",
-                  &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::setTransponderDelay,
-                  py::arg( "spacecraft_name" ),
-                  py::arg( "transponder_delay" ),
-                  py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
-                  R"doc(
-         Set the transponder delay for a subset of observations.
-
-         Parameters
-         ----------
-         spacecraft_name : str
-             Name of the spacecraft with the transponder.
-         transponder_delay : float
-             The transponder delay in seconds.
-         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
-             Parser to select the observation sets.
-     )doc" )
             .def( "remove_empty_observation_sets",
                   &tom::ObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE >::removeEmptySingleObservationSets,
                   R"doc(Remove all single observation sets that contain no observations.)doc" )
@@ -2002,8 +1985,27 @@ Deprecated. Use :func:`~tudatpy.estimation.observations.create_filtered_observat
         tudatpy.estimation.observations.ObservationCollection
             A new observation collection containing the selected subset of observation sets.
         )doc" );
-}
 
+    m.def( "set_transponder_delay",
+         &tom::setTransponderDelay< STATE_SCALAR_TYPE, TIME_TYPE >,
+         py::arg( "observation_collection" ),
+         py::arg( "spacecraft_name" ),
+         py::arg( "transponder_delay" ),
+         py::arg( "bodies" ),
+         py::arg( "observation_parser" ) = std::make_shared< tom::ObservationCollectionParser >( ),
+         R"doc(
+         Set the transponder delay for a subset of observations.
+
+         Parameters
+         ----------
+         spacecraft_name : str
+             Name of the spacecraft with the transponder.
+         transponder_delay : float
+             The transponder delay in seconds.
+         observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
+             Parser to select the observation sets.
+     )doc" );
+}
 }  // namespace observations
 }  // namespace estimation
 }  // namespace tudatpy

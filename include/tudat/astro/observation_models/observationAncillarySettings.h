@@ -43,7 +43,8 @@ enum ObservationAncilliarySimulationVariable {
 
 enum ObservationIntermediateSimulationVariable { transmitter_frequency_intermediate, received_frequency_intermediate };
 
-struct ObservationAncilliarySimulationSettings {
+struct ObservationAncilliarySimulationSettings
+{
 public:
     ObservationAncilliarySimulationSettings( ) {}
 
@@ -261,11 +262,39 @@ public:
         return doubleVectorData_;
     }
 
+    void updateTransponderDelay( const double transponderDelay )
+    {
+        if( doubleVectorData_.count( link_ends_delays ) == 0 )
+        {
+            throw std::runtime_error( "Error when resetting transponder delays, no link end delays found in ancillary settings" );
+        }
+        else if( doubleVectorData_.at( link_ends_delays ).size( ) != 1 )
+        {
+            throw std::runtime_error( "Error when resetting transponder delays, link end delays has incorrect size" );
+        }
+        else if( !retransmissionDelayIsTransponderDelay_ )
+        {
+            throw std::runtime_error( "Error when resetting transponder delays, ancillary settings does not have transponder delay" );
+        }
+        else
+        {
+            this->setAncilliaryDoubleVectorData( link_ends_delays, std::vector< double >( { transponderDelay } ) );
+        }
+    }
+
+    std::function< void( const double ) > setTransponderDelay( const double transponderDelay )
+    {
+        retransmissionDelayIsTransponderDelay_ = true;
+        updateTransponderDelay( transponderDelay );
+        return std::bind( &ObservationAncilliarySimulationSettings::updateTransponderDelay, this, std::placeholders::_1 );
+    }
+
 protected:
     std::map< ObservationAncilliarySimulationVariable, double > doubleData_;
     std::map< ObservationAncilliarySimulationVariable, std::vector< double > > doubleVectorData_;
-
     std::map< ObservationIntermediateSimulationVariable, double > doubleIntermediateData_;
+
+    bool retransmissionDelayIsTransponderDelay_;
 };
 
 inline std::shared_ptr< ObservationAncilliarySimulationSettings > getAveragedDopplerAncilliarySettings(
