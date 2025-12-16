@@ -38,7 +38,7 @@ a reflection law to compute the influence of radiation pressure) using the
 
 The vehicle macromodel, and the rotation models from the body-fixed frame to the (optional) part-fixed frames are defined by
 using the :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.full_panelled_body_settings` function, and
-assigned to the :attr:`~tudatpy.dynamics.environment_setup.BodySettings.vehicle_shape_settings` attribute of the :class:`~tudatpy.dynamics.environment_setup.BodySettings` class.
+assigned to the :attr:`~tudatpy.dynamics.environment_setup.BodySettings.vehicle_shape_settings` attribute of the :class:`~tudatpy.dynamics.environment_setup.BodySettings` class. Large macromodels can be loaded from CAD files in DAE format using :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.body_panel_settings_list_from_dae`.
 When a full macromodel is not available to the user, a 'box-wing' model may also be used, which creates the macromodel
 based on user settings, using the :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.box_wing_panelled_body_settings` function.
 
@@ -71,6 +71,8 @@ Functions
 
    box_wing_panelled_body_settings
 
+   body_panel_settings_list_from_dae
+
 
 
 .. autofunction:: tudatpy.dynamics.environment_setup.vehicle_systems.frame_fixed_panel_geometry
@@ -84,6 +86,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.vehicle_systems.full_panelled_body_settings
 
 .. autofunction:: tudatpy.dynamics.environment_setup.vehicle_systems.box_wing_panelled_body_settings
+
+.. autofunction:: tudatpy.dynamics.environment_setup.vehicle_systems.body_panel_settings_list_from_dae
 
 
 

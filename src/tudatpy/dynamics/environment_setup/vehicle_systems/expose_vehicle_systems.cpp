@@ -420,23 +420,23 @@ Panel surface area
            py::arg( "input_unit" ) = "m",
            py::arg( "frame_orientation" ) = "",
            R"doc(
-Function for creating list of panel body settings
+Function for loading a DAE file containing the macromodel of a spacecraft
         
-Function for creating list of panel body settings from a .dae (COLLADA) file containing the 3D geometry and the
-material for the paneled surface.
+This function creates a list of :class:`~tudatpy.dynamics.environment_setup.vehicle_systems.BodyPanelSettings` generated from a custom macromodel exported in the DAE (COLLADA) file format.
+
 Parameters
 ----------
 file_path : str
     Path to .dae file with geometry data.
 frame_origin : np.array
-    Frame origin of the .dae part to be loaded.
+    Frame origin of the .dae part to be loaded given as cartesian coordinates in the body-fixed frame.
 material_properties : dict[str, MaterialProperties]
     Dictionary of material properties, as they appear in the .dae file provided.
 reradiation_settings : dict[str, bool]
     Dictionary of re-radiation settings for materials, as they appear in the .dae file provided.
-input_unit : str
-    Identifier of unit of length used in input model.
-frame_orientation : str, default = " "
+input_unit : str, default = "m"
+    Identifier of unit of length used in input model (available units "mm", "m", "in").
+frame_orientation : str, default = ""
     Identifier of the frame to which the panel is fixed (if body-fixed frame, this can be left empty).
     
 Returns
