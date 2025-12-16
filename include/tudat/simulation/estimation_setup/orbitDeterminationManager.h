@@ -687,6 +687,8 @@ public:
                       << std::endl;
         }
 
+
+
         // Define full parameters values
         ParameterVectorType parameterValues = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
@@ -752,11 +754,11 @@ public:
         // Create covariance output object
         std::shared_ptr< CovarianceAnalysisOutput< ObservationScalarType, TimeType > > estimationOutput =
                 std::make_shared< CovarianceAnalysisOutput< ObservationScalarType, TimeType > >(
-                        designMatrixEstimatedParameters,
+                        estimationInput->getSaveDesignMatrix( ) ? designMatrixEstimatedParameters : Eigen::MatrixXd::Zero( 0, 0 ),
                         estimationInput->getWeightsMatrixDiagonals( ),
                         normalizationTerms,
                         inverseNormalizedCovariance,
-                        designMatrixConsiderParameters,
+                        estimationInput->getSaveDesignMatrix( ) ? designMatrixConsiderParameters : Eigen::MatrixXd::Zero( 0, 0 ),
                         considerNormalizationTerms,
                         covarianceContributionConsiderParameters,
                         estimationInput->getConsiderCovariance( ),
@@ -805,7 +807,7 @@ public:
         Eigen::VectorXd bestTransformationData = Eigen::VectorXd::Constant( numberEstimatedParameters_, TUDAT_NAN );
         Eigen::VectorXd bestResiduals = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
         Eigen::MatrixXd bestDesignMatrixEstimatedParameters =
-                Eigen::MatrixXd::Constant( totalNumberOfObservations, numberEstimatedParameters_, TUDAT_NAN );
+                Eigen::MatrixXd::Zero( 0, 0 );
         Eigen::VectorXd bestWeightsMatrixDiagonal = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
         Eigen::MatrixXd bestInverseNormalizedCovarianceMatrix =
                 Eigen::MatrixXd::Constant( numberEstimatedParameters_, numberEstimatedParameters_, TUDAT_NAN );
@@ -816,7 +818,7 @@ public:
         {
             bestConsiderTransformationData = Eigen::VectorXd::Constant( numberConsiderParameters_, TUDAT_NAN );
             bestDesignMatrixConsiderParameters =
-                    Eigen::MatrixXd::Constant( totalNumberOfObservations, numberConsiderParameters_, TUDAT_NAN );
+                    Eigen::MatrixXd::Zero( 0, 0 );
             bestConsiderCovarianceContribution =
                     Eigen::MatrixXd::Constant( numberEstimatedParameters_, numberEstimatedParameters_, TUDAT_NAN );
         }

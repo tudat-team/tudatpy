@@ -311,7 +311,8 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
         const TimeType startTime = TimeType( 1.0E7 ),
         const int numberOfDaysOfData = 3,
         const int numberOfIterations = 5,
-        const bool useFullParameterSet = true )
+        const bool useFullParameterSet = true,
+        const bool saveDesignMatrix = true )
 {
     // Load spice kernels.
     spice_interface::loadStandardSpiceKernels( );
@@ -572,7 +573,7 @@ Eigen::VectorXd executeEarthOrbiterParameterEstimation(
     // Define estimation input
     std::shared_ptr< EstimationInput< StateScalarType, TimeType > > estimationInput =
             std::make_shared< EstimationInput< StateScalarType, TimeType > >( simulatedObservations );
-    estimationInput->defineEstimationSettings( true, true, true, true, true, true );
+    estimationInput->defineEstimationSettings( true, true, saveDesignMatrix, true, true, true );
     estimationInput->setConvergenceChecker( std::make_shared< EstimationConvergenceChecker >( numberOfIterations ) );
 
     // Perform estimation
