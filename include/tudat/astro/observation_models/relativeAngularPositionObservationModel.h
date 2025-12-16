@@ -27,7 +27,7 @@ namespace observation_models
 inline double getRelativeAngularPositionScalingFactor( const observation_models::LinkEndType referenceLinkEnd,
                                                        const std::vector< Eigen::Vector6d >& linkEndStates,
                                                        const std::vector< double >& linkEndTimes,
-                                                       const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings,
+                                                       const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings,
                                                        const bool isFirstPartial )
 {
     return 1.0;
@@ -90,7 +90,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetingsInput = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetingsInput = nullptr )
 
     {
         // Check link end associated with input time and compute observable.
@@ -105,16 +105,16 @@ public:
         Eigen::Matrix< ObservationScalarType, 6, 1 > secondTransmitterState;
 
         // Compute light-times and receiver/transmitters states.
-        std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings;
+        std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings;
         this->setFrequencyProperties(
-                time, linkEndAssociatedWithTime, lightTimeCalculatorFirstTransmitter_, ancilliarySetingsInput, ancilliarySetings );
+                time, linkEndAssociatedWithTime, lightTimeCalculatorFirstTransmitter_, ancillarySetingsInput, ancillarySetings );
         ObservationScalarType lightTimeFirstTransmitter = lightTimeCalculatorFirstTransmitter_->calculateLightTimeWithLinkEndsStates(
-                receiverState, firstTransmitterState, time, true, ancilliarySetings );
+                receiverState, firstTransmitterState, time, true, ancillarySetings );
 
         this->setFrequencyProperties(
-                time, linkEndAssociatedWithTime, lightTimeCalculatorSecondTransmitter_, ancilliarySetingsInput, ancilliarySetings );
+                time, linkEndAssociatedWithTime, lightTimeCalculatorSecondTransmitter_, ancillarySetingsInput, ancillarySetings );
         ObservationScalarType lightTimeSecondTransmitter = lightTimeCalculatorSecondTransmitter_->calculateLightTimeWithLinkEndsStates(
-                receiverState, secondTransmitterState, time, true, ancilliarySetings );
+                receiverState, secondTransmitterState, time, true, ancillarySetings );
 
         // Compute spherical relative position for first transmitter / receiver
         //        Eigen::Matrix< ObservationScalarType, 3, 1 > sphericalRelativeCoordinatesFirstTransmitter =

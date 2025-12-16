@@ -75,23 +75,23 @@ public:
      *  is kept constant (to input value)
      *  \param linkEndTimes List of times at each link end during observation.
      *  \param linkEndStates List of states at each link end during observation.
-     *  \return Ideal one-way Doppler ObservationAncilliarySimulationSettings<observable.
+     *  \return Ideal one-way Doppler ObservationAncillarySimulationSettings<observable.
      */
     Eigen::Matrix< ObservationScalarType, 1, 1 > computeIdealObservationsWithLinkEndData(
             const TimeType time,
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetingsInput = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetingsInput = nullptr )
     {
-        std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings;
+        std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings;
         this->setFrequencyProperties(
-                time, linkEndAssociatedWithTime, multiLegLightTimeCalculator_, ancilliarySetingsInput, ancilliarySetings );
+                time, linkEndAssociatedWithTime, multiLegLightTimeCalculator_, ancillarySetingsInput, ancillarySetings );
 
         linkEndTimes.clear( );
         linkEndStates.clear( );
         multiLegLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetings );
+                time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySetings );
 
         std::vector< double > uplinkLinkEndTimes = { linkEndTimes.at( 0 ), linkEndTimes.at( 1 ) };
         std::vector< Eigen::Matrix< double, 6, 1 > > uplinkLinkEndStates = { linkEndStates.at( 0 ), linkEndStates.at( 1 ) };

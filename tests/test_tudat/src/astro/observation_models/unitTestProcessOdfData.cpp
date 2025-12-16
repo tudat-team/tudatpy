@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE( testProcessOdfData )
                 // Get the observations and times
                 auto observations = observationSet->getObservations( );
                 auto observationTimes = observationSet->getObservationTimes( );
-                auto ancillarySettings = observationSet->getAncilliarySettings( );
+                auto ancillarySettings = observationSet->getAncillarySettings( );
 
                 if( !observations.empty( ) && !observationTimes.empty( ) )
                 {

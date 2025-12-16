@@ -527,27 +527,27 @@ protected:
 
 struct ObservationCollectionAncillarySettingsParser : public ObservationCollectionParser {
 public:
-    ObservationCollectionAncillarySettingsParser( const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings,
+    ObservationCollectionAncillarySettingsParser( const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings,
                                                   const bool useOppositeCondition = false ):
         ObservationCollectionParser( ancillary_settings_parser, useOppositeCondition ),
-        ancillarySettings_( std::vector< std::shared_ptr< ObservationAncilliarySimulationSettings > >( { ancillarySettings } ) )
+        ancillarySettings_( std::vector< std::shared_ptr< ObservationAncillarySimulationSettings > >( { ancillarySettings } ) )
     { }
 
     ObservationCollectionAncillarySettingsParser(
-            const std::vector< std::shared_ptr< ObservationAncilliarySimulationSettings > > ancillarySettings,
+            const std::vector< std::shared_ptr< ObservationAncillarySimulationSettings > > ancillarySettings,
             const bool useOppositeCondition = false ):
         ObservationCollectionParser( ancillary_settings_parser, useOppositeCondition ), ancillarySettings_( ancillarySettings )
     { }
 
     virtual ~ObservationCollectionAncillarySettingsParser( ) { }
 
-    std::vector< std::shared_ptr< ObservationAncilliarySimulationSettings > > getAncillarySettings( ) const
+    std::vector< std::shared_ptr< ObservationAncillarySimulationSettings > > getAncillarySettings( ) const
     {
         return ancillarySettings_;
     }
 
 protected:
-    const std::vector< std::shared_ptr< ObservationAncilliarySimulationSettings > > ancillarySettings_;
+    const std::vector< std::shared_ptr< ObservationAncillarySimulationSettings > > ancillarySettings_;
 };
 
 struct ObservationCollectionMultiTypeParser : public ObservationCollectionParser {
@@ -674,14 +674,14 @@ inline std::shared_ptr< ObservationCollectionParser > observationParser( const s
 }
 
 inline std::shared_ptr< ObservationCollectionParser > observationParser(
-        const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings,
+        const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings,
         const bool useOppositeCondition = false )
 {
     return std::make_shared< ObservationCollectionAncillarySettingsParser >( ancillarySettings, useOppositeCondition );
 }
 
 inline std::shared_ptr< ObservationCollectionParser > observationParser(
-        const std::vector< std::shared_ptr< ObservationAncilliarySimulationSettings > >& ancillarySettings,
+        const std::vector< std::shared_ptr< ObservationAncillarySimulationSettings > >& ancillarySettings,
         const bool useOppositeCondition = false )
 {
     return std::make_shared< ObservationCollectionAncillarySettingsParser >( ancillarySettings, useOppositeCondition );

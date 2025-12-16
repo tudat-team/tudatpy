@@ -286,7 +286,7 @@ def test_reader():
     obs_set = single_obs_sets[0]
 
     # Check doppler integration time.
-    dopplerCount = obs_set.ancilliary_settings.get_float_settings(
+    dopplerCount = obs_set.ancillary_settings.get_float_settings(
         ancillary_settings.doppler_integration_time
     )
     assert (
@@ -294,7 +294,7 @@ def test_reader():
     ), f"Expected doppler integration time 1.0, got {dopplerCount}"
 
     # Check link end delays.
-    linkEndDelays = obs_set.ancilliary_settings.get_float_list_settings(
+    linkEndDelays = obs_set.ancillary_settings.get_float_list_settings(
         ancillary_settings.link_ends_delays
     )
     expected_delays = [4.915100149105456e-08, 0.0, -1.8370300836068054e-07]

@@ -201,7 +201,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                         linkEndIterator->first,
                         twoWayLinkEndTimes,
                         twoWayLinkEndStates,
-                        getNWayRangeAncilliarySettings( retransmissionDelays ) );
+                        getNWayRangeAncillarySettings( retransmissionDelays ) );
 
                 // Set observation times/reference link ends of constituent one-way ranges
                 if( linkEndIterator->first == transmitter )
@@ -403,7 +403,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                         linkEndIterator->first,
                         fourWayLinkEndTimes,
                         fourWayLinkEndStates,
-                        getNWayRangeAncilliarySettings( retransmissionDelays ) );
+                        getNWayRangeAncillarySettings( retransmissionDelays ) );
 
                 // Set observation times of constituent one-way ranges
                 firstlinkObservationTime = fourWayLinkEndTimes.at( 0 );
@@ -695,10 +695,10 @@ BOOST_AUTO_TEST_CASE( testTwoWayRangeWithFrequencyCorrections )
                 ObservationModelCreator< 1, double, double >::createObservationModel( twoWayObservableSettingsUncorrected, bodies );
 
         // Compute correction
-        std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
-                std::make_shared< ObservationAncilliarySimulationSettings >( );
+        std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+                std::make_shared< ObservationAncillarySimulationSettings >( );
 
-        ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { x_band, x_band } );
+        ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, { x_band, x_band } );
 
         std::vector< double > linkEndTimes;
         std::vector< Eigen::Matrix< double, 6, 1 > > linkEndStates;

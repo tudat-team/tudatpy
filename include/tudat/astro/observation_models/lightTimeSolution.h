@@ -44,13 +44,13 @@ typedef std::function< double( const Eigen::Vector6d&,
                                const Eigen::Vector6d&,
                                const double,
                                const double,
-                               const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) >
+                               const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ) >
         LightTimeCorrectionFunctionSingleLeg;
 
 typedef std::function< double( const std::vector< Eigen::Vector6d >&,
                                const std::vector< double >&,
                                const unsigned int,
-                               const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) >
+                               const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ) >
         LightTimeCorrectionFunctionMultiLeg;
 
 enum LightTimeFailureHandling { accept_without_warning, print_warning_and_accept, throw_exception };
@@ -203,7 +203,7 @@ public:
                 [ = ]( const std::vector< Eigen::Vector6d >& linkEndsStates,
                        const std::vector< double >& linkEndsTimes,
                        const unsigned int currentMultiLegTransmitterIndex,
-                       const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) -> double {
+                       const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings ) -> double {
             return lightTimeCorrectionFunction( linkEndsStates.at( currentMultiLegTransmitterIndex ),
                                                 linkEndsStates.at( currentMultiLegTransmitterIndex + 1 ),
                                                 linkEndsTimes.at( currentMultiLegTransmitterIndex ),
@@ -229,7 +229,7 @@ public:
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
             const unsigned int currentMultiLegTransmitterIndex,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr ) override
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) override
     {
         return lightTimeCorrectionFunction_( linkEndsStates, linkEndsTimes, currentMultiLegTransmitterIndex, ancillarySettings );
     }
@@ -368,7 +368,7 @@ public:
             StateType& transmitterStateOutput,
             const TimeType time,
             const bool isTimeAtReception = 1,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
     {
         std::vector< StateType > linkEndsStates( 2, StateType::Constant( TUDAT_NAN ) );
         std::vector< TimeType > linkEndsTimes( 2, TUDAT_NAN );
@@ -417,7 +417,7 @@ public:
             const TimeType time,
             const bool isTimeAtReception = true,
             const unsigned int currentMultiLegTransmitterIndex = 0,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
             const bool computeLightTimeCorrections = true )
     {
         try
@@ -587,7 +587,7 @@ public:
             const double transmitterTime,
             const double receiverTime,
             const bool isPartialWrtReceiver,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
     {
         setTotalLightTimeCorrection( transmitterState.template cast< ObservationScalarType >( ),
                                      receiverState.template cast< ObservationScalarType >( ),
@@ -623,7 +623,7 @@ public:
             const double transmitterTime,
             const double receiverTime,
             const bool isPartialWrtReceiver,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
     {
         setTotalLightTimeCorrection( transmitterState.template cast< ObservationScalarType >( ),
                                      receiverState.template cast< ObservationScalarType >( ),
@@ -768,7 +768,7 @@ protected:
             const StateType& receiverState,
             const TimeType transmissionTime,
             const TimeType receptionTime,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
     {
         std::vector< StateType > linkEndStates = { transmitterState, receiverState };
         std::vector< TimeType > linkEndTimes = { transmissionTime, receptionTime };
@@ -781,7 +781,7 @@ protected:
             std::vector< StateType >& linkEndStates,
             std::vector< TimeType >& linkEndTimes,
             const unsigned int currentMultiLegTransmitterIndex,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
     {
         ObservationScalarType totalLightTimeCorrections = mathematical_constants::getFloatingInteger< ObservationScalarType >( 0 );
 
@@ -852,13 +852,13 @@ public:
         initializeMultiLegLightTimeCalculator( );
     }
 
-    void resetLinkEndDelays( const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
+    void resetLinkEndDelays( const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
                              const bool performFullComputation = true )
     {
         linkEndsDelays_.clear( );
         if( ancillarySettings != nullptr )
         {
-            linkEndsDelays_ = ancillarySettings->getAncilliaryDoubleVectorData( link_ends_delays, false );
+            linkEndsDelays_ = ancillarySettings->getAncillaryDoubleVectorData( link_ends_delays, false );
         }
 
         if( !linkEndsDelays_.empty( ) )
@@ -907,7 +907,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndsTimesOutput,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndsStatesOutput,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
     {
         resetLinkEndDelays( ancillarySettings, true );
         setStartLinkIndex( linkEndAssociatedWithTime );
@@ -1044,7 +1044,7 @@ private:
             const TimeType time,
             std::vector< TimeType >& linkEndTimes,
             std::vector< StateType >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
             bool computeLightTimeCorrections = true )
     {
         // Define objects to keep light times

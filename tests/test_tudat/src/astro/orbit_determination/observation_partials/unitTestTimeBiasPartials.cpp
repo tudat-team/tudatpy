@@ -320,18 +320,18 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
                 measurementSimulationInput.push_back( std::make_shared< TabulatedObservationSimulationSettings< double > >(
                         currentObservable, testLinkEnds, baseTimeList, referenceLinkEnd ) );
 
-                std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings;
+                std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings;
                 if( currentObservable == one_way_differenced_range || currentObservable == n_way_differenced_range )
                 {
-                    ancilliarySettings = std::make_shared< ObservationAncilliarySimulationSettings >( );
-                    ancilliarySettings->setAncilliaryDoubleData( doppler_integration_time, 60.0 );
-                    measurementSimulationInput.at( 0 )->setAncilliarySettings( ancilliarySettings );
+                    ancillarySettings = std::make_shared< ObservationAncillarySimulationSettings >( );
+                    ancillarySettings->setAncillaryDoubleData( doppler_integration_time, 60.0 );
+                    measurementSimulationInput.at( 0 )->setAncillarySettings( ancillarySettings );
                 }
                 else if( currentObservable == dsn_n_way_averaged_doppler )
                 {
-                    ancilliarySettings = getDsnNWayAveragedDopplerAncillarySettings(
+                    ancillarySettings = getDsnNWayAveragedDopplerAncillarySettings(
                             std::vector< FrequencyBands >{ x_band, x_band }, x_band, 8.5e9, 60.0 );
-                    measurementSimulationInput.at( 0 )->setAncilliarySettings( ancilliarySettings );
+                    measurementSimulationInput.at( 0 )->setAncillarySettings( ancillarySettings );
                 }
 
                 // Compute observations and partials
@@ -346,7 +346,7 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
                     case n_way_differenced_range:
                     case dsn_n_way_averaged_doppler:
                         orbitDeterminationManager.computePartialsAndObservations< 1 >( testLinkEnds,
-                                                                                       ancilliarySettings,
+                                                                                       ancillarySettings,
                                                                                        currentObservable,
                                                                                        referenceLinkEnd,
                                                                                        baseTimeList,
@@ -356,7 +356,7 @@ BOOST_AUTO_TEST_CASE( testTimeBiasPartials )
                     case angular_position:
                     case relative_angular_position:
                         orbitDeterminationManager.computePartialsAndObservations< 2 >( testLinkEnds,
-                                                                                       ancilliarySettings,
+                                                                                       ancillarySettings,
                                                                                        currentObservable,
                                                                                        referenceLinkEnd,
                                                                                        baseTimeList,

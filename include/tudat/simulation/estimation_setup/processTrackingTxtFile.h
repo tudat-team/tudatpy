@@ -330,19 +330,19 @@ public:
         return networkPrefix + std::to_string( stationId );
     }
 
-    void updateAncilliarySettings( const ObservableType observableType,
-                                   std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySettings )
+    void updateAncillarySettings( const ObservableType observableType,
+                                   std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings )
     {
         if( !utilities::containsAll( observableTypes_, std::vector< ObservableType >( { observableType } ) ) )
         {
-            throw std::runtime_error( "Error when getting ancilliary settings from processed file contents, could not find " +
+            throw std::runtime_error( "Error when getting ancillary settings from processed file contents, could not find " +
                                       getObservableName( observableType ) );
         }
 
         switch( observableType )
         {
             case dsn_n_way_averaged_doppler: {
-                ancilliarySettings->setAncilliaryDoubleData( doppler_integration_time, getObservationTimeStep( ) );
+                ancillarySettings->setAncillaryDoubleData( doppler_integration_time, getObservationTimeStep( ) );
             }
             default:
                 break;
@@ -535,7 +535,7 @@ createTrackingTxtFileObservationSets(
         const std::shared_ptr< observation_models::ProcessedTrackingTxtFileContents< ObservationScalarType, TimeType > >
                 processedTrackingTxtFileContents,
         std::vector< ObservableType > observableTypesToProcess = std::vector< ObservableType >( ),
-        const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings( ) )
+        const ObservationAncillarySimulationSettings& ancillarySettings = ObservationAncillarySimulationSettings( ) )
 {
     // Make sure processing the tracking file was successful
     if( !processedTrackingTxtFileContents->is_initialised( ) )
@@ -576,9 +576,9 @@ createTrackingTxtFileObservationSets(
     std::vector< LinkEnds > linkEndsVector = processedTrackingTxtFileContents->getLinkEndsVector( );
     std::set< LinkEnds > linkEndsSet = processedTrackingTxtFileContents->getLinkEndsSet( );
 
-    std::shared_ptr< ObservationAncilliarySimulationSettings > updatedAncilliarySettings =
-            std::make_shared< ObservationAncilliarySimulationSettings >( ancillarySettings );
-    processedTrackingTxtFileContents->updateAncilliarySettings( availableObservableTypes.at( 0 ), updatedAncilliarySettings );
+    std::shared_ptr< ObservationAncillarySimulationSettings > updatedAncillarySettings =
+            std::make_shared< ObservationAncillarySimulationSettings >( ancillarySettings );
+    processedTrackingTxtFileContents->updateAncillarySettings( availableObservableTypes.at( 0 ), updatedAncillarySettings );
 
     // Prepare maps that order all observations per observable type and link ends
     // This is necessary for files where the linkends are not always the same
@@ -615,7 +615,7 @@ createTrackingTxtFileObservationSets(
                             receiver,  // TODO: make more flexible to allow for other reference link ends
                             std::vector< Eigen::VectorXd >( ),
                             nullptr,
-                            updatedAncilliarySettings ) );
+                            updatedAncillarySettings ) );
         }
     }
 
@@ -627,7 +627,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
         const std::vector< std::shared_ptr< observation_models::ProcessedTrackingTxtFileContents< ObservationScalarType, TimeType > > >
                 processedTrackingTxtFileContents,
         std::vector< ObservableType > observableTypesToProcess = std::vector< ObservableType >( ),
-        const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings( ) )
+        const ObservationAncillarySimulationSettings& ancillarySettings = ObservationAncillarySimulationSettings( ) )
 {
     std::map< ObservableType,
               std::map< LinkEnds, std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > > > >
@@ -658,7 +658,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
         const std::shared_ptr< observation_models::ProcessedTrackingTxtFileContents< ObservationScalarType, TimeType > >
                 processedTrackingTxtFileContents,
         std::vector< ObservableType > observableTypesToProcess = std::vector< ObservableType >( ),
-        const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings( ) )
+        const ObservationAncillarySimulationSettings& ancillarySettings = ObservationAncillarySimulationSettings( ) )
 {
     return createTrackingTxtFilesObservationCollection< ObservationScalarType, TimeType >(
             { processedTrackingTxtFileContents }, observableTypesToProcess, ancillarySettings );
@@ -680,7 +680,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
         const std::vector< ObservableType > observableTypesToProcess = std::vector< ObservableType >( ),
         const std::map< std::string, Eigen::Vector3d > earthFixedGroundStationPositions =
                 simulation_setup::getCombinedApproximateGroundStationPositions( ),
-        const ObservationAncilliarySimulationSettings& ancillarySettings = ObservationAncilliarySimulationSettings( ) )
+        const ObservationAncillarySimulationSettings& ancillarySettings = ObservationAncillarySimulationSettings( ) )
 {
     // Create processed tracking file contents
     auto processedTrackingTxtFileContents =
@@ -794,14 +794,14 @@ createMultiStationIfmsObservedObservationCollectionFromFiles(
 
     setTrackingDataInformationInBodies( processedIfmsFiles, bodies, dsn_n_way_averaged_doppler );
 
-    ObservationAncilliarySimulationSettings ancilliarySettings;
-    ancilliarySettings.setAncilliaryDoubleVectorData(
+    ObservationAncillarySimulationSettings ancillarySettings;
+    ancillarySettings.setAncillaryDoubleVectorData(
             frequency_bands, { static_cast< double >( transmissionBand ), static_cast< double >( receptionBand ) } );
-    ancilliarySettings.setAncilliaryDoubleData( doppler_reference_frequency, 0.0 );
-    ancilliarySettings.setAncilliaryDoubleData( reception_reference_frequency_band, convertFrequencyBandToDouble( receptionBand ) );
+    ancillarySettings.setAncillaryDoubleData( doppler_reference_frequency, 0.0 );
+    ancillarySettings.setAncillaryDoubleData( reception_reference_frequency_band, convertFrequencyBandToDouble( receptionBand ) );
 
     return observation_models::createTrackingTxtFilesObservationCollection< ObservationScalarType, TimeType >(
-            processedIfmsFiles, std::vector< ObservableType >( ), ancilliarySettings );
+            processedIfmsFiles, std::vector< ObservableType >( ), ancillarySettings );
 }
 
 template< typename ObservationScalarType = double, typename TimeType = Time >
@@ -855,13 +855,13 @@ createFdetsObservedObservationCollectionFromFile( const std::string& fdetsFileNa
             std::make_shared< observation_models::ProcessedTrackingTxtFileContents< ObservationScalarType, TimeType > >(
                     fdetsFileContents, targetName, earthFixedGroundStationPositions ) );
 
-    // Define ancilliary settings
-    ObservationAncilliarySimulationSettings ancilliarySettings;
-    ancilliarySettings.setAncilliaryDoubleVectorData(
+    // Define ancillary settings
+    ObservationAncillarySimulationSettings ancillarySettings;
+    ancillarySettings.setAncillaryDoubleVectorData(
             frequency_bands, { static_cast< double >( transmissionBand ), static_cast< double >( receptionBand ) } );
 
     return observation_models::createTrackingTxtFilesObservationCollection< ObservationScalarType, TimeType >(
-            processedFdetsFiles, std::vector< ObservableType >( ), ancilliarySettings );
+            processedFdetsFiles, std::vector< ObservableType >( ), ancillarySettings );
 }
 
 }  // namespace observation_models

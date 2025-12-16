@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeRatePartials )
                                       true,
                                       1000.0,
                                       parameterPerturbationMultipliers,
-                                      getNWayAveragedDopplerAncilliarySettings( 60.0, getRetransmissionDelays( 1.0E7, 1 ) ) );
+                                      getNWayAveragedDopplerAncillarySettings( 60.0, getRetransmissionDelays( 1.0E7, 1 ) ) );
     }
 
     // Test partials with real ephemerides (without test of position partials)
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeRatePartials )
                                       true,
                                       1000.0,
                                       parameterPerturbationMultipliers,
-                                      getNWayAveragedDopplerAncilliarySettings( 60.0, getRetransmissionDelays( 1.0E7, 1 ) ) );
+                                      getNWayAveragedDopplerAncillarySettings( 60.0, getRetransmissionDelays( 1.0E7, 1 ) ) );
     }
 }
 

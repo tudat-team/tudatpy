@@ -76,10 +76,10 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetingsInput = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetingsInput = nullptr )
     {
-        std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings;
-        this->setFrequencyProperties( time, linkEndAssociatedWithTime, lightTimeCalculator_, ancilliarySetingsInput, ancilliarySetings );
+        std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings;
+        this->setFrequencyProperties( time, linkEndAssociatedWithTime, lightTimeCalculator_, ancillarySetingsInput, ancillarySetings );
 
         // Check link end associated with input time and compute observable
         bool isTimeAtReception;
@@ -97,9 +97,9 @@ public:
             throw std::runtime_error( "Error when calculating angular position observation, link end is not transmitter or receiver" );
         }
 
-        if( ancilliarySetings != nullptr )
+        if( ancillarySetings != nullptr )
         {
-            throw std::runtime_error( "Error, calling angular position observable with ancilliary settings, but none are supported." );
+            throw std::runtime_error( "Error, calling angular position observable with ancillary settings, but none are supported." );
         }
 
         Eigen::Matrix< ObservationScalarType, 6, 1 > receiverState;
@@ -107,7 +107,7 @@ public:
 
         // Compute light-time and receiver/transmitter states.
         ObservationScalarType lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                receiverState, transmitterState, time, isTimeAtReception, ancilliarySetings );
+                receiverState, transmitterState, time, isTimeAtReception, ancillarySetings );
 
         Eigen::Matrix< ObservationScalarType, 3, 1 > relativePosition = transmitterState.segment( 0, 3 ) - receiverState.segment( 0, 3 );
 

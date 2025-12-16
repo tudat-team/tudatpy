@@ -1,4 +1,4 @@
-from tudatpy.estimation.observations_setup.ancillary_settings import dsn_n_way_doppler_ancilliary_settings
+from tudatpy.estimation.observations_setup.ancillary_settings import dsn_n_way_doppler_ancillary_settings
 from tudatpy.estimation.observable_models_setup.links import link_definition, receiver, reflector1
 from tudatpy.estimation.observable_models_setup.model_settings import ObservableType
 from tudatpy.estimation.observations import single_observation_set
@@ -46,7 +46,7 @@ class DerivedDopplerConverter(RadioBase):
                     df_ttd = df_band[df_band["link_delays"] == ttd]
                     for ct in df_ttd["count_time"].unique():
                         df_ct = df_ttd[df_ttd["count_time"] == ct]
-                        ancillary_settings = dsn_n_way_doppler_ancilliary_settings(
+                        ancillary_settings = dsn_n_way_doppler_ancillary_settings(
                             [
                                 self.frequencyBandsDict[band[0]],
                                 self.frequencyBandsDict[band[1]],

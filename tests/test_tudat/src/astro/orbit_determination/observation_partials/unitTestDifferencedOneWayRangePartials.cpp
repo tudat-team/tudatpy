@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
                                       true,
                                       1000.0,
                                       parameterPerturbationMultipliers,
-                                      getAveragedDopplerAncilliarySettings( 60.0 ) );
+                                      getAveragedDopplerAncillarySettings( 60.0 ) );
     }
 
     // Test partials with real ephemerides (without test of position partials)
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangePartials )
                                       true,
                                       1000.0,
                                       parameterPerturbationMultipliers,
-                                      getAveragedDopplerAncilliarySettings( 60.0 ) );
+                                      getAveragedDopplerAncillarySettings( 60.0 ) );
     }
 }
 

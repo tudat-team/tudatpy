@@ -406,13 +406,13 @@ void expose_observations_wrapper( py::module &m )
                               const std::string,
                               const std::vector< tom::ObservableType >,
                               const std::map< std::string, Eigen::Vector3d >,
-                              const tom::ObservationAncilliarySimulationSettings & >(
+                              const tom::ObservationAncillarySimulationSettings & >(
                    &tom::createTrackingTxtFileObservationCollection< double, TIME_TYPE > ),
            py::arg( "raw_tracking_txtfile_contents" ),
            py::arg( "spacecraft_name" ),
            py::arg( "observable_types_to_process" ) = std::vector< tom::ObservableType >( ),
            py::arg( "earth_fixed_ground_station_positions" ) = tss::getApproximateDsnGroundStationPositions( ),
-           py::arg( "ancillary_settings" ) = tom::ObservationAncilliarySimulationSettings( ),
+           py::arg( "ancillary_settings" ) = tom::ObservationAncillarySimulationSettings( ),
            R"doc(
         Create an observation collection from raw tracking file data.
 
@@ -426,7 +426,7 @@ void expose_observations_wrapper( py::module &m )
             List of observable types to process. If empty, all available types are processed.
         earth_fixed_ground_station_positions : dict[str, numpy.ndarray[3]], optional
             Map with approximate positions of ground stations in Earth-fixed frame.
-        ancillary_settings : tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncilliarySimulationSettings, optional
+        ancillary_settings : tudatpy.estimation.observations_setup.ancillary_settings.ObservationAncillarySimulationSettings, optional
             Ancillary settings for the observations.
 
         Returns
@@ -465,8 +465,8 @@ void expose_observations_wrapper( py::module &m )
            &tss::setExistingObservations< STATE_SCALAR_TYPE, TIME_TYPE >,
            py::arg( "observations" ),
            py::arg( "reference_link_end" ),
-           py::arg( "ancilliary_settings_per_observatble" ) =
-                   std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >( ) );
+           py::arg( "ancillary_settings_per_observatble" ) =
+                   std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >( ) );
 
     m.def( "simulate_observations",
            &tss::simulateObservations< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -510,14 +510,14 @@ void expose_observations_wrapper( py::module &m )
                               const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > > &,
                               const std::vector< TIME_TYPE >,
                               const tom::LinkEndType,
-                              const std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >(
+                              const std::shared_ptr< tom::ObservationAncillarySimulationSettings > >(
                    &tom::createManualObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "observable_type" ),
            py::arg( "link_ends" ),
            py::arg( "observations_list" ),
            py::arg( "times_list" ),
            py::arg( "reference_link_end" ),
-           py::arg( "ancilliary_settings" ) = nullptr,
+           py::arg( "ancillary_settings" ) = nullptr,
            R"doc(No documentation found.)doc" );
 }
 

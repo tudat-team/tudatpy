@@ -286,7 +286,7 @@ BOOST_AUTO_TEST_CASE( testDifferencedTimeOfArrival )
                                       true,
                                       10.0,
                                       parameterPerturbationMultipliers,
-                                      getAveragedDopplerAncilliarySettings( 60.0 ) );
+                                      getAveragedDopplerAncillarySettings( 60.0 ) );
     }
 }
 

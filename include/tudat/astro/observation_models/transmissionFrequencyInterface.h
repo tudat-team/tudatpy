@@ -34,7 +34,7 @@ void setTransmissionFrequency( const std::shared_ptr< LightTimeCalculator< Obser
                                const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
                                const TimeType observationTime,
                                const LinkEndType linkEndAssociatedWithTime,
-                               const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings )
+                               const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings )
 {
     TimeType approximateTransmissionTime;
     if( linkEndAssociatedWithTime == receiver )
@@ -66,7 +66,7 @@ void setTransmissionReceptionFrequencies(
         const std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyCalculator,
         const TimeType receptionTdbTime,
         const LinkEndType referenceLinkEndType,
-        const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings,
+        const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings,
         const double turnAroundratio )
 {
     if( referenceLinkEndType != receiver )

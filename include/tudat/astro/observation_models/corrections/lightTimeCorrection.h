@@ -75,7 +75,7 @@ public:
             const Eigen::Vector6d& receiverState,
             const double transmissionTime,
             const double receptionTime,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
     {
         std::vector< Eigen::Vector6d > linkEndsStates = { transmitterState, receiverState };
         std::vector< double > linkEndsTimes = { transmissionTime, receptionTime };
@@ -97,7 +97,7 @@ public:
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
             const unsigned int currentMultiLegTransmitterIndex = 0,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr ) = 0;
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) = 0;
 
     //! Pure virtual function to compute the partial derivative of the light-time correction w.r.t. observation time
     /*!
@@ -117,7 +117,7 @@ public:
             const double transmissionTime,
             const double receptionTime,
             const LinkEndType linkEndAtWhichPartialIsEvaluated,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings );
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings );
 
     //! Pure virtual function to compute the partial derivative of the light-time correction w.r.t. link end position
     /*!
@@ -136,7 +136,7 @@ public:
             const double transmissionTime,
             const double receptionTime,
             const LinkEndType linkEndAtWhichPartialIsEvaluated,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings );
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings );
 
     //! Function to retrieve the type of light-time correction represented by instance of class.
     /*!

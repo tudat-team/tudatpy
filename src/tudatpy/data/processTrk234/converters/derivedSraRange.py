@@ -1,4 +1,4 @@
-from tudatpy.estimation.observations_setup.ancillary_settings import dsn_n_way_range_ancilliary_settings
+from tudatpy.estimation.observations_setup.ancillary_settings import dsn_n_way_range_ancillary_settings
 from tudatpy.estimation.observable_models_setup.links import link_definition, receiver
 from tudatpy.estimation.observable_models_setup.model_settings import ObservableType
 
@@ -71,7 +71,7 @@ class DerivedSraRangeConverter(RadioBase):
                         # A faster approach would be to use the dataframe apply method as done in
                         # the derivedDoppler converter.
                         for _, row in df_lrc.iterrows():
-                            ancillary_settings = dsn_n_way_range_ancilliary_settings(
+                            ancillary_settings = dsn_n_way_range_ancillary_settings(
                                 [
                                     self.frequencyBandsDict[band[0]],
                                     self.frequencyBandsDict[band[1]],

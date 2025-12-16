@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
                                           true,
                                           1.0,
                                           ( Eigen::Vector4d( ) << 10.0, 1.0, 1.0, 10.0 ).finished( ),
-                                          getNWayRangeAncilliarySettings( getRetransmissionDelays( 1.0E7, linkNumber + 1 ) ) );
+                                          getNWayRangeAncillarySettings( getRetransmissionDelays( 1.0E7, linkNumber + 1 ) ) );
         }
 
         // Test partials with real ephemerides (without test of position partials)
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE( testnWayRangePartials )
                                           true,
                                           1.0,
                                           ( Eigen::Vector4d( ) << 10.0, 1.0, 1.0, 20.0 ).finished( ),
-                                          getNWayRangeAncilliarySettings( getRetransmissionDelays( 1.0E7, linkNumber + 1 ) ) );
+                                          getNWayRangeAncillarySettings( getRetransmissionDelays( 1.0E7, linkNumber + 1 ) ) );
         }
     }
 }

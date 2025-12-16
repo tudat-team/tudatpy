@@ -65,7 +65,7 @@ public:
             const std::vector< TimeType >& times,
             const LinkEnds linkEnds,
             const LinkEndType linkEndAssociatedWithTime,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings,
             Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector ) = 0;
 
 protected:
@@ -137,7 +137,7 @@ public:
     void computeObservations( const std::vector< TimeType >& times,
                               const LinkEnds linkEnds,
                               const LinkEndType linkEndAssociatedWithTime,
-                              const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
+                              const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings,
                               Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector )
     {
         // Initialize return vectors.
@@ -162,7 +162,7 @@ public:
 
             // Compute observation
             currentObservation = selectedObservationModel->computeObservationsWithLinkEndData(
-                    times[ i ], linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates, ancilliarySettings );
+                    times[ i ], linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates, ancillarySettings );
             TimeType saveTime = times[ i ];
             while( observations.count( saveTime ) != 0 )
             {

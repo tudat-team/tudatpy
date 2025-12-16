@@ -615,7 +615,7 @@ public:
                 const std::function< double( const observation_models::LinkEndType,
                                              const std::vector< Eigen::Vector6d >&,
                                              const std::vector< double >&,
-                                             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >,
+                                             const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >,
                                              const bool ) >
                         scalingFactorFunction = std::bind( observation_models::getDsnNWayAveragedDopplerScalingFactor< ScalarType >,
                                                            receivedFrequencyFunction,

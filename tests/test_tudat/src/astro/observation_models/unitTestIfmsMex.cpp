@@ -130,18 +130,18 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
                 processedIfmsFiles.push_back( std::make_shared< observation_models::ProcessedTrackingTxtFileContents< long double, Time > >(
                         rawIfmsFiles.at( i ), "MeX", simulation_setup::getCombinedApproximateGroundStationPositions( ) ) );
 
-                // Define ancilliary settings
-                ObservationAncilliarySimulationSettings ancilliarySettings;
-                ancilliarySettings.setAncilliaryDoubleVectorData(
+                // Define ancillary settings
+                ObservationAncillarySimulationSettings ancillarySettings;
+                ancillarySettings.setAncillaryDoubleVectorData(
                         frequency_bands, { static_cast< double >( x_band ), static_cast< double >( currentReceptionBand ) } );
-                ancilliarySettings.setAncilliaryDoubleData( doppler_reference_frequency, 0.0 );
-                ancilliarySettings.setAncilliaryDoubleData( reception_reference_frequency_band,
+                ancillarySettings.setAncillaryDoubleData( doppler_reference_frequency, 0.0 );
+                ancillarySettings.setAncillaryDoubleData( reception_reference_frequency_band,
                                                             convertFrequencyBandToDouble( currentReceptionBand ) );
 
                 // Create and process observation collection
                 observedUncompressedObservationCollection =
                         observation_models::createTrackingTxtFilesObservationCollection< long double, Time >(
-                                { processedIfmsFiles.at( i ) }, { dsn_n_way_averaged_doppler }, ancilliarySettings );
+                                { processedIfmsFiles.at( i ) }, { dsn_n_way_averaged_doppler }, ancillarySettings );
                 setTrackingDataInformationInBodies( processedIfmsFiles, bodies, dsn_n_way_averaged_doppler );
             }
             else
