@@ -89,14 +89,14 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
     {
-        std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetingsToUse;
+        std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetingsToUse;
         this->setFrequencyProperties(
-                time, linkEndAssociatedWithTime, multiLegLightTimeCalculator_, ancilliarySetings, ancilliarySetingsToUse );
+                time, linkEndAssociatedWithTime, multiLegLightTimeCalculator_, ancillarySetings, ancillarySetingsToUse );
 
         ObservationScalarType totalLightTime = multiLegLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetingsToUse );
+                time, linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySetingsToUse );
 
         // Return total range observation.
         return ( Eigen::Matrix< ObservationScalarType, 1, 1 >( )

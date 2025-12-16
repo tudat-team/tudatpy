@@ -47,10 +47,10 @@ public:
             const LinkEndType referenceLinkEnd,
             const std::vector< Eigen::VectorXd >& observationsDependentVariables = std::vector< Eigen::VectorXd >( ),
             const std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping = nullptr,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr ):
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ):
         observableType_( observableType ), linkEnds_( linkEnds ), observations_( observations ), observationTimes_( observationTimes ),
         referenceLinkEnd_( referenceLinkEnd ), observationsDependentVariables_( observationsDependentVariables ),
-        dependentVariableBookkeeping_( dependentVariableBookkeeping ), ancilliarySettings_( ancilliarySettings ),
+        dependentVariableBookkeeping_( dependentVariableBookkeeping ), ancillarySettings_( ancillarySettings ),
         numberOfObservations_( observations_.size( ) )
     {
         if( dependentVariableBookkeeping_ != nullptr )
@@ -463,9 +463,9 @@ public:
         return singleDependentVariableMap;
     }
 
-    std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > getAncilliarySettings( )
+    std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > getAncillarySettings( )
     {
-        return ancilliarySettings_;
+        return ancillarySettings_;
     }
 
     std::vector< Eigen::Matrix< double, Eigen::Dynamic, 1 > > getWeights( ) const
@@ -688,7 +688,7 @@ public:
                     referenceLinkEnd_,
                     std::vector< Eigen::VectorXd >( ),
                     dependentVariableBookkeeping_,
-                    ancilliarySettings_ );
+                    ancillarySettings_ );
         }
         if( !observationFilter->filterOut( ) && filteredObservationSet_ == nullptr )
         {
@@ -1180,7 +1180,7 @@ private:
 
     std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping_;
 
-    const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings_;
+    const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings_;
 
     unsigned int numberOfObservations_;
 
@@ -1219,7 +1219,7 @@ std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > filte
                     singleObservationSet->getReferenceLinkEnd( ),
                     singleObservationSet->getObservationsDependentVariablesReference( ),
                     singleObservationSet->getDependentVariableBookkeeping( ),
-                    singleObservationSet->getAncilliarySettings( ) );
+                    singleObservationSet->getAncillarySettings( ) );
     newObservationSet->setTabulatedWeights( singleObservationSet->getWeightsVector( ) );
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals = singleObservationSet->getResidualsReference( );
     newObservationSet->setResiduals( singleObservationSet->getResidualsReference( ) /*residuals*/ );
@@ -1363,7 +1363,7 @@ std::vector< std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeT
                         observationSet->getReferenceLinkEnd( ),
                         newDependentVariables,
                         observationSet->getDependentVariableBookkeeping( ),
-                        observationSet->getAncilliarySettings( ) );
+                        observationSet->getAncillarySettings( ) );
 
         Eigen::Matrix< double, Eigen::Dynamic, 1 > newWeightsVector =
                 weightsVector.segment( startIndex, sizeCurrentSet * observationSet->getSingleObservableSize( ) );

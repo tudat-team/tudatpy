@@ -89,7 +89,7 @@ double LightTimeCorrection::calculateLightTimeCorrectionPartialDerivativeWrtLink
         const double transmissionTime,
         const double receptionTime,
         const LinkEndType linkEndAtWhichPartialIsEvaluated,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
     double upPerturbedCorrection = 0.0, downPerturbedCorrection = 0.0;
     if( ( linkEndAtWhichPartialIsEvaluated == transmitter ) )
@@ -133,7 +133,7 @@ Eigen::Matrix< double, 3, 1 > LightTimeCorrection::calculateLightTimeCorrectionP
         const double transmissionTime,
         const double receptionTime,
         const LinkEndType linkEndAtWhichPartialIsEvaluated,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
     Eigen::Matrix< double, 3, 1 > positionPartial = Eigen::Matrix< double, 3, 1 >::Zero( );
 

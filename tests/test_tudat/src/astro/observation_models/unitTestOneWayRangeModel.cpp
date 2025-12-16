@@ -301,8 +301,8 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModelWithFrequencyDependentCorrections )
         double correctedObservation = observationModelCorrected->computeIdealObservations( testTime, receiver )( 0 );
 
         // Compute correction
-        std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
-                std::make_shared< ObservationAncilliarySimulationSettings >( );
+        std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+                std::make_shared< ObservationAncillarySimulationSettings >( );
         if( test == 0 )
         {
             ancillarySettings->setIntermediateDoubleData( transmitter_frequency_intermediate, earthFrequency );
@@ -320,7 +320,7 @@ BOOST_AUTO_TEST_CASE( testOneWayRangeModelWithFrequencyDependentCorrections )
 
         // Compute correction with ancillary settings input
         correctedObservation = observationModelCorrected->computeIdealObservations(
-                testTime, receiver, std::make_shared< ObservationAncilliarySimulationSettings >( ) )( 0 );
+                testTime, receiver, std::make_shared< ObservationAncillarySimulationSettings >( ) )( 0 );
         BOOST_CHECK_SMALL( ionosphereCorrection * physical_constants::SPEED_OF_LIGHT + ( uncorrectedObservation - correctedObservation ),
                            1.0E-3 );
     }

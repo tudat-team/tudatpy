@@ -162,9 +162,9 @@ BOOST_AUTO_TEST_CASE( testJuiceMeasuredFrequency )
 
         Eigen::VectorXd observableVector = Eigen::VectorXd::Zero( observationTimes.size( ) );
         Eigen::VectorXd residualVector = Eigen::VectorXd::Zero( observationTimes.size( ) );
-        std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
-                std::make_shared< ObservationAncilliarySimulationSettings >( );
-        ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, { x_band, x_band } );
+        std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+                std::make_shared< ObservationAncillarySimulationSettings >( );
+        ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, { x_band, x_band } );
         for( unsigned int i = 0; i < observationTimes.size( ); i++ )
         {
             double dopplerObservable = dopplerFrequencyObservationModel->computeObservationsWithLinkEndData(

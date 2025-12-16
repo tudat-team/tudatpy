@@ -370,7 +370,7 @@ double MappedTroposphericCorrection::calculateLightTimeCorrectionWithMultiLegLin
         const std::vector< Eigen::Vector6d >& linkEndsStates,
         const std::vector< double >& linkEndsTimes,
         const unsigned int currentMultiLegTransmitterIndex,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
     // Retrieve state and time of receiver and transmitter
     Eigen::Vector6d transmitterState, receiverState;
@@ -444,7 +444,7 @@ double MappedTroposphericCorrection::calculateLightTimeCorrectionWithMultiLegLin
 //     const std::vector< Eigen::Vector6d >& linkEndsStates,
 //     const std::vector< double >& linkEndsTimes,
 //     const unsigned int currentMultiLegTransmitterIndex,
-//     const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
+//     const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 //{
 //
 //     // Retrieve state and time of receiver and transmitter
@@ -477,7 +477,7 @@ double VMF3TroposphericCorrection::calculateLightTimeCorrectionWithMultiLegLinkE
         const std::vector< Eigen::Vector6d >& linkEndsStates,
         const std::vector< double >& linkEndsTimes,
         const unsigned int currentMultiLegTransmitterIndex,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
     // Extract transmitter/receiver states and times
     Eigen::Vector6d transmitterState, receiverState;
@@ -799,7 +799,7 @@ double TabulatedIonosphericCorrection::calculateLightTimeCorrectionWithMultiLegL
         const std::vector< Eigen::Vector6d >& linkEndsStates,
         const std::vector< double >& linkEndsTimes,
         const unsigned int currentMultiLegTransmitterIndex,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
     // Retrieve state and time of receiver and transmitter
     Eigen::Vector6d legTransmitterState, legReceiverState;
@@ -958,7 +958,7 @@ double MappedVtecIonosphericCorrection::calculateLightTimeCorrectionWithMultiLeg
         const std::vector< Eigen::Vector6d >& linkEndsStates,
         const std::vector< double >& linkEndsTimes,
         const unsigned int currentMultiLegTransmitterIndex,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings )
 {
     // Retrieve state and time of receiver and transmitter
     Eigen::Vector6d legTransmitterState, legReceiverState;

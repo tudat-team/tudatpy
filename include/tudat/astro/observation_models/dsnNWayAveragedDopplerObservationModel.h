@@ -58,15 +58,15 @@ inline double getDsnNWayAveragedDopplerScalingFactor(
         const observation_models::LinkEndType referenceLinkEnd,
         const std::vector< Eigen::Vector6d >& linkEndStates,
         const std::vector< double >& linkEndTimes,
-        const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings,
+        const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings,
         const bool isFirstPartial )
 {
     double integrationTime;
     std::vector< FrequencyBands > frequencyBands;
     try
     {
-        integrationTime = ancillarySettings->getAncilliaryDoubleData( doppler_integration_time );
-        frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
+        integrationTime = ancillarySettings->getAncillaryDoubleData( doppler_integration_time );
+        frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
     }
     catch( std::runtime_error& caughtException )
     {
@@ -182,7 +182,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
     {
         // Check if selected reference link end is valid
         if( linkEndAssociatedWithTime != receiver )
@@ -207,11 +207,11 @@ public:
         FrequencyBands referenceUplinkBand;
         try
         {
-            integrationTime = ancillarySettings->getAncilliaryDoubleData( doppler_integration_time );
-            referenceFrequency = ancillarySettings->getAncilliaryDoubleData( doppler_reference_frequency );
-            frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
+            integrationTime = ancillarySettings->getAncillaryDoubleData( doppler_integration_time );
+            referenceFrequency = ancillarySettings->getAncillaryDoubleData( doppler_reference_frequency );
+            frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
             referenceUplinkBand =
-                    convertDoubleToFrequencyBand( ancillarySettings->getAncilliaryDoubleData( reception_reference_frequency_band ) );
+                    convertDoubleToFrequencyBand( ancillarySettings->getAncillaryDoubleData( reception_reference_frequency_band ) );
         }
         catch( std::runtime_error& caughtException )
         {

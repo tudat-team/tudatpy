@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE( testOneWayDopplerPartials )
     groundStations[ 0 ] = std::make_pair( "Earth", "Graz" );
     groundStations[ 1 ] = std::make_pair( "Mars", "MSL" );
 
-    // Test ancilliary functions
+    // Test ancillary functions
     {
         double nominalEvaluationTime = 1.1E7;
 
