@@ -477,49 +477,49 @@ list[BodyPanelSettings]
         The class contains a number of material properties used for computing radiation pressure acceleration and panelled aerodynamic coefficients.
 
             
-    )doc" )
-            .def_readwrite( "specular_reflectivity", &tss::MaterialProperties::specularReflectivity_, 
-            R"doc( 
-            Specular reflectivity coefficient.
+    )doc" );
+            // .def_readwrite( "specular_reflectivity", &tss::MaterialProperties::specularReflectivity_, 
+            // R"doc( 
+            // Specular reflectivity coefficient.
         
-            :type: float
-            )doc"
-            )
-            .def_readwrite( "diffuse_reflectivity", &tss::MaterialProperties::diffuseReflectivity_,
-            R"doc( 
-            Diffuse reflectivity coefficient.
+            // :type: float
+            // )doc"
+            // )
+            // .def_readwrite( "diffuse_reflectivity", &tss::MaterialProperties::diffuseReflectivity_,
+            // R"doc( 
+            // Diffuse reflectivity coefficient.
         
-            :type: float
-            )doc"
-            )
-            .def_readwrite( "energy_accomodation_coefficient", &tss::MaterialProperties::energyAccomodationCoefficient_,
-            R"doc( 
-            Energy accommodation coefficient.
+            // :type: float
+            // )doc"
+            // )
+            // .def_readwrite( "energy_accomodation_coefficient", &tss::MaterialProperties::energyAccomodationCoefficient_,
+            // R"doc( 
+            // Energy accommodation coefficient.
         
-            :type: float
-            )doc"
-            )
-            .def_readwrite( "normal_accomodation_coefficient", &tss::MaterialProperties::normalAccomodationCoefficient_,
-            R"doc( 
-            Normal accommodation coefficient.
+            // :type: float
+            // )doc"
+            // )
+            // .def_readwrite( "normal_accomodation_coefficient", &tss::MaterialProperties::normalAccomodationCoefficient_,
+            // R"doc( 
+            // Normal accommodation coefficient.
         
-            :type: float
-            )doc"
-            )
-            .def_readwrite( "tangential_accomodation_coefficient", &tss::MaterialProperties::tangentialAccomodationCoefficient_,
-            R"doc( 
-            Tangential accommodation coefficient.
+            // :type: float
+            // )doc"
+            // )
+            // .def_readwrite( "tangential_accomodation_coefficient", &tss::MaterialProperties::tangentialAccomodationCoefficient_,
+            // R"doc( 
+            // Tangential accommodation coefficient.
         
-            :type: float
-            )doc"
-            )
-            .def_readwrite( "normal_velocity_at_wall_ratio", &tss::MaterialProperties::normalVelocityAtWallRatio_,
-            R"doc( 
-            Normal velocity ratio at the wall.
+            // :type: float
+            // )doc"
+            // )
+            // .def_readwrite( "normal_velocity_at_wall_ratio", &tss::MaterialProperties::normalVelocityAtWallRatio_,
+            // R"doc( 
+            // Normal velocity ratio at the wall.
         
-            :type: float
-            )doc"
-            );
+            // :type: float
+            // )doc"
+            // );
 
     m.def( "material_properties",
            &tss::materialProperties,
