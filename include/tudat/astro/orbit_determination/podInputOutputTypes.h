@@ -760,7 +760,7 @@ struct CovarianceAnalysisOutput {
     {
         if( ( normalizedDesignMatrix.rows( ) == 0 ) && ( normalizedDesignMatrix_.cols( ) == 0 ) &&
             ( normalizedDesignMatrixConsiderParameters.rows( ) == 0 ) && ( normalizedDesignMatrixConsiderParameters.cols( ) == 0 ) &&
-          !( ( weightsMatrixDiagonal.rows( ) == 0 ) && ( inverseNormalizedCovarianceMatrix.rows( ) == 0 ) ) )
+            !( ( weightsMatrixDiagonal.rows( ) == 0 ) && ( inverseNormalizedCovarianceMatrix.rows( ) == 0 ) ) )
         {
             designMatrixSaved_ = false;
         }
@@ -849,15 +849,16 @@ struct CovarianceAnalysisOutput {
     {
         if( designMatrixSaved_ )
         {
-          Eigen::MatrixXd unnormalizedPartialDerivatives =
-              Eigen::MatrixXd::Zero( normalizedDesignMatrix_.rows( ), normalizedDesignMatrix_.cols( ) );
+            Eigen::MatrixXd unnormalizedPartialDerivatives =
+                    Eigen::MatrixXd::Zero( normalizedDesignMatrix_.rows( ), normalizedDesignMatrix_.cols( ) );
 
-          for( int i = 0; i < designMatrixTransformationDiagonal_.rows( ); i++ )
-          {
-            unnormalizedPartialDerivatives.block( 0, i, normalizedDesignMatrix_.rows( ), 1 ) =
-                normalizedDesignMatrix_.block( 0, i, normalizedDesignMatrix_.rows( ), 1 ) * designMatrixTransformationDiagonal_( i );
-          }
-          return unnormalizedPartialDerivatives;
+            for( int i = 0; i < designMatrixTransformationDiagonal_.rows( ); i++ )
+            {
+                unnormalizedPartialDerivatives.block( 0, i, normalizedDesignMatrix_.rows( ), 1 ) =
+                        normalizedDesignMatrix_.block( 0, i, normalizedDesignMatrix_.rows( ), 1 ) *
+                        designMatrixTransformationDiagonal_( i );
+            }
+            return unnormalizedPartialDerivatives;
         }
         else
         {
@@ -908,14 +909,14 @@ struct CovarianceAnalysisOutput {
 
     Eigen::MatrixXd getNormalizedDesignMatrixConsiderParameters( )
     {
-         if( designMatrixSaved_ )
-         {
+        if( designMatrixSaved_ )
+        {
             return normalizedDesignMatrixConsiderParameters_;
-         }
-         else
-         {
-             return returnNoDesignMatrixAvailable( );
-         }
+        }
+        else
+        {
+            return returnNoDesignMatrixAvailable( );
+        }
     }
 
     Eigen::VectorXd getConsiderNormalizationFactors( )
@@ -985,7 +986,9 @@ struct CovarianceAnalysisOutput {
 
     Eigen::MatrixXd returnNoDesignMatrixAvailable( )
     {
-        std::cerr<<"Warning, returning empty matrix when retrieving design matrix, design matrix is not saved. Returning empty 0x0 matrix. Toggle the option to save it using the CovarianceAnalysisInput.define_covariance_settings function"<<std::endl;
+        std::cerr << "Warning, returning empty matrix when retrieving design matrix, design matrix is not saved. Returning empty 0x0 "
+                     "matrix. Toggle the option to save it using the CovarianceAnalysisInput.define_covariance_settings function"
+                  << std::endl;
         return Eigen::MatrixXd::Zero( 0, 0 );
     }
     //! Matrix of observation partials (normalixed) used in estimation (may be empty if so requested)
