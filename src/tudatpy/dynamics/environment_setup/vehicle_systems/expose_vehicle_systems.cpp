@@ -236,14 +236,14 @@ Panel surface area
             
         :type: BodyPanelReflectionLawSettings
 
-        )doc")
+        )doc" )
             .def_readwrite( "panel_type_id", &tss::BodyPanelSettings::panelTypeId_, R"doc(
         Optional identifier for panel type.
         This is typically used to identify the type of panel and can be used to assign a rotation model to a specific panel type, see the :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.full_panelled_body_settings` function.
 
         :type: str
 
-        )doc")
+        )doc" )
 
             .def_readwrite( "panel_material_properties", &tss::BodyPanelSettings::materialProperties_, R"doc(
         Full material properties of the panel, both reflective and aerodynamic.
@@ -468,9 +468,10 @@ list[BodyPanelSettings]
     List of settings for body panels assembled from different parts, creating a coherent list of body panel settings.
     )doc" );
 
-    py::class_< tss::MaterialProperties, std::shared_ptr< tss::MaterialProperties > >( m, "MaterialProperties",
+    py::class_< tss::MaterialProperties, std::shared_ptr< tss::MaterialProperties > >( m,
+                                                                                       "MaterialProperties",
 
-    R"doc( 
+                                                                                       R"doc( 
         Class for providing the complete material properties of a panel.
     
         This is typically defined through the :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.material_properties` function.
@@ -478,48 +479,48 @@ list[BodyPanelSettings]
 
             
     )doc" );
-            // .def_readwrite( "specular_reflectivity", &tss::MaterialProperties::specularReflectivity_, 
-            // R"doc( 
-            // Specular reflectivity coefficient.
-        
-            // :type: float
-            // )doc"
-            // )
-            // .def_readwrite( "diffuse_reflectivity", &tss::MaterialProperties::diffuseReflectivity_,
-            // R"doc( 
-            // Diffuse reflectivity coefficient.
-        
-            // :type: float
-            // )doc"
-            // )
-            // .def_readwrite( "energy_accomodation_coefficient", &tss::MaterialProperties::energyAccomodationCoefficient_,
-            // R"doc( 
-            // Energy accommodation coefficient.
-        
-            // :type: float
-            // )doc"
-            // )
-            // .def_readwrite( "normal_accomodation_coefficient", &tss::MaterialProperties::normalAccomodationCoefficient_,
-            // R"doc( 
-            // Normal accommodation coefficient.
-        
-            // :type: float
-            // )doc"
-            // )
-            // .def_readwrite( "tangential_accomodation_coefficient", &tss::MaterialProperties::tangentialAccomodationCoefficient_,
-            // R"doc( 
-            // Tangential accommodation coefficient.
-        
-            // :type: float
-            // )doc"
-            // )
-            // .def_readwrite( "normal_velocity_at_wall_ratio", &tss::MaterialProperties::normalVelocityAtWallRatio_,
-            // R"doc( 
-            // Normal velocity ratio at the wall.
-        
-            // :type: float
-            // )doc"
-            // );
+    // .def_readwrite( "specular_reflectivity", &tss::MaterialProperties::specularReflectivity_,
+    // R"doc(
+    // Specular reflectivity coefficient.
+
+    // :type: float
+    // )doc"
+    // )
+    // .def_readwrite( "diffuse_reflectivity", &tss::MaterialProperties::diffuseReflectivity_,
+    // R"doc(
+    // Diffuse reflectivity coefficient.
+
+    // :type: float
+    // )doc"
+    // )
+    // .def_readwrite( "energy_accomodation_coefficient", &tss::MaterialProperties::energyAccomodationCoefficient_,
+    // R"doc(
+    // Energy accommodation coefficient.
+
+    // :type: float
+    // )doc"
+    // )
+    // .def_readwrite( "normal_accomodation_coefficient", &tss::MaterialProperties::normalAccomodationCoefficient_,
+    // R"doc(
+    // Normal accommodation coefficient.
+
+    // :type: float
+    // )doc"
+    // )
+    // .def_readwrite( "tangential_accomodation_coefficient", &tss::MaterialProperties::tangentialAccomodationCoefficient_,
+    // R"doc(
+    // Tangential accommodation coefficient.
+
+    // :type: float
+    // )doc"
+    // )
+    // .def_readwrite( "normal_velocity_at_wall_ratio", &tss::MaterialProperties::normalVelocityAtWallRatio_,
+    // R"doc(
+    // Normal velocity ratio at the wall.
+
+    // :type: float
+    // )doc"
+    // );
 
     m.def( "material_properties",
            &tss::materialProperties,
