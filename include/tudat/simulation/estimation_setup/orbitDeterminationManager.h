@@ -687,8 +687,6 @@ public:
                       << std::endl;
         }
 
-
-
         // Define full parameters values
         ParameterVectorType parameterValues = parametersToEstimate_->template getFullParameterValues< ObservationScalarType >( );
 
@@ -806,8 +804,7 @@ public:
         ParameterVectorType bestParameterEstimate = ParameterVectorType::Constant( numberEstimatedParameters_, TUDAT_NAN );
         Eigen::VectorXd bestTransformationData = Eigen::VectorXd::Constant( numberEstimatedParameters_, TUDAT_NAN );
         Eigen::VectorXd bestResiduals = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
-        Eigen::MatrixXd bestDesignMatrixEstimatedParameters =
-                Eigen::MatrixXd::Zero( 0, 0 );
+        Eigen::MatrixXd bestDesignMatrixEstimatedParameters = Eigen::MatrixXd::Zero( 0, 0 );
         Eigen::VectorXd bestWeightsMatrixDiagonal = Eigen::VectorXd::Constant( totalNumberOfObservations, TUDAT_NAN );
         Eigen::MatrixXd bestInverseNormalizedCovarianceMatrix =
                 Eigen::MatrixXd::Constant( numberEstimatedParameters_, numberEstimatedParameters_, TUDAT_NAN );
@@ -817,8 +814,7 @@ public:
         if( considerParametersIncluded_ )
         {
             bestConsiderTransformationData = Eigen::VectorXd::Constant( numberConsiderParameters_, TUDAT_NAN );
-            bestDesignMatrixConsiderParameters =
-                    Eigen::MatrixXd::Zero( 0, 0 );
+            bestDesignMatrixConsiderParameters = Eigen::MatrixXd::Zero( 0, 0 );
             bestConsiderCovarianceContribution =
                     Eigen::MatrixXd::Constant( numberEstimatedParameters_, numberEstimatedParameters_, TUDAT_NAN );
         }

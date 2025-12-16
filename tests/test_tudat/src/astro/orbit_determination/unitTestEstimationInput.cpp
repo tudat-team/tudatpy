@@ -166,14 +166,12 @@ BOOST_AUTO_TEST_CASE( test_CovarianceAsFunctionOfTime )
 
 BOOST_AUTO_TEST_CASE( test_DesignMatrixSaving )
 {
-
     // Simulate covariances directly by propagating to different final tomes
     for( unsigned int i = 0; i < 2; i++ )
     {
         std::vector< Eigen::MatrixXd > designMatrices;
         std::pair< std::shared_ptr< EstimationOutput< double > >, std::shared_ptr< EstimationInput< double, double > > > podData;
-        executeEarthOrbiterParameterEstimation< double, double >(
-            podData, 1.0E7, 1, 0, false, static_cast< bool >( i ) );
+        executeEarthOrbiterParameterEstimation< double, double >( podData, 1.0E7, 1, 0, false, static_cast< bool >( i ) );
         designMatrices.push_back( podData.first->getNormalizedDesignMatrix( ) );
         designMatrices.push_back( podData.first->getUnnormalizedDesignMatrix( ) );
         designMatrices.push_back( podData.first->getNormalizedWeightedDesignMatrix( ) );
@@ -200,7 +198,6 @@ BOOST_AUTO_TEST_CASE( test_DesignMatrixSaving )
             }
         }
     }
-
 }
 
 BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
@@ -404,7 +401,7 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
 
         Eigen::VectorXd totalWeights = estimationInput->getWeightsMatrixDiagonals( );
 
-        for( auto it: weightPerObservationParser )
+        for( auto it : weightPerObservationParser )
         {
             ObservableType observableType =
                     std::dynamic_pointer_cast< ObservationCollectionObservableTypeParser >( it.first )->getObservableTypes( ).at( 0 );
@@ -506,7 +503,7 @@ BOOST_AUTO_TEST_CASE( test_WeightDefinitions )
         expectedWeights[ one_way_doppler ] = dopplerWeights;
         expectedWeights[ angular_position ] = angularPositionWeights;
 
-        for( auto it: expectedWeights )
+        for( auto it : expectedWeights )
         {
             for( int i = 0; i < observationTypeStartAndSize.at( it.first ).second; i++ )
             {
