@@ -108,9 +108,9 @@ public:
             throw std::runtime_error( "Error when making ArcWiseConstantDragCoefficient, coefficient interface is inconsistent" );
         }
 
-        if ( coefficientInterface->getForceCoefficientsFrame( ) != aerodynamics::negative_aerodynamic_frame_coefficients )
+        if ( getCompleteFrameForCoefficients( coefficientInterface->getForceCoefficientsFrame( ) ) != reference_frames::aerodynamic_frame )
         {
-            throw std::runtime_error( "Error, arcwise constant drag coefficient is only available for coefficients defined in the negative aerodynamic frame!" );
+            throw std::runtime_error( "Error, arcwise constant drag coefficient is only available for coefficients defined in the aerodynamic frame!" );
         }
 
         Eigen::Vector6d aerodynamicCoefficients = coefficientInterface->getConstantCoefficients( );

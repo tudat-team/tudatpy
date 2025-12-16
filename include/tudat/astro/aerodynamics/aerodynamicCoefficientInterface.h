@@ -644,8 +644,6 @@ protected:
 
     Eigen::Quaterniond rotationToAerodynamicFrame_;
 
-    double coefficientMultiplier_;
-
 private:
 };
 
