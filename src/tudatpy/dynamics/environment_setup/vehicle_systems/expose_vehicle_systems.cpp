@@ -235,14 +235,20 @@ Panel surface area
         Reflection law settings of the panel.
             
         :type: BodyPanelReflectionLawSettings
-            )doc"
 
-                            )
+        )doc")
             .def_readwrite( "panel_type_id", &tss::BodyPanelSettings::panelTypeId_, R"doc(
         Optional identifier for panel type.
         This is typically used to identify the type of panel and can be used to assign a rotation model to a specific panel type, see the :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.full_panelled_body_settings` function.
 
         :type: str
+
+        )doc")
+
+            .def_readwrite( "panel_material_properties", &tss::BodyPanelSettings::materialProperties_, R"doc(
+        Full material properties of the panel, both reflective and aerodynamic.
+
+        :type: MaterialProperties
         )doc" );
 
     m.def( "body_panel_settings",
@@ -253,7 +259,7 @@ Panel surface area
            py::arg( "panel_geometry" ),
            py::arg( "panel_reflection_law" ),
            py::arg( "panel_type_id" ) = "",
-           py::arg( "material_properties" ) = nullptr,
+           py::arg( "panel_material_properties" ) = nullptr,
            R"doc(
 
  Function for creating settings for a full panel
@@ -273,6 +279,8 @@ Panel surface area
      Reflection law settings of the panel
  panel_type_id : str, default = ""
      Optional identifier for panel type
+ panel_material_properties : MaterialProperties, default = nullptr
+     Material properties of a panel
  Returns
  -------
  BodyPanelSettings
@@ -460,13 +468,58 @@ list[BodyPanelSettings]
     List of settings for body panels assembled from different parts, creating a coherent list of body panel settings.
     )doc" );
 
-    py::class_< tss::MaterialProperties, std::shared_ptr< tss::MaterialProperties > >( m, "MaterialProperties" )
-            .def_readwrite( "specular_reflectivity", &tss::MaterialProperties::specularReflectivity_ )
-            .def_readwrite( "diffuse_reflectivity", &tss::MaterialProperties::diffuseReflectivity_ )
-            .def_readwrite( "energy_accomodation_coefficient", &tss::MaterialProperties::energyAccomodationCoefficient_ )
-            .def_readwrite( "normal_accomodation_coefficient", &tss::MaterialProperties::normalAccomodationCoefficient_ )
-            .def_readwrite( "tangential_accomodation_coefficient", &tss::MaterialProperties::tangentialAccomodationCoefficient_ )
-            .def_readwrite( "normal_velocity_at_wall_ratio", &tss::MaterialProperties::normalVelocityAtWallRatio_ );
+    py::class_< tss::MaterialProperties, std::shared_ptr< tss::MaterialProperties > >( m, "MaterialProperties",
+
+    R"doc( 
+        Class for providing the complete material properties of a panel.
+    
+        This is typically defined through the :func:`~tudatpy.dynamics.environment_setup.vehicle_systems.material_properties` function.
+        The class contains a number of material properties used for computing radiation pressure acceleration and panelled aerodynamic coefficients.
+
+            
+    )doc" )
+            .def_readwrite( "specular_reflectivity", &tss::MaterialProperties::specularReflectivity_, 
+            R"doc( 
+            Specular reflectivity coefficient.
+        
+            :type: float
+            )doc"
+            )
+            .def_readwrite( "diffuse_reflectivity", &tss::MaterialProperties::diffuseReflectivity_,
+            R"doc( 
+            Diffuse reflectivity coefficient.
+        
+            :type: float
+            )doc"
+            )
+            .def_readwrite( "energy_accomodation_coefficient", &tss::MaterialProperties::energyAccomodationCoefficient_,
+            R"doc( 
+            Energy accommodation coefficient.
+        
+            :type: float
+            )doc"
+            )
+            .def_readwrite( "normal_accomodation_coefficient", &tss::MaterialProperties::normalAccomodationCoefficient_,
+            R"doc( 
+            Normal accommodation coefficient.
+        
+            :type: float
+            )doc"
+            )
+            .def_readwrite( "tangential_accomodation_coefficient", &tss::MaterialProperties::tangentialAccomodationCoefficient_,
+            R"doc( 
+            Tangential accommodation coefficient.
+        
+            :type: float
+            )doc"
+            )
+            .def_readwrite( "normal_velocity_at_wall_ratio", &tss::MaterialProperties::normalVelocityAtWallRatio_,
+            R"doc( 
+            Normal velocity ratio at the wall.
+        
+            :type: float
+            )doc"
+            );
 
     m.def( "material_properties",
            &tss::materialProperties,
@@ -476,7 +529,31 @@ list[BodyPanelSettings]
            py::arg( "normal_accomodation_coefficient" ) = -1,
            py::arg( "tangential_accomodation_coefficient" ) = -1,
            py::arg( "normal_velocity_at_wall_ratio" ) = -1,
-           R"doc(No Documentation)doc" );
+
+           R"doc(
+           
+           Function for creating a set of material properties
+Parameters
+----------
+specular_reflectivity : float, default = -1
+    Specular reflectivity coefficient.
+diffuse_reflectivity : float, default = -1
+    Diffuse reflectivity coefficient.
+energy_accomodation_coefficient : float, default = -1
+    Energy accommodation coefficient.  
+normal_accomodation_coefficient : float, default = -1
+    Normal accommodation coefficient.  
+tangential_accomodation_coefficient : float, default = -1
+    Tangential accommodation coefficient.  
+normal_velocity_at_wall_ratio : float, default = -1
+    Normal velocity ratio at the wall.  
+
+Returns
+-------
+MaterialProperties
+    Material properties of a panel
+           
+           )doc" );
 }
 
 }  // namespace vehicle_systems

@@ -65,6 +65,8 @@ Functions
 
    body_tracking_panel_geometry
 
+   material_properties
+
    body_panel_settings
 
    full_panelled_body_settings
@@ -80,6 +82,8 @@ Functions
 .. autofunction:: tudatpy.dynamics.environment_setup.vehicle_systems.time_varying_panel_geometry
 
 .. autofunction:: tudatpy.dynamics.environment_setup.vehicle_systems.body_tracking_panel_geometry
+
+.. autofunction:: tudatpy.dynamics.environment_setup.vehicle_systems.material_properties
 
 .. autofunction:: tudatpy.dynamics.environment_setup.vehicle_systems.body_panel_settings
 
@@ -100,6 +104,8 @@ Classes
 
 .. autosummary::
 
+   MaterialProperties
+
    BodyPanelGeometrySettings
 
    FrameFixedBodyPanelGeometrySettings
@@ -111,6 +117,8 @@ Classes
    FullPanelledBodySettings
 
 
+.. autoclass:: tudatpy.dynamics.environment_setup.vehicle_systems.MaterialProperties
+   :members:
 
 .. autoclass:: tudatpy.dynamics.environment_setup.vehicle_systems.BodyPanelGeometrySettings
    :members:
