@@ -5,9 +5,9 @@
 This module contains a set of factory functions for setting up physical and system properties of a vehicle.
 For various high-accuracy models of non-conservative spacecraft dynamics, a so-called macromodel is required which defines
 the external shape of the vehicle. This macromodel is typically defined by a set of panels, with each panel assigned
-specific properties of how it interacts with the environment. At present, the spacecraft macromodel in Tudat is only
-used for the calculation of a panelled radiation pressure acceleration, but future updates will also use it for the
-calculation of aerodynamic coefficients in both rarefied and hypersonic flow.
+specific properties of how it interacts with the environment. At present, the spacecraft macromodel in Tudat is
+used for the calculation of a panelled radiation pressure acceleration and the
+calculation of aerodynamic coefficients in both rarefied and hypersonic flow using gas-surface interaction models (GSMIs).
 
 The main interfaces with Tudat for a vehicle shape model is the :attr:`~tudatpy.dynamics.environment_setup.BodySettings.vehicle_shape_settings`
 attribute  (of type :class:`~tudatpy.dynamics.environment_setup.vehicle_systems.FullPanelledBodySettings`) of the body settings, which defines settings for the macromodel of a body.
@@ -17,10 +17,10 @@ attribute  (of type :class:`~tudatpy.dynamics.environment_setup.vehicle_systems.
 and added to the associated :class:`~tudatpy.dynamics.environment.Body` object based on the settings object, which can
 be retrieved using the :attr:`~tudatpy.dynamics.environment.Body.system_models` attribute. The ``VehicleSystems`` contains (among various other models) the macromodel properties of the body.
 
-The current panels in Tudat allow a list of panels to be defined, with the geometrical properties of panel :math:`i` defined by the
-surface normal vector :math:`\hat{\mathbf{n}}_{i}` and the surface area :math:`A_{i}`. Note that, since the panel shape or
-location is not yet defined, computing torques due to surface forces, or incorporating shadowing into the panel
-force calculation, is not yet supported.
+The current panels in Tudat allow a list of panels to be defined, with the minimal geometrical properties of panel :math:`i` defined by the
+surface normal vector :math:`\hat{\mathbf{n}}_{i}` and the surface area :math:`A_{i}`. Another way to completely define the geometry of a panel in space is by defining its three vertices 
+(triangles allow for speed-ups at the algorithm level), a rotation frame and its origin in the body-fixed frame, allowing for the computation of self-shadowing (SSH) and panelled aerodynamic coefficients. 
+Due to the complexity of manually defining each triangular panel, this option is available only by loading a full macromodel.
 
 The panel surface normal may be defined in either the body-fixed frame :math:`\mathcal{B}` of the vehicle, or to a 'vehicle-part-fixed frame'
 :math:`\mathcal{F}_{j}`. A 'vehicle part' is defined as a part of the vehicle that can move/rotate w.r.t. the body-fixed frame of the
