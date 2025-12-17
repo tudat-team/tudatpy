@@ -1158,12 +1158,25 @@ std::shared_ptr< estimatable_parameters::EstimatableParameter< double > > create
                             " has no custom coefficient interface, cannot estimate constant drag coefficient.";
                     throw std::runtime_error( errorMessage );
                 }
+                else if( currentBody->getFlightConditions( ) == nullptr )
+                {
+                    std::string errorMessage = "Error, body " + currentBodyName +
+                            " has no flight conditions defined, cannot estimate constant drag coefficient.";
+                    throw std::runtime_error( errorMessage );
+                }
+                else if( currentBody->getFlightConditions( )->getAerodynamicAngleCalculator( ) == nullptr )
+                {
+                    std::string errorMessage = "Error, body " + currentBodyName +
+                            " has no aerodynamic angle calculator defined, cannot estimate constant drag coefficient.";
+                    throw std::runtime_error( errorMessage );
+                }
                 else
                 {
                     doubleParameterToEstimate = std::make_shared< ConstantDragCoefficient >(
                             std::dynamic_pointer_cast< aerodynamics::CustomAerodynamicCoefficientInterface >(
                                     currentBody->getAerodynamicCoefficientInterface( ) ),
-                            currentBodyName );
+                            currentBodyName,
+                            currentBody->getFlightConditions( )->getAerodynamicAngleCalculator( ) );
                 }
                 break;
             }
