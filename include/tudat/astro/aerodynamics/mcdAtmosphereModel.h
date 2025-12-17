@@ -182,10 +182,115 @@ public:
         return currentLTST_;
     }
 
+    //! Get radial distance from planet center (always available)
+    double getRadialDistance( ) const
+    {
+        return currentRadialDistance_;
+    }
+
+    //! Get altitude above areoid (always available)
+    double getAltitudeAboveAreoid( ) const
+    {
+        return currentAltitudeAboveAreoid_;
+    }
+
+    //! Get altitude above local surface (always available)
+    double getAltitudeAboveSurface( ) const
+    {
+        return currentAltitudeAboveSurface_;
+    }
+
+    //! Get orographic height (always available)
+    double getOrographicHeight( ) const
+    {
+        return currentOrographicHeight_;
+    }
+
+    //! Get GCM orography (always available)
+    double getGcmOrography( ) const
+    {
+        return currentGcmOrography_;
+    }
+
+    //! Get local slope inclination in degrees (always available if hireskey=1)
+    double getSlopeInclination( ) const
+    {
+        return currentSlopeInclination_;
+    }
+
+    //! Get local slope orientation in degrees (always available if hireskey=1)
+    double getSlopeOrientation( ) const
+    {
+        return currentSlopeOrientation_;
+    }
+
+    //! Get Sun-Mars distance in AU (always available)
+    double getSunMarsDistance( ) const
+    {
+        return currentMarsAU_;
+    }
+
+    //! Get local mean time in hours (always available)
+    double getLocalMeanTime( ) const
+    {
+        return currentLocalMeanTime_;
+    }
+
+    //! Get universal solar time in hours (always available)
+    double getUniversalSolarTime( ) const
+    {
+        return currentUniversalSolarTime_;
+    }
+
+    //! Get solar zenith angle in degrees (always available)
+    double getSolarZenithAngle( ) const
+    {
+        return currentSolarZenithAngle_;
+    }
+
 protected:
+    //! Check if current state matches cached state
+    /*!
+     * Checks if the provided state parameters match the cached state within tolerance.
+     * \param altitude Altitude to check (m)
+     * \param longitude Longitude to check (rad)
+     * \param latitude Latitude to check (rad)
+     * \param time Time to check (seconds since J2000)
+     * \return True if state matches cached state
+     */
+    bool isCached( const double altitude, const double longitude, const double latitude, const double time ) const;
+
+    //! Compute properties only if state changed or extras needed
+    /*!
+     * Checks cached state and only recomputes if necessary.
+     * \param altitude Altitude above surface (m) - matches Tudat convention
+     * \param longitude Longitude (rad)
+     * \param latitude Latitude (rad)
+     * \param time Time (seconds since J2000)
+     * \param needExtraVariables Whether extra variables 14-100 are needed
+     */
+    void computePropertiesIfNeeded( const double altitude,
+                                    const double longitude,
+                                    const double latitude,
+                                    const double time,
+                                    const bool needExtraVariables = false );
+
 private:
-    //! Compute atmospheric properties
-    void computeProperties( const double altitude, const double longitude, const double latitude, const double time );
+    //! Compute atmospheric properties (internal implementation)
+    /*!
+     * Internal method that actually calls MCD.
+     * Uses zkey=3 (height above surface) to match Tudat's altitude convention.
+     * \param altitude Altitude above surface (m)
+     * \param longitude Longitude (rad)
+     * \param latitude Latitude (rad)
+     * \param time Time (seconds since J2000)
+     * \param needExtraVariables Whether to compute extra variables 14-100
+     */
+    void computePropertiesInternal( const double altitude,
+                                    const double longitude,
+                                    const double latitude,
+                                    const double time,
+                                    const bool needExtraVariables );
 
     //! Convert time to MCD format (Julian date only)
     /*!
@@ -265,14 +370,27 @@ private:
     //! Current random seed value
     double currentSeedOut_;
 
-    //! Cached solar longitude (degrees)
-    double currentLs_;
+    //! Cached state variables to avoid redundant MCD calls
+    double cachedAltitude_ = TUDAT_NAN;
+    double cachedLongitude_ = TUDAT_NAN;
+    double cachedLatitude_ = TUDAT_NAN;
+    double cachedTime_ = TUDAT_NAN;
+    bool lastComputedWithExtras_ = false;
 
-    //! Cached local true solar time (hours)
-    double currentLTST_;
-
-    //! Cached Sun-Mars distance (AU)
-    double currentMarsAU_;
+    //! Always-computed supplementary variables (extvar 1-13 in Fortran)
+    double currentRadialDistance_;        // extvar(1): Radial distance from planet center (m)
+    double currentAltitudeAboveAreoid_;   // extvar(2): Altitude above areoid (m)
+    double currentAltitudeAboveSurface_;  // extvar(3): Altitude above local surface (m)
+    double currentOrographicHeight_;      // extvar(4): Orographic height (m)
+    double currentGcmOrography_;          // extvar(5): GCM orography (m)
+    double currentSlopeInclination_;      // extvar(6): Local slope inclination (deg)
+    double currentSlopeOrientation_;      // extvar(7): Local slope orientation (deg)
+    double currentMarsAU_;                // extvar(8): Sun-Mars distance (AU)
+    double currentLs_;                    // extvar(9): Solar longitude Ls (deg)
+    double currentLTST_;                  // extvar(10): Local true solar time (hrs)
+    double currentLocalMeanTime_;         // extvar(11): Local mean time (hrs)
+    double currentUniversalSolarTime_;    // extvar(12): Universal solar time (hrs)
+    double currentSolarZenithAngle_;      // extvar(13): Solar zenith angle (deg)
 };
 
 }  // namespace aerodynamics

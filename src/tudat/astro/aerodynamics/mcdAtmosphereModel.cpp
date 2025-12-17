@@ -8,14 +8,14 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 #include "tudat/astro/aerodynamics/mcdAtmosphereModel.h"
-#include "tudat/astro/basic_astro/unitConversions.h"
 #include "tudat/astro/basic_astro/physicalConstants.h"
+#include "tudat/astro/basic_astro/unitConversions.h"
+#include "tudat/astro/basic_astro/timeConversions.h"
+#include "tudat/basics/utilities.h"
 #include "tudat/io/basicInputOutput.h"
+#include "mcd.h"
 #include <cmath>
 #include <stdexcept>
-
-// Include MCD header
-#include "mcd.h"
 
 namespace tudat
 {
@@ -32,13 +32,17 @@ McdAtmosphereModel::McdAtmosphereModel( const std::string& mcdDataPath,
     mcdDataPath_( mcdDataPath ), dustScenario_( dustScenario ), perturbationKey_( perturbationKey ), perturbationSeed_( perturbationSeed ),
     gravityWaveLength_( gravityWaveLength ), highResolutionMode_( highResolutionMode ), currentDensity_( 0.0 ), currentPressure_( 0.0 ),
     currentTemperature_( 0.0 ), currentZonalWind_( 0.0 ), currentMeridionalWind_( 0.0 ), currentSeedOut_( perturbationSeed ),
-    currentLs_( 0.0 ), currentLTST_( 0.0 ), currentMarsAU_( 0.0 )
+    cachedAltitude_( TUDAT_NAN ), cachedLongitude_( TUDAT_NAN ), cachedLatitude_( TUDAT_NAN ), cachedTime_( TUDAT_NAN ),
+    lastComputedWithExtras_( false ), currentRadialDistance_( 0.0 ), currentAltitudeAboveAreoid_( 0.0 ),
+    currentAltitudeAboveSurface_( 0.0 ), currentOrographicHeight_( 0.0 ), currentGcmOrography_( 0.0 ), currentSlopeInclination_( 0.0 ),
+    currentSlopeOrientation_( 0.0 ), currentMarsAU_( 0.0 ), currentLs_( 0.0 ), currentLTST_( 0.0 ), currentLocalMeanTime_( 0.0 ),
+    currentUniversalSolarTime_( 0.0 ), currentSolarZenithAngle_( 0.0 )
 {
-    // Initialize mean and extra variables vectors
+    // Resize vectors to hold MCD outputs
     currentMeanVariables_.resize( 5, 0.0 );
     currentExtraVariables_.resize( 100, 0.0 );
 
-    // Set default MCD data path if not provided by user
+    // Set default MCD data path if not provided
     if( mcdDataPath_.empty( ) )
     {
         // Use the compile-time defined path to the MCD data directory
@@ -53,7 +57,7 @@ McdAtmosphereModel::McdAtmosphereModel( const std::string& mcdDataPath,
 #endif
     }
 
-    // Ensure the path ends with a slash
+    // Ensure path ends with '/'
     if( !mcdDataPath_.empty( ) && mcdDataPath_.back( ) != '/' )
     {
         mcdDataPath_ += '/';
@@ -102,33 +106,33 @@ McdAtmosphereModel::McdAtmosphereModel( const std::string& mcdDataPath,
 // Get density
 double McdAtmosphereModel::getDensity( const double altitude, const double longitude, const double latitude, const double time )
 {
-    computeProperties( altitude, longitude, latitude, time );
+    computePropertiesIfNeeded( altitude, longitude, latitude, time, false );
     return currentDensity_;
 }
 
 // Get pressure
 double McdAtmosphereModel::getPressure( const double altitude, const double longitude, const double latitude, const double time )
 {
-    computeProperties( altitude, longitude, latitude, time );
+    computePropertiesIfNeeded( altitude, longitude, latitude, time, false );
     return currentPressure_;
 }
 
 // Get temperature
 double McdAtmosphereModel::getTemperature( const double altitude, const double longitude, const double latitude, const double time )
 {
-    computeProperties( altitude, longitude, latitude, time );
+    computePropertiesIfNeeded( altitude, longitude, latitude, time, false );
     return currentTemperature_;
 }
 
 // Get speed of sound
 double McdAtmosphereModel::getSpeedOfSound( const double altitude, const double longitude, const double latitude, const double time )
 {
-    computeProperties( altitude, longitude, latitude, time );
+    // Speed of sound needs extvar(60) and extvar(61) = indices 59, 60 in C++
+    computePropertiesIfNeeded( altitude, longitude, latitude, time, true );
 
-    // Get gamma and R from extra variables if available
-    // extvar(60) = gamma, extvar(61) = R
-    double gamma = currentExtraVariables_[ 59 ];  // Index 59 = extvar(60)
-    double R = currentExtraVariables_[ 60 ];      // Index 60 = extvar(61)
+    // Get gamma and R from extra variables
+    double gamma = currentExtraVariables_[ 59 ];  // extvar(60): gamma
+    double R = currentExtraVariables_[ 60 ];      // extvar(61): R (J/kg/K)
 
     if( gamma > 0.0 && R > 0.0 )
     {
@@ -136,39 +140,127 @@ double McdAtmosphereModel::getSpeedOfSound( const double altitude, const double 
     }
     else
     {
-        // Fallback values for Mars atmosphere
+        // Fallback to Mars defaults
         const double defaultGamma = 1.3;
-        const double defaultR = 192.0;  // J/(kg·K)
+        const double defaultR = 192.0;  // J/kg/K for Mars CO2 atmosphere
         return std::sqrt( defaultGamma * defaultR * currentTemperature_ );
     }
 }
 
-// Compute properties (main computation function)
-void McdAtmosphereModel::computeProperties( const double altitude, const double longitude, const double latitude, const double time )
+bool McdAtmosphereModel::isCached( const double altitude, const double longitude, const double latitude, const double time ) const
+{
+    // MCD optimization guidelines indicate computational cost hierarchy:
+    // 1. Time changes (most expensive) - may trigger dataset reloading
+    // 2. Horizontal position (moderate) - requires horizontal interpolation
+    // 3. Vertical position (least expensive) - only vertical interpolation
+
+    // Time tolerance: Based on MCD's temporal resolution and diurnal variations
+    // - MCD uses 12 time steps per sol (every 2 hours)
+    // - Martian sol = 88775.245 seconds
+    // - One time step = 88775.245/12 ≈ 7398 seconds
+    // - Use 1/100th of time step for smooth temporal evolution
+    // - Tolerance: ~74 seconds (captures sub-hourly atmospheric changes)
+    const double timeTolerance = 74.0;  // seconds
+
+    // Horizontal position tolerance: Based on atmospheric spatial scales
+    // - MCD GCM resolution: ~5.6° × 5.6° (low res) or MOLA 32 pixels/degree (high res)
+    // - Mars radius ≈ 3396 km, circumference ≈ 21340 km
+    // - 1° ≈ 59.3 km at equator
+    // - Atmospheric features: ~100-500 km horizontal scale
+    // - Use 0.001 rad ≈ 0.057° ≈ 3.4 km (captures mesoscale features)
+    const double horizontalTolerance = 0.001;  // radians (~3.4 km at equator)
+
+    // Vertical tolerance: Based on atmospheric scale heights and MCD vertical resolution
+    // - Mars atmospheric scale height: ~10-11 km
+    // - Density changes by factor e (2.718) per scale height
+    // - MCD vertical resolution: varies from ~1 km (low altitudes) to ~5 km (high altitudes)
+    // - Use 100 m tolerance: captures vertical structure without excessive recomputation
+    // - At H=10 km: Δρ/ρ ≈ (Δz/H) ≈ 100/10000 = 1% density change
+    const double verticalTolerance = 100.0;  // meters
+
+    // Check if state is within tolerances
+    if( std::isnan( cachedAltitude_ ) || std::isnan( cachedLongitude_ ) || std::isnan( cachedLatitude_ ) || std::isnan( cachedTime_ ) )
+    {
+        return false;
+    }
+
+    // Check each parameter against its physically-motivated tolerance
+    bool altitudeMatch = std::abs( altitude - cachedAltitude_ ) < verticalTolerance;
+    bool longitudeMatch = std::abs( longitude - cachedLongitude_ ) < horizontalTolerance;
+    bool latitudeMatch = std::abs( latitude - cachedLatitude_ ) < horizontalTolerance;
+    bool timeMatch = std::abs( time - cachedTime_ ) < timeTolerance;
+
+    return altitudeMatch && longitudeMatch && latitudeMatch && timeMatch;
+}
+
+void McdAtmosphereModel::computePropertiesIfNeeded( const double altitude,
+                                                    const double longitude,
+                                                    const double latitude,
+                                                    const double time,
+                                                    const bool needExtraVariables )
+{
+    // Check if we can use cached values
+    bool stateChanged = !isCached( altitude, longitude, latitude, time );
+
+    // Check if extra variables were NOT computed before but are needed now
+    bool needToRecompute = needExtraVariables && !lastComputedWithExtras_;
+
+    if( !stateChanged && !needToRecompute )
+    {
+        return;  // Use cached values
+    }
+
+    // Update cache state
+    cachedAltitude_ = altitude;
+    cachedLongitude_ = longitude;
+    cachedLatitude_ = latitude;
+    cachedTime_ = time;
+    lastComputedWithExtras_ = needExtraVariables;
+
+    // Compute new values
+    computePropertiesInternal( altitude, longitude, latitude, time, needExtraVariables );
+}
+
+void McdAtmosphereModel::computePropertiesInternal( const double altitude,
+                                                    const double longitude,
+                                                    const double latitude,
+                                                    const double time,
+                                                    const bool needExtraVariables )
 {
     // Convert time to MCD format (Julian date)
-    int dateKey = 0;  // Use Earth date (Julian date)
-    double xdate;
-    float localTime;
-
-    convertTimeToMcdFormat( time, longitude, dateKey, xdate, localTime );
+    // MCD uses Julian date with dateKey=0 (Earth time)
+    // localTime must be 0 when dateKey=0
+    int dateKey = 0;
+    double xdate = basic_astrodynamics::convertSecondsSinceEpochToJulianDay< double >( time );
+    float localTime = 0.0f;
 
     // Convert coordinates to degrees
     float longitudeDeg = static_cast< float >( unit_conversions::convertRadiansToDegrees( longitude ) );
     float latitudeDeg = static_cast< float >( unit_conversions::convertRadiansToDegrees( latitude ) );
 
-    // Use zkey=2: height above areoid (meters)
-    // Tudat's altitude is typically height above the reference ellipsoid (oblate spheroid).
-    // The Areoid is the closest approximation to this reference surface in MCD.
-    // Using zkey=3 would incorrectly add local topography height to the input altitude.
-    int zkey = 2;  // height above areoid
-    float altitudeAboveSurface = static_cast< float >( altitude );
+    // CRITICAL: Use zkey=3 for height above surface (matches Tudat convention)
+    int zkey = 3;
+    float altitudeInput = static_cast< float >( altitude );
 
-    // Prepare extra variable flags (enable all for comprehensive output)
+    // Prepare extra variable flags
     int extvarkeys[ 100 ];
     for( int i = 0; i < 100; ++i )
     {
-        extvarkeys[ i ] = 1;
+        if( i < 13 )
+        {
+            // Variables 1-13 are always computed (time/space coordinates)
+            extvarkeys[ i ] = 1;
+        }
+        else if( i < 85 && needExtraVariables )
+        {
+            // Variables 14-85 only if requested
+            extvarkeys[ i ] = 1;
+        }
+        else
+        {
+            // Variables 86-100 are unused
+            extvarkeys[ i ] = 0;
+        }
     }
 
     // Output variables (MCD uses float)
@@ -178,19 +270,18 @@ void McdAtmosphereModel::computeProperties( const double altitude, const double 
     float seedout;
     int ier;
 
-    // localTime must be 0 when using dateKey=0 (compulsory)
+    // Set localTime to 0 (required for dateKey=0)
     localTime = 0.0f;
 
-    // Prepare other inputs as float (remove const to match Fortran interface)
     float seedin_f = static_cast< float >( perturbationSeed_ );
     float gwlength_f = static_cast< float >( gravityWaveLength_ );
     int dustScenario = dustScenario_;
     int perturbationKey = perturbationKey_;
     int highResolutionMode = highResolutionMode_;
 
-    // Call MCD Fortran routine directly
+    // Call MCD Fortran routine (interface declared in mcd.h)
     __mcd_MOD_call_mcd( &zkey,
-                        &altitudeAboveSurface,
+                        &altitudeInput,
                         &longitudeDeg,
                         &latitudeDeg,
                         &highResolutionMode,
@@ -220,7 +311,7 @@ void McdAtmosphereModel::computeProperties( const double altitude, const double 
         throw std::runtime_error( "McdAtmosphereModel: MCD routine returned error code " + std::to_string( ier ) );
     }
 
-    // Store results (convert float to double)
+    // Store basic results
     currentPressure_ = static_cast< double >( pres );
     currentDensity_ = static_cast< double >( dens );
     currentTemperature_ = static_cast< double >( temp );
@@ -234,40 +325,30 @@ void McdAtmosphereModel::computeProperties( const double altitude, const double 
         currentMeanVariables_[ i ] = static_cast< double >( meanvar[ i ] );
     }
 
-    // Copy extra variables
+    // Copy extra variables (Fortran arrays are 1-indexed, C++ are 0-indexed)
     for( int i = 0; i < 100; ++i )
     {
         currentExtraVariables_[ i ] = static_cast< double >( extvar[ i ] );
     }
 
-    // Extract Ls and other orbital parameters from extra variables
-    // According to MCD documentation:
-    // extvar(9) = Ls (solar longitude in degrees)
-    // extvar(10) = LST (local true solar time in hours)
-    // Note: array indices in C++ are 0-based, so extvar[8] = extvar(9) in Fortran
-    if( currentExtraVariables_.size( ) >= 10 )
+    // Extract and store always-computed supplementary variables (extvar 1-13 in Fortran)
+    // Remember: Fortran arrays are 1-indexed, C++ arrays are 0-indexed
+    if( currentExtraVariables_.size( ) >= 13 )
     {
-        currentLs_ = currentExtraVariables_[ 8 ];    // extvar(9) = Ls
-        currentLTST_ = currentExtraVariables_[ 9 ];  // extvar(10) = LST
+        currentRadialDistance_ = currentExtraVariables_[ 0 ];        // extvar(1)
+        currentAltitudeAboveAreoid_ = currentExtraVariables_[ 1 ];   // extvar(2)
+        currentAltitudeAboveSurface_ = currentExtraVariables_[ 2 ];  // extvar(3)
+        currentOrographicHeight_ = currentExtraVariables_[ 3 ];      // extvar(4)
+        currentGcmOrography_ = currentExtraVariables_[ 4 ];          // extvar(5)
+        currentSlopeInclination_ = currentExtraVariables_[ 5 ];      // extvar(6)
+        currentSlopeOrientation_ = currentExtraVariables_[ 6 ];      // extvar(7)
+        currentMarsAU_ = currentExtraVariables_[ 7 ];                // extvar(8)
+        currentLs_ = currentExtraVariables_[ 8 ];                    // extvar(9)
+        currentLTST_ = currentExtraVariables_[ 9 ];                  // extvar(10)
+        currentLocalMeanTime_ = currentExtraVariables_[ 10 ];        // extvar(11)
+        currentUniversalSolarTime_ = currentExtraVariables_[ 11 ];   // extvar(12)
+        currentSolarZenithAngle_ = currentExtraVariables_[ 12 ];     // extvar(13)
     }
 }
-
-// Convert time to MCD format (simplified - only Julian date needed)
-void McdAtmosphereModel::convertTimeToMcdFormat( const double time, const double longitude, int& dateKey, double& xdate, float& localTime )
-{
-    // Convert time from seconds since J2000 to Julian date
-    const double J2000_JD = 2451545.0;  // Julian date of J2000 epoch
-    const double secondsPerDay = 86400.0;
-
-    double julianDate = J2000_JD + ( time / secondsPerDay );
-
-    // Use Earth date (dateKey = 0)
-    dateKey = 0;
-    xdate = julianDate;
-
-    // localTime must be set to 0 when using dateKey=0 (compulsory)
-    localTime = 0.0f;
-}
-
 }  // namespace aerodynamics
 }  // namespace tudat
