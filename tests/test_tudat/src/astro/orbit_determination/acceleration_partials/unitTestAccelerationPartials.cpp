@@ -818,7 +818,8 @@ BOOST_AUTO_TEST_CASE( testAerodynamicAccelerationPartials )
     std::shared_ptr< EstimatableParameter< double > > dragCoefficientParameter =
             std::make_shared< ConstantDragCoefficient >( std::dynamic_pointer_cast< aerodynamics::CustomAerodynamicCoefficientInterface >(
                                                                  bodies.at( "Vehicle" )->getAerodynamicCoefficientInterface( ) ),
-                                                         "Vehicle" );
+                                                         "Vehicle",
+                                                         bodies.at( "Vehicle" )->getFlightConditions( )->getAerodynamicAngleCalculator( ) );
 
     // drag/side/lift direction scaling parameters
     auto aeroAccelerationModel = std::dynamic_pointer_cast< aerodynamics::AerodynamicAcceleration >( accelerationModel );
