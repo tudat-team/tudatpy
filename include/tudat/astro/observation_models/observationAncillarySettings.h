@@ -31,7 +31,7 @@ namespace tudat
 namespace observation_models
 {
 
-enum ObservationAncilliarySimulationVariable {
+enum ObservationAncillarySimulationVariable {
     link_ends_delays,
     frequency_bands,
     reception_reference_frequency_band,
@@ -43,13 +43,13 @@ enum ObservationAncilliarySimulationVariable {
 
 enum ObservationIntermediateSimulationVariable { transmitter_frequency_intermediate, received_frequency_intermediate };
 
-struct ObservationAncilliarySimulationSettings {
+struct ObservationAncillarySimulationSettings {
 public:
-    ObservationAncilliarySimulationSettings( ) {}
+    ObservationAncillarySimulationSettings( ) {}
 
-    virtual ~ObservationAncilliarySimulationSettings( ) {}
+    virtual ~ObservationAncillarySimulationSettings( ) {}
 
-    void setAncilliaryDoubleData( const ObservationAncilliarySimulationVariable &variableType, const double variable )
+    void setAncillaryDoubleData( const ObservationAncillarySimulationVariable &variableType, const double variable )
     {
         switch( variableType )
         {
@@ -62,13 +62,13 @@ public:
                 break;
             default:
                 throw std::runtime_error(
-                        "Error when setting double ancilliary observation "
+                        "Error when setting double ancillary observation "
                         "data; could not set type " +
                         getAncillaryDataName( variableType ) );
         }
     }
 
-    void setAncilliaryDoubleVectorData( const ObservationAncilliarySimulationVariable &variableType, const std::vector< double > &variable )
+    void setAncillaryDoubleVectorData( const ObservationAncillarySimulationVariable &variableType, const std::vector< double > &variable )
     {
         switch( variableType )
         {
@@ -78,13 +78,13 @@ public:
                 break;
             default:
                 throw std::runtime_error(
-                        "Error when setting double vector ancilliary "
+                        "Error when setting double vector ancillary "
                         "observation data; could not set type " +
                         getAncillaryDataName( variableType ) );
         }
     }
 
-    double getAncilliaryDoubleData( const ObservationAncilliarySimulationVariable &variableType, const bool throwException = true )
+    double getAncillaryDoubleData( const ObservationAncillarySimulationVariable &variableType, const bool throwException = true )
     {
         double returnVariable = TUDAT_NAN;
         try
@@ -102,7 +102,7 @@ public:
                     if( throwException )
                     {
                         throw std::runtime_error(
-                                "Error when getting double ancilliary observation "
+                                "Error when getting double ancillary observation "
                                 "data; could not retrieve type " +
                                 getAncillaryDataName( variableType ) );
                     }
@@ -114,7 +114,7 @@ public:
             if( throwException )
             {
                 throw std::runtime_error(
-                        "Error when getting double ancilliary observation "
+                        "Error when getting double ancillary observation "
                         "data; could not retrieve type " +
                         getAncillaryDataName( variableType ) );
             }
@@ -122,7 +122,7 @@ public:
         return returnVariable;
     }
 
-    std::vector< double > getAncilliaryDoubleVectorData( const ObservationAncilliarySimulationVariable &variableType,
+    std::vector< double > getAncillaryDoubleVectorData( const ObservationAncillarySimulationVariable &variableType,
                                                          const bool throwException = true )
     {
         std::vector< double > returnVariable;
@@ -138,7 +138,7 @@ public:
                     if( throwException )
                     {
                         throw std::runtime_error(
-                                "Error when getting double vector ancilliary "
+                                "Error when getting double vector ancillary "
                                 "observation data; could not retrieve type " +
                                 getAncillaryDataName( variableType ) );
                     }
@@ -150,7 +150,7 @@ public:
             if( throwException )
             {
                 throw std::runtime_error(
-                        "Error when getting double vector ancilliary observation "
+                        "Error when getting double vector ancillary observation "
                         "data; could not retrieve type " +
                         getAncillaryDataName( variableType ) );
             }
@@ -158,7 +158,7 @@ public:
         return returnVariable;
     }
 
-    std::string getAncillaryDataName( const ObservationAncilliarySimulationVariable &variableType )
+    std::string getAncillaryDataName( const ObservationAncillarySimulationVariable &variableType )
     {
         std::string name;
 
@@ -246,138 +246,138 @@ public:
         return returnVariable;
     }
 
-    bool operator==( const ObservationAncilliarySimulationSettings &rightSettings ) const
+    bool operator==( const ObservationAncillarySimulationSettings &rightSettings ) const
     {
         return doubleData_ == rightSettings.doubleData_ && doubleVectorData_ == rightSettings.doubleVectorData_;
     }
 
-    std::map< ObservationAncilliarySimulationVariable, double > getDoubleData( ) const
+    std::map< ObservationAncillarySimulationVariable, double > getDoubleData( ) const
     {
         return doubleData_;
     }
 
-    std::map< ObservationAncilliarySimulationVariable, std::vector< double > > getDoubleVectorData( ) const
+    std::map< ObservationAncillarySimulationVariable, std::vector< double > > getDoubleVectorData( ) const
     {
         return doubleVectorData_;
     }
 
 protected:
-    std::map< ObservationAncilliarySimulationVariable, double > doubleData_;
-    std::map< ObservationAncilliarySimulationVariable, std::vector< double > > doubleVectorData_;
+    std::map< ObservationAncillarySimulationVariable, double > doubleData_;
+    std::map< ObservationAncillarySimulationVariable, std::vector< double > > doubleVectorData_;
 
     std::map< ObservationIntermediateSimulationVariable, double > doubleIntermediateData_;
 };
 
-inline std::shared_ptr< ObservationAncilliarySimulationSettings > getAveragedDopplerAncilliarySettings(
+inline std::shared_ptr< ObservationAncillarySimulationSettings > getAveragedDopplerAncillarySettings(
         const double integrationTime = 60.0 )
 {
-    std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySettings =
-            std::make_shared< ObservationAncilliarySimulationSettings >( );
-    ancilliarySettings->setAncilliaryDoubleData( doppler_integration_time, integrationTime );
-    return ancilliarySettings;
+    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+            std::make_shared< ObservationAncillarySimulationSettings >( );
+    ancillarySettings->setAncillaryDoubleData( doppler_integration_time, integrationTime );
+    return ancillarySettings;
 }
 
-inline std::shared_ptr< ObservationAncilliarySimulationSettings > getNWayRangeAncilliarySettings(
+inline std::shared_ptr< ObservationAncillarySimulationSettings > getNWayRangeAncillarySettings(
         const std::vector< double > linkEndsDelays = std::vector< double >( ),
         const std::vector< FrequencyBands > &frequencyBands = std::vector< FrequencyBands >( ) )
 {
-    std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySettings =
-            std::make_shared< ObservationAncilliarySimulationSettings >( );
-    ancilliarySettings->setAncilliaryDoubleVectorData( link_ends_delays, linkEndsDelays );
-    ancilliarySettings->setAncilliaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
-    return ancilliarySettings;
+    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+            std::make_shared< ObservationAncillarySimulationSettings >( );
+    ancillarySettings->setAncillaryDoubleVectorData( link_ends_delays, linkEndsDelays );
+    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    return ancillarySettings;
 }
 
-inline std::shared_ptr< ObservationAncilliarySimulationSettings > getNWayAveragedDopplerAncilliarySettings(
+inline std::shared_ptr< ObservationAncillarySimulationSettings > getNWayAveragedDopplerAncillarySettings(
         const double integrationTime = 60.0,
         const std::vector< double > linkEndsDelays = std::vector< double >( ),
         const std::vector< FrequencyBands > &frequencyBands = std::vector< FrequencyBands >( ) )
 {
-    std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySettings =
-            std::make_shared< ObservationAncilliarySimulationSettings >( );
-    ancilliarySettings->setAncilliaryDoubleData( doppler_integration_time, integrationTime );
-    ancilliarySettings->setAncilliaryDoubleVectorData( link_ends_delays, linkEndsDelays );
-    ancilliarySettings->setAncilliaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
-    return ancilliarySettings;
+    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+            std::make_shared< ObservationAncillarySimulationSettings >( );
+    ancillarySettings->setAncillaryDoubleData( doppler_integration_time, integrationTime );
+    ancillarySettings->setAncillaryDoubleVectorData( link_ends_delays, linkEndsDelays );
+    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    return ancillarySettings;
 }
 
-inline std::shared_ptr< ObservationAncilliarySimulationSettings > getTwoWayRangeAncilliarySettings( const double retransmissionTime )
+inline std::shared_ptr< ObservationAncillarySimulationSettings > getTwoWayRangeAncillarySettings( const double retransmissionTime )
 {
-    return getNWayRangeAncilliarySettings( std::vector< double >( { retransmissionTime } ) );
+    return getNWayRangeAncillarySettings( std::vector< double >( { retransmissionTime } ) );
 }
 
-inline std::shared_ptr< ObservationAncilliarySimulationSettings > getTwoWayAveragedDopplerAncilliarySettings(
+inline std::shared_ptr< ObservationAncillarySimulationSettings > getTwoWayAveragedDopplerAncillarySettings(
         const double integrationTime = 60.0,
         const double retransmissionTime = 0.0 )
 {
-    return getNWayAveragedDopplerAncilliarySettings( integrationTime, std::vector< double >( { retransmissionTime } ) );
+    return getNWayAveragedDopplerAncillarySettings( integrationTime, std::vector< double >( { retransmissionTime } ) );
 }
 
-inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDsnNWayAveragedDopplerAncillarySettings(
+inline std::shared_ptr< ObservationAncillarySimulationSettings > getDsnNWayAveragedDopplerAncillarySettings(
         const std::vector< FrequencyBands > &frequencyBands,
         const FrequencyBands receptionReferenceFrequencyBand,
         const double referenceFrequency,
         const double integrationTime = 60.0,
         const std::vector< double > linkEndsDelays = std::vector< double >( ) )
 {
-    std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
-            std::make_shared< ObservationAncilliarySimulationSettings >( );
+    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+            std::make_shared< ObservationAncillarySimulationSettings >( );
 
-    ancillarySettings->setAncilliaryDoubleData( doppler_integration_time, integrationTime );
-    ancillarySettings->setAncilliaryDoubleData( doppler_reference_frequency, referenceFrequency );
-    ancillarySettings->setAncilliaryDoubleData( reception_reference_frequency_band,
+    ancillarySettings->setAncillaryDoubleData( doppler_integration_time, integrationTime );
+    ancillarySettings->setAncillaryDoubleData( doppler_reference_frequency, referenceFrequency );
+    ancillarySettings->setAncillaryDoubleData( reception_reference_frequency_band,
                                                 convertFrequencyBandToDouble( receptionReferenceFrequencyBand ) );
 
-    ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
-    ancillarySettings->setAncilliaryDoubleVectorData( link_ends_delays, linkEndsDelays );
+    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancillarySettings->setAncillaryDoubleVectorData( link_ends_delays, linkEndsDelays );
 
     return ancillarySettings;
 }
 
-inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDsnNWayRangeAncillarySettings(
+inline std::shared_ptr< ObservationAncillarySimulationSettings > getDsnNWayRangeAncillarySettings(
         const std::vector< FrequencyBands > &frequencyBands,
         const double lowestRangingComponent,
         const std::vector< double > linkEndsDelays = std::vector< double >( ) )
 
 {
-    std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
-            std::make_shared< ObservationAncilliarySimulationSettings >( );
+    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+            std::make_shared< ObservationAncillarySimulationSettings >( );
 
-    ancillarySettings->setAncilliaryDoubleData( sequential_range_lowest_ranging_component, lowestRangingComponent );
+    ancillarySettings->setAncillaryDoubleData( sequential_range_lowest_ranging_component, lowestRangingComponent );
 
-    ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
-    ancillarySettings->setAncilliaryDoubleVectorData( link_ends_delays, linkEndsDelays );
+    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancillarySettings->setAncillaryDoubleVectorData( link_ends_delays, linkEndsDelays );
 
     return ancillarySettings;
 }
 
-inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDopplerMeasuredFrequencyAncilliarySettings(
+inline std::shared_ptr< ObservationAncillarySimulationSettings > getDopplerMeasuredFrequencyAncillarySettings(
         const std::vector< FrequencyBands > &frequencyBands )
 {
-    std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings =
-            std::make_shared< ObservationAncilliarySimulationSettings >( );
+    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
+            std::make_shared< ObservationAncillarySimulationSettings >( );
 
-    ancillarySettings->setAncilliaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
+    ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
 
     return ancillarySettings;
 }
 
-inline std::shared_ptr< ObservationAncilliarySimulationSettings > getDefaultAncilliaryObservationSettings(
+inline std::shared_ptr< ObservationAncillarySimulationSettings > getDefaultAncillaryObservationSettings(
         const observation_models::ObservableType observableType )
 {
-    std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr;
+    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr;
     switch( observableType )
     {
         case observation_models::one_way_differenced_range:
-            ancilliarySettings = getAveragedDopplerAncilliarySettings( 60.0 );
+            ancillarySettings = getAveragedDopplerAncillarySettings( 60.0 );
             break;
         case observation_models::n_way_differenced_range:
-            ancilliarySettings = getAveragedDopplerAncilliarySettings( 60.0 );
+            ancillarySettings = getAveragedDopplerAncillarySettings( 60.0 );
             break;
         default:
             break;
     }
-    return ancilliarySettings;
+    return ancillarySettings;
 }
 
 }  // namespace observation_models

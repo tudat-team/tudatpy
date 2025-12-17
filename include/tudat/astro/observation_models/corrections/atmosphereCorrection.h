@@ -608,7 +608,7 @@ public:
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
             const unsigned int currentMultiLegTransmitterIndex,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) override;
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings ) override;
 
     // Returns the function that computes the dry zenith correction as a function of time.
     std::function< double( double time ) > getDryZenithRangeCorrectionFunction( )
@@ -775,7 +775,7 @@ public:
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
             const unsigned int currentMultiLegTransmitterIndex,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr ) override;
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) override;
 
 private:
     // VMF3 data container (interpolated coefficients)
@@ -949,7 +949,7 @@ public:
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
             const unsigned int currentMultiLegTransmitterIndex,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) override;
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings ) override;
 
 private:
     // Range correction calculator. Correction determined for referenceFrequency_
@@ -1175,7 +1175,7 @@ public:
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
             const unsigned int currentMultiLegTransmitterIndex,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) override;
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings ) override;
 
 private:
     // Class to calculate the vertical total electron content (VTEC)

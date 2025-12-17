@@ -38,7 +38,7 @@ std::shared_ptr< tom::SingleObservationSet< ObservationScalarType, TimeType > > 
         const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
         const std::vector< TimeType > observationTimes,
         const tom::LinkEndType referenceLinkEnd,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
 {
     std::cerr << "Function single_observation_set is deprecated. Use create_single_observation_set instead" << std::endl;
     return std::make_shared< tom::SingleObservationSet< ObservationScalarType, TimeType > >( observableType,
@@ -48,7 +48,7 @@ std::shared_ptr< tom::SingleObservationSet< ObservationScalarType, TimeType > > 
                                                                                              referenceLinkEnd,
                                                                                              std::vector< Eigen::VectorXd >( ),
                                                                                              nullptr,
-                                                                                             ancilliarySettings );
+                                                                                             ancillarySettings );
 }
 
 }  // namespace simulation_setup
@@ -111,7 +111,7 @@ void expose_observations( py::module& m )
             List of dependent variables for each observation.
         dependent_variable_calculator : tudatpy.estimation.observations.ObservationDependentVariableCalculator, optional
             Calculator for dependent variables.
-        ancilliary_settings : tudatpy.astro.observation_models.ObservationAncilliarySimulationSettings, optional
+        ancillary_settings : tudatpy.astro.observation_models.ObservationAncillarySimulationSettings, optional
             Ancillary settings for the observation.
       )doc" )
             .def( py::init< const tom::ObservableType,
@@ -121,7 +121,7 @@ void expose_observations( py::module& m )
                             const tom::LinkEndType,
                             const std::vector< Eigen::VectorXd >,
                             const std::shared_ptr< tss::ObservationDependentVariableBookkeeping >,
-                            const std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >( ),
+                            const std::shared_ptr< tom::ObservationAncillarySimulationSettings > >( ),
                   py::arg( "observable_type" ),
                   py::arg( "link_ends" ),
                   py::arg( "observations" ),
@@ -129,7 +129,7 @@ void expose_observations( py::module& m )
                   py::arg( "reference_link_end" ),
                   py::arg( "observation_dependent_variables" ) = std::vector< Eigen::VectorXd >( ),
                   py::arg( "dependent_variable_bookkeeping" ) = nullptr,
-                  py::arg( "ancilliary_settings" ) = nullptr )
+                  py::arg( "ancillary_settings" ) = nullptr )
             .def( "set_observations",
                   py::overload_cast< const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >& >(
                           &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::setObservations ),
@@ -428,15 +428,15 @@ dict[tudatpy.astro.time_representation.Time, numpy.ndarray]
 
          :type: dict[ tudatpy.astro.time_representation.Time, numpy.ndarray[numpy.float64[m, 1]] ]
       )doc" )
-            .def_property_readonly( "ancilliary_settings",
-                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getAncilliarySettings,
+            .def_property_readonly( "ancillary_settings",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getAncillarySettings,
                                     R"doc(
 
          **read-only**
 
-         Ancilliary settings for all stored observations
+         Ancillary settings for all stored observations
 
-         :type: ObservationAncilliarySimulationSettings
+         :type: ObservationAncillarySimulationSettings
       )doc" )
             .def_property( "weights_vector",
                            &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightsVector,
@@ -551,7 +551,7 @@ numpy.ndarray
            py::arg( "observations" ),
            py::arg( "observation_times" ),
            py::arg( "reference_link_end" ),
-           py::arg( "ancilliary_settings" ) = nullptr,
+           py::arg( "ancillary_settings" ) = nullptr,
            R"doc(
 
         Deprecated. Use :func:`~tudatpy.estimation.observations.create_single_observation_set` instead.
@@ -564,7 +564,7 @@ numpy.ndarray
                               const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >&,
                               const std::vector< TIME_TYPE >,
                               const tom::LinkEndType,
-                              const std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >(
+                              const std::shared_ptr< tom::ObservationAncillarySimulationSettings > >(
                    &tom::createSingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE > ),
            py::arg( "observable_type" ),
            py::arg( "link_ends" ),
@@ -590,7 +590,7 @@ numpy.ndarray
             List of observation times.
         reference_link_end : tudatpy.astro.observation_models.LinkEndType
             Reference link end for the observation.
-        ancillary_settings : tudatpy.astro.observation_models.ObservationAncilliarySimulationSettings, optional
+        ancillary_settings : tudatpy.astro.observation_models.ObservationAncillarySimulationSettings, optional
             Ancillary settings for the observation.
 
         Returns

@@ -375,8 +375,8 @@ Examples
  (see :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_range`).
 
  By default, the reception time of the :math:`i^{th}` one-way range in this n-way range is set as the
- transmission time of the :math:`(i+1)^{th}` one-way range. A retransmission delay may be defined by ancilliary settings
- (see :func:`~func.estimation.observations_setup.ancillary_settings.n_way_range_ancilliary_settings`) when creating observation
+ transmission time of the :math:`(i+1)^{th}` one-way range. A retransmission delay may be defined by ancillary settings
+ (see :func:`~func.estimation.observations_setup.ancillary_settings.n_way_range_ancillary_settings`) when creating observation
  simulation setings (see `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/creating-observations/simulating-observations.html#defining-observation-simulation-settings>`_).
 
  For this function, the settings for each constituent one-way range (with the exception of the link end identifiers) are equal.
@@ -937,7 +937,7 @@ normalized_with_speed_of_light : bool, default = false
  is computed as the difference of two one-way range observables (see :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_range`),
  with the reference time shifted by :math:`\Delta t` (in TDB time, with the time tag in the center of this interval). As such, it is sensitive to numerical errors for small :math:`\Delta t`
 
- The integration time :math:`\Delta t` is defined in the ancilliary settings (see
+ The integration time :math:`\Delta t` is defined in the ancillary settings (see
  `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/creating-observations/simulating-observations.html#defining-observation-simulation-settings>`_)
  when simulating the observations (with 60 s as default).
 
@@ -990,7 +990,7 @@ normalized_with_speed_of_light : bool, default = false
  analogous to the :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_doppler_averaged` observable. But, in the present case
  the observable is computed from the difference of two n-way range observables, with the reference time shifted by :math:`\Delta t`.
 
- The integration time :math:`\Delta t` is defined in the ancilliary settings (see
+ The integration time :math:`\Delta t` is defined in the ancillary settings (see
  `user guide <https://docs.tudat.space/en/latest/user-guide/state-estimation/observation-simulation/creating-observations/simulating-observations.html#defining-observation-simulation-settings>`_)
  when simulating the observations (with 60 s as default).
 
@@ -1039,7 +1039,7 @@ normalized_with_speed_of_light : bool, default = false
  analogous to the :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_doppler_averaged` observable. But, in the present case
  the observable is computed from the difference of two n-way range observables, with the reference time shifted by :math:`\Delta t`.
 
- The integration time :math:`\Delta t` is defined in the ancilliary settings when simulating the observations (with 60 s as default).
+ The integration time :math:`\Delta t` is defined in the ancillary settings when simulating the observations (with 60 s as default).
 
  Parameters
  ----------
@@ -1087,7 +1087,7 @@ normalized_with_speed_of_light : bool, default = false
  analogous to the :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_doppler_averaged` observable. But, in the present case
  the observable is computed from the difference of two n-way range observables, with the reference time shifted by :math:`\Delta t`.
 
- The integration time :math:`\Delta t` is defined in the ancilliary settings when simulating the observations (with 60 s as default).
+ The integration time :math:`\Delta t` is defined in the ancillary settings when simulating the observations (with 60 s as default).
 
 
  Parameters

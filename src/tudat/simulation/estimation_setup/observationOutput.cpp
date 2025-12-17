@@ -193,7 +193,7 @@ ObservationDependentVariableFunction getStationObservationAngleFunction(
                 [ = ]( const std::vector< double > &linkEndTimes,
                        const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
                        const Eigen::VectorXd &observationValue,
-                       const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySimulationSettings ) {
+                       const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySimulationSettings ) {
                     return ( Eigen::VectorXd( 1 ) << ground_stations::calculateGroundStationElevationAngle(
                                      pointingAnglesCalculator, linkEndStates, linkEndTimes, linkEndIndicesToUse ) )
                             .finished( );
@@ -205,7 +205,7 @@ ObservationDependentVariableFunction getStationObservationAngleFunction(
                 [ = ]( const std::vector< double > &linkEndTimes,
                        const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
                        const Eigen::VectorXd &observationValue,
-                       const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySimulationSettings ) {
+                       const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySimulationSettings ) {
                     return ( Eigen::VectorXd( 1 ) << ground_stations::calculateGroundStationAzimuthAngle(
                                      pointingAnglesCalculator, linkEndStates, linkEndTimes, linkEndIndicesToUse ) )
                             .finished( );
@@ -240,8 +240,8 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
             outputFunction = [ = ]( const std::vector< double > &linkEndTimes,
                                     const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
                                     const Eigen::VectorXd &observationValue,
-                                    const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >
-                                            ancilliarySimulationSettings ) {
+                                    const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >
+                                            ancillarySimulationSettings ) {
                 return ( Eigen::VectorXd( 1 ) << ( linkEndStates.at( linkEndIndicesToUse.first ).segment( 0, 3 ) -
                                                    linkEndStates.at( linkEndIndicesToUse.second ).segment( 0, 3 ) )
                                                          .norm( ) )
@@ -265,8 +265,8 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
             outputFunction = [ = ]( const std::vector< double > &linkEndTimes,
                                     const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
                                     const Eigen::VectorXd &observationValue,
-                                    const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >
-                                            ancilliarySimulationSettings ) {
+                                    const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >
+                                            ancillarySimulationSettings ) {
                 double cosineOfAvoidanceAngle = observation_models::computeCosineBodyAvoidanceAngle(
                         linkEndStates.at( linkEndIndicesToUse.first ).segment( 0, 3 ),
                         linkEndStates.at( linkEndIndicesToUse.second ).segment( 0, 3 ),
@@ -303,8 +303,8 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
             outputFunction = [ = ]( const std::vector< double > &linkEndTimes,
                                     const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
                                     const Eigen::VectorXd &observationValue,
-                                    const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >
-                                            ancilliarySimulationSettings ) {
+                                    const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >
+                                            ancillarySimulationSettings ) {
                 double minimumDistance = observation_models::computeMinimumLinkDistanceToPoint(
                         linkEndStates.at( linkEndIndicesToUse.first ).segment( 0, 3 ),
                         linkEndStates.at( linkEndIndicesToUse.second ).segment( 0, 3 ),
@@ -339,8 +339,8 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
             outputFunction = [ = ]( const std::vector< double > &linkEndTimes,
                                     const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
                                     const Eigen::VectorXd &observationValue,
-                                    const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >
-                                            ancilliarySimulationSettings ) {
+                                    const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >
+                                            ancillarySimulationSettings ) {
                 double minimumDistance = observation_models::computeMinimumLinkDistanceToPoint(
                         linkEndStates.at( linkEndIndicesToUse.first ).segment( 0, 3 ),
                         linkEndStates.at( linkEndIndicesToUse.second ).segment( 0, 3 ),
@@ -369,8 +369,8 @@ ObservationDependentVariableFunction getInterlinkObservationVariableFunction(
             outputFunction = [ = ]( const std::vector< double > &linkEndTimes,
                                     const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
                                     const Eigen::VectorXd &observationValue,
-                                    const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >
-                                            ancilliarySimulationSettings ) {
+                                    const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >
+                                            ancillarySimulationSettings ) {
                 Eigen::Vector3d vectorToTarget = linkEndStates.at( linkEndIndicesToUse.second ).segment( 0, 3 ) -
                         linkEndStates.at( linkEndIndicesToUse.first ).segment( 0, 3 );
                 Eigen::Vector6d targetStateWrtCentralBody = linkEndStates.at( linkEndIndicesToUse.second ) -
@@ -488,9 +488,9 @@ ObservationDependentVariableFunction getObservationVectorDependentVariableFuncti
             outputFunction = [ = ]( const std::vector< double > &linkEndTimes,
                                     const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
                                     const Eigen::VectorXd &observationValue,
-                                    const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >
-                                            ancilliarySimulationSettings ) {
-                return ( Eigen::VectorXd( 1 ) << ancilliarySimulationSettings->getAncilliaryDoubleData(
+                                    const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >
+                                            ancillarySimulationSettings ) {
+                return ( Eigen::VectorXd( 1 ) << ancillarySimulationSettings->getAncillaryDoubleData(
                                  observation_models::doppler_integration_time, true ) )
                         .finished( );
             };
@@ -506,13 +506,13 @@ ObservationDependentVariableFunction getObservationVectorDependentVariableFuncti
             outputFunction = [ = ]( const std::vector< double > &linkEndTimes,
                                     const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
                                     const Eigen::VectorXd &observationValue,
-                                    const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >
-                                            ancilliarySimulationSettings ) {
+                                    const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >
+                                            ancillarySimulationSettings ) {
                 int numberOfLinkEnds = linkEnds.size( );
                 Eigen::VectorXd zeroDelay = Eigen::VectorXd::Zero( numberOfLinkEnds - 2 );
 
                 std::vector< double > retransmissionDelays =
-                        ancilliarySimulationSettings->getAncilliaryDoubleVectorData( observation_models::link_ends_delays, false );
+                        ancillarySimulationSettings->getAncillaryDoubleVectorData( observation_models::link_ends_delays, false );
                 if( retransmissionDelays.size( ) > 0 )
                 {
                     if( static_cast< int >( retransmissionDelays.size( ) ) != numberOfLinkEnds - 2 )
@@ -661,7 +661,7 @@ Eigen::VectorXd ObservationDependentVariableCalculator::calculateDependentVariab
         const std::vector< double > &linkEndTimes,
         const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
         const Eigen::VectorXd &observation,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > observationAncilliarySimulationSettings )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > observationAncillarySimulationSettings )
 {
     Eigen::VectorXd dependentVariables =
             Eigen::VectorXd::Constant( dependentVariableBookkeeping_->getTotalDependentVariableSize( ), TUDAT_NAN );
@@ -669,7 +669,7 @@ Eigen::VectorXd ObservationDependentVariableCalculator::calculateDependentVariab
     for( unsigned int i = 0; i < dependentVariableAddFunctions_.size( ); i++ )
     {
         dependentVariableAddFunctions_.at( i )(
-                dependentVariables, linkEndTimes, linkEndStates, observation, observationAncilliarySimulationSettings );
+                dependentVariables, linkEndTimes, linkEndStates, observation, observationAncillarySimulationSettings );
     }
     return dependentVariables;
 }
@@ -693,7 +693,7 @@ void ObservationDependentVariableCalculator::addDependentVariableFunction(
                    const std::vector< double > &linkEndTimes,
                    const std::vector< Eigen::Matrix< double, 6, 1 > > &linkEndStates,
                    const Eigen::VectorXd &observable,
-                   const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySimulationSettings ) {
+                   const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySimulationSettings ) {
                 // Check if computation is not overriding existing values
                 for( int i = 0; i < parameterSize; i++ )
                 {
@@ -703,7 +703,7 @@ void ObservationDependentVariableCalculator::addDependentVariableFunction(
                     }
                 }
                 dependentVariables.segment( currentIndex, parameterSize ) =
-                        observationDependentVariableFunction( linkEndTimes, linkEndStates, observable, ancilliarySimulationSettings );
+                        observationDependentVariableFunction( linkEndTimes, linkEndStates, observable, ancillarySimulationSettings );
             };
 
     // Add new dependent variable function and settings to list

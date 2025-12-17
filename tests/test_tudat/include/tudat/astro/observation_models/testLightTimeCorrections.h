@@ -34,7 +34,7 @@ double getTimeDifferenceLightTimeCorrection(
         const Eigen::Vector6d receiverState,
         const double transmissionTime,
         const double receptionTime,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
 {
     return 1.0E-4 * ( transmissionTime - receptionTime );
 }
@@ -55,7 +55,7 @@ double getVelocityDifferenceLightTimeCorrection(
         const Eigen::Vector6d receiverState,
         const double transmissionTime,
         const double receptionTime,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
 {
     return 1.0E-4 * ( transmitterState - receiverState ).segment( 3, 3 ).norm( );
 }
@@ -76,7 +76,7 @@ double getPositionDifferenceLightTimeCorrection(
         const Eigen::Vector6d receiverState,
         const double transmissionTime,
         const double receptionTime,
-        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
+        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
 {
     return 1.0E-12 * ( transmitterState - receiverState ).x( );
 }
