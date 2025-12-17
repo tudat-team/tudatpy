@@ -2,11 +2,7 @@ import numpy as np
 from tudatpy.math import interpolators
 # from tudatpy.dynamics.propagation_setup import propagator
 import os
-from typing import Union, TYPE_CHECKING, Callable
-
-# if TYPE_CHECKING:
-#     from ..dynamics.propagation_setup import propagator
-
+from typing import Union, Callable
 
 def result2array(result: dict[float, np.ndarray]):
     """Initial prototype function to convert dict result from DynamicsSimulator
