@@ -94,7 +94,17 @@ rever/
 # JSON
 json.json
 
+# MCD external files
+# Users must download these from https://www-mars.lmd.jussieu.fr/MCD_pro/mcd_pro.html
 
+/third_parties/mcd/MCD.F90
+/third_parties/mcd/mcd.h
+/third_parties/mcd/data/
+/third_parties/mcd/README
+
+# Fortran module files
+*.mod
+*.smod
 # -------------------------------------------------------------------------
 # From tudat (to be refactored)
 
