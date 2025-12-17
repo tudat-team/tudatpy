@@ -101,7 +101,7 @@ public:
                     ( flightConditions_->getAerodynamicAngleCalculator( )->getRotationQuaternionBetweenFrames(
                               aerodynamicCompleteCoefficientFrame_, reference_frames::inertial_frame ) *
                       currentForceCoefficients_ );
-            
+
             currentUnscaledAcceleration_ = computeAerodynamicAcceleration( flightConditions_->getCurrentDynamicPressure( ),
                                                                            coefficientInterface_->getReferenceArea( ),
                                                                            currentForceCoefficients_,
