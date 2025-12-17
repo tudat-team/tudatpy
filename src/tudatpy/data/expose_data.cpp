@@ -17,6 +17,8 @@
 #include <pybind11/stl_bind.h>
 // #include <pybind11/native_enum.h>
 #include <tudat/io/basicInputOutput.h>
+#include <string>
+#include <vector>
 
 #include "tudat/io/missileDatcomData.h"
 #include "tudat/io/readHistoryFromFile.h"
@@ -574,6 +576,30 @@ void expose_data( py::module& m )
            py::arg( "interpolator_settings" ) = tudat::interpolators::cubicSplineInterpolation( ),
            py::arg( "body_with_ground_stations_name" ) = "Earth",
            R"doc(No documentation available.)doc" );
+
+    // Temporary fix: Asigned default to variable to avoid compilation error
+    const std::vector< std::string > fdet_cols = {
+        "utc_datetime_string", "signal_to_noise_ratio", "normalised_spectral_max", "doppler_measured_frequency_hz", "doppler_noise_hz"
+    };
+
+    m.def( "read_fdets_file",
+           &tio::readFdetsFile,
+           py::arg( "file_name" ),
+           py::arg( "column_types" ) = fdet_cols,
+           R"doc(Load contents of Fdets file into object
+
+           This function loads the contents of an Fdets file into a dictionary with keys defined by the strings listed in `column_types`. If a list of columns is not specified, the following structure is assumed:
+
+           - UTC datetime string
+           - Signal to noise ratio [-]
+           - Normalized spectral max (Not sure what this is)
+           - Doppler measured frequency [Hz]
+           - Doppler noise [Hz]
+
+           :param file_name: String representing the path to the file to be loaded
+           :param column_types: Identifiers of the columns present in the Fdets file
+           :return fdets_contents: Dictionary with contents of the Fdets file as lists of strings
+           )doc" );
 };
 
 }  // namespace data
