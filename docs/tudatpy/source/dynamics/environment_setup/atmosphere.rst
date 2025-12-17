@@ -61,6 +61,7 @@ Functions
    exponential_predefined
    exponential
    nrlmsise00
+   mcd
    tabulated
    us76
    mars_dtm
@@ -80,6 +81,7 @@ Functions
 
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.nrlmsise00
 
+.. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.mcd
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.tabulated
 
 .. autofunction:: tudatpy.dynamics.environment_setup.atmosphere.us76
