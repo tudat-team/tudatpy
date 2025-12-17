@@ -913,7 +913,7 @@ class BatchMPC:
         Parameters
         ----------
         MPCcodes : list[str | int] 
-            List of integer MPC object codes for minor planets or comets.
+            List of integer or str MPC object codes for minor planets or comets.
         id_types : list[str | None] | None, default None
             A list of identification types ('asteroid_number', 'comet_number', 'comet_designation') corresponding to each MPCcode.
             If an element is None, the type is considered unknown. If the entire list is None,
@@ -941,46 +941,73 @@ class BatchMPC:
                     "All codes in the MPCcodes parameter must be integers or strings"
                 )
 
-            try:
-                # 3. Conditionally call the function based on whether id_type exists
-                if id_type is not None:
-                    obs = MPC.get_observations(code, id_type=id_type).to_pandas()
-                else:
-                    obs = MPC.get_observations(code).to_pandas()
+            # 3. Conditionally call the function based on whether id_type exists
+            if id_type is not None:
+                obs = MPC.get_observations(code, id_type=id_type).to_pandas()
+            else:
+                obs = MPC.get_observations(code).to_pandas()
 
-                obs['number'] = obs['number'].astype(str) # to avoid pandas FutureWarning
+            obs['number'] = obs['number'].astype(str) # to avoid pandas FutureWarning
 
-                # convert JD to J2000 and UTC, convert deg to rad
-                obs = self._add_time_columns(obs)
-                obs = obs.assign(
-                    RA=lambda x: (np.radians(x.RA) + np.pi) % (2 * np.pi) - np.pi,
-                    DEC=lambda x: np.radians(x.DEC)
-                )
+            # convert JD to J2000 and UTC, convert deg to rad
+            obs = self._add_time_columns(obs)
+            obs = obs.assign(
+                RA=lambda x: (np.radians(x.RA) + np.pi) % (2 * np.pi) - np.pi,
+                DEC=lambda x: np.radians(x.DEC)
+            )
 
-                if drop_misc_observations:
-                    obs = obs.query("note2 not in @OBS_TYPES_TO_DROP")
+            identifier = None
+            if drop_misc_observations:
+                obs = obs.query("note2 not in @OBS_TYPES_TO_DROP")
 
-                identifier = None
-                if 'number' in obs.columns:
+                # Check for Comets/Interstellars (Astroquery returns 'comet_type' or 'comettype')
+                # If we have a number and a type, combine them (e.g., 3 + I = 3I)
+                type_col = None
+                if 'comet_type' in obs.columns: type_col = 'comet_type'
+                elif 'comettype' in obs.columns: type_col = 'comettype'
+
+                if type_col and pd.notna(obs[type_col].iloc[0]): # checks first digit is not NA
+                    # It is a comet or interstellar object
+                    number_part = str(obs['number'].iloc[0])
+                    type_part = str(obs[type_col].iloc[0])
+                    identifier = f"{number_part}{type_part}" # Result: "3I"
+
+                elif 'number' in obs.columns:
                     pd.set_option('future.no_silent_downcasting', True)
                     valid_numbers = obs['number'].dropna().astype(str).replace('<NA>', np.nan).dropna()
+
                     if not valid_numbers.empty:
                         potential_id = valid_numbers.iloc[0]
+                    else:
+                        # fallback to designation if no number has been assigned yet
+                        valid_designations = obs['desig'].dropna().astype(str).replace('<NA>', np.nan).dropna()
+                        potential_id = valid_designations.iloc[0]
+
+                    # We allow alphanumeric strings now (to support packed numbers like D4341)
+                    # We only pad if it is a short digit string (e.g. '1' -> '00001')
+                    # Packed strings are always 5 chars long, so they won't be affected by zfill(5)
+                    if len(potential_id) < 5:
+                        potential_id = potential_id.zfill(5)
+
+                    try:
+                        # Try to unpack it. This handles '00001' and 'D4341'.
                         identifier = unpackers.unpack_permanent_minor_planet(potential_id)
-                if identifier is None and 'desig' in obs.columns and pd.notna(obs['desig'].iloc[0]):
-                    identifier = str(obs['desig'].iloc[0])
+                    except Exception:
+                        # If unpacking fails (e.g. it was already unpacked or invalid),
+                        # we keep the potential_id as is.
+                        identifier = potential_id
 
-                if identifier is None:
-                    print(f"Warning: Could not find a valid identifier for object code {code}. Skipping.")
-                    continue
+            if identifier is None and 'desig' in obs.columns and pd.notna(obs['desig'].iloc[0]):
+                identifier = str(obs['desig'].iloc[0])
 
-                # Assign the identifier to the 'number' column for the entire DataFrame.
-                obs.loc[:, "number"] = identifier
-                self._table = pd.concat([self._table, obs])
+            if identifier is None:
+                print(f"Warning: Could not find a valid identifier for object code {code}. Skipping.")
+                continue
 
-            except Exception as e:
-                print(f"An error occurred while retrieving observations of MPC: {code}")
-                print(e)
+            # Assign the identifier to the 'number' column for the entire DataFrame.
+            obs.loc[:, "number"] = identifier
+            self._table = pd.concat([self._table, obs])
+
         self._refresh_metadata()
 
     def _add_table(self, table: pd.DataFrame, in_degrees: bool = True):
@@ -1013,13 +1040,18 @@ class BatchMPC:
         # Get column names depending on table type
         if isinstance(table, (astropy.table.QTable, astropy.table.Table)):
             colnames = table.colnames
+            nrows = len(table)
         elif isinstance(table, pd.DataFrame):
             colnames = table.columns
+            nrows = len(table)
         else:
             raise TypeError(f"Unsupported table type: {type(table).__name__}")
 
         if not set(self._req_cols).issubset(set(colnames)):
             raise ValueError(f"Table must include a set of mandatory columns: {self._req_cols}")
+
+        if nrows == 0:
+            raise ValueError("Table contains zero rows: no valid observations were parsed.")
 
     def from_astropy(self, table: astropy.table.QTable | astropy.table.Table, in_degrees: bool = True, frame: str = "J2000") -> None:
         """Loads observations from an Astropy Table into the BatchMPC object.
@@ -1349,7 +1381,7 @@ class BatchMPC:
         except Exception as e:
             print(
                 f"Body {station_body} is not in bodies, if you have renamed Earth, "
-                + "set the station_body paramater to the new name."
+                + "set the station_body parameter to the new name."
             )
             raise e
 
