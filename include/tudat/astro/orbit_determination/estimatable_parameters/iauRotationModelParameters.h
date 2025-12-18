@@ -25,10 +25,10 @@ class NominalRotationPoleParameter : public EstimatableParameter< Eigen::VectorX
 public:
     NominalRotationPoleParameter( const std::shared_ptr< ephemerides::IauRotationModel > rotationModel, const std::string& associatedBody ):
         EstimatableParameter< Eigen::VectorXd >( nominal_rotation_pole_position, associatedBody ), rotationModel_( rotationModel )
-    { }
+    {}
 
     //! Destructor
-    ~NominalRotationPoleParameter( ) { }
+    ~NominalRotationPoleParameter( ) {}
 
     Eigen::VectorXd getParameterValue( )
     {
@@ -59,10 +59,10 @@ class RotationPoleRateParameter : public EstimatableParameter< Eigen::VectorXd >
 public:
     RotationPoleRateParameter( const std::shared_ptr< ephemerides::IauRotationModel > rotationModel, const std::string& associatedBody ):
         EstimatableParameter< Eigen::VectorXd >( rotation_pole_position_rate, associatedBody ), rotationModel_( rotationModel )
-    { }
+    {}
 
     //! Destructor
-    ~RotationPoleRateParameter( ) { }
+    ~RotationPoleRateParameter( ) {}
 
     Eigen::VectorXd getParameterValue( )
     {
@@ -109,7 +109,7 @@ public:
     }
 
     //! Destructor
-    ~RotationLongitudinalLibrationTermsParameter( ) { }
+    ~RotationLongitudinalLibrationTermsParameter( ) {}
 
     Eigen::VectorXd getParameterValue( )
     {
@@ -135,6 +135,77 @@ public:
     int getParameterSize( )
     {
         return angularFrequencies_.size( );
+    }
+
+    std::vector< double > getAngularFrequencies( )
+    {
+        return angularFrequencies_;
+    }
+
+protected:
+private:
+    const std::vector< double > angularFrequencies_;
+
+    std::shared_ptr< ephemerides::IauRotationModel > rotationModel_;
+};
+
+class RotationPoleLibrationTermsParameter : public EstimatableParameter< Eigen::VectorXd >
+{
+public:
+    RotationPoleLibrationTermsParameter( const std::shared_ptr< ephemerides::IauRotationModel > rotationModel,
+                                         const std::vector< double > angularFrequencies,
+                                         const std::string& associatedBody ):
+        EstimatableParameter< Eigen::VectorXd >( rotation_pole_libration_terms, associatedBody ), angularFrequencies_( angularFrequencies ),
+        rotationModel_( rotationModel )
+    {
+        for( unsigned int i = 0; i < angularFrequencies_.size( ); i++ )
+        {
+            if( rotationModel_->getPolePeriodicTerms( ).count( angularFrequencies_.at( i ) ) == 0 )
+            {
+                throw std::runtime_error( "Error when creating pole libration parameter, did not find parameter with angular frequency " +
+                                          std::to_string( angularFrequencies_.at( i ) ) );
+            }
+        }
+    }
+
+    //! Destructor
+    ~RotationPoleLibrationTermsParameter( ) {}
+
+    Eigen::VectorXd getParameterValue( )
+    {
+        std::map< double, std::pair< Eigen::Vector2d, double > > fullLibrations = rotationModel_->getPolePeriodicTerms( );
+        Eigen::VectorXd parameters = Eigen::VectorXd::Zero( getParameterSize( ) );
+        for( unsigned int i = 0; i < angularFrequencies_.size( ); i++ )
+        {
+            Eigen::Vector2d pole_term = fullLibrations.at( angularFrequencies_.at( i ) ).first;
+            parameters( 2 * i ) = pole_term( 0 );
+            parameters( 2 * i + 1 ) = pole_term( 1 );
+        }
+        return parameters;
+    }
+
+    void setParameterValue( const Eigen::VectorXd parameterValue )
+    {
+        if( parameterValue.size( ) != getParameterSize( ) )
+        {
+            throw std::runtime_error( "Parameter value to be set must be of length " + std::to_string( getParameterSize( ) ) +
+                                      ", is gives as legth " + std::to_string( parameterValue.size( ) ) + "." );
+        }
+
+        std::map< double, std::pair< Eigen::Vector2d, double > > fullLibrations = rotationModel_->getPolePeriodicTerms( );
+        for( unsigned int i = 0; i < angularFrequencies_.size( ); i++ )
+        {
+            Eigen::Vector2d pole_term;
+            pole_term( 0 ) = parameterValue( 2 * i );
+            pole_term( 1 ) = parameterValue( 2 * i + 1 );
+            fullLibrations[ angularFrequencies_.at( i ) ].first = pole_term;
+        }
+        rotationModel_->setPolePeriodicTerms( fullLibrations );
+    }
+
+    int getParameterSize( )
+    {
+        return 2 * angularFrequencies_.size( );
     }
 
     std::vector< double > getAngularFrequencies( )

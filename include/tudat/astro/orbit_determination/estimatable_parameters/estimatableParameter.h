@@ -88,6 +88,7 @@ enum EstimatebleParametersEnum {
     nominal_rotation_pole_position,
     rotation_pole_position_rate,
     rotation_longitudinal_libration_terms,
+    rotation_pole_libration_terms,
     drag_component_scaling_factor,
     side_component_scaling_factor,
     lift_component_scaling_factor,
@@ -97,7 +98,11 @@ enum EstimatebleParametersEnum {
     rtg_force_vector,
     rtg_force_vector_magnitude,
     area_to_mass_scaling_factor,
-    full_acceleration_scaling_factor
+    full_acceleration_scaling_factor,
+    exponential_atmosphere_base_density,
+    exponential_atmosphere_scale_height,
+    arc_wise_exponential_atmosphere_base_density,
+    arc_wise_exponential_atmosphere_scale_height
 };
 
 std::string getParameterTypeString( const EstimatebleParametersEnum parameterType );

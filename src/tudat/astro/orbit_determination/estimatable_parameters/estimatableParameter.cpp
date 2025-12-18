@@ -183,6 +183,9 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
         case rotation_longitudinal_libration_terms:
             parameterDescription = "longitudinal libration terms ";
             break;
+        case rotation_pole_libration_terms:
+            parameterDescription = "rotation pole libration terms ";
+            break;
         case drag_component_scaling_factor:
             parameterDescription = "drag component scaling factor ";
             break;
@@ -212,6 +215,18 @@ std::string getParameterTypeString( const EstimatebleParametersEnum parameterTyp
             break;
         case full_acceleration_scaling_factor:
             parameterDescription = "full acceleration scaling factor ";
+            break;
+        case exponential_atmosphere_base_density:
+            parameterDescription = "base density of exponential atmosphere model ";
+            break;
+        case exponential_atmosphere_scale_height:
+            parameterDescription = "scale height of exponential atmosphere model ";
+            break;
+        case arc_wise_exponential_atmosphere_base_density:
+            parameterDescription = "arc-wise base density of exponential atmosphere model ";
+            break;
+        case arc_wise_exponential_atmosphere_scale_height:
+            parameterDescription = "arc-wise scale height of exponential atmosphere model ";
             break;
         default:
             std::string errorMessage =
@@ -405,6 +420,9 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
         case rotation_longitudinal_libration_terms:
             isDoubleParameter = false;
             break;
+        case rotation_pole_libration_terms:
+            isDoubleParameter = false;
+            break;
         case drag_component_scaling_factor:
         case side_component_scaling_factor:
         case lift_component_scaling_factor:
@@ -426,6 +444,18 @@ bool isDoubleParameter( const EstimatebleParametersEnum parameterType )
             break;
         case full_acceleration_scaling_factor:
             isDoubleParameter = true;
+            break;
+        case exponential_atmosphere_base_density:
+            isDoubleParameter = true;
+            break;
+        case exponential_atmosphere_scale_height:
+            isDoubleParameter = true;
+            break;
+        case arc_wise_exponential_atmosphere_base_density:
+            isDoubleParameter = false;
+            break;
+        case arc_wise_exponential_atmosphere_scale_height:
+            isDoubleParameter = false;
             break;
         default:
             throw std::runtime_error( "Error, parameter type " + std::to_string( parameterType ) +
@@ -471,6 +501,9 @@ bool isParameterRotationMatrixProperty( const EstimatebleParametersEnum paramete
             flag = true;
             break;
         case rotation_longitudinal_libration_terms:
+            flag = true;
+            break;
+        case rotation_pole_libration_terms:
             flag = true;
             break;
         default:

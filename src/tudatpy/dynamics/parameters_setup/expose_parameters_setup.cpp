@@ -62,8 +62,7 @@ void expose_parameters_setup( py::module& m )
             .value( "equivalence_principle_lpi_violation_parameter_type",
                     tep::EstimatebleParametersEnum::equivalence_principle_lpi_violation_parameter )
             .value( "empirical_acceleration_coefficients_type",
-                    tep::EstimatebleParametersEnum::empirical_acceleration_coefficients )  // TO
-                                                                                           // EXPOSE
+                    tep::EstimatebleParametersEnum::empirical_acceleration_coefficients )  // TO EXPOSE
             .value( "arc_wise_empirical_acceleration_coefficients_type",
                     tep::EstimatebleParametersEnum::arc_wise_empirical_acceleration_coefficients )  // TO EXPOSE
             .value( "full_degree_tidal_love_number_type",
@@ -95,6 +94,12 @@ void expose_parameters_setup( py::module& m )
             .value( "arc_wise_lift_component_scaling_factor_type", tep::EstimatebleParametersEnum::arc_wise_lift_component_scaling_factor )
             .value( "rtg_force_vector_type", tep::EstimatebleParametersEnum::rtg_force_vector )
             .value( "rtg_force_vector_magnitude_type", tep::EstimatebleParametersEnum::rtg_force_vector_magnitude )
+            .value( "exponential_atmosphere_base_density_type", tep::EstimatebleParametersEnum::exponential_atmosphere_base_density )
+            .value( "exponential_atmosphere_scale_height_type", tep::EstimatebleParametersEnum::exponential_atmosphere_scale_height )
+            .value( "arc_wise_exponential_atmosphere_base_density_type",
+                    tep::EstimatebleParametersEnum::arc_wise_exponential_atmosphere_base_density )
+            .value( "arc_wise_exponential_atmosphere_scale_height_type",
+                    tep::EstimatebleParametersEnum::arc_wise_exponential_atmosphere_scale_height )
 
             .export_values( );
 
@@ -1301,6 +1306,42 @@ The identifier is represented by a tuple of the form ``(parameter_type, (body_na
  ----------
  body : str
      Name of the body, with whose rotation model the estimatable parameter is associated.
+ libration_angular_frequencies : List[ float ]
+     List of angular frequencies (:math:`\omega_{W_i}`) at which longitudinal libration amplitudes (:math:`W_{i}`) are to be included in estimatable parameter.
+
+ Returns
+ -------
+ :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings`
+
+     :class:`~tudatpy.dynamics.parameters_setup.EstimatableParameterSettings` object for the specified body's property
+
+     )doc" );
+
+    m.def( "iau_rotation_model_pole_librations",
+           &tep::iauRotationModelPoleLibrationParameterSettings,
+           py::arg( "body" ),
+           py::arg( "libration_angular_frequencies" ),
+           R"doc(
+
+ Function for creating parameter settings for a body's pole libration amplitudes in an IAU rotation model
+
+ Function for creating parameter settings for a body's pole libration amplitudes in an IAU rotation model
+ Using this requires:
+
+ * A :func:`~tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model` rotation model specified by the ``body`` parameter
+ * Any dynamical or observational model to depend on the rotation model of the body specified by the ``body`` parameter
+
+ This parameter estimates the libration amplitude :math:`\alpha_{i}` and :math:`\delta_{i}` variables of the :func:`~tudatpy.dynamics.environment_setup.rotation_model.iau_rotation_model` rotation model.
+ The values of :math:`i` for which the amplitudes is estimated is defined by the ``libration_angular_frequencies`` input, which defines the
+ corresponding :math:`\omega_{alpha_i}` (:math:`=\omega_{\delta_i}`) values for which the amplitudes are to be estimated.
+ Note that the parameters are ordered [:math:`\alpha_{i}`, :math:`\delta_{i}`, :math:`\alpha_{i+1}`, :math:`\alpha_{i+1}`, ...], where the index :math:`i` follows the order of the frequency terms provided in the ``libration_angular_frequencies`` input argument.
+
+ Parameters
+ ----------
+ body : str
+     Name of the body, with whose rotation model the estimatable parameter is associated.
+ libration_angular_frequencies : List[ float ]
+     List of angular frequencies (:math:`\omega_{alpha_i}` (:math:`=\omega_{\delta_i}`)) at which pole libration amplitudes (:math:`\alpha_{i}`, :math:`\delta_{i}`) are to be included in estimatable parameter.
 
  Returns
  -------
@@ -1858,6 +1899,28 @@ Returns
            &tep::rtgForceVectorMagnitude,
            py::arg( "body_name" ),
            R"doc(Force model parameter associated with the RTG radiation acceleration. This parameter allows for estimation of RTG force magnitude at the acceleration model reference epoch.)doc" );
+
+    m.def( "exponential_atmosphere_base_density",
+           &tep::exponentialAtmosphereBaseDensity,
+           py::arg( "body_name" ),
+           R"doc(Environment model parameter associated with the exponential atmosphere model of given body. This parameter allows for estimation of the base density in an exponential atmosphere model of the given body.)doc" );
+
+    m.def( "exponential_atmosphere_scale_height",
+           &tep::exponentialAtmosphereScaleHeight,
+           py::arg( "body_name" ),
+           R"doc(Environment model parameter associated with the exponential atmosphere model of given body. This parameter allows for estimation of the scale height in an exponential atmosphere model of the given body.)doc" );
+
+    m.def( "arcwise_exponential_atmosphere_base_density",
+           &tep::arcwiseExponentialAtmosphereBaseDensity,
+           py::arg( "body_name" ),
+           py::arg( "arc_start_times" ),
+           R"doc(Environment model parameter associated with the exponential atmosphere model of given body. This parameter allows for arc-wise estimation of the base density in an exponential atmosphere model of the given body.)doc" );
+
+    m.def( "arcwise_exponential_atmosphere_scale_height",
+           &tep::arcwiseExponentialAtmosphereScaleHeight,
+           py::arg( "body_name" ),
+           py::arg( "arc_start_times" ),
+           R"doc(Environment model parameter associated with the exponential atmosphere model of given body. This parameter allows for arc-wise estimation of the scale height in an exponential atmosphere model of the given body.)doc" );
 
     m.def( "area_to_mass_ratio_scaling_parameter",
            &tep::areaToMassScaling,
