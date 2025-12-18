@@ -34,6 +34,7 @@
 #include "tudat/astro/observation_models/velocityObservationModel.h"
 #include "tudat/astro/observation_models/differencedTimeOfArrivalObservationModel.h"
 #include "tudat/astro/observation_models/oneWayDopplerMeasuredFrequencyObservationModel.h"
+#include "tudat/astro/observation_models/differencedFrequencyOfArrivalObservationModel.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCalculator.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"

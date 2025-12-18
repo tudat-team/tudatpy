@@ -32,6 +32,15 @@ std::pair< observation_models::LinkEndType, observation_models::LinkEndType > ge
     return std::make_pair( observation_models::receiver, observation_models::transmitter );
 }
 
+std::pair< observation_models::LinkEndType, observation_models::LinkEndType > getDifferencedFrequencyOfArrivalDifferencedReferenceLinkEndTypes(
+        const observation_models::LinkEndType& undifferencedReferenceLinkEndType )
+{
+    if( undifferencedReferenceLinkEndType != observation_models::receiver )
+    {
+        throw std::runtime_error( "Error when getting differenced reference linke ends for differenced frequency of arrival, input is not supported" );
+    }
+    return std::make_pair( observation_models::receiver, observation_models::transmitter );
+}
 
 void DifferencedObservablePartialScaling::update( const std::vector< Eigen::Vector6d >& linkEndStates,
                                                   const std::vector< double >& times,

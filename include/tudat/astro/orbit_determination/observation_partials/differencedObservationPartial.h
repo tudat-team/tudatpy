@@ -34,6 +34,9 @@ std::pair< observation_models::LinkEndType, observation_models::LinkEndType > ge
 std::pair< observation_models::LinkEndType, observation_models::LinkEndType > getDifferencedTimeOfArrivalDifferencedReferenceLinkEndTypes(
         const observation_models::LinkEndType& undifferencedReferenceLinkEndType );
 
+std::pair< observation_models::LinkEndType, observation_models::LinkEndType > getDifferencedFrequencyOfArrivalDifferencedReferenceLinkEndTypes(
+        const observation_models::LinkEndType& undifferencedReferenceLinkEndType );
+
 //! Derived class for scaling three-dimensional position partial to one-way range-rate (differenced) observable partial
 class DifferencedObservablePartialScaling : public PositionPartialScaling
 {

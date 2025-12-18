@@ -72,8 +72,6 @@ createDifferencedObservablePartials(
         const bool isPartialForDifferencedObservable = false,
         const bool isPartialForConcatenatedObservable = false );
 
-
-
 //! Interface class for creating observation partials
 /*!
  *  Interface class for creating observation partials. This class is used instead of a single
@@ -210,10 +208,11 @@ public:
                         observationModel, bodies, parametersToEstimate, isPartialForDifferencedObservable );
                 break;
             case observation_models::differenced_time_of_arrival:
+            case observation_models::differenced_frequency_of_arrival:
                 if( isPartialForConcatenatedObservable )
                 {
                     throw std::runtime_error(
-                            "Error when requesting partial creation for differenced time of arrical; concatenated partial not supported" );
+                            "Error when requesting partial creation for difference of arrival; concatenated partial not supported" );
                 }
                 observationPartials = createDifferencedObservablePartials< ObservationScalarType, TimeType, 1 >(
                         observationModel, bodies, parametersToEstimate, isPartialForDifferencedObservable );
@@ -428,8 +427,6 @@ createObservablePartialsList(
 
     return partialsList;
 }
-
-
 
 template< int ObservationSize, typename ScalarType, typename TimeType >
 class DifferencedObservationPartialCreator
