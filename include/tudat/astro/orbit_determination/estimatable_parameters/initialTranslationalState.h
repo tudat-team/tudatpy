@@ -47,6 +47,11 @@ public:
      */
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > getParameterValue( )
     {
+        // Retrieve state from propagator settings (to ensure consistency) if link is set
+        if( initialStateGetFunction_ != nullptr )
+        {
+            initialTranslationalState_ = initialStateGetFunction_( );
+        }
         return initialTranslationalState_;
     }
 
@@ -57,6 +62,11 @@ public:
      */
     void setParameterValue( Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > parameterValue )
     {
+        // Update state in propagator settings (to ensure consistency) if link is set
+        if( initialStateSetFunction_ != nullptr )
+        {
+            initialStateSetFunction_( parameterValue );
+        }
         initialTranslationalState_ = parameterValue;
     }
 
@@ -90,6 +100,23 @@ public:
         return frameOrientation_;
     }
 
+    // Add functions to get and set the state from the propagator settings, to ensure the states in propagator settings and parameters are
+    // always identical
+    // Add functions to get and set the state from the propagator settings, to ensure the states in propagator settings and parameters are
+    // always identical
+    void addStateClosureFunctions(
+        const std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction,
+        const std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > initialStateSetFunction )
+    {
+        initialStateGetFunction_ = initialStateGetFunction;
+        initialStateSetFunction_ = initialStateSetFunction;
+
+        // Retrieve state from propagator settings (to ensure consistency) if link is set
+        if( initialStateGetFunction_ != nullptr )
+        {
+            initialTranslationalState_ = initialStateGetFunction_( );
+        }
+    }
 private:
     //! Current value of initial state (w.r.t. centralBody)
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialTranslationalState_;
@@ -99,6 +126,10 @@ private:
 
     //! Orientation of the frame in which the state is defined.
     std::string frameOrientation_;
+
+    std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction_;
+
+    std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > initialStateSetFunction_;
 };
 
 //! Interface class for the estimation of an arcwise initial translational state.
@@ -183,6 +214,7 @@ public:
      */
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > getParameterValue( )
     {
+        setInitialStateVectorFromClosure( );
         return initialTranslationalState_;
     }
 
@@ -193,6 +225,14 @@ public:
      */
     void setParameterValue( Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > parameterValue )
     {
+        if( initialStateSetFunctions_.size( ) > 0 )
+        {
+            for( unsigned int i = 0; i < initialStateSetFunctions_.size( ); i++ )
+            {
+                initialStateSetFunctions_.at( i )( parameterValue.segment( 6 * i, 6 ) );
+            }
+        }
+
         initialTranslationalState_ = parameterValue;
     }
 
@@ -252,7 +292,43 @@ public:
         return frameOrientation_;
     }
 
+    // Add functions to get and set the state from the propagator settings, to ensure the states in propagator settings and parameters are
+    // always identical
+    void addStateClosureFunctions(
+            const std::vector< std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > >& initialStateGetFunctions,
+            const std::vector< std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > >& initialStateSetFunctions )
+    {
+        initialStateGetFunctions_ = initialStateGetFunctions;
+        initialStateSetFunctions_ = initialStateSetFunctions;
+
+        if( initialStateSetFunctions.size( ) != initialStateGetFunctions.size( ) )
+        {
+            throw std::runtime_error( "Error when setting arc-wise initial translational state closure, sizes are incompatible" );
+        }
+
+        if( initialStateGetFunctions.size( ) > 0 )
+        {
+            if( initialTranslationalState_.rows( ) / 6 != static_cast< int >( initialStateGetFunctions.size( ) ) )
+            {
+                throw std::runtime_error( "Error when setting arc-wise initial translational state closure, sizes are incompatible with initial state" );
+            }
+            if( initialStateSetFunctions_.size( ) > 0 )
+            {
+                setInitialStateVectorFromClosure( );
+            }
+        }
+    }
+
 private:
+
+    void setInitialStateVectorFromClosure( )
+    {
+        for( unsigned int i = 0; i < initialStateGetFunctions_.size( ); i++ )
+        {
+            initialTranslationalState_.segment( i * 6, 6 ) = initialStateGetFunctions_.at( i )( );
+        }
+    }
+
     //! The current values of initial states w.r.t. centralBody for each arc, concatenated in arc order
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialTranslationalState_;
 
@@ -264,6 +340,11 @@ private:
 
     //! Orientation of the frame in which the state is defined.
     std::string frameOrientation_;
+
+
+    std::vector< std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > > initialStateGetFunctions_;
+
+    std::vector< std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > > initialStateSetFunctions_;
 };
 
 ////! Function to retrieve the size of the estimatable parameter set.
