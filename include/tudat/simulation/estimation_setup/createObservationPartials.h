@@ -556,6 +556,53 @@ public:
                         &getDifferencedTimeOfArrivalDifferencedReferenceLinkEndTypes );
                 break;
             }
+            case differenced_frequency_of_arrival: {
+                if( !isParameterObservationLinkTimeProperty(
+                            getDifferencedPartialParameterIdentifier( firstPartial, secondPartial ).first ) )
+                {
+                    if( firstPartial != nullptr )
+                    {
+                        if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( firstPartial ) == nullptr )
+                        {
+                            throw std::runtime_error(
+                                    "Error when creating differenced frequency of arrival partial; first "
+                                    "input object type is incompatible" );
+                        }
+                        else if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( firstPartial )->getObservableType( ) !=
+                                 one_way_doppler_measured_frequency )
+                        {
+                            throw std::runtime_error(
+                                    "Error when creating differenced frequency of arrival partial; first "
+                                    "input observable type is incompatible (expected one_way_doppler_measured_frequency)" );
+                        }
+                    }
+
+                    if( secondPartial != nullptr )
+                    {
+                        if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( secondPartial ) == nullptr )
+                        {
+                            throw std::runtime_error(
+                                    "Error when creating differenced frequency of arrival partial; second "
+                                    "input object type is incompatible" );
+                        }
+                        else if( std::dynamic_pointer_cast< DirectObservationPartial< 1 > >( secondPartial )->getObservableType( ) !=
+                                 one_way_doppler_measured_frequency )
+                        {
+                            throw std::runtime_error(
+                                    "Error when creating differenced frequency of arrival partial; second "
+                                    "input observable type is incompatible (expected one_way_doppler_measured_frequency)" );
+                        }
+                    }
+                }
+
+                differencedPartial = std::make_shared< DifferencedObservablePartial< 1 > >(
+                        firstPartial,
+                        secondPartial,
+                        &observation_models::getDifferencedFrequencyOfArrivalScalingFactor,
+                        getUndifferencedTimeAndStateIndices( differenced_frequency_of_arrival, linkEnds.size( ) ),
+                        &getDifferencedFrequencyOfArrivalDifferencedReferenceLinkEndTypes );
+                break;
+            }
             case n_way_differenced_range: {
                 if( firstPartial != nullptr )
                 {

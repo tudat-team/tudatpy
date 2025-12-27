@@ -1052,11 +1052,15 @@ public:
             const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
             const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
                     std::make_shared< LightTimeConvergenceCriteria >( ) ):
-        ObservationModelSettings( one_way_doppler_measured_frequency, linkEnds, lightTimeCorrections, biasSettings, lightTimeConvergenceCriteria ),
+        ObservationModelSettings( one_way_doppler_measured_frequency,
+                                  linkEnds,
+                                  lightTimeCorrections,
+                                  biasSettings,
+                                  lightTimeConvergenceCriteria ),
         differencedTimeScale_( differencedTimeScale ), dopplerModelSettings_( dopplerModelSettings )
     {}
 
-    std::shared_ptr< OneWayDopplerObservationModelSettings > getDopplerModelSettings( )
+    [[nodiscard]] std::shared_ptr< OneWayDopplerObservationModelSettings > getDopplerModelSettings( )
     {
         return dopplerModelSettings_;
     }
@@ -1065,6 +1069,52 @@ private:
     basic_astrodynamics::TimeScales differencedTimeScale_;
 
     std::shared_ptr< OneWayDopplerObservationModelSettings > dopplerModelSettings_;
+};
+
+class DifferencedFrequencyOfArrivalObservationSettings : public ObservationModelSettings
+{
+public:
+    //! Constructor
+    /*!
+     * Constructor (single light-time correction)
+     * \param observableType Type of observation model that is to be created
+     * \param lightTimeCorrections Settings for a single light-time correction that is to be used
+     * for the observation model (nullptr if none) \param biasSettings Settings for the observation
+     * bias model that is to be used (default none: nullptr)
+     */
+    DifferencedFrequencyOfArrivalObservationSettings(
+            const LinkDefinition linkEnds,
+            const std::shared_ptr< OneWayDopplerMeasuredFrequencyObservationSettings > firstDopplerModelSettings,
+            const std::shared_ptr< OneWayDopplerMeasuredFrequencyObservationSettings > secondDopplerModelSettings,
+            const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrections,
+            const basic_astrodynamics::TimeScales differencedTimeScale = basic_astrodynamics::tdb_scale,
+            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+            const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
+                    std::make_shared< LightTimeConvergenceCriteria >( ) ):
+        ObservationModelSettings( differenced_frequency_of_arrival,
+                                  linkEnds,
+                                  lightTimeCorrections,
+                                  biasSettings,
+                                  lightTimeConvergenceCriteria ),
+        differencedTimeScale_( differencedTimeScale ), firstDopplerModelSettings_( firstDopplerModelSettings ),
+        secondDopplerModelSettings_( secondDopplerModelSettings )
+    {}
+
+    [[nodiscard]] std::shared_ptr< OneWayDopplerMeasuredFrequencyObservationSettings > getFirstDopplerModelSettings( ) const
+    {
+        return firstDopplerModelSettings_;
+    }
+
+    [[nodiscard]] std::shared_ptr< OneWayDopplerMeasuredFrequencyObservationSettings > getSecondDopplerModelSettings( ) const
+    {
+        return secondDopplerModelSettings_;
+    }
+
+private:
+    std::shared_ptr< OneWayDopplerMeasuredFrequencyObservationSettings > firstDopplerModelSettings_;
+    std::shared_ptr< OneWayDopplerMeasuredFrequencyObservationSettings > secondDopplerModelSettings_;
+
+    basic_astrodynamics::TimeScales differencedTimeScale_;
 };
 
 inline std::shared_ptr< ObservationModelSettings > oneWayRangeSettings(
@@ -1398,6 +1448,43 @@ inline std::shared_ptr< ObservationModelSettings > differencedTimeOfArrivalObser
             linkEnds, lightTimeCorrections, differencedTimeScale, biasSettings, lightTimeConvergenceCriteria );
 }
 
+inline std::shared_ptr< ObservationModelSettings > differencedFrequencyOfArrivalObservationSettings(
+        const LinkDefinition linkEnds,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrections =
+                std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const basic_astrodynamics::TimeScales differencedTimeScale = basic_astrodynamics::tdb_scale,
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
+                std::make_shared< LightTimeConvergenceCriteria >( ) )
+{
+    // Separate link ends for both doppler models
+    LinkEnds firstDopplerLinkEnds;
+    firstDopplerLinkEnds[ transmitter ] = linkEnds.at( transmitter );
+    firstDopplerLinkEnds[ receiver ] = linkEnds.at( receiver );
+    LinkEnds secondDopplerLinkEnds;
+    secondDopplerLinkEnds[ transmitter ] = linkEnds.at( transmitter );
+    secondDopplerLinkEnds[ receiver ] = linkEnds.at( receiver2 );
+
+    // Create one-way Doppler model settings (normalized by c)
+    auto firstOneWayDopplerSettings = std::make_shared< OneWayDopplerObservationModelSettings >(
+            firstDopplerLinkEnds, lightTimeCorrections, nullptr, nullptr, nullptr, lightTimeConvergenceCriteria, true );
+    auto secondOneWayDopplerSettings = std::make_shared< OneWayDopplerObservationModelSettings >(
+            secondDopplerLinkEnds, lightTimeCorrections, nullptr, nullptr, nullptr, lightTimeConvergenceCriteria, true );
+
+    // Create OneWayDopplerMeasuredFrequencyObservationSettings for each link
+    auto firstOneWayDopplerModelSettings = std::make_shared< OneWayDopplerMeasuredFrequencyObservationSettings >(
+            firstDopplerLinkEnds, firstOneWayDopplerSettings, lightTimeCorrections, differencedTimeScale, nullptr, lightTimeConvergenceCriteria );
+    auto secondOneWayDopplerModelSettings = std::make_shared< OneWayDopplerMeasuredFrequencyObservationSettings >(
+            secondDopplerLinkEnds, secondOneWayDopplerSettings, lightTimeCorrections, differencedTimeScale, nullptr, lightTimeConvergenceCriteria );
+
+    return std::make_shared< DifferencedFrequencyOfArrivalObservationSettings >( linkEnds,
+                                                                                 firstOneWayDopplerModelSettings,
+                                                                                 secondOneWayDopplerModelSettings,
+                                                                                 lightTimeCorrections,
+                                                                                 differencedTimeScale,
+                                                                                 biasSettings,
+                                                                                 lightTimeConvergenceCriteria );
+}
 
 //! Function to create one-way Doppler measured frequency observation model settings
 /*!
@@ -1420,14 +1507,14 @@ inline std::shared_ptr< ObservationModelSettings > oneWayDopplerMeasuredFrequenc
                 std::make_shared< LightTimeConvergenceCriteria >( ) )
 {
     // Create one-way Doppler model settings (normalized by c, i.e. returns fractional Doppler)
-    auto oneWayDopplerModelSettings = std::make_shared< OneWayDopplerObservationModelSettings >(
-            linkEnds, 
-            lightTimeCorrections, 
-            nullptr,  // transmitterProperTimeRateSettings
-            nullptr,  // receiverProperTimeRateSettings
-            nullptr,  // biasSettings
-            lightTimeConvergenceCriteria,
-            true );   // normalizeWithSpeedOfLight
+    auto oneWayDopplerModelSettings =
+            std::make_shared< OneWayDopplerObservationModelSettings >( linkEnds,
+                                                                       lightTimeCorrections,
+                                                                       nullptr,  // transmitterProperTimeRateSettings
+                                                                       nullptr,  // receiverProperTimeRateSettings
+                                                                       nullptr,  // biasSettings
+                                                                       lightTimeConvergenceCriteria,
+                                                                       true );  // normalizeWithSpeedOfLight
 
     return std::make_shared< OneWayDopplerMeasuredFrequencyObservationSettings >(
             linkEnds, oneWayDopplerModelSettings, lightTimeCorrections, differencedTimeScale, biasSettings, lightTimeConvergenceCriteria );
@@ -2675,8 +2762,7 @@ public:
                 }
                 break;
             }
-            case one_way_doppler_measured_frequency:
-            {
+            case one_way_doppler_measured_frequency: {
                 std::shared_ptr< OneWayDopplerMeasuredFrequencyObservationSettings > settingsObject =
                         std::dynamic_pointer_cast< OneWayDopplerMeasuredFrequencyObservationSettings >( observationSettings );
 
@@ -2898,6 +2984,78 @@ public:
                     observationModel = differencedTimeOfArrivalModel;
                     break;
                 }
+            }
+            case differenced_frequency_of_arrival: {
+                std::shared_ptr< DifferencedFrequencyOfArrivalObservationSettings > differencedFrequencyObservationSettings =
+                        std::dynamic_pointer_cast< DifferencedFrequencyOfArrivalObservationSettings >( observationSettings );
+                if( differencedFrequencyObservationSettings == nullptr )
+                {
+                    throw std::runtime_error( "Error when making differenced_frequency_of_arrival observable, input is incompatible " );
+                }
+
+                if( linkEnds.size( ) != 3 )
+                {
+                    std::string errorMessage = "Error when making differenced frequency of arrival, " + std::to_string( linkEnds.size( ) ) +
+                            " link ends found";
+                    throw std::runtime_error( errorMessage );
+                }
+                if( linkEnds.count( receiver ) == 0 )
+                {
+                    throw std::runtime_error( "Error when making differenced frequency of arrival, no receiver found" );
+                }
+                if( linkEnds.count( transmitter ) == 0 )
+                {
+                    throw std::runtime_error( "Error when making differenced frequency of arrival, no transmitter found" );
+                }
+                if( linkEnds.count( receiver2 ) == 0 )
+                {
+                    throw std::runtime_error( "Error when making differenced frequency of arrival, no second receiver found" );
+                }
+                
+                if (differencedFrequencyObservationSettings->getFirstDopplerModelSettings() == nullptr || differencedFrequencyObservationSettings->getSecondDopplerModelSettings() == nullptr ) {
+                    throw std::runtime_error( "Error when making differenced frequency of arrival, one of the doppler model settings is null" );
+                }
+                
+                std::shared_ptr< ObservationBias< 1 > > observationBias;
+                if( observationSettings->biasSettings_ != nullptr )
+                {
+                    observationBias = createObservationBiasCalculator(
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
+                }
+
+                std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates;
+
+                std::shared_ptr< OneWayDopplerMeasuredFrequencyObservationSettings > firstDopplerSettings =
+                        differencedFrequencyObservationSettings->getFirstDopplerModelSettings( );
+                std::shared_ptr< OneWayDopplerMeasuredFrequencyObservationSettings > secondDopplerSettings =
+                        differencedFrequencyObservationSettings->getSecondDopplerModelSettings( );
+
+                // Create observation model
+                std::shared_ptr< OneWayDifferencedFrequencyOfArrivalObservationModel< ObservationScalarType, TimeType > >
+                        differencedFrequencyOfArrivalModel =
+                                std::make_shared< OneWayDifferencedFrequencyOfArrivalObservationModel< ObservationScalarType, TimeType > >(
+                                        linkEnds,
+                                        std::dynamic_pointer_cast<
+                                                OneWayDopplerMeasuredFrequencyObservationModel< ObservationScalarType, TimeType > >(
+                                                ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                                                        firstDopplerSettings, bodies, topLevelObservableType ) ),
+                                        std::dynamic_pointer_cast<
+                                                OneWayDopplerMeasuredFrequencyObservationModel< ObservationScalarType, TimeType > >(
+                                                ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                                                        secondDopplerSettings, bodies, topLevelObservableType ) ),
+                                        observationBias,
+                                        stationStates );
+
+                // Always set the frequency interpolator for FDOA - required for transmitter frequency computation
+                if( getTransmittingFrequencyInterpolator( bodies, linkEnds ) == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when creating differenced frequency of arrival model, no transmitting frequency found" );
+                }
+                differencedFrequencyOfArrivalModel->setFrequencyInterpolator( getTransmittingFrequencyInterpolator( bodies, linkEnds ) );
+
+                observationModel = differencedFrequencyOfArrivalModel;
+                break;
             }
             default:
                 std::string errorMessage = "Error, observable " + std::to_string( observationSettings->observableType_ ) +
@@ -3423,6 +3581,22 @@ std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrecti
 
             break;
         }
+        case observation_models::differenced_frequency_of_arrival: {
+            std::shared_ptr< observation_models::OneWayDifferencedFrequencyOfArrivalObservationModel< ObservationScalarType, TimeType > >
+                    differencedFrequencyOfArrivalObservationModel = std::dynamic_pointer_cast<
+                            observation_models::OneWayDifferencedFrequencyOfArrivalObservationModel< ObservationScalarType, TimeType > >(
+                            observationModel );
+            currentLightTimeCorrections.push_back( differencedFrequencyOfArrivalObservationModel->getFirstDopplerMeasuredFrequencyModel( )
+                                                           ->getOneWayDopplerModel( )
+                                                           ->getLightTimeCalculator( )
+                                                           ->getLightTimeCorrection( ) );
+            currentLightTimeCorrections.push_back( differencedFrequencyOfArrivalObservationModel->getSecondDopplerMeasuredFrequencyModel( )
+                                                           ->getOneWayDopplerModel( )
+                                                           ->getLightTimeCalculator( )
+                                                           ->getLightTimeCorrection( ) );
+
+            break;
+        }
         case observation_models::one_way_doppler_measured_frequency: {
             std::shared_ptr< observation_models::OneWayDopplerMeasuredFrequencyObservationModel< ObservationScalarType, TimeType > >
                     oneWayDopplerMeasuredFrequencyModel = std::dynamic_pointer_cast<
@@ -3615,8 +3789,26 @@ public:
 
                 secondObservationModel =
                         std::make_shared< observation_models::OneWayRangeObservationModel< ObservationScalarType, TimeType > >(
-                                secondLinkEnds,
-                                differencedTimeOfArrivalModel->getSecondReceiverLightTimeCalculator( ) );
+                                secondLinkEnds, differencedTimeOfArrivalModel->getSecondReceiverLightTimeCalculator( ) );
+                break;
+            }
+            case observation_models::differenced_frequency_of_arrival: {
+                std::shared_ptr<
+                        observation_models::OneWayDifferencedFrequencyOfArrivalObservationModel< ObservationScalarType, TimeType > >
+                        differencedFrequencyOfArrivalModel = std::dynamic_pointer_cast<
+                                observation_models::OneWayDifferencedFrequencyOfArrivalObservationModel< ObservationScalarType,
+                                                                                                         TimeType > >(
+                                differencedObservationModel );
+                if( differencedFrequencyOfArrivalModel == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when extracting undifferenced observation model. Differenced "
+                            "frequency of arrival model could not be casted." );
+                }
+
+                firstObservationModel = differencedFrequencyOfArrivalModel->getFirstDopplerMeasuredFrequencyModel( );
+                secondObservationModel = differencedFrequencyOfArrivalModel->getSecondDopplerMeasuredFrequencyModel( );
+
                 break;
             }
             default:

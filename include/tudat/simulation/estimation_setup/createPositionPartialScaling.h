@@ -277,6 +277,26 @@ public:
                         &getDifferencedTimeOfArrivalDifferencedReferenceLinkEndTypes );
                 break;
             }
+            case observation_models::differenced_frequency_of_arrival: {
+                if( std::dynamic_pointer_cast< OneWayDopplerMeasuredFrequencyScaling >( firstPositionPartialScaling ) == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when creating differenced frequency of arrival scaling object, first FOA partial is of incompatible "
+                            "type (expected OneWayDopplerMeasuredFrequencyScaling)" );
+                }
+                if( std::dynamic_pointer_cast< OneWayDopplerMeasuredFrequencyScaling >( secondPositionPartialScaling ) == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when creating differenced frequency of arrival scaling object, second FOA partial is of incompatible "
+                            "type (expected OneWayDopplerMeasuredFrequencyScaling)" );
+                }
+                positionPartialScaler = std::make_shared< DifferencedObservablePartialScaling >(
+                        firstPositionPartialScaling,
+                        secondPositionPartialScaling,
+                        observation_models::getUndifferencedTimeAndStateIndices( observation_models::differenced_frequency_of_arrival, 3 ),
+                        &getDifferencedFrequencyOfArrivalDifferencedReferenceLinkEndTypes );
+                break;
+            }
             case observation_models::n_way_differenced_range:
             case observation_models::dsn_n_way_averaged_doppler: {
                 if( std::dynamic_pointer_cast< NWayRangeScaling >( firstPositionPartialScaling ) == nullptr )
