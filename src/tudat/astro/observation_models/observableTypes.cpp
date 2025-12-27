@@ -58,6 +58,7 @@ bool doesLinkEndTypeDefineId( const ObservableType observableType )
             break;
         case two_way_doppler:
         case doppler_measured_frequency:
+        case one_way_doppler_measured_frequency:
             linkEndTypeDefinesId = false;
             break;
         case euler_angle_313_observable:
@@ -149,6 +150,7 @@ bool isObservableOfIntegratedType( const ObservableType observableType )
             break;
         case two_way_doppler:
         case doppler_measured_frequency:
+        case one_way_doppler_measured_frequency:
             isIntegratedType = false;
             break;
         case euler_angle_313_observable:
@@ -201,6 +203,7 @@ bool requiresTransmittingStation( const ObservableType observableType )
             break;
         case dsn_n_way_averaged_doppler:
         case doppler_measured_frequency:
+        case one_way_doppler_measured_frequency:
         case dsn_n_way_range:
             requiresTransmittingStation = true;
             break;
@@ -224,6 +227,7 @@ bool requiresFirstReceivingStation( const ObservableType observableType )
         case n_way_range:
         case two_way_doppler:
         case doppler_measured_frequency:
+        case one_way_doppler_measured_frequency:
         case euler_angle_313_observable:
         case velocity_observable:
         case relative_angular_position:
@@ -256,6 +260,7 @@ bool requiresSecondReceivingStation( const ObservableType observableType )
         case n_way_range:
         case two_way_doppler:
         case doppler_measured_frequency:
+        case one_way_doppler_measured_frequency:
         case euler_angle_313_observable:
         case velocity_observable:
         case relative_angular_position:
@@ -283,6 +288,7 @@ bool isRadiometricObservableType( const ObservableType observableType )
         case n_way_range:
         case two_way_doppler:
         case doppler_measured_frequency:
+        case one_way_doppler_measured_frequency:
         case n_way_differenced_range:
         case dsn_n_way_averaged_doppler:
         case dsn_one_way_averaged_doppler:
@@ -316,6 +322,7 @@ bool isPhaseVelocityBasedObservableType( const ObservableType observableType )
         case one_way_differenced_range:
         case two_way_doppler:
         case doppler_measured_frequency:
+        case one_way_doppler_measured_frequency:
         case n_way_differenced_range:
         case dsn_n_way_averaged_doppler:
         case dsn_one_way_averaged_doppler:
@@ -351,6 +358,7 @@ bool isGroupVelocityBasedObservableType( const ObservableType observableType )
             break;
         case two_way_doppler:
         case doppler_measured_frequency:
+        case one_way_doppler_measured_frequency:
         case n_way_differenced_range:
         case dsn_n_way_averaged_doppler:
         case dsn_one_way_averaged_doppler:
@@ -561,6 +569,9 @@ std::string getObservableName( const ObservableType observableType, const int nu
         case doppler_measured_frequency:
             observableName = getNWayString( numberOfLinkEnds ) + "WayDopplerMeasuredFrequency";
             break;
+        case one_way_doppler_measured_frequency:
+            observableName = "OneWayDopplerMeasuredFrequency";
+            break;
         default:
             std::string errorMessage =
                     "Error, could not find observable type " + std::to_string( observableType ) + " when getting name from type";
@@ -690,8 +701,9 @@ ObservableType getBaseObservableType( const ObservableType observableType )
         case dsn_one_way_averaged_doppler:
         case dsn_n_way_averaged_doppler:
         case doppler_measured_frequency:
-            baseObservableType = one_way_doppler;
-            break;
+        case one_way_doppler_measured_frequency:
+        baseObservableType = one_way_doppler;
+        break;
         case angular_position:
         case relative_angular_position:
             baseObservableType = angular_position;
@@ -830,6 +842,7 @@ int getObservableSize( const ObservableType observableType )
             break;
         case two_way_doppler:
         case doppler_measured_frequency:
+        case one_way_doppler_measured_frequency:
         case differenced_time_of_arrival:
             observableSize = 1;
             break;
@@ -891,6 +904,7 @@ std::vector< int > getLinkEndIndicesForLinkEndTypeAtObservable( const Observable
             }
             break;
         case one_way_doppler:
+        case one_way_doppler_measured_frequency:
             switch( linkEndType )
             {
                 case transmitter:
@@ -1113,6 +1127,7 @@ LinkEndType getDefaultReferenceLinkEndType( const ObservableType observableType 
             referenceLinkEndType = receiver;
             break;
         case one_way_doppler:
+        case one_way_doppler_measured_frequency:
         case doppler_measured_frequency:
             referenceLinkEndType = receiver;
             break;
@@ -1169,6 +1184,7 @@ int getNumberOfLinksInObservable( const ObservableType observableType, const int
             numberOfLinks = 1;
             break;
         case one_way_doppler:
+        case one_way_doppler_measured_frequency:
             numberOfLinks = 1;
             break;
         case one_way_differenced_range:
@@ -1274,6 +1290,7 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd( const
             }
             break;
         case one_way_doppler:
+        case one_way_doppler_measured_frequency:
             if( ( linkEnds.at( transmitter ) == linkEndToCheck ) ||
                 ( ( linkEnds.at( transmitter ).bodyName_ == linkEndToCheck.bodyName_ ) && ( linkEndToCheck.stationName_ == "" ) ) )
             {
@@ -1511,7 +1528,8 @@ std::vector< std::pair< int, int > > getLinkStateAndTimeIndicesForLinkEnd( const
 std::map< LinkEndType, int > getSingleLinkStateEntryIndices( const ObservableType observableType )
 {
     std::map< LinkEndType, int > singleLinkStateEntries;
-    if( observableType == one_way_range || observableType == angular_position || observableType == one_way_doppler )
+    if( observableType == one_way_range || observableType == angular_position || observableType == one_way_doppler ||
+        observableType == one_way_doppler_measured_frequency)
     {
         singleLinkStateEntries = oneWayLinkStateEntries;
     }
@@ -1544,6 +1562,7 @@ std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndT
         case one_way_range:
         case angular_position:
         case one_way_doppler:
+        case one_way_doppler_measured_frequency:
         case one_way_differenced_range:
         case n_way_range:
         case dsn_n_way_range:

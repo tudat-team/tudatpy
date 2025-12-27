@@ -33,6 +33,7 @@
 #include "tudat/astro/observation_models/twoWayDopplerObservationModel.h"
 #include "tudat/astro/observation_models/velocityObservationModel.h"
 #include "tudat/astro/observation_models/differencedTimeOfArrivalObservationModel.h"
+#include "tudat/astro/observation_models/oneWayDopplerMeasuredFrequencyObservationModel.h"
 #include "tudat/simulation/environment_setup/body.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCalculator.h"
 #include "tudat/simulation/estimation_setup/createLightTimeCorrection.h"
@@ -1033,6 +1034,39 @@ public:
     basic_astrodynamics::TimeScales differencedTimeScale_;
 };
 
+class OneWayDopplerMeasuredFrequencyObservationSettings : public ObservationModelSettings
+{
+public:
+    //! Constructor
+    /*!
+     * \param observableType Type of observation model that is to be created
+     * \param lightTimeCorrections Settings for a single light-time correction that is to be used
+     * for the observation model (nullptr if none) \param biasSettings Settings for the observation
+     * bias model that is to be used (default none: nullptr)
+     */
+    OneWayDopplerMeasuredFrequencyObservationSettings(
+            const LinkDefinition linkEnds,
+            const std::shared_ptr< OneWayDopplerObservationModelSettings > dopplerModelSettings,
+            const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrections,
+            const basic_astrodynamics::TimeScales differencedTimeScale = basic_astrodynamics::tdb_scale,
+            const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+            const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
+                    std::make_shared< LightTimeConvergenceCriteria >( ) ):
+        ObservationModelSettings( one_way_doppler_measured_frequency, linkEnds, lightTimeCorrections, biasSettings, lightTimeConvergenceCriteria ),
+        differencedTimeScale_( differencedTimeScale ), dopplerModelSettings_( dopplerModelSettings )
+    {}
+
+    std::shared_ptr< OneWayDopplerObservationModelSettings > getDopplerModelSettings( )
+    {
+        return dopplerModelSettings_;
+    }
+
+private:
+    basic_astrodynamics::TimeScales differencedTimeScale_;
+
+    std::shared_ptr< OneWayDopplerObservationModelSettings > dopplerModelSettings_;
+};
+
 inline std::shared_ptr< ObservationModelSettings > oneWayRangeSettings(
         const LinkDefinition& linkEnds,
         const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrectionsList =
@@ -1148,6 +1182,18 @@ inline std::shared_ptr< ObservationModelSettings > dopplerMeasuredFrequencyObser
 {
     return std::make_shared< ObservationModelSettings >(
             doppler_measured_frequency, linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria );
+}
+
+inline std::shared_ptr< ObservationModelSettings > oneWayDopplerMeasuredFrequencyObservationSettings(
+        const LinkDefinition& linkEnds,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrectionsList =
+                std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
+                std::make_shared< LightTimeConvergenceCriteria >( ) )
+{
+    return std::make_shared< ObservationModelSettings >(
+            one_way_doppler_measured_frequency, linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria );
 }
 
 inline std::shared_ptr< ObservationModelSettings > dopplerMeasuredFrequencyObservationSettings(
@@ -1350,6 +1396,41 @@ inline std::shared_ptr< ObservationModelSettings > differencedTimeOfArrivalObser
 {
     return std::make_shared< DifferencedTimeOfArrivalObservationSettings >(
             linkEnds, lightTimeCorrections, differencedTimeScale, biasSettings, lightTimeConvergenceCriteria );
+}
+
+
+//! Function to create one-way Doppler measured frequency observation model settings
+/*!
+ * Function to create one-way Doppler measured frequency observation model settings.
+ * This observable computes f_rx = f_tx * (1 + D) where D is the one-way Doppler.
+ * \param linkEnds Link ends for observation model
+ * \param lightTimeCorrections Settings for light-time corrections (default: none)
+ * \param differencedTimeScale Time scale for the observation (default: TDB)
+ * \param biasSettings Settings for observation bias model (default: nullptr)
+ * \param lightTimeConvergenceCriteria Convergence criteria for light time calculation
+ * \return Shared pointer to observation model settings
+ */
+inline std::shared_ptr< ObservationModelSettings > oneWayDopplerMeasuredFrequencySettings(
+        const LinkDefinition linkEnds,
+        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > > lightTimeCorrections =
+                std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+        const basic_astrodynamics::TimeScales differencedTimeScale = basic_astrodynamics::tdb_scale,
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
+                std::make_shared< LightTimeConvergenceCriteria >( ) )
+{
+    // Create one-way Doppler model settings (normalized by c, i.e. returns fractional Doppler)
+    auto oneWayDopplerModelSettings = std::make_shared< OneWayDopplerObservationModelSettings >(
+            linkEnds, 
+            lightTimeCorrections, 
+            nullptr,  // transmitterProperTimeRateSettings
+            nullptr,  // receiverProperTimeRateSettings
+            nullptr,  // biasSettings
+            lightTimeConvergenceCriteria,
+            true );   // normalizeWithSpeedOfLight
+
+    return std::make_shared< OneWayDopplerMeasuredFrequencyObservationSettings >(
+            linkEnds, oneWayDopplerModelSettings, lightTimeCorrections, differencedTimeScale, biasSettings, lightTimeConvergenceCriteria );
 }
 
 inline std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria(
@@ -2594,6 +2675,48 @@ public:
                 }
                 break;
             }
+            case one_way_doppler_measured_frequency:
+            {
+                std::shared_ptr< OneWayDopplerMeasuredFrequencyObservationSettings > settingsObject =
+                        std::dynamic_pointer_cast< OneWayDopplerMeasuredFrequencyObservationSettings >( observationSettings );
+
+                if( settingsObject == nullptr )
+                {
+                    throw std::runtime_error(
+                            " Error when creating one way doppler measured frequency observation model: Settings object provided was "
+                            "invalid." );
+                }
+
+                std::shared_ptr< OneWayDopplerObservationModelSettings > oneWayDopplerSettings = settingsObject->getDopplerModelSettings( );
+                if( oneWayDopplerSettings == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when creating one way doppler measured frequency observation model: No one way doppler settings found "
+                            "in settings object." );
+                }
+                std::shared_ptr< OneWayDopplerObservationModel< ObservationScalarType, TimeType > > oneWayDopplerModel =
+                        std::dynamic_pointer_cast< OneWayDopplerObservationModel< ObservationScalarType, TimeType > >(
+                                ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel(
+                                        oneWayDopplerSettings, bodies, topLevelObservableType ) );
+                // createObservationModel( linkEnds, oneWayDopplerSettings, bodies );
+
+                // Check if transmitter has frequency calculator
+                std::shared_ptr< ground_stations::StationFrequencyInterpolator > transmittingFrequencyInterpolator =
+                        getTransmittingFrequencyInterpolator( bodies, linkEnds );
+
+                std::shared_ptr< ObservationBias< 1 > > observationBias;
+                if( observationSettings->biasSettings_ != nullptr )
+                {
+                    observationBias = createObservationBiasCalculator(
+                            linkEnds, observationSettings->observableType_, observationSettings->biasSettings_, bodies );
+                }
+
+                std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates;
+
+                observationModel = std::make_shared< OneWayDopplerMeasuredFrequencyObservationModel< ObservationScalarType, TimeType > >(
+                        linkEnds, oneWayDopplerModel, transmittingFrequencyInterpolator, observationBias, stationStates );
+                break;
+            }
             case doppler_measured_frequency: {
                 std::shared_ptr< TwoWayDopplerObservationModel< ObservationScalarType, TimeType > > twoWayDopplerModel;
                 try
@@ -3298,6 +3421,14 @@ std::vector< std::vector< std::shared_ptr< observation_models::LightTimeCorrecti
             currentLightTimeCorrections.push_back(
                     differencedTimeOfArrivalObservationModel->getSecondReceiverLightTimeCalculator( )->getLightTimeCorrection( ) );
 
+            break;
+        }
+        case observation_models::one_way_doppler_measured_frequency: {
+            std::shared_ptr< observation_models::OneWayDopplerMeasuredFrequencyObservationModel< ObservationScalarType, TimeType > >
+                    oneWayDopplerMeasuredFrequencyModel = std::dynamic_pointer_cast<
+                            observation_models::OneWayDopplerMeasuredFrequencyObservationModel< ObservationScalarType, TimeType > >(
+                            observationModel );
+            singleObservableCorrectionList = ( oneWayDopplerMeasuredFrequencyModel->getLightTimeCalculator( )->getLightTimeCorrection( ) );
             break;
         }
         case observation_models::n_way_range: {

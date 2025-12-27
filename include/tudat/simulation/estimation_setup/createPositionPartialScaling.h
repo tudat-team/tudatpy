@@ -20,6 +20,7 @@
 #include "tudat/astro/orbit_determination/observation_partials/oneWayDopplerPartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/nWayRangePartial.h"
 #include "tudat/astro/orbit_determination/observation_partials/differencedObservationPartial.h"
+#include "tudat/astro/observation_models/oneWayDopplerMeasuredFrequencyObservationModel.h"
 #include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
@@ -142,6 +143,76 @@ public:
                         dopplerObservationModel->getNormalizeWithSpeedOfLight( ) ? physical_constants::SPEED_OF_LIGHT : 1.0,
                         transmitterProperTimePartials,
                         receiverProperTimePartials );
+
+                break;
+            }
+            case observation_models::one_way_doppler_measured_frequency: {
+                // One-way Doppler measured frequency: f_rx = f_tx * (1 + D)
+                // The partial is df_rx/dx = f_tx * dD/dx
+                
+                // Cast the observation model to get the underlying one-way Doppler model
+                std::shared_ptr< observation_models::OneWayDopplerMeasuredFrequencyObservationModel< ParameterType, TimeType > > 
+                        owdmfObservationModel = std::dynamic_pointer_cast< 
+                                observation_models::OneWayDopplerMeasuredFrequencyObservationModel< ParameterType, TimeType > >(
+                                        observationModel );
+                if( owdmfObservationModel == nullptr )
+                {
+                    throw std::runtime_error(
+                            "Error when creating one-way Doppler measured frequency partial scaling object, "
+                            "input observation model is incompatible" );
+                }
+
+                // Get the underlying one-way Doppler model
+                auto oneWayDopplerModel = owdmfObservationModel->getOneWayDopplerModel( );
+                
+                // Create proper time partials if available
+                std::shared_ptr< OneWayDopplerProperTimeComponentScaling > transmitterProperTimePartials = createDopplerProperTimePartials(
+                        oneWayDopplerModel->getTransmitterProperTimeRateCalculator( ), linkEnds, observation_models::transmitter );
+                std::shared_ptr< OneWayDopplerProperTimeComponentScaling > receiverProperTimePartials = createDopplerProperTimePartials(
+                        oneWayDopplerModel->getReceiverProperTimeRateCalculator( ), linkEnds, observation_models::receiver );
+
+                // Create numerical state derivative functions for transmitter and receiver
+                std::function< Eigen::Vector6d( const double ) > transmitterNumericalStateDerivativeFunction =
+                        std::bind( &numerical_derivatives::computeCentralDifferenceFromFunction< Eigen::Vector6d, double >,
+                                   simulation_setup::getLinkEndCompleteEphemerisFunction< double, double >(
+                                           linkEnds.at( observation_models::transmitter ), bodies ),
+                                   std::placeholders::_1,
+                                   100.0,
+                                   numerical_derivatives::order8 );
+                std::function< Eigen::Vector6d( const double ) > receiverNumericalStateDerivativeFunction =
+                        std::bind( numerical_derivatives::computeCentralDifferenceFromFunction< Eigen::Vector6d, double >,
+                                   simulation_setup::getLinkEndCompleteEphemerisFunction< double, double >(
+                                           linkEnds.at( observation_models::receiver ), bodies ),
+                                   std::placeholders::_1,
+                                   100.0,
+                                   numerical_derivatives::order8 );
+
+                // Create the underlying one-way Doppler scaling (normalized by c)
+                auto oneWayDopplerScaling = std::make_shared< OneWayDopplerScaling >(
+                        std::bind( &linear_algebra::evaluateSecondBlockInStateVector,
+                                   transmitterNumericalStateDerivativeFunction,
+                                   std::placeholders::_1 ),
+                        std::bind( &linear_algebra::evaluateSecondBlockInStateVector,
+                                   receiverNumericalStateDerivativeFunction,
+                                   std::placeholders::_1 ),
+                        1,  // One-way Doppler is not normalized by c, this works for FDOA but might not be correct.
+                        transmitterProperTimePartials,
+                        receiverProperTimePartials,
+                        observation_models::one_way_doppler );
+
+                // Get the frequency interpolator from the observation model
+                auto frequencyInterpolator = owdmfObservationModel->getFrequencyInterpolator( );
+                
+                // Create a function that returns the transmitted frequency at a given time
+                std::function< double( const double ) > transmittedFrequencyFunction = 
+                        [frequencyInterpolator]( const double time ) -> double {
+                            return frequencyInterpolator->template getTemplatedCurrentFrequency< double, double >( time );
+                        };
+
+                // Create the OWDMF scaling that wraps the one-way Doppler scaling and multiplies by f_tx
+                positionPartialScaler = std::make_shared< OneWayDopplerMeasuredFrequencyScaling >(
+                        oneWayDopplerScaling,
+                        transmittedFrequencyFunction );
 
                 break;
             }

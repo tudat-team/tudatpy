@@ -1462,7 +1462,39 @@ Returns
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg( "bias_settings" ) = nullptr,
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
-           R"doc(No documentation found.)doc" );
+              R"doc(No documentation available.)doc" );
+    m.def( "one_way_doppler_measured_frequency",
+           py::overload_cast< const tom::LinkDefinition&,
+                              const std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >&,
+                              const std::shared_ptr< tom::ObservationBiasSettings >,
+                              const std::shared_ptr< tom::LightTimeConvergenceCriteria > >(
+                   &tom::oneWayDopplerMeasuredFrequencyObservationSettings ),
+           py::arg( "link_ends" ),
+           py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
+           py::arg( "bias_settings" ) = nullptr,
+           py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           R"doc(
+           Function for creating settings for a one-way Doppler measured frequency observable.
+
+              Function for creating observation model settings for one-way Doppler measured frequency observables, for a single link definition. The implementation is
+              analogous to the :func:`~tudatpy.estimation.observable_models_setup.model_settings.one_way_doppler_instantaneous` observable, but returns the measured frequency in Hz rather than doppler factor. It requires a frequency calculator to be set for the transmitter.
+                Parameters
+                ----------
+                link_ends : LinkDefinition
+                    Set of link ends that define the geometry of the observation. This observable requires the
+                    ``transmitter`` and ``receiver`` :class:`~tudatpy.estimation.observable_models_setup.links.LinkEndType` entries to be defined.
+                light_time_correction_settings : List[ :class:`LightTimeCorrectionSettings` ], default = list()
+                    List of corrections for the light-time that are to be used. Default is none, which will result
+                    in the signal being modelled as moving in a straight line with the speed of light
+                bias_settings : :class:`ObservationBiasSettings`, default = None
+                    Settings for the observation bias that is to be used for the observation, default is none (unbiased observation)
+                light_time_convergence_settings : :class:`LightTimeConvergenceCriteria`, default = :func:`~tudatpy.estimation.observable_models_setup.light_time_corrections.light_time_convergence_settings`
+                    Settings for convergence of the light-time
+                Returns
+                -------
+                :class:`OneWayDopplerObservationModelSettings`
+                    Instance of the :class:`~tudatpy.estimation.observable_models_setup.model_settings.ObservationModelSettings` derived :class:`OneWayDopplerObservationModelSettings` class defining the settings for the one-way open doppler observable observable.
+           )doc" );
 }
 
 }  // namespace model_settings

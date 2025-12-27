@@ -182,6 +182,15 @@ public:
                 observationPartials = createTwoWayDopplerPartials< ObservationScalarType, TimeType >(
                         observationModel, bodies, parametersToEstimate, isPartialForDifferencedObservable, true );
                 break;
+            case observation_models::one_way_doppler_measured_frequency:
+                // One-way Doppler measured frequency uses single link partials (not two-way)
+                observationPartials =
+                        createSingleLinkObservationPartials< ObservationScalarType, 1, TimeType >( observationModel,
+                                                                                                   bodies,
+                                                                                                   parametersToEstimate,
+                                                                                                   isPartialForDifferencedObservable,
+                                                                                                   isPartialForConcatenatedObservable );
+                break;
             case observation_models::n_way_range:
                 if( isPartialForConcatenatedObservable )
                 {
