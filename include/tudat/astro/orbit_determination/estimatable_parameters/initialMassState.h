@@ -30,7 +30,7 @@ public:
                                const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& initialMassState ):
         EstimatableParameter< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > >( initial_mass_state, associatedBody ),
         initialMassState_( initialMassState )
-    { }
+    {}
 
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > getParameterValue( )
     {
@@ -75,8 +75,6 @@ public:
 
 private:
     Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > initialMassState_;
-
-
 
     std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction_;
 

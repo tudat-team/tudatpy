@@ -90,7 +90,7 @@ public:
         return initialStates_;
     }
 
-    virtual void updateInitialState( ) { }
+    virtual void updateInitialState( ) {}
     //! Function to reset the initial state used as input for numerical integration
     /*!
      * Function to reset the initial state used as input for numerical integration
@@ -212,7 +212,6 @@ public:
         {
             singleBodyStateSize_ = getSingleIntegrationSize( stateType_ );
         }
-
     }
 
     SingleArcPropagatorSettings( const IntegratedStateType stateType,
@@ -366,8 +365,9 @@ public:
     {
         if( newBodyState.rows( ) != singleBodyStateSize_ )
         {
-            throw std::runtime_error( "Error when resetting state of body in propagator settings of type "  +
-                                      getIntegratedStateTypString( stateType_ )+ " expected vector of size " + std::to_string( singleBodyStateSize_ ) );
+            throw std::runtime_error( "Error when resetting state of body in propagator settings of type " +
+                                      getIntegratedStateTypString( stateType_ ) + " expected vector of size " +
+                                      std::to_string( singleBodyStateSize_ ) );
         }
         Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newInitialStates = this->getInitialStates( );
         newInitialStates.segment( singleBodyStateSize_ * bodyIndex, singleBodyStateSize_ ) = newBodyState;
@@ -637,7 +637,6 @@ public:
         return outputSettings_;
     }
 
-
 protected:
     //! List of propagator settings for each arc in propagation.
     const std::vector< std::shared_ptr< SingleArcPropagatorSettings< StateScalarType, TimeType > > > singleArcSettings_;
@@ -734,7 +733,7 @@ public:
     //! Function that sets initial states from single- and multi-arc initial states
     void updateInitialState( )
     {
-//        std::cout<<"Updating hybrid-arc in object "<<singleArcPropagatorSettings_->getInitialStates( ).transpose( )<<std::endl;
+        //        std::cout<<"Updating hybrid-arc in object "<<singleArcPropagatorSettings_->getInitialStates( ).transpose( )<<std::endl;
         singleArcPropagatorSettings_->updateInitialState( );
         this->initialStates_.segment( 0, singleArcPropagatorSettings_->getPropagatedStateSize( ) ) =
                 singleArcPropagatorSettings_->getInitialStates( );
@@ -2273,9 +2272,7 @@ public:
     void setStateOfBody( const int bodyIndex, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& newBodyState )
     {
         throw std::runtime_error( "Error, cannot set state of single body directly from multi-type propagator settings" );
-
     }
-
 };
 
 template< typename StateScalarType = double, typename TimeType = double >
