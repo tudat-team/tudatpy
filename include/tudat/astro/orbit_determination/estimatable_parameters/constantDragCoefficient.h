@@ -33,17 +33,20 @@ public:
      * \param associatedBody Body for which the drag coefficient is considered.
      */
     ConstantDragCoefficient( const std::shared_ptr< aerodynamics::CustomAerodynamicCoefficientInterface > coefficientInterface,
-                             const std::string& associatedBody ):
-        EstimatableParameter< double >( constant_drag_coefficient, associatedBody ), coefficientInterface_( coefficientInterface )
+                             const std::string& associatedBody,
+                             const std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator ):
+        EstimatableParameter< double >( constant_drag_coefficient, associatedBody ), coefficientInterface_( coefficientInterface ),
+        aerodynamicAngleCalculator_( aerodynamicAngleCalculator )
     {
         if( coefficientInterface->getNumberOfIndependentVariables( ) != 0 )
         {
             throw std::runtime_error( "Error when making ConstantDragCoefficient, coefficient interface is inconsistent" );
         }
+        aerodynamicCompleteCoefficientFrame_ = getCompleteFrameForCoefficients( coefficientInterface_->getForceCoefficientsFrame( ) );
     }
 
     //! Destructor
-    ~ConstantDragCoefficient( ) { }
+    ~ConstantDragCoefficient( ) {}
 
     //! Function to get the current value of the constant drag coefficient that is to be estimated.
     /*!
@@ -52,7 +55,9 @@ public:
      */
     double getParameterValue( )
     {
-        return coefficientInterface_->getConstantCoefficients( )( 0 );
+        rotationToAerodynamicFrame_ = aerodynamicAngleCalculator_->getRotationQuaternionBetweenFrames(
+                aerodynamicCompleteCoefficientFrame_, reference_frames::aerodynamic_frame );
+        return ( rotationToAerodynamicFrame_ * coefficientInterface_->getConstantCoefficients( ).head< 3 >( ) )( 0 );
     }
 
     //! Function to reset the value of the constant drag coefficient that is to be estimated.
@@ -63,7 +68,9 @@ public:
     void setParameterValue( double parameterValue )
     {
         Eigen::Vector6d currentCoefficientSet = coefficientInterface_->getCurrentAerodynamicCoefficients( );
-        currentCoefficientSet( 0 ) = parameterValue;
+        Eigen::Vector3d currentForceCoefficientSet = rotationToAerodynamicFrame_ * currentCoefficientSet.head< 3 >( );
+        currentForceCoefficientSet( 0 ) = parameterValue;
+        currentCoefficientSet.head< 3 >( ) = rotationToAerodynamicFrame_.inverse( ) * currentForceCoefficientSet;
         coefficientInterface_->resetConstantCoefficients( currentCoefficientSet );
     }
 
@@ -81,6 +88,12 @@ protected:
 private:
     //! Object that contains the aerodynamic coefficients
     std::shared_ptr< aerodynamics::CustomAerodynamicCoefficientInterface > coefficientInterface_;
+
+    std::shared_ptr< reference_frames::AerodynamicAngleCalculator > aerodynamicAngleCalculator_;
+
+    reference_frames::AerodynamicsReferenceFrames aerodynamicCompleteCoefficientFrame_;
+
+    Eigen::Quaterniond rotationToAerodynamicFrame_;
 };
 
 //! Interface class for the estimation of an arc-wise (piecewise constant) drag coefficient
@@ -105,6 +118,12 @@ public:
             throw std::runtime_error( "Error when making ArcWiseConstantDragCoefficient, coefficient interface is inconsistent" );
         }
 
+        if( getCompleteFrameForCoefficients( coefficientInterface->getForceCoefficientsFrame( ) ) != reference_frames::aerodynamic_frame )
+        {
+            throw std::runtime_error(
+                    "Error, arcwise constant drag coefficient is only available for coefficients defined in the aerodynamic frame!" );
+        }
+
         Eigen::Vector6d aerodynamicCoefficients = coefficientInterface->getConstantCoefficients( );
         for( unsigned int i = 0; i < timeLimits.size( ); i++ )
         {
@@ -122,7 +141,7 @@ public:
     }
 
     //! Destructor.
-    ~ArcWiseConstantDragCoefficient( ) { }
+    ~ArcWiseConstantDragCoefficient( ) {}
 
     //! Function to get the current value of the arc-wise drag coefficient that is to be estimated.
     /*!
@@ -176,8 +195,6 @@ public:
         {
             throw std::runtime_error( "Error in arc-wise drag coefficient.\nOriginal error: " + std::string( caughtException.what( ) ) );
         }
-
-
     }
 
     Eigen::Vector6d getCurrentCoefficients( )
