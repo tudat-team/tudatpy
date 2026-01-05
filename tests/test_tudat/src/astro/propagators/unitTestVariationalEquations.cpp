@@ -1231,7 +1231,7 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
                 perturbedInitialMass( 0 ) = initialBodyMass + massPerturbation;
                 bodies.getBody( "Asterix" )->setConstantBodyMass( perturbedInitialMass( 0 ) );
                 massPropagatorSettings->resetInitialStates( perturbedInitialMass );
-                std::dynamic_pointer_cast< MultiTypePropagatorSettings< double > >( propagatorSettings )->recomputeInitialStates( );
+                std::dynamic_pointer_cast< MultiTypePropagatorSettings< double > >( propagatorSettings )->updateInitialState( );
                 SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
                 upPerturbedInitialState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
             }
@@ -1240,7 +1240,7 @@ BOOST_AUTO_TEST_CASE( testMassRateVariationalEquations )
                 perturbedInitialMass( 0 ) = initialBodyMass - massPerturbation;
                 bodies.getBody( "Asterix" )->setConstantBodyMass( perturbedInitialMass( 0 ) );
                 massPropagatorSettings->resetInitialStates( perturbedInitialMass );
-                std::dynamic_pointer_cast< MultiTypePropagatorSettings< double > >( propagatorSettings )->recomputeInitialStates( );
+                std::dynamic_pointer_cast< MultiTypePropagatorSettings< double > >( propagatorSettings )->updateInitialState( );
                 SingleArcDynamicsSimulator<> dynamicsSimulator( bodies, integratorSettings, propagatorSettings );
                 downPerturbedInitialState = dynamicsSimulator.getEquationsOfMotionNumericalSolution( ).rbegin( )->second;
             }

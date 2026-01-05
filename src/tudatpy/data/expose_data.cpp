@@ -17,6 +17,8 @@
 #include <pybind11/stl_bind.h>
 // #include <pybind11/native_enum.h>
 #include <tudat/io/basicInputOutput.h>
+#include <string>
+#include <vector>
 
 #include "tudat/io/missileDatcomData.h"
 #include "tudat/io/readHistoryFromFile.h"
@@ -321,6 +323,16 @@ void expose_data( py::module& m )
             .value( "scan_nr", tudat::input_output::TrackingDataType::scan_nr )
             .export_values( );
 
+    py::enum_< tudat::input_output::TrackingTxtFileReadFilterType >(
+            m, "TrackingTxtFileReadFilterType", R"doc(No documentation available.)doc" )
+            .value( "no_tracking_txt_file_filter",
+                    tudat::input_output::TrackingTxtFileReadFilterType::no_tracking_txt_file_filter,
+                    R"doc(No documentation available.)doc" )
+            .value( "ifms_tracking_txt_file_filter",
+                    tudat::input_output::TrackingTxtFileReadFilterType::ifms_tracking_txt_file_filter,
+                    R"doc(No documentation available.)doc" )
+            .export_values( );
+
     py::class_< tio::solar_activity::SolarActivityData, std::shared_ptr< tio::solar_activity::SolarActivityData > >(
             m, "SolarActivityData", R"doc(No documentation available.)doc" )
             .def_readonly( "solar_radio_flux_107_observed", &tio::solar_activity::SolarActivityData::solarRadioFlux107Observed );
@@ -520,7 +532,8 @@ void expose_data( py::module& m )
            py::arg( "column_types" ),
            py::arg( "comment_symbol" ) = '#',
            py::arg( "value_separators" ) = ",:\t ",
-           py::arg( "ignore_omitted_columns" ) = false );
+           py::arg( "ignore_omitted_columns" ) = false,
+           py::arg( "data_filter_method" ) = tio::no_tracking_txt_file_filter );
 
     m.def( "grail_antenna_file_reader", &tio::grailAntennaFileReader, py::arg( "file_name" ), R"doc(No documentation available.)doc" );
     m.def( "grail_mass_level_0_file_reader",
@@ -537,6 +550,7 @@ void expose_data( py::module& m )
            &tio::readIfmsFile,
            py::arg( "file_name" ),
            py::arg( "apply_tropospheric_correction" ) = true,
+           py::arg( "remove_invalid_lines" ) = true,
            R"doc(Load contents of IFMS file into object
 
            The keys of the dictionary represent the different columns of the IFMS file, and their values are lists with all the values in the associated column as strings.
@@ -545,6 +559,8 @@ void expose_data( py::module& m )
 
            :param file_name: String representing the path to the file to be loaded
            :param apply_tropospheric_correction: Whether to modify the averaged Doppler frequency as described above (Default: True)
+           :param remove_invalid_lines: Boolean defining whether a line is skipped if the transmit frequency, osberved frequency, or troposphere correction is undefined (Default: True)
+
            :return ifms_contents: Dictionary with contents of the IFMS file as lists of strings
            )doc" );
     m.def( "set_estrack_weather_data_in_ground_stations",
@@ -560,6 +576,30 @@ void expose_data( py::module& m )
            py::arg( "interpolator_settings" ) = tudat::interpolators::cubicSplineInterpolation( ),
            py::arg( "body_with_ground_stations_name" ) = "Earth",
            R"doc(No documentation available.)doc" );
+
+    // Temporary fix: Asigned default to variable to avoid compilation error
+    const std::vector< std::string > fdet_cols = {
+        "utc_datetime_string", "signal_to_noise_ratio", "normalised_spectral_max", "doppler_measured_frequency_hz", "doppler_noise_hz"
+    };
+
+    m.def( "read_fdets_file",
+           &tio::readFdetsFile,
+           py::arg( "file_name" ),
+           py::arg( "column_types" ) = fdet_cols,
+           R"doc(Load contents of Fdets file into object
+
+           This function loads the contents of an Fdets file into a dictionary with keys defined by the strings listed in `column_types`. If a list of columns is not specified, the following structure is assumed:
+
+           - UTC datetime string
+           - Signal to noise ratio [-]
+           - Normalized spectral max (Not sure what this is)
+           - Doppler measured frequency [Hz]
+           - Doppler noise [Hz]
+
+           :param file_name: String representing the path to the file to be loaded
+           :param column_types: Identifiers of the columns present in the Fdets file
+           :return fdets_contents: Dictionary with contents of the Fdets file as lists of strings
+           )doc" );
 };
 
 }  // namespace data
