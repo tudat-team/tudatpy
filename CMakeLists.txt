@@ -322,7 +322,7 @@ else ()
 endif ()
 
 if (UNIX OR (WIN32 AND CLANG))
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${Boost_INCLUDE_DIRS}\"")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I\"${Boost_INCLUDE_DIRS}\"")
 endif ()
 
 # Get tudat resource manager dependency.
@@ -334,7 +334,7 @@ include_directories(TudatResources_INCLUDE_DIRS)
 find_package(Eigen3 REQUIRED)
 include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
 if (APPLE OR (WIN32 AND CLANG))
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -isystem \"${EIGEN3_INCLUDE_DIR}\"")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I\"${EIGEN3_INCLUDE_DIR}\"")
 endif ()
 
 # PAGMO dependency
@@ -378,7 +378,7 @@ if (TUDAT_BUILD_WITH_FFTW3)
         include_directories(SYSTEM AFTER "${FFTW3_INCLUDE_DIRS}")
         set(
             CMAKE_CXX_FLAGS
-            "${CMAKE_CXX_FLAGS} -isystem \"${FFTW3_INCLUDE_DIR}\""
+            "${CMAKE_CXX_FLAGS} -I\"${FFTW3_INCLUDE_DIR}\""
         )
         set (FFTW3_LIBRARIES "${FFTW3_LIBRARY_DIRS}/libfftw3.dylib")
         add_definitions(-DTUDAT_BUILD_WITH_FFTW3=1)
