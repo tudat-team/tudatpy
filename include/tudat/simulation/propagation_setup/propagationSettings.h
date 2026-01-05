@@ -84,11 +84,13 @@ public:
      * Function to retrieve the initial state used as input for numerical integration
      * \return Initial state used as input for numerical integration
      */
-    virtual Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStates( )
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStates( )
     {
+        updateInitialState( );
         return initialStates_;
     }
 
+    virtual void updateInitialState( ) { }
     //! Function to reset the initial state used as input for numerical integration
     /*!
      * Function to reset the initial state used as input for numerical integration
@@ -197,7 +199,21 @@ public:
         PropagatorSettings< StateScalarType >( initialBodyStates, outputSettings, false ), stateType_( stateType ),
         initialTime_( TUDAT_NAN ), terminationSettings_( terminationSettings ), dependentVariablesToSave_( dependentVariablesToSave ),
         integratorSettings_( nullptr ), outputSettings_( outputSettings ), statePrintInterval_( statePrintInterval )
-    {}
+    {
+        if( stateType_ == custom_state )
+        {
+            singleBodyStateSize_ = initialBodyStates.rows( );
+        }
+        else if( stateType_ == hybrid )
+        {
+            singleBodyStateSize_ = 0;
+        }
+        else
+        {
+            singleBodyStateSize_ = getSingleIntegrationSize( stateType_ );
+        }
+
+    }
 
     SingleArcPropagatorSettings( const IntegratedStateType stateType,
                                  const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > initialBodyStates,
@@ -212,7 +228,18 @@ public:
         initialTime_( initialTime ), terminationSettings_( terminationSettings ), dependentVariablesToSave_( dependentVariablesToSave ),
         integratorSettings_( integratorSettings ), outputSettings_( outputSettings ), statePrintInterval_( TUDAT_NAN )
     {
-        //        if( )
+        if( stateType_ == custom_state )
+        {
+            singleBodyStateSize_ = initialBodyStates.rows( );
+        }
+        else if( stateType_ == hybrid )
+        {
+            singleBodyStateSize_ = 0;
+        }
+        else
+        {
+            singleBodyStateSize_ = getSingleIntegrationSize( stateType_ );
+        }
     }
 
     //! Virtual destructor.
@@ -330,6 +357,23 @@ public:
         initialTime_ = initialTime;
     }
 
+    virtual Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getStateOfBody( const int bodyIndex )
+    {
+        return this->getInitialStates( ).segment( singleBodyStateSize_ * bodyIndex, singleBodyStateSize_ );
+    }
+
+    virtual void setStateOfBody( const int bodyIndex, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& newBodyState )
+    {
+        if( newBodyState.rows( ) != singleBodyStateSize_ )
+        {
+            throw std::runtime_error( "Error when resetting state of body in propagator settings of type "  +
+                                      getIntegratedStateTypString( stateType_ )+ " expected vector of size " + std::to_string( singleBodyStateSize_ ) );
+        }
+        Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > newInitialStates = this->getInitialStates( );
+        newInitialStates.segment( singleBodyStateSize_ * bodyIndex, singleBodyStateSize_ ) = newBodyState;
+        this->resetInitialStates( newInitialStates );
+    }
+
 protected:
     //!Type of state being propagated
     IntegratedStateType stateType_;
@@ -349,6 +393,8 @@ protected:
     //! Variable indicating how often (once per statePrintInterval_ seconds or propagation independenty variable) the
     //! current state and time are to be printed to console (default never).
     double statePrintInterval_;
+
+    int singleBodyStateSize_;
 
 private:
     void resetSingleArcOutputSettings( const std::shared_ptr< SingleArcPropagatorProcessingSettings > outputSettings )
@@ -564,11 +610,12 @@ public:
         }
     }
 
-    void updateInitialStateFromConsituentSettings( )
+    void updateInitialState( )
     {
         int currentIndex = 0;
         for( unsigned int i = 0; i < singleArcSettings_.size( ); i++ )
         {
+            initialStateList_[ i ] = singleArcSettings_.at( i )->getInitialStates( );
             this->initialStates_.segment( currentIndex, singleArcSettings_.at( i )->getConventionalStateSize( ) ) =
                     singleArcSettings_.at( i )->getInitialStates( );
             currentIndex += singleArcSettings_.at( i )->getConventionalStateSize( );
@@ -589,6 +636,7 @@ public:
         }
         return outputSettings_;
     }
+
 
 protected:
     //! List of propagator settings for each arc in propagation.
@@ -638,7 +686,7 @@ public:
         // Set initial states
         this->initialStates_ = Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >( singleArcPropagatorSettings->getPropagatedStateSize( ) +
                                                                                     multiArcPropagatorSettings->getPropagatedStateSize( ) );
-        setInitialStatesFromConstituents( );
+        updateInitialState( );
 
         // Set initial state sizes
         this->stateSize_ = this->initialStates_.rows( );
@@ -684,10 +732,14 @@ public:
     }
 
     //! Function that sets initial states from single- and multi-arc initial states
-    void setInitialStatesFromConstituents( )
+    void updateInitialState( )
     {
+//        std::cout<<"Updating hybrid-arc in object "<<singleArcPropagatorSettings_->getInitialStates( ).transpose( )<<std::endl;
+        singleArcPropagatorSettings_->updateInitialState( );
         this->initialStates_.segment( 0, singleArcPropagatorSettings_->getPropagatedStateSize( ) ) =
                 singleArcPropagatorSettings_->getInitialStates( );
+
+        multiArcPropagatorSettings_->updateInitialState( );
         this->initialStates_.segment( singleArcPropagatorSettings_->getPropagatedStateSize( ),
                                       multiArcPropagatorSettings_->getPropagatedStateSize( ) ) =
                 multiArcPropagatorSettings_->getInitialStates( );
@@ -2197,7 +2249,7 @@ public:
         }
     }
 
-    void recomputeInitialStates( )
+    void updateInitialState( )
     {
         this->initialStates_ = createCombinedInitialState< StateScalarType, TimeType >( propagatorSettingsMap_ );
     }
@@ -2212,6 +2264,18 @@ public:
             }
         }
     }
+
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getStateOfBody( const int bodyIndex )
+    {
+        throw std::runtime_error( "Error, cannot get state of single body directly from multi-type propagator settings" );
+    }
+
+    void setStateOfBody( const int bodyIndex, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& newBodyState )
+    {
+        throw std::runtime_error( "Error, cannot set state of single body directly from multi-type propagator settings" );
+
+    }
+
 };
 
 template< typename StateScalarType = double, typename TimeType = double >
