@@ -1205,15 +1205,13 @@ void removeDuplicates( std::vector< T >& input )
     input.erase( std::unique( input.begin( ), input.end( ) ), input.end( ) );
 }
 
-
 template< typename T >
-bool checkOrderPreserved( const std::vector< T >& A,
-                              const std::vector< T >& B)
+bool checkOrderPreserved( const std::vector< T >& A, const std::vector< T >& B )
 {
     // Map each element of A to its index
     std::unordered_map< T, std::size_t > indexInA;
     indexInA.reserve( A.size( ) );
-    for ( std::size_t i = 0; i < A.size( ); ++i )
+    for( std::size_t i = 0; i < A.size( ); ++i )
     {
         indexInA.emplace( A[ i ], i );
     }
@@ -1222,10 +1220,10 @@ bool checkOrderPreserved( const std::vector< T >& A,
     std::size_t lastIndexInA = 0;
 
     // Walk through B, but only consider entries that are also in A
-    for ( const auto& elementB : B )
+    for( const auto& elementB : B )
     {
         auto it = indexInA.find( elementB );
-        if ( it == indexInA.end( ) )
+        if( it == indexInA.end( ) )
         {
             // elementB is not in A: ignore it
             continue;
@@ -1233,7 +1231,7 @@ bool checkOrderPreserved( const std::vector< T >& A,
 
         std::size_t indexInAForB = it->second;
 
-        if ( !firstCommonFound )
+        if( !firstCommonFound )
         {
             // First element that is common to both A and B
             firstCommonFound = true;
@@ -1242,7 +1240,7 @@ bool checkOrderPreserved( const std::vector< T >& A,
         else
         {
             // For later common elements, indices in A must strictly increase
-            if ( indexInAForB <= lastIndexInA )
+            if( indexInAForB <= lastIndexInA )
             {
                 return false;
             }

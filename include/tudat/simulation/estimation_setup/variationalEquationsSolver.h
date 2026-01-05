@@ -67,10 +67,10 @@ public:
         parametersToEstimate_( parametersToEstimate ), bodies_( bodies ),
         stateTransitionMatrixSize_( parametersToEstimate_->getInitialDynamicalStateParameterSize( ) ),
         parameterVectorSize_( parametersToEstimate_->getParameterSetSize( ) ), clearNumericalSolution_( clearNumericalSolution )
-    { }
+    {}
 
     //! Destructor
-    virtual ~VariationalEquationsSolver( ) { }
+    virtual ~VariationalEquationsSolver( ) {}
 
     //! Pure virtual function to integrate variational equations and equations of motion.
     /*!
@@ -818,10 +818,10 @@ public:
                                              parametersToEstimate,
                                              integrateDynamicalAndVariationalEquationsConcurrently,
                                              integrateEquationsOnCreation )
-    { }
+    {}
 
     //! Destructor
-    ~SingleArcVariationalEquationsSolver( ) { }
+    ~SingleArcVariationalEquationsSolver( ) {}
 
     //! Function to integrate equations of motion only.
     /*!
@@ -892,9 +892,8 @@ public:
 
     std::map< double, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > getEquationsOfMotionSolutionDouble( )
     {
-        return dynamicsSimulator_->getEquationsOfMotionNumericalSolutionDouble();
+        return dynamicsSimulator_->getEquationsOfMotionNumericalSolutionDouble( );
     }
-
 
     //! Function to return object used for numerically propagating and managing the solution of the equations of motion.
     /*!
@@ -1089,7 +1088,7 @@ void setPropagatorSettingsMultiArcStatesInEstimatedDynamicalParameters(
         }
     }
 
-    for( auto itr: arcInitialTranslationalStatesVector )
+    for( auto itr : arcInitialTranslationalStatesVector )
     {
         arcInitialTranslationalStates[ itr.first ] = StateType( 6 * itr.second.size( ) );
         for( unsigned int k = 0; k < itr.second.size( ); k++ )
@@ -1263,13 +1262,13 @@ public:
                                                                                 setDependentVariablesInterface ),
                                             parametersToEstimate,
                                             integrateEquationsOnCreation )
-    { }
+    {}
 
     //! Destructor
     /*!
      *  Destructor
      */
-    ~MultiArcVariationalEquationsSolver( ) { }
+    ~MultiArcVariationalEquationsSolver( ) {}
 
     //! Function to integrate equations of motion only.
     /*!
@@ -1690,7 +1689,7 @@ public:
                                                                                   setDependentVariablesInterface ),
                 parametersToEstimate,
                 integrateEquationsOnCreation )
-    { }
+    {}
 
     HybridArcVariationalEquationsSolver(
             const simulation_setup::SystemOfBodies& bodies,
@@ -1714,7 +1713,7 @@ public:
                                                                                   setDependentVariablesInterface ),
                 parametersToEstimate,
                 integrateEquationsOnCreation )
-    { }
+    {}
 
     void initializeHybridArcVariationalEquationsSolver( const simulation_setup::SystemOfBodies& bodies,
                                                         const std::shared_ptr< PropagatorSettings< StateScalarType > > propagatorSettings,
@@ -1811,7 +1810,7 @@ public:
     }
 
     //! Destructor
-    ~HybridArcVariationalEquationsSolver( ) { }
+    ~HybridArcVariationalEquationsSolver( ) {}
 
     //! Function to integrate variational equations and equations of motion.
     /*!

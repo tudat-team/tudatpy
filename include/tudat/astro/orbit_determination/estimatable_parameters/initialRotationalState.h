@@ -44,7 +44,7 @@ public:
                                                                                                associatedBody ),
         initialRotationalState_( initialRotationalState ), centralBody_( centralBody ), frameOrientation_( frameOrientation ),
         inertiaTensorFunction_( inertiaTensorFunction )
-    { }
+    {}
 
     //! Function to get the current value of initial state w.r.t. centralBody.
     /*!
@@ -69,7 +69,6 @@ public:
     void setParameterValue( Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 > parameterValue )
     {
         parameterValue.segment( 0, 4 ).normalize( );
-
 
         // Update state in propagator settings (to ensure consistency) if link is set
         // Update state in propagator settings (to ensure consistency) if link is set
@@ -170,7 +169,6 @@ private:
 
     //! Function that returns the current inertia tensor
     std::function< Eigen::Matrix3d( ) > inertiaTensorFunction_;
-
 
     std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction_;
 

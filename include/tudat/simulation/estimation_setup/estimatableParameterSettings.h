@@ -671,7 +671,6 @@ public:
 
     InitialStateParameterType initialStateValue_;
 
-
     std::function< Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >( ) > initialStateGetFunction_;
 
     std::function< void( const Eigen::Matrix< InitialStateParameterType, Eigen::Dynamic, 1 >& ) > initialStateSetFunction_;
