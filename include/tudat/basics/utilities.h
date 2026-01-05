@@ -1205,6 +1205,56 @@ void removeDuplicates( std::vector< T >& input )
     input.erase( std::unique( input.begin( ), input.end( ) ), input.end( ) );
 }
 
+
+template< typename T >
+bool checkOrderPreserved( const std::vector< T >& A,
+                              const std::vector< T >& B)
+{
+    // Map each element of A to its index
+    std::unordered_map< T, std::size_t > indexInA;
+    indexInA.reserve( A.size( ) );
+    for ( std::size_t i = 0; i < A.size( ); ++i )
+    {
+        indexInA.emplace( A[ i ], i );
+    }
+
+    bool firstCommonFound = false;
+    std::size_t lastIndexInA = 0;
+
+    // Walk through B, but only consider entries that are also in A
+    for ( const auto& elementB : B )
+    {
+        auto it = indexInA.find( elementB );
+        if ( it == indexInA.end( ) )
+        {
+            // elementB is not in A: ignore it
+            continue;
+        }
+
+        std::size_t indexInAForB = it->second;
+
+        if ( !firstCommonFound )
+        {
+            // First element that is common to both A and B
+            firstCommonFound = true;
+            lastIndexInA = indexInAForB;
+        }
+        else
+        {
+            // For later common elements, indices in A must strictly increase
+            if ( indexInAForB <= lastIndexInA )
+            {
+                return false;
+            }
+            lastIndexInA = indexInAForB;
+        }
+    }
+
+    // If there are 0 or 1 common elements, or all common elements
+    // appear in strictly increasing order in A as we see them in B,
+    // the order is preserved.
+    return true;
+}
 }  // namespace utilities
 
 }  // namespace tudat
