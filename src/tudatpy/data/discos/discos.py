@@ -13,30 +13,54 @@ class DiscosQuery:
             'DiscosWeb-Api-Version': self.api_version,
         }
 
-    def query_object(self, norad_id, verbose=True):
+    def query_object(self, sat_id, is_discos_id=False, verbose=True) -> dict[str] | None:
         """
-        Queries the DISCOS database for an object with the specified NORAD ID.
+        Queries the DISCOS database using either a NORAD ID (default) or DISCOS ID.
 
-        Parameters:
-        - norad_id (int or str): NORAD catalog ID of the satellite
-        - verbose (bool): whether to print the results (default True)
+        Parameters
+        ----------
+        sat_id: str
+            The ID of the satellite to query.
+        is_discos_id: bool
+            If True, treats sat_id as an internal DISCOS ID.
+            If False (default), treats sat_id as a NORAD ID (satno).
 
-        Returns:
-        - dict: attributes of the queried object (e.g. mass, launch date, etc.)
+        verbose: bool
+            Whether to print the results (default True).
+
+        Returns
+        ----------
+        dict[str] | None
+            The attributes of the queried object.
         """
-        response = requests.get(
-            f'{self.url}/api/objects/{norad_id}',
-            headers=self.headers
-        )
+
+        if is_discos_id:
+            query_url = f'{self.url}/api/objects/{sat_id}'
+        else:
+            query_url = f'{self.url}/api/objects?filter=eq(satno,{sat_id})'
+
+        response = requests.get(query_url, headers=self.headers)
 
         if response.ok:
-            attributes = response.json()['data']['attributes']
+            data = response.json().get('data')
+
+            # Handle API response structure:
+            if isinstance(data, list):
+                if not data:
+                    if verbose: print(f"No object found for queried satellite.")
+                    return None
+                attributes = data[0]['attributes']
+            else:
+                attributes = data['attributes']
+
             if verbose:
                 print(attributes)
-                print(attributes.get('mass', 'Mass not available'))
+
             return attributes
+
         else:
+            # Handle API Errors
             errors = response.json().get('errors', 'Unknown error')
             if verbose:
-                print(errors)
+                print(f"API Error: {errors}")
             return None
