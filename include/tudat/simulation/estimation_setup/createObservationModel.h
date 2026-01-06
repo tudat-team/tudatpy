@@ -1112,10 +1112,10 @@ public:
     }
 
 private:
+    basic_astrodynamics::TimeScales differencedTimeScale_;
+
     std::shared_ptr< OneWayDopplerMeasuredFrequencyObservationSettings > firstDopplerModelSettings_;
     std::shared_ptr< OneWayDopplerMeasuredFrequencyObservationSettings > secondDopplerModelSettings_;
-
-    basic_astrodynamics::TimeScales differencedTimeScale_;
 };
 
 inline std::shared_ptr< ObservationModelSettings > oneWayRangeSettings(
