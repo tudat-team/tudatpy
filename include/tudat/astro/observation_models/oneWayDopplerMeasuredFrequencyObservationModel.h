@@ -154,8 +154,8 @@ public:
         // Update link end states and times
         linkEndStates.resize( 2 );
         linkEndTimes.resize( 2 );
-        linkEndStates[ 0 ] = transmitterState;
-        linkEndStates[ 1 ] = receiverState;
+        linkEndStates[ 0 ] = transmitterState.template cast< double >( );
+        linkEndStates[ 1 ] = receiverState.template cast< double >( );
         if( isTimeAtReception )
         {
             linkEndTimes[ 1 ] = static_cast< double >( time );
