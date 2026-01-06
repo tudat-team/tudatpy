@@ -38,7 +38,6 @@ class DiscosQuery:
             query_url = f'{self.url}/api/objects/{sat_id}'
         else:
             query_url = f'{self.url}/api/objects?filter=eq(satno,{sat_id})'
-            print(query_url)
 
         response = requests.get(query_url, headers=self.headers)
 
