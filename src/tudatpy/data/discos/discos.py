@@ -13,18 +13,25 @@ class DiscosQuery:
             'DiscosWeb-Api-Version': self.api_version,
         }
 
-    def query_object(self, sat_id, is_discos_id=False, verbose=True):
+    def query_object(self, sat_id, is_discos_id=False, verbose=True) -> dict[str] | None:
         """
         Queries the DISCOS database using either a NORAD ID (default) or DISCOS ID.
 
-        Parameters:
-        - sat_id (int or str): The ID of the satellite to query.
-        - is_discos_id (bool): If True, treats sat_id as an internal DISCOS ID.
-                               If False (default), treats sat_id as a NORAD ID (satno).
-        - verbose (bool): Whether to print the results (default True).
+        Parameters
+        ----------
+        sat_id: str
+            The ID of the satellite to query.
+        is_discos_id: bool
+            If True, treats sat_id as an internal DISCOS ID.
+            If False (default), treats sat_id as a NORAD ID (satno).
 
-        Returns:
-        - dict: attributes of the queried object.
+        verbose: bool
+            Whether to print the results (default True).
+
+        Returns
+        ----------
+        dict[str] | None
+            The attributes of the queried object.
         """
 
         if is_discos_id:
