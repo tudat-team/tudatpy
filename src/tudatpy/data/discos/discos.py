@@ -46,7 +46,6 @@ class DiscosQuery:
             data = response.json().get('data')
 
             # Handle API response structure:
-            # Filter queries returns a list [], direct ID queries returns a dict {}
             if isinstance(data, list):
                 if not data:
                     if verbose: print(f"No object found for queried satellite.")
@@ -57,8 +56,6 @@ class DiscosQuery:
 
             if verbose:
                 print(attributes)
-                # Safely access mass, allowing for cases where it might be missing
-                print(attributes.get('mass', 'Mass not available'))
 
             return attributes
 
