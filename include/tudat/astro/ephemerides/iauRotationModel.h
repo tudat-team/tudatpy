@@ -39,13 +39,28 @@ public:
                       const Eigen::Vector2d& polePrecession,
                       const std::map< double, std::pair< double, double > >& meridianPeriodicTerms,
                       const std::map< double, std::pair< Eigen::Vector2d, double > >& polePeriodicTerms,
-                      const double referenceEpochJ2000 = 0.0 ):
+                      const double referenceEpochJ2000 = 0.0,
+                      const std::string& anglesBaseFrame = "" ):
         RotationalEphemeris( baseFrameOrientation, targetFrameOrientation ), nominalMeridian_( nominalMeridian ),
         nominalPole_( nominalPole ), rotationRate_( rotationRate ), polePrecession_( polePrecession ),
         meridianPeriodicTerms_( meridianPeriodicTerms ), polePeriodicTerms_( polePeriodicTerms ),
         referenceEpochJ2000_( referenceEpochJ2000 )
-
-    {}
+    {
+        if( anglesBaseFrame != "" )
+        {
+            if( anglesBaseFrame != baseFrameOrientation_ )
+            {
+                if( anglesBaseFrame != "J2000" && anglesBaseFrame != "ECLIPJ2000" )
+                {
+                    throw std::runtime_error( "Error, angles base frame for IAU rotation model " + anglesBaseFrame + " not supported." );
+                }
+                else
+                {
+                    anglesFrameToBaseFrameRotation_ = spice_interface::computeRotationMatrixBetweenFrames( baseFrameOrientation_, anglesBaseFrame, 0.0 );
+                }
+            }
+        }
+    }
 
     Eigen::Quaterniond getRotationToBaseFrame( const double secondsSinceEpoch )
     {
@@ -55,7 +70,7 @@ public:
     Eigen::Quaterniond getRotationToTargetFrame( const double currentTime )
     {
         updateRotationMatrices( currentTime );
-        return Eigen::Quaterniond( meridianRotationAboutZAxis_ * declinationRotationAboutXAxis_ * rightAscensionRotationAboutZAxis_ );
+        return Eigen::Quaterniond( meridianRotationAboutZAxis_ * declinationRotationAboutXAxis_ * rightAscensionRotationAboutZAxis_ * anglesFrameToBaseFrameRotation_ );
     }
 
     Eigen::Matrix3d getDerivativeOfRotationToTargetFrame( const double secondsSinceEpoch )
@@ -66,11 +81,11 @@ public:
         updateAngleDerivatives( secondsSinceEpoch );
 
         return currentMeridianDerivative_ * getDerivativeOfZAxisRotationWrtAngle( meridianRotationAboutZAxis_ ) *
-                declinationRotationAboutXAxis_ * rightAscensionRotationAboutZAxis_ -
+                declinationRotationAboutXAxis_ * rightAscensionRotationAboutZAxis_ * anglesFrameToBaseFrameRotation_ -
                 currentPoleDerivative_( 1 ) * meridianRotationAboutZAxis_ *
-                getDerivativeOfXAxisRotationWrtAngle( declinationRotationAboutXAxis_ ) * rightAscensionRotationAboutZAxis_ +
+                getDerivativeOfXAxisRotationWrtAngle( declinationRotationAboutXAxis_ ) * rightAscensionRotationAboutZAxis_ * anglesFrameToBaseFrameRotation_ +
                 currentPoleDerivative_( 0 ) * meridianRotationAboutZAxis_ * declinationRotationAboutXAxis_ *
-                getDerivativeOfZAxisRotationWrtAngle( rightAscensionRotationAboutZAxis_ );
+                getDerivativeOfZAxisRotationWrtAngle( rightAscensionRotationAboutZAxis_ ) * anglesFrameToBaseFrameRotation_;
     }
 
     Eigen::Matrix3d getDerivativeOfRotationToBaseFrame( const double secondsSinceEpoch )
@@ -225,6 +240,8 @@ private:
     double referenceEpochJ2000_;
 
     double epochsSinceReference_;
+
+    Eigen::Matrix3d anglesFrameToBaseFrameRotation_ = Eigen::Matrix3d::Identity( );
 
     double currentMeridian_;
 
