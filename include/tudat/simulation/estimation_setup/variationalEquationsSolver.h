@@ -859,7 +859,10 @@ public:
         }
 
         // Reset solution for state transition and sensitivity matrices.
-        resetVariationalEquationsInterpolators( );
+        if( propagatorSettings_->getOutputSettings( )->getSetIntegratedVariationalResult( ) )
+        {
+            resetVariationalEquationsInterpolators( );
+        }
     }
 
     //! Function to return the numerical solution history of numerically integrated variational equations.
@@ -1361,7 +1364,10 @@ public:
         }
 
         // Reset solution for state transition and sensitivity matrices.
-        resetVariationalEquationsInterpolators( );
+        if( propagatorSettings_->getOutputSettings( )->getSetIntegratedVariationalResult( ) )
+        {
+            resetVariationalEquationsInterpolators( );
+        }
     }
 
     //! Function to return object used for numerically propagating and managing the solution of the equations of motion.
