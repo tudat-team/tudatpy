@@ -459,7 +459,7 @@ executeOrbiterSimulation(
                                                                                                    initialTranslationalState,
                                                                                                    TimeType( finalEphemerisTime ),
                                                                                                    cowell );
-    propagatorSettings->getOutputSettings(  )->setIntegratedVariationalResult( interpolateVariationalEquations );
+    propagatorSettings->getOutputSettings( )->setIntegratedVariationalResult( interpolateVariationalEquations );
 
     // Define parameters.
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames;
@@ -520,8 +520,8 @@ executeOrbiterSimulation(
         if( testResultInterpolation )
         {
             std::shared_ptr< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface > singleArcInterface =
-                std::dynamic_pointer_cast< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
-                dynamicsSimulator.getStateTransitionMatrixInterface( ) );
+                    std::dynamic_pointer_cast< SingleArcCombinedStateTransitionAndSensitivityMatrixInterface >(
+                            dynamicsSimulator.getStateTransitionMatrixInterface( ) );
 
             if( interpolateVariationalEquations )
             {
@@ -553,10 +553,8 @@ BOOST_AUTO_TEST_CASE( testVariationalEquationInterpolation )
 {
     spice_interface::loadStandardSpiceKernels( );
 
-    executeOrbiterSimulation< double, double >( Eigen::Matrix< double, 6, 1 >::Zero( ), Eigen::VectorXd::Zero( 10 ),
-        true, true, true );
-    executeOrbiterSimulation< double, double >( Eigen::Matrix< double, 6, 1 >::Zero( ), Eigen::VectorXd::Zero( 10 ),
-    true, true, false );
+    executeOrbiterSimulation< double, double >( Eigen::Matrix< double, 6, 1 >::Zero( ), Eigen::VectorXd::Zero( 10 ), true, true, true );
+    executeOrbiterSimulation< double, double >( Eigen::Matrix< double, 6, 1 >::Zero( ), Eigen::VectorXd::Zero( 10 ), true, true, false );
 }
 
 //! Test the state transition and sensitivity matrix computation against their numerical propagation for Earth orbiter.
