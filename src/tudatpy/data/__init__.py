@@ -2,6 +2,5 @@ from tudatpy.kernel.data import *
 from ._support import save2txt, save_time_history_to_file
 from .mission_data_downloader import LoadPDS, DownloadAtmosphericData
 from .processTrk234 import Trk234Processor
-from . import unified_data_library
 # This would generate a circular import (SBDB in environment_setup)
 # from . import horizons, mpc, sbdb, spacetrack, discos, mission_data_downloader
