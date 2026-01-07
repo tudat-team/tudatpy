@@ -1164,7 +1164,8 @@ inline std::shared_ptr< IauRotationModelSettings > iauRotationModelSettings(
                                                          polePrecession,
                                                          meridianPeriodicTerms,
                                                          polePeriodicTerms,
-                                                         referenceEpochJ2000, anglesBaseFrame );
+                                                         referenceEpochJ2000,
+                                                         anglesBaseFrame );
 }
 
 }  // namespace simulation_setup
