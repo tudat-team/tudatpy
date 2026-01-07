@@ -38,7 +38,7 @@ set(io_SOURCES
         "readVariousPdsFiles.cpp"
         "readViennaMappingFunctionData.cpp"
         "readIonexFile.cpp"
-
+        "unifiedDataLibraryReader.cpp"
 )
 
 # Add header files.
