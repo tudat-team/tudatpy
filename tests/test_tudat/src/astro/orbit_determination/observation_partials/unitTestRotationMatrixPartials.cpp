@@ -365,7 +365,7 @@ BOOST_AUTO_TEST_CASE( testIauRotationPartials )
     {
         for( int frame = 0; frame < 2; frame++ )
         {
-            std::cout<<test<<" "<<frame<<std::endl;
+            std::cout << test << " " << frame << std::endl;
             std::string anglesBaseFrame = "J2000";
             std::string baseFrameOrientation = ( frame == 0 ) ? "J2000" : "ECLIPJ2000";
             double referenceEpoch = ( test == 0 ) ? 0.0 : 50 * physical_constants::JULIAN_YEAR;
@@ -407,20 +407,23 @@ BOOST_AUTO_TEST_CASE( testIauRotationPartials )
                         perturbedPole = unperturbedPole;
                         perturbedPole( poleIndex ) = unperturbedPole( poleIndex ) + perturbation;
                         iauRotationModel->setNominalPole( perturbedPole );
-                        Eigen::Matrix3d upperturbedRotationMatrix = iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( );
-                        Eigen::Matrix3d upperturbedRotationMatrixDerivative = iauRotationModel->getDerivativeOfRotationToBaseFrame( testTime );
+                        Eigen::Matrix3d upperturbedRotationMatrix =
+                                iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( );
+                        Eigen::Matrix3d upperturbedRotationMatrixDerivative =
+                                iauRotationModel->getDerivativeOfRotationToBaseFrame( testTime );
 
                         perturbedPole( poleIndex ) = unperturbedPole( poleIndex ) - perturbation;
                         iauRotationModel->setNominalPole( perturbedPole );
-                        Eigen::Matrix3d downperturbedRotationMatrix = iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( );
+                        Eigen::Matrix3d downperturbedRotationMatrix =
+                                iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( );
                         Eigen::Matrix3d downperturbedRotationMatrixDerivative =
                                 iauRotationModel->getDerivativeOfRotationToBaseFrame( testTime );
 
                         Eigen::Matrix3d numericalRotationMatrixPartial =
                                 ( upperturbedRotationMatrix - downperturbedRotationMatrix ) / ( 2.0 * perturbation );
                         //                    Eigen::Matrix3d numericalRotationMatrixDerivativePartial =
-                        //                            ( upperturbedRotationMatrixDerivative - downperturbedRotationMatrixDerivative ) / ( 2.0 *
-                        //                            perturbation );
+                        //                            ( upperturbedRotationMatrixDerivative - downperturbedRotationMatrixDerivative ) /
+                        //                            ( 2.0 * perturbation );
 
                         Eigen::Matrix3d matrixDifference = rotationMatrixPartials.at( poleIndex ) - numericalRotationMatrixPartial;
 
@@ -468,12 +471,15 @@ BOOST_AUTO_TEST_CASE( testIauRotationPartials )
                         perturbedPoleRate = unperturbedPoleRate;
                         perturbedPoleRate( poleIndex ) = unperturbedPoleRate( poleIndex ) + perturbation;
                         iauRotationModel->setPolePrecession( perturbedPoleRate );
-                        Eigen::Matrix3d upperturbedRotationMatrix = iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( );
-                        Eigen::Matrix3d upperturbedRotationMatrixDerivative = iauRotationModel->getDerivativeOfRotationToBaseFrame( testTime );
+                        Eigen::Matrix3d upperturbedRotationMatrix =
+                                iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( );
+                        Eigen::Matrix3d upperturbedRotationMatrixDerivative =
+                                iauRotationModel->getDerivativeOfRotationToBaseFrame( testTime );
 
                         perturbedPoleRate( poleIndex ) = unperturbedPoleRate( poleIndex ) - perturbation;
                         iauRotationModel->setPolePrecession( perturbedPoleRate );
-                        Eigen::Matrix3d downperturbedRotationMatrix = iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( );
+                        Eigen::Matrix3d downperturbedRotationMatrix =
+                                iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( );
                         Eigen::Matrix3d downperturbedRotationMatrixDerivative =
                                 iauRotationModel->getDerivativeOfRotationToBaseFrame( testTime );
                         iauRotationModel->setPolePrecession( unperturbedPoleRate );
@@ -481,8 +487,8 @@ BOOST_AUTO_TEST_CASE( testIauRotationPartials )
                         Eigen::Matrix3d numericalRotationMatrixPartial =
                                 ( upperturbedRotationMatrix - downperturbedRotationMatrix ) / ( 2.0 * perturbation );
                         //                    Eigen::Matrix3d numericalRotationMatrixDerivativePartial =
-                        //                            ( upperturbedRotationMatrixDerivative - downperturbedRotationMatrixDerivative ) / ( 2.0 *
-                        //                            perturbation );
+                        //                            ( upperturbedRotationMatrixDerivative - downperturbedRotationMatrixDerivative ) /
+                        //                            ( 2.0 * perturbation );
 
                         Eigen::Matrix3d matrixDifference = rotationMatrixPartials.at( poleIndex ) - numericalRotationMatrixPartial;
 
@@ -549,8 +555,8 @@ BOOST_AUTO_TEST_CASE( testIauRotationPartials )
                             Eigen::Matrix3d numericalRotationMatrixPartial =
                                     ( upperturbedRotationMatrix - downperturbedRotationMatrix ) / ( 2.0 * perturbation );
                             //                        Eigen::Matrix3d numericalRotationMatrixDerivativePartial =
-                            //                                ( upperturbedRotationMatrixDerivative - downperturbedRotationMatrixDerivative ) /
-                            //                                ( 2.0 * perturbation );
+                            //                                ( upperturbedRotationMatrixDerivative - downperturbedRotationMatrixDerivative
+                            //                                ) / ( 2.0 * perturbation );
 
                             Eigen::Matrix3d matrixDifference = rotationMatrixPartials.at( librationIndex ) - numericalRotationMatrixPartial;
 
@@ -579,7 +585,8 @@ BOOST_AUTO_TEST_CASE( testIauRotationPartials )
                 std::vector< double > poleLibrationFrequencies = utilities::createVectorFromMapKeys( polePeriodicTerms );
                 // Create partial object.
                 std::shared_ptr< RotationMatrixPartialWrtPoleLibrationTermAmplitudes > poleLibrationMatrixPartialObject =
-                        std::make_shared< RotationMatrixPartialWrtPoleLibrationTermAmplitudes >( iauRotationModel, poleLibrationFrequencies );
+                        std::make_shared< RotationMatrixPartialWrtPoleLibrationTermAmplitudes >( iauRotationModel,
+                                                                                                 poleLibrationFrequencies );
 
                 // Compute partial analytically
                 double testTime = 1.0E9;
@@ -604,32 +611,37 @@ BOOST_AUTO_TEST_CASE( testIauRotationPartials )
                             perturbedPolePeriodicTerms = unperturbedPolePeriodicTerms;
                             perturbedPolePeriodicTerms[ poleLibrationFrequencies.at( librationIndex ) ].first[ 0 ] += perturbation;
                             iauRotationModel->setPolePeriodicTerms( perturbedPolePeriodicTerms );
-                            RAPerturbedRotationMatrices.push_back( iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( ) );
+                            RAPerturbedRotationMatrices.push_back(
+                                    iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( ) );
 
                             // RA down
                             perturbedPolePeriodicTerms = unperturbedPolePeriodicTerms;
                             perturbedPolePeriodicTerms[ poleLibrationFrequencies.at( librationIndex ) ].first[ 0 ] -= perturbation;
                             iauRotationModel->setPolePeriodicTerms( perturbedPolePeriodicTerms );
-                            RAPerturbedRotationMatrices.push_back( iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( ) );
+                            RAPerturbedRotationMatrices.push_back(
+                                    iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( ) );
 
                             // DEC up
                             perturbedPolePeriodicTerms = unperturbedPolePeriodicTerms;
                             perturbedPolePeriodicTerms[ poleLibrationFrequencies.at( librationIndex ) ].first[ 1 ] += perturbation;
                             iauRotationModel->setPolePeriodicTerms( perturbedPolePeriodicTerms );
-                            DECPerturbedRotationMatrices.push_back( iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( ) );
+                            DECPerturbedRotationMatrices.push_back(
+                                    iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( ) );
 
                             // DEC down
                             perturbedPolePeriodicTerms = unperturbedPolePeriodicTerms;
                             perturbedPolePeriodicTerms[ poleLibrationFrequencies.at( librationIndex ) ].first[ 1 ] -= perturbation;
                             iauRotationModel->setPolePeriodicTerms( perturbedPolePeriodicTerms );
-                            DECPerturbedRotationMatrices.push_back( iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( ) );
+                            DECPerturbedRotationMatrices.push_back(
+                                    iauRotationModel->getRotationToBaseFrame( testTime ).toRotationMatrix( ) );
 
                             // RA numerical partials matrix
                             Eigen::Matrix3d numericalRARotationMatrixPartial =
                                     ( RAPerturbedRotationMatrices.at( 0 ) - RAPerturbedRotationMatrices.at( 1 ) ) / ( 2.0 * perturbation );
                             // DEC numerical partials matrix
                             Eigen::Matrix3d numericalDECRotationMatrixPartial =
-                                    ( DECPerturbedRotationMatrices.at( 0 ) - DECPerturbedRotationMatrices.at( 1 ) ) / ( 2.0 * perturbation );
+                                    ( DECPerturbedRotationMatrices.at( 0 ) - DECPerturbedRotationMatrices.at( 1 ) ) /
+                                    ( 2.0 * perturbation );
 
                             //
                             Eigen::Matrix3d RAMatrixDifference =

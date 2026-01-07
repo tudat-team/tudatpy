@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE( test_IauUranusRotationModel )
     {
         for( int frame = 0; frame < 2; frame++ )
         {
-            std::cout<<test<<" "<<frame<<std::endl;
+            std::cout << test << " " << frame << std::endl;
             std::string anglesBaseFrame = "J2000";
             std::string baseFrameOrientation = ( frame == 0 ) ? "J2000" : "ECLIPJ2000";
             double referenceEpoch = ( test == 0 ) ? 0.0 : 10.0 * physical_constants::JULIAN_YEAR;
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( test_IauUranusRotationModel )
             Eigen::Matrix3d spiceRotation = computeRotationMatrixBetweenFrames( baseFrameOrientation, "IAU_Uranus", testTimeWrtReference );
             Eigen::Matrix3d tudatRotation = iauRotationModel->getRotationMatrixToTargetFrame( testTimeWrtJ2000 );
 
-            std::cout << spiceRotation << std::endl << std::endl << tudatRotation << std::endl << std::endl<< std::endl << std::endl;
+            std::cout << spiceRotation << std::endl << std::endl << tudatRotation << std::endl << std::endl << std::endl << std::endl;
             Eigen::Matrix3d spiceRotationDerivative =
                     computeRotationMatrixDerivativeBetweenFrames( baseFrameOrientation, "IAU_Uranus", testTimeWrtReference );
             Eigen::Matrix3d tudatRotationDerivative = iauRotationModel->getDerivativeOfRotationToTargetFrame( testTimeWrtJ2000 );
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE( test_IauJupiterRotationModel )
     {
         for( int frame = 0; frame < 2; frame++ )
         {
-            std::cout<<test<<" "<<frame<<std::endl;
+            std::cout << test << " " << frame << std::endl;
             std::string anglesBaseFrame = "J2000";
             std::string baseFrameOrientation = ( frame == 0 ) ? "J2000" : "ECLIPJ2000";
             double referenceEpoch = ( test == 0 ) ? 0.0 : 50 * physical_constants::JULIAN_YEAR;
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE( test_IauJupiterRotationModel )
 
             Eigen::Matrix3d spiceRotation = computeRotationMatrixBetweenFrames( baseFrameOrientation, "IAU_Jupiter", testTimeWrtReference );
             Eigen::Matrix3d tudatRotation = iauRotationModel->getRotationMatrixToTargetFrame( testTimeWrtJ2000 );
-            
+
             Eigen::Matrix3d spiceRotationDerivative =
                     computeRotationMatrixDerivativeBetweenFrames( baseFrameOrientation, "IAU_Jupiter", testTimeWrtReference );
             Eigen::Matrix3d tudatRotationDerivative = iauRotationModel->getDerivativeOfRotationToTargetFrame( testTimeWrtJ2000 );

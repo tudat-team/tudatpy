@@ -56,7 +56,8 @@ public:
                 }
                 else
                 {
-                    anglesFrameToBaseFrameRotation_ = spice_interface::computeRotationMatrixBetweenFrames( baseFrameOrientation_, anglesBaseFrame, 0.0 );
+                    anglesFrameToBaseFrameRotation_ =
+                            spice_interface::computeRotationMatrixBetweenFrames( baseFrameOrientation_, anglesBaseFrame, 0.0 );
                 }
             }
         }
@@ -70,7 +71,8 @@ public:
     Eigen::Quaterniond getRotationToTargetFrame( const double currentTime )
     {
         updateRotationMatrices( currentTime );
-        return Eigen::Quaterniond( meridianRotationAboutZAxis_ * declinationRotationAboutXAxis_ * rightAscensionRotationAboutZAxis_ * anglesFrameToBaseFrameRotation_ );
+        return Eigen::Quaterniond( meridianRotationAboutZAxis_ * declinationRotationAboutXAxis_ * rightAscensionRotationAboutZAxis_ *
+                                   anglesFrameToBaseFrameRotation_ );
     }
 
     Eigen::Matrix3d getDerivativeOfRotationToTargetFrame( const double secondsSinceEpoch )
@@ -83,7 +85,8 @@ public:
         return currentMeridianDerivative_ * getDerivativeOfZAxisRotationWrtAngle( meridianRotationAboutZAxis_ ) *
                 declinationRotationAboutXAxis_ * rightAscensionRotationAboutZAxis_ * anglesFrameToBaseFrameRotation_ -
                 currentPoleDerivative_( 1 ) * meridianRotationAboutZAxis_ *
-                getDerivativeOfXAxisRotationWrtAngle( declinationRotationAboutXAxis_ ) * rightAscensionRotationAboutZAxis_ * anglesFrameToBaseFrameRotation_ +
+                getDerivativeOfXAxisRotationWrtAngle( declinationRotationAboutXAxis_ ) * rightAscensionRotationAboutZAxis_ *
+                anglesFrameToBaseFrameRotation_ +
                 currentPoleDerivative_( 0 ) * meridianRotationAboutZAxis_ * declinationRotationAboutXAxis_ *
                 getDerivativeOfZAxisRotationWrtAngle( rightAscensionRotationAboutZAxis_ ) * anglesFrameToBaseFrameRotation_;
     }
