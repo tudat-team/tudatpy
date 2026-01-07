@@ -244,12 +244,14 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
     std::vector< Eigen::Matrix3d > rotationMatrixPartials;
     rotationMatrixPartials.push_back(
             ( rotationModel->getCurrentMeridianRotationAboutZAxis( ) * rotationModel->getCurrentDeclinationRotationAboutXAxis( ) *
-              reference_frames::getDerivativeOfZAxisRotationWrtAngle( rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) ) )
+              reference_frames::getDerivativeOfZAxisRotationWrtAngle( rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) ) *
+              rotationModel->getAnglesFrameToBaseFrameRotation( ) )
                     .transpose( ) );
     rotationMatrixPartials.push_back(
             ( -rotationModel->getCurrentMeridianRotationAboutZAxis( ) *
               reference_frames::getDerivativeOfXAxisRotationWrtAngle( rotationModel->getCurrentDeclinationRotationAboutXAxis( ) ) *
-              rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) )
+              rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) *
+              rotationModel->getAnglesFrameToBaseFrameRotation( ) )
                     .transpose( ) );
     ;
     return rotationMatrixPartials;
@@ -266,13 +268,15 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
     rotationMatrixPartials.push_back(
             ( ephemerisTime - rotationModel->getReferenceEpoch( ) ) *
             ( rotationModel->getCurrentMeridianRotationAboutZAxis( ) * rotationModel->getCurrentDeclinationRotationAboutXAxis( ) *
-              reference_frames::getDerivativeOfZAxisRotationWrtAngle( rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) ) )
+            reference_frames::getDerivativeOfZAxisRotationWrtAngle( rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) ) *
+            rotationModel->getAnglesFrameToBaseFrameRotation( ) )
                     .transpose( ) );
     rotationMatrixPartials.push_back(
             ( ephemerisTime - rotationModel->getReferenceEpoch( ) ) *
             ( -rotationModel->getCurrentMeridianRotationAboutZAxis( ) *
               reference_frames::getDerivativeOfXAxisRotationWrtAngle( rotationModel->getCurrentDeclinationRotationAboutXAxis( ) ) *
-              rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) )
+              rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) *
+              rotationModel->getAnglesFrameToBaseFrameRotation( ) )
                     .transpose( ) );
     return rotationMatrixPartials;
 }
@@ -298,7 +302,8 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
 
         rotationMatrixPartials.push_back(
                 ( reference_frames::getDerivativeOfZAxisRotationWrtAngle( rotationModel->getCurrentMeridianRotationAboutZAxis( ) ) *
-                  rotationModel->getCurrentDeclinationRotationAboutXAxis( ) * rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) )
+                rotationModel->getCurrentDeclinationRotationAboutXAxis( ) * rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) *
+            rotationModel->getAnglesFrameToBaseFrameRotation( ) )
                         .transpose( ) *
                 currentLibrationTerm );
     }
@@ -329,7 +334,8 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
         // Push back RA
         rotationMatrixPartials.push_back(
                 ( rotationModel->getCurrentMeridianRotationAboutZAxis( ) * rotationModel->getCurrentDeclinationRotationAboutXAxis( ) *
-                  reference_frames::getDerivativeOfZAxisRotationWrtAngle( rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) ) )
+                reference_frames::getDerivativeOfZAxisRotationWrtAngle( rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) ) *
+            rotationModel->getAnglesFrameToBaseFrameRotation( ) )
                         .transpose( ) *
                 currentSineLibrationTerm );
 
@@ -337,7 +343,8 @@ std::vector< Eigen::Matrix3d > calculatePartialOfRotationMatrixFromLocalFrameWrt
         rotationMatrixPartials.push_back(
                 ( -rotationModel->getCurrentMeridianRotationAboutZAxis( ) *
                   reference_frames::getDerivativeOfXAxisRotationWrtAngle( rotationModel->getCurrentDeclinationRotationAboutXAxis( ) ) *
-                  rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) )
+                  rotationModel->getCurrentRightAscensionRotationAboutZAxis( ) *
+              rotationModel->getAnglesFrameToBaseFrameRotation( ) )
                         .transpose( ) *
                 currentCosineLibrationTerm );
     }

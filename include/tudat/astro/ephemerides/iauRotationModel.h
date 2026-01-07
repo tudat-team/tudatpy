@@ -177,6 +177,11 @@ public:
         }
     }
 
+    Eigen::Matrix3d getAnglesFrameToBaseFrameRotation( )
+    {
+        return anglesFrameToBaseFrameRotation_;
+    }
+
 private:
     void updateAngles( const double currentTime )
     {

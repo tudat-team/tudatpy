@@ -1153,7 +1153,8 @@ inline std::shared_ptr< IauRotationModelSettings > iauRotationModelSettings(
         const Eigen::Vector2d& polePrecession,
         const std::map< double, std::pair< double, double > >& meridianPeriodicTerms,
         const std::map< double, std::pair< Eigen::Vector2d, double > >& polePeriodicTerms,
-        double referenceEpochJ2000 = 0.0 )
+        double referenceEpochJ2000 = 0.0,
+        const std::string& anglesBaseFrame = "" )
 {
     return std::make_shared< IauRotationModelSettings >( baseFrameOrientation,
                                                          targetFrameOrientation,
@@ -1163,7 +1164,7 @@ inline std::shared_ptr< IauRotationModelSettings > iauRotationModelSettings(
                                                          polePrecession,
                                                          meridianPeriodicTerms,
                                                          polePeriodicTerms,
-                                                         referenceEpochJ2000 );
+                                                         referenceEpochJ2000, anglesBaseFrame );
 }
 
 }  // namespace simulation_setup
