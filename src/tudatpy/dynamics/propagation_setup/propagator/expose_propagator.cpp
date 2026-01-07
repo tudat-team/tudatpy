@@ -452,9 +452,9 @@ Enumeration of available integrated state types.
 
          :type: bool
       )doc" )
-    .def_property( "set_integrated_variational_result",
-           &tp::PropagatorProcessingSettings::getSetIntegratedVariationalResult,
-           &tp::PropagatorProcessingSettings::setIntegratedVariationalResult,
+            .def_property( "set_integrated_variational_result",
+                           &tp::PropagatorProcessingSettings::getSetIntegratedVariationalResult,
+                           &tp::PropagatorProcessingSettings::setIntegratedVariationalResult,
                            R"doc(
 
          Boolean defining whether the propagation results of variational equations (if any) are to
@@ -641,8 +641,8 @@ Enumeration of available integrated state types.
                            &tp::HybridArcPropagatorProcessingSettings::getSetIntegratedResult,
                            &tp::HybridArcPropagatorProcessingSettings::setIntegratedResult )
             .def_property( "set_integrated_variational_result",
-                       &tp::HybridArcPropagatorProcessingSettings::getSetIntegratedVariationalResult,
-                       &tp::HybridArcPropagatorProcessingSettings::setIntegratedVariationalResult )
+                           &tp::HybridArcPropagatorProcessingSettings::getSetIntegratedVariationalResult,
+                           &tp::HybridArcPropagatorProcessingSettings::setIntegratedVariationalResult )
             .def_property( "clear_numerical_solution",
                            &tp::HybridArcPropagatorProcessingSettings::getClearNumericalSolutions,
                            &tp::HybridArcPropagatorProcessingSettings::setClearNumericalSolutions )

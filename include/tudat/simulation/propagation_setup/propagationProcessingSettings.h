@@ -41,7 +41,7 @@ public:
                                   const bool setIntegratedVariationalResult = true ):
         clearNumericalSolutions_( clearNumericalSolutions ), setIntegratedResult_( setIntegratedResult ),
         createStateProcessors_( setIntegratedResult ), updateDependentVariableInterpolator_( updateDependentVariableInterpolator ),
-    setIntegratedVariationalResult_( setIntegratedVariationalResult )
+        setIntegratedVariationalResult_( setIntegratedVariationalResult )
     {}
 
     virtual ~PropagatorProcessingSettings( ) {}
@@ -61,7 +61,6 @@ public:
         return setIntegratedVariationalResult_;
     }
 
-
     bool getUpdateDependentVariableInterpolator( )
     {
         return updateDependentVariableInterpolator_;
@@ -77,7 +76,6 @@ public:
         setIntegratedResult_ = setIntegratedResult;
         createStateProcessors_ = setIntegratedResult;
     }
-
 
     virtual void setIntegratedVariationalResult( const bool setIntegratedVariationalResult )
     {
@@ -184,9 +182,10 @@ public:
     {
         if( isPartOfMultiArc_ )
         {
-            std::cerr<<
-                    "Warning, resetting setIntegratedVariationalResult of single-arc propagation setting after it has been made part of a multi-arc "
-                    "propagation setting has no effect"<<std::endl;
+            std::cerr << "Warning, resetting setIntegratedVariationalResult of single-arc propagation setting after it has been made part "
+                         "of a multi-arc "
+                         "propagation setting has no effect"
+                      << std::endl;
         }
         PropagatorProcessingSettings::setIntegratedVariationalResult( setIntegratedVariationalResult );
     }
