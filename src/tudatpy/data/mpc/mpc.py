@@ -248,7 +248,7 @@ def get_biases_EFCC18(
 
 def get_weights_VFCC17(
         MPC_codes: pd.Series | list | np.ndarray | None = None,
-        epochUTC: pd.Series | list | np.ndarray | None = None, 
+        epoch: pd.Series | list | np.ndarray | None = None,
         observation_type: pd.Series | list | np.ndarray | None = None, 
         observatory: pd.Series | list | np.ndarray | None = None, 
         star_catalog: pd.Series | list | np.ndarray | None = None, 
@@ -270,7 +270,7 @@ def get_weights_VFCC17(
     MPC_codes : pd.Series | list | np.ndarray | None, optional
         Iterable with the MPC target codes, e.g. 433 for Eros. Size must match
         other iterables, by default None
-    epochUTC : pd.Series | list | np.ndarray | None, optional
+    epoch : pd.Series | list | np.ndarray | None, optional
         Iterable with UTC times. Size must match other iterables, by default None
     observation_type : pd.Series | list | np.ndarray | None, optional
         Iterable with the observation types in MPC format.
@@ -303,7 +303,7 @@ def get_weights_VFCC17(
     Raises
     ------
     ValueError
-        MPC_codes, epochUTC, observation_type, observatory and star_catalog must all
+        MPC_codes, epoch, observation_type, observatory and star_catalog must all
         be not None and the same size. mpc_table must be None.
         If table input is used, the remaining input parameters must be done.
     """
@@ -311,13 +311,13 @@ def get_weights_VFCC17(
     # Input handling
     if (
             (mpc_table is None)
-            and (epochUTC is not None)
+            and (epoch is not None)
             and (observation_type is not None)
             and (observatory is not None)
             and (star_catalog is not None)
     ):
         if not (
-                len(epochUTC)
+                len(epoch)
                 == len(observation_type)
                 == len(observatory)
                 == len(star_catalog)
@@ -326,7 +326,7 @@ def get_weights_VFCC17(
 
         table_dict = {
             "number": MPC_codes,
-            "epochUTC": epochUTC,
+            "epoch": epoch,
             "note2": observation_type,
             "observatory": observatory,
             "catalog": star_catalog,
@@ -334,7 +334,7 @@ def get_weights_VFCC17(
         table = pd.DataFrame.from_dict(table_dict)
     elif (
             (mpc_table is not None)
-            and (epochUTC is None)
+            and (epoch is None)
             and (observation_type is None)
             and (observatory is None)
             and (star_catalog is None)
@@ -342,15 +342,9 @@ def get_weights_VFCC17(
         table = mpc_table.copy()
     else:
         raise ValueError(
-            "Must provide either parameters: `epochUTC`, `observation_type`, `observatory` and `star_catalog` OR `mpc_table`."
+            "Must provide either parameters: `epoch`, `observation_type`, `observatory` and `star_catalog` OR `mpc_table`."
         )
 
-    # create col for Julian Day and the inverted weight
-    table = table.assign(
-        epochJD=lambda x: x['epochUTC'].apply(
-            lambda dt: DateTime.from_python_datetime(dt).to_julian_day()
-        )
-    )
     # NOTE 1000 is a placeholder. The following observation types are not processed and receive the placeholder value:
     # first_discoveries = ["x", "X"], roaming = ["V", "v", "W", "w"], radar = ["R", "r", "Q", "q"], offset = ["O"]
     table = table.assign(inv_w=lambda _: 1000)
@@ -383,7 +377,7 @@ def get_weights_VFCC17(
     # create column that modifies the JD with an approximate timezone.
     # the time JD.50 will then be the approximate midnight at that timezone.
     # if we then take the int, we can group by this number to get all observations that night.
-    table = table.assign(epochJD_tz_int=lambda x: np.floor(x.epochJD + x.jd_tz))
+    table = table.assign(epochJD_tz_int=lambda x: np.floor(x.epoch + x.jd_tz))
     # table = table.assign(epochJD_tz_int2=lambda x: np.round(x.epochJD + x.jd_tz, 2))
 
     # Below are the weights applied as described per table in:
@@ -394,9 +388,9 @@ def get_weights_VFCC17(
     # TABLE 5: Non-CCD residuals
     # Conditions for Table 5
     # 1890-1-1 and 1950-1-1
-    pre_1890 = table.epochJD <= 2411368.0
-    between_1890_1950 = (table.epochJD > 2411368.0) & (table.epochJD <= 2433282.0)
-    after_1950 = table.epochJD > 2433282.0
+    pre_1890 = table.epoch <= 2411368.0
+    between_1890_1950 = (table.epoch > 2411368.0) & (table.epoch <= 2433282.0)
+    after_1950 = table.epoch > 2433282.0
 
     photographic = table.note2.isin([np.nan, "P", "A", "N", "Z"])
     occultations = table.note2 == "E"
@@ -453,9 +447,9 @@ def get_weights_VFCC17(
     # ###################
     # TABLE 2: epoch dependant residuals
     # Table 2 conditions:
-    tab2_703_epoch = table.epochJD < 2456658.0  # 2014-1-1
-    tab2_691_epoch = table.epochJD < 2452640.0  # 2003-1-1
-    tab2_644_epoch = table.epochJD < 2452883.0  # 2003-9-1
+    tab2_703_epoch = table.epoch < 2456658.0  # 2014-1-1
+    tab2_691_epoch = table.epoch < 2452640.0  # 2003-1-1
+    tab2_644_epoch = table.epoch < 2452883.0  # 2003-9-1
 
     # Apply Table 2:
     table.inv_w = table.inv_w.mask((tab2_703_epoch & (table.observatory == "703")), 1.0)
@@ -570,7 +564,7 @@ def get_weights_VFCC17(
     table = table.assign(
         observations_on_epoch=lambda x: x.groupby(
             ["epochJD_tz_int", "observatory", "number"]
-        ).epochUTC.transform("count")
+        ).epoch.transform("count")
     )
     # divide weight by sqrt(N/4) if N > 4 else 1
     table = table.assign(
