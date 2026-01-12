@@ -567,10 +567,15 @@ def get_weights_VFCC17(
             ["epochJD_tz_int", "observatory", "number"]
         ).epoch.transform("count")
     )
-    # divide weight by sqrt(N/4) if N > 4 else 1
+
+    # Veres states that, for N > 4,  "uncertainties have to be inflated by a factor of sqrt(N)".
+    # This means sigma_new = sigma_old * sqrt(N)
+    # Which also means: weight_new = 1/(sigma_new^2) = W_old/N
+    # Since we want the weight to be 1 when N = 4, we end up dividing by 4.
+    # How this is done in practice: we divide the weight by N if N > 4, else 1.
     table = table.assign(
         mult_obs_deweight=lambda x: np.maximum(
-            np.sqrt(x.observations_on_epoch / 4), 1.0
+            x.observations_on_epoch / 4, 1.0
         )
     )
 
