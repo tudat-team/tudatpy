@@ -1607,21 +1607,8 @@ class BatchMPC:
         """Generates a matplotlib figure with the observations'
         right ascension and declination over time.
 
-        Parameters
-        ----------
-        objects : list[str] | None, optional
-            List of specific MPC objects in batch to plot, None to plot all
-            , by default None
-        projection : str, optional
-            projection of the figure options are: 'aitoff', 'hammer',
-            'lambert' and 'mollweide', by default "aitoff"
-        figsize : tuple[float], optional
-            size of the matplotlib figure, by default (15, 7)
-
-        Returns
-        -------
-        Matplotlib figure
-            Matplotlib figure with the observations
+        NOTE: Only plots observations between 1970 and 3000 to ensure
+        safe datetime conversion across platforms.
         """
         fig, ax = plt.subplots(
             1, 1, subplot_kw={"projection": projection}, figsize=figsize
@@ -1634,20 +1621,72 @@ class BatchMPC:
 
         markers = ["o", "+", "^"]
 
-        vmin = mdates.date2num(self._table.query("number == @objs").epochJ2000secondsTDB.min())
-        vmax = mdates.date2num(self._table.query("number == @objs").epochJ2000secondsTDB.max())
+        min_safe_tdb = DateTime.from_python_datetime(datetime.datetime(1970, 1, 1)).to_epoch()
+        max_safe_tdb = DateTime.from_python_datetime(datetime.datetime(3000, 1, 1)).to_epoch()
+
+        # --- 2. Check for unsafe data and warn ---
+        # Query all relevant objects first to check bounds
+        all_obj_data = self._table.query("number == @objs")
+
+        if not all_obj_data.empty:
+            data_min = all_obj_data.epochJ2000secondsTDB.min()
+            data_max = all_obj_data.epochJ2000secondsTDB.max()
+
+            if data_min < min_safe_tdb or data_max > max_safe_tdb:
+                print("Warning: Some observations fall outside the safe plotting range (1970-3000).\n"
+                      "These have been excluded from the plot to prevent historical-dates conversion errors."
+                )
+
+        # --- 3. Helper: Convert TDB Seconds -> Python Datetime ---
+        # Matplotlib needs datetime objects for colors/dates, not raw TDB floats
+        time_scale_converter = time_representation.default_time_scale_converter()
+        utc_epochs = [time_scale_converter.convert_time(
+            input_scale=time_representation.tdb_scale,
+            output_scale=time_representation.utc_scale,
+            input_value=t) for t in  all_obj_data.epochJ2000secondsTDB
+        ]
+
+
+        # --- 4. Prepare Filtered Data for Plotting ---
+        # Apply filter: number IN objs AND time BETWEEN limits
+        safe_query = "number == @objs and epochJ2000secondsTDB >= @min_safe_tdb and epochJ2000secondsTDB <= @max_safe_tdb"
+        plot_data = self._table.query(safe_query)
+
+        if plot_data.empty:
+            # Handle empty case to prevent crash
+            ax.text(0.5, 0.5, "No data available in range 1970-3000",
+                    transform=ax.transAxes, ha='center')
+            return fig
+
+        # Compute global vmin/vmax for consistent colorbar
+        # Convert all valid times to matplotlib numbers
+        utc_epochs_datetime = [DateTime.from_epoch(utc_epoch).to_python_datetime() for utc_epoch in utc_epochs]
+        vmin = mdates.date2num(min(utc_epochs_datetime))
+        vmax = mdates.date2num(max(utc_epochs_datetime))
+
+        plot_handle = None  # To store one scatter plot for the colorbar
 
         for idx, obj in enumerate(objs):
-            tab = self._table.query("number == @obj")
+            # Get data for this specific object (already filtered safely above)
+            tab = plot_data.query("number == @obj")
+            utc_epochs_object = [time_scale_converter.convert_time(
+                input_scale=time_representation.tdb_scale,
+                output_scale=time_representation.utc_scale,
+                input_value=t) for t in  tab.epochJ2000secondsTDB.values
+            ]
+            utc_epochs_object_datetime = [DateTime.from_epoch(utc_epoch).to_python_datetime() for utc_epoch in utc_epochs_object]
 
-            a = plt.scatter(
+            if tab.empty:
+                continue
+
+            plot_handle = ax.scatter(
                 (tab.RA) - np.pi if projection is not None else np.degrees(tab.RA),
                 (tab.DEC) if projection is not None else np.degrees(tab.DEC),
                 s=30,
                 marker=markers[int(idx % len(markers))],
                 cmap=cm.plasma,
                 label="MPC: " + obj,
-                c=mdates.date2num(tab.epochJ2000secondsTDB),
+                c=mdates.date2num(utc_epochs_object_datetime),
                 vmin=vmin,
                 vmax=vmax,
             )
@@ -1656,33 +1695,38 @@ class BatchMPC:
         ax.set_xlabel(r"Right Ascension $[\deg]$")
         ax.set_ylabel(r"Declination $[\deg]$")
 
-        yticks = [
-            f"{x}°"
-            for x in (np.degrees(np.array(ax.get_yticks().tolist()))).astype(int)
-        ]
-        xticks = [
-            f"{x}°"
-            for x in (np.degrees(np.array(ax.get_xticks().tolist())) + 180).astype(int)
-        ]
-        if projection in ["aitoff", "hammer", "mollweide"]:
-            ax.set_yticklabels(yticks)
-            ax.set_xticklabels(xticks)
-        elif projection == "lambert":
-            ax.set_xticklabels(xticks)
-        else:
-            pass
+        # Handle Tick Formatting safely
+        if projection is not None:
+            try:
+                # Matplotlib projections can sometimes return non-standard ticks
+                yticks = [
+                    f"{x}°"
+                    for x in (np.degrees(np.array(ax.get_yticks().tolist()))).astype(int)
+                ]
+                xticks = [
+                    f"{x}°"
+                    for x in (np.degrees(np.array(ax.get_xticks().tolist())) + 180).astype(int)
+                ]
+                if projection in ["aitoff", "hammer", "mollweide"]:
+                    ax.set_yticklabels(yticks)
+                    ax.set_xticklabels(xticks)
+                elif projection == "lambert":
+                    ax.set_xticklabels(xticks)
+            except Exception:
+                pass
 
-        ticks = np.linspace(vmin, vmax, 7)
-        labels = [mdates.num2date(t).strftime("%d %b %Y") for t in ticks]
-        cbar = plt.colorbar(mappable=a, ax=ax, label="Time", ticks=ticks)
+                # Add Colorbar with Date formatting
+        if plot_handle:
+            ticks = np.linspace(vmin, vmax, 7)
+            cbar = plt.colorbar(mappable=plot_handle, ax=ax, label="Time", ticks=ticks)
+            # Convert numeric ticks back to readable date strings
+            cbar.ax.set_yticklabels([mdates.num2date(t).strftime('%Y-%m-%d') for t in ticks])
 
-        cbar.ax.set_yticklabels(labels)
+        start_date_str = mdates.num2date(vmin).strftime('%Y-%m-%d')
+        end_date_str = mdates.num2date(vmax).strftime('%Y-%m-%d')
 
-        startUTC = self._table.query("number == @objs").epochJ2000secondsTDB.min()
-        endUTC = self._table.query("number == @objs").epochJ2000secondsTDB.max()
         ax.grid()
-        fig.suptitle(f"{self.size} observations between {startUTC} and {endUTC}")
-
+        fig.suptitle(f"{len(plot_data)} observations between {start_date_str} and {end_date_str}")
         fig.set_layout_engine("tight")
 
         return fig
