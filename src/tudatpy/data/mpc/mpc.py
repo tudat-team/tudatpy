@@ -1211,20 +1211,57 @@ class BatchMPC:
                 self._table = self._table.query("observatory == @observatories")
             if observatories_exclude is not None:
                 self._table = self._table.query("observatory != @observatories_exclude")
+
+            timescale_converter_needed = isinstance(epoch_start, datetime.datetime) or \
+                               isinstance(epoch_end, datetime.datetime)
+
+            if timescale_converter_needed:
+                # This loads necessary kernels/tables
+                time_scale_converter = time_representation.default_time_scale_converter()
+            else:
+                time_scale_converter = None
             if epoch_start is not None:
                 if isinstance(epoch_start, float) or isinstance(epoch_start, int):
                     self._table = self._table.query(
                         "epochJ2000secondsTDB >= @epoch_start"
                     )
                 elif isinstance(epoch_start, datetime.datetime):
-                    self._table = self._table.query("epochUTC >= @epoch_start")
+                    # 1970: max minimum supported date among win, macOS, linux.
+                    # 2661: min maximum supported date among win, macOS, linux.
+                    if epoch_start.year < 1970 or epoch_start.year > 2261:
+                        raise ValueError(
+                            f"Requested epoch_start year ({epoch_start.year}) is outside the safe range (1970-2261) "
+                            f"for standard C++ datetime conversion.\n"
+                            f"Please manually convert this date to TDB seconds (float) and use that as input.\n"
+                            f"See `from_python_datetime`: https://py.api.tudat.space/en/latest/astro/time_representation.html"
+                        )
+                    epoch_start_utc = DateTime.from_python_datetime(epoch_start).to_epoch()
+                    epoch_start_tdb = time_scale_converter.convert_time(
+                        input_scale=time_representation.utc_scale,
+                        output_scale=time_representation.tdb_scale,
+                        input_value=epoch_start_utc)
+                    self._table = self._table.query("epochJ2000secondsTDB >= @epoch_start_tdb")
             if epoch_end is not None:
                 if isinstance(epoch_end, float) or isinstance(epoch_end, int):
                     self._table = self._table.query(
                         "epochJ2000secondsTDB <= @epoch_end"
                     )
                 elif isinstance(epoch_end, datetime.datetime):
-                    self._table = self._table.query("epochUTC <= @epoch_end")
+                    # 1970: max minimum supported date among win, macOS, linux.
+                    # 2661: min maximum supported date among win, macOS, linux.
+                    if epoch_end.year < 1970 or epoch_end.year > 2261:
+                        raise ValueError(
+                            f"Requested epoch_end year ({epoch_start.year}) is outside the safe range (1970-2261) "
+                            f"for standard C++ datetime conversion.\n"
+                            f"Please manually convert this date to TDB seconds (float) and use that as input.\n"
+                            f"See `from_python_datetime`: https://py.api.tudat.space/en/latest/astro/time_representation.html"
+                        )
+                    epoch_end_utc = DateTime.from_python_datetime(epoch_end).to_epoch()
+                    epoch_end_tdb = time_scale_converter.convert_time(
+                        input_scale=time_representation.utc_scale,
+                        output_scale=time_representation.tdb_scale,
+                        input_value=epoch_end_utc)
+                    self._table = self._table.query("epochJ2000secondsTDB <= @epoch_end_tdb")
 
             self._refresh_metadata()
             return None
