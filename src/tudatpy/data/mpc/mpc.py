@@ -507,6 +507,7 @@ def get_weights_VFCC17(
     ]
 
     LCO_obs = LCO_original + LCO_new
+    MAUNAKEA_obs = ["T09", "T12", "T14"]
     tab4_LCO_observatories = table.observatory.isin(LCO_obs)
     # NOTE see catalog codes info: https://www.minorplanetcenter.net/iau/info/CatalogueCodes.html
     tab4_Catalog_UCAC4 = table.catalog == "q"
@@ -515,21 +516,21 @@ def get_weights_VFCC17(
     tab4_Catalog_USNOB12 = table.catalog.isin(["o", "s"])
 
     tab4_G83_UCAC4_PPMXL = (
-            (table.observatory == "G83") & tab4_Catalog_UCAC4 & tab4_Catalog_PPMXL
+            (table.observatory == "G83") & (tab4_Catalog_UCAC4 | tab4_Catalog_PPMXL)
     )
     tab4_G83_GAIA = (table.observatory == "G83") & tab4_Catalog_GAIA
 
     tab4_Y28_GAIA_PPMXL = (
-            (table.observatory == "Y28") & tab4_Catalog_PPMXL & tab4_Catalog_GAIA
+            (table.observatory == "Y28") & (tab4_Catalog_PPMXL & tab4_Catalog_GAIA)
     )
     tab4_568_USNOB = (table.observatory == "568") & tab4_Catalog_USNOB12
     tab4_568_GAIA = (table.observatory == "568") & tab4_Catalog_GAIA
     tab4_568_PPMXL = (table.observatory == "568") & tab4_Catalog_PPMXL
-    tab4_T09_T12_T14_GAIA = (table.observatory == "568") & tab4_Catalog_GAIA
+    tab4_T09_T12_T14_GAIA = (table.observatory.isin(MAUNAKEA_obs)) & tab4_Catalog_GAIA
     tab4_309_UCAC4_PPMXL = (
-            (table.observatory == "568") & tab4_Catalog_UCAC4 & tab4_Catalog_PPMXL
+            (table.observatory == "309") & (tab4_Catalog_UCAC4 | tab4_Catalog_PPMXL)
     )
-    tab4_309_GAIA = (table.observatory == "568") & tab4_Catalog_GAIA
+    tab4_309_GAIA = (table.observatory == "309") & tab4_Catalog_GAIA
 
     # Apply Table 4:
     table.inv_w = table.inv_w.mask(table.observatory == "645", 0.3)
