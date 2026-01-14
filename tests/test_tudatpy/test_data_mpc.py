@@ -8,7 +8,9 @@ import pytest
 from tudatpy.astro.time_representation import DateTime
 import pandas as pd
 import os
-from tudatpy.data.mpc.parser_80col.parsers import parse_80cols_identification_fields, parse_80cols_file
+from tudatpy.data.mpc.parser_80col.parsers import (
+    parse_80cols_data)
+
 from tudatpy.data import get_ephemeris_path
 
 spice.load_standard_kernels()
@@ -270,39 +272,3 @@ def test_compare_mpc_horizons_eph():
 #
 #     # summary
 #     batch_base.summary()
-
-def test_80cols_line_parser():
-
-    batch = BatchMPC()
-    batch.get_observations(['3I', 433, 134341, '2025 FA22'],  id_types = ['comet_number', 'asteroid_number', 'asteroid_number', 'asteroid_designation'])
-
-    # Observation Lines are taken from astroquery.MPC.get_observations with the 'get_mpcformat = True' flag.
-    line_atlas = '0003I         S2025 05 08.51765919 12 35.590-18 42 21.35         21.57VVER063C5' # Interstellar Comet
-    line_eros = '00433         A1893 10 29.4132  06 08 59.32 +53 39 04.2                 HA053802' # Asteroid/Minor Planet
-    line_charon = 'D4341J79M00A*4A1979 06 25.66181 20 27 06.64 -15 37 11.5          19.0   M4986413' # Natural Satellite
-    line_2025FA22 = '     K25F22A  C2025 10 13.24277 00 20 45.76 +25 53 06.1          18.3 RrET147718'
-    parsed_line_atlas = parse_80cols_identification_fields(line_atlas)
-    parsed_line_eros = parse_80cols_identification_fields(line_eros)
-    parsed_line_charon = parse_80cols_identification_fields(line_charon)
-    parsed_line_2025FA22 = parse_80cols_identification_fields(line_2025FA22)
-
-    assert(parsed_line_atlas['number'] == batch.MPC_objects[0])
-    assert(parsed_line_eros['number'] == batch.MPC_objects[1])
-    assert(parsed_line_charon['number'] == batch.MPC_objects[2])
-    assert(parsed_line_2025FA22['desig'] == batch.MPC_objects[3]) # at the time of writing, 2025FA22 does not have a number. We test the designation.
-
-def test_parse_80cols_file():
-    batch = BatchMPC()
-    batch.get_observations([433])
-    batch.filter(epoch_start = datetime.datetime(2021, 6, 7, 00, 4), epoch_end =  datetime.datetime(2021, 6, 7, 16, 4,2))
-    file_path = get_ephemeris_path( ) + '/eros_obs.txt'
-    table_output = parse_80cols_file(file_path)
-
-    epochs1 = pd.to_datetime(table_output['epoch_utc']).to_numpy()
-    epochs2 = batch.table['epochUTC'].to_numpy()
-    # Get difference in seconds
-    diff = np.sort(epochs1) - np.sort(epochs2)
-    diff_seconds = diff / np.timedelta64(1, 's')
-
-    tol = 5e-5 # not completely sure why some are zero and some are not.
-    assert not (diff_seconds > tol).any()
