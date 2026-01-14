@@ -188,4 +188,10 @@ TUDAT_ADD_TEST_CASE(EstimationDragScaling
          ${Tudat_ESTIMATION_LIBRARIES}
          )
 
+ TUDAT_ADD_TEST_CASE(ParameterPropagatorConsistency
+         PRIVATE_LINKS
+         ${Tudat_ESTIMATION_LIBRARIES}
+ )
+
+
 

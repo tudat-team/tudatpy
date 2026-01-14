@@ -991,6 +991,7 @@ void expose_rotation_model_setup( py::module& m )
            py::arg( "merdian_periodic_terms" ),
            py::arg( "pole_periodic_terms" ),
            py::arg( "reference_epoch_j2000" ) = 0.0,
+           py::arg( "angle_base_frame" ) = "",
            R"doc(
 
  Function for creating a body rotation model using the typical formulation used by the IAU
@@ -1032,6 +1033,9 @@ void expose_rotation_model_setup( py::module& m )
      Libration terms in :math:`W` that are to be used. Dictionary key is value of :math:`\omega_{W_i}`. Value is a pair consisting of [:math:`W_{i}`,:math:`\phi_{W_{i}}`]
  pole_periodic_terms : list[dict[float, tuple[numpy.ndarray[numpy.float64[2, 1]], float]]]
      Nutation terms for :math:`\alpha,\delta` that are to be used. Dictionary key is value of :math:`\omega_{N_{i}}`. Value is a pair consisting of [[:math:`\alpha_{i},\delta_{i}`],:math:`\phi_{N_{i}}`]
+ angle_base_frame : str
+     Optional argument to be used when the angles :math:`W,\alpha,\delta` do not define the rotation between ``target_frame`` and ``base_frame``, but between ``target_frame`` and ``angle_base_frame`` (this input).
+     The additional required rotation between ``angle_base_frame`` and ``base_frame`` is then added to the computation of the rotation matrix (presently only J2000 and ECLIPJ2000 are supported for this input).
 
  Returns
  -------

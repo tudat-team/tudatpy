@@ -144,39 +144,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                 // parameter exists.
                 switch( parameterToEstimate->getParameterName( ).first )
                 {
-                    case estimatable_parameters::gravitational_parameter:
-                        break;
-                    case estimatable_parameters::constant_drag_coefficient:
-                        break;
-                    case estimatable_parameters::radiation_pressure_coefficient:
-                        break;
-                    case estimatable_parameters::ppn_parameter_gamma:
-                        break;
-                    case estimatable_parameters::ppn_parameter_beta:
-                        break;
-                    case estimatable_parameters::equivalence_principle_lpi_violation_parameter:
-                        break;
-                    case estimatable_parameters::mean_moment_of_inertia:
-                        break;
-                    case estimatable_parameters::direct_dissipation_tidal_time_lag:
-                        break;
-                    case estimatable_parameters::inverse_tidal_quality_factor:
-                        break;
-                    case estimatable_parameters::source_direction_radiation_pressure_scaling_factor:
-                        break;
-                    case estimatable_parameters::source_perpendicular_direction_radiation_pressure_scaling_factor:
-                        break;
-                    case estimatable_parameters::drag_component_scaling_factor:
-                        break;
-                    case estimatable_parameters::side_component_scaling_factor:
-                        break;
-                    case estimatable_parameters::lift_component_scaling_factor:
-                        break;
                     default:
-
-                        std::string errorMessage = "Parameter " + std::to_string( parameterToEstimate->getParameterName( ).first ) +
-                                " not implemented when making position partial";
-                        throw std::runtime_error( errorMessage );
                         break;
                 }
             }
@@ -241,32 +209,6 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                 // parameter exists.
                 switch( parameterToEstimate->getParameterName( ).first )
                 {
-                    case estimatable_parameters::spherical_harmonics_cosine_coefficient_block:
-                        break;
-                    case estimatable_parameters::spherical_harmonics_sine_coefficient_block:
-                        break;
-                    case estimatable_parameters::arc_wise_radiation_pressure_coefficient:
-                        break;
-                    case estimatable_parameters::arc_wise_constant_drag_coefficient:
-                        break;
-                    case estimatable_parameters::constant_additive_observation_bias:
-                        break;
-                    case estimatable_parameters::arcwise_constant_additive_observation_bias:
-                        break;
-                    case estimatable_parameters::constant_relative_observation_bias:
-                        break;
-                    case estimatable_parameters::arcwise_constant_relative_observation_bias:
-                        break;
-                    case estimatable_parameters::empirical_acceleration_coefficients:
-                        break;
-                    case estimatable_parameters::arc_wise_empirical_acceleration_coefficients:
-                        break;
-                    case estimatable_parameters::full_degree_tidal_love_number:
-                        break;
-                    case estimatable_parameters::single_degree_variable_tidal_love_number:
-                        break;
-                    case estimatable_parameters::desaturation_delta_v_values:
-                        break;
                     case estimatable_parameters::ground_station_position: {
                         // Check if current link end station is same station as that of which position is to be estimated.
                         if( linkEndIterator->second.stationName_ == parameterToEstimate->getParameterName( ).second.second )
@@ -318,26 +260,7 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
                         }
                         break;
                     }
-                    case estimatable_parameters::constant_time_drift_observation_bias:
-                        break;
-                    case estimatable_parameters::arc_wise_time_drift_observation_bias:
-                        break;
-                    case estimatable_parameters::constant_time_observation_bias:
-                        break;
-                    case estimatable_parameters::arc_wise_time_observation_bias:
-                        break;
-                    case estimatable_parameters::yarkovsky_parameter:
-                        break;
-                    case estimatable_parameters::custom_estimated_parameter:
-                        break;
-                    case estimatable_parameters::area_to_mass_scaling_factor:
-                        break;
-                    case estimatable_parameters::full_acceleration_scaling_factor:
-                        break;
                     default:
-                        std::string errorMessage = "Parameter " + std::to_string( parameterToEstimate->getParameterName( ).first ) +
-                                " not implemented when making position partial";
-                        throw std::runtime_error( errorMessage );
                         break;
                 }
             }
