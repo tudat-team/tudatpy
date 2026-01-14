@@ -46,6 +46,7 @@
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/tudatExceptions.h"
 #include "tudat/math/basic/numericalDerivative.h"
+#include "tudat/astro/basic_astro/climateModel.h"
 
 namespace tudat
 {
@@ -1793,6 +1794,16 @@ public:
         return ionosphereModel_;
     }
 
+    void setClimateModel( const std::shared_ptr< environment::ClimateModel >& climateModel )
+    {
+        climateModel_ = climateModel;
+    }
+
+    std::shared_ptr< environment::ClimateModel > getClimateModel( ) const
+    {
+        return climateModel_;
+    }
+
 protected:
 private:
     //! Variable denoting whether this body is the global frame origin (1 if true, 0 if false, -1 if not yet set)
@@ -1897,6 +1908,8 @@ private:
     bool isRotationSet_;
 
     std::shared_ptr< environment::IonosphereModel > ionosphereModel_;
+
+    std::shared_ptr< environment::ClimateModel > climateModel_;
 };
 
 //! Typdef for a list of body objects (as unordered_map for efficiency reasons)

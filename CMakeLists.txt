@@ -119,6 +119,12 @@ option(
     "Build Tudat with pagmo."
     OFF
 )
+# MCD dependency - add option and enable Fortran if needed
+option(
+    TUDAT_BUILD_WITH_MCD_INTERFACE
+    "Build Tudat with Mars Climate Database support."
+    OFF
+)
 if(CMAKE_CXX_SIMULATE_ID MATCHES "MSVC")
     # Build extended precision propagation tools.
     option(
@@ -328,11 +334,11 @@ endif ()
 # Get tudat resource manager dependency.
 find_package(TudatResources REQUIRED)
 message(STATUS "TudatResources_INCLUDE_DIRS: ${TudatResources_INCLUDE_DIRS}")
-include_directories(TudatResources_INCLUDE_DIRS)
+include_directories(${TudatResources_INCLUDE_DIRS})
 
 # Find Eigen3 library on local system and include directories.
 find_package(Eigen3 REQUIRED)
-include_directories(SYSTEM AFTER "${EIGEN3_INCLUDE_DIR}")
+include_directories(SYSTEM "${EIGEN3_INCLUDE_DIR}")
 if (APPLE OR (WIN32 AND CLANG))
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I\"${EIGEN3_INCLUDE_DIR}\"")
 endif ()
@@ -365,7 +371,7 @@ if (TUDAT_BUILD_WITH_FFTW3)
     if(NOT APPLE)
         find_package(FFTW3)
         message(STATUS "FFTW " ${FFTW3_LIBRARIES})
-        include_directories(SYSTEM AFTER "${FFTW3_INCLUDE_DIRS}")
+        include_directories(SYSTEM "${FFTW3_INCLUDE_DIRS}")
         if(WIN32)
             set (FFTW3_LIBRARIES "${FFTW3_LIBRARY_DIRS}/fftw3.lib")
         else()
@@ -375,7 +381,7 @@ if (TUDAT_BUILD_WITH_FFTW3)
     else( )
         find_package(FFTW3)
         message(STATUS ${FFTW3_LIBRARIES})
-        include_directories(SYSTEM AFTER "${FFTW3_INCLUDE_DIRS}")
+        include_directories(SYSTEM "${FFTW3_INCLUDE_DIRS}")
         set(
             CMAKE_CXX_FLAGS
             "${CMAKE_CXX_FLAGS} -I\"${FFTW3_INCLUDE_DIR}\""
@@ -392,14 +398,7 @@ if (TUDAT_BUILD_WITH_JSON_INTERFACE)
     find_package(nlohmann_json REQUIRED 3.7.3)
 endif ()
 
-# MCD dependency - add option and enable Fortran if needed
-option(
-    TUDAT_BUILD_WITH_MCD
-    "Build Tudat with Mars Climate Database support."
-    OFF
-)
-
-if(TUDAT_BUILD_WITH_MCD)
+if(TUDAT_BUILD_WITH_MCD_INTERFACE)
     # Enable Fortran language
     enable_language(Fortran)
 
@@ -415,9 +414,9 @@ if(TUDAT_BUILD_WITH_MCD)
     message(STATUS "MCD: NetCDF Fortran library: ${NetCDF_Fortran_LIBRARIES}")
     message(STATUS "MCD: NetCDF include dirs: ${NetCDF_INCLUDE_DIRS}")
 
-    add_definitions(-DTUDAT_BUILD_WITH_MCD=1)
+    add_definitions(-DTUDAT_BUILD_WITH_MCD_INTERFACE=1)
 else()
-    add_definitions(-DTUDAT_BUILD_WITH_MCD=0)
+    add_definitions(-DTUDAT_BUILD_WITH_MCD_INTERFACE=0)
 endif()
 
 # TODO: Not sure if this is needed. Comes from CMake of tudatpy
@@ -435,7 +434,7 @@ include(YOLOProjectAddExternalData)
 include(TudatLinkLibraries)
 
 # Build MCD library if enabled (must be AFTER TudatLinkLibraries)
-if(TUDAT_BUILD_WITH_MCD)
+if(TUDAT_BUILD_WITH_MCD_INTERFACE)
     set(MCD_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_parties/mcd)
     add_subdirectory(${MCD_SOURCE_DIR})
 
