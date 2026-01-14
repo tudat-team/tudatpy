@@ -189,14 +189,13 @@ def test_compare_mpc_horizons_eph():
         observatories=["T08"],
     )
 
-    # Horizons Query wants batch_times (or start_epoch, end_epoch) in UTC!!!
-    utc_datetimes = batch.table.epochUTC
-    batch_times = [DateTime.to_epoch(DateTime.from_python_datetime(t)) for t in utc_datetimes]
+    # Horizons Query wants batch_times (or start_epoch, end_epoch) in UTC (not TDB)!!!
+    batch_times = batch.table.epochUTC.to_list()
     eros = HorizonsQuery(
         query_id="433;", location="T08@399", epoch_list=batch_times, extended_query=True
     )
 
-    # interpolated_observations returns times in TDB!!!
+    # Tudat's interpolated_observations wrapper returns times in TDB!!!
     radec_horizons = eros.interpolated_observations(degrees=False)
 
     # the retrieved batch.table has time columns: epoch [julian days in UTC], epochUTC [UTC datetime], epochJ2000secondsTDB [TDB seconds]
@@ -306,3 +305,6 @@ def test_parse_80cols_file():
 
     tol = 5e-5 # not completely sure why some are zero and some are not.
     assert not (diff_seconds > tol).any()
+
+
+test_compare_mpc_horizons_eph()
