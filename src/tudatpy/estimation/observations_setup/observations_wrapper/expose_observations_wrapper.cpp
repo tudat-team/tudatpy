@@ -29,7 +29,7 @@ namespace observations_setup
 namespace observations_wrapper
 {
 
-void expose_observations_wrapper( py::module &m )
+void expose_observations_wrapper( py::module& m )
 {
     py::module_::import( "tudatpy.estimation.observations" ).attr( "ObservationCollection" );
 
@@ -102,7 +102,7 @@ void expose_observations_wrapper( py::module &m )
             List of raw ODF data objects.
         )doc" )
             .def( "define_antenna_id",
-                  py::overload_cast< const std::string &, const std::string & >(
+                  py::overload_cast< const std::string&, const std::string& >(
                           &tom::ProcessedOdfFileContents< TIME_TYPE >::defineSpacecraftAntennaId ),
                   py::arg( "spacecraft_name" ),
                   py::arg( "antenna_name" ),
@@ -111,10 +111,10 @@ void expose_observations_wrapper( py::module &m )
         )doc" );
 
     m.def( "process_odf_data_multiple_files",
-           py::overload_cast< const std::vector< std::string > &,
-                              const std::string &,
+           py::overload_cast< const std::vector< std::string >&,
+                              const std::string&,
                               const bool,
-                              const std::map< std::string, Eigen::Vector3d > & >( &tom::processOdfData< TIME_TYPE > ),
+                              const std::map< std::string, Eigen::Vector3d >& >( &tom::processOdfData< TIME_TYPE > ),
            py::arg( "file_names" ),
            py::arg( "spacecraft_name" ),
            py::arg( "verbose" ) = true,
@@ -140,7 +140,7 @@ void expose_observations_wrapper( py::module &m )
         )doc" );
 
     m.def( "process_odf_data_single_file",
-           py::overload_cast< const std::string &, const std::string &, const bool, const std::map< std::string, Eigen::Vector3d > & >(
+           py::overload_cast< const std::string&, const std::string&, const bool, const std::map< std::string, Eigen::Vector3d >& >(
                    &tom::processOdfData< TIME_TYPE > ),
            py::arg( "file_name" ),
            py::arg( "spacecraft_name" ),
@@ -406,7 +406,7 @@ void expose_observations_wrapper( py::module &m )
                               const std::string,
                               const std::vector< tom::ObservableType >,
                               const std::map< std::string, Eigen::Vector3d >,
-                              const tom::ObservationAncillarySimulationSettings & >(
+                              const tom::ObservationAncillarySimulationSettings& >(
                    &tom::createTrackingTxtFileObservationCollection< double, TIME_TYPE > ),
            py::arg( "raw_tracking_txtfile_contents" ),
            py::arg( "spacecraft_name" ),
@@ -435,10 +435,24 @@ void expose_observations_wrapper( py::module &m )
             Observation collection.
         )doc" );
 
+    m.def( "create_tracking_txtfile_observation_collection",
+           py::overload_cast< const std::shared_ptr< tudat::input_output::TrackingTxtFileContents >,
+                              const std::string,
+                              const std::vector< tom::ObservableType >,
+                              const std::map< std::string, Eigen::Vector3d >,
+                              const tom::ObservationAncillarySimulationSettings& >(
+                   &tom::createTrackingTxtFileObservationCollection< double, TIME_TYPE > ),
+           py::arg( "raw_tracking_txtfile_contents" ),
+           py::arg( "spacecraft_name" ),
+           py::arg( "observable_types_to_process" ) = std::vector< tom::ObservableType >( ),
+           py::arg( "earth_fixed_ground_station_positions" ) = tss::getApproximateDsnGroundStationPositions( ),
+           py::arg( "ancilliary_settings" ) = tom::ObservationAncillarySimulationSettings( ),
+           R"doc(DEPRECATED due to misspelled argument name)doc" );
+
     m.def( "create_pseudo_observations_and_models",
-           py::overload_cast< const tss::SystemOfBodies &,
-                              const std::vector< std::string > &,
-                              const std::vector< std::string > &,
+           py::overload_cast< const tss::SystemOfBodies&,
+                              const std::vector< std::string >&,
+                              const std::vector< std::string >&,
                               const TIME_TYPE,
                               const TIME_TYPE,
                               const TIME_TYPE >( &tss::simulatePseudoObservations< TIME_TYPE, STATE_SCALAR_TYPE > ),
@@ -451,15 +465,23 @@ void expose_observations_wrapper( py::module &m )
            R"doc(No documentation found.)doc" );
 
     m.def( "create_pseudo_observations_and_models_from_observation_times",
-           py::overload_cast< const tss::SystemOfBodies &,
-                              const std::vector< std::string > &,
-                              const std::vector< std::string > &,
+           py::overload_cast< const tss::SystemOfBodies&,
+                              const std::vector< std::string >&,
+                              const std::vector< std::string >&,
                               const std::vector< TIME_TYPE > >( &tss::simulatePseudoObservations< TIME_TYPE, STATE_SCALAR_TYPE > ),
            py::arg( "bodies" ),
            py::arg( "observed_bodies" ),
            py::arg( "central_bodies" ),
            py::arg( "observation_times" ),
            R"doc(No documentation found.)doc" );
+
+    m.def( "set_existing_observations",
+           &tss::setExistingObservations< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "observations" ),
+           py::arg( "reference_link_end" ),
+           py::arg( "ancilliary_settings_per_observatble" ) =
+                   std::map< tom::ObservableType, std::shared_ptr< tom::ObservationAncillarySimulationSettings > >( ),
+           R"doc(DEPRECATED due to misspelled argument name)doc" );
 
     m.def( "set_existing_observations",
            &tss::setExistingObservations< STATE_SCALAR_TYPE, TIME_TYPE >,
@@ -506,8 +528,8 @@ void expose_observations_wrapper( py::module &m )
 
     m.def( "single_type_observation_collection",
            py::overload_cast< const tom::ObservableType,
-                              const tom::LinkDefinition &,
-                              const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > > &,
+                              const tom::LinkDefinition&,
+                              const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >&,
                               const std::vector< TIME_TYPE >,
                               const tom::LinkEndType,
                               const std::shared_ptr< tom::ObservationAncillarySimulationSettings > >(
@@ -519,6 +541,22 @@ void expose_observations_wrapper( py::module &m )
            py::arg( "reference_link_end" ),
            py::arg( "ancillary_settings" ) = nullptr,
            R"doc(No documentation found.)doc" );
+
+    m.def( "single_type_observation_collection",
+           py::overload_cast< const tom::ObservableType,
+                              const tom::LinkDefinition&,
+                              const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >&,
+                              const std::vector< TIME_TYPE >,
+                              const tom::LinkEndType,
+                              const std::shared_ptr< tom::ObservationAncillarySimulationSettings > >(
+                   &tom::createManualObservationCollection< STATE_SCALAR_TYPE, TIME_TYPE > ),
+           py::arg( "observable_type" ),
+           py::arg( "link_ends" ),
+           py::arg( "observations_list" ),
+           py::arg( "times_list" ),
+           py::arg( "reference_link_end" ),
+           py::arg( "ancilliary_settings" ) = nullptr,
+           R"doc(DEPRECATED due to misspelled argument name)doc" );
 }
 
 }  // namespace observations_wrapper

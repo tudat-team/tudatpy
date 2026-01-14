@@ -190,6 +190,17 @@ void expose_observations_simulation_settings( py::module& m )
 
      )doc" );
 
+    m.def( "tabulated_simulation_settings",
+           &tss::tabulatedObservationSimulationSettings< TIME_TYPE >,
+           py::arg( "observable_type" ),
+           py::arg( "link_ends" ),
+           py::arg( "simulation_times" ),
+           py::arg( "reference_link_end_type" ) = tom::receiver,
+           py::arg( "viability_settings" ) = std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >( ),
+           py::arg( "noise_function" ) = nullptr,
+           py::arg( "ancilliary_settings" ) = nullptr,
+           R"doc(DEPRECATED due to misspelled argument name)doc" );
+
     m.def( "tabulated_simulation_settings_list",
            &tss::createTabulatedObservationSimulationSettingsList< TIME_TYPE >,
            py::arg( "link_ends_per_observable" ),

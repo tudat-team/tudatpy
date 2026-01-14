@@ -130,6 +130,23 @@ void expose_observations( py::module& m )
                   py::arg( "observation_dependent_variables" ) = std::vector< Eigen::VectorXd >( ),
                   py::arg( "dependent_variable_bookkeeping" ) = nullptr,
                   py::arg( "ancillary_settings" ) = nullptr )
+            .def( py::init< const tom::ObservableType,
+                            const tom::LinkDefinition,
+                            const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >,
+                            const std::vector< TIME_TYPE >,
+                            const tom::LinkEndType,
+                            const std::vector< Eigen::VectorXd >,
+                            const std::shared_ptr< tss::ObservationDependentVariableBookkeeping >,
+                            const std::shared_ptr< tom::ObservationAncillarySimulationSettings > >( ),
+                  py::arg( "observable_type" ),
+                  py::arg( "link_ends" ),
+                  py::arg( "observations" ),
+                  py::arg( "observation_epochs" ),
+                  py::arg( "reference_link_end" ),
+                  py::arg( "observation_dependent_variables" ) = std::vector< Eigen::VectorXd >( ),
+                  py::arg( "dependent_variable_bookkeeping" ) = nullptr,
+                  py::arg( "ancilliary_settings" ) = nullptr,
+                  R"doc(DEPRECATED due to misspelled attribute name.)doc" )
             .def( "set_observations",
                   py::overload_cast< const std::vector< Eigen::Matrix< STATE_SCALAR_TYPE, Eigen::Dynamic, 1 > >& >(
                           &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::setObservations ),
@@ -438,6 +455,10 @@ dict[tudatpy.astro.time_representation.Time, numpy.ndarray]
 
          :type: ObservationAncillarySimulationSettings
       )doc" )
+            .def_property_readonly( "ancilliary_settings",
+                                    &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getAncillarySettings,
+                                    R"doc(DEPRECATED due to misspelled property name.
+      )doc" )
             .def_property( "weights_vector",
                            &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::getWeightsVector,
                            &tom::SingleObservationSet< STATE_SCALAR_TYPE, TIME_TYPE >::setTabulatedWeights,
@@ -557,6 +578,16 @@ numpy.ndarray
         Deprecated. Use :func:`~tudatpy.estimation.observations.create_single_observation_set` instead.
 
         )doc" );
+
+    m.def( "single_observation_set",
+           &tss::singleObservationSetWithoutDependentVariables< STATE_SCALAR_TYPE, TIME_TYPE >,
+           py::arg( "observable_type" ),
+           py::arg( "link_definition" ),
+           py::arg( "observations" ),
+           py::arg( "observation_times" ),
+           py::arg( "reference_link_end" ),
+           py::arg( "ancilliary_settings" ) = nullptr,
+           R"doc(DEPRECATED due to misspelled argument name)doc" );
 
     m.def( "create_single_observation_set",
            py::overload_cast< const tom::ObservableType,
@@ -1616,7 +1647,7 @@ residuals_per_parser : dict[ObservationCollectionParser, np.ndarray]
              System of bodies containing the environment.
          observation_parser : tudatpy.estimation.observations.observations_processing.ObservationCollectionParser, optional
              Parser to select the observation sets to which the variable should be added.
-         
+
          Returns
          -------
          tudatpy.estimation.observations.observations_processing.ObservationCollectionParser

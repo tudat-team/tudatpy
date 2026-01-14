@@ -59,8 +59,8 @@ namespace ancillary_settings
 void expose_ancillary_settings( py::module& m )
 {
     py::enum_< tom::ObservationAncillarySimulationVariable >( m,
-                                                               "ObservationAncillarySimulationVariable",
-                                                               R"doc(
+                                                              "ObservationAncillarySimulationVariable",
+                                                              R"doc(
 
       Enumeration of observation ancillary variable types.
 
@@ -508,6 +508,15 @@ void expose_ancillary_settings( py::module& m )
             Observable type for which to add the ancillary settings.
         )doc" );
 
+    m.def( "add_ancillary_settings_to_observable",
+           py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
+                              const std::shared_ptr< tom::ObservationAncillarySimulationSettings >&,
+                              const tom::ObservableType >( &tss::addAncillarySettingsToObservationSimulationSettingsPy ),
+           py::arg( "observation_simulation_settings_list" ),
+           py::arg( "ancilliary_settings" ),
+           py::arg( "observable_type" ),
+           R"doc(DEPRECATED due to misspelled argument name)doc" );
+
     m.def( "add_ancillary_settings_to_observable_for_link_ends",
            py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
                               const std::shared_ptr< tom::ObservationAncillarySimulationSettings >&,
@@ -531,6 +540,17 @@ void expose_ancillary_settings( py::module& m )
         link_ends : tudatpy.kernel.astro.LinkDefinition
             Link ends for which to add the ancillary settings.
         )doc" );
+
+    m.def( "add_ancillary_settings_to_observable_for_link_ends",
+           py::overload_cast< const std::vector< std::shared_ptr< tss::ObservationSimulationSettings< TIME_TYPE > > >&,
+                              const std::shared_ptr< tom::ObservationAncillarySimulationSettings >&,
+                              const tom::ObservableType,
+                              const tom::LinkDefinition& >( &tss::addAncillarySettingsToObservationSimulationSettingsPy ),
+           py::arg( "observation_simulation_settings_list" ),
+           py::arg( "ancilliary_settings" ),
+           py::arg( "observable_type" ),
+           py::arg( "link_ends" ),
+           R"doc(DEPRECATED due to misspelled argument name.)doc" );
 
     /////////////////////////////////////////////////////////////////////////////////////////////////
     // FREQUENCIES
