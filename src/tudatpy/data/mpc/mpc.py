@@ -824,14 +824,19 @@ class BatchMPC:
         # Get the default time scale converter
         time_scale_converter = time_representation.default_time_scale_converter()
 
+        # Add 'epochUTC' column by converting DateTime Objects to epoch
+        table['epochUTC'] = [dt_obj.epoch() for dt_obj in dt_objects]
+
         # Add 'epochJ2000secondsTDB' column by converting from UTC to TDB
         table['epochJ2000secondsTDB'] = [
             time_scale_converter.convert_time(
                 input_scale=time_representation.utc_scale,
                 output_scale=time_representation.tdb_scale,
-                input_value=dt_obj.epoch()
-            ) for dt_obj in dt_objects
+                input_value=t_utc
+            ) for t_utc in table['epochUTC']
         ]
+
+
 
         return table
 
