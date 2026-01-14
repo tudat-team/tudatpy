@@ -836,8 +836,6 @@ class BatchMPC:
             ) for t_utc in table['epochUTC']
         ]
 
-
-
         return table
 
 
