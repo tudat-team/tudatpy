@@ -1625,24 +1625,10 @@ class BatchMPC:
 
         markers = ["o", "+", "^"]
 
-        min_safe_tdb = DateTime.from_python_datetime(datetime.datetime(1970, 1, 1)).to_epoch()
-        max_safe_tdb = DateTime.from_python_datetime(datetime.datetime(3000, 1, 1)).to_epoch()
-
-        # --- 2. Check for unsafe data and warn ---
         # Query all relevant objects first to check bounds
         all_obj_data = self._table.query("number == @objs")
 
-        if not all_obj_data.empty:
-            data_min = all_obj_data.epochJ2000secondsTDB.min()
-            data_max = all_obj_data.epochJ2000secondsTDB.max()
-
-            if data_min < min_safe_tdb or data_max > max_safe_tdb:
-                raise ValueError("Some observations fall outside the safe plotting range (1970-3000).\n"
-                      "Please, apply a time filter to the observations before plotting."
-                )
-
-        # --- 3. Helper: Convert TDB Seconds -> Python Datetime ---
-        # Matplotlib needs datetime objects for colors/dates, not raw TDB floats
+        # Convert TDB Seconds -> UTC seconds
         time_scale_converter = time_representation.default_time_scale_converter()
         utc_epochs = [time_scale_converter.convert_time(
             input_scale=time_representation.tdb_scale,
@@ -1650,35 +1636,23 @@ class BatchMPC:
             input_value=t) for t in  all_obj_data.epochJ2000secondsTDB
         ]
 
-
-        # --- 4. Prepare Filtered Data for Plotting ---
-        # Apply filter: number IN objs AND time BETWEEN limits
-        safe_query = "number == @objs and epochJ2000secondsTDB >= @min_safe_tdb and epochJ2000secondsTDB <= @max_safe_tdb"
-        plot_data = self._table.query(safe_query)
-
-        if plot_data.empty:
-            # Handle empty case to prevent crash
-            ax.text(0.5, 0.5, "No data available in range 1970-3000",
-                    transform=ax.transAxes, ha='center')
-            return fig
+        # Prepare Data for Plotting
+        # Apply filter: number IN objs
+        query = "number == @objs"
+        plot_data = self._table.query(query)
 
         # Compute global vmin/vmax for consistent colorbar
-        # Convert all valid times to matplotlib numbers
-        utc_epochs_datetime = [DateTime.from_epoch(utc_epoch).to_python_datetime() for utc_epoch in utc_epochs]
-        vmin = mdates.date2num(min(utc_epochs_datetime))
-        vmax = mdates.date2num(max(utc_epochs_datetime))
+        vmin = min(utc_epochs)
+        vmax = max(utc_epochs)
 
-        plot_handle = None  # To store one scatter plot for the colorbar
-
+        plot_handle = None
         for idx, obj in enumerate(objs):
-            # Get data for this specific object (already filtered safely above)
             tab = plot_data.query("number == @obj")
             utc_epochs_object = [time_scale_converter.convert_time(
                 input_scale=time_representation.tdb_scale,
                 output_scale=time_representation.utc_scale,
                 input_value=t) for t in  tab.epochJ2000secondsTDB.values
             ]
-            utc_epochs_object_datetime = [DateTime.from_epoch(utc_epoch).to_python_datetime() for utc_epoch in utc_epochs_object]
 
             if tab.empty:
                 continue
@@ -1690,7 +1664,7 @@ class BatchMPC:
                 marker=markers[int(idx % len(markers))],
                 cmap=cm.plasma,
                 label="MPC: " + obj,
-                c=mdates.date2num(utc_epochs_object_datetime),
+                c=utc_epochs_object,
                 vmin=vmin,
                 vmax=vmax,
             )
@@ -1699,7 +1673,6 @@ class BatchMPC:
         ax.set_xlabel(r"Right Ascension $[\deg]$")
         ax.set_ylabel(r"Declination $[\deg]$")
 
-        # Handle Tick Formatting safely
         if projection is not None:
             try:
                 # Matplotlib projections can sometimes return non-standard ticks
@@ -1719,15 +1692,15 @@ class BatchMPC:
             except Exception:
                 pass
 
-                # Add Colorbar with Date formatting
+        # Add Colorbar with Date formatting
         if plot_handle:
             ticks = np.linspace(vmin, vmax, 7)
             cbar = plt.colorbar(mappable=plot_handle, ax=ax, label="Time", ticks=ticks)
-            # Convert numeric ticks back to readable date strings
-            cbar.ax.set_yticklabels([mdates.num2date(t).strftime('%Y-%m-%d') for t in ticks])
+            # Convert numeric ticks back to readable date strings using Tudatpy's DateTime
+            cbar.ax.set_yticklabels([DateTime.from_epoch(t).to_iso_string().split(' ')[0] for t in ticks])
 
-        start_date_str = mdates.num2date(vmin).strftime('%Y-%m-%d')
-        end_date_str = mdates.num2date(vmax).strftime('%Y-%m-%d')
+        start_date_str = DateTime.from_epoch(vmin).to_iso_string()
+        end_date_str = DateTime.from_epoch(vmax).to_iso_string()
 
         ax.grid()
         fig.suptitle(f"{len(plot_data)} observations between {start_date_str} and {end_date_str}")
