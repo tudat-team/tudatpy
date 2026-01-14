@@ -84,6 +84,8 @@ struct BodySettings {
     std::vector< std::shared_ptr< BodyDeformationSettings > > bodyDeformationSettings;
 
     std::vector< std::shared_ptr< GroundStationSettings > > groundStationSettings;
+
+    std::shared_ptr< ClimateModelSettings > climateModelSettings;
 };
 
 void addAerodynamicCoefficientInterface( const SystemOfBodies& bodies,

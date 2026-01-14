@@ -7,6 +7,16 @@ namespace tudat
 namespace environment
 {
 
+class ClimateModelSettings {
+
+    public:
+
+    ClimateModelSettings() = default;
+
+    virtual ~ClimateModelSettings() = default;
+
+};
+
 class ClimateModel {
 
     public:

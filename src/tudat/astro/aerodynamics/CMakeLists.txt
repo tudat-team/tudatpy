@@ -53,6 +53,12 @@ set(aerodynamics_HEADERS
         "marsDtmAtmosphereModel.h"
 )
 
+# Conditionally add MCD sources and headers
+if(TUDAT_BUILD_WITH_MCD)
+    list(APPEND aerodynamics_SOURCES "mcdAtmosphereModel.cpp")
+    list(APPEND aerodynamics_HEADERS "mcdAtmosphereModel.h")
+endif()
+
     set(aerodynamics_SOURCES
             "${aerodynamics_SOURCES}"
             "nrlmsise00Atmosphere.cpp"

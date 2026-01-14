@@ -13,7 +13,7 @@ namespace tudat
 namespace mcd_interface
 {
 
-enum Meanvar {
+enum MeanVar {
     mean_atmospheric_pressure = 0,
     mean_atmospheric_density = 1,
     mean_atmospheric_temperature = 2,
@@ -21,7 +21,7 @@ enum Meanvar {
     mean_meridional_wind = 4
 };
 
-enum Extvar {
+enum ExtVar {
     radial_distance_from_planet_center = 0,
     altitude_above_areoid = 1,
     altitude_above_local_surface = 2,
@@ -110,12 +110,46 @@ enum Extvar {
 
 };
 
-class MarsClimateDatabase : public environment::ClimateModel {
+class MarsClimateDatabaseSettings : public environment::ClimateModelSettings {
 
     public:
+
+    explicit MarsClimateDatabaseSettings(
+        const std::string& mcdDataPath = "",
+        const int dustScenario = 1,
+        const int perturbationKey = 0,
+        const double perturbationSeed = 0.0,
+        const double gravityWaveLength = 0.0
+    ) :
+    mcdDataPath_( mcdDataPath ), dustScenario_( dustScenario ), perturbationKey_( perturbationKey ), 
+    perturbationSeed_( perturbationSeed ), gravityWaveLength_( gravityWaveLength ) { }
+
+    //! Path to MCD data files
+    std::string mcdDataPath_;
+
+    //! Dust and solar EUV scenario (1-8 or 24-35)
+    int dustScenario_;
+
+    //! Perturbation type
+    int perturbationKey_;
+
+    //! Perturbation seed
+    double perturbationSeed_;
+
+    //! Gravity wave wavelength
+    double gravityWaveLength_;
+
+    //! High resolution mode flag
+    int highResolutionMode_;
+
+}
+
+class MarsClimateDatabase : public environment::ClimateModel {
+
+public:
     //! Constructor
     /*!
-     * Constructor for MCD atmosphere model.
+     * Constructor for MCD climate model.
      * \param mcdDataPath Path to MCD data files (default: "" = use compile-time default)
      * \param dustScenario Dust and solar EUV scenario (1-8 or 24-35, default: 1)
      * \param perturbationKey Perturbation type (0-5, default: 0 = none)
@@ -148,8 +182,43 @@ class MarsClimateDatabase : public environment::ClimateModel {
     {
         zkey_ = zkey;
     }
+
+    double getDensity( ) const 
+    {
+        return static_cast< double >( density_ );
+    }
+
+    double getPressure( ) const 
+    {
+        return static_cast< double >( pressure_ );
+    }
+
+    double getTemperature( ) const 
+    {
+        return static_cast< double >( temperature_ );
+    }
+
+    double getZonalWind( ) const 
+    {
+        return static_cast< double >( zonalWind_ );
+    }
+
+    double getMeridionalWind( ) const 
+    {
+        return static_cast< double >( meridionalWind_ );
+    }
+
+    double getMeanVariable( MeanVar variable ) const
+    {
+        return static_cast< double >( meanVariables_[ variable ] );
+    }
+
+    double getExtraVariable( ExtVar variable ) const
+    {
+        return static_cast< double >( extraVariables_[ variable ] );
+    }
     
-    private:
+private:
 
     int zkey_;
 

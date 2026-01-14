@@ -479,18 +479,6 @@ endif()
 # Additional contents from original tudat cmake
 # ========================================================================
 
-file(
-    RELATIVE_PATH TUDAT_DATA_DIR_RELATIVE_TO_INSTALL_PREFIX
-    "${CMAKE_INSTALL_PREFIX}"
-    "${INSTALL_DATA_DIR}/tudat"
-)
-
-# Set up config.hpp file of tudat for current version
-configure_file(
-        "${BASE_DIRECTORY}/configuration/tudat/config.hpp.in"
-        "${PROJECT_BINARY_DIR}/include/tudat/config.hpp" @ONLY
-)
-
 # Installation of the header files.
 install(
     DIRECTORY include/
