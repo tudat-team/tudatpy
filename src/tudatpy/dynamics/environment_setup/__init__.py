@@ -42,4 +42,5 @@ from . import (
     shape,
     shape_deformation,
     vehicle_systems,
+    climate_model,
 )

@@ -29,6 +29,8 @@
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/simulation/environment_setup/createSystemModel.h"
 #include "tudat/simulation/propagation_setup/dynamicsSimulator.h"
+#include "tudat/simulation/environment_setup/createClimateModel.h"
+
 
 namespace tudat
 {
@@ -246,6 +248,17 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
             bodyList.at( orderedBodySettings.at( i ).first )
                     ->setEphemeris( createBodyEphemeris< StateScalarType, TimeType >( orderedBodySettings.at( i ).second->ephemerisSettings,
                                                                                       orderedBodySettings.at( i ).first ) );
+        }
+    }
+
+    // Create climate model
+    for( unsigned int i = 0; i < orderedBodySettings.size( ); i++ )
+    {
+        if( orderedBodySettings.at( i ).second->climateModelSettings != nullptr )
+        {
+            bodyList.at( orderedBodySettings.at( i ).first )
+                    ->setClimateModel( createClimateModel( orderedBodySettings.at( i ).second->climateModelSettings,
+                                                                 orderedBodySettings.at( i ).first ) );
         }
     }
 
