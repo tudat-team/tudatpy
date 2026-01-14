@@ -1222,17 +1222,8 @@ class BatchMPC:
                         "epochJ2000secondsTDB >= @epoch_start"
                     )
                 elif isinstance(epoch_start, datetime.datetime):
-                    # 1970: max minimum supported date among win, macOS, linux.
-                    # 2661: min maximum supported date among win, macOS, linux.
-                    if epoch_start.year < 1970 or epoch_start.year > 2261:
-                        raise ValueError(
-                            f"Requested epoch_start year ({epoch_start.year}) is outside the safe range (1970-2261) "
-                            f"for standard C++ datetime conversion.\n"
-                            f"Please manually convert this date to TDB seconds (float) and use that as input.\n"
-                            f"See `from_python_datetime`: https://py.api.tudat.space/en/latest/astro/time_representation.html"
-                        )
-
-                    epoch_start_utc = DateTime.from_python_datetime(epoch_start).to_epoch()
+                    epoch_start_iso_string = epoch_start.isoformat(sep=' ')
+                    epoch_start_utc = DateTime.from_iso_string(epoch_start_iso_string).to_epoch()
                     epoch_start_tdb = time_scale_converter.convert_time(
                         input_scale=time_representation.utc_scale,
                         output_scale=time_representation.tdb_scale,
@@ -1244,16 +1235,8 @@ class BatchMPC:
                         "epochJ2000secondsTDB <= @epoch_end"
                     )
                 elif isinstance(epoch_end, datetime.datetime):
-                    # 1970: max minimum supported date among win, macOS, linux.
-                    # 2661: min maximum supported date among win, macOS, linux.
-                    if epoch_end.year < 1970 or epoch_end.year > 2261:
-                        raise ValueError(
-                            f"Requested epoch_end year ({epoch_start.year}) is outside the safe range (1970-2261) "
-                            f"for standard C++ datetime conversion.\n"
-                            f"Please manually convert this date to TDB seconds (float) and use that as input.\n"
-                            f"See `from_python_datetime`: https://py.api.tudat.space/en/latest/astro/time_representation.html"
-                        )
-                    epoch_end_utc = DateTime.from_python_datetime(epoch_end).to_epoch()
+                    epoch_end_iso_string = epoch_end.isoformat(sep=' ')
+                    epoch_end_utc = DateTime.from_iso_string(epoch_end_iso_string).to_epoch()
                     epoch_end_tdb = time_scale_converter.convert_time(
                         input_scale=time_representation.utc_scale,
                         output_scale=time_representation.tdb_scale,
