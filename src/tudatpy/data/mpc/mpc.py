@@ -1231,6 +1231,7 @@ class BatchMPC:
                             f"Please manually convert this date to TDB seconds (float) and use that as input.\n"
                             f"See `from_python_datetime`: https://py.api.tudat.space/en/latest/astro/time_representation.html"
                         )
+
                     epoch_start_utc = DateTime.from_python_datetime(epoch_start).to_epoch()
                     epoch_start_tdb = time_scale_converter.convert_time(
                         input_scale=time_representation.utc_scale,
@@ -1636,8 +1637,8 @@ class BatchMPC:
             data_max = all_obj_data.epochJ2000secondsTDB.max()
 
             if data_min < min_safe_tdb or data_max > max_safe_tdb:
-                print("Warning: Some observations fall outside the safe plotting range (1970-3000).\n"
-                      "These have been excluded from the plot to prevent historical-dates conversion errors."
+                raise ValueError("Some observations fall outside the safe plotting range (1970-3000).\n"
+                      "Please, apply a time filter to the observations before plotting."
                 )
 
         # --- 3. Helper: Convert TDB Seconds -> Python Datetime ---
