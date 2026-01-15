@@ -4,12 +4,11 @@ from tudatpy.dynamics import environment_setup
 from tudatpy.interface import spice
 import numpy as np
 import datetime
-import pytest
 from tudatpy.astro.time_representation import DateTime
-import pandas as pd
-import os
 from tudatpy.data.mpc.parser_80col.parsers import parse_80cols_identification_fields, parse_80cols_file
 from tudatpy.data import get_ephemeris_path
+import pytest
+import pandas as pd
 
 spice.load_standard_kernels()
 
@@ -176,13 +175,44 @@ def test_BatchMPC_to_tudat_with_satelite(mpc_code):
     assert (np.max(obscol_times - times)) == pytest.approx(0.00)
     assert (np.max(obscol_RADEC - RADEC)) == pytest.approx(0.00)
 
+def test_historical_dates():
+    """
+    Verifies that date filtering works for dates prior to the
+    Unix Epoch (Jan 1, 1970), specifically checking the 19th century.
+    """
+    batch = BatchMPC()
+    batch.get_observations([433])
+    start_date = datetime.datetime(1893, 1, 1)
+    end_date = datetime.datetime(1894, 1, 1)
+
+    # Filter for observations from Harvard College Obs (802) in 1893
+    batch.filter(
+        epoch_start=start_date,
+        epoch_end=end_date,
+        observatories=["802"]
+    )
+
+    assert len(batch.table) > 0, "Expected data for Eros in 1893, but filter returned empty."
+
+    min_obs_time = batch.table['epochUTC'].min()
+    max_obs_time = batch.table['epochUTC'].max()
+
+    epoch_start_iso_string = start_date.isoformat(sep=' ')
+    epoch_end_iso_string = end_date.isoformat(sep=' ')
+
+    start_date_float = DateTime.from_iso_string(epoch_start_iso_string).to_epoch()
+    end_date_float = DateTime.from_iso_string(epoch_end_iso_string).to_epoch()
+
+    assert min_obs_time >= start_date_float, f"Found observation before start date: {min_obs_time}"
+    assert max_obs_time <= end_date_float, f"Found observation after end date: {max_obs_time}"
+
 
 def test_compare_mpc_horizons_eph():
     """Compares true observations from BatchMPC to interpolated simulated RA/DEC from JPL Horizons"""
     batch = BatchMPC()
     batch.get_observations([433])
 
-    # batch.filter takes python datetimes in UTC!
+    # batch.filter takes python times in UTC! (either as datetime or as float)
     batch.filter(
         epoch_start=datetime.datetime(2017, 1, 1),
         epoch_end=datetime.datetime(2022, 1, 1),
@@ -305,6 +335,3 @@ def test_parse_80cols_file():
 
     tol = 5e-5 # not completely sure why some are zero and some are not.
     assert not (diff_seconds > tol).any()
-
-
-test_compare_mpc_horizons_eph()
