@@ -761,6 +761,21 @@ private:
                                                                std::placeholders::_1 ) ) );
                             break;
                         }
+                        case climate_model_update: {
+                            std::shared_ptr< basic_astrodynamics::ClimateModel > climateModel =
+                            // Check if current body has climate model set
+                            if( climateModel == nullptr )
+                            {
+                                throw std::runtime_error( "Request climate model update of " + currentBodies.at( i ) +
+                                                          ", but body has no climate model" );
+                            }
+                            // If body has climate model, add its update function to update list
+                            updateTimeFunctionList[ climate_model_update ].push_back(
+                                    std::make_pair( currentBodies.at( i ),
+                                                    std::bind( &basic_astro::ClimateModel::update,
+                                                               targetModel,
+                                                               std::placeholders::_1 ) ) );
+                            break;
                     }
                 }
             }

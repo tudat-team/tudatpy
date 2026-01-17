@@ -141,6 +141,14 @@ void MarsClimateDatabase::update(
     }
 }
 
+void MarsClimateDatabasevoid::addExtraVariableKeys( std::vector< mcd_interface::ExtVar> requiredExtraVariables )
+{
+    for ( auto it:requiredExtraVariables )
+    {
+        extraVariableKeys_[ it ] = 1;
+    }
+}
+
 }
 
 }

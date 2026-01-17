@@ -192,6 +192,8 @@ public:
     {
         return static_cast< double >( extraVariables_[ variable ] );
     }
+
+    void addExtraVariableKeys( std::vector< mcd_interface::ExtVar> requiredExtraVariables );
     
 private:
 

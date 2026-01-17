@@ -18,6 +18,9 @@
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/io/solarActivityData.h"
 #include "tudat/simulation/environment_setup/createAtmosphereModel.h"
+#if TUDAT_BUILD_WITH_MCD_INTERFACE
+#include "tudat/interface/mcd/marsClimateDatabase.h"
+#endif
 
 namespace tudat
 {
@@ -70,7 +73,8 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
 
 //! Function to create an atmosphere model.
 std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const std::shared_ptr< AtmosphereSettings > atmosphereSettings,
-                                                                        const std::string& body )
+                                                                        const std::string& body,
+                                                                        const std::shared_ptr< Body > > )
 {
     using namespace tudat::aerodynamics;
 
@@ -259,6 +263,32 @@ std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const st
             }
             break;
         }
+#if TUDAT_BUILD_WITH_MCD_INTERFACE
+        case mcd_atmosphere: {
+            // Check consistency of type and class.
+            std::shared_ptr< McdAtmosphereSettings > mcdAtmosphereSettings =
+                    std::dynamic_pointer_cast< McdAtmosphereSettings >( atmosphereSettings );
+            if( mcdAtmosphereSettings == nullptr )
+            {
+                throw std::runtime_error( "Error, expected MCD atmosphere settings for body " + body );
+            }
+            else
+            {
+                if ( body != "Mars" )
+                {
+                    throw std::runtime_error( "Error, trying to create MCD atmosphere model for a planet that is not Mars" );
+                }
+                std::shared_ptr< mcd_interface::MarsClimateDatabase > marsClimateDatabase = 
+                    std::dynamic_pointer_cast< mcd_interface::MarsClimateDatabase>( body->getClimateModel( ) );
+                if ( marsClimateDatabase == nullptr )
+                {
+                    throw std::runtime_error( "Error, Mars has not MCD climate model set" ) 
+                }
+                atmosphereModel = std::make_shared< aerodynamics::McdAtmosphereModel >( marsClimateDatabase );
+            }
+            break;
+        }
+#endif
         default:
             throw std::runtime_error( "Error, did not recognize atmosphere model settings type " +
                                       std::to_string( atmosphereSettings->getAtmosphereType( ) ) );

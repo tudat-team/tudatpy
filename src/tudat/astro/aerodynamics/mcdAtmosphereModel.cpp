@@ -22,25 +22,25 @@ namespace aerodynamics
 {
 
 // Get density
-double McdAtmosphereModel::getDensity( )
+double McdAtmosphereModel::getDensity( double, double, double, double )
 {
     return  marsClimateDatabase_->getDensity( );
 }
 
 // Get pressure
-double McdAtmosphereModel::getPressure( )
+double McdAtmosphereModel::getPressure( double, double, double, double )
 {
     return marsClimateDatabase_->getPressure( );
 }
 
 // Get temperature
-double McdAtmosphereModel::getTemperature( )
+double McdAtmosphereModel::getTemperature( double, double, double, double )
 {
     return marsClimateDatabase_->getTemperature( );
 }
 
 // Get speed of sound
-double McdAtmosphereModel::getSpeedOfSound( )
+double McdAtmosphereModel::getSpeedOfSound( double, double, double, double )
 {
     // Get gamma and R from extra variables
     double gamma = marsClimateDatabase_->getExtraVariable( mcd_interface::ExtVar::ratio_of_specific_heats );  // extvar(60): gamma

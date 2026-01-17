@@ -23,6 +23,7 @@
 #include "tudat/astro/basic_astro/physicalConstants.h"
 #include "tudat/math/interpolators/interpolator.h"
 #include "tudat/basics/identityElements.h"
+#include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
 {
@@ -156,7 +157,8 @@ enum AtmosphereTypes {
     tabulated_atmosphere,
     nrlmsise00,
     mars_dtm_atmosphere,
-    scaled_atmosphere
+    scaled_atmosphere,
+    mcd_atmosphere,
 };
 
 //  Class for providing settings for atmosphere model.
@@ -576,6 +578,19 @@ private:
 
 
 };
+
+#if TUDAT_BUILD_WITH_MCD_INTERFACE
+
+class McdAtmosphereSettings: public AtmosphereSettings
+{
+public:
+
+    McdAtmosphereSettings( ):
+        AtmosphereSettings( mcd_atmosphere ){ }
+
+};
+
+#endif
 
 
 //  AtmosphereSettings for defining an atmosphere with tabulated data from file.
@@ -1109,7 +1124,8 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
  *  \return Atmosphere model created according to settings in atmosphereSettings.
  */
 std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const std::shared_ptr< AtmosphereSettings > atmosphereSettings,
-                                                                        const std::string& body );
+                                                                        const std::string& body,
+                                                                        const std::shared_ptr< Body > > );
 
 }  // namespace simulation_setup
 

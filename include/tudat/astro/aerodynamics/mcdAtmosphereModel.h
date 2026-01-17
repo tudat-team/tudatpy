@@ -27,21 +27,6 @@ namespace aerodynamics
 //! MCD Atmosphere Model class
 /*!
  * Class for Mars Climate Database atmosphere model.
- * This class interfaces with the MCD Fortran routines to provide
- * atmospheric properties (density, temperature, pressure, winds) for Mars.
- *
- * ALTITUDE CONVENTION:
- * --------------------
- * Input altitude is "height above local surface" (matching Tudat convention).
- * Internally uses MCD's zkey=3 mode, which allows MCD to handle the conversion
- * to radial distance using its own areoid and topography models.
- *
- * When highResolutionMode=1, MCD uses MOLA topography for accurate surface height.
- * When highResolutionMode=0, MCD uses GCM resolution topography.
- *
- * PARAMETERS:
- * -----------
- * See constructor documentation for detailed parameter descriptions.
  *
  * THREAD SAFETY:
  * --------------
@@ -59,18 +44,22 @@ public:
             mcd_interface::ExtVar::ratio_of_specific_heats, 
             mcd_interface::ExtVar::reduced_molecular_gas_constant
         };
+
+        marsClimateDatabase_->addExtraVariableKeys( requiredExtVar_ );
+        marsClimateDatabase_->setZkey( 3 );
+        
     }
 
     //! Destructor
     virtual ~McdAtmosphereModel( ) {}
 
-    virtual double getDensity( );
+    double getDensity( [[maybe_unused]] double, [[maybe_unused]] double, [[maybe_unused]] double, [[maybe_unused]] double ) override;
 
-    virtual double getPressure( );
+    double getPressure( [[maybe_unused]] double, [[maybe_unused]] double, [[maybe_unused]] double, [[maybe_unused]] double ) override;
 
-    virtual double getTemperature( );
+    double getTemperature( [[maybe_unused]] double, [[maybe_unused]] double, [[maybe_unused]] double, [[maybe_unused]] double ) override;
 
-    virtual double getSpeedOfSound( );
+    double getSpeedOfSound( [[maybe_unused]] double, [[maybe_unused]] double, [[maybe_unused]] double, [[maybe_unused]] double ) override;
 
     double getZonalWind( ) const
     {

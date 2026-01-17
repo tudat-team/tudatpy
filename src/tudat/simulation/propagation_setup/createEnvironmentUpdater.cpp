@@ -13,6 +13,7 @@
 #include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
+#include "tudat/astro/basic_astro/climateModel.h"
 
 namespace tudat
 {
@@ -160,6 +161,18 @@ void checkValidityOfRequiredEnvironmentUpdates(
                         {
                             throw std::runtime_error(
                                     "Error when making environment model update settings, could not find vehicle systems of body " +
+                                    updateIterator->second.at( i ) );
+                        }
+                        break;
+                    }
+                    case climate_model_update: 
+                    {
+                        std::shared_ptr< basic_astrodynamics::ClimateModel > climateModel =
+                                bodies.at( updateIterator->second.at( i ) )->getClimateModel( );
+                        if( climateModel == nullptr )
+                        {
+                            throw std::runtime_error(
+                                    "Error when making environment model update settings, could not find climate model of body " +
                                     updateIterator->second.at( i ) );
                         }
                         break;
@@ -382,6 +395,11 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                         if( panelledAerodynamicCoefficientInterface != nullptr )
                         {
                             singleAccelerationUpdateNeeds[ body_segment_orientation_update ].push_back( acceleratedBodyIterator->first );
+                        }
+                        auto mcdAtmosphereModel = std::dynamic_pointer_cast< aerodynamics::mcdAtmosphereModel >( aerodynamicAcceleration );
+                        if ( mcdAtmosphereModel != nullptr )
+                        {
+                            singleAccelerationUpdateNeeds[ climate_model_update ].push_back( accelerationModelIterator->first );
                         }
                         break;
                     }
