@@ -252,12 +252,34 @@ if(EMSCRIPTEN)
         COMMENT "Copying CesiumJS library to build directory"
     )
 
+    # Copy visualizations directory (includes all visualization modules and examples)
+    add_custom_command(
+        OUTPUT "${WASM_WEB_DIR}/visualizations/index.js"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_CURRENT_SOURCE_DIR}/web/visualizations"
+            "${WASM_WEB_DIR}/visualizations"
+        DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/web/visualizations/index.js"
+        COMMENT "Copying visualizations directory to build directory"
+    )
+
+    # Copy API documentation directory
+    add_custom_command(
+        OUTPUT "${WASM_WEB_DIR}/api/index.html"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_CURRENT_SOURCE_DIR}/web/api"
+            "${WASM_WEB_DIR}/api"
+        DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/web/api/index.html"
+        COMMENT "Copying API documentation to build directory"
+    )
+
     # Create a target for the web files that tudat_wasm_web depends on
     add_custom_target(tudat_wasm_web_files
         DEPENDS "${WASM_WEB_DIR}/index.html" "${WASM_WEB_DIR}/app.js"
                 "${WASM_WEB_DIR}/imagery/world.topo.bathy.200407.3x5400x2700.jpg"
                 "${WASM_WEB_DIR}/imagery/BlackMarble_2016_3km.jpeg"
                 "${WASM_WEB_DIR}/cesium/Cesium.js"
+                "${WASM_WEB_DIR}/visualizations/index.js"
+                "${WASM_WEB_DIR}/api/index.html"
     )
     add_dependencies(tudat_wasm_web tudat_wasm_web_files)
 
