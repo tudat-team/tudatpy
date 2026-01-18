@@ -69,18 +69,26 @@
      endif ()
      message(STATUS "  (if incorrect, please set these variables manually)")
  else ()
-     if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "^(Apple)?Clang$")
+     if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten" OR EMSCRIPTEN)
+         set(TUDAT_BUILD_EMSCRIPTEN ON)
+         set(TUDAT_BUILD_CLANG OFF)
+         set(TUDAT_BUILD_GNU OFF)
+         set(TUDAT_BUILD_MSVC OFF)
+     elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "^(Apple)?Clang$")
          set(TUDAT_BUILD_CLANG ON)
          set(TUDAT_BUILD_GNU OFF)
          set(TUDAT_BUILD_MSVC OFF)
+         set(TUDAT_BUILD_EMSCRIPTEN OFF)
      elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
          set(TUDAT_BUILD_CLANG OFF)
          set(TUDAT_BUILD_GNU ON)
          set(TUDAT_BUILD_MSVC OFF)
+         set(TUDAT_BUILD_EMSCRIPTEN OFF)
      elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
          set(TUDAT_BUILD_CLANG OFF)
          set(TUDAT_BUILD_GNU OFF)
          set(TUDAT_BUILD_MSVC ON)
+         set(TUDAT_BUILD_EMSCRIPTEN OFF)
      endif ()
  endif ()
 
@@ -298,6 +306,34 @@
          # Multiprocessor support during compilation
          add_definitions("/MP")
      endif ()
+ elseif (TUDAT_BUILD_EMSCRIPTEN)
+     # Emscripten compiler for WebAssembly builds
+     add_compile_definitions(TUDAT_BUILD_EMSCRIPTEN)
+     message(STATUS "Using Emscripten compiler for WebAssembly.")
+
+     # C flags for Emscripten
+     set(CMAKE_C_FLAGS "-Wall")
+     set(CMAKE_C_FLAGS_DEBUG "-g -O0")
+     set(CMAKE_C_FLAGS_MINSIZEREL "-Os -DNDEBUG")
+     set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDEBUG")
+     set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O2 -g")
+
+     # C++ flags for Emscripten (uses Clang under the hood)
+     set(CMAKE_CXX_FLAGS
+             "${CMAKE_CXX_FLAGS}"
+             " -std=c++17"
+             " -Wall"
+             " -Wextra"
+             " -Wno-unused-parameter"
+             " -Wno-unused-variable"
+             )
+     string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+
+     set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
+     set(CMAKE_CXX_FLAGS_MINSIZEREL "-Os -DNDEBUG")
+     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
+
  else ()
      message(STATUS "Compiler not identified: ${CMAKE_CXX_COMPILER_ID}")
      message(STATUS "  Path: ${CMAKE_CXX_COMPILER}")

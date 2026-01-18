@@ -1,0 +1,214 @@
+/**
+ * Tudat WASM Namespace Builder (ESM)
+ *
+ * This module transforms the flat Embind API into a hierarchical namespace
+ * structure that mirrors the Python tudatpy API.
+ *
+ * @module tudatpy-namespace
+ */
+
+/**
+ * Build hierarchical namespace structure from flat Embind exports
+ * @param {Object} Module - The raw Emscripten module
+ * @returns {Object} Module with nested namespaces
+ */
+export function buildNamespaces(Module) {
+    // Namespace prefix mappings (sorted longest first for correct matching)
+    const prefixMappings = [
+        // Deep estimation paths
+        ['estimation_observations_setup_observations_dependent_variables', (m) => m.estimation.observations_setup.observations_dependent_variables],
+        ['estimation_observations_setup_observations_simulation_settings', (m) => m.estimation.observations_setup.observations_simulation_settings],
+        ['estimation_observations_setup_ancillary_settings', (m) => m.estimation.observations_setup.ancillary_settings],
+        ['estimation_observations_setup_observations_wrapper', (m) => m.estimation.observations_setup.observations_wrapper],
+        ['estimation_observations_setup_random_noise', (m) => m.estimation.observations_setup.random_noise],
+        ['estimation_observations_setup_viability', (m) => m.estimation.observations_setup.viability],
+        ['estimation_observable_models_setup_light_time_corrections', (m) => m.estimation.observable_models_setup.light_time_corrections],
+        ['estimation_observable_models_setup_model_settings', (m) => m.estimation.observable_models_setup.model_settings],
+        ['estimation_observable_models_setup_biases', (m) => m.estimation.observable_models_setup.biases],
+        ['estimation_observable_models_setup_links', (m) => m.estimation.observable_models_setup.links],
+        ['estimation_observable_models_observables_simulation', (m) => m.estimation.observable_models.observables_simulation],
+        ['estimation_observations_observations_processing', (m) => m.estimation.observations.observations_processing],
+        ['estimation_observations_observations_geometry', (m) => m.estimation.observations.observations_geometry],
+
+        // Deep dynamics paths
+        ['dynamics_propagation_setup_dependent_variable', (m) => m.dynamics.propagation_setup.dependent_variable],
+        ['dynamics_environment_setup_aerodynamic_coefficients', (m) => m.dynamics.environment_setup.aerodynamic_coefficients],
+        ['dynamics_environment_setup_gravity_field_variation', (m) => m.dynamics.environment_setup.gravity_field_variation],
+        ['dynamics_environment_setup_radiation_pressure', (m) => m.dynamics.environment_setup.radiation_pressure],
+        ['dynamics_environment_setup_shape_deformation', (m) => m.dynamics.environment_setup.shape_deformation],
+        ['dynamics_environment_setup_vehicle_systems', (m) => m.dynamics.environment_setup.vehicle_systems],
+        ['dynamics_environment_setup_rotation_model', (m) => m.dynamics.environment_setup.rotation_model],
+        ['dynamics_environment_setup_ground_station', (m) => m.dynamics.environment_setup.ground_station],
+        ['dynamics_environment_setup_gravity_field', (m) => m.dynamics.environment_setup.gravity_field],
+        ['dynamics_environment_setup_rigid_body', (m) => m.dynamics.environment_setup.rigid_body],
+        ['dynamics_environment_setup_atmosphere', (m) => m.dynamics.environment_setup.atmosphere],
+        ['dynamics_environment_setup_ephemeris', (m) => m.dynamics.environment_setup.ephemeris],
+        ['dynamics_environment_setup_shape', (m) => m.dynamics.environment_setup.shape],
+        ['dynamics_propagation_setup_acceleration', (m) => m.dynamics.propagation_setup.acceleration],
+        ['dynamics_propagation_setup_integrator', (m) => m.dynamics.propagation_setup.integrator],
+        ['dynamics_propagation_setup_propagator', (m) => m.dynamics.propagation_setup.propagator],
+        ['dynamics_propagation_setup_mass_rate', (m) => m.dynamics.propagation_setup.mass_rate],
+        ['dynamics_propagation_setup_thrust', (m) => m.dynamics.propagation_setup.thrust],
+        ['dynamics_propagation_setup_torque', (m) => m.dynamics.propagation_setup.torque],
+
+        // Trajectory design
+        ['trajectory_design_shape_based_thrust', (m) => m.trajectory_design.shape_based_thrust],
+        ['trajectory_design_transfer_trajectory', (m) => m.trajectory_design.transfer_trajectory],
+
+        // Mid-level paths
+        ['estimation_observable_models_setup', (m) => m.estimation.observable_models_setup],
+        ['estimation_observations_setup', (m) => m.estimation.observations_setup],
+        ['estimation_estimation_analysis', (m) => m.estimation.estimation_analysis],
+        ['estimation_observable_models', (m) => m.estimation.observable_models],
+        ['estimation_observations', (m) => m.estimation.observations],
+        ['dynamics_environment_setup', (m) => m.dynamics.environment_setup],
+        ['dynamics_propagation_setup', (m) => m.dynamics.propagation_setup],
+        ['dynamics_parameters_setup', (m) => m.dynamics.parameters_setup],
+
+        // Math paths
+        ['math_numerical_integrators', (m) => m.math.numerical_integrators],
+        ['math_interpolators', (m) => m.math.interpolators],
+        ['math_root_finders', (m) => m.math.root_finders],
+        ['math_statistics', (m) => m.math.statistics],
+        ['math_geometry', (m) => m.math.geometry],
+
+        // Astro paths
+        ['astro_element_conversion', (m) => m.astro.element_conversion],
+        ['astro_polyhedron_utilities', (m) => m.astro.polyhedron_utilities],
+        ['astro_time_representation', (m) => m.astro.time_representation],
+        ['astro_two_body_dynamics', (m) => m.astro.two_body_dynamics],
+        ['astro_frame_conversion', (m) => m.astro.frame_conversion],
+        ['astro_fundamentals', (m) => m.astro.fundamentals],
+        ['astro_gravitation', (m) => m.astro.gravitation],
+
+        // Dynamics level 2
+        ['dynamics_propagation', (m) => m.dynamics.propagation],
+        ['dynamics_environment', (m) => m.dynamics.environment],
+        ['dynamics_parameters', (m) => m.dynamics.parameters],
+        ['dynamics_simulator', (m) => m.dynamics.simulator],
+
+        // Interface
+        ['interface_spice', (m) => m.interface.spice],
+
+        // Top-level namespaces
+        ['trajectory_design', (m) => m.trajectory_design],
+        ['estimation', (m) => m.estimation],
+        ['constants', (m) => m.constants],
+        ['dynamics', (m) => m.dynamics],
+        ['interface', (m) => m.interface],
+        ['astro', (m) => m.astro],
+        ['math', (m) => m.math],
+        ['data', (m) => m.data]
+    ];
+
+    // Initialize namespace structure
+    Module.constants = {};
+    Module.math = {
+        interpolators: {},
+        numerical_integrators: {},
+        root_finders: {},
+        geometry: {},
+        statistics: {}
+    };
+    Module.astro = {
+        element_conversion: {},
+        frame_conversion: {},
+        fundamentals: {},
+        gravitation: {},
+        polyhedron_utilities: {},
+        time_representation: {},
+        two_body_dynamics: {}
+    };
+    Module.dynamics = {
+        environment: {},
+        environment_setup: {
+            aerodynamic_coefficients: {},
+            atmosphere: {},
+            ephemeris: {},
+            gravity_field: {},
+            gravity_field_variation: {},
+            ground_station: {},
+            radiation_pressure: {},
+            rigid_body: {},
+            rotation_model: {},
+            shape: {},
+            shape_deformation: {},
+            vehicle_systems: {}
+        },
+        parameters: {},
+        parameters_setup: {},
+        propagation: {},
+        propagation_setup: {
+            acceleration: {},
+            dependent_variable: {},
+            integrator: {},
+            mass_rate: {},
+            propagator: {},
+            thrust: {},
+            torque: {}
+        },
+        simulator: {}
+    };
+    Module.estimation = {
+        estimation_analysis: {},
+        observable_models: {
+            observables_simulation: {}
+        },
+        observable_models_setup: {
+            biases: {},
+            light_time_corrections: {},
+            links: {},
+            model_settings: {}
+        },
+        observations: {
+            observations_geometry: {},
+            observations_processing: {}
+        },
+        observations_setup: {
+            ancillary_settings: {},
+            observations_dependent_variables: {},
+            observations_simulation_settings: {},
+            observations_wrapper: {},
+            random_noise: {},
+            viability: {}
+        }
+    };
+    Module.interface = {
+        spice: {}
+    };
+    Module.data = {};
+    Module.trajectory_design = {
+        shape_based_thrust: {},
+        transfer_trajectory: {}
+    };
+
+    // Process all exports
+    for (const key of Object.keys(Module)) {
+        // Skip internal properties
+        if (key.startsWith('_') || key.startsWith('HEAP') ||
+            key === 'asm' || key === 'ready' || key === 'then' ||
+            key === 'constants' || key === 'math' || key === 'astro' ||
+            key === 'dynamics' || key === 'estimation' || key === 'interface' ||
+            key === 'data' || key === 'trajectory_design') {
+            continue;
+        }
+
+        // Find matching prefix
+        for (const [prefix, getNamespace] of prefixMappings) {
+            if (key.startsWith(prefix + '_')) {
+                const localName = key.substring(prefix.length + 1);
+                try {
+                    const ns = getNamespace(Module);
+                    ns[localName] = Module[key];
+                } catch (e) {
+                    // Namespace path doesn't exist, skip
+                }
+                break;
+            }
+        }
+    }
+
+    return Module;
+}
+
+export default buildNamespaces;

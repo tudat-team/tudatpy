@@ -1,5 +1,7 @@
 # Generated files
 examples
+# But keep the WASM visualization examples
+!tests/wasm/web/visualizations/examples/
 lib/
 libs/
 CMakeFiles/
@@ -171,3 +173,20 @@ Tudat/interface/spice/Kernels/
 /cmake-build-debug/*
 /cmake-build*
 *.vscode
+
+#
+# WebAssembly / Emscripten build related
+#
+.emsdk/
+build-wasm/
+*.wasm
+*.wasm.map
+*.js.map
+*.data
+
+# Allow WASM files in docs/ for GitHub Pages hosting
+!docs/*.wasm
+!docs/*.js
+
+# Agent working notes (not for version control)
+tests/wasm/Agents.md

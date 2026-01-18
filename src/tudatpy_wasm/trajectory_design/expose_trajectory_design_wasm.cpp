@@ -1,0 +1,28 @@
+/*    Copyright (c) 2010-2025, Delft University of Technology
+ *    All rights reserved
+ *
+ *    This file is part of the Tudat. Redistribution and use in source and
+ *    binary forms, with or without modification, are permitted exclusively
+ *    under the terms of the Modified BSD license. You should have received
+ *    a copy of the license with this file. If not, please or visit:
+ *    http://tudat.tudelft.nl/LICENSE.
+ */
+
+#ifdef __EMSCRIPTEN__
+
+#include <emscripten/bind.h>
+#include "../wasm_module.h"
+
+// This file serves as the main entry point for the trajectory_design module bindings.
+// All submodules are compiled separately and linked together.
+// Submodules: transfer_trajectory, shape_based_thrust
+
+WASM_MODULE_PATH("trajectory_design")
+
+EMSCRIPTEN_BINDINGS(tudatpy_trajectory_design) {
+    using namespace emscripten;
+    // All submodule bindings are registered through their individual
+    // EMSCRIPTEN_BINDINGS blocks with prefixed names.
+}
+
+#endif

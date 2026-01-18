@@ -124,5 +124,236 @@ Desired result:
 Total Test time (real) = 490.77 sec
 ````
 > **Note**\
-> To speed up the tests, you can optionally use multiple cores as follows:             
+> To speed up the tests, you can optionally use multiple cores as follows:
 > `ctest -j <number_of_cores>`
+
+## Building for WebAssembly
+
+Tudatpy can be compiled to WebAssembly using Emscripten, enabling orbital mechanics simulations to run directly in web browsers.
+
+### Prerequisites
+
+- CMake 3.20+
+- Git
+- Ninja build system
+- Node.js (for running tests)
+- Python 3 (for web server)
+
+### Quick Start
+
+The simplest way to build for WASM is using the provided script:
+
+```bash
+cmake -P wasm.cmake
+```
+
+This single command will:
+1. Download and install the Emscripten SDK (if not present)
+2. Configure the WASM build
+3. Build the WASM test suite
+4. Run tests via Node.js
+5. Start a local web server at http://localhost:8080
+
+### Full Build Instructions
+
+For development or more control over the build process, use the manual approach:
+
+#### 1. Configure the Build
+
+```bash
+# Configure using the toolchain file (auto-downloads Emscripten SDK if needed)
+cmake -B build-wasm -G Ninja \
+  -DCMAKE_TOOLCHAIN_FILE=cmake_modules/toolchain-emscripten.cmake \
+  -DCMAKE_BUILD_TYPE=Release
+```
+
+#### 2. Build the Project
+
+```bash
+# Build all WASM targets
+cmake --build build-wasm
+
+# Or use ninja directly for more control
+cd build-wasm
+ninja tudat_wasm_test
+```
+
+#### 3. Run the Test Suite
+
+```bash
+# Run the comprehensive WASM test suite (468 tests)
+node build-wasm/tests/wasm/tudat_wasm_test.js
+```
+
+Expected output:
+```
+=== Tudat WASM Test Suite ===
+[PASS] Unit conversion: degrees to radians
+[PASS] Unit conversion: radians to degrees
+...
+=== Test Results ===
+[INFO] Tests run:    468
+[INFO] Tests passed: 468
+[INFO] Tests failed: 0
+[PASS] *** ALL TESTS PASSED ***
+```
+
+### Test Suite Coverage
+
+The WASM test suite (`tests/wasm/`) validates core Tudat functionality across multiple domains:
+
+| Category | Tests | Description |
+|----------|-------|-------------|
+| Basic Astrodynamics | 50+ | Unit conversions, constants, Eigen operations |
+| Orbital Elements | 30+ | Keplerian, Cartesian, spherical conversions |
+| Propagation | 20+ | CR3BP, two-body, mass, custom state propagation |
+| SPICE Interface | 15+ | Time conversions, frame rotations, TLE propagation |
+| Gravitation | 25+ | Spherical harmonics, libration points, Jacobi energy |
+| Aerodynamics | 15+ | Exponential and NRLMSISE-00 atmosphere models |
+| Mission Segments | 20+ | Lambert targeting, gravity assists, escape/capture |
+| Electromagnetism | 15+ | Radiation pressure, luminosity models |
+| Integrators | 15+ | RK4, RK78, RKF45, RKDP87, Adams-Bashforth-Moulton |
+| Ephemerides | 15+ | Kepler, tabulated, constant, rotational ephemerides |
+| Earth Orientation | 30+ | Time scales, EOP, polar motion, leap seconds |
+
+### Rebuilding After Changes
+
+For incremental rebuilds during development:
+
+```bash
+cd build-wasm
+ninja tudat_wasm_test && node tests/wasm/tudat_wasm_test.js
+```
+
+For a clean rebuild (required after toolchain or CMake changes):
+
+```bash
+rm -rf build-wasm
+cmake -B build-wasm -G Ninja \
+  -DCMAKE_TOOLCHAIN_FILE=cmake_modules/toolchain-emscripten.cmake \
+  -DCMAKE_BUILD_TYPE=Release
+cmake --build build-wasm
+```
+
+### Configuration Options
+
+Specify a different Emscripten version:
+```bash
+cmake -B build-wasm -DCMAKE_TOOLCHAIN_FILE=cmake_modules/toolchain-emscripten.cmake -DEMSDK_VERSION=3.1.52
+```
+
+### Managing Emscripten SDK
+
+Update the Emscripten SDK:
+```bash
+cmake --build build-wasm --target update-emscripten
+```
+
+List available Emscripten versions:
+```bash
+cmake --build build-wasm --target list-emscripten-versions
+```
+
+### External Dependencies
+
+All dependencies are automatically handled for WASM builds:
+
+| Dependency | Notes |
+|------------|-------|
+| **Boost** | Headers automatically provided via Emscripten port |
+| **Eigen3** | Automatically downloaded if not found |
+| **CSpice** | Automatically downloaded and built with Emscripten |
+| **nrlmsise00** | Automatically downloaded and built with Emscripten |
+| **SOFA** | Required, automatically fetched and built |
+
+Dependencies are downloaded to the `_deps/` folder inside the build directory.
+
+### Data Files
+
+WASM builds embed essential data files directly into the binary. These are mounted at `/tudat_data/` in Emscripten's virtual filesystem and include:
+
+- Earth orientation parameters (EOP)
+- Leap second tables
+- NRLMSISE-00 atmosphere tables
+- Gravity field models
+- SPICE kernels (LSK, PCK)
+
+For custom data files in your JavaScript code:
+
+```javascript
+// Access embedded data
+const eopPath = '/tudat_data/earth_orientation/';
+
+// Or mount additional data
+Module.FS.mkdir('/custom_data');
+Module.FS.writeFile('/custom_data/my_file.txt', myData);
+```
+
+### Web Server Testing
+
+To test WASM builds in a browser environment:
+
+#### Using the Quick Start Script
+
+```bash
+cmake -P wasm.cmake
+# Opens browser at http://localhost:8080
+```
+
+#### Manual Web Server
+
+```bash
+# Start a Python web server in the build directory
+cd build-wasm
+python3 -m http.server 8080
+
+# Or with specific CORS headers for SharedArrayBuffer
+python3 -c "
+from http.server import HTTPServer, SimpleHTTPRequestHandler
+class Handler(SimpleHTTPRequestHandler):
+    def end_headers(self):
+        self.send_header('Cross-Origin-Opener-Policy', 'same-origin')
+        self.send_header('Cross-Origin-Embedder-Policy', 'require-corp')
+        super().end_headers()
+HTTPServer(('', 8080), Handler).serve_forever()
+"
+```
+
+Then open `http://localhost:8080/tests/wasm/` in your browser.
+
+### Build Targets
+
+| Target | Description |
+|--------|-------------|
+| `tudat_wasm_test` | Main test executable (468 tests) |
+| `tudat` | Core Tudat library compiled for WASM |
+| `cspice` | CSPICE library compiled for WASM |
+| `nrlmsise00` | NRLMSISE-00 atmosphere library |
+| `sofa` | SOFA astronomy library |
+
+### Troubleshooting
+
+**Build fails with missing Emscripten:**
+The toolchain file automatically downloads and configures the Emscripten SDK. Just ensure you're using the toolchain:
+```bash
+cmake -B build-wasm -G Ninja \
+  -DCMAKE_TOOLCHAIN_FILE=cmake_modules/toolchain-emscripten.cmake
+```
+
+**Tests crash with memory errors:**
+```bash
+# Increase memory limit (default is sufficient for most tests)
+cmake -B build-wasm -G Ninja \
+  -DCMAKE_TOOLCHAIN_FILE=cmake_modules/toolchain-emscripten.cmake \
+  -DCMAKE_EXE_LINKER_FLAGS="-s INITIAL_MEMORY=256MB -s ALLOW_MEMORY_GROWTH=1"
+```
+
+**Browser shows CORS errors:**
+Use the CORS-enabled Python server shown above, or configure your web server to send appropriate headers.
+
+### Notes
+
+- The Emscripten SDK is installed to `.emsdk/` in the project root (gitignored)
+- Standard Boost.Test-based tests and tutorials are disabled for WASM builds
+- A lightweight WASM-specific test suite is built instead using `wasmTestFramework.h`
+- Data files are embedded at compile time and available at `/tudat_data/`

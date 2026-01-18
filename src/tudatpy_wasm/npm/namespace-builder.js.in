@@ -1,0 +1,257 @@
+/**
+ * Tudat WASM Namespace Builder
+ *
+ * This module transforms the flat Embind API into a hierarchical namespace
+ * structure that mirrors the Python tudatpy API.
+ *
+ * @module tudatpy-namespace
+ */
+
+'use strict';
+
+/**
+ * Build hierarchical namespace structure from flat Embind exports
+ * @param {Object} Module - The raw Emscripten module
+ * @returns {Object} Module with nested namespaces
+ */
+function buildNamespaces(Module) {
+    // Define the namespace hierarchy
+    const namespaceMap = {
+        'constants': {},
+        'math': {
+            'interpolators': {},
+            'numerical_integrators': {},
+            'root_finders': {},
+            'geometry': {},
+            'statistics': {}
+        },
+        'astro': {
+            'element_conversion': {},
+            'frame_conversion': {},
+            'fundamentals': {},
+            'gravitation': {},
+            'polyhedron_utilities': {},
+            'time_representation': {},
+            'two_body_dynamics': {}
+        },
+        'dynamics': {
+            'environment': {},
+            'environment_setup': {
+                'aerodynamic_coefficients': {},
+                'atmosphere': {},
+                'ephemeris': {},
+                'gravity_field': {},
+                'gravity_field_variation': {},
+                'ground_station': {},
+                'radiation_pressure': {},
+                'rigid_body': {},
+                'rotation_model': {},
+                'shape': {},
+                'shape_deformation': {},
+                'vehicle_systems': {}
+            },
+            'parameters': {},
+            'parameters_setup': {},
+            'propagation': {},
+            'propagation_setup': {
+                'acceleration': {},
+                'dependent_variable': {},
+                'integrator': {},
+                'mass_rate': {},
+                'propagator': {},
+                'thrust': {},
+                'torque': {}
+            },
+            'simulator': {}
+        },
+        'estimation': {
+            'estimation_analysis': {},
+            'observable_models': {
+                'observables_simulation': {}
+            },
+            'observable_models_setup': {
+                'biases': {},
+                'light_time_corrections': {},
+                'links': {},
+                'model_settings': {}
+            },
+            'observations': {
+                'observations_geometry': {},
+                'observations_processing': {}
+            },
+            'observations_setup': {
+                'ancillary_settings': {},
+                'observations_dependent_variables': {},
+                'observations_simulation_settings': {},
+                'observations_wrapper': {},
+                'random_noise': {},
+                'viability': {}
+            }
+        },
+        'interface': {
+            'spice': {}
+        },
+        'data': {},
+        'trajectory_design': {
+            'shape_based_thrust': {},
+            'transfer_trajectory': {}
+        }
+    };
+
+    // Create nested namespace objects
+    function createNamespace(path) {
+        const parts = path.split('_');
+        let current = namespaceMap;
+
+        for (const part of parts) {
+            if (!current[part]) {
+                return null;
+            }
+            current = current[part];
+        }
+        return current;
+    }
+
+    // Process all Module exports and organize into namespaces
+    const processedKeys = new Set();
+
+    for (const key of Object.keys(Module)) {
+        // Skip internal Emscripten properties
+        if (key.startsWith('_') || key.startsWith('HEAP') ||
+            key === 'asm' || key === 'ready' || key === 'then') {
+            continue;
+        }
+
+        // Find the namespace prefix
+        const underscoreIndex = key.indexOf('_');
+        if (underscoreIndex === -1) {
+            // Top-level item, keep as-is
+            continue;
+        }
+
+        // Try to match against known namespace paths
+        let matched = false;
+        for (const prefix of getSortedPrefixes()) {
+            if (key.startsWith(prefix + '_')) {
+                const localName = key.substring(prefix.length + 1);
+                const namespace = getNamespaceByPrefix(prefix);
+                if (namespace) {
+                    namespace[localName] = Module[key];
+                    processedKeys.add(key);
+                    matched = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    // Attach namespaces to Module
+    function attachNamespaces(target, source, path) {
+        for (const [key, value] of Object.entries(source)) {
+            if (typeof value === 'object' && Object.keys(value).length > 0) {
+                target[key] = target[key] || {};
+                attachNamespaces(target[key], value, path ? path + '_' + key : key);
+            } else if (typeof value === 'object') {
+                // Empty namespace, just create the object
+                target[key] = target[key] || {};
+            } else {
+                target[key] = value;
+            }
+        }
+    }
+
+    attachNamespaces(Module, namespaceMap, '');
+
+    return Module;
+}
+
+// Helper to get sorted prefixes (longest first for correct matching)
+function getSortedPrefixes() {
+    return [
+        'estimation_observations_setup_observations_dependent_variables',
+        'estimation_observations_setup_observations_simulation_settings',
+        'estimation_observations_setup_ancillary_settings',
+        'estimation_observations_setup_observations_wrapper',
+        'estimation_observations_setup_random_noise',
+        'estimation_observations_setup_viability',
+        'estimation_observable_models_setup_light_time_corrections',
+        'estimation_observable_models_setup_model_settings',
+        'estimation_observable_models_setup_biases',
+        'estimation_observable_models_setup_links',
+        'estimation_observable_models_observables_simulation',
+        'estimation_observations_observations_processing',
+        'estimation_observations_observations_geometry',
+        'dynamics_propagation_setup_dependent_variable',
+        'dynamics_environment_setup_aerodynamic_coefficients',
+        'dynamics_environment_setup_gravity_field_variation',
+        'dynamics_environment_setup_radiation_pressure',
+        'dynamics_environment_setup_shape_deformation',
+        'dynamics_environment_setup_vehicle_systems',
+        'dynamics_environment_setup_rotation_model',
+        'dynamics_environment_setup_ground_station',
+        'dynamics_environment_setup_gravity_field',
+        'dynamics_environment_setup_rigid_body',
+        'dynamics_environment_setup_atmosphere',
+        'dynamics_environment_setup_ephemeris',
+        'dynamics_environment_setup_shape',
+        'dynamics_propagation_setup_acceleration',
+        'dynamics_propagation_setup_integrator',
+        'dynamics_propagation_setup_propagator',
+        'dynamics_propagation_setup_mass_rate',
+        'dynamics_propagation_setup_thrust',
+        'dynamics_propagation_setup_torque',
+        'trajectory_design_shape_based_thrust',
+        'trajectory_design_transfer_trajectory',
+        'estimation_observable_models_setup',
+        'estimation_observations_setup',
+        'estimation_estimation_analysis',
+        'estimation_observable_models',
+        'estimation_observations',
+        'dynamics_environment_setup',
+        'dynamics_propagation_setup',
+        'dynamics_parameters_setup',
+        'math_numerical_integrators',
+        'astro_element_conversion',
+        'astro_polyhedron_utilities',
+        'astro_time_representation',
+        'astro_two_body_dynamics',
+        'astro_frame_conversion',
+        'math_interpolators',
+        'astro_fundamentals',
+        'math_root_finders',
+        'astro_gravitation',
+        'dynamics_propagation',
+        'dynamics_environment',
+        'dynamics_parameters',
+        'dynamics_simulator',
+        'interface_spice',
+        'trajectory_design',
+        'math_statistics',
+        'math_geometry',
+        'estimation',
+        'constants',
+        'dynamics',
+        'astro',
+        'math',
+        'data',
+        'interface'
+    ];
+}
+
+function getNamespaceByPrefix(prefix) {
+    const parts = prefix.split('_');
+    let current = {
+        'constants': {},
+        'math': { 'interpolators': {}, 'numerical_integrators': {}, 'root_finders': {}, 'geometry': {}, 'statistics': {} },
+        'astro': { 'element_conversion': {}, 'frame_conversion': {}, 'fundamentals': {}, 'gravitation': {}, 'polyhedron_utilities': {}, 'time_representation': {}, 'two_body_dynamics': {} },
+        // ... simplified for template
+    };
+
+    for (const part of parts) {
+        if (!current[part]) return null;
+        current = current[part];
+    }
+    return current;
+}
+
+module.exports = { buildNamespaces };

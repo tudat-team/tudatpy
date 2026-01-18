@@ -1,0 +1,83 @@
+--- a/src/cspice/sig_die.c
++++ b/src/cspice/sig_die.c
+@@ -97,6 +97,12 @@ void sig_die(register char *s, int kill)
+    if(kill)
+       {
+       fflush(stderr);
+       f_exit();
+       fflush(stderr);
++#ifdef __EMSCRIPTEN__
++      /* In WASM, abort() causes a trap instruction that results in
++         "RuntimeError: unreachable". Use exit(1) instead for clean shutdown. */
++      exit(1);
++#else
+       /* now get a core */
+ #ifdef SIGIOT
+       signal(SIGIOT, SIG_DFL);
+ #endif
+       abort();
++#endif
+       }
+    else {
+--- a/src/cspice/s_copy.c
++++ b/src/cspice/s_copy.c
+@@ -6,11 +6,12 @@
+ #include "f2c.h"
+
+ /* assign strings:  a = b */
++/* Modified for WASM: Changed return type from void to int to match f2c-generated caller expectations */
+
+ #ifdef KR_headers
+-VOID s_copy(a, b, la, lb) register char *a, *b; ftnlen la, lb;
++int s_copy(a, b, la, lb) register char *a, *b; ftnlen la, lb;
+ #else
+-void s_copy(register char *a, register char *b, ftnlen la, ftnlen lb)
++int s_copy(register char *a, register char *b, ftnlen la, ftnlen lb)
+ #endif
+ {
+ 	register char *aend, *bend;
+@@ -48,4 +49,5 @@ void s_copy(register char *a, register char *b, ftnlen la, ftnlen lb)
+ 		while(a < aend)
+ 			*a++ = ' ';
+ 		}
++	return 0;
+ 	}
+--- a/src/cspice/s_cat.c
++++ b/src/cspice/s_cat.c
+@@ -20,7 +20,8 @@
+ #include "string.h"
+ #endif /* NO_OVERWRITE */
+
+- VOID
++/* Modified for WASM: Changed return type from VOID to int to match f2c-generated caller expectations */
++ int
+ #ifdef KR_headers
+ s_cat(lp, rpp, rnp, np, ll) char *lp, *rpp[]; ftnlen rnp[], *np, ll;
+ #else
+@@ -72,4 +73,5 @@ s_cat(char *lp, char *rpp[], ftnlen rnp[], ftnlen *np, ftnlen ll)
+ 		free(lp1);
+ 		}
+ #endif
++	return 0;
+ 	}
+--- a/src/cspice/rsfe.c
++++ b/src/cspice/rsfe.c
+@@ -57,7 +57,7 @@ static logical read_non_native = 0;
+
+ logical zzcheckeol ( int ch );
+-void    zzsetnnread_( logical * on );
++int     zzsetnnread_( logical * on );
+
+ /*
+
+@@ -417,7 +417,9 @@ logical zzcheckeol ( int ch );
+ -&
+ */
+
+-void zzsetnnread_( logical * on )
++/* Modified for WASM: Changed return type from void to int to match f2c-generated caller expectations */
++int zzsetnnread_( logical * on )
+    {
+    read_non_native = *on;
++   return 0;
+    }

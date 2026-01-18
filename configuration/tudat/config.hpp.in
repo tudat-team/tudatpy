@@ -11,10 +11,18 @@
 #ifndef TUDAT_CONFIG_HPP
 #define TUDAT_CONFIG_HPP
 
+#ifndef TUDAT_VERSION
 #define TUDAT_VERSION "@Tudat_VERSION@"
+#endif
+#ifndef TUDAT_VERSION_MAJOR
 #define TUDAT_VERSION_MAJOR "@Tudat_VERSION_MAJOR@"
+#endif
+#ifndef TUDAT_VERSION_MINOR
 #define TUDAT_VERSION_MINOR "@Tudat_VERSION_MINOR@"
+#endif
+#ifndef TUDAT_VERSION_PATCH
 #define TUDAT_VERSION_PATCH "@Tudat_VERSION_PATCH@"
+#endif
 
 // TODO: This need to be moved somewhere else eventually.
 #define TEST_DATA_FOLDER "@PROJECT_BINARY_DIR@/tests/data/"

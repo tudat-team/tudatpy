@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TUDAT // WASM Embind Test Suite</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23050a0f' stroke='%2300f0ff' stroke-width='2'/><ellipse cx='50' cy='50' rx='30' ry='10' fill='none' stroke='%2300f0ff' stroke-width='1.5' transform='rotate(-25 50 50)'/><ellipse cx='50' cy='50' rx='30' ry='10' fill='none' stroke='%238b5cf6' stroke-width='1.5' transform='rotate(35 50 50)'/><circle cx='50' cy='50' r='6' fill='%2300f0ff'/></svg>">
+    <!-- CesiumJS (local) -->
+    <script src="cesium/Cesium.js"></script>
+    <link href="cesium/Widgets/widgets.css" rel="stylesheet">
+    <!-- D3.js for 3D visualizations -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg-void: #020408;
+            --bg-deep: #050a0f;
+            --bg-panel: #0a1118;
+            --bg-card: #0d1620;
+            --bg-elevated: #111d2a;
+
+            --cyan: #00f0ff;
+            --cyan-dim: #00a0aa;
+            --cyan-glow: rgba(0, 240, 255, 0.3);
+            --purple: #8b5cf6;
+            --purple-dim: #6d45d9;
+            --green: #00ff9d;
+            --green-dim: #00cc7d;
+            --red: #ff3366;
+            --orange: #ff9f1c;
+            --yellow: #ffd93d;
+
+            --text-primary: #e8f4f8;
+            --text-secondary: #7a9299;
+            --text-dim: #4a6066;
+
+            --border-glow: rgba(0, 240, 255, 0.2);
+            --scanline: rgba(0, 240, 255, 0.03);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--bg-void);
+            color: var(--text-primary);
+            font-size: 18px;
+            line-height: 1.4;
+        }
+
+        /* Scanline overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                var(--scanline) 2px,
+                var(--scanline) 4px
+            );
+            pointer-events: none;
+            z-index: 10000;
+        }
+
+        /* Grid background */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(0, 240, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Main Layout */
+        .app-container {
+            display: grid;
+            grid-template-columns: 320px 1fr 380px;
+            grid-template-rows: auto 1fr;
+            height: 100vh;
+            max-height: 100vh;
+            gap: 1px;
+            background: var(--border-glow);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            grid-column: 1 / -1;
+            background: var(--bg-deep);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-glow);
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            position: relative;
+        }
+
+        .logo-icon svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 8px var(--cyan-glow));
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 24px;
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-subtitle {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dim);
+            letter-spacing: 3px;
+            margin-top: 2px;
+        }
+
+        .header-status {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--orange);
+            box-shadow: 0 0 8px var(--orange);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .status-dot.ready { background: var(--green); box-shadow: 0 0 8px var(--green); }
+        .status-dot.loading { background: var(--orange); box-shadow: 0 0 8px var(--orange); animation: blink 0.5s ease-in-out infinite; }
+        .status-dot.error { background: var(--red); box-shadow: 0 0 8px var(--red); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Header links */
+        .header-links {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .header-link {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            color: var(--cyan);
+            text-decoration: none;
+            padding: 6px 12px;
+            border: 1px solid var(--border-glow);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-link:hover {
+            background: rgba(0, 240, 255, 0.1);
+            border-color: var(--cyan);
+            box-shadow: 0 0 10px var(--cyan-glow);
+        }
+
+        .header-link svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+
+        /* Panels */
+        .panel {
+            background: var(--bg-deep);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .panel-header {
+            padding: 12px 16px;
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border-glow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: var(--cyan);
+            text-transform: uppercase;
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            min-height: 0;
+        }
+
+        .panel-content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .panel-content::-webkit-scrollbar-track {
+            background: var(--bg-panel);
+        }
+
+        .panel-content::-webkit-scrollbar-thumb {
+            background: var(--cyan-dim);
+            border-radius: 2px;
+        }
+
+        /* Left Panel - Stats & Controls */
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .left-panel .panel-content {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 12px;
+        }
+
+        .stats-section {
+            flex-shrink: 0;
+        }
+
+        .categories-section {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .categories-section .panel-header {
+            flex-shrink: 0;
+            margin: 0 -12px;
+            padding: 10px 12px;
+        }
+
+        .category-list {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            min-height: 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            padding: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+        }
+
+        .stat-card.total::before { background: var(--cyan); }
+        .stat-card.passed::before { background: var(--green); }
+        .stat-card.failed::before { background: var(--red); }
+        .stat-card.time::before { background: var(--purple); }
+
+        .stat-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .stat-card.total .stat-value { color: var(--cyan); }
+        .stat-card.passed .stat-value { color: var(--green); }
+        .stat-card.failed .stat-value { color: var(--red); }
+        .stat-card.time .stat-value { color: var(--purple); font-size: 26px; }
+
+        /* Buttons */
+        .btn {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 14px 24px;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--cyan-dim), var(--cyan));
+            color: var(--bg-void);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 30px var(--cyan-glow), inset 0 0 20px rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            background: var(--bg-elevated);
+            color: var(--text-dim);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border-glow);
+            color: var(--text-secondary);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+        }
+
+        /* Progress */
+        .progress-section {
+            margin-bottom: 20px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .progress-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 13px;
+            color: var(--text-dim);
+            letter-spacing: 1px;
+        }
+
+        .progress-track {
+            height: 4px;
+            background: var(--bg-elevated);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--cyan), var(--purple));
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px var(--cyan-glow);
+        }
+
+        /* Category Results */
+        .category-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .category-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            border-left: 3px solid var(--green);
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .category-item:hover {
+            background: var(--bg-elevated);
+            border-left-color: var(--cyan);
+        }
+
+        .category-item.has-failures {
+            border-left-color: var(--red);
+        }
+
+        .category-item.expanded {
+            background: var(--bg-elevated);
+        }
+
+        /* Visualization category styles */
+        .viz-category {
+            border-left-color: var(--cyan);
+        }
+
+        .viz-category:hover {
+            border-left-color: var(--purple);
+            transform: translateX(2px);
+        }
+
+        .viz-category.selected {
+            background: var(--bg-elevated);
+            border-left-color: var(--purple);
+            border-left-width: 4px;
+        }
+
+        .viz-description {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .category-name {
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--text-primary);
+        }
+
+        .category-count {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            padding: 2px 8px;
+            border-radius: 2px;
+        }
+
+        .category-count.all-pass {
+            background: rgba(0, 255, 157, 0.2);
+            color: var(--green);
+        }
+
+        .category-count.has-fail {
+            background: rgba(255, 51, 102, 0.2);
+            color: var(--red);
+        }
+
+        .category-tests {
+            display: none;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-glow);
+        }
+
+        .category-item.expanded .category-tests {
+            display: block;
+        }
+
+        .test-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 13px;
+        }
+
+        .test-icon {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+        }
+
+        .test-icon.pass { color: var(--green); }
+        .test-icon.fail { color: var(--red); }
+
+        .test-name {
+            flex: 1;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .test-item {
+            cursor: pointer;
+            padding: 4px 6px;
+            margin: 2px -6px;
+            border-radius: 2px;
+            transition: background 0.2s ease;
+        }
+
+        .test-item:hover {
+            background: rgba(0, 240, 255, 0.1);
+        }
+
+        .test-item.selected {
+            background: rgba(0, 240, 255, 0.2);
+            border-left: 2px solid var(--cyan);
+        }
+
+        /* Center Panel - Visualization */
+        .center-panel {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .viz-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+            gap: 12px;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .globe-container {
+            flex: 2;
+            position: relative;
+            min-height: 0;
+            overflow: hidden;
+            border: 1px solid var(--border-glow);
+        }
+
+        #cesiumContainer {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Hide Cesium default UI elements we don't need */
+        .cesium-viewer-toolbar,
+        .cesium-viewer-fullscreenContainer,
+        .cesium-viewer-vrContainer,
+        .cesium-viewer-geocoderContainer,
+        .cesium-viewer-homeButtonContainer,
+        .cesium-viewer-sceneModePicker,
+        .cesium-viewer-projectionPicker,
+        .cesium-viewer-navigationHelpButtonContainer,
+        .cesium-credit-textContainer,
+        .cesium-credit-logoContainer {
+            display: none !important;
+        }
+
+        /* Style animation and timeline widgets */
+        .cesium-viewer-animationContainer {
+            position: absolute !important;
+            bottom: 8px !important;
+            left: 8px !important;
+            z-index: 100;
+        }
+
+        .cesium-viewer-timelineContainer {
+            position: absolute !important;
+            bottom: 8px !important;
+            left: 180px !important;
+            right: 8px !important;
+            height: 32px !important;
+            z-index: 100;
+        }
+
+        .cesium-animation-svgText {
+            fill: var(--text-secondary) !important;
+        }
+
+        .cesium-animation-rectButton .cesium-animation-buttonPath {
+            fill: var(--cyan) !important;
+        }
+
+        .cesium-animation-themeGlow {
+            fill: var(--cyan) !important;
+        }
+
+
+        .cesium-viewer-infoBoxContainer {
+            top: 50px !important;
+            right: 10px !important;
+        }
+
+        .cesium-infoBox {
+            background: rgba(15, 23, 42, 0.95) !important;
+            border: 1px solid var(--border-glow) !important;
+        }
+
+        .cesium-infoBox-title {
+            background: transparent !important;
+            color: var(--cyan) !important;
+        }
+
+        .cesium-viewer-bottom {
+            display: none !important;
+        }
+
+        .trajectory-container {
+            flex: 1;
+            min-height: 100px;
+            max-height: 200px;
+            overflow: hidden;
+        }
+
+        /* Orbit Selector */
+        .orbit-selector {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            padding: 12px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .orbit-selector-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            color: var(--cyan);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .orbit-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            flex: 1;
+        }
+
+        .orbit-btn {
+            background: var(--bg-void);
+            border: 1px solid var(--border-glow);
+            padding: 10px 8px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .orbit-btn:hover {
+            border-color: var(--cyan);
+            background: rgba(0, 240, 255, 0.1);
+        }
+
+        .orbit-btn.active {
+            border-color: var(--purple);
+            background: rgba(139, 92, 246, 0.2);
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+        }
+
+        .orbit-btn-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--cyan);
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .orbit-btn.active .orbit-btn-name {
+            color: var(--purple);
+        }
+
+        .orbit-btn-desc {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dim);
+            line-height: 1.3;
+        }
+
+        /* Charts Grid (legacy) */
+        .chart-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .chart-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            color: var(--cyan);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .chart-canvas {
+            flex: 1;
+            min-height: 0;
+        }
+
+        /* Right Panel - Console */
+        .console-panel {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+        }
+
+        .console-output {
+            background: var(--bg-void);
+            border: 1px solid var(--border-glow);
+            height: 100%;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .console-line {
+            padding: 2px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .console-line::before {
+            content: '>';
+            color: var(--text-dim);
+            flex-shrink: 0;
+        }
+
+        .console-line.pass { color: var(--green); }
+        .console-line.pass::before { content: '+'; color: var(--green); }
+        .console-line.fail { color: var(--red); }
+        .console-line.fail::before { content: '!'; color: var(--red); }
+        .console-line.header {
+            color: var(--cyan);
+            font-weight: 600;
+            margin-top: 8px;
+        }
+        .console-line.header::before { content: '#'; color: var(--cyan); }
+        .console-line.info { color: var(--text-secondary); }
+        .console-line.error { color: var(--red); }
+        .console-line.error::before { content: '!'; color: var(--red); }
+        .console-line.summary { color: var(--purple); font-weight: 600; }
+        .console-line.summary::before { content: '*'; color: var(--purple); }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .app-container {
+                grid-template-columns: 280px 1fr 320px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .app-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto 1fr auto;
+            }
+
+            .left-panel, .right-panel {
+                max-height: 300px;
+            }
+        }
+
+        /* Loading spinner */
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--bg-elevated);
+            border-top-color: var(--cyan);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 100 100">
+                        <defs>
+                            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#00f0ff;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="url(#grad1)" stroke-width="2"/>
+                        <ellipse cx="50" cy="50" rx="32" ry="12" fill="none" stroke="#00f0ff" stroke-width="1.5" transform="rotate(-25 50 50)" opacity="0.8"/>
+                        <ellipse cx="50" cy="50" rx="32" ry="12" fill="none" stroke="#8b5cf6" stroke-width="1.5" transform="rotate(35 50 50)" opacity="0.8"/>
+                        <ellipse cx="50" cy="50" rx="32" ry="12" fill="none" stroke="#00ff9d" stroke-width="1" transform="rotate(80 50 50)" opacity="0.5"/>
+                        <circle cx="50" cy="50" r="8" fill="#00f0ff"/>
+                        <circle cx="50" cy="50" r="4" fill="#fff"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="logo-text">TUDAT</div>
+                    <div class="logo-subtitle">ASTRODYNAMICS TEST SUITE // EMBIND</div>
+                </div>
+            </div>
+            <div class="header-links">
+                <a href="api/index.html" target="_blank" class="header-link" title="API Documentation">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg>
+                    DOCS
+                </a>
+                <a href="https://docs.tudat.space/" target="_blank" class="header-link" title="Tudat Documentation">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                    TUDAT
+                </a>
+                <a href="https://github.com/tudat-team/tudatpy" target="_blank" class="header-link" title="GitHub Repository">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    GITHUB
+                </a>
+            </div>
+            <div class="header-status">
+                <div class="status-item">
+                    <div class="status-dot loading" id="wasm-dot"></div>
+                    <span id="wasm-status">INITIALIZING</span>
+                </div>
+                <div class="status-item">
+                    <span>BUILD: EMBIND</span>
+                </div>
+                <div class="status-item">
+                    <span id="timestamp"></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Left Panel -->
+        <div class="panel left-panel">
+            <div class="panel-header">
+                <span class="panel-title">System Status</span>
+            </div>
+            <div class="panel-content">
+                <div class="stats-section">
+                    <div class="stats-grid">
+                        <div class="stat-card total">
+                            <div class="stat-label">Total Tests</div>
+                            <div class="stat-value" id="total-count">-</div>
+                        </div>
+                        <div class="stat-card passed">
+                            <div class="stat-label">Passed</div>
+                            <div class="stat-value" id="passed-count">-</div>
+                        </div>
+                        <div class="stat-card failed">
+                            <div class="stat-label">Failed</div>
+                            <div class="stat-value" id="failed-count">-</div>
+                        </div>
+                        <div class="stat-card time">
+                            <div class="stat-label">Duration</div>
+                            <div class="stat-value" id="duration">-</div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" id="run-btn" disabled>
+                            EXECUTE
+                        </button>
+                        <button class="btn btn-secondary" id="clear-btn">
+                            RESET
+                        </button>
+                    </div>
+
+                    <div class="progress-section" id="progress-section" style="display: none;">
+                        <div class="progress-header">
+                            <span class="progress-label">EXECUTION PROGRESS</span>
+                            <span class="progress-label" id="progress-text">0%</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-bar" id="progress-bar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="categories-section">
+                    <div class="panel-header">
+                        <span class="panel-title">Visualization Examples</span>
+                    </div>
+                    <div class="category-list" id="viz-category-list">
+                        <!-- Curated list of visualizable test categories -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Panel -->
+        <div class="panel center-panel">
+            <div class="panel-header">
+                <span class="panel-title">Orbit Visualization</span>
+                <span style="font-size: 10px; color: var(--text-dim);" id="orbit-info">Click a test to visualize</span>
+            </div>
+            <div class="viz-content">
+                <div class="globe-container">
+                    <div id="cesiumContainer"></div>
+                </div>
+                <div class="trajectory-container">
+                    <div class="orbit-selector" id="orbit-selector-panel">
+                        <div class="orbit-selector-title">CR3BP Orbit Types</div>
+                        <div class="orbit-buttons">
+                            <button class="orbit-btn" id="orbit-l2-halo" title="Orbit around L2 Lagrange point, like JWST or Lunar Gateway">
+                                <span class="orbit-btn-name">L2 Halo</span>
+                                <span class="orbit-btn-desc">Orbit around L2 point beyond Moon</span>
+                            </button>
+                            <button class="orbit-btn" id="orbit-dro" title="Stable orbit around the Moon used by Artemis">
+                                <span class="orbit-btn-name">DRO</span>
+                                <span class="orbit-btn-desc">Distant Retrograde Orbit around Moon</span>
+                            </button>
+                            <button class="orbit-btn" id="orbit-l1-halo" title="Orbit around L1 point between Earth and Moon">
+                                <span class="orbit-btn-name">L1 Halo</span>
+                                <span class="orbit-btn-desc">Orbit around L1 point near Moon</span>
+                            </button>
+                            <button class="orbit-btn" id="orbit-lyapunov" title="Planar orbit around L2 point">
+                                <span class="orbit-btn-name">Lyapunov</span>
+                                <span class="orbit-btn-desc">Planar periodic orbit at L2</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="orbit-selector" id="od-model-panel" style="display: none;">
+                        <div class="orbit-selector-title">Orbit Determination - Dynamics Model</div>
+                        <div class="orbit-buttons" style="grid-template-columns: repeat(2, 1fr);">
+                            <button class="orbit-btn active" id="od-fullforce" title="Full numerical force model with J2-J4 perturbations">
+                                <span class="orbit-btn-name">Full Force</span>
+                                <span class="orbit-btn-desc">RK78 integration with J2-J4 gravity</span>
+                            </button>
+                            <button class="orbit-btn" id="od-omm" title="OMM mean element propagation with secular rates">
+                                <span class="orbit-btn-name">OMM</span>
+                                <span class="orbit-btn-desc">Mean elements with secular drift</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-container" id="chart-panel" style="display: none;">
+                        <div class="chart-title" id="chart-title">Chart</div>
+                        <div id="d3-chart" style="flex: 1; width: 100%; height: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="panel right-panel console-panel">
+            <div class="panel-header">
+                <span class="panel-title">System Console</span>
+                <span style="font-size: 10px; color: var(--text-dim);" id="line-count">0 lines</span>
+            </div>
+            <div class="panel-content" style="padding: 0;">
+                <div class="console-output" id="console-output">
+                    <div class="console-line info">System initialized. Awaiting WASM module...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>

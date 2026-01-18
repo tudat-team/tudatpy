@@ -711,16 +711,44 @@ void loadStandardSpiceKernels( const std::vector< std::string > alternativeEphem
 
 Eigen::Matrix3d getRotationFromJ2000ToEclipJ2000( )
 {
+#ifdef __EMSCRIPTEN__
+    // In WASM, use analytical rotation instead of SPICE (which calls checkFailure internally)
+    // The J2000 to ECLIPJ2000 rotation is a constant rotation about the X-axis by the obliquity
+    // of the ecliptic at J2000: 84381.448 arcseconds = 23.4392911111... degrees
+    // Reference: IAU 2006 Resolution B1, Hilton et al. (2006)
+    constexpr double obliquityArcsec = 84381.448;
+    constexpr double arcsecToRad = tudat::mathematical_constants::PI / (180.0 * 3600.0);
+    const double obliquity = obliquityArcsec * arcsecToRad;
+
+    // Rotation matrix for rotation about X-axis by obliquity (J2000 equator to ecliptic)
+    // Standard Rx(θ) = [[1, 0, 0], [0, cos(θ), -sin(θ)], [0, sin(θ), cos(θ)]]
+    Eigen::Matrix3d rotationMatrix;
+    rotationMatrix << 1.0,               0.0,                0.0,
+                      0.0,  std::cos(obliquity), -std::sin(obliquity),
+                      0.0,  std::sin(obliquity),  std::cos(obliquity);
+    return rotationMatrix;
+#else
     return spice_interface::computeRotationQuaternionBetweenFrames( "J2000", "ECLIPJ2000", 0.0 ).toRotationMatrix( );
+#endif
 }
 
 Eigen::Matrix3d getRotationFromEclipJ2000ToJ2000( )
 {
+#ifdef __EMSCRIPTEN__
+    // Inverse of getRotationFromJ2000ToEclipJ2000 - rotation about X-axis by -obliquity
+    return getRotationFromJ2000ToEclipJ2000().transpose();
+#else
     return spice_interface::computeRotationQuaternionBetweenFrames( "ECLIPJ2000", "J2000", 0.0 ).toRotationMatrix( );
+#endif
 }
 
 void toggleErrorReturn( )
 {
+#ifdef __EMSCRIPTEN__
+    // In WASM, erract_c crashes due to f2c string handling issues.
+    // SPICE defaults to "abort" mode which prints errors and continues.
+    // We skip setting RETURN mode - SPICE operations may print errors but won't halt.
+#else
     std::string deprecationMessage =
             std::string( "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" ) +
             "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
@@ -728,10 +756,14 @@ void toggleErrorReturn( )
     std::cerr << deprecationMessage << std::endl;
     char errorAction[] = "RETURN";
     erract_c( "SET", 0, errorAction );
+#endif
 }
 
 void toggleErrorAbort( )
 {
+#ifdef __EMSCRIPTEN__
+    // In WASM, errdev_c crashes. Skip - SPICE is already in default abort mode.
+#else
     std::string deprecationMessage =
             std::string( "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" ) +
             "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
@@ -739,10 +771,14 @@ void toggleErrorAbort( )
     std::cerr << deprecationMessage << std::endl;
     char errorDevice[] = "ABORT";
     errdev_c( "SET", 0, errorDevice );
+#endif
 }
 
 void suppressErrorOutput( )
 {
+#ifdef __EMSCRIPTEN__
+    // In WASM, errdev_c crashes. Skip - error output will go to default destination.
+#else
     std::string deprecationMessage =
             std::string( "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" ) +
             "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
@@ -750,10 +786,16 @@ void suppressErrorOutput( )
     std::cerr << deprecationMessage << std::endl;
     char errorDevice[] = "NULL";
     errdev_c( "SET", 0, errorDevice );
+#endif
 }
 
 std::string getErrorMessage( )
 {
+#ifdef __EMSCRIPTEN__
+    // In WASM, getmsg_c may crash. Since we can't change error mode reliably,
+    // and failed_c works, we return empty string to avoid crashes.
+    return "";
+#else
     std::string deprecationMessage =
             std::string( "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" ) +
             "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
@@ -769,10 +811,16 @@ std::string getErrorMessage( )
     {
         return "";
     }
+#endif
 }
 
 bool checkFailure( )
 {
+#ifdef __EMSCRIPTEN__
+    // In WASM, failed_c works but reset_c may not.
+    // Just check failure status without reset.
+    return failed_c( ) != SPICEFALSE;
+#else
     std::string deprecationMessage =
             std::string( "Deprecation warning: Setting the SPICE error behavior manually is no longer recommended.\n" ) +
             "It has been superseded by SPICE exceptions, which take care of this automatically.\n" +
@@ -787,14 +835,20 @@ bool checkFailure( )
     {
         return false;
     }
+#endif
 }
 
 void setSpiceErrorHandling( )
 {
+#ifdef __EMSCRIPTEN__
+    // In WASM, erract_c and errdev_c crash due to f2c string handling issues.
+    // Skip error handling setup - SPICE will use defaults.
+#else
     char errorAction[] = "RETURN";
     char errorDevice[] = "NULL";
     erract_c( "SET", 0, errorAction );
     errdev_c( "SET", 0, errorDevice );
+#endif
 }
 
 void handleSpiceException( )

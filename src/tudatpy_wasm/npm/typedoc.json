@@ -1,0 +1,50 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["./dist/tudatpy.d.ts"],
+  "out": "./docs",
+  "name": "Tudat WASM API Documentation",
+  "readme": "./README.md",
+  "includeVersion": true,
+  "excludeExternals": true,
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "hideGenerator": false,
+  "searchInComments": true,
+  "categorizeByGroup": true,
+  "categoryOrder": [
+    "Vector Types",
+    "Constants",
+    "Math",
+    "Astrodynamics",
+    "Dynamics",
+    "Estimation",
+    "Interface",
+    "Data",
+    "Trajectory Design",
+    "*"
+  ],
+  "navigationLinks": {
+    "Tudat Documentation": "https://docs.tudat.space/",
+    "GitHub": "https://github.com/tudat-team/tudatpy"
+  },
+  "plugin": [],
+  "theme": "default",
+  "lightHighlightTheme": "github-light",
+  "darkHighlightTheme": "github-dark",
+  "customCss": "./docs-theme.css",
+  "visibilityFilters": {
+    "protected": false,
+    "private": false,
+    "inherited": true,
+    "external": false
+  },
+  "sort": ["source-order"],
+  "kindSortOrder": [
+    "Function",
+    "Class",
+    "Interface",
+    "Enum",
+    "TypeAlias",
+    "Variable"
+  ]
+}

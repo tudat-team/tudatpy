@@ -1,0 +1,61 @@
+{
+  "name": "@tudat/tudatpy-wasm",
+  "version": "1.0.0",
+  "description": "Tudat astrodynamics library compiled to WebAssembly for browser and Node.js",
+  "main": "dist/tudatpy_wasm.js",
+  "module": "dist/tudatpy_wasm.mjs",
+  "types": "dist/tudatpy.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/tudatpy_wasm.mjs",
+      "require": "./dist/tudatpy_wasm.js",
+      "types": "./dist/tudatpy.d.ts"
+    },
+    "./namespace": {
+      "import": "./dist/tudatpy-namespace.mjs",
+      "require": "./dist/tudatpy-namespace.js"
+    }
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "docs": "typedoc --options typedoc.json",
+    "test": "node test/test_wasm_api.js"
+  },
+  "keywords": [
+    "astrodynamics",
+    "space",
+    "orbital-mechanics",
+    "simulation",
+    "tudat",
+    "wasm",
+    "webassembly",
+    "ephemeris",
+    "propagation"
+  ],
+  "author": "Tudat Development Team",
+  "license": "BSD-3-Clause",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tudat-team/tudatpy.git"
+  },
+  "homepage": "https://docs.tudat.space/",
+  "bugs": {
+    "url": "https://github.com/tudat-team/tudatpy/issues"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "devDependencies": {
+    "typedoc": "^0.25.0",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {},
+  "browser": {
+    "fs": false,
+    "path": false
+  }
+}

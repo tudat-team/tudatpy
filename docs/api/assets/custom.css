@@ -1,0 +1,134 @@
+/* Tudat WASM Documentation Theme Customization */
+
+:root {
+  --tudat-primary: #2563eb;
+  --tudat-primary-dark: #1d4ed8;
+  --tudat-secondary: #0891b2;
+  --tudat-accent: #f59e0b;
+}
+
+/* Light theme colors */
+:root[data-theme="light"] {
+  --md-primary: var(--tudat-primary);
+  --md-accent: var(--tudat-accent);
+}
+
+/* Dark theme colors */
+:root[data-theme="dark"] {
+  --md-primary: var(--tudat-secondary);
+  --md-accent: var(--tudat-accent);
+}
+
+/* Header styling */
+header.tsd-page-toolbar {
+  background: linear-gradient(135deg, var(--tudat-primary) 0%, var(--tudat-secondary) 100%);
+}
+
+/* Navigation */
+.tsd-navigation a {
+  transition: color 0.2s ease;
+}
+
+.tsd-navigation a:hover {
+  color: var(--tudat-primary);
+}
+
+/* Code blocks */
+pre code {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.9em;
+  line-height: 1.5;
+}
+
+/* Parameter tables */
+.tsd-parameters .tsd-parameter-name {
+  font-weight: 600;
+  color: var(--tudat-primary);
+}
+
+/* Type annotations */
+.tsd-signature-type {
+  color: var(--tudat-secondary);
+}
+
+/* Namespace styling */
+.tsd-kind-namespace > .tsd-kind-icon {
+  color: var(--tudat-primary);
+}
+
+/* Function styling */
+.tsd-kind-function > .tsd-kind-icon {
+  color: #059669;
+}
+
+/* Interface styling */
+.tsd-kind-interface > .tsd-kind-icon {
+  color: #7c3aed;
+}
+
+/* Class styling */
+.tsd-kind-class > .tsd-kind-icon {
+  color: #dc2626;
+}
+
+/* Enum styling */
+.tsd-kind-enum > .tsd-kind-icon {
+  color: #ea580c;
+}
+
+/* Footer branding */
+footer {
+  text-align: center;
+  padding: 2rem;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+[data-theme="dark"] footer {
+  background: #1e293b;
+  border-top-color: #334155;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container-main {
+    padding: 1rem;
+  }
+
+  pre code {
+    font-size: 0.8em;
+  }
+}
+
+/* Example code highlighting */
+.tsd-comment-tags .tsd-comment-tag-example pre {
+  background: #f1f5f9;
+  border-left: 4px solid var(--tudat-primary);
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 0 4px 4px 0;
+}
+
+[data-theme="dark"] .tsd-comment-tags .tsd-comment-tag-example pre {
+  background: #1e293b;
+}
+
+/* Warning/Note callouts */
+.tsd-comment blockquote {
+  border-left: 4px solid var(--tudat-accent);
+  background: #fffbeb;
+  padding: 0.5rem 1rem;
+  margin: 1rem 0;
+}
+
+[data-theme="dark"] .tsd-comment blockquote {
+  background: #422006;
+}
+
+/* Index page module list */
+.tsd-index-panel .tsd-index-heading {
+  color: var(--tudat-primary);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
