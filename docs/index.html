@@ -320,6 +320,64 @@
             min-height: 0;
         }
 
+        /* Search Input */
+        .search-container {
+            position: relative;
+            flex-shrink: 0;
+            margin: 0 -12px;
+            padding: 8px 12px;
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border-glow);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 12px 8px 36px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 13px;
+            color: var(--text-primary);
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .search-input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .search-input:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 8px var(--cyan-glow);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            color: var(--text-dim);
+            pointer-events: none;
+        }
+
+        .search-input:focus + .search-icon {
+            color: var(--cyan);
+        }
+
+        /* Search highlight for fuzzy matches */
+        .search-highlight {
+            background: rgba(0, 240, 255, 0.3);
+            color: var(--cyan);
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
+        .category-item.hidden {
+            display: none;
+        }
+
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -972,6 +1030,13 @@
                 <div class="categories-section">
                     <div class="panel-header">
                         <span class="panel-title">Visualization Examples</span>
+                    </div>
+                    <div class="search-container">
+                        <input type="text" id="viz-search" class="search-input" placeholder="Search examples..." autocomplete="off">
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
                     </div>
                     <div class="category-list" id="viz-category-list">
                         <!-- Curated list of visualizable test categories -->

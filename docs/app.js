@@ -8,13 +8,26 @@ import {
     clearOrbitEntities,
     // Visualization show functions
     showCR3BPVisualization,
-    showLambertVisualization,
     showLibrationPointsVisualization,
-    showSphericalHarmonicsVisualization,
     showAtmosphericDragVisualization,
     showReferenceFramesVisualization,
     showGeostationaryVisualization,
     // Note: J2 vs Full Force uses class method for chart integration
+    // Python example ports (chart-only)
+    showKeplerianOrbitExample,
+    showPerturbedOrbitExample,
+    showReentryTrajectoryExample,
+    showSolarSystemExample,
+    showThrustSatelliteExample,
+    showTwoStageRocketExample,
+    showLinearSensitivityExample,
+    showEarthMarsTransferExample,
+    showMGATrajectoryExample,
+    showHohmannTransferExample,
+    showGravityAssistExample,
+    showCovariancePropagationExample,
+    showHimmelblauOptimizationExample,
+    showAsteroidOrbitOptimizationExample,
     // Registry for dynamic category list
     visualizationRegistry
 } from './visualizations/index.js';
@@ -100,6 +113,73 @@ class TudatTestRunner {
         });
     }
 
+    // Fuzzy search filter for visualization examples
+    filterVisualizations(query) {
+        const container = document.getElementById('viz-category-list');
+        const items = container.querySelectorAll('.viz-category');
+        const normalizedQuery = query.toLowerCase().trim();
+
+        if (!normalizedQuery) {
+            // Show all items and remove highlights when search is cleared
+            items.forEach(item => {
+                item.classList.remove('hidden');
+                const nameEl = item.querySelector('.category-name');
+                const descEl = item.querySelector('.viz-description');
+                if (nameEl) nameEl.innerHTML = nameEl.textContent;
+                if (descEl) descEl.innerHTML = descEl.textContent;
+            });
+            return;
+        }
+
+        items.forEach(item => {
+            const nameEl = item.querySelector('.category-name');
+            const descEl = item.querySelector('.viz-description');
+            const name = nameEl?.textContent || '';
+            const desc = descEl?.textContent || '';
+            const combined = (name + ' ' + desc).toLowerCase();
+
+            // Fuzzy match: check if all characters in query appear in order
+            const matches = this.fuzzyMatch(combined, normalizedQuery);
+
+            if (matches) {
+                item.classList.remove('hidden');
+                // Highlight matched characters in name
+                if (nameEl) nameEl.innerHTML = this.highlightMatches(name, normalizedQuery);
+                if (descEl) descEl.innerHTML = this.highlightMatches(desc, normalizedQuery);
+            } else {
+                item.classList.add('hidden');
+            }
+        });
+    }
+
+    // Simple fuzzy matching - characters must appear in order
+    fuzzyMatch(text, pattern) {
+        let patternIdx = 0;
+        for (let i = 0; i < text.length && patternIdx < pattern.length; i++) {
+            if (text[i] === pattern[patternIdx]) {
+                patternIdx++;
+            }
+        }
+        return patternIdx === pattern.length;
+    }
+
+    // Highlight matching characters in text
+    highlightMatches(text, pattern) {
+        const lowerText = text.toLowerCase();
+        let result = '';
+        let patternIdx = 0;
+
+        for (let i = 0; i < text.length; i++) {
+            if (patternIdx < pattern.length && lowerText[i] === pattern[patternIdx]) {
+                result += `<span class="search-highlight">${text[i]}</span>`;
+                patternIdx++;
+            } else {
+                result += text[i];
+            }
+        }
+        return result;
+    }
+
     updateTimestamp() {
         const now = new Date();
         document.getElementById('timestamp').textContent =
@@ -125,6 +205,12 @@ class TudatTestRunner {
     setupEventListeners() {
         document.getElementById('run-btn').addEventListener('click', () => this.runTests());
         document.getElementById('clear-btn').addEventListener('click', () => this.clearResults());
+
+        // Search input with fuzzy matching
+        const searchInput = document.getElementById('viz-search');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => this.filterVisualizations(e.target.value));
+        }
 
         // Orbit selector buttons
         document.getElementById('orbit-l2-halo').addEventListener('click', () => this.selectOrbit('l2-halo'));
@@ -815,6 +901,10 @@ class TudatTestRunner {
         // Clear previous 3D entities
         this.clearOrbitEntities();
 
+        // Check if this is a chart-only visualization (Python example port)
+        const vizConfig = visualizationRegistry[category];
+        const isChartOnly = vizConfig?.chartOnly === true;
+
         // Determine which bottom panel to show
         const cat = category.toLowerCase();
         const orbitSelectorPanel = document.getElementById('orbit-selector-panel');
@@ -838,6 +928,15 @@ class TudatTestRunner {
             if (chartPanel) chartPanel.style.display = '';
         }
 
+        // For chart-only visualizations, render charts in the full view area
+        if (isChartOnly) {
+            this.showChartOnlyVisualization(category, testName);
+            return;
+        }
+
+        // Restore globe layout if switching from chart-only
+        this.restoreGlobeLayout();
+
         // Show 3D visualization on globe
         this.show3DVisualization(category, testName);
 
@@ -853,14 +952,8 @@ class TudatTestRunner {
         if (cat.includes('cr3bp') || cat.includes('three-body') || cat.includes('3bp')) {
             showCR3BPVisualization(this.viewer, this.orbitEntities, 'l2-halo', log, true);
         }
-        else if (cat.includes('lambert')) {
-            showLambertVisualization(this.viewer, this.orbitEntities);
-        }
         else if (cat.includes('libration')) {
             showLibrationPointsVisualization(this.viewer, this.orbitEntities, log);
-        }
-        else if (cat.includes('spherical harmon')) {
-            showSphericalHarmonicsVisualization(this.viewer, this.orbitEntities);
         }
         else if (cat.includes('atmospheric') || cat.includes('nrlmsise')) {
             showAtmosphericDragVisualization(this.viewer, this.orbitEntities);
@@ -3695,6 +3788,110 @@ class TudatTestRunner {
                 });
             }
             this.render3DChart({ type: 'scatter3d', points, scale: 80 });
+        }
+    }
+
+    // ==================== Chart-Only Visualizations (Python Example Ports) ====================
+
+    showChartOnlyVisualization(category, testName) {
+        // Get containers
+        const globeContainer = document.querySelector('.globe-container');
+        const trajectoryContainer = document.querySelector('.trajectory-container');
+        const chartPanel = document.getElementById('chart-panel');
+        const chartContainer = document.getElementById('d3-chart');
+        const chartTitle = document.getElementById('chart-title');
+        const orbitSelectorPanel = document.getElementById('orbit-selector-panel');
+        const odModelPanel = document.getElementById('od-model-panel');
+
+        if (!chartPanel || !chartContainer) {
+            this.log('Chart container not available', 'error');
+            return;
+        }
+
+        // Hide the Cesium globe completely
+        if (globeContainer) globeContainer.style.display = 'none';
+
+        // Make trajectory container take FULL space (remove max-height constraint)
+        if (trajectoryContainer) {
+            trajectoryContainer.style.flex = '1';
+            trajectoryContainer.style.maxHeight = 'none';
+            trajectoryContainer.style.height = '100%';
+        }
+
+        // Hide other panels, show chart panel that fills entire space
+        if (orbitSelectorPanel) orbitSelectorPanel.style.display = 'none';
+        if (odModelPanel) odModelPanel.style.display = 'none';
+
+        // Chart panel fills the trajectory container
+        chartPanel.style.display = 'flex';
+        chartPanel.style.flexDirection = 'column';
+        chartPanel.style.height = '100%';
+        chartPanel.style.flex = '1';
+
+        // Chart container fills the chart panel
+        chartContainer.style.flex = '1';
+        chartContainer.style.height = '100%';
+        chartContainer.style.minHeight = '0';
+        chartContainer.style.overflow = 'auto';
+
+        // Clear previous chart content
+        chartContainer.innerHTML = '';
+
+        // Clear the Cesium globe visualization (not needed for chart-only)
+        this.clearOrbitEntities();
+
+        // Logging helper
+        const log = (msg, level) => this.log(msg, level);
+
+        // Route to the appropriate example visualization
+        // Map category names to show functions
+        const exampleMap = {
+            'Keplerian Orbit': { title: 'Keplerian Orbit (Two-Body Problem)', fn: showKeplerianOrbitExample },
+            'Perturbed Orbit': { title: 'Perturbed Orbit (J2 vs Full Force)', fn: showPerturbedOrbitExample },
+            'Re-entry Trajectory': { title: 'Atmospheric Re-entry Trajectory', fn: showReentryTrajectoryExample },
+            'Solar System': { title: 'Solar System Propagation', fn: showSolarSystemExample },
+            'Thrust Satellite': { title: 'Low-Thrust Orbit Transfer', fn: showThrustSatelliteExample },
+            'Two-Stage Rocket': { title: 'Two-Stage Rocket Ascent', fn: showTwoStageRocketExample },
+            'Linear Sensitivity': { title: 'Linear Sensitivity Analysis', fn: showLinearSensitivityExample },
+            'Earth-Mars Transfer': { title: 'Earth-Mars Transfer Window', fn: showEarthMarsTransferExample },
+            'MGA Trajectory': { title: 'Multi-Gravity Assist Trajectory', fn: showMGATrajectoryExample },
+            'Hohmann Transfer': { title: 'Hohmann Transfer (LEO to GEO)', fn: showHohmannTransferExample },
+            'Gravity Assist': { title: 'Planetary Gravity Assist', fn: showGravityAssistExample },
+            'Covariance Propagation': { title: 'Covariance Propagation', fn: showCovariancePropagationExample },
+            'Himmelblau Optimization': { title: 'Himmelblau Function Optimization', fn: showHimmelblauOptimizationExample },
+            'Asteroid Orbit Optimization': { title: 'Asteroid Mission Optimization', fn: showAsteroidOrbitOptimizationExample }
+        };
+
+        const example = exampleMap[category];
+        if (example) {
+            if (chartTitle) chartTitle.textContent = example.title;
+            example.fn(chartContainer, log);
+        } else {
+            // Unknown chart-only visualization
+            if (chartTitle) chartTitle.textContent = category;
+            chartContainer.innerHTML = `<div style="padding: 20px; color: var(--text-secondary);">Chart-only visualization for "${category}" not implemented yet.</div>`;
+        }
+    }
+
+    // Restore normal visualization layout (globe + chart)
+    restoreGlobeLayout() {
+        const globeContainer = document.querySelector('.globe-container');
+        const trajectoryContainer = document.querySelector('.trajectory-container');
+        const chartPanel = document.getElementById('chart-panel');
+        const chartContainer = document.getElementById('d3-chart');
+
+        if (globeContainer) globeContainer.style.display = '';
+        if (trajectoryContainer) {
+            trajectoryContainer.style.flex = '';
+            trajectoryContainer.style.height = '';
+            trajectoryContainer.style.maxHeight = '';
+        }
+        if (chartPanel) {
+            chartPanel.style.flex = '';
+        }
+        if (chartContainer) {
+            chartContainer.style.minHeight = '';
+            chartContainer.style.overflow = '';
         }
     }
 
