@@ -1,0 +1,321 @@
+/**
+ * Earth-Mars Transfer Window Example
+ * Port of: tudatpy/examples/mission_design/earth_mars_transfer_window.py
+ *
+ * Demonstrates porkchop plot generation for Earth-Mars transfers.
+ * Shows delta-V contours as function of departure and arrival dates.
+ */
+
+export function showEarthMarsTransferExample(chartContainer, log, params = {}) {
+    const config = {
+        departureWindowDays: params.departureWindowDays ?? 400,  // days from J2000
+        arrivalWindowDays: params.arrivalWindowDays ?? 400,      // days
+        departureStart: params.departureStart ?? 0,              // days from reference
+        arrivalStart: params.arrivalStart ?? 200,                // minimum flight time
+        resolution: params.resolution ?? 30                       // grid points per axis
+    };
+
+    log('Running Earth-Mars Transfer Window Example...', 'info');
+    log(`Departure window: ${config.departureWindowDays} days`, 'info');
+    log(`Arrival window: ${config.arrivalWindowDays} days`, 'info');
+    log(`Resolution: ${config.resolution}x${config.resolution}`, 'info');
+
+    const startTime = performance.now();
+    const result = computeTransferWindow(config);
+    const elapsed = performance.now() - startTime;
+    log(`Computation completed in ${elapsed.toFixed(1)} ms`, 'success');
+
+    log(`Minimum delta-V: ${result.minDeltaV.toFixed(0)} m/s`, 'info');
+    log(`Optimal departure: Day ${result.optimalDeparture.toFixed(0)}`, 'info');
+    log(`Optimal arrival: Day ${result.optimalArrival.toFixed(0)}`, 'info');
+    log(`Flight time: ${(result.optimalArrival - result.optimalDeparture).toFixed(0)} days`, 'info');
+
+    renderPorkchopPlot(chartContainer, result, config);
+
+    return {
+        name: 'Earth-Mars Transfer',
+        description: 'Interplanetary transfer window analysis',
+        ...result,
+        config
+    };
+}
+
+function computeTransferWindow(config) {
+    // Simplified orbital elements
+    const AU = 149597870.7;  // km
+    const muSun = 1.32712440018e11;  // km³/s²
+
+    const earthParams = { a: 1.000, e: 0.017, period: 365.25 };
+    const marsParams = { a: 1.524, e: 0.093, period: 687.0 };
+
+    const departureDays = [];
+    const arrivalDays = [];
+    const deltaVGrid = [];
+
+    const dDep = config.departureWindowDays / (config.resolution - 1);
+    const dArr = config.arrivalWindowDays / (config.resolution - 1);
+
+    let minDeltaV = Infinity;
+    let optimalDeparture = 0;
+    let optimalArrival = 0;
+
+    for (let i = 0; i < config.resolution; i++) {
+        const tDep = config.departureStart + i * dDep;
+        departureDays.push(tDep);
+
+        const row = [];
+        for (let j = 0; j < config.resolution; j++) {
+            const tArr = config.arrivalStart + j * dArr;
+            if (i === 0) arrivalDays.push(tArr);
+
+            const tof = (tArr - tDep) * 86400;  // seconds
+
+            if (tof < 100 * 86400 || tof > 400 * 86400) {
+                // Invalid flight time
+                row.push(NaN);
+                continue;
+            }
+
+            // Get planet positions (simplified circular orbits)
+            const earthPos = getPlanetPosition(earthParams, tDep, AU);
+            const marsPos = getPlanetPosition(marsParams, tArr, AU);
+
+            // Solve Lambert problem (simplified)
+            const deltaV = solveLambertApprox(earthPos, marsPos, tof, muSun);
+
+            row.push(deltaV);
+
+            if (deltaV < minDeltaV && !isNaN(deltaV)) {
+                minDeltaV = deltaV;
+                optimalDeparture = tDep;
+                optimalArrival = tArr;
+            }
+        }
+        deltaVGrid.push(row);
+    }
+
+    return { departureDays, arrivalDays, deltaVGrid, minDeltaV, optimalDeparture, optimalArrival };
+}
+
+function getPlanetPosition(params, daysSinceEpoch, AU) {
+    const n = 2 * Math.PI / params.period;  // rad/day
+    const M = n * daysSinceEpoch;
+
+    // Solve Kepler's equation
+    let E = M;
+    for (let i = 0; i < 10; i++) {
+        E = E - (E - params.e * Math.sin(E) - M) / (1 - params.e * Math.cos(E));
+    }
+
+    const nu = 2 * Math.atan2(
+        Math.sqrt(1 + params.e) * Math.sin(E / 2),
+        Math.sqrt(1 - params.e) * Math.cos(E / 2)
+    );
+
+    const r = params.a * (1 - params.e * Math.cos(E)) * AU;
+
+    return {
+        x: r * Math.cos(nu),
+        y: r * Math.sin(nu),
+        z: 0,
+        r: r
+    };
+}
+
+function solveLambertApprox(r1, r2, tof, mu) {
+    // Simplified Lambert solver using Hohmann-like approximation
+    const r1Mag = Math.sqrt(r1.x * r1.x + r1.y * r1.y + r1.z * r1.z);
+    const r2Mag = Math.sqrt(r2.x * r2.x + r2.y * r2.y + r2.z * r2.z);
+
+    // Transfer angle
+    const cosTheta = (r1.x * r2.x + r1.y * r2.y) / (r1Mag * r2Mag);
+    const theta = Math.acos(Math.max(-1, Math.min(1, cosTheta)));
+
+    // Semi-major axis estimate
+    const c = Math.sqrt(r1Mag * r1Mag + r2Mag * r2Mag - 2 * r1Mag * r2Mag * cosTheta);
+    const s = (r1Mag + r2Mag + c) / 2;
+    const aMin = s / 2;
+
+    // Parabolic time of flight
+    const tofPara = Math.sqrt(2) / 3 * Math.sqrt(s * s * s / mu) * (1 - Math.pow((s - c) / s, 1.5));
+
+    // Estimate semi-major axis from time of flight ratio
+    const tofRatio = tof / tofPara;
+    let a = aMin * Math.pow(tofRatio, 0.5);
+
+    // Vis-viva for departure and arrival velocities
+    const v1Circ = Math.sqrt(mu / r1Mag);
+    const v2Circ = Math.sqrt(mu / r2Mag);
+
+    const v1Trans = Math.sqrt(mu * (2 / r1Mag - 1 / a));
+    const v2Trans = Math.sqrt(mu * (2 / r2Mag - 1 / a));
+
+    // Delta-V (simplified - doesn't account for flight path angles properly)
+    const dv1 = Math.abs(v1Trans - v1Circ);
+    const dv2 = Math.abs(v2Trans - v2Circ);
+
+    // Add penalty for very short/long transfers
+    let penalty = 0;
+    if (tof < 150 * 86400) penalty = (150 * 86400 - tof) / 86400 * 100;
+    if (tof > 350 * 86400) penalty = (tof - 350 * 86400) / 86400 * 50;
+
+    return (dv1 + dv2) * 1000 + penalty;  // Convert to m/s
+}
+
+function renderPorkchopPlot(container, result, config) {
+    container.innerHTML = '';
+
+    const containerRect = container.getBoundingClientRect();
+    const containerWidth = containerRect.width || 600;
+    const containerHeight = containerRect.height || 500;
+
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = `
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 15px;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+    `;
+    container.appendChild(wrapper);
+
+    const title = document.createElement('div');
+    title.style.cssText = 'font-family: "Orbitron", sans-serif; font-size: 14px; color: var(--cyan); margin-bottom: 10px; text-align: center;';
+    title.textContent = 'Earth-Mars Transfer Porkchop Plot';
+    wrapper.appendChild(title);
+
+    const chartDiv = document.createElement('div');
+    wrapper.appendChild(chartDiv);
+
+    const size = Math.min(containerWidth - 80, containerHeight - 120);
+    const width = size;
+    const height = size;
+    const margin = { top: 20, right: 60, bottom: 50, left: 60 };
+
+    const svg = d3.select(chartDiv)
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+    // Scales
+    const x = d3.scaleLinear()
+        .domain([result.departureDays[0], result.departureDays[result.departureDays.length - 1]])
+        .range([margin.left, width - margin.right]);
+
+    const y = d3.scaleLinear()
+        .domain([result.arrivalDays[0], result.arrivalDays[result.arrivalDays.length - 1]])
+        .range([height - margin.bottom, margin.top]);
+
+    // Color scale for delta-V
+    const validValues = result.deltaVGrid.flat().filter(v => !isNaN(v));
+    const minV = Math.min(...validValues);
+    const maxV = Math.min(Math.max(...validValues), minV * 3);  // Cap at 3x minimum
+
+    const color = d3.scaleSequential(d3.interpolateViridis)
+        .domain([maxV, minV]);  // Reversed so lower is brighter
+
+    // Draw heatmap cells
+    const cellWidth = (width - margin.left - margin.right) / config.resolution;
+    const cellHeight = (height - margin.top - margin.bottom) / config.resolution;
+
+    for (let i = 0; i < config.resolution; i++) {
+        for (let j = 0; j < config.resolution; j++) {
+            const val = result.deltaVGrid[i][j];
+            if (isNaN(val)) continue;
+
+            svg.append('rect')
+                .attr('x', margin.left + i * cellWidth)
+                .attr('y', margin.top + (config.resolution - 1 - j) * cellHeight)
+                .attr('width', cellWidth)
+                .attr('height', cellHeight)
+                .attr('fill', color(Math.min(val, maxV)));
+        }
+    }
+
+    // Optimal point marker
+    svg.append('circle')
+        .attr('cx', x(result.optimalDeparture))
+        .attr('cy', y(result.optimalArrival))
+        .attr('r', 8)
+        .attr('fill', 'none')
+        .attr('stroke', 'var(--red)')
+        .attr('stroke-width', 2);
+
+    svg.append('text')
+        .attr('x', x(result.optimalDeparture) + 12)
+        .attr('y', y(result.optimalArrival) + 4)
+        .attr('fill', 'var(--red)')
+        .attr('font-size', '10px')
+        .text(`${(result.minDeltaV/1000).toFixed(1)} km/s`);
+
+    // Axes
+    svg.append('g')
+        .attr('transform', `translate(0,${height - margin.bottom})`)
+        .call(d3.axisBottom(x).ticks(6))
+        .attr('color', 'var(--text-dim)');
+
+    svg.append('g')
+        .attr('transform', `translate(${margin.left},0)`)
+        .call(d3.axisLeft(y).ticks(6))
+        .attr('color', 'var(--text-dim)');
+
+    svg.append('text')
+        .attr('x', width / 2)
+        .attr('y', height - 10)
+        .attr('text-anchor', 'middle')
+        .attr('fill', 'var(--text-secondary)')
+        .attr('font-size', '11px')
+        .text('Departure Day');
+
+    svg.append('text')
+        .attr('transform', 'rotate(-90)')
+        .attr('x', -height / 2)
+        .attr('y', 15)
+        .attr('text-anchor', 'middle')
+        .attr('fill', 'var(--text-secondary)')
+        .attr('font-size', '11px')
+        .text('Arrival Day');
+
+    // Color bar
+    const colorBarWidth = 15;
+    const colorBarHeight = height - margin.top - margin.bottom;
+    const colorBarX = width - margin.right + 10;
+
+    const colorBarData = d3.range(0, 1.01, 0.02);
+    colorBarData.forEach((t, i) => {
+        svg.append('rect')
+            .attr('x', colorBarX)
+            .attr('y', margin.top + i * (colorBarHeight / colorBarData.length))
+            .attr('width', colorBarWidth)
+            .attr('height', colorBarHeight / colorBarData.length + 1)
+            .attr('fill', color(minV + t * (maxV - minV)));
+    });
+
+    svg.append('text')
+        .attr('x', colorBarX + colorBarWidth / 2)
+        .attr('y', margin.top - 5)
+        .attr('text-anchor', 'middle')
+        .attr('fill', 'var(--text-dim)')
+        .attr('font-size', '9px')
+        .text(`${(minV/1000).toFixed(1)}`);
+
+    svg.append('text')
+        .attr('x', colorBarX + colorBarWidth / 2)
+        .attr('y', height - margin.bottom + 12)
+        .attr('text-anchor', 'middle')
+        .attr('fill', 'var(--text-dim)')
+        .attr('font-size', '9px')
+        .text(`${(maxV/1000).toFixed(1)}`);
+
+    svg.append('text')
+        .attr('transform', `rotate(90)`)
+        .attr('x', height / 2)
+        .attr('y', -width + margin.right - 25)
+        .attr('text-anchor', 'middle')
+        .attr('fill', 'var(--text-secondary)')
+        .attr('font-size', '10px')
+        .text('ΔV [km/s]');
+}

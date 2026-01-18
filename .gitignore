@@ -2,6 +2,7 @@
 examples
 # But keep the WASM visualization examples
 !tests/wasm/web/visualizations/examples/
+!docs/visualizations/examples/
 lib/
 libs/
 CMakeFiles/
