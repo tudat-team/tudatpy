@@ -249,18 +249,21 @@ class TudatTestRunner {
 
     selectDefaultVisualization() {
         // Auto-select J2 vs Full Force as the default visualization on page load
-        const container = document.getElementById('viz-category-list');
-        const vizItems = container.querySelectorAll('.viz-category');
+        // Use setTimeout to ensure DOM layout is complete before rendering charts
+        setTimeout(() => {
+            const container = document.getElementById('viz-category-list');
+            const vizItems = container.querySelectorAll('.viz-category');
 
-        // Find and select the J2 vs Full Force item
-        vizItems.forEach(item => {
-            const nameEl = item.querySelector('.category-name');
-            if (nameEl && nameEl.textContent === 'J2 vs Full Force') {
-                item.classList.add('selected');
-                // Trigger the visualization
-                this.visualizeTest('J2 vs Full Force', 'J2 vs Full Force');
-            }
-        });
+            // Find and select the J2 vs Full Force item
+            vizItems.forEach(item => {
+                const nameEl = item.querySelector('.category-name');
+                if (nameEl && nameEl.textContent === 'J2 vs Full Force') {
+                    item.classList.add('selected');
+                    // Trigger the visualization
+                    this.visualizeTest('J2 vs Full Force', 'J2 vs Full Force');
+                }
+            });
+        }, 100);  // Small delay to ensure layout is complete
     }
 
     setupEventListeners() {
