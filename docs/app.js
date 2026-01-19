@@ -2,6 +2,7 @@
 // Handles WASM test execution, real-time UI updates, and visualizations
 
 import { SpiceKernelLoader } from './spice-loader.js';
+import { initSpice } from './visualizations/shared/spice-utils.js';
 
 import {
     // Shared utilities (used in default visualization case)
@@ -825,6 +826,8 @@ class TudatTestRunner {
 
             if (success) {
                 this.spiceReady = true;
+                // Initialize the shared SPICE utils so visualizations can access SPICE
+                initSpice(this.tudatModule, true);
                 this.log(`SPICE kernels loaded (${this.spiceLoader.getLoadedCount()} kernels)`, 'success');
 
                 // Test SPICE functionality
