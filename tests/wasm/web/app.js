@@ -45,12 +45,12 @@ class TudatTestRunner {
         this.startTime = null;
         this.currentCategory = 'General';
         this.consoleLines = 0;
-        this.expectedTests = 550;
+        this.expectedTests = 551;
 
         // Web Worker for running tests off main thread
         this.testWorker = null;
         this.workerReady = false;
-        this.totalTestCount = 550;  // Expected total tests
+        this.totalTestCount = 551;  // Expected total tests
 
         // Modal elements
         this.modal = null;

@@ -991,12 +991,20 @@
             font-weight: 700;
             color: var(--text-primary);
             margin-bottom: 8px;
+            font-variant-numeric: tabular-nums;
+            min-width: 140px;
+            display: inline-block;
         }
 
         .modal-progress-label {
-            font-size: 14px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 20px;
             color: var(--text-secondary);
             margin-bottom: 16px;
+            font-variant-numeric: tabular-nums;
+            min-width: 180px;
+            display: inline-block;
+            text-align: center;
         }
 
         .modal-progress-track {
@@ -1028,8 +1036,11 @@
 
         .modal-stat-value {
             font-family: 'Share Tech Mono', monospace;
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            min-width: 60px;
+            display: inline-block;
         }
 
         .modal-stat-value.passed {
