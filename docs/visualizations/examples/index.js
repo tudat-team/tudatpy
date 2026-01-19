@@ -10,6 +10,10 @@ export * from './solar-system-propagation.js';
 export * from './thrust-satellite.js';
 export * from './two-stage-rocket.js';
 export * from './linear-sensitivity.js';
+export * from './coupled-dynamics.js';
+export * from './cr3bp-manifolds.js';
+export * from './differential-drag.js';
+export * from './juice-flybys.js';
 
 // Mission design examples
 export * from './earth-mars-transfer.js';
@@ -67,6 +71,30 @@ export const exampleRegistry = {
         module: './examples/linear-sensitivity.js',
         showFunction: 'showLinearSensitivityExample',
         description: 'State transition matrix analysis',
+        category: 'Propagation'
+    },
+    'Coupled Dynamics': {
+        module: './examples/coupled-dynamics.js',
+        showFunction: 'showCoupledDynamicsExample',
+        description: 'Coupled orbit and attitude propagation',
+        category: 'Propagation'
+    },
+    'CR3BP Manifolds': {
+        module: './examples/cr3bp-manifolds.js',
+        showFunction: 'showCR3BPManifoldsExample',
+        description: 'Halo orbit manifolds in Earth-Moon system',
+        category: 'Propagation'
+    },
+    'Differential Drag': {
+        module: './examples/differential-drag.js',
+        showFunction: 'showDifferentialDragExample',
+        description: 'Satellite separation using differential drag',
+        category: 'Propagation'
+    },
+    'JUICE Flybys': {
+        module: './examples/juice-flybys.js',
+        showFunction: 'showJuiceFlybysExample',
+        description: 'JUICE mission Jovian moon flybys',
         category: 'Propagation'
     },
 
