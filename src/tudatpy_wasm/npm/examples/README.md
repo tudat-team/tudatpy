@@ -83,6 +83,9 @@ node examples/01_keplerian_satellite_orbit.js
 | `27_earth_moon_transfer.js` | Earth-Moon transfer with thrust | Low-thrust, mass depletion, multi-body |
 | `28_two_stage_rocket.js` | Two-stage rocket ascent on Mars | Staging, dual-thrust, atmospheric drag |
 | `29_juice_flybys.js` | JUICE mission flybys | Jovian system, moon flybys, B-plane |
+| `31_coupled_dynamics.js` | Coupled translational-rotational dynamics | Gravity gradient torque, attitude coupling |
+| `32_impact_manifolds.js` | Libration point orbit manifolds | CR3BP, stable/unstable manifolds, halo orbits |
+| `33_separation_diff_drag.js` | Satellite separation via differential drag | Formation flying, drag modulation |
 
 #### Estimation and Analysis
 
@@ -97,6 +100,23 @@ node examples/01_keplerian_satellite_orbit.js
 |---------|-------------|----------|
 | `26_mga_optimization.js` | Multiple gravity assist optimization | Cassini-like trajectory, EVVEJSA, global optimization |
 | `30_hodographic_shaping.js` | Low-thrust trajectory shaping | Hodographic method, basis functions, electric propulsion |
+| `34_cassini_mga.js` | Cassini-1 MGA trajectory design | VVEJSA sequence, Lambert targeting, flyby altitude |
+| `35_earth_mars_window.js` | Earth-Mars transfer window analysis | Porkchop plots, C3, arrival V-infinity |
+| `36_low_thrust_window.js` | Low-thrust Earth-Mars transfers | Edelbaum approximation, electric propulsion |
+
+#### Estimation Examples
+
+| Example | Description | Concepts |
+|---------|-------------|----------|
+| `37_full_estimation.js` | Full state estimation | Batch least squares, range/range-rate observations |
+| `38_tle_estimation.js` | TLE-based state estimation | TLE parsing, mean elements, SGP4 propagation |
+| `39_galilean_moons.js` | Galilean moons state estimation | Multi-body estimation, Laplace resonance |
+
+#### Optimization Examples
+
+| Example | Description | Concepts |
+|---------|-------------|----------|
+| `40_asteroid_optimization.js` | Asteroid orbit optimization | Evolutionary algorithms, multi-objective optimization |
 
 ## Browser Demo
 
