@@ -103,6 +103,9 @@ class TudatTestRunner {
         this.setupVisualizationCategories();
 
         await this.loadWasmWorker();
+
+        // Load SPICE kernels for ephemeris-based visualizations
+        await this.loadSpiceKernels();
     }
 
     setupModal() {
