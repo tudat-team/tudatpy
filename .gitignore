@@ -143,6 +143,8 @@ install_manifest.txt
 *.out
 *.app
 *.sh
+!scripts/*.sh
+!scripts/**/*.sh
 
 #
 # Build and doxygen related

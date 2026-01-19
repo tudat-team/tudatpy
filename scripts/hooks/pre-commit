@@ -1,0 +1,88 @@
+#!/bin/bash
+# Pre-commit hook: Copy WASM web files to docs/ for GitHub Pages hosting
+# This ensures the latest built WASM files are always available at the GitHub Pages URL
+#
+# To enable this hook, run:
+#   git config core.hooksPath scripts/hooks
+
+set -e
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+DOCS_DIR="$REPO_ROOT/docs"
+BUILD_WEB_DIR="$REPO_ROOT/build-wasm/tests/wasm/web"
+SRC_WEB_DIR="$REPO_ROOT/tests/wasm/web"
+
+# Check if we have a build directory with WASM files
+if [ -d "$BUILD_WEB_DIR" ] && [ -f "$BUILD_WEB_DIR/tudat_wasm_test.wasm" ]; then
+    echo "Using built WASM files from $BUILD_WEB_DIR"
+elif [ -d "$SRC_WEB_DIR" ]; then
+    echo "Using source web files from $SRC_WEB_DIR (no build found)"
+else
+    echo "Warning: No web source found. Skipping docs folder update."
+    exit 0
+fi
+
+echo "Updating docs/ folder for GitHub Pages..."
+
+# Create docs directory if it doesn't exist
+mkdir -p "$DOCS_DIR"
+mkdir -p "$DOCS_DIR/imagery"
+
+# IMPORTANT: Always copy app.js and index.html from SOURCE directory
+# (not build directory) since that's where edits are made
+cp "$SRC_WEB_DIR/index.html" "$DOCS_DIR/" 2>/dev/null || true
+cp "$SRC_WEB_DIR/app.js" "$DOCS_DIR/" 2>/dev/null || true
+cp "$SRC_WEB_DIR/testWorker.js" "$DOCS_DIR/" 2>/dev/null || true
+
+# Copy WASM files if they exist (only from build)
+if [ -f "$BUILD_WEB_DIR/tudat_wasm_test.js" ]; then
+    cp "$BUILD_WEB_DIR/tudat_wasm_test.js" "$DOCS_DIR/"
+    cp "$BUILD_WEB_DIR/tudat_wasm_test.wasm" "$DOCS_DIR/"
+fi
+
+# Copy Embind WASM module if it exists (the full API)
+EMBIND_DIR="$REPO_ROOT/build-wasm/src/tudatpy_wasm"
+if [ -f "$EMBIND_DIR/tudatpy_wasm.js" ]; then
+    cp "$EMBIND_DIR/tudatpy_wasm.js" "$DOCS_DIR/"
+    cp "$EMBIND_DIR/tudatpy_wasm.wasm" "$DOCS_DIR/"
+    echo "Copied Embind WASM module"
+fi
+
+# Copy imagery files if they exist (from source)
+if [ -d "$SRC_WEB_DIR/imagery" ]; then
+    cp -r "$SRC_WEB_DIR/imagery/"* "$DOCS_DIR/imagery/" 2>/dev/null || true
+fi
+
+# Copy visualizations folder (always from source for latest)
+if [ -d "$SRC_WEB_DIR/visualizations" ]; then
+    cp -r "$SRC_WEB_DIR/visualizations" "$DOCS_DIR/"
+    echo "Copied visualizations modules"
+fi
+
+# Copy CesiumJS library if it exists (from source)
+if [ -d "$SRC_WEB_DIR/cesium" ]; then
+    cp -r "$SRC_WEB_DIR/cesium" "$DOCS_DIR/"
+fi
+
+# Generate and copy API documentation
+API_DOCS_DIR="$REPO_ROOT/src/tudatpy_wasm/npm/docs"
+NPM_DIR="$REPO_ROOT/src/tudatpy_wasm/npm"
+if [ -f "$NPM_DIR/package.json" ]; then
+    echo "Generating API documentation..."
+    cd "$NPM_DIR"
+    npm run docs 2>/dev/null || echo "Warning: Could not generate API docs"
+    cd "$REPO_ROOT"
+fi
+if [ -d "$API_DOCS_DIR" ]; then
+    mkdir -p "$DOCS_DIR/api"
+    cp -r "$API_DOCS_DIR/"* "$DOCS_DIR/api/"
+    echo "Copied API documentation"
+fi
+
+# Create .nojekyll file (tells GitHub Pages not to process with Jekyll)
+touch "$DOCS_DIR/.nojekyll"
+
+# Stage the docs folder
+git add "$DOCS_DIR"
+
+echo "docs/ folder updated and staged for commit"
