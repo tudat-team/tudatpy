@@ -3,6 +3,7 @@
 
 // Shared utilities
 export * from './shared/utils.js';
+export * from './shared/spice-utils.js';
 
 // Individual visualizations
 export * from './cr3bp/index.js';
@@ -105,6 +106,12 @@ export const visualizationRegistry = {
         description: 'JUICE mission Jovian moon flybys',
         chartOnly: true
     },
+    'Earth-Moon Thrust': {
+        module: './examples/earth-moon-thrust.js',
+        showFunction: 'showEarthMoonThrustExample',
+        description: 'Low-thrust Earth-Moon transfer',
+        chartOnly: true
+    },
     // === Mission Design ===
     'Earth-Mars Transfer': {
         module: './examples/earth-mars-transfer.js',
@@ -130,11 +137,47 @@ export const visualizationRegistry = {
         description: 'Planetary flyby mechanics',
         chartOnly: true
     },
+    'Cassini MGA': {
+        module: './examples/cassini-mga.js',
+        showFunction: 'showCassiniMGAExample',
+        description: 'Cassini trajectory optimization',
+        chartOnly: true
+    },
+    'Low-Thrust Porkchop': {
+        module: './examples/low-thrust-porkchop.js',
+        showFunction: 'showLowThrustPorkchopExample',
+        description: 'Low-thrust transfer windows',
+        chartOnly: true
+    },
     // === Estimation ===
     'Covariance Propagation': {
         module: './examples/covariance-propagation.js',
         showFunction: 'showCovariancePropagationExample',
         description: 'Uncertainty propagation over time',
+        chartOnly: true
+    },
+    'Full Estimation': {
+        module: './examples/full-estimation.js',
+        showFunction: 'showFullEstimationExample',
+        description: 'Parameter estimation with Doppler observations',
+        chartOnly: true
+    },
+    'Galilean Moons Estimation': {
+        module: './examples/galilean-moons-estimation.js',
+        showFunction: 'showGalileanMoonsEstimationExample',
+        description: 'Jupiter moon state estimation',
+        chartOnly: true
+    },
+    'Estimation Dynamical Models': {
+        module: './examples/estimation-dynamical-models.js',
+        showFunction: 'showEstimationDynamicalModelsExample',
+        description: 'Mars Express estimation with model mismatch',
+        chartOnly: true
+    },
+    'MPC Asteroid Estimation': {
+        module: './examples/mpc-asteroid-estimation.js',
+        showFunction: 'showMPCAsteroidEstimationExample',
+        description: 'Asteroid orbit estimation from MPC data',
         chartOnly: true
     },
     // === Optimization (PyGMO) ===
@@ -148,6 +191,12 @@ export const visualizationRegistry = {
         module: './examples/asteroid-orbit-optimization.js',
         showFunction: 'showAsteroidOrbitOptimizationExample',
         description: 'Multi-objective mission design',
+        chartOnly: true
+    },
+    'Hodographic Shaping MGA': {
+        module: './examples/hodographic-shaping-mga.js',
+        showFunction: 'showHodographicShapingMGAExample',
+        description: 'Low-thrust MGA trajectory optimization',
         chartOnly: true
     },
 

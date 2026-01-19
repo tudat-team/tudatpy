@@ -1,6 +1,8 @@
 // Tudat WASM Test Runner - CesiumJS Edition
 // Handles WASM test execution, real-time UI updates, and visualizations
 
+import { SpiceKernelLoader } from './spice-loader.js';
+
 import {
     // Shared utilities (used in default visualization case)
     configureClockForOrbit,
@@ -25,13 +27,21 @@ import {
     showCR3BPManifoldsExample,
     showDifferentialDragExample,
     showJuiceFlybysExample,
+    showEarthMoonThrustExample,
     showEarthMarsTransferExample,
     showMGATrajectoryExample,
     showHohmannTransferExample,
     showGravityAssistExample,
+    showCassiniMGAExample,
+    showLowThrustPorkchopExample,
     showCovariancePropagationExample,
+    showFullEstimationExample,
+    showGalileanMoonsEstimationExample,
+    showEstimationDynamicalModelsExample,
+    showMPCAsteroidEstimationExample,
     showHimmelblauOptimizationExample,
     showAsteroidOrbitOptimizationExample,
+    showHodographicShapingMGAExample,
     // Registry for dynamic category list
     visualizationRegistry
 } from './visualizations/index.js';
@@ -39,6 +49,9 @@ import {
 class TudatTestRunner {
     constructor() {
         this.wasmModule = null;
+        this.tudatModule = null;  // Full tudatpy WASM module with SPICE
+        this.spiceLoader = null;  // SPICE kernel loader
+        this.spiceReady = false;  // Flag indicating SPICE kernels are loaded
         this.testResults = [];
         this.categories = {};
         this.isRunning = false;
@@ -737,6 +750,131 @@ class TudatTestRunner {
             };
             check();
         });
+    }
+
+    /**
+     * Load the full tudatpy WASM module with SPICE support
+     * This is separate from the test runner module and provides
+     * access to ephemeris queries via SPICE kernels.
+     */
+    async loadTudatModule() {
+        if (this.tudatModule) {
+            return this.tudatModule;
+        }
+
+        try {
+            this.log('Loading tudatpy WASM module...', 'info');
+
+            // Dynamically import the module factory
+            const { default: createTudatModule } = await import('./tudatpy_wasm.js');
+
+            // Create the module with filesystem pre-setup
+            this.tudatModule = await createTudatModule({
+                print: (text) => console.log('[Tudat]', text),
+                printErr: (text) => console.error('[Tudat Error]', text),
+                preRun: [(Module) => {
+                    // Create directories for SPICE kernels
+                    try {
+                        Module.FS.mkdir('/spice_kernels');
+                    } catch (e) {
+                        // Directory may already exist
+                    }
+                }]
+            });
+
+            this.log('Tudatpy WASM module loaded', 'success');
+
+            // Initialize the SPICE kernel loader
+            this.spiceLoader = new SpiceKernelLoader(this.tudatModule);
+
+            return this.tudatModule;
+        } catch (error) {
+            this.log(`Failed to load tudatpy module: ${error.message}`, 'error');
+            console.error('Tudatpy module load error:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Load standard SPICE kernels for ephemeris queries
+     * Call this before using SPICE-dependent visualizations
+     */
+    async loadSpiceKernels() {
+        if (this.spiceReady) {
+            return true;
+        }
+
+        // Ensure tudatpy module is loaded first
+        if (!this.tudatModule) {
+            await this.loadTudatModule();
+        }
+
+        if (!this.spiceLoader) {
+            this.log('SPICE loader not available', 'error');
+            return false;
+        }
+
+        try {
+            this.log('Loading SPICE kernels...', 'info');
+
+            const success = await this.spiceLoader.loadStandardKernels({
+                onProgress: ({ loaded, total, currentKernel }) => {
+                    this.log(`Loading kernel ${loaded}/${total}: ${currentKernel}`, 'info');
+                }
+            });
+
+            if (success) {
+                this.spiceReady = true;
+                this.log(`SPICE kernels loaded (${this.spiceLoader.getLoadedCount()} kernels)`, 'success');
+
+                // Test SPICE functionality
+                this.spiceLoader.testSpice();
+            } else {
+                this.log('Some SPICE kernels failed to load', 'warning');
+            }
+
+            return success;
+        } catch (error) {
+            this.log(`SPICE kernel loading failed: ${error.message}`, 'error');
+            return false;
+        }
+    }
+
+    /**
+     * Get planetary state using SPICE
+     * @param {string} target - Target body name (e.g., 'Earth', 'Mars')
+     * @param {string} observer - Observer body name (e.g., 'Sun')
+     * @param {number} epoch - Ephemeris time (seconds since J2000)
+     * @param {string} frame - Reference frame (default: 'J2000')
+     * @returns {Object|null} State object {x, y, z, vx, vy, vz} or null if not available
+     */
+    getBodyState(target, observer, epoch, frame = 'J2000') {
+        if (!this.spiceReady || !this.tudatModule) {
+            console.warn('SPICE not ready. Call loadSpiceKernels() first.');
+            return null;
+        }
+
+        try {
+            const state = this.tudatModule.interface_.spice.get_body_cartesian_state_at_epoch(
+                target,
+                observer,
+                frame,
+                'NONE',
+                epoch
+            );
+
+            return {
+                x: state.get(0),
+                y: state.get(1),
+                z: state.get(2),
+                vx: state.get(3),
+                vy: state.get(4),
+                vz: state.get(5)
+            };
+        } catch (error) {
+            console.error(`Failed to get state for ${target}:`, error);
+            return null;
+        }
     }
 
     // ==================== Output Processing ====================
@@ -4051,8 +4189,16 @@ class TudatTestRunner {
             'Hohmann Transfer': { title: 'Hohmann Transfer (LEO to GEO)', fn: showHohmannTransferExample },
             'Gravity Assist': { title: 'Planetary Gravity Assist', fn: showGravityAssistExample },
             'Covariance Propagation': { title: 'Covariance Propagation', fn: showCovariancePropagationExample },
+            'Full Estimation': { title: 'Full Parameter Estimation', fn: showFullEstimationExample },
+            'Galilean Moons Estimation': { title: 'Galilean Moons State Estimation', fn: showGalileanMoonsEstimationExample },
             'Himmelblau Optimization': { title: 'Himmelblau Function Optimization', fn: showHimmelblauOptimizationExample },
-            'Asteroid Orbit Optimization': { title: 'Asteroid Mission Optimization', fn: showAsteroidOrbitOptimizationExample }
+            'Asteroid Orbit Optimization': { title: 'Asteroid Mission Optimization', fn: showAsteroidOrbitOptimizationExample },
+            'Cassini MGA': { title: 'Cassini MGA Trajectory Optimization', fn: showCassiniMGAExample },
+            'Low-Thrust Porkchop': { title: 'Low-Thrust Transfer Windows', fn: showLowThrustPorkchopExample },
+            'Earth-Moon Thrust': { title: 'Earth-Moon Low-Thrust Transfer', fn: showEarthMoonThrustExample },
+            'Estimation Dynamical Models': { title: 'Mars Express Estimation (Model Mismatch)', fn: showEstimationDynamicalModelsExample },
+            'MPC Asteroid Estimation': { title: 'Asteroid Orbit from MPC Data', fn: showMPCAsteroidEstimationExample },
+            'Hodographic Shaping MGA': { title: 'Low-Thrust MGA Optimization', fn: showHodographicShapingMGAExample }
         };
 
         const example = exampleMap[category];

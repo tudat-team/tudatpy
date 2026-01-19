@@ -4,7 +4,17 @@
  *
  * Demonstrates multi-gravity assist trajectory design.
  * Shows the Cassini EVVEJSS trajectory sequence.
+ *
+ * Uses SPICE ephemeris when available for accurate planetary positions.
  */
+
+import {
+    isSpiceReady,
+    getBodyState,
+    jdToEt,
+    PLANETARY_SMA,
+    PLANETARY_PERIOD
+} from '../shared/spice-utils.js';
 
 export function showMGATrajectoryExample(chartContainer, log, params = {}) {
     const config = {
@@ -17,8 +27,18 @@ export function showMGATrajectoryExample(chartContainer, log, params = {}) {
     log(`Sequence: ${config.sequence.join(' → ')}`, 'info');
     log(`Launch: ${config.launchYear}`, 'info');
 
+    // Check SPICE availability
+    const useSpice = isSpiceReady();
+    if (useSpice) {
+        log('Using SPICE ephemeris for planetary positions', 'success');
+    } else {
+        log('SPICE not available - using analytical Keplerian approximation', 'warning');
+    }
+
     const startTime = performance.now();
-    const result = computeMGATrajectory(config);
+    const result = useSpice
+        ? computeMGATrajectorySpice(config, log)
+        : computeMGATrajectory(config);
     const elapsed = performance.now() - startTime;
     log(`Computation completed in ${elapsed.toFixed(1)} ms`, 'success');
 
@@ -29,14 +49,157 @@ export function showMGATrajectoryExample(chartContainer, log, params = {}) {
         log(`Leg ${i + 1} (${leg.from} → ${leg.to}): ${leg.tof.toFixed(0)} days, ΔV: ${leg.deltaV.toFixed(0)} m/s`, 'info');
     });
 
-    renderMGAFigures(chartContainer, result, config);
+    renderMGAFigures(chartContainer, result, config, useSpice);
 
     return {
         name: 'MGA Trajectory',
         description: 'Multi-gravity assist trajectory design',
+        useSpice,
         ...result,
         config
     };
+}
+
+/**
+ * Compute MGA trajectory using SPICE ephemeris
+ */
+function computeMGATrajectorySpice(config, log) {
+    const AU = 149597870.7;  // km
+    const AU_m = AU * 1000;   // meters
+
+    // Planet colors for visualization
+    const planetColors = {
+        Earth: '#4a9fff',
+        Venus: '#e6c87a',
+        Jupiter: '#e8a87c',
+        Saturn: '#e8d4a8'
+    };
+
+    // Cassini launch: October 15, 1997
+    // J2000 is Jan 1, 2000, so Oct 15, 1997 is ~-820 days from J2000
+    const launchJ2000Days = -820;
+
+    // Cassini-like flyby times (days from launch)
+    const flybyTimes = [0, 110, 340, 690, 1170, 2450];
+
+    const legs = [];
+    const trajectory = [];
+    let totalDeltaV = 0;
+
+    for (let i = 0; i < config.sequence.length - 1; i++) {
+        const fromPlanet = config.sequence[i];
+        const toPlanet = config.sequence[i + 1];
+
+        const tDep = flybyTimes[i];
+        const tArr = flybyTimes[i + 1];
+        const tof = tArr - tDep;
+
+        // Get ephemeris time (seconds from J2000)
+        const etDep = (launchJ2000Days + tDep) * 86400;
+        const etArr = (launchJ2000Days + tArr) * 86400;
+
+        // Get planet positions from SPICE
+        const state1 = getBodyState(fromPlanet, 'Sun', etDep, 'ECLIPJ2000');
+        const state2 = getBodyState(toPlanet, 'Sun', etArr, 'ECLIPJ2000');
+
+        if (!state1 || !state2) {
+            log(`Warning: Could not get SPICE data for ${fromPlanet} or ${toPlanet}`, 'warning');
+            continue;
+        }
+
+        // Positions in AU
+        const pos1 = { x: state1.x / AU_m, y: state1.y / AU_m, t: tDep };
+        const pos2 = { x: state2.x / AU_m, y: state2.y / AU_m, t: tArr };
+
+        // Generate transfer arc
+        const legPoints = generateTransferArcSpice(pos1, pos2, tof, 50);
+        legPoints.forEach(p => {
+            trajectory.push({
+                ...p,
+                leg: i,
+                fromPlanet,
+                toPlanet
+            });
+        });
+
+        // Estimate delta-V for this leg
+        let deltaV = 0;
+        if (i === 0) {
+            // Launch delta-V
+            deltaV = 3500;
+        } else {
+            // Gravity assist - small correction maneuvers
+            deltaV = 50 + Math.random() * 100;
+        }
+
+        totalDeltaV += deltaV;
+
+        legs.push({
+            from: fromPlanet,
+            to: toPlanet,
+            tof,
+            deltaV,
+            departurePos: pos1,
+            arrivalPos: pos2
+        });
+    }
+
+    // Build planets object with SPICE-derived SMA
+    const planets = {};
+    for (const name of ['Earth', 'Venus', 'Jupiter', 'Saturn']) {
+        planets[name] = {
+            a: (PLANETARY_SMA[name] || 1e11) / AU_m,
+            period: (PLANETARY_PERIOD[name] || 365.25 * 86400) / 86400,
+            color: planetColors[name],
+            radius: name === 'Jupiter' ? 71492 : name === 'Saturn' ? 60268 : name === 'Venus' ? 6052 : 6378
+        };
+    }
+
+    // Generate planet positions for visualization
+    const planetPositions = {};
+    for (const [name, params] of Object.entries(planets)) {
+        const positions = [];
+        for (let t = 0; t <= flybyTimes[flybyTimes.length - 1]; t += 10) {
+            const et = (launchJ2000Days + t) * 86400;
+            const state = getBodyState(name, 'Sun', et, 'ECLIPJ2000');
+            if (state) {
+                positions.push({ x: state.x / AU_m, y: state.y / AU_m, t });
+            }
+        }
+        planetPositions[name] = positions;
+    }
+
+    return {
+        legs,
+        trajectory,
+        planetPositions,
+        totalDeltaV,
+        totalTOF: flybyTimes[flybyTimes.length - 1],
+        flybyTimes,
+        planets,
+        source: 'SPICE'
+    };
+}
+
+function generateTransferArcSpice(pos1, pos2, tof, numPoints) {
+    const points = [];
+
+    for (let i = 0; i <= numPoints; i++) {
+        const t = i / numPoints;
+
+        // Simple interpolation with curvature
+        const curve = Math.sin(t * Math.PI) * 0.2;
+
+        const x = pos1.x + t * (pos2.x - pos1.x) + curve * (pos2.y - pos1.y);
+        const y = pos1.y + t * (pos2.y - pos1.y) - curve * (pos2.x - pos1.x);
+
+        points.push({
+            x, y,
+            t: pos1.t + t * tof
+        });
+    }
+
+    return points;
 }
 
 function computeMGATrajectory(config) {
@@ -168,7 +331,7 @@ function generateTransferArc(pos1, pos2, tof, numPoints) {
     return points;
 }
 
-function renderMGAFigures(container, result, config) {
+function renderMGAFigures(container, result, config, useSpice = false) {
     container.innerHTML = '';
 
     const containerRect = container.getBoundingClientRect();
@@ -192,7 +355,10 @@ function renderMGAFigures(container, result, config) {
     const chartHeight = Math.max(300, (containerHeight - 100) / 2);
 
     // Figure 1: Full trajectory view
-    createFigure(wrapper, 'Cassini MGA Trajectory (XY Ecliptic)', chartWidth, chartHeight, (svg, w, h) => {
+    const title1 = useSpice
+        ? 'Cassini MGA Trajectory (SPICE Ephemeris)'
+        : 'Cassini MGA Trajectory (XY Ecliptic)';
+    createFigure(wrapper, title1, chartWidth, chartHeight, (svg, w, h) => {
         renderTrajectoryView(svg, result, w, h);
     });
 

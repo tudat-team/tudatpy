@@ -4,21 +4,42 @@
  *
  * Demonstrates multi-body solar system propagation over 5 years.
  * Shows planetary orbits and their evolution.
+ *
+ * Uses SPICE ephemeris when available for accurate planetary positions.
  */
+
+import {
+    isSpiceReady,
+    getBodyState,
+    jdToEt,
+    PLANETARY_SMA,
+    PLANETARY_PERIOD
+} from '../shared/spice-utils.js';
 
 export function showSolarSystemExample(chartContainer, log, params = {}) {
     const config = {
         duration: params.duration ?? 5 * 365.25 * 86400,  // 5 years in seconds
         numPoints: params.numPoints ?? 2000,
-        centralBody: params.centralBody ?? 'Sun'
+        centralBody: params.centralBody ?? 'Sun',
+        startEpoch: params.startEpoch ?? 0  // J2000 epoch (ET = 0)
     };
 
     log('Running Solar System Propagation Example...', 'info');
     log(`Duration: ${(config.duration / (365.25 * 86400)).toFixed(1)} years`, 'info');
     log(`Central body: ${config.centralBody}`, 'info');
 
+    // Check SPICE availability
+    const useSpice = isSpiceReady();
+    if (useSpice) {
+        log('Using SPICE ephemeris for planetary positions', 'success');
+    } else {
+        log('SPICE not available - using analytical Keplerian approximation', 'warning');
+    }
+
     const startTime = performance.now();
-    const result = simulateSolarSystem(config);
+    const result = useSpice
+        ? simulateSolarSystemSpice(config, log)
+        : simulateSolarSystemAnalytical(config);
     const elapsed = performance.now() - startTime;
     log(`Simulation completed in ${elapsed.toFixed(1)} ms`, 'success');
 
@@ -31,12 +52,79 @@ export function showSolarSystemExample(chartContainer, log, params = {}) {
     return {
         name: 'Solar System',
         description: 'Multi-body solar system propagation',
+        useSpice,
         ...result,
         config
     };
 }
 
-function simulateSolarSystem(config) {
+/**
+ * Simulate solar system using SPICE ephemeris
+ */
+function simulateSolarSystemSpice(config, log) {
+    const AU = 149597870.7;  // km
+    const planetNames = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn'];
+    const planetColors = {
+        Mercury: '#b5b5b5',
+        Venus: '#e6c87a',
+        Earth: '#4a9fff',
+        Mars: '#ff6b4a',
+        Jupiter: '#e8a87c',
+        Saturn: '#e8d4a8'
+    };
+
+    const trajectories = {};
+    const dt = config.duration / config.numPoints;
+
+    for (const name of planetNames) {
+        const trajectory = [];
+
+        for (let i = 0; i < config.numPoints; i++) {
+            const t = i * dt;
+            const et = config.startEpoch + t;
+
+            // Get state from SPICE
+            const state = getBodyState(name, 'Sun', et, 'ECLIPJ2000');
+
+            if (state) {
+                // Convert from meters to AU
+                const x = state.x / (AU * 1000);
+                const y = state.y / (AU * 1000);
+                const z = state.z / (AU * 1000);
+                const r = Math.sqrt(x * x + y * y + z * z);
+
+                trajectory.push({
+                    t: t / (365.25 * 86400),  // years
+                    x, y, z,  // AU
+                    r
+                });
+            }
+        }
+
+        if (trajectory.length > 0) {
+            trajectories[name] = trajectory;
+        } else {
+            log(`Warning: No SPICE data for ${name}`, 'warning');
+        }
+    }
+
+    // Build planets object for compatibility
+    const planets = {};
+    for (const name of planetNames) {
+        planets[name] = {
+            color: planetColors[name],
+            a: (PLANETARY_SMA[name] || 1e11) / (AU * 1000),  // Convert to AU
+            period: (PLANETARY_PERIOD[name] || 365.25 * 86400) / 86400  // Convert to days
+        };
+    }
+
+    return { trajectories, planets, source: 'SPICE' };
+}
+
+/**
+ * Simulate solar system using analytical Keplerian elements (fallback)
+ */
+function simulateSolarSystemAnalytical(config) {
     // Simplified Keplerian elements for inner planets (J2000)
     const planets = {
         Mercury: { a: 0.387, e: 0.206, i: 7.0, omega: 29.12, Omega: 48.33, period: 87.97, color: '#b5b5b5' },
@@ -51,7 +139,6 @@ function simulateSolarSystem(config) {
         Saturn: { a: 9.537, e: 0.054, i: 2.48, omega: 338.7, Omega: 113.7, period: 10759, color: '#e8d4a8' }
     };
 
-    const AU = 149597870.7;  // km
     const trajectories = {};
     const dt = config.duration / config.numPoints;
 
@@ -110,7 +197,7 @@ function simulateSolarSystem(config) {
         trajectories[name] = trajectory;
     }
 
-    return { trajectories, planets: {...planets, ...outerPlanets} };
+    return { trajectories, planets: {...planets, ...outerPlanets}, source: 'analytical' };
 }
 
 function renderSolarSystemFigures(container, result, config) {
@@ -137,12 +224,18 @@ function renderSolarSystemFigures(container, result, config) {
     const chartHeight = Math.max(250, (containerHeight - 100) / 2);
 
     // Figure 1: Inner solar system (top-down view)
-    createFigure(wrapper, 'Inner Solar System (XY Ecliptic Plane)', chartWidth, chartHeight, (svg, w, h) => {
+    const title1 = result.source === 'SPICE'
+        ? 'Inner Solar System (SPICE Ephemeris)'
+        : 'Inner Solar System (XY Ecliptic Plane)';
+    createFigure(wrapper, title1, chartWidth, chartHeight, (svg, w, h) => {
         renderOrbitalView(svg, result, ['Mercury', 'Venus', 'Earth', 'Mars'], w, h, 2.0);
     });
 
     // Figure 2: Outer solar system
-    createFigure(wrapper, 'Outer Solar System (XY Ecliptic Plane)', chartWidth, chartHeight, (svg, w, h) => {
+    const title2 = result.source === 'SPICE'
+        ? 'Outer Solar System (SPICE Ephemeris)'
+        : 'Outer Solar System (XY Ecliptic Plane)';
+    createFigure(wrapper, title2, chartWidth, chartHeight, (svg, w, h) => {
         renderOrbitalView(svg, result, ['Earth', 'Mars', 'Jupiter', 'Saturn'], w, h, 12.0);
     });
 }

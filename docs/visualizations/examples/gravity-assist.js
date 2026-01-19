@@ -4,7 +4,17 @@
  *
  * Shows how spacecraft can gain or lose velocity using planetary flybys.
  * Visualizes the hyperbolic trajectory and velocity change.
+ *
+ * Uses SPICE ephemeris when available for accurate planetary parameters.
  */
+
+import {
+    isSpiceReady,
+    getGM,
+    getRadius,
+    PLANETARY_GM,
+    PLANETARY_RADIUS
+} from '../shared/spice-utils.js';
 
 export function showGravityAssistExample(chartContainer, log, params = {}) {
     const config = {
@@ -14,18 +24,37 @@ export function showGravityAssistExample(chartContainer, log, params = {}) {
         numPoints: params.numPoints ?? 300
     };
 
-    // Planet parameters
-    const planets = {
-        Venus: { mu: 324859, radius: 6052, vOrbit: 35.02, color: '#e6c87a' },
-        Earth: { mu: 398600, radius: 6378, vOrbit: 29.78, color: '#4a9fff' },
-        Mars: { mu: 42828, radius: 3396, vOrbit: 24.07, color: '#ff6b4a' },
-        Jupiter: { mu: 126686534, radius: 71492, vOrbit: 13.07, color: '#e8a87c' },
-        Saturn: { mu: 37931187, radius: 60268, vOrbit: 9.69, color: '#e8d4a8' }
-    };
+    // Check SPICE availability
+    const useSpice = isSpiceReady();
+
+    // Planet parameters - try SPICE first, fall back to hardcoded
+    let planets;
+    if (useSpice) {
+        planets = {
+            Venus: { mu: (getGM('Venus') || 324859e9) / 1e9, radius: (getRadius('Venus') || 6052000) / 1000, vOrbit: 35.02, color: '#e6c87a' },
+            Earth: { mu: (getGM('Earth') || 398600e9) / 1e9, radius: (getRadius('Earth') || 6378000) / 1000, vOrbit: 29.78, color: '#4a9fff' },
+            Mars: { mu: (getGM('Mars') || 42828e9) / 1e9, radius: (getRadius('Mars') || 3396000) / 1000, vOrbit: 24.07, color: '#ff6b4a' },
+            Jupiter: { mu: (getGM('Jupiter') || 126686534e9) / 1e9, radius: (getRadius('Jupiter') || 71492000) / 1000, vOrbit: 13.07, color: '#e8a87c' },
+            Saturn: { mu: (getGM('Saturn') || 37931187e9) / 1e9, radius: (getRadius('Saturn') || 60268000) / 1000, vOrbit: 9.69, color: '#e8d4a8' }
+        };
+    } else {
+        planets = {
+            Venus: { mu: 324859, radius: 6052, vOrbit: 35.02, color: '#e6c87a' },
+            Earth: { mu: 398600, radius: 6378, vOrbit: 29.78, color: '#4a9fff' },
+            Mars: { mu: 42828, radius: 3396, vOrbit: 24.07, color: '#ff6b4a' },
+            Jupiter: { mu: 126686534, radius: 71492, vOrbit: 13.07, color: '#e8a87c' },
+            Saturn: { mu: 37931187, radius: 60268, vOrbit: 9.69, color: '#e8d4a8' }
+        };
+    }
 
     const planet = planets[config.planet] || planets.Jupiter;
 
     log('Running Gravity Assist Example...', 'info');
+    if (useSpice) {
+        log('Using SPICE for planetary parameters', 'success');
+    } else {
+        log('SPICE not available - using hardcoded planetary parameters', 'warning');
+    }
     log(`Flyby planet: ${config.planet}`, 'info');
     log(`V∞ incoming: ${config.vInfIn} km/s`, 'info');
     log(`Flyby altitude: ${config.flybyAltitude} km`, 'info');
@@ -40,11 +69,12 @@ export function showGravityAssistExample(chartContainer, log, params = {}) {
     log(`Velocity change (heliocentric): ${result.deltaVHelio.toFixed(2)} km/s`, 'info');
     log(`Periapsis velocity: ${result.vPeriapsis.toFixed(2)} km/s`, 'info');
 
-    renderGravityAssistFigures(chartContainer, result, config, planet);
+    renderGravityAssistFigures(chartContainer, result, config, planet, useSpice);
 
     return {
         name: 'Gravity Assist',
         description: `${config.planet} flyby trajectory`,
+        useSpice,
         ...result,
         config
     };
@@ -125,7 +155,7 @@ function computeGravityAssist(config, planet) {
     };
 }
 
-function renderGravityAssistFigures(container, result, config, planet) {
+function renderGravityAssistFigures(container, result, config, planet, useSpice = false) {
     container.innerHTML = '';
 
     const containerRect = container.getBoundingClientRect();
@@ -149,7 +179,10 @@ function renderGravityAssistFigures(container, result, config, planet) {
     const chartHeight = Math.max(250, (containerHeight - 100) / 2);
 
     // Figure 1: Flyby trajectory
-    createFigure(wrapper, `${config.planet} Flyby Trajectory (Planet-centered)`, chartWidth, chartHeight, (svg, w, h) => {
+    const title1 = useSpice
+        ? `${config.planet} Flyby Trajectory (SPICE Parameters)`
+        : `${config.planet} Flyby Trajectory (Planet-centered)`;
+    createFigure(wrapper, title1, chartWidth, chartHeight, (svg, w, h) => {
         renderFlybyTrajectory(svg, result, planet, w, h);
     });
 

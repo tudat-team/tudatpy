@@ -14,19 +14,27 @@ export * from './coupled-dynamics.js';
 export * from './cr3bp-manifolds.js';
 export * from './differential-drag.js';
 export * from './juice-flybys.js';
+export * from './earth-moon-thrust.js';
 
 // Mission design examples
 export * from './earth-mars-transfer.js';
 export * from './mga-trajectory.js';
 export * from './hohmann-transfer.js';
 export * from './gravity-assist.js';
+export * from './cassini-mga.js';
+export * from './low-thrust-porkchop.js';
 
 // Estimation examples
 export * from './covariance-propagation.js';
+export * from './full-estimation.js';
+export * from './galilean-moons-estimation.js';
+export * from './estimation-dynamical-models.js';
+export * from './mpc-asteroid-estimation.js';
 
 // Optimization examples (PyGMO ports)
 export * from './himmelblau-optimization.js';
 export * from './asteroid-orbit-optimization.js';
+export * from './hodographic-shaping-mga.js';
 
 // Example registry for the visualization list
 export const exampleRegistry = {
@@ -97,6 +105,12 @@ export const exampleRegistry = {
         description: 'JUICE mission Jovian moon flybys',
         category: 'Propagation'
     },
+    'Earth-Moon Thrust': {
+        module: './examples/earth-moon-thrust.js',
+        showFunction: 'showEarthMoonThrustExample',
+        description: 'Low-thrust Earth-Moon transfer',
+        category: 'Propagation'
+    },
 
     // === Mission Design ===
     'Earth-Mars Transfer': {
@@ -123,12 +137,48 @@ export const exampleRegistry = {
         description: 'Planetary flyby mechanics',
         category: 'Mission Design'
     },
+    'Cassini MGA': {
+        module: './examples/cassini-mga.js',
+        showFunction: 'showCassiniMGAExample',
+        description: 'Cassini trajectory optimization',
+        category: 'Mission Design'
+    },
+    'Low-Thrust Porkchop': {
+        module: './examples/low-thrust-porkchop.js',
+        showFunction: 'showLowThrustPorkchopExample',
+        description: 'Low-thrust transfer windows',
+        category: 'Mission Design'
+    },
 
     // === Estimation ===
     'Covariance Propagation': {
         module: './examples/covariance-propagation.js',
         showFunction: 'showCovariancePropagationExample',
         description: 'Uncertainty propagation over time',
+        category: 'Estimation'
+    },
+    'Full Estimation': {
+        module: './examples/full-estimation.js',
+        showFunction: 'showFullEstimationExample',
+        description: 'Parameter estimation with Doppler observations',
+        category: 'Estimation'
+    },
+    'Galilean Moons Estimation': {
+        module: './examples/galilean-moons-estimation.js',
+        showFunction: 'showGalileanMoonsEstimationExample',
+        description: 'Jupiter moon state estimation',
+        category: 'Estimation'
+    },
+    'Estimation Dynamical Models': {
+        module: './examples/estimation-dynamical-models.js',
+        showFunction: 'showEstimationDynamicalModelsExample',
+        description: 'Mars Express estimation with model mismatch',
+        category: 'Estimation'
+    },
+    'MPC Asteroid Estimation': {
+        module: './examples/mpc-asteroid-estimation.js',
+        showFunction: 'showMPCAsteroidEstimationExample',
+        description: 'Asteroid orbit estimation from MPC data',
         category: 'Estimation'
     },
 
@@ -143,6 +193,12 @@ export const exampleRegistry = {
         module: './examples/asteroid-orbit-optimization.js',
         showFunction: 'showAsteroidOrbitOptimizationExample',
         description: 'Multi-objective mission design',
+        category: 'Optimization'
+    },
+    'Hodographic Shaping MGA': {
+        module: './examples/hodographic-shaping-mga.js',
+        showFunction: 'showHodographicShapingMGAExample',
+        description: 'Low-thrust MGA trajectory optimization',
         category: 'Optimization'
     }
 };

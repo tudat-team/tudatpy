@@ -4,7 +4,16 @@
  *
  * Demonstrates porkchop plot generation for Earth-Mars transfers.
  * Shows delta-V contours as function of departure and arrival dates.
+ *
+ * Uses SPICE ephemeris when available for accurate planetary positions.
  */
+
+import {
+    isSpiceReady,
+    getBodyState,
+    jdToEt,
+    PLANETARY_GM
+} from '../shared/spice-utils.js';
 
 export function showEarthMarsTransferExample(chartContainer, log, params = {}) {
     const config = {
@@ -20,8 +29,18 @@ export function showEarthMarsTransferExample(chartContainer, log, params = {}) {
     log(`Arrival window: ${config.arrivalWindowDays} days`, 'info');
     log(`Resolution: ${config.resolution}x${config.resolution}`, 'info');
 
+    // Check SPICE availability
+    const useSpice = isSpiceReady();
+    if (useSpice) {
+        log('Using SPICE ephemeris for planetary positions', 'success');
+    } else {
+        log('SPICE not available - using analytical Keplerian approximation', 'warning');
+    }
+
     const startTime = performance.now();
-    const result = computeTransferWindow(config);
+    const result = useSpice
+        ? computeTransferWindowSpice(config, log)
+        : computeTransferWindowAnalytical(config);
     const elapsed = performance.now() - startTime;
     log(`Computation completed in ${elapsed.toFixed(1)} ms`, 'success');
 
@@ -35,12 +54,99 @@ export function showEarthMarsTransferExample(chartContainer, log, params = {}) {
     return {
         name: 'Earth-Mars Transfer',
         description: 'Interplanetary transfer window analysis',
+        useSpice,
         ...result,
         config
     };
 }
 
-function computeTransferWindow(config) {
+/**
+ * Compute transfer window using SPICE ephemeris
+ */
+function computeTransferWindowSpice(config, log) {
+    const AU = 149597870.7;  // km
+    const muSun = PLANETARY_GM.Sun / 1e9;  // km³/s² (convert from m³/s²)
+
+    const departureDays = [];
+    const arrivalDays = [];
+    const deltaVGrid = [];
+
+    const dDep = config.departureWindowDays / (config.resolution - 1);
+    const dArr = config.arrivalWindowDays / (config.resolution - 1);
+
+    let minDeltaV = Infinity;
+    let optimalDeparture = 0;
+    let optimalArrival = 0;
+
+    for (let i = 0; i < config.resolution; i++) {
+        const tDep = config.departureStart + i * dDep;
+        departureDays.push(tDep);
+
+        const row = [];
+        for (let j = 0; j < config.resolution; j++) {
+            const tArr = config.arrivalStart + j * dArr;
+            if (i === 0) arrivalDays.push(tArr);
+
+            const tof = (tArr - tDep) * 86400;  // seconds
+
+            if (tof < 100 * 86400 || tof > 400 * 86400) {
+                // Invalid flight time
+                row.push(NaN);
+                continue;
+            }
+
+            // Convert days to ephemeris time (seconds since J2000)
+            const etDep = tDep * 86400;
+            const etArr = tArr * 86400;
+
+            // Get planet positions from SPICE
+            const earthState = getBodyState('Earth', 'Sun', etDep, 'ECLIPJ2000');
+            const marsState = getBodyState('Mars', 'Sun', etArr, 'ECLIPJ2000');
+
+            if (!earthState || !marsState) {
+                row.push(NaN);
+                continue;
+            }
+
+            // Convert from meters to km
+            const earthPos = {
+                x: earthState.x / 1000,
+                y: earthState.y / 1000,
+                z: earthState.z / 1000,
+                vx: earthState.vx / 1000,
+                vy: earthState.vy / 1000,
+                vz: earthState.vz / 1000
+            };
+            const marsPos = {
+                x: marsState.x / 1000,
+                y: marsState.y / 1000,
+                z: marsState.z / 1000,
+                vx: marsState.vx / 1000,
+                vy: marsState.vy / 1000,
+                vz: marsState.vz / 1000
+            };
+
+            // Solve Lambert problem
+            const deltaV = solveLambertApprox(earthPos, marsPos, tof, muSun, true);
+
+            row.push(deltaV);
+
+            if (deltaV < minDeltaV && !isNaN(deltaV)) {
+                minDeltaV = deltaV;
+                optimalDeparture = tDep;
+                optimalArrival = tArr;
+            }
+        }
+        deltaVGrid.push(row);
+    }
+
+    return { departureDays, arrivalDays, deltaVGrid, minDeltaV, optimalDeparture, optimalArrival, source: 'SPICE' };
+}
+
+/**
+ * Compute transfer window using analytical Keplerian elements (fallback)
+ */
+function computeTransferWindowAnalytical(config) {
     // Simplified orbital elements
     const AU = 149597870.7;  // km
     const muSun = 1.32712440018e11;  // km³/s²
@@ -77,11 +183,11 @@ function computeTransferWindow(config) {
             }
 
             // Get planet positions (simplified circular orbits)
-            const earthPos = getPlanetPosition(earthParams, tDep, AU);
-            const marsPos = getPlanetPosition(marsParams, tArr, AU);
+            const earthPos = getPlanetPositionAnalytical(earthParams, tDep, AU);
+            const marsPos = getPlanetPositionAnalytical(marsParams, tArr, AU);
 
             // Solve Lambert problem (simplified)
-            const deltaV = solveLambertApprox(earthPos, marsPos, tof, muSun);
+            const deltaV = solveLambertApprox(earthPos, marsPos, tof, muSun, false);
 
             row.push(deltaV);
 
@@ -94,10 +200,10 @@ function computeTransferWindow(config) {
         deltaVGrid.push(row);
     }
 
-    return { departureDays, arrivalDays, deltaVGrid, minDeltaV, optimalDeparture, optimalArrival };
+    return { departureDays, arrivalDays, deltaVGrid, minDeltaV, optimalDeparture, optimalArrival, source: 'analytical' };
 }
 
-function getPlanetPosition(params, daysSinceEpoch, AU) {
+function getPlanetPositionAnalytical(params, daysSinceEpoch, AU) {
     const n = 2 * Math.PI / params.period;  // rad/day
     const M = n * daysSinceEpoch;
 
@@ -122,13 +228,14 @@ function getPlanetPosition(params, daysSinceEpoch, AU) {
     };
 }
 
-function solveLambertApprox(r1, r2, tof, mu) {
+function solveLambertApprox(r1, r2, tof, mu, hasVelocity = false) {
     // Simplified Lambert solver using Hohmann-like approximation
-    const r1Mag = Math.sqrt(r1.x * r1.x + r1.y * r1.y + r1.z * r1.z);
-    const r2Mag = Math.sqrt(r2.x * r2.x + r2.y * r2.y + r2.z * r2.z);
+    const r1Mag = Math.sqrt(r1.x * r1.x + r1.y * r1.y + (r1.z || 0) * (r1.z || 0));
+    const r2Mag = Math.sqrt(r2.x * r2.x + r2.y * r2.y + (r2.z || 0) * (r2.z || 0));
 
     // Transfer angle
-    const cosTheta = (r1.x * r2.x + r1.y * r2.y) / (r1Mag * r2Mag);
+    const dot = r1.x * r2.x + r1.y * r2.y + (r1.z || 0) * (r2.z || 0);
+    const cosTheta = dot / (r1Mag * r2Mag);
     const theta = Math.acos(Math.max(-1, Math.min(1, cosTheta)));
 
     // Semi-major axis estimate
@@ -150,9 +257,20 @@ function solveLambertApprox(r1, r2, tof, mu) {
     const v1Trans = Math.sqrt(mu * (2 / r1Mag - 1 / a));
     const v2Trans = Math.sqrt(mu * (2 / r2Mag - 1 / a));
 
-    // Delta-V (simplified - doesn't account for flight path angles properly)
-    const dv1 = Math.abs(v1Trans - v1Circ);
-    const dv2 = Math.abs(v2Trans - v2Circ);
+    // Delta-V computation
+    let dv1, dv2;
+
+    if (hasVelocity && r1.vx !== undefined) {
+        // Use actual planet velocities from SPICE
+        const v1Planet = Math.sqrt(r1.vx * r1.vx + r1.vy * r1.vy + (r1.vz || 0) * (r1.vz || 0));
+        const v2Planet = Math.sqrt(r2.vx * r2.vx + r2.vy * r2.vy + (r2.vz || 0) * (r2.vz || 0));
+        dv1 = Math.abs(v1Trans - v1Planet);
+        dv2 = Math.abs(v2Trans - v2Planet);
+    } else {
+        // Use circular velocity approximation
+        dv1 = Math.abs(v1Trans - v1Circ);
+        dv2 = Math.abs(v2Trans - v2Circ);
+    }
 
     // Add penalty for very short/long transfers
     let penalty = 0;
@@ -184,7 +302,9 @@ function renderPorkchopPlot(container, result, config) {
 
     const title = document.createElement('div');
     title.style.cssText = 'font-family: "Orbitron", sans-serif; font-size: 14px; color: var(--cyan); margin-bottom: 10px; text-align: center;';
-    title.textContent = 'Earth-Mars Transfer Porkchop Plot';
+    title.textContent = result.source === 'SPICE'
+        ? 'Earth-Mars Transfer (SPICE Ephemeris)'
+        : 'Earth-Mars Transfer Porkchop Plot';
     wrapper.appendChild(title);
 
     const chartDiv = document.createElement('div');
@@ -268,7 +388,7 @@ function renderPorkchopPlot(container, result, config) {
         .attr('text-anchor', 'middle')
         .attr('fill', 'var(--text-secondary)')
         .attr('font-size', '11px')
-        .text('Departure Day');
+        .text('Departure Day (from J2000)');
 
     svg.append('text')
         .attr('transform', 'rotate(-90)')
@@ -277,7 +397,7 @@ function renderPorkchopPlot(container, result, config) {
         .attr('text-anchor', 'middle')
         .attr('fill', 'var(--text-secondary)')
         .attr('font-size', '11px')
-        .text('Arrival Day');
+        .text('Arrival Day (from J2000)');
 
     // Color bar
     const colorBarWidth = 15;
