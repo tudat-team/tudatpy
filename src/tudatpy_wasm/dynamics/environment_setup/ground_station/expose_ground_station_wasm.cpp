@@ -57,15 +57,37 @@ EMSCRIPTEN_BINDINGS(tudatpy_dynamics_environment_setup_ground_station) {
         .function("getGroundStationPosition", &tss::GroundStationSettings::getGroundStationPosition)
         .function("getPositionElementType", &tss::GroundStationSettings::getPositionElementType);
 
+    // PiecewiseConstantGroundStationMotionSettings
+    class_<tss::PiecewiseConstantGroundStationMotionSettings, base<tss::GroundStationMotionSettings>>(
+        "dynamics_environment_setup_ground_station_PiecewiseConstantGroundStationMotionSettings")
+        .smart_ptr<std::shared_ptr<tss::PiecewiseConstantGroundStationMotionSettings>>(
+            "shared_ptr_PiecewiseConstantGroundStationMotionSettings");
+
+    // CustomGroundStationMotionSettings
+    class_<tss::CustomGroundStationMotionSettings, base<tss::GroundStationMotionSettings>>(
+        "dynamics_environment_setup_ground_station_CustomGroundStationMotionSettings")
+        .smart_ptr<std::shared_ptr<tss::CustomGroundStationMotionSettings>>(
+            "shared_ptr_CustomGroundStationMotionSettings");
+
+    // ========================================================================
     // Factory functions
-    function("dynamics_environment_setup_ground_station_ground_station_settings",
+    // ========================================================================
+
+    function("dynamics_environment_setup_ground_station_basic_station",
         &tss::groundStationSettings);
 
     function("dynamics_environment_setup_ground_station_linear_motion",
         &tss::linearGroundStationMotionSettings);
 
+    function("dynamics_environment_setup_ground_station_piecewise_constant_station_motion",
+        &tss::piecewiseConstantGroundStationMotionSettings);
+
+    function("dynamics_environment_setup_ground_station_custom_station_motion",
+        &tss::customGroundStationMotionSettings);
+
     function("dynamics_environment_setup_ground_station_body_deformation_motion",
         &tss::bodyDeformationStationMotionSettings);
+
 }
 
 #endif

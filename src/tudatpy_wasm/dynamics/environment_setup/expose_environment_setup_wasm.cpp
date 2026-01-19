@@ -76,6 +76,47 @@ EMSCRIPTEN_BINDINGS(tudatpy_dynamics_environment_setup) {
     // SystemOfBodies creation
     function("dynamics_environment_setup_create_system_of_bodies",
         &tss::createSystemOfBodies<double, double>);
+
+    // Get default single body settings
+    function("dynamics_environment_setup_get_default_single_body_settings",
+        select_overload<std::shared_ptr<tss::BodySettings>(
+            const std::string&, const std::string&)>(
+            &tss::getDefaultSingleBodySettings));
+
+    // Get default single body settings time-limited
+    function("dynamics_environment_setup_get_default_single_body_settings_time_limited",
+        select_overload<std::shared_ptr<tss::BodySettings>(
+            const std::string&, const double, const double,
+            const std::string&, const double)>(
+            &tss::getDefaultSingleBodySettings));
+
+    // Add aerodynamic coefficient interface
+    function("dynamics_environment_setup_add_aerodynamic_coefficient_interface",
+        &tss::addAerodynamicCoefficientInterface);
+
+    // Add radiation pressure target model
+    function("dynamics_environment_setup_add_radiation_pressure_target_model",
+        &tss::addRadiationPressureTargetModel);
+
+    // Add rotation model
+    function("dynamics_environment_setup_add_rotation_model",
+        &tss::addRotationModel);
+
+    // Add gravity field model
+    function("dynamics_environment_setup_add_gravity_field_model",
+        &tss::addGravityFieldModel);
+
+    // Add rigid body properties
+    function("dynamics_environment_setup_add_rigid_body_properties",
+        &tss::addRigidBodyProperties);
+
+    // Add engine model
+    function("dynamics_environment_setup_add_engine_model",
+        &tss::addEngineModel);
+
+    // Add flight conditions
+    function("dynamics_environment_setup_add_flight_conditions",
+        &tss::addFlightConditions);
 }
 
 #endif

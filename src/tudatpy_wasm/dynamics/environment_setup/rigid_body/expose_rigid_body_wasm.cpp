@@ -32,9 +32,21 @@ EMSCRIPTEN_BINDINGS(tudatpy_dynamics_environment_setup_rigid_body) {
         .function("getRigidBodyPropertiesType",
             &tss::RigidBodyPropertiesSettings::getRigidBodyPropertiesType);
 
+    // ========================================================================
     // Factory functions
+    // ========================================================================
+
+    // Constant rigid body properties
     function("dynamics_environment_setup_rigid_body_constant_rigid_body_properties",
         &tss::constantRigidBodyPropertiesSettings);
+
+    // Custom time-dependent rigid body properties
+    function("dynamics_environment_setup_rigid_body_custom_time_dependent_rigid_body_properties",
+        &tss::fromFunctionRigidBodyPropertiesSettings);
+
+    // Custom mass-dependent rigid body properties
+    function("dynamics_environment_setup_rigid_body_custom_mass_dependent_rigid_body_properties",
+        &tss::massDependentMassDistributionSettings);
 }
 
 #endif

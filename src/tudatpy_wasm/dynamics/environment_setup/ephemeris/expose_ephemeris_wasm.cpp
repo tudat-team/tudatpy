@@ -75,14 +75,27 @@ EMSCRIPTEN_BINDINGS(tudatpy_dynamics_environment_setup_ephemeris) {
         "dynamics_environment_setup_ephemeris_ApproximateJplEphemerisSettings")
         .smart_ptr<std::shared_ptr<tss::ApproximateJplEphemerisSettings>>("shared_ptr_ApproximateJplEphemerisSettings");
 
+    // InterpolatedSpiceEphemerisSettings
+    class_<tss::InterpolatedSpiceEphemerisSettings, base<tss::DirectSpiceEphemerisSettings>>(
+        "dynamics_environment_setup_ephemeris_InterpolatedSpiceEphemerisSettings")
+        .smart_ptr<std::shared_ptr<tss::InterpolatedSpiceEphemerisSettings>>(
+            "shared_ptr_InterpolatedSpiceEphemerisSettings");
+
+    // CustomEphemerisSettings
+    class_<tss::CustomEphemerisSettings, base<tss::EphemerisSettings>>(
+        "dynamics_environment_setup_ephemeris_CustomEphemerisSettings")
+        .smart_ptr<std::shared_ptr<tss::CustomEphemerisSettings>>(
+            "shared_ptr_CustomEphemerisSettings");
+
     // Factory functions
     function("dynamics_environment_setup_ephemeris_direct_spice",
         select_overload<std::shared_ptr<tss::EphemerisSettings>(
-            const std::string, const std::string, const bool, const bool, const bool)>(
+            const std::string, const std::string, const std::string)>(
             &tss::directSpiceEphemerisSettings));
 
     function("dynamics_environment_setup_ephemeris_approximate_jpl",
-        &tss::approximateJplEphemerisSettings);
+        select_overload<std::shared_ptr<tss::EphemerisSettings>(const std::string)>(
+            &tss::approximateJplEphemerisSettings));
 
     function("dynamics_environment_setup_ephemeris_constant",
         &tss::constantEphemerisSettings);
@@ -90,15 +103,33 @@ EMSCRIPTEN_BINDINGS(tudatpy_dynamics_environment_setup_ephemeris) {
     function("dynamics_environment_setup_ephemeris_kepler",
         &tss::keplerEphemerisSettings);
 
+    function("dynamics_environment_setup_ephemeris_kepler_from_spice",
+        &tss::keplerEphemerisFromSpiceSettings);
+
     function("dynamics_environment_setup_ephemeris_tabulated",
         select_overload<std::shared_ptr<tss::EphemerisSettings>(
             const std::map<double, Eigen::Vector6d>&, std::string, std::string)>(
             &tss::tabulatedEphemerisSettings));
 
+    function("dynamics_environment_setup_ephemeris_interpolated_spice",
+        &tss::interpolatedSpiceEphemerisSettings);
+
     function("dynamics_environment_setup_ephemeris_scaled_by_constant",
         select_overload<std::shared_ptr<tss::EphemerisSettings>(
             const std::shared_ptr<tss::EphemerisSettings>, const double, const bool)>(
             &tss::scaledEphemerisSettings));
+
+    function("dynamics_environment_setup_ephemeris_scaled_by_vector",
+        select_overload<std::shared_ptr<tss::EphemerisSettings>(
+            const std::shared_ptr<tss::EphemerisSettings>, const Eigen::Vector6d, const bool)>(
+            &tss::scaledEphemerisSettings));
+
+    function("dynamics_environment_setup_ephemeris_custom_ephemeris",
+        &tss::customEphemerisSettings);
+
+    // SGP4/TLE ephemeris
+    function("dynamics_environment_setup_ephemeris_sgp4",
+        &tss::directTleEphemerisSettingsFromTleLines);
 }
 
 #endif

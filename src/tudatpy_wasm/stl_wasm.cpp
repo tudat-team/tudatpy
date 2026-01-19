@@ -105,6 +105,22 @@ EMSCRIPTEN_BINDINGS(stl_containers) {
     value_object<std::pair<std::string, std::string>>("PairStringString")
         .field("first", &std::pair<std::string, std::string>::first)
         .field("second", &std::pair<std::string, std::string>::second);
+
+    // ========================================================================
+    // Pairs for Covariance Propagation Results
+    // ========================================================================
+
+    // Pair for split output covariance propagation (times + matrices)
+    value_object<std::pair<std::vector<double>, std::vector<MatrixXdWrapper>>>(
+        "PairVectorDoubleVectorMatrixXd")
+        .field("times", &std::pair<std::vector<double>, std::vector<MatrixXdWrapper>>::first)
+        .field("matrices", &std::pair<std::vector<double>, std::vector<MatrixXdWrapper>>::second);
+
+    // Pair for split output formal errors propagation (times + vectors)
+    value_object<std::pair<std::vector<double>, std::vector<VectorXdWrapper>>>(
+        "PairVectorDoubleVectorVectorXd")
+        .field("times", &std::pair<std::vector<double>, std::vector<VectorXdWrapper>>::first)
+        .field("vectors", &std::pair<std::vector<double>, std::vector<VectorXdWrapper>>::second);
 }
 
 #endif // __EMSCRIPTEN__

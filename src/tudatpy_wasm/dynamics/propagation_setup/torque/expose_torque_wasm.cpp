@@ -25,14 +25,16 @@ WASM_MODULE_PATH("dynamics_propagation_setup_torque")
 EMSCRIPTEN_BINDINGS(tudatpy_dynamics_propagation_setup_torque) {
     using namespace emscripten;
 
-    // AvailableTorque enum
+    // AvailableTorque enum - Full list matching Python bindings
     enum_<tba::AvailableTorque>("dynamics_propagation_setup_torque_AvailableTorque")
+        .value("torque_free", tba::torque_free)
         .value("underfined_torque", tba::underfined_torque)
         .value("inertial_torque", tba::inertial_torque)
         .value("second_order_gravitational_torque", tba::second_order_gravitational_torque)
         .value("spherical_harmonic_gravitational_torque", tba::spherical_harmonic_gravitational_torque)
         .value("aerodynamic_torque", tba::aerodynamic_torque)
         .value("radiation_pressure_torque", tba::radiation_pressure_torque)
+        .value("dissipative_torque", tba::dissipative_torque)
         .value("custom_torque", tba::custom_torque);
 
     // TorqueSettings base class
@@ -46,6 +48,12 @@ EMSCRIPTEN_BINDINGS(tudatpy_dynamics_propagation_setup_torque) {
         .smart_ptr<std::shared_ptr<tss::SphericalHarmonicTorqueSettings>>(
             "shared_ptr_SphericalHarmonicTorqueSettings");
 
+    // CustomTorqueSettings derived class
+    class_<tss::CustomTorqueSettings, base<tss::TorqueSettings>>(
+        "dynamics_propagation_setup_torque_CustomTorqueSettings")
+        .smart_ptr<std::shared_ptr<tss::CustomTorqueSettings>>(
+            "shared_ptr_CustomTorqueSettings");
+
     // Factory functions
     function("dynamics_propagation_setup_torque_aerodynamic",
         &tss::aerodynamicTorque);
@@ -58,6 +66,12 @@ EMSCRIPTEN_BINDINGS(tudatpy_dynamics_propagation_setup_torque) {
 
     function("dynamics_propagation_setup_torque_radiation_pressure",
         &tss::radiationPressureTorque);
+
+    function("dynamics_propagation_setup_torque_dissipative",
+        &tss::dissipativeTorque);
+
+    // Note: custom_torque is not exposed because it requires std::function which is
+    // complex to bind in Emscripten. Users can create custom torques on the JS side.
 }
 
 #endif

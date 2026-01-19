@@ -18,10 +18,306 @@
 
 #include <tudat/simulation/estimation_setup/orbitDeterminationManager.h>
 #include <tudat/astro/orbit_determination/podInputOutputTypes.h>
+#include <tudat/astro/propagators/propagateCovariance.h>
+#include <tudat/basics/utilities.h>
+#include <tudat/astro/reference_frames/referenceFrameTransformations.h>
 
 namespace tss = tudat::simulation_setup;
 namespace tom = tudat::observation_models;
 namespace tep = tudat::estimatable_parameters;
+namespace tp = tudat::propagators;
+namespace trf = tudat::reference_frames;
+
+// ============================================================================
+// Covariance Propagation Helper Functions (matching Python bindings)
+// ============================================================================
+
+namespace tudat {
+namespace propagators {
+
+// Propagate covariance and convert to RSW frame
+std::map<double, Eigen::MatrixXd> propagateCovarianceRsw(
+    const Eigen::MatrixXd initialCovariance,
+    const std::shared_ptr<tss::OrbitDeterminationManager<double, double>> orbitDeterminationManager,
+    const std::vector<double> evaluationTimes)
+{
+    std::map<double, Eigen::MatrixXd> propagatedCovariance;
+    tp::propagateCovariance(
+        propagatedCovariance,
+        initialCovariance,
+        orbitDeterminationManager->getStateTransitionAndSensitivityMatrixInterface(),
+        evaluationTimes);
+
+    tss::SystemOfBodies bodies = orbitDeterminationManager->getBodies();
+
+    std::shared_ptr<tep::EstimatableParameterSet<double>> parameterSet =
+        orbitDeterminationManager->getParametersToEstimate();
+
+    std::map<int, std::shared_ptr<tep::EstimatableParameter<Eigen::Matrix<double, Eigen::Dynamic, 1>>>>
+        initialStates = parameterSet->getInitialStateParameters();
+
+    std::map<std::pair<std::string, std::string>, std::vector<int>> transformationList;
+    for (auto it : initialStates)
+    {
+        if (std::dynamic_pointer_cast<tep::InitialTranslationalStateParameter<double>>(it.second))
+        {
+            std::shared_ptr<tep::InitialTranslationalStateParameter<double>> currentInitialState =
+                std::dynamic_pointer_cast<tep::InitialTranslationalStateParameter<double>>(it.second);
+            transformationList[std::make_pair(
+                currentInitialState->getParameterName().second.first,
+                currentInitialState->getCentralBody())].push_back(it.first);
+        }
+        else if (std::dynamic_pointer_cast<tep::ArcWiseInitialTranslationalStateParameter<double>>(it.second))
+        {
+            throw std::runtime_error(
+                "Error, multi-arc not yet supported in automatic covariance conversion");
+        }
+    }
+
+    Eigen::Matrix3d currentInertialToRswPosition = Eigen::Matrix3d::Zero();
+    Eigen::Matrix6d currentInertialToRswState = Eigen::Matrix6d::Zero();
+    Eigen::MatrixXd currentFullInertialToRswState = Eigen::MatrixXd::Zero(6, 6);
+
+    std::map<double, Eigen::MatrixXd> propagatedRswCovariance;
+    for (auto it : propagatedCovariance)
+    {
+        double currentTime = static_cast<double>(it.first);
+        Eigen::MatrixXd currentCovariance = it.second;
+        currentFullInertialToRswState.setZero();
+
+        for (auto it_body : transformationList)
+        {
+            Eigen::Vector6d relativeState =
+                bodies.getBody(it_body.first.first)->getStateInBaseFrameFromEphemeris(currentTime) -
+                bodies.getBody(it_body.first.second)->getStateInBaseFrameFromEphemeris(currentTime);
+            currentInertialToRswPosition =
+                trf::getInertialToRswSatelliteCenteredFrameRotationMatrix(relativeState);
+            currentInertialToRswState.block(0, 0, 3, 3) = currentInertialToRswPosition;
+            currentInertialToRswState.block(3, 3, 3, 3) = currentInertialToRswPosition;
+            for (unsigned int j = 0; j < it_body.second.size(); j++)
+            {
+                int currentStartIndex = it_body.second.at(j);
+                currentFullInertialToRswState.block(currentStartIndex, currentStartIndex, 6, 6) =
+                    currentInertialToRswState;
+            }
+        }
+        propagatedRswCovariance[currentTime] = currentFullInertialToRswState * currentCovariance *
+            currentFullInertialToRswState.transpose();
+    }
+    return propagatedRswCovariance;
+}
+
+// Split output version of RSW covariance propagation
+std::pair<std::vector<double>, std::vector<Eigen::MatrixXd>> propagateCovarianceVectorsRsw(
+    const Eigen::MatrixXd initialCovariance,
+    const std::shared_ptr<tss::OrbitDeterminationManager<double, double>> orbitDeterminationManager,
+    const std::vector<double> evaluationTimes)
+{
+    std::map<double, Eigen::MatrixXd> propagatedRswCovariance =
+        propagateCovarianceRsw(initialCovariance, orbitDeterminationManager, evaluationTimes);
+
+    return std::make_pair(
+        utilities::createVectorFromMapKeys(propagatedRswCovariance),
+        utilities::createVectorFromMapValues(propagatedRswCovariance));
+}
+
+// Propagate formal errors in RSW frame
+std::map<double, Eigen::VectorXd> propagateFormalErrorsRsw(
+    const Eigen::MatrixXd initialCovariance,
+    const std::shared_ptr<tss::OrbitDeterminationManager<double, double>> orbitDeterminationManager,
+    const std::vector<double> evaluationTimes)
+{
+    std::map<double, Eigen::MatrixXd> propagatedCovariance;
+    std::map<double, Eigen::VectorXd> propagatedFormalErrors;
+
+    propagatedCovariance =
+        propagateCovarianceRsw(initialCovariance, orbitDeterminationManager, evaluationTimes);
+    tp::convertCovarianceHistoryToFormalErrorHistory(propagatedFormalErrors, propagatedCovariance);
+
+    return propagatedFormalErrors;
+}
+
+// Split output version of RSW formal errors propagation
+std::pair<std::vector<double>, std::vector<Eigen::VectorXd>> propagateFormalErrorVectorsRsw(
+    const Eigen::MatrixXd initialCovariance,
+    const std::shared_ptr<tss::OrbitDeterminationManager<double, double>> orbitDeterminationManager,
+    const std::vector<double> evaluationTimes)
+{
+    std::map<double, Eigen::VectorXd> propagatedFormalErrors = propagateFormalErrorsRsw(
+        initialCovariance, orbitDeterminationManager, evaluationTimes);
+    return std::make_pair(
+        utilities::createVectorFromMapKeys(propagatedFormalErrors),
+        utilities::createVectorFromMapValues(propagatedFormalErrors));
+}
+
+// Propagate covariance (split output)
+std::pair<std::vector<double>, std::vector<Eigen::MatrixXd>> propagateCovarianceVectors(
+    const Eigen::MatrixXd initialCovariance,
+    const std::shared_ptr<tp::CombinedStateTransitionAndSensitivityMatrixInterface> stateTransitionInterface,
+    const std::vector<double> evaluationTimes)
+{
+    std::map<double, Eigen::MatrixXd> propagatedCovariance;
+    tp::propagateCovariance(
+        propagatedCovariance, initialCovariance, stateTransitionInterface, evaluationTimes);
+    return std::make_pair(
+        utilities::createVectorFromMapKeys(propagatedCovariance),
+        utilities::createVectorFromMapValues(propagatedCovariance));
+}
+
+// Propagate formal errors (split output)
+std::pair<std::vector<double>, std::vector<Eigen::VectorXd>> propagateFormalErrorVectors(
+    const Eigen::MatrixXd initialCovariance,
+    const std::shared_ptr<tp::CombinedStateTransitionAndSensitivityMatrixInterface> stateTransitionInterface,
+    const std::vector<double> evaluationTimes)
+{
+    std::map<double, Eigen::VectorXd> propagatedFormalErrors;
+    tp::propagateFormalErrors(
+        propagatedFormalErrors, initialCovariance, stateTransitionInterface, evaluationTimes);
+    return std::make_pair(
+        utilities::createVectorFromMapKeys(propagatedFormalErrors),
+        utilities::createVectorFromMapValues(propagatedFormalErrors));
+}
+
+} // namespace propagators
+} // namespace tudat
+
+// ============================================================================
+// WASM Wrapper Functions (convert Eigen types to/from JS-friendly wrappers)
+// ============================================================================
+
+namespace tudatpy_wasm {
+
+using namespace tudatpy_wasm;
+
+// Wrapper for propagate_covariance_rsw returning JS-friendly types
+std::map<double, MatrixXdWrapper> propagateCovarianceRswWrapper(
+    const MatrixXdWrapper& initialCovariance,
+    const std::shared_ptr<tss::OrbitDeterminationManager<double, double>>& orbitDeterminationManager,
+    const std::vector<double>& evaluationTimes)
+{
+    auto result = tp::propagateCovarianceRsw(
+        initialCovariance.data, orbitDeterminationManager, evaluationTimes);
+
+    std::map<double, MatrixXdWrapper> wrappedResult;
+    for (const auto& entry : result) {
+        wrappedResult[entry.first] = MatrixXdWrapper(entry.second);
+    }
+    return wrappedResult;
+}
+
+// Wrapper for propagate_covariance_rsw_split_output
+std::pair<std::vector<double>, std::vector<MatrixXdWrapper>> propagateCovarianceRswSplitOutputWrapper(
+    const MatrixXdWrapper& initialCovariance,
+    const std::shared_ptr<tss::OrbitDeterminationManager<double, double>>& orbitDeterminationManager,
+    const std::vector<double>& evaluationTimes)
+{
+    auto result = tp::propagateCovarianceVectorsRsw(
+        initialCovariance.data, orbitDeterminationManager, evaluationTimes);
+
+    std::vector<MatrixXdWrapper> wrappedMatrices;
+    for (const auto& mat : result.second) {
+        wrappedMatrices.push_back(MatrixXdWrapper(mat));
+    }
+    return std::make_pair(result.first, wrappedMatrices);
+}
+
+// Wrapper for propagate_formal_errors_rsw
+std::map<double, VectorXdWrapper> propagateFormalErrorsRswWrapper(
+    const MatrixXdWrapper& initialCovariance,
+    const std::shared_ptr<tss::OrbitDeterminationManager<double, double>>& orbitDeterminationManager,
+    const std::vector<double>& evaluationTimes)
+{
+    auto result = tp::propagateFormalErrorsRsw(
+        initialCovariance.data, orbitDeterminationManager, evaluationTimes);
+
+    std::map<double, VectorXdWrapper> wrappedResult;
+    for (const auto& entry : result) {
+        wrappedResult[entry.first] = VectorXdWrapper(entry.second);
+    }
+    return wrappedResult;
+}
+
+// Wrapper for propagate_formal_errors_rsw_split_output
+std::pair<std::vector<double>, std::vector<VectorXdWrapper>> propagateFormalErrorsRswSplitOutputWrapper(
+    const MatrixXdWrapper& initialCovariance,
+    const std::shared_ptr<tss::OrbitDeterminationManager<double, double>>& orbitDeterminationManager,
+    const std::vector<double>& evaluationTimes)
+{
+    auto result = tp::propagateFormalErrorVectorsRsw(
+        initialCovariance.data, orbitDeterminationManager, evaluationTimes);
+
+    std::vector<VectorXdWrapper> wrappedVectors;
+    for (const auto& vec : result.second) {
+        wrappedVectors.push_back(VectorXdWrapper(vec));
+    }
+    return std::make_pair(result.first, wrappedVectors);
+}
+
+// Wrapper for propagate_covariance (using state transition interface)
+std::map<double, MatrixXdWrapper> propagateCovarianceWrapper(
+    const MatrixXdWrapper& initialCovariance,
+    const std::shared_ptr<tp::CombinedStateTransitionAndSensitivityMatrixInterface>& stateTransitionInterface,
+    const std::vector<double>& evaluationTimes)
+{
+    std::map<double, Eigen::MatrixXd> result;
+    tp::propagateCovariance(result, initialCovariance.data, stateTransitionInterface, evaluationTimes);
+
+    std::map<double, MatrixXdWrapper> wrappedResult;
+    for (const auto& entry : result) {
+        wrappedResult[entry.first] = MatrixXdWrapper(entry.second);
+    }
+    return wrappedResult;
+}
+
+// Wrapper for propagate_covariance_split_output
+std::pair<std::vector<double>, std::vector<MatrixXdWrapper>> propagateCovarianceSplitOutputWrapper(
+    const MatrixXdWrapper& initialCovariance,
+    const std::shared_ptr<tp::CombinedStateTransitionAndSensitivityMatrixInterface>& stateTransitionInterface,
+    const std::vector<double>& evaluationTimes)
+{
+    auto result = tp::propagateCovarianceVectors(
+        initialCovariance.data, stateTransitionInterface, evaluationTimes);
+
+    std::vector<MatrixXdWrapper> wrappedMatrices;
+    for (const auto& mat : result.second) {
+        wrappedMatrices.push_back(MatrixXdWrapper(mat));
+    }
+    return std::make_pair(result.first, wrappedMatrices);
+}
+
+// Wrapper for propagate_formal_errors
+std::map<double, VectorXdWrapper> propagateFormalErrorsWrapper(
+    const MatrixXdWrapper& initialCovariance,
+    const std::shared_ptr<tp::CombinedStateTransitionAndSensitivityMatrixInterface>& stateTransitionInterface,
+    const std::vector<double>& evaluationTimes)
+{
+    std::map<double, Eigen::VectorXd> result;
+    tp::propagateFormalErrors(result, initialCovariance.data, stateTransitionInterface, evaluationTimes);
+
+    std::map<double, VectorXdWrapper> wrappedResult;
+    for (const auto& entry : result) {
+        wrappedResult[entry.first] = VectorXdWrapper(entry.second);
+    }
+    return wrappedResult;
+}
+
+// Wrapper for propagate_formal_errors_split_output
+std::pair<std::vector<double>, std::vector<VectorXdWrapper>> propagateFormalErrorsSplitOutputWrapper(
+    const MatrixXdWrapper& initialCovariance,
+    const std::shared_ptr<tp::CombinedStateTransitionAndSensitivityMatrixInterface>& stateTransitionInterface,
+    const std::vector<double>& evaluationTimes)
+{
+    auto result = tp::propagateFormalErrorVectors(
+        initialCovariance.data, stateTransitionInterface, evaluationTimes);
+
+    std::vector<VectorXdWrapper> wrappedVectors;
+    for (const auto& vec : result.second) {
+        wrappedVectors.push_back(VectorXdWrapper(vec));
+    }
+    return std::make_pair(result.first, wrappedVectors);
+}
+
+} // namespace tudatpy_wasm
 
 WASM_MODULE_PATH("estimation_estimation_analysis")
 
@@ -124,6 +420,48 @@ EMSCRIPTEN_BINDINGS(tudatpy_estimation_estimation_analysis) {
             &tss::OrbitDeterminationManager<double, double>::getBodies)
         .function("getStateTransitionAndSensitivityMatrixInterface",
             &tss::OrbitDeterminationManager<double, double>::getStateTransitionAndSensitivityMatrixInterface);
+
+    // CombinedStateTransitionAndSensitivityMatrixInterface class
+    class_<tp::CombinedStateTransitionAndSensitivityMatrixInterface>(
+        "estimation_estimation_analysis_CombinedStateTransitionAndSensitivityMatrixInterface")
+        .smart_ptr<std::shared_ptr<tp::CombinedStateTransitionAndSensitivityMatrixInterface>>(
+            "shared_ptr_CombinedStateTransitionAndSensitivityMatrixInterface");
+
+    // ============================================================================
+    // Covariance Propagation Functions (using WASM-friendly wrapper types)
+    // ============================================================================
+
+    // propagate_covariance_rsw - Map output (estimator-based, converts to RSW frame)
+    function("estimation_estimation_analysis_propagate_covariance_rsw",
+        &tudatpy_wasm::propagateCovarianceRswWrapper);
+
+    // propagate_covariance_rsw_split_output - Tuple output
+    function("estimation_estimation_analysis_propagate_covariance_rsw_split_output",
+        &tudatpy_wasm::propagateCovarianceRswSplitOutputWrapper);
+
+    // propagate_formal_errors_rsw - Map output
+    function("estimation_estimation_analysis_propagate_formal_errors_rsw",
+        &tudatpy_wasm::propagateFormalErrorsRswWrapper);
+
+    // propagate_formal_errors_rsw_split_output - Tuple output
+    function("estimation_estimation_analysis_propagate_formal_errors_rsw_split_output",
+        &tudatpy_wasm::propagateFormalErrorsRswSplitOutputWrapper);
+
+    // propagate_covariance - Map output (uses state transition interface directly)
+    function("estimation_estimation_analysis_propagate_covariance",
+        &tudatpy_wasm::propagateCovarianceWrapper);
+
+    // propagate_covariance_split_output - Tuple output
+    function("estimation_estimation_analysis_propagate_covariance_split_output",
+        &tudatpy_wasm::propagateCovarianceSplitOutputWrapper);
+
+    // propagate_formal_errors - Map output
+    function("estimation_estimation_analysis_propagate_formal_errors",
+        &tudatpy_wasm::propagateFormalErrorsWrapper);
+
+    // propagate_formal_errors_split_output - Tuple output
+    function("estimation_estimation_analysis_propagate_formal_errors_split_output",
+        &tudatpy_wasm::propagateFormalErrorsSplitOutputWrapper);
 }
 
 #endif

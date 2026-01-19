@@ -16,6 +16,7 @@
 #include "../../../shared_ptr_wasm.h"
 
 #include <tudat/simulation/environment_setup/createRotationModel.h>
+#include <tudat/simulation/environment_setup/defaultBodies.h>
 
 namespace tss = tudat::simulation_setup;
 namespace tba = tudat::basic_astrodynamics;
@@ -58,6 +59,12 @@ EMSCRIPTEN_BINDINGS(tudatpy_dynamics_environment_setup_rotation_model) {
         .smart_ptr<std::shared_ptr<tss::GcrsToItrsRotationModelSettings>>(
             "shared_ptr_GcrsToItrsRotationModelSettings");
 
+    // PlanetaryRotationModelSettings derived class
+    class_<tss::PlanetaryRotationModelSettings, base<tss::RotationModelSettings>>(
+        "dynamics_environment_setup_rotation_model_PlanetaryRotationModelSettings")
+        .smart_ptr<std::shared_ptr<tss::PlanetaryRotationModelSettings>>(
+            "shared_ptr_PlanetaryRotationModelSettings");
+
     // Factory functions
     function("dynamics_environment_setup_rotation_model_simple",
         select_overload<std::shared_ptr<tss::RotationModelSettings>(
@@ -77,6 +84,39 @@ EMSCRIPTEN_BINDINGS(tudatpy_dynamics_environment_setup_rotation_model) {
         select_overload<std::shared_ptr<tss::RotationModelSettings>(
             const std::string&, const std::string&, const Eigen::Matrix3d&)>(
                 &tss::constantRotationModelSettings));
+
+    // GCRS to ITRS (high-accuracy Earth rotation)
+    function("dynamics_environment_setup_rotation_model_gcrs_to_itrs",
+        &tss::gcrsToItrsRotationModelSettings);
+
+    // Mars high-accuracy rotation model
+    function("dynamics_environment_setup_rotation_model_mars_high_accuracy",
+        select_overload<std::shared_ptr<tss::RotationModelSettings>(
+            const std::string&, const std::string&)>(
+                &tss::getHighAccuracyMarsRotationModel));
+
+    // Mars high-accuracy with custom angles
+    function("dynamics_environment_setup_rotation_model_mars_high_accuracy_custom_angles",
+        select_overload<std::shared_ptr<tss::RotationModelSettings>(
+            const std::string&, const std::string&, const double, const double,
+            const double, const double)>(
+                &tss::getHighAccuracyMarsRotationModel));
+
+    // Aerodynamic angle-based rotation
+    function("dynamics_environment_setup_rotation_model_aerodynamic_angle_based",
+        &tss::aerodynamicAngleRotationSettings);
+
+    // Zero pitch moment aerodynamic angle-based
+    function("dynamics_environment_setup_rotation_model_zero_pitch_moment_aerodynamic_angle_based",
+        &tss::pitchTrimRotationSettings);
+
+    // Custom inertial direction-based rotation
+    function("dynamics_environment_setup_rotation_model_custom_inertial_direction_based",
+        &tss::bodyFixedDirectionBasedRotationSettings);
+
+    // Orbital state direction-based rotation
+    function("dynamics_environment_setup_rotation_model_orbital_state_direction_based",
+        &tss::orbitalStateBasedRotationSettings);
 }
 
 #endif

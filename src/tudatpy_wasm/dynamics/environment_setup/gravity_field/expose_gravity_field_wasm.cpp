@@ -19,6 +19,7 @@
 #include <tudat/simulation/environment_setup/createGravityField.h>
 
 namespace tss = tudat::simulation_setup;
+namespace tpc = tudat::physical_constants;
 
 WASM_MODULE_PATH("dynamics_environment_setup_gravity_field")
 
@@ -30,18 +31,22 @@ EMSCRIPTEN_BINDINGS(tudatpy_dynamics_environment_setup_gravity_field) {
         .value("central", tss::central)
         .value("central_spice", tss::central_spice)
         .value("spherical_harmonic", tss::spherical_harmonic)
-        .value("polyhedron", tss::polyhedron);
+        .value("polyhedron", tss::polyhedron)
+        .value("ring_gravity", tss::one_dimensional_ring);
 
-    // SphericalHarmonicsModel enum
+    // SphericalHarmonicsModel enum (PredefinedSphericalHarmonicsModel in Python)
     enum_<tss::SphericalHarmonicsModel>("dynamics_environment_setup_gravity_field_SphericalHarmonicsModel")
         .value("customModel", tss::customModel)
         .value("egm96", tss::egm96)
         .value("ggm02c", tss::ggm02c)
         .value("ggm02s", tss::ggm02s)
+        .value("goco05c", tss::goco05c)
         .value("glgm3150", tss::glgm3150)
         .value("lpe200", tss::lpe200)
         .value("gggrx1200", tss::gggrx1200)
-        .value("jgmro120d", tss::jgmro120d);
+        .value("jgmro120d", tss::jgmro120d)
+        .value("jgmess160a", tss::jgmess160a)
+        .value("shgj180u", tss::shgj180u);
 
     // GravityFieldSettings base class
     class_<tss::GravityFieldSettings>("dynamics_environment_setup_gravity_field_GravityFieldSettings")
@@ -90,11 +95,44 @@ EMSCRIPTEN_BINDINGS(tudatpy_dynamics_environment_setup_gravity_field) {
             const double, const double, const Eigen::MatrixXd, const Eigen::MatrixXd, const std::string&)>(
             &tss::sphericalHarmonicsGravitySettings));
 
-    function("dynamics_environment_setup_gravity_field_polyhedron",
-        &tss::polyhedronGravitySettings);
+    // Predefined spherical harmonics model
+    function("dynamics_environment_setup_gravity_field_predefined_spherical_harmonic",
+        optional_override([](tss::SphericalHarmonicsModel model, int maximumDegree) {
+            return std::make_shared<tss::FromFileSphericalHarmonicsGravityFieldSettings>(
+                model, maximumDegree);
+        }));
 
+    // Triaxial ellipsoid from density
+    function("dynamics_environment_setup_gravity_field_sh_triaxial_ellipsoid_from_density",
+        select_overload<std::shared_ptr<tss::SphericalHarmonicsGravityFieldSettings>(
+            const double, const double, const double, const double,
+            const int, const int, const std::string&, const double)>(
+            &tss::createHomogeneousTriAxialEllipsoidGravitySettings));
+
+    // Triaxial ellipsoid from gravitational parameter
+    function("dynamics_environment_setup_gravity_field_sh_triaxial_ellipsoid_from_gravitational_parameter",
+        select_overload<std::shared_ptr<tss::SphericalHarmonicsGravityFieldSettings>(
+            const double, const double, const double,
+            const int, const int, const std::string&, const double)>(
+            &tss::createHomogeneousTriAxialEllipsoidGravitySettings));
+
+    // Polyhedron from density
+    function("dynamics_environment_setup_gravity_field_polyhedron_from_density",
+        select_overload<std::shared_ptr<tss::GravityFieldSettings>(
+            const double, const Eigen::MatrixXd, const Eigen::MatrixXi,
+            const std::string&, const double)>(
+            &tss::polyhedronGravitySettings));
+
+    // Polyhedron from gravitational parameter
     function("dynamics_environment_setup_gravity_field_polyhedron_from_mu",
-        &tss::polyhedronGravitySettingsFromMu);
+        select_overload<std::shared_ptr<tss::GravityFieldSettings>(
+            const double, const Eigen::MatrixXd, const Eigen::MatrixXi,
+            const std::string&, const double)>(
+            &tss::polyhedronGravitySettingsFromMu));
+
+    // Ring model
+    function("dynamics_environment_setup_gravity_field_ring_model",
+        &tss::ringGravitySettings);
 }
 
 #endif

@@ -31,7 +31,9 @@ EMSCRIPTEN_BINDINGS(tudatpy_dynamics_environment_setup_gravity_field_variation) 
         .value("iers_2010_tidal", tg::iers_2010)
         .value("tabulated_deformation", tg::tabulated_variation)
         .value("periodic_variation", tg::periodic_variation)
-        .value("polynomial_variation", tg::polynomial_variation);
+        .value("polynomial_variation", tg::polynomial_variation)
+        .value("ocean_tide", tg::ocean_tide)
+        .value("pole_tide", tg::pole_tide);
 
     // GravityFieldVariationSettings base class
     class_<tss::GravityFieldVariationSettings>(
@@ -46,16 +48,49 @@ EMSCRIPTEN_BINDINGS(tudatpy_dynamics_environment_setup_gravity_field_variation) 
         .smart_ptr<std::shared_ptr<tss::BasicSolidBodyGravityFieldVariationSettings>>(
             "shared_ptr_BasicSolidBodyGravityFieldVariationSettings");
 
+    // ========================================================================
     // Factory functions
+    // ========================================================================
+
+    // Solid body tide with single degree Love number
     function("dynamics_environment_setup_gravity_field_variation_solid_body_tide",
         select_overload<std::shared_ptr<tss::GravityFieldVariationSettings>(
             const std::string, const double, const int)>(
                 &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings));
 
+    // Solid body tide with complex Love number
+    function("dynamics_environment_setup_gravity_field_variation_solid_body_tide_complex_k",
+        select_overload<std::shared_ptr<tss::GravityFieldVariationSettings>(
+            const std::string, const std::complex<double>, const int)>(
+                &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings));
+
+    // Solid body tide with degree-variable Love numbers
     function("dynamics_environment_setup_gravity_field_variation_solid_body_tide_degree_variable_k",
         select_overload<std::shared_ptr<tss::GravityFieldVariationSettings>(
             const std::string, std::map<int, double>)>(
                 &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings));
+
+    // Solid body tide with degree-variable complex Love numbers
+    function("dynamics_environment_setup_gravity_field_variation_solid_body_tide_degree_variable_complex_k",
+        select_overload<std::shared_ptr<tss::GravityFieldVariationSettings>(
+            const std::string, std::map<int, std::complex<double>>)>(
+                &tss::fixedSingleDegreeLoveNumberGravityFieldVariationSettings));
+
+    // Mode-coupled solid body tide
+    function("dynamics_environment_setup_gravity_field_variation_mode_coupled_solid_body_tide",
+        &tss::modeCoupledSolidBodyGravityFieldVariationSettings);
+
+    // Periodic gravity field variations
+    function("dynamics_environment_setup_gravity_field_variation_periodic",
+        &tss::periodicGravityFieldVariationsSettings);
+
+    // Single-period periodic gravity field variations
+    function("dynamics_environment_setup_gravity_field_variation_single_period_periodic",
+        &tss::periodicGravityFieldVariationsSettingsSingleFrequency);
+
+    // Polynomial gravity field variations
+    function("dynamics_environment_setup_gravity_field_variation_polynomial",
+        &tss::polynomialGravityFieldVariationsSettings);
 }
 
 #endif

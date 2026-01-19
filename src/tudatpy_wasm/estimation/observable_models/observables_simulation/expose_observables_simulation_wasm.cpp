@@ -24,6 +24,14 @@ WASM_MODULE_PATH("estimation_observable_models_observables_simulation")
 EMSCRIPTEN_BINDINGS(tudatpy_estimation_observable_models_observables_simulation) {
     using namespace emscripten;
 
+    // ObservationViabilityCalculator class
+    class_<tom::ObservationViabilityCalculator>(
+        "estimation_observable_models_observables_simulation_ObservationViabilityCalculator")
+        .smart_ptr<std::shared_ptr<tom::ObservationViabilityCalculator>>(
+            "shared_ptr_ObservationViabilityCalculator")
+        .function("isObservationViable",
+            &tom::ObservationViabilityCalculator::isObservationViable);
+
     // ObservationSimulatorBase class
     class_<tom::ObservationSimulatorBase<double, double>>(
         "estimation_observable_models_observables_simulation_ObservationSimulatorBase")

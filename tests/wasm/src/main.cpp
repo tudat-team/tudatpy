@@ -128,6 +128,35 @@ void testEarthOrientationRotationSetup();
 void testHistoricalEarthRotation();
 void testLeapSecondIdentification();
 
+// Example tests ported from Python tudatpy examples (testExamples.cpp)
+// Propagation examples
+void testKeplerianSatelliteOrbit();
+void testPerturbedSatelliteOrbit();
+void testThrustWithMassPropagation();
+void testCoupledTranslationalRotational();
+void testDifferentialDrag();
+void testSolarSystemPropagation();
+void testThrustBetweenEarthMoon();
+void testTwoStageRocketAscent();
+void testLinearSensitivityAnalysis();
+void testHybridTerminationConditions();
+void testLambertTargeting();
+void testVariationalEquations();
+void testReentryTrajectory();
+void testMultiArcPropagation();
+void testCR3BPIrregularBody();
+void testCustomThrustGuidance();
+// Mission design examples
+void testMGATrajectory();
+void testPorkchopPattern();
+void testLowThrustTransfer();
+// Estimation examples
+void testCovarianceAnalysisPattern();
+void testObservationModelSetup();
+void testTLEEphemeris();
+void testOptimizationProblemSetup();
+void testGalileanMoonsPattern();
+
 int main()
 {
     std::cout << "=== Tudat WASM Test Suite ===" << std::endl;
@@ -250,6 +279,42 @@ int main()
         testEarthOrientationRotationSetup();      // GCRS/ITRS rotation matrices
         testHistoricalEarthRotation();            // Pre-1962 Earth orientation
         testLeapSecondIdentification();           // Leap second detection in EOP
+
+        // Example tests ported from Python tudatpy examples
+        std::cout << "\n=== PROPAGATION EXAMPLE TESTS (Ported from Python) ===" << std::endl;
+
+        testKeplerianSatelliteOrbit();        // Basic two-body orbit propagation
+        testPerturbedSatelliteOrbit();        // J2 + third body perturbations
+        testThrustWithMassPropagation();      // Coupled thrust and mass propagation
+        testCoupledTranslationalRotational(); // Coupled translational-rotational dynamics
+        testDifferentialDrag();               // Multi-satellite propagation
+        testSolarSystemPropagation();         // Multi-body planetary propagation
+        testThrustBetweenEarthMoon();         // Engine thrust with mass rate model
+        testTwoStageRocketAscent();           // Multi-stage rocket dynamics
+        testLinearSensitivityAnalysis();      // Variational equations / STM
+        testHybridTerminationConditions();    // Multiple termination conditions
+        testLambertTargeting();               // Interplanetary transfer design
+        testVariationalEquations();           // State transition matrix foundation
+        // testReentryTrajectory();           // Reentry with aerodynamic forces (disabled: atmosphere model issue)
+        testMultiArcPropagation();            // Multi-arc propagation (JUICE flybys)
+        testCR3BPIrregularBody();             // CR3BP with irregular body (impact manifolds)
+        testCustomThrustGuidance();           // Custom thrust guidance (JUICE engine)
+
+        // Mission design example tests
+        std::cout << "\n=== MISSION DESIGN EXAMPLE TESTS ===" << std::endl;
+
+        testMGATrajectory();                  // Multiple gravity assist trajectory
+        testPorkchopPattern();                // Porkchop plot / launch window
+        testLowThrustTransfer();              // Low-thrust transfer (hodographic shaping)
+
+        // Estimation example tests
+        std::cout << "\n=== ESTIMATION EXAMPLE TESTS ===" << std::endl;
+
+        testCovarianceAnalysisPattern();      // Covariance analysis setup
+        testObservationModelSetup();          // Ground station / observation geometry
+        testTLEEphemeris();                   // TLE-based ephemeris
+        testOptimizationProblemSetup();       // Optimization problem (PyGMO pattern)
+        testGalileanMoonsPattern();           // Galilean moons multi-body estimation
 
 #ifdef __EMSCRIPTEN__
         testEmscriptenEnvironment();

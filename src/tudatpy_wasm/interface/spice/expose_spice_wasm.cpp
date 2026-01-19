@@ -80,6 +80,26 @@ EMSCRIPTEN_BINDINGS(tudatpy_interface_spice) {
 
     function("interface_spice_check_body_property_in_kernel_pool",
         &tsi::checkBodyPropertyInKernelPool);
+
+    function("interface_spice_convert_body_name_to_naif_id",
+        &tsi::convertBodyNameToNaifId);
+
+    function("interface_spice_convert_naif_id_to_body_name",
+        &tsi::convertNaifIdToBodyName);
+
+    // Frame rotation
+    function("interface_spice_compute_rotation_matrix_between_frames",
+        &tsi::computeRotationMatrixBetweenFrames);
+
+    function("interface_spice_compute_rotation_quaternion_and_rotation_matrix_derivative_between_frames",
+        &tsi::computeRotationQuaternionAndRotationMatrixDerivativeBetweenFrames);
+
+    // Error handling
+    function("interface_spice_continue_after_errors",
+        &tsi::toggleErrorReturn);
+
+    function("interface_spice_suppress_error_output",
+        &tsi::suppressErrorOutput);
 }
 
 #endif

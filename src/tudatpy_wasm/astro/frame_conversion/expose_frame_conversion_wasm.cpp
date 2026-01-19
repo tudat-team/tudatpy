@@ -44,6 +44,11 @@ Matrix3dWrapper inertialToBodyFixedRotationMatrix(double poleDeclination, double
         poleDeclination, poleRightAscension, primeMeridianLongitude));
 }
 
+Matrix3dWrapper bodyFixedToInertialRotationMatrix(double poleDeclination, double poleRightAscension, double primeMeridianLongitude) {
+    return Matrix3dWrapper(trf::getRotatingPlanetocentricToInertialFrameTransformationMatrix(
+        poleDeclination, poleRightAscension, primeMeridianLongitude));
+}
+
 }
 
 EMSCRIPTEN_BINDINGS(tudatpy_astro_frame_conversion) {
@@ -54,6 +59,7 @@ EMSCRIPTEN_BINDINGS(tudatpy_astro_frame_conversion) {
     function("astro_frame_conversion_inertial_to_tnw_rotation_matrix", &inertialToTnwRotationMatrix);
     function("astro_frame_conversion_tnw_to_inertial_rotation_matrix", &tnwToInertialRotationMatrix);
     function("astro_frame_conversion_inertial_to_body_fixed_rotation_matrix", &inertialToBodyFixedRotationMatrix);
+    function("astro_frame_conversion_body_fixed_to_inertial_rotation_matrix", &bodyFixedToInertialRotationMatrix);
 }
 
 #endif

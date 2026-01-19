@@ -20,20 +20,30 @@
 #include <tudat/astro/mission_segments/transferNode.h>
 #include <tudat/astro/mission_segments/transferTrajectory.h>
 #include <tudat/astro/mission_segments/createTransferTrajectory.h>
+#include <tudat/astro/low_thrust/shape_based/hodographicShapingLeg.h>
+#include <tudat/astro/low_thrust/shape_based/sphericalShapingLeg.h>
+#include <tudat/astro/low_thrust/shape_based/baseFunctionsHodographicShaping.h>
+#include <tudat/math/root_finders.h>
 
 namespace tms = tudat::mission_segments;
 namespace tss = tudat::simulation_setup;
+namespace tsbm = tudat::shape_based_methods;
+namespace trf = tudat::root_finders;
 
 WASM_MODULE_PATH("trajectory_design_transfer_trajectory")
 
 EMSCRIPTEN_BINDINGS(tudatpy_trajectory_design_transfer_trajectory) {
     using namespace emscripten;
 
+    // Default minimum pericenters constant
+    constant("trajectory_design_transfer_trajectory_DEFAULT_MINIMUM_PERICENTERS",
+        tms::DEFAULT_MINIMUM_PERICENTERS);
+
     // TransferLegTypes enum
     enum_<tms::TransferLegTypes>("trajectory_design_transfer_trajectory_TransferLegTypes")
-        .value("unpowered_unperturbed_leg", tms::unpowered_unperturbed_leg)
-        .value("dsm_position_based_leg", tms::dsm_position_based_leg)
-        .value("dsm_velocity_based_leg", tms::dsm_velocity_based_leg)
+        .value("unpowered_unperturbed_leg_type", tms::unpowered_unperturbed_leg)
+        .value("dsm_position_based_leg_type", tms::dsm_position_based_leg)
+        .value("dsm_velocity_based_leg_type", tms::dsm_velocity_based_leg)
         .value("hodographic_low_thrust_leg", tms::hodographic_low_thrust_leg)
         .value("spherical_shaping_low_thrust_leg", tms::spherical_shaping_low_thrust_leg);
 
@@ -54,8 +64,18 @@ EMSCRIPTEN_BINDINGS(tudatpy_trajectory_design_transfer_trajectory) {
         .function("getLegTimeOfFlight", &tms::TransferLeg::getLegTimeOfFlight)
         .function("getLegDepartureTime", &tms::TransferLeg::getLegDepartureTime)
         .function("getLegArrivalTime", &tms::TransferLeg::getLegArrivalTime)
-        .function("getStateAlongTrajectory",
+        .function("state_along_trajectory",
             select_overload<Eigen::Vector6d(const double)>(&tms::TransferLeg::getStateAlongTrajectory));
+
+    // SphericalShapingLeg derived class
+    class_<tsbm::SphericalShapingLeg, base<tms::TransferLeg>>(
+        "trajectory_design_transfer_trajectory_SphericalShapingLeg")
+        .smart_ptr<std::shared_ptr<tsbm::SphericalShapingLeg>>("shared_ptr_SphericalShapingLeg");
+
+    // HodographicShapingLeg derived class
+    class_<tsbm::HodographicShapingLeg, base<tms::TransferLeg>>(
+        "trajectory_design_transfer_trajectory_HodographicShapingLeg")
+        .smart_ptr<std::shared_ptr<tsbm::HodographicShapingLeg>>("shared_ptr_HodographicShapingLeg");
 
     // TransferNode base class
     class_<tms::TransferNode>("trajectory_design_transfer_trajectory_TransferNode")
@@ -128,6 +148,14 @@ EMSCRIPTEN_BINDINGS(tudatpy_trajectory_design_transfer_trajectory) {
     function("trajectory_design_transfer_trajectory_dsm_velocity_based_leg",
         &tms::dsmVelocityBasedLeg);
 
+    // Spherical shaping leg
+    function("trajectory_design_transfer_trajectory_spherical_shaping_leg",
+        &tms::sphericalShapingLeg);
+
+    // Hodographic shaping leg
+    function("trajectory_design_transfer_trajectory_hodographic_shaping_leg",
+        &tms::hodographicShapingLeg);
+
     // Factory functions for node settings
     function("trajectory_design_transfer_trajectory_swingby_node",
         &tms::swingbyNode);
@@ -167,9 +195,49 @@ EMSCRIPTEN_BINDINGS(tudatpy_trajectory_design_transfer_trajectory) {
             const std::pair<double, double>,
             const std::map<std::string, double>)>(&tms::getMgaTransferTrajectorySettingsWithVelocityBasedDsm));
 
+    // MGA settings with spherical shaping legs
+    function("trajectory_design_transfer_trajectory_mga_settings_spherical_shaping_legs",
+        select_overload<std::pair<std::vector<std::shared_ptr<tms::TransferLegSettings>>,
+                                  std::vector<std::shared_ptr<tms::TransferNodeSettings>>>(
+            const std::vector<std::string>&,
+            const std::shared_ptr<trf::RootFinderSettings>,
+            const std::pair<double, double>,
+            const std::pair<double, double>,
+            const double,
+            const double,
+            const double,
+            const std::map<std::string, double>)>(&tms::getMgaTransferTrajectorySettingsWithSphericalShapingThrust));
+
+    // MGA settings with hodographic shaping legs (user-provided functions)
+    function("trajectory_design_transfer_trajectory_mga_settings_hodographic_shaping_legs",
+        select_overload<std::pair<std::vector<std::shared_ptr<tms::TransferLegSettings>>,
+                                  std::vector<std::shared_ptr<tms::TransferNodeSettings>>>(
+            const std::vector<std::string>&,
+            const std::vector<tsbm::HodographicBasisFunctionList>&,
+            const std::vector<tsbm::HodographicBasisFunctionList>&,
+            const std::vector<tsbm::HodographicBasisFunctionList>&,
+            const std::pair<double, double>,
+            const std::pair<double, double>,
+            const std::map<std::string, double>)>(&tms::getMgaTransferTrajectorySettingsWithHodographicShapingThrust));
+
+    // MGA settings with hodographic shaping legs (recommended functions)
+    function("trajectory_design_transfer_trajectory_mga_settings_hodographic_shaping_legs_with_recommended_functions",
+        select_overload<std::pair<std::vector<std::shared_ptr<tms::TransferLegSettings>>,
+                                  std::vector<std::shared_ptr<tms::TransferNodeSettings>>>(
+            const std::vector<std::string>&,
+            const std::vector<double>&,
+            const std::vector<double>&,
+            const std::pair<double, double>,
+            const std::pair<double, double>,
+            const std::map<std::string, double>)>(&tms::getMgaTransferTrajectorySettingsWithHodographicShapingThrust));
+
     // Utility function
     function("trajectory_design_transfer_trajectory_print_parameter_definitions",
         &tms::printTransferParameterDefinition);
+
+    // Set low thrust acceleration
+    function("trajectory_design_transfer_trajectory_set_low_thrust_acceleration",
+        &tms::setLowThrustAcceleration);
 }
 
 #endif

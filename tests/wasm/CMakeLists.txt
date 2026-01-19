@@ -18,6 +18,7 @@ set(WASM_TEST_SOURCES
     src/testElectromagnetism.cpp
     src/testEphemerides.cpp
     src/testEarthOrientation.cpp
+    src/testExamples.cpp
 )
 
 # Emscripten bindings (only for web build with --bind flag)
