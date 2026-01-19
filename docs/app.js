@@ -2365,30 +2365,9 @@ class TudatTestRunner {
         canvas.style.cssText = 'width: 100%; height: 100%; display: block;';
         container.appendChild(canvas);
 
-        const ctx = canvas.getContext('2d');
-        const rect = container.getBoundingClientRect();
-        const width = rect.width;
-        const height = rect.height;
-        canvas.width = width * window.devicePixelRatio;
-        canvas.height = height * window.devicePixelRatio;
-        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-
-        const padding = { left: 55, right: 15, top: 10, bottom: 35 };
-        const plotWidth = width - padding.left - padding.right;
-        const plotHeight = height - padding.top - padding.bottom;
-
-        const maxSep = Math.max(...separationData.map(d => d.separation));
-        const yScale = maxSep > 0 ? plotHeight / (maxSep * 1.1) : 1;
-
-        this.separationChart = {
-            canvas, ctx, separationData, totalTime, startTime,
-            width, height, padding, plotWidth, plotHeight, yScale, maxSep
-        };
-
-        this.drawSeparationChart();
-
-        this.viewer.clock.onTick.addEventListener((clock) => {
-            this.updateSeparationChartCursor(clock.currentTime);
+        // Defer chart drawing to next frame to ensure container is sized
+        requestAnimationFrame(() => {
+            this._drawSeparationChartDeferred(canvas, container, separationData, totalTime, startTime);
         });
     }
 
@@ -2416,11 +2395,26 @@ class TudatTestRunner {
         canvas.style.cssText = 'width: 100%; height: 100%; display: block;';
         container.appendChild(canvas);
 
+        // Defer chart drawing to next frame to ensure container is sized
+        // This fixes first-load rendering issues
+        requestAnimationFrame(() => {
+            this._drawSeparationChartDeferred(canvas, container, separationData, totalTime, startTime);
+        });
+    }
+
+    // Deferred chart drawing after layout is complete
+    _drawSeparationChartDeferred(canvas, container, separationData, totalTime, startTime) {
         // Draw chart - use container dimensions
         const ctx = canvas.getContext('2d');
         const rect = container.getBoundingClientRect();
-        const width = rect.width;
-        const height = rect.height;
+        let width = rect.width;
+        let height = rect.height;
+
+        // Fallback dimensions if container not yet sized
+        if (width < 100 || height < 50) {
+            width = container.offsetWidth || 600;
+            height = container.offsetHeight || 150;
+        }
         canvas.width = width * window.devicePixelRatio;
         canvas.height = height * window.devicePixelRatio;
         ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
