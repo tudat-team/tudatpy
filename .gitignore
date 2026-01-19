@@ -1,8 +1,9 @@
 # Generated files
 examples
-# But keep the WASM visualization examples
+# But keep the WASM examples
 !tests/wasm/web/visualizations/examples/
 !docs/visualizations/examples/
+!src/tudatpy_wasm/npm/examples/
 lib/
 libs/
 CMakeFiles/

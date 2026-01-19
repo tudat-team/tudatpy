@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tudat WASM Browser Demo</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #1a1a2e;
+            border-bottom: 3px solid #4361ee;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #16213e;
+            margin-top: 30px;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .input-group {
+            margin: 10px 0;
+        }
+        label {
+            display: inline-block;
+            width: 200px;
+            font-weight: 500;
+        }
+        input[type="number"] {
+            width: 150px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .unit {
+            color: #666;
+            margin-left: 10px;
+        }
+        button {
+            background: #4361ee;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px 10px 0;
+        }
+        button:hover {
+            background: #3a56d4;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        #output {
+            background: #1a1a2e;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        #status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .status-loading {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-ready {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: #1a1a2e;
+        }
+        .canvas-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Tudat WASM Browser Demo</h1>
+
+    <div id="status" class="status-loading">Loading Tudat WASM module...</div>
+
+    <div class="grid">
+        <div class="card">
+            <h2>Orbital Element Converter</h2>
+            <p>Convert between Keplerian and Cartesian orbital elements.</p>
+
+            <div class="input-group">
+                <label>Semi-major axis:</label>
+                <input type="number" id="sma" value="7000" step="100">
+                <span class="unit">km</span>
+            </div>
+            <div class="input-group">
+                <label>Eccentricity:</label>
+                <input type="number" id="ecc" value="0.01" step="0.01" min="0" max="0.99">
+            </div>
+            <div class="input-group">
+                <label>Inclination:</label>
+                <input type="number" id="inc" value="51.6" step="1">
+                <span class="unit">degrees</span>
+            </div>
+            <div class="input-group">
+                <label>RAAN:</label>
+                <input type="number" id="raan" value="0" step="10">
+                <span class="unit">degrees</span>
+            </div>
+            <div class="input-group">
+                <label>Arg of Periapsis:</label>
+                <input type="number" id="aop" value="0" step="10">
+                <span class="unit">degrees</span>
+            </div>
+            <div class="input-group">
+                <label>True Anomaly:</label>
+                <input type="number" id="ta" value="0" step="10">
+                <span class="unit">degrees</span>
+            </div>
+
+            <button id="convertBtn" disabled>Convert to Cartesian</button>
+        </div>
+
+        <div class="card">
+            <h2>Orbit Visualization</h2>
+            <div class="canvas-container">
+                <canvas id="orbitCanvas" width="400" height="400"></canvas>
+            </div>
+            <button id="propagateBtn" disabled>Propagate One Orbit</button>
+            <button id="clearBtn">Clear</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Lambert Solver</h2>
+        <p>Compute transfer trajectory between two positions.</p>
+
+        <div class="grid">
+            <div>
+                <h3>Departure (Earth-like)</h3>
+                <div class="input-group">
+                    <label>Distance from Sun:</label>
+                    <input type="number" id="r1" value="1.0" step="0.1">
+                    <span class="unit">AU</span>
+                </div>
+                <div class="input-group">
+                    <label>Angle:</label>
+                    <input type="number" id="angle1" value="0" step="10">
+                    <span class="unit">degrees</span>
+                </div>
+            </div>
+            <div>
+                <h3>Arrival (Mars-like)</h3>
+                <div class="input-group">
+                    <label>Distance from Sun:</label>
+                    <input type="number" id="r2" value="1.52" step="0.1">
+                    <span class="unit">AU</span>
+                </div>
+                <div class="input-group">
+                    <label>Angle:</label>
+                    <input type="number" id="angle2" value="180" step="10">
+                    <span class="unit">degrees</span>
+                </div>
+            </div>
+        </div>
+        <div class="input-group">
+            <label>Time of Flight:</label>
+            <input type="number" id="tof" value="259" step="10">
+            <span class="unit">days</span>
+        </div>
+
+        <button id="lambertBtn" disabled>Solve Lambert Problem</button>
+    </div>
+
+    <div class="card">
+        <h2>Output</h2>
+        <div id="output">Waiting for Tudat module to load...</div>
+    </div>
+
+    <script type="module">
+        // Import Tudat WASM module
+        // In production, this would be: import createTudatModule from '@tudat/tudatpy-wasm';
+        // For local testing, adjust the path to your built module
+
+        let tudat = null;
+        const output = document.getElementById('output');
+        const status = document.getElementById('status');
+
+        function log(message) {
+            output.textContent += message + '\n';
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function clearLog() {
+            output.textContent = '';
+        }
+
+        // Try to load the module
+        async function initTudat() {
+            try {
+                // For local development, you may need to adjust this path
+                // to point to your built tudatpy_wasm.js file
+                const modulePath = '../../../build-wasm/src/tudatpy_wasm/tudatpy_wasm.js';
+
+                log('Attempting to load Tudat WASM module...');
+                log('Note: In production, use: import createTudatModule from "@tudat/tudatpy-wasm"');
+
+                // Dynamic import
+                const module = await import(modulePath);
+                const createTudatModule = module.default || module;
+
+                tudat = await createTudatModule({
+                    print: (text) => log('[Tudat] ' + text),
+                    printErr: (text) => log('[Error] ' + text)
+                });
+
+                status.textContent = 'Tudat WASM module loaded successfully!';
+                status.className = 'status-ready';
+
+                // Enable buttons
+                document.getElementById('convertBtn').disabled = false;
+                document.getElementById('propagateBtn').disabled = false;
+                document.getElementById('lambertBtn').disabled = false;
+
+                log('Tudat WASM module ready!');
+                log('Available modules: constants, astro, dynamics, interface');
+                log('');
+
+            } catch (err) {
+                status.textContent = 'Failed to load Tudat WASM module. See console for details.';
+                status.className = 'status-error';
+                log('Error loading module: ' + err.message);
+                log('');
+                log('To use this demo:');
+                log('1. Build Tudat WASM: cmake --build build-wasm --target tudatpy_wasm');
+                log('2. Serve this file with a local web server');
+                log('3. Or use the pre-built npm package');
+                console.error(err);
+
+                // Still enable demo mode with mock functions
+                enableDemoMode();
+            }
+        }
+
+        function enableDemoMode() {
+            log('\n--- Running in DEMO MODE (no WASM) ---');
+            log('Calculations will use JavaScript approximations.\n');
+
+            document.getElementById('convertBtn').disabled = false;
+            document.getElementById('propagateBtn').disabled = false;
+            document.getElementById('lambertBtn').disabled = false;
+        }
+
+        // Orbital element conversion
+        document.getElementById('convertBtn').addEventListener('click', () => {
+            clearLog();
+
+            const sma = parseFloat(document.getElementById('sma').value) * 1000;  // km to m
+            const ecc = parseFloat(document.getElementById('ecc').value);
+            const inc = parseFloat(document.getElementById('inc').value) * Math.PI / 180;
+            const raan = parseFloat(document.getElementById('raan').value) * Math.PI / 180;
+            const aop = parseFloat(document.getElementById('aop').value) * Math.PI / 180;
+            const ta = parseFloat(document.getElementById('ta').value) * Math.PI / 180;
+
+            const GM = 3.986004418e14;  // Earth GM
+
+            log('=== Keplerian to Cartesian Conversion ===\n');
+            log('Input Keplerian elements:');
+            log(`  Semi-major axis: ${(sma/1000).toFixed(2)} km`);
+            log(`  Eccentricity: ${ecc.toFixed(4)}`);
+            log(`  Inclination: ${(inc * 180 / Math.PI).toFixed(2)} deg`);
+            log(`  RAAN: ${(raan * 180 / Math.PI).toFixed(2)} deg`);
+            log(`  Arg of Periapsis: ${(aop * 180 / Math.PI).toFixed(2)} deg`);
+            log(`  True Anomaly: ${(ta * 180 / Math.PI).toFixed(2)} deg`);
+
+            if (tudat) {
+                // Use Tudat WASM
+                const kepler = new tudat.Vector6d();
+                kepler.set(0, sma);
+                kepler.set(1, ecc);
+                kepler.set(2, inc);
+                kepler.set(3, aop);
+                kepler.set(4, raan);
+                kepler.set(5, ta);
+
+                const cartesian = tudat.astro.element_conversion.keplerian_to_cartesian(kepler, GM);
+
+                log('\nOutput Cartesian state:');
+                log(`  Position X: ${(cartesian.get(0)/1000).toFixed(3)} km`);
+                log(`  Position Y: ${(cartesian.get(1)/1000).toFixed(3)} km`);
+                log(`  Position Z: ${(cartesian.get(2)/1000).toFixed(3)} km`);
+                log(`  Velocity X: ${cartesian.get(3).toFixed(3)} m/s`);
+                log(`  Velocity Y: ${cartesian.get(4).toFixed(3)} m/s`);
+                log(`  Velocity Z: ${cartesian.get(5).toFixed(3)} m/s`);
+
+                // Compute orbital period
+                const period = tudat.astro.two_body_dynamics.compute_kepler_orbit_period(sma, GM);
+                log(`\nOrbital period: ${(period/60).toFixed(2)} minutes`);
+
+                kepler.delete();
+                cartesian.delete();
+            } else {
+                // JavaScript approximation
+                const p = sma * (1 - ecc * ecc);
+                const r = p / (1 + ecc * Math.cos(ta));
+                const h = Math.sqrt(GM * p);
+
+                // Position in orbital plane
+                const x_orb = r * Math.cos(ta);
+                const y_orb = r * Math.sin(ta);
+
+                // Velocity in orbital plane
+                const vx_orb = -Math.sqrt(GM / p) * Math.sin(ta);
+                const vy_orb = Math.sqrt(GM / p) * (ecc + Math.cos(ta));
+
+                log('\nOutput Cartesian state (JS approximation):');
+                log(`  Position magnitude: ${(r/1000).toFixed(3)} km`);
+                log(`  Velocity magnitude: ${Math.sqrt(vx_orb*vx_orb + vy_orb*vy_orb).toFixed(3)} m/s`);
+
+                const period = 2 * Math.PI * Math.sqrt(Math.pow(sma, 3) / GM);
+                log(`\nOrbital period: ${(period/60).toFixed(2)} minutes`);
+            }
+        });
+
+        // Orbit propagation and visualization
+        const canvas = document.getElementById('orbitCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function drawOrbit(positions, color = '#00ff00') {
+            const scale = 150 / 8000000;  // Scale to fit canvas
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            // Draw Earth
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 6378137 * scale, 0, 2 * Math.PI);
+            ctx.fillStyle = '#4361ee';
+            ctx.fill();
+
+            // Draw orbit path
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+
+            for (let i = 0; i < positions.length; i++) {
+                const x = centerX + positions[i].x * scale;
+                const y = centerY - positions[i].y * scale;  // Flip Y
+
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+
+            // Mark start position
+            if (positions.length > 0) {
+                const startX = centerX + positions[0].x * scale;
+                const startY = centerY - positions[0].y * scale;
+                ctx.beginPath();
+                ctx.arc(startX, startY, 5, 0, 2 * Math.PI);
+                ctx.fillStyle = '#ff6b6b';
+                ctx.fill();
+            }
+        }
+
+        document.getElementById('propagateBtn').addEventListener('click', () => {
+            const sma = parseFloat(document.getElementById('sma').value) * 1000;
+            const ecc = parseFloat(document.getElementById('ecc').value);
+            const ta = parseFloat(document.getElementById('ta').value) * Math.PI / 180;
+
+            const GM = 3.986004418e14;
+            const period = 2 * Math.PI * Math.sqrt(Math.pow(sma, 3) / GM);
+
+            const positions = [];
+            const numPoints = 100;
+
+            for (let i = 0; i <= numPoints; i++) {
+                const angle = ta + (2 * Math.PI * i / numPoints);
+                const p = sma * (1 - ecc * ecc);
+                const r = p / (1 + ecc * Math.cos(angle));
+
+                positions.push({
+                    x: r * Math.cos(angle),
+                    y: r * Math.sin(angle)
+                });
+            }
+
+            drawOrbit(positions);
+            log('\nOrbit visualized on canvas.');
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+
+        // Lambert solver
+        document.getElementById('lambertBtn').addEventListener('click', () => {
+            clearLog();
+
+            const AU = 1.496e11;
+            const sunGM = 1.32712440018e20;
+
+            const r1 = parseFloat(document.getElementById('r1').value) * AU;
+            const angle1 = parseFloat(document.getElementById('angle1').value) * Math.PI / 180;
+            const r2 = parseFloat(document.getElementById('r2').value) * AU;
+            const angle2 = parseFloat(document.getElementById('angle2').value) * Math.PI / 180;
+            const tof = parseFloat(document.getElementById('tof').value) * 86400;
+
+            log('=== Lambert Problem Solver ===\n');
+            log('Departure:');
+            log(`  Distance: ${(r1/AU).toFixed(2)} AU`);
+            log(`  Angle: ${(angle1 * 180 / Math.PI).toFixed(1)} deg`);
+            log('\nArrival:');
+            log(`  Distance: ${(r2/AU).toFixed(2)} AU`);
+            log(`  Angle: ${(angle2 * 180 / Math.PI).toFixed(1)} deg`);
+            log(`\nTime of flight: ${(tof/86400).toFixed(0)} days`);
+
+            if (tudat) {
+                const pos1 = new tudat.Vector3d();
+                pos1.set(0, r1 * Math.cos(angle1));
+                pos1.set(1, r1 * Math.sin(angle1));
+                pos1.set(2, 0);
+
+                const pos2 = new tudat.Vector3d();
+                pos2.set(0, r2 * Math.cos(angle2));
+                pos2.set(1, r2 * Math.sin(angle2));
+                pos2.set(2, 0);
+
+                try {
+                    const result = tudat.trajectory_design.transfer_trajectory.solve_lambert_problem(
+                        pos1, pos2, tof, sunGM, false
+                    );
+
+                    const v1 = result.departure_velocity;
+                    const v2 = result.arrival_velocity;
+
+                    log('\nSolution found!');
+                    log(`  Departure velocity: ${(Math.sqrt(v1.get(0)**2 + v1.get(1)**2 + v1.get(2)**2)/1000).toFixed(3)} km/s`);
+                    log(`  Arrival velocity: ${(Math.sqrt(v2.get(0)**2 + v2.get(1)**2 + v2.get(2)**2)/1000).toFixed(3)} km/s`);
+
+                    v1.delete();
+                    v2.delete();
+                } catch (err) {
+                    log('\nError solving Lambert problem: ' + err.message);
+                }
+
+                pos1.delete();
+                pos2.delete();
+            } else {
+                // Simple Hohmann transfer approximation
+                const a_transfer = (r1 + r2) / 2;
+                const v1_circ = Math.sqrt(sunGM / r1);
+                const v1_trans = Math.sqrt(sunGM * (2/r1 - 1/a_transfer));
+                const v2_trans = Math.sqrt(sunGM * (2/r2 - 1/a_transfer));
+                const v2_circ = Math.sqrt(sunGM / r2);
+
+                log('\nHohmann transfer approximation:');
+                log(`  Departure delta-V: ${((v1_trans - v1_circ)/1000).toFixed(3)} km/s`);
+                log(`  Arrival delta-V: ${((v2_circ - v2_trans)/1000).toFixed(3)} km/s`);
+                log(`  Total delta-V: ${((Math.abs(v1_trans - v1_circ) + Math.abs(v2_circ - v2_trans))/1000).toFixed(3)} km/s`);
+            }
+        });
+
+        // Initialize
+        initTudat();
+    </script>
+</body>
+</html>

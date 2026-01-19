@@ -15,16 +15,16 @@ Achieve 100% feature parity between Python tudatpy bindings and WASM tudatpy bin
 
 **Missing Module:** `estimation/estimation_analysis/expose_estimation_analysis_estimator_wasm.cpp`
 
-### Example Parity: **43.5%** (20/46 examples)
+### Example Parity: **65%** (30/46 examples)
 
 | Category | Python | WASM |
 |----------|--------|------|
-| Propagation | 14 | 8 |
-| Estimation | 18 | 1 |
-| Mission Design | 5 | 4 |
-| Optimization | 3 | 1 |
+| Propagation | 14 | 14 |
+| Estimation | 18 | 3 |
+| Mission Design | 5 | 6 |
+| Optimization | 3 | 2 |
 | TLE/Data | 2 | 2 |
-| Other | 4 | 4 |
+| Other | 4 | 3 |
 
 ### Test Coverage
 - **C++ WASM tests**: 550 tests passing
@@ -37,11 +37,11 @@ Achieve 100% feature parity between Python tudatpy bindings and WASM tudatpy bin
 - All propagation setup submodules (7/7)
 - Core estimation modules (5/5 top-level)
 - Trajectory design modules (2/2)
-- 20 JavaScript examples covering fundamentals
+- 30 JavaScript examples covering fundamentals and advanced topics
 
 ### What's Missing
 - 1 estimation submodule (estimation_analysis_estimator)
-- 26 advanced Python examples (mostly estimation/optimization)
+- 16 advanced Python examples (mostly estimation/optimization)
 - Python-only modules: io, plotting, util (by design - browser limitations)
 
 ---
