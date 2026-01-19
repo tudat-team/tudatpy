@@ -145,7 +145,12 @@ function simulateRocketAscent(config) {
 
         // Equations of motion
         const dv = thrustAccel - drag - g * Math.sin(gamma);
-        const dgamma = (g / velocity) * (velocity * velocity / (g * r) - 1) * Math.cos(gamma);
+
+        // Gravity turn rate (avoid division by zero when velocity is small)
+        let dgamma = 0;
+        if (velocity > 10) {
+            dgamma = (g / velocity) * (velocity * velocity / (g * r) - 1) * Math.cos(gamma);
+        }
 
         // Gravity turn (pitch over after ~10s)
         if (t > 10 && t < 60 && gamma > 45 * Math.PI / 180) {
@@ -160,9 +165,9 @@ function simulateRocketAscent(config) {
         downrange += velocity * Math.cos(gamma) * dt;
 
         // Clamp values
-        velocity = Math.max(velocity, 0);
+        velocity = Math.max(velocity, 1);  // Keep minimum velocity to avoid div by zero
         altitude = Math.max(altitude, 0);
-        gamma = Math.max(0, Math.min(gamma, Math.PI / 2));
+        gamma = Math.max(0.01, Math.min(gamma, Math.PI / 2));  // Keep gamma slightly above 0
 
         // Stop if crashed
         if (altitude < 0 && i > 10) break;
