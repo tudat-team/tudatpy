@@ -769,11 +769,19 @@ class TudatTestRunner {
         try {
             this.log('Loading tudatpy WASM module...', 'info');
 
-            // Dynamically import the module factory
-            const { default: createTudatModule } = await import('./tudatpy_wasm.js');
+            // Load the script if not already loaded (UMD module sets global createTudatModule)
+            if (typeof window.createTudatModule === 'undefined') {
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = './tudatpy_wasm.js';
+                    script.onload = resolve;
+                    script.onerror = () => reject(new Error('Failed to load tudatpy_wasm.js'));
+                    document.head.appendChild(script);
+                });
+            }
 
             // Create the module with filesystem pre-setup
-            this.tudatModule = await createTudatModule({
+            this.tudatModule = await window.createTudatModule({
                 print: (text) => console.log('[Tudat]', text),
                 printErr: (text) => console.error('[Tudat Error]', text),
                 preRun: [(Module) => {
