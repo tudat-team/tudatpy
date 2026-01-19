@@ -401,6 +401,7 @@ EMSCRIPTEN_BINDINGS(tudatpy_estimation_estimation_analysis) {
         .property("residualStandardDeviation", &tss::EstimationOutput<double, double>::residualStandardDeviation_);
 
     // OrbitDeterminationManager (Estimator) class
+    // This is the main class for orbit determination / parameter estimation
     class_<tss::OrbitDeterminationManager<double, double>>(
         "estimation_estimation_analysis_Estimator")
         .smart_ptr<std::shared_ptr<tss::OrbitDeterminationManager<double, double>>>(
@@ -410,16 +411,25 @@ EMSCRIPTEN_BINDINGS(tudatpy_estimation_estimation_analysis) {
                      const std::vector<std::shared_ptr<tss::ObservationModelSettings>>&,
                      const std::shared_ptr<tudat::propagators::PropagatorSettings<double>>,
                      const bool>()
-        .function("estimateParameters",
+        // Methods matching Python bindings
+        .function("perform_estimation",
             &tss::OrbitDeterminationManager<double, double>::estimateParameters)
-        .function("computeCovariance",
+        .function("compute_covariance",
             &tss::OrbitDeterminationManager<double, double>::computeCovariance)
+        // Properties matching Python bindings
+        .function("getObservationSimulators",
+            &tss::OrbitDeterminationManager<double, double>::getObservationSimulators)
+        .function("getObservationManagers",
+            &tss::OrbitDeterminationManager<double, double>::getObservationManagers)
+        .function("getVariationalEquationsSolver",
+            &tss::OrbitDeterminationManager<double, double>::getVariationalEquationsSolver)
+        .function("getStateTransitionAndSensitivityMatrixInterface",
+            &tss::OrbitDeterminationManager<double, double>::getStateTransitionAndSensitivityMatrixInterface)
+        // Additional utility methods
         .function("getParametersToEstimate",
             &tss::OrbitDeterminationManager<double, double>::getParametersToEstimate)
         .function("getBodies",
-            &tss::OrbitDeterminationManager<double, double>::getBodies)
-        .function("getStateTransitionAndSensitivityMatrixInterface",
-            &tss::OrbitDeterminationManager<double, double>::getStateTransitionAndSensitivityMatrixInterface);
+            &tss::OrbitDeterminationManager<double, double>::getBodies);
 
     // CombinedStateTransitionAndSensitivityMatrixInterface class
     class_<tp::CombinedStateTransitionAndSensitivityMatrixInterface>(
