@@ -869,7 +869,7 @@ class TudatTestRunner {
         }
 
         try {
-            const state = this.tudatModule.interface_.spice.get_body_cartesian_state_at_epoch(
+            const state = this.tudatModule.interface_spice_get_body_cartesian_state_at_epoch(
                 target,
                 observer,
                 frame,

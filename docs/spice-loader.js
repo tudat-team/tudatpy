@@ -122,11 +122,11 @@ export class SpiceKernelLoader {
             this.module.FS.writeFile(virtualPath, data);
             console.log(`[SPICE] Written ${name} to ${virtualPath}`);
 
-            // Load the kernel via SPICE
-            this.module.interface_.spice.load_kernel(virtualPath);
+            // Load the kernel via SPICE (use flat function name from Embind)
+            this.module.interface_spice_load_kernel(virtualPath);
             this.loadedKernels.add(name);
 
-            const totalKernels = this.module.interface_.spice.get_total_count_of_kernels_loaded();
+            const totalKernels = this.module.interface_spice_get_total_count_of_kernels_loaded();
             console.log(`[SPICE] Kernel ${name} loaded. Total kernels: ${totalKernels}`);
 
             return true;
@@ -175,7 +175,7 @@ export class SpiceKernelLoader {
      * Clear all loaded kernels
      */
     clearKernels() {
-        this.module.interface_.spice.clear_kernels();
+        this.module.interface_spice_clear_kernels();
         this.loadedKernels.clear();
         console.log('[SPICE] All kernels cleared');
     }
@@ -184,7 +184,7 @@ export class SpiceKernelLoader {
      * Get count of loaded kernels
      */
     getLoadedCount() {
-        return this.module.interface_.spice.get_total_count_of_kernels_loaded();
+        return this.module.interface_spice_get_total_count_of_kernels_loaded();
     }
 
     /**
@@ -201,12 +201,12 @@ export class SpiceKernelLoader {
         try {
             // Try a simple time conversion
             const jd = 2451545.0;  // J2000 epoch
-            const et = this.module.interface_.spice.convert_julian_date_to_ephemeris_time(jd);
+            const et = this.module.interface_spice_convert_julian_date_to_ephemeris_time(jd);
             console.log(`[SPICE] Test: JD ${jd} -> ET ${et}`);
 
             // Try to get Earth state (requires ephemeris kernel)
             if (this.loadedKernels.has('de430_mar097_small.bsp')) {
-                const state = this.module.interface_.spice.get_body_cartesian_state_at_epoch(
+                const state = this.module.interface_spice_get_body_cartesian_state_at_epoch(
                     'Earth',
                     'Sun',
                     'J2000',

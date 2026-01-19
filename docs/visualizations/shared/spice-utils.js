@@ -42,7 +42,7 @@ export function getBodyState(target, observer, epoch, frame = 'J2000') {
     }
 
     try {
-        const state = _tudatModule.interface_.spice.get_body_cartesian_state_at_epoch(
+        const state = _tudatModule.interface_spice_get_body_cartesian_state_at_epoch(
             target,
             observer,
             frame,
@@ -95,7 +95,7 @@ export function getGM(body) {
     }
 
     try {
-        return _tudatModule.interface_.spice.get_body_gravitational_parameter(body);
+        return _tudatModule.interface_spice_get_body_gravitational_parameter(body);
     } catch (error) {
         console.error(`Failed to get GM for ${body}:`, error);
         return null;
@@ -114,7 +114,7 @@ export function getRadius(body) {
     }
 
     try {
-        return _tudatModule.interface_.spice.get_average_radius(body);
+        return _tudatModule.interface_spice_get_average_radius(body);
     } catch (error) {
         console.error(`Failed to get radius for ${body}:`, error);
         return null;
@@ -134,7 +134,7 @@ export function jdToEt(jd) {
     }
 
     try {
-        return _tudatModule.interface_.spice.convert_julian_date_to_ephemeris_time(jd);
+        return _tudatModule.interface_spice_convert_julian_date_to_ephemeris_time(jd);
     } catch (error) {
         // Fallback
         const J2000_JD = 2451545.0;
@@ -155,7 +155,7 @@ export function etToJd(et) {
     }
 
     try {
-        return _tudatModule.interface_.spice.convert_ephemeris_time_to_julian_date(et);
+        return _tudatModule.interface_spice_convert_ephemeris_time_to_julian_date(et);
     } catch (error) {
         // Fallback
         const J2000_JD = 2451545.0;
@@ -176,7 +176,7 @@ export function dateToEt(date) {
     } else if (typeof date === 'string') {
         if (isSpiceReady()) {
             try {
-                return _tudatModule.interface_.spice.convert_date_string_to_ephemeris_time(date);
+                return _tudatModule.interface_spice_convert_date_string_to_ephemeris_time(date);
             } catch (error) {
                 // Parse manually
                 const d = new Date(date);
