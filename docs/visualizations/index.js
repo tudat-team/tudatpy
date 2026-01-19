@@ -81,6 +81,30 @@ export const visualizationRegistry = {
         description: 'State transition matrix analysis',
         chartOnly: true
     },
+    'Coupled Dynamics': {
+        module: './examples/coupled-dynamics.js',
+        showFunction: 'showCoupledDynamicsExample',
+        description: 'Coupled orbit and attitude propagation',
+        chartOnly: true
+    },
+    'CR3BP Manifolds': {
+        module: './examples/cr3bp-manifolds.js',
+        showFunction: 'showCR3BPManifoldsExample',
+        description: 'Halo orbit manifolds in Earth-Moon system',
+        chartOnly: true
+    },
+    'Differential Drag': {
+        module: './examples/differential-drag.js',
+        showFunction: 'showDifferentialDragExample',
+        description: 'Satellite separation using differential drag',
+        chartOnly: true
+    },
+    'JUICE Flybys': {
+        module: './examples/juice-flybys.js',
+        showFunction: 'showJuiceFlybysExample',
+        description: 'JUICE mission Jovian moon flybys',
+        chartOnly: true
+    },
     // === Mission Design ===
     'Earth-Mars Transfer': {
         module: './examples/earth-mars-transfer.js',
