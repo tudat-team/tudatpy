@@ -925,6 +925,152 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* Test Progress Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(2, 4, 8, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--bg-panel);
+            border: 1px solid var(--cyan);
+            border-radius: 8px;
+            padding: 32px 48px;
+            min-width: 400px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 0 60px rgba(0, 240, 255, 0.3),
+                        inset 0 0 30px rgba(0, 240, 255, 0.05);
+            position: relative;
+        }
+
+        .modal-content::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+        }
+
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--cyan);
+            margin-bottom: 24px;
+            letter-spacing: 2px;
+        }
+
+        .modal-progress-container {
+            margin-bottom: 24px;
+        }
+
+        .modal-progress-text {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .modal-progress-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .modal-progress-track {
+            height: 8px;
+            background: var(--bg-elevated);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .modal-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--cyan), var(--purple));
+            width: 0%;
+            transition: width 0.15s ease;
+            box-shadow: 0 0 10px var(--cyan-glow);
+        }
+
+        .modal-stats {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 16px;
+        }
+
+        .modal-stat {
+            text-align: center;
+        }
+
+        .modal-stat-value {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .modal-stat-value.passed {
+            color: var(--green);
+        }
+
+        .modal-stat-value.failed {
+            color: var(--red);
+        }
+
+        .modal-stat-label {
+            font-size: 11px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .modal-current-test {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            color: var(--text-dim);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            padding: 8px;
+            background: var(--bg-card);
+            border-radius: 4px;
+        }
+
+        .modal-spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--bg-elevated);
+            border-top-color: var(--cyan);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 12px;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
@@ -1109,6 +1255,34 @@
                     <div class="console-line info">System initialized. Awaiting WASM module...</div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Test Progress Modal -->
+    <div class="modal-overlay" id="test-modal">
+        <div class="modal-content">
+            <div class="modal-title">
+                <span class="modal-spinner"></span>
+                EXECUTING TESTS
+            </div>
+            <div class="modal-progress-container">
+                <div class="modal-progress-text" id="modal-progress-text">0%</div>
+                <div class="modal-progress-label" id="modal-progress-label">Initializing...</div>
+                <div class="modal-progress-track">
+                    <div class="modal-progress-bar" id="modal-progress-bar"></div>
+                </div>
+            </div>
+            <div class="modal-stats">
+                <div class="modal-stat">
+                    <div class="modal-stat-value passed" id="modal-passed">0</div>
+                    <div class="modal-stat-label">Passed</div>
+                </div>
+                <div class="modal-stat">
+                    <div class="modal-stat-value failed" id="modal-failed">0</div>
+                    <div class="modal-stat-label">Failed</div>
+                </div>
+            </div>
+            <div class="modal-current-test" id="modal-current-test">Waiting...</div>
         </div>
     </div>
 

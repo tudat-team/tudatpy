@@ -41,7 +41,21 @@ class TudatTestRunner {
         this.startTime = null;
         this.currentCategory = 'General';
         this.consoleLines = 0;
-        this.expectedTests = 230;
+        this.expectedTests = 550;
+
+        // Web Worker for running tests off main thread
+        this.testWorker = null;
+        this.workerReady = false;
+        this.totalTestCount = 550;  // Expected total tests
+
+        // Modal elements
+        this.modal = null;
+        this.modalProgressBar = null;
+        this.modalProgressText = null;
+        this.modalProgressLabel = null;
+        this.modalPassed = null;
+        this.modalFailed = null;
+        this.modalCurrentTest = null;
 
         // Cesium viewer
         this.viewer = null;
@@ -65,11 +79,54 @@ class TudatTestRunner {
 
         this.setupEventListeners();
         this.setupCharts();
+        this.setupModal();
         await this.setupCesium();
         this.generateOrbitalData();
         this.setupVisualizationCategories();
 
-        await this.loadWasm();
+        await this.loadWasmWorker();
+    }
+
+    setupModal() {
+        this.modal = document.getElementById('test-modal');
+        this.modalProgressBar = document.getElementById('modal-progress-bar');
+        this.modalProgressText = document.getElementById('modal-progress-text');
+        this.modalProgressLabel = document.getElementById('modal-progress-label');
+        this.modalPassed = document.getElementById('modal-passed');
+        this.modalFailed = document.getElementById('modal-failed');
+        this.modalCurrentTest = document.getElementById('modal-current-test');
+    }
+
+    showModal() {
+        if (this.modal) {
+            this.modal.classList.add('active');
+            this.modalProgressBar.style.width = '0%';
+            this.modalProgressText.textContent = '0%';
+            this.modalProgressLabel.textContent = 'Initializing...';
+            this.modalPassed.textContent = '0';
+            this.modalFailed.textContent = '0';
+            this.modalCurrentTest.textContent = 'Starting tests...';
+        }
+    }
+
+    hideModal() {
+        if (this.modal) {
+            this.modal.classList.remove('active');
+        }
+    }
+
+    updateModal(current, total, passed, failed, testName) {
+        if (!this.modal) return;
+
+        const percent = total > 0 ? Math.round((current / total) * 100) : 0;
+        this.modalProgressBar.style.width = `${percent}%`;
+        this.modalProgressText.textContent = `${percent}%`;
+        this.modalProgressLabel.textContent = `${current} / ${total} tests`;
+        this.modalPassed.textContent = passed;
+        this.modalFailed.textContent = failed;
+        if (testName) {
+            this.modalCurrentTest.textContent = testName;
+        }
     }
 
     // Curated list of test categories with meaningful 3D/chart visualizations
@@ -474,57 +531,172 @@ class TudatTestRunner {
         });
     }
 
-    // ==================== WASM Loading ====================
+    // ==================== WASM Loading with Web Worker ====================
 
-    async loadWasm() {
+    async loadWasmWorker() {
         const statusEl = document.getElementById('wasm-status');
         const dotEl = document.getElementById('wasm-dot');
         const runBtn = document.getElementById('run-btn');
         const self = this;
 
         try {
-            this.log('Loading WASM module...', 'info');
+            this.log('Initializing Web Worker for WASM...', 'info');
 
-            // Set up Module object BEFORE loading the script to capture all output
-            // Load the test module which has all visualization functions
-            // (propagateCR3BP, propagateSGP4vsFullForce, computeLibrationPoints, etc.)
-            window.Module = {
-                print: function(text) {
-                    self.processOutput(text);
-                },
-                printErr: function(text) {
-                    self.processOutput(text);
-                    console.error(text);
-                },
-                onRuntimeInitialized: function() {
-                    self.log('WASM runtime initialized', 'info');
-                }
+            // Create worker
+            this.testWorker = new Worker('testWorker.js');
+
+            // Set up message handler
+            this.testWorker.onmessage = (e) => this.handleWorkerMessage(e);
+            this.testWorker.onerror = (e) => {
+                console.error('Worker error:', e);
+                this.log(`Worker error: ${e.message}`, 'error');
             };
 
-            await this.loadScript('tudat_wasm_test.js');
-            await this.waitForModule();
-            this.wasmModule = Module;
+            // Request WASM module load in worker
+            this.testWorker.postMessage({
+                type: 'load',
+                wasmUrl: 'tudat_wasm_test.js'
+            });
+
+            // Wait for worker to be ready (with timeout)
+            await this.waitForWorkerReady();
 
             statusEl.textContent = 'READY';
             dotEl.className = 'status-dot ready';
             runBtn.disabled = false;
 
-            this.log('WASM module loaded successfully', 'pass');
-            this.log('System ready. Click EXECUTE to run tests.', 'info');
+            this.log('WASM Worker ready', 'pass');
+            this.log('System ready. Click EXECUTE to run tests (runs in background).', 'info');
 
-            // Auto-select RK78 Integration as the default visualization
+            // Also load main thread WASM for visualizations (non-blocking)
+            this.loadVisualizationWasm();
+
+            // Auto-select default visualization
             this.selectDefaultVisualization();
         } catch (error) {
-            console.error('WASM load error:', error);
+            console.error('Worker setup error:', error);
             statusEl.textContent = 'LOAD FAILED';
             dotEl.className = 'status-dot error';
-            this.log(`WASM load failed: ${error.message}`, 'error');
+            this.log(`Worker setup failed: ${error.message}`, 'error');
             this.log('Running in demo mode...', 'info');
 
-            // Enable demo mode
             runBtn.disabled = false;
             this.useDemoMode = true;
         }
+    }
+
+    waitForWorkerReady() {
+        return new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => reject(new Error('Worker load timeout')), 60000);
+
+            const checkReady = () => {
+                if (this.workerReady) {
+                    clearTimeout(timeout);
+                    resolve();
+                } else {
+                    setTimeout(checkReady, 100);
+                }
+            };
+            checkReady();
+        });
+    }
+
+    handleWorkerMessage(e) {
+        const { type, message, text, passed, name, current, passCount, failCount, total, count } = e.data;
+
+        switch (type) {
+            case 'status':
+                this.log(message, 'info');
+                break;
+
+            case 'loaded':
+                this.workerReady = true;
+                this.log('WASM module loaded in worker', 'pass');
+                break;
+
+            case 'started':
+                this.log('Test execution started in worker', 'info');
+                break;
+
+            case 'output':
+                // Process output for console display
+                this.processOutputDisplay(text);
+                break;
+
+            case 'result':
+                // Update modal with test result
+                this.updateModal(current, this.totalTestCount, passCount, failCount, name);
+                // Also track in local state
+                this.addTestResult(name, passed, this.currentCategory);
+                break;
+
+            case 'category':
+                // Track current category
+                if (name.includes('===')) {
+                    const match = name.match(/===\s*(.+?)\s*Tests?\s*===/);
+                    if (match) {
+                        this.currentCategory = match[1].trim();
+                    }
+                }
+                break;
+
+            case 'total':
+                // Update expected total
+                this.totalTestCount = count;
+                break;
+
+            case 'finished':
+                this.log(`Tests completed: ${passed} passed, ${failCount} failed`, 'info');
+                // Update modal one final time
+                this.updateModal(total, total, passed, failCount, 'Complete!');
+                // Brief delay then hide modal and update UI
+                setTimeout(() => {
+                    this.hideModal();
+                    this.finishTests();
+                }, 1500);
+                break;
+
+            case 'error':
+                this.log(`Worker error: ${message}`, 'error');
+                this.hideModal();
+                this.finishTests();
+                break;
+        }
+    }
+
+    // Load WASM on main thread for visualizations only (non-blocking)
+    async loadVisualizationWasm() {
+        const self = this;
+        try {
+            window.Module = {
+                print: function(text) {
+                    // Silent - visualizations don't need console output
+                },
+                printErr: function(text) {
+                    console.error('Viz WASM:', text);
+                },
+                onRuntimeInitialized: function() {
+                    self.wasmModule = Module;
+                }
+            };
+            await this.loadScript('tudat_wasm_test.js');
+            await this.waitForModule();
+            this.wasmModule = Module;
+        } catch (error) {
+            console.warn('Visualization WASM load failed:', error);
+        }
+    }
+
+    // Display-only version of processOutput (no test result parsing)
+    processOutputDisplay(text) {
+        if (!text || typeof text !== 'string') return;
+        this.log(text, this.classifyLine(text));
+    }
+
+    // Legacy loadWasm for fallback
+    async loadWasm() {
+        // Redirects to worker-based loading
+        return this.loadWasmWorker();
     }
 
     loadScript(src) {
@@ -681,30 +853,46 @@ class TudatTestRunner {
         this.log('Starting test execution...', 'header');
         this.log(`Timestamp: ${new Date().toISOString()}`, 'info');
 
+        // Show progress modal
+        this.showModal();
+
         try {
             if (this.useDemoMode) {
                 await this.runDemoTests();
+                this.hideModal();
+                this.finishTests();
             } else {
+                // Worker handles async completion via messages
                 await this.runWasmTests();
+                // finishTests() is called from handleWorkerMessage when 'finished' is received
             }
         } catch (error) {
             this.log(`Execution error: ${error.message}`, 'error');
             console.error(error);
+            this.hideModal();
+            this.finishTests();
         }
-
-        this.finishTests();
     }
 
     async runWasmTests() {
-        if (this.wasmModule && this.wasmModule.callMain) {
-            this.wasmModule.callMain([]);
-        } else if (this.wasmModule && this.wasmModule._main) {
-            this.wasmModule._main();
+        if (this.testWorker && this.workerReady) {
+            // Run tests in Web Worker
+            this.log('Executing tests in Web Worker (UI remains responsive)...', 'info');
+            this.testWorker.postMessage({ type: 'run' });
         } else {
-            this.log('WASM entry point not found, check module configuration', 'error');
+            // Fallback to main thread execution
+            this.log('Worker not available, running on main thread...', 'warning');
+            if (this.wasmModule && this.wasmModule.callMain) {
+                this.wasmModule.callMain([]);
+            } else if (this.wasmModule && this.wasmModule._main) {
+                this.wasmModule._main();
+            } else {
+                this.log('WASM entry point not found', 'error');
+            }
+            await this.sleep(1000);
+            this.hideModal();
+            this.finishTests();
         }
-
-        await this.sleep(1000);
     }
 
     async runDemoTests() {

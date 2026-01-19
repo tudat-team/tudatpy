@@ -213,16 +213,20 @@ if(EMSCRIPTEN)
     # Copy web UI files to build directory (with proper dependency tracking)
     # Using OUTPUT-based custom command so changes to source files trigger rebuild
     add_custom_command(
-        OUTPUT "${WASM_WEB_DIR}/index.html" "${WASM_WEB_DIR}/app.js"
+        OUTPUT "${WASM_WEB_DIR}/index.html" "${WASM_WEB_DIR}/app.js" "${WASM_WEB_DIR}/testWorker.js"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${CMAKE_CURRENT_SOURCE_DIR}/web/index.html"
             "${WASM_WEB_DIR}/index.html"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "${CMAKE_CURRENT_SOURCE_DIR}/web/app.js"
             "${WASM_WEB_DIR}/app.js"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_CURRENT_SOURCE_DIR}/web/testWorker.js"
+            "${WASM_WEB_DIR}/testWorker.js"
         DEPENDS
             "${CMAKE_CURRENT_SOURCE_DIR}/web/index.html"
             "${CMAKE_CURRENT_SOURCE_DIR}/web/app.js"
+            "${CMAKE_CURRENT_SOURCE_DIR}/web/testWorker.js"
         COMMENT "Copying web UI files to build directory"
     )
 
@@ -275,7 +279,7 @@ if(EMSCRIPTEN)
 
     # Create a target for the web files that tudat_wasm_web depends on
     add_custom_target(tudat_wasm_web_files
-        DEPENDS "${WASM_WEB_DIR}/index.html" "${WASM_WEB_DIR}/app.js"
+        DEPENDS "${WASM_WEB_DIR}/index.html" "${WASM_WEB_DIR}/app.js" "${WASM_WEB_DIR}/testWorker.js"
                 "${WASM_WEB_DIR}/imagery/world.topo.bathy.200407.3x5400x2700.jpg"
                 "${WASM_WEB_DIR}/imagery/BlackMarble_2016_3km.jpeg"
                 "${WASM_WEB_DIR}/cesium/Cesium.js"
