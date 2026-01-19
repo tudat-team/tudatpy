@@ -103,6 +103,7 @@ node examples/01_keplerian_satellite_orbit.js
 | `34_cassini_mga.js` | Cassini-1 MGA trajectory design | VVEJSA sequence, Lambert targeting, flyby altitude |
 | `35_earth_mars_window.js` | Earth-Mars transfer window analysis | Porkchop plots, C3, arrival V-infinity |
 | `36_low_thrust_window.js` | Low-thrust Earth-Mars transfers | Edelbaum approximation, electric propulsion |
+| `41_mga_trajectories.js` | MGA trajectory types | Unpowered legs, DSMs, low-thrust overview |
 
 #### Estimation Examples
 
@@ -111,12 +112,17 @@ node examples/01_keplerian_satellite_orbit.js
 | `37_full_estimation.js` | Full state estimation | Batch least squares, range/range-rate observations |
 | `38_tle_estimation.js` | TLE-based state estimation | TLE parsing, mean elements, SGP4 propagation |
 | `39_galilean_moons.js` | Galilean moons state estimation | Multi-body estimation, Laplace resonance |
+| `42_covariance_analysis.js` | Covariance estimation analysis | Correlation coefficients, uncertainty ellipsoids |
+| `43_estimation_dynamics.js` | Different dynamical models | Truth vs estimation model, model mismatch |
+| `45_mpc_observations.js` | MPC observation handling | 80-column format, observatory codes, astrometry |
+| `46_tle_ephemeris.js` | TLE-based ephemeris | TLE format, SGP4 propagation, mean elements |
 
 #### Optimization Examples
 
 | Example | Description | Concepts |
 |---------|-------------|----------|
 | `40_asteroid_optimization.js` | Asteroid orbit optimization | Evolutionary algorithms, multi-objective optimization |
+| `44_himmelblau_optimization.js` | Himmelblau function optimization | GA, DE, multimodal optimization |
 
 ## Browser Demo
 
