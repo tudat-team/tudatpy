@@ -169,7 +169,9 @@ add_executable(tudatpy_wasm ${WASM_KERNEL_SOURCES})
 
 target_link_libraries(tudatpy_wasm
     PRIVATE
+        -Wl,--whole-archive
         tudatpy_wasm_bindings
+        -Wl,--no-whole-archive
 )
 
 # Emscripten-specific linker flags
@@ -183,6 +185,9 @@ set(WASM_LINK_FLAGS
     "-sALLOW_MEMORY_GROWTH=1"
     "-sINITIAL_MEMORY=256MB"
 
+    # Filesystem support (required for SPICE kernel loading)
+    "-sFORCE_FILESYSTEM=1"
+
     # Function pointer emulation (required for f2c code in CSpice)
     "-sEMULATE_FUNCTION_POINTER_CASTS=1"
 
@@ -193,7 +198,7 @@ set(WASM_LINK_FLAGS
     "-sDISABLE_EXCEPTION_CATCHING=0"
 
     # Export additional runtime methods for JavaScript interop
-    "-sEXPORTED_RUNTIME_METHODS=['cwrap','ccall','getValue','setValue','UTF8ToString','stringToUTF8','lengthBytesUTF8']"
+    "-sEXPORTED_RUNTIME_METHODS=['cwrap','ccall','getValue','setValue','UTF8ToString','stringToUTF8','lengthBytesUTF8','FS']"
 )
 
 # Join flags with space

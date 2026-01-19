@@ -104,8 +104,9 @@ class TudatTestRunner {
 
         await this.loadWasmWorker();
 
-        // Load SPICE kernels for ephemeris-based visualizations
-        await this.loadSpiceKernels();
+        // SPICE kernel loading disabled - visualizations use analytical ephemeris
+        // To enable SPICE, rebuild tudatpy_wasm with --whole-archive and uncomment:
+        // await this.loadSpiceKernels();
     }
 
     setupModal() {
