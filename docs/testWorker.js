@@ -6,19 +6,6 @@ let testCount = 0;
 let passCount = 0;
 let failCount = 0;
 
-// Override console output capture
-self.Module = {
-    print: function(text) {
-        processOutput(text);
-    },
-    printErr: function(text) {
-        processOutput(text);
-    },
-    onRuntimeInitialized: function() {
-        self.postMessage({ type: 'status', message: 'WASM runtime initialized' });
-    }
-};
-
 function processOutput(text) {
     if (!text || typeof text !== 'string') return;
 
@@ -69,13 +56,28 @@ self.onmessage = async function(e) {
         try {
             self.postMessage({ type: 'status', message: 'Loading WASM module...' });
 
-            // Import the WASM module
+            // Import the WASM module script (this defines createTudatModule)
             importScripts(wasmUrl);
 
-            // Wait for module to be ready
-            await waitForModule();
-            wasmModule = Module;
+            // The module is built with MODULARIZE=1, so we need to call the factory function
+            // createTudatModule() returns a promise that resolves to the module
+            if (typeof createTudatModule !== 'function') {
+                throw new Error('createTudatModule not found - module may not be built correctly');
+            }
 
+            self.postMessage({ type: 'status', message: 'Initializing WASM runtime...' });
+
+            // Initialize the module with our configuration
+            wasmModule = await createTudatModule({
+                print: function(text) {
+                    processOutput(text);
+                },
+                printErr: function(text) {
+                    processOutput(text);
+                }
+            });
+
+            self.postMessage({ type: 'status', message: 'WASM runtime initialized' });
             self.postMessage({ type: 'loaded' });
         } catch (error) {
             self.postMessage({ type: 'error', message: error.message });
@@ -118,26 +120,3 @@ self.onmessage = async function(e) {
         }
     }
 };
-
-function waitForModule() {
-    return new Promise((resolve, reject) => {
-        const timeout = setTimeout(() => reject(new Error('Module load timeout')), 30000);
-
-        const check = () => {
-            if (typeof Module !== 'undefined' && Module.calledRun) {
-                clearTimeout(timeout);
-                resolve();
-            } else if (typeof Module !== 'undefined' && Module.onRuntimeInitialized) {
-                const original = Module.onRuntimeInitialized;
-                Module.onRuntimeInitialized = () => {
-                    original();
-                    clearTimeout(timeout);
-                    resolve();
-                };
-            } else {
-                setTimeout(check, 50);
-            }
-        };
-        check();
-    });
-}

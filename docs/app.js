@@ -1,6 +1,6 @@
 // Tudat WASM Test Runner - CesiumJS Edition
 // Handles WASM test execution, real-time UI updates, and visualizations
-const APP_BUILD = '20260119-v3';
+const APP_BUILD = '20260120-v1';
 console.log(`app.js build: ${APP_BUILD}`);
 
 import { SpiceKernelLoader } from './spice-loader.js';
@@ -62,6 +62,7 @@ class TudatTestRunner {
         this.currentCategory = 'General';
         this.consoleLines = 0;
         this.expectedTests = 551;
+        this.currentVisualization = null;  // Track current visualization for URL updates
 
         // Web Worker for running tests off main thread
         this.testWorker = null;
@@ -152,6 +153,35 @@ class TudatTestRunner {
         }
     }
 
+    // URL helpers for deep-linking to visualizations
+    vizNameToSlug(name) {
+        return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    }
+
+    slugToVizName(slug) {
+        // Find the visualization name that matches this slug
+        for (const name of Object.keys(visualizationRegistry)) {
+            if (this.vizNameToSlug(name) === slug) {
+                return name;
+            }
+        }
+        return null;
+    }
+
+    updateUrlWithVisualization(vizName) {
+        const slug = this.vizNameToSlug(vizName);
+        const newUrl = `${window.location.pathname}#${slug}`;
+        console.log(`[URL] Updating URL to: ${newUrl}`);
+        window.history.replaceState(null, '', newUrl);
+        this.currentVisualization = vizName;
+    }
+
+    getVisualizationFromUrl() {
+        const hash = window.location.hash.slice(1); // Remove the #
+        if (!hash) return null;
+        return this.slugToVizName(hash);
+    }
+
     // Curated list of test categories with meaningful 3D/chart visualizations
     // Uses the visualization registry from the modular visualization system
     setupVisualizationCategories() {
@@ -232,32 +262,78 @@ class TudatTestRunner {
         });
     }
 
-    // Simple fuzzy matching - characters must appear in order
+    // Smart matching - prioritizes exact words, prefixes, and handles common typos
     fuzzyMatch(text, pattern) {
-        let patternIdx = 0;
-        for (let i = 0; i < text.length && patternIdx < pattern.length; i++) {
-            if (text[i] === pattern[patternIdx]) {
-                patternIdx++;
+        // Split text into words
+        const words = text.split(/\s+/);
+
+        // 1. Exact word match
+        if (words.some(word => word === pattern)) {
+            return true;
+        }
+
+        // 2. Word starts with pattern (prefix match)
+        if (words.some(word => word.startsWith(pattern))) {
+            return true;
+        }
+
+        // 3. Pattern is contained as a substring in any word
+        if (words.some(word => word.includes(pattern))) {
+            return true;
+        }
+
+        // 4. Check for single character transposition (common typo)
+        if (pattern.length >= 2) {
+            for (let i = 0; i < pattern.length - 1; i++) {
+                const transposed = pattern.slice(0, i) + pattern[i + 1] + pattern[i] + pattern.slice(i + 2);
+                if (words.some(word => word.includes(transposed))) {
+                    return true;
+                }
             }
         }
-        return patternIdx === pattern.length;
+
+        // 5. Check for single missing/extra character (length diff of 1)
+        if (pattern.length >= 3) {
+            for (const word of words) {
+                if (Math.abs(word.length - pattern.length) <= 1) {
+                    let diffs = 0;
+                    const longer = word.length >= pattern.length ? word : pattern;
+                    const shorter = word.length < pattern.length ? word : pattern;
+                    let j = 0;
+                    for (let i = 0; i < longer.length && diffs <= 1; i++) {
+                        if (longer[i] === shorter[j]) {
+                            j++;
+                        } else {
+                            diffs++;
+                            if (longer.length === shorter.length) j++;
+                        }
+                    }
+                    if (diffs <= 1 && j >= shorter.length - 1) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
-    // Highlight matching characters in text
+    // Highlight matching words/substrings in text
     highlightMatches(text, pattern) {
         const lowerText = text.toLowerCase();
-        let result = '';
-        let patternIdx = 0;
+        const words = text.split(/(\s+)/); // Keep whitespace in result
 
-        for (let i = 0; i < text.length; i++) {
-            if (patternIdx < pattern.length && lowerText[i] === pattern[patternIdx]) {
-                result += `<span class="search-highlight">${text[i]}</span>`;
-                patternIdx++;
-            } else {
-                result += text[i];
+        return words.map(word => {
+            const lowerWord = word.toLowerCase();
+            const idx = lowerWord.indexOf(pattern);
+            if (idx !== -1) {
+                // Highlight the matched portion
+                return word.slice(0, idx) +
+                       `<span class="search-highlight">${word.slice(idx, idx + pattern.length)}</span>` +
+                       word.slice(idx + pattern.length);
             }
-        }
-        return result;
+            return word;
+        }).join('');
     }
 
     updateTimestamp() {
@@ -267,19 +343,29 @@ class TudatTestRunner {
     }
 
     selectDefaultVisualization() {
-        // Auto-select J2 vs Full Force as the default visualization on page load
+        // Check URL for a visualization to load, otherwise default to J2 vs Full Force
         // Use setTimeout to ensure DOM layout is complete before rendering charts
         setTimeout(() => {
             const container = document.getElementById('viz-category-list');
             const vizItems = container.querySelectorAll('.viz-category');
 
-            // Find and select the J2 vs Full Force item
+            // Check if URL specifies a visualization
+            const urlViz = this.getVisualizationFromUrl();
+            const targetViz = urlViz || 'J2 vs Full Force';
+            console.log(`[URL] Loading visualization: ${targetViz} (from URL: ${urlViz !== null})`);
+
+            // Find and select the target visualization item
             vizItems.forEach(item => {
                 const nameEl = item.querySelector('.category-name');
-                if (nameEl && nameEl.textContent === 'J2 vs Full Force') {
+                if (nameEl && nameEl.textContent === targetViz) {
                     item.classList.add('selected');
                     // Trigger the visualization
-                    this.visualizeTest('J2 vs Full Force', 'J2 vs Full Force');
+                    this.visualizeTest(targetViz, targetViz);
+
+                    // For CR3BP, auto-select L2 Halo orbit
+                    if (targetViz.includes('CR3BP')) {
+                        setTimeout(() => this.selectOrbit('l2-halo'), 100);
+                    }
                 }
             });
         }, 100);  // Small delay to ensure layout is complete
@@ -304,6 +390,39 @@ class TudatTestRunner {
         // Orbit determination dynamics model toggle
         document.getElementById('od-fullforce').addEventListener('click', () => this.selectODModel('fullforce'));
         document.getElementById('od-omm').addEventListener('click', () => this.selectODModel('omm'));
+
+        // Handle browser back/forward navigation
+        window.addEventListener('popstate', () => this.handleUrlChange());
+    }
+
+    handleUrlChange() {
+        const vizName = this.getVisualizationFromUrl();
+        if (vizName && vizName !== this.currentVisualization) {
+            const container = document.getElementById('viz-category-list');
+            const vizItems = container.querySelectorAll('.viz-category');
+
+            // Find and select the matching visualization item
+            vizItems.forEach(item => {
+                const nameEl = item.querySelector('.category-name');
+                if (nameEl && nameEl.textContent === vizName) {
+                    // Remove selected from others
+                    container.querySelectorAll('.viz-category').forEach(el => el.classList.remove('selected'));
+                    item.classList.add('selected');
+                    // Trigger the visualization (but don't update URL again)
+                    this.currentVisualization = vizName;
+                    document.getElementById('orbit-info').textContent = `${vizName}: ${vizName}`;
+                    this.clearOrbitEntities();
+                    const vizConfig = visualizationRegistry[vizName];
+                    if (vizConfig?.chartOnly) {
+                        this.showChartOnlyVisualization(vizName, vizName);
+                    } else {
+                        this.restoreGlobeLayout();
+                        this.show3DVisualization(vizName, vizName);
+                        this.showChartForCategory(vizName, vizName);
+                    }
+                }
+            });
+        }
     }
 
     selectODModel(model) {
@@ -692,43 +811,37 @@ class TudatTestRunner {
 
     // Load WASM on main thread for visualizations only (non-blocking)
     async loadVisualizationWasm() {
-        const self = this;
         try {
             this.log('Loading main-thread WASM module...', 'info');
 
-            // Check if Module already exists (e.g., from worker or previous load)
-            if (typeof window.Module !== 'undefined' && window.Module.FS) {
+            // Check if module already exists from previous load
+            if (this.wasmModule && this.wasmModule.FS) {
                 this.log('WASM module already loaded, reusing...', 'info');
-                this.wasmModule = window.Module;
                 return;
             }
 
-            // Set up Module configuration before loading script
-            const moduleConfig = {
+            // Load the script which defines createTudatModule
+            await this.loadScript('tudat_wasm_test.js');
+            this.log('WASM script loaded, initializing runtime...', 'info');
+
+            // The module is built with MODULARIZE=1, so we call the factory function
+            if (typeof createTudatModule !== 'function') {
+                throw new Error('createTudatModule not found - module may not be built correctly');
+            }
+
+            // Initialize the module with our configuration
+            this.wasmModule = await createTudatModule({
                 print: function(text) {
                     // Silent - visualizations don't need console output
                 },
                 printErr: function(text) {
                     console.error('Viz WASM:', text);
-                },
-                onRuntimeInitialized: function() {
-                    console.log('Main thread WASM onRuntimeInitialized called');
-                    self.wasmModule = window.Module;
                 }
-            };
+            });
 
-            // Preserve any existing Module and merge our config
-            if (typeof window.Module !== 'undefined') {
-                Object.assign(window.Module, moduleConfig);
-            } else {
-                window.Module = moduleConfig;
-            }
+            // Also store on window for backward compatibility
+            window.Module = this.wasmModule;
 
-            await this.loadScript('tudat_wasm_test.js');
-            this.log('WASM script loaded, waiting for runtime...', 'info');
-
-            await this.waitForModule();
-            this.wasmModule = window.Module;
             this.log('Main-thread WASM runtime ready', 'pass');
         } catch (error) {
             this.log(`Visualization WASM load failed: ${error.message}`, 'error');
@@ -1290,6 +1403,9 @@ class TudatTestRunner {
     // ==================== Visualization System ====================
 
     visualizeTest(testName, category) {
+        // Update URL with current visualization
+        this.updateUrlWithVisualization(category);
+
         // Update info display
         document.getElementById('orbit-info').textContent = `${category}: ${testName}`;
 

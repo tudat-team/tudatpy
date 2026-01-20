@@ -207,7 +207,7 @@ if(EMSCRIPTEN)
         # - INVOKE_RUN=0 so we can control when main() runs
         # - EXPORTED_RUNTIME_METHODS for JS interop
         # - lembind for Emscripten bindings (exposes C++ functions to JS)
-        LINK_FLAGS "-sENVIRONMENT=web -sEXIT_RUNTIME=0 -sNODERAWFS=0 -sMODULARIZE=0 -sINVOKE_RUN=0 -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=256MB -sEMULATE_FUNCTION_POINTER_CASTS=1 -sEXPORTED_RUNTIME_METHODS=['callMain','print','printErr'] -sEXPORTED_FUNCTIONS=['_main'] --bind --embed-file ${WASM_DATA_DIR}@/tudat_data"
+        LINK_FLAGS "-sENVIRONMENT=web,node,worker -sEXIT_RUNTIME=0 -sNODERAWFS=0 -sMODULARIZE=1 -sEXPORT_NAME='createTudatModule' -sINVOKE_RUN=0 -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=256MB -sEMULATE_FUNCTION_POINTER_CASTS=1 -sFORCE_FILESYSTEM=1 -sEXPORTED_RUNTIME_METHODS=['callMain','FS','cwrap','ccall'] -sEXPORTED_FUNCTIONS=['_main'] --bind --embed-file ${WASM_DATA_DIR}@/tudat_data"
     )
 
     # Copy web UI files to build directory (with proper dependency tracking)
@@ -277,6 +277,17 @@ if(EMSCRIPTEN)
         COMMENT "Copying API documentation to build directory"
     )
 
+    # Copy precomputed ephemeris data (from pre-converted SPK files)
+    file(MAKE_DIRECTORY "${WASM_WEB_DIR}/data/ephemeris")
+    add_custom_command(
+        OUTPUT "${WASM_WEB_DIR}/data/ephemeris/earth_sun_j2000.json"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_CURRENT_SOURCE_DIR}/web/data/ephemeris"
+            "${WASM_WEB_DIR}/data/ephemeris"
+        DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/web/data/ephemeris/earth_sun_j2000.json"
+        COMMENT "Copying precomputed ephemeris data to build directory"
+    )
+
     # Create a target for the web files that tudat_wasm_web depends on
     add_custom_target(tudat_wasm_web_files
         DEPENDS "${WASM_WEB_DIR}/index.html" "${WASM_WEB_DIR}/app.js" "${WASM_WEB_DIR}/testWorker.js"
@@ -285,6 +296,7 @@ if(EMSCRIPTEN)
                 "${WASM_WEB_DIR}/cesium/Cesium.js"
                 "${WASM_WEB_DIR}/visualizations/index.js"
                 "${WASM_WEB_DIR}/api/index.html"
+                "${WASM_WEB_DIR}/data/ephemeris/earth_sun_j2000.json"
     )
     add_dependencies(tudat_wasm_web tudat_wasm_web_files)
 

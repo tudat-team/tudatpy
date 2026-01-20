@@ -9,18 +9,21 @@
  */
 
 import {
-    isSpiceReady,
+    isHighAccuracyEphemerisAvailable,
     getBodyState,
     jdToEt,
-    PLANETARY_GM
+    PLANETARY_GM,
+    loadPrecomputedEphemerisFromUrl
 } from '../shared/spice-utils.js';
 
-export function showEarthMarsTransferExample(chartContainer, log, params = {}) {
+export async function showEarthMarsTransferExample(chartContainer, log, params = {}) {
     const config = {
         departureWindowDays: params.departureWindowDays ?? 400,  // days from J2000
         arrivalWindowDays: params.arrivalWindowDays ?? 400,      // days
-        departureStart: params.departureStart ?? 0,              // days from reference
-        arrivalStart: params.arrivalStart ?? 200,                // minimum flight time
+        // Start from day 10 to stay within safe interpolation bounds for precomputed ephemeris
+        // (8th order Lagrange interpolation requires ~5 data points margin on each end)
+        departureStart: params.departureStart ?? 10,             // days from reference
+        arrivalStart: params.arrivalStart ?? 210,                // minimum flight time
         resolution: params.resolution ?? 30                       // grid points per axis
     };
 
@@ -29,16 +32,26 @@ export function showEarthMarsTransferExample(chartContainer, log, params = {}) {
     log(`Arrival window: ${config.arrivalWindowDays} days`, 'info');
     log(`Resolution: ${config.resolution}x${config.resolution}`, 'info');
 
-    // Check SPICE availability
-    const useSpice = isSpiceReady();
-    if (useSpice) {
-        log('Using SPICE ephemeris for planetary positions', 'success');
+    // Try to load precomputed ephemeris if available (using J2000 frame to match precomputed data)
+    let useHighAccuracy = isHighAccuracyEphemerisAvailable('Earth', 'Sun', 'J2000') &&
+                          isHighAccuracyEphemerisAvailable('Mars', 'Sun', 'J2000');
+
+    if (!useHighAccuracy) {
+        // Try loading precomputed ephemeris data
+        log('Loading precomputed ephemeris data...', 'info');
+        const earthLoaded = await loadPrecomputedEphemerisFromUrl('./data/ephemeris/earth_sun_j2000.json');
+        const marsLoaded = await loadPrecomputedEphemerisFromUrl('./data/ephemeris/mars_sun_j2000.json');
+        useHighAccuracy = earthLoaded && marsLoaded;
+    }
+
+    if (useHighAccuracy) {
+        log('Using high-accuracy ephemeris (precomputed from SPK)', 'success');
     } else {
-        log('SPICE not available - using analytical Keplerian approximation', 'warning');
+        log('Using analytical Keplerian approximation (precomputed data not available)', 'warning');
     }
 
     const startTime = performance.now();
-    const result = useSpice
+    const result = useHighAccuracy
         ? computeTransferWindowSpice(config, log)
         : computeTransferWindowAnalytical(config);
     const elapsed = performance.now() - startTime;
@@ -54,7 +67,7 @@ export function showEarthMarsTransferExample(chartContainer, log, params = {}) {
     return {
         name: 'Earth-Mars Transfer',
         description: 'Interplanetary transfer window analysis',
-        useSpice,
+        useHighAccuracy,
         ...result,
         config
     };
@@ -99,9 +112,9 @@ function computeTransferWindowSpice(config, log) {
             const etDep = tDep * 86400;
             const etArr = tArr * 86400;
 
-            // Get planet positions from SPICE
-            const earthState = getBodyState('Earth', 'Sun', etDep, 'ECLIPJ2000');
-            const marsState = getBodyState('Mars', 'Sun', etArr, 'ECLIPJ2000');
+            // Get planet positions from SPICE (using J2000 frame to match precomputed ephemeris)
+            const earthState = getBodyState('Earth', 'Sun', etDep, 'J2000');
+            const marsState = getBodyState('Mars', 'Sun', etArr, 'J2000');
 
             if (!earthState || !marsState) {
                 row.push(NaN);

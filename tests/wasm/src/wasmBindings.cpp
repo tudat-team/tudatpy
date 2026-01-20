@@ -36,11 +36,17 @@
 #include "tudat/astro/gravitation/librationPoint.h"
 #include "tudat/astro/gravitation/sphericalHarmonicsGravityModel.h"
 
-// Ephemerides (for TLE/SGP4)
+// Ephemerides (for TLE/SGP4 and planetary positions)
 #include "tudat/astro/ephemerides/tleEphemeris.h"
+#include "tudat/astro/ephemerides/approximatePlanetPositions.h"
+#include "tudat/astro/ephemerides/tabulatedEphemeris.h"
+#include "tudat/math/interpolators/createInterpolator.h"
 
 // Mission segments (Lambert targeting)
 #include "tudat/astro/mission_segments/zeroRevolutionLambertTargeterIzzo.h"
+
+// SPICE interface
+#include <tudat/interface/spice.h>
 
 // Propagation
 #include "tudat/simulation/propagation_setup/propagationCR3BPFullProblem.h"
@@ -48,6 +54,22 @@
 
 using namespace tudat;
 using namespace emscripten;
+namespace tsi = tudat::spice_interface;
+
+// ============================================================================
+// Helper: Convert JavaScript array to std::vector
+// ============================================================================
+
+template<typename T>
+std::vector<T> vecFromJSArray(const val& jsArray) {
+    const auto length = jsArray["length"].as<unsigned>();
+    std::vector<T> result;
+    result.reserve(length);
+    for (unsigned i = 0; i < length; ++i) {
+        result.push_back(jsArray[i].as<T>());
+    }
+    return result;
+}
 
 // ============================================================================
 // Kepler Orbit Propagation (for analytical vs numerical comparison)
@@ -1276,6 +1298,170 @@ val computeAtmosphereDensity(double altitude, std::string model) {
 }
 
 // ============================================================================
+// Precomputed Ephemeris (from pre-converted SPK data)
+// These use TabulatedCartesianEphemeris with Lagrange interpolation to provide
+// high-accuracy ephemeris data from pre-converted binary SPK files.
+// The data is loaded as arrays from JavaScript (which parses JSON files).
+// ============================================================================
+
+// Global registry for precomputed ephemerides
+// Key format: "target_observer_frame" (lowercase), e.g., "earth_sun_j2000"
+std::map<std::string, std::shared_ptr<ephemerides::Ephemeris>> precomputedEphemerides;
+
+// Helper to create ephemeris key
+std::string makeEphemerisKey(const std::string& target, const std::string& observer, const std::string& frame) {
+    std::string key = target + "_" + observer + "_" + frame;
+    std::transform(key.begin(), key.end(), key.begin(), ::tolower);
+    return key;
+}
+
+// Load precomputed ephemeris from arrays passed from JavaScript
+// epochs: array of times (seconds since J2000)
+// states: flat array of states [x0,y0,z0,vx0,vy0,vz0, x1,y1,z1,vx1,vy1,vz1, ...]
+// Units: meters and m/s
+bool loadPrecomputedEphemeris(
+    const std::string& target,
+    const std::string& observer,
+    const std::string& frame,
+    const std::vector<double>& epochs,
+    const std::vector<double>& states)
+{
+    if (epochs.empty() || states.size() != epochs.size() * 6) {
+        std::cerr << "[EPHEMERIS] Invalid data: " << epochs.size() << " epochs, "
+                  << states.size() << " state values (expected " << epochs.size() * 6 << ")" << std::endl;
+        return false;
+    }
+
+    try {
+        // Build state history map
+        std::map<double, Eigen::Vector6d> stateHistory;
+        for (size_t i = 0; i < epochs.size(); ++i) {
+            Eigen::Vector6d state;
+            state << states[i*6], states[i*6+1], states[i*6+2],
+                     states[i*6+3], states[i*6+4], states[i*6+5];
+            stateHistory[epochs[i]] = state;
+        }
+
+        // Create interpolator settings (8th order Lagrange for high accuracy)
+        auto interpolatorSettings = std::make_shared<interpolators::LagrangeInterpolatorSettings>(8);
+
+        // Create tabulated ephemeris
+        auto interpolator = interpolators::createOneDimensionalInterpolator(
+            stateHistory, interpolatorSettings);
+
+        auto ephemeris = std::make_shared<ephemerides::TabulatedCartesianEphemeris<>>(
+            interpolator, observer, frame);
+
+        // Store in registry
+        std::string key = makeEphemerisKey(target, observer, frame);
+        precomputedEphemerides[key] = ephemeris;
+
+        std::cout << "[EPHEMERIS] Loaded precomputed ephemeris: " << target << " relative to " << observer
+                  << " in " << frame << " frame (" << epochs.size() << " states, "
+                  << epochs.front() << " to " << epochs.back() << " s)" << std::endl;
+
+        return true;
+    } catch (const std::exception& e) {
+        std::cerr << "[EPHEMERIS] Error loading precomputed ephemeris: " << e.what() << std::endl;
+        return false;
+    }
+}
+
+// Check if precomputed ephemeris is available
+bool isPrecomputedEphemerisAvailable(const std::string& target, const std::string& observer, const std::string& frame) {
+    std::string key = makeEphemerisKey(target, observer, frame);
+    return precomputedEphemerides.find(key) != precomputedEphemerides.end();
+}
+
+// Get state from precomputed ephemeris
+Eigen::Vector6d getPrecomputedState(const std::string& target, const std::string& observer,
+                                     const std::string& frame, double epoch) {
+    std::string key = makeEphemerisKey(target, observer, frame);
+    auto it = precomputedEphemerides.find(key);
+    if (it == precomputedEphemerides.end()) {
+        throw std::runtime_error("Precomputed ephemeris not found: " + key);
+    }
+    return it->second->getCartesianState(epoch);
+}
+
+// Get time bounds for precomputed ephemeris
+std::pair<double, double> getPrecomputedEphemerisTimeBounds(const std::string& target,
+                                                            const std::string& observer,
+                                                            const std::string& frame) {
+    std::string key = makeEphemerisKey(target, observer, frame);
+    auto it = precomputedEphemerides.find(key);
+    if (it == precomputedEphemerides.end()) {
+        return {0.0, 0.0};
+    }
+    auto tabEph = std::dynamic_pointer_cast<ephemerides::TabulatedCartesianEphemeris<>>(it->second);
+    if (tabEph) {
+        return tabEph->getSafeInterpolationInterval();
+    }
+    return {0.0, 0.0};
+}
+
+// Clear all precomputed ephemerides
+void clearPrecomputedEphemerides() {
+    precomputedEphemerides.clear();
+    std::cout << "[EPHEMERIS] Cleared all precomputed ephemerides" << std::endl;
+}
+
+// List loaded precomputed ephemerides
+std::vector<std::string> listPrecomputedEphemerides() {
+    std::vector<std::string> keys;
+    for (const auto& pair : precomputedEphemerides) {
+        keys.push_back(pair.first);
+    }
+    return keys;
+}
+
+// ============================================================================
+// Analytical Planetary Ephemeris (JPL Approximate Positions)
+// These use Tudat's built-in analytical ephemeris models and do NOT require
+// SPICE kernels. Use these for WASM applications where binary SPK files
+// cannot be loaded.
+// Reference: Standish, E.M. "Keplerian Elements for Approximate Positions
+//            of the Major Planets" (JPL)
+// ============================================================================
+
+// Get planetary state using JPL approximate positions algorithm
+// This is purely computational and requires no external data files.
+// Supports: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune, Pluto
+// Returns state in ECLIPJ2000 frame relative to Sun, in meters and m/s
+Eigen::Vector6d getApproximatePlanetState(const std::string& bodyName, double secondsSinceJ2000) {
+    try {
+        ephemerides::ApproximateJplEphemeris ephemeris(bodyName);
+        return ephemeris.getCartesianState(secondsSinceJ2000);
+    } catch (const std::exception& e) {
+        std::cerr << "[EPHEMERIS] Error getting state for " << bodyName << ": " << e.what() << std::endl;
+        return Eigen::Vector6d::Zero();
+    }
+}
+
+// Alternative: GTOP ephemeris (ESA algorithm, slightly different accuracy characteristics)
+// Also purely computational, no external data required.
+Eigen::Vector6d getGtopPlanetState(const std::string& bodyName, double secondsSinceJ2000) {
+    try {
+        ephemerides::ApproximateGtopEphemeris ephemeris(bodyName);
+        return ephemeris.getCartesianState(secondsSinceJ2000);
+    } catch (const std::exception& e) {
+        std::cerr << "[EPHEMERIS] Error getting GTOP state for " << bodyName << ": " << e.what() << std::endl;
+        return Eigen::Vector6d::Zero();
+    }
+}
+
+// Check if a planet name is valid for analytical ephemeris
+bool isValidPlanetName(const std::string& bodyName) {
+    static const std::vector<std::string> validNames = {
+        "Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"
+    };
+    for (const auto& name : validNames) {
+        if (bodyName == name) return true;
+    }
+    return false;
+}
+
+// ============================================================================
 // Emscripten Bindings
 // ============================================================================
 
@@ -1311,6 +1497,160 @@ EMSCRIPTEN_BINDINGS(tudat_visualization) {
 
     // Orbit determination / differential correction
     function("runOrbitDetermination", &runOrbitDetermination);
+
+    // ============================================================================
+    // SPICE Interface Functions
+    // ============================================================================
+
+    // Time conversion functions
+    function("interface_spice_convert_julian_date_to_ephemeris_time",
+        &tsi::convertJulianDateToEphemerisTime);
+
+    function("interface_spice_convert_ephemeris_time_to_julian_date",
+        &tsi::convertEphemerisTimeToJulianDate);
+
+    function("interface_spice_convert_date_string_to_ephemeris_time",
+        &tsi::convertDateStringToEphemerisTime);
+
+    // Position/state functions - wrapped to return JS arrays
+    function("interface_spice_get_body_cartesian_position_at_epoch",
+        optional_override([](const std::string& targetBody, const std::string& observerBody,
+                            const std::string& frame, const std::string& aberration, double epoch) {
+            Eigen::Vector3d pos = tsi::getBodyCartesianPositionAtEpoch(
+                targetBody, observerBody, frame, aberration, epoch);
+            return val(typed_memory_view(3, pos.data())).call<val>("slice");
+        }));
+
+    function("interface_spice_get_body_cartesian_state_at_epoch",
+        optional_override([](const std::string& targetBody, const std::string& observerBody,
+                            const std::string& frame, const std::string& aberration, double epoch) {
+            Eigen::Vector6d state = tsi::getBodyCartesianStateAtEpoch(
+                targetBody, observerBody, frame, aberration, epoch);
+            return val(typed_memory_view(6, state.data())).call<val>("slice");
+        }));
+
+    // Body properties
+    function("interface_spice_get_body_gravitational_parameter",
+        &tsi::getBodyGravitationalParameter);
+
+    function("interface_spice_get_average_radius",
+        &tsi::getAverageRadius);
+
+    // Kernel management
+    function("interface_spice_load_kernel",
+        &tsi::loadSpiceKernelInTudat);
+
+    function("interface_spice_clear_kernels",
+        &tsi::clearSpiceKernels);
+
+    function("interface_spice_get_total_count_of_kernels_loaded",
+        &tsi::getTotalCountOfKernelsLoaded);
+
+    // Body identification
+    function("interface_spice_convert_body_name_to_naif_id",
+        &tsi::convertBodyNameToNaifId);
+
+    // ============================================================================
+    // Precomputed Ephemeris (from pre-converted SPK data)
+    // High-accuracy ephemeris from pre-converted binary SPK files.
+    // Data is loaded from JSON via JavaScript, passed as arrays to C++.
+    // ============================================================================
+
+    // Load precomputed ephemeris data
+    // epochs: Float64Array of times (seconds since J2000)
+    // states: Float64Array of states [x0,y0,z0,vx0,vy0,vz0, x1,y1,...]
+    function("ephemeris_load_precomputed",
+        optional_override([](const std::string& target, const std::string& observer,
+                            const std::string& frame, val epochsVal, val statesVal) {
+            // Convert JavaScript arrays to std::vector
+            std::vector<double> epochs = vecFromJSArray<double>(epochsVal);
+            std::vector<double> states = vecFromJSArray<double>(statesVal);
+            return loadPrecomputedEphemeris(target, observer, frame, epochs, states);
+        }));
+
+    // Check if precomputed ephemeris is available for a body
+    function("ephemeris_is_precomputed_available",
+        &isPrecomputedEphemerisAvailable);
+
+    // Get state from precomputed ephemeris - returns [x, y, z, vx, vy, vz] in m and m/s
+    // Returns null if ephemeris is not found or epoch is out of bounds
+    function("ephemeris_get_precomputed_state",
+        optional_override([](const std::string& target, const std::string& observer,
+                            const std::string& frame, double epoch) -> val {
+            try {
+                Eigen::Vector6d state = getPrecomputedState(target, observer, frame, epoch);
+                return val(typed_memory_view(6, state.data())).call<val>("slice");
+            } catch (const std::exception& e) {
+                std::cerr << "[EPHEMERIS] Error in getPrecomputedState: " << e.what() << std::endl;
+                return val::null();
+            }
+        }));
+
+    // Get time bounds for precomputed ephemeris - returns [startEpoch, endEpoch]
+    function("ephemeris_get_precomputed_time_bounds",
+        optional_override([](const std::string& target, const std::string& observer,
+                            const std::string& frame) {
+            auto bounds = getPrecomputedEphemerisTimeBounds(target, observer, frame);
+            std::vector<double> result = {bounds.first, bounds.second};
+            return val(typed_memory_view(2, result.data())).call<val>("slice");
+        }));
+
+    // Clear all precomputed ephemerides
+    function("ephemeris_clear_precomputed", &clearPrecomputedEphemerides);
+
+    // List all loaded precomputed ephemerides
+    function("ephemeris_list_precomputed",
+        optional_override([]() {
+            auto keys = listPrecomputedEphemerides();
+            val result = val::array();
+            for (const auto& key : keys) {
+                result.call<void>("push", key);
+            }
+            return result;
+        }));
+
+    // ============================================================================
+    // Analytical Planetary Ephemeris (no SPICE kernels required)
+    // Use these instead of SPICE functions in WASM where binary SPK files
+    // cannot be loaded due to f2c I/O limitations.
+    // ============================================================================
+
+    // JPL Approximate Positions - returns [x, y, z, vx, vy, vz] in meters and m/s
+    // Frame: ECLIPJ2000, relative to Sun
+    // Returns null if body name is invalid or ephemeris computation fails
+    function("ephemeris_get_planet_state",
+        optional_override([](const std::string& bodyName, double secondsSinceJ2000) -> val {
+            try {
+                Eigen::Vector6d state = getApproximatePlanetState(bodyName, secondsSinceJ2000);
+                // Check for zero state (indicates error in getApproximatePlanetState)
+                if (state.norm() < 1e-10) {
+                    return val::null();
+                }
+                return val(typed_memory_view(6, state.data())).call<val>("slice");
+            } catch (const std::exception& e) {
+                std::cerr << "[EPHEMERIS] Error in ephemeris_get_planet_state: " << e.what() << std::endl;
+                return val::null();
+            }
+        }));
+
+    // GTOP (ESA) algorithm - alternative with slightly different accuracy
+    // Returns null if body name is invalid or ephemeris computation fails
+    function("ephemeris_get_planet_state_gtop",
+        optional_override([](const std::string& bodyName, double secondsSinceJ2000) -> val {
+            try {
+                Eigen::Vector6d state = getGtopPlanetState(bodyName, secondsSinceJ2000);
+                if (state.norm() < 1e-10) {
+                    return val::null();
+                }
+                return val(typed_memory_view(6, state.data())).call<val>("slice");
+            } catch (const std::exception& e) {
+                std::cerr << "[EPHEMERIS] Error in ephemeris_get_planet_state_gtop: " << e.what() << std::endl;
+                return val::null();
+            }
+        }));
+
+    // Check if planet name is valid for analytical ephemeris
+    function("ephemeris_is_valid_planet", &isValidPlanetName);
 }
 
 #endif // __EMSCRIPTEN__

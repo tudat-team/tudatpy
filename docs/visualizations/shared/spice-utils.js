@@ -8,27 +8,67 @@
 // Global reference to the Tudat module and SPICE state
 let _tudatModule = null;
 let _spiceReady = false;
+let _ephemerisAvailable = false;  // Whether SPK ephemeris data is loaded (requires binary kernels)
+let _precomputedEphemerisLoaded = new Set();  // Track which precomputed ephemerides are loaded
 
 /**
  * Initialize SPICE support with a loaded Tudat module
  * @param {Object} tudatModule - The loaded tudatpy WASM module
- * @param {boolean} ready - Whether SPICE kernels are loaded
+ * @param {boolean} ready - Whether SPICE text kernels are loaded (time conversions, constants)
+ * @param {boolean} ephemerisAvailable - Whether SPK ephemeris data is available (planetary positions)
+ *                                       NOTE: In WASM/browser, this is always false because binary
+ *                                       SPK kernels cannot be loaded due to FORTRAN I/O limitations.
  */
-export function initSpice(tudatModule, ready = false) {
+export function initSpice(tudatModule, ready = false, ephemerisAvailable = false) {
     _tudatModule = tudatModule;
     _spiceReady = ready;
+    _ephemerisAvailable = ephemerisAvailable;
 }
 
 /**
- * Check if SPICE is ready for queries
+ * Check if SPICE is ready for ephemeris queries (planetary positions/states)
+ * NOTE: In WASM/browser, this always returns false because binary SPK kernels
+ * cannot be loaded. Use isHighAccuracyEphemerisAvailable() or just call getBodyState()
+ * which automatically uses the best available data source.
  * @returns {boolean}
  */
 export function isSpiceReady() {
+    return _ephemerisAvailable && _tudatModule !== null;
+}
+
+/**
+ * Check if high-accuracy ephemeris is available for a body
+ * Returns true if either precomputed ephemeris (from SPK) or SPICE is available.
+ * This is the recommended check before using getBodyState() when you need accurate data.
+ * @param {string} target - Target body name
+ * @param {string} observer - Observer body name (default: 'Sun')
+ * @param {string} frame - Reference frame (default: 'J2000')
+ * @returns {boolean}
+ */
+export function isHighAccuracyEphemerisAvailable(target, observer = 'Sun', frame = 'J2000') {
+    // Check precomputed ephemeris first (from pre-converted SPK data)
+    if (isPrecomputedEphemerisAvailable(target, observer, frame)) {
+        return true;
+    }
+    // Check if SPICE binary kernels are loaded (rare in WASM)
+    return isSpiceReady();
+}
+
+/**
+ * Check if SPICE text kernels are loaded (for time conversions, constants)
+ * @returns {boolean}
+ */
+export function isSpiceTextKernelsLoaded() {
     return _spiceReady && _tudatModule !== null;
 }
 
 /**
  * Get planetary state at a given epoch
+ * Priority order:
+ * 1. Precomputed ephemeris (from pre-converted SPK data) - highest accuracy
+ * 2. SPICE (if binary kernels somehow loaded) - not available in WASM
+ * 3. Analytical JPL ephemeris - fallback for major planets
+ *
  * @param {string} target - Target body (e.g., 'Earth', 'Mars', 'Jupiter')
  * @param {string} observer - Observer body (e.g., 'Sun', 'Earth')
  * @param {number} epoch - Ephemeris time (seconds since J2000)
@@ -36,37 +76,344 @@ export function isSpiceReady() {
  * @returns {Object|null} {x, y, z, vx, vy, vz} in meters and m/s
  */
 export function getBodyState(target, observer, epoch, frame = 'J2000') {
-    if (!isSpiceReady()) {
-        console.warn('SPICE not initialized');
+    // Priority 1: Try precomputed ephemeris (from pre-converted SPK files)
+    if (isPrecomputedEphemerisAvailable(target, observer, frame)) {
+        const state = getPrecomputedState(target, observer, epoch, frame);
+        if (state) {
+            return state;
+        }
+    }
+
+    // Priority 2: Try SPICE if ephemeris data is available (not available in WASM)
+    if (isSpiceReady()) {
+        try {
+            const state = _tudatModule.interface_spice_get_body_cartesian_state_at_epoch(
+                target,
+                observer,
+                frame,
+                'NONE',
+                epoch
+            );
+
+            const result = {
+                x: state.get(0),
+                y: state.get(1),
+                z: state.get(2),
+                vx: state.get(3),
+                vy: state.get(4),
+                vz: state.get(5)
+            };
+
+            // Clean up
+            state.delete();
+
+            return result;
+        } catch (error) {
+            console.error(`SPICE query failed for ${target}:`, error);
+            // Fall through to analytical ephemeris
+        }
+    }
+
+    // Priority 3: Use Tudat's analytical JPL ephemeris (no SPICE kernels required)
+    return getBodyStateAnalytical(target, observer, epoch);
+}
+
+/**
+ * Get planetary state using Tudat's analytical JPL ephemeris
+ * This function does NOT require SPICE kernels - it uses built-in orbital elements.
+ *
+ * NOTE: Returns state in ECLIPJ2000 frame relative to Sun.
+ * For other observer bodies, computes relative state.
+ *
+ * @param {string} target - Target body (Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune, Pluto)
+ * @param {string} observer - Observer body (typically 'Sun')
+ * @param {number} epoch - Ephemeris time (seconds since J2000)
+ * @returns {Object|null} {x, y, z, vx, vy, vz} in meters and m/s
+ */
+export function getBodyStateAnalytical(target, observer, epoch) {
+    if (!_tudatModule) {
+        console.warn('Tudat module not loaded');
+        return null;
+    }
+
+    // Check if analytical ephemeris function exists
+    if (!_tudatModule.ephemeris_get_planet_state) {
+        console.warn('Analytical ephemeris not available in this build');
+        return null;
+    }
+
+    // Validate planet name
+    if (!_tudatModule.ephemeris_is_valid_planet(target)) {
+        console.warn(`Invalid planet name for analytical ephemeris: ${target}`);
         return null;
     }
 
     try {
-        const state = _tudatModule.interface_spice_get_body_cartesian_state_at_epoch(
-            target,
-            observer,
-            frame,
-            'NONE',
-            epoch
-        );
+        // Get target state relative to Sun (in ECLIPJ2000)
+        const targetState = _tudatModule.ephemeris_get_planet_state(target, epoch);
 
-        const result = {
-            x: state.get(0),
-            y: state.get(1),
-            z: state.get(2),
-            vx: state.get(3),
-            vy: state.get(4),
-            vz: state.get(5)
+        // Check for null return (indicates error)
+        if (!targetState) {
+            console.warn(`Analytical ephemeris returned null for ${target} at epoch ${epoch}`);
+            return null;
+        }
+
+        // If observer is Sun, we're done
+        if (observer === 'Sun' || observer === 'SSB' || observer === 'Solar System Barycenter') {
+            return {
+                x: targetState[0],
+                y: targetState[1],
+                z: targetState[2],
+                vx: targetState[3],
+                vy: targetState[4],
+                vz: targetState[5]
+            };
+        }
+
+        // For other observers, get observer state and compute relative
+        if (_tudatModule.ephemeris_is_valid_planet(observer)) {
+            const observerState = _tudatModule.ephemeris_get_planet_state(observer, epoch);
+            if (!observerState) {
+                console.warn(`Analytical ephemeris returned null for observer ${observer}`);
+                return null;
+            }
+            return {
+                x: targetState[0] - observerState[0],
+                y: targetState[1] - observerState[1],
+                z: targetState[2] - observerState[2],
+                vx: targetState[3] - observerState[3],
+                vy: targetState[4] - observerState[4],
+                vz: targetState[5] - observerState[5]
+            };
+        }
+
+        // Unknown observer - return Sun-centered state
+        console.warn(`Unknown observer '${observer}', returning Sun-centered state`);
+        return {
+            x: targetState[0],
+            y: targetState[1],
+            z: targetState[2],
+            vx: targetState[3],
+            vy: targetState[4],
+            vz: targetState[5]
         };
-
-        // Clean up
-        state.delete();
-
-        return result;
     } catch (error) {
-        console.error(`SPICE query failed for ${target}:`, error);
+        console.error(`Analytical ephemeris failed for ${target}:`, error);
         return null;
     }
+}
+
+/**
+ * Check if analytical ephemeris is available for a body
+ * @param {string} bodyName - Body name to check
+ * @returns {boolean} True if analytical ephemeris can compute state for this body
+ */
+export function isAnalyticalEphemerisAvailable(bodyName) {
+    if (!_tudatModule || !_tudatModule.ephemeris_is_valid_planet) {
+        return false;
+    }
+    return _tudatModule.ephemeris_is_valid_planet(bodyName);
+}
+
+// ============================================================================
+// Precomputed Ephemeris Support (from pre-converted SPK data)
+// ============================================================================
+
+/**
+ * Load precomputed ephemeris from a JSON file
+ * JSON format:
+ * {
+ *   "metadata": { "target": "Earth", "observer": "Sun", "frame": "J2000", ... },
+ *   "states": [[epoch, x, y, z, vx, vy, vz], ...]
+ * }
+ *
+ * @param {string} url - URL to the JSON ephemeris file
+ * @returns {Promise<boolean>} True if loaded successfully
+ */
+export async function loadPrecomputedEphemerisFromUrl(url) {
+    if (!_tudatModule) {
+        console.warn('[EPHEMERIS] Tudat module not loaded');
+        return false;
+    }
+
+    try {
+        console.log(`[EPHEMERIS] Loading precomputed ephemeris from ${url}`);
+        const response = await fetch(url);
+        if (!response.ok) {
+            console.warn(`[EPHEMERIS] Failed to fetch ${url}: ${response.status}`);
+            return false;
+        }
+
+        const data = await response.json();
+        return loadPrecomputedEphemerisFromJson(data);
+    } catch (error) {
+        console.error(`[EPHEMERIS] Error loading from ${url}:`, error);
+        return false;
+    }
+}
+
+/**
+ * Load precomputed ephemeris from parsed JSON data
+ * @param {Object} data - Parsed JSON with metadata and states arrays
+ * @returns {boolean} True if loaded successfully
+ */
+export function loadPrecomputedEphemerisFromJson(data) {
+    if (!_tudatModule || !_tudatModule.ephemeris_load_precomputed) {
+        console.warn('[EPHEMERIS] Precomputed ephemeris functions not available');
+        return false;
+    }
+
+    const { metadata, states } = data;
+    if (!metadata || !states || !Array.isArray(states)) {
+        console.error('[EPHEMERIS] Invalid JSON format: missing metadata or states');
+        return false;
+    }
+
+    const { target, observer, frame } = metadata;
+    if (!target || !observer || !frame) {
+        console.error('[EPHEMERIS] Invalid metadata: missing target, observer, or frame');
+        return false;
+    }
+
+    // Extract epochs and flatten states
+    const epochs = new Float64Array(states.length);
+    const flatStates = new Float64Array(states.length * 6);
+
+    for (let i = 0; i < states.length; i++) {
+        const state = states[i];
+        epochs[i] = state[0];  // First element is epoch
+        flatStates[i * 6 + 0] = state[1];  // x
+        flatStates[i * 6 + 1] = state[2];  // y
+        flatStates[i * 6 + 2] = state[3];  // z
+        flatStates[i * 6 + 3] = state[4];  // vx
+        flatStates[i * 6 + 4] = state[5];  // vy
+        flatStates[i * 6 + 5] = state[6];  // vz
+    }
+
+    // Pass to C++
+    console.log(`[EPHEMERIS] Calling ephemeris_load_precomputed with ${epochs.length} epochs, ${flatStates.length} state values`);
+    console.log(`[EPHEMERIS] First epoch: ${epochs[0]}, last epoch: ${epochs[epochs.length-1]}`);
+
+    const success = _tudatModule.ephemeris_load_precomputed(
+        target, observer, frame,
+        Array.from(epochs),
+        Array.from(flatStates)
+    );
+
+    if (success) {
+        const key = `${target.toLowerCase()}_${observer.toLowerCase()}_${frame.toLowerCase()}`;
+        _precomputedEphemerisLoaded.add(key);
+        console.log(`[EPHEMERIS] Loaded precomputed ephemeris: ${target} relative to ${observer} (${states.length} states)`);
+
+        // Verify it's now available
+        const available = _tudatModule.ephemeris_is_precomputed_available(target, observer, frame);
+        console.log(`[EPHEMERIS] Verification - isAvailable(${target}, ${observer}, ${frame}): ${available}`);
+
+        // Check time bounds
+        if (_tudatModule.ephemeris_get_precomputed_time_bounds) {
+            const bounds = _tudatModule.ephemeris_get_precomputed_time_bounds(target, observer, frame);
+            console.log(`[EPHEMERIS] Time bounds: ${bounds[0]} to ${bounds[1]} seconds`);
+        }
+    } else {
+        console.error(`[EPHEMERIS] Failed to load precomputed ephemeris for ${target} relative to ${observer}`);
+    }
+
+    return success;
+}
+
+/**
+ * Check if precomputed ephemeris is available for a body
+ * @param {string} target - Target body name
+ * @param {string} observer - Observer body name
+ * @param {string} frame - Reference frame (default: 'J2000')
+ * @returns {boolean}
+ */
+export function isPrecomputedEphemerisAvailable(target, observer, frame = 'J2000') {
+    if (!_tudatModule || !_tudatModule.ephemeris_is_precomputed_available) {
+        return false;
+    }
+    return _tudatModule.ephemeris_is_precomputed_available(target, observer, frame);
+}
+
+/**
+ * Get state from precomputed ephemeris
+ * @param {string} target - Target body
+ * @param {string} observer - Observer body
+ * @param {number} epoch - Ephemeris time (seconds since J2000)
+ * @param {string} frame - Reference frame (default: 'J2000')
+ * @returns {Object|null} {x, y, z, vx, vy, vz} in meters and m/s
+ */
+export function getPrecomputedState(target, observer, epoch, frame = 'J2000') {
+    if (!isPrecomputedEphemerisAvailable(target, observer, frame)) {
+        return null;
+    }
+
+    // Check if epoch is within bounds (if available)
+    const bounds = getPrecomputedTimeBounds(target, observer, frame);
+    if (bounds && (epoch < bounds.start || epoch > bounds.end)) {
+        console.warn(`[EPHEMERIS] Epoch ${epoch} outside bounds [${bounds.start}, ${bounds.end}] for ${target}`);
+        return null;
+    }
+
+    try {
+        const state = _tudatModule.ephemeris_get_precomputed_state(target, observer, frame, epoch);
+        if (!state || state.length < 6) {
+            console.error(`[EPHEMERIS] Invalid state returned for ${target} at epoch ${epoch}`);
+            return null;
+        }
+        return {
+            x: state[0],
+            y: state[1],
+            z: state[2],
+            vx: state[3],
+            vy: state[4],
+            vz: state[5]
+        };
+    } catch (error) {
+        console.error(`[EPHEMERIS] Error getting precomputed state for ${target} at epoch ${epoch}:`, error);
+        return null;
+    }
+}
+
+/**
+ * Get time bounds for precomputed ephemeris
+ * @param {string} target - Target body
+ * @param {string} observer - Observer body
+ * @param {string} frame - Reference frame (default: 'J2000')
+ * @returns {Object|null} {start, end} epochs in seconds since J2000
+ */
+export function getPrecomputedTimeBounds(target, observer, frame = 'J2000') {
+    if (!_tudatModule || !_tudatModule.ephemeris_get_precomputed_time_bounds) {
+        return null;
+    }
+
+    try {
+        const bounds = _tudatModule.ephemeris_get_precomputed_time_bounds(target, observer, frame);
+        return { start: bounds[0], end: bounds[1] };
+    } catch (error) {
+        return null;
+    }
+}
+
+/**
+ * List all loaded precomputed ephemerides
+ * @returns {string[]} Array of loaded ephemeris keys (e.g., "earth_sun_j2000")
+ */
+export function listPrecomputedEphemerides() {
+    if (!_tudatModule || !_tudatModule.ephemeris_list_precomputed) {
+        return [];
+    }
+    return _tudatModule.ephemeris_list_precomputed();
+}
+
+/**
+ * Clear all precomputed ephemerides
+ */
+export function clearPrecomputedEphemerides() {
+    if (_tudatModule && _tudatModule.ephemeris_clear_precomputed) {
+        _tudatModule.ephemeris_clear_precomputed();
+    }
+    _precomputedEphemerisLoaded.clear();
 }
 
 /**
@@ -89,17 +436,12 @@ export function getBodyPosition(target, observer, epoch, frame = 'J2000') {
  * @returns {number|null} GM in m^3/s^2
  */
 export function getGM(body) {
-    if (!isSpiceReady()) {
-        console.warn('SPICE not initialized');
+    if (!isSpiceTextKernelsLoaded()) {
+        console.warn('SPICE text kernels not loaded');
         return null;
     }
 
-    try {
-        return _tudatModule.interface_spice_get_body_gravitational_parameter(body);
-    } catch (error) {
-        console.error(`Failed to get GM for ${body}:`, error);
-        return null;
-    }
+    return _tudatModule.interface_spice_get_body_gravitational_parameter(body);
 }
 
 /**
@@ -108,17 +450,12 @@ export function getGM(body) {
  * @returns {number|null} Radius in meters
  */
 export function getRadius(body) {
-    if (!isSpiceReady()) {
-        console.warn('SPICE not initialized');
+    if (!isSpiceTextKernelsLoaded()) {
+        console.warn('SPICE text kernels not loaded');
         return null;
     }
 
-    try {
-        return _tudatModule.interface_spice_get_average_radius(body);
-    } catch (error) {
-        console.error(`Failed to get radius for ${body}:`, error);
-        return null;
-    }
+    return _tudatModule.interface_spice_get_average_radius(body);
 }
 
 /**
@@ -127,65 +464,45 @@ export function getRadius(body) {
  * @returns {number|null} Ephemeris time (seconds since J2000)
  */
 export function jdToEt(jd) {
-    if (!isSpiceReady()) {
-        // Fallback to analytical conversion
-        const J2000_JD = 2451545.0;
-        return (jd - J2000_JD) * 86400.0;
+    if (!isSpiceTextKernelsLoaded()) {
+        console.warn('SPICE text kernels not loaded');
+        return null;
     }
 
-    try {
-        return _tudatModule.interface_spice_convert_julian_date_to_ephemeris_time(jd);
-    } catch (error) {
-        // Fallback
-        const J2000_JD = 2451545.0;
-        return (jd - J2000_JD) * 86400.0;
-    }
+    return _tudatModule.interface_spice_convert_julian_date_to_ephemeris_time(jd);
 }
 
 /**
  * Convert Ephemeris Time to Julian Date
  * @param {number} et - Ephemeris time (seconds since J2000)
- * @returns {number} Julian Date
+ * @returns {number|null} Julian Date
  */
 export function etToJd(et) {
-    if (!isSpiceReady()) {
-        // Fallback to analytical conversion
-        const J2000_JD = 2451545.0;
-        return J2000_JD + et / 86400.0;
+    if (!isSpiceTextKernelsLoaded()) {
+        console.warn('SPICE text kernels not loaded');
+        return null;
     }
 
-    try {
-        return _tudatModule.interface_spice_convert_ephemeris_time_to_julian_date(et);
-    } catch (error) {
-        // Fallback
-        const J2000_JD = 2451545.0;
-        return J2000_JD + et / 86400.0;
-    }
+    return _tudatModule.interface_spice_convert_ephemeris_time_to_julian_date(et);
 }
 
 /**
  * Convert Date object or string to Ephemeris Time
  * @param {Date|string} date - JavaScript Date or ISO string
- * @returns {number} Ephemeris time
+ * @returns {number|null} Ephemeris time
  */
 export function dateToEt(date) {
+    if (!isSpiceTextKernelsLoaded()) {
+        console.warn('SPICE text kernels not loaded');
+        return null;
+    }
+
     if (date instanceof Date) {
         // Convert to Julian Date first
         const jd = dateToJd(date);
         return jdToEt(jd);
     } else if (typeof date === 'string') {
-        if (isSpiceReady()) {
-            try {
-                return _tudatModule.interface_spice_convert_date_string_to_ephemeris_time(date);
-            } catch (error) {
-                // Parse manually
-                const d = new Date(date);
-                return dateToEt(d);
-            }
-        }
-        // Parse manually
-        const d = new Date(date);
-        return dateToEt(d);
+        return _tudatModule.interface_spice_convert_date_string_to_ephemeris_time(date);
     }
     throw new Error('Invalid date format');
 }
