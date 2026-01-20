@@ -18,23 +18,60 @@ using namespace simulation_setup;
 
 // ==================== Test Fixtures ====================
 
+struct PolyDatasetConfig
+{
+    std::string label;
+    boost::filesystem::path polyFile;
+    boost::filesystem::path stokesFileLon0;
+    boost::filesystem::path stokesFileLon30;
+    int maxDegree;
+    int maxOrder;
+};
+
 struct TestDataPaths
 {
     boost::filesystem::path testFile;
+    boost::filesystem::path rotatedTestFile;
+    boost::filesystem::path dataDir;
     boost::filesystem::path outputDir;
+    boost::filesystem::path stokesFileLegacyLon0;
+    boost::filesystem::path stokesFileLegacyLon30;
+    boost::filesystem::path stokesFileRotatedLon0;
+    boost::filesystem::path stokesFileRotatedLon30;
 
     TestDataPaths()
     {
         const boost::filesystem::path thisFile(__FILE__);
         const boost::filesystem::path testDir = thisFile.parent_path();
-        const boost::filesystem::path dataDir = testDir / "test_data";
-        testFile = dataDir / "density" / "polynomial" / "input_poly_coef_test_file.txt";
+        dataDir = testDir / "test_data";
+        const boost::filesystem::path polyDir = dataDir / "density" / "polynomial";
+        const boost::filesystem::path stokesDir = dataDir / "density" / "stokes";
+
+        testFile = polyDir / "input_poly_coef_test_file.txt";
+        rotatedTestFile = polyDir / "input_poly_coef_test_file_rotated.txt";
         outputDir = dataDir / "output" / "density";
 
-        // Ensure test file exists
-        if (!boost::filesystem::exists(testFile))
+        stokesFileLegacyLon0 = stokesDir / "SH-d10-rp3-fft12__r_cometFixed_ep10-000_04km.txt";
+        stokesFileLegacyLon30 = stokesDir / "SH-d10-rp3-fft12__r_cometFixed_ep10-030_10km.txt";
+        stokesFileRotatedLon0 = stokesDir / "SH-d30-rp3-fft12__r_cometFixed_ep10-000_04km_rotated.txt";
+        stokesFileRotatedLon30 = stokesDir / "SH-d30-rp3-fft12__r_cometFixed_ep10-030_10km_rotated.txt";
+
+        // Ensure required files exist
+        const std::vector<boost::filesystem::path> requiredFiles = {
+            testFile,
+            rotatedTestFile,
+            stokesFileLegacyLon0,
+            stokesFileLegacyLon30,
+            stokesFileRotatedLon0,
+            stokesFileRotatedLon30
+        };
+
+        for (const auto& path : requiredFiles)
         {
-            throw std::runtime_error("Test data file not found: " + testFile.string());
+            if (!boost::filesystem::exists(path))
+            {
+                throw std::runtime_error("Test data file not found: " + path.string());
+            }
         }
 
         // Clean and create output directory
@@ -43,6 +80,14 @@ struct TestDataPaths
             boost::filesystem::remove_all(outputDir);
         }
         boost::filesystem::create_directories(outputDir);
+    }
+
+    std::vector<PolyDatasetConfig> getPolyDatasetConfigs() const
+    {
+        return {
+            {"legacy", testFile, stokesFileLegacyLon0, stokesFileLegacyLon30, 10, 10},
+            {"rotated", rotatedTestFile, stokesFileRotatedLon0, stokesFileRotatedLon30, 30, 30}
+        };
     }
 
     ~TestDataPaths()
@@ -133,8 +178,28 @@ struct StokesTestData
 
 // ==================== Data Model Tests ====================
 
+/**
+ * @brief Test suite for ComaStokesDataset data structure operations.
+ *
+ * Tests the core data model functionality including dataset creation,
+ * coefficient storage/retrieval, and bounds checking. These tests verify
+ * that the underlying data structure correctly manages spherical harmonic
+ * coefficient data.
+ */
 BOOST_AUTO_TEST_SUITE(test_data_models)
 
+/**
+ * @brief Verifies ComaStokesDataset can be created with proper dimensions.
+ *
+ * Input/Setup:
+ * - Creates a dataset with 2 file metadata entries, 3 radii (+1 ref), 4 longitudes, and nmax=10
+ *
+ * Expected Behavior:
+ * - Dataset reports correct dimensions for files, radii, longitudes, and coefficients
+ * - Coefficient get/set operations work correctly and return exact values
+ * - Block access returns properly sized coefficient blocks
+ * - Coefficient matrices have correct dimensions and store values accurately
+ */
 BOOST_AUTO_TEST_CASE(test_stokes_dataset_creation)
 {
     // Test pure data model creation
@@ -182,6 +247,19 @@ BOOST_AUTO_TEST_CASE(test_stokes_dataset_creation)
     BOOST_CHECK_CLOSE(sineMatrix(3, 2), 2.5, 1e-12);
 }
 
+/**
+ * @brief Verifies that out-of-bounds access throws std::out_of_range exceptions.
+ *
+ * Input/Setup:
+ * - Creates a minimal dataset with 1 file, 1 radius (+1 ref), 1 longitude, and nmax=5
+ *
+ * Expected Behavior:
+ * - Accessing file index >= nFiles throws std::out_of_range
+ * - Accessing radius index >= nRadii throws std::out_of_range
+ * - Accessing longitude index >= nLongitudes throws std::out_of_range
+ * - Accessing degree n > nmax throws std::out_of_range
+ * - Accessing order m > n throws std::out_of_range
+ */
 BOOST_AUTO_TEST_CASE(test_stokes_dataset_bounds_checking)
 {
     const std::vector<ComaStokesDataset::FileMeta> files = {{0, 0, "test", 10000.0}};
@@ -203,8 +281,30 @@ BOOST_AUTO_TEST_SUITE_END()
 
 // ==================== I/O Component Tests ====================
 
+/**
+ * @brief Test suite for file I/O reader and writer components.
+ *
+ * Tests the ComaPolyDatasetReader, ComaStokesDatasetReader, and ComaStokesDatasetWriter
+ * classes. Verifies correct reading of polynomial coefficient files, writing of Stokes
+ * datasets to CSV format, and round-trip consistency for CSV read/write operations.
+ */
 BOOST_AUTO_TEST_SUITE(test_io_components)
 
+/**
+ * @brief Verifies ComaPolyDatasetReader correctly reads polynomial coefficient files.
+ *
+ * Input/Setup:
+ * - Reads the test polynomial coefficient file using ComaPolyDatasetReader::readFromFiles
+ *
+ * Expected Behavior:
+ * - Dataset reports 1 file loaded
+ * - Polynomial coefficient matrix has correct dimensions (48 rows x 121 columns)
+ * - Specific coefficient values match expected reference values at positions (0,0), (3,1), (47,120), (10,22)
+ * - SH degree/order indices have correct dimensions and values
+ * - Reference radius and max degree are correctly extracted
+ * - Powers of inverse radius are correctly read
+ * - Column access by (n,m) returns correct values
+ */
 BOOST_FIXTURE_TEST_CASE(test_poly_dataset_reader, TestDataPaths)
 {
     const std::vector<std::string> files = {testFile.string()};
@@ -251,6 +351,19 @@ BOOST_FIXTURE_TEST_CASE(test_poly_dataset_reader, TestDataPaths)
     BOOST_CHECK_CLOSE(val, col[10], 1e-12);
 }
 
+/**
+ * @brief Verifies ComaStokesDatasetWriter correctly writes Stokes dataset to CSV format.
+ *
+ * Input/Setup:
+ * - Creates a small Stokes dataset with 1 file, 2 radii, 2 longitudes, and nmax=10
+ * - Sets specific coefficient values at various indices
+ *
+ * Expected Behavior:
+ * - CSV file is created at the specified output path
+ * - Meta line contains correct metadata (epochs, max_degree, n_radii, n_lons)
+ * - Radii line contains the correct radius values in meters
+ * - Longitudes line contains the correct longitude values in degrees
+ */
 BOOST_FIXTURE_TEST_CASE(test_stokes_dataset_writer, TestDataPaths)
 {
     // Create a small dataset for testing
@@ -304,6 +417,21 @@ BOOST_FIXTURE_TEST_CASE(test_stokes_dataset_writer, TestDataPaths)
     ifs.close();
 }
 
+/**
+ * @brief Verifies round-trip: write a Stokes dataset to CSV, read it back, verify values match.
+ *
+ * Input/Setup:
+ * - Creates a Stokes dataset with 1 file, 2 radii, 2 longitudes, and nmax=8
+ * - Sets specific coefficient values at various (file, radius, longitude, n, m) indices
+ * - Writes the dataset to CSV using ComaStokesDatasetWriter
+ *
+ * Expected Behavior:
+ * - ComaStokesDatasetReader::readFromCsv correctly reads the written file
+ * - Read dataset has same structure (nFiles, nRadii, nLongitudes, nmax)
+ * - File metadata (epochs, source_tag) is preserved
+ * - Radii and longitude values are preserved with high precision
+ * - All coefficient values match the original values within tolerance
+ */
 BOOST_FIXTURE_TEST_CASE(test_stokes_dataset_reader_from_csv, TestDataPaths)
 {
     // First, create and write a test dataset
@@ -381,6 +509,20 @@ BOOST_FIXTURE_TEST_CASE(test_stokes_dataset_reader_from_csv, TestDataPaths)
     BOOST_CHECK_CLOSE(S_3_2_r1_l1, -0.026, 1e-10);
 }
 
+/**
+ * @brief Verifies reading multiple Stokes CSV files from a folder and combining into a single dataset.
+ *
+ * Input/Setup:
+ * - Creates two separate Stokes datasets representing different time epochs
+ * - Each dataset has different coefficient values to verify correct file association
+ * - Writes both datasets to separate CSV files in a common folder
+ *
+ * Expected Behavior:
+ * - ComaStokesDatasetReader::readFromCsvFolder correctly reads all matching files
+ * - Combined dataset has nFiles=2 with shared structure (nRadii, nLongitudes, nmax)
+ * - File metadata for each file is correctly preserved (epochs, source_tag)
+ * - Coefficient values from each file are correctly associated with file index
+ */
 BOOST_FIXTURE_TEST_CASE(test_stokes_dataset_reader_from_csv_folder, TestDataPaths)
 {
     // Create multiple test datasets (simulating multiple time epochs)
@@ -462,406 +604,394 @@ BOOST_AUTO_TEST_SUITE_END()
 
 // ==================== Transformation/Processing Tests ====================
 
+/**
+ * @brief Test suite for coefficient evaluation and dataset transformation.
+ *
+ * Tests the StokesCoefficientsEvaluator and ComaDatasetTransformer classes.
+ * Verifies correct computation of Stokes coefficients from polynomial data,
+ * including truncation handling and error conditions for invalid parameters.
+ */
 BOOST_AUTO_TEST_SUITE(test_processing_components)
 
+/**
+ * @brief Verifies StokesCoefficientsEvaluator::evaluate2D computes correct Stokes coefficients.
+ *
+ * Input/Setup:
+ * - Reads polynomial coefficient data from test files (legacy and rotated datasets)
+ * - Loads reference Stokes coefficient data from pre-computed test files
+ *
+ * Expected Behavior:
+ * - Test Case 1 (0° solar longitude, 4km radius): All computed cosine and sine coefficients
+ *   match reference values within 1e-10 relative tolerance
+ * - Test Case 2 (30° solar longitude, 10km radius): All computed coefficients match reference
+ * - Truncated evaluation (maxDegree=5, maxOrder=3): Returns correctly sized matrices with
+ *   matching coefficient values for the truncated range
+ * - Invalid degree/order requests: Throws std::runtime_error when requested maxima exceed
+ *   available data
+ */
 BOOST_FIXTURE_TEST_CASE(test_stokes_coefficients_evaluator, TestDataPaths)
 {
-    // Load test data to get the polynomial coefficients and metadata
-    const std::vector<std::string> files = {testFile.string()};
-    const ComaPolyDataset dataset = ComaPolyDatasetReader::readFromFiles(files);
+    const auto configs = getPolyDatasetConfigs();
 
-    const int maxDegree = 10;
-    const int maxOrder = 10;
-
-    // Get the polynomial data from the dataset
-    const Eigen::MatrixXd& polyCoefs = dataset.getPolyCoefficients(0);
-    const Eigen::ArrayXXi& shIndices = dataset.getSHDegreeAndOrderIndices(0);
-    const Eigen::VectorXd& powers = dataset.getPowersInvRadius(0);
-    const double refRadius = dataset.getReferenceRadius(0);
-
-    // Convert to ArrayXXd as required by the evaluator
-    const Eigen::ArrayXXd polyCoefficients = polyCoefs.array();
-
-    // Construct paths to test data files
-    const boost::filesystem::path thisFile(__FILE__);
-    const boost::filesystem::path testDir = thisFile.parent_path();
-    const boost::filesystem::path dataDir = testDir / "test_data";
-    const boost::filesystem::path testFile1 = dataDir / "density" / "stokes" / "SH-d10-rp3-fft12__r_cometFixed_ep10-000_04km.txt";
-    const boost::filesystem::path testFile2 = dataDir / "density" / "stokes" / "SH-d10-rp3-fft12__r_cometFixed_ep10-030_10km.txt";
-
-    // Load expected values from both test files
-    StokesTestData expectedData1 = StokesTestData::readFromFile(testFile1.string(), maxDegree);
-    StokesTestData expectedData2 = StokesTestData::readFromFile(testFile2.string(), maxDegree);
-
-    // ========== Test Case 1: solar longitude = 0°, radius = 4 km ==========
+    for (const auto& config : configs)
     {
-        const double radius = expectedData1.radius; // 4000 m
-        const double solarLongitude = expectedData1.solarLongitude * mathematical_constants::PI / 180.0; // 0° in radians
-
-        Eigen::MatrixXd cosineCoefficients, sineCoefficients;
-
-        // Call the evaluator
-        simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
-            radius,
-            solarLongitude,
-            polyCoefficients,
-            shIndices,
-            powers,
-            refRadius,
-            cosineCoefficients,
-            sineCoefficients,
-            maxDegree,
-            maxOrder
-        );
-
-        // Check output dimensions
-        BOOST_CHECK_EQUAL(cosineCoefficients.rows(), maxDegree + 1);
-        BOOST_CHECK_EQUAL(cosineCoefficients.cols(), maxOrder + 1);
-        BOOST_CHECK_EQUAL(sineCoefficients.rows(), maxDegree + 1);
-        BOOST_CHECK_EQUAL(sineCoefficients.cols(), maxOrder + 1);
-
-        // Compare ALL coefficients against expected values from file
-        int numCoeffsChecked = 0;
-        for (int n = 0; n <= maxDegree; ++n)
+        BOOST_TEST_CONTEXT("dataset=" << config.label)
         {
-            for (int m = 0; m <= n; ++m)
+            const std::vector<std::string> files = {config.polyFile.string()};
+            const ComaPolyDataset dataset = ComaPolyDatasetReader::readFromFiles(files);
+
+            const int maxDegree = config.maxDegree;
+            const int maxOrder = config.maxOrder;
+
+            const Eigen::MatrixXd& polyCoefs = dataset.getPolyCoefficients(0);
+            const Eigen::ArrayXXi& shIndices = dataset.getSHDegreeAndOrderIndices(0);
+            const Eigen::VectorXd& powers = dataset.getPowersInvRadius(0);
+            const double refRadius = dataset.getReferenceRadius(0);
+
+            const Eigen::ArrayXXd polyCoefficients = polyCoefs.array();
+
+            StokesTestData expectedData1 = StokesTestData::readFromFile(config.stokesFileLon0.string(), maxDegree);
+            StokesTestData expectedData2 = StokesTestData::readFromFile(config.stokesFileLon30.string(), maxDegree);
+
+            // ========== Test Case 1: solar longitude = 0°, radius = 4 km ==========
             {
-                // Check cosine coefficient
-                BOOST_CHECK_MESSAGE(
-                    std::abs(cosineCoefficients(n, m) - expectedData1.cosineCoeffs(n, m)) /
-                    std::max(std::abs(expectedData1.cosineCoeffs(n, m)), 1e-10) < 1e-10,
-                    "Cosine coefficient C(" << n << "," << m << ") mismatch: computed = "
-                    << cosineCoefficients(n, m) << ", expected = " << expectedData1.cosineCoeffs(n, m)
+                const double radius = expectedData1.radius;
+                const double solarLongitude = expectedData1.solarLongitude * mathematical_constants::PI / 180.0;
+
+                Eigen::MatrixXd cosineCoefficients, sineCoefficients;
+
+                simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
+                    radius,
+                    solarLongitude,
+                    polyCoefficients,
+                    shIndices,
+                    powers,
+                    refRadius,
+                    cosineCoefficients,
+                    sineCoefficients,
+                    maxDegree,
+                    maxOrder
                 );
 
-                // Check sine coefficient
-                BOOST_CHECK_MESSAGE(
-                    std::abs(sineCoefficients(n, m) - expectedData1.sineCoeffs(n, m)) /
-                    std::max(std::abs(expectedData1.sineCoeffs(n, m)), 1e-10) < 1e-10,
-                    "Sine coefficient S(" << n << "," << m << ") mismatch: computed = "
-                    << sineCoefficients(n, m) << ", expected = " << expectedData1.sineCoeffs(n, m)
+                BOOST_CHECK_EQUAL(cosineCoefficients.rows(), maxDegree + 1);
+                BOOST_CHECK_EQUAL(cosineCoefficients.cols(), maxOrder + 1);
+                BOOST_CHECK_EQUAL(sineCoefficients.rows(), maxDegree + 1);
+                BOOST_CHECK_EQUAL(sineCoefficients.cols(), maxOrder + 1);
+
+                int numCoeffsChecked = 0;
+                for (int n = 0; n <= maxDegree; ++n)
+                {
+                    for (int m = 0; m <= n; ++m)
+                    {
+                        BOOST_CHECK_MESSAGE(
+                            std::abs(cosineCoefficients(n, m) - expectedData1.cosineCoeffs(n, m)) /
+                            std::max(std::abs(expectedData1.cosineCoeffs(n, m)), 1e-10) < 1e-10,
+                            "Cosine coefficient C(" << n << "," << m << ") mismatch: computed = "
+                            << cosineCoefficients(n, m) << ", expected = " << expectedData1.cosineCoeffs(n, m)
+                        );
+
+                        BOOST_CHECK_MESSAGE(
+                            std::abs(sineCoefficients(n, m) - expectedData1.sineCoeffs(n, m)) /
+                            std::max(std::abs(expectedData1.sineCoeffs(n, m)), 1e-10) < 1e-10,
+                            "Sine coefficient S(" << n << "," << m << ") mismatch: computed = "
+                            << sineCoefficients(n, m) << ", expected = " << expectedData1.sineCoeffs(n, m)
+                        );
+
+                        numCoeffsChecked++;
+                    }
+                }
+                const int expectedNumCoeffs = (maxDegree + 1) * (maxDegree + 2) / 2;
+                BOOST_CHECK_EQUAL(numCoeffsChecked, expectedNumCoeffs);
+                BOOST_TEST_MESSAGE("Test Case 1: Verified all " << numCoeffsChecked << " cosine and "
+                                  << numCoeffsChecked << " sine coefficients (total: " << 2*numCoeffsChecked << ")");
+            }
+
+            // ========== Test Case 2: solar longitude = 30°, radius = 10 km ==========
+            {
+                const double radius = expectedData2.radius;
+                const double solarLongitude = expectedData2.solarLongitude * mathematical_constants::PI / 180.0;
+
+                Eigen::MatrixXd cosineCoefficients, sineCoefficients;
+
+                simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
+                    radius,
+                    solarLongitude,
+                    polyCoefficients,
+                    shIndices,
+                    powers,
+                    refRadius,
+                    cosineCoefficients,
+                    sineCoefficients,
+                    maxDegree,
+                    maxOrder
                 );
 
-                numCoeffsChecked++;
+                BOOST_CHECK_EQUAL(cosineCoefficients.rows(), maxDegree + 1);
+                BOOST_CHECK_EQUAL(cosineCoefficients.cols(), maxOrder + 1);
+                BOOST_CHECK_EQUAL(sineCoefficients.rows(), maxDegree + 1);
+                BOOST_CHECK_EQUAL(sineCoefficients.cols(), maxOrder + 1);
+
+                int numCoeffsChecked = 0;
+                for (int n = 0; n <= maxDegree; ++n)
+                {
+                    for (int m = 0; m <= n; ++m)
+                    {
+                        BOOST_CHECK_MESSAGE(
+                            std::abs(cosineCoefficients(n, m) - expectedData2.cosineCoeffs(n, m)) /
+                            std::max(std::abs(expectedData2.cosineCoeffs(n, m)), 1e-10) < 1e-10,
+                            "Cosine coefficient C(" << n << "," << m << ") mismatch: computed = "
+                            << cosineCoefficients(n, m) << ", expected = " << expectedData2.cosineCoeffs(n, m)
+                        );
+
+                        BOOST_CHECK_MESSAGE(
+                            std::abs(sineCoefficients(n, m) - expectedData2.sineCoeffs(n, m)) /
+                            std::max(std::abs(expectedData2.sineCoeffs(n, m)), 1e-10) < 1e-10,
+                            "Sine coefficient S(" << n << "," << m << ") mismatch: computed = "
+                            << sineCoefficients(n, m) << ", expected = " << expectedData2.sineCoeffs(n, m)
+                        );
+
+                        numCoeffsChecked++;
+                    }
+                }
+                const int expectedNumCoeffs = (maxDegree + 1) * (maxDegree + 2) / 2;
+                BOOST_CHECK_EQUAL(numCoeffsChecked, expectedNumCoeffs);
+                BOOST_TEST_MESSAGE("Test Case 2: Verified all " << numCoeffsChecked << " cosine and "
+                                  << numCoeffsChecked << " sine coefficients (total: " << 2*numCoeffsChecked << ")");
+            }
+
+            // ========== Test truncated degree/order ==========
+            {
+                Eigen::MatrixXd truncatedCosine, truncatedSine;
+                const int truncatedMaxDegree = 5;
+                const int truncatedMaxOrder = 3;
+                const double radius = expectedData1.radius;
+                const double solarLongitude = expectedData1.solarLongitude * mathematical_constants::PI / 180.0;
+
+                simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
+                    radius,
+                    solarLongitude,
+                    polyCoefficients,
+                    shIndices,
+                    powers,
+                    refRadius,
+                    truncatedCosine,
+                    truncatedSine,
+                    truncatedMaxDegree,
+                    truncatedMaxOrder
+                );
+
+                BOOST_CHECK_EQUAL(truncatedCosine.rows(), truncatedMaxDegree + 1);
+                BOOST_CHECK_EQUAL(truncatedCosine.cols(), truncatedMaxOrder + 1);
+                BOOST_CHECK_EQUAL(truncatedSine.rows(), truncatedMaxDegree + 1);
+                BOOST_CHECK_EQUAL(truncatedSine.cols(), truncatedMaxOrder + 1);
+
+                for (int n = 0; n <= truncatedMaxDegree; ++n)
+                {
+                    for (int m = 0; m <= std::min(n, truncatedMaxOrder); ++m)
+                    {
+                        BOOST_CHECK_CLOSE(truncatedCosine(n, m), expectedData1.cosineCoeffs(n, m), 1e-12);
+                        BOOST_CHECK_CLOSE(truncatedSine(n, m), expectedData1.sineCoeffs(n, m), 1e-12);
+                    }
+                }
+            }
+
+            // ========== Test exceeding available maxima ==========
+            {
+                Eigen::MatrixXd dummyCosine, dummySine;
+                const double radius = expectedData1.radius;
+                const double solarLongitude = expectedData1.solarLongitude * mathematical_constants::PI / 180.0;
+                const int invalidMaxDegree = config.maxDegree + 5;
+                const int invalidMaxOrder = config.maxOrder + 5;
+
+                BOOST_CHECK_THROW(
+                    simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
+                        radius, solarLongitude, polyCoefficients, shIndices, powers, refRadius,
+                        dummyCosine, dummySine, invalidMaxDegree, config.maxOrder),
+                    std::runtime_error
+                );
+
+                BOOST_CHECK_THROW(
+                    simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
+                        radius, solarLongitude, polyCoefficients, shIndices, powers, refRadius,
+                        dummyCosine, dummySine, config.maxDegree, invalidMaxOrder),
+                    std::runtime_error
+                );
             }
         }
-        // Verify we checked the expected number of coefficients: sum from m=0 to n for n=0 to maxDegree
-        const int expectedNumCoeffs = (maxDegree + 1) * (maxDegree + 2) / 2;
-        BOOST_CHECK_EQUAL(numCoeffsChecked, expectedNumCoeffs);
-        BOOST_TEST_MESSAGE("Test Case 1: Verified all " << numCoeffsChecked << " cosine and "
-                          << numCoeffsChecked << " sine coefficients (total: " << 2*numCoeffsChecked << ")");
-    }
-
-    // ========== Test Case 2: solar longitude = 30°, radius = 10 km ==========
-    {
-        const double radius = expectedData2.radius; // 10000 m
-        const double solarLongitude = expectedData2.solarLongitude * mathematical_constants::PI / 180.0; // 30° in radians
-
-        Eigen::MatrixXd cosineCoefficients, sineCoefficients;
-
-        // Call the evaluator
-        simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
-            radius,
-            solarLongitude,
-            polyCoefficients,
-            shIndices,
-            powers,
-            refRadius,
-            cosineCoefficients,
-            sineCoefficients,
-            maxDegree,
-            maxOrder
-        );
-
-        // Check output dimensions
-        BOOST_CHECK_EQUAL(cosineCoefficients.rows(), maxDegree + 1);
-        BOOST_CHECK_EQUAL(cosineCoefficients.cols(), maxOrder + 1);
-        BOOST_CHECK_EQUAL(sineCoefficients.rows(), maxDegree + 1);
-        BOOST_CHECK_EQUAL(sineCoefficients.cols(), maxOrder + 1);
-
-        // Compare ALL coefficients against expected values from file
-        int numCoeffsChecked = 0;
-        for (int n = 0; n <= maxDegree; ++n)
-        {
-            for (int m = 0; m <= n; ++m)
-            {
-                // Check cosine coefficient
-                BOOST_CHECK_MESSAGE(
-                    std::abs(cosineCoefficients(n, m) - expectedData2.cosineCoeffs(n, m)) /
-                    std::max(std::abs(expectedData2.cosineCoeffs(n, m)), 1e-10) < 1e-10,
-                    "Cosine coefficient C(" << n << "," << m << ") mismatch: computed = "
-                    << cosineCoefficients(n, m) << ", expected = " << expectedData2.cosineCoeffs(n, m)
-                );
-
-                // Check sine coefficient
-                BOOST_CHECK_MESSAGE(
-                    std::abs(sineCoefficients(n, m) - expectedData2.sineCoeffs(n, m)) /
-                    std::max(std::abs(expectedData2.sineCoeffs(n, m)), 1e-10) < 1e-10,
-                    "Sine coefficient S(" << n << "," << m << ") mismatch: computed = "
-                    << sineCoefficients(n, m) << ", expected = " << expectedData2.sineCoeffs(n, m)
-                );
-
-                numCoeffsChecked++;
-            }
-        }
-        // Verify we checked the expected number of coefficients: sum from m=0 to n for n=0 to maxDegree
-        const int expectedNumCoeffs = (maxDegree + 1) * (maxDegree + 2) / 2;
-        BOOST_CHECK_EQUAL(numCoeffsChecked, expectedNumCoeffs);
-        BOOST_TEST_MESSAGE("Test Case 2: Verified all " << numCoeffsChecked << " cosine and "
-                          << numCoeffsChecked << " sine coefficients (total: " << 2*numCoeffsChecked << ")");
-    }
-
-    // ========== Test truncated degree/order ==========
-    {
-        Eigen::MatrixXd truncatedCosine, truncatedSine;
-        const int truncatedMaxDegree = 5;
-        const int truncatedMaxOrder = 3;
-        const double radius = expectedData1.radius;
-        const double solarLongitude = expectedData1.solarLongitude * mathematical_constants::PI / 180.0;
-
-        simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
-            radius,
-            solarLongitude,
-            polyCoefficients,
-            shIndices,
-            powers,
-            refRadius,
-            truncatedCosine,
-            truncatedSine,
-            truncatedMaxDegree,
-            truncatedMaxOrder
-        );
-
-        // Check truncated dimensions
-        BOOST_CHECK_EQUAL(truncatedCosine.rows(), truncatedMaxDegree + 1);
-        BOOST_CHECK_EQUAL(truncatedCosine.cols(), truncatedMaxOrder + 1);
-        BOOST_CHECK_EQUAL(truncatedSine.rows(), truncatedMaxDegree + 1);
-        BOOST_CHECK_EQUAL(truncatedSine.cols(), truncatedMaxOrder + 1);
-
-        // Verify that truncated results match the corresponding elements from expected data
-        for (int n = 0; n <= truncatedMaxDegree; ++n)
-        {
-            for (int m = 0; m <= std::min(n, truncatedMaxOrder); ++m)
-            {
-                BOOST_CHECK_CLOSE(truncatedCosine(n, m), expectedData1.cosineCoeffs(n, m), 1e-12);
-                BOOST_CHECK_CLOSE(truncatedSine(n, m), expectedData1.sineCoeffs(n, m), 1e-12);
-            }
-        }
-    }
-
-    // ========== Test error handling ==========
-    {
-        Eigen::MatrixXd dummyCosine, dummySine;
-        const double radius = expectedData1.radius;
-        const double solarLongitude = expectedData1.solarLongitude * mathematical_constants::PI / 180.0;
-
-        BOOST_CHECK_THROW(
-            simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
-                radius, solarLongitude, polyCoefficients, shIndices, powers, refRadius,
-                dummyCosine, dummySine, 15, 10), // Exceeds available maxDegree (10)
-            std::runtime_error
-        );
-
-        BOOST_CHECK_THROW(
-            simulation_setup::StokesCoefficientsEvaluator::evaluate2D(
-                radius, solarLongitude, polyCoefficients, shIndices, powers, refRadius,
-                dummyCosine, dummySine, 10, 15), // Exceeds available maxOrder (10)
-            std::runtime_error
-        );
     }
 }
 
+/**
+ * @brief Verifies ComaDatasetTransformer correctly transforms polynomial dataset to Stokes dataset.
+ *
+ * Input/Setup:
+ * - Reads polynomial coefficient data from test files (legacy and rotated datasets)
+ * - Uses radii = {4000, 10000} meters and longitudes = {0, 30} degrees
+ * - Loads reference Stokes data for comparison
+ *
+ * Expected Behavior:
+ * - Transformed dataset has correct structure (nFiles, nRadii, nLongitudes, nmax)
+ * - Coefficient matrices at each (radius, longitude) point match reference values
+ * - Truncated transformation (maxDegree=6, maxOrder=4) produces correctly sized output
+ * - Invalid maxDegree/maxOrder throws std::invalid_argument
+ */
 BOOST_FIXTURE_TEST_CASE(test_dataset_transformer, TestDataPaths)
 {
-    std::vector<std::string> files = {testFile.string()};
-    ComaPolyDataset polyDataset = ComaPolyDatasetReader::readFromFiles(files);
+    const auto configs = getPolyDatasetConfigs();
+    const std::vector<double> radii_m = {4000.0, 10000.0};
+    const std::vector<double> lons_deg = {0.0, 30.0};
 
-    // Use the same test points as in test_stokes_coefficients_evaluator
-    std::vector<double> radii_m = {4000.0, 10000.0};
-    std::vector<double> lons_deg = {0.0, 30.0};
+    for (const auto& config : configs)
+    {
+        BOOST_TEST_CONTEXT("dataset=" << config.label)
+        {
+            std::vector<std::string> files = {config.polyFile.string()};
+            ComaPolyDataset polyDataset = ComaPolyDatasetReader::readFromFiles(files);
 
-    // Load expected values from test files
-    const boost::filesystem::path thisFile(__FILE__);
-    const boost::filesystem::path testDir = thisFile.parent_path();
-    const boost::filesystem::path dataDir = testDir / "test_data";
-    const boost::filesystem::path testFile1 = dataDir / "density" / "stokes" / "SH-d10-rp3-fft12__r_cometFixed_ep10-000_04km.txt";
-    const boost::filesystem::path testFile2 = dataDir / "density" / "stokes" / "SH-d10-rp3-fft12__r_cometFixed_ep10-030_10km.txt";
-    StokesTestData expectedData1 = StokesTestData::readFromFile(testFile1.string(), 10);
-    StokesTestData expectedData2 = StokesTestData::readFromFile(testFile2.string(), 10);
+            StokesTestData expectedData1 = StokesTestData::readFromFile(config.stokesFileLon0.string(), config.maxDegree);
+            StokesTestData expectedData2 = StokesTestData::readFromFile(config.stokesFileLon30.string(), config.maxDegree);
 
-    // Test transformation with default maxima
-    ComaStokesDataset stokesDataset = ComaDatasetTransformer::transformPolyToStokes(
-        polyDataset, radii_m, lons_deg);
+            ComaStokesDataset stokesDataset = ComaDatasetTransformer::transformPolyToStokes(
+                polyDataset, radii_m, lons_deg);
 
-    BOOST_CHECK_EQUAL(stokesDataset.nFiles(), 1);
-    BOOST_CHECK_EQUAL(stokesDataset.nRadii(), 2);
-    BOOST_CHECK_EQUAL(stokesDataset.nLongitudes(), 2);
-    BOOST_CHECK_EQUAL(stokesDataset.nmax(), 10);
+            BOOST_CHECK_EQUAL(stokesDataset.nFiles(), 1);
+            BOOST_CHECK_EQUAL(stokesDataset.nRadii(), radii_m.size());
+            BOOST_CHECK_EQUAL(stokesDataset.nLongitudes(), lons_deg.size());
+            BOOST_CHECK_EQUAL(stokesDataset.nmax(), config.maxDegree);
 
-    // Check specific coefficient values at (ri=0, li=0) -> 4000m, 0deg
-    auto coeff_0_0_r0l0 = stokesDataset.getCoeff(0, 0, 0, 0, 0);
-    double C_0_0_r0l0 = coeff_0_0_r0l0.first;
-    double S_0_0_r0l0 = coeff_0_0_r0l0.second;
-    BOOST_CHECK_CLOSE(C_0_0_r0l0, expectedData1.cosineCoeffs(0, 0), 1e-10);
-    BOOST_CHECK_CLOSE(S_0_0_r0l0, expectedData1.sineCoeffs(0, 0), 1e-10);
+            auto verifyCoefficients = [&](int radiusIndex, int longitudeIndex, const StokesTestData& expectedData)
+            {
+                auto matrices = stokesDataset.getCoefficientMatrices(0, radiusIndex, longitudeIndex);
+                const auto cosineMatrix = matrices.first;
+                const auto sineMatrix = matrices.second;
 
-    auto coeff_3_1_r0l0 = stokesDataset.getCoeff(0, 0, 0, 3, 1);
-    double C_3_1_r0l0 = coeff_3_1_r0l0.first;
-    double S_3_1_r0l0 = coeff_3_1_r0l0.second;
-    BOOST_CHECK_CLOSE(C_3_1_r0l0, expectedData1.cosineCoeffs(3, 1), 1e-10);
+                BOOST_CHECK_EQUAL(cosineMatrix.rows(), config.maxDegree + 1);
+                BOOST_CHECK_EQUAL(cosineMatrix.cols(), config.maxOrder + 1);
+                BOOST_CHECK_EQUAL(sineMatrix.rows(), config.maxDegree + 1);
+                BOOST_CHECK_EQUAL(sineMatrix.cols(), config.maxOrder + 1);
 
-    auto coeff_5_4_r0l0 = stokesDataset.getCoeff(0, 0, 0, 5, 4);
-    double C_5_4_r0l0 = coeff_5_4_r0l0.first;
-    double S_5_4_r0l0 = coeff_5_4_r0l0.second;
-    BOOST_CHECK_CLOSE(C_5_4_r0l0, expectedData1.cosineCoeffs(5, 4), 1e-10);
+                for (int n = 0; n <= config.maxDegree; ++n)
+                {
+                    for (int m = 0; m <= n; ++m)
+                    {
+                        BOOST_CHECK_MESSAGE(
+                            std::abs(cosineMatrix(n, m) - expectedData.cosineCoeffs(n, m)) /
+                            std::max(std::abs(expectedData.cosineCoeffs(n, m)), 1e-10) < 1e-10,
+                            "Cosine coefficient mismatch at (" << n << "," << m << ")"
+                        );
+                        BOOST_CHECK_MESSAGE(
+                            std::abs(sineMatrix(n, m) - expectedData.sineCoeffs(n, m)) /
+                            std::max(std::abs(expectedData.sineCoeffs(n, m)), 1e-10) < 1e-10,
+                            "Sine coefficient mismatch at (" << n << "," << m << ")"
+                        );
+                    }
+                }
+            };
 
-    // Check coefficient values at (ri=1, li=1) -> 10000m, 30deg
-    auto coeff_0_0_r1l1 = stokesDataset.getCoeff(0, 1, 1, 0, 0);
-    double C_0_0_r1l1 = coeff_0_0_r1l1.first;
-    double S_0_0_r1l1 = coeff_0_0_r1l1.second;
-    BOOST_CHECK_CLOSE(C_0_0_r1l1, expectedData2.cosineCoeffs(0, 0), 1e-10);
-    BOOST_CHECK_CLOSE(S_0_0_r1l1, expectedData2.sineCoeffs(0, 0), 1e-10);
+            verifyCoefficients(0, 0, expectedData1);
+            verifyCoefficients(1, 1, expectedData2);
 
-    // Test with explicit truncation
-    ComaStokesDataset truncatedDataset = ComaDatasetTransformer::transformPolyToStokes(
-        polyDataset, radii_m, lons_deg, 6, 4);
+            ComaStokesDataset truncatedDataset = ComaDatasetTransformer::transformPolyToStokes(
+                polyDataset, radii_m, lons_deg, 6, 4);
 
-    BOOST_CHECK_EQUAL(truncatedDataset.nmax(), 6);
+            BOOST_CHECK_EQUAL(truncatedDataset.nmax(), 6);
 
-    // Test error handling for exceeding available maxima
-    BOOST_CHECK_THROW(
-        ComaDatasetTransformer::transformPolyToStokes(
-            polyDataset, radii_m, lons_deg, 15, 10),
-        std::invalid_argument);
+            BOOST_CHECK_THROW(
+                ComaDatasetTransformer::transformPolyToStokes(
+                    polyDataset, radii_m, lons_deg, config.maxDegree + 5, config.maxOrder),
+                std::invalid_argument);
+
+            BOOST_CHECK_THROW(
+                ComaDatasetTransformer::transformPolyToStokes(
+                    polyDataset, radii_m, lons_deg, config.maxDegree, config.maxOrder + 5),
+                std::invalid_argument);
+        }
+    }
 }
 
+/**
+ * @brief Verifies ComaModelFileProcessor::createSHDataset produces correct Stokes coefficients.
+ *
+ * Input/Setup:
+ * - Creates ComaModelFileProcessor from test polynomial coefficient files
+ * - Uses radii = {4000, 10000} meters and longitudes = {0, 30} degrees
+ * - Loads reference Stokes coefficient data from pre-computed test files
+ *
+ * Expected Behavior:
+ * - Created dataset has correct structure (nFiles=1, nRadii=2, nLongitudes=2, nmax as specified)
+ * - Coefficient matrices at (ri=0, li=0) match 0°/4km reference values
+ * - Coefficient matrices at (ri=1, li=1) match 30°/10km reference values
+ * - All cosine and sine coefficients verified against reference data
+ */
 BOOST_FIXTURE_TEST_CASE(test_stokes_dataset_creation_via_processor, TestDataPaths)
 {
-    // This test is similar to test_stokes_coefficients_evaluator, but instead of directly
-    // using the evaluate function, it uses the ComaModelFileProcessor class to create
-    // an SH dataset, then extracts and compares the Stokes coefficients.
+    const auto configs = getPolyDatasetConfigs();
+    const std::vector<double> radii_m = {4000.0, 10000.0};
+    const std::vector<double> lons_deg = {0.0, 30.0};
 
-    const std::vector<std::string> files = {testFile.string()};
-    const ComaModelFileProcessor processor(files);
-
-    const int maxDegree = 10;
-    const int maxOrder = 10;
-
-    // Create radii and longitudes vectors - need at least 2 of each
-    // Include the test points: (0°, 4km) and (30°, 10km)
-    const std::vector<double> radii_m = {4000.0, 10000.0};  // 4 km, 10 km
-    const std::vector<double> lons_deg = {0.0, 30.0};       // 0°, 30°
-
-    // Create SH dataset using the processor
-    const ComaStokesDataset stokesDataset = processor.createSHDataset(radii_m, lons_deg, maxDegree, maxOrder);
-
-    // Verify dataset structure
-    BOOST_CHECK_EQUAL(stokesDataset.nFiles(), 1);
-    BOOST_CHECK_EQUAL(stokesDataset.nRadii(), 2);
-    BOOST_CHECK_EQUAL(stokesDataset.nLongitudes(), 2);
-    BOOST_CHECK_EQUAL(stokesDataset.nmax(), maxDegree);
-
-    // Construct paths to test data files
-    const boost::filesystem::path thisFile(__FILE__);
-    const boost::filesystem::path testDir = thisFile.parent_path();
-    const boost::filesystem::path dataDir = testDir / "test_data";
-    const boost::filesystem::path testFile1 = dataDir / "density" / "stokes" / "SH-d10-rp3-fft12__r_cometFixed_ep10-000_04km.txt";
-    const boost::filesystem::path testFile2 = dataDir / "density" / "stokes" / "SH-d10-rp3-fft12__r_cometFixed_ep10-030_10km.txt";
-
-    // Load expected values from both test files
-    StokesTestData expectedData1 = StokesTestData::readFromFile(testFile1.string(), maxDegree);
-    StokesTestData expectedData2 = StokesTestData::readFromFile(testFile2.string(), maxDegree);
-
-    // ========== Test Case 1: solar longitude = 0°, radius = 4 km ==========
-    // This corresponds to dataset indices: radius_index=0, longitude_index=0
+    for (const auto& config : configs)
     {
-        // Get coefficient matrices from the dataset
-        auto matrices_0_0 = stokesDataset.getCoefficientMatrices(0, 0, 0);
-        auto cosineCoefficients = matrices_0_0.first;
-        auto sineCoefficients = matrices_0_0.second;
-
-        // Check output dimensions
-        BOOST_CHECK_EQUAL(cosineCoefficients.rows(), maxDegree + 1);
-        BOOST_CHECK_EQUAL(cosineCoefficients.cols(), maxOrder + 1);
-        BOOST_CHECK_EQUAL(sineCoefficients.rows(), maxDegree + 1);
-        BOOST_CHECK_EQUAL(sineCoefficients.cols(), maxOrder + 1);
-
-        // Compare ALL coefficients against expected values from file
-        int numCoeffsChecked = 0;
-        for (int n = 0; n <= maxDegree; ++n)
+        BOOST_TEST_CONTEXT("dataset=" << config.label)
         {
-            for (int m = 0; m <= n; ++m)
+            const std::vector<std::string> files = {config.polyFile.string()};
+            const ComaModelFileProcessor processor(files);
+
+            const int maxDegree = config.maxDegree;
+            const int maxOrder = config.maxOrder;
+
+            const ComaStokesDataset stokesDataset = processor.createSHDataset(radii_m, lons_deg, maxDegree, maxOrder);
+
+            BOOST_CHECK_EQUAL(stokesDataset.nFiles(), 1);
+            BOOST_CHECK_EQUAL(stokesDataset.nRadii(), radii_m.size());
+            BOOST_CHECK_EQUAL(stokesDataset.nLongitudes(), lons_deg.size());
+            BOOST_CHECK_EQUAL(stokesDataset.nmax(), maxDegree);
+
+            StokesTestData expectedData1 = StokesTestData::readFromFile(config.stokesFileLon0.string(), maxDegree);
+            StokesTestData expectedData2 = StokesTestData::readFromFile(config.stokesFileLon30.string(), maxDegree);
+
+            auto verifyCoefficients = [&](int radiusIndex, int longitudeIndex, const StokesTestData& expectedData)
             {
-                // Check cosine coefficient
-                BOOST_CHECK_MESSAGE(
-                    std::abs(cosineCoefficients(n, m) - expectedData1.cosineCoeffs(n, m)) /
-                    std::max(std::abs(expectedData1.cosineCoeffs(n, m)), 1e-10) < 1e-10,
-                    "Cosine coefficient C(" << n << "," << m << ") mismatch: computed = "
-                    << cosineCoefficients(n, m) << ", expected = " << expectedData1.cosineCoeffs(n, m)
-                );
+                auto matrices = stokesDataset.getCoefficientMatrices(0, radiusIndex, longitudeIndex);
+                const auto cosineCoefficients = matrices.first;
+                const auto sineCoefficients = matrices.second;
 
-                // Check sine coefficient
-                BOOST_CHECK_MESSAGE(
-                    std::abs(sineCoefficients(n, m) - expectedData1.sineCoeffs(n, m)) /
-                    std::max(std::abs(expectedData1.sineCoeffs(n, m)), 1e-10) < 1e-10,
-                    "Sine coefficient S(" << n << "," << m << ") mismatch: computed = "
-                    << sineCoefficients(n, m) << ", expected = " << expectedData1.sineCoeffs(n, m)
-                );
+                BOOST_CHECK_EQUAL(cosineCoefficients.rows(), maxDegree + 1);
+                BOOST_CHECK_EQUAL(cosineCoefficients.cols(), maxOrder + 1);
+                BOOST_CHECK_EQUAL(sineCoefficients.rows(), maxDegree + 1);
+                BOOST_CHECK_EQUAL(sineCoefficients.cols(), maxOrder + 1);
 
-                numCoeffsChecked++;
-            }
+                int numCoeffsChecked = 0;
+                for (int n = 0; n <= maxDegree; ++n)
+                {
+                    for (int m = 0; m <= n; ++m)
+                    {
+                        BOOST_CHECK_MESSAGE(
+                            std::abs(cosineCoefficients(n, m) - expectedData.cosineCoeffs(n, m)) /
+                            std::max(std::abs(expectedData.cosineCoeffs(n, m)), 1e-10) < 1e-10,
+                            "Cosine coefficient C(" << n << "," << m << ") mismatch: computed = "
+                            << cosineCoefficients(n, m) << ", expected = " << expectedData.cosineCoeffs(n, m)
+                        );
+
+                        BOOST_CHECK_MESSAGE(
+                            std::abs(sineCoefficients(n, m) - expectedData.sineCoeffs(n, m)) /
+                            std::max(std::abs(expectedData.sineCoeffs(n, m)), 1e-10) < 1e-10,
+                            "Sine coefficient S(" << n << "," << m << ") mismatch: computed = "
+                            << sineCoefficients(n, m) << ", expected = " << expectedData.sineCoeffs(n, m)
+                        );
+
+                        numCoeffsChecked++;
+                    }
+                }
+
+                const int expectedNumCoeffs = (maxDegree + 1) * (maxDegree + 2) / 2;
+                BOOST_CHECK_EQUAL(numCoeffsChecked, expectedNumCoeffs);
+                BOOST_TEST_MESSAGE("Verified " << numCoeffsChecked << " cosine and sine coefficients for indices ("
+                                  << radiusIndex << "," << longitudeIndex << ")");
+            };
+
+            verifyCoefficients(0, 0, expectedData1);
+            verifyCoefficients(1, 1, expectedData2);
         }
-        // Verify we checked the expected number of coefficients: sum from m=0 to n for n=0 to maxDegree
-        const int expectedNumCoeffs = (maxDegree + 1) * (maxDegree + 2) / 2;
-        BOOST_CHECK_EQUAL(numCoeffsChecked, expectedNumCoeffs);
-        BOOST_TEST_MESSAGE("Test Case 1 (via processor): Verified all " << numCoeffsChecked << " cosine and "
-                          << numCoeffsChecked << " sine coefficients (total: " << 2*numCoeffsChecked << ")");
-    }
-
-    // ========== Test Case 2: solar longitude = 30°, radius = 10 km ==========
-    // This corresponds to dataset indices: radius_index=1, longitude_index=1
-    {
-        // Get coefficient matrices from the dataset
-        auto matrices_1_1 = stokesDataset.getCoefficientMatrices(0, 1, 1);
-        auto cosineCoefficients = matrices_1_1.first;
-        auto sineCoefficients = matrices_1_1.second;
-
-        // Check output dimensions
-        BOOST_CHECK_EQUAL(cosineCoefficients.rows(), maxDegree + 1);
-        BOOST_CHECK_EQUAL(cosineCoefficients.cols(), maxOrder + 1);
-        BOOST_CHECK_EQUAL(sineCoefficients.rows(), maxDegree + 1);
-        BOOST_CHECK_EQUAL(sineCoefficients.cols(), maxOrder + 1);
-
-        // Compare ALL coefficients against expected values from file
-        int numCoeffsChecked = 0;
-        for (int n = 0; n <= maxDegree; ++n)
-        {
-            for (int m = 0; m <= n; ++m)
-            {
-                // Check cosine coefficient
-                BOOST_CHECK_MESSAGE(
-                    std::abs(cosineCoefficients(n, m) - expectedData2.cosineCoeffs(n, m)) /
-                    std::max(std::abs(expectedData2.cosineCoeffs(n, m)), 1e-10) < 1e-10,
-                    "Cosine coefficient C(" << n << "," << m << ") mismatch: computed = "
-                    << cosineCoefficients(n, m) << ", expected = " << expectedData2.cosineCoeffs(n, m)
-                );
-
-                // Check sine coefficient
-                BOOST_CHECK_MESSAGE(
-                    std::abs(sineCoefficients(n, m) - expectedData2.sineCoeffs(n, m)) /
-                    std::max(std::abs(expectedData2.sineCoeffs(n, m)), 1e-10) < 1e-10,
-                    "Sine coefficient S(" << n << "," << m << ") mismatch: computed = "
-                    << sineCoefficients(n, m) << ", expected = " << expectedData2.sineCoeffs(n, m)
-                );
-
-                numCoeffsChecked++;
-            }
-        }
-        // Verify we checked the expected number of coefficients: sum from m=0 to n for n=0 to maxDegree
-        const int expectedNumCoeffs = (maxDegree + 1) * (maxDegree + 2) / 2;
-        BOOST_CHECK_EQUAL(numCoeffsChecked, expectedNumCoeffs);
-        BOOST_TEST_MESSAGE("Test Case 2 (via processor): Verified all " << numCoeffsChecked << " cosine and "
-                          << numCoeffsChecked << " sine coefficients (total: " << 2*numCoeffsChecked << ")");
     }
 }
 
@@ -869,8 +999,30 @@ BOOST_AUTO_TEST_SUITE_END()
 
 // ==================== ComaModel Tests ====================
 
+/**
+ * @brief Test suite for ComaModel density calculation functionality.
+ *
+ * Tests the ComaModel class which computes gas number density and mass density
+ * in a cometary coma using spherical harmonic expansions. Validates against
+ * reference residual files and Python-computed reference values.
+ */
 BOOST_AUTO_TEST_SUITE(test_coma_model)
 
+/**
+ * @brief Verifies ComaModel::getNumberDensity returns correct log2(density) values.
+ *
+ * Input/Setup:
+ * - Creates ComaModel from polynomial coefficients and pre-computed Stokes dataset
+ * - Tests with both polynomial and Stokes dataset input types
+ * - Uses reference residual files containing expected log2(number_density) values
+ *
+ * Expected Behavior:
+ * - Test Case 1 (0° solar longitude, 4km radius): 100 randomly selected points
+ *   match reference log2(density) values within 1e-10 tolerance
+ * - Test Case 2 (30° solar longitude, 10km radius): 50 randomly selected points
+ *   match reference values
+ * - Both polynomial and Stokes dataset inputs produce identical results
+ */
 BOOST_FIXTURE_TEST_CASE(test_coma_model_number_density, TestDataPaths)
 {
     // Load polynomial coefficients from test data file
@@ -1212,6 +1364,20 @@ BOOST_FIXTURE_TEST_CASE(test_coma_model_number_density, TestDataPaths)
     }
 }
 
+/**
+ * @brief Validates the complete density pipeline against reference values computed from Python interface.
+ *
+ * Input/Setup:
+ * - Creates Stokes dataset with dense grid (100 radii from 4-10km, 37 longitudes from 0-360°)
+ * - Reads reference values from file containing: time, radial distance, latitude, longitude,
+ *   solar longitude, and expected density
+ *
+ * Expected Behavior:
+ * - ComaModel::getDensity returns mass density values (kg/m³) matching Python reference
+ *   within 1e-8 relative tolerance
+ * - 100 randomly selected test points all pass validation
+ * - Verifies consistency between C++ and Python implementations of the coma model
+ */
 BOOST_FIXTURE_TEST_CASE(test_coma_model_density_validation_from_python, TestDataPaths)
 {
     // This test validates the entire pipeline by using reference values computed from the Python interface.
@@ -1391,8 +1557,26 @@ BOOST_AUTO_TEST_SUITE_END()
 
 // ==================== High-Level Interface Tests ====================
 
+/**
+ * @brief Test suite for ComaModelFileProcessor API tests.
+ *
+ * Tests the high-level ComaModelFileProcessor class which provides a unified interface
+ * for creating polynomial and Stokes datasets from files. Includes validation tests
+ * for constructor parameters, file type detection, and error handling.
+ */
 BOOST_AUTO_TEST_SUITE(test_high_level_interface)
 
+/**
+ * @brief Verifies ComaModelFileProcessor correctly creates polynomial dataset from input files.
+ *
+ * Input/Setup:
+ * - Creates processor from single polynomial coefficient test file
+ *
+ * Expected Behavior:
+ * - createPolyCoefDataset() returns dataset with 1 file
+ * - File metadata contains correct source path
+ * - Reference radius and max degree match expected values
+ */
 BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_poly_dataset, TestDataPaths)
 {
     const std::vector<std::string> files = {testFile.string()};
@@ -1406,6 +1590,19 @@ BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_poly_dataset, TestDataPa
     BOOST_CHECK_EQUAL(polyDataset.getMaxDegreeSH(0), ExpectedPolyValues::maxDegree);
 }
 
+/**
+ * @brief Verifies ComaModelFileProcessor::createSHDataset produces correct coefficient values.
+ *
+ * Input/Setup:
+ * - Creates processor from polynomial coefficient test file
+ * - Uses radii = {4000, 10000} meters and longitudes = {0, 30} degrees
+ * - Loads reference Stokes data from pre-computed test files
+ *
+ * Expected Behavior:
+ * - Dataset structure is correct (nFiles=1, nRadii=2, nLongitudes=2, nmax=10)
+ * - Coefficient values at (ri=0, li=0) match 4km/0° reference data
+ * - Coefficient values at (ri=1, li=1) match 10km/30° reference data
+ */
 BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_sh_dataset, TestDataPaths)
 {
     const std::vector<std::string> files = {testFile.string()};
@@ -1449,6 +1646,19 @@ BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_sh_dataset, TestDataPath
     BOOST_CHECK_CLOSE(cosineMatrix1(3, 1), expectedData2.cosineCoeffs(3, 1), 1e-10);
 }
 
+/**
+ * @brief Verifies ComaModelFileProcessor::createSHFiles creates correctly formatted CSV files.
+ *
+ * Input/Setup:
+ * - Creates processor from polynomial coefficient test file
+ * - Calls createSHFiles with radii = {6000, 10000} and longitudes = {0, 30}
+ *
+ * Expected Behavior:
+ * - CSV file is created at expected path (outputDir/stokes_file0.csv)
+ * - Meta line contains correct max_degree and max_order values
+ * - Radii line contains the specified radius values
+ * - Longitudes line header is present
+ */
 BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_sh_files, TestDataPaths)
 {
     std::vector<std::string> files = {testFile.string()};
@@ -1495,6 +1705,22 @@ BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_sh_files, TestDataPaths)
     ifs.close();
 }
 
+/**
+ * @brief Verifies round-trip: create SH files from poly data, read back via new processor, verify values.
+ *
+ * Input/Setup:
+ * - Creates original Stokes dataset from polynomial coefficients
+ * - Writes dataset to CSV files using createSHFiles
+ * - Creates new processor from the SH files directory
+ *
+ * Expected Behavior:
+ * - New processor correctly identifies file type as StokesCoefficients
+ * - createSHDataset() (parameterless) reads files and returns dataset with matching structure
+ * - Radii and longitude values are preserved
+ * - Coefficient values match original within tolerance
+ * - Custom file prefix works correctly
+ * - Calling createPolyCoefDataset() on SH processor throws std::runtime_error
+ */
 BOOST_FIXTURE_TEST_CASE(test_sh_processor_from_existing_files, TestDataPaths)
 {
     std::vector<std::string> files = {testFile.string()};
@@ -1607,6 +1833,18 @@ BOOST_FIXTURE_TEST_CASE(test_sh_processor_from_existing_files, TestDataPaths)
         std::runtime_error);
 }
 
+/**
+ * @brief Verifies createSHDataset throws std::invalid_argument for invalid degree/order or empty inputs.
+ *
+ * Input/Setup:
+ * - Creates processor from valid polynomial coefficient test file
+ *
+ * Expected Behavior:
+ * - Requesting maxDegree > available data throws std::invalid_argument
+ * - Requesting maxOrder > available data throws std::invalid_argument
+ * - Empty radii vector throws std::invalid_argument
+ * - Empty longitudes vector throws std::invalid_argument
+ */
 BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_validation, TestDataPaths)
 {
     const std::vector<std::string> files = {testFile.string()};
@@ -1635,6 +1873,15 @@ BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_validation, TestDataPaths)
         std::invalid_argument);
 }
 
+/**
+ * @brief Verifies constructor throws std::invalid_argument for empty file list.
+ *
+ * Input/Setup:
+ * - Attempts to create processor with empty std::vector<std::string>
+ *
+ * Expected Behavior:
+ * - Constructor throws std::invalid_argument
+ */
 BOOST_AUTO_TEST_CASE(test_poly_coef_processor_constructor_validation)
 {
     // Test with empty file list
@@ -1644,6 +1891,17 @@ BOOST_AUTO_TEST_CASE(test_poly_coef_processor_constructor_validation)
         std::invalid_argument);
 }
 
+/**
+ * @brief Verifies constructor throws std::runtime_error for non-existent or empty directory.
+ *
+ * Input/Setup:
+ * - Attempts to create processor with non-existent directory path
+ * - Attempts to create processor with empty directory (no SH files)
+ *
+ * Expected Behavior:
+ * - Non-existent directory throws std::runtime_error
+ * - Empty directory (no matching SH CSV files) throws std::runtime_error
+ */
 BOOST_FIXTURE_TEST_CASE(test_sh_processor_constructor_validation, TestDataPaths)
 {
     // Test with non-existent directory
@@ -1660,6 +1918,23 @@ BOOST_FIXTURE_TEST_CASE(test_sh_processor_constructor_validation, TestDataPaths)
         std::runtime_error);
 }
 
+/**
+ * @brief Verifies file type detection and method availability based on processor type.
+ *
+ * Input/Setup:
+ * - Creates polynomial processor from test file
+ * - Creates SH processor from directory containing SH CSV files
+ *
+ * Expected Behavior:
+ * - Poly processor: getFileType() returns PolyCoefficients
+ * - Poly processor: createPolyCoefDataset() succeeds
+ * - Poly processor: createSHDataset(params) succeeds
+ * - Poly processor: createSHDataset() (parameterless) throws std::runtime_error
+ * - SH processor: getFileType() returns StokesCoefficients
+ * - SH processor: createPolyCoefDataset() throws std::runtime_error
+ * - SH processor: createSHDataset() (parameterless) succeeds and returns non-empty dataset
+ * - SH processor: createSHDataset(params) throws std::runtime_error
+ */
 BOOST_FIXTURE_TEST_CASE(test_processor_file_type_behavior, TestDataPaths)
 {
     // Create test SH files first
@@ -1700,8 +1975,31 @@ BOOST_AUTO_TEST_SUITE_END()
 
 // ==================== Integration Tests ====================
 
+/**
+ * @brief Test suite for end-to-end pipeline integration tests.
+ *
+ * Tests the complete workflow from polynomial coefficient files through
+ * Stokes dataset transformation, CSV file output, and reading back the
+ * processed data. Validates full round-trip data integrity.
+ */
 BOOST_AUTO_TEST_SUITE(test_integration)
 
+/**
+ * @brief End-to-end test: poly files → poly dataset → Stokes dataset → CSV files → read back → verify.
+ *
+ * Input/Setup:
+ * - Starts with polynomial coefficient test file
+ * - Uses radii = {6000, 10000} meters and longitudes = {0, 30} degrees
+ * - Creates output directory for CSV files
+ *
+ * Expected Behavior:
+ * - Step 1: createPolyCoefDataset returns dataset with 1 file
+ * - Step 2: createSHDataset returns Stokes dataset with nmax=8 and correct coefficient count
+ * - Step 3: writeCsvAll creates output CSV file
+ * - Step 4: Output file exists at expected location
+ * - Step 5: readFromCsv returns dataset with matching structure and coefficient values
+ * - Step 6: Creating new SH processor from folder returns matching dataset
+ */
 BOOST_FIXTURE_TEST_CASE(test_full_pipeline, TestDataPaths)
 {
     // Test the complete pipeline from files to CSV output
@@ -1764,8 +2062,29 @@ BOOST_AUTO_TEST_SUITE_END()
 
 // ==================== SphericalHarmonicsCalculator Tests ====================
 
+/**
+ * @brief Test suite for SphericalHarmonicsCalculator surface evaluation.
+ *
+ * Tests the SphericalHarmonicsCalculator class which computes spherical harmonic
+ * expansions at specific latitude/longitude coordinates. Validates against
+ * reference residual data from pre-computed test files.
+ */
 BOOST_AUTO_TEST_SUITE(test_spherical_harmonics_calculator)
 
+/**
+ * @brief Verifies SphericalHarmonicsCalculator::calculateSurfaceSphericalHarmonics computes correct values.
+ *
+ * Input/Setup:
+ * - Reads polynomial coefficients and computes Stokes coefficients
+ * - Uses reference residual files containing expected SH evaluation values at various lat/lon points
+ *
+ * Expected Behavior:
+ * - Test Case 1 (0° solar longitude, 4km radius): 100 randomly selected points match
+ *   reference SH evaluation values within 1e-10 absolute tolerance
+ * - Test Case 2 (30° solar longitude, 10km radius): 100 randomly selected points match
+ *   reference values
+ * - All tested points report zero failures
+ */
 BOOST_FIXTURE_TEST_CASE(test_calculate_surface_spherical_harmonics, TestDataPaths)
 {
     // Step 1: Get polynomial coefficients from test data file

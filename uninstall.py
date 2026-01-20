@@ -102,6 +102,12 @@ class Remover:
             # Parse manifest for invalid entries before starting removal
             match code:
                 case "000":
+                    if not element.exists() and not element.is_symlink():
+                        print(
+                            "Skipping manifest entry for missing symlink: "
+                            f"{element}"
+                        )
+                        continue
                     if not element.is_symlink():
                         raise ValueError(
                             "Aborting uninstall: "
@@ -109,6 +115,12 @@ class Remover:
                         )
                     links.append(element)
                 case "999":
+                    if not element.exists():
+                        print(
+                            "Skipping manifest entry for missing directory: "
+                            f"{element}"
+                        )
+                        continue
                     if not element.is_dir():
                         raise ValueError(
                             "Aborting uninstall: "
