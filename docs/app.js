@@ -1,5 +1,7 @@
 // Tudat WASM Test Runner - CesiumJS Edition
 // Handles WASM test execution, real-time UI updates, and visualizations
+const APP_BUILD = '20260119-v3';
+console.log(`app.js build: ${APP_BUILD}`);
 
 import { SpiceKernelLoader } from './spice-loader.js';
 import { initSpice } from './visualizations/shared/spice-utils.js';
@@ -104,9 +106,8 @@ class TudatTestRunner {
 
         await this.loadWasmWorker();
 
-        // SPICE kernel loading disabled - visualizations use analytical ephemeris
-        // To enable SPICE, rebuild tudatpy_wasm with --whole-archive and uncomment:
-        // await this.loadSpiceKernels();
+        // Load SPICE kernels for ephemeris-based visualizations
+        await this.loadSpiceKernels();
     }
 
     setupModal() {
@@ -593,8 +594,8 @@ class TudatTestRunner {
             this.log('WASM Worker ready', 'pass');
             this.log('System ready. Click EXECUTE to run tests (runs in background).', 'info');
 
-            // Also load main thread WASM for visualizations (non-blocking)
-            this.loadVisualizationWasm();
+            // Also load main thread WASM for visualizations (store promise for later await)
+            this.visualizationWasmPromise = this.loadVisualizationWasm();
 
             // Auto-select default visualization
             this.selectDefaultVisualization();
@@ -693,7 +694,17 @@ class TudatTestRunner {
     async loadVisualizationWasm() {
         const self = this;
         try {
-            window.Module = {
+            this.log('Loading main-thread WASM module...', 'info');
+
+            // Check if Module already exists (e.g., from worker or previous load)
+            if (typeof window.Module !== 'undefined' && window.Module.FS) {
+                this.log('WASM module already loaded, reusing...', 'info');
+                this.wasmModule = window.Module;
+                return;
+            }
+
+            // Set up Module configuration before loading script
+            const moduleConfig = {
                 print: function(text) {
                     // Silent - visualizations don't need console output
                 },
@@ -701,14 +712,29 @@ class TudatTestRunner {
                     console.error('Viz WASM:', text);
                 },
                 onRuntimeInitialized: function() {
-                    self.wasmModule = Module;
+                    console.log('Main thread WASM onRuntimeInitialized called');
+                    self.wasmModule = window.Module;
                 }
             };
+
+            // Preserve any existing Module and merge our config
+            if (typeof window.Module !== 'undefined') {
+                Object.assign(window.Module, moduleConfig);
+            } else {
+                window.Module = moduleConfig;
+            }
+
             await this.loadScript('tudat_wasm_test.js');
+            this.log('WASM script loaded, waiting for runtime...', 'info');
+
             await this.waitForModule();
-            this.wasmModule = Module;
+            this.wasmModule = window.Module;
+            this.log('Main-thread WASM runtime ready', 'pass');
         } catch (error) {
+            this.log(`Visualization WASM load failed: ${error.message}`, 'error');
             console.warn('Visualization WASM load failed:', error);
+            // Re-throw so loadTudatModule can handle the failure
+            throw error;
         }
     }
 
@@ -735,23 +761,37 @@ class TudatTestRunner {
     }
 
     waitForModule() {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
+            const maxAttempts = 200; // 10 seconds at 50ms intervals
+            let attempts = 0;
+
             const check = () => {
-                if (typeof Module !== 'undefined' && Module.calledRun) {
-                    resolve();
-                } else if (typeof Module !== 'undefined') {
-                    if (Module.onRuntimeInitialized) {
-                        const original = Module.onRuntimeInitialized;
-                        Module.onRuntimeInitialized = () => {
-                            original();
-                            resolve();
-                        };
-                    } else {
-                        Module.onRuntimeInitialized = resolve;
-                    }
-                } else {
-                    setTimeout(check, 50);
+                attempts++;
+
+                // Log status every 20 attempts (1 second)
+                if (attempts % 20 === 0) {
+                    const moduleExists = typeof window.Module !== 'undefined';
+                    const hasFS = moduleExists && window.Module.FS;
+                    const hasMkdir = hasFS && typeof window.Module.FS.mkdir === 'function';
+                    console.log(`waitForModule attempt ${attempts}: Module=${moduleExists}, FS=${!!hasFS}, mkdir=${hasMkdir}`);
                 }
+
+                // Check if module is fully ready - FS.mkdir being a function is a reliable indicator
+                if (typeof window.Module !== 'undefined' && window.Module.FS && typeof window.Module.FS.mkdir === 'function') {
+                    this.log(`WASM module ready after ${attempts} attempts`, 'info');
+                    resolve();
+                    return;
+                }
+
+                if (attempts >= maxAttempts) {
+                    const moduleExists = typeof window.Module !== 'undefined';
+                    const hasFS = moduleExists && window.Module.FS;
+                    reject(new Error(`Timeout waiting for WASM module (Module=${moduleExists}, FS=${!!hasFS})`));
+                    return;
+                }
+
+                // Keep polling
+                setTimeout(check, 50);
             };
             check();
         });
@@ -759,8 +799,7 @@ class TudatTestRunner {
 
     /**
      * Load the full tudatpy WASM module with SPICE support
-     * This is separate from the test runner module and provides
-     * access to ephemeris queries via SPICE kernels.
+     * Reuses the tudat_wasm_test.js module which contains SPICE functions.
      */
     async loadTudatModule() {
         if (this.tudatModule) {
@@ -769,31 +808,39 @@ class TudatTestRunner {
 
         try {
             this.log('Loading tudatpy WASM module...', 'info');
+            this.log(`visualizationWasmPromise exists: ${!!this.visualizationWasmPromise}`, 'info');
 
-            // Load the script if not already loaded (UMD module sets global createTudatModule)
-            if (typeof window.createTudatModule === 'undefined') {
-                await new Promise((resolve, reject) => {
-                    const script = document.createElement('script');
-                    script.src = './tudatpy_wasm.js';
-                    script.onload = resolve;
-                    script.onerror = () => reject(new Error('Failed to load tudatpy_wasm.js'));
-                    document.head.appendChild(script);
-                });
+            // Wait for the main-thread WASM module to be fully loaded
+            // loadVisualizationWasm() loads tudat_wasm_test.js on the main thread
+            if (this.visualizationWasmPromise) {
+                this.log('Awaiting visualizationWasmPromise...', 'info');
+                try {
+                    await this.visualizationWasmPromise;
+                    this.log('visualizationWasmPromise resolved', 'info');
+                } catch (wasmError) {
+                    this.log(`Visualization WASM failed to load: ${wasmError.message}`, 'warning');
+                    // Continue - wasmModule may still have been set via onRuntimeInitialized callback
+                }
+            } else {
+                this.log('No visualizationWasmPromise - loading WASM directly', 'warning');
+                await this.loadVisualizationWasm();
             }
 
-            // Create the module with filesystem pre-setup
-            this.tudatModule = await window.createTudatModule({
-                print: (text) => console.log('[Tudat]', text),
-                printErr: (text) => console.error('[Tudat Error]', text),
-                preRun: [(Module) => {
-                    // Create directories for SPICE kernels
-                    try {
-                        Module.FS.mkdir('/spice_kernels');
-                    } catch (e) {
-                        // Directory may already exist
-                    }
-                }]
-            });
+            this.log(`wasmModule exists: ${!!this.wasmModule}, has FS: ${!!(this.wasmModule && this.wasmModule.FS)}`, 'info');
+
+            if (!this.wasmModule || !this.wasmModule.FS) {
+                throw new Error('WASM module FS not available - main thread module not loaded');
+            }
+
+            // Reuse the already-loaded module which has SPICE support
+            this.tudatModule = this.wasmModule;
+
+            // Ensure SPICE kernel directory exists
+            try {
+                this.tudatModule.FS.mkdir('/spice_kernels');
+            } catch (e) {
+                // Directory may already exist
+            }
 
             this.log('Tudatpy WASM module loaded', 'success');
 

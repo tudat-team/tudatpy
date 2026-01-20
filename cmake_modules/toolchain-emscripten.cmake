@@ -217,3 +217,7 @@ set(BOOST_ROOT "${EMSDK_INSTALL_DIR}/upstream/emscripten/cache/sysroot")
 set(Boost_INCLUDE_DIR "${EMSDK_INSTALL_DIR}/upstream/emscripten/cache/sysroot/include")
 set(Boost_NO_SYSTEM_PATHS ON)
 set(Boost_NO_BOOST_CMAKE ON)
+
+# Disable CMake package registry to avoid finding stale Eigen3 entries
+# from other projects in /private/tmp or other locations that may not exist
+set(CMAKE_FIND_PACKAGE_NO_PACKAGE_REGISTRY ON CACHE BOOL "Disable package registry for clean WASM builds" FORCE)

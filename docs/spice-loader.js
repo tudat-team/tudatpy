@@ -19,11 +19,13 @@ export class SpiceKernelLoader {
         this.module = tudatModule;
         this.loadedKernels = new Set();
         this.kernelBasePath = '/spice_kernels';
+        this._directoryCreated = false;
 
         // Standard kernel URLs - these can be hosted locally or fetched from NAIF
         // For local development, copy kernels to tests/wasm/web/data/spice/
+        // NOTE: Order matters! Leap seconds kernel must be loaded first.
         this.standardKernels = {
-            // Leap seconds kernel (required for time conversions)
+            // Leap seconds kernel (required for time conversions) - MUST BE FIRST
             leapSeconds: {
                 name: 'naif0012.tls',
                 localPath: './data/spice/naif0012.tls',
@@ -52,14 +54,24 @@ export class SpiceKernelLoader {
             }
         };
 
-        // Ensure kernel directory exists in virtual FS
-        this._ensureDirectory(this.kernelBasePath);
+        // Don't create directory in constructor - wait until we actually need it
+        // This avoids issues if FS isn't fully ready yet
     }
 
     /**
      * Create directory in Emscripten's virtual filesystem
      */
     _ensureDirectory(path) {
+        if (this._directoryCreated) {
+            return true;
+        }
+
+        // Check if FS is available
+        if (!this.module || !this.module.FS || typeof this.module.FS.mkdir !== 'function') {
+            console.error('[SPICE] FS not available - cannot create directory');
+            return false;
+        }
+
         const parts = path.split('/').filter(p => p);
         let currentPath = '';
 
@@ -68,12 +80,15 @@ export class SpiceKernelLoader {
             try {
                 this.module.FS.mkdir(currentPath);
             } catch (e) {
-                // Directory may already exist
-                if (e.code !== 'EEXIST') {
-                    console.warn(`Could not create directory ${currentPath}:`, e);
+                // Directory may already exist (EEXIST) - that's OK
+                if (e.code !== 'EEXIST' && e.errno !== 20) {
+                    console.warn(`[SPICE] Could not create directory ${currentPath}:`, e.message || e);
                 }
             }
         }
+
+        this._directoryCreated = true;
+        return true;
     }
 
     /**
@@ -87,6 +102,18 @@ export class SpiceKernelLoader {
         if (this.loadedKernels.has(name) && !forceReload) {
             console.log(`[SPICE] Kernel ${name} already loaded`);
             return true;
+        }
+
+        // Ensure FS is available before proceeding
+        if (!this.module || !this.module.FS || typeof this.module.FS.writeFile !== 'function') {
+            console.error(`[SPICE] Cannot load kernel ${name}: Emscripten FS not available`);
+            return false;
+        }
+
+        // Ensure directory exists (lazy creation)
+        if (!this._ensureDirectory(this.kernelBasePath)) {
+            console.error(`[SPICE] Cannot load kernel ${name}: Failed to create directory`);
+            return false;
         }
 
         const virtualPath = `${this.kernelBasePath}/${name}`;
@@ -138,17 +165,33 @@ export class SpiceKernelLoader {
 
     /**
      * Load all standard kernels needed for basic ephemeris queries
+     * Kernels are loaded in order - leap seconds kernel must be first!
      */
     async loadStandardKernels(options = {}) {
         const { onProgress } = options;
-        const kernels = Object.values(this.standardKernels);
+
+        // Get kernels in explicit order - leap seconds MUST be first
+        const kernelOrder = ['leapSeconds', 'planetaryConstants', 'de430Small', 'frameKernel'];
+        const kernels = kernelOrder
+            .filter(key => this.standardKernels[key])
+            .map(key => this.standardKernels[key]);
+
         let loaded = 0;
 
         console.log(`[SPICE] Loading ${kernels.length} standard kernels...`);
 
-        for (const kernel of kernels) {
+        for (let i = 0; i < kernels.length; i++) {
+            const kernel = kernels[i];
             const success = await this.loadKernel(kernel, options);
-            if (success) loaded++;
+
+            if (success) {
+                loaded++;
+            } else if (i === 0) {
+                // If leap seconds kernel fails, we cannot continue with other kernels
+                // as SPICE requires it for time conversions used by other kernels
+                console.error('[SPICE] Leap seconds kernel failed to load - cannot load remaining kernels');
+                break;
+            }
 
             if (onProgress) {
                 onProgress({
