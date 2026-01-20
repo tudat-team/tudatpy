@@ -1357,7 +1357,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
 
     for( unsigned int i = 0; i < originalObservations.size( ); i += compressionRatio )
     {
-        if( originalObservations.size( ) - i > compressionRatio )
+        if( originalObservations.size( ) - i >= compressionRatio )
         {
             Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > newObservable = originalObservations.at( i );
             TimeType newTime = originalObservationTimesUtc.at( i );
@@ -1424,13 +1424,13 @@ template< typename ObservationScalarType = double, typename TimeType = double >
 std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > createCompressedDopplerCollection(
         const std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > originalDopplerData,
         const unsigned int compressionRatio,
-        const unsigned int minNumberObservations = 10 )
+        const unsigned int minNumberObservations = 10,
+        const double maxArcGap = 300.0 )
 {
     // Split Doppler observation sets into arcs
-    double compressionRatioFloat = mathematical_constants::getFloatingInteger< double >( compressionRatio );
     std::shared_ptr< observation_models::ObservationCollection< ObservationScalarType, TimeType > > compressedData =
             splitObservationSets( originalDopplerData,
-                                  observationSetSplitter( time_interval_splitter, compressionRatioFloat, minNumberObservations ),
+                                  observationSetSplitter( time_interval_splitter, maxArcGap, minNumberObservations ),
                                   observationParser( dsn_n_way_averaged_doppler ) );
 
     std::map< LinkEnds, std::vector< std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType, TimeType > > > >
