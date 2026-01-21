@@ -96,6 +96,9 @@ target_link_libraries(tudat_wasm_test
 
     # Atmosphere models
     ${NRLMSISE00_LIBRARIES}
+
+    # CALCEPH for direct binary SPK reading (WASM only)
+    ${CALCEPH_LIBRARIES}
 )
 
 set_target_properties(tudat_wasm_test
@@ -191,6 +194,8 @@ if(EMSCRIPTEN)
         ${Sofa_LIBRARIES}
         ${CSpice_LIBRARIES}
         ${NRLMSISE00_LIBRARIES}
+        # CALCEPH for direct binary SPK reading (WASM only)
+        ${CALCEPH_LIBRARIES}
     )
 
     # Web-specific output directory

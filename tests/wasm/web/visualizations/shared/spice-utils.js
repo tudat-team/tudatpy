@@ -38,7 +38,7 @@ export function isSpiceReady() {
 
 /**
  * Check if high-accuracy ephemeris is available for a body
- * Returns true if either precomputed ephemeris (from SPK) or SPICE is available.
+ * Returns true if precomputed, CALCEPH, or SPICE ephemeris is available.
  * This is the recommended check before using getBodyState() when you need accurate data.
  * @param {string} target - Target body name
  * @param {string} observer - Observer body name (default: 'Sun')
@@ -46,8 +46,12 @@ export function isSpiceReady() {
  * @returns {boolean}
  */
 export function isHighAccuracyEphemerisAvailable(target, observer = 'Sun', frame = 'J2000') {
-    // Check precomputed ephemeris first (from pre-converted SPK data)
+    // Check precomputed ephemeris first (from pre-converted SPK data via JSON)
     if (isPrecomputedEphemerisAvailable(target, observer, frame)) {
+        return true;
+    }
+    // Check CALCEPH (direct binary SPK reading)
+    if (isCalcephEphemerisAvailable(target, observer, frame)) {
         return true;
     }
     // Check if SPICE binary kernels are loaded (rare in WASM)
@@ -65,9 +69,10 @@ export function isSpiceTextKernelsLoaded() {
 /**
  * Get planetary state at a given epoch
  * Priority order:
- * 1. Precomputed ephemeris (from pre-converted SPK data) - highest accuracy
- * 2. SPICE (if binary kernels somehow loaded) - not available in WASM
- * 3. Analytical JPL ephemeris - fallback for major planets
+ * 1. Precomputed ephemeris (from pre-converted SPK data via JSON) - highest accuracy
+ * 2. CALCEPH (direct binary SPK reading) - high accuracy, binary files
+ * 3. SPICE (if binary kernels somehow loaded) - not available in WASM due to f2c issues
+ * 4. Analytical JPL ephemeris - fallback for major planets
  *
  * @param {string} target - Target body (e.g., 'Earth', 'Mars', 'Jupiter')
  * @param {string} observer - Observer body (e.g., 'Sun', 'Earth')
@@ -76,7 +81,7 @@ export function isSpiceTextKernelsLoaded() {
  * @returns {Object|null} {x, y, z, vx, vy, vz} in meters and m/s
  */
 export function getBodyState(target, observer, epoch, frame = 'J2000') {
-    // Priority 1: Try precomputed ephemeris (from pre-converted SPK files)
+    // Priority 1: Try precomputed ephemeris (from pre-converted SPK files via JSON)
     if (isPrecomputedEphemerisAvailable(target, observer, frame)) {
         const state = getPrecomputedState(target, observer, epoch, frame);
         if (state) {
@@ -84,7 +89,15 @@ export function getBodyState(target, observer, epoch, frame = 'J2000') {
         }
     }
 
-    // Priority 2: Try SPICE if ephemeris data is available (not available in WASM)
+    // Priority 2: Try CALCEPH (direct binary SPK reading in WASM)
+    if (isCalcephEphemerisAvailable(target, observer, frame)) {
+        const state = getCalcephState(target, observer, epoch, frame);
+        if (state) {
+            return state;
+        }
+    }
+
+    // Priority 3: Try SPICE if ephemeris data is available (not available in WASM)
     if (isSpiceReady()) {
         try {
             const state = _tudatModule.interface_spice_get_body_cartesian_state_at_epoch(
@@ -114,7 +127,7 @@ export function getBodyState(target, observer, epoch, frame = 'J2000') {
         }
     }
 
-    // Priority 3: Use Tudat's analytical JPL ephemeris (no SPICE kernels required)
+    // Priority 4: Use Tudat's analytical JPL ephemeris (no SPICE kernels required)
     return getBodyStateAnalytical(target, observer, epoch);
 }
 
@@ -619,3 +632,341 @@ export const PLANETARY_PERIOD = {
     Neptune: 60190 * 86400,
     Moon: 27.32 * 86400
 };
+
+// ============================================================================
+// CALCEPH Binary SPK Support (direct binary file reading in WASM)
+// ============================================================================
+
+// Track which binary SPK files have been loaded via CALCEPH
+let _calcephLoaded = new Set();
+
+/**
+ * Check if CALCEPH binary SPK support is available in this build
+ * @returns {boolean} True if CALCEPH functions are available
+ */
+export function isCalcephAvailable() {
+    return _tudatModule && typeof _tudatModule.calceph_load_spk === 'function';
+}
+
+/**
+ * Load a binary SPK file directly using CALCEPH.
+ * This allows reading binary SPK/BSP files in WASM without CSPICE.
+ *
+ * The file must be in the Emscripten virtual filesystem. You can write
+ * files to the VFS using Module.FS.writeFile() after fetching them.
+ *
+ * @param {string} spkPath - Path to the SPK file in the virtual filesystem
+ * @param {string} target - Target body name (e.g., "Earth")
+ * @param {string} observer - Observer body name (e.g., "Sun")
+ * @param {string} frame - Reference frame (default: "J2000")
+ * @returns {boolean} True if loaded successfully
+ */
+export function loadBinarySpk(spkPath, target, observer, frame = 'J2000') {
+    if (!isCalcephAvailable()) {
+        console.warn('[CALCEPH] CALCEPH not available in this build');
+        return false;
+    }
+
+    const success = _tudatModule.calceph_load_spk(spkPath, target, observer, frame);
+    if (success) {
+        const key = `${target.toLowerCase()}_${observer.toLowerCase()}_${frame.toLowerCase()}`;
+        _calcephLoaded.add(key);
+        console.log(`[CALCEPH] Loaded binary SPK: ${target} relative to ${observer} from ${spkPath}`);
+    } else {
+        console.error(`[CALCEPH] Failed to load ${spkPath} for ${target} relative to ${observer}`);
+    }
+    return success;
+}
+
+/**
+ * Load a binary SPK file using NAIF IDs directly
+ * @param {string} spkPath - Path to the SPK file
+ * @param {number} targetId - NAIF ID of target body
+ * @param {number} observerId - NAIF ID of observer body
+ * @param {string} frame - Reference frame
+ * @returns {boolean}
+ */
+export function loadBinarySpkByNaifId(spkPath, targetId, observerId, frame = 'J2000') {
+    if (!isCalcephAvailable()) {
+        console.warn('[CALCEPH] CALCEPH not available in this build');
+        return false;
+    }
+
+    return _tudatModule.calceph_load_spk_by_naif_id(spkPath, targetId, observerId, frame);
+}
+
+/**
+ * Check if CALCEPH ephemeris is available for a target/observer pair
+ * @param {string} target - Target body name
+ * @param {string} observer - Observer body name
+ * @param {string} frame - Reference frame
+ * @returns {boolean}
+ */
+export function isCalcephEphemerisAvailable(target, observer, frame = 'J2000') {
+    if (!isCalcephAvailable()) return false;
+    return _tudatModule.calceph_is_available(target, observer, frame);
+}
+
+/**
+ * Get state from a loaded binary SPK file via CALCEPH
+ * @param {string} target - Target body
+ * @param {string} observer - Observer body
+ * @param {number} epoch - Ephemeris time (seconds since J2000)
+ * @param {string} frame - Reference frame
+ * @returns {Object|null} {x, y, z, vx, vy, vz} in meters and m/s
+ */
+export function getCalcephState(target, observer, epoch, frame = 'J2000') {
+    if (!isCalcephEphemerisAvailable(target, observer, frame)) {
+        return null;
+    }
+
+    try {
+        const state = _tudatModule.calceph_get_state(target, observer, frame, epoch);
+        if (!state || state.length < 6) {
+            return null;
+        }
+        return {
+            x: state[0],
+            y: state[1],
+            z: state[2],
+            vx: state[3],
+            vy: state[4],
+            vz: state[5]
+        };
+    } catch (error) {
+        console.error(`[CALCEPH] Error getting state for ${target}:`, error);
+        return null;
+    }
+}
+
+/**
+ * Get time bounds for a loaded binary SPK file
+ * @param {string} target - Target body
+ * @param {string} observer - Observer body
+ * @param {string} frame - Reference frame
+ * @returns {Object|null} {start, end} epochs in seconds since J2000
+ */
+export function getCalcephTimeBounds(target, observer, frame = 'J2000') {
+    if (!isCalcephAvailable()) return null;
+
+    try {
+        const bounds = _tudatModule.calceph_get_time_bounds(target, observer, frame);
+        return { start: bounds[0], end: bounds[1] };
+    } catch (error) {
+        return null;
+    }
+}
+
+/**
+ * List all SPK files loaded via CALCEPH
+ * @returns {string[]}
+ */
+export function listCalcephLoaded() {
+    if (!isCalcephAvailable()) return [];
+    return _tudatModule.calceph_list_loaded();
+}
+
+/**
+ * Clear all CALCEPH-loaded SPK files
+ */
+export function clearCalceph() {
+    if (isCalcephAvailable()) {
+        _tudatModule.calceph_clear_all();
+    }
+    _calcephLoaded.clear();
+}
+
+/**
+ * Fetch a binary SPK file from a URL and load it via CALCEPH.
+ * This is a convenience function that handles fetching the file,
+ * writing it to the Emscripten virtual filesystem, and loading it.
+ *
+ * @param {string} url - URL to fetch the SPK file from
+ * @param {string} target - Target body name
+ * @param {string} observer - Observer body name
+ * @param {string} frame - Reference frame
+ * @returns {Promise<boolean>} True if loaded successfully
+ */
+export async function fetchAndLoadBinarySpk(url, target, observer, frame = 'J2000') {
+    if (!isCalcephAvailable()) {
+        console.warn('[CALCEPH] CALCEPH not available in this build');
+        return false;
+    }
+
+    if (!_tudatModule.FS) {
+        console.error('[CALCEPH] Emscripten FS not available');
+        return false;
+    }
+
+    try {
+        console.log(`[CALCEPH] Fetching binary SPK from ${url}`);
+        const response = await fetch(url);
+        if (!response.ok) {
+            console.error(`[CALCEPH] Failed to fetch ${url}: ${response.status}`);
+            return false;
+        }
+
+        const arrayBuffer = await response.arrayBuffer();
+        const data = new Uint8Array(arrayBuffer);
+
+        // Write to Emscripten virtual filesystem
+        const filename = url.split('/').pop() || 'ephemeris.bsp';
+        const vfsPath = `/tmp/${filename}`;
+
+        // Create /tmp if it doesn't exist
+        try {
+            _tudatModule.FS.mkdir('/tmp');
+        } catch (e) {
+            // Directory may already exist
+        }
+
+        _tudatModule.FS.writeFile(vfsPath, data);
+        console.log(`[CALCEPH] Wrote ${data.length} bytes to ${vfsPath}`);
+
+        // Load the file via CALCEPH
+        return loadBinarySpk(vfsPath, target, observer, frame);
+    } catch (error) {
+        console.error(`[CALCEPH] Error fetching/loading ${url}:`, error);
+        return false;
+    }
+}
+
+/**
+ * Fetch a binary SPK file and load ephemeris for multiple bodies.
+ * This is useful when a single SPK file (like de430.bsp) contains data for multiple planets.
+ *
+ * @param {string} url - URL to fetch the SPK file from
+ * @param {Array<{target: string, observer: string}>} bodies - Array of target/observer pairs to load
+ * @param {string} frame - Reference frame (default: 'J2000')
+ * @returns {Promise<{success: boolean, loaded: string[], failed: string[]}>}
+ */
+export async function fetchAndLoadBinarySpkForBodies(url, bodies, frame = 'J2000') {
+    if (!isCalcephAvailable()) {
+        console.warn('[CALCEPH] CALCEPH not available in this build');
+        return { success: false, loaded: [], failed: bodies.map(b => `${b.target}/${b.observer}`) };
+    }
+
+    if (!_tudatModule.FS) {
+        console.error('[CALCEPH] Emscripten FS not available');
+        return { success: false, loaded: [], failed: bodies.map(b => `${b.target}/${b.observer}`) };
+    }
+
+    try {
+        console.log(`[CALCEPH] Fetching binary SPK from ${url}`);
+        const response = await fetch(url);
+        if (!response.ok) {
+            console.error(`[CALCEPH] Failed to fetch ${url}: ${response.status}`);
+            return { success: false, loaded: [], failed: bodies.map(b => `${b.target}/${b.observer}`) };
+        }
+
+        const arrayBuffer = await response.arrayBuffer();
+        const data = new Uint8Array(arrayBuffer);
+
+        // Write to Emscripten virtual filesystem
+        const filename = url.split('/').pop() || 'ephemeris.bsp';
+        const vfsPath = `/tmp/${filename}`;
+
+        // Create /tmp if it doesn't exist
+        try {
+            _tudatModule.FS.mkdir('/tmp');
+        } catch (e) {
+            // Directory may already exist
+        }
+
+        _tudatModule.FS.writeFile(vfsPath, data);
+        console.log(`[CALCEPH] Wrote ${data.length} bytes to ${vfsPath}`);
+
+        // Load ephemeris for each body pair
+        const loaded = [];
+        const failed = [];
+
+        for (const { target, observer } of bodies) {
+            const success = loadBinarySpk(vfsPath, target, observer, frame);
+            if (success) {
+                loaded.push(`${target}/${observer}`);
+            } else {
+                failed.push(`${target}/${observer}`);
+            }
+        }
+
+        return {
+            success: loaded.length > 0,
+            loaded,
+            failed
+        };
+    } catch (error) {
+        console.error(`[CALCEPH] Error fetching/loading ${url}:`, error);
+        return { success: false, loaded: [], failed: bodies.map(b => `${b.target}/${b.observer}`) };
+    }
+}
+
+/**
+ * Load planetary ephemeris from a JPL DE kernel.
+ * Convenience function that loads common planet ephemerides from a DE kernel like de430.bsp.
+ *
+ * @param {string} url - URL to the DE kernel (e.g., './data/de430.bsp')
+ * @param {string[]} planets - Array of planet names to load (default: inner + outer planets)
+ * @param {string} observer - Observer body (default: 'Sun')
+ * @param {string} frame - Reference frame (default: 'J2000')
+ * @returns {Promise<{success: boolean, loaded: string[], failed: string[]}>}
+ */
+export async function loadPlanetaryEphemeris(url, planets = null, observer = 'Sun', frame = 'J2000') {
+    // Default to loading all major planets
+    const defaultPlanets = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune'];
+    const planetsToLoad = planets || defaultPlanets;
+
+    const bodies = planetsToLoad.map(target => ({ target, observer }));
+    return fetchAndLoadBinarySpkForBodies(url, bodies, frame);
+}
+
+/**
+ * Convert body name to NAIF ID
+ * @param {string} name - Body name
+ * @returns {number} NAIF ID or -1 if unknown
+ */
+export function bodyNameToNaifId(name) {
+    if (!isCalcephAvailable()) {
+        // Fallback mapping for common bodies
+        const mapping = {
+            'ssb': 0, 'solar system barycenter': 0,
+            'sun': 10,
+            'mercury barycenter': 1, 'mercury': 199,
+            'venus barycenter': 2, 'venus': 299,
+            'earth-moon barycenter': 3, 'emb': 3, 'earth': 399,
+            'mars barycenter': 4, 'mars': 499,
+            'jupiter barycenter': 5, 'jupiter': 599,
+            'saturn barycenter': 6, 'saturn': 699,
+            'uranus barycenter': 7, 'uranus': 799,
+            'neptune barycenter': 8, 'neptune': 899,
+            'pluto barycenter': 9, 'pluto': 999,
+            'moon': 301, 'luna': 301
+        };
+        return mapping[name.toLowerCase()] || -1;
+    }
+    return _tudatModule.calceph_body_name_to_naif_id(name);
+}
+
+/**
+ * Convert NAIF ID to body name
+ * @param {number} naifId - NAIF ID
+ * @returns {string} Body name
+ */
+export function naifIdToBodyName(naifId) {
+    if (!isCalcephAvailable()) {
+        const mapping = {
+            0: 'SSB', 10: 'Sun',
+            1: 'Mercury Barycenter', 199: 'Mercury',
+            2: 'Venus Barycenter', 299: 'Venus',
+            3: 'Earth-Moon Barycenter', 399: 'Earth',
+            4: 'Mars Barycenter', 499: 'Mars',
+            5: 'Jupiter Barycenter', 599: 'Jupiter',
+            6: 'Saturn Barycenter', 699: 'Saturn',
+            7: 'Uranus Barycenter', 799: 'Uranus',
+            8: 'Neptune Barycenter', 899: 'Neptune',
+            9: 'Pluto Barycenter', 999: 'Pluto',
+            301: 'Moon'
+        };
+        return mapping[naifId] || `Body${naifId}`;
+    }
+    return _tudatModule.calceph_naif_id_to_body_name(naifId);
+}

@@ -5,11 +5,14 @@
  * Demonstrates porkchop plot generation for Earth-Mars transfers.
  * Shows delta-V contours as function of departure and arrival dates.
  *
- * Uses SPICE ephemeris when available for accurate planetary positions.
+ * Uses binary SPICE kernels (via CALCEPH) when available for accurate planetary positions.
+ * Falls back to precomputed JSON ephemeris or analytical approximations.
  */
 
 import {
     isHighAccuracyEphemerisAvailable,
+    isCalcephAvailable,
+    loadPlanetaryEphemeris,
     getBodyState,
     jdToEt,
     PLANETARY_GM,
@@ -24,7 +27,9 @@ export async function showEarthMarsTransferExample(chartContainer, log, params =
         // (8th order Lagrange interpolation requires ~5 data points margin on each end)
         departureStart: params.departureStart ?? 10,             // days from reference
         arrivalStart: params.arrivalStart ?? 210,                // minimum flight time
-        resolution: params.resolution ?? 30                       // grid points per axis
+        resolution: params.resolution ?? 30,                     // grid points per axis
+        // Binary kernel URL - can be overridden to use different kernels
+        spkUrl: params.spkUrl ?? './data/de432s.bsp'            // JPL DE432s (10MB, covers 1950-2050)
     };
 
     log('Running Earth-Mars Transfer Window Example...', 'info');
@@ -32,22 +37,47 @@ export async function showEarthMarsTransferExample(chartContainer, log, params =
     log(`Arrival window: ${config.arrivalWindowDays} days`, 'info');
     log(`Resolution: ${config.resolution}x${config.resolution}`, 'info');
 
-    // Try to load precomputed ephemeris if available (using J2000 frame to match precomputed data)
+    // Check if high-accuracy ephemeris is already loaded
     let useHighAccuracy = isHighAccuracyEphemerisAvailable('Earth', 'Sun', 'J2000') &&
                           isHighAccuracyEphemerisAvailable('Mars', 'Sun', 'J2000');
+    let ephemerisSource = 'cached';
 
     if (!useHighAccuracy) {
-        // Try loading precomputed ephemeris data
-        log('Loading precomputed ephemeris data...', 'info');
-        const earthLoaded = await loadPrecomputedEphemerisFromUrl('./data/ephemeris/earth_sun_j2000.json');
-        const marsLoaded = await loadPrecomputedEphemerisFromUrl('./data/ephemeris/mars_sun_j2000.json');
-        useHighAccuracy = earthLoaded && marsLoaded;
+        // Priority 1: Try loading binary SPICE kernel via CALCEPH
+        if (isCalcephAvailable()) {
+            log('Loading binary SPICE kernel (CALCEPH)...', 'info');
+            const result = await loadPlanetaryEphemeris(config.spkUrl, ['Earth', 'Mars'], 'Sun', 'J2000');
+
+            if (result.success && result.loaded.length === 2) {
+                useHighAccuracy = true;
+                ephemerisSource = 'binary SPK (CALCEPH)';
+                log(`Loaded binary kernel: ${result.loaded.join(', ')}`, 'success');
+            } else if (result.loaded.length > 0) {
+                log(`Partial load from binary kernel: ${result.loaded.join(', ')}`, 'warning');
+                if (result.failed.length > 0) {
+                    log(`Failed to load: ${result.failed.join(', ')}`, 'warning');
+                }
+            } else {
+                log('Binary kernel not available, trying precomputed JSON...', 'info');
+            }
+        }
+
+        // Priority 2: Fall back to precomputed JSON ephemeris
+        if (!useHighAccuracy) {
+            log('Loading precomputed JSON ephemeris...', 'info');
+            const earthLoaded = await loadPrecomputedEphemerisFromUrl('./data/ephemeris/earth_sun_j2000.json');
+            const marsLoaded = await loadPrecomputedEphemerisFromUrl('./data/ephemeris/mars_sun_j2000.json');
+            useHighAccuracy = earthLoaded && marsLoaded;
+            if (useHighAccuracy) {
+                ephemerisSource = 'precomputed JSON';
+            }
+        }
     }
 
     if (useHighAccuracy) {
-        log('Using high-accuracy ephemeris (precomputed from SPK)', 'success');
+        log(`Using high-accuracy ephemeris (${ephemerisSource})`, 'success');
     } else {
-        log('Using analytical Keplerian approximation (precomputed data not available)', 'warning');
+        log('Using analytical Keplerian approximation (no ephemeris data available)', 'warning');
     }
 
     const startTime = performance.now();
@@ -55,6 +85,12 @@ export async function showEarthMarsTransferExample(chartContainer, log, params =
         ? computeTransferWindowSpice(config, log)
         : computeTransferWindowAnalytical(config);
     const elapsed = performance.now() - startTime;
+
+    // Update source with more specific info
+    if (useHighAccuracy) {
+        result.source = ephemerisSource;
+    }
+
     log(`Computation completed in ${elapsed.toFixed(1)} ms`, 'success');
 
     log(`Minimum delta-V: ${result.minDeltaV.toFixed(0)} m/s`, 'info');
@@ -68,6 +104,7 @@ export async function showEarthMarsTransferExample(chartContainer, log, params =
         name: 'Earth-Mars Transfer',
         description: 'Interplanetary transfer window analysis',
         useHighAccuracy,
+        ephemerisSource,
         ...result,
         config
     };
@@ -315,9 +352,11 @@ function renderPorkchopPlot(container, result, config) {
 
     const title = document.createElement('div');
     title.style.cssText = 'font-family: "Orbitron", sans-serif; font-size: 14px; color: var(--cyan); margin-bottom: 10px; text-align: center;';
-    title.textContent = result.source === 'SPICE'
-        ? 'Earth-Mars Transfer (SPICE Ephemeris)'
-        : 'Earth-Mars Transfer Porkchop Plot';
+    // Show ephemeris source in title
+    const sourceLabel = result.source === 'analytical' ? 'Analytical' :
+                        result.source.includes('CALCEPH') ? 'Binary SPK' :
+                        result.source.includes('JSON') ? 'Precomputed' : 'SPICE';
+    title.textContent = `Earth-Mars Transfer (${sourceLabel})`;
     wrapper.appendChild(title);
 
     const chartDiv = document.createElement('div');

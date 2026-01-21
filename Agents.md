@@ -451,6 +451,59 @@ python tests/wasm/web/start_server.py
 
 ---
 
+## CRITICAL: WASM Environment Configuration
+
+**IMPORTANT:** The WASM module MUST be built with multi-environment support. NEVER use `ENVIRONMENT=node` alone for web deployments.
+
+### Correct Configuration (in CMakeLists.txt)
+The `tudat_wasm_web` target uses:
+```cmake
+LINK_FLAGS "-sENVIRONMENT=web,node,worker ..."
+```
+
+This allows the same binary to run in:
+- **Web browsers** (main thread)
+- **Web Workers** (worker thread)
+- **Node.js** (for testing)
+
+### Common Mistake
+The `tudat_wasm_test` target uses `ENVIRONMENT=node` for Node.js-only testing. **DO NOT** copy these files to the web directory:
+```bash
+# WRONG - This creates a node-only build that fails in browsers with "require is not defined"
+cp build-wasm/tests/wasm/tudat_wasm_test.js tests/wasm/web/
+```
+
+### Correct Workflow
+Always copy from the `tudat_wasm_web` build output:
+```bash
+# CORRECT - The web target outputs to build-wasm/tests/wasm/web/
+# Files are automatically placed there by CMake, OR copy explicitly:
+cp build-wasm/tests/wasm/web/tudat_wasm_test.js tests/wasm/web/
+cp build-wasm/tests/wasm/web/tudat_wasm_test.wasm tests/wasm/web/
+```
+
+### How to Verify
+Check the first few lines of the JS file:
+```bash
+head -c 500 tests/wasm/web/tudat_wasm_test.js
+```
+
+**Correct (multi-environment):**
+```javascript
+var ENVIRONMENT_IS_WEB=typeof window=="object";
+var ENVIRONMENT_IS_WORKER=typeof importScripts=="function";
+var ENVIRONMENT_IS_NODE=typeof process=="object"...
+```
+
+**Wrong (node-only):**
+```javascript
+var ENVIRONMENT_IS_WEB=false;
+var ENVIRONMENT_IS_WORKER=false;
+var ENVIRONMENT_IS_NODE=true;
+```
+
+---
+
 *Last updated: 2026-01-18*
 *Current: 98.6% binding parity, 43.5% example parity*
 *Target: 100% Python parity*

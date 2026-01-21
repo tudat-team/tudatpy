@@ -643,6 +643,110 @@ else()
     add_definitions(-DTUDAT_BUILD_WITH_NRLMSISE=1)
 endif()
 
+# CALCEPH dependency (for direct binary SPK reading in WASM)
+# CALCEPH is a pure C library that can read SPK files without CSPICE's furnsh_c()
+# which crashes in WASM due to f2c FORTRAN I/O issues.
+if(TUDAT_BUILD_WASM)
+    message(STATUS "Downloading CALCEPH for WASM binary SPK reading...")
+    include(FetchContent)
+    FetchContent_Declare(
+        calceph
+        URL https://www.imcce.fr/content/medias/recherche/equipes/asd/calceph/calceph-4.0.5.tar.gz
+        URL_HASH SHA256=3460d8a3e10a86e7fe0228d5d9abcda589713b8ed3ee007ce061ae01f8c2e1ea
+    )
+    FetchContent_GetProperties(calceph)
+    if(NOT calceph_POPULATED)
+        FetchContent_Populate(calceph)
+    endif()
+
+    # Collect all CALCEPH C source files (exclude interfaces_C_F90.c which requires Fortran)
+    file(GLOB CALCEPH_SOURCES "${calceph_SOURCE_DIR}/src/*.c")
+    # Remove the Fortran interface file if present
+    list(FILTER CALCEPH_SOURCES EXCLUDE REGEX "interfaces_C_F90\\.c$")
+
+    # Generate calcephconfig.h with WASM-compatible settings
+    set(CALCEPH_CONFIG_DIR "${CMAKE_CURRENT_BINARY_DIR}/calceph_config")
+    file(MAKE_DIRECTORY "${CALCEPH_CONFIG_DIR}")
+    file(WRITE "${CALCEPH_CONFIG_DIR}/calcephconfig.h" [[
+/* CALCEPH configuration for WASM builds */
+#ifndef __CALCEPH_CONFIG_H__
+#define __CALCEPH_CONFIG_H__
+
+/* ANSI C standard headers (for stdarg.h, stdlib.h, etc.) */
+#define STDC_HEADERS 1
+
+/* Standard headers available in WASM/Emscripten */
+#define HAVE_STDIO_H 1
+#define HAVE_STDLIB_H 1
+#define HAVE_STDARG_H 1
+#define HAVE_LIMITS_H 1
+#define HAVE_STRING_H 1
+#define HAVE_ERRNO_H 1
+#define HAVE_MATH_H 1
+#define HAVE_STDBOOL_H 1
+#define HAVE_SYS_STAT_H 1
+#define HAVE_SYS_TYPES_H 1
+#define HAVE_UNISTD_H 1
+#define HAVE_TIME_H 1
+
+/* WASM doesn't have mmap */
+/* #undef HAVE_SYS_MMAN_H */
+/* #undef HAVE_MMAP */
+
+/* Available functions in Emscripten */
+#define HAVE_RINT 1
+#define HAVE_SNPRINTF 1
+#define HAVE_VSNPRINTF 1
+#define HAVE_STRNCMP 1
+#define HAVE_STRCASECMP 1
+#define HAVE_FSEEKO 1
+
+/* Not available in WASM */
+/* #undef HAVE_VASPRINTF */
+/* #undef HAVE_STRTOD_L */
+/* #undef HAVE_NEWLOCALE */
+/* #undef HAVE_FREELOCALE */
+/* #undef HAVE_SETLOCALE */
+/* #undef HAVE_XLOCALE_H */
+/* #undef HAVE_LOCALE_H */
+
+/* C99 bool type */
+#define HAVE_BOOL 1
+
+/* GCC attribute for unused variables */
+#define HAVE_VAR_ATTRIBUTE_UNUSED 1
+
+/* Disable thread support for WASM single-threaded mode */
+/* #undef HAVE_PTHREAD */
+
+#endif /* __CALCEPH_CONFIG_H__ */
+]])
+
+    # Create static library
+    add_library(calceph STATIC ${CALCEPH_SOURCES})
+    target_include_directories(calceph PUBLIC
+        "${calceph_SOURCE_DIR}/src"
+        "${CALCEPH_CONFIG_DIR}"
+    )
+    target_compile_definitions(calceph PRIVATE
+        HAVE_CONFIG_H=1
+    )
+    # Suppress warnings in third-party code
+    target_compile_options(calceph PRIVATE -w)
+
+    set(CALCEPH_LIBRARIES calceph)
+    set(CALCEPH_INCLUDE_DIRS "${calceph_SOURCE_DIR}/src" "${CALCEPH_CONFIG_DIR}")
+    include_directories(SYSTEM "${CALCEPH_INCLUDE_DIRS}")
+    add_definitions(-DTUDAT_BUILD_WITH_CALCEPH=1)
+    set(TUDAT_BUILD_WITH_CALCEPH TRUE)  # CMake variable for conditional source inclusion
+    message(STATUS "CALCEPH downloaded to ${calceph_SOURCE_DIR}")
+    message(STATUS "CALCEPH include dirs: ${CALCEPH_INCLUDE_DIRS}")
+else()
+    # For non-WASM builds, CALCEPH is optional
+    set(CALCEPH_LIBRARIES "")
+    set(CALCEPH_INCLUDE_DIRS "")
+endif()
+
 # FFTW3 dependency
 if (TUDAT_BUILD_WITH_FFTW3)
     if(NOT APPLE)

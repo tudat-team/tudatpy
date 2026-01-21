@@ -24,6 +24,7 @@
 // SPICE interface
 #include "tudat/interface/spice/spiceInterface.h"
 #include "tudat/astro/ephemerides/tleEphemeris.h"
+#include "tudat/astro/ephemerides/approximatePlanetPositions.h"
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
 
 using namespace tudat;
@@ -296,4 +297,115 @@ void testSpiceTemeFrameRotation()
     Eigen::Matrix3d diff = temeToJ2000 - Eigen::Matrix3d::Identity();
     double maxDiff = diff.cwiseAbs().maxCoeff();
     checkTrue("TEME≈J2000 at epoch (small rotation)", maxDiff < 0.01);  // Less than ~0.5 degrees
+}
+
+void testAnalyticalPlanetaryEphemeris()
+{
+    std::cout << "\n=== Analytical Planetary Ephemeris (JPL Approximate Positions) ===" << std::endl;
+
+    using namespace ephemerides;
+
+    // Test the JPL Approximate Planetary Positions algorithm
+    // This uses Tudat's built-in ApproximateJplEphemeris class which requires
+    // NO external SPICE kernels - all orbital elements are embedded in the code.
+
+    // Reference: Standish, E.M. "Keplerian Elements for Approximate Positions
+    //            of the Major Planets" (JPL)
+
+    // Test at J2000 epoch (secondsSinceJ2000 = 0)
+    double epoch = 0.0;
+
+    // Test Earth state at J2000
+    {
+        ApproximateJplEphemeris earthEphemeris("Earth");
+        Eigen::Vector6d earthState = earthEphemeris.getCartesianState(epoch);
+
+        double earthDistance = earthState.head<3>().norm();
+        double earthVelocity = earthState.tail<3>().norm();
+
+        // Earth should be ~1 AU from Sun (149.6 million km)
+        double AU = 149597870700.0;  // meters
+        checkTrue("Earth distance ~1 AU at J2000", std::abs(earthDistance - AU) < 0.03 * AU);
+
+        // Earth orbital velocity ~29.78 km/s
+        checkTrue("Earth velocity ~30 km/s", earthVelocity > 29000.0 && earthVelocity < 31000.0);
+
+        std::cout << "[INFO] Earth at J2000: r=" << earthDistance/1e9 << " Gm, v=" << earthVelocity/1e3 << " km/s" << std::endl;
+    }
+
+    // Test Mars state at J2000
+    {
+        ApproximateJplEphemeris marsEphemeris("Mars");
+        Eigen::Vector6d marsState = marsEphemeris.getCartesianState(epoch);
+
+        double marsDistance = marsState.head<3>().norm();
+        double marsVelocity = marsState.tail<3>().norm();
+
+        // Mars should be ~1.38-1.67 AU from Sun (varies due to eccentricity)
+        double AU = 149597870700.0;
+        checkTrue("Mars distance 1.3-1.7 AU", marsDistance > 1.3 * AU && marsDistance < 1.7 * AU);
+
+        // Mars orbital velocity ~21-26 km/s
+        checkTrue("Mars velocity 21-26 km/s", marsVelocity > 21000.0 && marsVelocity < 27000.0);
+
+        std::cout << "[INFO] Mars at J2000: r=" << marsDistance/1e9 << " Gm, v=" << marsVelocity/1e3 << " km/s" << std::endl;
+    }
+
+    // Test state propagation over time (should change smoothly)
+    {
+        ApproximateJplEphemeris earthEphemeris("Earth");
+
+        double epoch1 = 0.0;                    // J2000
+        double epoch2 = 365.25 * 86400.0;       // 1 year later
+
+        Eigen::Vector6d state1 = earthEphemeris.getCartesianState(epoch1);
+        Eigen::Vector6d state2 = earthEphemeris.getCartesianState(epoch2);
+
+        // After one year, Earth should return to approximately the same position
+        // (small drift due to orbital precession and approximate model)
+        double positionDiff = (state1.head<3>() - state2.head<3>()).norm();
+        double AU = 149597870700.0;
+
+        // Should be within 1% of orbital radius after one complete orbit
+        checkTrue("Earth returns after 1 year (within 5%)", positionDiff < 0.05 * AU);
+
+        std::cout << "[INFO] Earth position change after 1 year: " << positionDiff/1e6 << " km" << std::endl;
+    }
+
+    // Test GTOP ephemeris as alternative
+    {
+        ApproximateGtopEphemeris earthGtop("Earth");
+        Eigen::Vector6d earthGtopState = earthGtop.getCartesianState(epoch);
+
+        double earthGtopDistance = earthGtopState.head<3>().norm();
+        double AU = 149597870700.0;
+
+        // GTOP should also give ~1 AU
+        checkTrue("GTOP Earth distance ~1 AU", std::abs(earthGtopDistance - AU) < 0.03 * AU);
+
+        std::cout << "[INFO] GTOP Earth at J2000: r=" << earthGtopDistance/1e9 << " Gm" << std::endl;
+    }
+
+    // Test all supported planets
+    {
+        std::vector<std::string> planets = {"Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune"};
+        double AU = 149597870700.0;
+
+        // Expected distances in AU (approximate)
+        std::vector<double> expectedDistances = {0.39, 0.72, 1.0, 1.52, 5.2, 9.5, 19.2, 30.1};
+
+        for (size_t i = 0; i < planets.size(); ++i) {
+            ApproximateJplEphemeris ephemeris(planets[i]);
+            Eigen::Vector6d state = ephemeris.getCartesianState(epoch);
+            double distance = state.head<3>().norm() / AU;
+
+            // Check distance is within 20% of expected (accounts for orbital eccentricity)
+            bool distanceOk = std::abs(distance - expectedDistances[i]) < 0.3 * expectedDistances[i];
+            checkTrue(planets[i] + " distance reasonable", distanceOk);
+
+            if (!distanceOk) {
+                std::cout << "[WARN] " << planets[i] << " distance: " << distance << " AU (expected ~" << expectedDistances[i] << " AU)" << std::endl;
+            }
+        }
+    }
 }

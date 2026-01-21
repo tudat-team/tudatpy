@@ -1,5 +1,7 @@
 // Tudat WASM Test Runner - CesiumJS Edition
 // Handles WASM test execution, real-time UI updates, and visualizations
+const APP_BUILD = '20260120-v1';
+console.log(`app.js build: ${APP_BUILD}`);
 
 import { SpiceKernelLoader } from './spice-loader.js';
 import { initSpice } from './visualizations/shared/spice-utils.js';
@@ -60,6 +62,7 @@ class TudatTestRunner {
         this.currentCategory = 'General';
         this.consoleLines = 0;
         this.expectedTests = 551;
+        this.currentVisualization = null;  // Track current visualization for URL updates
 
         // Web Worker for running tests off main thread
         this.testWorker = null;
@@ -104,9 +107,8 @@ class TudatTestRunner {
 
         await this.loadWasmWorker();
 
-        // SPICE kernel loading disabled - visualizations use analytical ephemeris
-        // To enable SPICE, rebuild tudatpy_wasm with --whole-archive and uncomment:
-        // await this.loadSpiceKernels();
+        // Load SPICE kernels for ephemeris-based visualizations
+        await this.loadSpiceKernels();
     }
 
     setupModal() {
@@ -149,6 +151,35 @@ class TudatTestRunner {
         if (testName) {
             this.modalCurrentTest.textContent = testName;
         }
+    }
+
+    // URL helpers for deep-linking to visualizations
+    vizNameToSlug(name) {
+        return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    }
+
+    slugToVizName(slug) {
+        // Find the visualization name that matches this slug
+        for (const name of Object.keys(visualizationRegistry)) {
+            if (this.vizNameToSlug(name) === slug) {
+                return name;
+            }
+        }
+        return null;
+    }
+
+    updateUrlWithVisualization(vizName) {
+        const slug = this.vizNameToSlug(vizName);
+        const newUrl = `${window.location.pathname}#${slug}`;
+        console.log(`[URL] Updating URL to: ${newUrl}`);
+        window.history.replaceState(null, '', newUrl);
+        this.currentVisualization = vizName;
+    }
+
+    getVisualizationFromUrl() {
+        const hash = window.location.hash.slice(1); // Remove the #
+        if (!hash) return null;
+        return this.slugToVizName(hash);
     }
 
     // Curated list of test categories with meaningful 3D/chart visualizations
@@ -231,32 +262,78 @@ class TudatTestRunner {
         });
     }
 
-    // Simple fuzzy matching - characters must appear in order
+    // Smart matching - prioritizes exact words, prefixes, and handles common typos
     fuzzyMatch(text, pattern) {
-        let patternIdx = 0;
-        for (let i = 0; i < text.length && patternIdx < pattern.length; i++) {
-            if (text[i] === pattern[patternIdx]) {
-                patternIdx++;
+        // Split text into words
+        const words = text.split(/\s+/);
+
+        // 1. Exact word match
+        if (words.some(word => word === pattern)) {
+            return true;
+        }
+
+        // 2. Word starts with pattern (prefix match)
+        if (words.some(word => word.startsWith(pattern))) {
+            return true;
+        }
+
+        // 3. Pattern is contained as a substring in any word
+        if (words.some(word => word.includes(pattern))) {
+            return true;
+        }
+
+        // 4. Check for single character transposition (common typo)
+        if (pattern.length >= 2) {
+            for (let i = 0; i < pattern.length - 1; i++) {
+                const transposed = pattern.slice(0, i) + pattern[i + 1] + pattern[i] + pattern.slice(i + 2);
+                if (words.some(word => word.includes(transposed))) {
+                    return true;
+                }
             }
         }
-        return patternIdx === pattern.length;
+
+        // 5. Check for single missing/extra character (length diff of 1)
+        if (pattern.length >= 3) {
+            for (const word of words) {
+                if (Math.abs(word.length - pattern.length) <= 1) {
+                    let diffs = 0;
+                    const longer = word.length >= pattern.length ? word : pattern;
+                    const shorter = word.length < pattern.length ? word : pattern;
+                    let j = 0;
+                    for (let i = 0; i < longer.length && diffs <= 1; i++) {
+                        if (longer[i] === shorter[j]) {
+                            j++;
+                        } else {
+                            diffs++;
+                            if (longer.length === shorter.length) j++;
+                        }
+                    }
+                    if (diffs <= 1 && j >= shorter.length - 1) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
-    // Highlight matching characters in text
+    // Highlight matching words/substrings in text
     highlightMatches(text, pattern) {
         const lowerText = text.toLowerCase();
-        let result = '';
-        let patternIdx = 0;
+        const words = text.split(/(\s+)/); // Keep whitespace in result
 
-        for (let i = 0; i < text.length; i++) {
-            if (patternIdx < pattern.length && lowerText[i] === pattern[patternIdx]) {
-                result += `<span class="search-highlight">${text[i]}</span>`;
-                patternIdx++;
-            } else {
-                result += text[i];
+        return words.map(word => {
+            const lowerWord = word.toLowerCase();
+            const idx = lowerWord.indexOf(pattern);
+            if (idx !== -1) {
+                // Highlight the matched portion
+                return word.slice(0, idx) +
+                       `<span class="search-highlight">${word.slice(idx, idx + pattern.length)}</span>` +
+                       word.slice(idx + pattern.length);
             }
-        }
-        return result;
+            return word;
+        }).join('');
     }
 
     updateTimestamp() {
@@ -266,19 +343,29 @@ class TudatTestRunner {
     }
 
     selectDefaultVisualization() {
-        // Auto-select J2 vs Full Force as the default visualization on page load
+        // Check URL for a visualization to load, otherwise default to J2 vs Full Force
         // Use setTimeout to ensure DOM layout is complete before rendering charts
         setTimeout(() => {
             const container = document.getElementById('viz-category-list');
             const vizItems = container.querySelectorAll('.viz-category');
 
-            // Find and select the J2 vs Full Force item
+            // Check if URL specifies a visualization
+            const urlViz = this.getVisualizationFromUrl();
+            const targetViz = urlViz || 'J2 vs Full Force';
+            console.log(`[URL] Loading visualization: ${targetViz} (from URL: ${urlViz !== null})`);
+
+            // Find and select the target visualization item
             vizItems.forEach(item => {
                 const nameEl = item.querySelector('.category-name');
-                if (nameEl && nameEl.textContent === 'J2 vs Full Force') {
+                if (nameEl && nameEl.textContent === targetViz) {
                     item.classList.add('selected');
                     // Trigger the visualization
-                    this.visualizeTest('J2 vs Full Force', 'J2 vs Full Force');
+                    this.visualizeTest(targetViz, targetViz);
+
+                    // For CR3BP, auto-select L2 Halo orbit
+                    if (targetViz.includes('CR3BP')) {
+                        setTimeout(() => this.selectOrbit('l2-halo'), 100);
+                    }
                 }
             });
         }, 100);  // Small delay to ensure layout is complete
@@ -290,8 +377,27 @@ class TudatTestRunner {
 
         // Search input with fuzzy matching
         const searchInput = document.getElementById('viz-search');
+        const searchClear = document.getElementById('viz-search-clear');
         if (searchInput) {
-            searchInput.addEventListener('input', (e) => this.filterVisualizations(e.target.value));
+            searchInput.addEventListener('input', (e) => {
+                this.filterVisualizations(e.target.value);
+                // Toggle clear button visibility
+                if (searchClear) {
+                    searchClear.classList.toggle('visible', e.target.value.length > 0);
+                    searchInput.classList.toggle('has-text', e.target.value.length > 0);
+                }
+            });
+        }
+        if (searchClear) {
+            searchClear.addEventListener('click', () => {
+                if (searchInput) {
+                    searchInput.value = '';
+                    searchInput.classList.remove('has-text');
+                    this.filterVisualizations('');
+                    searchInput.focus();
+                }
+                searchClear.classList.remove('visible');
+            });
         }
 
         // Orbit selector buttons
@@ -303,6 +409,39 @@ class TudatTestRunner {
         // Orbit determination dynamics model toggle
         document.getElementById('od-fullforce').addEventListener('click', () => this.selectODModel('fullforce'));
         document.getElementById('od-omm').addEventListener('click', () => this.selectODModel('omm'));
+
+        // Handle browser back/forward navigation
+        window.addEventListener('popstate', () => this.handleUrlChange());
+    }
+
+    handleUrlChange() {
+        const vizName = this.getVisualizationFromUrl();
+        if (vizName && vizName !== this.currentVisualization) {
+            const container = document.getElementById('viz-category-list');
+            const vizItems = container.querySelectorAll('.viz-category');
+
+            // Find and select the matching visualization item
+            vizItems.forEach(item => {
+                const nameEl = item.querySelector('.category-name');
+                if (nameEl && nameEl.textContent === vizName) {
+                    // Remove selected from others
+                    container.querySelectorAll('.viz-category').forEach(el => el.classList.remove('selected'));
+                    item.classList.add('selected');
+                    // Trigger the visualization (but don't update URL again)
+                    this.currentVisualization = vizName;
+                    document.getElementById('orbit-info').textContent = `${vizName}: ${vizName}`;
+                    this.clearOrbitEntities();
+                    const vizConfig = visualizationRegistry[vizName];
+                    if (vizConfig?.chartOnly) {
+                        this.showChartOnlyVisualization(vizName, vizName);
+                    } else {
+                        this.restoreGlobeLayout();
+                        this.show3DVisualization(vizName, vizName);
+                        this.showChartForCategory(vizName, vizName);
+                    }
+                }
+            });
+        }
     }
 
     selectODModel(model) {
@@ -593,8 +732,8 @@ class TudatTestRunner {
             this.log('WASM Worker ready', 'pass');
             this.log('System ready. Click EXECUTE to run tests (runs in background).', 'info');
 
-            // Also load main thread WASM for visualizations (non-blocking)
-            this.loadVisualizationWasm();
+            // Also load main thread WASM for visualizations (store promise for later await)
+            this.visualizationWasmPromise = this.loadVisualizationWasm();
 
             // Auto-select default visualization
             this.selectDefaultVisualization();
@@ -691,24 +830,43 @@ class TudatTestRunner {
 
     // Load WASM on main thread for visualizations only (non-blocking)
     async loadVisualizationWasm() {
-        const self = this;
         try {
-            window.Module = {
+            this.log('Loading main-thread WASM module...', 'info');
+
+            // Check if module already exists from previous load
+            if (this.wasmModule && this.wasmModule.FS) {
+                this.log('WASM module already loaded, reusing...', 'info');
+                return;
+            }
+
+            // Load the script which defines createTudatModule
+            await this.loadScript('tudat_wasm_test.js');
+            this.log('WASM script loaded, initializing runtime...', 'info');
+
+            // The module is built with MODULARIZE=1, so we call the factory function
+            if (typeof createTudatModule !== 'function') {
+                throw new Error('createTudatModule not found - module may not be built correctly');
+            }
+
+            // Initialize the module with our configuration
+            this.wasmModule = await createTudatModule({
                 print: function(text) {
                     // Silent - visualizations don't need console output
                 },
                 printErr: function(text) {
                     console.error('Viz WASM:', text);
-                },
-                onRuntimeInitialized: function() {
-                    self.wasmModule = Module;
                 }
-            };
-            await this.loadScript('tudat_wasm_test.js');
-            await this.waitForModule();
-            this.wasmModule = Module;
+            });
+
+            // Also store on window for backward compatibility
+            window.Module = this.wasmModule;
+
+            this.log('Main-thread WASM runtime ready', 'pass');
         } catch (error) {
+            this.log(`Visualization WASM load failed: ${error.message}`, 'error');
             console.warn('Visualization WASM load failed:', error);
+            // Re-throw so loadTudatModule can handle the failure
+            throw error;
         }
     }
 
@@ -735,23 +893,37 @@ class TudatTestRunner {
     }
 
     waitForModule() {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
+            const maxAttempts = 200; // 10 seconds at 50ms intervals
+            let attempts = 0;
+
             const check = () => {
-                if (typeof Module !== 'undefined' && Module.calledRun) {
-                    resolve();
-                } else if (typeof Module !== 'undefined') {
-                    if (Module.onRuntimeInitialized) {
-                        const original = Module.onRuntimeInitialized;
-                        Module.onRuntimeInitialized = () => {
-                            original();
-                            resolve();
-                        };
-                    } else {
-                        Module.onRuntimeInitialized = resolve;
-                    }
-                } else {
-                    setTimeout(check, 50);
+                attempts++;
+
+                // Log status every 20 attempts (1 second)
+                if (attempts % 20 === 0) {
+                    const moduleExists = typeof window.Module !== 'undefined';
+                    const hasFS = moduleExists && window.Module.FS;
+                    const hasMkdir = hasFS && typeof window.Module.FS.mkdir === 'function';
+                    console.log(`waitForModule attempt ${attempts}: Module=${moduleExists}, FS=${!!hasFS}, mkdir=${hasMkdir}`);
                 }
+
+                // Check if module is fully ready - FS.mkdir being a function is a reliable indicator
+                if (typeof window.Module !== 'undefined' && window.Module.FS && typeof window.Module.FS.mkdir === 'function') {
+                    this.log(`WASM module ready after ${attempts} attempts`, 'info');
+                    resolve();
+                    return;
+                }
+
+                if (attempts >= maxAttempts) {
+                    const moduleExists = typeof window.Module !== 'undefined';
+                    const hasFS = moduleExists && window.Module.FS;
+                    reject(new Error(`Timeout waiting for WASM module (Module=${moduleExists}, FS=${!!hasFS})`));
+                    return;
+                }
+
+                // Keep polling
+                setTimeout(check, 50);
             };
             check();
         });
@@ -759,8 +931,7 @@ class TudatTestRunner {
 
     /**
      * Load the full tudatpy WASM module with SPICE support
-     * This is separate from the test runner module and provides
-     * access to ephemeris queries via SPICE kernels.
+     * Reuses the tudat_wasm_test.js module which contains SPICE functions.
      */
     async loadTudatModule() {
         if (this.tudatModule) {
@@ -769,31 +940,39 @@ class TudatTestRunner {
 
         try {
             this.log('Loading tudatpy WASM module...', 'info');
+            this.log(`visualizationWasmPromise exists: ${!!this.visualizationWasmPromise}`, 'info');
 
-            // Load the script if not already loaded (UMD module sets global createTudatModule)
-            if (typeof window.createTudatModule === 'undefined') {
-                await new Promise((resolve, reject) => {
-                    const script = document.createElement('script');
-                    script.src = './tudatpy_wasm.js';
-                    script.onload = resolve;
-                    script.onerror = () => reject(new Error('Failed to load tudatpy_wasm.js'));
-                    document.head.appendChild(script);
-                });
+            // Wait for the main-thread WASM module to be fully loaded
+            // loadVisualizationWasm() loads tudat_wasm_test.js on the main thread
+            if (this.visualizationWasmPromise) {
+                this.log('Awaiting visualizationWasmPromise...', 'info');
+                try {
+                    await this.visualizationWasmPromise;
+                    this.log('visualizationWasmPromise resolved', 'info');
+                } catch (wasmError) {
+                    this.log(`Visualization WASM failed to load: ${wasmError.message}`, 'warning');
+                    // Continue - wasmModule may still have been set via onRuntimeInitialized callback
+                }
+            } else {
+                this.log('No visualizationWasmPromise - loading WASM directly', 'warning');
+                await this.loadVisualizationWasm();
             }
 
-            // Create the module with filesystem pre-setup
-            this.tudatModule = await window.createTudatModule({
-                print: (text) => console.log('[Tudat]', text),
-                printErr: (text) => console.error('[Tudat Error]', text),
-                preRun: [(Module) => {
-                    // Create directories for SPICE kernels
-                    try {
-                        Module.FS.mkdir('/spice_kernels');
-                    } catch (e) {
-                        // Directory may already exist
-                    }
-                }]
-            });
+            this.log(`wasmModule exists: ${!!this.wasmModule}, has FS: ${!!(this.wasmModule && this.wasmModule.FS)}`, 'info');
+
+            if (!this.wasmModule || !this.wasmModule.FS) {
+                throw new Error('WASM module FS not available - main thread module not loaded');
+            }
+
+            // Reuse the already-loaded module which has SPICE support
+            this.tudatModule = this.wasmModule;
+
+            // Ensure SPICE kernel directory exists
+            try {
+                this.tudatModule.FS.mkdir('/spice_kernels');
+            } catch (e) {
+                // Directory may already exist
+            }
 
             this.log('Tudatpy WASM module loaded', 'success');
 
@@ -1243,6 +1422,9 @@ class TudatTestRunner {
     // ==================== Visualization System ====================
 
     visualizeTest(testName, category) {
+        // Update URL with current visualization
+        this.updateUrlWithVisualization(category);
+
         // Update info display
         document.getElementById('orbit-info').textContent = `${category}: ${testName}`;
 

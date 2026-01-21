@@ -16,6 +16,10 @@
 #include "tudat/paths.hpp"
 
 #include <math.h>
+#include <fstream>
+#include <vector>
+#include <algorithm>
+#include <cstring>
 
 namespace tudat
 {
@@ -620,6 +624,107 @@ void loadSpiceKernelInTudat( const std::string &fileName )
 {
     setSpiceErrorHandling( );
 
+#ifdef __EMSCRIPTEN__
+    // In WASM, furnsh_c crashes due to f2c FORTRAN I/O issues.
+    // For text kernels (.tls, .tpc, .tf), use lmpool_c which loads from memory.
+    // Binary kernels (.bsp, .bpc) are not supported in WASM.
+
+    // Check file extension to determine kernel type
+    std::string extension = "";
+    size_t dotPos = fileName.rfind('.');
+    if (dotPos != std::string::npos) {
+        extension = fileName.substr(dotPos);
+        // Convert to lowercase for comparison
+        for (auto& c : extension) {
+            c = std::tolower(c);
+        }
+    }
+
+    // Text kernel extensions that can be loaded via lmpool_c
+    bool isTextKernel = (extension == ".tls" || extension == ".tpc" ||
+                         extension == ".tf" || extension == ".ti" ||
+                         extension == ".tsc" || extension == ".mk");
+
+    if (isTextKernel) {
+        // Read file contents
+        std::ifstream file(fileName);
+        if (!file.is_open()) {
+            throw std::runtime_error("SPICE WASM: Cannot open kernel file: " + fileName);
+        }
+
+        // Read all lines and extract only data sections
+        // SPICE text kernels have \begindata and \begintext markers
+        // lmpool_c only accepts lines between \begindata and \begintext
+        std::vector<std::string> dataLines;
+        std::string line;
+        bool inDataSection = false;
+        size_t maxLen = 0;
+
+        while (std::getline(file, line)) {
+            // Strip \r from Windows line endings (CRLF -> LF)
+            if (!line.empty() && line.back() == '\r') {
+                line.pop_back();
+            }
+
+            // Check for section markers (case-insensitive, may have leading whitespace)
+            std::string trimmedLine = line;
+            // Trim leading whitespace
+            size_t start = trimmedLine.find_first_not_of(" \t\r");
+            if (start != std::string::npos) {
+                trimmedLine = trimmedLine.substr(start);
+            } else {
+                trimmedLine = "";
+            }
+
+            if (trimmedLine.find("\\begindata") != std::string::npos) {
+                inDataSection = true;
+                continue;  // Skip the marker line itself
+            } else if (trimmedLine.find("\\begintext") != std::string::npos) {
+                inDataSection = false;
+                continue;  // Skip the marker line itself
+            }
+
+            if (inDataSection) {
+                // Skip empty lines (after stripping whitespace and \r)
+                size_t lineStart = line.find_first_not_of(" \t\r");
+                if (lineStart == std::string::npos) {
+                    continue;  // Empty or whitespace-only line
+                }
+                dataLines.push_back(line);
+                if (line.length() > maxLen) {
+                    maxLen = line.length();
+                }
+            }
+        }
+        file.close();
+
+        if (dataLines.empty()) {
+            // No data section found - this might be a meta-kernel or invalid file
+            throw std::runtime_error("SPICE WASM: No data section found in kernel file: " + fileName);
+        }
+
+        // Create fixed-width character array for lmpool_c
+        // Each string needs maxLen+1 for null terminator
+        size_t strLen = maxLen + 1;
+        std::vector<char> buffer(dataLines.size() * strLen, '\0');
+
+        for (size_t i = 0; i < dataLines.size(); ++i) {
+            std::strncpy(&buffer[i * strLen], dataLines[i].c_str(), strLen - 1);
+        }
+
+        // Load into kernel pool
+        lmpool_c(buffer.data(), static_cast<SpiceInt>(strLen), static_cast<SpiceInt>(dataLines.size()));
+
+        if (failed_c()) {
+            handleSpiceException();
+        }
+    } else {
+        // Binary kernels - throw informative error
+        throw std::runtime_error("SPICE WASM: Binary kernels (" + extension +
+            ") are not supported in browser. File: " + fileName +
+            ". Only text kernels (.tls, .tpc, .tf, .ti, .tsc, .mk) can be loaded.");
+    }
+#else
     setSpiceErrorHandling( );
 
     furnsh_c( fileName.c_str( ) );
@@ -628,6 +733,7 @@ void loadSpiceKernelInTudat( const std::string &fileName )
     {
         handleSpiceException( );
     }
+#endif
 }
 
 //! Get the amount of loaded Spice kernels.

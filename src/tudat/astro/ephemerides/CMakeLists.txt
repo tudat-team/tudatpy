@@ -31,6 +31,11 @@ set(ephemerides_SOURCES
         "directionBasedRotationalEphemeris.cpp"
         )
 
+# Add CALCEPH ephemeris for WASM builds (direct binary SPK reading)
+if(TUDAT_BUILD_WITH_CALCEPH)
+    list(APPEND ephemerides_SOURCES "calcephEphemeris.cpp")
+endif()
+
 # Set the header files.
 set(ephemerides_HEADERS
         "approximatePlanetPositionsBase.h"
@@ -59,6 +64,11 @@ set(ephemerides_HEADERS
         "aeordynamicAngleRotationalEphemeris.h"
         "directionBasedRotationalEphemeris.h"
         )
+
+# Add CALCEPH ephemeris header for WASM builds
+if(TUDAT_BUILD_WITH_CALCEPH)
+    list(APPEND ephemerides_HEADERS "calcephEphemeris.h")
+endif()
 
 TUDAT_ADD_LIBRARY("ephemerides"
         "${ephemerides_SOURCES}"

@@ -22,6 +22,11 @@ export class SpiceKernelLoader {
 
         // Standard kernel URLs - these can be hosted locally or fetched from NAIF
         // For local development, copy kernels to tests/wasm/web/data/spice/
+        //
+        // NOTE: In WASM/browser, only TEXT kernels (.tls, .tpc, .tf, .ti, .tsc, .mk)
+        // can be loaded. Binary kernels (.bsp, .bpc) are NOT supported due to
+        // FORTRAN I/O limitations in the f2c-compiled CSPICE library.
+        // For planetary ephemerides, use analytical models or tabulated ephemeris instead.
         this.standardKernels = {
             // Leap seconds kernel (required for time conversions)
             leapSeconds: {
@@ -37,19 +42,14 @@ export class SpiceKernelLoader {
                 naifUrl: 'https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00010.tpc',
                 size: 71311
             },
-            // DE430 ephemeris (small version for common date range)
-            de430Small: {
-                name: 'de430_mar097_small.bsp',
-                localPath: './data/spice/de430_mar097_small.bsp',
-                // This is a reduced-size version of DE430 (~12MB)
-                size: 12276736
-            },
             // Frame kernel for rotating frames
             frameKernel: {
                 name: 'moon_assoc_pa.tf',
                 localPath: './data/spice/moon_assoc_pa.tf',
                 size: 8749
             }
+            // NOTE: Binary SPK ephemeris (de430_mar097_small.bsp) removed - not supported in WASM
+            // Use analytical ephemeris or tabulated data for planetary positions instead
         };
 
         // Ensure kernel directory exists in virtual FS
@@ -77,11 +77,27 @@ export class SpiceKernelLoader {
     }
 
     /**
+     * Check if a kernel file is a binary format (not supported in WASM)
+     */
+    _isBinaryKernel(filename) {
+        const ext = filename.toLowerCase().split('.').pop();
+        // Binary SPICE kernel extensions
+        return ['bsp', 'bpc', 'bds', 'bes', 'bss'].includes(ext);
+    }
+
+    /**
      * Fetch a kernel file and mount it to the virtual filesystem
      */
     async loadKernel(kernelConfig, options = {}) {
         const { name, localPath, naifUrl } = kernelConfig;
         const { forceReload = false, preferLocal = true } = options;
+
+        // Check if this is a binary kernel (not supported in WASM)
+        if (this._isBinaryKernel(name)) {
+            console.warn(`[SPICE] Skipping binary kernel ${name} - binary SPK/PCK files are not supported in WASM/browser.`);
+            console.warn(`[SPICE] Use analytical ephemeris or tabulated data for planetary positions instead.`);
+            return false;
+        }
 
         // Check if already loaded
         if (this.loadedKernels.has(name) && !forceReload) {

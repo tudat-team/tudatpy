@@ -377,8 +377,27 @@ class TudatTestRunner {
 
         // Search input with fuzzy matching
         const searchInput = document.getElementById('viz-search');
+        const searchClear = document.getElementById('viz-search-clear');
         if (searchInput) {
-            searchInput.addEventListener('input', (e) => this.filterVisualizations(e.target.value));
+            searchInput.addEventListener('input', (e) => {
+                this.filterVisualizations(e.target.value);
+                // Toggle clear button visibility
+                if (searchClear) {
+                    searchClear.classList.toggle('visible', e.target.value.length > 0);
+                    searchInput.classList.toggle('has-text', e.target.value.length > 0);
+                }
+            });
+        }
+        if (searchClear) {
+            searchClear.addEventListener('click', () => {
+                if (searchInput) {
+                    searchInput.value = '';
+                    searchInput.classList.remove('has-text');
+                    this.filterVisualizations('');
+                    searchInput.focus();
+                }
+                searchClear.classList.remove('visible');
+            });
         }
 
         // Orbit selector buttons

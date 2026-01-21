@@ -1225,10 +1225,16 @@ val runOrbitDetermination(
         Eigen::VectorXd dx = HtH.ldlt().solve(Htr);
 
         // Limit step size for stability
-        double maxStep = 1000.0;  // meters for position, m/s for velocity
-        for (int j = 0; j < 6; j++) {
-            if (std::abs(dx(j)) > maxStep) {
-                dx(j) = maxStep * (dx(j) > 0 ? 1.0 : -1.0);
+        for (int j = 0; j < 3; j++) {
+            double maxPosStep = 5000.0;  // 5 km max position step
+            if (std::abs(dx(j)) > maxPosStep) {
+                dx(j) = maxPosStep * (dx(j) > 0 ? 1.0 : -1.0);
+            }
+        }
+        for (int j = 3; j < 6; j++) {
+            double maxVelStep = 5.0;  // 5 m/s max velocity step
+            if (std::abs(dx(j)) > maxVelStep) {
+                dx(j) = maxVelStep * (dx(j) > 0 ? 1.0 : -1.0);
             }
         }
 
