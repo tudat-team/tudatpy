@@ -2628,7 +2628,8 @@ public:
                         downlinkOneWayDopplerSettings->normalizeWithSpeedOfLight_ = false;
                     }
                     std::shared_ptr< ObservationModelSettings > twoWaySettings = std::make_shared< TwoWayDopplerObservationModelSettings >(
-                            uplinkOneWayDopplerSettings, downlinkOneWayDopplerSettings, two_way_doppler );
+                            uplinkOneWayDopplerSettings, downlinkOneWayDopplerSettings, two_way_doppler,
+                            observationSettings->biasSettings_ );
 
                     twoWayDopplerModel = std::dynamic_pointer_cast< TwoWayDopplerObservationModel< ObservationScalarType, TimeType > >(
                             ObservationModelCreator< 1, ObservationScalarType, TimeType >::createObservationModel( twoWaySettings,
