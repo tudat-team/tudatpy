@@ -410,11 +410,6 @@ class TudatTestRunner {
         document.getElementById('od-fullforce').addEventListener('click', () => this.selectODModel('fullforce'));
         document.getElementById('od-omm').addEventListener('click', () => this.selectODModel('omm'));
 
-        // Orbit determination residual visualization toggle
-        document.getElementById('od-residual-truth').addEventListener('click', () => this.setResidualMode('truth'));
-        document.getElementById('od-residual-estimated').addEventListener('click', () => this.setResidualMode('estimated'));
-        document.getElementById('od-residual-none').addEventListener('click', () => this.setResidualMode('none'));
-
         // Handle browser back/forward navigation
         window.addEventListener('popstate', () => this.handleUrlChange());
     }
@@ -533,7 +528,7 @@ class TudatTestRunner {
             baseLayerPicker: false,
             fullscreenButton: false,
             geocoder: false,
-            homeButton: false,
+            homeButton: true,
             infoBox: true,
             sceneModePicker: false,
             selectionIndicator: true,
@@ -579,18 +574,6 @@ class TudatTestRunner {
         this.nightLightsLayer.contrast = 1.2;
         this.nightLightsLayer.gamma = 0.6;
         this.nightLightsLayer.saturation = 1.2;
-
-        // Set initial camera view - Earth centered
-        this.viewer.camera.lookAt(
-            Cesium.Cartesian3.ZERO,  // Look at Earth center
-            new Cesium.HeadingPitchRange(
-                0,                              // heading (0 = north)
-                Cesium.Math.toRadians(-60),     // pitch (-90 = straight down, -60 = 30° tilt)
-                45000000                        // distance from center (45,000 km) - more zoomed out
-            )
-        );
-        // Unlock camera so user can rotate
-        this.viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
 
         // Handle resize
         window.addEventListener('resize', () => {
@@ -2916,9 +2899,9 @@ class TudatTestRunner {
         };
 
         const period = 5400;
-        const duration = period * 2;
-        const numObservations = 50;
-        const numOrbitSamples = 500;  // High resolution for smooth rendering
+        const duration = period;
+        const numObservations = 9;
+        const numOrbitSamples = 10000;  // High resolution for smooth rendering at close range
         const noiseStdDev = 100;
         const maxIterations = 20;
 
@@ -3019,30 +3002,31 @@ class TudatTestRunner {
                 z: result[offset + i * 3 + 2]
             });
         }
+        offset += numSamples * 3;
 
-        // Truth trajectory (white dashed line)
-        const truthPositions = truthTrajectory.map(p => new Cesium.Cartesian3(p.x, p.y, p.z));
-        const truthOrbit = this.viewer.entities.add({
-            name: 'Truth Trajectory',
-            polyline: {
-                positions: truthPositions,
-                width: 2,
-                material: new Cesium.PolylineDashMaterialProperty({
-                    color: Cesium.Color.WHITE,
-                    dashLength: 16
-                })
+        // Extract position covariance matrix (3x3, row-major)
+        const covMatrix = [];
+        for (let i = 0; i < 3; i++) {
+            covMatrix.push([]);
+            for (let j = 0; j < 3; j++) {
+                covMatrix[i].push(result[offset++]);
             }
-        });
-        this.orbitEntities.push(truthOrbit);
+        }
 
-        // Observations as points (yellow) with residual lines
-        const residualEntities = [];
+        // Compute eigenvalues and eigenvectors for the covariance ellipsoid
+        // Using a simple power iteration / Jacobi method for 3x3 symmetric matrix
+        const ellipsoidAxes = this.computeCovarianceEllipsoid(covMatrix);
+        this.log(`Covariance ellipsoid semi-axes: ${ellipsoidAxes.radii.map(r => r.toFixed(1)).join(', ')} m`, 'info');
+
+
+        // Observations as points (yellow) - also track max residual for observation bounding sphere
+        let maxEstResidual = 0;
         for (let i = 0; i < numObs; i++) {
             const obs = observations[i];
             const truth = truthAtObsTimes[i];
             const est = estAtObsTimes[i];
 
-            // Calculate residual magnitudes
+            // Calculate residual magnitudes for tooltip
             const truthResidual = Math.sqrt(
                 Math.pow(obs.x - truth.x, 2) +
                 Math.pow(obs.y - truth.y, 2) +
@@ -3053,69 +3037,23 @@ class TudatTestRunner {
                 Math.pow(obs.y - est.y, 2) +
                 Math.pow(obs.z - est.z, 2)
             );
+            maxEstResidual = Math.max(maxEstResidual, estResidual);
 
-            // Observation point
+            // Observation point (in orbit)
             const obsEntity = this.viewer.entities.add({
                 name: `Observation ${i + 1}`,
                 description: `Truth residual: ${truthResidual.toFixed(1)} m\nEstimated residual: ${estResidual.toFixed(1)} m`,
+                allowPicking: false,
                 position: new Cesium.Cartesian3(obs.x, obs.y, obs.z),
                 point: {
-                    pixelSize: 6,
+                    pixelSize: 10,
                     color: Cesium.Color.YELLOW,
                     outlineColor: Cesium.Color.BLACK,
                     outlineWidth: 1
                 }
             });
             this.orbitEntities.push(obsEntity);
-
-            // Residual line: Observation -> Truth (cyan, shows measurement noise)
-            const truthResidualLine = this.viewer.entities.add({
-                name: `Truth Residual ${i + 1}`,
-                polyline: {
-                    positions: [
-                        new Cesium.Cartesian3(obs.x, obs.y, obs.z),
-                        new Cesium.Cartesian3(truth.x, truth.y, truth.z)
-                    ],
-                    width: 1,
-                    material: Cesium.Color.CYAN.withAlpha(0.6)
-                },
-                show: true
-            });
-            this.orbitEntities.push(truthResidualLine);
-            residualEntities.push({ type: 'truth', entity: truthResidualLine });
-
-            // Residual line: Observation -> Estimated (magenta, shows fit quality)
-            const estResidualLine = this.viewer.entities.add({
-                name: `Est Residual ${i + 1}`,
-                polyline: {
-                    positions: [
-                        new Cesium.Cartesian3(obs.x, obs.y, obs.z),
-                        new Cesium.Cartesian3(est.x, est.y, est.z)
-                    ],
-                    width: 1,
-                    material: Cesium.Color.MAGENTA.withAlpha(0.6)
-                },
-                show: false  // Hidden by default
-            });
-            this.orbitEntities.push(estResidualLine);
-            residualEntities.push({ type: 'estimated', entity: estResidualLine });
         }
-
-        // Store residual entities for toggle
-        this.odResidualEntities = residualEntities;
-        this.odResidualMode = 'truth';  // 'truth', 'estimated', or 'none'
-
-        // Estimated orbit as thin white solid line
-        const estimatedPositions = estimatedTrajectory.map(p => new Cesium.Cartesian3(p.x, p.y, p.z));
-        const estimatedOrbit = this.viewer.entities.add({
-            name: 'Estimated Orbit',
-            polyline: {
-                positions: estimatedPositions,
-                width: 1,
-                material: Cesium.Color.WHITE.withAlpha(0.8)
-            }
-        });
-        this.orbitEntities.push(estimatedOrbit);
 
         // Create animated satellite following estimated trajectory
         const satelliteColor = dynamicsModel === 'omm' ? Cesium.Color.CYAN : Cesium.Color.LIME;
@@ -3136,10 +3074,10 @@ class TudatTestRunner {
             estimatedSampledPosition.addSample(sampleTime, new Cesium.Cartesian3(pos.x, pos.y, pos.z));
         }
 
-        // Animated satellite entity
+        // Animated satellite entity with forward-only path (2 revolutions)
         const satellite = this.viewer.entities.add({
             name: dynamicsModel === 'omm' ? 'OMM Estimated' : 'Full Force Estimated',
-            description: `Estimated orbit from ${dynamicsModel.toUpperCase()} dynamics\nConverged in ${iterations.length} iterations\nFinal RMS: ${iterations[iterations.length - 1].rms.toFixed(1)} m`,
+            description: `Estimated orbit from ${dynamicsModel.toUpperCase()} dynamics\nConverged in ${iterations.length} iterations\nFinal RMS: ${iterations[iterations.length - 1].rms.toFixed(1)} m\n\n1-sigma uncertainty: ${ellipsoidAxes.radii.map(r => r.toFixed(1)).join(' x ')} m`,
             position: estimatedSampledPosition,
             orientation: new Cesium.VelocityOrientationProperty(estimatedSampledPosition),
             point: {
@@ -3150,13 +3088,10 @@ class TudatTestRunner {
             },
             path: {
                 show: true,
-                leadTime: 0,
-                trailTime: period * 0.3,
+                leadTime: period,   // Show 1 revolution forward
+                trailTime: period,  // Show 1 revolution behind
                 width: 2,
-                material: new Cesium.PolylineGlowMaterialProperty({
-                    glowPower: 0.3,
-                    color: satelliteColor
-                })
+                material: Cesium.Color.LIME
             },
             label: {
                 text: dynamicsModel === 'omm' ? 'OMM' : 'Full Force',
@@ -3167,17 +3102,61 @@ class TudatTestRunner {
         });
         this.orbitEntities.push(satellite);
 
+        // Covariance ellipsoid - shows position uncertainty
+        // Scale up for visibility (multiply by 3 for ~99.7% confidence / 3-sigma)
+        const sigmaScale = 3.0;
+
+        // The covariance eigenvalues give the uncertainty in principal axes
+        // Map them to RTN frame: largest uncertainty is typically along-track (velocity direction)
+        // Sort radii: largest -> along-track (X in velocity frame), then cross-track (Y), then radial (Z)
+        const sortedRadii = [...ellipsoidAxes.radii].sort((a, b) => b - a);
+        const ellipsoidRadii = new Cesium.Cartesian3(
+            sortedRadii[0] * sigmaScale,  // Along-track (largest)
+            sortedRadii[1] * sigmaScale,  // Cross-track
+            sortedRadii[2] * sigmaScale   // Radial (smallest)
+        );
+
+        // Covariance ellipsoid - oriented along velocity
+        const covarianceEllipsoid = this.viewer.entities.add({
+            name: 'Position Uncertainty (3-sigma)',
+            allowPicking: false,
+            position: estimatedSampledPosition,
+            orientation: new Cesium.VelocityOrientationProperty(estimatedSampledPosition),
+            ellipsoid: {
+                radii: ellipsoidRadii,
+                material: Cesium.Color.CYAN.withAlpha(0.2),
+                outline: true,
+                outlineColor: Cesium.Color.CYAN.withAlpha(0.6),
+                outlineWidth: 1,
+                slicePartitions: 24,
+                stackPartitions: 24
+            }
+        });
+        this.orbitEntities.push(covarianceEllipsoid);
+
+        // Observation bounding sphere - scaled to contain all observations
+        // Add 10% margin to ensure all obs are inside
+        const obsBoundingRadius = maxEstResidual * 1.1;
+        const observationSphere = this.viewer.entities.add({
+            name: 'Observation Scatter',
+            allowPicking: false,
+            position: estimatedSampledPosition,
+            orientation: new Cesium.VelocityOrientationProperty(estimatedSampledPosition),
+            ellipsoid: {
+                radii: new Cesium.Cartesian3(obsBoundingRadius, obsBoundingRadius, obsBoundingRadius),
+                material: Cesium.Color.YELLOW.withAlpha(0.1),
+                outline: true,
+                outlineColor: Cesium.Color.YELLOW.withAlpha(0.4),
+                outlineWidth: 1,
+                slicePartitions: 24,
+                stackPartitions: 24
+            }
+        });
+        this.orbitEntities.push(observationSphere);
+        this.log(`Observation bounding radius: ${obsBoundingRadius.toFixed(1)} m (max residual: ${maxEstResidual.toFixed(1)} m)`, 'info');
+
         // Configure clock and camera
         this.configureClockForOrbit(duration, null, period / 20);
-        this.viewer.camera.flyTo({
-            destination: Cesium.Cartesian3.fromDegrees(0, 0, 25000000),
-            orientation: {
-                heading: 0,
-                pitch: Cesium.Math.toRadians(-90),
-                roll: 0
-            },
-            duration: 1.0
-        });
 
         // Store data and create residuals chart
         this.odData = {
@@ -3187,6 +3166,213 @@ class TudatTestRunner {
             dynamicsModel: dynamicsModel
         };
         this.createOrbitDeterminationChart();
+
+        // Store satellite entity and observation positions for camera tracking
+        this.odSatellite = satellite;
+        this.odObservations = observations;
+
+        // Fly to home view after OD visualization loads
+        this.viewer.camera.flyHome(1.0);
+
+        // Enable camera tracking when satellite is clicked - deselect anything else
+        this.viewer.selectedEntityChanged.addEventListener((entity) => {
+            if (entity === this.odSatellite) {
+                this.viewer.trackedEntity = entity;
+                this.startCameraTracking();
+            } else if (entity !== undefined) {
+                // Deselect anything that's not the satellite
+                this.viewer.selectedEntity = undefined;
+            }
+        });
+
+        // Show info panel with instructions
+        this.log('Click on satellite to track and show camera info', 'info');
+    }
+
+    startCameraTracking() {
+        // Show the camera info panel
+        const infoPanel = document.getElementById('camera-info-panel');
+        if (infoPanel) {
+            infoPanel.style.display = 'block';
+        }
+
+        // Remove any existing tracking listener
+        if (this.cameraTrackingListener) {
+            this.viewer.clock.onTick.removeEventListener(this.cameraTrackingListener);
+        }
+
+        // Add listener to update camera distance on each tick
+        this.cameraTrackingListener = () => {
+            this.updateCameraInfo();
+        };
+        this.viewer.clock.onTick.addEventListener(this.cameraTrackingListener);
+    }
+
+    stopCameraTracking() {
+        // Hide the camera info panel
+        const infoPanel = document.getElementById('camera-info-panel');
+        if (infoPanel) {
+            infoPanel.style.display = 'none';
+        }
+
+        // Remove tracking listener
+        if (this.cameraTrackingListener) {
+            this.viewer.clock.onTick.removeEventListener(this.cameraTrackingListener);
+            this.cameraTrackingListener = null;
+        }
+    }
+
+    updateCameraInfo() {
+        if (!this.viewer || !this.odSatellite) return;
+
+        const trackedEntity = this.viewer.trackedEntity;
+        if (!trackedEntity) {
+            this.stopCameraTracking();
+            return;
+        }
+
+        // Get satellite current position
+        const currentTime = this.viewer.clock.currentTime;
+        const satPosition = trackedEntity.position.getValue(currentTime);
+        if (!satPosition) return;
+
+        // Compute camera distance to satellite
+        const cameraPosition = this.viewer.camera.positionWC;
+        const distance = Cesium.Cartesian3.distance(cameraPosition, satPosition);
+
+        // Update distance display
+        const distanceEl = document.getElementById('camera-distance');
+        if (distanceEl) {
+            if (distance >= 1000000) {
+                distanceEl.textContent = (distance / 1000000).toFixed(2) + ' Mm';
+            } else if (distance >= 1000) {
+                distanceEl.textContent = (distance / 1000).toFixed(2) + ' km';
+            } else {
+                distanceEl.textContent = distance.toFixed(0) + ' m';
+            }
+        }
+
+        // Find nearest observation
+        if (this.odObservations && this.odObservations.length > 0) {
+            let nearestDist = Infinity;
+            let nearestIdx = -1;
+
+            for (let i = 0; i < this.odObservations.length; i++) {
+                const obs = this.odObservations[i];
+                const obsPos = new Cesium.Cartesian3(obs.x, obs.y, obs.z);
+                const dist = Cesium.Cartesian3.distance(satPosition, obsPos);
+                if (dist < nearestDist) {
+                    nearestDist = dist;
+                    nearestIdx = i;
+                }
+            }
+
+            const nearestObsRow = document.getElementById('nearest-obs-row');
+            const nearestObsEl = document.getElementById('nearest-obs-dist');
+
+            if (nearestDist < 1000000) {  // Within 1000 km
+                if (nearestObsRow) nearestObsRow.style.display = 'flex';
+                if (nearestObsEl) {
+                    if (nearestDist >= 1000) {
+                        nearestObsEl.textContent = `#${nearestIdx + 1}: ${(nearestDist / 1000).toFixed(1)} km`;
+                    } else {
+                        nearestObsEl.textContent = `#${nearestIdx + 1}: ${nearestDist.toFixed(0)} m`;
+                    }
+                }
+            } else {
+                if (nearestObsRow) nearestObsRow.style.display = 'none';
+            }
+        }
+    }
+
+    // Compute eigenvalues and eigenvectors of a 3x3 symmetric covariance matrix
+    // Returns { radii: [sqrt(eigenvalue1), ...], vectors: [[v1x,v1y,v1z], ...] }
+    // Uses Jacobi eigenvalue algorithm for symmetric matrices
+    computeCovarianceEllipsoid(cov) {
+        // Copy matrix (will be modified)
+        const A = [
+            [cov[0][0], cov[0][1], cov[0][2]],
+            [cov[1][0], cov[1][1], cov[1][2]],
+            [cov[2][0], cov[2][1], cov[2][2]]
+        ];
+
+        // Initialize eigenvectors as identity matrix
+        const V = [
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1]
+        ];
+
+        // Jacobi iteration
+        const maxIter = 50;
+        const tolerance = 1e-12;
+
+        for (let iter = 0; iter < maxIter; iter++) {
+            // Find largest off-diagonal element
+            let maxVal = 0;
+            let p = 0, q = 1;
+            for (let i = 0; i < 3; i++) {
+                for (let j = i + 1; j < 3; j++) {
+                    if (Math.abs(A[i][j]) > maxVal) {
+                        maxVal = Math.abs(A[i][j]);
+                        p = i;
+                        q = j;
+                    }
+                }
+            }
+
+            if (maxVal < tolerance) break;
+
+            // Compute rotation angle
+            const theta = (A[q][q] - A[p][p]) / (2 * A[p][q]);
+            const t = (theta >= 0 ? 1 : -1) / (Math.abs(theta) + Math.sqrt(theta * theta + 1));
+            const c = 1 / Math.sqrt(t * t + 1);
+            const s = t * c;
+
+            // Apply rotation to A
+            const App = A[p][p];
+            const Aqq = A[q][q];
+            const Apq = A[p][q];
+
+            A[p][p] = c * c * App - 2 * s * c * Apq + s * s * Aqq;
+            A[q][q] = s * s * App + 2 * s * c * Apq + c * c * Aqq;
+            A[p][q] = A[q][p] = 0;
+
+            for (let k = 0; k < 3; k++) {
+                if (k !== p && k !== q) {
+                    const Akp = A[k][p];
+                    const Akq = A[k][q];
+                    A[k][p] = A[p][k] = c * Akp - s * Akq;
+                    A[k][q] = A[q][k] = s * Akp + c * Akq;
+                }
+            }
+
+            // Apply rotation to eigenvectors
+            for (let k = 0; k < 3; k++) {
+                const Vkp = V[k][p];
+                const Vkq = V[k][q];
+                V[k][p] = c * Vkp - s * Vkq;
+                V[k][q] = s * Vkp + c * Vkq;
+            }
+        }
+
+        // Extract eigenvalues (diagonal of A) and compute radii
+        const eigenvalues = [A[0][0], A[1][1], A[2][2]];
+        const radii = eigenvalues.map(ev => Math.sqrt(Math.max(ev, 0)));
+
+        // Extract eigenvectors (columns of V)
+        const vectors = [
+            [V[0][0], V[1][0], V[2][0]],
+            [V[0][1], V[1][1], V[2][1]],
+            [V[0][2], V[1][2], V[2][2]]
+        ];
+
+        // Sort by eigenvalue (largest first)
+        const indices = [0, 1, 2].sort((a, b) => eigenvalues[b] - eigenvalues[a]);
+        const sortedRadii = indices.map(i => radii[i]);
+        const sortedVectors = indices.map(i => vectors[i]);
+
+        return { radii: sortedRadii, vectors: sortedVectors };
     }
 
     createOrbitDeterminationChart() {
@@ -4516,6 +4702,18 @@ class TudatTestRunner {
     }
 
     clearOrbitEntities() {
+        // Stop camera tracking if active
+        this.stopCameraTracking();
+
+        // Clear tracked entity
+        if (this.viewer) {
+            this.viewer.trackedEntity = undefined;
+        }
+
+        // Clear OD-specific data
+        this.odSatellite = null;
+        this.odObservations = null;
+
         this.orbitEntities.forEach(entity => {
             this.viewer.entities.remove(entity);
         });

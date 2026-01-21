@@ -1116,9 +1116,44 @@ val runOrbitDetermination(
     Eigen::Vector6d currentCartesian = convertKeplerianToCartesianElements(currentKepler, muEarth);
 
     // Generate truth observations using full force model
+    // Use realistic SSN (Space Surveillance Network) ground station locations
+    struct GroundStation {
+        double lat;  // degrees
+        double lon;  // degrees
+        std::string name;
+    };
+
+    std::vector<GroundStation> ssnStations = {
+        {32.9, -106.5, "White Sands"},      // New Mexico
+        {21.6, -158.0, "Kaena Point"},      // Hawaii
+        {-7.3, -14.4, "Ascension Island"},  // South Atlantic
+        {36.0, -121.6, "Point Mugu"},       // California
+        {64.3, -149.2, "Clear AFS"},        // Alaska
+        {-33.2, -70.6, "Santiago"},         // Chile
+        {28.2, -16.5, "Tenerife"},          // Canary Islands
+        {52.4, -1.1, "Fylingdales"},        // UK
+        {-21.8, 114.2, "Exmouth"},          // Australia
+        {7.4, 134.5, "Palau"},              // Western Pacific
+    };
+
+    // Convert station positions to ECEF
+    std::vector<Eigen::Vector3d> stationECEF;
+    for (const auto& station : ssnStations) {
+        double latRad = station.lat * mathematical_constants::PI / 180.0;
+        double lonRad = station.lon * mathematical_constants::PI / 180.0;
+        double cosLat = std::cos(latRad);
+        double sinLat = std::sin(latRad);
+        double cosLon = std::cos(lonRad);
+        double sinLon = std::sin(lonRad);
+        Eigen::Vector3d pos(earthRadius * cosLat * cosLon,
+                           earthRadius * cosLat * sinLon,
+                           earthRadius * sinLat);
+        stationECEF.push_back(pos);
+    }
+
     std::vector<double> obsTimes;
     std::vector<Eigen::Vector3d> observations;
-    double dt = duration / (numObservations - 1);
+    std::vector<int> obsStationIdx;  // Which station made each observation
 
     // Simple random number generator (linear congruential)
     unsigned int seed = 12345;
@@ -1127,24 +1162,57 @@ val runOrbitDetermination(
         return (static_cast<double>((seed >> 16) & 0x7fff) / 32767.0) * 2.0 - 1.0;
     };
 
-    for (int i = 0; i < numObservations; i++) {
-        double t = i * dt;
-        obsTimes.push_back(t);
+    // Create clusters of observations evenly spaced around the orbit
+    // Each cluster has 3 consecutive observations separated by small time intervals
+    int clusterSize = 3;
+    int numClusters = numObservations / clusterSize;
+    if (numClusters < 1) numClusters = 1;
 
-        Eigen::Vector3d truthPos;
-        propagateFullForceState(truthCartesian, t, muEarth, earthRadius, J2, J3, J4, tleEpoch, truthPos);
+    double clusterSpacing = duration / numClusters;  // Time between cluster centers
+    double obsInterval = 30.0;  // 30 seconds between observations within a cluster
 
-        // Add Gaussian-ish noise (Box-Muller approximation)
-        Eigen::Vector3d noise;
-        for (int j = 0; j < 3; j++) {
-            double u1 = (nextRand() + 1.0) / 2.0;
-            double u2 = (nextRand() + 1.0) / 2.0;
-            if (u1 < 1e-10) u1 = 1e-10;
-            noise(j) = std::sqrt(-2.0 * std::log(u1)) * std::cos(2.0 * mathematical_constants::PI * u2) * noiseStdDev;
+    for (int cluster = 0; cluster < numClusters; cluster++) {
+        // Center time for this cluster (evenly spaced around the orbit)
+        double clusterCenterTime = (cluster + 0.5) * clusterSpacing;
+
+        // Generate observations within this cluster
+        for (int obs = 0; obs < clusterSize; obs++) {
+            double t = clusterCenterTime + (obs - clusterSize / 2) * obsInterval;
+            if (t < 0) t = 0;
+            if (t > duration) t = duration;
+
+            // Get truth position at this time
+            Eigen::Vector3d truthPos;
+            propagateFullForceState(truthCartesian, t, muEarth, earthRadius, J2, J3, J4, tleEpoch, truthPos);
+
+            // Find closest station (for display purposes, not visibility constrained)
+            int closestStation = 0;
+            double minDist = std::numeric_limits<double>::max();
+            for (size_t s = 0; s < stationECEF.size(); s++) {
+                double dist = (truthPos - stationECEF[s]).norm();
+                if (dist < minDist) {
+                    minDist = dist;
+                    closestStation = static_cast<int>(s);
+                }
+            }
+
+            obsTimes.push_back(t);
+            obsStationIdx.push_back(closestStation);
+
+            // Add noise to the truth position
+            Eigen::Vector3d noise;
+            for (int j = 0; j < 3; j++) {
+                double u1 = (nextRand() + 1.0) / 2.0;
+                double u2 = (nextRand() + 1.0) / 2.0;
+                if (u1 < 1e-10) u1 = 1e-10;
+                noise(j) = std::sqrt(-2.0 * std::log(u1)) * std::cos(2.0 * mathematical_constants::PI * u2) * noiseStdDev;
+            }
+            observations.push_back(truthPos + noise);
         }
-
-        observations.push_back(truthPos + noise);
     }
+
+    // Update numObservations to actual count
+    numObservations = static_cast<int>(observations.size());
 
     // Results storage
     std::vector<double> result;
@@ -1154,6 +1222,9 @@ val runOrbitDetermination(
     //          ...]
 
     bool useOMM = (dynamicsModel == "omm");
+
+    // Position covariance matrix (3x3) - will be populated on final iteration
+    Eigen::Matrix3d positionCovariance = Eigen::Matrix3d::Identity() * 1e6;  // Default large uncertainty
 
     // Differential correction iterations
     for (int iter = 0; iter < maxIterations; iter++) {
@@ -1210,20 +1281,42 @@ val runOrbitDetermination(
             result.push_back(residuals(i));
         }
 
-        // Check convergence (RMS should approach noise level)
-        if (rms < noiseStdDev * 1.05 || iter == maxIterations - 1) {
-            break;
-        }
-
-        // Least squares update: dx = (H^T H)^-1 H^T r
+        // Compute covariance matrix (H^T H)^-1
         Eigen::MatrixXd HtH = H.transpose() * H;
-        Eigen::VectorXd Htr = H.transpose() * residuals;
 
         // Add regularization for stability
         double lambda = 1e-6;
         HtH.diagonal() += Eigen::VectorXd::Constant(6, lambda);
 
-        Eigen::VectorXd dx = HtH.ldlt().solve(Htr);
+        // Compute (H^T H)^-1
+        Eigen::MatrixXd HtHinv = HtH.inverse();
+
+        // Compute post-fit residual variance (scaled covariance)
+        // sigma^2 = r^T r / (n - p) where n = num measurements, p = num parameters
+        int numMeasurements = numObservations * 3;
+        int numParams = 6;
+        double sigma2 = residuals.squaredNorm() / std::max(numMeasurements - numParams, 1);
+
+        // Scale covariance by sigma^2 for realism
+        Eigen::MatrixXd scaledCovariance = sigma2 * HtHinv;
+
+        // Store covariance for final output (only on last iteration)
+        bool isLastIteration = (rms < noiseStdDev * 1.05 || iter == maxIterations - 1);
+
+        if (isLastIteration) {
+            // Store the 3x3 position covariance (upper-left block)
+            // This will be extracted after the loop
+            positionCovariance = scaledCovariance.block<3, 3>(0, 0);
+        }
+
+        // Check convergence (RMS should approach noise level)
+        if (isLastIteration) {
+            break;
+        }
+
+        // Least squares update: dx = (H^T H)^-1 H^T r
+        Eigen::VectorXd Htr = H.transpose() * residuals;
+        Eigen::VectorXd dx = HtHinv * Htr;
 
         currentCartesian += dx;
     }
@@ -1291,6 +1384,14 @@ val runOrbitDetermination(
         finalResult.push_back(estPos(0));
         finalResult.push_back(estPos(1));
         finalResult.push_back(estPos(2));
+    }
+
+    // Add position covariance matrix (3x3, row-major: Cxx, Cxy, Cxz, Cyx, Cyy, Cyz, Czx, Czy, Czz)
+    // This represents the uncertainty ellipsoid around the estimated position
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            finalResult.push_back(positionCovariance(i, j));
+        }
     }
 
     return val(typed_memory_view(finalResult.size(), finalResult.data())).call<val>("slice");

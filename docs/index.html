@@ -711,11 +711,9 @@
         }
 
         /* Hide Cesium default UI elements we don't need */
-        .cesium-viewer-toolbar,
         .cesium-viewer-fullscreenContainer,
         .cesium-viewer-vrContainer,
         .cesium-viewer-geocoderContainer,
-        .cesium-viewer-homeButtonContainer,
         .cesium-viewer-sceneModePicker,
         .cesium-viewer-projectionPicker,
         .cesium-viewer-navigationHelpButtonContainer,
@@ -1339,18 +1337,6 @@
                             <button class="orbit-btn" id="od-omm" title="OMM mean element propagation with secular rates">
                                 <span class="orbit-btn-name">OMM</span>
                                 <span class="orbit-btn-desc">Mean elements with secular drift</span>
-                            </button>
-                        </div>
-                        <div class="orbit-selector-title" style="margin-top: 10px;">Residual Visualization</div>
-                        <div class="orbit-buttons" style="grid-template-columns: repeat(3, 1fr);">
-                            <button class="orbit-btn small active" id="od-residual-truth" title="Show residuals from observations to truth positions">
-                                <span class="orbit-btn-name">Truth</span>
-                            </button>
-                            <button class="orbit-btn small" id="od-residual-estimated" title="Show residuals from observations to estimated positions">
-                                <span class="orbit-btn-name">Estimated</span>
-                            </button>
-                            <button class="orbit-btn small" id="od-residual-none" title="Hide residual lines">
-                                <span class="orbit-btn-name">None</span>
                             </button>
                         </div>
                     </div>
