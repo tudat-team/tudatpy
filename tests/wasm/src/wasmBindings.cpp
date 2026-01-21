@@ -1064,6 +1064,7 @@ val runOrbitDetermination(
     std::string truthStateJson,     // Truth state (Keplerian elements in km, deg)
     double duration,                // Observation arc duration (seconds)
     int numObservations,            // Number of position observations
+    int numOrbitSamples,            // Number of samples for orbit rendering
     double noiseStdDev,             // Position noise standard deviation (meters)
     int maxIterations,              // Maximum DC iterations
     std::string dynamicsModel)      // "omm" or "fullforce"
@@ -1209,8 +1210,8 @@ val runOrbitDetermination(
             result.push_back(residuals(i));
         }
 
-        // Check convergence
-        if (rms < noiseStdDev * 1.5 || iter == maxIterations - 1) {
+        // Check convergence (RMS should approach noise level)
+        if (rms < noiseStdDev * 1.05 || iter == maxIterations - 1) {
             break;
         }
 
@@ -1224,20 +1225,6 @@ val runOrbitDetermination(
 
         Eigen::VectorXd dx = HtH.ldlt().solve(Htr);
 
-        // Limit step size for stability
-        for (int j = 0; j < 3; j++) {
-            double maxPosStep = 5000.0;  // 5 km max position step
-            if (std::abs(dx(j)) > maxPosStep) {
-                dx(j) = maxPosStep * (dx(j) > 0 ? 1.0 : -1.0);
-            }
-        }
-        for (int j = 3; j < 6; j++) {
-            double maxVelStep = 5.0;  // 5 m/s max velocity step
-            if (std::abs(dx(j)) > maxVelStep) {
-                dx(j) = maxVelStep * (dx(j) > 0 ? 1.0 : -1.0);
-            }
-        }
-
         currentCartesian += dx;
     }
 
@@ -1245,11 +1232,13 @@ val runOrbitDetermination(
     std::vector<double> finalResult;
     finalResult.push_back(static_cast<double>(result.size() / (1 + 6 + numObservations * 3)));  // Number of iterations
     finalResult.push_back(static_cast<double>(numObservations));
+    finalResult.push_back(static_cast<double>(numOrbitSamples));
     finalResult.insert(finalResult.end(), result.begin(), result.end());
 
-    // Add truth trajectory for reference
-    for (int i = 0; i < numObservations; i++) {
-        double t = obsTimes[i];
+    // Add truth trajectory for reference (high resolution for rendering)
+    double orbitDt = duration / (numOrbitSamples - 1);
+    for (int i = 0; i < numOrbitSamples; i++) {
+        double t = i * orbitDt;
         Eigen::Vector3d truthPos;
         propagateFullForceState(truthCartesian, t, muEarth, earthRadius, J2, J3, J4, tleEpoch, truthPos);
         finalResult.push_back(truthPos(0));
@@ -1264,9 +1253,9 @@ val runOrbitDetermination(
         finalResult.push_back(observations[i](2));
     }
 
-    // Add estimated trajectory (propagated from final estimated state using same model)
-    for (int i = 0; i < numObservations; i++) {
-        double t = obsTimes[i];
+    // Add estimated trajectory (high resolution for rendering)
+    for (int i = 0; i < numOrbitSamples; i++) {
+        double t = i * orbitDt;
         Eigen::Vector3d estPos;
         if (useOMM) {
             Eigen::Vector6d estKepler = convertCartesianToKeplerianElements(currentCartesian, muEarth);

@@ -2913,8 +2913,9 @@ class TudatTestRunner {
         const period = 5400;
         const duration = period * 2;
         const numObservations = 50;
+        const numOrbitSamples = 500;  // High resolution for smooth rendering
         const noiseStdDev = 100;
-        const maxIterations = 10;
+        const maxIterations = 20;
 
         this.log(`Running OD with ${dynamicsModel.toUpperCase()} dynamics...`, 'info');
 
@@ -2925,6 +2926,7 @@ class TudatTestRunner {
                 JSON.stringify(truthState),
                 duration,
                 numObservations,
+                numOrbitSamples,
                 noiseStdDev,
                 maxIterations,
                 dynamicsModel
@@ -2937,12 +2939,13 @@ class TudatTestRunner {
         // Parse result
         const numIterations = Math.round(result[0]);
         const numObs = Math.round(result[1]);
+        const numSamples = Math.round(result[2]);
         this.log(`Converged in ${numIterations} iterations`, 'info');
 
         const iterationDataSize = 1 + 6 + numObs * 3;
         const iterations = [];
 
-        let offset = 2;
+        let offset = 3;
         for (let iter = 0; iter < numIterations; iter++) {
             const rms = result[offset];
             const state = [];
@@ -2958,16 +2961,16 @@ class TudatTestRunner {
             this.log(`Iteration ${iter}: RMS = ${rms.toFixed(2)} m`, 'info');
         }
 
-        // Extract truth trajectory
+        // Extract truth trajectory (high resolution)
         const truthTrajectory = [];
-        for (let i = 0; i < numObs; i++) {
+        for (let i = 0; i < numSamples; i++) {
             truthTrajectory.push({
                 x: result[offset + i * 3],
                 y: result[offset + i * 3 + 1],
                 z: result[offset + i * 3 + 2]
             });
         }
-        offset += numObs * 3;
+        offset += numSamples * 3;
 
         // Extract observations
         const observations = [];
@@ -2980,9 +2983,9 @@ class TudatTestRunner {
         }
         offset += numObs * 3;
 
-        // Extract estimated trajectory (from final converged state)
+        // Extract estimated trajectory (high resolution)
         const estimatedTrajectory = [];
-        for (let i = 0; i < numObs; i++) {
+        for (let i = 0; i < numSamples; i++) {
             estimatedTrajectory.push({
                 x: result[offset + i * 3],
                 y: result[offset + i * 3 + 1],
@@ -3035,7 +3038,7 @@ class TudatTestRunner {
 
         // Create animated satellite following estimated trajectory
         const satelliteColor = dynamicsModel === 'omm' ? Cesium.Color.CYAN : Cesium.Color.LIME;
-        const dt = duration / (numObs - 1);
+        const dt = duration / (numSamples - 1);
         const clock = this.viewer.clock;
         const startTime = clock.startTime;
 
@@ -3046,7 +3049,7 @@ class TudatTestRunner {
             interpolationAlgorithm: Cesium.LagrangePolynomialApproximation
         });
 
-        for (let i = 0; i < numObs; i++) {
+        for (let i = 0; i < numSamples; i++) {
             const sampleTime = Cesium.JulianDate.addSeconds(startTime, i * dt, new Cesium.JulianDate());
             const pos = estimatedTrajectory[i];
             estimatedSampledPosition.addSample(sampleTime, new Cesium.Cartesian3(pos.x, pos.y, pos.z));
