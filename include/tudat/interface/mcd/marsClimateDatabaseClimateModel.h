@@ -7,8 +7,8 @@
  *    a copy of the license with this file. If not, please or visit:
  *    http://tudat.tudelft.nl/LICENSE.
  */
-#ifndef TUDAT_MARSCLIMATEDATABASE_H
-#define TUDAT_MARSCLIMATEDATABASE_H
+#ifndef TUDAT_MARSCLIMATEDATABASECLIMATEMODEL_H
+#define TUDAT_MARSCLIMATEDATABASECLIMATEMODEL_H
 
 #include <iostream>
 #include <vector>
@@ -119,7 +119,37 @@ enum ExtVar {
 
 };
 
-class MarsClimateDatabase : public environment::ClimateModel {
+struct McdCache {
+
+    McdCache() = default;
+
+    McdCache( double density, double pressure, double temperature, double zonalWind, double meridionalWind ) :
+        density_( density ), pressure_( pressure ), temperature_( temperature ), zonalWind_( zonalWind ), meridionalWind_( meridionalWind ) {};
+
+    //! Atmospheric density (kg/m^3)
+    double density_;
+
+    //! Atmospheric pressure (Pa)
+    double pressure_;
+
+    //! Atmospheric temperature (K)
+    double temperature_;
+
+    //! Zonal wind (m/s)
+    double zonalWind_;
+
+    //! Meridional wind (m/s)
+    double meridionalWind_;
+
+    //! Mean variables
+    std::vector< double > meanVariables_;
+
+    //! Extra variables
+    std::vector< double > extraVariables_;
+
+};
+
+class MarsClimateDatabaseClimateModel : public environment::ClimateModel {
 
 public:
     //! Constructor
@@ -132,7 +162,8 @@ public:
      * \param gravityWaveLength Gravity wave wavelength in meters (default: 0.0 = use MCD default)
      * \param highResolutionMode High resolution topography flag (0 or 1, default: 0)
      */
-    explicit MarsClimateDatabase( 
+    MarsClimateDatabaseClimateModel( 
+        std::shared_ptr< simulation_setup::Body > bodyWithClimateModel,
         const std::string& mcdDataPath = "",
         const int dustScenario = 1,
         const int perturbationKey = 0,
@@ -141,56 +172,35 @@ public:
         const int highResolutionMode = 0 );
 
     //! Destructor
-    ~MarsClimateDatabase() override = default;
+    ~MarsClimateDatabaseClimateModel() override = default;
 
-    void update( double altitude,
-                 double longitude,
-                 double latitude,
-                 double time ) override;
+    //! Copy constructor
+
+    void update( double currentTime ) override;
 
     int* getExtraVariableKeys( )
     {
         return extraVariableKeys_;
     } 
 
-    void setZkey( int zkey )
+     void setZkey( int zkey )
     {
         zkey_ = zkey;
     }
 
-    double getDensity( ) const 
+    std::shared_ptr< McdCache > getCache( std::tuple< double, double, double > input ) const
     {
-        return static_cast< double >( density_ );
+        return std::make_shared< McdCache >( mcdCache_.at( input) );
     }
 
-    double getPressure( ) const 
+    double getMeanVariable( MeanVar variable, std::tuple< double, double, double > input ) const
     {
-        return static_cast< double >( pressure_ );
+        return mcdCache_.at( input ).meanVariables_[ variable ];
     }
 
-    double getTemperature( ) const 
+    double getExtraVariable( ExtVar variable, std::tuple< double, double, double > input ) const
     {
-        return static_cast< double >( temperature_ );
-    }
-
-    double getZonalWind( ) const 
-    {
-        return static_cast< double >( zonalWind_ );
-    }
-
-    double getMeridionalWind( ) const 
-    {
-        return static_cast< double >( meridionalWind_ );
-    }
-
-    double getMeanVariable( MeanVar variable ) const
-    {
-        return static_cast< double >( meanVariables_[ variable ] );
-    }
-
-    double getExtraVariable( ExtVar variable ) const
-    {
-        return static_cast< double >( extraVariables_[ variable ] );
+        return mcdCache_.at( input ).extraVariables_[ variable ];
     }
 
     void addExtraVariableKeys( std::vector< mcd_interface::ExtVar> requiredExtraVariables );
@@ -240,6 +250,9 @@ private:
 
     //! Extra variables
     float* extraVariables_;
+
+    std::map< std::tuple< double, double, double >, McdCache > mcdCache_;
+
 };
 
 }

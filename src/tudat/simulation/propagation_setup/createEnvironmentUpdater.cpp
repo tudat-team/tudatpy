@@ -14,6 +14,7 @@
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
 #include "tudat/astro/basic_astro/climateModel.h"
+#include "tudat/astro/aerodynamics/mcdAtmosphereModel.h"
 
 namespace tudat
 {
@@ -167,7 +168,7 @@ void checkValidityOfRequiredEnvironmentUpdates(
                     }
                     case climate_model_update: 
                     {
-                        std::shared_ptr< basic_astrodynamics::ClimateModel > climateModel =
+                        std::shared_ptr< environment::ClimateModel > climateModel =
                                 bodies.at( updateIterator->second.at( i ) )->getClimateModel( );
                         if( climateModel == nullptr )
                         {
@@ -396,7 +397,7 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                         {
                             singleAccelerationUpdateNeeds[ body_segment_orientation_update ].push_back( acceleratedBodyIterator->first );
                         }
-                        auto mcdAtmosphereModel = std::dynamic_pointer_cast< aerodynamics::mcdAtmosphereModel >( aerodynamicAcceleration );
+                        auto mcdAtmosphereModel = std::dynamic_pointer_cast< aerodynamics::McdAtmosphereModel >( aerodynamicAcceleration );
                         if ( mcdAtmosphereModel != nullptr )
                         {
                             singleAccelerationUpdateNeeds[ climate_model_update ].push_back( accelerationModelIterator->first );

@@ -43,7 +43,7 @@ void expose_climate_model_setup( py::module &m )
 #if TUDAT_BUILD_WITH_MCD_INTERFACE
 
     m.def( "mars_climate_database",
-           &tss::marsClimateDatabaseSettings,
+           &tss::marsClimateDatabaseClimateModelSettings,
            py::arg( "mcd_data_path" ) = "",
            py::arg( "dust_scenario" ) = 1,
            py::arg( "perturbation_key" ) = 0,

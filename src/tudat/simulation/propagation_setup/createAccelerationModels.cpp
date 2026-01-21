@@ -1029,6 +1029,16 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
         throw std::runtime_error( "Error when making aerodynamic acceleration, central body " + nameOfBodyExertingAcceleration +
                                   " has no atmosphere model." );
     }
+    else if( bodyExertingAcceleration->getAtmosphereModel( )->getRequiresClimateModel( ) && 
+                bodyExertingAcceleration->getClimateModel( ) == nullptr )
+    {
+        throw std::runtime_error( "Error when making aerodynamic acceleration for body" + nameOfBodyUndergoingAcceleration + 
+            ", central body " + nameOfBodyExertingAcceleration + " has no climate model." );
+    }
+    else
+    {
+        bodyExertingAcceleration->getClimateModel( )->addBodyRequiringClimateModel( bodyUndergoingAcceleration );
+    }
 
     if( bodyExertingAcceleration->getShapeModel( ) == nullptr )
     {
@@ -1050,6 +1060,7 @@ std::shared_ptr< aerodynamics::AerodynamicAcceleration > createAerodynamicAccele
     {
         throw std::runtime_error( "Error when making aerodynamic acceleration, found flight conditions that are not atmospheric." );
     }
+
     // Create acceleration model.
     return std::make_shared< AerodynamicAcceleration >( bodyFlightConditions, std::bind( &Body::getBodyMass, bodyUndergoingAcceleration ) );
 }

@@ -17,7 +17,7 @@
 #include "tudat/astro/aerodynamics/atmosphereModel.h"
 #include "tudat/astro/basic_astro/timeConversions.h"
 #include "tudat/astro/basic_astro/dateTime.h"
-#include "tudat/interface/mcd/marsClimateDatabase.h"
+#include "tudat/interface/mcd/marsClimateDatabaseClimateModel.h"
 
 namespace tudat
 {
@@ -37,43 +37,39 @@ class McdAtmosphereModel : public AtmosphereModel
 {
 public:
 
-    McdAtmosphereModel( const std::shared_ptr< mcd_interface::MarsClimateDatabase > marsClimateDatabase ) :
-        marsClimateDatabase_( marsClimateDatabase ) 
+    McdAtmosphereModel( const std::shared_ptr< mcd_interface::MarsClimateDatabaseClimateModel > marsClimateDatabaseClimateModel ) :
+        marsClimateDatabaseClimateModel_( marsClimateDatabaseClimateModel ) 
     {
         requiredExtVar_ = { 
             mcd_interface::ExtVar::ratio_of_specific_heats, 
             mcd_interface::ExtVar::reduced_molecular_gas_constant
         };
 
-        marsClimateDatabase_->addExtraVariableKeys( requiredExtVar_ );
-        marsClimateDatabase_->setZkey( 3 );
+        setRequiresClimateModel( );
+
+        marsClimateDatabaseClimateModel_->addExtraVariableKeys( requiredExtVar_ );
+        marsClimateDatabaseClimateModel_->setZkey( 3 );
         
     }
 
     //! Destructor
     virtual ~McdAtmosphereModel( ) {}
 
-    double getDensity( [[maybe_unused]] double, [[maybe_unused]] double, [[maybe_unused]] double, [[maybe_unused]] double ) override;
+    double getDensity( double, double, double, double ) override;
 
-    double getPressure( [[maybe_unused]] double, [[maybe_unused]] double, [[maybe_unused]] double, [[maybe_unused]] double ) override;
+    double getPressure( double, double, double, double ) override;
 
-    double getTemperature( [[maybe_unused]] double, [[maybe_unused]] double, [[maybe_unused]] double, [[maybe_unused]] double ) override;
+    double getTemperature( double, double, double, double ) override;
 
-    double getSpeedOfSound( [[maybe_unused]] double, [[maybe_unused]] double, [[maybe_unused]] double, [[maybe_unused]] double ) override;
+    double getSpeedOfSound( double, double, double, double ) override;
 
-    double getZonalWind( ) const
-    {
-        return marsClimateDatabase_->getZonalWind( );
-    }
+    double getZonalWind( double, double, double, double ) const;
 
-    double getMeridionalWind( ) const
-    {
-        return marsClimateDatabase_->getMeridionalWind( );
-    }
+    double getMeridionalWind( double, double, double, double ) const;
 
 protected:
 
-    std::shared_ptr< mcd_interface::MarsClimateDatabase > marsClimateDatabase_;
+    std::shared_ptr< mcd_interface::MarsClimateDatabaseClimateModel > marsClimateDatabaseClimateModel_;
 
     std::vector< mcd_interface::ExtVar > requiredExtVar_;
     

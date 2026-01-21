@@ -10,6 +10,21 @@
 #ifndef TUDAT_CLIMATEMODEL_H
 #define TUDAT_CLIMATEMODEL_H
 
+#include <memory>
+#include <vector>
+
+namespace tudat
+{
+
+namespace simulation_setup
+{
+
+class Body;
+
+}
+
+}
+
 
 namespace tudat
 {
@@ -21,15 +36,25 @@ class ClimateModel {
 
     public:
 
-    ClimateModel() = default;
+    ClimateModel( std::shared_ptr< simulation_setup::Body > bodyWithClimateModel )
+    { 
+        bodyWithClimateModel_ = std::weak_ptr< simulation_setup::Body >( bodyWithClimateModel );
+    };
 
     virtual ~ClimateModel() = default;
 
-    virtual void update( 
-        double altitude,
-        double longitude,
-        double latitude,
-        double time ) = 0;
+    virtual void update( double ) = 0;
+
+    void addBodyRequiringClimateModel( std::shared_ptr< simulation_setup::Body > bodyRequiringClimateModel )
+    {
+        listBodiesRequiringClimateModel_.push_back( std::weak_ptr< simulation_setup::Body >( bodyRequiringClimateModel ) ); 
+    };
+
+    protected:
+
+    std::weak_ptr< simulation_setup::Body > bodyWithClimateModel_;
+
+    std::vector< std::weak_ptr< simulation_setup::Body > > listBodiesRequiringClimateModel_;
         
 };
 

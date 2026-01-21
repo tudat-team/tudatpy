@@ -258,7 +258,7 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
         {
             bodyList.at( orderedBodySettings.at( i ).first )
                     ->setClimateModel( createClimateModel( orderedBodySettings.at( i ).second->climateModelSettings,
-                                                                 orderedBodySettings.at( i ).first ) );
+                                                                 bodyList.at( orderedBodySettings.at( i ).first ) ) );
         }
     }
 
@@ -269,8 +269,8 @@ SystemOfBodies createSystemOfBodies( const BodyListSettings& bodySettings )
         {
             bodyList.at( orderedBodySettings.at( i ).first )
                     ->setAtmosphereModel( createAtmosphereModel( orderedBodySettings.at( i ).second->atmosphereSettings,
-                                                                 orderedBodySettings.at( i ).first ),
-                                                                 bodyList.at( orderedBodySettings.at( i ).first ) );
+                                                                 orderedBodySettings.at( i ).first,
+                                                                 bodyList.at( orderedBodySettings.at( i ).first ) ) );
         }
     }
 

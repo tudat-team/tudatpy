@@ -10,12 +10,12 @@
 
 #Set the source files.
 set(mcd_interface_SOURCES
-        "marsClimateDatabase.cpp"
+        "marsClimateDatabaseClimateModel.cpp"
         )
 
 # Set the header files.
 set(mcd_interface_HEADERS
-        "marsClimateDatabase.h"
+        "marsClimateDatabaseClimateModel.h"
         )
 
 # Add static libraries.
@@ -27,6 +27,14 @@ TUDAT_ADD_LIBRARY("mcd_interface"
         PRIVATE_INCLUDES
         ${CMAKE_BINARY_DIR}/mcd_modules
         ${CMAKE_SOURCE_DIR}/third_parties/mcd
+        )
+
+# Expose MCD headers to dependent targets (e.g., tudat_propagation_setup)
+# Use generator expressions to handle build vs install scenarios
+target_include_directories(tudat_mcd_interface 
+        SYSTEM PUBLIC 
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/mcd_modules>
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/third_parties/mcd>
         )
 
 target_link_libraries(tudat_mcd_interface PRIVATE mcd_fortran)

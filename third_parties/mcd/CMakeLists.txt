@@ -123,6 +123,13 @@ install(DIRECTORY ${CMAKE_BINARY_DIR}/mcd_modules/
     FILES_MATCHING PATTERN "*.mod"
 )
 
+# Make mcd.h visible to consumers
+target_include_directories(mcd_fortran
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<INSTALL_INTERFACE:include/tudat/external/mcd>
+)
+
 message(STATUS "MCD Fortran library configured:")
 message(STATUS "  Library target: mcd_fortran")
 message(STATUS "  Source: ${CMAKE_CURRENT_SOURCE_DIR}/MCD.F90")

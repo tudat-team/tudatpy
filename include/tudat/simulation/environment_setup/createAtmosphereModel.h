@@ -1030,6 +1030,11 @@ inline std::shared_ptr< AtmosphereSettings > marsDtmAtmosphereSettings( )
     return std::make_shared< MarsDtmAtmosphereSettings >( );
 }
 
+inline std::shared_ptr< AtmosphereSettings > mcdAtmosphereSettings( )
+{
+    return std::make_shared< McdAtmosphereSettings >( );
+}
+
 
 typedef std::function< double( const double, const double, const double, const double ) > DensityFunction;
 //! @get_docstring(customConstantTemperatureAtmosphereSettings,0)
@@ -1125,7 +1130,7 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
  */
 std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const std::shared_ptr< AtmosphereSettings > atmosphereSettings,
                                                                         const std::string& body,
-                                                                        const std::shared_ptr< Body > > );
+                                                                        const std::shared_ptr< Body > = nullptr);
 
 }  // namespace simulation_setup
 

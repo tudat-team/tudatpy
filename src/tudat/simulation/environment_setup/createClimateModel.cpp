@@ -12,7 +12,7 @@
 
 #include "tudat/simulation/environment_setup/createClimateModel.h"
 #if TUDAT_BUILD_WITH_MCD_INTERFACE
-#include "tudat/interface/mcd/marsClimateDatabase.h"
+#include "tudat/interface/mcd/marsClimateDatabaseClimateModel.h"
 #endif
 
 namespace tudat
@@ -23,8 +23,8 @@ namespace simulation_setup
 
 //! Function to create an atmosphere model.
 std::shared_ptr< environment::ClimateModel > createClimateModel( 
-    const std::shared_ptr< ClimateModelSettings > climateModelSettings,
-    const std::string& body )
+    std::shared_ptr< ClimateModelSettings > climateModelSettings,
+    std::shared_ptr< simulation_setup::Body > body )
 {
     std::shared_ptr< environment::ClimateModel > climateModel;
 
@@ -33,20 +33,21 @@ std::shared_ptr< environment::ClimateModel > createClimateModel(
 #if TUDAT_BUILD_WITH_MCD_INTERFACE
         case mars_climate_database : {
 
-            std::shared_ptr< MarsClimateDatabaseSettings > mcdClimateModelSettings = 
-                std::dynamic_pointer_cast< MarsClimateDatabaseSettings >( climateModelSettings );
+            std::shared_ptr< MarsClimateDatabaseClimateModelSettings > mcdClimateModelSettings = 
+                std::dynamic_pointer_cast< MarsClimateDatabaseClimateModelSettings >( climateModelSettings );
             if ( mcdClimateModelSettings == nullptr ) {
 
                 throw std::runtime_error( "Error in creating MCD climate model" );
 
             }
 
-            if ( body != "Mars" ) {
+            if ( body->getBodyName( ) != "Mars" ) {
 
                 throw std::runtime_error( "Error, trying to create MCD for a body different than Mars" );
             }
             
-            climateModel = std::make_shared< mcd_interface::MarsClimateDatabase >( 
+            climateModel = std::make_shared< mcd_interface::MarsClimateDatabaseClimateModel >( 
+                body,
                 mcdClimateModelSettings->mcdDataPath_, 
                 mcdClimateModelSettings->dustScenario_,
                 mcdClimateModelSettings->perturbationKey_,

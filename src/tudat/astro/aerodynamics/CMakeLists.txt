@@ -54,26 +54,34 @@ set(aerodynamics_HEADERS
 )
 
 # Conditionally add MCD sources and headers
-if(TUDAT_BUILD_WITH_MCD)
+if(TUDAT_BUILD_WITH_MCD_INTERFACE)
     list(APPEND aerodynamics_SOURCES "mcdAtmosphereModel.cpp")
     list(APPEND aerodynamics_HEADERS "mcdAtmosphereModel.h")
 endif()
 
-    set(aerodynamics_SOURCES
+set(aerodynamics_SOURCES
             "${aerodynamics_SOURCES}"
             "nrlmsise00Atmosphere.cpp"
             "nrlmsise00InputFunctions.cpp"
             )
-    set(aerodynamics_HEADERS
+set(aerodynamics_HEADERS
             "${aerodynamics_HEADERS}"
             "nrlmsise00Atmosphere.h"
             "nrlmsise00InputFunctions.h"
             )
-    TUDAT_ADD_LIBRARY("aerodynamics"
+
+set(PUBLIC_LINKS_LIST)
+if(TUDAT_BUILD_WITH_MCD_INTERFACE)
+    list(APPEND PUBLIC_LINKS_LIST tudat_mcd_interface)
+endif()
+
+TUDAT_ADD_LIBRARY("aerodynamics"
             "${aerodynamics_SOURCES}"
             "${aerodynamics_HEADERS}"
             PRIVATE_LINKS
             "${NRLMSISE00_LIBRARIES}"
+            PUBLIC_LINKS
+            ${PUBLIC_LINKS_LIST}
             #        tudat_input_output
             #        tudat_geometric_shapes
             #        tudat_reference_frames

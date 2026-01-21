@@ -16,6 +16,7 @@
 #include <memory>
 
 #include "tudat/astro/basic_astro/climateModel.h"
+#include "tudat/simulation/environment_setup/body.h"
 
 namespace tudat
 {
@@ -46,11 +47,11 @@ virtual ~ClimateModelSettings() = default;
 };
 
 #if TUDAT_BUILD_WITH_MCD_INTERFACE
-class MarsClimateDatabaseSettings : public ClimateModelSettings {
+class MarsClimateDatabaseClimateModelSettings : public ClimateModelSettings {
 
 public:
 
-    explicit MarsClimateDatabaseSettings(
+    explicit MarsClimateDatabaseClimateModelSettings(
         const std::string& mcdDataPath = "",
         const int dustScenario = 1,
         const int perturbationKey = 0,
@@ -78,22 +79,22 @@ public:
 
 };
 
-inline std::shared_ptr< ClimateModelSettings > marsClimateDatabaseSettings(
+inline std::shared_ptr< ClimateModelSettings > marsClimateDatabaseClimateModelSettings(
     const std::string& mcdDataPath = "",
     const int dustScenario = 1,
     const int perturbationKey = 0,
     const double perturbationSeed = 0.0,
     const double gravityWaveLength = 0.0) 
 {
-    return std::make_shared< MarsClimateDatabaseSettings >( 
+    return std::make_shared< MarsClimateDatabaseClimateModelSettings >( 
         mcdDataPath, dustScenario, perturbationKey, perturbationSeed, gravityWaveLength);
 }
 
 #endif
 
 std::shared_ptr< environment::ClimateModel > createClimateModel( 
-    const std::shared_ptr< ClimateModelSettings > ClimateModelSettings,
-    const std::string& body );
+    std::shared_ptr< ClimateModelSettings > ClimateModelSettings,
+    std::shared_ptr< simulation_setup::Body > body );
 
 }
 

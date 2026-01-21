@@ -826,6 +826,21 @@ In this example, we create Mars DTM atmosphere settings with a custom space weat
 
 
 )doc" );
+
+    m.def( "mars_climate_database",
+           &tss::mcdAtmosphereSettings,
+           R"doc(
+
+Function for creating Mars Climate Database atmospheric settings.
+
+Creates settings for Mars Climate Database model, which is retrieves them from the associated climate model set for the planet.
+
+Returns
+-------
+AtmosphereSettings
+    Instance of the :class:`~tudatpy.dynamics.environment_setup.atmosphere.AtmosphereSettings` class
+
+)doc" );
 }
 
 }  // namespace atmosphere

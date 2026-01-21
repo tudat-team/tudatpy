@@ -1794,12 +1794,12 @@ public:
         return ionosphereModel_;
     }
 
-    void setClimateModel( const std::shared_ptr< environment::ClimateModel >& climateModel )
+    void setClimateModel( std::shared_ptr< environment::ClimateModel > climateModel )
     {
         climateModel_ = climateModel;
     }
 
-    std::shared_ptr< environment::ClimateModel > getClimateModel( ) const
+    std::shared_ptr< environment::ClimateModel > getClimateModel( ) 
     {
         return climateModel_;
     }
@@ -1910,6 +1910,7 @@ private:
     std::shared_ptr< environment::IonosphereModel > ionosphereModel_;
 
     std::shared_ptr< environment::ClimateModel > climateModel_;
+
 };
 
 //! Typdef for a list of body objects (as unordered_map for efficiency reasons)

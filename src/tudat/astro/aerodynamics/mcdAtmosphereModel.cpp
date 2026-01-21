@@ -22,40 +22,52 @@ namespace aerodynamics
 {
 
 // Get density
-double McdAtmosphereModel::getDensity( double, double, double, double )
+double McdAtmosphereModel::getDensity( double altitude, double longitude, double latitude, double time)
 {
-    return  marsClimateDatabase_->getDensity( );
+    return  marsClimateDatabaseClimateModel_->getCache( {longitude, latitude, time} )->density_;
 }
 
 // Get pressure
-double McdAtmosphereModel::getPressure( double, double, double, double )
+double McdAtmosphereModel::getPressure( double altitude, double longitude, double latitude, double time)
 {
-    return marsClimateDatabase_->getPressure( );
+    return marsClimateDatabaseClimateModel_->getCache( {longitude, latitude, time} )->pressure_;
 }
 
 // Get temperature
-double McdAtmosphereModel::getTemperature( double, double, double, double )
+double McdAtmosphereModel::getTemperature( double altitude, double longitude, double latitude, double time)
 {
-    return marsClimateDatabase_->getTemperature( );
+    return marsClimateDatabaseClimateModel_->getCache( {longitude, latitude, time} )->temperature_;
+}
+
+double McdAtmosphereModel::getZonalWind( double altitude, double longitude, double latitude, double time) const
+{
+    return marsClimateDatabaseClimateModel_->getCache( {longitude, latitude, time} )->zonalWind_;
+}
+
+double McdAtmosphereModel::getMeridionalWind( double altitude, double longitude, double latitude, double time) const
+{
+    return marsClimateDatabaseClimateModel_->getCache( {longitude, latitude, time} )->meridionalWind_;
 }
 
 // Get speed of sound
-double McdAtmosphereModel::getSpeedOfSound( double, double, double, double )
+double McdAtmosphereModel::getSpeedOfSound( double altitude, double longitude, double latitude, double time)
 {
     // Get gamma and R from extra variables
-    double gamma = marsClimateDatabase_->getExtraVariable( mcd_interface::ExtVar::ratio_of_specific_heats );  // extvar(60): gamma
-    double R = marsClimateDatabase_->getExtraVariable( mcd_interface::ExtVar::reduced_molecular_gas_constant );      // extvar(61): R (J/kg/K)
+    double gamma = marsClimateDatabaseClimateModel_->getExtraVariable( 
+        mcd_interface::ExtVar::ratio_of_specific_heats, {longitude, latitude, time} ); // extvar(60): gamma
+    double R = marsClimateDatabaseClimateModel_->getExtraVariable( 
+        mcd_interface::ExtVar::reduced_molecular_gas_constant, {longitude, latitude, time} ); // extvar(61): R (J/kg/K)
 
     if( gamma > 0.0 && R > 0.0 )
     {
-        return std::sqrt( gamma * R * marsClimateDatabase_->getTemperature( ) );
+        return std::sqrt( gamma * R * getTemperature( altitude, longitude, latitude, time ) );
     }
     else
     {
         // Fallback to Mars defaults
         const double defaultGamma = 1.3;
         const double defaultR = 192.0;  // J/kg/K for Mars CO2 atmosphere
-        return std::sqrt( defaultGamma * defaultR * marsClimateDatabase_->getTemperature( ) );
+        return std::sqrt( defaultGamma * defaultR * getTemperature( altitude, longitude, latitude, time ) );
     }
 }
 

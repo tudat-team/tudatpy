@@ -461,9 +461,9 @@ configure_file(
 include_directories("${PROJECT_BINARY_DIR}/include")
 
 # Add Tudat subdirectories
+add_subdirectory(src/tudat/interface)
 add_subdirectory(src/tudat/astro)
 add_subdirectory(src/tudat/basics)
-add_subdirectory(src/tudat/interface)
 add_subdirectory(src/tudat/math)
 add_subdirectory(src/tudat/simulation)
 add_subdirectory(src/tudat/io)
