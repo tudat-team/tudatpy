@@ -157,6 +157,37 @@ void testTLEEphemeris();
 void testOptimizationProblemSetup();
 void testGalileanMoonsPattern();
 
+// Estimation module tests (testEstimation.cpp)
+void testStateTransitionMatrix();
+void testSimpleBatchOrbitDetermination();
+void testCovariancePropagation();
+void testEstimationConvergenceChecker();
+void testObservationTypesAndLinks();
+void testFormalErrorPropagation();
+void testMultiBodyEstimationSetup();
+
+// Edge case tests (testEdgeCases.cpp)
+void testNaNInfinityHandling();
+void testSubnormalNumbers();
+void testEpsilonComparisons();
+void testCircularOrbitEdgeCase();
+void testNearParabolicOrbitEdgeCase();
+void testHyperbolicOrbitEdgeCase();
+void testEquatorialOrbitEdgeCase();
+void testPolarOrbitEdgeCase();
+void testZeroTimePropagation();
+void testFullOrbitPropagation();
+void testVeryLongPropagation();
+void testSphericalCoordinateSingularities();
+void testZeroRadiusHandling();
+void testIntegratorSmallStepSize();
+void testIntegratorStiffODE();
+void testInterpolationAtBoundaries();
+void testSinglePointInterpolation();
+void testSingularMatrixOperations();
+void testEmptyAndZeroVectors();
+void testLargeVectorOperations();
+
 int main()
 {
     std::cout << "=== Tudat WASM Test Suite ===" << std::endl;
@@ -252,8 +283,7 @@ int main()
         testRungeKutta87DormandPrinceIntegrator();// RKDP87 adaptive integrator
         testRungeKuttaFehlberg45Integrator();     // RKF45 adaptive integrator
         testAdamsBashforthMoultonIntegrator();    // ABM multi-step integrator
-        // Bulirsch-Stoer test skipped - causes WASM crash (likely due to internal step sequence issues)
-        // testBulirschStoerIntegrator();
+        testBulirschStoerIntegrator();            // BS integrator (fixed-step to avoid stack overflow)
 
         // Ephemerides tests
         std::cout << "\n=== EPHEMERIDES TESTS ===" << std::endl;
@@ -295,7 +325,7 @@ int main()
         testHybridTerminationConditions();    // Multiple termination conditions
         testLambertTargeting();               // Interplanetary transfer design
         testVariationalEquations();           // State transition matrix foundation
-        // testReentryTrajectory();           // Reentry with aerodynamic forces (disabled: atmosphere model issue)
+        testReentryTrajectory();              // Reentry with aerodynamic forces
         testMultiArcPropagation();            // Multi-arc propagation (JUICE flybys)
         testCR3BPIrregularBody();             // CR3BP with irregular body (impact manifolds)
         testCustomThrustGuidance();           // Custom thrust guidance (JUICE engine)
@@ -315,6 +345,41 @@ int main()
         testTLEEphemeris();                   // TLE-based ephemeris
         testOptimizationProblemSetup();       // Optimization problem (PyGMO pattern)
         testGalileanMoonsPattern();           // Galilean moons multi-body estimation
+
+        // Estimation module tests (comprehensive orbit determination)
+        std::cout << "\n=== ESTIMATION MODULE TESTS ===" << std::endl;
+
+        testStateTransitionMatrix();          // State transition matrix computation
+        testSimpleBatchOrbitDetermination();  // Batch OD setup and parameter estimation
+        testCovariancePropagation();          // Covariance propagation through dynamics
+        testEstimationConvergenceChecker();   // Convergence checking functionality
+        testObservationTypesAndLinks();       // Observable type definitions
+        testFormalErrorPropagation();         // Formal error computation
+        testMultiBodyEstimationSetup();       // Multi-body estimation (Galilean moons)
+
+        // Edge case and boundary condition tests
+        std::cout << "\n=== EDGE CASE TESTS ===" << std::endl;
+
+        testNaNInfinityHandling();            // NaN and infinity handling
+        testSubnormalNumbers();               // Subnormal/denormalized numbers
+        testEpsilonComparisons();             // Machine epsilon comparisons
+        testCircularOrbitEdgeCase();          // Circular orbit (e=0)
+        testNearParabolicOrbitEdgeCase();     // Near-parabolic orbit (e≈1)
+        testHyperbolicOrbitEdgeCase();        // Hyperbolic orbit (e>1)
+        testEquatorialOrbitEdgeCase();        // Equatorial orbit (i=0)
+        testPolarOrbitEdgeCase();             // Polar orbit (i=90°)
+        testZeroTimePropagation();            // Zero time interval propagation
+        testFullOrbitPropagation();           // Full orbital period propagation
+        testVeryLongPropagation();            // Many orbital periods
+        testSphericalCoordinateSingularities(); // Spherical coordinate poles
+        testZeroRadiusHandling();             // Zero radius in coordinates
+        testIntegratorSmallStepSize();        // Very small integrator steps
+        testIntegratorStiffODE();             // Stiff differential equations
+        testInterpolationAtBoundaries();      // Interpolation at data boundaries
+        testSinglePointInterpolation();       // Minimal data interpolation
+        testSingularMatrixOperations();       // Singular/ill-conditioned matrices
+        testEmptyAndZeroVectors();            // Zero vector operations
+        testLargeVectorOperations();          // Large value vector operations
 
 #ifdef __EMSCRIPTEN__
         testEmscriptenEnvironment();
