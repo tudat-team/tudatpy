@@ -27,6 +27,7 @@ async function test() {
     const period = 5400;
     const duration = period * 2;
     const numObservations = 50;
+    const numOrbitSamples = 500;
     const noiseStdDev = 100;
     const maxIterations = 10;
 
@@ -41,6 +42,7 @@ async function test() {
         JSON.stringify(truthState),
         duration,
         numObservations,
+        numOrbitSamples,
         noiseStdDev,
         maxIterations,
         'fullforce'
@@ -48,11 +50,12 @@ async function test() {
 
     const numIterations = Math.round(result[0]);
     const numObs = Math.round(result[1]);
+    const numSamples = Math.round(result[2]);
 
-    console.log(`Converged in ${numIterations} iterations`);
+    console.log(`Converged in ${numIterations} iterations (samples: ${numSamples})`);
 
     const iterationDataSize = 1 + 6 + numObs * 3;
-    let offset = 2;
+    let offset = 3;
 
     for (let iter = 0; iter < numIterations; iter++) {
         const rms = result[offset];

@@ -504,6 +504,43 @@ var ENVIRONMENT_IS_NODE=true;
 
 ---
 
-*Last updated: 2026-01-18*
+---
+
+## TODO: Orbit Determination Demo Enhancements
+
+### Force Model Options for OD
+*Enable realistic force modeling for high-fidelity orbit determination*
+
+- [ ] **Higher-degree gravity field**
+  - [ ] Add J2-J10 or spherical harmonics option
+  - [ ] Toggle in UI between J2-J4 and higher degree
+
+- [ ] **Cannonball Solar Radiation Pressure**
+  - [ ] Add SRP force model with area/mass ratio
+  - [ ] Include eclipse modeling
+
+- [ ] **Cannonball Atmospheric Drag**
+  - [ ] Add drag force model with Cd*A/m
+  - [ ] Use exponential or NRLMSISE-00 atmosphere
+
+- [ ] **Advanced Radiation Pressure**
+  - [ ] Paneled radiation pressure model
+  - [ ] Better surface modeling
+
+- [ ] **Advanced Aerodynamics**
+  - [ ] Improved drag coefficient modeling
+  - [ ] Attitude-dependent drag
+
+### Covariance Visualization Improvements
+- [ ] Scale ellipsoid for visibility when uncertainty is small (cm-level)
+- [ ] Show numerical values in info panel (1-sigma RTN)
+- [ ] Add chi-squared / weighted RMS goodness-of-fit indicator
+
+### Reference
+Based on GRACE-type OD testing: achieved ~1m accuracy with simplified cannonball models against cm-level GNSS orbits. Better radiation pressure and aerodynamics models should enable decimeter-level or better accuracy.
+
+---
+
+*Last updated: 2026-01-21*
 *Current: 98.6% binding parity, 43.5% example parity*
 *Target: 100% Python parity*

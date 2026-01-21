@@ -98,6 +98,9 @@ class TudatTestRunner {
         this.updateTimestamp();
         setInterval(() => this.updateTimestamp(), 1000);
 
+        // Display build number in UI
+        document.getElementById('app-build').textContent = APP_BUILD;
+
         this.setupEventListeners();
         this.setupCharts();
         this.setupModal();
