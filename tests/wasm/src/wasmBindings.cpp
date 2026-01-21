@@ -1253,6 +1253,31 @@ val runOrbitDetermination(
         finalResult.push_back(observations[i](2));
     }
 
+    // Add truth positions at observation times (for residual visualization)
+    for (int i = 0; i < numObservations; i++) {
+        double t = obsTimes[i];
+        Eigen::Vector3d truthPos;
+        propagateFullForceState(truthCartesian, t, muEarth, earthRadius, J2, J3, J4, tleEpoch, truthPos);
+        finalResult.push_back(truthPos(0));
+        finalResult.push_back(truthPos(1));
+        finalResult.push_back(truthPos(2));
+    }
+
+    // Add estimated positions at observation times (for residual visualization)
+    for (int i = 0; i < numObservations; i++) {
+        double t = obsTimes[i];
+        Eigen::Vector3d estPos;
+        if (useOMM) {
+            Eigen::Vector6d estKepler = convertCartesianToKeplerianElements(currentCartesian, muEarth);
+            propagateOMMState(estKepler, t, muEarth, earthRadius, J2, estPos);
+        } else {
+            propagateFullForceState(currentCartesian, t, muEarth, earthRadius, J2, J3, J4, tleEpoch, estPos);
+        }
+        finalResult.push_back(estPos(0));
+        finalResult.push_back(estPos(1));
+        finalResult.push_back(estPos(2));
+    }
+
     // Add estimated trajectory (high resolution for rendering)
     for (int i = 0; i < numOrbitSamples; i++) {
         double t = i * orbitDt;

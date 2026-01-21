@@ -851,6 +851,56 @@
             line-height: 1.3;
         }
 
+        .orbit-btn.small {
+            padding: 6px 4px;
+        }
+
+        .orbit-btn.small .orbit-btn-name {
+            font-size: 11px;
+            margin-bottom: 0;
+        }
+
+        /* Camera info panel overlay */
+        .camera-info-panel {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid var(--border-glow);
+            padding: 10px 14px;
+            z-index: 100;
+            font-family: 'Share Tech Mono', monospace;
+            min-width: 160px;
+        }
+
+        .camera-info-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            color: var(--cyan);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .camera-info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .camera-info-label {
+            font-size: 10px;
+            color: var(--text-dim);
+        }
+
+        .camera-info-value {
+            font-size: 11px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
         /* Charts Grid (legacy) */
         .chart-container {
             background: var(--bg-card);
@@ -1244,6 +1294,18 @@
             <div class="viz-content">
                 <div class="globe-container">
                     <div id="cesiumContainer"></div>
+                    <!-- Info panel overlay for camera tracking -->
+                    <div id="camera-info-panel" class="camera-info-panel" style="display: none;">
+                        <div class="camera-info-title">TRACKING INFO</div>
+                        <div class="camera-info-row">
+                            <span class="camera-info-label">Distance:</span>
+                            <span class="camera-info-value" id="camera-distance">--</span>
+                        </div>
+                        <div class="camera-info-row" id="nearest-obs-row" style="display: none;">
+                            <span class="camera-info-label">Nearest Obs:</span>
+                            <span class="camera-info-value" id="nearest-obs-dist">--</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="trajectory-container">
                     <div class="orbit-selector" id="orbit-selector-panel">
@@ -1277,6 +1339,18 @@
                             <button class="orbit-btn" id="od-omm" title="OMM mean element propagation with secular rates">
                                 <span class="orbit-btn-name">OMM</span>
                                 <span class="orbit-btn-desc">Mean elements with secular drift</span>
+                            </button>
+                        </div>
+                        <div class="orbit-selector-title" style="margin-top: 10px;">Residual Visualization</div>
+                        <div class="orbit-buttons" style="grid-template-columns: repeat(3, 1fr);">
+                            <button class="orbit-btn small active" id="od-residual-truth" title="Show residuals from observations to truth positions">
+                                <span class="orbit-btn-name">Truth</span>
+                            </button>
+                            <button class="orbit-btn small" id="od-residual-estimated" title="Show residuals from observations to estimated positions">
+                                <span class="orbit-btn-name">Estimated</span>
+                            </button>
+                            <button class="orbit-btn small" id="od-residual-none" title="Hide residual lines">
+                                <span class="orbit-btn-name">None</span>
                             </button>
                         </div>
                     </div>

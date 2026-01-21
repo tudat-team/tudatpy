@@ -410,6 +410,11 @@ class TudatTestRunner {
         document.getElementById('od-fullforce').addEventListener('click', () => this.selectODModel('fullforce'));
         document.getElementById('od-omm').addEventListener('click', () => this.selectODModel('omm'));
 
+        // Orbit determination residual visualization toggle
+        document.getElementById('od-residual-truth').addEventListener('click', () => this.setResidualMode('truth'));
+        document.getElementById('od-residual-estimated').addEventListener('click', () => this.setResidualMode('estimated'));
+        document.getElementById('od-residual-none').addEventListener('click', () => this.setResidualMode('none'));
+
         // Handle browser back/forward navigation
         window.addEventListener('popstate', () => this.handleUrlChange());
     }
@@ -2983,6 +2988,28 @@ class TudatTestRunner {
         }
         offset += numObs * 3;
 
+        // Extract truth positions at observation times (for residuals)
+        const truthAtObsTimes = [];
+        for (let i = 0; i < numObs; i++) {
+            truthAtObsTimes.push({
+                x: result[offset + i * 3],
+                y: result[offset + i * 3 + 1],
+                z: result[offset + i * 3 + 2]
+            });
+        }
+        offset += numObs * 3;
+
+        // Extract estimated positions at observation times (for residuals)
+        const estAtObsTimes = [];
+        for (let i = 0; i < numObs; i++) {
+            estAtObsTimes.push({
+                x: result[offset + i * 3],
+                y: result[offset + i * 3 + 1],
+                z: result[offset + i * 3 + 2]
+            });
+        }
+        offset += numObs * 3;
+
         // Extract estimated trajectory (high resolution)
         const estimatedTrajectory = [];
         for (let i = 0; i < numSamples; i++) {
@@ -3008,11 +3035,29 @@ class TudatTestRunner {
         });
         this.orbitEntities.push(truthOrbit);
 
-        // Observations as points (yellow)
+        // Observations as points (yellow) with residual lines
+        const residualEntities = [];
         for (let i = 0; i < numObs; i++) {
             const obs = observations[i];
+            const truth = truthAtObsTimes[i];
+            const est = estAtObsTimes[i];
+
+            // Calculate residual magnitudes
+            const truthResidual = Math.sqrt(
+                Math.pow(obs.x - truth.x, 2) +
+                Math.pow(obs.y - truth.y, 2) +
+                Math.pow(obs.z - truth.z, 2)
+            );
+            const estResidual = Math.sqrt(
+                Math.pow(obs.x - est.x, 2) +
+                Math.pow(obs.y - est.y, 2) +
+                Math.pow(obs.z - est.z, 2)
+            );
+
+            // Observation point
             const obsEntity = this.viewer.entities.add({
                 name: `Observation ${i + 1}`,
+                description: `Truth residual: ${truthResidual.toFixed(1)} m\nEstimated residual: ${estResidual.toFixed(1)} m`,
                 position: new Cesium.Cartesian3(obs.x, obs.y, obs.z),
                 point: {
                     pixelSize: 6,
@@ -3022,7 +3067,43 @@ class TudatTestRunner {
                 }
             });
             this.orbitEntities.push(obsEntity);
+
+            // Residual line: Observation -> Truth (cyan, shows measurement noise)
+            const truthResidualLine = this.viewer.entities.add({
+                name: `Truth Residual ${i + 1}`,
+                polyline: {
+                    positions: [
+                        new Cesium.Cartesian3(obs.x, obs.y, obs.z),
+                        new Cesium.Cartesian3(truth.x, truth.y, truth.z)
+                    ],
+                    width: 1,
+                    material: Cesium.Color.CYAN.withAlpha(0.6)
+                },
+                show: true
+            });
+            this.orbitEntities.push(truthResidualLine);
+            residualEntities.push({ type: 'truth', entity: truthResidualLine });
+
+            // Residual line: Observation -> Estimated (magenta, shows fit quality)
+            const estResidualLine = this.viewer.entities.add({
+                name: `Est Residual ${i + 1}`,
+                polyline: {
+                    positions: [
+                        new Cesium.Cartesian3(obs.x, obs.y, obs.z),
+                        new Cesium.Cartesian3(est.x, est.y, est.z)
+                    ],
+                    width: 1,
+                    material: Cesium.Color.MAGENTA.withAlpha(0.6)
+                },
+                show: false  // Hidden by default
+            });
+            this.orbitEntities.push(estResidualLine);
+            residualEntities.push({ type: 'estimated', entity: estResidualLine });
         }
+
+        // Store residual entities for toggle
+        this.odResidualEntities = residualEntities;
+        this.odResidualMode = 'truth';  // 'truth', 'estimated', or 'none'
 
         // Estimated orbit as thin white solid line
         const estimatedPositions = estimatedTrajectory.map(p => new Cesium.Cartesian3(p.x, p.y, p.z));
