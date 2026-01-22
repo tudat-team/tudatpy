@@ -565,6 +565,9 @@ Eigen::Vector3d getApproximateGroundStationPosition( std::string stationName )
 const static std::string pysctrackGroundStationPosFile = tudat::paths::getStationLocationDataPath( ) + "/glo.sit";
 const static std::string pysctrackGroundStationVelFile = tudat::paths::getStationLocationDataPath( ) + "/glo.vel";
 const static std::string pysctrackGroundStationCodesFile = tudat::paths::getStationLocationDataPath( ) + "/ns_codes.dat";
+const static std::string MPCGroundStationPosFile = tudat::paths::getStationLocationDataPath( ) + "/mpc.sit";
+const static std::string MPCGroundStationVelFile = tudat::paths::getStationLocationDataPath( ) + "/mpc.vel";
+const static std::string MPCGroundStationCodesFile = tudat::paths::getStationLocationDataPath( ) + "/mpc_codes.dat";
 
 const static std::map< std::string, Eigen::Vector3d > approximateGroundStationPositionsFromFile =
         utilities::getMapFromFile< std::string, Eigen::Vector3d >( pysctrackGroundStationPosFile, '$', " \t" );
@@ -593,6 +596,20 @@ std::map< std::string, Eigen::Vector3d >& getVlbiStationVelocities( )
 {
     static std::map< std::string, Eigen::Vector3d > stationVelocities =
             utilities::getMapFromFile< std::string, Eigen::Vector3d >( pysctrackGroundStationVelFile, '$', " \t" );
+    return stationVelocities;
+}
+
+std::map< std::string, Eigen::Vector3d >& getMPCStationPositions( )
+{
+    static std::map< std::string, Eigen::Vector3d > stationPositions =
+            utilities::getMapFromFile< std::string, Eigen::Vector3d >( MPCGroundStationPosFile, '$', " \t" );
+    return stationPositions;
+}
+
+std::map< std::string, Eigen::Vector3d >& getMPCStationVelocities( )
+{
+    static std::map< std::string, Eigen::Vector3d > stationVelocities =
+            utilities::getMapFromFile< std::string, Eigen::Vector3d >( MPCGroundStationVelFile, '$', " \t" );
     return stationVelocities;
 }
 
@@ -735,6 +752,35 @@ std::vector< std::shared_ptr< GroundStationSettings > > getEvnStationSettings( )
     return stationSettingsList;
 }
 
+std::vector< std::shared_ptr< GroundStationSettings > > getMPCStationSettings( )
+{
+    std::vector< std::shared_ptr< GroundStationSettings > > stationSettingsList;
+
+    std::map< std::string, Eigen::Vector3d > stationPositions = getMPCStationPositions( );
+    std::map< std::string, Eigen::Vector3d > stationVelocities = getMPCStationVelocities( );
+
+    std::vector< std::string > commonStationNames;
+    for( auto it: stationPositions )
+    {
+        if( stationVelocities.count( it.first ) > 0 )
+        {
+            commonStationNames.push_back( it.first );
+        }
+    }
+
+    for( unsigned int i = 0; i < commonStationNames.size( ); i++ )
+    {
+        std::shared_ptr< GroundStationMotionSettings > stationMotion = std::make_shared< LinearGroundStationMotionSettings >(
+                stationVelocities.at( commonStationNames.at( i ) ) * 1.0E-3 / physical_constants::JULIAN_YEAR, 0.0 );
+
+        std::shared_ptr< GroundStationSettings > stationSettings =
+                std::make_shared< GroundStationSettings >( commonStationNames.at( i ), stationPositions.at( commonStationNames.at( i ) ) );
+        stationSettings->addStationMotionSettings( stationMotion );
+        stationSettingsList.push_back( stationSettings );
+    }
+    return stationSettingsList;
+}
+
 std::vector< std::shared_ptr< GroundStationSettings > > getRadioTelescopeStationSettings( )
 {
     std::vector< std::shared_ptr< GroundStationSettings > > stations = getEvnStationSettings( );
@@ -742,6 +788,7 @@ std::vector< std::shared_ptr< GroundStationSettings > > getRadioTelescopeStation
     stations.insert( stations.begin( ), dsnStations.begin( ), dsnStations.end( ) );
     return stations;
 }
+
 }  // namespace simulation_setup
 
 }  // namespace tudat
