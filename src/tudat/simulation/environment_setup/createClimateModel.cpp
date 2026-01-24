@@ -52,7 +52,8 @@ std::shared_ptr< environment::ClimateModel > createClimateModel(
                 mcdClimateModelSettings->dustScenario_,
                 mcdClimateModelSettings->perturbationKey_,
                 mcdClimateModelSettings->perturbationSeed_,
-                mcdClimateModelSettings->gravityWaveLength_
+                mcdClimateModelSettings->gravityWaveLength_,
+                mcdClimateModelSettings->highResolutionMode_
             );
             break;        
         }

@@ -45,7 +45,7 @@ public:
             mcd_interface::ExtVar::reduced_molecular_gas_constant
         };
 
-        setRequiresClimateModel( );
+        requiresClimateModel_ = true;
 
         marsClimateDatabaseClimateModel_->addExtraVariableKeys( requiredExtVar_ );
         marsClimateDatabaseClimateModel_->setZkey( 3 );

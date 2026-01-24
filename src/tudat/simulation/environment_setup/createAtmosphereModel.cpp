@@ -75,7 +75,7 @@ std::shared_ptr< aerodynamics::WindModel > createWindModel( const std::shared_pt
 //! Function to create an atmosphere model.
 std::shared_ptr< aerodynamics::AtmosphereModel > createAtmosphereModel( const std::shared_ptr< AtmosphereSettings > atmosphereSettings,
                                                                         const std::string& bodyName,
-                                                                        const std::shared_ptr< Body > body)
+                                                                        const std::shared_ptr< Body > body )
 {
     using namespace tudat::aerodynamics;
 

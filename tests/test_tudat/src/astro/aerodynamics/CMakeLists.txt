@@ -86,3 +86,12 @@ TUDAT_ADD_TEST_CASE(NRLMSISE00Atmosphere
         PRIVATE_LINKS
         ${Tudat_PROPAGATION_LIBRARIES}
         )
+
+
+if(TUDAT_BUILD_WITH_MCD_INTERFACE)
+        TUDAT_ADD_TEST_CASE(McdAtmosphere
+                PRIVATE_LINKS
+                ${Tudat_PROPAGATION_LIBRARIES}
+                Tudat::tudat_aerodynamics
+        )
+endif()

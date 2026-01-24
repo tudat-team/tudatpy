@@ -56,11 +56,13 @@ public:
         const int dustScenario = 1,
         const int perturbationKey = 0,
         const double perturbationSeed = 0.0,
-        const double gravityWaveLength = 0.0
+        const double gravityWaveLength = 0.0,
+        const int highResolutionMode = 0
     ) :
     ClimateModelSettings( mars_climate_database ), mcdDataPath_( mcdDataPath ), 
     dustScenario_( dustScenario ), perturbationKey_( perturbationKey ), 
-    perturbationSeed_( perturbationSeed ), gravityWaveLength_( gravityWaveLength ) { }
+    perturbationSeed_( perturbationSeed ), gravityWaveLength_( gravityWaveLength ), 
+    highResolutionMode_( highResolutionMode ) { }
 
     //! Path to MCD data files
     std::string mcdDataPath_;
@@ -77,6 +79,9 @@ public:
     //! Gravity wave wavelength
     double gravityWaveLength_;
 
+    //! High resolution topography flag (0 or 1)
+    int highResolutionMode_;
+
 };
 
 inline std::shared_ptr< ClimateModelSettings > marsClimateDatabaseClimateModelSettings(
@@ -84,10 +89,11 @@ inline std::shared_ptr< ClimateModelSettings > marsClimateDatabaseClimateModelSe
     const int dustScenario = 1,
     const int perturbationKey = 0,
     const double perturbationSeed = 0.0,
-    const double gravityWaveLength = 0.0) 
+    const double gravityWaveLength = 0.0,
+    const int highResolutionMode = 0 ) 
 {
-    return std::make_shared< MarsClimateDatabaseClimateModelSettings >( 
-        mcdDataPath, dustScenario, perturbationKey, perturbationSeed, gravityWaveLength);
+    return std::make_shared< MarsClimateDatabaseClimateModelSettings >(
+        mcdDataPath, dustScenario, perturbationKey, perturbationSeed, gravityWaveLength, highResolutionMode);
 }
 
 #endif

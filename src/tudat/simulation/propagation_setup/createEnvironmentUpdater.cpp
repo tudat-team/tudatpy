@@ -397,8 +397,8 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                         {
                             singleAccelerationUpdateNeeds[ body_segment_orientation_update ].push_back( acceleratedBodyIterator->first );
                         }
-                        auto mcdAtmosphereModel = std::dynamic_pointer_cast< aerodynamics::McdAtmosphereModel >( aerodynamicAcceleration );
-                        if ( mcdAtmosphereModel != nullptr )
+
+                        if( bodies.at( accelerationModelIterator->first )->getAtmosphereModel( )->getRequiresClimateModel( ) )
                         {
                             singleAccelerationUpdateNeeds[ climate_model_update ].push_back( accelerationModelIterator->first );
                         }

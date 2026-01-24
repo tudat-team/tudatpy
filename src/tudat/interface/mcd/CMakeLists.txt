@@ -40,7 +40,8 @@ target_include_directories(tudat_mcd_interface
 target_link_libraries(tudat_mcd_interface PRIVATE mcd_fortran)
 
 set(MCD_DATA_DIR "${CMAKE_SOURCE_DIR}/third_parties/mcd/data")
-target_compile_definitions(tudat_mcd_interface PRIVATE
+# probably reduntant as its public under mcd_fortran
+target_compile_definitions(tudat_mcd_interface PUBLIC
     MCD_DATA_PATH="${MCD_DATA_DIR}/"
 )
 

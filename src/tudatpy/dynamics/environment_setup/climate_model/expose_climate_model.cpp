@@ -49,6 +49,7 @@ void expose_climate_model_setup( py::module &m )
            py::arg( "perturbation_key" ) = 0,
            py::arg( "perturbation_seed" ) = 0.0,
            py::arg( "gravity_wave_length" ) = 0.0,
+           py::arg( "high_resolution_mode" ) = 0,
            R"doc(
 
  Function for creating oblate spherical body shape model settings.
@@ -68,6 +69,8 @@ void expose_climate_model_setup( py::module &m )
      Random seed or scaling factor
  gravity_wave_length : double, default = 0.0
      Gravity wave wavelength in meters
+high_resolution_mode : int, default = 0
+    High resolution topography flag (0 or 1), requires MOLA dataset
  Returns
  -------
  ClimateModelSettings

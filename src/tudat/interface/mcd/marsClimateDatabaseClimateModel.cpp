@@ -22,10 +22,6 @@ MarsClimateDatabaseClimateModel::MarsClimateDatabaseClimateModel(
     highResolutionMode_( highResolutionMode ), density_( 0.0 ), pressure_( 0.0 ),
     temperature_( 0.0 ), zonalWind_( 0.0 ), meridionalWind_( 0.0 ) 
 {
-    // Resize vectors to hold MCD outputs
-    int meanVariables_[ 5 ];
-    int extraVariables_[ 100 ];
-
     // Set default MCD data path if not provided
     if( mcdDataPath_.empty( ) )
     {
@@ -36,7 +32,7 @@ MarsClimateDatabaseClimateModel::MarsClimateDatabaseClimateModel(
 #else
         // Fallback: this should not normally happen if CMake is configured correctly
         throw std::runtime_error(
-                "Error in MCD atmosphere model: MCD_DATA_PATH not defined at compile time. "
+                "Error in MCD climate model: MCD_DATA_PATH not defined at compile time. "
                 "Please ensure MCD is properly configured in CMake." );
 #endif
     }
@@ -47,16 +43,15 @@ MarsClimateDatabaseClimateModel::MarsClimateDatabaseClimateModel(
         mcdDataPath_ += '/';
     }
 
-    // Validate input parameters (matching validation in McdAtmosphereSettings)
     if( ( dustScenario_ < 1 || dustScenario_ > 8 ) && ( dustScenario_ < 24 || dustScenario_ > 35 ) )
     {
-        throw std::runtime_error( "McdAtmosphereModel: Invalid dustScenario " + std::to_string( dustScenario_ ) +
+        throw std::runtime_error( "McdClimateModel: Invalid dustScenario " + std::to_string( dustScenario_ ) +
                                   ". Must be 1-8 or 24-35." );
     }
 
     if( perturbationKey_ < 0 || perturbationKey_ > 5 )
     {
-        throw std::runtime_error( "McdAtmosphereModel: Invalid perturbationKey " + std::to_string( perturbationKey_ ) + ". Must be 0-5." );
+        throw std::runtime_error( "McdClimateModel: Invalid perturbationKey " + std::to_string( perturbationKey_ ) + ". Must be 0-5." );
     }
 
     // Validate perturbationSeed for perturbationKey=5
@@ -65,7 +60,7 @@ MarsClimateDatabaseClimateModel::MarsClimateDatabaseClimateModel(
         if( perturbationSeed_ < -4.0 || perturbationSeed_ > 4.0 )
         {
             throw std::runtime_error(
-                    "McdAtmosphereModel: For perturbationKey=5, perturbationSeed must be in [-4, 4]. "
+                    "McdClimateModel: For perturbationKey=5, perturbationSeed must be in [-4, 4]. "
                     "Got: " +
                     std::to_string( perturbationSeed_ ) );
         }
@@ -73,7 +68,7 @@ MarsClimateDatabaseClimateModel::MarsClimateDatabaseClimateModel(
 
     if( highResolutionMode_ != 0 && highResolutionMode_ != 1 )
     {
-        throw std::runtime_error( "McdAtmosphereModel: Invalid highResolutionMode " + std::to_string( highResolutionMode_ ) +
+        throw std::runtime_error( "McdClimateModel: Invalid highResolutionMode " + std::to_string( highResolutionMode_ ) +
                                   ". Must be 0 or 1." );
     }
 
@@ -81,7 +76,7 @@ MarsClimateDatabaseClimateModel::MarsClimateDatabaseClimateModel(
     if( ( perturbationKey_ == 3 || perturbationKey_ == 4 ) && gravityWaveLength_ < 0.0 )
     {
         throw std::runtime_error(
-                "McdAtmosphereModel: gravityWaveLength must be >= 0.0 when using gravity wave perturbations. "
+                "McdClimateModel: gravityWaveLength must be >= 0.0 when using gravity wave perturbations. "
                 "Got: " +
                 std::to_string( gravityWaveLength_ ) );
     }
@@ -106,7 +101,6 @@ void MarsClimateDatabaseClimateModel::update( double currentTime )
         double currentLatitude = bodyRequiringClimateModel->getFlightConditions( )->getCurrentLatitude( );
         float longitudeDeg = static_cast< float >( unit_conversions::convertRadiansToDegrees( currentLongitude ) );
         float latitudeDeg = static_cast< float >( unit_conversions::convertRadiansToDegrees( currentLatitude ) );
-
         float seedout;
         int ier;
 
@@ -145,8 +139,8 @@ void MarsClimateDatabaseClimateModel::update( double currentTime )
             throw std::runtime_error( "McdAtmosphereModel: MCD routine returned error code " + std::to_string( ier ) );
         }
 
-        mcdCache_[ { currentLongitude, currentLatitude, currentTime } ] = McdCache{ density_, pressure_, temperature_,
-                                                                                 zonalWind_, meridionalWind_ };
+        mcdCache_[ { currentLongitude, currentLatitude, currentTime } ] = std::make_shared< McdCache >( density_, pressure_, temperature_,
+                                                                                 zonalWind_, meridionalWind_ );
 
         for ( int i = 0; i < 5; i++ )
         {
@@ -157,8 +151,8 @@ void MarsClimateDatabaseClimateModel::update( double currentTime )
             extraVariables[ i ] = static_cast< double >( extraVariables_[ i ] );
         }
 
-        mcdCache_[ { currentLongitude, currentLatitude, currentTime } ].meanVariables_ = meanVariables;
-        mcdCache_[ { currentLongitude, currentLatitude, currentTime } ].extraVariables_ = extraVariables;
+        mcdCache_[ { currentLongitude, currentLatitude, currentTime } ]->meanVariables_ = meanVariables;
+        mcdCache_[ { currentLongitude, currentLatitude, currentTime } ]->extraVariables_ = extraVariables;
 
     }
 }

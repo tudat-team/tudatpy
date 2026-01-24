@@ -190,17 +190,17 @@ public:
 
     std::shared_ptr< McdCache > getCache( std::tuple< double, double, double > input ) const
     {
-        return std::make_shared< McdCache >( mcdCache_.at( input) );
+        return mcdCache_.at( input );
     }
 
     double getMeanVariable( MeanVar variable, std::tuple< double, double, double > input ) const
     {
-        return mcdCache_.at( input ).meanVariables_[ variable ];
+        return mcdCache_.at( input )->meanVariables_[ variable ];
     }
 
     double getExtraVariable( ExtVar variable, std::tuple< double, double, double > input ) const
     {
-        return mcdCache_.at( input ).extraVariables_[ variable ];
+        return mcdCache_.at( input )->extraVariables_[ variable ];
     }
 
     void addExtraVariableKeys( std::vector< mcd_interface::ExtVar> requiredExtraVariables );
@@ -243,15 +243,15 @@ private:
     float meridionalWind_;
 
     //! Keys to extract external variables
-    int* extraVariableKeys_;
+    int extraVariableKeys_[100] = { 0 };
 
     //! Mean variables
-    float* meanVariables_;
+    float meanVariables_[5] = { 0 };
 
     //! Extra variables
-    float* extraVariables_;
+    float extraVariables_[100] = { 0 };
 
-    std::map< std::tuple< double, double, double >, McdCache > mcdCache_;
+    std::map< std::tuple< double, double, double >, std::shared_ptr< McdCache > > mcdCache_;
 
 };
 
