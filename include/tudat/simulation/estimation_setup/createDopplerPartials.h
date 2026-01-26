@@ -85,7 +85,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
     std::function< double( const observation_models::LinkEndType,
                            const std::vector< Eigen::Vector6d >&,
                            const std::vector< double >&,
-                           const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) >
+                           const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ) >
             scalingFactorFunction = nullptr;
 
     if( observationModel->getObservableType( ) == observation_models::doppler_measured_frequency )

@@ -81,13 +81,13 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
     {
         linkEndTimes.clear( );
         linkEndStates.clear( );
 
-        std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetingsToUse;
-        this->setFrequencyProperties( time, linkEndAssociatedWithTime, lightTimeCalculator_, ancilliarySetings, ancilliarySetingsToUse );
+        std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetingsToUse;
+        this->setFrequencyProperties( time, linkEndAssociatedWithTime, lightTimeCalculator_, ancillarySetings, ancillarySetingsToUse );
 
         ObservationScalarType observation = TUDAT_NAN;
         TimeType transmissionTime = TUDAT_NAN, receptionTime = TUDAT_NAN;
@@ -97,14 +97,14 @@ public:
         {
             case receiver:
                 observation = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverState, transmitterState, time, 1, ancilliarySetingsToUse );
+                        receiverState, transmitterState, time, 1, ancillarySetingsToUse );
                 transmissionTime = time - observation;
                 receptionTime = time;
                 break;
 
             case transmitter:
                 observation = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverState, transmitterState, time, 0, ancilliarySetingsToUse );
+                        receiverState, transmitterState, time, 0, ancillarySetingsToUse );
                 transmissionTime = time;
                 receptionTime = time + observation;
                 break;

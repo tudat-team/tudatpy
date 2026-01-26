@@ -30,13 +30,13 @@ namespace observation_models
 inline double getDifferencedOneWayRangeScalingFactor( const observation_models::LinkEndType referenceLinkEnd,
                                                       const std::vector< Eigen::Vector6d >& linkEndStates,
                                                       const std::vector< double >& linkEndTimes,
-                                                      const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings,
+                                                      const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings,
                                                       const bool isFirstPartial )
 {
     double currentIntegrationTime;
     try
     {
-        currentIntegrationTime = ancillarySettings->getAncilliaryDoubleData( doppler_integration_time, true );
+        currentIntegrationTime = ancillarySettings->getAncillaryDoubleData( doppler_integration_time, true );
     }
     catch( std::runtime_error& caughtException )
     {
@@ -50,7 +50,7 @@ inline double getDifferencedOneWayRangeScalingFactor( const observation_models::
 inline double getDifferencedTimeOfArrivalScalingFactor( const observation_models::LinkEndType referenceLinkEnd,
                                                       const std::vector< Eigen::Vector6d >& linkEndStates,
                                                       const std::vector< double >& linkEndTimes,
-                                                      const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings,
+                                                      const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings,
                                                       const bool isFirstPartial )
 {
     return -1.0 / physical_constants::SPEED_OF_LIGHT;
@@ -113,20 +113,20 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetingsInput = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetingsInput = nullptr )
     {
         ObservationScalarType lightTimeAtStartInterval;
         ObservationScalarType lightTimeAtEndInterval;
-        if( ancilliarySetingsInput == nullptr )
+        if( ancillarySetingsInput == nullptr )
         {
             throw std::runtime_error(
-                    "Error when simulating one-way averaged Doppler observable; no ancilliary settings found. Ancilliary settings are "
+                    "Error when simulating one-way averaged Doppler observable; no ancillary settings found. Ancillary settings are "
                     "requiured for integration time" );
         }
         TimeType currentIntegrationTime;
         try
         {
-            currentIntegrationTime = ancilliarySetingsInput->getAncilliaryDoubleData( doppler_integration_time, true );
+            currentIntegrationTime = ancillarySetingsInput->getAncillaryDoubleData( doppler_integration_time, true );
         }
         catch( std::runtime_error& caughtException )
         {
@@ -145,17 +145,17 @@ public:
             linkEndTimes[ 3 ] = static_cast< double >( time ) + currentIntegrationTime / 2.0;
 
             // Calculate light times at the start of the reception interval
-            std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings;
+            std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings;
             this->setFrequencyProperties(
-                    linkEndTimes[ 1 ], linkEndAssociatedWithTime, arcStartLightTimeCalculator_, ancilliarySetingsInput, ancilliarySetings );
+                    linkEndTimes[ 1 ], linkEndAssociatedWithTime, arcStartLightTimeCalculator_, ancillarySetingsInput, ancillarySetings );
             lightTimeAtStartInterval = arcStartLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                    receiverStateAtArcStart, transmitterStateAtArcStart, linkEndTimes[ 1 ], 1, ancilliarySetings );
+                    receiverStateAtArcStart, transmitterStateAtArcStart, linkEndTimes[ 1 ], 1, ancillarySetings );
 
             // Calculate light times at the end of the reception interval
             this->setFrequencyProperties(
-                    linkEndTimes[ 3 ], linkEndAssociatedWithTime, arcEndLightTimeCalculator_, ancilliarySetingsInput, ancilliarySetings );
+                    linkEndTimes[ 3 ], linkEndAssociatedWithTime, arcEndLightTimeCalculator_, ancillarySetingsInput, ancillarySetings );
             lightTimeAtEndInterval = arcEndLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                    receiverStateAtArcEnd, transmitterStateAtArcEnd, linkEndTimes[ 3 ], 1, ancilliarySetings );
+                    receiverStateAtArcEnd, transmitterStateAtArcEnd, linkEndTimes[ 3 ], 1, ancillarySetings );
 
             linkEndTimes[ 0 ] = linkEndTimes[ 1 ] - static_cast< double >( lightTimeAtStartInterval );
             linkEndTimes[ 2 ] = linkEndTimes[ 3 ] - static_cast< double >( lightTimeAtEndInterval );
@@ -167,19 +167,19 @@ public:
             linkEndTimes[ 2 ] = static_cast< double >( time ) + currentIntegrationTime / 2.0;
 
             // Calculate light times at the start of the reception interval
-            std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings;
+            std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings;
             this->setFrequencyProperties(
-                    linkEndTimes[ 2 ], linkEndAssociatedWithTime, arcEndLightTimeCalculator_, ancilliarySetingsInput, ancilliarySetings );
+                    linkEndTimes[ 2 ], linkEndAssociatedWithTime, arcEndLightTimeCalculator_, ancillarySetingsInput, ancillarySetings );
             lightTimeAtEndInterval = arcEndLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                    receiverStateAtArcEnd, transmitterStateAtArcEnd, linkEndTimes[ 2 ], 0, ancilliarySetings );
+                    receiverStateAtArcEnd, transmitterStateAtArcEnd, linkEndTimes[ 2 ], 0, ancillarySetings );
 
             linkEndTimes[ 3 ] = linkEndTimes[ 2 ] + static_cast< double >( lightTimeAtEndInterval );
 
             // Calculate light times at the end of the reception interval
             this->setFrequencyProperties(
-                    linkEndTimes[ 0 ], linkEndAssociatedWithTime, arcStartLightTimeCalculator_, ancilliarySetingsInput, ancilliarySetings );
+                    linkEndTimes[ 0 ], linkEndAssociatedWithTime, arcStartLightTimeCalculator_, ancillarySetingsInput, ancillarySetings );
             lightTimeAtStartInterval = arcStartLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                    receiverStateAtArcStart, transmitterStateAtArcStart, linkEndTimes[ 0 ], 0, ancilliarySetings );
+                    receiverStateAtArcStart, transmitterStateAtArcStart, linkEndTimes[ 0 ], 0, ancillarySetings );
 
             linkEndTimes[ 1 ] = linkEndTimes[ 0 ] + static_cast< double >( lightTimeAtStartInterval );
         }

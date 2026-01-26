@@ -107,7 +107,7 @@ public:
             const std::vector< Eigen::Vector6d >& linkEndsStates,
             const std::vector< double >& linkEndsTimes,
             const unsigned int currentMultiLegTransmitterIndex,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) override;
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings ) override;
 
     //! Function to compute the partial derivative of the light-time correction w.r.t. observation time
     /*!
@@ -127,7 +127,7 @@ public:
             const double transmissionTime,
             const double receptionTime,
             const LinkEndType linkEndAtWhichPartialIsEvaluated,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings ) override
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings ) override
     {
         return 0.0;
     }
@@ -148,7 +148,7 @@ public:
             const double transmissionTime,
             const double receptionTime,
             const LinkEndType linkEndAtWhichPartialIsEvaluated,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr ) override;
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ) override;
 
     //! Function to get the names of bodies causing light-time correction.
     /*!

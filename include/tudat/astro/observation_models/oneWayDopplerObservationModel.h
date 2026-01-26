@@ -536,7 +536,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
     {
         ObservationScalarType lightTime = TUDAT_NAN;
         TimeType transmissionTime = TUDAT_NAN, receptionTime = TUDAT_NAN;
@@ -546,14 +546,14 @@ public:
         {
             case receiver:
                 lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverState_, transmitterState_, time, true, ancilliarySetings );
+                        receiverState_, transmitterState_, time, true, ancillarySetings );
                 transmissionTime = time - lightTime;
                 receptionTime = time;
                 break;
 
             case transmitter:
                 lightTime = lightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                        receiverState_, transmitterState_, time, false, ancilliarySetings );
+                        receiverState_, transmitterState_, time, false, ancillarySetings );
                 transmissionTime = time;
                 receptionTime = time + lightTime;
                 break;
@@ -571,18 +571,18 @@ public:
         linkEndStates.push_back( transmitterState_.template cast< double >( ) );
         linkEndStates.push_back( receiverState_.template cast< double >( ) );
 
-        return computeIdealDopplerWithLinkEndData( linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancilliarySetings );
+        return computeIdealDopplerWithLinkEndData( linkEndAssociatedWithTime, linkEndTimes, linkEndStates, ancillarySetings );
     }
 
     Eigen::Matrix< ObservationScalarType, 1, 1 > computeIdealDopplerWithLinkEndData(
             const LinkEndType linkEndAssociatedWithTime,
             const std::vector< double >& linkEndTimes,
             const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings = nullptr )
     {
-        if( ancilliarySetings != nullptr )
+        if( ancillarySetings != nullptr )
         {
-            throw std::runtime_error( "Error, calling one-way Doppler observable with ancilliary settings, but none are supported." );
+            throw std::runtime_error( "Error, calling one-way Doppler observable with ancillary settings, but none are supported." );
         }
 
         // Compute transmitter and receiver proper time rate

@@ -44,7 +44,7 @@ bool areInterlinksCompatible( const std::pair< LinkEndType, LinkEndId >& firstRe
 std::string getObservationDependentVariableName( const ObservationDependentVariables variableType );
 
 //! Function checking whether a given dependent variable type is related to some ancillary settings
-bool isObservationDependentVariableAncilliarySetting( const ObservationDependentVariables variableType );
+bool isObservationDependentVariableAncillarySetting( const ObservationDependentVariables variableType );
 
 //! Function checking whether a given dependent variable type is an interlink property
 bool isObservationDependentVariableInterlinkProperty( const ObservationDependentVariables variableType );

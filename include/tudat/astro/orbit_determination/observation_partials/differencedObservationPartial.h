@@ -115,7 +115,7 @@ public:
             const std::function< double( const observation_models::LinkEndType,
                                          const std::vector< Eigen::Vector6d >&,
                                          const std::vector< double >&,
-                                         const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >,
+                                         const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >,
                                          const bool ) > scalingFactorFunction,
             const std::pair< std::vector< int >, std::vector< int > >& undifferencedTimeAndStateIndices,
             const std::function< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >(
@@ -152,7 +152,7 @@ public:
             const std::vector< Eigen::Vector6d >& states,
             const std::vector< double >& times,
             const observation_models::LinkEndType linkEndOfFixedTime,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings = nullptr,
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr,
             const Eigen::Matrix< double, ObservationSize, 1 >& currentObservation =
                     Eigen::Matrix< double, ObservationSize, 1 >::Constant( TUDAT_NAN ) )
     {
@@ -219,7 +219,7 @@ protected:
     const std::function< double( const observation_models::LinkEndType,
                                  const std::vector< Eigen::Vector6d >&,
                                  const std::vector< double >&,
-                                 const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >,
+                                 const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings >,
                                  const bool ) >
             scalingFactorFunction_;
 

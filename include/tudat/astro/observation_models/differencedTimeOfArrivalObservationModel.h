@@ -72,7 +72,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetingsInput = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetingsInput = nullptr )
     {
         ObservationScalarType lightTimeForFirstReceiver;
         ObservationScalarType lightTimeForSecondReceiver;
@@ -87,16 +87,16 @@ public:
             // Calculate reception time at ground station at the start and end of the count interval at reception time.
             linkEndTimes[ 1 ] = static_cast< double >( time );
 
-            std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings;
-            this->setFrequencyProperties( time, receiver, firstReceiverLightTimeCalculator_, ancilliarySetingsInput, ancilliarySetings );
+            std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings;
+            this->setFrequencyProperties( time, receiver, firstReceiverLightTimeCalculator_, ancillarySetingsInput, ancillarySetings );
             lightTimeForFirstReceiver = firstReceiverLightTimeCalculator_->calculateLightTimeWithLinkEndsStates(
-                    receiverStateForFirstLink, transmitterStateForFirstLink, time, 1, ancilliarySetings );
+                    receiverStateForFirstLink, transmitterStateForFirstLink, time, 1, ancillarySetings );
             
             linkEndTimes[ 0 ] = linkEndTimes[ 1 ] - static_cast< double >( lightTimeForFirstReceiver );
 
-            this->setFrequencyProperties( time, receiver, secondReceiverLightTimeCalculator_, ancilliarySetingsInput, ancilliarySetings );
+            this->setFrequencyProperties( time, receiver, secondReceiverLightTimeCalculator_, ancillarySetingsInput, ancillarySetings );
             lightTimeForSecondReceiver = secondReceiverLightTimeCalculator_->calculateLightTimeWithLinkEndsStates( 
-                    receiverStateForSecondLink, transmitterStateForSecondLink, time - lightTimeForFirstReceiver, 0, ancilliarySetings );
+                    receiverStateForSecondLink, transmitterStateForSecondLink, time - lightTimeForFirstReceiver, 0, ancillarySetings );
             fullPrecisionTimeAtReceiver2 = time - ( lightTimeForFirstReceiver - lightTimeForSecondReceiver );
             linkEndTimes[ 2 ] = static_cast< double >( fullPrecisionTimeAtReceiver2 );
 

@@ -163,9 +163,9 @@ bool isObservationDependentVariableVectorial( const ObservationDependentVariable
 }
 
 //! Function checking whether a given dependent variable type is related to some ancillary settings
-bool isObservationDependentVariableAncilliarySetting( const ObservationDependentVariables variableType )
+bool isObservationDependentVariableAncillarySetting( const ObservationDependentVariables variableType )
 {
-    bool isAncilliarySetting = false;
+    bool isAncillarySetting = false;
     switch( variableType )
     {
         case station_elevation_angle:
@@ -183,17 +183,17 @@ bool isObservationDependentVariableAncilliarySetting( const ObservationDependent
         case link_angle_with_orbital_plane:
             break;
         case integration_time_dependent_variable:
-            isAncilliarySetting = true;
+            isAncillarySetting = true;
             break;
         case retransmission_delays_dependent_variable:
-            isAncilliarySetting = true;
+            isAncillarySetting = true;
             break;
         default:
             throw std::runtime_error( "Error when checking observation dependent variable. Type " +
                                       getObservationDependentVariableName( variableType ) +
-                                      " not found when checking for ancilliary setting." );
+                                      " not found when checking for ancillary setting." );
     }
-    return isAncilliarySetting;
+    return isAncillarySetting;
 }
 
 //! Function checking whether a given dependent variable is related to a ground station property
@@ -476,7 +476,7 @@ std::function< bool( const ObservableType observableType ) > getIsObservableType
         const ObservationDependentVariables variableType )
 {
     std::function< bool( const ObservableType observableType ) > isObservableTypeCompatibleFunction;
-    if( !isObservationDependentVariableAncilliarySetting( variableType ) )
+    if( !isObservationDependentVariableAncillarySetting( variableType ) )
     {
         throw std::runtime_error(
                 "Error when retrieving function defining whether observable type is compatible with ancillary settings, the input "

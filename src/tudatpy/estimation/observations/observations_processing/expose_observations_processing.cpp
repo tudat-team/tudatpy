@@ -608,7 +608,7 @@ void expose_observations_processing( py::module& m )
         )doc" );
 
     m.def( "observation_parser",
-           py::overload_cast< const std::shared_ptr< tom::ObservationAncilliarySimulationSettings >, const bool >(
+           py::overload_cast< const std::shared_ptr< tom::ObservationAncillarySimulationSettings >, const bool >(
                    &tom::observationParser ),
            py::arg( "ancillary_settings" ),
            py::arg( "use_opposite_condition" ) = false,
@@ -617,7 +617,7 @@ void expose_observations_processing( py::module& m )
 
         Parameters
         ----------
-        ancillary_settings : tudatpy.kernel.astro.ObservationAncilliarySimulationSettings
+        ancillary_settings : tudatpy.kernel.astro.ObservationAncillarySimulationSettings
             Ancillary settings for parsing.
         use_opposite_condition : bool, optional
             Whether to use the opposite of the default condition. Default is False.
@@ -629,7 +629,7 @@ void expose_observations_processing( py::module& m )
         )doc" );
 
     m.def( "observation_parser",
-           py::overload_cast< const std::vector< std::shared_ptr< tom::ObservationAncilliarySimulationSettings > >&, const bool >(
+           py::overload_cast< const std::vector< std::shared_ptr< tom::ObservationAncillarySimulationSettings > >&, const bool >(
                    &tom::observationParser ),
            py::arg( "ancillary_settings_vector" ),
            py::arg( "use_opposite_condition" ) = false,
@@ -638,7 +638,7 @@ void expose_observations_processing( py::module& m )
 
         Parameters
         ----------
-        ancillary_settings_vector : list[tudatpy.kernel.astro.ObservationAncilliarySimulationSettings]
+        ancillary_settings_vector : list[tudatpy.kernel.astro.ObservationAncillarySimulationSettings]
             List of ancillary settings for parsing.
         use_opposite_condition : bool, optional
             Whether to use the opposite of the default condition. Default is False.
