@@ -22,6 +22,8 @@ from tudatpy.astro.time_representation import (
 )
 import shutil
 
+_REQUEST_TIMEOUT = 30  # seconds
+
 
 ### Class for Loading PDS files
 class LoadPDS:
@@ -509,6 +511,60 @@ class LoadPDS:
             print("Format key not supported")
         #########################################################################################################
 
+    def _download_file(self, url, local_path, timeout=60):
+        """Download a file via requests with timeout and atomic write.
+
+        Downloads to a temporary file first, then atomically renames to the
+        final path on success.  On failure the temp file is cleaned up.
+        """
+        tmp_path = local_path + ".tmp"
+        try:
+            response = requests.get(url, timeout=timeout, stream=True)
+            response.raise_for_status()
+            with open(tmp_path, "wb") as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            os.replace(tmp_path, local_path)
+        except Exception:
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
+            raise
+
+    #########################################################################################################
+
+    def _get_latest_versioned_files(self, url, patterns):
+        """Fetch an HTML listing page and find the latest version per pattern.
+
+        Parameters:
+            url (str): URL of the directory listing page.
+            patterns (list[str]): Regex patterns each containing one capture
+                group for the version number, e.g. ``r"ROS_V(\\d+)\\.TF"``.
+
+        Returns:
+            list[str]: One filename per pattern — the one with the highest
+            version number.  Patterns with no match are silently skipped.
+        """
+        response = requests.get(url, timeout=_REQUEST_TIMEOUT)
+        response.raise_for_status()
+        html = response.text
+
+        latest_files = []
+        for pattern in patterns:
+            best_version = -1
+            best_filename = None
+            for m in re.finditer(pattern, html, re.IGNORECASE):
+                version_num = int(m.group(1))
+                if version_num > best_version:
+                    best_version = version_num
+                    best_filename = m.group(0)
+            if best_filename is not None:
+                latest_files.append(best_filename)
+            else:
+                print(f"Warning: No file matched pattern {pattern!r} at {url}")
+        return latest_files
+
+    #########################################################################################################
+
     def get_kernels(
         self,
         input_mission,
@@ -570,7 +626,7 @@ class LoadPDS:
         matched_files_list = []
         if wanted_files_patterns:
             # Parse the URL to find matching files
-            reqs = requests.get(url)
+            reqs = requests.get(url, timeout=_REQUEST_TIMEOUT)
             soup = BeautifulSoup(reqs.text, "html.parser")
 
             for wanted_files_pattern in wanted_files_patterns:
@@ -600,7 +656,7 @@ class LoadPDS:
             if not os.path.exists(local_file):
                 full_url = str(os.path.join(url, file))
                 print(f"Downloading File: {full_url} to: {local_file}")
-                urlretrieve(full_url, local_file)
+                self._download_file(full_url, local_file)
             else:
                 print(
                     f"File: {local_file} already exists in: {base_folder} and will not be downloaded."
@@ -840,7 +896,7 @@ class LoadPDS:
             raise ValueError("Pattern not found among supported patterns.")
 
         existing_files = self.check_existing_files(
-            data_type, local_subfolder, start_date, end_date
+            data_type, local_subfolder
         )
         if not existing_files:
             existing_files = set()
@@ -861,7 +917,7 @@ class LoadPDS:
         files_url_dict = {}
 
         try:
-            reqs = requests.get(url)
+            reqs = requests.get(url, timeout=_REQUEST_TIMEOUT)
             reqs.raise_for_status()
         except Exception as e:
             raise ValueError(f"Error fetching data from {url}: {e}")
@@ -988,7 +1044,7 @@ class LoadPDS:
                         print(
                             f"Downloading: {full_download_url} to: {full_local_path}"
                         )
-                        urlretrieve(
+                        self._download_file(
                             full_download_url,
                             full_local_path,
                         )
@@ -1007,19 +1063,15 @@ class LoadPDS:
 
     #########################################################################################################
 
-    def check_existing_files(
-        self, data_type, local_subfolder, start_date, end_date
-    ):
+    def check_existing_files(self, data_type, local_subfolder):
         """
         Description:
-            Checks the local directory for files that match a given pattern and fall within a specified date range.
+            Checks the local directory for files that match a given pattern.
             This function filters and returns the files that already exist locally, based on their extensions and matching patterns.
 
         Inputs:
             - data_type (`str`): The type of data (e.g., 'ck', 'spk').
             - local_subfolder (`str`): Path to the local directory where the files are stored.
-            - start_date (`datetime`): The start date of the time interval for which files are required.
-            - end_date (`datetime`): The end date of the time interval for which files are required.
 
         Outputs:
             - `self.existing_files` (`set`): A set of paths to the files that already exist and match the given pattern.
@@ -1084,7 +1136,7 @@ class LoadPDS:
             raise ValueError(f"Pattern not found among supported patterns.")
 
         existing_files = self.check_existing_files(
-            data_type, local_subfolder, start_date, end_date
+            data_type, local_subfolder
         )
         if not existing_files:
             existing_files = set()
@@ -1101,7 +1153,7 @@ class LoadPDS:
         files_url_dict = {}
 
         # Get the content of the URL
-        reqs = requests.get(url)
+        reqs = requests.get(url, timeout=_REQUEST_TIMEOUT)
 
         # Parse links from the HTML response
         for link in BeautifulSoup(reqs.text, "html.parser").find_all("a"):
@@ -1200,7 +1252,7 @@ class LoadPDS:
                 print(
                     f"Downloading: {os.path.join(url,filename_to_download)} to: {full_local_path}"
                 )  # Print which file is being downloaded
-                urlretrieve(
+                self._download_file(
                     os.path.join(url, filename_to_download), full_local_path
                 )  # Download the file
                 self.relevant_files.append(full_local_path)
@@ -4365,11 +4417,9 @@ class LoadPDS:
                 "CALIB/CLOSED_LOOP/IFMS/MET/",
                 "CALIB/CLOSED_LOOP/DSN/MET/",
             ]:
-                url_flag = False
                 url_tropo_file = url_tropo_file_new + folder_type
-                response = requests.get(url_tropo_file)
+                response = requests.get(url_tropo_file, timeout=_REQUEST_TIMEOUT)
                 if response.status_code == 200:
-                    url_flag = True
                     html = response.text
                     # Parse the HTML with BeautifulSoup
                     soup = BeautifulSoup(html, "html.parser")
@@ -4435,11 +4485,7 @@ class LoadPDS:
             "https://spiftp.esac.esa.int/data/SPICE/ROSETTA/kernels/sclk/"
         )
 
-        # wanted_clock_files = self.get_latest_clock_kernel_name(input_mission)
-        wanted_clock_files = [
-            "ROS_160929_STEP.TSC",
-        ]
-        # TODO: Automate the clock file name retrieval
+        wanted_clock_files = self.get_latest_clock_kernel_name(input_mission)
 
         clock_files_to_load = self.get_kernels(
             input_mission=input_mission,
@@ -4460,12 +4506,15 @@ class LoadPDS:
         url_frame_files = (
             "https://spiftp.esac.esa.int/data/SPICE/ROSETTA/kernels/fk/"
         )
-        wanted_frame_files = [
-            "ROS_V38.TF",
-            "ROS_DSK_SURFACES_V03.TF",
-            "ROS_CGS_AUX_V01.TF",
-            "ROS_LUTETIA_RSOC_V03.TF",
-        ]
+        wanted_frame_files = self._get_latest_versioned_files(
+            url_frame_files,
+            [
+                r"ROS_V(\d+)\.TF",
+                r"ROS_DSK_SURFACES_V(\d+)\.TF",
+                r"ROS_CGS_AUX_V(\d+)\.TF",
+                r"ROS_LUTETIA_RSOC_V(\d+)\.TF",
+            ],
+        )
         frame_files_to_load = self.get_kernels(
             input_mission=input_mission,
             url=url_frame_files,
@@ -4488,29 +4537,16 @@ class LoadPDS:
         ]
 
         spk_files_to_load = []
-
-        # TODO: check which files to download
-
-        if len(url_spk_files) == 1:
-            spk_files_to_load = self.dynamic_download_url_files_time_interval(
-                input_mission,
-                local_path=local_folder,
-                start_date=start_date,
-                end_date=end_date,
-                url=url_spk_files[0],
-            )
-
-        else:
-            for url_spk_file in url_spk_files:
-                spk_files_to_load = (
-                    self.dynamic_download_url_files_time_interval(
-                        input_mission,
-                        local_path=local_folder,
-                        start_date=start_date,
-                        end_date=end_date,
-                        url=url_spk_file,
-                    )
+        for url_spk_file in url_spk_files:
+            spk_files_to_load.extend(
+                self.dynamic_download_url_files_time_interval(
+                    input_mission,
+                    local_path=local_folder,
+                    start_date=start_date,
+                    end_date=end_date,
+                    url=url_spk_file,
                 )
+            )
 
         if spk_files_to_load:
             self.kernel_files_to_load["spk"] = spk_files_to_load
@@ -4527,26 +4563,16 @@ class LoadPDS:
         ]
 
         ck_files_to_load = []
-        if len(url_ck_files) == 1:
-            ck_files_to_load = self.dynamic_download_url_files_time_interval(
-                input_mission,
-                local_path=local_folder,
-                start_date=start_date,
-                end_date=end_date,
-                url=url_ck_files[0],
-            )
-
-        else:
-            for url_ck_file in url_ck_files:
-                ck_files_to_load = (
-                    self.dynamic_download_url_files_time_interval(
-                        input_mission,
-                        local_path=local_folder,
-                        start_date=start_date,
-                        end_date=end_date,
-                        url=url_ck_file,
-                    )
+        for url_ck_file in url_ck_files:
+            ck_files_to_load.extend(
+                self.dynamic_download_url_files_time_interval(
+                    input_mission,
+                    local_path=local_folder,
+                    start_date=start_date,
+                    end_date=end_date,
+                    url=url_ck_file,
                 )
+            )
 
         if ck_files_to_load:
             self.kernel_files_to_load["ck"] = ck_files_to_load
@@ -4592,42 +4618,63 @@ class LoadPDS:
         )
 
         if rsi_volume_ID_list:
-            # Here, rsi_volume_ID_list is assumed to be a list of keys (rsi_volume_id strings)
+            # Iterate all entries for each volume ID (not just the first)
             for rsi_id in rsi_volume_ID_list:
-                try:
-                    # Get the first entry for the current rsi_volume_id from the mapping dictionary
-                    entry = mapping_dict[rsi_id][0]
-                    # Extract target and mission phase abbreviation (Abbn)
+                for entry in mapping_dict[rsi_id]:
+                    try:
+                        # Extract target and mission phase abbreviation (Abbn)
+                        target = entry.get("target")
+                        abbn = entry.get("abbn")
+                        rsi_volume_ID_num = entry.get(
+                            "rsi_volume_id_num", ""
+                        ).strip()
 
-                    target = entry.get("target", "").strip()
-                    abbn = entry.get("abbn", "").strip()
-                    rsi_volume_ID_num = entry.get(
-                        "rsi_volume_id_num", ""
-                    ).strip()
+                        # Guard against None or empty values
+                        if (
+                            not target
+                            or not abbn
+                            or not rsi_volume_ID_num
+                        ):
+                            print(
+                                f"Warning: Incomplete mapping for volume {rsi_id} "
+                                f"(target={target!r}, abbn={abbn!r}, "
+                                f"num={rsi_volume_ID_num!r}). Skipping."
+                            )
+                            continue
 
-                    # Construct the URL using the target, Abbn and rsi_volume_id.
-                    # The URL pattern:
-                    # "https://archives.esac.esa.int/psa/ftp/INTERNATIONAL-ROSETTA-MISSION/RSI/RO-X-RSI-1-2-3-PPP-RRRR-V1.0/"
-                    volume_ID_url = (
-                        radio_science_base_url
-                        + "RO-"
-                        + target
-                        + "-RSI-1-2-3-"
-                        + abbn
-                        + "-"
-                        + rsi_volume_ID_num
-                        + "-V1.0/"
-                    )
-                    # Check if URL exists with a HEAD request
-                    response = requests.head(volume_ID_url)
-                    if response.status_code == 200:
-                        print(f"URL Exists: {volume_ID_url}")
-                        self.radio_science_urls.append(volume_ID_url)
-                    else:
-                        print(f"URL does not exist: {volume_ID_url}")
-                except Exception as e:
-                    print(f"Error occurred for rsi_volume_id {rsi_id}: {e}")
-                    continue
+                        target = str(target).strip()
+                        abbn = str(abbn).strip()
+
+                        # Construct the URL using the target, Abbn and rsi_volume_id.
+                        # The URL pattern:
+                        # "https://archives.esac.esa.int/psa/ftp/INTERNATIONAL-ROSETTA-MISSION/RSI/RO-X-RSI-1-2-3-PPP-RRRR-V1.0/"
+                        volume_ID_url = (
+                            radio_science_base_url
+                            + "RO-"
+                            + target
+                            + "-RSI-1-2-3-"
+                            + abbn
+                            + "-"
+                            + rsi_volume_ID_num
+                            + "-V1.0/"
+                        )
+                        # Check if URL exists with a HEAD request
+                        response = requests.head(
+                            volume_ID_url, timeout=_REQUEST_TIMEOUT
+                        )
+                        if response.status_code == 200:
+                            print(f"URL Exists: {volume_ID_url}")
+                            if volume_ID_url not in self.radio_science_urls:
+                                self.radio_science_urls.append(volume_ID_url)
+                        else:
+                            print(
+                                f"URL does not exist: {volume_ID_url}"
+                            )
+                    except Exception as e:
+                        print(
+                            f"Error occurred for rsi_volume_id {rsi_id}: {e}"
+                        )
+                        continue
 
         if len(self.radio_science_urls) > 0:
             return self.radio_science_urls
@@ -4749,9 +4796,7 @@ class LoadPDS:
             for phase, data in mission_phases.items():
                 start_dt = data["start_dt"]
                 end_dt = data["end_dt"]
-                if (start_dt is None or d >= start_dt) and (
-                    end_dt is None or d <= end_dt
-                ):
+                if start_dt <= d <= end_dt:
                     found_phase = phase
                     break
             date_to_phase[d] = found_phase
@@ -4816,7 +4861,7 @@ class LoadPDS:
         """
 
         # Step 1: Fetch content from the URL
-        response = requests.get(url)
+        response = requests.get(url, timeout=_REQUEST_TIMEOUT)
         response.raise_for_status()  # Check for request errors
         aareadme_text = response.text
 
