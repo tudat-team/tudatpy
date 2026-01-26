@@ -836,21 +836,22 @@ class LoadPDS:
                 data_type.lower()
             ]
 
-        except:
+        except KeyError:
             raise ValueError("Pattern not found among supported patterns.")
 
         existing_files = self.check_existing_files(
             data_type, local_subfolder, start_date, end_date
         )
+        if not existing_files:
+            existing_files = set()
 
-        if existing_files and self.flag_check_existing_files == True:
+        if existing_files:
             print(
                 f"--------------------------------------- EXISTING FILES CHECK ----------------------------------------------"
             )
             print(
                 f"The following files already exist in the folder:\n\n {existing_files}\n\n and will not be downloaded."
             )
-            self.relevant_files.extend(existing_files)
 
         all_dates = [
             start_date + timedelta(days=x)
@@ -892,7 +893,7 @@ class LoadPDS:
                             # Determine the date string format
                             date_key = (
                                 RS_dict["date_file"][:5]
-                                if input_mission == "mex" or "ro"
+                                if input_mission in ("mex", "ro")
                                 else RS_dict["date_file"][:8]
                             )
                             files_url_dict[date_key] = filename_to_download
@@ -949,9 +950,9 @@ class LoadPDS:
             else:
                 continue
 
-        # Download missing files
+        # Download missing files and collect existing ones that match the date range
         for date in all_dates:
-            if input_mission == "mex" or "ro":
+            if input_mission in ("mex", "ro"):
                 date_string = (
                     f"{date.year % 100:02d}{date.timetuple().tm_yday:03d}"
                 )
@@ -978,29 +979,18 @@ class LoadPDS:
 
                 full_local_path = os.path.join(local_subfolder, download_file)
                 os.makedirs(local_subfolder, exist_ok=True)
-                if existing_files:
-                    if full_local_path not in existing_files:
-                        try:
-                            print(
-                                f"Downloading: {full_download_url} to {os.path.join(local_subfolder, download_file)}"
-                            )
-                            urlretrieve(
-                                full_download_url,
-                                os.path.join(local_subfolder, download_file),
-                            )
-                            self.relevant_files.append(full_local_path)
-                        except Exception as e:
-                            print(
-                                f"!! Failed to download {full_download_url}: {e} !!"
-                            )
+                if full_local_path in existing_files:
+                    # File already exists locally and matches date range — include it
+                    if full_local_path not in self.relevant_files:
+                        self.relevant_files.append(full_local_path)
                 else:
                     try:
                         print(
-                            f"Downloading: {full_download_url} to: {os.path.join(local_subfolder, download_file)}"
+                            f"Downloading: {full_download_url} to: {full_local_path}"
                         )
                         urlretrieve(
                             full_download_url,
-                            os.path.join(local_subfolder, download_file),
+                            full_local_path,
                         )
                         self.relevant_files.append(full_local_path)
                     except Exception as e:
@@ -1032,15 +1022,15 @@ class LoadPDS:
             - end_date (`datetime`): The end date of the time interval for which files are required.
 
         Outputs:
-            - `self.existing_files` (`list`): A list of paths to the files that already exist and match the given pattern.
+            - `self.existing_files` (`set`): A set of paths to the files that already exist and match the given pattern.
         """
         # Get all existing files that match the filename format
         ext = self.get_extension_for_data_type(data_type)
-        self.existing_files = [
+        self.existing_files = {
             f
             for f in glob.glob(f"{local_subfolder}/*")
             if re.search(rf"\.{ext}$", f, re.IGNORECASE)
-        ]
+        }
         if self.existing_files:
             self.flag_check_existing_files = True
             return self.existing_files
@@ -1090,20 +1080,22 @@ class LoadPDS:
             supported_pattern = self.supported_patterns[input_mission][
                 data_type
             ]
-        except:
+        except KeyError:
             raise ValueError(f"Pattern not found among supported patterns.")
 
         existing_files = self.check_existing_files(
             data_type, local_subfolder, start_date, end_date
         )
-        if existing_files and self.flag_check_existing_files == True:
+        if not existing_files:
+            existing_files = set()
+
+        if existing_files:
             print(
                 f"--------------------------------------- EXISTING FILES CHECK ---------------------------------------------\n"
             )
             print(
                 f"The following files already exist in the folder:\n\n {existing_files}\n\n and will not be downloaded."
             )
-            self.relevant_files.extend(existing_files)
 
         # Initialize a dictionary to hold files from the HTML response
         files_url_dict = {}
@@ -1184,41 +1176,34 @@ class LoadPDS:
                                         latest_filename_to_download
                                     )
 
-                    except:
+                    except Exception:
                         continue  # Skip to the next link
 
         # Download files for all intervals from the HTML response
+        # Use direct interval overlap test: [new_start, new_end] overlaps [start_date, end_date]
+        # iff new_start <= end_date AND new_end >= start_date
         for new_interval, filename_to_download in files_url_dict.items():
+            new_start, new_end = new_interval
+            # Check if the file's interval overlaps with the requested date range
+            if not (new_start.date() <= end_date.date() and new_end.date() >= start_date.date()):
+                continue
+
             full_local_path = os.path.join(
                 local_subfolder, filename_to_download
             )
 
-            if existing_files:
-                if full_local_path not in existing_files:
-                    if any(
-                        self.is_date_in_intervals(date, [new_interval])
-                        for date in all_dates
-                    ):
-                        print(
-                            f"Downloading: {os.path.join(url,filename_to_download)} to: {full_local_path}"
-                        )  # Print which file is being downloaded
-                        urlretrieve(
-                            os.path.join(url, filename_to_download),
-                            full_local_path,
-                        )  # Download the file
-                        self.relevant_files.append(full_local_path)
-            else:
-                if any(
-                    self.is_date_in_intervals(date, [new_interval])
-                    for date in all_dates
-                ):
-                    print(
-                        f"Downloading: {os.path.join(url,filename_to_download)} to: {full_local_path}"
-                    )  # Print which file is being downloaded
-                    urlretrieve(
-                        os.path.join(url, filename_to_download), full_local_path
-                    )  # Download the file
+            if full_local_path in existing_files:
+                # File already exists locally and overlaps date range — include it
+                if full_local_path not in self.relevant_files:
                     self.relevant_files.append(full_local_path)
+            else:
+                print(
+                    f"Downloading: {os.path.join(url,filename_to_download)} to: {full_local_path}"
+                )  # Print which file is being downloaded
+                urlretrieve(
+                    os.path.join(url, filename_to_download), full_local_path
+                )  # Download the file
+                self.relevant_files.append(full_local_path)
 
         if len(self.relevant_files) == 0:
             print("Nothing to download.")
@@ -1750,12 +1735,51 @@ class LoadPDS:
                     )
                     print(f"{action}: '{kernel_url}' to: {local_file_path}")
                     urlretrieve(kernel_url, local_file_path)
+                    # Patch PATH_VALUES in meta-kernel files so they point to the local directory
+                    if kernel_type == "mk":
+                        self._patch_meta_kernel_path_values(local_file_path, local_folder)
                 else:
                     print(
                         f"File: {url_kernel_path} already exists in: {local_folder} and will not be downloaded."
                     )
 
         return self.kernel_files_to_load
+
+    #########################################################################################################
+
+    def _patch_meta_kernel_path_values(self, meta_kernel_path, local_folder):
+        """
+        Patches the PATH_VALUES in a downloaded meta-kernel (.TM) file to point
+        to the local directory where kernels have been downloaded.
+
+        Parameters:
+            meta_kernel_path (str): Path to the meta-kernel file.
+            local_folder (str): The local folder where kernels are stored.
+        """
+        try:
+            with open(meta_kernel_path, "r") as f:
+                content = f.read()
+
+            # The mk/ directory is a subdirectory of local_folder, so PATH_VALUES
+            # should point to local_folder (parent of mk/)
+            resolved_path = os.path.abspath(local_folder)
+
+            # Replace PATH_VALUES block: match the pattern PATH_VALUES = ( '...' )
+            patched_content = re.sub(
+                r"(PATH_VALUES\s*=\s*\(\s*')[^']*('\s*\))",
+                rf"\g<1>{resolved_path}\2",
+                content,
+            )
+
+            if patched_content != content:
+                with open(meta_kernel_path, "w") as f:
+                    f.write(patched_content)
+                print(f"Patched PATH_VALUES in {meta_kernel_path} to: {resolved_path}")
+            else:
+                print(f"No PATH_VALUES found to patch in {meta_kernel_path}")
+
+        except Exception as e:
+            print(f"Warning: Could not patch meta-kernel PATH_VALUES: {e}")
 
     #########################################################################################################
 
@@ -2665,47 +2689,6 @@ class LoadPDS:
 
         Outputs:
             - `filtered_dict` (`dict`): A dictionary where keys are the same as in `mapping_dict`, and values are lists of filtered entries that match the specified observation type and fall within the date range.
-        """
-
-        filtered_dict = {
-            key: [
-                entry
-                for entry in values
-                if entry["radio_observation_type"] == radio_observation_type
-                and start_date_mex <= entry["start_date_utc"] <= end_date_mex
-            ]
-            for key, values in mapping_dict.items()
-            if any(
-                entry["radio_observation_type"] == radio_observation_type
-                and start_date_mex <= entry["start_date_utc"] <= end_date_mex
-                for entry in values
-            )
-        }
-        return filtered_dict
-
-    #########################################################################################################
-
-    def filter_mapping_dict_by_radio_observation_type(
-        self, mapping_dict, radio_observation_type, start_date_mex, end_date_mex
-    ):
-        """
-        Description:
-        Filters a mapping dictionary to extract entries based on a specified observation type and a date range.
-        The function returns a new dictionary where each key corresponds to a filtered set of entries that match
-        the specified observation type and fall within the given start and end dates.
-
-        Inputs:
-            - mapping_dict (`dict`): A dictionary where keys represent categories and values are lists of entries. Each entry is expected to be a dictionary containing:
-                - `start_date_utc` (`str`): The start date in UTC (format: YYYY-MM-DD).
-                - `radio_observation_type` (`str`): The type of observation.
-
-            - radio_observation_type (`str`): The type of observation to filter by (e.g., 'Phobos Gravity').
-            - start_date_mex (`str`): The start date for filtering in UTC (format: YYYY-MM-DD).
-            - end_date_mex (`str`): The end date for filtering in UTC (format: YYYY-MM-DD).
-
-        Outputs:
-            - `filtered_dict` (`dict`): A dictionary where keys are the same as in `mapping_dict`, and values are lists
-              of filtered entries that match the specified observation type and fall within the date range.
         """
 
         filtered_dict = {
@@ -4364,6 +4347,12 @@ class LoadPDS:
         self.ancillary_files_to_load = {}  # empty for now
 
         input_mission = "ro"
+
+        # Fetch radio science URLs once and reuse for both tropospheric and radio science loops
+        cached_radio_science_urls = self.get_url_ro_radio_science_files(
+            start_date, end_date, radio_observation_type
+        )
+
         # Tropospheric corrections
         print(
             f"==========================================================================================================="
@@ -4371,10 +4360,7 @@ class LoadPDS:
         print(
             f"Download {input_mission.upper()} Tropospheric and Ionospheric Corrections Files"
         )
-        url_tropo_files = self.get_url_ro_radio_science_files(
-            start_date, end_date, radio_observation_type
-        )
-        for url_tropo_file_new in url_tropo_files:
+        for url_tropo_file_new in cached_radio_science_urls:
             for folder_type in [
                 "CALIB/CLOSED_LOOP/IFMS/MET/",
                 "CALIB/CLOSED_LOOP/DSN/MET/",
@@ -4404,7 +4390,9 @@ class LoadPDS:
 
                 if tropo_files_to_load:
                     key = folder_type.split("/")[-2]
-                    self.ancillary_files_to_load[key] = tropo_files_to_load
+                    if key not in self.ancillary_files_to_load:
+                        self.ancillary_files_to_load[key] = []
+                    self.ancillary_files_to_load[key].extend(tropo_files_to_load)
 
                 else:
                     print(
@@ -4415,10 +4403,7 @@ class LoadPDS:
             f"==========================================================================================================="
         )
         print(f"Download {input_mission.upper()} Radio Science Kernels:")
-        url_radio_science_files = self.get_url_ro_radio_science_files(
-            start_date, end_date, radio_observation_type
-        )
-        for url_radio_science_file_new in url_radio_science_files:
+        for url_radio_science_file_new in cached_radio_science_urls:
             for closed_loop_type in ["IFMS/DP2/", "DSN/DPS/", "DSN/DPX/"]:
                 try:
                     url_radio_science_file = (
@@ -4434,8 +4419,11 @@ class LoadPDS:
                         url=url_radio_science_file,
                     )
                     key = f"{closed_loop_type.split('/')[0]}_{closed_loop_type.split('/')[1]}"
-                    self.radio_science_files_to_load[key] = files
-                except:
+                    if key not in self.radio_science_files_to_load:
+                        self.radio_science_files_to_load[key] = []
+                    self.radio_science_files_to_load[key].extend(files)
+                except Exception as e:
+                    print(f"Error downloading radio science files from {closed_loop_type}: {e}")
                     continue
 
         # Clock files
@@ -4563,13 +4551,13 @@ class LoadPDS:
         if ck_files_to_load:
             self.kernel_files_to_load["ck"] = ck_files_to_load
         else:
-            print("No spk files to download this time.")
+            print("No ck files to download this time.")
 
         print(
             f"-----------------------------------------------------------------------------------------------------------"
         )
         print(
-            "All requested, relevant and previously non-existing MEX files have been now downloaded. Enjoy!"
+            "All requested, relevant and previously non-existing RO files have been now downloaded. Enjoy!"
         )
 
         return (
@@ -4603,7 +4591,7 @@ class LoadPDS:
             start_date_ro, end_date_ro, mapping_dict
         )
 
-        if self.get_ro_rsi_volume_ID(start_date_ro, end_date_ro, mapping_dict):
+        if rsi_volume_ID_list:
             # Here, rsi_volume_ID_list is assumed to be a list of keys (rsi_volume_id strings)
             for rsi_id in rsi_volume_ID_list:
                 try:
