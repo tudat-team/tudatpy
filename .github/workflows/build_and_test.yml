@@ -141,10 +141,8 @@ jobs:
       id: cache-mcd
       uses: actions/cache@v4
       with:
-      path: |
-        ${{ github.workspace }}/path/to/first/folder
-        ${{ github.workspace }}/path/to/second/folder
-      key: mcd-data-${{ runner.os }}-${{ env.MCD_CACHE_NUMBER }}
+        path: ${{ github.workspace }}/third_parties/mcd
+        key: mcd-data-${{ runner.os }}-${{ env.MCD_CACHE_NUMBER }}
 
     - name: Download MCD release 
       if: steps.cache-mcd.outputs.cache-hit != 'true'
