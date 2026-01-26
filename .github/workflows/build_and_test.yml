@@ -17,6 +17,7 @@ jobs:
 
     env:
         CACHE_NUMBER: 0
+        MCD_CACHE_NUMBER: 0
 
     runs-on: ${{ matrix.platform.os }}
 
@@ -39,23 +40,28 @@ jobs:
             label: linux-64
             path_conda_env: /usr/share/miniconda/envs/tudat
             build_jobs: 3
+            compilers:
+              c: gcc
+              cxx: g++
+              fortran: gfortran
           - os: windows-latest
             label: win-64
             path_conda_env: C:\Miniconda\envs\tudat
             build_jobs: 3
+            compilers:
+              c: gcc
+              cxx: g++
+              fortran: gfortran
           - os: macos-latest
             label: osx-64
             path_conda_env: /Users/runner/miniconda3/envs/tudat
             build_jobs: 2
+            compilers:
+              c: clang
+              cxx: clang++
+              fortran: gfortran
         build_type: [Release]
-        compilers: [{c: gcc, cxx: g++}, {c: clang, cxx: clang++}]
-        exclude:
-          - platform: {os: windows-latest}
-            compilers: {c: clang, cxx: clang++}
-          - platform: {os: ubuntu-latest}
-            compilers: {c: clang, cxx: clang++}
-          - platform: {os: macos-latest}
-            compilers: {c: gcc, cxx: g++}
+
 
     steps:
     - uses: actions/checkout@v4
@@ -91,6 +97,11 @@ jobs:
       # if: steps.cache.outputs.cache-hit != 'true'
       run: conda env update -n tudat -f environment.yaml
 
+    - name: Install Fortran compiler and NetCDF-Fortran
+      shell: bash -l {0}
+      run: |
+        conda install -n tudat -c conda-forge -y gfortran netcdf-fortran
+
 
     - name: Show full conda package list
       shell: bash -l {0}
@@ -125,6 +136,48 @@ jobs:
     #  with:
     #    key: ${{ matrix.platform.os }}-${{ matrix.build_type }}
 
+    # MCD data setup: download and cache
+    - name: Cache MCD data files
+      id: cache-mcd
+      uses: actions/cache@v4
+      with:
+      path: |
+        ${{ github.workspace }}/path/to/first/folder
+        ${{ github.workspace }}/path/to/second/folder
+      key: mcd-data-${{ runner.os }}-${{ env.MCD_CACHE_NUMBER }}
+
+    - name: Download MCD release 
+      if: steps.cache-mcd.outputs.cache-hit != 'true'
+      env:
+        GH_TOKEN: ${{ secrets.MCD_REPO_TOKEN }}
+      shell: bash
+      run: |
+        # Create directories
+        mkdir -p "${{ github.workspace }}/temp_mcd"
+      
+        # Download release data
+        gh release download v1 --repo nikemais/MCD --pattern "*.tgz" --dir "${{ github.workspace }}/temp_mcd"
+
+    - name: Extract and place MCD files
+      if: steps.cache-mcd.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        cd "${{ github.workspace }}/temp_mcd"
+        # Extract tgz
+        tar -xzf *.tgz
+        # Copy data folder 
+        cp -r data "${{ github.workspace }}/third_parties/mcd/"
+        # Copy contents of sources 
+        cp -r sources/* "${{ github.workspace }}/third_parties/mcd/"
+        # Cleanup
+        cd "${{ github.workspace }}"
+        rm -rf temp_mcd
+
+    - name: Verify MCD files
+      shell: bash
+      run: |
+        echo "=== MCD data ==="
+        find "${{ github.workspace }}/third_parties/mcd" -maxdepth 2 -type f | head -20
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -138,7 +191,9 @@ jobs:
         #-DCMAKE_CXX_COMPILER_LAUNCHER=ccache
         -DCMAKE_C_COMPILER=${{ matrix.compilers.c }}
         #-DCMAKE_C_COMPILER_LAUNCHER=ccache
+        -DCMAKE_Fortran_COMPILER=${{ matrix.compilers.fortran }}
         -DTUDAT_BUILD_GITHUB_ACTIONS=ON
+        -DTUDAT_BUILD_WITH_MCD_INTERFACE=ON
 
     - name: Debug
       run: |
