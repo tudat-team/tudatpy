@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( testIfmsObservationMex )
                         frequency_bands, { static_cast< double >( x_band ), static_cast< double >( currentReceptionBand ) } );
                 ancillarySettings.setAncillaryDoubleData( doppler_reference_frequency, 0.0 );
                 ancillarySettings.setAncillaryDoubleData( reception_reference_frequency_band,
-                                                            convertFrequencyBandToDouble( currentReceptionBand ) );
+                                                          convertFrequencyBandToDouble( currentReceptionBand ) );
 
                 // Create and process observation collection
                 observedUncompressedObservationCollection =

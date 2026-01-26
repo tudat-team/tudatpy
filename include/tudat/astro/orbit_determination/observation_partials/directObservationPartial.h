@@ -79,7 +79,7 @@ public:
     }
 
     //! Destructor.
-    ~DirectObservationPartial( ) { }
+    ~DirectObservationPartial( ) {}
 
     //! Function to calculate the observation partial(s) at required time and state
     /*!

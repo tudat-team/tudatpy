@@ -47,7 +47,7 @@ public:
         transmitterWrtLinkEndStatePartial_( transmitterWrtLinkEndStatePartial ),
         receiverWrtLinkEndStatePartial_( receiverWrtLinkEndStatePartial ),
         transmitterAccelerationFunction_( transmitterAccelerationFunction ), receiverAccelerationFunction_( receiverAccelerationFunction )
-    { }
+    {}
 
     std::pair< Eigen::Matrix< double, ObservationSize, Eigen::Dynamic >, double > getObservationPartialWrtObservationTime(
             const std::vector< Eigen::Vector6d >& states,
@@ -147,10 +147,10 @@ public:
         ObservationPartial< ObservationSize >( std::make_pair( estimatable_parameters::constant_time_drift_observation_bias,
                                                                linkEnds.begin( )->second.getDualStringLinkEnd( ) ) ),
         observableType_( observableType ), linkEnds_( linkEnds ), linkEndIndex_( linkEndIndex ), referenceEpoch_( referenceEpoch )
-    { }
+    {}
 
     //! Destructor
-    ~ObservationPartialWrtConstantTimeDriftBias( ) { }
+    ~ObservationPartialWrtConstantTimeDriftBias( ) {}
 
     //! Function to calculate the observation partial w.r.t. time drift bias
     /*!
@@ -228,7 +228,7 @@ public:
     }
 
     //! Destructor
-    ~ObservationPartialWrtArcWiseTimeDriftBias( ) { }
+    ~ObservationPartialWrtArcWiseTimeDriftBias( ) {}
 
     //! Function to calculate the observation partial w.r.t. arc-wise time drift bias
     /*!
@@ -313,7 +313,7 @@ public:
     }
 
     //! Destructor
-    ~ObservationPartialWrtConstantTimeBias( ) { }
+    ~ObservationPartialWrtConstantTimeBias( ) {}
 
     //! Function to calculate the observation partial w.r.t. time bias
     /*!
@@ -374,7 +374,7 @@ public:
     }
 
     //! Destructor
-    ~ObservationPartialWrtArcWiseTimeBias( ) { }
+    ~ObservationPartialWrtArcWiseTimeBias( ) {}
 
     //! Function to calculate the observation partial w.r.t. arc-wise time bias
     /*!

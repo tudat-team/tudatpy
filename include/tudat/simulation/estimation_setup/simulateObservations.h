@@ -547,7 +547,7 @@ std::shared_ptr< observation_models::ObservationCollection< ObservationScalarTyp
         const observation_models::LinkEndType referenceLinkEnd,
         const std::map< observation_models::ObservableType, std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > >
                 ancillarySettings = std::map< observation_models::ObservableType,
-                                               std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > >( ) )
+                                              std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > >( ) )
 {
     // Declare return map.
     typename observation_models::ObservationCollection< ObservationScalarType, TimeType >::SortedObservationSets sortedObservations;

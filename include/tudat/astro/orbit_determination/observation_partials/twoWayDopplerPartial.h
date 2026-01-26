@@ -181,10 +181,10 @@ public:
         ObservationPartial< 1 >( parameterIdentifier ), twoWayDopplerScaler_( twoWayDopplerScaler ),
         dopplerPartialList_( dopplerPartialList ), rangePartialList_( rangePartialList ), numberOfLinkEnds_( numberOfLinkEnds ),
         scalingFactorFunction_( scalingFactorFunction )
-    { }
+    {}
 
     //! Destructor
-    ~TwoWayDopplerPartial( ) { }
+    ~TwoWayDopplerPartial( ) {}
 
     //! Function to calculate the observation partial(s) at required time and state
     /*!

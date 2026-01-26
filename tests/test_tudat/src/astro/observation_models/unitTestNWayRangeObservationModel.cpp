@@ -196,12 +196,12 @@ BOOST_AUTO_TEST_CASE( testNWayRangeModel )
                 }
 
                 // Compute 2-way range
-                twoWayRange = twoWayObservationModel->computeObservationsWithLinkEndData(
-                        observationTime,
-                        linkEndIterator->first,
-                        twoWayLinkEndTimes,
-                        twoWayLinkEndStates,
-                        getNWayRangeAncillarySettings( retransmissionDelays ) );
+                twoWayRange =
+                        twoWayObservationModel->computeObservationsWithLinkEndData( observationTime,
+                                                                                    linkEndIterator->first,
+                                                                                    twoWayLinkEndTimes,
+                                                                                    twoWayLinkEndStates,
+                                                                                    getNWayRangeAncillarySettings( retransmissionDelays ) );
 
                 // Set observation times/reference link ends of constituent one-way ranges
                 if( linkEndIterator->first == transmitter )
