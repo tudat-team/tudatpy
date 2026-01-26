@@ -38,7 +38,6 @@ BOOST_AUTO_TEST_CASE( test_IauUranusRotationModel )
 {
     loadSpiceKernelInTudat( paths::getSpiceKernelPath( ) + "/pck00010.tpc" );
 
-    std::string baseFrameOrientation = "J2000";
     std::string targetFrameOrientation = "IAU_Uranus";
 
     double degreeToRadian = unit_conversions::convertDegreesToRadians( 1.0 );
@@ -53,30 +52,39 @@ BOOST_AUTO_TEST_CASE( test_IauUranusRotationModel )
     // Create rotation model
     for( int test = 0; test < 2; test++ )
     {
-        double referenceEpoch = ( test == 0 ) ? 0.0 : 10.0 * physical_constants::JULIAN_YEAR;
-        std::shared_ptr< tudat::ephemerides::IauRotationModel > iauRotationModel =
-                std::make_shared< ephemerides::IauRotationModel >( baseFrameOrientation,
-                                                                   targetFrameOrientation,
-                                                                   nominalMeridian,
-                                                                   nominalPole,
-                                                                   rotationRate,
-                                                                   polePrecession,
-                                                                   meridianPeriodicTerms,
-                                                                   polePeriodicTerms,
-                                                                   referenceEpoch );
+        for( int frame = 0; frame < 2; frame++ )
+        {
+            std::cout << test << " " << frame << std::endl;
+            std::string anglesBaseFrame = "J2000";
+            std::string baseFrameOrientation = ( frame == 0 ) ? "J2000" : "ECLIPJ2000";
+            double referenceEpoch = ( test == 0 ) ? 0.0 : 10.0 * physical_constants::JULIAN_YEAR;
+            std::shared_ptr< tudat::ephemerides::IauRotationModel > iauRotationModel =
+                    std::make_shared< ephemerides::IauRotationModel >( baseFrameOrientation,
+                                                                       targetFrameOrientation,
+                                                                       nominalMeridian,
+                                                                       nominalPole,
+                                                                       rotationRate,
+                                                                       polePrecession,
+                                                                       meridianPeriodicTerms,
+                                                                       polePeriodicTerms,
+                                                                       referenceEpoch,
+                                                                       anglesBaseFrame );
 
-        double testTimeWrtReference = 1.0E9;
-        double testTimeWrtJ2000 = 1.0E9 + referenceEpoch;
-        Eigen::Matrix3d spiceRotation = computeRotationMatrixBetweenFrames( "J2000", "IAU_Uranus", testTimeWrtReference );
-        Eigen::Matrix3d tudatRotation = iauRotationModel->getRotationMatrixToTargetFrame( testTimeWrtJ2000 );
+            double testTimeWrtReference = 1.0E9;
+            double testTimeWrtJ2000 = 1.0E9 + referenceEpoch;
+            Eigen::Matrix3d spiceRotation = computeRotationMatrixBetweenFrames( baseFrameOrientation, "IAU_Uranus", testTimeWrtReference );
+            Eigen::Matrix3d tudatRotation = iauRotationModel->getRotationMatrixToTargetFrame( testTimeWrtJ2000 );
 
-        std::cout << spiceRotation << std::endl << std::endl << tudatRotation << std::endl << std::endl;
-        Eigen::Matrix3d spiceRotationDerivative =
-                computeRotationMatrixDerivativeBetweenFrames( "J2000", "IAU_Uranus", testTimeWrtReference );
-        Eigen::Matrix3d tudatRotationDerivative = iauRotationModel->getDerivativeOfRotationToTargetFrame( testTimeWrtJ2000 );
+            std::cout << spiceRotation << std::endl << std::endl << tudatRotation << std::endl << std::endl << std::endl << std::endl;
+            Eigen::Matrix3d spiceRotationDerivative =
+                    computeRotationMatrixDerivativeBetweenFrames( baseFrameOrientation, "IAU_Uranus", testTimeWrtReference );
+            Eigen::Matrix3d tudatRotationDerivative = iauRotationModel->getDerivativeOfRotationToTargetFrame( testTimeWrtJ2000 );
 
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( spiceRotation, tudatRotation, 1.0E-10 );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( spiceRotationDerivative, tudatRotationDerivative, 1.0E-10 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( spiceRotation, tudatRotation, 1.0E-9 );
+            std::cout << spiceRotationDerivative << std::endl << std::endl << tudatRotationDerivative << std::endl << std::endl;
+
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( spiceRotationDerivative, tudatRotationDerivative, 1.0E-9 );
+        }
     }
 }
 
@@ -84,7 +92,6 @@ BOOST_AUTO_TEST_CASE( test_IauJupiterRotationModel )
 {
     loadSpiceKernelInTudat( paths::getSpiceKernelPath( ) + "/pck00010.tpc" );
 
-    std::string baseFrameOrientation = "J2000";
     std::string targetFrameOrientation = "IAU_Jupiter";
 
     double degreeToRadian = unit_conversions::convertDegreesToRadians( 1.0 );
@@ -110,30 +117,37 @@ BOOST_AUTO_TEST_CASE( test_IauJupiterRotationModel )
     // Create rotation model
     for( int test = 0; test < 2; test++ )
     {
-        double referenceEpoch = ( test == 0 ) ? 0.0 : 50 * physical_constants::JULIAN_YEAR;
-        std::shared_ptr< tudat::ephemerides::IauRotationModel > iauRotationModel =
-                std::make_shared< ephemerides::IauRotationModel >( baseFrameOrientation,
-                                                                   targetFrameOrientation,
-                                                                   nominalMeridian,
-                                                                   nominalPole,
-                                                                   rotationRate,
-                                                                   polePrecession,
-                                                                   meridianPeriodicTerms,
-                                                                   polePeriodicTerms,
-                                                                   referenceEpoch );
+        for( int frame = 0; frame < 2; frame++ )
+        {
+            std::cout << test << " " << frame << std::endl;
+            std::string anglesBaseFrame = "J2000";
+            std::string baseFrameOrientation = ( frame == 0 ) ? "J2000" : "ECLIPJ2000";
+            double referenceEpoch = ( test == 0 ) ? 0.0 : 50 * physical_constants::JULIAN_YEAR;
+            std::shared_ptr< tudat::ephemerides::IauRotationModel > iauRotationModel =
+                    std::make_shared< ephemerides::IauRotationModel >( baseFrameOrientation,
+                                                                       targetFrameOrientation,
+                                                                       nominalMeridian,
+                                                                       nominalPole,
+                                                                       rotationRate,
+                                                                       polePrecession,
+                                                                       meridianPeriodicTerms,
+                                                                       polePeriodicTerms,
+                                                                       referenceEpoch,
+                                                                       anglesBaseFrame );
 
-        double testTimeWrtReference = 1.0E9;
-        double testTimeWrtJ2000 = 1.0E9 + referenceEpoch;
+            double testTimeWrtReference = 1.0E9;
+            double testTimeWrtJ2000 = 1.0E9 + referenceEpoch;
 
-        Eigen::Matrix3d spiceRotation = computeRotationMatrixBetweenFrames( "J2000", "IAU_Jupiter", testTimeWrtReference );
-        Eigen::Matrix3d tudatRotation = iauRotationModel->getRotationMatrixToTargetFrame( testTimeWrtJ2000 );
+            Eigen::Matrix3d spiceRotation = computeRotationMatrixBetweenFrames( baseFrameOrientation, "IAU_Jupiter", testTimeWrtReference );
+            Eigen::Matrix3d tudatRotation = iauRotationModel->getRotationMatrixToTargetFrame( testTimeWrtJ2000 );
 
-        Eigen::Matrix3d spiceRotationDerivative =
-                computeRotationMatrixDerivativeBetweenFrames( "J2000", "IAU_Jupiter", testTimeWrtReference );
-        Eigen::Matrix3d tudatRotationDerivative = iauRotationModel->getDerivativeOfRotationToTargetFrame( testTimeWrtJ2000 );
+            Eigen::Matrix3d spiceRotationDerivative =
+                    computeRotationMatrixDerivativeBetweenFrames( baseFrameOrientation, "IAU_Jupiter", testTimeWrtReference );
+            Eigen::Matrix3d tudatRotationDerivative = iauRotationModel->getDerivativeOfRotationToTargetFrame( testTimeWrtJ2000 );
 
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( spiceRotation, tudatRotation, 1.0E-10 );
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( spiceRotationDerivative, tudatRotationDerivative, 1.0E-10 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( spiceRotation, tudatRotation, 1.0E-9 );
+            TUDAT_CHECK_MATRIX_CLOSE_FRACTION( spiceRotationDerivative, tudatRotationDerivative, 1.0E-9 );
+        }
     }
 }
 

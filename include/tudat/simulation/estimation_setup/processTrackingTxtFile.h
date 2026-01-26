@@ -331,7 +331,7 @@ public:
     }
 
     void updateAncillarySettings( const ObservableType observableType,
-                                   std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings )
+                                  std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings )
     {
         if( !utilities::containsAll( observableTypes_, std::vector< ObservableType >( { observableType } ) ) )
         {
@@ -795,8 +795,8 @@ createMultiStationIfmsObservedObservationCollectionFromFiles(
     setTrackingDataInformationInBodies( processedIfmsFiles, bodies, dsn_n_way_averaged_doppler );
 
     ObservationAncillarySimulationSettings ancillarySettings;
-    ancillarySettings.setAncillaryDoubleVectorData(
-            frequency_bands, { static_cast< double >( transmissionBand ), static_cast< double >( receptionBand ) } );
+    ancillarySettings.setAncillaryDoubleVectorData( frequency_bands,
+                                                    { static_cast< double >( transmissionBand ), static_cast< double >( receptionBand ) } );
     ancillarySettings.setAncillaryDoubleData( doppler_reference_frequency, 0.0 );
     ancillarySettings.setAncillaryDoubleData( reception_reference_frequency_band, convertFrequencyBandToDouble( receptionBand ) );
 
@@ -857,8 +857,8 @@ createFdetsObservedObservationCollectionFromFile( const std::string& fdetsFileNa
 
     // Define ancillary settings
     ObservationAncillarySimulationSettings ancillarySettings;
-    ancillarySettings.setAncillaryDoubleVectorData(
-            frequency_bands, { static_cast< double >( transmissionBand ), static_cast< double >( receptionBand ) } );
+    ancillarySettings.setAncillaryDoubleVectorData( frequency_bands,
+                                                    { static_cast< double >( transmissionBand ), static_cast< double >( receptionBand ) } );
 
     return observation_models::createTrackingTxtFilesObservationCollection< ObservationScalarType, TimeType >(
             processedFdetsFiles, std::vector< ObservableType >( ), ancillarySettings );

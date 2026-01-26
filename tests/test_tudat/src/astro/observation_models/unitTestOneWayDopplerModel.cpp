@@ -169,8 +169,8 @@ BOOST_AUTO_TEST_CASE( testOneWayDoppplerModel )
         biasSettingsList.push_back( std::make_shared< ConstantRelativeObservationBiasSettings >( Eigen::Vector1d( 2.5E-4 ) ) );
         std::shared_ptr< ObservationBiasSettings > biasSettings = std::make_shared< MultipleObservationBiasSettings >( biasSettingsList );
 
-        std::shared_ptr< ObservationModelSettings > biasedObservableSettings =
-                std::make_shared< ObservationModelSettings >( one_way_doppler, std::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings );
+        std::shared_ptr< ObservationModelSettings > biasedObservableSettings = std::make_shared< ObservationModelSettings >(
+                one_way_doppler, std::shared_ptr< LightTimeCorrectionSettings >( ), biasSettings );
 
         // Create observation model
         std::shared_ptr< ObservationModel< 1, double, double > > biasedObservationModel =

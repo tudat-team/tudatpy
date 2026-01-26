@@ -70,25 +70,27 @@ def test_MPC_weights_to_ObsCol(
     )
 
     # tudat's observationcollection sorts by observatory then time
-    temp_table = batch._table.sort_values(
-        ["observatory", "epochJ2000secondsTDB"], ascending=True
+    temp_table = (
+        batch._table
+        .query("observatory != @batch.space_telescopes")
+        .sort_values(["observatory", "epochJ2000secondsTDB"], ascending=True)
     )
+
     # concatted weights goes [RA1, DEC1, RA2, DEC2, ...]
     batch_weights = np.ravel(2 * [temp_table.weight.to_numpy()], "F")
     batch_times = np.ravel(2 * [temp_table.epochJ2000secondsTDB.to_numpy()], "F")
 
     # check if lengths match and if the difference is zero
-    print(len(batch_weights), len(observation_collection.concatenated_weights))
-    #assert len(batch_weights) == len(observation_collection.concatenated_weights)
-    #total_diff = np.sum(
-    #    batch_weights - np.array(observation_collection.concatenated_weights)
-    #)
-    #total_diff_time = np.sum(
-    #    batch_times - np.array(observation_collection.concatenated_times)
-    #)
+    assert len(batch_weights) == len(observation_collection.concatenated_weights)
+    total_diff = np.sum(
+       batch_weights - np.array(observation_collection.concatenated_weights)
+    )
+    total_diff_time = np.sum(
+       batch_times - np.array(observation_collection.concatenated_times)
+    )
 
-    #assert total_diff_time == 0
-    #assert total_diff == 0
+    assert total_diff_time == 0
+    assert total_diff == 0
 
     # test pod_input
     # provide the observation collection as input, and limit number of iterations for estimation.

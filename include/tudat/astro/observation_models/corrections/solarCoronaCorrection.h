@@ -160,7 +160,7 @@ public:
         }
 
         exponentsAreIntegers_ = true;
-        for( double exponent: positiveExponents )
+        for( double exponent : positiveExponents )
         {
             // Check if all exponents are positive
             if( exponent <= 0 )

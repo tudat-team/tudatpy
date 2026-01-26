@@ -39,15 +39,14 @@ template< typename ObservationScalarType = double,
 class SingleObservationSet
 {
 public:
-    SingleObservationSet(
-            const ObservableType observableType,
-            const LinkDefinition& linkEnds,
-            const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
-            const std::vector< TimeType > observationTimes,
-            const LinkEndType referenceLinkEnd,
-            const std::vector< Eigen::VectorXd >& observationsDependentVariables = std::vector< Eigen::VectorXd >( ),
-            const std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping = nullptr,
-            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ):
+    SingleObservationSet( const ObservableType observableType,
+                          const LinkDefinition& linkEnds,
+                          const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >& observations,
+                          const std::vector< TimeType > observationTimes,
+                          const LinkEndType referenceLinkEnd,
+                          const std::vector< Eigen::VectorXd >& observationsDependentVariables = std::vector< Eigen::VectorXd >( ),
+                          const std::shared_ptr< ObservationDependentVariableBookkeeping > dependentVariableBookkeeping = nullptr,
+                          const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = nullptr ):
         observableType_( observableType ), linkEnds_( linkEnds ), observations_( observations ), observationTimes_( observationTimes ),
         referenceLinkEnd_( referenceLinkEnd ), observationsDependentVariables_( observationsDependentVariables ),
         dependentVariableBookkeeping_( dependentVariableBookkeeping ), ancillarySettings_( ancillarySettings ),

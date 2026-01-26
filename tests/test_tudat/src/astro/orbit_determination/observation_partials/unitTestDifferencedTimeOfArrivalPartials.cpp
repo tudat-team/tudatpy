@@ -96,19 +96,14 @@ BOOST_AUTO_TEST_CASE( testDifferencedTimeOfArrivalDirectPartial )
             std::make_shared< FirstOrderRelativisticLightTimeCorrectionSettings >( lightTimePerturbingBodies ) );
 
     // Create observation settings
-    std::shared_ptr< ObservationModelSettings > rangeObservableSettings1 = std::make_shared< ObservationModelSettings >(
-            one_way_range,
-            linkEnds1,
-            lightTimeCorrectionSettings );
+    std::shared_ptr< ObservationModelSettings > rangeObservableSettings1 =
+            std::make_shared< ObservationModelSettings >( one_way_range, linkEnds1, lightTimeCorrectionSettings );
 
-    std::shared_ptr< ObservationModelSettings > rangeObservableSettings2 = std::make_shared< ObservationModelSettings >(
-            one_way_range,
-            linkEnds2,
-            lightTimeCorrectionSettings );
+    std::shared_ptr< ObservationModelSettings > rangeObservableSettings2 =
+            std::make_shared< ObservationModelSettings >( one_way_range, linkEnds2, lightTimeCorrectionSettings );
 
-    std::shared_ptr< ObservationModelSettings > differencedObservableSettings = std::make_shared< DifferencedTimeOfArrivalObservationSettings >(
-            differencedLinkEnds,
-            lightTimeCorrectionSettings );
+    std::shared_ptr< ObservationModelSettings > differencedObservableSettings =
+            std::make_shared< DifferencedTimeOfArrivalObservationSettings >( differencedLinkEnds, lightTimeCorrectionSettings );
 
     // Create observation model.
     std::shared_ptr< ObservationModel< 1, double, Time > > firstRangeObservationModel =
@@ -171,29 +166,27 @@ BOOST_AUTO_TEST_CASE( testDifferencedTimeOfArrivalDirectPartial )
         std::vector< std::pair< Eigen::Matrix< double, 1, Eigen::Dynamic >, double > > secondRangePartialValues =
                 secondRangePartials.first.begin( )->second->calculatePartial( linkEndStatesRange2, linkEndTimesRange2, transmitter );
 
-        BOOST_CHECK_CLOSE_FRACTION( firstRangePartialValues.at( 0 ).second, differencedTimeOfArrivalPartialValues.at( 0 ).second,
-                                           ( 4.0 * std::numeric_limits< double >::epsilon( ) ));
-        BOOST_CHECK_CLOSE_FRACTION( secondRangePartialValues.at( 0 ).second, differencedTimeOfArrivalPartialValues.at( 0 ).second,
-                                           ( 4.0 * std::numeric_limits< double >::epsilon( ) ));
+        BOOST_CHECK_CLOSE_FRACTION( firstRangePartialValues.at( 0 ).second,
+                                    differencedTimeOfArrivalPartialValues.at( 0 ).second,
+                                    ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
+        BOOST_CHECK_CLOSE_FRACTION( secondRangePartialValues.at( 0 ).second,
+                                    differencedTimeOfArrivalPartialValues.at( 0 ).second,
+                                    ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
 
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( 
-                firstRangePartialValues.at( 0 ).first,
-                ( differencedTimeOfArrivalPartialValues.at( 0 ).first * physical_constants::SPEED_OF_LIGHT ),
-                ( 4.0 * std::numeric_limits< double >::epsilon( ) ));
-        
-        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( 
-                secondRangePartialValues.at( 0 ).first,
-                ( -differencedTimeOfArrivalPartialValues.at( 1 ).first * physical_constants::SPEED_OF_LIGHT ), 
-                ( 4.0 * std::numeric_limits< double >::epsilon( ) ));
-//        std::cout << std::setprecision( 15 ) << std::endl;
-//        std::cout << firstRangePartialValues.at( 0 ).first << std::endl;
-//        std::cout << differencedTimeOfArrivalPartialValues.at( 0 ).first * physical_constants::SPEED_OF_LIGHT << std::endl;
-//
-//        std::cout << secondRangePartialValues.at( 0 ).first << std::endl;
-//        std::cout << -differencedTimeOfArrivalPartialValues.at( 1 ).first * physical_constants::SPEED_OF_LIGHT << std::endl;
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( firstRangePartialValues.at( 0 ).first,
+                                           ( differencedTimeOfArrivalPartialValues.at( 0 ).first * physical_constants::SPEED_OF_LIGHT ),
+                                           ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
 
+        TUDAT_CHECK_MATRIX_CLOSE_FRACTION( secondRangePartialValues.at( 0 ).first,
+                                           ( -differencedTimeOfArrivalPartialValues.at( 1 ).first * physical_constants::SPEED_OF_LIGHT ),
+                                           ( 4.0 * std::numeric_limits< double >::epsilon( ) ) );
+        //        std::cout << std::setprecision( 15 ) << std::endl;
+        //        std::cout << firstRangePartialValues.at( 0 ).first << std::endl;
+        //        std::cout << differencedTimeOfArrivalPartialValues.at( 0 ).first * physical_constants::SPEED_OF_LIGHT << std::endl;
+        //
+        //        std::cout << secondRangePartialValues.at( 0 ).first << std::endl;
+        //        std::cout << -differencedTimeOfArrivalPartialValues.at( 1 ).first * physical_constants::SPEED_OF_LIGHT << std::endl;
     }
-
 }
 //! Test partial derivatives of one-way differenced range observable, using general test suite of observation partials.
 BOOST_AUTO_TEST_CASE( testDifferencedTimeOfArrival )
@@ -234,7 +227,7 @@ BOOST_AUTO_TEST_CASE( testDifferencedTimeOfArrival )
         // Create parameter objects.
         std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );
 
-//            double scalingFactor = std::pow( 10.0, testMultiplier );
+        //            double scalingFactor = std::pow( 10.0, testMultiplier );
         testObservationPartials< 1 >( oneWayDifferencedRangeModel,
                                       bodies,
                                       fullEstimatableParameterSet,
@@ -246,7 +239,7 @@ BOOST_AUTO_TEST_CASE( testDifferencedTimeOfArrival )
                                       10.0,
                                       parameterPerturbationMultipliers );
 
-        std::cout<<std::endl<<std::endl<<std::endl;
+        std::cout << std::endl << std::endl << std::endl;
     }
 
     // Test partials with real ephemerides (without test of position partials)

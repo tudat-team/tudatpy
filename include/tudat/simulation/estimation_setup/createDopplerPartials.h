@@ -286,7 +286,7 @@ std::pair< SingleLinkObservationPartialList, std::shared_ptr< PositionPartialSca
         if( isParameterObservationLinkProperty( parameterIterator->second->getParameterName( ).first ) )
         {
             currentTwoWayDopplerPartial = createObservationPartialWrtLinkProperty< 1 >( twoWayDopplerLinkEnds,
-                                                                                        observation_models::two_way_doppler,
+                                                                                        observationModel->getObservableType( ),
                                                                                         parameterIterator->second,
                                                                                         bodies,
                                                                                         isPartialForDifferencedObservable );

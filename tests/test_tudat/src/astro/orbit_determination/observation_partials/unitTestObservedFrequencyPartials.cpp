@@ -65,7 +65,7 @@ class LinearStateWrapper
 public:
     LinearStateWrapper( const double referenceTime, Eigen::Vector6d referenceState ):
         referenceState_( referenceState ), referenceTime_( referenceTime )
-    { }
+    {}
 
     Eigen::Vector6d getLinearState( const double currentTime )
     {

@@ -52,12 +52,12 @@ public:
                     const observation_models::LinkEndType& ) > undifferencedToDifferencedReferenceLinkEndType,
             const std::function< void( const observation_models::LinkEndType ) > customCheckFunction = nullptr ):
         firstPartialScaling_( firstPartialScaling ), secondPartialScaling_( secondPartialScaling ), firstIndices_( timeStateIndices.first ),
-        secondIndices_( timeStateIndices.second ), undifferencedToDifferencedReferenceLinkEndType_( undifferencedToDifferencedReferenceLinkEndType ),
-        customCheckFunction_( )
-    { }
+        secondIndices_( timeStateIndices.second ),
+        undifferencedToDifferencedReferenceLinkEndType_( undifferencedToDifferencedReferenceLinkEndType ), customCheckFunction_( )
+    {}
 
     //! Destructor
-    ~DifferencedObservablePartialScaling( ) { }
+    ~DifferencedObservablePartialScaling( ) {}
 
     void update( const std::vector< Eigen::Vector6d >& linkEndStates,
                  const std::vector< double >& times,
@@ -72,11 +72,10 @@ public:
 
     std::vector< int > secondIndices_;
 
-    std::function< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >(
-            const observation_models::LinkEndType& ) > undifferencedToDifferencedReferenceLinkEndType_;
+    std::function< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >( const observation_models::LinkEndType& ) >
+            undifferencedToDifferencedReferenceLinkEndType_;
 
     std::function< void( const observation_models::LinkEndType ) > customCheckFunction_;
-
 };
 
 template< int ObservationSize >
@@ -119,7 +118,7 @@ public:
                                          const bool ) > scalingFactorFunction,
             const std::pair< std::vector< int >, std::vector< int > >& undifferencedTimeAndStateIndices,
             const std::function< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >(
-                                          const observation_models::LinkEndType& ) > undifferencedToDifferencedReferenceLinkEndType ):
+                    const observation_models::LinkEndType& ) > undifferencedToDifferencedReferenceLinkEndType ):
         ObservationPartial< ObservationSize >( getDifferencedPartialParameterIdentifier< ObservationSize >( firstPartial, secondPartial ) ),
         firstPartial_( firstPartial ), secondPartial_( secondPartial ), scalingFactorFunction_( scalingFactorFunction ),
         undifferencedTimeAndStateIndices_( undifferencedTimeAndStateIndices ),
@@ -136,7 +135,7 @@ public:
     }
 
     //! Destructor
-    ~DifferencedObservablePartial( ) { }
+    ~DifferencedObservablePartial( ) {}
 
     //! Function to calculate the observation partial(s) at required time and state
     /*!
@@ -226,9 +225,8 @@ protected:
     const std::pair< std::vector< int >, std::vector< int > > undifferencedTimeAndStateIndices_;
 
     const std::function< std::pair< observation_models::LinkEndType, observation_models::LinkEndType >(
-            const observation_models::LinkEndType& ) > undifferencedToDifferencedReferenceLinkEndType_;
-
-
+            const observation_models::LinkEndType& ) >
+            undifferencedToDifferencedReferenceLinkEndType_;
 };
 
 }  // namespace observation_partials
