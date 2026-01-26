@@ -401,7 +401,6 @@ void expose_simulator( py::module& m )
          Base class for variational equations propagation.
          Derived classes :class:`~SingleArcVariationalSimulator`, :class:`~MultiArcVariationalSimulator` and
          :class:`~HybridArcVariationalSimulator` implement single-, multi- and hybrid-arc functionality, respectively.
-
       )doc" )
             .def_property_readonly( "state_transition_interface",
                                     &tp::VariationalEquationsSolver< STATE_SCALAR_TYPE, TIME_TYPE >::getStateTransitionMatrixInterface,

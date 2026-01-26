@@ -46,7 +46,7 @@ public:
      */
     NWayRangeScaling( const std::map< int, std::shared_ptr< OneWayRangeScaling > >& constituentRangeScalings, const int numberOfLinkEnds ):
         constituentRangeScalings_( constituentRangeScalings ), numberOfLinkEnds_( numberOfLinkEnds )
-    { }
+    {}
 
     //! Update the scaling object to the current times and states
     /*!
@@ -114,10 +114,10 @@ public:
                       const int numberOfLinkEnds ):
         ObservationPartial< 1 >( parameterIdentifier ), nWayRangeScaler_( nWayRangeScaler ), rangePartialList_( rangePartialList ),
         numberOfLinkEnds_( numberOfLinkEnds )
-    { }
+    {}
 
     //! Destructor
-    ~NWayRangePartial( ) { }
+    ~NWayRangePartial( ) {}
 
     //! Function to calculate the observation partial(s) at required time and state
     /*!

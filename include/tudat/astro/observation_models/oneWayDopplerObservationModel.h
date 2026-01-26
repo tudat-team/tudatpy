@@ -173,10 +173,10 @@ public:
      */
     DopplerProperTimeRateInterface( const LinkEndType computationPointLinkEndType ):
         computationPointLinkEndType_( computationPointLinkEndType )
-    { }
+    {}
 
     //! Destructor
-    virtual ~DopplerProperTimeRateInterface( ) { }
+    virtual ~DopplerProperTimeRateInterface( ) {}
 
     //! Function (pure virtual) to compute the proper time rate
     /*!
@@ -217,10 +217,10 @@ public:
     CustomDopplerProperTimeRateInterface( const LinkEndType computationPointLinkEndType,
                                           const std::function< double( const double ) > properTimeRateFunction ):
         DopplerProperTimeRateInterface( computationPointLinkEndType ), properTimeRateFunction_( properTimeRateFunction )
-    { }
+    {}
 
     //! Destructor
-    ~CustomDopplerProperTimeRateInterface( ) { }
+    ~CustomDopplerProperTimeRateInterface( ) {}
 
     //! Function to coompute the proper time rate
     /*!
@@ -309,7 +309,7 @@ public:
     }
 
     //! Destructor
-    ~DirectFirstOrderDopplerProperTimeRateInterface( ) { }
+    ~DirectFirstOrderDopplerProperTimeRateInterface( ) {}
 
     //! Function to coompute the proper time rate
     /*!
@@ -515,7 +515,7 @@ public:
     }
 
     //! Destructor
-    ~OneWayDopplerObservationModel( ) { }
+    ~OneWayDopplerObservationModel( ) {}
 
     //! Function to compute one-way Doppler observable without any corrections.
     /*!

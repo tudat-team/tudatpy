@@ -15,7 +15,7 @@ namespace observation_partials
 class TimingPartial
 {
 public:
-    virtual ~TimingPartial( ) { }
+    virtual ~TimingPartial( ) {}
 
     virtual Eigen::Matrix< double, 1, Eigen::Dynamic > getPartialOfClockErrorWrtParameter( const double time ) = 0;
 
@@ -48,7 +48,7 @@ public:
         }
     }
 
-    ~RangePartialWrtClockParameter( ) { }
+    ~RangePartialWrtClockParameter( ) {}
 
     RangePartialReturnType calculatePartial(
             const std::vector< Eigen::Vector6d >& states,
@@ -85,7 +85,7 @@ public:
     TimingPartialWrtGlobalPolynomialCorrectionCoefficients( const std::shared_ptr< system_models::TimingSystem > timingSystem,
                                                             const std::vector< int > polynomialPowers ):
         timingSystem_( timingSystem ), polynomialPowers_( polynomialPowers )
-    { }
+    {}
 
     Eigen::Matrix< double, 1, Eigen::Dynamic > getPartialOfClockErrorWrtParameter( const double time );
 
@@ -106,7 +106,7 @@ public:
         numberOfArcs_ = arcIndices_.size( );
     }
 
-    ~TimingPartialWrtArcwisePolynomialCorrectionCoefficients( ) { }
+    ~TimingPartialWrtArcwisePolynomialCorrectionCoefficients( ) {}
 
     Eigen::Matrix< double, 1, Eigen::Dynamic > getPartialOfClockErrorWrtParameter( const double time );
 

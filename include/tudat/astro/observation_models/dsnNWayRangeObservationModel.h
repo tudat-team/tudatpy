@@ -195,7 +195,7 @@ public:
         ObservationScalarType uplinkFrequency =
                 frequencyInterpolator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >( utcTransmissionTime );
         ancillarySettings->setAncillaryDoubleData( observation_models::range_conversion_factor,
-                                                    physical_constants::SPEED_OF_LIGHT / ( uplinkFrequency * conversionFactor ) );
+                                                   physical_constants::SPEED_OF_LIGHT / ( uplinkFrequency * conversionFactor ) );
 
         ObservationScalarType transmitterFrequencyIntegral =
                 frequencyInterpolator_->template getTemplatedFrequencyIntegral< ObservationScalarType, TimeType >( utcTransmissionTime,

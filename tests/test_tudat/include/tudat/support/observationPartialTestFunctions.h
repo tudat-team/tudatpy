@@ -452,7 +452,6 @@ void testObservationPartials(
                         for( unsigned int j = 0; j < analyticalObservationPartials[ i + numberOfEstimatedBodies ].size( ); j++ )
                         {
                             currentParameterPartial += analyticalObservationPartials[ i + numberOfEstimatedBodies ].at( j ).first;
-
                         }
                         std::cout << "Current double partial " << i << " " << std::setprecision( 16 )
                                   << analyticalObservationPartials[ i + numberOfEstimatedBodies ].size( ) << " " << currentParameterPartial

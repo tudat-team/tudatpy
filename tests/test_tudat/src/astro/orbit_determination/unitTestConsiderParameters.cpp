@@ -506,11 +506,9 @@ BOOST_AUTO_TEST_CASE( testConsiderParametersMultiArc )
 
     // Define parameters to estimate for non-sequential propagation / estimation
     std::vector< std::shared_ptr< EstimatableParameterSettings > > parameterNames, considerParameterNames, parameterNamesAll;
+    parameterNames = getInitialStateParameterSettings< double, double >( propagatorSettings, bodies );
     for( unsigned int i = 0; i < bodiesToPropagate.size( ); i++ )
     {
-        parameterNames.push_back( std::make_shared< ArcWiseInitialTranslationalStateEstimatableParameterSettings< double > >(
-                bodiesToPropagate.at( i ), initialStatesPerBody.at( bodiesToPropagate.at( i ) ), midArcTimes, centralBodies.at( i ) ) );
-
         parameterNames.push_back( std::make_shared< EstimatableParameterSettings >( bodiesToPropagate.at( i ), gravitational_parameter ) );
     }
 

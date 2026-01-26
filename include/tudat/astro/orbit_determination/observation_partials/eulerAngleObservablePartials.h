@@ -47,10 +47,10 @@ public:
     EulerAngleObervationPartialWrtCurrentRotationalState(
             const estimatable_parameters::EstimatebleParameterIdentifier parameterIdentifier ):
         ObservationPartial< 3 >( parameterIdentifier )
-    { }
+    {}
 
     //! Destructor
-    ~EulerAngleObervationPartialWrtCurrentRotationalState( ) { }
+    ~EulerAngleObervationPartialWrtCurrentRotationalState( ) {}
 
     //! Function to calculate the observation partial(s) at required time.
     /*!
