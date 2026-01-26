@@ -53,8 +53,8 @@ void expose_observations_simulation_settings( py::module& m )
          Function providing the observation noise as a function of observation time (can be constant or time-dependent), default is None.
       )doc" )
             .def_property( "ancillary_settings",
-                           &tss::ObservationSimulationSettings< TIME_TYPE >::getAncilliarySettings,
-                           &tss::ObservationSimulationSettings< TIME_TYPE >::setAncilliarySettings,
+                           &tss::ObservationSimulationSettings< TIME_TYPE >::getAncillarySettings,
+                           &tss::ObservationSimulationSettings< TIME_TYPE >::setAncillarySettings,
                            R"doc( No documentation found
       )doc" )
             .def_property_readonly( "dependent_variable_bookkeeping",
@@ -152,7 +152,7 @@ void expose_observations_simulation_settings( py::module& m )
            py::arg( "reference_link_end_type" ) = tom::receiver,
            py::arg( "viability_settings" ) = std::vector< std::shared_ptr< tom::ObservationViabilitySettings > >( ),
            py::arg( "noise_function" ) = nullptr,
-           py::arg( "ancilliary_settings" ) = nullptr,
+           py::arg( "ancillary_settings" ) = nullptr,
            R"doc(
 
  Function for creating settings object for observation simulation, using a predefined list of observation times.

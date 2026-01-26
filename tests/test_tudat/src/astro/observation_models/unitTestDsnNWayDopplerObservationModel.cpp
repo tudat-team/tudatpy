@@ -174,10 +174,10 @@ BOOST_AUTO_TEST_CASE( testDsnNWayAveragedDopplerModel )
 
         for( unsigned int i = 0; i < singleLinkSimulatedObservations.size( ); ++i )
         {
-            std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancillarySettings =
-                    singleLinkSimulatedObservations.at( i )->getAncilliarySettings( );
+            std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings =
+                    singleLinkSimulatedObservations.at( i )->getAncillarySettings( );
 
-            double referenceFrequency = ancillarySettings->getAncilliaryDoubleData( doppler_reference_frequency );
+            double referenceFrequency = ancillarySettings->getAncillaryDoubleData( doppler_reference_frequency );
 
             // Ignoring observations with reference frequencies of approximately 2.115e9.
             // The observations with f_ref ~ 2.114e9 are reproduced accurately, while the ones with f_ref ~ 2.115e9 have very

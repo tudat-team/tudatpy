@@ -103,7 +103,7 @@ public:
             const LinkEndType linkEndAssociatedWithTime,
             std::vector< double >& linkEndTimes,
             std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
-            const std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr )
+            const std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr )
     {
         // Check if selected reference link end is valid
         if( linkEndAssociatedWithTime != receiver )
@@ -125,10 +125,10 @@ public:
         std::vector< FrequencyBands > frequencyBands;
         try
         {
-            lowestRangingComponent = ancillarySettings->getAncilliaryDoubleData( sequential_range_lowest_ranging_component );
-            //            referenceFrequency = ancillarySettings->getAncilliaryDoubleData(
+            lowestRangingComponent = ancillarySettings->getAncillaryDoubleData( sequential_range_lowest_ranging_component );
+            //            referenceFrequency = ancillarySettings->getAncillaryDoubleData(
             //            sequential_range_reference_frequency );
-            frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncilliaryDoubleVectorData( frequency_bands ) );
+            frequencyBands = convertDoubleVectorToFrequencyBands( ancillarySettings->getAncillaryDoubleVectorData( frequency_bands ) );
         }
         catch( std::runtime_error& caughtException )
         {
@@ -194,7 +194,7 @@ public:
 
         ObservationScalarType uplinkFrequency =
                 frequencyInterpolator_->template getTemplatedCurrentFrequency< ObservationScalarType, TimeType >( utcTransmissionTime );
-        ancillarySettings->setAncilliaryDoubleData( observation_models::range_conversion_factor,
+        ancillarySettings->setAncillaryDoubleData( observation_models::range_conversion_factor,
                                                     physical_constants::SPEED_OF_LIGHT / ( uplinkFrequency * conversionFactor ) );
 
         ObservationScalarType transmitterFrequencyIntegral =
