@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeRatePartials )
         std::shared_ptr< ObservationModel< 1 > > nWayDifferencedRangeModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                         std::make_shared< observation_models::NWayDifferencedRangeObservationModelSettings >( linkEnds,
-                                                                                                         lightTimeCorrectionsList ),
+                                                                                                              lightTimeCorrectionsList ),
                         bodies );
 
         // Create parame ter objects.
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE( testNWayRangeRatePartials )
         std::shared_ptr< ObservationModel< 1 > > nWayDifferencedRangeModel =
                 observation_models::ObservationModelCreator< 1, double, double >::createObservationModel(
                         std::make_shared< observation_models::NWayDifferencedRangeObservationModelSettings >( linkEnds,
-                                                                                                         lightTimeCorrectionsList ),
+                                                                                                              lightTimeCorrectionsList ),
                         bodies );
         // Create parameter objects.
         std::shared_ptr< EstimatableParameterSet< double > > fullEstimatableParameterSet = createEstimatableParameters( bodies, 1.1E7 );

@@ -89,7 +89,7 @@ public:
     }
 
     //! Destructor
-    ~FirstOrderLightTimeCorrectionCalculator( ) { }
+    ~FirstOrderLightTimeCorrectionCalculator( ) {}
 
     //! Function to calculate first-order relativistic light time correction due to set of gravitating point masses.
     /*!

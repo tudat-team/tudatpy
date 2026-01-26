@@ -608,8 +608,7 @@ void expose_observations_processing( py::module& m )
         )doc" );
 
     m.def( "observation_parser",
-           py::overload_cast< const std::shared_ptr< tom::ObservationAncillarySimulationSettings >, const bool >(
-                   &tom::observationParser ),
+           py::overload_cast< const std::shared_ptr< tom::ObservationAncillarySimulationSettings >, const bool >( &tom::observationParser ),
            py::arg( "ancillary_settings" ),
            py::arg( "use_opposite_condition" ) = false,
            R"doc(

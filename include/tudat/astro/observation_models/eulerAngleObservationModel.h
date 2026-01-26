@@ -52,10 +52,10 @@ public:
                                    const std::shared_ptr< ObservationBias< 3 > > observationBiasCalculator = nullptr ):
         ObservationModel< 3, ObservationScalarType, TimeType >( euler_angle_313_observable, linkEnds, observationBiasCalculator ),
         toBodyFixedFrameFunction_( toBodyFixedFrameFunction )
-    { }
+    {}
 
     //! Destructor
-    ~EulerAngle313ObservationModel( ) { }
+    ~EulerAngle313ObservationModel( ) {}
 
     //! Function to compute ideal Euler angle observation at given time.
     /*!

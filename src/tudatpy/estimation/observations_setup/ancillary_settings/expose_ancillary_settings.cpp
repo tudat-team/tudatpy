@@ -59,8 +59,8 @@ namespace ancillary_settings
 void expose_ancillary_settings( py::module& m )
 {
     py::enum_< tom::ObservationAncillarySimulationVariable >( m,
-                                                               "ObservationAncillarySimulationVariable",
-                                                               R"doc(
+                                                              "ObservationAncillarySimulationVariable",
+                                                              R"doc(
 
       Enumeration of observation ancillary variable types.
 

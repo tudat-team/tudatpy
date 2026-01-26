@@ -1111,7 +1111,7 @@ observation_models::ObservationAncillarySimulationSettings createOdfAncillarySet
     };
 
     ancillarySettings.setAncillaryDoubleVectorData( observation_models::frequency_bands,
-                                                     convertFrequencyBandsToDoubleVector( frequencyBands ) );
+                                                    convertFrequencyBandsToDoubleVector( frequencyBands ) );
 
     ancillarySettings.setAncillaryDoubleData(
             observation_models::reception_reference_frequency_band,
@@ -1123,10 +1123,10 @@ observation_models::ObservationAncillarySimulationSettings createOdfAncillarySet
                 std::dynamic_pointer_cast< ProcessedOdfFileDopplerData< TimeType > >( odfDataContents );
 
         ancillarySettings.setAncillaryDoubleData( observation_models::doppler_integration_time,
-                                                   dopplerDataBlock->countInterval_.at( dataIndex ) );
+                                                  dopplerDataBlock->countInterval_.at( dataIndex ) );
 
         ancillarySettings.setAncillaryDoubleData( observation_models::doppler_reference_frequency,
-                                                   dopplerDataBlock->referenceFrequencies_.at( dataIndex ) );
+                                                  dopplerDataBlock->referenceFrequencies_.at( dataIndex ) );
 
         if( currentObservableType == observation_models::dsn_n_way_averaged_doppler )
         {
@@ -1150,7 +1150,7 @@ observation_models::ObservationAncillarySimulationSettings createOdfAncillarySet
                 std::dynamic_pointer_cast< ProcessedOdfFileSequentialRangeData< TimeType > >( odfDataContents );
 
         ancillarySettings.setAncillaryDoubleData( observation_models::sequential_range_lowest_ranging_component,
-                                                   sequentialRangeDataBlock->lowestRangingComponent_.at( dataIndex ) );
+                                                  sequentialRangeDataBlock->lowestRangingComponent_.at( dataIndex ) );
 
         ancillarySettings.setAncillaryDoubleVectorData(
                 observation_models::link_ends_delays,
@@ -1408,7 +1408,7 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
             std::make_shared< ObservationAncillarySimulationSettings >( *( originalDopplerData->getAncillarySettings( ) ) );
     double originalIntegrationTime = ancillarySimulationSettings->getAncillaryDoubleData( doppler_integration_time );
     ancillarySimulationSettings->setAncillaryDoubleData( doppler_integration_time,
-                                                           originalIntegrationTime * static_cast< double >( floatingCompressionRatio ) );
+                                                         originalIntegrationTime * static_cast< double >( floatingCompressionRatio ) );
     return std::make_shared< SingleObservationSet< ObservationScalarType, TimeType > >(
             originalDopplerData->getObservableType( ),
             originalDopplerData->getLinkEnds( ),

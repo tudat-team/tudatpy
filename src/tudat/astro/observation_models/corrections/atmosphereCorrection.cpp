@@ -268,8 +268,6 @@ double NiellTroposphericMapping::computeWetTroposphericMapping( const Eigen::Vec
     {
         throw std::runtime_error( "Error in Niell troposphere wet model.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
-
-
 }
 
 double NiellTroposphericMapping::computeDryTroposphericMapping( const Eigen::Vector6d& transmitterState,
@@ -332,7 +330,8 @@ double NiellTroposphericMapping::computeDryCoefficient(
         double coefficientAverage = averageInterpolator->interpolate( std::abs( geodeticLatitude ) );
         double coefficientAmplitude = amplitudeInterpolator->interpolate( std::abs( geodeticLatitude ) );
 
-        double normalizedTime = ( sofa_interface::convertSecondsSinceEpochToSecondsOfYear( time ) - 28.0 * physical_constants::JULIAN_DAY ) /
+        double normalizedTime =
+                ( sofa_interface::convertSecondsSinceEpochToSecondsOfYear( time ) - 28.0 * physical_constants::JULIAN_DAY ) /
                 ( 365.25 * physical_constants::JULIAN_DAY );
 
         double dryCoefficient;
@@ -352,8 +351,6 @@ double NiellTroposphericMapping::computeDryCoefficient(
     {
         throw std::runtime_error( "Error in Niell troposphere dry model.\nOriginal error: " + std::string( caughtException.what( ) ) );
     }
-
-
 }
 
 MappedTroposphericCorrection::MappedTroposphericCorrection( const LightTimeCorrectionType lightTimeCorrectionType,
@@ -364,7 +361,7 @@ MappedTroposphericCorrection::MappedTroposphericCorrection( const LightTimeCorre
     LightTimeCorrection( lightTimeCorrectionType ), dryZenithRangeCorrectionFunction_( dryZenithRangeCorrectionFunction ),
     wetZenithRangeCorrectionFunction_( wetZenithRangeCorrectionFunction ), elevationMapping_( elevationMapping ),
     isUplinkCorrection_( isUplinkCorrection )
-{ }
+{}
 
 double MappedTroposphericCorrection::calculateLightTimeCorrectionWithMultiLegLinkEndStates(
         const std::vector< Eigen::Vector6d >& linkEndsStates,

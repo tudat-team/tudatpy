@@ -64,7 +64,7 @@ public:
     }
 
     //! Virtual destructor
-    virtual ~ObservationManagerBase( ) { }
+    virtual ~ObservationManagerBase( ) {}
 
     //! Pure virtual function to return the size of the observable for a given set of link ends
     /*!
@@ -180,10 +180,10 @@ public:
                                                                    observationPartialScalers ),
         observationSimulator_( observationSimulator ), observationPartials_( observationPartials ),
         dependentVariablesInterface_( dependentVariablesInterface )
-    { }
+    {}
 
     //! Virtual destructor
-    virtual ~ObservationManager( ) { }
+    virtual ~ObservationManager( ) {}
 
     //! Function to return the size of the observable for a given set of link ends
     /*!
@@ -264,12 +264,13 @@ public:
                 currentObservation = selectedObservationModel->computeObservationsWithLinkEndData(
                         times[ i ], linkEndAssociatedWithTime, vectorOfTimes, vectorOfStates, ancillarySettings );
             }
-            catch ( std::runtime_error& caughtException )
+            catch( std::runtime_error& caughtException )
             {
                 throw std::runtime_error( "Error computing observation of type " +
-                    observation_models::getObservableName( observationSimulator_->getObservableType( ) ) +
-                    " with link ends " + getLinkEndsString( linkEnds ) + " at epoch " + std::to_string( static_cast< double >( times[ i ] ) ) +
-                    ".\nOriginal error: " + std::string( caughtException.what( ) ) );
+                                          observation_models::getObservableName( observationSimulator_->getObservableType( ) ) +
+                                          " with link ends " + getLinkEndsString( linkEnds ) + " at epoch " +
+                                          std::to_string( static_cast< double >( times[ i ] ) ) +
+                                          ".\nOriginal error: " + std::string( caughtException.what( ) ) );
             }
 
             TimeType saveTime = times[ i ];
@@ -288,24 +289,23 @@ public:
 
             if( calculatePartials )
             {
-
                 try
                 {
                     partialsMatrices[ saveTime ] = determineObservationPartialMatrix( currentObservationSize,
-                                                                                  vectorOfStates,
-                                                                                  vectorOfTimes,
-                                                                                  linkEnds,
-                                                                                  currentObservation,
-                                                                                  linkEndAssociatedWithTime,
-                                                                                  ancillarySettings );
+                                                                                      vectorOfStates,
+                                                                                      vectorOfTimes,
+                                                                                      linkEnds,
+                                                                                      currentObservation,
+                                                                                      linkEndAssociatedWithTime,
+                                                                                      ancillarySettings );
                 }
-                catch ( std::runtime_error& caughtException )
+                catch( std::runtime_error& caughtException )
                 {
                     throw std::runtime_error( "Error computing partials for observation of type " +
-                        observation_models::getObservableName( observationSimulator_->getObservableType( ) ) +
-                        " with link ends " + getLinkEndsString( linkEnds ) + " at epoch " + std::to_string( static_cast< double >( times[ i ] ) ) +
-                        ".\nOriginal error: " + std::string( caughtException.what( ) ) );
-
+                                              observation_models::getObservableName( observationSimulator_->getObservableType( ) ) +
+                                              " with link ends " + getLinkEndsString( linkEnds ) + " at epoch " +
+                                              std::to_string( static_cast< double >( times[ i ] ) ) +
+                                              ".\nOriginal error: " + std::string( caughtException.what( ) ) );
                 }
             }
         }
@@ -409,7 +409,7 @@ protected:
 
         // Get list of bodies involved in linkEnds
         std::vector< std::string > bodiesInLinkEnds;
-        for( auto itr: linkEnds )
+        for( auto itr : linkEnds )
         {
             if( std::count( bodiesInLinkEnds.begin( ), bodiesInLinkEnds.end( ), itr.second.bodyName_ ) == 0 )
             {

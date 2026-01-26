@@ -123,7 +123,7 @@ public:
     }
 
     std::vector< double > getAncillaryDoubleVectorData( const ObservationAncillarySimulationVariable &variableType,
-                                                         const bool throwException = true )
+                                                        const bool throwException = true )
     {
         std::vector< double > returnVariable;
         try
@@ -268,8 +268,7 @@ protected:
     std::map< ObservationIntermediateSimulationVariable, double > doubleIntermediateData_;
 };
 
-inline std::shared_ptr< ObservationAncillarySimulationSettings > getAveragedDopplerAncillarySettings(
-        const double integrationTime = 60.0 )
+inline std::shared_ptr< ObservationAncillarySimulationSettings > getAveragedDopplerAncillarySettings( const double integrationTime = 60.0 )
 {
     std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings =
             std::make_shared< ObservationAncillarySimulationSettings >( );
@@ -326,7 +325,7 @@ inline std::shared_ptr< ObservationAncillarySimulationSettings > getDsnNWayAvera
     ancillarySettings->setAncillaryDoubleData( doppler_integration_time, integrationTime );
     ancillarySettings->setAncillaryDoubleData( doppler_reference_frequency, referenceFrequency );
     ancillarySettings->setAncillaryDoubleData( reception_reference_frequency_band,
-                                                convertFrequencyBandToDouble( receptionReferenceFrequencyBand ) );
+                                               convertFrequencyBandToDouble( receptionReferenceFrequencyBand ) );
 
     ancillarySettings->setAncillaryDoubleVectorData( frequency_bands, convertFrequencyBandsToDoubleVector( frequencyBands ) );
     ancillarySettings->setAncillaryDoubleVectorData( link_ends_delays, linkEndsDelays );

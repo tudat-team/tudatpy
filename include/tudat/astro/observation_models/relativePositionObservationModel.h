@@ -46,10 +46,10 @@ public:
             const std::shared_ptr< ObservationBias< 3 > > observationBiasCalculator = nullptr ):
         ObservationModel< 3, ObservationScalarType, TimeType >( relative_position_observable, linkEnds, observationBiasCalculator ),
         stateFunctionTarget_( stateFunctionTarget ), stateFunctionObserver_( stateFunctionObserver )
-    { }
+    {}
 
     //! Destructor
-    ~RelativePositionObservationModel( ) { }
+    ~RelativePositionObservationModel( ) {}
 
     //! Function to compute ideal position observation at given time.
     /*!

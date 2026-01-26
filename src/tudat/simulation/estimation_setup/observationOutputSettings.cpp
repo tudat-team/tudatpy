@@ -594,7 +594,7 @@ std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAll
     else
     {
         std::vector< std::pair< std::pair< LinkEndType, LinkEndId >, std::pair< LinkEndType, LinkEndId > > > interlinksToCreateList;
-        for( auto interlink: interlinksInSet )
+        for( auto interlink : interlinksInSet )
         {
             std::pair< LinkEndType, LinkEndId > receivingLinkEnd = interlink.first;
             std::pair< LinkEndType, LinkEndId > originatingLinkEnd = interlink.second;
@@ -641,7 +641,7 @@ std::vector< std::shared_ptr< ObservationDependentVariableSettings > > createAll
         }
 
         // Create fully defined dependent variable settings for all relevant links.
-        for( auto interlink: interlinksToCreateList )
+        for( auto interlink : interlinksToCreateList )
         {
             std::shared_ptr< ObservationDependentVariableSettings > completeSettings =
                     createCompleteObservationDependentVariableSettings( dependentVariableSettings,

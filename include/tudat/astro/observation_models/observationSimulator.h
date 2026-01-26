@@ -39,10 +39,10 @@ public:
      * Constructor
      * \param observableType Type of observable for which this object computes observations.
      */
-    ObservationSimulatorBase( const ObservableType observableType ): observableType_( observableType ) { }
+    ObservationSimulatorBase( const ObservableType observableType ): observableType_( observableType ) {}
 
     //! Destructor
-    virtual ~ObservationSimulatorBase( ) { }
+    virtual ~ObservationSimulatorBase( ) {}
 
     //! Function to get the type of observable for which this object computes observations
     /*!
@@ -61,12 +61,11 @@ public:
      */
     virtual int getObservationSize( ) = 0;
 
-    virtual void computeObservations(
-            const std::vector< TimeType >& times,
-            const LinkEnds linkEnds,
-            const LinkEndType linkEndAssociatedWithTime,
-            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings,
-            Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector ) = 0;
+    virtual void computeObservations( const std::vector< TimeType >& times,
+                                      const LinkEnds linkEnds,
+                                      const LinkEndType linkEndAssociatedWithTime,
+                                      const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings,
+                                      Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 >& observationsVector ) = 0;
 
 protected:
     //! Type of observable for which this object computes observations
@@ -90,10 +89,10 @@ public:
             const std::map< LinkEnds, std::shared_ptr< ObservationModel< ObservationSize, ObservationScalarType, TimeType > > >&
                     observationModels ):
         ObservationSimulatorBase< ObservationScalarType, TimeType >( observableType ), observationModels_( observationModels )
-    { }
+    {}
 
     //! Virtual destructor
-    virtual ~ObservationSimulator( ) { }
+    virtual ~ObservationSimulator( ) {}
 
     //! Function to get the size of the observable for a given set of link ends
     /*!

@@ -1645,8 +1645,7 @@ public:
                             for( unsigned int k = 0; k < linkEndsIt.second.size( ); k++ )
                             {
                                 bool identicalAncillarySettings = false;
-                                if( ( linkEndsIt.second.at( k )->getAncillarySettings( )->getDoubleData( ) ==
-                                      setting->getDoubleData( ) ) &&
+                                if( ( linkEndsIt.second.at( k )->getAncillarySettings( )->getDoubleData( ) == setting->getDoubleData( ) ) &&
                                     ( linkEndsIt.second.at( k )->getAncillarySettings( )->getDoubleVectorData( ) ==
                                       setting->getDoubleVectorData( ) ) )
                                 {
@@ -2024,8 +2023,7 @@ public:
 
         for( auto set : singleSets )
         {
-            std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings =
-                    set->getAncillarySettings( );
+            std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings = set->getAncillarySettings( );
 
             if( ancillarySettings != nullptr )
             {
