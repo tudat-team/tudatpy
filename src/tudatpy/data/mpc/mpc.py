@@ -1486,11 +1486,11 @@ class BatchMPC:
                                  ].to_numpy()
 
             observation_times = observations_for_this_link.loc[
-                                :, ["epoch_secondsTDB"]
+                                :, ["epoch_seconds_TDB"]
                                 ].to_numpy()[:, 0]
 
             # create a set of obs for this link
-            observation_set = observations.create_single_observation_set(
+            observation_set = observations.single_observation_set(
                 model_settings.angular_position_type,
                 link_definition,
                 observation_angles,
@@ -1553,14 +1553,14 @@ class BatchMPC:
             tab = self._table.query("number == @obj")
 
             axRA.scatter(
-                tab.epoch_secondsTDB,
+                tab.epoch_seconds_TDB,
                 np.degrees(tab.RA),
                 label="MPC: " + obj,
                 marker=".",
                 # linestyle=None,
             )
             axDEC.scatter(
-                tab.epoch_secondsTDB,
+                tab.epoch_seconds_TDB,
                 np.degrees(tab.DEC),
                 label="MPC: " + obj,
                 marker=".",
@@ -1616,7 +1616,7 @@ class BatchMPC:
         utc_epochs = [time_scale_converter.convert_time(
             input_scale=time_representation.tdb_scale,
             output_scale=time_representation.utc_scale,
-            input_value=t) for t in  all_obj_data.epoch_secondsTDB
+            input_value=t) for t in  all_obj_data.epoch_seconds_TDB
         ]
 
         # Prepare Data for Plotting
@@ -1634,7 +1634,7 @@ class BatchMPC:
             utc_epochs_object = [time_scale_converter.convert_time(
                 input_scale=time_representation.tdb_scale,
                 output_scale=time_representation.utc_scale,
-                input_value=t) for t in  tab.epoch_secondsTDB.values
+                input_value=t) for t in  tab.epoch_seconds_TDB.values
             ]
 
             if tab.empty:
@@ -1703,8 +1703,8 @@ class BatchMPC:
             + "observations from space telescopes"
         )
         print(
-            f"3. The observations range from {self._table.epoch_secondsTDB.min()} "
-            + f"to {self._table.epoch_secondsTDB.max()}"
+            f"3. The observations range from {self._table.epoch_seconds_TDB.min()} "
+            + f"to {self._table.epoch_seconds_TDB.max()}"
         )
         print(f"   In seconds TDB since J2000: {self.epoch_start} to {self.epoch_end}")
         print(
