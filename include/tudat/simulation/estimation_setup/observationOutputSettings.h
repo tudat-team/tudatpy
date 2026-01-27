@@ -44,7 +44,7 @@ bool areInterlinksCompatible( const std::pair< LinkEndType, LinkEndId >& firstRe
 std::string getObservationDependentVariableName( const ObservationDependentVariables variableType );
 
 //! Function checking whether a given dependent variable type is related to some ancillary settings
-bool isObservationDependentVariableAncilliarySetting( const ObservationDependentVariables variableType );
+bool isObservationDependentVariableAncillarySetting( const ObservationDependentVariables variableType );
 
 //! Function checking whether a given dependent variable type is an interlink property
 bool isObservationDependentVariableInterlinkProperty( const ObservationDependentVariables variableType );
@@ -72,9 +72,9 @@ public:
                                           const LinkEndType originatingLinkEndType = unidentified_link_end ):
         variableType_( variableType ), linkEndId_( linkEndId ), linkEndType_( linkEndType ), originatingLinkEndId_( originatingLinkEndId ),
         originatingLinkEndType_( originatingLinkEndType )
-    { }
+    {}
 
-    virtual ~ObservationDependentVariableSettings( ) { }
+    virtual ~ObservationDependentVariableSettings( ) {}
 
     ObservationDependentVariables variableType_;
 
@@ -195,7 +195,7 @@ public:
         ObservationDependentVariableSettings( variableType, relevantLinkEnd, linkEndRole, originatingLinkEndId, originatingLinkEndRole ),
         integratedObservableHandling_( integratedObservableHandling ),
         isLinkEndDefined_( ( relevantLinkEnd != LinkEndId( "", "" ) ? true : false ) )
-    { }
+    {}
 
     std::string getIdentifier( )
     {
@@ -254,9 +254,9 @@ public:
             const std::string relativeBody = "" ):
         ObservationDependentVariableSettings( variableType, endLinkEndId, endLinkEndType, startLinkEndId, startLinkEndType ),
         integratedObservableHandling_( integratedObservableHandling ), relativeBody_( relativeBody )
-    { }
+    {}
 
-    ~InterlinkObservationDependentVariableSettings( ) { }
+    ~InterlinkObservationDependentVariableSettings( ) {}
 
     std::string getIdentifier( )
     {
@@ -331,7 +331,7 @@ public:
         isObservableTypeCompatible_ = getIsObservableTypeCompatibleFunction( variableType );
     }
 
-    ~AncillaryObservationDependentVariableSettings( ) { }
+    ~AncillaryObservationDependentVariableSettings( ) {}
 
     std::string getIdentifier( )
     {
