@@ -466,7 +466,7 @@ class LoadPDS:
                 self.date = datetime.strptime(date, str_format)
                 if self.date is not None:
                     return self.date
-            except:
+            except (ValueError, TypeError):
                 continue
 
     def format_datetime_to_string(self, date, format_key):
@@ -523,7 +523,8 @@ class LoadPDS:
             response.raise_for_status()
             with open(tmp_path, "wb") as f:
                 for chunk in response.iter_content(chunk_size=8192):
-                    f.write(chunk)
+                    if chunk:
+                        f.write(chunk)
             os.replace(tmp_path, local_path)
         except Exception:
             if os.path.exists(tmp_path):
@@ -544,8 +545,15 @@ class LoadPDS:
             list[str]: One filename per pattern — the one with the highest
             version number.  Patterns with no match are silently skipped.
         """
-        response = requests.get(url, timeout=_REQUEST_TIMEOUT)
-        response.raise_for_status()
+        try:
+            response = requests.get(url, timeout=_REQUEST_TIMEOUT)
+            response.raise_for_status()
+        except Exception as e:
+            print(
+                f"Warning: Failed to fetch versioned file listing from {url}: {e}. "
+                f"Returning empty list."
+            )
+            return []
         html = response.text
 
         latest_files = []
@@ -983,8 +991,12 @@ class LoadPDS:
                                         filename_to_download
                                     )
                                 else:
+                                    stored_filename = files_url_dict[date_key]
+                                    stored_version_str = stored_filename.replace(
+                                        base_name_no_version_no_ext, ""
+                                    ).replace(ext, "")
                                     stored_version = int(
-                                        RS_dict.get("version")[1:]
+                                        stored_version_str[1:]
                                     )
                                     if current_version >= stored_version:
                                         latest_filename_to_download = f"{base_name_no_version_no_ext}{version}{ext}"
@@ -1085,7 +1097,7 @@ class LoadPDS:
         }
         if self.existing_files:
             self.flag_check_existing_files = True
-            return self.existing_files
+        return self.existing_files
 
     #########################################################################################################
 
@@ -1114,13 +1126,13 @@ class LoadPDS:
 
         if not os.path.exists(local_path):
             print(f"Creating Local Folder: {local_path}")
-            os.mkdir(local_path)
+            os.makedirs(local_path, exist_ok=True)
 
         local_subfolder = os.path.join(local_path, data_type)
 
         if not os.path.exists(local_subfolder):
             print(f"Creating Local Subfolder: {local_subfolder}")
-            os.mkdir(local_subfolder)
+            os.makedirs(local_subfolder, exist_ok=True)
 
         # Prepare the date range for searching existing files
         all_dates = [
@@ -1219,8 +1231,14 @@ class LoadPDS:
                                     filename_to_download
                                 )
                             else:
+                                stored_filename = files_url_dict[
+                                    (start_time, end_time)
+                                ]
+                                stored_version_str = stored_filename.replace(
+                                    base_name_no_version_no_ext, ""
+                                ).replace(ext, "")
                                 stored_version = int(
-                                    dictionary.get("version")[1:]
+                                    stored_version_str[1:]
                                 )
                                 if current_version >= stored_version:
                                     latest_filename_to_download = f"{base_name_no_version_no_ext}{version}{ext}"
@@ -4642,8 +4660,8 @@ class LoadPDS:
                             )
                             continue
 
-                        target = str(target).strip()
-                        abbn = str(abbn).strip()
+                        target = target.strip()
+                        abbn = abbn.strip()
 
                         # Construct the URL using the target, Abbn and rsi_volume_id.
                         # The URL pattern:
@@ -4729,7 +4747,7 @@ class LoadPDS:
 
         # If no valid volume IDs are found, raise an error.
         if rsi_volume_id_list:
-            return rsi_volume_id_list
+            return list(dict.fromkeys(rsi_volume_id_list))
         else:
             raise ValueError(
                 f"No RSI Volume_ID found associated with input interval: {start_date} - {end_date}."
@@ -4799,6 +4817,12 @@ class LoadPDS:
                 if start_dt <= d <= end_dt:
                     found_phase = phase
                     break
+            if found_phase is None:
+                print(
+                    f"Warning: Date {d} does not fall within any known "
+                    f"Rosetta mission phase. "
+                    f"URL construction for this date will be skipped."
+                )
             date_to_phase[d] = found_phase
 
         # Define a mapping from mission phase abbreviation to target designation.
