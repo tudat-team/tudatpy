@@ -232,7 +232,7 @@ def parse_80cols_data(lines: list[str]) -> Table:
         'day': day_int
     }, errors='coerce')
 
-    obs_time_utc = timestamps + pd.to_timedelta(day_remainder, unit='D')
+    obs_times_utc_datetime = timestamps + pd.to_timedelta(day_remainder, unit='D')
 
     ra_deg = (df_obs['ra_h_n'] + df_obs['ra_m_n']/60.0 + df_obs['ra_s_n']/3600.0) * 15.0
     ra_rad = np.deg2rad(ra_deg)
@@ -241,15 +241,22 @@ def parse_80cols_data(lines: list[str]) -> Table:
     dec_deg = (df_obs['dec_d_n'] + df_obs['dec_m_n']/60.0 + df_obs['dec_s_n']/3600.0) * dec_sign_mult
     dec_rad = np.deg2rad(dec_deg)
 
-    t_obj = [DateTime.from_python_datetime(obs_time) for obs_time in obs_time_utc]
+    obs_times_utc_iso_string = [t.isoformat(sep=' ') for t in obs_times_utc_datetime]
+    dt_objects = [DateTime.from_iso_string(t_iso) for t_iso in obs_times_utc_iso_string]
+    float_epochs_utc = [dt.to_epoch() for dt in dt_objects]
+    time_scale_converter = time_representation.default_time_scale_converter()
+    float_epochs_tdb = [time_scale_converter.convert_time(
+        input_scale=time_representation.utc_scale,
+        output_scale=time_representation.tdb_scale,
+        input_value=float_epoch_utc) for float_epoch_utc in float_epochs_utc]
 
     final_df = pd.DataFrame({
         "number": df_obs['number'], # Now contains human-readable string
         "provisional_designation": df_obs['provisional_designation'],
         "discovery": df_obs['discovery'].eq('*'),
-        "epoch": [t.to_julian_day() for t in t_obj],
-        "epoch_utc": obs_time_utc,
-        "epoch_seconds": [t.to_epoch() for t in t_obj],
+        "epoch": [t.to_julian_day() for t in dt_objects],
+        "epoch_seconds_UTC": float_epochs_utc,
+        "epoch_seconds_TDB": float_epochs_tdb,
         "RA": ra_rad,
         "DEC": dec_rad,
         "observatory": df_obs['observatory'],
@@ -449,3 +456,99 @@ def enrich_observations(observations: Table) -> Table:
     df_enriched = pd.concat([df, enrichment], axis=1)
 
     return Table.from_pandas(df_enriched)
+
+
+import re
+import datetime
+import numpy as np
+from astropy.table import Table
+from tudatpy.astro.time_representation import DateTime
+from tudatpy.astro import time_representation
+
+# Import the refactored unpacker functions and constants
+from . import unpackers
+
+def parse_packed_permanent_designation(packed_perm_num: str) -> dict[str,str]:
+    """
+    Parses a packed permanent designation string from the MPC.
+
+    Parameters
+    ----------
+    packed_perm_num : str
+        The packed permanent designation string (e.g., '00433', 'J013S', '0029P').
+
+    Returns
+    -------
+    dict
+        A dictionary containing parsed identification data, such as 'type', 'name', 'number', and 'comettype'.
+    """
+    ident_data = {}
+    packed_perm_num = packed_perm_num.strip()
+
+    # Rule for Natural Satellites (e.g., J013S)
+    if re.match(r"^[JSUND]\d{3}S$", packed_perm_num):
+        ident_data['type'] = 'Natural Satellite'
+        ident_data['name'] = unpackers.unpack_permanent_natural_satellite(packed_perm_num)
+
+    # Rule for Comets (e.g., 0029P)
+    elif re.match(r"^\d{4}[PD]$", packed_perm_num):
+        ident_data['type'] = 'Comet'
+        ident_data['number'] = str(int(packed_perm_num[0:4]))
+        ident_data['comettype'] = packed_perm_num[4]
+
+    # Rule for Interstellar Objects (e.g., 0002I)
+    elif re.match(r"^\d{4}I$", packed_perm_num):
+        ident_data['type'] = 'Interstellar Object'
+        number = int(packed_perm_num[0:4])
+        ident_data['name'] = f"{number}I"
+        ident_data['number'] = str(number)
+        ident_data['comettype'] = 'I'
+
+    # Rule for Minor Planets (e.g., 00433, A0345, D4341, ~000z)
+    elif packed_perm_num:
+        ident_data['type'] = 'Minor Planet'
+        ident_data['number'] = unpackers.unpack_permanent_minor_planet(packed_perm_num)
+
+    return ident_data
+
+
+def parse_80cols_identification_fields(line: str) -> dict[str,str]:
+    """
+    Parses the identification part of an 80-column MPC observation line.
+
+    This function extracts and interprets the packed permanent designation,
+    provisional designation, and discovery flag from the beginning of an MPC line.
+
+    Parameters
+    ----------
+    line : str
+        A single 80-column string representing an MPC observation.
+
+    Returns
+    -------
+    dict
+        A dictionary containing parsed identification data, such as 'type', 'number', 'desig', and 'discovery'.
+    """
+    ident_data = {}
+    packed_perm_num = line[0:5].strip()
+    packed_prov_desig = line[5:12].strip()
+
+    if line[12].strip() == '*':
+        ident_data['discovery'] = True
+
+    if packed_perm_num:
+        ident_data.update(parse_packed_permanent_designation(packed_perm_num))
+        if packed_prov_desig:
+            if ident_data.get('type') == 'Minor Planet':
+                ident_data['desig'] = unpackers.unpack_provisional_minor_planet(packed_prov_desig)
+            elif ident_data.get('type') in ['Comet', 'Interstellar Object']:
+                ident_data['desig'] = packed_prov_desig.strip() or 'NaN'
+    elif packed_prov_desig:
+        if packed_prov_desig[6].isalpha() and packed_prov_desig[6] not in ['I', 'Z']:
+            ident_data['type'] = 'Minor Planet'
+            ident_data['desig'] = unpackers.unpack_provisional_minor_planet(packed_prov_desig)
+        else:
+            ident_data['type'] = 'Comet'
+            ident_data['desig'] = unpackers.unpack_provisional_comet_or_satellite(packed_prov_desig)
+
+    return ident_data
