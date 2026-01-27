@@ -300,7 +300,7 @@ void expose_ground_station_setup( py::module& m )
 
      )doc" );
 
-     m.def( "optical_telescope_stations",
+    m.def( "optical_telescope_stations",
            &tss::getMPCStationSettings,
            R"doc(
 

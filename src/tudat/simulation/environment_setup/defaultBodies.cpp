@@ -713,7 +713,7 @@ std::vector< std::shared_ptr< GroundStationSettings > > getDsnStationSettings( )
 
     std::vector< std::shared_ptr< GroundStationSettings > > stationSettingsList;
 
-    for( auto it: dsnStationPositionsItrf93 )
+    for( auto it : dsnStationPositionsItrf93 )
     {
         std::shared_ptr< GroundStationSettings > stationSettings( getDsnStationSetting( it.first ) );
 
@@ -731,7 +731,7 @@ std::vector< std::shared_ptr< GroundStationSettings > > getEvnStationSettings( )
     std::map< std::string, Eigen::Vector3d > stationVelocities = getVlbiStationVelocities( );
 
     std::vector< std::string > commonStationNames;
-    for( auto it: stationPositions )
+    for( auto it : stationPositions )
     {
         if( stationVelocities.count( it.first ) > 0 )
         {
@@ -760,7 +760,7 @@ std::vector< std::shared_ptr< GroundStationSettings > > getMPCStationSettings( )
     std::map< std::string, Eigen::Vector3d > stationVelocities = getMPCStationVelocities( );
 
     std::vector< std::string > commonStationNames;
-    for( auto it: stationPositions )
+    for( auto it : stationPositions )
     {
         if( stationVelocities.count( it.first ) > 0 )
         {
