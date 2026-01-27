@@ -151,10 +151,10 @@ BOOST_AUTO_TEST_CASE( test_ClockRangeInfluence )
     std::shared_ptr< ObservationModel< 1, double, double > > twoWayRangeModel =
             ObservationModelCreator< 1, double, double >::createObservationModel( twoWayRangeSettings, bodyMap );
 
-    std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySetings =
-            std::make_shared< ObservationAncilliarySimulationSettings >( );
+    std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySetings =
+            std::make_shared< ObservationAncillarySimulationSettings >( );
     std::vector< double > linkEndDelays = { 10.0 };
-    ancilliarySetings->setAncilliaryDoubleVectorData( link_ends_delays, linkEndDelays );
+    ancillarySetings->setAncillaryDoubleVectorData( link_ends_delays, linkEndDelays );
 
     // Get range without timing errors.
     double arcStartTime = satelliteClockErrorArcTimes[ 10 ];
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE( test_ClockRangeInfluence )
     double testTime = arcStartTime + timeIntoArc;
     Eigen::VectorXd rangeWithoutTimeError = rangeModel->computeObservations( testTime, receiver );
     Eigen::VectorXd twoWayRangeWithoutTimeError = twoWayRangeModel->computeObservations( testTime, receiver );
-    Eigen::VectorXd twoWayDelayedRangeWithoutTimeError = twoWayRangeModel->computeObservations( testTime, receiver, ancilliarySetings );
+    Eigen::VectorXd twoWayDelayedRangeWithoutTimeError = twoWayRangeModel->computeObservations( testTime, receiver, ancillarySetings );
 
     // Set polynomial offsets of satellite clock.
     std::map< int, double > newClockCorrections;
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE( test_ClockRangeInfluence )
     Eigen::VectorXd rangeWithSatelliteTimeError = rangeModel->computeObservations( testTime, receiver );
     Eigen::VectorXd twoWayRangeWithSatelliteTimeError = twoWayRangeModel->computeObservations( testTime, receiver );
     Eigen::VectorXd twoWayDelayedRangeWithSatelliteTimeError = twoWayRangeModel->computeObservationsWithLinkEndData(
-            testTime, receiver, twoWayLinkEndTimes, twoWayLinkEndStates, ancilliarySetings );
+            testTime, receiver, twoWayLinkEndTimes, twoWayLinkEndStates, ancillarySetings );
 
     // Manually calculate satellite timing error
     double expectedSatelliteTimingError =
@@ -219,7 +219,7 @@ BOOST_AUTO_TEST_CASE( test_ClockRangeInfluence )
 
     Eigen::VectorXd rangeWithStationTimeError = rangeModel->computeObservations( testTime, receiver );
     Eigen::VectorXd twoWayDelayedRangeWithStationTimeError = twoWayRangeModel->computeObservationsWithLinkEndData(
-            testTime, receiver, twoWayLinkEndTimes, twoWayLinkEndStates, ancilliarySetings );
+            testTime, receiver, twoWayLinkEndTimes, twoWayLinkEndStates, ancillarySetings );
 
     double grazArcStartTime = grazClockErrorArcTimes.at( 4 );
     double expectedTwoWayStationTimingError = 0.0;
@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE( test_ClockRangeInfluence )
 
     Eigen::VectorXd rangeWithStationAndSatelliteTimeError = rangeModel->computeObservations( testTime, receiver );
     Eigen::VectorXd twoWayDelayedRangeWithStationAndSatelliteTimeError = twoWayRangeModel->computeObservationsWithLinkEndData(
-            testTime, receiver, twoWayLinkEndTimes, twoWayLinkEndStates, ancilliarySetings );
+            testTime, receiver, twoWayLinkEndTimes, twoWayLinkEndStates, ancillarySetings );
 
     BOOST_CHECK_CLOSE_FRACTION( ( expectedSatelliteTimingError - expectedStationTimingError ) * physical_constants::SPEED_OF_LIGHT,
                                 ( rangeWithStationAndSatelliteTimeError - rangeWithoutTimeError ).x( ),

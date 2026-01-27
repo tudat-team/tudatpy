@@ -23,14 +23,14 @@ namespace simulation_setup
 typedef std::function< Eigen::VectorXd( const std::vector< double >&,
                                         const std::vector< Eigen::Matrix< double, 6, 1 > >&,
                                         const Eigen::VectorXd&,
-                                        const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) >
+                                        const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ) >
         ObservationDependentVariableFunction;
 
 typedef std::function< void( Eigen::VectorXd&,
                              const std::vector< double >&,
                              const std::vector< Eigen::Matrix< double, 6, 1 > >&,
                              const Eigen::VectorXd&,
-                             const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) >
+                             const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ) >
         ObservationDependentVariableAddFunction;
 
 void checkObservationDependentVariableEnvironment( const SystemOfBodies& bodies,
@@ -145,7 +145,7 @@ public:
     Eigen::VectorXd calculateDependentVariables( const std::vector< double >& linkEndTimes,
                                                  const std::vector< Eigen::Matrix< double, 6, 1 > >& linkEndStates,
                                                  const Eigen::VectorXd& observation,
-                                                 const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > );
+                                                 const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > );
 
     void addDependentVariable( const std::shared_ptr< ObservationDependentVariableSettings > settings, const SystemOfBodies& bodies );
 
@@ -171,7 +171,7 @@ private:
                                       const std::vector< double >&,
                                       const std::vector< Eigen::Matrix< double, 6, 1 > >&,
                                       const Eigen::VectorXd&,
-                                      const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ) > >
+                                      const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ) > >
             dependentVariableAddFunctions_;
 };
 
