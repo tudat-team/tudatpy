@@ -174,7 +174,8 @@ std::map< observation_models::LinkEndType, std::shared_ptr< CartesianStatePartia
          linkEndIterator++ )
     {
         // Check if current link end body corresponds to body with property to estimate.
-        if( linkEndIterator->second.bodyName_ == parameterToEstimate->getParameterName( ).second.first )
+        if( linkEndIterator->second.bodyName_ == parameterToEstimate->getParameterName( ).second.first &&
+            linkEndIterator->second.stationName_ != "" )
         {
             // Set current body name and object.
             currentBodyName = linkEndIterator->second.bodyName_;

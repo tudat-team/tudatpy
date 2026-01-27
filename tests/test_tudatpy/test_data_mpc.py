@@ -3,12 +3,14 @@ from tudatpy.data.horizons import HorizonsQuery
 from tudatpy.dynamics import environment_setup
 from tudatpy.interface import spice
 import numpy as np
-import datetime
-from tudatpy.astro.time_representation import DateTime
-from tudatpy.data.mpc.parser_80col.parsers import parse_80cols_identification_fields, parse_80cols_file
-from tudatpy.data import get_ephemeris_path
-import pytest
 import pandas as pd
+import os
+import datetime
+import pytest
+from tudatpy.astro.time_representation import DateTime
+from tudatpy.data.mpc.parser_80col.parsers import (
+    parse_80cols_identification_fields, parse_80cols_file)
+from tudatpy.data import get_ephemeris_path
 
 spice.load_standard_kernels()
 
@@ -25,11 +27,11 @@ get_observations_input = [
     ([222, "C/2012 S1"], {"222", "2012 S1"}),
 ]
 get_observations_input2 = [
-    (222, ValueError, "MPCcodes parameter must be list of integers/strings"),
+    (222, ValueError, "MPCcodes parameter must be a list of integers/strings"),
     (
         [222, 1.0],
         ValueError,
-        "All codes in the MPCcodes parameter must be integers or string",
+        "All codes in the MPCcodes parameter must be integers or strings",
     ),
 ]
 
@@ -70,21 +72,21 @@ weights_test_combinations = [
 ]
 
 
-#@pytest.mark.parametrize("inp,expected", get_observations_input)
-#def test_BatchMPC_getobservations(inp, expected):
-#    query = BatchMPC()
-#    query.get_observations(inp)
-#    assert set(query.MPC_objects) == expected
+@pytest.mark.parametrize("inp,expected", get_observations_input)
+def test_BatchMPC_getobservations(inp, expected):
+   query = BatchMPC()
+   query.get_observations(inp)
+   assert set(query.MPC_objects) == expected
 
 
-#@pytest.mark.parametrize("inp,errtype,errvalue", get_observations_input2)
-#def test_BatchMPC_getobservations2(inp, errtype, errvalue):
-#    query = BatchMPC()
-#    with pytest.raises(Exception) as exc_info:
-#        query.get_observations(inp)
-#
-#    assert exc_info.type is errtype
-#    assert str(exc_info.value) == errvalue
+@pytest.mark.parametrize("inp,errtype,errvalue", get_observations_input2)
+def test_BatchMPC_getobservations2(inp, errtype, errvalue):
+   query = BatchMPC()
+   with pytest.raises(Exception) as exc_info:
+       query.get_observations(inp)
+
+   assert exc_info.type is errtype
+   assert str(exc_info.value) == errvalue
 
 
 @pytest.mark.parametrize("mpc_code", mpc_codes_test)
@@ -335,3 +337,4 @@ def test_parse_80cols_file():
 
     tol = 5e-5 # not completely sure why some are zero and some are not.
     assert not (diff_seconds > tol).any()
+
