@@ -730,7 +730,12 @@ class BatchMPC:
         ]
         if "bands" in self._table.columns:
             self._bands = list(self._table.band.unique())
-        self._MPC_codes = list(self._table.number.unique())
+
+        # if user gives custom name, set that as body name, else MPC code
+        if self._table.custom_name.any():
+            self._MPC_codes = list(self._table.custom_name.unique())
+        else:
+            self._MPC_codes = list(self._table.number.unique())
         self._size = len(self._table)
 
         self._epoch_start = self._table.epoch_seconds_TDB.min()
@@ -838,9 +843,14 @@ class BatchMPC:
 
         return table
 
+    def _add_custom_name_column(self, table: pd.DataFrame, custom_name) -> pd.DataFrame:
+
+        table['custom_name'] = [custom_name]*len(table)
+
+        return table
 
     # data retrieval options: from_file: allows external observations to be added
-    def from_file(self, filename: str, in_degrees: bool = False, frame: str = "J2000") -> None:
+    def from_file(self, filename: str, in_degrees: bool = False, frame: str = "J2000", custom_name: str | None = None) -> None:
         """
         Loads observations from a local MPC 80-column text file.
 
@@ -892,7 +902,7 @@ class BatchMPC:
 
         # Use the from_astropy method to validate and add the data.
         # in_degrees is False because the parser has already converted to radians.
-        self.from_astropy(astropy_table, in_degrees=in_degrees, frame=frame)
+        self.from_astropy(astropy_table, in_degrees=in_degrees, frame=frame, custom_name=custom_name)
 
     # data retrieval options: get_observations: retrieves data from mpc through astroquery.
     def get_observations(
@@ -900,6 +910,7 @@ class BatchMPC:
             MPCcodes: list[str | int],
             id_types: list[str | None] | None = None,
             drop_misc_observations: bool = True,
+            custom_name: str | None = None
     ) -> None:
         """Retrieve all observations for a set of MPC listed objects.
         This method uses astroquery to retrieve the observations from the MPC.
@@ -944,6 +955,9 @@ class BatchMPC:
                 obs = MPC.get_observations(code).to_pandas()
 
             obs['number'] = obs['number'].astype(str) # to avoid pandas FutureWarning
+
+            if custom_name:
+                obs = self._add_custom_name_column(obs, custom_name)
 
             # convert JD to J2000 and UTC, convert deg to rad
             obs = self._add_time_columns(obs)
@@ -1006,10 +1020,11 @@ class BatchMPC:
 
         self._refresh_metadata()
 
-    def _add_table(self, table: pd.DataFrame, in_degrees: bool = True):
+    def _add_table(self, table: pd.DataFrame, custom_name: str | None, in_degrees: bool = True):
         """Internal. Formats a manually entered table of observations, used in from_astropy and in from_pandas. """
         obs = table
         obs = self._add_time_columns(obs)
+        obs = self._add_custom_name_column(obs, custom_name)
         if in_degrees:
             obs = obs.assign(RA=lambda x: (np.radians(x.RA)  + np.pi ) % (2 * np.pi) - np.pi).assign(
                 DEC=lambda x: np.radians(x.DEC)
@@ -1049,7 +1064,7 @@ class BatchMPC:
         if nrows == 0:
             raise ValueError("Table contains zero rows: no valid observations were parsed.")
 
-    def from_astropy(self, table: astropy.table.QTable | astropy.table.Table, in_degrees: bool = True, frame: str = "J2000") -> None:
+    def from_astropy(self, table: astropy.table.QTable | astropy.table.Table, in_degrees: bool = True, frame: str = "J2000", custom_name: str | None = None) -> None:
         """Loads observations from an Astropy Table into the BatchMPC object.
 
         This method provides a convenient way to import observation data that has been
@@ -1078,9 +1093,9 @@ class BatchMPC:
             raise ValueError("Table must be of type astropy.table.QTable or astropy.table.Table")
 
         self._validate_table(table, frame)
-        self._add_table(table=table.to_pandas(), in_degrees=in_degrees)
+        self._add_table(table=table.to_pandas(), in_degrees=in_degrees, custom_name=custom_name)
 
-    def from_pandas(self, table: pd.DataFrame, in_degrees: bool = True, frame: str = "J2000") -> None:
+    def from_pandas(self, table: pd.DataFrame, in_degrees: bool = True, frame: str = "J2000", custom_name: str | None = None) -> None:
         """
         Loads observations from a pandas DataFrame into the BatchMPC object.
 
@@ -1107,7 +1122,7 @@ class BatchMPC:
             raise ValueError("Table must be of type pandas.DataFrame")
 
         self._validate_table(table, frame)
-        self._add_table(table=table, in_degrees=in_degrees)
+        self._add_table(table=table, in_degrees=in_degrees, custom_name = custom_name)
 
     def set_weights(
             self,
