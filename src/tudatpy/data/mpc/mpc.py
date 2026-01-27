@@ -150,7 +150,7 @@ def load_bias_file(
 def get_biases_EFCC18(
         RA: float | np.ndarray | list,
         DEC: float | np.ndarray | list,
-        epochJ2000secondsTDB: float | np.ndarray | list,
+        epoch_seconds_TDB: float | np.ndarray | list,
         catalog: str | np.ndarray | list,
         bias_file: str | None = BIAS_LOWRES_FILE,
         Nside: int | None = None,
@@ -167,7 +167,7 @@ def get_biases_EFCC18(
         Right Ascension value in radians
     DEC : float | np.ndarray | list
         Declination value in radians
-    epochJ2000secondsTDB : float | np.ndarray | list
+    epoch_seconds_TDB : float | np.ndarray | list
         Time in seconds since J2000 TDB.
     catalog : str | np.ndarray | list
         Star Catalog code as described by MPC: https://www.minorplanetcenter.net/iau/info/CatalogueCodes.html
@@ -197,12 +197,12 @@ def get_biases_EFCC18(
         RA = np.array([RA]).flatten()
     if not isinstance(DEC, np.ndarray):
         DEC = np.array([DEC]).flatten()
-    if not isinstance(epochJ2000secondsTDB, np.ndarray):
-        epochJ2000secondsTDB = np.array([epochJ2000secondsTDB]).flatten()
+    if not isinstance(epoch_seconds_TDB, np.ndarray):
+        epoch_seconds_TDB = np.array([epoch_seconds_TDB]).flatten()
     if not isinstance(catalog, np.ndarray):
         catalog = np.array([catalog]).flatten()
 
-    if not (len(RA) == len(DEC) == len(epochJ2000secondsTDB) == len(catalog)):
+    if not (len(RA) == len(DEC) == len(epoch_seconds_TDB) == len(catalog)):
         raise ValueError("All inputs must have same size")
 
     # load bias file
@@ -232,7 +232,7 @@ def get_biases_EFCC18(
 
     # same as find_orb -> bias.cpp
     # https://github.com/Bill-Gray/find_orb/blob/master/bias.cpp#L213
-    epochs_years = [time_representation.seconds_since_epoch_to_julian_years_since_epoch(epoch_tdb) for epoch_tdb in epochJ2000secondsTDB]
+    epochs_years = [time_representation.seconds_since_epoch_to_julian_years_since_epoch(epoch_tdb) for epoch_tdb in epoch_seconds_TDB]
 
     # from the bias file readme.txt:
     RA_correction = biases[:, 0] + (epochs_years * (biases[:, 2] / 1000))
@@ -271,7 +271,7 @@ def get_weights_VFCC17(
         Iterable with the MPC target codes, e.g. 433 for Eros. Size must match
         other iterables, by default None
     epoch : pd.Series | list | np.ndarray | None, optional
-        Iterable with UTC times. Size must match other iterables, by default None
+        Epoch expressed as Julian Days. Size must match other iterables, by default None
     observation_type : pd.Series | list | np.ndarray | None, optional
         Iterable with the observation types in MPC format.
         See the NOTE2 section of the MPC format description for the exact encoding:
@@ -326,7 +326,7 @@ def get_weights_VFCC17(
 
         table_dict = {
             "number": MPC_codes,
-            "epoch": epoch,
+            "epoch": epoch, # This is expressed in Julian Days
             "note2": observation_type,
             "observatory": observatory,
             "catalog": star_catalog,
@@ -377,7 +377,7 @@ def get_weights_VFCC17(
     # create column that modifies the JD with an approximate timezone.
     # the time JD.50 will then be the approximate midnight at that timezone.
     # if we then take the int, we can group by this number to get all observations that night.
-    table = table.assign(epochJD_tz_int=lambda x: np.floor(x.epoch + x.jd_tz))
+    table = table.assign(epochJD_tz_int=lambda x: np.floor(x.epoch + x.jd_tz)) # epoch is in Julian Days.
     # table = table.assign(epochJD_tz_int2=lambda x: np.round(x.epochJD + x.jd_tz, 2))
 
     # Below are the weights applied as described per table in:
@@ -388,7 +388,7 @@ def get_weights_VFCC17(
     # TABLE 5: Non-CCD residuals
     # Conditions for Table 5
     # 1890-1-1 and 1950-1-1
-    pre_1890 = table.epoch <= 2411368.0
+    pre_1890 = table.epoch <= 2411368.0 # check on Julian Period
     between_1890_1950 = (table.epoch > 2411368.0) & (table.epoch <= 2433282.0)
     after_1950 = table.epoch > 2433282.0
 
@@ -711,7 +711,7 @@ class BatchMPC:
 
         temp._table = (
             pd.concat([self._table, other._table])
-            .sort_values("epoch")
+            .sort_values("epoch") # this is expressed in Julian Days
             .drop_duplicates()
         )
 
@@ -733,8 +733,8 @@ class BatchMPC:
         self._MPC_codes = list(self._table.number.unique())
         self._size = len(self._table)
 
-        self._epoch_start = self._table.epochJ2000secondsTDB.min()
-        self._epoch_end = self._table.epochJ2000secondsTDB.max()
+        self._epoch_start = self._table.epoch_seconds_TDB.min()
+        self._epoch_end = self._table.epoch_seconds_TDB.max()
 
     def _get_station_info(self) -> None:
         """Internal. Retrieve data on MPC listed observatories."""
@@ -786,7 +786,7 @@ class BatchMPC:
             RA_corr, DEC_corr = get_biases_EFCC18(
                 RA=self.table.RA.to_numpy(),
                 DEC=self.table.DEC.to_numpy(),
-                epochJ2000secondsTDB=self.table.epochJ2000secondsTDB.to_numpy(),
+                epoch_seconds_TDB=self.table.epoch_seconds_TDB.to_numpy(),
                 catalog=self.table.catalog.to_numpy(),
                 bias_file=bias_file,
                 Nside=Nside,
@@ -805,7 +805,7 @@ class BatchMPC:
         Internal helper to add standardized time columns to an observation table.
 
         This function takes a DataFrame with an 'epoch' column (in Julian Days, UTC)
-        and adds 'epochJ2000secondsTDB' and 'epochUTC' columns.
+        and adds 'epoch_seconds_TDB' and 'epoch_seconds_UTC' columns.
 
         Parameters
         ----------
@@ -824,16 +824,16 @@ class BatchMPC:
         # Get the default time scale converter
         time_scale_converter = time_representation.default_time_scale_converter()
 
-        # Add 'epochUTC' column by converting DateTime Objects to epoch
-        table['epochUTC'] = [dt_obj.epoch() for dt_obj in dt_objects]
+        # Add 'epoch_seconds_UTC' column by converting DateTime Objects to epoch
+        table['epoch_seconds_UTC'] = [dt_obj.epoch() for dt_obj in dt_objects]
 
-        # Add 'epochJ2000secondsTDB' column by converting from UTC to TDB
-        table['epochJ2000secondsTDB'] = [
+        # Add 'epoch_seconds_TDB' column by converting from UTC to TDB
+        table['epoch_seconds_TDB'] = [
             time_scale_converter.convert_time(
                 input_scale=time_representation.utc_scale,
                 output_scale=time_representation.tdb_scale,
                 input_value=t_utc
-            ) for t_utc in table['epochUTC']
+            ) for t_utc in table['epoch_seconds_UTC']
         ]
 
         return table
@@ -1219,7 +1219,7 @@ class BatchMPC:
             if epoch_start is not None:
                 if isinstance(epoch_start, float) or isinstance(epoch_start, int):
                     self._table = self._table.query(
-                        "epochJ2000secondsTDB >= @epoch_start"
+                        "epoch_seconds_TDB >= @epoch_start"
                     )
                 elif isinstance(epoch_start, datetime.datetime):
                     epoch_start_iso_string = epoch_start.isoformat(sep=' ')
@@ -1228,11 +1228,11 @@ class BatchMPC:
                         input_scale=time_representation.utc_scale,
                         output_scale=time_representation.tdb_scale,
                         input_value=epoch_start_utc)
-                    self._table = self._table.query("epochJ2000secondsTDB >= @epoch_start_tdb")
+                    self._table = self._table.query("epoch_seconds_TDB >= @epoch_start_tdb")
             if epoch_end is not None:
                 if isinstance(epoch_end, float) or isinstance(epoch_end, int):
                     self._table = self._table.query(
-                        "epochJ2000secondsTDB <= @epoch_end"
+                        "epoch_seconds_TDB <= @epoch_end"
                     )
                 elif isinstance(epoch_end, datetime.datetime):
                     epoch_end_iso_string = epoch_end.isoformat(sep=' ')
@@ -1241,7 +1241,7 @@ class BatchMPC:
                         input_scale=time_representation.utc_scale,
                         output_scale=time_representation.tdb_scale,
                         input_value=epoch_end_utc)
-                    self._table = self._table.query("epochJ2000secondsTDB <= @epoch_end_tdb")
+                    self._table = self._table.query("epoch_seconds_TDB <= @epoch_end_tdb")
 
             self._refresh_metadata()
             return None
@@ -1486,11 +1486,11 @@ class BatchMPC:
                                  ].to_numpy()
 
             observation_times = observations_for_this_link.loc[
-                                :, ["epochJ2000secondsTDB"]
+                                :, ["epoch_secondsTDB"]
                                 ].to_numpy()[:, 0]
 
             # create a set of obs for this link
-            observation_set = observations.single_observation_set(
+            observation_set = observations.create_single_observation_set(
                 model_settings.angular_position_type,
                 link_definition,
                 observation_angles,
@@ -1553,14 +1553,14 @@ class BatchMPC:
             tab = self._table.query("number == @obj")
 
             axRA.scatter(
-                tab.epochJ2000secondsTDB,
+                tab.epoch_secondsTDB,
                 np.degrees(tab.RA),
                 label="MPC: " + obj,
                 marker=".",
                 # linestyle=None,
             )
             axDEC.scatter(
-                tab.epochJ2000secondsTDB,
+                tab.epoch_secondsTDB,
                 np.degrees(tab.DEC),
                 label="MPC: " + obj,
                 marker=".",
@@ -1616,7 +1616,7 @@ class BatchMPC:
         utc_epochs = [time_scale_converter.convert_time(
             input_scale=time_representation.tdb_scale,
             output_scale=time_representation.utc_scale,
-            input_value=t) for t in  all_obj_data.epochJ2000secondsTDB
+            input_value=t) for t in  all_obj_data.epoch_secondsTDB
         ]
 
         # Prepare Data for Plotting
@@ -1634,7 +1634,7 @@ class BatchMPC:
             utc_epochs_object = [time_scale_converter.convert_time(
                 input_scale=time_representation.tdb_scale,
                 output_scale=time_representation.utc_scale,
-                input_value=t) for t in  tab.epochJ2000secondsTDB.values
+                input_value=t) for t in  tab.epoch_secondsTDB.values
             ]
 
             if tab.empty:
@@ -1703,8 +1703,8 @@ class BatchMPC:
             + "observations from space telescopes"
         )
         print(
-            f"3. The observations range from {self._table.epochJ2000secondsTDB.min()} "
-            + f"to {self._table.epochJ2000secondsTDB.max()}"
+            f"3. The observations range from {self._table.epoch_secondsTDB.min()} "
+            + f"to {self._table.epoch_secondsTDB.max()}"
         )
         print(f"   In seconds TDB since J2000: {self.epoch_start} to {self.epoch_end}")
         print(
