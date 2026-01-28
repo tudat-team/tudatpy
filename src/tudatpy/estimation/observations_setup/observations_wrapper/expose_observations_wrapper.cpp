@@ -381,6 +381,7 @@ void expose_observations_wrapper( py::module &m )
            py::arg( "original_observation_collection" ),
            py::arg( "compression_ratio" ),
            py::arg( "minimum_number_of_observations" ) = 10,
+           py::arg( "max_arc_gap" ) = 300.0,
            R"doc(
         Create a compressed Doppler observation collection.
 
@@ -394,6 +395,8 @@ void expose_observations_wrapper( py::module &m )
             The number of observations to average into a single compressed observation.
         minimum_number_of_observations : int, optional
             The minimum number of observations required in an arc to be considered for compression, by default 10.
+        max_arc_gap : float, optional
+            Maximum time gap (in seconds) between consecutive observations before splitting into a new arc, by default 300.0.
 
         Returns
         -------
