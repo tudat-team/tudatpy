@@ -1365,8 +1365,9 @@ std::shared_ptr< observation_models::SingleObservationSet< ObservationScalarType
             bool skipObservation = false;
             for( unsigned int j = 1; ( j < compressionRatio && !skipObservation ); j++ )
             {
-                if( std::fabs( static_cast< double >( originalObservationTimesUtc.at( i + j ) - originalObservationTimesUtc.at( i + j - 1 ) ) - currentCompressionTime ) <
-                    0.01 )
+                if( std::fabs(
+                            static_cast< double >( originalObservationTimesUtc.at( i + j ) - originalObservationTimesUtc.at( i + j - 1 ) ) -
+                            currentCompressionTime ) < 0.01 )
                 {
                     newObservable += originalObservations.at( i + j );
                     newTime += originalObservationTimesUtc.at( i + j );
