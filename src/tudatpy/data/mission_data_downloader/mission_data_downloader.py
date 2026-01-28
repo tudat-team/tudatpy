@@ -21,6 +21,7 @@ from tudatpy.astro.time_representation import (
     datetime_to_python,
 )
 import shutil
+import time
 
 _REQUEST_TIMEOUT = 30  # seconds
 
@@ -660,15 +661,22 @@ class LoadPDS:
         ]
 
         # Download each file if not already present
+        skipped_files = []
         for file, local_file in zip(all_files_to_download, self.files_to_load):
             if not os.path.exists(local_file):
                 full_url = str(os.path.join(url, file))
                 print(f"Downloading File: {full_url} to: {local_file}")
                 self._download_file(full_url, local_file)
             else:
-                print(
-                    f"File: {local_file} already exists in: {base_folder} and will not be downloaded."
-                )
+                skipped_files.append(os.path.basename(local_file))
+
+        if skipped_files:
+            formatted = self._format_existing_files(
+                skipped_files  # already basenames, _format_existing_files handles both
+            )
+            print(
+                f"The following files already exist and will not be downloaded:\n\n{formatted}\n"
+            )
 
         return self.files_to_load
 
@@ -870,7 +878,8 @@ class LoadPDS:
     #########################################################################################################
 
     def dynamic_download_url_files_single_time(
-        self, input_mission, local_path, start_date, end_date, url
+        self, input_mission, local_path, start_date, end_date, url,
+        verbose=True,
     ):
         """
         Description:
@@ -884,6 +893,7 @@ class LoadPDS:
             - start_date (`datetime`): The start date of the time interval for which files are required.
             - end_date (`datetime`): The end date of the time interval for which files are required.
             - url (`str`): The base URL where the files are hosted.
+            - verbose (`bool`): If True, print progress messages. If False, operate quietly.
 
         Outputs:
             - `self.relevant_files` (`list`): A list of paths to the files that were either already present or successfully downloaded.
@@ -891,7 +901,10 @@ class LoadPDS:
 
         input_mission = input_mission.lower()
         self.relevant_files = []
-        print("Checking URL:", url)
+        self._last_skipped_files = []
+        self._last_downloaded_files = []
+        if verbose:
+            print("Checking URL:", url)
         data_type = url.split("/")[-2]
         local_subfolder = os.path.join(local_path, data_type.lower())
 
@@ -908,14 +921,6 @@ class LoadPDS:
         )
         if not existing_files:
             existing_files = set()
-
-        if existing_files:
-            print(
-                f"--------------------------------------- EXISTING FILES CHECK ----------------------------------------------"
-            )
-            print(
-                f"The following files already exist in the folder:\n\n {existing_files}\n\n and will not be downloaded."
-            )
 
         all_dates = [
             start_date + timedelta(days=x)
@@ -1051,25 +1056,34 @@ class LoadPDS:
                     # File already exists locally and matches date range — include it
                     if full_local_path not in self.relevant_files:
                         self.relevant_files.append(full_local_path)
+                        self._last_skipped_files.append(full_local_path)
+                        if verbose:
+                            print(
+                                f"File already exists, skipping: {os.path.basename(download_file)}"
+                            )
                 else:
                     try:
-                        print(
-                            f"Downloading: {full_download_url} to: {full_local_path}"
-                        )
+                        if verbose:
+                            print(
+                                f"Downloading: {full_download_url} to: {full_local_path}"
+                            )
                         self._download_file(
                             full_download_url,
                             full_local_path,
                         )
                         self.relevant_files.append(full_local_path)
+                        self._last_downloaded_files.append(full_local_path)
                     except Exception as e:
                         print(
                             f"!! Failed to download {full_download_url}: {e} !!"
                         )
 
         if len(self.relevant_files) == 0:
-            print("Nothing to download.")
+            if verbose:
+                print("Nothing to download.")
 
-        print("...Done.")
+        if verbose:
+            print("...Done.")
 
         return self.relevant_files
 
@@ -1098,6 +1112,14 @@ class LoadPDS:
         if self.existing_files:
             self.flag_check_existing_files = True
         return self.existing_files
+
+    #########################################################################################################
+
+    @staticmethod
+    def _format_existing_files(existing_files):
+        """Format a set of file paths as a sorted bulleted list of basenames."""
+        sorted_names = sorted(os.path.basename(f) for f in existing_files)
+        return "\n".join(f"  - {name}" for name in sorted_names)
 
     #########################################################################################################
 
@@ -1158,7 +1180,7 @@ class LoadPDS:
                 f"--------------------------------------- EXISTING FILES CHECK ---------------------------------------------\n"
             )
             print(
-                f"The following files already exist in the folder:\n\n {existing_files}\n\n and will not be downloaded."
+                f"The following files already exist in the folder and will not be downloaded:\n\n{self._format_existing_files(existing_files)}\n"
             )
 
         # Initialize a dictionary to hold files from the HTML response
@@ -1767,6 +1789,7 @@ class LoadPDS:
             input_mission
         )
 
+        skipped_files = []
         for kernel_type, kernel_urls in self.kernel_files_to_load.items():
             for kernel_url in kernel_urls:
                 if (
@@ -1809,9 +1832,13 @@ class LoadPDS:
                     if kernel_type == "mk":
                         self._patch_meta_kernel_path_values(local_file_path, local_folder)
                 else:
-                    print(
-                        f"File: {url_kernel_path} already exists in: {local_folder} and will not be downloaded."
-                    )
+                    skipped_files.append(url_kernel_path)
+
+        if skipped_files:
+            formatted = self._format_existing_files(skipped_files)
+            print(
+                f"The following meta-kernel files already exist in {local_folder} and will not be downloaded:\n\n{formatted}\n"
+            )
 
         return self.kernel_files_to_load
 
@@ -2158,6 +2185,7 @@ class LoadPDS:
                             start_date,
                             end_date,
                             radio_observation_type,
+                            skip_kernel_downloads=True,
                         )
                     )
 
@@ -4386,7 +4414,8 @@ class LoadPDS:
     ########################################################################################################################################
 
     def get_ro_files(
-        self, local_folder, start_date, end_date, radio_observation_type=None
+        self, local_folder, start_date, end_date, radio_observation_type=None,
+        skip_kernel_downloads=False,
     ):
         """
         Description:
@@ -4419,9 +4448,14 @@ class LoadPDS:
         input_mission = "ro"
 
         # Fetch radio science URLs once and reuse for both tropospheric and radio science loops
+        print(
+            f"==========================================================================================================="
+        )
+        print(f"Discovering {input_mission.upper()} Radio Science Archive URLs:")
         cached_radio_science_urls = self.get_url_ro_radio_science_files(
             start_date, end_date, radio_observation_type
         )
+        print(f"Found {len(cached_radio_science_urls)} Radio Science archive URL(s).")
 
         # Tropospheric corrections
         print(
@@ -4471,131 +4505,162 @@ class LoadPDS:
             f"==========================================================================================================="
         )
         print(f"Download {input_mission.upper()} Radio Science Kernels:")
+
+        # Build all DP2 URLs
+        radio_science_dp2_urls = []
         for url_radio_science_file_new in cached_radio_science_urls:
-            for closed_loop_type in ["IFMS/DP2/", "DSN/DPS/", "DSN/DPX/"]:
-                try:
-                    url_radio_science_file = (
-                        url_radio_science_file_new
-                        + "DATA/LEVEL02/CLOSED_LOOP/"
-                        + closed_loop_type
-                    )
-                    files = self.dynamic_download_url_files_single_time(
+            for closed_loop_type in ["IFMS/DP2/"]:
+                url_radio_science_file = (
+                    url_radio_science_file_new
+                    + "DATA/LEVEL02/CLOSED_LOOP/"
+                    + closed_loop_type
+                )
+                radio_science_dp2_urls.append((url_radio_science_file, closed_loop_type))
+
+        print(f"Scanning {len(radio_science_dp2_urls)} archive URL(s) for IFMS/DP2 files...")
+
+        # Process all URLs quietly and collect results
+        all_skipped = []
+        all_downloaded = []
+        for url_radio_science_file, closed_loop_type in radio_science_dp2_urls:
+            try:
+                files = self.dynamic_download_url_files_single_time(
+                    input_mission,
+                    local_path=local_folder,
+                    start_date=start_date,
+                    end_date=end_date,
+                    url=url_radio_science_file,
+                    verbose=False,
+                )
+                key = f"{closed_loop_type.split('/')[0]}_{closed_loop_type.split('/')[1]}"
+                if key not in self.radio_science_files_to_load:
+                    self.radio_science_files_to_load[key] = []
+                self.radio_science_files_to_load[key].extend(files)
+                all_skipped.extend(self._last_skipped_files)
+                all_downloaded.extend(self._last_downloaded_files)
+            except Exception as e:
+                print(f"Error downloading radio science files from {closed_loop_type}: {e}")
+                continue
+
+        # Print summary
+        if all_skipped:
+            formatted = self._format_existing_files(all_skipped)
+            print(
+                f"\nThe following Radio Science files already exist and will not be downloaded:\n\n{formatted}"
+            )
+        if all_downloaded:
+            dest_folder = os.path.join(local_folder, "dp2")
+            total = len(all_downloaded)
+            print(f"\nDownloaded {total} new Radio Science file(s) to {dest_folder}/:\n")
+            for i, f in enumerate(all_downloaded, 1):
+                print(f"  [{i}/{total}] {os.path.basename(f)}")
+            print()
+        if not all_skipped and not all_downloaded:
+            print("No Radio Science files found for the given date range.")
+
+        if not skip_kernel_downloads:
+            # Clock files
+            print(
+                f"==========================================================================================================="
+            )
+            print(f"Download {input_mission.upper()} Clock Kernels:")
+            url_clock_files = (
+                "https://spiftp.esac.esa.int/data/SPICE/ROSETTA/kernels/sclk/"
+            )
+
+            wanted_clock_files = self.get_latest_clock_kernel_name(input_mission)
+
+            clock_files_to_load = self.get_kernels(
+                input_mission=input_mission,
+                url=url_clock_files,
+                wanted_files=wanted_clock_files,
+                custom_output=local_folder,
+            )
+
+            if clock_files_to_load:
+                self.kernel_files_to_load["sclk"] = clock_files_to_load
+            else:
+                print("No sclk files to download this time.")
+
+            print(
+                f"==========================================================================================================="
+            )
+            print(f"Download {input_mission.upper()} Frame Kernels:")
+            url_frame_files = (
+                "https://spiftp.esac.esa.int/data/SPICE/ROSETTA/kernels/fk/"
+            )
+            wanted_frame_files = self._get_latest_versioned_files(
+                url_frame_files,
+                [
+                    r"ROS_V(\d+)\.TF",
+                    r"ROS_DSK_SURFACES_V(\d+)\.TF",
+                    r"ROS_CGS_AUX_V(\d+)\.TF",
+                    r"ROS_LUTETIA_RSOC_V(\d+)\.TF",
+                ],
+            )
+            frame_files_to_load = self.get_kernels(
+                input_mission=input_mission,
+                url=url_frame_files,
+                wanted_files=wanted_frame_files,
+                custom_output=local_folder,
+            )
+
+            if frame_files_to_load:
+                self.kernel_files_to_load["fk"] = frame_files_to_load
+            else:
+                print("No fk files to download this time.")
+
+            # Spk files
+            print(
+                f"==========================================================================================================="
+            )
+            print(f"Download {input_mission.upper()} SPK Kernels:")
+            url_spk_files = [
+                "https://spiftp.esac.esa.int/data/SPICE/ROSETTA/kernels/spk/"
+            ]
+
+            spk_files_to_load = []
+            for url_spk_file in url_spk_files:
+                spk_files_to_load.extend(
+                    self.dynamic_download_url_files_time_interval(
                         input_mission,
                         local_path=local_folder,
                         start_date=start_date,
                         end_date=end_date,
-                        url=url_radio_science_file,
+                        url=url_spk_file,
                     )
-                    key = f"{closed_loop_type.split('/')[0]}_{closed_loop_type.split('/')[1]}"
-                    if key not in self.radio_science_files_to_load:
-                        self.radio_science_files_to_load[key] = []
-                    self.radio_science_files_to_load[key].extend(files)
-                except Exception as e:
-                    print(f"Error downloading radio science files from {closed_loop_type}: {e}")
-                    continue
-
-        # Clock files
-        print(
-            f"==========================================================================================================="
-        )
-        print(f"Download {input_mission.upper()} Clock Kernels:")
-        url_clock_files = (
-            "https://spiftp.esac.esa.int/data/SPICE/ROSETTA/kernels/sclk/"
-        )
-
-        wanted_clock_files = self.get_latest_clock_kernel_name(input_mission)
-
-        clock_files_to_load = self.get_kernels(
-            input_mission=input_mission,
-            url=url_clock_files,
-            wanted_files=wanted_clock_files,
-            custom_output=local_folder,
-        )
-
-        if clock_files_to_load:
-            self.kernel_files_to_load["sclk"] = clock_files_to_load
-        else:
-            print("No sclk files to download this time.")
-
-        print(
-            f"==========================================================================================================="
-        )
-        print(f"Download {input_mission.upper()} Frame Kernels:")
-        url_frame_files = (
-            "https://spiftp.esac.esa.int/data/SPICE/ROSETTA/kernels/fk/"
-        )
-        wanted_frame_files = self._get_latest_versioned_files(
-            url_frame_files,
-            [
-                r"ROS_V(\d+)\.TF",
-                r"ROS_DSK_SURFACES_V(\d+)\.TF",
-                r"ROS_CGS_AUX_V(\d+)\.TF",
-                r"ROS_LUTETIA_RSOC_V(\d+)\.TF",
-            ],
-        )
-        frame_files_to_load = self.get_kernels(
-            input_mission=input_mission,
-            url=url_frame_files,
-            wanted_files=wanted_frame_files,
-            custom_output=local_folder,
-        )
-
-        if frame_files_to_load:
-            self.kernel_files_to_load["fk"] = frame_files_to_load
-        else:
-            print("No fk files to download this time.")
-
-            # Spk files
-        print(
-            f"==========================================================================================================="
-        )
-        print(f"Download {input_mission.upper()} SPK Kernels:")
-        url_spk_files = [
-            "https://spiftp.esac.esa.int/data/SPICE/ROSETTA/kernels/spk/"
-        ]
-
-        spk_files_to_load = []
-        for url_spk_file in url_spk_files:
-            spk_files_to_load.extend(
-                self.dynamic_download_url_files_time_interval(
-                    input_mission,
-                    local_path=local_folder,
-                    start_date=start_date,
-                    end_date=end_date,
-                    url=url_spk_file,
                 )
-            )
 
-        if spk_files_to_load:
-            self.kernel_files_to_load["spk"] = spk_files_to_load
-        else:
-            print("No spk files to download this time.")
+            if spk_files_to_load:
+                self.kernel_files_to_load["spk"] = spk_files_to_load
+            else:
+                print("No spk files to download this time.")
 
             # Orientation files
-        print(
-            f"==========================================================================================================="
-        )
-        print(f"Download {input_mission.upper()} CK Kernels:")
-        url_ck_files = [
-            "https://spiftp.esac.esa.int/data/SPICE/ROSETTA/kernels/ck/"
-        ]
-
-        ck_files_to_load = []
-        for url_ck_file in url_ck_files:
-            ck_files_to_load.extend(
-                self.dynamic_download_url_files_time_interval(
-                    input_mission,
-                    local_path=local_folder,
-                    start_date=start_date,
-                    end_date=end_date,
-                    url=url_ck_file,
-                )
+            print(
+                f"==========================================================================================================="
             )
+            print(f"Download {input_mission.upper()} CK Kernels:")
+            url_ck_files = [
+                "https://spiftp.esac.esa.int/data/SPICE/ROSETTA/kernels/ck/"
+            ]
 
-        if ck_files_to_load:
-            self.kernel_files_to_load["ck"] = ck_files_to_load
-        else:
-            print("No ck files to download this time.")
+            ck_files_to_load = []
+            for url_ck_file in url_ck_files:
+                ck_files_to_load.extend(
+                    self.dynamic_download_url_files_time_interval(
+                        input_mission,
+                        local_path=local_folder,
+                        start_date=start_date,
+                        end_date=end_date,
+                        url=url_ck_file,
+                    )
+                )
+
+            if ck_files_to_load:
+                self.kernel_files_to_load["ck"] = ck_files_to_load
+            else:
+                print("No ck files to download this time.")
 
         print(
             f"-----------------------------------------------------------------------------------------------------------"
@@ -4884,9 +4949,24 @@ class LoadPDS:
                 - `radio_observation_type` (`str`): Type of observation.
         """
 
-        # Step 1: Fetch content from the URL
-        response = requests.get(url, timeout=_REQUEST_TIMEOUT)
-        response.raise_for_status()  # Check for request errors
+        # Step 1: Fetch content from the URL (with retries)
+        max_retries = 3
+        for attempt in range(1, max_retries + 1):
+            try:
+                response = requests.get(url, timeout=_REQUEST_TIMEOUT)
+                response.raise_for_status()
+                break
+            except requests.exceptions.RequestException as e:
+                if attempt < max_retries:
+                    wait_time = 2 ** attempt
+                    print(f"Attempt {attempt}/{max_retries} failed for {url}: {e}. "
+                          f"Retrying in {wait_time}s...")
+                    time.sleep(wait_time)
+                else:
+                    raise ConnectionError(
+                        f"Failed to fetch RSI volume ID mapping from {url} "
+                        f"after {max_retries} attempts: {e}"
+                    ) from e
         aareadme_text = response.text
 
         # Step 2: Parse content using regex to extract the table entries
