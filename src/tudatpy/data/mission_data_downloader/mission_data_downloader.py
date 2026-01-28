@@ -2163,7 +2163,7 @@ class LoadPDS:
             )
 
         print(
-            f"===============================================================================================================\n"
+            f"===========================================================================================\n"
         )
 
         kernel_files_to_load = None
@@ -2401,7 +2401,7 @@ class LoadPDS:
         if not self.flag_load_standard_kernels:
             if load_kernels:
                 print(
-                    f"==============================================================================================================="
+                    "================================================================"
                 )
                 print(
                     f"Number of Loaded Existing + Downloaded Kernels: {n_kernels}"
@@ -2415,14 +2415,14 @@ class LoadPDS:
                     f"Number of Loaded Standard Kernels: {n_standard_kernels}"
                 )
                 print(
-                    f"==============================================================================================================="
+                    "================================================================"
                 )
         else:
             print(
                 f"Number of Loaded Existing + Downloaded + Standard Kernels: {n_kernels}"
             )
             print(
-                f"==============================================================================================================="
+                "================================================================"
             )
 
         self.clean_mission_archive(local_folder)
@@ -2472,7 +2472,7 @@ class LoadPDS:
         input_mission = "mex"
         # Tropospheric corrections
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(
             f"Download {input_mission.upper()} Tropospheric and Ionospheric Corrections Files"
@@ -2519,7 +2519,7 @@ class LoadPDS:
                     )
 
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} Radio Science Kernels:")
         url_radio_science_files = self.get_url_mex_radio_science_files(
@@ -2547,7 +2547,7 @@ class LoadPDS:
 
         # Clock files
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} Clock Kernels:")
         url_clock_files = (
@@ -2567,7 +2567,7 @@ class LoadPDS:
             print("No sclk files to download this time.")
 
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} Frame Kernels:")
         url_frame_files = (
@@ -2594,7 +2594,7 @@ class LoadPDS:
 
             # Spk files
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} SPK Kernels:")
         url_spk_files = [
@@ -2631,7 +2631,7 @@ class LoadPDS:
 
             # Orientation files
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} CK Kernels:")
         url_ck_files = [
@@ -2666,7 +2666,7 @@ class LoadPDS:
             print("No spk files to download this time.")
 
         print(
-            f"-----------------------------------------------------------------------------------------------------------"
+            "----------------------------------------------------------------"
         )
         print(
             "All requested, relevant and previously non-existing MEX files have been now downloaded. Enjoy!"
@@ -2880,7 +2880,7 @@ class LoadPDS:
     ################################################# END OF MEX SECTION ###############################################################
     ########################################################################################################################################
 
-    # --------------------------------------------------------------------------------------------------------------------------------------#
+    # ------------------------------------------------------------------------------------------------------------------#
 
     ########################################################################################################################################
     ################################################# START OF JUICE SECTION ###############################################################
@@ -2913,7 +2913,7 @@ class LoadPDS:
         input_mission = "juice"
         # Clock files
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} Clock Files:")
         url_clock_files = (
@@ -2934,7 +2934,7 @@ class LoadPDS:
 
         # Frame Kernels
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} Frame Files:")
         url_frame_files = (
@@ -2963,7 +2963,7 @@ class LoadPDS:
             print("No fk files to download this time.")
 
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} Orientation Kernels:")
         ck_files_to_load = []
@@ -3028,7 +3028,7 @@ class LoadPDS:
             # SPK files
         spk_files_to_load = []
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} SPK Kernels:")
         measured_url_spk_files = [
@@ -3071,7 +3071,7 @@ class LoadPDS:
             print("No Overall SPK files to download this time.")
 
             # Tropospheric corrections
-        # print(f'===========================================================================================================\n')
+        # print(f'=======================================================================================\n')
         # print(f'Download {input_mission.upper()} tropospheric corrections files\n')
         # url_tropo_files = "https://pds-geosciences.wustl.edu/mro/mro-m-rss-1-magr-v1/mrors_0xxx/ancillary/tro/"
         # tropo_files_to_load = self.dynamic_download_url_files_time_interval(input_mission,
@@ -3084,7 +3084,7 @@ class LoadPDS:
         #    print('No tropospheric files to download this time.')
 
         # Ionospheric corrections
-        # print(f'===========================================================================================================\n')
+        # print(f'=======================================================================================\n')
         # print(f'Download {input_mission.upper()} ionospheric corrections files\n')
         # url_ion_files = "https://pds-geosciences.wustl.edu/mro/mro-m-rss-1-magr-v1/mrors_0xxx/ancillary/ion/"
         # ion_files_to_load = self.dynamic_download_url_files_time_interval(input_mission,
@@ -3106,7 +3106,7 @@ class LoadPDS:
     ################################################### END OF JUICE SECTION ###############################################################
     ########################################################################################################################################
 
-    # --------------------------------------------------------------------------------------------------------------------------------------#
+    # ------------------------------------------------------------------------------------------------------------------#
 
     ########################################################################################################################################
     ################################################### START OF MRO SECTION ###############################################################
@@ -3139,7 +3139,7 @@ class LoadPDS:
         input_mission = "mro"
         # ODF files
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(
             f"Download {input_mission.upper()} {radio_science_file_type.upper()} files:"
@@ -3167,7 +3167,7 @@ class LoadPDS:
             print("No Radio Science files to download this time.")
         # Clock Kernels
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} Clock Kernels:")
         url_clock_files = "https://naif.jpl.nasa.gov/pub/naif/pds/data/mro-m-spice-6-v1.0/mrosp_1000/data/sclk/"
@@ -3191,7 +3191,7 @@ class LoadPDS:
 
         # Frame Kernels
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} Frame Kernels:")
         url_frame_files = "https://naif.jpl.nasa.gov/pub/naif/pds/data/mro-m-spice-6-v1.0/mrosp_1000/data/fk/"
@@ -3210,7 +3210,7 @@ class LoadPDS:
 
             # Planetary and Ephemeris Kernels
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} SPK Kernels:")
         url_spk_files = "https://naif.jpl.nasa.gov/pub/naif/pds/data/mro-m-spice-6-v1.0/mrosp_1000/data/spk/"
@@ -3238,7 +3238,7 @@ class LoadPDS:
 
             # Orientation Kernels
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} Orientation Kernels:")
         measured_url_ck_files = [
@@ -3274,7 +3274,7 @@ class LoadPDS:
 
             # Tropospheric corrections
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(
             f"Download {input_mission.upper()} Tropospheric Corrections Files"
@@ -3295,7 +3295,7 @@ class LoadPDS:
 
             # Ionospheric corrections
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} Ionospheric Corrections Files")
         url_ion_files = "https://pds-geosciences.wustl.edu/mro/mro-m-rss-1-magr-v1/mrors_0xxx/ancillary/ion/"
@@ -3443,7 +3443,7 @@ class LoadPDS:
     ##################################################### END OF MRO SECTION ###############################################################
     ########################################################################################################################################
 
-    # --------------------------------------------------------------------------------------------------------------------------------------#
+    # ------------------------------------------------------------------------------------------------------------------#
 
     ########################################################################################################################################
     ################################################### START OF CASSINI SECTION ###########################################################
@@ -3506,7 +3506,7 @@ class LoadPDS:
             filenames_to_download.extend(wanted_filenames)
 
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(
             f"Download {input_mission.upper()} Kernels (ck, spk) Ancillary Files (eop, ion, tro) and Radio Science (odf) files from PDS Atmosphere Node:"
@@ -3597,7 +3597,7 @@ class LoadPDS:
 
         # Frame Kernels
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} Frame Kernels from NAIF:")
         url_frame_files = (
@@ -3939,7 +3939,7 @@ class LoadPDS:
 
         # ODF files
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} ODF files:")
         url_radio_science_files = [
@@ -3964,7 +3964,7 @@ class LoadPDS:
 
         # Clock Kernels
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} Clock Kernels:")
         url_clock_files = "https://naif.jpl.nasa.gov/pub/naif/pds/data/grail-l-spice-6-v1.0/grlsp_1000/data/sclk/"
@@ -3983,7 +3983,7 @@ class LoadPDS:
 
         # Frame Kernels
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} Frame Kernels:")
         url_frame_files = "https://naif.jpl.nasa.gov/pub/naif/pds/data/grail-l-spice-6-v1.0/grlsp_1000/data/fk/"
@@ -4002,7 +4002,7 @@ class LoadPDS:
 
             # maneuver Files
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} Maneuver Files:")
         url_man_files = "https://pds-geosciences.wustl.edu/grail/grail-l-lgrs-2-edr-v1/grail_0001/level_0/2012_04_06/"
@@ -4021,7 +4021,7 @@ class LoadPDS:
 
             # Antenna Switch Files
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} Antenna Switch Files:")
 
@@ -4046,7 +4046,7 @@ class LoadPDS:
             # Planetary and Ephemeris Kernels
         spk_files_to_load = []
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} SPK Kernels:")
         url_spk_files = [
@@ -4079,7 +4079,7 @@ class LoadPDS:
 
             # Orientation Kernels
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} Orientation Kernels:")
         measured_url_ck_files = [
@@ -4115,7 +4115,7 @@ class LoadPDS:
 
             # Tropospheric corrections
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(
             f"Download {input_mission.upper()} Tropospheric Corrections Files"
@@ -4136,7 +4136,7 @@ class LoadPDS:
 
             # Ionospheric corrections
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} Ionospheric Corrections Files")
         url_ion_files = "https://pds-geosciences.wustl.edu/grail/grail-l-rss-2-edr-v1/grail_0201/ancillary/ion/"
@@ -4193,7 +4193,7 @@ class LoadPDS:
 
         # ODF files
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} ODF files:")
         url_radio_science_files = [
@@ -4218,7 +4218,7 @@ class LoadPDS:
 
         # Clock Kernels
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} Clock Kernels:")
         url_clock_files = "https://naif.jpl.nasa.gov/pub/naif/pds/data/grail-l-spice-6-v1.0/grlsp_1000/data/sclk/"
@@ -4237,7 +4237,7 @@ class LoadPDS:
 
         # Frame Kernels
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} Frame Kernels:")
         url_frame_files = "https://naif.jpl.nasa.gov/pub/naif/pds/data/grail-l-spice-6-v1.0/grlsp_1000/data/fk/"
@@ -4256,7 +4256,7 @@ class LoadPDS:
 
             # maneuver Files
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} Maneuver Files:")
         url_man_files = "https://pds-geosciences.wustl.edu/grail/grail-l-lgrs-2-edr-v1/grail_0001/level_0/"
@@ -4292,7 +4292,7 @@ class LoadPDS:
             # Planetary and Ephemeris Kernels
         spk_files_to_load = []
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} SPK Kernels:")
         url_spk_files = [
@@ -4325,7 +4325,7 @@ class LoadPDS:
 
             # Orientation Kernels
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} Orientation Kernels:")
         measured_url_ck_files = [
@@ -4361,7 +4361,7 @@ class LoadPDS:
 
             # Tropospheric corrections
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(
             f"Download {input_mission.upper()} Tropospheric Corrections Files"
@@ -4382,7 +4382,7 @@ class LoadPDS:
 
             # Ionospheric corrections
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} Ionospheric Corrections Files")
         url_ion_files = "https://pds-geosciences.wustl.edu/grail/grail-l-rss-2-edr-v1/grail_0201/ancillary/ion/"
@@ -4449,7 +4449,7 @@ class LoadPDS:
 
         # Fetch radio science URLs once and reuse for both tropospheric and radio science loops
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Discovering {input_mission.upper()} Radio Science Archive URLs:")
         cached_radio_science_urls = self.get_url_ro_radio_science_files(
@@ -4459,7 +4459,7 @@ class LoadPDS:
 
         # Tropospheric corrections
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(
             f"Download {input_mission.upper()} Tropospheric and Ionospheric Corrections Files"
@@ -4502,7 +4502,7 @@ class LoadPDS:
                     )
 
         print(
-            f"==========================================================================================================="
+            "================================================================"
         )
         print(f"Download {input_mission.upper()} Radio Science Kernels:")
 
@@ -4561,7 +4561,7 @@ class LoadPDS:
         if not skip_kernel_downloads:
             # Clock files
             print(
-                f"==========================================================================================================="
+                "================================================================"
             )
             print(f"Download {input_mission.upper()} Clock Kernels:")
             url_clock_files = (
@@ -4583,7 +4583,7 @@ class LoadPDS:
                 print("No sclk files to download this time.")
 
             print(
-                f"==========================================================================================================="
+                "================================================================"
             )
             print(f"Download {input_mission.upper()} Frame Kernels:")
             url_frame_files = (
@@ -4612,7 +4612,7 @@ class LoadPDS:
 
             # Spk files
             print(
-                f"==========================================================================================================="
+                "================================================================"
             )
             print(f"Download {input_mission.upper()} SPK Kernels:")
             url_spk_files = [
@@ -4638,7 +4638,7 @@ class LoadPDS:
 
             # Orientation files
             print(
-                f"==========================================================================================================="
+                "================================================================"
             )
             print(f"Download {input_mission.upper()} CK Kernels:")
             url_ck_files = [
@@ -4663,7 +4663,7 @@ class LoadPDS:
                 print("No ck files to download this time.")
 
         print(
-            f"-----------------------------------------------------------------------------------------------------------"
+            "----------------------------------------------------------------"
         )
         print(
             "All requested, relevant and previously non-existing RO files have been now downloaded. Enjoy!"
