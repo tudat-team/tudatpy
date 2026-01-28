@@ -571,7 +571,7 @@ numpy.ndarray
            py::arg( "observations" ),
            py::arg( "observation_times" ),
            py::arg( "reference_link_end" ),
-           py::arg( "ancillary_settings" ),
+           py::arg( "ancillary_settings" ) = nullptr,
            R"doc(
         Factory function to create a `SingleObservationSet` object.
 

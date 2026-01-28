@@ -300,6 +300,24 @@ void expose_ground_station_setup( py::module& m )
 
      )doc" );
 
+    m.def( "optical_telescope_stations",
+           &tss::getMPCStationSettings,
+           R"doc(
+
+ Function for creating settings for existing MPC stations.
+ Observatories cartesian coordinates were converted using parallax info (rho_cos_phi, rho_sin_phi)
+ from Project Pluto's list: https://www.projectpluto.com/mpc_stat.txt,
+ which has them in geodetic cordinates. Some station positions (e.g. amateur observatories positions) might lack accuracy,
+ especially in altitude, as it is sometimes not clear whether their altitude has to be intended as a geodetic or ellipsoidal altitude.
+ For more info and insights, please check the following discussion: https://www.projectpluto.com/mpc_stat.htm.
+
+ Returns
+ -------
+ list[ GroundStationSettings ]
+     List of settings to create MPC stations
+
+     )doc" );
+
     m.def( "linear_station_motion",
            &tss::linearGroundStationMotionSettings,
            py::arg( "linear_velocity" ),
