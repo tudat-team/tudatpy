@@ -15,7 +15,10 @@
 #ifndef TUDAT_LAGRANGEINTERPOLATOR_H
 #define TUDAT_LAGRANGEINTERPOLATOR_H
 
+#include <algorithm>
+#include <cmath>
 #include <iostream>
+#include <limits>
 
 #include "tudat/math/basic/mathematicalConstants.h"
 
@@ -137,9 +140,6 @@ public:
         // interpolation call.
         initializeDenominators( );
         initializeBoundaryInterpolators( selectedLookupScheme );
-
-        // Pre-allocate cache vector for computational efficiency.
-        independentVariableDifferenceCache.resize( 2 * offsetEntries_ + 2 );
     }
 
     //! Constructor from map of independent/dependent data.
@@ -215,8 +215,6 @@ public:
         // interpolation call.
         initializeDenominators( );
         initializeBoundaryInterpolators( selectedLookupScheme );
-
-        independentVariableDifferenceCache.resize( 2 * offsetEntries_ + 2 );
     }
 
     //! Destructor.
@@ -269,45 +267,42 @@ public:
         }
         else
         {
-            // Initialize repeated numerator to 1
-            ScalarType repeatedNumerator = mathematical_constants::getFloatingInteger< ScalarType >( 1 );
+            // Barycentric Lagrange interpolation for improved numerical stability.
+            // The formula L(x) = Σ[w_j*y_j/(x-x_j)] / Σ[w_j/(x-x_j)]
+            // avoids the numerically unstable repeated product in the standard formula.
+            // This is particularly important on platforms where long double has reduced
+            // precision (e.g., Mac Silicon where long double = double).
+            DependentVariableType numeratorSum = zeroEntry_;
+            ScalarType denominatorSum = mathematical_constants::getFloatingInteger< ScalarType >( 0 );
 
-            // Check if requested independent variable is equal to data point
-            if( independentValues_[ lowerEntry ] == targetIndependentVariableValue )
+            for( int i = 0; i < numberOfStages_; i++ )
             {
-                interpolatedValue = dependentValues_[ lowerEntry ];
-            }
-            else if( independentValues_[ lowerEntry + 1 ] == targetIndependentVariableValue )
-            {
-                interpolatedValue = dependentValues_[ lowerEntry + 1 ];
-            }
-            else if( independentValues_[ lowerEntry - 1 ] == targetIndependentVariableValue )
-            {
-                interpolatedValue = dependentValues_[ lowerEntry - 1 ];
-            }
-            else
-            {
-                // Set up repeated numerator and cache of independent variable values from which
-                // interpolant is created.
-                int j = 0;
-                for( int i = 0; i <= 2 * offsetEntries_ + 1; i++ )
+                int j = i + lowerEntry - offsetEntries_;
+                ScalarType diff = static_cast< ScalarType >( targetIndependentVariableValue - independentValues_[ j ] );
+
+                // Check for exact match to avoid division by zero.
+                // Use a tolerance that accounts for floating-point representation.
+                ScalarType absIndepValue = std::abs( static_cast< ScalarType >( independentValues_[ j ] ) );
+                ScalarType tolerance = std::max(
+                    absIndepValue * std::numeric_limits< ScalarType >::epsilon( ) *
+                        mathematical_constants::getFloatingInteger< ScalarType >( 1000 ),
+                    std::numeric_limits< ScalarType >::epsilon( ) *
+                        mathematical_constants::getFloatingInteger< ScalarType >( 1000 ) );
+
+                if( std::abs( diff ) < tolerance )
                 {
-                    j = i + lowerEntry - offsetEntries_;
-                    independentVariableDifferenceCache[ i ] =
-                            static_cast< ScalarType >( targetIndependentVariableValue - independentValues_[ j ] );
-
-                    repeatedNumerator *= independentVariableDifferenceCache[ i ];
+                    return dependentValues_[ j ];
                 }
 
-                // Evaluate interpolating polynomial at requested data point.
-                for( int i = 0; i < numberOfStages_; i++ )
-                {
-                    j = i + lowerEntry - offsetEntries_;
-                    interpolatedValue += dependentValues_[ j ] *
-                            ( repeatedNumerator /
-                              ( independentVariableDifferenceCache[ i ] * denominators[ lowerEntry ][ j - lowerEntry + offsetEntries_ ] ) );
-                }
+                // Compute barycentric term: w_j / (x - x_j)
+                // where w_j = 1 / denominators[lowerEntry][i] (pre-computed in initializeDenominators)
+                ScalarType term = mathematical_constants::getFloatingInteger< ScalarType >( 1 ) /
+                                 ( diff * denominators[ lowerEntry ][ i ] );
+                numeratorSum = numeratorSum + dependentValues_[ j ] * term;
+                denominatorSum += term;
             }
+
+            interpolatedValue = numeratorSum / denominatorSum;
         }
 
         return interpolatedValue;
@@ -525,8 +520,6 @@ private:
      *  \sa initializeBoundaryInterpolators
      */
     int offsetEntries_;
-
-    std::vector< ScalarType > independentVariableDifferenceCache;
 
     //! Interpolator to be used at beginning of domain.
     std::shared_ptr< OneDimensionalInterpolator< IndependentVariableType, DependentVariableType > > beginInterpolator_;
