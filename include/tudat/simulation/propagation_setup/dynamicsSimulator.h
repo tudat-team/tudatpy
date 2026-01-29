@@ -1384,6 +1384,24 @@ private:
         simulation_setup::setAreBodiesInPropagation( bodies_, false );
     }
 
+    std::map< Time, Eigen::VectorXd >  evaluateDependentVariablesAlongTrajectory(
+            const std::map< Time, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& stateHistory )
+    {
+        std::map< Time, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > dependentVariables_;
+
+        // Integrate equations of motion numerically.
+        simulation_setup::setAreBodiesInPropagation( bodies_, true );
+
+        for( auto it: stateHistory )
+        {
+            dynamicsStateDerivative_->computeStateDerivative( static_cast< double >( it.first ), it.second );
+            dependentVariables_[ it.first ] = dependentVariablesFunctions_( );
+        }
+
+        simulation_setup::setAreBodiesInPropagation( bodies_, false );
+        return dependentVariables_;
+    }
+
     //! Function to perform steps necessary to reset all relevant models for the upcoming propagation
     /*
      *  Function to perform steps necessary to reset all relevant models for the upcoming propagation:
