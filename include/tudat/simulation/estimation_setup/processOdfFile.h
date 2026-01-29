@@ -346,6 +346,7 @@ public:
         {
             extractRawOdfOrbitData( rawOdfDataVector.at( i ) );
         }
+        printExtractionWarnings( );
         // Compute the processed observation times (i.e. TDB time from J2000)
         updateProcessedObservationTimes( );
     }
@@ -625,8 +626,8 @@ private:
             {
                 if( verbose_ )
                 {
-                    std::cerr << "Warning: observation of ODF type " << static_cast< int >( currentObservableId )
-                              << " not covered by ramp table of station " << transmittingStation << ", ignoring it." << std::endl;
+                    noRampDataItems_[ static_cast< int >( currentObservableId ) ][ transmittingStation ].push_back( rawDataBlock->getCommonDataBlock( )->getObservableTime( ) );
+
                 }
                 ignoredOdfRawDataBlocks_.push_back( rawDataBlock );
                 return false;
@@ -755,6 +756,19 @@ private:
 
                 addOdfRawDataBlockToProcessedData(
                         rawDataBlocks.at( i ), processedDataBlocks_[ currentObservableType ][ linkEnds ], rawOdfData->fileName_ );
+            }
+        }
+    }
+
+    void printExtractionWarnings( )
+    {
+        std::map< int, std::map< std::string, std::vector< Time > > > noRampDataItems_;
+        for( auto it : noRampDataItems_ )
+        {
+            for( auto it2 : it.second )
+            {
+                std::cerr << "Warning: observation of ODF type " << it.first<<", "<<it2.second.size(  )
+                             << " observations with transmitting station " << it2.first << "not covered by ramp table of station. These observations are ignored and not processed further." << std::endl;
             }
         }
     }
@@ -1003,6 +1017,8 @@ private:
 
     // Flag indicating whether to print warnings
     bool verbose_;
+
+    std::map< int, std::map< std::string, std::vector< Time > > > noRampDataItems_;
 
     // TODO: friend class used in unit test. Remove after processing of ODF data type 11 (1-way
     // Doppler) is implemented
