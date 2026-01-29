@@ -280,17 +280,30 @@ public:
                 int j = i + lowerEntry - offsetEntries_;
                 ScalarType diff = static_cast< ScalarType >( targetIndependentVariableValue - independentValues_[ j ] );
 
-                // Check for exact match to avoid division by zero.
-                // Use a tolerance that accounts for floating-point representation.
-                ScalarType absIndepValue = std::abs( static_cast< ScalarType >( independentValues_[ j ] ) );
-                ScalarType tolerance = std::max(
-                    absIndepValue * std::numeric_limits< ScalarType >::epsilon( ) *
-                        mathematical_constants::getFloatingInteger< ScalarType >( 1000 ),
-                    std::numeric_limits< ScalarType >::epsilon( ) *
-                        mathematical_constants::getFloatingInteger< ScalarType >( 1000 ) );
+                // Check for exact match to avoid division by zero in barycentric formula.
+                // Use 10 ULP tolerance to catch:
+                // - Bitwise identical values
+                // - Values differing due to float/double/long double conversions
+                // - Values with small differences due to cross-platform rounding (Mac Silicon vs x86)
+                ScalarType gridValue = static_cast< ScalarType >( independentValues_[ j ] );
+                ScalarType targetValue = static_cast< ScalarType >( targetIndependentVariableValue );
 
-                if( std::abs( diff ) < tolerance )
+                // Compute relative tolerance based on the larger magnitude (symmetric comparison)
+                ScalarType largest = std::max( std::abs( gridValue ), std::abs( targetValue ) );
+                ScalarType relativeTolerance = largest * std::numeric_limits< ScalarType >::epsilon( ) *
+                    mathematical_constants::getFloatingInteger< ScalarType >( 5 );
+
+                // Provide minimum absolute tolerance for near-zero grid points
+                // This handles cases where both gridValue and targetValue are close to zero
+                ScalarType absoluteTolerance = std::numeric_limits< ScalarType >::epsilon( ) *
+                    mathematical_constants::getFloatingInteger< ScalarType >( 10 );
+
+                ScalarType tolerance = std::max( relativeTolerance, absoluteTolerance );
+
+                if( std::abs( diff ) <= tolerance )
                 {
+                    // Target coincides with grid point within tolerance: return exact tabulated value
+                    // This avoids division by zero and potential numerical issues in barycentric formula
                     return dependentValues_[ j ];
                 }
 
@@ -301,7 +314,6 @@ public:
                 numeratorSum = numeratorSum + dependentValues_[ j ] * term;
                 denominatorSum += term;
             }
-
             interpolatedValue = numeratorSum / denominatorSum;
         }
 
