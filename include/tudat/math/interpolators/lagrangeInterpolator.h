@@ -281,7 +281,7 @@ public:
                 ScalarType diff = static_cast< ScalarType >( targetIndependentVariableValue - independentValues_[ j ] );
 
                 // Check for exact match to avoid division by zero in barycentric formula.
-                // Use 10 ULP tolerance to catch:
+                // Using 10 ULP tolerance to catch:
                 // - Bitwise identical values
                 // - Values differing due to float/double/long double conversions
                 // - Values with small differences due to cross-platform rounding (Mac Silicon vs x86)
@@ -291,7 +291,7 @@ public:
                 // Compute relative tolerance based on the larger magnitude (symmetric comparison)
                 ScalarType largest = std::max( std::abs( gridValue ), std::abs( targetValue ) );
                 ScalarType relativeTolerance = largest * std::numeric_limits< ScalarType >::epsilon( ) *
-                    mathematical_constants::getFloatingInteger< ScalarType >( 5 );
+                    mathematical_constants::getFloatingInteger< ScalarType >( 10 );
 
                 // Provide minimum absolute tolerance for near-zero grid points
                 // This handles cases where both gridValue and targetValue are close to zero
