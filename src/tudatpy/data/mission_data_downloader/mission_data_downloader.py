@@ -3552,6 +3552,7 @@ class LoadPDS:
                     )
 
             else:
+                os.makedirs(os.path.dirname(local_file_path), exist_ok=True)
                 try:
                     # Download the file if it doesn't exist
                     urlretrieve(filename, local_file_path)
@@ -3574,9 +3575,7 @@ class LoadPDS:
                 except Exception as e:
                     try:
                         urlretrieve(filename.lower(), local_file_path)
-                        print(
-                            f"Downloading: '{filename.lower()}' to: {local_file_path}"
-                        )
+                        print(f"Downloading: '{filename.lower()}' to: {local_file_path}")
 
                         if file_ext.lower() in ["ion", "tro", "eop"]:
                             self.ancillary_files_to_load.setdefault(
