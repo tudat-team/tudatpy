@@ -762,13 +762,12 @@ private:
 
     void printExtractionWarnings( )
     {
-        std::map< int, std::map< std::string, std::vector< Time > > > noRampDataItems_;
         for( auto it : noRampDataItems_ )
         {
             for( auto it2 : it.second )
             {
                 std::cerr << "Warning: observation of ODF type " << it.first<<", "<<it2.second.size(  )
-                             << " observations with transmitting station " << it2.first << "not covered by ramp table of station. These observations are ignored and not processed further." << std::endl;
+                             << " observations with transmitting station " << it2.first << " not covered by ramp table of station. These observations are ignored and not processed further." << std::endl;
             }
         }
     }
