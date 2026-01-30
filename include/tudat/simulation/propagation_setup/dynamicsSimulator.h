@@ -1255,6 +1255,28 @@ public:
     //////////////// END DEPRECATED ///////////////////
     ///////////////////////////////////////////////////
 
+
+    template< typename InputTimeType, typename InputStateScalarType >
+    std::map< InputTimeType, Eigen::VectorXd >  evaluateDependentVariablesAlongTrajectory(
+            const std::map< InputTimeType, Eigen::Matrix< InputStateScalarType, Eigen::Dynamic, 1 > >& stateHistory )
+    {
+        std::map< InputTimeType, Eigen::VectorXd > dependentVariables_;
+
+        // Integrate equations of motion numerically.
+        simulation_setup::setAreBodiesInPropagation( bodies_, true );
+
+        for( auto it: stateHistory )
+        {
+            Eigen::Matrix< InputStateScalarType, Eigen::Dynamic, 1 > unprocessedState =
+                dynamicsStateDerivative_->convertFromOutputSolution( it.second, it.first );
+            dynamicsStateDerivative_->computeStateDerivative( static_cast< double >( it.first ), unprocessedState );
+            dependentVariables_[ it.first ] = dependentVariablesFunctions_( );
+        }
+
+        simulation_setup::setAreBodiesInPropagation( bodies_, false );
+        return dependentVariables_;
+    }
+
 protected:
     //! List of object (per dynamics type) that process the integrated numerical solution by updating the environment
     std::map< IntegratedStateType, std::shared_ptr< SingleArcIntegratedStateProcessor< TimeType, StateScalarType > > >
@@ -1384,23 +1406,6 @@ private:
         simulation_setup::setAreBodiesInPropagation( bodies_, false );
     }
 
-    std::map< Time, Eigen::VectorXd >  evaluateDependentVariablesAlongTrajectory(
-            const std::map< Time, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >& stateHistory )
-    {
-        std::map< Time, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > > dependentVariables_;
-
-        // Integrate equations of motion numerically.
-        simulation_setup::setAreBodiesInPropagation( bodies_, true );
-
-        for( auto it: stateHistory )
-        {
-            dynamicsStateDerivative_->computeStateDerivative( static_cast< double >( it.first ), it.second );
-            dependentVariables_[ it.first ] = dependentVariablesFunctions_( );
-        }
-
-        simulation_setup::setAreBodiesInPropagation( bodies_, false );
-        return dependentVariables_;
-    }
 
     //! Function to perform steps necessary to reset all relevant models for the upcoming propagation
     /*

@@ -565,6 +565,36 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                 BOOST_CHECK_CLOSE_FRACTION(
                         moonGravitationalPotential, moonGravityModel->getGravitationalPotential( moonBodyFixedCartesianPosition ), 1e-8 );
             }
+
+            // Repropagate dynamics to make sure that any cached data is not consistent with previous run
+            systemInitialState.segment( 0, 3 ) += Eigen::Vector3d::Constant( 10.0 );
+            systemInitialState.segment( 3, 3 ) += Eigen::Vector3d::Constant( 1.0E-3 );
+            dynamicsSimulator.integrateEquationsOfMotion( systemInitialState );
+
+            std::cout<<"Pre-comp"<<std::endl;
+             std::map< double, Eigen::VectorXd > recomputedDependentVariableSolution =
+               dynamicsSimulator.evaluateDependentVariablesAlongTrajectory< double, double >( numericalSolution );
+            std::cout<<"Post-comp"<<std::endl;
+
+            BOOST_CHECK_EQUAL( recomputedDependentVariableSolution.size(),  dependentVariableSolution.size() );
+
+            auto it1 = recomputedDependentVariableSolution.begin();
+            auto it2 = dependentVariableSolution.begin();
+
+            for ( ; it1 != recomputedDependentVariableSolution.end(); ++it1, ++it2 )
+            {
+                // Check keys
+                BOOST_CHECK_EQUAL(it1->first, it2->first);
+
+                // Check vector sizes
+                BOOST_CHECK_EQUAL(it1->second.size(), it2->second.size());
+
+                // Check vector contents element-wise
+                for (int i = 0; i < it1->second.size(); ++i)
+                {
+                    BOOST_CHECK_CLOSE_FRACTION(it1->second(i), it2->second(i), 1.0E-12 );
+                }
+            }
         }
     }
 }
