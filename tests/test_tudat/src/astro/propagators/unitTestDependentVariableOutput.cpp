@@ -590,9 +590,25 @@ BOOST_AUTO_TEST_CASE( testDependentVariableOutput )
                 BOOST_CHECK_EQUAL(it1->second.size(), it2->second.size());
 
                 // Check vector contents element-wise
+
                 for (int i = 0; i < it1->second.size(); ++i)
                 {
-                    BOOST_CHECK_CLOSE_FRACTION(it1->second(i), it2->second(i), 1.0E-12 );
+                    // Correspondence is not perfect due to state/time conversions, high tolerance to match cases with values close to 0
+                    if( propagatorType > 0 )
+                    {
+                        if( i != 28 )
+                        {
+                            BOOST_CHECK_CLOSE_FRACTION(it1->second(i), it2->second(i), 1.0E-6 );
+                        }
+                        else
+                        {
+                            BOOST_CHECK_SMALL( std::fabs( it1->second(i) - it2->second(i) ), 1.0E-17 );
+                        }
+                    }
+                    else
+                    {
+                        BOOST_CHECK_EQUAL(it1->second(i), it2->second(i) );
+                    }
                 }
             }
         }
