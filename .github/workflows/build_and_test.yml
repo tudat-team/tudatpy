@@ -38,7 +38,7 @@ jobs:
           - os: ubuntu-latest
             label: linux-64
             path_conda_env: /usr/share/miniconda/envs/tudat
-            build_jobs: 3
+            build_jobs: 2
           - os: windows-latest
             label: win-64
             path_conda_env: C:\Miniconda\envs\tudat
