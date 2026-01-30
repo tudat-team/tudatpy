@@ -1255,9 +1255,8 @@ public:
     //////////////// END DEPRECATED ///////////////////
     ///////////////////////////////////////////////////
 
-
     template< typename InputTimeType, typename InputStateScalarType >
-    std::map< InputTimeType, Eigen::VectorXd >  evaluateDependentVariablesAlongTrajectory(
+    std::map< InputTimeType, Eigen::VectorXd > evaluateDependentVariablesAlongTrajectory(
             const std::map< InputTimeType, Eigen::Matrix< InputStateScalarType, Eigen::Dynamic, 1 > >& stateHistory )
     {
         std::map< InputTimeType, Eigen::VectorXd > dependentVariables_;
@@ -1265,10 +1264,10 @@ public:
         // Integrate equations of motion numerically.
         simulation_setup::setAreBodiesInPropagation( bodies_, true );
 
-        for( auto it: stateHistory )
+        for( auto it : stateHistory )
         {
             Eigen::Matrix< InputStateScalarType, Eigen::Dynamic, 1 > unprocessedState =
-                dynamicsStateDerivative_->convertFromOutputSolution( it.second, it.first );
+                    dynamicsStateDerivative_->convertFromOutputSolution( it.second, it.first );
             dynamicsStateDerivative_->computeStateDerivative( static_cast< double >( it.first ), unprocessedState );
             dependentVariables_[ it.first ] = dependentVariablesFunctions_( );
         }
@@ -1405,7 +1404,6 @@ private:
 
         simulation_setup::setAreBodiesInPropagation( bodies_, false );
     }
-
 
     //! Function to perform steps necessary to reset all relevant models for the upcoming propagation
     /*
