@@ -56,7 +56,7 @@ jobs:
 
   bump-version_tudatpy:
     needs: check_recent_week_commit
-    if: ${{ needs.check_recent_week_commit.outputs.should_run != 'false' && github.event_name == 'schedule' }}
+    if: ${{ needs.check_recent_week_commit.outputs.should_run != 'false' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-latest
     name: Bump version in tudatpy repository
 
@@ -83,7 +83,7 @@ jobs:
 
   bump_version_tudatpy_feedstock:
     needs: check_recent_week_commit
-    if: ${{ needs.check_recent_week_commit.outputs.should_run != 'false' && github.event_name == 'schedule' }}
+    if: ${{ needs.check_recent_week_commit.outputs.should_run != 'false' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-latest
     name: bump version and create tag in tudatpy-feedstock
     steps:
