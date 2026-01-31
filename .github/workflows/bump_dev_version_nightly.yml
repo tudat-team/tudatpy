@@ -1,5 +1,5 @@
 # This workflow is triggered at 06:00 AM CET everyday and checks if there has
-# been a commit in the last 24 hours on the develop branch of tudatpy repository.
+# been a commit in the last 7 days on the develop branch of tudatpy repository.
 
 # If there has been a commit, it bumps the version in the develop branch of
 # the tudatpy repository, creates a tag with the version numbers and pushes
@@ -11,14 +11,14 @@
 
 # This workflow file must be in the master (default branch) of the tudatpy repository because scheduled workflows are only triggered on the default branch.
 
-# Reference for the logic to check if there has been a commit in the last 24 hours: https://stackoverflow.com/questions/4089430/how-can-i-determine-if-a-git-commit-is-more-recent-than-another-commit
+# Reference for the logic to check if there has been a commit in the last 7 days: https://stackoverflow.com/questions/4089430/how-can-i-determine-if-a-git-commit-is-more-recent-than-another-commit
 
 
-name: Bump dev version in tudatpy and tudatpy-feedstock if new commit in last 24 hours
+name: Bump dev version in tudatpy and tudatpy-feedstock if new commit in last 7 days
 
 on:
     schedule:
-        - cron: '0 23 * * 0'  # This triggers the workflow daily at 5:00 AM UTC.
+        - cron: '0 23 * * 0' # Weekly: Sundays at 23:00 UTC (Mon 00:00 CET / 01:00 CEST)
     workflow_dispatch:       # This facilitates manual triggering of the workflow from the Actions tab of the repository in case the scheduled run fails.
 
 
@@ -28,7 +28,7 @@ permissions:
 
 jobs:
 
-  check_recent_24h_commit:
+  check_recent_week_commit:
         runs-on: ubuntu-latest
         name: Check latest commit
         outputs:
@@ -45,18 +45,18 @@ jobs:
             continue-on-error: true
             name: check latest commit is less than a day
             run: |
-              STR=$(git rev-list --after="24 hours" $(git log -n 1 --pretty=format:"%H"))
+              STR=$(git rev-list --after="7 days" $(git log -n 1 --pretty=format:"%H"))
               if test -z $STR; then
                 echo "should_run=false" >> $GITHUB_OUTPUT
               else
                 echo "should_run=true" >> $GITHUB_OUTPUT
               fi
-            # If the latest commit is less than 24 hours old, the command git rev-list --after="24 hours" $(git log -n 1 --pretty=format:"%H") will return a non-empty string (list of commit ids in the last 24 hours), which will cause the test -z command to return false and the output should_run will not be set to false.
+            # If the latest commit is less than 7 days old, the command git rev-list --after="7 days" $(git log -n 1 --pretty=format:"%H") will return a non-empty string (list of commit ids in the last 7 days), which will cause the test -z command to return false and the output should_run will not be set to false.
             # test -z $STR checks if $STR is empty or not. If it is empty, it returns true, else false.
 
   bump-version_tudatpy:
-    needs: check_recent_24h_commit
-    if: ${{ needs.check_recent_24h_commit.outputs.should_run != 'false' && github.event_name == 'schedule' }}
+    needs: check_recent_week_commit
+    if: ${{ needs.check_recent_week_commit.outputs.should_run != 'false' && github.event_name == 'schedule' }}
     runs-on: ubuntu-latest
     name: Bump version in tudatpy repository
 
@@ -82,8 +82,8 @@ jobs:
 
 
   bump_version_tudatpy_feedstock:
-    needs: check_recent_24h_commit
-    if: ${{ needs.check_recent_24h_commit.outputs.should_run != 'false' && github.event_name == 'schedule' }}
+    needs: check_recent_week_commit
+    if: ${{ needs.check_recent_week_commit.outputs.should_run != 'false' && github.event_name == 'schedule' }}
     runs-on: ubuntu-latest
     name: bump version and create tag in tudatpy-feedstock
     steps:
