@@ -1,4 +1,4 @@
-from tudatpy._deprecation import deprecated_property_alias
+from tudatpy._deprecation import property_deprecation_decorator
 from tudatpy.kernel.estimation.observations import *
 
-SingleObservationSet.ancilliary_settings = deprecated_property_alias("SingleObservationSet.ancilliary_settings", "SingleObservationSet.ancillary_settings")(SingleObservationSet.ancillary_settings)
+SingleObservationSet.ancilliary_settings = property_deprecation_decorator("SingleObservationSet.ancilliary_settings", "SingleObservationSet.ancillary_settings")(SingleObservationSet.ancillary_settings)
