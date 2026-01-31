@@ -75,6 +75,8 @@ autosummary_generate = True  # Turn on sphinx.ext.autosummary
 add_module_names = False
 autodoc_member_order = "groupwise"
 
+autodoc_typehints = "description"
+
 autodoc_default_options = {
     "show-inheritance": True
 }
@@ -121,10 +123,124 @@ def process_constants_docstring(app, what, name, obj, options, lines):
         # retrieve variable type directly from the object
         lines.append(f":type: {type(obj).__name__}")
         
+import re
 
+# Terrible vibe-coding to remove horrible function signatures in docs
+def _split_top_level(s: str, sep: str = ",") -> list[str]:
+    parts, buf = [], []
+    depth = 0
+    in_str = ""
+    esc = False
+
+    for ch in s:
+        if in_str:
+            buf.append(ch)
+            if esc:
+                esc = False
+            elif ch == "\\":
+                esc = True
+            elif ch == in_str:
+                in_str = ""
+            continue
+
+        if ch in ("'", '"'):
+            in_str = ch
+            buf.append(ch)
+            continue
+
+        if ch in "([{<":
+            depth += 1
+        elif ch in ")]}>":
+            depth = max(0, depth - 1)
+
+        if ch == sep and depth == 0:
+            parts.append("".join(buf).strip())
+            buf = []
+        else:
+            buf.append(ch)
+
+    tail = "".join(buf).strip()
+    if tail:
+        parts.append(tail)
+    return parts
+
+
+def _strip_arg_type(arg: str) -> str:
+    a = arg.strip()
+    if not a or a == "/":
+        return ""
+
+    # Preserve * / ** prefixes
+    prefix = ""
+    while a.startswith("*"):
+        prefix += "*"
+        a = a[1:].lstrip()
+
+    depth = 0
+    in_str = ""
+    esc = False
+    colon = eq = None
+
+    for i, ch in enumerate(a):
+        if in_str:
+            if esc:
+                esc = False
+            elif ch == "\\":
+                esc = True
+            elif ch == in_str:
+                in_str = ""
+            continue
+
+        if ch in ("'", '"'):
+            in_str = ch
+            continue
+
+        if ch in "([{<":
+            depth += 1
+        elif ch in ")]}>":
+            depth = max(0, depth - 1)
+
+        if depth == 0:
+            if colon is None and ch == ":":
+                colon = i
+            elif ch == "=":
+                eq = i
+                break
+
+    if colon is None:
+        return prefix + a.strip()
+
+    name = a[:colon].strip()
+    if eq is None:
+        return prefix + name
+
+    return prefix + f"{name} {a[eq:].strip()}"
+
+
+def strip_types_from_signatures(app, what, name, obj, options, signature, return_annotation):
+    if not signature:
+        return signature, return_annotation
+
+    s = signature.strip()
+
+    # Drop any trailing return annotation in the rendered signature string.
+    s = re.sub(r"\)\s*->\s*.*$", ")", s)
+
+    lpar, rpar = s.find("("), s.rfind(")")
+    if lpar < 0 or rpar < lpar:
+        return s, None
+
+    before, inside, after = s[:lpar + 1], s[lpar + 1:rpar], s[rpar:]
+
+    args = [x for x in _split_top_level(inside) if x and x != "/"]
+    args = [x for x in (_strip_arg_type(a) for a in args) if x]
+
+    return before + ", ".join(args) + after, None
+    
 def setup(app):
     app.connect('autodoc-process-docstring', process_constants_docstring)
-
+    app.connect("autodoc-process-signature", strip_types_from_signatures)
+    
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
