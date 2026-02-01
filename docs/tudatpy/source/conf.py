@@ -75,7 +75,6 @@ autosummary_generate = True  # Turn on sphinx.ext.autosummary
 add_module_names = False
 autodoc_member_order = "groupwise"
 
-autodoc_typehints = "description"
 
 autodoc_default_options = {
     "show-inheritance": True
@@ -125,121 +124,82 @@ def process_constants_docstring(app, what, name, obj, options, lines):
         
 import re
 
-# Terrible vibe-coding to remove horrible function signatures in docs
-def _split_top_level(s: str, sep: str = ",") -> list[str]:
-    parts, buf = [], []
-    depth = 0
-    in_str = ""
-    esc = False
+def replace_annotated_nparrays(text: str) -> str:
+    """
+    Replace typing.Annotated[numpy.typing.ArrayLike, <dtype>, "[<shape>]"]
+    with numpy.ndarray[<dtype>[<shape>]] inside a larger string.
+    """
 
-    for ch in s:
-        if in_str:
-            buf.append(ch)
-            if esc:
-                esc = False
-            elif ch == "\\":
-                esc = True
-            elif ch == in_str:
-                in_str = ""
-            continue
+    pattern_arraylike = re.compile(
+        r"""
+        typing\.Annotated\[
+            \s*numpy\.typing\.ArrayLike\s*,
+            \s*(?P<dtype>[^,\]]+)\s*,
+            \s*"\[(?P<shape>[^\]]+)\]"\s*
+        \]
+        """,
+        re.VERBOSE,
+    )
 
-        if ch in ("'", '"'):
-            in_str = ch
-            buf.append(ch)
-            continue
+    pattern_ndarray = re.compile(
+        r"""
+        typing\.Annotated\[
+            \s*numpy\.typing\.NDArray
+            \[
+                \s*(?P<dtype>[^\]]+)\s*
+            \]
+            \s*,\s*
+            "\[(?P<shape>[^\]]+)\]"
+            \s*
+        \]
+        """,
+        re.VERBOSE,
+    )
 
-        if ch in "([{<":
-            depth += 1
-        elif ch in ")]}>":
-            depth = max(0, depth - 1)
+    def repl(match: re.Match) -> str:
+        dtype = match.group("dtype").strip()
+        shape = match.group("shape").strip()
+        return f"numpy.ndarray[{dtype}[{shape}]]"
 
-        if ch == sep and depth == 0:
-            parts.append("".join(buf).strip())
-            buf = []
-        else:
-            buf.append(ch)
+    text = pattern_arraylike.sub(repl, text)
+    text = pattern_ndarray.sub(repl, text)
 
-    tail = "".join(buf).strip()
-    if tail:
-        parts.append(tail)
-    return parts
+    return text
 
-
-def _strip_arg_type(arg: str) -> str:
-    a = arg.strip()
-    if not a or a == "/":
-        return ""
-
-    # Preserve * / ** prefixes
-    prefix = ""
-    while a.startswith("*"):
-        prefix += "*"
-        a = a[1:].lstrip()
-
-    depth = 0
-    in_str = ""
-    esc = False
-    colon = eq = None
-
-    for i, ch in enumerate(a):
-        if in_str:
-            if esc:
-                esc = False
-            elif ch == "\\":
-                esc = True
-            elif ch == in_str:
-                in_str = ""
-            continue
-
-        if ch in ("'", '"'):
-            in_str = ch
-            continue
-
-        if ch in "([{<":
-            depth += 1
-        elif ch in ")]}>":
-            depth = max(0, depth - 1)
-
-        if depth == 0:
-            if colon is None and ch == ":":
-                colon = i
-            elif ch == "=":
-                eq = i
-                break
-
-    if colon is None:
-        return prefix + a.strip()
-
-    name = a[:colon].strip()
-    if eq is None:
-        return prefix + name
-
-    return prefix + f"{name} {a[eq:].strip()}"
+def simplify_signature_types(app, what, name, obj, options, signature, return_annotation):
 
 
-def strip_types_from_signatures(app, what, name, obj, options, signature, return_annotation):
-    if not signature:
-        return signature, return_annotation
+    # map complex type hints to simpler representations
+    type_replacements = {
+        "typing.SupportsInt": "int",
+        "typing.SupportsFloat": "float",
+        "typing.List": "list",
+        "typing.Dict": "dict",
+        "typing.Callable": "Callable",
+        "typing.Any": "any",
+        "collections.abc.Sequence": "list",
+        "collections.abc.Mapping": "dict",
+        "collections.abc.Callable": "Callable",
+        "SupportsFloat": "float",
+        "SupportsInt": "int",
+    }
 
-    s = signature.strip()
+    for full_type, simple_type in type_replacements.items():
+        if signature:
+            signature = signature.replace(full_type, simple_type)
+        if return_annotation:
+            return_annotation = return_annotation.replace(full_type, simple_type)
 
-    # Drop any trailing return annotation in the rendered signature string.
-    s = re.sub(r"\)\s*->\s*.*$", ")", s)
+    if signature:
+        signature = replace_annotated_nparrays(signature)
+    if return_annotation:
+        return_annotation = replace_annotated_nparrays(return_annotation)
 
-    lpar, rpar = s.find("("), s.rfind(")")
-    if lpar < 0 or rpar < lpar:
-        return s, None
-
-    before, inside, after = s[:lpar + 1], s[lpar + 1:rpar], s[rpar:]
-
-    args = [x for x in _split_top_level(inside) if x and x != "/"]
-    args = [x for x in (_strip_arg_type(a) for a in args) if x]
-
-    return before + ", ".join(args) + after, None
+    return signature, return_annotation
     
 def setup(app):
     app.connect('autodoc-process-docstring', process_constants_docstring)
-    app.connect("autodoc-process-signature", strip_types_from_signatures)
+    app.connect("autodoc-process-signature", simplify_signature_types)
     
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
