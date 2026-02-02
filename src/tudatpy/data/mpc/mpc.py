@@ -1003,7 +1003,6 @@ class BatchMPC:
             # Assign the identifier to the 'number' column for the entire DataFrame.
             obs.loc[:, "number"] = identifier
             self._table = pd.concat([self._table, obs])
-            self._table = pd.concat([self._table, obs])
 
         self._refresh_metadata()
 
