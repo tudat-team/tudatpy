@@ -1,0 +1,9 @@
+# Codeowners file for the tudatpy repository
+
+# These owners will be the default owners for everything in the repo. 
+# Unless a later match takes precedence, they will be requested for 
+# review when someone opens a pull request.
+* @DominicDirkx
+
+# Protect the entire .github folder (and specifically this file)
+/.github/ @DominicDirkx
