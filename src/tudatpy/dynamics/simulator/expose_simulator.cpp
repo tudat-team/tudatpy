@@ -220,6 +220,27 @@ void expose_simulator( py::module& m )
          Shorthand for propagation_results.integration_completed_successfully
 
          :type: bool
+      )doc" )
+            .def( "evaluate_dependent_variables_along_arajectory",
+                  &tp::SingleArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >::evaluateDependentVariablesAlongTrajectory< double,
+                                                                                                                              double >,
+                  py::arg( "predefined_state_history" ),
+                  R"doc(
+            Function that evaluates the dependent variables defined in this object's propagator settings along a pre-defined trajectory
+            (provided as input to this function). This is in contrast to the regular calculation of the dependent variables, which is done
+            along a trajectory numerically propagated by this object
+
+            Parameters
+            ----------
+
+            predefined_state_history : :dict[ float, numpy.ndarray([m, 1]) ]
+                State history (with state entry definition as per the propagator settings of this object) along which the dependent variables are to be computed
+
+            Returns
+            -------
+            dict[ float, numpy.ndarray([n, 1]) ]
+                Dependent variables evaluated along pre-defined trajectory
+
       )doc" );
 
     py::class_< tp::MultiArcDynamicsSimulator< STATE_SCALAR_TYPE, TIME_TYPE >,

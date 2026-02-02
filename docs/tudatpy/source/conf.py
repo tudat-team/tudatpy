@@ -75,6 +75,7 @@ autosummary_generate = True  # Turn on sphinx.ext.autosummary
 add_module_names = False
 autodoc_member_order = "groupwise"
 
+
 autodoc_default_options = {
     "show-inheritance": True
 }
@@ -121,10 +122,85 @@ def process_constants_docstring(app, what, name, obj, options, lines):
         # retrieve variable type directly from the object
         lines.append(f":type: {type(obj).__name__}")
         
+import re
 
+def replace_annotated_nparrays(text: str) -> str:
+    """
+    Replace typing.Annotated[numpy.typing.ArrayLike, <dtype>, "[<shape>]"]
+    with numpy.ndarray[<dtype>[<shape>]] inside a larger string.
+    """
+
+    pattern_arraylike = re.compile(
+        r"""
+        typing\.Annotated\[
+            \s*numpy\.typing\.ArrayLike\s*,
+            \s*(?P<dtype>[^,\]]+)\s*,
+            \s*"\[(?P<shape>[^\]]+)\]"\s*
+        \]
+        """,
+        re.VERBOSE,
+    )
+
+    pattern_ndarray = re.compile(
+        r"""
+        typing\.Annotated\[
+            \s*numpy\.typing\.NDArray
+            \[
+                \s*(?P<dtype>[^\]]+)\s*
+            \]
+            \s*,\s*
+            "\[(?P<shape>[^\]]+)\]"
+            \s*
+        \]
+        """,
+        re.VERBOSE,
+    )
+
+    def repl(match: re.Match) -> str:
+        dtype = match.group("dtype").strip()
+        shape = match.group("shape").strip()
+        return f"numpy.ndarray[{dtype}[{shape}]]"
+
+    text = pattern_arraylike.sub(repl, text)
+    text = pattern_ndarray.sub(repl, text)
+
+    return text
+
+def simplify_signature_types(app, what, name, obj, options, signature, return_annotation):
+
+
+    # map complex type hints to simpler representations
+    type_replacements = {
+        "typing.SupportsInt": "int",
+        "typing.SupportsFloat": "float",
+        "typing.List": "list",
+        "typing.Dict": "dict",
+        "typing.Callable": "Callable",
+        "typing.Any": "any",
+        "collections.abc.Sequence": "list",
+        "collections.abc.Mapping": "dict",
+        "collections.abc.Callable": "Callable",
+        "SupportsFloat": "float",
+        "SupportsInt": "int",
+    }
+
+    for full_type, simple_type in type_replacements.items():
+        if signature:
+            signature = signature.replace(full_type, simple_type)
+        if return_annotation:
+            return_annotation = return_annotation.replace(full_type, simple_type)
+
+    if signature:
+        signature = replace_annotated_nparrays(signature)
+    if return_annotation:
+        return_annotation = replace_annotated_nparrays(return_annotation)
+
+    return signature, return_annotation
+    
 def setup(app):
     app.connect('autodoc-process-docstring', process_constants_docstring)
-
+    app.connect("autodoc-process-signature", simplify_signature_types)
+    
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
