@@ -24,6 +24,7 @@ using namespace aerodynamics;
 
 struct WindTestDataPaths
 {
+    boost::filesystem::path dataDir;
     boost::filesystem::path windDataDir;
     boost::filesystem::path windFileX;
     boost::filesystem::path windFileY;
@@ -32,13 +33,13 @@ struct WindTestDataPaths
 
     WindTestDataPaths()
     {
-        const boost::filesystem::path comaDataDir = boost::filesystem::path( tudat::paths::getTudatTestDataPath( ) ) / "coma";
-        windDataDir = comaDataDir / "wind";
+        dataDir = boost::filesystem::path( tudat::paths::getTudatTestDataPath( ) ) / "coma";
+        windDataDir = dataDir / "wind";
 
         windFileX = windDataDir / "polynomial" / "input_poly_wind_x.txt";
         windFileY = windDataDir / "polynomial" / "input_poly_wind_y.txt";
         windFileZ = windDataDir / "polynomial" / "input_poly_wind_z.txt";
-        outputDir = comaDataDir / "output" / "wind";
+        outputDir = dataDir / "output" / "wind";
 
         // Ensure test files exist
         if (!boost::filesystem::exists(windFileX))
