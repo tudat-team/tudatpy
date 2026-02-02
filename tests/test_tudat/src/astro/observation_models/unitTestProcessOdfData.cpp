@@ -50,22 +50,22 @@ BOOST_AUTO_TEST_CASE( testProcessOdfData )
     auto observationSets = observedObservationCollection->getObservationsSets( );
 
     // Check the observations for NWayRange and DsnNWayAveragedDoppler
-    for( const auto &observableTypeEntry: observationSets )
+    for( const auto &observableTypeEntry : observationSets )
     {
         observation_models::ObservableType observableType = observableTypeEntry.first;
         const auto &linkEndsMap = observableTypeEntry.second;
 
-        for( const auto &linkEndsEntry: linkEndsMap )
+        for( const auto &linkEndsEntry : linkEndsMap )
         {
             const observation_models::LinkEnds &linkEnds = linkEndsEntry.first;
             const auto &observationSetVector = linkEndsEntry.second;
 
-            for( const auto &observationSet: observationSetVector )
+            for( const auto &observationSet : observationSetVector )
             {
                 // Get the observations and times
                 auto observations = observationSet->getObservations( );
                 auto observationTimes = observationSet->getObservationTimes( );
-                auto ancillarySettings = observationSet->getAncilliarySettings( );
+                auto ancillarySettings = observationSet->getAncillarySettings( );
 
                 if( !observations.empty( ) && !observationTimes.empty( ) )
                 {

@@ -12,11 +12,12 @@
             "generator": "Unix Makefiles",
             "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
-                "CMAKE_PREFIX_PATH": "/opt/homebrew/Caskroom/miniconda/base/envs/tudatpy-dev",
-                "CMAKE_INSTALL_PREFIX": "/opt/homebrew/Caskroom/miniconda/base/envs/tudatpy-dev",
+                "CMAKE_PREFIX_PATH": "/home/valeriofilice/miniconda3/envs/tudatpy-dev",
+                "CMAKE_INSTALL_PREFIX": "/home/valeriofilice/miniconda3/envs/tudatpy-dev",
                 "Boost_NO_BOOST_CMAKE": "ON",
                 "CMAKE_BUILD_TYPE": "Release",
-                "TUDAT_BUILD_TESTS": "ON"
+                "TUDAT_BUILD_TESTS": "ON",
+                "TUDAT_BUILD_WITH_MCD": "OFF"
             }
         },
         {
@@ -25,6 +26,24 @@
             "description": "Build without tests",
             "cacheVariables": {
                 "TUDAT_BUILD_TESTS": "OFF"
+            }
+        },
+        {
+            "name": "default-with-mcd",
+            "inherits": "default",
+            "description": "Build with Mars Climate Database support",
+            "cacheVariables": {
+                "TUDAT_BUILD_WITH_MCD": "ON",
+                "CMAKE_Fortran_COMPILER": "/home/valeriofilice/miniconda3/envs/tudatpy-dev/bin/gfortran"
+            }
+        },
+        {
+            "name": "default-with-mcd-no-tests",
+            "inherits": "default-no-tests",
+            "description": "Build with MCD support without tests",
+            "cacheVariables": {
+                "TUDAT_BUILD_WITH_MCD": "ON",
+                "CMAKE_Fortran_COMPILER": "/home/valeriofilice/miniconda3/envs/tudatpy-dev/bin/gfortran"
             }
         },
         {
@@ -42,6 +61,22 @@
             "cacheVariables": {
                 "TUDAT_BUILD_TESTS": "OFF"
             }
+        },
+        {
+            "name": "debug-with-mcd",
+            "inherits": "debug",
+            "description": "Debug build with MCD support",
+            "cacheVariables": {
+                "TUDAT_BUILD_WITH_MCD": "ON"
+            }
+        },
+        {
+            "name": "debug-with-mcd-no-tests",
+            "inherits": "debug-no-tests",
+            "description": "Debug build with MCD support without tests",
+            "cacheVariables": {
+                "TUDAT_BUILD_WITH_MCD": "ON"
+            }
         }
     ],
     "buildPresets": [
@@ -49,7 +84,7 @@
             "name": "default-build",
             "hidden": false,
             "configurePreset": "default",
-            "jobs": 8,
+            "jobs": 50,
             "targets": [
                 "all"
             ]
@@ -57,7 +92,23 @@
         {
             "name": "default-build-no-tests",
             "configurePreset": "default-no-tests",
-            "jobs": 8,
+            "jobs": 50,
+            "targets": [
+                "all"
+            ]
+        },
+        {
+            "name": "default-build-with-mcd",
+            "configurePreset": "default-with-mcd",
+            "jobs": 50,
+            "targets": [
+                "all"
+            ]
+        },
+        {
+            "name": "default-build-with-mcd-no-tests",
+            "configurePreset": "default-with-mcd-no-tests",
+            "jobs": 50,
             "targets": [
                 "all"
             ]
@@ -65,7 +116,7 @@
         {
             "name": "debug-build",
             "configurePreset": "debug",
-            "jobs": 8,
+            "jobs": 50,
             "targets": [
                 "all"
             ]
@@ -73,7 +124,23 @@
         {
             "name": "debug-build-no-tests",
             "configurePreset": "debug-no-tests",
-            "jobs": 8,
+            "jobs": 50,
+            "targets": [
+                "all"
+            ]
+        },
+        {
+            "name": "debug-build-with-mcd",
+            "configurePreset": "debug-with-mcd",
+            "jobs": 50,
+            "targets": [
+                "all"
+            ]
+        },
+        {
+            "name": "debug-build-with-mcd-no-tests",
+            "configurePreset": "debug-with-mcd-no-tests",
+            "jobs": 50,
             "targets": [
                 "all"
             ]
@@ -81,7 +148,7 @@
         {
             "name": "clean",
             "configurePreset": "default",
-            "jobs": 8,
+            "jobs": 50,
             "targets": [
                 "clean"
             ]

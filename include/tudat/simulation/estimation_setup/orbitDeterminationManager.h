@@ -101,7 +101,7 @@ void calculateResiduals(
                         ->computeObservations( currentObservations->getObservationTimes( ),
                                                currentLinkEnds,
                                                currentObservations->getReferenceLinkEnd( ),
-                                               currentObservations->getAncilliarySettings( ),
+                                               currentObservations->getAncillarySettings( ),
                                                observationsVector );
 
                 residuals.block( observationIndices.first, 0, observationIndices.second, 1 ) =
@@ -187,7 +187,7 @@ void calculateDesignMatrixAndResiduals(
                             ->computeObservationsWithPartials( currentObservations->getObservationTimes( ),
                                                                currentLinkEnds,
                                                                currentObservations->getReferenceLinkEnd( ),
-                                                               currentObservations->getAncilliarySettings( ),
+                                                               currentObservations->getAncillarySettings( ),
                                                                observationsVector,
                                                                partialsMatrix,
                                                                calculateResiduals,
@@ -1064,7 +1064,7 @@ public:
     template< int ObservationSize >
     void computePartialsAndObservations(
             const observation_models::LinkEnds& linkEnds,
-            const std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings,
+            const std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings,
             const observation_models::ObservableType observableType,
             const observation_models::LinkEndType referenceLinkEnd,
             const std::vector< TimeType >& times,
@@ -1081,7 +1081,7 @@ public:
 
         // Compute analytical partials
         observationManager->computeObservationsWithPartials(
-                times, linkEnds, referenceLinkEnd, ancilliarySettings, observationsVector, partials, true, true );
+                times, linkEnds, referenceLinkEnd, ancillarySettings, observationsVector, partials, true, true );
     }
     //! Function to reset the current parameter estimate.
     /*!

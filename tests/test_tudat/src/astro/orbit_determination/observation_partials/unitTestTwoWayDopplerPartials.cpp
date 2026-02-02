@@ -65,23 +65,22 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
     {
         for( unsigned int useFrequency = 0; useFrequency < 2; useFrequency++ )
         {
-            std::cout<<"USE FREQUENCY "<<useFrequency<<std::endl;
+            std::cout << "USE FREQUENCY " << useFrequency << std::endl;
             // Create environment
             SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, true );
 
-            std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings;
+            std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings;
 
             if( useFrequency == 1 )
             {
                 bodies.at( "Earth" )->getGroundStation( "Graz" )->getVehicleSystems( )->setTransponderTurnaroundRatio( );
                 bodies.at( "Mars" )->getGroundStation( "MSL" )->setTransmittingFrequencyCalculator(
                         std::make_shared< ground_stations::ConstantFrequencyInterpolator >( 5.0E9 ) );
-                ancilliarySettings = std::make_shared< observation_models::ObservationAncilliarySimulationSettings >( );
-                ancilliarySettings->setAncilliaryDoubleVectorData(
-                        frequency_bands, { static_cast< double >( x_band ), static_cast< double >( x_band ) } );
-                ancilliarySettings->setAncilliaryDoubleData( doppler_reference_frequency, 0.0 );
-                ancilliarySettings->setAncilliaryDoubleData( reception_reference_frequency_band,
-                                                            convertFrequencyBandToDouble( x_band ) );
+                ancillarySettings = std::make_shared< observation_models::ObservationAncillarySimulationSettings >( );
+                ancillarySettings->setAncillaryDoubleVectorData( frequency_bands,
+                                                                 { static_cast< double >( x_band ), static_cast< double >( x_band ) } );
+                ancillarySettings->setAncillaryDoubleData( doppler_reference_frequency, 0.0 );
+                ancillarySettings->setAncillaryDoubleData( reception_reference_frequency_band, convertFrequencyBandToDouble( x_band ) );
             }
 
             // Set link ends for observation model
@@ -151,7 +150,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
                                               true,
                                               10.0,
                                               parameterPerturbationMultipliers,
-                                              ancilliarySettings,
+                                              ancillarySettings,
                                               1.1E7,
                                               100.0 );
             }
@@ -160,24 +159,23 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
         // Test partials with real ephemerides (without test of position partials)
         for( unsigned int useFrequency = 0; useFrequency < 2; useFrequency++ )
         {
-            std::cout<<"USE FREQUENCY "<<useFrequency<<std::endl;
+            std::cout << "USE FREQUENCY " << useFrequency << std::endl;
 
             // Create environment
             SystemOfBodies bodies = setupEnvironment( groundStations, 1.0E7, 1.2E7, 1.1E7, false );
 
-            std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings > ancilliarySettings;
+            std::shared_ptr< observation_models::ObservationAncillarySimulationSettings > ancillarySettings;
 
             if( useFrequency == 1 )
             {
                 bodies.at( "Earth" )->getGroundStation( "Graz" )->getVehicleSystems( )->setTransponderTurnaroundRatio( );
                 bodies.at( "Mars" )->getGroundStation( "MSL" )->setTransmittingFrequencyCalculator(
                         std::make_shared< ground_stations::ConstantFrequencyInterpolator >( 5.0E9 ) );
-                ancilliarySettings = std::make_shared< observation_models::ObservationAncilliarySimulationSettings >( );
-                ancilliarySettings->setAncilliaryDoubleVectorData(
-                        frequency_bands, { static_cast< double >( x_band ), static_cast< double >( x_band ) } );
-                ancilliarySettings->setAncilliaryDoubleData( doppler_reference_frequency, 0.0 );
-                ancilliarySettings->setAncilliaryDoubleData( reception_reference_frequency_band,
-                                                             convertFrequencyBandToDouble( x_band ) );
+                ancillarySettings = std::make_shared< observation_models::ObservationAncillarySimulationSettings >( );
+                ancillarySettings->setAncillaryDoubleVectorData( frequency_bands,
+                                                                 { static_cast< double >( x_band ), static_cast< double >( x_band ) } );
+                ancillarySettings->setAncillaryDoubleData( doppler_reference_frequency, 0.0 );
+                ancillarySettings->setAncillaryDoubleData( reception_reference_frequency_band, convertFrequencyBandToDouble( x_band ) );
             }
 
             // Set link ends for observation model
@@ -240,7 +238,7 @@ BOOST_AUTO_TEST_CASE( testTwoWayDopplerPartials )
                                               true,
                                               1.0,
                                               parameterPerturbationMultipliers,
-                                              ancilliarySettings,
+                                              ancillarySettings,
                                               1.1E7,
                                               100.0 );
             }

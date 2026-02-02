@@ -492,19 +492,19 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                 std::vector< std::shared_ptr< ObservationSimulatorBase< double, double > > > observationSimulators =
                         createObservationSimulators( observationSettingsList, bodies );
 
-                // Define ancilliary settings
-                std::shared_ptr< ObservationAncilliarySimulationSettings > ancilliarySettings = nullptr;
+                // Define ancillary settings
+                std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr;
                 double integrationTime = 60.0;
                 double referenceTimeShift = 0.0;
                 if( currentObservableType == dsn_n_way_averaged_doppler )
                 {
-                    ancilliarySettings = getDsnNWayAveragedDopplerAncillarySettings(
+                    ancillarySettings = getDsnNWayAveragedDopplerAncillarySettings(
                             std::vector< FrequencyBands >{ x_band, x_band }, x_band, 7.0e9, integrationTime );
                 }
                 else if( isDifferencedObservable )
                 {
-                    ancilliarySettings = std::make_shared< ObservationAncilliarySimulationSettings >( );
-                    ancilliarySettings->setAncilliaryDoubleData( doppler_integration_time, integrationTime );
+                    ancillarySettings = std::make_shared< ObservationAncillarySimulationSettings >( );
+                    ancillarySettings->setAncillaryDoubleData( doppler_integration_time, integrationTime );
                 }
 
                 // For differenced observables; shift reference time by half the integration time
@@ -551,7 +551,7 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariables )
                                 referenceLinkEnd,
                                 std::vector< std::shared_ptr< observation_models::ObservationViabilitySettings > >( ),
                                 nullptr,
-                                ancilliarySettings ) );
+                                ancillarySettings ) );
                     }
                 }
 
@@ -980,14 +980,14 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
 
     // Define observation simulation times and ancillary settings
     std::map< ObservableType, std::vector< double > > baseTimeListPerObservable;
-    std::map< ObservableType, std::shared_ptr< ObservationAncilliarySimulationSettings > > ancillarySettingsPerObservable;
+    std::map< ObservableType, std::shared_ptr< ObservationAncillarySimulationSettings > > ancillarySettingsPerObservable;
     for( auto linkEndIterator : linkEndsPerObservable )
     {
         ObservableType currentObservable = linkEndIterator.first;
         std::vector< LinkEnds > currentLinkEndsList = linkEndIterator.second;
 
-        // Define ancilliary settings
-        std::shared_ptr< ObservationAncilliarySimulationSettings > ancillarySettings = nullptr;
+        // Define ancillary settings
+        std::shared_ptr< ObservationAncillarySimulationSettings > ancillarySettings = nullptr;
         double integrationTime = 60.0;
         double referenceTimeShift = 0.0;
         if( currentObservable == dsn_n_way_averaged_doppler )
@@ -998,11 +998,11 @@ BOOST_AUTO_TEST_CASE( testObservationDependentVariablesInterface )
         }
         else if( currentObservable == n_way_differenced_range )
         {
-            ancillarySettings = std::make_shared< ObservationAncilliarySimulationSettings >( );
-            ancillarySettings->setAncilliaryDoubleData( doppler_integration_time, integrationTime );
+            ancillarySettings = std::make_shared< ObservationAncillarySimulationSettings >( );
+            ancillarySettings->setAncillaryDoubleData( doppler_integration_time, integrationTime );
 
             std::vector< double > delays = std::vector< double >( { 1.0e-3 } );
-            ancillarySettings->setAncilliaryDoubleVectorData( link_ends_delays, delays );
+            ancillarySettings->setAncillaryDoubleVectorData( link_ends_delays, delays );
         }
         ancillarySettingsPerObservable[ currentObservable ] = ancillarySettings;
 

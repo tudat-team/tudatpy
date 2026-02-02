@@ -782,7 +782,7 @@
 #                 )
 #             )
 #             .assign(
-#                 epochJ2000secondsTDB=lambda x: (
+#                 epoch_seconds_TDB=lambda x: (
 #                     (
 #                         Time(x.epoch_dt, format="datetime64").jd1
 #                         - constants.JULIAN_DAY_ON_J2000
@@ -812,7 +812,7 @@
 #                 * constants.ASTRONOMICAL_UNIT
 #                 / constants.JULIAN_DAY
 #             )
-#             .loc[:, ["epochJ2000secondsTDB", "x", "y", "z", "vx", "vy", "vz"]]
+#             .loc[:, ["epoch_seconds_TDB", "x", "y", "z", "vx", "vy", "vz"]]
 #         )
 
 #         return tab.to_numpy()
@@ -962,7 +962,7 @@
 #             res["datetime_jd"] = (
 #                 new_actual_time_tdb.jd1 + new_actual_time_tdb.jd2
 #             )
-#             res["epochJ2000secondsTDB"] = (
+#             res["epoch_seconds_TDB"] = (
 #                 (new_actual_time_tdb.jd1 - constants.JULIAN_DAY_ON_J2000)
 #                 * constants.JULIAN_DAY
 #             ) + (new_actual_time_tdb.jd2 * constants.JULIAN_DAY)
@@ -1029,7 +1029,7 @@
 #             **kwargs,
 #         )
 
-#         res = raw.to_pandas().loc[:, ["epochJ2000secondsTDB", "RA", "DEC"]]
+#         res = raw.to_pandas().loc[:, ["epoch_seconds_TDB", "RA", "DEC"]]
 
 #         if not degrees:
 #             res[["RA", "DEC"]] = res[["RA", "DEC"]].apply(np.radians)
@@ -1078,7 +1078,7 @@
 #             **kwargs,
 #         )
 
-#         res = raw.to_pandas().loc[:, ["epochJ2000secondsTDB", "AZ", "EL"]]
+#         res = raw.to_pandas().loc[:, ["epoch_seconds_TDB", "AZ", "EL"]]
 
 #         if not degrees:
 #             res[["AZ", "EL"]] = res[["AZ", "EL"]].apply(np.radians)

@@ -35,8 +35,10 @@
 
 namespace tudat
 {
+
 namespace simulation_setup
 {
+
 using namespace aerodynamics;
 
 // ---- coefficient storage: rows = coeffs, cols = {C,S} ----
@@ -2765,7 +2767,8 @@ enum AtmosphereTypes
     nrlmsise00,
     mars_dtm_atmosphere,
     scaled_atmosphere,
-    coma_model
+    coma_model,
+    mcd_atmosphere,
 };
 
 //  Class for providing settings for atmosphere model.
@@ -3198,6 +3201,162 @@ private:
     std::string spaceWeatherFile_;
 };
 
+#if TUDAT_BUILD_WITH_MCD
+//! MCD Atmosphere Settings
+/*!
+ * Settings class for Mars Climate Database atmosphere model.
+ *
+ * NOTE ON ALTITUDE INPUT:
+ * -----------------------
+ * The MCD model expects altitude as "height above local surface" (matching Tudat's convention).
+ * Internally, this is converted to radial distance from Mars center using:
+ *   radial_distance = MARS_MEAN_RADIUS + altitude
+ * where MARS_MEAN_RADIUS = 3396200.0 m (IAU 2015).
+ *
+ * FUTURE IMPROVEMENT: This should be enhanced to use the actual Body shape model
+ * (oblate spheroid + MOLA topography if high-resolution mode is enabled).
+ *
+ * PARAMETERS:
+ * -----------
+ * - mcdDataPath: Path to MCD NetCDF data files. If empty, uses compile-time default.
+ * - dustScenario: Dust and solar EUV scenario selection
+ *     1-3   = Climatology (average/min/max solar)
+ *     4-6   = Dust storm scenarios
+ *     7-8   = Warm/cold scenarios (requires additional data files)
+ *     24-35 = Mars Year 24-35 scenarios with associated solar EUV
+ * - perturbationKey: Type of atmospheric perturbations
+ *     0 = No perturbations (default, most stable)
+ *     1 = Reserved (not used)
+ *     2 = Large scale EOF (Empirical Orthogonal Functions) perturbations
+ *     3 = Small scale gravity wave perturbations (may cause crashes)
+ *     4 = Both large and small scale perturbations (may cause crashes)
+ *     5 = Add n×standard_deviation (seedin must be in [-4, 4])
+ * - perturbationSeed: Random seed or scaling factor for perturbations
+ *     For perturbationKey=2,3,4: seed for random number generation
+ *     For perturbationKey=5: coefficient for standard deviation scaling
+ * - gravityWaveLength: Vertical wavelength of gravity waves in meters
+ *     Only used if perturbationKey=3 or 4
+ *     Default 0.0 means use MCD default (16000 m)
+ * - highResolutionMode: Use high-resolution topography
+ *     0 = GCM resolution (default)
+ *     1 = High-resolution MOLA topography
+ */
+class McdAtmosphereSettings : public AtmosphereSettings
+{
+public:
+    //! Constructor with all parameters
+    /*!
+     * \param mcdDataPath Path to MCD data directory. Empty string uses compile-time default.
+     * \param dustScenario Dust/solar scenario (1-8 or 24-35), default=1 (climatology avg)
+     * \param perturbationKey Perturbation type (0-5), default=0 (none)
+     * \param perturbationSeed Random seed or scaling factor, default=0.0
+     * \param gravityWaveLength GW wavelength in meters, default=0.0 (uses MCD default)
+     * \param highResolutionMode High-res topography flag (0 or 1), default=0
+     */
+    McdAtmosphereSettings( const std::string& mcdDataPath = "",
+                           const int dustScenario = 1,
+                           const int perturbationKey = 0,
+                           const double perturbationSeed = 0.0,
+                           const double gravityWaveLength = 0.0,
+                           const int highResolutionMode = 0 ):
+        AtmosphereSettings( mcd_atmosphere ), mcdDataPath_( mcdDataPath ), dustScenario_( dustScenario ),
+        perturbationKey_( perturbationKey ), perturbationSeed_( perturbationSeed ), gravityWaveLength_( gravityWaveLength ),
+        highResolutionMode_( highResolutionMode )
+    {
+        // Validate parameters at construction time
+        if( ( dustScenario_ < 1 || dustScenario_ > 8 ) && ( dustScenario_ < 24 || dustScenario_ > 35 ) )
+        {
+            throw std::runtime_error( "McdAtmosphereSettings: Invalid dustScenario. Must be 1-8 or 24-35." );
+        }
+        if( perturbationKey_ < 0 || perturbationKey_ > 5 )
+        {
+            throw std::runtime_error( "McdAtmosphereSettings: Invalid perturbationKey. Must be 0-5." );
+        }
+        if( perturbationKey_ == 5 && ( perturbationSeed_ < -4.0 || perturbationSeed_ > 4.0 ) )
+        {
+            throw std::runtime_error( "McdAtmosphereSettings: For perturbationKey=5, perturbationSeed must be in [-4, 4]." );
+        }
+        if( highResolutionMode_ != 0 && highResolutionMode_ != 1 )
+        {
+            throw std::runtime_error( "McdAtmosphereSettings: Invalid highResolutionMode. Must be 0 or 1." );
+        }
+    }
+
+    // Getter methods with const correctness
+    std::string getMcdDataPath( ) const
+    {
+        return mcdDataPath_;
+    }
+    int getDustScenario( ) const
+    {
+        return dustScenario_;
+    }
+    int getPerturbationKey( ) const
+    {
+        return perturbationKey_;
+    }
+    double getPerturbationSeed( ) const
+    {
+        return perturbationSeed_;
+    }
+    double getGravityWaveLength( ) const
+    {
+        return gravityWaveLength_;
+    }
+    int getHighResolutionMode( ) const
+    {
+        return highResolutionMode_;
+    }
+
+private:
+    std::string mcdDataPath_;   //! Path to MCD data files
+    int dustScenario_;          //! Dust/solar scenario (1-8 or 24-35)
+    int perturbationKey_;       //! Perturbation type (0-5)
+    double perturbationSeed_;   //! Random seed or scaling factor
+    double gravityWaveLength_;  //! Gravity wave wavelength (meters)
+    int highResolutionMode_;    //! High-resolution topography flag (0 or 1)
+};
+
+//! Factory function for MCD atmosphere settings
+/*!
+ * Creates settings for Mars Climate Database atmosphere model.
+ *
+ * \param mcdDataPath Path to MCD data files. If empty (default), uses the compile-time
+ *                    default path (typically third_parties/mcd/data/). Users can provide
+ *                    a custom absolute path to their MCD data directory.
+ * \param dustScenario Dust and solar EUV scenario (1-8 or 24-35, default: 1)
+ *                     1-3: Climatology (avg/min/max solar)
+ *                     4-6: Dust storm scenarios
+ *                     7-8: Warm/cold scenarios (requires additional data files)
+ *                     24-35: Mars Year scenarios with associated solar EUV
+ * \param perturbationKey Perturbation type (0-5, default: 0 = none)
+ *                        0: No perturbations (recommended for most uses)
+ *                        2: Large scale EOF perturbations
+ *                        3: Small scale gravity waves (may cause crashes - use with caution)
+ *                        4: Both large and small scale (may cause crashes - use with caution)
+ *                        5: Add n×standard_deviation (perturbationSeed must be in [-4,4])
+ * \param perturbationSeed Random seed for perturbations (default: 0.0)
+ *                         For perturbationKey=2,3,4: random seed
+ *                         For perturbationKey=5: coefficient for std deviation
+ * \param gravityWaveLength Gravity wave vertical wavelength in meters (default: 0.0)
+ *                          Only used if perturbationKey=3 or 4
+ *                          0.0 means use MCD default (16000 m)
+ * \param highResolutionMode High resolution topography flag (0 or 1, default: 0)
+ *                           0: Use GCM resolution
+ *                           1: Use high-resolution MOLA topography
+ * \return Shared pointer to MCD atmosphere settings
+ */
+inline std::shared_ptr< AtmosphereSettings > mcdAtmosphereSettings( const std::string& mcdDataPath = "",
+                                                                    const int dustScenario = 1,
+                                                                    const int perturbationKey = 0,
+                                                                    const double perturbationSeed = 0.0,
+                                                                    const double gravityWaveLength = 0.0,
+                                                                    const int highResolutionMode = 0 )
+{
+    return std::make_shared< McdAtmosphereSettings >(
+            mcdDataPath, dustScenario, perturbationKey, perturbationSeed, gravityWaveLength, highResolutionMode );
+}
+#endif  // TUDAT_BUILD_WITH_MCD
 
 //  AtmosphereSettings for defining an atmosphere with tabulated data from file.
 // //! @get_docstring(TabulatedAtmosphereSettings.__docstring__)
@@ -3995,7 +4154,6 @@ inline std::shared_ptr< AtmosphereSettings > marsDtmAtmosphereSettings( )
 {
     return std::make_shared< MarsDtmAtmosphereSettings >( "" );
 }
-
 
 typedef std::function< double( const double, const double, const double, const double ) > DensityFunction;
 //! @get_docstring(customConstantTemperatureAtmosphereSettings,0)
