@@ -501,9 +501,10 @@ public:
                                       std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
                               const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
                               const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
-                                      std::make_shared< LightTimeConvergenceCriteria >( ) ):
+                                      std::make_shared< LightTimeConvergenceCriteria >( ),
+                              const basic_astrodynamics::TimeScales observableTimeScale = basic_astrodynamics::tdb_scale ):
         observableType_( observableType ), linkEnds_( linkEnds ), lightTimeCorrectionsList_( lightTimeCorrectionsList ),
-        biasSettings_( biasSettings ), lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria )
+        biasSettings_( biasSettings ), lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ), observableTimeScale_( observableTimeScale )
     {}
 
     //! Destructor
@@ -521,6 +522,8 @@ public:
     std::shared_ptr< ObservationBiasSettings > biasSettings_;
 
     std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria_;
+
+    basic_astrodynamics::TimeScales observableTimeScale_;
 };
 
 std::vector< LinkDefinition > getObservationModelListLinkEnds(
@@ -2002,9 +2005,32 @@ public:
                                                                                       topLevelObservableType,
                                                                                       observationSettings->lightTimeCorrectionsList_,
                                                                                       observationSettings->lightTimeConvergenceCriteria_ );
+
+                std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates;
+                if( observationSettings->observableTimeScale_ != basic_astrodynamics::tdb_scale )
+                {
+                    for( auto it : linkEnds )
+                    {
+                        if( bodies.at( linkEnds.at( it.first ).bodyName_ )
+                                    ->getGroundStationMap( )
+                                    .count( linkEnds.at( it.first ).stationName_ ) > 0 )
+                        {
+                            stationStates[ it.first ] = bodies.at( linkEnds.at( it.first ).bodyName_ )
+                                                                ->getGroundStation( linkEnds.at( it.first ).stationName_ )
+                                                                ->getNominalStationState( );
+                        }
+                    }
+                }
+
+
                 std::shared_ptr< OneWayRangeObservationModel< ObservationScalarType, TimeType > > oneWayRangeObservationModel =
                         std::make_shared< OneWayRangeObservationModel< ObservationScalarType, TimeType > >(
-                                linkEnds, lightTimeCalculator, observationBias );
+                                linkEnds, lightTimeCalculator, observationBias, observationSettings->observableTimeScale_, stationStates );
+
+                if( observationSettings->observableTimeScale_ != basic_astrodynamics::tdb_scale )
+                {
+                    oneWayRangeObservationModel->setTimeScaleConverter( );
+                }
                 if( lightTimeCalculator->doCorrectionsNeedFrequency( ) )
                 {
                     oneWayRangeObservationModel->setFrequencyInterpolator( getTransmittingFrequencyInterpolator( bodies, linkEnds ) );
