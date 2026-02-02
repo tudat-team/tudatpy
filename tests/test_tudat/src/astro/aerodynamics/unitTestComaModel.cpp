@@ -4,6 +4,7 @@
 #include "tudat/astro/aerodynamics/exponentialAtmosphere.h"
 #include "tudat/simulation/environment_setup/createAtmosphereModel.h"
 #include "tudat/astro/aerodynamics/comaModel.h"
+#include "tudat/io/basicInputOutput.h"
 #include <boost/test/unit_test.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/filesystem.hpp>
@@ -41,9 +42,7 @@ struct TestDataPaths
 
     TestDataPaths()
     {
-        const boost::filesystem::path thisFile(__FILE__);
-        const boost::filesystem::path testDir = thisFile.parent_path();
-        dataDir = testDir / "test_data";
+        dataDir = boost::filesystem::path( tudat::paths::getTudatTestDataPath( ) ) / "coma";
         const boost::filesystem::path polyDir = dataDir / "density" / "polynomial";
         const boost::filesystem::path stokesDir = dataDir / "density" / "stokes";
 
@@ -1042,11 +1041,6 @@ BOOST_FIXTURE_TEST_CASE(test_coma_model_number_density, TestDataPaths)
     const ComaModelFileProcessor processor(files);
     const ComaStokesDataset stokesDataset = processor.createSHDataset(radii_m, lons_deg, maxDegree, maxOrder);
 
-    // Construct paths to residuals test data files
-    const boost::filesystem::path thisFile(__FILE__);
-    const boost::filesystem::path testDir = thisFile.parent_path();
-    const boost::filesystem::path dataDir = testDir / "test_data";
-
     // Test with both polynomial and Stokes datasets
     for (int datasetType = 0; datasetType < 2; ++datasetType)
     {
@@ -1410,10 +1404,6 @@ BOOST_FIXTURE_TEST_CASE(test_coma_model_density_validation_from_python, TestData
 
     const ComaStokesDataset stokesDataset = processor.createSHDataset(radii_m, lons_deg, maxDegree, maxOrder);
 
-    // Construct path to reference values file
-    const boost::filesystem::path thisFile(__FILE__);
-    const boost::filesystem::path testDir = thisFile.parent_path();
-    const boost::filesystem::path dataDir = testDir / "test_data";
     const boost::filesystem::path referenceFile = dataDir / "density" / "reference_values.txt";
 
     // Read reference values file
@@ -1612,12 +1602,8 @@ BOOST_FIXTURE_TEST_CASE(test_poly_coef_processor_create_sh_dataset, TestDataPath
     const std::vector<double> radii_m = {4000.0, 10000.0};
     const std::vector<double> lons_deg = {0.0, 30.0};
 
-    // Load expected values from test files
-    const boost::filesystem::path thisFile(__FILE__);
-    const boost::filesystem::path testDir = thisFile.parent_path();
-    const boost::filesystem::path dataDir = testDir / "test_data";
-    const boost::filesystem::path testFile1 = dataDir / "density" / "stokes" / "SH-d10-rp3-fft12__r_cometFixed_ep10-000_04km.txt";
-    const boost::filesystem::path testFile2 = dataDir / "density" / "stokes" / "SH-d10-rp3-fft12__r_cometFixed_ep10-030_10km.txt";
+    const boost::filesystem::path testFile1 = stokesFileLegacyLon0;
+    const boost::filesystem::path testFile2 = stokesFileLegacyLon30;
     StokesTestData expectedData1 = StokesTestData::readFromFile(testFile1.string(), 10);
     StokesTestData expectedData2 = StokesTestData::readFromFile(testFile2.string(), 10);
 
@@ -2103,11 +2089,6 @@ BOOST_FIXTURE_TEST_CASE(test_calculate_surface_spherical_harmonics, TestDataPath
 
     // Create SphericalHarmonicsCalculator instance
     SphericalHarmonicsCalculator calculator;
-
-    // Construct paths to residuals test data files
-    const boost::filesystem::path thisFile(__FILE__);
-    const boost::filesystem::path testDir = thisFile.parent_path();
-    const boost::filesystem::path dataDir = testDir / "test_data";
 
     // ========== Test Case 1: solar longitude = 0°, radius = 4 km ==========
     {

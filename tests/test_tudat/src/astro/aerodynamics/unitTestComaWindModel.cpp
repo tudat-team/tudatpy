@@ -4,6 +4,7 @@
 #include "tudat/simulation/environment_setup/createAtmosphereModel.h"
 #include "tudat/astro/aerodynamics/comaModel.h"
 #include "tudat/astro/aerodynamics/windModel.h"
+#include "tudat/io/basicInputOutput.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include <boost/test/unit_test.hpp>
 #include <boost/filesystem.hpp>
@@ -23,6 +24,7 @@ using namespace aerodynamics;
 
 struct WindTestDataPaths
 {
+    boost::filesystem::path windDataDir;
     boost::filesystem::path windFileX;
     boost::filesystem::path windFileY;
     boost::filesystem::path windFileZ;
@@ -30,14 +32,13 @@ struct WindTestDataPaths
 
     WindTestDataPaths()
     {
-        const boost::filesystem::path thisFile(__FILE__);
-        const boost::filesystem::path testDir = thisFile.parent_path();
-        const boost::filesystem::path dataDir = testDir / "test_data";
+        const boost::filesystem::path comaDataDir = boost::filesystem::path( tudat::paths::getTudatTestDataPath( ) ) / "coma";
+        windDataDir = comaDataDir / "wind";
 
-        windFileX = dataDir / "wind" / "polynomial" / "input_poly_wind_x.txt";
-        windFileY = dataDir / "wind" / "polynomial" / "input_poly_wind_y.txt";
-        windFileZ = dataDir / "wind" / "polynomial" / "input_poly_wind_z.txt";
-        outputDir = dataDir / "output" / "wind";
+        windFileX = windDataDir / "polynomial" / "input_poly_wind_x.txt";
+        windFileY = windDataDir / "polynomial" / "input_poly_wind_y.txt";
+        windFileZ = windDataDir / "polynomial" / "input_poly_wind_z.txt";
+        outputDir = comaDataDir / "output" / "wind";
 
         // Ensure test files exist
         if (!boost::filesystem::exists(windFileX))
@@ -360,13 +361,9 @@ BOOST_FIXTURE_TEST_CASE(test_wind_processor_poly_to_stokes, WindTestDataPaths)
     BOOST_CHECK_EQUAL(xStokes.nmax(), zStokes.nmax());
 
     // Load reference Stokes coefficients
-    const boost::filesystem::path thisFile(__FILE__);
-    const boost::filesystem::path testDir = thisFile.parent_path();
-    const boost::filesystem::path dataDir = testDir / "test_data";
-
     ReferenceStokesData ref_sol0_r4km, ref_sol30_r10km;
-    ref_sol0_r4km.loadFromFile((dataDir / "wind" / "stokes" / "SH-d10-Vel_rp3-fft12__r_cometFixed_ep10-000_04km.txt").string());
-    ref_sol30_r10km.loadFromFile((dataDir / "wind" / "stokes" / "SH-d10-Vel_rp3-fft12__r_cometFixed_ep10-030_10km.txt").string());
+    ref_sol0_r4km.loadFromFile((windDataDir / "stokes" / "SH-d10-Vel_rp3-fft12__r_cometFixed_ep10-000_04km.txt").string());
+    ref_sol30_r10km.loadFromFile((windDataDir / "stokes" / "SH-d10-Vel_rp3-fft12__r_cometFixed_ep10-030_10km.txt").string());
 
     // Verify reference files were loaded correctly
     BOOST_CHECK_CLOSE(ref_sol0_r4km.solarLongitude, 0.0, 1e-10);
@@ -668,13 +665,9 @@ BOOST_FIXTURE_TEST_CASE(test_wind_model_velocity_computation, WindTestDataPaths)
     const ComaStokesDataset& zStokes = windDatasets.getZStokesDataset();
 
     // Load residual velocity reference files
-    const boost::filesystem::path thisFile(__FILE__);
-    const boost::filesystem::path testDir = thisFile.parent_path();
-    const boost::filesystem::path dataDir = testDir / "test_data";
-
     ReferenceResidualData residual_0deg_4km, residual_30deg_10km;
-    residual_0deg_4km.loadFromFile((dataDir / "wind" / "residual" / "residual-vel_r_cometFixed_ep10-000_04km.txt").string());
-    residual_30deg_10km.loadFromFile((dataDir / "wind" / "residual" / "residual-vel_r_cometFixed_ep10-030_10km.txt").string());
+    residual_0deg_4km.loadFromFile((windDataDir / "residual" / "residual-vel_r_cometFixed_ep10-000_04km.txt").string());
+    residual_30deg_10km.loadFromFile((windDataDir / "residual" / "residual-vel_r_cometFixed_ep10-030_10km.txt").string());
 
     std::cout << "Loaded " << residual_0deg_4km.points.size() << " points for sol=0°, r=4km" << std::endl;
     std::cout << "Loaded " << residual_30deg_10km.points.size() << " points for sol=30°, r=10km" << std::endl;
@@ -1007,10 +1000,7 @@ BOOST_FIXTURE_TEST_CASE(test_wind_model_velocity_validation_from_python, WindTes
     const ComaStokesDataset& zStokes = windDatasets.getZStokesDataset();
 
     // Construct path to wind reference values file
-    const boost::filesystem::path thisFile(__FILE__);
-    const boost::filesystem::path testDir = thisFile.parent_path();
-    const boost::filesystem::path dataDir = testDir / "test_data";
-    const boost::filesystem::path referenceFile = dataDir / "wind" / "wind_reference_values.txt";
+    const boost::filesystem::path referenceFile = windDataDir / "wind_reference_values.txt";
 
     // Read reference values file
     std::ifstream file(referenceFile.string());
