@@ -13,11 +13,57 @@ on:
     branches: [ "master", "develop", "develop_10"]
 
 jobs:
+  download-data:
+
+    env:
+        MCD_CACHE_NUMBER: 0
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    # MCD data setup: download and cache
+    - name: Cache MCD data files
+      id: cache-mcd
+      uses: actions/cache@v4
+      with:
+        path: ${{ github.workspace }}/third_parties/mcd
+        key: mcd-data-${{ env.MCD_CACHE_NUMBER }}
+        enableCrossOsArchive: true
+
+    - name: Download MCD release 
+      if: steps.cache-mcd.outputs.cache-hit != 'true'
+      env:
+        GH_TOKEN: ${{ secrets.MCD_REPO_TOKEN }}
+      shell: bash
+      run: |
+        # Create directories
+        mkdir -p "${{ github.workspace }}/temp_mcd"
+      
+        # Download release data
+        gh release download v1 --repo nikemais/MCD --pattern "*.tgz" --dir "${{ github.workspace }}/temp_mcd"
+
+    - name: Extract and place MCD files
+      if: steps.cache-mcd.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        cd "${{ github.workspace }}/temp_mcd"
+        # Extract tgz
+        tar -xzf *.tgz
+        # Copy data folder 
+        cp -r data "${{ github.workspace }}/third_parties/mcd/"
+        # Copy contents of sources 
+        cp -r sources/* "${{ github.workspace }}/third_parties/mcd/"
+        # Cleanup
+        cd "${{ github.workspace }}"
+        rm -rf temp_mcd
+
   build-and-test:
+
+    needs: download-data
 
     env:
         CACHE_NUMBER: 0
-        MCD_CACHE_NUMBER: 0
 
     runs-on: ${{ matrix.platform.os }}
 
@@ -64,7 +110,22 @@ jobs:
 
 
     steps:
+    
     - uses: actions/checkout@v4
+
+    - name: Restore MCD cache
+      uses: actions/cache/restore@v4
+      with:
+          path: ${{ github.workspace }}/third_parties/mcd
+          key: mcd-data-${{ env.MCD_CACHE_NUMBER }}
+          enableCrossOsArchive: true
+          fail-on-cache-miss: true
+
+    - name: Verify MCD files
+      shell: bash
+      run: |
+          echo "=== MCD data ==="
+          find "${{ github.workspace }}/third_parties/mcd" -maxdepth 2 -type f | head -20
 
 
     - name: Setup conda environment
@@ -135,47 +196,6 @@ jobs:
     #  uses: hendrikmuhs/ccache-action@v1.2.12
     #  with:
     #    key: ${{ matrix.platform.os }}-${{ matrix.build_type }}
-
-    # MCD data setup: download and cache
-    - name: Cache MCD data files
-      id: cache-mcd
-      uses: actions/cache@v4
-      with:
-        path: ${{ github.workspace }}/third_parties/mcd
-        key: mcd-data-${{ runner.os }}-${{ env.MCD_CACHE_NUMBER }}
-
-    - name: Download MCD release 
-      if: steps.cache-mcd.outputs.cache-hit != 'true'
-      env:
-        GH_TOKEN: ${{ secrets.MCD_REPO_TOKEN }}
-      shell: bash
-      run: |
-        # Create directories
-        mkdir -p "${{ github.workspace }}/temp_mcd"
-      
-        # Download release data
-        gh release download v1 --repo nikemais/MCD --pattern "*.tgz" --dir "${{ github.workspace }}/temp_mcd"
-
-    - name: Extract and place MCD files
-      if: steps.cache-mcd.outputs.cache-hit != 'true'
-      shell: bash
-      run: |
-        cd "${{ github.workspace }}/temp_mcd"
-        # Extract tgz
-        tar -xzf *.tgz
-        # Copy data folder 
-        cp -r data "${{ github.workspace }}/third_parties/mcd/"
-        # Copy contents of sources 
-        cp -r sources/* "${{ github.workspace }}/third_parties/mcd/"
-        # Cleanup
-        cd "${{ github.workspace }}"
-        rm -rf temp_mcd
-
-    - name: Verify MCD files
-      shell: bash
-      run: |
-        echo "=== MCD data ==="
-        find "${{ github.workspace }}/third_parties/mcd" -maxdepth 2 -type f | head -20
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
