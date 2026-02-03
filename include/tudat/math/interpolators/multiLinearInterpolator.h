@@ -368,13 +368,15 @@ public:
                     std::to_string( independentValuesToInterpolate.size( ) ) + ". Needed: " + std::to_string( NumberOfDimensions ) );
         }
 
+        // Create local copy of independent values that can be modified for boundary handling
+        std::vector< IndependentVariableType > localIndependentValues = independentValuesToInterpolate;
+
         // Check that independent variables are in range
         bool useValue = false;
         DependentVariableType currentDependentVariable;
         for( unsigned int i = 0; i < NumberOfDimensions; i++ )
         {
-            IndependentVariableType tempValue = independentValuesToInterpolate.at( i );
-            this->checkBoundaryCase( i, useValue, tempValue, currentDependentVariable );
+            this->checkBoundaryCase( i, useValue, localIndependentValues.at( i ), currentDependentVariable );
             if( useValue )
             {
                 return currentDependentVariable;
@@ -386,7 +388,7 @@ public:
         nearestLowerIndices.resize( NumberOfDimensions );
         for( unsigned int i = 0; i < NumberOfDimensions; i++ )
         {
-            nearestLowerIndices[ i ] = lookUpSchemes_[ i ]->findNearestLowerNeighbour( independentValuesToInterpolate[ i ] );
+            nearestLowerIndices[ i ] = lookUpSchemes_[ i ]->findNearestLowerNeighbour( localIndependentValues[ i ] );
 
             // If newNearestLowerIndex is the last element of independentValues_:
             // - For non-periodic dimensions: execute extrapolation with the last and second to last elements
@@ -404,7 +406,7 @@ public:
         // Use optimized 2D implementation if available (avoids recursion overhead)
         if ( NumberOfDimensions == 2 )
         {
-            return interpolate2DOptimized( independentValuesToInterpolate, nearestLowerIndices );
+            return interpolate2DOptimized( localIndependentValues, nearestLowerIndices );
         }
         else
         {
@@ -418,7 +420,7 @@ public:
             // Call first step of interpolation, this function calls itself at subsequent independent
             // variable dimensions to evaluate and properly scale dependent variable table values at
             // all 2^n grid edges.
-            return performRecursiveInterpolationStep( 0, independentValuesToInterpolate, interpolationIndices, nearestLowerIndices );
+            return performRecursiveInterpolationStep( 0, localIndependentValues, interpolationIndices, nearestLowerIndices );
         }
     }
 
