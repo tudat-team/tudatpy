@@ -22,7 +22,7 @@ namespace tudat
 namespace mcd_interface
 {
 
-enum MeanVar {
+enum class MeanVar {
     mean_atmospheric_pressure = 0,
     mean_atmospheric_density = 1,
     mean_atmospheric_temperature = 2,
@@ -30,7 +30,7 @@ enum MeanVar {
     mean_meridional_wind = 4
 };
 
-enum ExtVar {
+enum class ExtVar {
     radial_distance_from_planet_center = 0,
     altitude_above_areoid = 1,
     altitude_above_local_surface = 2,
@@ -252,6 +252,8 @@ private:
     float extraVariables_[100] = { 0 };
 
     std::map< std::tuple< double, double, double >, std::shared_ptr< McdCache > > mcdCache_;
+
+    double currentTime_;
 
 };
 

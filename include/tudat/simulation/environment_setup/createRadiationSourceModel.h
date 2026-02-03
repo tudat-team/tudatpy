@@ -28,7 +28,7 @@ namespace simulation_setup
 /*!
  * Types of radiation source models.
  */
-enum class RadiationSourceModelType { isotropic_point_source, extended_source };
+enum class RadiationSourceModelType { isotropic_point_source, extended_source, anisotropic_point_source };
 
 /*!
  * Settings for a radiation source model.

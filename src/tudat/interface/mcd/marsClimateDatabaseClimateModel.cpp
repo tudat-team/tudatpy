@@ -84,77 +84,84 @@ MarsClimateDatabaseClimateModel::MarsClimateDatabaseClimateModel(
 
 void MarsClimateDatabaseClimateModel::update( double currentTime )
 {
-    int dateKey = 0;
-    double xdate = basic_astrodynamics::convertSecondsSinceEpochToJulianDay< double >( currentTime );
-    float localTime = 0.0f;
+    if ( currentTime_ != currentTime )
+    {
+        currentTime_ = currentTime;
+        mcdCache_.clear( );
 
-    float seedin_f = static_cast< float >( perturbationSeed_ );
-    float gwlength_f = static_cast< float >( gravityWaveLength_ );
+        int dateKey = 0;
+        double xdate = basic_astrodynamics::convertSecondsSinceEpochToJulianDay< double >( currentTime );
+        float localTime = 0.0f;
 
-    std::vector< double > meanVariables( 5 );
-    std::vector< double > extraVariables( 100 );
+        float seedin_f = static_cast< float >( perturbationSeed_ );
+        float gwlength_f = static_cast< float >( gravityWaveLength_ );
 
-    for ( auto it : listBodiesRequiringClimateModel_ )
-    {   
-        std::shared_ptr< simulation_setup::Body > bodyRequiringClimateModel = it.lock( );
-        double currentLongitude = bodyRequiringClimateModel->getFlightConditions( )->getCurrentLongitude( );
-        double currentLatitude = bodyRequiringClimateModel->getFlightConditions( )->getCurrentLatitude( );
-        float longitudeDeg = static_cast< float >( unit_conversions::convertRadiansToDegrees( currentLongitude ) );
-        float latitudeDeg = static_cast< float >( unit_conversions::convertRadiansToDegrees( currentLatitude ) );
-        float seedout;
-        int ier;
+        std::vector< double > meanVariables( 5 );
+        std::vector< double > extraVariables( 100 );
 
-        double distance =  ( bodyWithClimateModel_.lock( )->getPosition( ) - bodyRequiringClimateModel->getPosition( ) ).norm( );
+        for ( auto it : listBodiesRequiringClimateModel_ )
+        {   
+            std::shared_ptr< simulation_setup::Body > bodyRequiringClimateModel = it.lock( );
+            double currentLongitude = bodyRequiringClimateModel->getFlightConditions( )->getCurrentLongitude( );
+            double currentLatitude = bodyRequiringClimateModel->getFlightConditions( )->getCurrentLatitude( );
+            float longitudeDeg = static_cast< float >( unit_conversions::convertRadiansToDegrees( currentLongitude ) );
+            float latitudeDeg = static_cast< float >( unit_conversions::convertRadiansToDegrees( currentLatitude ) );
+            float seedout;
+            int ier;
 
-        float distance_f = static_cast< float >( distance );
+            double distance =  ( bodyWithClimateModel_.lock( )->getPosition( ) - bodyRequiringClimateModel->getPosition( ) ).norm( );
 
-        __mcd_MOD_call_mcd( &zkey_,
-                            &distance_f,
-                            &longitudeDeg,
-                            &latitudeDeg,
-                            &highResolutionMode_,
-                            &dateKey,
-                            &xdate,
-                            &localTime,
-                            mcdDataPath_.c_str( ),
-                            &dustScenario_,
-                            &perturbationKey_,
-                            &seedin_f,
-                            &gwlength_f,
-                            extraVariableKeys_,
-                            &pressure_,
-                            &density_,
-                            &temperature_,
-                            &zonalWind_,
-                            &meridionalWind_,
-                            meanVariables_,
-                            extraVariables_,
-                            &seedout,
-                            &ier,
-                            static_cast< int >( mcdDataPath_.length( ) ) );
+            float distance_f = static_cast< float >( distance );
 
-        // Check for errors
-        if( ier != 0 )
-        {
-            throw std::runtime_error( "McdAtmosphereModel: MCD routine returned error code " + std::to_string( ier ) );
-        }
+            __mcd_MOD_call_mcd( &zkey_,
+                                &distance_f,
+                                &longitudeDeg,
+                                &latitudeDeg,
+                                &highResolutionMode_,
+                                &dateKey,
+                                &xdate,
+                                &localTime,
+                                mcdDataPath_.c_str( ),
+                                &dustScenario_,
+                                &perturbationKey_,
+                                &seedin_f,
+                                &gwlength_f,
+                                extraVariableKeys_,
+                                &pressure_,
+                                &density_,
+                                &temperature_,
+                                &zonalWind_,
+                                &meridionalWind_,
+                                meanVariables_,
+                                extraVariables_,
+                                &seedout,
+                                &ier,
+                                static_cast< int >( mcdDataPath_.length( ) ) );
 
-        mcdCache_[ { currentLongitude, currentLatitude, currentTime } ] = std::make_shared< McdCache >( density_, pressure_, temperature_,
+            // Check for errors
+            if( ier != 0 )
+            {
+                throw std::runtime_error( "McdAtmosphereModel: MCD routine returned error code " + std::to_string( ier ) );
+            }
+
+            mcdCache_[ { currentLongitude, currentLatitude, currentTime } ] = std::make_shared< McdCache >( density_, pressure_, temperature_,
                                                                                  zonalWind_, meridionalWind_ );
 
-        for ( int i = 0; i < 5; i++ )
-        {
-            meanVariables[ i ] = static_cast< double >( meanVariables_[ i ] );
-        }   
-        for ( int i = 0; i < 100; i++ )
-        {
-            extraVariables[ i ] = static_cast< double >( extraVariables_[ i ] );
+            for ( int i = 0; i < 5; i++ )
+            {
+                meanVariables[ i ] = static_cast< double >( meanVariables_[ i ] );
+            }   
+            for ( int i = 0; i < 100; i++ )
+            {
+                extraVariables[ i ] = static_cast< double >( extraVariables_[ i ] );
+            }
+
+            mcdCache_[ { currentLongitude, currentLatitude, currentTime } ]->meanVariables_ = meanVariables;
+            mcdCache_[ { currentLongitude, currentLatitude, currentTime } ]->extraVariables_ = extraVariables;
+
         }
-
-        mcdCache_[ { currentLongitude, currentLatitude, currentTime } ]->meanVariables_ = meanVariables;
-        mcdCache_[ { currentLongitude, currentLatitude, currentTime } ]->extraVariables_ = extraVariables;
-
     }
+
 }
 
 void MarsClimateDatabaseClimateModel::addExtraVariableKeys( std::vector< mcd_interface::ExtVar> requiredExtraVariables )
