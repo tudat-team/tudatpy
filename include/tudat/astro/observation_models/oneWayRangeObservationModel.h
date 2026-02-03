@@ -134,8 +134,8 @@ public:
             TimeType receptionTimeDifference = this->timeScaleConverter_->getCurrentTimeDifference(
                 basic_astrodynamics::tdb_scale, scaleForTimeDifference_, receptionTime,
                 nominalReceivingStationState );
-            observation += receptionTimeDifference;
-            observation -= transmissionTimeDifference;
+            observation += static_cast< ObservationScalarType >( receptionTimeDifference );
+            observation -= static_cast< ObservationScalarType >( transmissionTimeDifference );
         }
 
         // Convert light time to range.

@@ -51,7 +51,8 @@ public:
             const basic_astrodynamics::TimeScales scaleForTimeDifference = basic_astrodynamics::tdb_scale,
             const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
                 std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ) ):
-        ObservationModel< 1, ObservationScalarType, TimeType >( n_way_range, linkEnds, observationBiasCalculator ), linkEnds_( linkEnds )
+        ObservationModel< 1, ObservationScalarType, TimeType >( n_way_range, linkEnds, observationBiasCalculator ), linkEnds_( linkEnds ),
+    scaleForTimeDifference_( scaleForTimeDifference ), stationStates_( groundStationStates  )
     {
         multiLegLightTimeCalculator_ =
                 std::make_shared< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >(
@@ -61,9 +62,13 @@ public:
     NWayRangeObservationModel( const LinkEnds& linkEnds,
                                const std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >
                                        multiLegLightTimeCalculator,
-                               const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr ):
+                                       const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
+                    const basic_astrodynamics::TimeScales scaleForTimeDifference = basic_astrodynamics::tdb_scale,
+                    const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
+                        std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( )  ):
         ObservationModel< 1, ObservationScalarType, TimeType >( n_way_range, linkEnds, observationBiasCalculator ), linkEnds_( linkEnds ),
-        multiLegLightTimeCalculator_( multiLegLightTimeCalculator )
+    multiLegLightTimeCalculator_( multiLegLightTimeCalculator ),
+scaleForTimeDifference_( scaleForTimeDifference ), stationStates_( groundStationStates  )
     {}
 
     //! Destructor
@@ -119,8 +124,8 @@ public:
                 basic_astrodynamics::tdb_scale, scaleForTimeDifference_, linkEndTimes.back( ),
                 nominalReceivingStationState );
 
-            totalLightTime += receptionTimeDifference;
-            totalLightTime -= transmissionTimeDifference;
+            totalLightTime += static_cast< ObservationScalarType >( receptionTimeDifference );
+            totalLightTime -= static_cast< ObservationScalarType >( transmissionTimeDifference );
         }
 
         // Return total range observation.
