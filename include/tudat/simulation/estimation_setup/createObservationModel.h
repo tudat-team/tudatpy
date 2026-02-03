@@ -802,12 +802,13 @@ public:
     NWayRangeObservationModelSettings( const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObservationSettings,
                                        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
                                        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
-                                               std::make_shared< LightTimeConvergenceCriteria >( ) ):
+                                               std::make_shared< LightTimeConvergenceCriteria >( ),
+                                               const basic_astrodynamics::TimeScales observableTimeScale = basic_astrodynamics::tdb_scale ):
         ObservationModelSettings( n_way_range,
                                   mergeOneWayLinkEnds( getObservationModelListLinkEnds( oneWayRangeObservationSettings ) ),
                                   std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
                                   biasSettings,
-                                  nullptr ),
+                                  nullptr, observableTimeScale ),
         oneWayRangeObservationSettings_( oneWayRangeObservationSettings ),
         multiLegLightTimeConvergenceCriteria_( lightTimeConvergenceCriteria )
     {}
@@ -823,8 +824,11 @@ public:
                                        const std::vector< std::shared_ptr< LightTimeCorrectionSettings > >& lightTimeCorrectionsList,
                                        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
                                        const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
-                                               std::make_shared< LightTimeConvergenceCriteria >( ) ):
-        ObservationModelSettings( n_way_range, linkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings ),
+                                       std::make_shared< LightTimeConvergenceCriteria >( ),
+                                       const basic_astrodynamics::TimeScales observableTimeScale = basic_astrodynamics::tdb_scale ):
+        ObservationModelSettings( n_way_range, linkEnds,
+            std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ), biasSettings,
+            std::make_shared< LightTimeConvergenceCriteria>(  ), observableTimeScale ),
         multiLegLightTimeConvergenceCriteria_( lightTimeConvergenceCriteria )
     {
         for( unsigned int i = 0; i < linkEnds.size( ) - 1; i++ )
@@ -1043,10 +1047,11 @@ inline std::shared_ptr< ObservationModelSettings > oneWayRangeSettings(
                 std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
         const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
-                std::make_shared< LightTimeConvergenceCriteria >( ) )
+        std::make_shared< LightTimeConvergenceCriteria >( ),
+        const basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tdb_scale  )
 {
     return std::make_shared< ObservationModelSettings >(
-            one_way_range, linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria );
+            one_way_range, linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria, timeScale );
 }
 
 inline std::shared_ptr< ObservationModelSettings > angularPositionSettings(
@@ -1298,14 +1303,16 @@ inline std::shared_ptr< ObservationModelSettings > dsnNWayRangeObservationSettin
 
 inline std::shared_ptr< ObservationModelSettings > twoWayRange(
         const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObservationSettings,
-        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tdb_scale  )
 {
     if( oneWayRangeObservationSettings.size( ) != 2 )
     {
         throw std::runtime_error( "Error when creating two-way range settings, number of input one-way links (" +
                                   std::to_string( oneWayRangeObservationSettings.size( ) ) + ") is incompatible." );
     }
-    return std::make_shared< NWayRangeObservationModelSettings >( oneWayRangeObservationSettings, biasSettings );
+    return std::make_shared< NWayRangeObservationModelSettings >(
+        oneWayRangeObservationSettings, biasSettings, std::make_shared< LightTimeConvergenceCriteria >( ), timeScale );
 }
 
 inline std::shared_ptr< ObservationModelSettings > twoWayRangeSimple(
@@ -1314,7 +1321,8 @@ inline std::shared_ptr< ObservationModelSettings > twoWayRangeSimple(
                 std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
         const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
-                std::make_shared< LightTimeConvergenceCriteria >( ) )
+        std::make_shared< LightTimeConvergenceCriteria >( ),
+        const basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tdb_scale  )
 {
     if( linkEnds.linkEnds_.size( ) != 3 )
     {
@@ -1322,14 +1330,16 @@ inline std::shared_ptr< ObservationModelSettings > twoWayRangeSimple(
                                   std::to_string( linkEnds.linkEnds_.size( ) ) + ") is incompatible." );
     }
     return std::make_shared< NWayRangeObservationModelSettings >(
-            linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria );
+            linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria, timeScale );
 }
 
 inline std::shared_ptr< ObservationModelSettings > nWayRange(
         const std::vector< std::shared_ptr< ObservationModelSettings > > oneWayRangeObservationSettings,
-        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr )
+        const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
+        const basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tdb_scale )
 {
-    return std::make_shared< NWayRangeObservationModelSettings >( oneWayRangeObservationSettings, biasSettings );
+    return std::make_shared< NWayRangeObservationModelSettings >( oneWayRangeObservationSettings, biasSettings,
+        std::make_shared< LightTimeConvergenceCriteria >( ), timeScale );
 }
 
 inline std::shared_ptr< ObservationModelSettings > nWayRangeSimple(
@@ -1338,10 +1348,11 @@ inline std::shared_ptr< ObservationModelSettings > nWayRangeSimple(
                 std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
         const std::shared_ptr< ObservationBiasSettings > biasSettings = nullptr,
         const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
-                std::make_shared< LightTimeConvergenceCriteria >( ) )
+                std::make_shared< LightTimeConvergenceCriteria >( ),
+        const basic_astrodynamics::TimeScales timeScale = basic_astrodynamics::tdb_scale )
 {
     return std::make_shared< NWayRangeObservationModelSettings >(
-            linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria );
+            linkEnds, lightTimeCorrectionsList, biasSettings, lightTimeConvergenceCriteria, timeScale );
 }
 
 inline std::shared_ptr< ObservationModelSettings > differencedTimeOfArrivalObservationSettings(
@@ -1969,6 +1980,12 @@ public:
             topLevelObservableType = observationSettings->observableType_;
         }
 
+        if( observationSettings->observableTimeScale_ != basic_astrodynamics::tdb_scale &&
+            ( observationSettings->observableType_ != one_way_range && observationSettings->observableType_ != n_way_range) )
+        {
+            std::cerr<<"Warning, observation model time scale for "<<getObservableName(
+                observationSettings->observableType_, observationSettings->linkEnds_.size( ) )<<" is set to something other than TDB. This setting is only used in 1- or n-way range"<<std::endl;
+        }
         // Check type of observation model.
         switch( observationSettings->observableType_ )
         {
@@ -2377,9 +2394,31 @@ public:
                                 multiLegLightTimeConvergenceCriteria );
 
                 // Create observation model
+                std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates;
+                if( observationSettings->observableTimeScale_ != basic_astrodynamics::tdb_scale )
+                {
+                    for( auto it : linkEnds )
+                    {
+                        if( bodies.at( linkEnds.at( it.first ).bodyName_ )
+                                    ->getGroundStationMap( )
+                                    .count( linkEnds.at( it.first ).stationName_ ) > 0 )
+                        {
+                            stationStates[ it.first ] = bodies.at( linkEnds.at( it.first ).bodyName_ )
+                                                                ->getGroundStation( linkEnds.at( it.first ).stationName_ )
+                                                                ->getNominalStationState( );
+                        }
+                    }
+                }
+
                 std::shared_ptr< NWayRangeObservationModel< ObservationScalarType, TimeType > > nWayRangeObservationModel =
                         std::make_shared< NWayRangeObservationModel< ObservationScalarType, TimeType > >(
-                                linkEnds, multiLegLightTimeCalculator, observationBias );
+                                linkEnds, multiLegLightTimeCalculator, observationBias,
+                                observationSettings->observableTimeScale_, stationStates );
+
+                if( observationSettings->observableTimeScale_ != basic_astrodynamics::tdb_scale )
+                {
+                    nWayRangeObservationModel->setTimeScaleConverter( );
+                }
 
                 if( multiLegLightTimeCalculator->doCorrectionsNeedFrequency( ) )
                 {

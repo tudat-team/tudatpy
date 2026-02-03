@@ -177,6 +177,7 @@ Examples
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg( "bias_settings" ) = nullptr,
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           py::arg( "time_scale_for_observable" ) = tba::tdb_scale,
            R"doc(
 
  Function for creating settings for a one-way range observable.
@@ -247,6 +248,7 @@ Examples
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg( "bias_settings" ) = nullptr,
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           py::arg( "time_scale_for_observable" ) = tba::tdb_scale,
            R"doc(
 
  Function for creating settings for a two-way range observable.
@@ -309,6 +311,7 @@ Examples
            &tom::twoWayRange,
            py::arg( "one_way_range_settings" ),
            py::arg( "bias_settings" ) = nullptr,
+           py::arg( "time_scale_for_observable" ) = tba::tdb_scale,
            R"doc(
 
  Function for creating settings for a two-way range observable.
@@ -366,6 +369,7 @@ Examples
            py::arg( "light_time_correction_settings" ) = std::vector< std::shared_ptr< tom::LightTimeCorrectionSettings > >( ),
            py::arg( "bias_settings" ) = nullptr,
            py::arg( "light_time_convergence_settings" ) = std::make_shared< tom::LightTimeConvergenceCriteria >( ),
+           py::arg( "time_scale_for_observable" ) = tba::tdb_scale,
            R"doc(
 
  Function for creating settings for a n-way range observable.
@@ -440,6 +444,7 @@ Examples
            &tom::nWayRange,
            py::arg( "one_way_range_settings" ),
            py::arg( "bias_settings" ) = nullptr,
+           py::arg( "time_scale_for_observable" ) = tba::tdb_scale,
            R"doc(
 
  Function for creating settings for a n-way range observable.
