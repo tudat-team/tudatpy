@@ -13,6 +13,7 @@
 #include "tudat/simulation/propagation_setup/createEnvironmentUpdater.h"
 #include "tudat/simulation/environment_setup/createFlightConditions.h"
 #include "tudat/astro/aerodynamics/panelledAerodynamicCoefficientInterface.h"
+#include "tudat/astro/aerodynamics/comaModel.h"
 
 namespace tudat
 {
@@ -382,6 +383,18 @@ createTranslationalEquationsOfMotionEnvironmentUpdaterSettings( const basic_astr
                         if( panelledAerodynamicCoefficientInterface != nullptr )
                         {
                             singleAccelerationUpdateNeeds[ body_segment_orientation_update ].push_back( acceleratedBodyIterator->first );
+                        }
+
+                        // Check if atmosphere model is a ComaModel (requires Sun state for solar longitude calculation)
+                        auto atmosphericFlightConditions = aerodynamicAcceleration->getFlightConditions();
+                        if( atmosphericFlightConditions != nullptr )
+                        {
+                            auto comaModel = std::dynamic_pointer_cast< aerodynamics::ComaModel >(
+                                    atmosphericFlightConditions->getAtmosphereModel() );
+                            if( comaModel != nullptr )
+                            {
+                                singleAccelerationUpdateNeeds[ body_translational_state_update ].push_back( "Sun" );
+                            }
                         }
                         break;
                     }
