@@ -467,9 +467,9 @@ Examples
 
 
       )doc" )
-        .def_property_readonly( "link_ends",
-        &tom::LinkDefinition::getLinkEnds,
-        R"doc(
+            .def_property_readonly( "link_ends",
+                                    &tom::LinkDefinition::getLinkEnds,
+                                    R"doc(
 
              Attribute that contains the dictionary with link end type (as key) and link end if (as value).
 
