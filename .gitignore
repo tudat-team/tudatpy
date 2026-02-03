@@ -1,13 +1,6 @@
 # Generated files
-examples/*
-!examples/tudat/
-examples/tudat/*
-!examples/tudat/tudat/
-examples/tudat/tudat/*
-!examples/tudat/tudat/applications/
-examples/tudat/tudat/applications/*
-!examples/tudat/tudat/applications/CMakeLists.txt
-!examples/tudat/tudat/applications/coma_analysis/
+- examples
+- tests/test_tudat/data/
 lib/
 libs/
 CMakeFiles/

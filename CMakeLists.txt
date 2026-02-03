@@ -35,32 +35,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Set position independent code [From tudat cmake]
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-if(APPLE)
-    # On some CLT-only setups the default c++ headers are only exposed via the SDK.
-    if(NOT DEFINED CMAKE_OSX_SYSROOT OR NOT CMAKE_OSX_SYSROOT)
-        execute_process(
-            COMMAND xcrun --show-sdk-path
-            OUTPUT_VARIABLE _TUDATPY_MACOSX_SYSROOT
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-            ERROR_QUIET
-        )
-        if(_TUDATPY_MACOSX_SYSROOT AND EXISTS "${_TUDATPY_MACOSX_SYSROOT}")
-            set(
-                CMAKE_OSX_SYSROOT
-                "${_TUDATPY_MACOSX_SYSROOT}"
-                CACHE PATH "Path to the macOS SDK used for building" FORCE
-            )
-            message(STATUS "Using macOS SDK at ${CMAKE_OSX_SYSROOT}")
-        else()
-            message(
-                WARNING
-                "Unable to determine macOS SDK path via xcrun; "
-                "standard library headers might be missing."
-            )
-        endif()
-    endif()
-endif()
-
 # Allow access to cmake modules
 list(APPEND CMAKE_MODULE_PATH "${BASE_DIRECTORY}/cmake/tudat")
 list(APPEND CMAKE_MODULE_PATH "${BASE_DIRECTORY}/cmake/tudat/yolo")
@@ -609,7 +583,6 @@ file(
 # Include tudatpy CMake configuration
 include_directories(include/tudatpy)
 add_subdirectory(src/tudatpy)
-
 
 # +============================================================================
 # CLEAN UP (Project name independent)
