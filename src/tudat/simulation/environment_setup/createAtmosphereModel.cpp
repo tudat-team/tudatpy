@@ -12,7 +12,7 @@
 #include "tudat/astro/aerodynamics/tabulatedAtmosphere.h"
 #include "tudat/astro/aerodynamics/marsDtmAtmosphereModel.h"
 #include "tudat/astro/aerodynamics/comaModel.h"
-#include "tudat/astro/aerodynamics/windModel.h"
+#include "tudat/astro/aerodynamics/comaWindModel.h"
 #if TUDAT_BUILD_WITH_MCD
 #include "tudat/astro/aerodynamics/mcdAtmosphereModel.h"
 #endif

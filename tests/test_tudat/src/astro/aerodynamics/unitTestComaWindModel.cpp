@@ -3,7 +3,7 @@
 
 #include "tudat/simulation/environment_setup/createAtmosphereModel.h"
 #include "tudat/astro/aerodynamics/comaModel.h"
-#include "tudat/astro/aerodynamics/windModel.h"
+#include "tudat/astro/aerodynamics/comaWindModel.h"
 #include "tudat/io/basicInputOutput.h"
 #include "tudat/math/basic/mathematicalConstants.h"
 #include <boost/test/unit_test.hpp>
