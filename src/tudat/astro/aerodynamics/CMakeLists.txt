@@ -27,7 +27,6 @@ set(aerodynamics_SOURCES
         "marsDtmAtmosphereModel.cpp"
         "comaModel.cpp"
         "comaWindModel.cpp"
-        "windModel.cpp"
         "nrlmsise00Atmosphere.cpp"
         "nrlmsise00InputFunctions.cpp"
 )

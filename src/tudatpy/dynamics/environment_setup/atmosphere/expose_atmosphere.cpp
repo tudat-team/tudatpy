@@ -398,6 +398,12 @@ void expose_atmosphere_setup( py::module& m )
  wind velocity components in a modified vertical frame. The wind model uses spherical harmonic
  expansion to compute wind velocities as a function of position.
 
+ .. important::
+     **Data fitting requirement**: The polynomial/Stokes coefficients for the wind model must be
+     fitted from **raw (untransformed)** wind velocity values in m/s. Unlike the coma density model
+     (which uses log2-transformed data), the wind model operates directly on the actual velocity values
+     without any logarithmic transformation.
+
  The wind velocity components are defined in a **modified vertical frame**:
 
  * **X-axis**: Meridional direction (in the meridian plane, pointing towards the North, aligned with central-body-fixed Z-axis direction)
@@ -941,6 +947,13 @@ using the NRLMSISE-00 global reference model:
  complex 3D density distributions around the nucleus. The model supports time-dependent density
  variations through multiple data files covering different time periods.
 
+ .. important::
+     **Data fitting requirement**: The polynomial coefficients must be fitted from **log2-transformed**
+     number density data (i.e., log2(n) where n is the number density in m^-3). The model internally
+     applies the inverse transformation (2^x) to convert back to actual number density values.
+     This logarithmic representation improves numerical stability for the large dynamic range of
+     cometary gas densities.
+
 
  Parameters
  ----------
@@ -1022,6 +1035,13 @@ using the NRLMSISE-00 global reference model:
  Stokes coefficients provide a more direct representation of the spherical harmonic expansion compared
  to polynomial coefficients, offering faster evaluation during simulation. The coefficients
  are pre-evaluated at a grid of radii and solar longitudes, with interpolation used for intermediate values.
+
+ .. important::
+     **Data fitting requirement**: The Stokes coefficients (or the polynomial coefficients they are
+     derived from) must be fitted from **log2-transformed** number density data (i.e., log2(n) where
+     n is the number density in m^-3). The model internally applies the inverse transformation (2^x)
+     to convert back to actual number density values. This logarithmic representation improves
+     numerical stability for the large dynamic range of cometary gas densities.
 
 
  Parameters
