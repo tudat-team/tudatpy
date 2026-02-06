@@ -479,7 +479,7 @@ public:
                               const std::shared_ptr< LightTimeConvergenceCriteria > lightTimeConvergenceCriteria =
                                       std::make_shared< LightTimeConvergenceCriteria >( ) ):
         observableType_( observableType ), linkEnds_( linkEnds ), biasSettings_( biasSettings ),
-        lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria )
+        lightTimeConvergenceCriteria_( lightTimeConvergenceCriteria ), observableTimeScale_( basic_astrodynamics::tdb_scale )
     {
         if( lightTimeCorrections != nullptr )
         {
