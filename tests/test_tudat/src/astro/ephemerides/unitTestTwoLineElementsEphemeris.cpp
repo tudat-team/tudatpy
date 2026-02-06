@@ -20,6 +20,7 @@
 #include "tudat/astro/ephemerides/tleEphemeris.h"
 #include "tudat/astro/basic_astro/dateTime.h"
 #include "tudat/astro/earth_orientation/terrestrialTimeScaleConverter.h"
+#include "tudat/interface/spice/spiceInterface.h"
 
 namespace tudat
 {
@@ -35,10 +36,26 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsEphemerisVallado )
     using namespace tudat;
     using namespace tudat::ephemerides;
 
+    spice_interface::loadStandardSpiceKernels(  );
     // Dummy two line element set from Vallado (2013), page 234
     std::string elements =
             "1 00005U 58002B   00179.78495062  .00000023  00000-0  28098-4 0  4753\n"
             "2 00005  34.2682 348.7242 1859667 331.7664  19.3264 10.82419157413667";
+
+    SpiceChar lines[ 2 ][ 70 ];
+    std::strcpy(
+        lines[ 0 ],
+        "1 00005U 58002B   00179.78495062  .00000023  00000-0  28098-4 0  4753"
+    );
+
+    std::strcpy(
+        lines[ 1 ],
+        "2 00005  34.2682 348.7242 1859667 331.7664  19.3264 10.82419157413667"
+    );
+
+    SpiceDouble epoch;
+    SpiceDouble elems[ 10 ];
+    getelm_c( 1960, 70, lines, &epoch, elems  );
 
     // Create TLE object from element set
     std::shared_ptr< Tle > tlePtr = std::make_shared< Tle >( elements );
@@ -100,7 +117,7 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsEphemerisGehly )
     BOOST_CHECK_SMALL( ( currentState - referenceState ).segment( 3, 3 ).norm( ), 0.05 );
 }
 
-BOOST_AUTO_TEST_CASE( testTwoLineElementsEphemerisLangbroke )
+BOOST_AUTO_TEST_CASE( testTwoLineElementsEphemerisLangbroek )
 {
     using namespace tudat;
     using namespace tudat::ephemerides;
