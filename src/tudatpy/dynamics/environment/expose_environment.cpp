@@ -273,7 +273,210 @@ void expose_environment( py::module& m )
                           const std::string& >( ),
                   py::arg( "line_1" ),
                   py::arg( "line_2" ) )
-            .def( "get_epoch", &te::Tle::getEpoch )
+            .def_property_readonly(
+                "reference_epoch",
+                &te::Tle::getEpoch,
+                R"doc(
+
+                **read-only**
+
+                Reference epoch of the TLE element set in seconds since J2000.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly(
+                "b_star",
+                &te::Tle::getBStar,
+                R"doc(
+
+                **read-only**
+
+                B*  coefficient used by the SGP4 propagator, as provided by the TLE.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly(
+                "inclination",
+                &te::Tle::getInclination,
+                R"doc(
+
+                **read-only**
+
+                Orbital inclination as provided by the TLE, in radians.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly(
+                "right_ascension",
+                &te::Tle::getRightAscension,
+                R"doc(
+
+                **read-only**
+
+                Right ascension of the ascending node of the orbit as provided by the TLE, in radians.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly(
+                "eccentricity",
+                &te::Tle::getEccentricity,
+                R"doc(
+
+                **read-only**
+
+                Orbital eccentricity as provided by the TLE.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly(
+                "argument_of_perigee",
+                &te::Tle::getArgOfPerigee,
+                R"doc(
+
+                **read-only**
+
+                Argument of perigee of the orbit as provided by the TLE, in radians.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly(
+                "mean_anomaly",
+                &te::Tle::getMeanAnomaly,
+                R"doc(
+
+                **read-only**
+
+                Mean anomaly of the orbit at the TLE epoch as provided by the TLE, in radians.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly(
+                "mean_motion",
+                &te::Tle::getMeanMotion,
+                R"doc(
+
+                **read-only**
+
+                Mean motion of the orbit in radians per minute, in radians per minute.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly(
+                "norad_catalog_number",
+                &te::Tle::getNoradCatalogNumber,
+                R"doc(
+
+                **read-only**
+
+                NORAD catalog number identifying the space object.
+
+                :type: int
+                )doc" )
+
+            .def_property_readonly(
+                "classification",
+                &te::Tle::getClassification,
+                R"doc(
+
+                **read-only**
+
+                Security classification of the TLE (e.g. ``'U'`` for unclassified).
+
+                :type: str
+                )doc" )
+
+            .def_property_readonly(
+                "element_set_number",
+                &te::Tle::getElementSetNumber,
+                R"doc(
+
+                **read-only**
+
+                Element set number of the TLE, indicating successive updates.
+
+                :type: int
+                )doc" )
+
+            .def_property_readonly(
+                "revolution_number_at_epoch",
+                &te::Tle::getRevolutionNumberAtEpoch,
+                R"doc(
+
+                **read-only**
+
+                Revolution number of the orbit at the TLE epoch.
+
+                :type: int
+                )doc" )
+
+            .def_property_readonly(
+                "mean_motion_first_derivative",
+                &te::Tle::getMeanMotionFirstDerivative,
+                R"doc(
+
+                **read-only**
+
+                First time derivative of the mean motion as given in the TLE, in radians per minute^2.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly(
+                "mean_motion_second_derivative",
+                &te::Tle::getMeanMotionSecondDerivative,
+                R"doc(
+
+                **read-only**
+
+                Second time derivative of the mean motion as given in the TLE, in radians per minute^3.
+
+                :type: float
+                )doc" )
+
+            .def_property_readonly(
+                "ephemeris_type",
+                &te::Tle::getEphemerisType,
+                R"doc(
+
+                **read-only**
+
+                Ephemeris type indicator used by the TLE (typically zero for SGP4).
+
+                :type: int
+                )doc" )
+
+            .def_property_readonly(
+                "raw_line_1",
+                &te::Tle::getRawLine1,
+                R"doc(
+
+                **read-only**
+
+                Raw first line of the two-line element set.
+
+                :type: str
+                )doc" )
+
+            .def_property_readonly(
+                "raw_line_2",
+                &te::Tle::getRawLine2,
+                R"doc(
+
+                **read-only**
+
+                Raw second line of the two-line element set.
+
+                :type: str
+                )doc" )
+            .def( "epoch", &te::Tle::getEpoch )
             .def( "get_b_star", &te::Tle::getBStar )
             .def( "get_epoch", &te::Tle::getEpoch )
             .def( "get_inclination", &te::Tle::getInclination )
@@ -288,7 +491,8 @@ void expose_environment( py::module& m )
                   py::arg( "frame_origin" ) = "Earth",
                   py::arg( "frame_orientation" ) = "J2000",
                   py::arg( "tle" ) = nullptr,
-                  py::arg( "use_sdp" ) = false );
+                  py::arg( "use_sdp" ) = false )
+            .def_property_readonly( "tle", &te::TleEphemeris::getTle );
 
     /*!
      **************   END EPHEMERIDES  ******************
