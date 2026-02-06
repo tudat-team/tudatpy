@@ -335,7 +335,6 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
         Eigen::Vector3d testPartialWrtAccelerationScaling =
                 calculateAccelerationWrtParameterPartials( accelerationScalingParameter, accelerationModel, 10.0 );
 
-
         // Compare numerical and analytical partials of position and velocity partials.
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtMarsPosition, partialWrtMarsPosition, 1.0e-9 );
         for( unsigned int i = 0; i < 3; i++ )
@@ -393,7 +392,6 @@ BOOST_AUTO_TEST_CASE( testMutualSphericalHarmonicGravityPartials )
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( testPartialWrtPhobosCosineCoefficients, partialWrtPhobosCosineCoefficients, 1.0E-10 );
 
         TUDAT_CHECK_MATRIX_CLOSE_FRACTION( partialWrtAccelerationScaling, testPartialWrtAccelerationScaling, 1.0E-8 );
-
     }
 }
 
