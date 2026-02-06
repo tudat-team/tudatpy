@@ -64,9 +64,7 @@ BOOST_AUTO_TEST_CASE( testTwoLineElementsEphemerisVallado )
     std::shared_ptr< TleEphemeris > tleEphemeris = std::make_shared< TleEphemeris >( "Earth", "J2000", tlePtr, false );
 
     // Propagate TLE for 3 Julian days to be able to compare state to the one given in Vallado
-    double utcEpoch = 3.0 * tudat::physical_constants::JULIAN_DAY + tlePtr->getEpoch( );
-    double tdbEpoch = earth_orientation::createDefaultTimeConverter( )->getCurrentTime(
-            basic_astrodynamics::utc_scale, basic_astrodynamics::tdb_scale, utcEpoch );
+    double tdbEpoch = 3.0 * tudat::physical_constants::JULIAN_DAY + tlePtr->getEpoch( );
 
     Eigen::Vector6d propagatedState = tleEphemeris->getCartesianState( tdbEpoch );
     Eigen::Vector3d propagatedPosition = propagatedState.head( 3 );

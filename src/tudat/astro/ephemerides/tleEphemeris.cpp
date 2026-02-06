@@ -66,13 +66,10 @@ TleEphemeris::TleEphemeris( const std::string &referenceFrameOrigin,
 
 Eigen::Vector6d TleEphemeris::getCartesianStateInTemeFrame( double secondsSinceEpoch )
 {
-    double ttSinceEpoch = secondsSinceEpoch - sofa_interface::getTDBminusTT( secondsSinceEpoch, Eigen::Vector3d::Zero( ) );
-    double utcSecondSinceEpoch = sofa_interface::convertTTtoUTC( ttSinceEpoch );
-
     // Call Spice interface to retrieve the spacecraft's state from the TLE in the True Equator, Mean Equinox frame (see
     // Vallado: Fundamentals of Astrodynamics and Applications 4th ed. (2013)). This frame is idiosyncratic in nature and
     // therefore needs to be converted to an intermediate standard reference frame.
-    return spice_interface::getCartesianStateFromTleAtEpoch( utcSecondSinceEpoch, tle_ );
+    return spice_interface::getCartesianStateFromTleAtEpoch( secondsSinceEpoch, tle_ );
 }
 
 Eigen::Vector6d TleEphemeris::getCartesianState( double secondsSinceEpoch )
@@ -239,6 +236,9 @@ Tle::Tle( const std::string &lines )
     referenceDate_ = basic_astrodynamics::DateTime( epochYear, 1, 1, 0, 0, 0.0 );
     referenceDate_ = referenceDate_.addDaysToDateTime( epochDayFraction - 1.0 );
     epoch_ = referenceDate_.epoch< Time >( ).getSeconds< double >( );
+
+    epoch_ = sofa_interface::convertUTCtoTT< double >( epoch_ );
+    epoch_ += sofa_interface::getTDBminusTT( epoch_, Eigen::Vector3d::Zero( ) );
 
     // Mean motion first derivative (rev/day^2)
     meanMotionFirstDerivative_ = std::stod( line1.substr( 33, 10 ) );
