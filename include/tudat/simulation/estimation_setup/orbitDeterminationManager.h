@@ -904,9 +904,9 @@ public:
 
                 }
             }
-
+            
             // If current iteration is better than previous one, update 'best' data.
-            if( costFunction < bestCostFunction || !( costFunction == costFunction ) )
+            if( costFunction < bestCostFunction || !( bestCostFunction == bestCostFunction ) )
             {
                 bestCostFunction = costFunction;
                 bestRmsResidual = residualRms;
