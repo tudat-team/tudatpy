@@ -255,7 +255,7 @@ public:
     template< typename OutputTimeType >
     std::map< OutputTimeType, Eigen::VectorXd > getDependentVariableHistoryTemplated( )
     {
-        return utilities::staticCastMapKeys<OutputTimeType, TimeType, Eigen::Matrix<StateScalarType, Eigen::Dynamic, 1> >(
+        return utilities::staticCastMapKeys<OutputTimeType, TimeType, Eigen::VectorXd >(
             getDependentVariableHistory( ) );
     }
 
