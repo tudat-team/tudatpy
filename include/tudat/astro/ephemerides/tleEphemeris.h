@@ -82,7 +82,7 @@ public:
          const double meanAnomaly,
          const double meanMotion ):
         epoch_( epoch ), bStar_( bStar ), inclination_( inclination ), rightAscension_( rightAscension ), eccentricity_( eccentricity ),
-        argOfPerigee_( argOfPerigee ), meanAnomaly_( meanAnomaly ), meanMotion_( meanMotion ) { };
+        argOfPerigee_( argOfPerigee ), meanAnomaly_( meanAnomaly ), meanMotion_( meanMotion ){ };
 
     double getEpoch( ) const
     {
@@ -170,7 +170,6 @@ public:
     }
 
 private:
-
     basic_astrodynamics::DateTime referenceDate_;
     double epoch_;
     double bStar_;
@@ -243,10 +242,11 @@ public:
      */
     Eigen::Vector6d getCartesianState( const double secondsSinceEpoch ) override;
 
-    std::shared_ptr< Tle > getTle ( )
+    std::shared_ptr< Tle > getTle( )
     {
         return tle_;
     }
+
 private:
     std::shared_ptr< Tle > tle_;
     bool useSDP_;
