@@ -50,9 +50,9 @@ public:
                     std::make_shared< LightTimeConvergenceCriteria >( ),
             const basic_astrodynamics::TimeScales scaleForTimeDifference = basic_astrodynamics::tdb_scale,
             const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
-                std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ) ):
+                    std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ) ):
         ObservationModel< 1, ObservationScalarType, TimeType >( n_way_range, linkEnds, observationBiasCalculator ), linkEnds_( linkEnds ),
-    scaleForTimeDifference_( scaleForTimeDifference ), stationStates_( groundStationStates  )
+        scaleForTimeDifference_( scaleForTimeDifference ), stationStates_( groundStationStates )
     {
         multiLegLightTimeCalculator_ =
                 std::make_shared< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >(
@@ -62,13 +62,13 @@ public:
     NWayRangeObservationModel( const LinkEnds& linkEnds,
                                const std::shared_ptr< observation_models::MultiLegLightTimeCalculator< ObservationScalarType, TimeType > >
                                        multiLegLightTimeCalculator,
-                                       const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
-                    const basic_astrodynamics::TimeScales scaleForTimeDifference = basic_astrodynamics::tdb_scale,
-                    const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
-                        std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( )  ):
+                               const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
+                               const basic_astrodynamics::TimeScales scaleForTimeDifference = basic_astrodynamics::tdb_scale,
+                               const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
+                                       std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ) ):
         ObservationModel< 1, ObservationScalarType, TimeType >( n_way_range, linkEnds, observationBiasCalculator ), linkEnds_( linkEnds ),
-    multiLegLightTimeCalculator_( multiLegLightTimeCalculator ),
-scaleForTimeDifference_( scaleForTimeDifference ), stationStates_( groundStationStates  )
+        multiLegLightTimeCalculator_( multiLegLightTimeCalculator ), scaleForTimeDifference_( scaleForTimeDifference ),
+        stationStates_( groundStationStates )
     {}
 
     //! Destructor
@@ -109,20 +109,17 @@ scaleForTimeDifference_( scaleForTimeDifference ), stationStates_( groundStation
         if( scaleForTimeDifference_ != basic_astrodynamics::tdb_scale )
         {
             Eigen::Vector3d nominalReceivingStationState = ( stationStates_.count( receiver ) == 0 )
-               ? Eigen::Vector3d::Zero( )
-               : stationStates_.at( receiver )->getNominalCartesianPosition( );
+                    ? Eigen::Vector3d::Zero( )
+                    : stationStates_.at( receiver )->getNominalCartesianPosition( );
 
             Eigen::Vector3d nominalTransmittingStationState = ( stationStates_.count( transmitter ) == 0 )
-            ? Eigen::Vector3d::Zero( )
-            : stationStates_.at( transmitter )->getNominalCartesianPosition( );
-
+                    ? Eigen::Vector3d::Zero( )
+                    : stationStates_.at( transmitter )->getNominalCartesianPosition( );
 
             TimeType transmissionTimeDifference = this->timeScaleConverter_->getCurrentTimeDifference(
-                basic_astrodynamics::tdb_scale, scaleForTimeDifference_, linkEndTimes.front( ),
-                nominalTransmittingStationState );
+                    basic_astrodynamics::tdb_scale, scaleForTimeDifference_, linkEndTimes.front( ), nominalTransmittingStationState );
             TimeType receptionTimeDifference = this->timeScaleConverter_->getCurrentTimeDifference(
-                basic_astrodynamics::tdb_scale, scaleForTimeDifference_, linkEndTimes.back( ),
-                nominalReceivingStationState );
+                    basic_astrodynamics::tdb_scale, scaleForTimeDifference_, linkEndTimes.back( ), nominalReceivingStationState );
 
             totalLightTime += static_cast< ObservationScalarType >( receptionTimeDifference );
             totalLightTime -= static_cast< ObservationScalarType >( transmissionTimeDifference );
@@ -149,7 +146,6 @@ private:
 
     // Object that iteratively computes the light time of multiple legs
     std::shared_ptr< MultiLegLightTimeCalculator< ObservationScalarType, TimeType > > multiLegLightTimeCalculator_;
-
 
     basic_astrodynamics::TimeScales scaleForTimeDifference_;
 
