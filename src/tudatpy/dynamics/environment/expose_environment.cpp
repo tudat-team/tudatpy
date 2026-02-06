@@ -280,7 +280,7 @@ void expose_environment( py::module& m )
 
                 **read-only**
 
-                Reference epoch of the TLE element set in seconds since J2000.
+                Reference epoch of the TLE element set in TDB seconds since J2000.
 
                 :type: float
                 )doc" )
