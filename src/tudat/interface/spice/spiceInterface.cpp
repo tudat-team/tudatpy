@@ -210,7 +210,8 @@ Eigen::Vector6d getCartesianStateFromTleAtEpoch( double epoch, std::shared_ptr< 
 
     // TODO: convert elements to units required by CSpice (?)
     double elements[ 10 ];
-    elements[ 0 ] = tle->getMeanMotionFirstDerivative( );  // This element is mandatory as input to ev2lin_ but not used internally (used to be accessed in SGP).
+    elements[ 0 ] = tle->getMeanMotionFirstDerivative( );  // This element is mandatory as input to ev2lin_ but not used internally (used to
+                                                           // be accessed in SGP).
     elements[ 1 ] = tle->getMeanMotionSecondDerivative( );  // Idem dito.
     elements[ 2 ] = tle->getBStar( );
     elements[ 3 ] = tle->getInclination( );

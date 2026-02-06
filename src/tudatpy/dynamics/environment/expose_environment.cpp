@@ -273,10 +273,9 @@ void expose_environment( py::module& m )
                           const std::string& >( ),
                   py::arg( "line_1" ),
                   py::arg( "line_2" ) )
-            .def_property_readonly(
-                "reference_epoch",
-                &te::Tle::getEpoch,
-                R"doc(
+            .def_property_readonly( "reference_epoch",
+                                    &te::Tle::getEpoch,
+                                    R"doc(
 
                 **read-only**
 
@@ -285,10 +284,9 @@ void expose_environment( py::module& m )
                 :type: float
                 )doc" )
 
-            .def_property_readonly(
-                "b_star",
-                &te::Tle::getBStar,
-                R"doc(
+            .def_property_readonly( "b_star",
+                                    &te::Tle::getBStar,
+                                    R"doc(
 
                 **read-only**
 
@@ -297,10 +295,9 @@ void expose_environment( py::module& m )
                 :type: float
                 )doc" )
 
-            .def_property_readonly(
-                "inclination",
-                &te::Tle::getInclination,
-                R"doc(
+            .def_property_readonly( "inclination",
+                                    &te::Tle::getInclination,
+                                    R"doc(
 
                 **read-only**
 
@@ -309,10 +306,9 @@ void expose_environment( py::module& m )
                 :type: float
                 )doc" )
 
-            .def_property_readonly(
-                "right_ascension",
-                &te::Tle::getRightAscension,
-                R"doc(
+            .def_property_readonly( "right_ascension",
+                                    &te::Tle::getRightAscension,
+                                    R"doc(
 
                 **read-only**
 
@@ -321,10 +317,9 @@ void expose_environment( py::module& m )
                 :type: float
                 )doc" )
 
-            .def_property_readonly(
-                "eccentricity",
-                &te::Tle::getEccentricity,
-                R"doc(
+            .def_property_readonly( "eccentricity",
+                                    &te::Tle::getEccentricity,
+                                    R"doc(
 
                 **read-only**
 
@@ -333,10 +328,9 @@ void expose_environment( py::module& m )
                 :type: float
                 )doc" )
 
-            .def_property_readonly(
-                "argument_of_perigee",
-                &te::Tle::getArgOfPerigee,
-                R"doc(
+            .def_property_readonly( "argument_of_perigee",
+                                    &te::Tle::getArgOfPerigee,
+                                    R"doc(
 
                 **read-only**
 
@@ -345,10 +339,9 @@ void expose_environment( py::module& m )
                 :type: float
                 )doc" )
 
-            .def_property_readonly(
-                "mean_anomaly",
-                &te::Tle::getMeanAnomaly,
-                R"doc(
+            .def_property_readonly( "mean_anomaly",
+                                    &te::Tle::getMeanAnomaly,
+                                    R"doc(
 
                 **read-only**
 
@@ -357,10 +350,9 @@ void expose_environment( py::module& m )
                 :type: float
                 )doc" )
 
-            .def_property_readonly(
-                "mean_motion",
-                &te::Tle::getMeanMotion,
-                R"doc(
+            .def_property_readonly( "mean_motion",
+                                    &te::Tle::getMeanMotion,
+                                    R"doc(
 
                 **read-only**
 
@@ -369,10 +361,9 @@ void expose_environment( py::module& m )
                 :type: float
                 )doc" )
 
-            .def_property_readonly(
-                "norad_catalog_number",
-                &te::Tle::getNoradCatalogNumber,
-                R"doc(
+            .def_property_readonly( "norad_catalog_number",
+                                    &te::Tle::getNoradCatalogNumber,
+                                    R"doc(
 
                 **read-only**
 
@@ -381,10 +372,9 @@ void expose_environment( py::module& m )
                 :type: int
                 )doc" )
 
-            .def_property_readonly(
-                "classification",
-                &te::Tle::getClassification,
-                R"doc(
+            .def_property_readonly( "classification",
+                                    &te::Tle::getClassification,
+                                    R"doc(
 
                 **read-only**
 
@@ -393,10 +383,9 @@ void expose_environment( py::module& m )
                 :type: str
                 )doc" )
 
-            .def_property_readonly(
-                "element_set_number",
-                &te::Tle::getElementSetNumber,
-                R"doc(
+            .def_property_readonly( "element_set_number",
+                                    &te::Tle::getElementSetNumber,
+                                    R"doc(
 
                 **read-only**
 
@@ -405,10 +394,9 @@ void expose_environment( py::module& m )
                 :type: int
                 )doc" )
 
-            .def_property_readonly(
-                "revolution_number_at_epoch",
-                &te::Tle::getRevolutionNumberAtEpoch,
-                R"doc(
+            .def_property_readonly( "revolution_number_at_epoch",
+                                    &te::Tle::getRevolutionNumberAtEpoch,
+                                    R"doc(
 
                 **read-only**
 
@@ -417,10 +405,9 @@ void expose_environment( py::module& m )
                 :type: int
                 )doc" )
 
-            .def_property_readonly(
-                "mean_motion_first_derivative",
-                &te::Tle::getMeanMotionFirstDerivative,
-                R"doc(
+            .def_property_readonly( "mean_motion_first_derivative",
+                                    &te::Tle::getMeanMotionFirstDerivative,
+                                    R"doc(
 
                 **read-only**
 
@@ -429,10 +416,9 @@ void expose_environment( py::module& m )
                 :type: float
                 )doc" )
 
-            .def_property_readonly(
-                "mean_motion_second_derivative",
-                &te::Tle::getMeanMotionSecondDerivative,
-                R"doc(
+            .def_property_readonly( "mean_motion_second_derivative",
+                                    &te::Tle::getMeanMotionSecondDerivative,
+                                    R"doc(
 
                 **read-only**
 
@@ -441,10 +427,9 @@ void expose_environment( py::module& m )
                 :type: float
                 )doc" )
 
-            .def_property_readonly(
-                "ephemeris_type",
-                &te::Tle::getEphemerisType,
-                R"doc(
+            .def_property_readonly( "ephemeris_type",
+                                    &te::Tle::getEphemerisType,
+                                    R"doc(
 
                 **read-only**
 
@@ -453,10 +438,9 @@ void expose_environment( py::module& m )
                 :type: int
                 )doc" )
 
-            .def_property_readonly(
-                "raw_line_1",
-                &te::Tle::getRawLine1,
-                R"doc(
+            .def_property_readonly( "raw_line_1",
+                                    &te::Tle::getRawLine1,
+                                    R"doc(
 
                 **read-only**
 
@@ -465,10 +449,9 @@ void expose_environment( py::module& m )
                 :type: str
                 )doc" )
 
-            .def_property_readonly(
-                "raw_line_2",
-                &te::Tle::getRawLine2,
-                R"doc(
+            .def_property_readonly( "raw_line_2",
+                                    &te::Tle::getRawLine2,
+                                    R"doc(
 
                 **read-only**
 

@@ -102,7 +102,7 @@ Eigen::Vector6d TleEphemeris::getCartesianState( double secondsSinceEpoch )
 }
 
 // Computes the TLE checksum (0-9) for a 69-character line (checksum digit is at index 68).
-int computeTleChecksum( const std::string& line )
+int computeTleChecksum( const std::string &line )
 {
     if( line.size( ) != 69 )
     {
@@ -126,16 +126,14 @@ int computeTleChecksum( const std::string& line )
     return checksum % 10;
 }
 
-void validateTleChecksumOrThrow( const std::string& line )
+void validateTleChecksumOrThrow( const std::string &line )
 {
     const int expected = computeTleChecksum( line );
     const int provided = static_cast< int >( line.at( 68 ) ) - '0';
 
     if( expected != provided )
     {
-        throw std::runtime_error(
-            "Invalid TLE checksum: expected " + std::to_string( expected ) +
-            ", got " + std::to_string( provided ) );
+        throw std::runtime_error( "Invalid TLE checksum: expected " + std::to_string( expected ) + ", got " + std::to_string( provided ) );
     }
 }
 
@@ -242,12 +240,12 @@ Tle::Tle( const std::string &lines )
 
     // Mean motion first derivative (rev/day^2)
     meanMotionFirstDerivative_ = std::stod( line1.substr( 33, 10 ) );
-    meanMotionFirstDerivative_ *= 2.0 * mathematical_constants::PI / ( ( 60.0 * 24.0 ) * ( 60.0 * 24.0) );
+    meanMotionFirstDerivative_ *= 2.0 * mathematical_constants::PI / ( ( 60.0 * 24.0 ) * ( 60.0 * 24.0 ) );
     // Mean motion second derivative (rev/day^3), mantissa+exponent format
     const double nDdotMantissa = std::stod( line1.substr( 44, 6 ) );
     const int nDdotExponent = std::stoi( line1.substr( 50, 2 ) );
     meanMotionSecondDerivative_ = nDdotMantissa * 1.0e-5 * std::pow( 10.0, nDdotExponent );
-    meanMotionSecondDerivative_ *= 2.0 * mathematical_constants::PI / ( ( 60.0 * 24.0 ) * ( 60.0 * 24.0)* ( 60.0 * 24.0) );
+    meanMotionSecondDerivative_ *= 2.0 * mathematical_constants::PI / ( ( 60.0 * 24.0 ) * ( 60.0 * 24.0 ) * ( 60.0 * 24.0 ) );
 
     double bStar = std::stod( line1.substr( 53, 6 ) );
     double bStarExp = std::stod( line1.substr( 59, 2 ) );
@@ -273,11 +271,11 @@ Tle::Tle( const std::string &lines )
     revolutionNumberAtEpoch_ = std::stoi( line2.substr( 63, 5 ) );
 }
 
-Tle::Tle( const std::string &tleLine1, const std::string &tleLine2 ): Tle( std::string( tleLine1 + "\n" + tleLine2 ) ) { }
+Tle::Tle( const std::string &tleLine1, const std::string &tleLine2 ): Tle( std::string( tleLine1 + "\n" + tleLine2 ) ) {}
 
 Tle::Tle( const double *spiceElements )
 {
-    for( double &spiceElement: spiceElements_ )
+    for( double &spiceElement : spiceElements_ )
     {
         spiceElement = *spiceElements;
         spiceElements++;
