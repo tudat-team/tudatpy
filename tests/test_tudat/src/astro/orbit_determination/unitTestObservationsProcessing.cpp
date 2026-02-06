@@ -981,6 +981,95 @@ BOOST_AUTO_TEST_CASE( test_ObservationsSplitting )
     BOOST_CHECK( ( splitObsSets.at( 1 )->getObservationTimes( ).at( 0 ) - splitObsSets.at( 0 )->getObservationTimes( ).back( ) ) > 1500.0 );
 }
 
+BOOST_AUTO_TEST_CASE( testSingleObservationSetConstructorOrdersObservationsAndMetadata )
+{
+    typedef double ObservationScalarType;
+    typedef double TimeType;
+
+    // --- Unsorted observation times (10 epochs) ---
+    std::vector< TimeType > observationTimes;
+    observationTimes.push_back( 90.0 );  // index 0
+    observationTimes.push_back( 10.0 );  // index 1
+    observationTimes.push_back( 70.0 );  // index 2
+    observationTimes.push_back( 30.0 );  // index 3
+    observationTimes.push_back( 50.0 );  // index 4
+    observationTimes.push_back( 20.0 );  // index 5
+    observationTimes.push_back( 80.0 );  // index 6
+    observationTimes.push_back( 40.0 );  // index 7
+    observationTimes.push_back( 60.0 );  // index 8
+    observationTimes.push_back( 100.0 ); // index 9
+
+    // --- Observations: store original index ---
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > observations;
+    for( std::size_t i = 0; i < observationTimes.size( ); ++i )
+    {
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > obs( 1 );
+        obs( 0 ) = static_cast< ObservationScalarType >( i );
+        observations.push_back( obs );
+    }
+
+    // --- Weights: encode original index ---
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > weights;
+    for( std::size_t i = 0; i < observationTimes.size( ); ++i )
+    {
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > weight( 1 );
+        weight( 0 ) = 100.0 + static_cast< ObservationScalarType >( i );
+        weights.push_back( weight );
+    }
+
+    // --- Residuals ---
+    std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals;
+    for( std::size_t i = 0; i < observationTimes.size( ); ++i )
+    {
+        Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > residual( 1 );
+        residual( 0 ) = -static_cast< ObservationScalarType >( i );
+        residuals.push_back( residual );
+    }
+
+
+    std::map< LinkEndType, LinkEndId > linkEnds;
+    linkEnds[ receiver ] = LinkEndId( "A" );
+    linkEnds[ transmitter ] = LinkEndId( "A" );
+
+    LinkDefinition linkDefinition( linkEnds );
+    // --- Construct observation set (ordering must happen in constructor) ---
+    SingleObservationSet< ObservationScalarType, TimeType > observationSet(
+        one_way_range, linkDefinition,
+        observations,
+        observationTimes,
+        receiver,
+        std::vector< Eigen::VectorXd >( ), nullptr, nullptr,
+        weights,
+        residuals );
+
+    // --- Extract reordered data ---
+    const std::vector< TimeType >& sortedTimes =
+        observationSet.getObservationTimes( );
+    const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >&
+        sortedObservations = observationSet.getObservations( );
+    const std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > >&
+        sortedWeights = observationSet.getWeights( );
+
+    // --- Verify strictly increasing time order ---
+    for( std::size_t i = 1; i < sortedTimes.size( ); ++i )
+    {
+        BOOST_CHECK( sortedTimes[ i ] > sortedTimes[ i - 1 ] );
+    }
+
+    // --- Verify metadata consistency ---
+    // Observation value == original index
+    // Weight value must equal 100 + same index
+    for( std::size_t i = 0; i < sortedTimes.size( ); ++i )
+    {
+        const std::size_t originalIndex =
+            static_cast< std::size_t >( sortedObservations[ i ]( 0 ) );
+
+        BOOST_CHECK_EQUAL(
+            sortedWeights[ i ]( 0 ),
+            100.0 + static_cast< ObservationScalarType >( originalIndex ) );
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END( )
 
 }  // namespace unit_tests
