@@ -291,12 +291,12 @@ public:
                 // Compute relative tolerance based on the larger magnitude (symmetric comparison)
                 ScalarType largest = std::max( std::abs( gridValue ), std::abs( targetValue ) );
                 ScalarType relativeTolerance = largest * std::numeric_limits< ScalarType >::epsilon( ) *
-                    mathematical_constants::getFloatingInteger< ScalarType >( 10 );
+                        mathematical_constants::getFloatingInteger< ScalarType >( 10 );
 
                 // Provide minimum absolute tolerance for near-zero grid points
                 // This handles cases where both gridValue and targetValue are close to zero
-                ScalarType absoluteTolerance = std::numeric_limits< ScalarType >::epsilon( ) *
-                    mathematical_constants::getFloatingInteger< ScalarType >( 10 );
+                ScalarType absoluteTolerance =
+                        std::numeric_limits< ScalarType >::epsilon( ) * mathematical_constants::getFloatingInteger< ScalarType >( 10 );
 
                 ScalarType tolerance = std::max( relativeTolerance, absoluteTolerance );
 
@@ -309,8 +309,8 @@ public:
 
                 // Compute barycentric term: w_j / (x - x_j)
                 // where w_j = 1 / denominators[lowerEntry][i] (pre-computed in initializeDenominators)
-                ScalarType term = mathematical_constants::getFloatingInteger< ScalarType >( 1 ) /
-                                 ( diff * denominators[ lowerEntry ][ i ] );
+                ScalarType term =
+                        mathematical_constants::getFloatingInteger< ScalarType >( 1 ) / ( diff * denominators[ lowerEntry ][ i ] );
                 numeratorSum = numeratorSum + dependentValues_[ j ] * term;
                 denominatorSum += term;
             }
