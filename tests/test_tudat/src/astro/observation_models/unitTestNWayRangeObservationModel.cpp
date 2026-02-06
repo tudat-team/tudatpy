@@ -581,9 +581,11 @@ BOOST_AUTO_TEST_CASE( testTwoWayRangeModelTimeScaleBias )
                 observationTimes.at( observationTimeNumber ), receiver, linkEndTimes, linkEndStates )( 0 );
 
         std::shared_ptr< NWayRangeObservationModelSettings > twoWayObservableSettingsWithBias =
-                std::make_shared< NWayRangeObservationModelSettings >(
-                        twoWayLinkEnds, std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),nullptr, std::make_shared< LightTimeConvergenceCriteria >(  ),
-                        basic_astrodynamics::utc_scale );
+                std::make_shared< NWayRangeObservationModelSettings >( twoWayLinkEnds,
+                                                                       std::vector< std::shared_ptr< LightTimeCorrectionSettings > >( ),
+                                                                       nullptr,
+                                                                       std::make_shared< LightTimeConvergenceCriteria >( ),
+                                                                       basic_astrodynamics::utc_scale );
         std::shared_ptr< ObservationModel< 1, double, double > > twoWayObservationModelWithBias =
                 ObservationModelCreator< 1, double, double >::createObservationModel( twoWayObservableSettingsWithBias, bodies );
 

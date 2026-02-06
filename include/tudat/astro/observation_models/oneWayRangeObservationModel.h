@@ -56,9 +56,10 @@ public:
             const std::shared_ptr< ObservationBias< 1 > > observationBiasCalculator = nullptr,
             const basic_astrodynamics::TimeScales scaleForTimeDifference = basic_astrodynamics::tdb_scale,
             const std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > groundStationStates =
-                std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ) ):
+                    std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > >( ) ):
         ObservationModel< 1, ObservationScalarType, TimeType >( one_way_range, linkEnds, observationBiasCalculator ),
-        lightTimeCalculator_( lightTimeCalculator ), scaleForTimeDifference_( scaleForTimeDifference ), stationStates_( groundStationStates )
+        lightTimeCalculator_( lightTimeCalculator ), scaleForTimeDifference_( scaleForTimeDifference ),
+        stationStates_( groundStationStates )
     {}
 
     //! Destructor
@@ -120,20 +121,17 @@ public:
         if( scaleForTimeDifference_ != basic_astrodynamics::tdb_scale )
         {
             Eigen::Vector3d nominalReceivingStationState = ( stationStates_.count( receiver ) == 0 )
-               ? Eigen::Vector3d::Zero( )
-               : stationStates_.at( receiver )->getNominalCartesianPosition( );
+                    ? Eigen::Vector3d::Zero( )
+                    : stationStates_.at( receiver )->getNominalCartesianPosition( );
 
             Eigen::Vector3d nominalTransmittingStationState = ( stationStates_.count( transmitter ) == 0 )
-            ? Eigen::Vector3d::Zero( )
-            : stationStates_.at( transmitter )->getNominalCartesianPosition( );
-
+                    ? Eigen::Vector3d::Zero( )
+                    : stationStates_.at( transmitter )->getNominalCartesianPosition( );
 
             TimeType transmissionTimeDifference = this->timeScaleConverter_->getCurrentTimeDifference(
-                basic_astrodynamics::tdb_scale, scaleForTimeDifference_, transmissionTime,
-                nominalTransmittingStationState );
+                    basic_astrodynamics::tdb_scale, scaleForTimeDifference_, transmissionTime, nominalTransmittingStationState );
             TimeType receptionTimeDifference = this->timeScaleConverter_->getCurrentTimeDifference(
-                basic_astrodynamics::tdb_scale, scaleForTimeDifference_, receptionTime,
-                nominalReceivingStationState );
+                    basic_astrodynamics::tdb_scale, scaleForTimeDifference_, receptionTime, nominalReceivingStationState );
             observation += static_cast< ObservationScalarType >( receptionTimeDifference );
             observation -= static_cast< ObservationScalarType >( transmissionTimeDifference );
         }
@@ -177,7 +175,6 @@ private:
     basic_astrodynamics::TimeScales scaleForTimeDifference_;
 
     std::map< LinkEndType, std::shared_ptr< ground_stations::GroundStationState > > stationStates_;
-
 };
 
 }  // namespace observation_models
