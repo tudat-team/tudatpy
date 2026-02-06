@@ -895,7 +895,7 @@ public:
                     for( auto it: indicesPerObservableType )
                     {
                         double currentTypeRms = linear_algebra::getVectorEntryRootMeanSquare( residuals.segment( it.second.first, it.second.second ).template cast< double >( ) );
-                        std::cout<<"Current residual for observable "<<getObservableName( it.first )<<": "<<currentTypeRms<<std::endl;
+                        std::cout<<"Current residual for observable ("<<getObservableName( it.first )<<"): "<<currentTypeRms<<std::endl;
                     }
                 }
                 else
