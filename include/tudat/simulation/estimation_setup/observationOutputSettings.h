@@ -11,6 +11,10 @@
 #ifndef TUDAT_OBSERVATIONOUTPUTSETTINGS
 #define TUDAT_OBSERVATIONOUTPUTSETTINGS
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
+
 #include <memory>
 #include <functional>
 #include <string>
@@ -183,6 +187,24 @@ public:
 
     //! Link end type (originating end of the link)
     LinkEndType originatingLinkEndType_;
+
+protected:
+    // Default constructor for serialization
+    ObservationDependentVariableSettings( ): variableType_( station_elevation_angle ) {}
+
+private:
+    friend class boost::serialization::access;
+
+    template< class Archive >
+    void serialize( Archive& ar, const unsigned int version )
+    {
+        (void)version;
+        ar & variableType_;
+        ar & linkEndId_;
+        ar & linkEndType_;
+        ar & originatingLinkEndId_;
+        ar & originatingLinkEndType_;
+    }
 };
 
 enum IntegratedObservationPropertyHandling { interval_start, interval_end, interval_undefined };
@@ -246,6 +268,22 @@ public:
     IntegratedObservationPropertyHandling integratedObservableHandling_;
 
     bool isLinkEndDefined_;
+
+protected:
+    // Default constructor for serialization
+    StationAngleObservationDependentVariableSettings( ): integratedObservableHandling_( interval_undefined ), isLinkEndDefined_( false ) {}
+
+private:
+    friend class boost::serialization::access;
+
+    template< class Archive >
+    void serialize( Archive& ar, const unsigned int version )
+    {
+        (void)version;
+        ar & boost::serialization::base_object< ObservationDependentVariableSettings >( *this );
+        ar & integratedObservableHandling_;
+        ar & isLinkEndDefined_;
+    }
 };
 
 class InterlinkObservationDependentVariableSettings : public ObservationDependentVariableSettings
@@ -320,6 +358,22 @@ public:
     IntegratedObservationPropertyHandling integratedObservableHandling_;
 
     std::string relativeBody_;
+
+protected:
+    // Default constructor for serialization
+    InterlinkObservationDependentVariableSettings( ): integratedObservableHandling_( interval_undefined ) {}
+
+private:
+    friend class boost::serialization::access;
+
+    template< class Archive >
+    void serialize( Archive& ar, const unsigned int version )
+    {
+        (void)version;
+        ar & boost::serialization::base_object< ObservationDependentVariableSettings >( *this );
+        ar & integratedObservableHandling_;
+        ar & relativeBody_;
+    }
 };
 
 //! Returns a function which checks whether an ancillary settings dependent variable exists for a given observable type (dependent on whether
@@ -383,6 +437,26 @@ public:
     ObservableType observableType_;
 
     std::function< bool( const ObservableType observableType ) > isObservableTypeCompatible_;
+
+protected:
+    // Default constructor for serialization
+    AncillaryObservationDependentVariableSettings( ): observableType_( undefined_observation_model ) {}
+
+private:
+    friend class boost::serialization::access;
+
+    template< class Archive >
+    void serialize( Archive& ar, const unsigned int version )
+    {
+        (void)version;
+        ar & boost::serialization::base_object< ObservationDependentVariableSettings >( *this );
+        ar & observableType_;
+        // Reconstruct the function after loading
+        if( Archive::is_loading::value )
+        {
+            isObservableTypeCompatible_ = getIsObservableTypeCompatibleFunction( variableType_ );
+        }
+    }
 };
 
 //! Function that returns a string uniquely describing a dependent variable settings object
@@ -556,4 +630,11 @@ inline std::shared_ptr< ObservationDependentVariableSettings > linkEndEpochsDepe
 }  // namespace simulation_setup
 
 }  // namespace tudat
+
+// Register derived classes for polymorphic serialization
+BOOST_CLASS_EXPORT_KEY( tudat::simulation_setup::ObservationDependentVariableSettings )
+BOOST_CLASS_EXPORT_KEY( tudat::simulation_setup::StationAngleObservationDependentVariableSettings )
+BOOST_CLASS_EXPORT_KEY( tudat::simulation_setup::InterlinkObservationDependentVariableSettings )
+BOOST_CLASS_EXPORT_KEY( tudat::simulation_setup::AncillaryObservationDependentVariableSettings )
+
 #endif  // TUDAT_OBSERVATIONOUTPUTSETTINGS

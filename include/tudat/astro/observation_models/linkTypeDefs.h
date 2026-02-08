@@ -16,6 +16,10 @@
 #include <string>
 #include <vector>
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/string.hpp>
+
 namespace tudat
 {
 
@@ -106,6 +110,17 @@ struct LinkEndId {
     std::string getStationName( ) const
     {
         return stationName_;
+    }
+
+private:
+    friend class boost::serialization::access;
+
+    template< class Archive >
+    void serialize( Archive& ar, const unsigned int version )
+    {
+        (void)version;
+        ar & bodyName_;
+        ar & stationName_;
     }
 };
 
@@ -211,7 +226,15 @@ struct LinkDefinition {
     {
         return !operator==( linkEnds1, linkEnds2 );
     }
-};
+private:
+    friend class boost::serialization::access;
+
+    template< class Archive >
+    void serialize( Archive& ar, const unsigned int version )
+    {
+        (void)version;
+        ar & linkEnds_;
+    }};
 
 inline LinkDefinition linkDefinition( const std::map< LinkEndType, LinkEndId >& linkEnds )
 {

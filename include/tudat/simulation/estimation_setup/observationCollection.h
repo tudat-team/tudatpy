@@ -16,12 +16,18 @@
 #include <memory>
 #include <vector>
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
+
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
+#include "tudat/io/boostSerialization.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"
 #include "tudat/simulation/estimation_setup/observationsProcessing.h"
 #include "tudat/simulation/estimation_setup/singleObservationSet.h"
@@ -2613,6 +2619,24 @@ private:
     int totalObservableSize_;
 
     int totalNumberOfObservables_;
+
+private:
+    friend class boost::serialization::access;
+
+    template< class Archive >
+    void serialize( Archive& ar, const unsigned int version )
+    {
+        (void)version;
+        // Only serialize the core data - all index maps are reconstructed
+        ar & observationSetList_;
+
+        // Reconstruct all derived data after loading
+        if( Archive::is_loading::value )
+        {
+            setObservationSetIndices( );
+            setConcatenatedObservationsAndTimes( );
+        }
+    }
 };
 
 template< typename ObservationScalarType = double,

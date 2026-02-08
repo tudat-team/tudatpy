@@ -11,6 +11,10 @@
 #ifndef TUDAT_OBSERVATIONOUTPUT
 #define TUDAT_OBSERVATIONOUTPUT
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
+
 #include <functional>
 #include <map>
 #include <memory>
@@ -120,7 +124,25 @@ public:
         totalDependentVariableSize_ = 0;
     }
 
+protected:
+    // Default constructor for serialization
+    ObservationDependentVariableBookkeeping( ): observableType_( observation_models::undefined_observation_model ), totalDependentVariableSize_( 0 ) {}
+
 private:
+    friend class boost::serialization::access;
+
+    template< class Archive >
+    void serialize( Archive& ar, const unsigned int version )
+    {
+        (void)version;
+        ar & observableType_;
+        ar & linkEnds_;
+        ar & settingsList_;
+        ar & dependentVariableStartIndices_;
+        ar & dependentVariableSizes_;
+        ar & totalDependentVariableSize_;
+    }
+
     observation_models::ObservableType observableType_;
 
     observation_models::LinkDefinition linkEnds_;

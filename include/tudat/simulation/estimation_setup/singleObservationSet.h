@@ -16,12 +16,19 @@
 #include <memory>
 #include <vector>
 
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/utility.hpp>
+
 #include "tudat/astro/observation_models/linkTypeDefs.h"
 #include "tudat/astro/observation_models/observableTypes.h"
+#include "tudat/astro/observation_models/observationAncillarySettings.h"
 #include "tudat/basics/basicTypedefs.h"
 #include "tudat/basics/timeType.h"
 #include "tudat/basics/tudatTypeTraits.h"
 #include "tudat/basics/utilities.h"
+#include "tudat/io/boostSerialization.h"
 #include "tudat/simulation/estimation_setup/observationOutput.h"
 #include "tudat/simulation/estimation_setup/observationsProcessing.h"
 
@@ -1259,6 +1266,39 @@ private:
     std::vector< Eigen::Matrix< ObservationScalarType, Eigen::Dynamic, 1 > > residuals_;
 
     std::shared_ptr< SingleObservationSet< ObservationScalarType, TimeType > > filteredObservationSet_;
+
+protected:
+    // Default constructor for serialization
+    SingleObservationSet( ):
+        observableType_( undefined_observation_model ),
+        referenceLinkEnd_( unidentified_link_end ),
+        numberOfObservations_( 0 ),
+        singleObservationSize_( 0 )
+    {}
+
+private:
+    friend class boost::serialization::access;
+
+    template< class Archive >
+    void serialize( Archive& ar, const unsigned int version )
+    {
+        (void)version;
+        // Use const_cast for const members (safe during deserialization into default-constructed object)
+        ar & const_cast< ObservableType& >( observableType_ );
+        ar & linkEnds_;
+        ar & timeBounds_;
+        ar & observations_;
+        ar & observationTimes_;
+        ar & const_cast< LinkEndType& >( referenceLinkEnd_ );
+        ar & observationsDependentVariables_;
+        ar & dependentVariableBookkeeping_;
+        ar & const_cast< std::shared_ptr< observation_models::ObservationAncilliarySimulationSettings >& >( ancilliarySettings_ );
+        ar & numberOfObservations_;
+        ar & singleObservationSize_;
+        ar & weights_;
+        ar & residuals_;
+        ar & filteredObservationSet_;
+    }
 };
 
 template< typename ObservationScalarType = double,
