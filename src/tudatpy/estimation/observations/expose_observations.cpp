@@ -18,7 +18,7 @@
 #include <pybind11/stl.h>
 
 #include "scalarTypes.h"
-#include "tudat/io/observationSerialization.h"
+#include "tudat/io/serialization.h"
 #include "tudat/simulation/estimation_setup/simulateObservations.h"
 
 namespace py = pybind11;
